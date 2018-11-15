@@ -10,12 +10,12 @@ import addTagPermission from './addTagPermission';
 import addTagsPermissionScope from './addTagsPermissionScope';
 
 export default Object.assign(compat, {
-  'addTagsHomePageOption': addTagsHomePageOption,
-  'addTagChangePermission': addTagChangePermission,
-  'addTagsPane': addTagsPane,
-  'components/TagSettingsModal': TagSettingsModal,
-  'components/TagsPage': TagsPage,
-  'components/EditTagModal': EditTagModal,
-  'addTagPermission': addTagPermission,
-  'addTagsPermissionScope': addTagsPermissionScope,
+  'tags/addTagsHomePageOption': addTagsHomePageOption,
+  'tags/addTagChangePermission': addTagChangePermission,
+  'tags/addTagsPane': addTagsPane,
+  'tags/components/TagSettingsModal': TagSettingsModal,
+  'tags/components/TagsPage': TagsPage,
+  'tags/components/EditTagModal': EditTagModal,
+  'tags/addTagPermission': addTagPermission,
+  'tags/addTagsPermissionScope': addTagsPermissionScope,
 });

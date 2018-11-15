@@ -12,14 +12,14 @@ import addTagLabels from './addTagLabels';
 import addTagComposer from './addTagComposer';
 
 export default Object.assign(compat, {
-  'addTagFilter': addTagFilter,
-  'addTagControl': addTagControl,
-  'components/TagHero': TagHero,
-  'components/TagDiscussionModal': TagDiscussionModal,
-  'components/TagsPage': TagsPage,
-  'components/DiscussionTaggedPost': DiscussionTaggedPost,
-  'components/TagLinkButton': TagLinkButton,
-  'addTagList': addTagList,
-  'addTagLabels': addTagLabels,
-  'addTagComposer': addTagComposer,
+  'tags/addTagFilter': addTagFilter,
+  'tags/addTagControl': addTagControl,
+  'tags/components/TagHero': TagHero,
+  'tags/components/TagDiscussionModal': TagDiscussionModal,
+  'tags/components/TagsPage': TagsPage,
+  'tags/components/DiscussionTaggedPost': DiscussionTaggedPost,
+  'tags/components/TagLinkButton': TagLinkButton,
+  'tags/addTagList': addTagList,
+  'tags/addTagLabels': addTagLabels,
+  'tags/addTagComposer': addTagComposer,
 });
