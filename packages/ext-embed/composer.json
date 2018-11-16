@@ -1,5 +1,5 @@
 {
-    "name": "flarum/flarum-ext-embed",
+    "name": "flarum/embed",
     "description": "Embed Flarum discussions as comments for your blog.",
     "type": "flarum-extension",
     "keywords": ["discussion"],
@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/flarum-ext-embed"
+        "source": "https://github.com/flarum/embed"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.8"
