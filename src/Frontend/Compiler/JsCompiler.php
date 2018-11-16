@@ -21,6 +21,10 @@ class JsCompiler extends RevisionCompiler
      */
     protected function save(string $file, array $sources): bool
     {
+        if (empty($sources)) {
+            return false;
+        }
+
         $mapFile = $file.'.map';
 
         $map = new SourceMap();
