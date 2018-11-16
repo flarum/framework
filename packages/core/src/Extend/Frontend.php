@@ -27,26 +27,26 @@ class Frontend implements ExtenderInterface
     protected $routes = [];
     protected $content = [];
 
-    public function __construct($frontend)
+    public function __construct(string $frontend)
     {
         $this->frontend = $frontend;
     }
 
-    public function css($path)
+    public function css(string $path)
     {
         $this->css[] = $path;
 
         return $this;
     }
 
-    public function js($path)
+    public function js(string $path)
     {
         $this->js = $path;
 
         return $this;
     }
 
-    public function route($path, $name, $content = null)
+    public function route(string $path, string $name, $content = null)
     {
         $this->routes[] = compact('path', 'name', 'content');
 
