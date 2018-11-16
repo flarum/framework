@@ -11,18 +11,18 @@
 
 namespace Flarum\Frontend\Content;
 
-use Flarum\Frontend\HtmlDocument;
+use Flarum\Frontend\Document;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class Meta implements ContentInterface
+class Meta
 {
-    public function __invoke(HtmlDocument $document, Request $request)
+    public function __invoke(Document $document, Request $request)
     {
         $document->meta = array_merge($document->meta, $this->buildMeta($document));
         $document->head = array_merge($document->head, $this->buildHead($document));
     }
 
-    private function buildMeta(HtmlDocument $document)
+    private function buildMeta(Document $document)
     {
         $forumApiDocument = $document->getForumApiDocument();
 
@@ -35,7 +35,7 @@ class Meta implements ContentInterface
         return $meta;
     }
 
-    private function buildHead(HtmlDocument $document)
+    private function buildHead(Document $document)
     {
         $head = [];
 

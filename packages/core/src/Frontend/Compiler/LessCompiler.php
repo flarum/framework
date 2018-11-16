@@ -59,7 +59,7 @@ class LessCompiler extends RevisionCompiler
     }
 
     /**
-     * {@inheritdoc}
+     * @throws \Less_Exception_Parser
      */
     protected function compile(array $sources): string
     {
