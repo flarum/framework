@@ -19,7 +19,17 @@
   border-top: 0;
   min-height: 0;
 }
-.DiscussionPage-nav--embed {
+.Composer {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.DiscussionHero {
+  display: none;
+}
+.DiscussionPage-nav {
+  width: auto;
+  float: none;
+
   @media @tablet-up {
     height: 70px;
   }
@@ -31,6 +41,7 @@
     list-style: none;
     padding: 15px 0;
     margin: 0;
+    width: auto;
 
     @media @phone {
       position: static;
@@ -61,6 +72,14 @@
           color: @muted-color;
         }
       }
+    }
+  }
+  .ButtonGroup {
+    &, .Button {
+      width: auto !important;
+    }
+    .Dropdown-toggle {
+      width: 36px !important;
     }
   }
 }
