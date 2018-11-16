@@ -21,7 +21,7 @@ namespace Flarum\Settings;
  * Within Flarum, this can be used to test out new setting values in a system
  * before they are committed to the database.
  *
- * @see \Flarum\Forum\RecompileFrontendAssets For an example usage.
+ * @see \Flarum\Forum\ValidateCustomLess For an example usage.
  */
 class OverrideSettingsRepository implements SettingsRepositoryInterface
 {

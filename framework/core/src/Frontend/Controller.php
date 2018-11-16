@@ -19,25 +19,19 @@ use Zend\Diactoros\Response\HtmlResponse;
 class Controller implements RequestHandlerInterface
 {
     /**
-     * @var HtmlDocumentFactory
+     * @var Frontend
      */
-    protected $document;
+    protected $frontend;
 
-    /**
-     * @param HtmlDocumentFactory $document
-     */
-    public function __construct(HtmlDocumentFactory $document)
+    public function __construct(Frontend $frontend)
     {
-        $this->document = $document;
+        $this->frontend = $frontend;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(Request $request): Response
     {
         return new HtmlResponse(
-            $this->document->make($request)->render()
+            $this->frontend->document($request)->render()
         );
     }
 }

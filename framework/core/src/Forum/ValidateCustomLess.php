@@ -12,8 +12,7 @@
 namespace Flarum\Forum;
 
 use Flarum\Foundation\ValidationException;
-use Flarum\Frontend\CompilerFactory;
-use Flarum\Frontend\RecompileFrontendAssets as BaseListener;
+use Flarum\Frontend\Assets;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
@@ -26,22 +25,32 @@ use League\Flysystem\Adapter\NullAdapter;
 use League\Flysystem\Filesystem;
 use Less_Exception_Parser;
 
-class RecompileFrontendAssets extends BaseListener
+class ValidateCustomLess
 {
+    /**
+     * @var Assets
+     */
+    protected $assets;
+
+    /**
+     * @var LocaleManager
+     */
+    protected $locales;
+
     /**
      * @var Container
      */
     protected $container;
 
     /**
-     * @param CompilerFactory $assets
+     * @param Assets $assets
      * @param LocaleManager $locales
      * @param Container $container
      */
-    public function __construct(CompilerFactory $assets, LocaleManager $locales, Container $container)
+    public function __construct(Assets $assets, LocaleManager $locales, Container $container)
     {
-        parent::__construct($assets, $locales);
-
+        $this->assets = $assets;
+        $this->locales = $locales;
         $this->container = $container;
     }
 
@@ -50,9 +59,8 @@ class RecompileFrontendAssets extends BaseListener
      */
     public function subscribe(Dispatcher $events)
     {
-        parent::subscribe($events);
-
         $events->listen(Saving::class, [$this, 'whenSettingsSaving']);
+        $events->listen(Saved::class, [$this, 'whenSettingsSaved']);
     }
 
     /**
@@ -101,10 +109,12 @@ class RecompileFrontendAssets extends BaseListener
      */
     public function whenSettingsSaved(Saved $event)
     {
-        parent::whenSettingsSaved($event);
-
         if (isset($event->settings['custom_less'])) {
-            $this->flushCss();
+            $this->assets->makeCss()->flush();
+
+            foreach ($this->locales->getLocales() as $locale => $name) {
+                $this->assets->makeLocaleCss($locale)->flush();
+            }
         }
     }
 }

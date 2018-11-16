@@ -13,13 +13,12 @@ namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ListDiscussionsController;
-use Flarum\Frontend\Content\ContentInterface;
-use Flarum\Frontend\HtmlDocument;
+use Flarum\Frontend\Document;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class Index implements ContentInterface
+class Index
 {
     /**
      * @var Client
@@ -41,10 +40,7 @@ class Index implements ContentInterface
         $this->view = $view;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(HtmlDocument $document, Request $request)
+    public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
 

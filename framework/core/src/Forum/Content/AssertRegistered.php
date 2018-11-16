@@ -11,16 +11,15 @@
 
 namespace Flarum\Forum\Content;
 
-use Flarum\Frontend\Content\ContentInterface;
-use Flarum\Frontend\HtmlDocument;
+use Flarum\Frontend\Document;
 use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class AssertRegistered implements ContentInterface
+class AssertRegistered
 {
     use AssertPermissionTrait;
 
-    public function __invoke(HtmlDocument $document, Request $request)
+    public function __invoke(Document $document, Request $request)
     {
         $this->assertRegistered($request->getAttribute('actor'));
     }

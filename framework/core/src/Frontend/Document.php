@@ -18,7 +18,7 @@ use Illuminate\Contracts\View\View;
 /**
  * A view which renders a HTML skeleton for Flarum's frontend app.
  */
-class HtmlDocument implements Renderable
+class Document implements Renderable
 {
     /**
      * The title of the document, displayed in the <title> tag.

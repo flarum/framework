@@ -21,7 +21,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 class RecompileFrontendAssets
 {
     /**
-     * @var CompilerFactory
+     * @var Assets
      */
     protected $assets;
 
@@ -31,10 +31,10 @@ class RecompileFrontendAssets
     protected $locales;
 
     /**
-     * @param CompilerFactory $assets
+     * @param Assets $assets
      * @param LocaleManager $locales
      */
-    public function __construct(CompilerFactory $assets, LocaleManager $locales)
+    public function __construct(Assets $assets, LocaleManager $locales)
     {
         $this->assets = $assets;
         $this->locales = $locales;
