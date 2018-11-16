@@ -14,6 +14,9 @@ namespace Flarum\Admin;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
+use Flarum\Frontend\AddLocaleAssets;
+use Flarum\Frontend\AddTranslations;
+use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
@@ -62,17 +65,31 @@ class AdminServiceProvider extends AbstractServiceProvider
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.admin.routes')));
         });
 
-        $this->app->bind('flarum.admin.assets', function () {
-            return $this->app->make('flarum.frontend.assets.defaults')('admin');
+        $this->app->bind('flarum.assets.admin', function () {
+            /** @var \Flarum\Frontend\Assets $assets */
+            $assets = $this->app->make('flarum.assets.factory')('admin');
+
+            $assets->js(function (SourceCollector $sources) {
+                $sources->addFile(__DIR__.'/../../js/dist/admin.js');
+            });
+
+            $assets->css(function (SourceCollector $sources) {
+                $sources->addFile(__DIR__.'/../../less/admin.less');
+            });
+
+            $this->app->make(AddTranslations::class)->forFrontend('admin')->to($assets);
+            $this->app->make(AddLocaleAssets::class)->to($assets);
+
+            return $assets;
         });
 
-        $this->app->bind('flarum.admin.frontend', function () {
-            $view = $this->app->make('flarum.frontend.view.defaults')('admin');
+        $this->app->bind('flarum.frontend.admin', function () {
+            /** @var \Flarum\Frontend\Frontend $frontend */
+            $frontend = $this->app->make('flarum.frontend.factory')('admin');
 
-            $view->setAssets($this->app->make('flarum.admin.assets'));
-            $view->add($this->app->make(Content\AdminPayload::class));
+            $frontend->content($this->app->make(Content\AdminPayload::class));
 
-            return $view;
+            return $frontend;
         });
     }
 
@@ -87,7 +104,7 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->app->make('events')->subscribe(
             new RecompileFrontendAssets(
-                $this->app->make('flarum.admin.assets'),
+                $this->app->make('flarum.assets.admin'),
                 $this->app->make('flarum.locales')
             )
         );

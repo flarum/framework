@@ -13,8 +13,13 @@ namespace Flarum\Forum;
 
 use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Event\ConfigureMiddleware;
+use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
+use Flarum\Frontend\AddLocaleAssets;
+use Flarum\Frontend\AddTranslations;
+use Flarum\Frontend\Assets;
+use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
@@ -66,25 +71,32 @@ class ForumServiceProvider extends AbstractServiceProvider
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.forum.routes')));
         });
 
-        $this->app->bind('flarum.forum.assets', function () {
-            $assets = $this->app->make('flarum.frontend.assets.defaults')('forum');
+        $this->app->bind('flarum.assets.forum', function () {
+            /** @var Assets $assets */
+            $assets = $this->app->make('flarum.assets.factory')('forum');
 
-            $assets->add(function () {
-                return [
-                    $this->app->make(Asset\FormatterJs::class),
-                    $this->app->make(Asset\CustomCss::class)
-                ];
+            $assets->js(function (SourceCollector $sources) {
+                $sources->addFile(__DIR__.'/../../js/dist/forum.js');
+                $sources->addString(function () {
+                    return $this->app->make(Formatter::class)->getJs();
+                });
             });
+
+            $assets->css(function (SourceCollector $sources) {
+                $sources->addFile(__DIR__.'/../../less/forum.less');
+                $sources->addString(function () {
+                    return $this->app->make(SettingsRepositoryInterface::class)->get('custom_less');
+                });
+            });
+
+            $this->app->make(AddTranslations::class)->forFrontend('forum')->to($assets);
+            $this->app->make(AddLocaleAssets::class)->to($assets);
 
             return $assets;
         });
 
-        $this->app->bind('flarum.forum.frontend', function () {
-            $view = $this->app->make('flarum.frontend.view.defaults')('forum');
-
-            $view->setAssets($this->app->make('flarum.forum.assets'));
-
-            return $view;
+        $this->app->bind('flarum.frontend.forum', function () {
+            return $this->app->make('flarum.frontend.factory')('forum');
         });
     }
 
@@ -102,9 +114,18 @@ class ForumServiceProvider extends AbstractServiceProvider
             'settings' => $this->app->make(SettingsRepositoryInterface::class)
         ]);
 
-        $this->app->make('events')->subscribe(
+        $events = $this->app->make('events');
+
+        $events->subscribe(
             new RecompileFrontendAssets(
-                $this->app->make('flarum.forum.assets'),
+                $this->app->make('flarum.assets.forum'),
+                $this->app->make('flarum.locales')
+            )
+        );
+
+        $events->subscribe(
+            new ValidateCustomLess(
+                $this->app->make('flarum.assets.forum'),
                 $this->app->make('flarum.locales'),
                 $this->app
             )

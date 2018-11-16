@@ -12,15 +12,14 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
-use Flarum\Frontend\Content\ContentInterface;
-use Flarum\Frontend\HtmlDocument;
+use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class Discussion implements ContentInterface
+class Discussion
 {
     /**
      * @var Client
@@ -49,7 +48,7 @@ class Discussion implements ContentInterface
         $this->view = $view;
     }
 
-    public function __invoke(HtmlDocument $document, Request $request)
+    public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
         $page = max(1, array_get($queryParams, 'page'));
