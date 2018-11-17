@@ -1,4 +1,4 @@
-**Webpack config factory for Flarum JavaScript compilation.**
+**Webpack config for Flarum JavaScript compilation.**
 
 This package generates a [Webpack](https://webpack.js.org) config object that will compile JavaScript for use in Flarum.
 

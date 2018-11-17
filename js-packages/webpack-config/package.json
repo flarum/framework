@@ -1,7 +1,7 @@
 {
   "name": "flarum-webpack-config",
-  "version": "0.1.0-beta.9",
-  "description": "Webpack config factory for Flarum JavaScript compilation.",
+  "version": "0.1.0-beta.10",
+  "description": "Webpack config for Flarum JavaScript compilation.",
   "main": "index.js",
   "author": "Toby Zerner",
   "license": "MIT",
