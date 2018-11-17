@@ -2,12 +2,12 @@
   "name": "@flarum/emoji",
   "version": "0.0.0",
   "dependencies": {
-    "emojibase-data": "^3.1.0",
-    "flarum-webpack-config": "0.1.0-beta.9",
+    "emojibase-data": "^3.2.0",
+    "flarum-webpack-config": "0.1.0-beta.10",
     "textarea-caret": "^3.1.0",
-    "twemoji": "^11.0.1",
-    "webpack": "^4.19.1",
-    "webpack-cli": "^3.1.0"
+    "twemoji": "^11.2.0",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2"
   },
   "scripts": {
     "build": "webpack --mode production",
