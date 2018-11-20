@@ -46,7 +46,8 @@ class HandleErrorsWithWhoops implements Middleware
                 $this->logger->error($e);
             }
 
-            return WhoopsRunner::handle($e, $request);
+            return WhoopsRunner::handle($e, $request)
+                ->withStatus($e->getCode() ?? 500);
         }
     }
 }
