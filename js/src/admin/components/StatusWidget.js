@@ -8,9 +8,11 @@
  */
 
 import DashboardWidget from './DashboardWidget';
-import icon from '../../common/helpers/icon';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
+import Dropdown from '../../common/components/Dropdown';
+import Button from '../../common/components/Button';
+import LoadingModal from './LoadingModal';
 
 export default class StatusWidget extends DashboardWidget {
   className() {
@@ -26,10 +28,16 @@ export default class StatusWidget extends DashboardWidget {
   items() {
     const items = new ItemList();
 
-    items.add('help', (
-      <a href="http://flarum.org/docs/troubleshooting" target="_blank">
-        {icon('fas fa-question-circle')} {app.translator.trans('core.admin.dashboard.help_link')}
-      </a>
+    items.add('tools', (
+      <Dropdown
+        label={app.translator.trans('core.admin.dashboard.tools_button')}
+        icon="fas fa-cog"
+        buttonClassName="Button"
+        menuClassName="Dropdown-menu--right">
+        <Button onclick={this.handleClearCache.bind(this)}>
+          {app.translator.trans('core.admin.dashboard.clear_cache_button')}
+        </Button>
+      </Dropdown>
     ));
 
     items.add('version-flarum', [<strong>Flarum</strong>, <br/>, app.forum.attribute('version')]);
@@ -37,5 +45,14 @@ export default class StatusWidget extends DashboardWidget {
     items.add('version-mysql', [<strong>MySQL</strong>, <br/>, app.data.mysqlVersion]);
 
     return items;
+  }
+
+  handleClearCache(e) {
+    app.modal.show(new LoadingModal());
+
+    app.request({
+      method: 'DELETE',
+      url: app.forum.attribute('apiUrl') + '/cache'
+    }).then(() => window.location.reload());
   }
 }
