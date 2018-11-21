@@ -1,7 +1,5 @@
 language: minimal
 
-sudo: false
-
 cache:
   directories:
     - $HOME/.npm
