@@ -122,9 +122,9 @@ class Formatter
         $configurator->Autolink;
         $configurator->tags->onDuplicate('replace');
 
-        $this->configureExternalLinks($configurator);
-
         $this->events->dispatch(new Configuring($configurator));
+
+        $this->configureExternalLinks($configurator);
 
         return $configurator;
     }
