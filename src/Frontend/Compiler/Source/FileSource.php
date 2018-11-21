@@ -25,8 +25,9 @@ class FileSource implements SourceInterface
      */
     public function __construct(string $path)
     {
-        if (!file_exists($path)) throw new FileNotFoundException($path);
-
+        if (! file_exists($path)) {
+            throw new FileNotFoundException($path);
+        }
         $this->path = $path;
     }
 
