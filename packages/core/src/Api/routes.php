@@ -301,4 +301,11 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'favicon.delete',
         $route->toController(Controller\DeleteFaviconController::class)
     );
+
+    // Clear the cache
+    $map->delete(
+        '/cache',
+        'cache.clear',
+        $route->toController(Controller\ClearCacheController::class)
+    );
 };
