@@ -20,7 +20,7 @@
     "webpack-merge": "^4.1.4"
   },
   "scripts": {
-    "build": "webpack --mode production",
-    "watch": "webpack --mode development --watch"
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production"
   }
 }
