@@ -11,6 +11,8 @@
 
 namespace Flarum\Frontend\Compiler\Source;
 
+use InvalidArgumentException;
+
 class FileSource implements SourceInterface
 {
     /**
@@ -23,6 +25,10 @@ class FileSource implements SourceInterface
      */
     public function __construct(string $path)
     {
+        if (! file_exists($path)) {
+            throw new InvalidArgumentException("File not found at path: $path");
+        }
+
         $this->path = $path;
     }
 
