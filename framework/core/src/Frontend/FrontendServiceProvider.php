@@ -33,8 +33,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $this->app->basePath().'/vendor/components/font-awesome/less' => ''
                 ]);
 
-                $assets->css([$this, 'addLessVariables']);
-                $assets->localeCss([$this, 'addLessVariables']);
+                $assets->css([$this, 'addBaseCss']);
+                $assets->localeCss([$this, 'addBaseCss']);
 
                 return $assets;
             };
@@ -70,7 +70,15 @@ class FrontendServiceProvider extends AbstractServiceProvider
         ]);
     }
 
-    public function addLessVariables(SourceCollector $sources)
+    public function addBaseCss(SourceCollector $sources)
+    {
+        $sources->addFile(base_path().'/vendor/flarum/core/less/common/variables.less');
+        $sources->addFile(base_path().'/vendor/flarum/core/less/common/mixins.less');
+
+        $this->addLessVariables($sources);
+    }
+
+    private function addLessVariables(SourceCollector $sources)
     {
         $sources->addString(function () {
             $settings = $this->app->make(SettingsRepositoryInterface::class);
