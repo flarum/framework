@@ -18,7 +18,6 @@ use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetDisplayName;
 use Flarum\Event\PrepareUserGroups;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
@@ -43,7 +42,6 @@ use Illuminate\Contracts\Session\Session;
  * @property string $email
  * @property bool $is_email_confirmed
  * @property string $password
- * @property string $locale
  * @property string|null $avatar_url
  * @property array $preferences
  * @property \Carbon\Carbon|null $joined_at
@@ -310,18 +308,6 @@ class User extends AbstractModel
     public function getDisplayNameAttribute()
     {
         return static::$dispatcher->until(new GetDisplayName($this)) ?: $this->username;
-    }
-
-    /**
-     * Get the user's locale, falling back to the forum's default if they
-     * haven't set one.
-     *
-     * @param string $value
-     * @return string
-     */
-    public function getLocaleAttribute($value)
-    {
-        return $value ?: Application::config('locale', 'en');
     }
 
     /**
