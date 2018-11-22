@@ -18,7 +18,6 @@ use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetDisplayName;
 use Flarum\Event\PrepareUserGroups;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
@@ -321,7 +320,7 @@ class User extends AbstractModel
      */
     public function getLocaleAttribute($value)
     {
-        return $value ?: Application::config('locale', 'en');
+        return $value ?: app('app')->config('locale', 'en');
     }
 
     /**
