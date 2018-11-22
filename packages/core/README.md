@@ -17,7 +17,9 @@
 
 * **Powerful and extensible.** Customize, extend, and integrate Flarum to suit your community. Flarum’s architecture is amazingly flexible, with a powerful Extension API.
 
-> **Note:** This repository contains Flarum's core code. If you want to set up a forum, visit the [main Flarum repository](https://github.com/flarum/flarum).
+## Installation
+
+This repository contains Flarum's core code. If you want to set up a forum, visit the [Flarum skeleton repository](https://github.com/flarum/flarum).
 
 ## Contributing
 
