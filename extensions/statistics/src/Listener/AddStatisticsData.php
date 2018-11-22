@@ -14,7 +14,7 @@ namespace Flarum\Statistics\Listener;
 use DateTime;
 use DateTimeZone;
 use Flarum\Discussion\Discussion;
-use Flarum\Frontend\HtmlDocument;
+use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use Flarum\Frontend\Event\Rendering;
@@ -36,7 +36,7 @@ class AddStatisticsData
         $this->settings = $settings;
     }
 
-    public function __invoke(HtmlDocument $view)
+    public function __invoke(Document $view)
     {
         $view->payload['statistics'] = array_merge(
             $this->getStatistics(),
