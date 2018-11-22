@@ -32,8 +32,4 @@ return [
     (new Extend\Frontend('embed'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less')
-
-    function (Factory $view) {
-        $view->addNamespace('flarum-embed', __DIR__.'/views');
-    }
 ];
