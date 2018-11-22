@@ -11,8 +11,6 @@
 
 namespace Flarum\Frontend\Compiler\Source;
 
-use League\Flysystem\FileNotFoundException;
-
 class FileSource implements SourceInterface
 {
     /**
@@ -26,8 +24,9 @@ class FileSource implements SourceInterface
     public function __construct(string $path)
     {
         if (! file_exists($path)) {
-            throw new FileNotFoundException($path);
+            throw new \InvalidArgumentException("File not found at path: $path");
         }
+
         $this->path = $path;
     }
 
