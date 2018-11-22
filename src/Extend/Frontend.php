@@ -14,6 +14,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Frontend as ActualFrontend;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
@@ -139,8 +140,8 @@ class Frontend implements ExtenderInterface
         }
 
         $container->resolving(
-            "flarum.$this->frontend.frontend",
-            function (Frontend $frontend, Container $container) {
+            "flarum.frontend.$this->frontend",
+            function (ActualFrontend $frontend, Container $container) {
                 foreach ($this->content as $content) {
                     if (is_string($content)) {
                         $content = $container->make($content);
