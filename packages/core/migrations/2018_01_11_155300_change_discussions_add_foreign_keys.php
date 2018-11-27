@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Database\Migration;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
@@ -33,21 +34,25 @@ return [
             'last_post_id' => $selectId('posts', 'last_post_id'),
         ]);
 
-        $schema->table('discussions', function (Blueprint $table) {
+        $schema->table('discussions', function (Blueprint $table) use ($schema) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('last_posted_user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('hidden_user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('first_post_id')->references('id')->on('posts')->onDelete('set null');
             $table->foreign('last_post_id')->references('id')->on('posts')->onDelete('set null');
+
+            Migration::fixIndexNames($schema, $table);
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) {
+        $schema->table('discussions', function (Blueprint $table) use ($schema) {
             $table->dropForeign([
                 'user_id', 'last_posted_user_id', 'hidden_user_id',
                 'first_post_id', 'last_post_id'
             ]);
+
+            Migration::fixIndexNames($schema, $table);
         });
     }
 ];
