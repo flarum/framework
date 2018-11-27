@@ -9,19 +9,24 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) {
+        $schema->table('discussions', function (Blueprint $table) use ($schema) {
             $table->index('is_locked');
+
+            Migration::fixIndexNames($schema, $table);
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) {
+        $schema->table('discussions', function (Blueprint $table) use ($schema) {
             $table->dropIndex(['is_locked']);
+
+            Migration::fixIndexNames($schema, $table);
         });
     }
 ];
