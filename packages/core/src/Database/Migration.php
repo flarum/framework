@@ -29,7 +29,11 @@ abstract class Migration
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
-                $schema->create($name, $definition);
+                $schema->create($name, function (Blueprint $table) use ($schema, $definition) {
+                    $definition($table);
+
+                    static::fixIndexNames($schema, $table);
+                });
             },
             'down' => function (Builder $schema) use ($name) {
                 $schema->drop($name);
@@ -59,11 +63,13 @@ abstract class Migration
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnDefinitions) {
-                $schema->table($tableName, function (Blueprint $table) use ($columnDefinitions) {
+                $schema->table($tableName, function (Blueprint $table) use ($schema, $columnDefinitions) {
                     foreach ($columnDefinitions as $columnName => $options) {
                         $type = array_shift($options);
                         $table->addColumn($type, $columnName, $options);
                     }
+
+                    Migration::fixIndexNames($schema, $table);
                 });
             },
             'down' => function (Builder $schema) use ($tableName, $columnDefinitions) {
@@ -186,5 +192,28 @@ abstract class Migration
                 }
             }
         ];
+    }
+
+    /**
+     * Add a prefix to index names on the given table blueprint.
+     *
+     * Laravel 5.5 doesn't automatically add the table prefix to index
+     * names, but this has been fixed in 5.7. We will manually fix the
+     * names for now, and we can remove this when we upgrade to 5.7.
+     */
+    public static function fixIndexNames(Builder $schema, Blueprint $table)
+    {
+        $indexCommands = [
+            'unique', 'index', 'spatialIndex', 'foreign',
+            'dropUnique', 'dropIndex', 'dropSpatialIndex', 'dropForeign'
+        ];
+
+        $prefix = $schema->getConnection()->getTablePrefix();
+
+        foreach ($table->getCommands() as $command) {
+            if (in_array($command->name, $indexCommands)) {
+                $command->index = $prefix.$command->index;
+            }
+        }
     }
 }
