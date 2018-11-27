@@ -9,19 +9,24 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('flags', function (Blueprint $table) {
+        $schema->table('flags', function (Blueprint $table) use ($schema) {
             $table->index('created_at');
+
+            Migration::fixIndexNames($schema, $table);
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('flags', function (Blueprint $table) {
+        $schema->table('flags', function (Blueprint $table) use ($schema) {
             $table->dropIndex(['created_at']);
+
+            Migration::fixIndexNames($schema, $table);
         });
     }
 ];
