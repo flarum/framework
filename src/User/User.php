@@ -615,6 +615,16 @@ class User extends AbstractModel
     }
 
     /**
+     * Define the relationship with the user's email tokens.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function emailTokens()
+    {
+        return $this->hasMany(EmailToken::class);
+    }
+
+    /**
      * Define the relationship with the permissions of all of the groups that
      * the user is in.
      *

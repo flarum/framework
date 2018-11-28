@@ -53,7 +53,8 @@ class ConfirmEmailHandler
         $user->save();
         $this->dispatchEventsFor($user);
 
-        $token->delete();
+        // Delete *all* tokens for the user, in case other ones were sent first
+        $user->emailTokens()->delete();
 
         return $user;
     }
