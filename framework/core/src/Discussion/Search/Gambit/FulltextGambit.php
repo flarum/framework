@@ -53,7 +53,7 @@ class FulltextGambit implements GambitInterface
         $query
             ->addSelect('posts_ft.most_relevant_post_id')
             ->join(
-                new Expression('('.$subquery->toSql().') '.$grammar->wrap('posts_ft')),
+                new Expression('('.$subquery->toSql().') '.$grammar->wrapTable('posts_ft')),
                 'posts_ft.discussion_id', '=', 'discussions.id'
             )
             ->addBinding($subquery->getBindings(), 'join')
