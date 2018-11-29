@@ -31,6 +31,7 @@ abstract class Migration
             'up' => function (Builder $schema) use ($name, $definition) {
                 $schema->create($name, function (Blueprint $table) use ($schema, $definition) {
                     $definition($table);
+                    $table->engine = 'InnoDB';
 
                     static::fixIndexNames($schema, $table);
                 });
