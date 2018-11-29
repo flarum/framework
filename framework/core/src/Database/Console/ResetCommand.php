@@ -71,11 +71,8 @@ class ResetCommand extends AbstractCommand
 
         $this->info('Rolling back extension: '.$extensionName);
 
-        $notes = $this->manager->migrateDown($extension);
-
-        foreach ($notes as $note) {
-            $this->info($note);
-        }
+        $this->manager->getMigrator()->setOutput($this->output);
+        $this->manager->migrateDown($extension);
 
         $this->info('DONE.');
     }
