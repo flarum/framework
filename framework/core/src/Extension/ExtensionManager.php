@@ -223,22 +223,24 @@ class ExtensionManager
      *
      * @param Extension $extension
      * @param bool|true $up
-     * @return array Notes from the migrator.
+     * @return void
      */
     public function migrate(Extension $extension, $up = true)
     {
-        if ($extension->hasMigrations()) {
-            $migrationDir = $extension->getPath().'/migrations';
+        if (! $extension->hasMigrations()) {
+            return;
+        }
 
-            $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
-                return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
-            });
+        $migrationDir = $extension->getPath().'/migrations';
 
-            if ($up) {
-                $this->migrator->run($migrationDir, $extension);
-            } else {
-                $this->migrator->reset($migrationDir, $extension);
-            }
+        $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
+            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        });
+
+        if ($up) {
+            $this->migrator->run($migrationDir, $extension);
+        } else {
+            $this->migrator->reset($migrationDir, $extension);
         }
     }
 
