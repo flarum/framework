@@ -149,7 +149,11 @@ class InstalledSite implements SiteInterface
         $laravel->boot();
 
         foreach ($this->extenders as $extension) {
-            $extension->extend($laravel);
+            if (is_callable($extension)) {
+                $laravel->call($extension);
+            } else {
+                $extension->extend($laravel);
+            }
         }
 
         return $laravel;
