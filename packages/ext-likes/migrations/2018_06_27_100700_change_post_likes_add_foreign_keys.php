@@ -37,7 +37,8 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('post_likes', function (Blueprint $table) use ($schema) {
-            $table->dropForeign(['post_id', 'user_id']);
+            $table->dropForeign(['post_id']);
+            $table->dropForeign(['user_id']);
 
             Migration::fixIndexNames($schema, $table);
         });
