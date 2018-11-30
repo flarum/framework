@@ -42,7 +42,9 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('tags', function (Blueprint $table) use ($schema) {
-            $table->dropForeign(['parent_id', 'last_posted_discussion_id', 'last_posted_user_id']);
+            $table->dropForeign(['parent_id']);
+            $table->dropForeign(['last_posted_discussion_id']);
+            $table->dropForeign(['last_posted_user_id']);
 
             Migration::fixIndexNames($schema, $table);
         });
