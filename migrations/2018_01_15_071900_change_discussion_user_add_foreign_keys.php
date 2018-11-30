@@ -37,7 +37,8 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('discussion_user', function (Blueprint $table) use ($schema) {
-            $table->dropForeign(['user_id', 'discussion_id']);
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['discussion_id']);
 
             Migration::fixIndexNames($schema, $table);
         });
