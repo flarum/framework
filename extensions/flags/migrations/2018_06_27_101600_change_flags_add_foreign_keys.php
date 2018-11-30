@@ -41,7 +41,8 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('flags', function (Blueprint $table) use ($schema) {
-            $table->dropForeign(['post_id', 'user_id']);
+            $table->dropForeign(['post_id']);
+            $table->dropForeign(['user_id']);
 
             Migration::fixIndexNames($schema, $table);
         });
