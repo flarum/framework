@@ -1,0 +1,10 @@
+# Changelog
+
+## [Unreleased](https://github.com/flarum/core/compare/v0.1.0-beta.8...master)
+
+### Fixed
+- Fix live output in `migrate:reset` command ([f591585](https://github.com/flarum/core/commit/f591585d02f8c4ff0211c5bf4413dd6baa724c05))
+- Fix search with database prefix ([7705a2b](https://github.com/flarum/core/commit/7705a2b7d751943ef9d0c7379ec34f8530b99310))
+- Fix invalid join time of admin user created by installer ([57f73c9](https://github.com/flarum/core/commit/57f73c9638eeb825f9e336ed3c443afccfd8995e))
+- Ensure InnoDB engine is used for all tables ([fb6b51b](https://github.com/flarum/core/commit/fb6b51b1cfef0af399607fe038603c8240800b2b))
+- Fix dropping foreign keys in `down` migrations ([57d5846](https://github.com/flarum/core/commit/57d5846b647881009d9e60f9ffca20b1bb77776e))
