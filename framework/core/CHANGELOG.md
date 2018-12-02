@@ -8,3 +8,4 @@
 - Fix invalid join time of admin user created by installer ([57f73c9](https://github.com/flarum/core/commit/57f73c9638eeb825f9e336ed3c443afccfd8995e))
 - Ensure InnoDB engine is used for all tables ([fb6b51b](https://github.com/flarum/core/commit/fb6b51b1cfef0af399607fe038603c8240800b2b))
 - Fix dropping foreign keys in `down` migrations ([57d5846](https://github.com/flarum/core/commit/57d5846b647881009d9e60f9ffca20b1bb77776e))
+- Fix discussion list scroll position not being maintained when hero is not visible ([40dc6ac](https://github.com/flarum/core/commit/40dc6ac604c2a0973356b38217aa8d09352daae5))
