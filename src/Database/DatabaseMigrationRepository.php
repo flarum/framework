@@ -99,12 +99,10 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     {
         $schema = $this->connection->getSchemaBuilder();
 
-        if (!$schema->hasTable('migrations')) {
-            $schema->create($this->table, function ($table) {
-                $table->string('migration');
-                $table->string('extension')->nullable();
-            });
-        }
+        $schema->create($this->table, function ($table) {
+            $table->string('migration');
+            $table->string('extension')->nullable();
+        });
     }
 
     /**
