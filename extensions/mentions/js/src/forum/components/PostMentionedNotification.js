@@ -1,4 +1,5 @@
 import Notification from 'flarum/components/Notification';
+import { truncate } from 'flarum/utils/string';
 
 export default class PostMentionedNotification extends Notification {
   icon() {
@@ -21,6 +22,6 @@ export default class PostMentionedNotification extends Notification {
   }
 
   excerpt() {
-    return this.props.notification.subject().contentPlain();
+    return truncate(this.props.notification.subject().contentPlain(), 200);
   }
 }
