@@ -27,7 +27,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
             $dbConfig = $this->app->config('database');
             $dbConfig['engine'] = 'InnoDB';
-            $connection = $factory->make($this->app->config('database'));
+            $connection = $factory->make($dbConfig);
             $connection->setEventDispatcher($this->app->make('Illuminate\Contracts\Events\Dispatcher'));
 
             return $connection;
