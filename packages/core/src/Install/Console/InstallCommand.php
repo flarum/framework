@@ -239,6 +239,8 @@ class InstallCommand extends AbstractCommand
 
         $factory = new ConnectionFactory($this->application);
 
+        $laravelDbConfig['engine'] = 'InnoDB';
+
         $this->db = $factory->make($laravelDbConfig);
         $version = $this->db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
 
