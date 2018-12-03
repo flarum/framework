@@ -9,7 +9,9 @@ export default function() {
 
     if (post.isHidden() || !post.canLike()) return;
 
-    let isLiked = app.session.user && post.likes().some(user => user === app.session.user);
+    const likes = post.likes();
+
+    let isLiked = app.session.user && likes && likes.some(user => user === app.session.user);
 
     items.add('like',
       Button.component({
