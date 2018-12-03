@@ -113,13 +113,13 @@ app.initializers.add('flarum-pusher', () => {
         const id = String(data.discussionId);
 
         if (this.discussion && this.discussion.id() === id && this.stream) {
-          const oldCount = this.discussion.commentsCount();
+          const oldCount = this.discussion.commentCount();
 
           app.store.find('discussions', this.discussion.id()).then(() => {
             this.stream.update();
 
             if (!document.hasFocus()) {
-              app.setTitleCount(Math.max(0, this.discussion.commentsCount() - oldCount));
+              app.setTitleCount(Math.max(0, this.discussion.commentCount() - oldCount));
 
               $(window).one('focus', () => app.setTitleCount(0));
             }
@@ -139,8 +139,8 @@ app.initializers.add('flarum-pusher', () => {
     if (channels.user) {
       channels.user.bind('notification', () => {
         app.session.user.pushAttributes({
-          unreadNotificationsCount: app.session.user.unreadNotificationsCount() + 1,
-          newNotificationsCount: app.session.user.newNotificationsCount() + 1
+          unreadNotificationCount: app.session.user.unreadNotificationCount() + 1,
+          newNotificationCount: app.session.user.newNotificationCount() + 1
         });
         delete app.cache.notifications;
         m.redraw();
