@@ -28,7 +28,7 @@ class Meta
 
         $meta = [
             'viewport' => 'width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1',
-            'description' => array_get($forumApiDocument, 'data.attributes.forumDescription'),
+            'description' => array_get($forumApiDocument, 'data.attributes.description'),
             'theme-color' => array_get($forumApiDocument, 'data.attributes.themePrimaryColor')
         ];
 
