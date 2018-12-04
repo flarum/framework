@@ -12,7 +12,7 @@
 namespace Flarum\Tags\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
+use Flarum\Api\Serializer\DiscussionSerializer;
 
 class TagSerializer extends AbstractSerializer
 {
@@ -39,7 +39,7 @@ class TagSerializer extends AbstractSerializer
             'defaultSort'        => $tag->default_sort,
             'isChild'            => (bool) $tag->parent_id,
             'isHidden'           => (bool) $tag->is_hidden,
-            'lastPostedAt'           => $this->formatDate($tag->last_posted_at),
+            'lastPostedAt'       => $this->formatDate($tag->last_posted_at),
             'canStartDiscussion' => $this->actor->can('startDiscussion', $tag),
             'canAddToDiscussion' => $this->actor->can('addToDiscussion', $tag)
         ];
@@ -64,6 +64,6 @@ class TagSerializer extends AbstractSerializer
      */
     protected function lastPostedDiscussion($tag)
     {
-        return $this->hasOne($tag, BasicDiscussionSerializer::class);
+        return $this->hasOne($tag, DiscussionSerializer::class);
     }
 }
