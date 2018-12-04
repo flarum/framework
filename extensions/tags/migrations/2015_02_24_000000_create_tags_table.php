@@ -33,6 +33,8 @@ return [
             $table->integer('discussions_count')->unsigned()->default(0);
             $table->dateTime('last_time')->nullable();
             $table->integer('last_discussion_id')->unsigned()->nullable();
+
+            $table->engine = 'InnoDB';
         });
 
         $schema->getConnection()->table('tags')->insert([
