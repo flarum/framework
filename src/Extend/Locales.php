@@ -16,7 +16,7 @@ use Flarum\Extension\Extension;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 
-class Locales implements ExtenderInterface
+class Locales implements ExtenderInterface, LifecycleInterface
 {
     protected $directory;
 
@@ -45,5 +45,15 @@ class Locales implements ExtenderInterface
                 $file->getPathname()
             );
         }
+    }
+
+    public function onEnable(Container $container, Extension $extension)
+    {
+        $container->make('flarum.locales')->clearCache();
+    }
+
+    public function onDisable(Container $container, Extension $extension)
+    {
+        $container->make('flarum.locales')->clearCache();
     }
 }

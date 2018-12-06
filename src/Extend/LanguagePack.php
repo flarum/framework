@@ -18,7 +18,7 @@ use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use RuntimeException;
 
-class LanguagePack implements ExtenderInterface
+class LanguagePack implements ExtenderInterface, LifecycleInterface
 {
     public function extend(Container $container, Extension $extension = null)
     {
@@ -62,5 +62,15 @@ class LanguagePack implements ExtenderInterface
                 $locales->addTranslations($locale, $file->getPathname());
             }
         }
+    }
+
+    public function onEnable(Container $container, Extension $extension)
+    {
+        $container->make('flarum.locales')->clearCache();
+    }
+
+    public function onDisable(Container $container, Extension $extension)
+    {
+        $container->make('flarum.locales')->clearCache();
     }
 }
