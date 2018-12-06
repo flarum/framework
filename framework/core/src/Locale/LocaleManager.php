@@ -24,9 +24,15 @@ class LocaleManager
 
     protected $css = [];
 
-    public function __construct(Translator $translator)
+    /**
+     * @var string
+     */
+    protected $cacheDir;
+
+    public function __construct(Translator $translator, string $cacheDir = null)
     {
         $this->translator = $translator;
+        $this->cacheDir = $cacheDir;
     }
 
     public function getLocale(): string
@@ -105,5 +111,12 @@ class LocaleManager
     public function setTranslator(Translator $translator)
     {
         $this->translator = $translator;
+    }
+
+    public function clearCache()
+    {
+        if ($this->cacheDir) {
+            array_map('unlink', glob($this->cacheDir.'/*'));
+        }
     }
 }
