@@ -56,7 +56,7 @@ class ResponseFactory
             $provided,
             $registration->getSuggested(),
             [
-                'token' => $token->id,
+                'token' => $token->token,
                 'provided' => array_keys($provided)
             ]
         ));
