@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- New `hasPermission()` helper method for `Group` objects ([9684fbc](https://github.com/flarum/core/commit/9684fbc4da07d32aa322d9228302a23418412cb9))
+
+### Changed
+- Performance: Actually cache translations on disk ([0d16fac](https://github.com/flarum/core/commit/0d16fac001bb735ee66e82871183516aeac269b7))
+
+### Fixed
+- Fix signing up via OAuth providers ([67f9375](https://github.com/flarum/core/commit/67f9375d4745add194ae3249d526197c32fd5461))
+
 ## [0.1.0-beta.8.1](https://github.com/flarum/core/compare/v0.1.0-beta.8...v0.1.0-beta.8.1)
 
 ### Fixed
