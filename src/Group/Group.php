@@ -139,6 +139,6 @@ class Group extends AbstractModel
             return true;
         }
 
-        return $this->permissions()->where('permission', $permission)->exists();
+        return $this->permissions->contains('permission', $permission);
     }
 }
