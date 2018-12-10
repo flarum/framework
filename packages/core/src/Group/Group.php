@@ -126,4 +126,19 @@ class Group extends AbstractModel
     {
         return $this->hasMany(Permission::class);
     }
+
+    /**
+     * Check whether the group has a certain permission.
+     *
+     * @param string $permission
+     * @return bool
+     */
+    public function hasPermission($permission)
+    {
+        if ($this->id == self::ADMINISTRATOR_ID) {
+            return true;
+        }
+
+        return $this->permissions->contains('permission', $permission);
+    }
 }
