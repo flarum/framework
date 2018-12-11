@@ -7,7 +7,7 @@ To view the new activity, check out the following link:
 
 ---
 
-{!! strip_tags($blueprint->post->contentHtml) !!}
+{!! $blueprint->post->content !!}
 
 ---
 
