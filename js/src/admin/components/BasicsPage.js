@@ -19,8 +19,6 @@ export default class BasicsPage extends Page {
       'default_locale',
       'show_language_selector',
       'default_route',
-      'welcome_title',
-      'welcome_message'
     ];
     this.values = {};
 
@@ -89,20 +87,6 @@ export default class BasicsPage extends Page {
                     {label}
                   </label>
                 )
-              ]
-            })}
-
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.basics.welcome_banner_heading'),
-              className: 'BasicsPage-welcomeBanner',
-              children: [
-                <div className="helpText">
-                  {app.translator.trans('core.admin.basics.welcome_banner_text')}
-                </div>,
-                <div className="BasicsPage-welcomeBanner-input">
-                  <input className="FormControl" value={this.values.welcome_title()} oninput={m.withAttr('value', this.values.welcome_title)}/>
-                  <textarea className="FormControl" value={this.values.welcome_message()} oninput={m.withAttr('value', this.values.welcome_message)}/>
-                </div>
               ]
             })}
 

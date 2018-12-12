@@ -82,7 +82,6 @@ class InstallController implements RequestHandlerInterface
 
         $data->setSetting('forum_title', array_get($input, 'forumTitle'));
         $data->setSetting('mail_from', 'noreply@'.preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)));
-        $data->setSetting('welcome_title', 'Welcome to '.array_get($input, 'forumTitle'));
 
         $body = fopen('php://temp', 'wb+');
         $input = new StringInput('');

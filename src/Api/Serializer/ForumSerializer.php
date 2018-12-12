@@ -70,8 +70,6 @@ class ForumSerializer extends AbstractSerializer
             'basePath' => parse_url($url, PHP_URL_PATH) ?: '',
             'debug' => $this->app->inDebugMode(),
             'apiUrl' => $this->app->url('api'),
-            'welcomeTitle' => $this->settings->get('welcome_title'),
-            'welcomeMessage' => $this->settings->get('welcome_message'),
             'themePrimaryColor' => $this->settings->get('theme_primary_color'),
             'themeSecondaryColor' => $this->settings->get('theme_secondary_color'),
             'logoUrl' => $this->getLogoUrl(),
