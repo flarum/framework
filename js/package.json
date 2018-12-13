@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "name": "@flarum/core",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "classnames": "^2.2.5",
+    "color-thief-browser": "^2.0.2",
+    "expose-loader": "^0.7.5",
+    "flarum-webpack-config": "0.1.0-beta.10",
+    "jquery": "^3.3.1",
+    "jquery.hotkeys": "^0.1.0",
+    "lodash-es": "^4.17.11",
+    "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
+    "mithril": "^0.2.8",
+    "moment": "^2.22.2",
+    "punycode": "^2.1.1",
+    "spin.js": "^3.1.0",
+    "webpack": "^4.26.0",
+    "webpack-cli": "^3.1.2",
+    "webpack-merge": "^4.1.4"
+  },
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  }
+}

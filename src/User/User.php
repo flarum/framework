@@ -18,13 +18,11 @@ use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetDisplayName;
 use Flarum\Event\PrepareUserGroups;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
-use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\CheckingPassword;
@@ -44,7 +42,6 @@ use Illuminate\Contracts\Session\Session;
  * @property string $email
  * @property bool $is_email_confirmed
  * @property string $password
- * @property string $locale
  * @property string|null $avatar_url
  * @property array $preferences
  * @property \Carbon\Carbon|null $joined_at
@@ -60,12 +57,9 @@ class User extends AbstractModel
     use ScopeVisibilityTrait;
 
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'users';
-
-    /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = [
         'joined_at',
@@ -130,24 +124,10 @@ class User extends AbstractModel
         static::deleted(function (User $user) {
             $user->raise(new Deleted($user));
 
-            // Delete all of the posts by the user. Before we delete them
-            // in a big batch query, we will loop through them and raise a
-            // PostWasDeleted event for each post.
-            $posts = $user->posts()->allTypes();
-
-            foreach ($posts->cursor() as $post) {
-                $user->raise(new PostDeleted($post));
-            }
-
-            $posts->delete();
-
-            $user->read()->detach();
-            $user->groups()->detach();
-            $user->accessTokens()->delete();
-            $user->notifications()->delete();
+            Notification::whereSubject($user)->delete();
         });
 
-        static::$dispatcher->fire(
+        static::$dispatcher->dispatch(
             new ConfigureUserPreferences
         );
     }
@@ -199,9 +179,10 @@ class User extends AbstractModel
     public function rename($username)
     {
         if ($username !== $this->username) {
+            $oldUsername = $this->username;
             $this->username = $username;
 
-            $this->raise(new Renamed($this));
+            $this->raise(new Renamed($this, $oldUsername));
         }
 
         return $this;
@@ -296,7 +277,7 @@ class User extends AbstractModel
      */
     public function changeAvatarPath($path)
     {
-        $this->attributes['avatar_url'] = $path;
+        $this->avatar_url = $path;
 
         $this->raise(new AvatarChanged($this));
 
@@ -327,18 +308,6 @@ class User extends AbstractModel
     public function getDisplayNameAttribute()
     {
         return static::$dispatcher->until(new GetDisplayName($this)) ?: $this->username;
-    }
-
-    /**
-     * Get the user's locale, falling back to the forum's default if they
-     * haven't set one.
-     *
-     * @param string $value
-     * @return string
-     */
-    public function getLocaleAttribute($value)
-    {
-        return $value ?: Application::config('locale', 'en');
     }
 
     /**
@@ -437,7 +406,7 @@ class User extends AbstractModel
      *
      * @return int
      */
-    public function getUnreadNotificationsCount()
+    public function getUnreadNotificationCount()
     {
         return $this->getUnreadNotifications()->count();
     }
@@ -455,7 +424,8 @@ class User extends AbstractModel
             $cached = $this->notifications()
                 ->whereIn('type', $this->getAlertableNotificationTypes())
                 ->whereNull('read_at')
-                ->whereNull('deleted_at')
+                ->where('is_deleted', false)
+                ->whereSubjectVisibleTo($this)
                 ->get();
         }
 
@@ -467,7 +437,7 @@ class User extends AbstractModel
      *
      * @return int
      */
-    public function getNewNotificationsCount()
+    public function getNewNotificationCount()
     {
         return $this->getUnreadNotifications()->filter(function ($notification) {
             return $notification->created_at > $this->read_notifications_at ?: 0;
@@ -605,6 +575,16 @@ class User extends AbstractModel
     }
 
     /**
+     * Define the relationship with the user's discussions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function discussions()
+    {
+        return $this->hasMany('Flarum\Discussion\Discussion');
+    }
+
+    /**
      * Define the relationship with the user's read discussions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -632,6 +612,16 @@ class User extends AbstractModel
     public function notifications()
     {
         return $this->hasMany('Flarum\Notification\Notification');
+    }
+
+    /**
+     * Define the relationship with the user's email tokens.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function emailTokens()
+    {
+        return $this->hasMany(EmailToken::class);
     }
 
     /**
@@ -675,6 +665,14 @@ class User extends AbstractModel
     public function accessTokens()
     {
         return $this->hasMany('Flarum\Http\AccessToken');
+    }
+
+    /**
+     * Get the user's login providers.
+     */
+    public function loginProviders()
+    {
+        return $this->hasMany(LoginProvider::class);
     }
 
     /**
@@ -746,5 +744,29 @@ class User extends AbstractModel
     public static function getNotificationPreferenceKey($type, $method)
     {
         return 'notify_'.$type.'_'.$method;
+    }
+
+    /**
+     * Refresh the user's comments count.
+     *
+     * @return $this
+     */
+    public function refreshCommentCount()
+    {
+        $this->comment_count = $this->posts()->count();
+
+        return $this;
+    }
+
+    /**
+     * Refresh the user's comments count.
+     *
+     * @return $this
+     */
+    public function refreshDiscussionCount()
+    {
+        $this->discussion_count = $this->discussions()->count();
+
+        return $this;
     }
 }

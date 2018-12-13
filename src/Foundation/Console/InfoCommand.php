@@ -14,6 +14,8 @@ namespace Flarum\Foundation\Console;
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableStyle;
 
 class InfoCommand extends AbstractCommand
 {
@@ -55,24 +57,45 @@ class InfoCommand extends AbstractCommand
     protected function fire()
     {
         $coreVersion = $this->findPackageVersion(__DIR__.'/../../../', Application::VERSION);
-        $this->info("Flarum core $coreVersion");
+        $this->output->writeln("<info>Flarum core $coreVersion</info>");
 
-        $this->info('PHP '.PHP_VERSION);
+        $this->output->writeln('<info>PHP version:</info> '.PHP_VERSION);
 
         $phpExtensions = implode(', ', get_loaded_extensions());
-        $this->info("Loaded extensions: $phpExtensions");
+        $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");
+
+        $this->getExtensionTable()->render();
+
+        $this->output->writeln('<info>Base URL:</info> '.$this->config['url']);
+        $this->output->writeln('<info>Installation path:</info> '.getcwd());
+        $this->output->writeln('<info>Debug mode:</info> '.($this->config['debug'] ? 'ON' : 'off'));
+
+        if ($this->config['debug']) {
+            $this->error(
+                "Don't forget to turn off debug mode! It should never be turned on in a production system."
+            );
+        }
+    }
+
+    private function getExtensionTable()
+    {
+        $table = (new Table($this->output))
+            ->setHeaders([
+                ['Flarum Extensions'],
+                ['ID', 'Version', 'Commit']
+            ])->setStyle(
+                (new TableStyle)->setCellHeaderFormat('<info>%s</info>')
+            );
 
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
-            /* @var \Flarum\Extension\Extension $extension */
-            $name = $extension->getId();
-            $version = $this->findPackageVersion($extension->getPath(), $extension->getVersion());
-
-            $this->info("EXT $name $version");
+            $table->addRow([
+                $extension->getId(),
+                $extension->getVersion(),
+                $this->findPackageVersion($extension->getPath())
+            ]);
         }
 
-        $this->info('Base URL: '.$this->config['url']);
-        $this->info('Installation path: '.getcwd());
-        $this->info('Debug mode '.($this->config['debug'] ? 'ON' : 'off'));
+        return $table;
     }
 
     /**
@@ -85,7 +108,7 @@ class InfoCommand extends AbstractCommand
      * @param string $fallback
      * @return string
      */
-    private function findPackageVersion($path, $fallback)
+    private function findPackageVersion($path, $fallback = null)
     {
         if (file_exists("$path/.git")) {
             $cwd = getcwd();
@@ -93,12 +116,12 @@ class InfoCommand extends AbstractCommand
 
             $output = [];
             $status = null;
-            exec('git rev-parse HEAD', $output, $status);
+            exec('git rev-parse HEAD 2>&1', $output, $status);
 
             chdir($cwd);
 
             if ($status == 0) {
-                return "$fallback ($output[0])";
+                return isset($fallback) ? "$fallback ($output[0])" : $output[0];
             }
         }
 

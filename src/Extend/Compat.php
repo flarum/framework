@@ -23,7 +23,7 @@ use Illuminate\Contracts\Container\Container;
  *
  * @deprecated
  */
-class Compat implements Extender
+class Compat implements ExtenderInterface
 {
     protected $callback;
 
@@ -32,7 +32,7 @@ class Compat implements Extender
         $this->callback = $callback;
     }
 
-    public function __invoke(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null)
     {
         $container->call($this->callback);
     }

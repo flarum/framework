@@ -83,7 +83,6 @@ class ExtensionManager
                 // Per default all extensions are installed if they are registered in composer.
                 $extension->setInstalled(true);
                 $extension->setVersion(Arr::get($package, 'version'));
-                $extension->setEnabled($this->isEnabled($extension->getId()));
 
                 $extensions->put($extension->getId(), $extension);
             }
@@ -113,25 +112,27 @@ class ExtensionManager
      */
     public function enable($name)
     {
-        if (! $this->isEnabled($name)) {
-            $extension = $this->getExtension($name);
-
-            $this->dispatcher->dispatch(new Enabling($extension));
-
-            $enabled = $this->getEnabled();
-
-            $enabled[] = $name;
-
-            $this->migrate($extension);
-
-            $this->publishAssets($extension);
-
-            $this->setEnabled($enabled);
-
-            $extension->setEnabled(true);
-
-            $this->dispatcher->dispatch(new Enabled($extension));
+        if ($this->isEnabled($name)) {
+            return;
         }
+
+        $extension = $this->getExtension($name);
+
+        $this->dispatcher->dispatch(new Enabling($extension));
+
+        $enabled = $this->getEnabled();
+
+        $enabled[] = $name;
+
+        $this->migrate($extension);
+
+        $this->publishAssets($extension);
+
+        $this->setEnabled($enabled);
+
+        $extension->enable($this->app);
+
+        $this->dispatcher->dispatch(new Enabled($extension));
     }
 
     /**
@@ -143,19 +144,21 @@ class ExtensionManager
     {
         $enabled = $this->getEnabled();
 
-        if (($k = array_search($name, $enabled)) !== false) {
-            $extension = $this->getExtension($name);
-
-            $this->dispatcher->dispatch(new Disabling($extension));
-
-            unset($enabled[$k]);
-
-            $this->setEnabled($enabled);
-
-            $extension->setEnabled(false);
-
-            $this->dispatcher->dispatch(new Disabled($extension));
+        if (($k = array_search($name, $enabled)) === false) {
+            return;
         }
+
+        $extension = $this->getExtension($name);
+
+        $this->dispatcher->dispatch(new Disabling($extension));
+
+        unset($enabled[$k]);
+
+        $this->setEnabled($enabled);
+
+        $extension->disable($this->app);
+
+        $this->dispatcher->dispatch(new Disabled($extension));
     }
 
     /**
@@ -220,27 +223,25 @@ class ExtensionManager
      *
      * @param Extension $extension
      * @param bool|true $up
-     * @return array Notes from the migrator.
+     * @return void
      */
     public function migrate(Extension $extension, $up = true)
     {
-        if ($extension->hasMigrations()) {
-            $migrationDir = $extension->getPath().'/migrations';
-
-            $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
-                return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
-            });
-
-            if ($up) {
-                $this->migrator->run($migrationDir, $extension);
-            } else {
-                $this->migrator->reset($migrationDir, $extension);
-            }
-
-            return $this->migrator->getNotes();
+        if (! $extension->hasMigrations()) {
+            return;
         }
 
-        return [];
+        $migrationDir = $extension->getPath().'/migrations';
+
+        $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
+            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        });
+
+        if ($up) {
+            $this->migrator->run($migrationDir, $extension);
+        } else {
+            $this->migrator->reset($migrationDir, $extension);
+        }
     }
 
     /**
@@ -267,11 +268,20 @@ class ExtensionManager
     /**
      * Get only enabled extensions.
      *
-     * @return Collection
+     * @return array
      */
     public function getEnabledExtensions()
     {
-        return $this->getExtensions()->only($this->getEnabled());
+        $enabled = [];
+        $extensions = $this->getExtensions();
+
+        foreach ($this->getEnabled() as $id) {
+            if (isset($extensions[$id])) {
+                $enabled[$id] = $extensions[$id];
+            }
+        }
+
+        return $enabled;
     }
 
     /**

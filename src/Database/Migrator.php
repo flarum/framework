@@ -13,8 +13,10 @@ namespace Flarum\Database;
 
 use Exception;
 use Flarum\Extension\Extension;
-use Illuminate\Database\ConnectionResolverInterface as Resolver;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Migrator
 {
@@ -33,41 +35,38 @@ class Migrator
     protected $files;
 
     /**
-     * The connection resolver instance.
+     * The database schema builder instance.
      *
-     * @var \Illuminate\Database\ConnectionResolverInterface
+     * @var Builder
      */
-    protected $resolver;
+    protected $schemaBuilder;
 
     /**
-     * The name of the default connection.
+     * The output interface implementation.
      *
-     * @var string
+     * @var OutputInterface
      */
-    protected $connection;
-
-    /**
-     * The notes for the current operation.
-     *
-     * @var array
-     */
-    protected $notes = [];
+    protected $output;
 
     /**
      * Create a new migrator instance.
      *
      * @param  MigrationRepositoryInterface  $repository
-     * @param  Resolver                      $resolver
+     * @param  ConnectionInterface           $connection
      * @param  Filesystem                    $files
      */
     public function __construct(
         MigrationRepositoryInterface $repository,
-        Resolver $resolver,
+        ConnectionInterface $connection,
         Filesystem $files
     ) {
         $this->files = $files;
-        $this->resolver = $resolver;
         $this->repository = $repository;
+
+        $this->schemaBuilder = $connection->getSchemaBuilder();
+
+        // Workaround for https://github.com/laravel/framework/issues/1186
+        $connection->getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
     }
 
     /**
@@ -79,8 +78,6 @@ class Migrator
      */
     public function run($path, Extension $extension = null)
     {
-        $this->notes = [];
-
         $files = $this->getMigrationFiles($path);
 
         $ran = $this->repository->getRan($extension ? $extension->getId() : null);
@@ -149,8 +146,6 @@ class Migrator
      */
     public function reset($path, Extension $extension = null)
     {
-        $this->notes = [];
-
         $migrations = array_reverse($this->repository->getRan($extension->getId()));
 
         $count = count($migrations);
@@ -169,7 +164,7 @@ class Migrator
     /**
      * Run "down" a migration instance.
      *
-     * @param            $path
+     * @param  string    $path
      * @param  string    $file
      * @param  string    $path
      * @param  Extension $extension
@@ -199,7 +194,7 @@ class Migrator
     protected function runClosureMigration($migration, $direction = 'up')
     {
         if (is_array($migration) && array_key_exists($direction, $migration)) {
-            app()->call($migration[$direction]);
+            call_user_func($migration[$direction], $this->schemaBuilder);
         } else {
             throw new Exception('Migration file should contain an array with up/down.');
         }
@@ -248,52 +243,29 @@ class Migrator
     }
 
     /**
-     * Raise a note event for the migrator.
+     * Set the output implementation that should be used by the console.
      *
-     * @param  string $message
+     * @param OutputInterface $output
+     * @return $this
+     */
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
+
+        return $this;
+    }
+
+    /**
+     * Write a note to the conosle's output.
+     *
+     * @param string $message
      * @return void
      */
     protected function note($message)
     {
-        $this->notes[] = $message;
-    }
-
-    /**
-     * Get the notes for the last operation.
-     *
-     * @return array
-     */
-    public function getNotes()
-    {
-        return $this->notes;
-    }
-
-    /**
-     * Resolve the database connection instance.
-     *
-     * @param  string $connection
-     * @return \Illuminate\Database\Connection
-     */
-    public function resolveConnection($connection)
-    {
-        return $this->resolver->connection($connection);
-    }
-
-    /**
-     * Set the default connection name.
-     *
-     * @param  string $name
-     * @return void
-     */
-    public function setConnection($name)
-    {
-        if (! is_null($name)) {
-            $this->resolver->setDefaultConnection($name);
+        if ($this->output) {
+            $this->output->writeln($message);
         }
-
-        $this->repository->setSource($name);
-
-        $this->connection = $name;
     }
 
     /**

@@ -37,10 +37,10 @@ class DiscussionSerializer extends BasicDiscussionSerializer
         $gate = $this->gate->forUser($this->actor);
 
         $attributes = parent::getDefaultAttributes($discussion) + [
-            'commentsCount'     => (int) $discussion->comment_count,
-            'participantsCount' => (int) $discussion->participant_count,
-            'startTime'         => $this->formatDate($discussion->created_at),
-            'lastTime'          => $this->formatDate($discussion->last_posted_at),
+            'commentCount'      => (int) $discussion->comment_count,
+            'participantCount'  => (int) $discussion->participant_count,
+            'createdAt'         => $this->formatDate($discussion->created_at),
+            'lastPostedAt'      => $this->formatDate($discussion->last_posted_at),
             'lastPostNumber'    => (int) $discussion->last_post_number,
             'canReply'          => $gate->allows('reply', $discussion),
             'canRename'         => $gate->allows('rename', $discussion),
@@ -50,15 +50,15 @@ class DiscussionSerializer extends BasicDiscussionSerializer
 
         if ($discussion->hidden_at) {
             $attributes['isHidden'] = true;
-            $attributes['hideTime'] = $this->formatDate($discussion->hidden_at);
+            $attributes['hiddenAt'] = $this->formatDate($discussion->hidden_at);
         }
 
         Discussion::setStateUser($this->actor);
 
         if ($state = $discussion->state) {
             $attributes += [
-                'readTime'   => $this->formatDate($state->last_read_at),
-                'readNumber' => (int) $state->last_read_post_number
+                'lastReadAt' => $this->formatDate($state->last_read_at),
+                'lastReadPostNumber' => (int) $state->last_read_post_number
             ];
         }
 

@@ -92,9 +92,9 @@ class DiscussionPolicy extends AbstractPolicy
         if (! $actor->hasPermission('discussion.hide')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('discussions.hidden_at')
-                    ->orWhere('user_id', $actor->id)
+                    ->orWhere('discussions.user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
-                        $this->events->fire(
+                        $this->events->dispatch(
                             new ScopeModelVisibility($query, $actor, 'hide')
                         );
                     });
@@ -105,8 +105,8 @@ class DiscussionPolicy extends AbstractPolicy
         // current user, or the user is allowed to edit the discussion's posts.
         if (! $actor->hasPermission('discussion.editPosts')) {
             $query->where(function ($query) use ($actor) {
-                $query->where('comment_count', '>', 0)
-                    ->orWhere('user_id', $actor->id)
+                $query->where('discussions.comment_count', '>', 0)
+                    ->orWhere('discussions.user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
                         $this->events->dispatch(
                             new ScopeModelVisibility($query, $actor, 'editPosts')
@@ -123,7 +123,7 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function rename(User $actor, Discussion $discussion)
     {
-        if ($discussion->user_id == $actor->id) {
+        if ($discussion->user_id == $actor->id && $actor->can('reply', $discussion)) {
             $allowRenaming = $this->settings->get('allow_renaming');
 
             if ($allowRenaming === '-1'
@@ -141,7 +141,7 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function hide(User $actor, Discussion $discussion)
     {
-        if ($discussion->user_id == $actor->id && $discussion->participant_count <= 1) {
+        if ($discussion->user_id == $actor->id && $discussion->participant_count <= 1 && $actor->can('reply', $discussion)) {
             return true;
         }
     }

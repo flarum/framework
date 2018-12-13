@@ -12,10 +12,11 @@
 namespace Flarum\Post;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Event\GetModelIsPrivate;
-use Flarum\Event\ScopeModelVisibility;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,27 +35,27 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int|null $hidden_user_id
  * @property \Flarum\Discussion\Discussion|null $discussion
  * @property User|null $user
- * @property User|null $editUser
- * @property User|null $hideUser
+ * @property User|null $editedUser
+ * @property User|null $hiddenUser
  * @property string $ip_address
  * @property bool $is_private
  */
 class Post extends AbstractModel
 {
     use EventGeneratorTrait;
+    use ScopeVisibilityTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $table = 'posts';
 
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['created_at', 'edited_at', 'hidden_at'];
 
     /**
-     * Casts properties to a specific type.
+     * The attributes that should be cast to native types.
      *
      * @var array
      */
@@ -105,31 +106,11 @@ class Post extends AbstractModel
 
         static::deleted(function (Post $post) {
             $post->raise(new Deleted($post));
+
+            Notification::whereSubject($post)->delete();
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
-    }
-
-    /**
-     * @param Builder $query
-     * @param User $actor
-     */
-    public function scopeWhereVisibleTo(Builder $query, User $actor)
-    {
-        static::$dispatcher->dispatch(
-            new ScopeModelVisibility($query, $actor, 'view')
-        );
-
-        // Make sure the post's discussion is visible as well
-        $query->whereExists(function ($query) use ($actor) {
-            $query->selectRaw('1')
-                ->from('discussions')
-                ->whereRaw('discussions.id = posts.discussion_id');
-
-            static::$dispatcher->dispatch(
-                new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'view')
-            );
-        });
     }
 
     /**
@@ -150,7 +131,7 @@ class Post extends AbstractModel
      */
     public function discussion()
     {
-        return $this->belongsTo('Flarum\Discussion\Discussion', 'discussion_id');
+        return $this->belongsTo(Discussion::class);
     }
 
     /**
@@ -160,7 +141,7 @@ class Post extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\User\User', 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -168,9 +149,9 @@ class Post extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function editUser()
+    public function editedUser()
     {
-        return $this->belongsTo('Flarum\User\User', 'edited_user_id');
+        return $this->belongsTo(User::class, 'edited_user_id');
     }
 
     /**
@@ -178,9 +159,9 @@ class Post extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function hideUser()
+    public function hiddenUser()
     {
-        return $this->belongsTo('Flarum\User\User', 'hidden_user_id');
+        return $this->belongsTo(User::class, 'hidden_user_id');
     }
 
     /**

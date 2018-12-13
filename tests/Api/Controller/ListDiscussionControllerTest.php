@@ -30,4 +30,21 @@ class ListDiscussionControllerTest extends ApiControllerTestCase
 
         $this->assertEquals(Discussion::count(), count($data['data']));
     }
+
+    /**
+     * @test
+     */
+    public function can_search_for_author()
+    {
+        $user = $this->getNormalUser();
+
+        $response = $this->callWith([], [
+            'filter' => [
+                'q' => 'author:'.$user->username.' foo'
+            ],
+            'include' => 'mostRelevantPost'
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }

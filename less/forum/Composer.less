@@ -304,10 +304,9 @@
 
 @media @desktop-up {
   .Composer:not(.fullScreen) {
-    .App--index & {
-      margin-left: 220px;
-      margin-right: -20px;
-    }
+    margin-left: 220px;
+    margin-right: -20px;
+
     .App--discussion & {
       margin-left: -20px;
       margin-right: 205px;
@@ -344,11 +343,19 @@
 }
 .TextEditor-controls {
   margin: 0;
-  padding: 15px 0;
+  padding: 10px 0;
   list-style-type: none;
+  overflow-x: auto;
+  white-space: nowrap;
 
-  & li {
+  li {
     display: inline-block;
+    margin-right: 10px;
+  }
+}
+.TextEditor-toolbar {
+  .Button--icon {
+    width: 28px;
   }
 }
 
@@ -357,10 +364,6 @@
     margin: 0 -20px 0 -105px;
     padding: 10px 20px;
     border-top: 1px solid @control-bg;
-
-    li {
-      margin-right: 5px;
-    }
 
     .fullScreen & {
       margin: 0;

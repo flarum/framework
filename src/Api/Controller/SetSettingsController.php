@@ -11,8 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Settings\Event\Saved;
-use Flarum\Settings\Event\Serializing;
+use Flarum\Settings\Event;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -53,13 +52,15 @@ class SetSettingsController implements RequestHandlerInterface
 
         $settings = $request->getParsedBody();
 
+        $this->dispatcher->dispatch(new Event\Saving($settings));
+
         foreach ($settings as $k => $v) {
-            $this->dispatcher->dispatch(new Serializing($k, $v));
+            $this->dispatcher->dispatch(new Event\Serializing($k, $v));
 
             $this->settings->set($k, $v);
-
-            $this->dispatcher->dispatch(new Saved($k, $v));
         }
+
+        $this->dispatcher->dispatch(new Event\Saved($settings));
 
         return new EmptyResponse(204);
     }

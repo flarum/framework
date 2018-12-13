@@ -44,17 +44,17 @@ class ShowDiscussionController extends AbstractShowController
         'posts.discussion',
         'posts.user',
         'posts.user.groups',
-        'posts.editUser',
-        'posts.hideUser'
+        'posts.editedUser',
+        'posts.hiddenUser'
     ];
 
     /**
      * {@inheritdoc}
      */
     public $optionalInclude = [
-        'startUser',
-        'lastUser',
-        'startPost',
+        'user',
+        'lastPostedUser',
+        'firstPost',
         'lastPost'
     ];
 

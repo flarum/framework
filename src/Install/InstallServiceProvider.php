@@ -31,15 +31,15 @@ class InstallServiceProvider extends AbstractServiceProvider
             PrerequisiteInterface::class,
             function () {
                 return new Composite(
-                    new PhpVersion('5.5.0'),
+                    new PhpVersion('7.1.0'),
                     new PhpExtensions([
                         'dom',
-                        'fileinfo',
                         'gd',
                         'json',
                         'mbstring',
                         'openssl',
                         'pdo_mysql',
+                        'tokenizer',
                     ]),
                     new WritablePaths([
                         base_path(),
@@ -53,8 +53,6 @@ class InstallServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.install.routes', function () {
             return new RouteCollection;
         });
-
-        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
     }
 
     /**
@@ -62,6 +60,8 @@ class InstallServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
+        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
+
         $this->populateRoutes($this->app->make('flarum.install.routes'));
     }
 
@@ -73,13 +73,13 @@ class InstallServiceProvider extends AbstractServiceProvider
         $route = $this->app->make(RouteHandlerFactory::class);
 
         $routes->get(
-            '/',
+            '/{path:.*}',
             'index',
             $route->toController(Controller\IndexController::class)
         );
 
         $routes->post(
-            '/',
+            '/{path:.*}',
             'install',
             $route->toController(Controller\InstallController::class)
         );

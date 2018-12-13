@@ -18,9 +18,9 @@ use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use RuntimeException;
 
-class LanguagePack implements Extender
+class LanguagePack implements ExtenderInterface, LifecycleInterface
 {
-    public function __invoke(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null)
     {
         if (is_null($extension)) {
             throw new InvalidArgumentException(
@@ -37,8 +37,16 @@ class LanguagePack implements Extender
             );
         }
 
-        /** @var LocaleManager $locales */
-        $locales = $container->make(LocaleManager::class);
+        $container->resolving(
+            LocaleManager::class,
+            function (LocaleManager $locales) use ($extension, $locale, $title) {
+                $this->registerLocale($locales, $extension, $locale, $title);
+            }
+        );
+    }
+
+    private function registerLocale(LocaleManager $locales, Extension $extension, $locale, $title)
+    {
         $locales->addLocale($locale, $title);
 
         $directory = $extension->getPath().'/locale';
@@ -62,5 +70,15 @@ class LanguagePack implements Extender
                 $locales->addTranslations($locale, $file->getPathname());
             }
         }
+    }
+
+    public function onEnable(Container $container, Extension $extension)
+    {
+        $container->make('flarum.locales')->clearCache();
+    }
+
+    public function onDisable(Container $container, Extension $extension)
+    {
+        $container->make('flarum.locales')->clearCache();
     }
 }

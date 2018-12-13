@@ -13,12 +13,9 @@ namespace Flarum\Tests\Api\Controller;
 
 use Flarum\Api\Controller\DeleteDiscussionController;
 use Flarum\Discussion\Discussion;
-use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 
 class DeleteDiscussionControllerTest extends ApiControllerTestCase
 {
-    use RetrievesAuthorizedUsers;
-
     protected $controller = DeleteDiscussionController::class;
     protected $discussion;
 

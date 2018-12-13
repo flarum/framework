@@ -25,7 +25,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->post(
         '/token',
         'token',
-        $route->toController(Controller\TokenController::class)
+        $route->toController(Controller\CreateTokenController::class)
     );
 
     // Send forgot password email
@@ -300,5 +300,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/favicon',
         'favicon.delete',
         $route->toController(Controller\DeleteFaviconController::class)
+    );
+
+    // Clear the cache
+    $map->delete(
+        '/cache',
+        'cache.clear',
+        $route->toController(Controller\ClearCacheController::class)
     );
 };

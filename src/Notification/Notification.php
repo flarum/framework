@@ -13,7 +13,9 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Flarum\Event\ScopeModelVisibility;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Models a notification record in the database.
@@ -31,7 +33,7 @@ use Flarum\User\User;
  *
  * @property int $id
  * @property int $user_id
- * @property int|null $sender_id
+ * @property int|null $from_user_id
  * @property string $type
  * @property int|null $subject_id
  * @property mixed|null $data
@@ -39,20 +41,17 @@ use Flarum\User\User;
  * @property \Carbon\Carbon $read_at
  * @property \Carbon\Carbon $deleted_at
  * @property \Flarum\User\User|null $user
- * @property \Flarum\User\User|null $sender
+ * @property \Flarum\User\User|null $fromUser
  * @property \Flarum\Database\AbstractModel|null $subject
  */
 class Notification extends AbstractModel
 {
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
-    protected $table = 'notifications';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $dates = ['created_at', 'read_at', 'deleted_at'];
+    protected $dates = ['created_at', 'read_at'];
 
     /**
      * A map of notification types and the model classes to use for their
@@ -105,7 +104,7 @@ class Notification extends AbstractModel
      */
     public function getSubjectModelAttribute()
     {
-        return array_get(static::$subjectModels, $this->type);
+        return $this->type ? array_get(static::$subjectModels, $this->type) : null;
     }
 
     /**
@@ -115,7 +114,7 @@ class Notification extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -123,9 +122,9 @@ class Notification extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function sender()
+    public function fromUser()
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'from_user_id');
     }
 
     /**
@@ -135,7 +134,68 @@ class Notification extends AbstractModel
      */
     public function subject()
     {
-        return $this->morphTo('subject', 'subjectModel', 'subject_id');
+        return $this->morphTo('subject', 'subjectModel');
+    }
+
+    /**
+     * Scope the query to include only notifications whose subjects are visible
+     * to the given user.
+     *
+     * @param Builder $query
+     */
+    public function scopeWhereSubjectVisibleTo(Builder $query, User $actor)
+    {
+        $query->where(function ($query) use ($actor) {
+            $classes = [];
+
+            foreach (static::$subjectModels as $type => $class) {
+                $classes[$class][] = $type;
+            }
+
+            foreach ($classes as $class => $types) {
+                $query->orWhere(function ($query) use ($types, $class, $actor) {
+                    $query->whereIn('type', $types)
+                        ->whereExists(function ($query) use ($class, $actor) {
+                            $query->selectRaw(1)
+                                ->from((new $class)->getTable())
+                                ->whereColumn('id', 'subject_id');
+
+                            static::$dispatcher->dispatch(
+                                new ScopeModelVisibility($class::query()->setQuery($query), $actor, 'view')
+                            );
+                        });
+                });
+            }
+        });
+    }
+
+    /**
+     * Scope the query to include only notifications that have the given
+     * subject.
+     *
+     * @param Builder $query
+     * @param object $model
+     */
+    public function scopeWhereSubject(Builder $query, $model)
+    {
+        $query->whereSubjectModel(get_class($model))
+            ->where('subject_id', $model->id);
+    }
+
+    /**
+     * Scope the query to include only notification types that use the given
+     * subject model.
+     *
+     * @param Builder $query
+     * @param string $class
+     */
+    public function scopeWhereSubjectModel(Builder $query, string $class)
+    {
+        $notificationTypes = array_filter(self::getSubjectModels(), function ($modelClass) use ($class) {
+            return $modelClass === $class or is_subclass_of($class, $modelClass);
+        });
+
+        $query->whereIn('type', array_keys($notificationTypes));
     }
 
     /**

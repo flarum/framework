@@ -72,7 +72,7 @@ class EmailConfirmationMailer
     {
         $user = $event->user;
 
-        if ($user->is_activated) {
+        if ($user->is_email_confirmed) {
             return;
         }
 
@@ -128,7 +128,7 @@ class EmailConfirmationMailer
 
         return [
             '{username}' => $user->display_name,
-            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->id]),
+            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
             '{forum}' => $this->settings->get('forum_title')
         ];
     }

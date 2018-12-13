@@ -12,6 +12,7 @@
 namespace Flarum\Extension;
 
 use Flarum\Extend\Compat;
+use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
@@ -84,13 +85,6 @@ class Extension implements Arrayable
     protected $version;
 
     /**
-     * Whether the extension is enabled.
-     *
-     * @var bool
-     */
-    protected $enabled = false;
-
-    /**
      * @param       $path
      * @param array $composerJson
      */
@@ -113,23 +107,15 @@ class Extension implements Arrayable
 
     public function extend(Container $app)
     {
-        $bootstrapper = $this->getBootstrapperPath();
-
-        if (! file_exists($bootstrapper)) {
-            return;
-        }
-
-        $extenders = array_flatten((array) require $bootstrapper);
-
-        foreach ($extenders as $extender) {
-            // If an extension has not yet switched to the new bootstrap.php
+        foreach ($this->getExtenders() as $extender) {
+            // If an extension has not yet switched to the new extend.php
             // format, it might return a function (or more of them). We wrap
             // these in a Compat extender to enjoy an unique interface.
             if ($extender instanceof \Closure || is_string($extender)) {
                 $extender = new Compat($extender);
             }
 
-            $extender($app, $this);
+            $extender->extend($app, $this);
         }
     }
 
@@ -231,23 +217,18 @@ class Extension implements Arrayable
         return $icon;
     }
 
-    /**
-     * @param bool $enabled
-     * @return Extension
-     */
-    public function setEnabled($enabled)
+    public function enable(Container $container)
     {
-        $this->enabled = $enabled;
-
-        return $this;
+        foreach ($this->getLifecycleExtenders() as $extender) {
+            $extender->onEnable($container, $this);
+        }
     }
 
-    /**
-     * @return bool
-     */
-    public function isEnabled()
+    public function disable(Container $container)
     {
-        return $this->enabled;
+        foreach ($this->getLifecycleExtenders() as $extender) {
+            $extender->onDisable($container, $this);
+        }
     }
 
     /**
@@ -268,9 +249,52 @@ class Extension implements Arrayable
         return $this->path;
     }
 
-    public function getBootstrapperPath()
+    private function getExtenders(): array
     {
-        return "{$this->path}/bootstrap.php";
+        $extenderFile = $this->getExtenderFile();
+
+        if (! $extenderFile) {
+            return [];
+        }
+
+        $extenders = require $extenderFile;
+
+        if (! is_array($extenders)) {
+            $extenders = [$extenders];
+        }
+
+        return array_flatten($extenders);
+    }
+
+    /**
+     * @return LifecycleInterface[]
+     */
+    private function getLifecycleExtenders(): array
+    {
+        return array_filter(
+            $this->getExtenders(),
+            function ($extender) {
+                return $extender instanceof LifecycleInterface;
+            }
+        );
+    }
+
+    private function getExtenderFile(): ?string
+    {
+        $filename = "{$this->path}/extend.php";
+
+        if (file_exists($filename)) {
+            return $filename;
+        }
+
+        // To give extension authors some time to migrate to the new extension
+        // format, we will also fallback to the old bootstrap.php name. Consider
+        // this feature deprecated.
+        $deprecatedFilename = "{$this->path}/bootstrap.php";
+
+        if (file_exists($deprecatedFilename)) {
+            return $deprecatedFilename;
+        }
     }
 
     /**

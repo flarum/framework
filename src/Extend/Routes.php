@@ -12,10 +12,11 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
-class Routes implements Extender
+class Routes implements ExtenderInterface
 {
     protected $appName;
 
@@ -63,25 +64,27 @@ class Routes implements Extender
         return $this;
     }
 
-    public function __invoke(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null)
     {
         if (empty($this->routes)) {
             return;
         }
 
-        /** @var \Flarum\Http\RouteCollection $collection */
-        $collection = $container->make("flarum.{$this->appName}.routes");
+        $container->resolving(
+            "flarum.{$this->appName}.routes",
+            function (RouteCollection $collection, Container $container) {
+                /** @var RouteHandlerFactory $factory */
+                $factory = $container->make(RouteHandlerFactory::class);
 
-        /** @var RouteHandlerFactory $factory */
-        $factory = $container->make(RouteHandlerFactory::class);
-
-        foreach ($this->routes as $route) {
-            $collection->addRoute(
-                $route['method'],
-                $route['path'],
-                $route['name'],
-                $factory->toController($route['handler'])
-            );
-        }
+                foreach ($this->routes as $route) {
+                    $collection->addRoute(
+                        $route['method'],
+                        $route['path'],
+                        $route['name'],
+                        $factory->toController($route['handler'])
+                    );
+                }
+            }
+        );
     }
 }

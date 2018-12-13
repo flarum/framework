@@ -9,19 +9,6 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('registration_tokens', function (Blueprint $table) {
-            $table->renameColumn('id', 'token');
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('registration_tokens', function (Blueprint $table) {
-            $table->renameColumn('token', 'id');
-        });
-    }
-];
+return Migration::renameColumn('registration_tokens', 'id', 'token');

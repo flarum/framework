@@ -39,10 +39,12 @@ class UserState extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $table = 'discussions_users';
+    protected $table = 'discussion_user';
 
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['last_read_at'];
 
@@ -55,8 +57,8 @@ class UserState extends AbstractModel
      */
     public function read($number)
     {
-        if ($number > $this->last_read_at) {
-            $this->last_read_at = $number;
+        if ($number > $this->last_read_post_number) {
+            $this->last_read_post_number = $number;
             $this->last_read_at = Carbon::now();
 
             $this->raise(new UserRead($this));
@@ -72,7 +74,7 @@ class UserState extends AbstractModel
      */
     public function discussion()
     {
-        return $this->belongsTo(Discussion::class, 'discussion_id');
+        return $this->belongsTo(Discussion::class);
     }
 
     /**
@@ -82,7 +84,7 @@ class UserState extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**

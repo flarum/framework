@@ -13,14 +13,11 @@ namespace Flarum\Tests\Api\Controller;
 
 use Flarum\Api\Controller\CreateUserController;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class CreateUserControllerTest extends ApiControllerTestCase
 {
-    use RetrievesAuthorizedUsers;
-
     protected $controller = CreateUserController::class;
 
     protected $data = [
@@ -66,7 +63,7 @@ class CreateUserControllerTest extends ApiControllerTestCase
         $this->actor = $this->getAdminUser();
 
         $response = $this->callWith(array_merge($this->data, [
-            'isActivated' => 1
+            'isEmailConfirmed' => 1
         ]));
 
         $this->assertEquals(201, $response->getStatusCode());
@@ -84,7 +81,7 @@ class CreateUserControllerTest extends ApiControllerTestCase
     public function disabling_sign_up_prevents_user_creation()
     {
         /** @var SettingsRepositoryInterface $settings */
-        $settings = $this->app->make(SettingsRepositoryInterface::class);
+        $settings = app(SettingsRepositoryInterface::class);
         $settings->set('allow_sign_up', false);
 
         try {

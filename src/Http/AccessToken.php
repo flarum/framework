@@ -18,17 +18,13 @@ use Flarum\User\User;
 /**
  * @property string $token
  * @property int $user_id
- * @property int $last_activity_at
+ * @property Carbon $created_at
+ * @property Carbon|null $last_activity_at
  * @property int $lifetime_seconds
  * @property \Flarum\User\User|null $user
  */
 class AccessToken extends AbstractModel
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $table = 'access_tokens';
-
     /**
      * Use a custom primary key for this model.
      *
@@ -53,6 +49,7 @@ class AccessToken extends AbstractModel
 
         $token->token = str_random(40);
         $token->user_id = $userId;
+        $token->created_at = Carbon::now();
         $token->last_activity_at = Carbon::now();
         $token->lifetime_seconds = $lifetime;
 

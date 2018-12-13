@@ -58,7 +58,7 @@ class DiscussionRenamedLogger
             $blueprint = new DiscussionRenamedBlueprint($post);
 
             if ($post->exists) {
-                $this->notifications->sync($blueprint, [$event->discussion->startUser]);
+                $this->notifications->sync($blueprint, [$event->discussion->user]);
             } else {
                 $this->notifications->delete($blueprint);
             }

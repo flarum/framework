@@ -11,21 +11,21 @@
 
 namespace Flarum\Admin;
 
-use Flarum\Admin\Middleware\RequireAdministrateAbility;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\Middleware\AuthenticateWithSession;
-use Flarum\Http\Middleware\DispatchRoute;
-use Flarum\Http\Middleware\HandleErrors;
-use Flarum\Http\Middleware\ParseJsonBody;
-use Flarum\Http\Middleware\RememberFromCookie;
-use Flarum\Http\Middleware\SetLocale;
-use Flarum\Http\Middleware\StartSession;
+use Flarum\Foundation\Application;
+use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Frontend\AddLocaleAssets;
+use Flarum\Frontend\AddTranslations;
+use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\RecompileFrontendAssets;
+use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Zend\Stratigility\MiddlewarePipe;
 
@@ -44,25 +44,57 @@ class AdminServiceProvider extends AbstractServiceProvider
             return new RouteCollection;
         });
 
-        $this->app->singleton('flarum.admin.middleware', function ($app) {
+        $this->app->singleton('flarum.admin.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
             // All requests should first be piped through our global error handler
-            $debugMode = ! $app->isUpToDate() || $app->inDebugMode();
-            $pipe->pipe($app->make(HandleErrors::class, ['debug' => $debugMode]));
+            if ($app->inDebugMode()) {
+                $pipe->pipe($app->make(HttpMiddleware\HandleErrorsWithWhoops::class));
+            } else {
+                $pipe->pipe($app->make(HttpMiddleware\HandleErrorsWithView::class));
+            }
 
-            $pipe->pipe($app->make(ParseJsonBody::class));
-            $pipe->pipe($app->make(StartSession::class));
-            $pipe->pipe($app->make(RememberFromCookie::class));
-            $pipe->pipe($app->make(AuthenticateWithSession::class));
-            $pipe->pipe($app->make(SetLocale::class));
-            $pipe->pipe($app->make(RequireAdministrateAbility::class));
+            $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
+            $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
+            $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
+            $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
+            $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
+            $pipe->pipe($app->make(Middleware\RequireAdministrateAbility::class));
 
             event(new ConfigureMiddleware($pipe, 'admin'));
 
-            $pipe->pipe($app->make(DispatchRoute::class, ['routes' => $app->make('flarum.admin.routes')]));
-
             return $pipe;
+        });
+
+        $this->app->afterResolving('flarum.admin.middleware', function (MiddlewarePipe $pipe) {
+            $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.admin.routes')));
+        });
+
+        $this->app->bind('flarum.assets.admin', function () {
+            /** @var \Flarum\Frontend\Assets $assets */
+            $assets = $this->app->make('flarum.assets.factory')('admin');
+
+            $assets->js(function (SourceCollector $sources) {
+                $sources->addFile(__DIR__.'/../../js/dist/admin.js');
+            });
+
+            $assets->css(function (SourceCollector $sources) {
+                $sources->addFile(__DIR__.'/../../less/admin.less');
+            });
+
+            $this->app->make(AddTranslations::class)->forFrontend('admin')->to($assets);
+            $this->app->make(AddLocaleAssets::class)->to($assets);
+
+            return $assets;
+        });
+
+        $this->app->bind('flarum.frontend.admin', function () {
+            /** @var \Flarum\Frontend\Frontend $frontend */
+            $frontend = $this->app->make('flarum.frontend.factory')('admin');
+
+            $frontend->content($this->app->make(Content\AdminPayload::class));
+
+            return $frontend;
         });
     }
 
@@ -75,12 +107,32 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
-        $this->registerListeners();
+        $events = $this->app->make('events');
+
+        $events->listen(
+            [Enabled::class, Disabled::class, ClearingCache::class],
+            function () {
+                $recompile = new RecompileFrontendAssets(
+                    $this->app->make('flarum.assets.admin'),
+                    $this->app->make(LocaleManager::class)
+                );
+                $recompile->flush();
+            }
+        );
+
+        $events->listen(
+            Saved::class,
+            function (Saved $event) {
+                $recompile = new RecompileFrontendAssets(
+                    $this->app->make('flarum.assets.admin'),
+                    $this->app->make(LocaleManager::class)
+                );
+                $recompile->whenSettingsSaved($event);
+            }
+        );
     }
 
     /**
-     * Populate the forum client routes.
-     *
      * @param RouteCollection $routes
      */
     protected function populateRoutes(RouteCollection $routes)
@@ -89,37 +141,5 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
-    }
-
-    protected function registerListeners()
-    {
-        $dispatcher = $this->app->make('events');
-
-        // Flush web app assets when the theme is changed
-        $dispatcher->listen(Saved::class, function (Saved $event) {
-            if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->getWebAppAssets()->flushCss();
-            }
-        });
-
-        // Flush web app assets when extensions are changed
-        $dispatcher->listen(Enabled::class, [$this, 'flushWebAppAssets']);
-        $dispatcher->listen(Disabled::class, [$this, 'flushWebAppAssets']);
-
-        // Check the format of custom LESS code
-        $dispatcher->subscribe(CheckCustomLessFormat::class);
-    }
-
-    public function flushWebAppAssets()
-    {
-        $this->getWebAppAssets()->flush();
-    }
-
-    /**
-     * @return \Flarum\Frontend\FrontendAssets
-     */
-    protected function getWebAppAssets()
-    {
-        return $this->app->make(Frontend::class)->getAssets();
     }
 }

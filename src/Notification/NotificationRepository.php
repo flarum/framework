@@ -32,16 +32,17 @@ class NotificationRepository
         )
             ->where('user_id', $user->id)
             ->whereIn('type', $user->getAlertableNotificationTypes())
-            ->whereNull('deleted_at')
+            ->where('is_deleted', false)
+            ->whereSubjectVisibleTo($user)
             ->groupBy('type', 'subject_id')
-            ->orderByRaw('MAX(time) DESC')
+            ->orderByRaw('MAX(created_at) DESC')
             ->skip($offset)
             ->take($limit);
 
         return Notification::select('notifications.*', app('flarum.db')->raw('p.unread_count'))
             ->mergeBindings($primaries->getQuery())
             ->join(app('flarum.db')->raw('('.$primaries->toSql().') p'), 'notifications.id', '=', app('flarum.db')->raw('p.id'))
-            ->latest('created_at')
+            ->latest()
             ->get();
     }
 

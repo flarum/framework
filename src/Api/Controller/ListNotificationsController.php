@@ -30,7 +30,7 @@ class ListNotificationsController extends AbstractListController
      * {@inheritdoc}
      */
     public $include = [
-        'sender',
+        'fromUser',
         'subject',
         'subject.discussion'
     ];
@@ -99,10 +99,6 @@ class ListNotificationsController extends AbstractListController
             $limit,
             $areMoreResults ? null : 0
         );
-
-        $notifications = array_filter($notifications, function ($notification) {
-            return ! $notification->subjectModel || $notification->subject;
-        });
 
         if (in_array('subject.discussion', $include)) {
             $this->loadSubjectDiscussions($notifications);
