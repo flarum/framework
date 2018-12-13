@@ -11,12 +11,18 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Frontend as ActualFrontend;
 use Flarum\Frontend\RecompileFrontendAssets;
+use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Locale\LocaleManager;
+use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
 
 class Frontend implements ExtenderInterface
@@ -107,11 +113,29 @@ class Frontend implements ExtenderInterface
                 return $container->make('flarum.assets.factory')($this->frontend);
             });
 
-            $container->make('events')->subscribe(
-                new RecompileFrontendAssets(
-                    $container->make($abstract),
-                    $container->make('flarum.locales')
-                )
+            /** @var \Illuminate\Contracts\Events\Dispatcher $events */
+            $events = $container->make('events');
+
+            $events->listen(
+                [Enabled::class, Disabled::class, ClearingCache::class],
+                function () use ($container, $abstract) {
+                    $recompile = new RecompileFrontendAssets(
+                        $container->make($abstract),
+                        $container->make(LocaleManager::class)
+                    );
+                    $recompile->flush();
+                }
+            );
+
+            $events->listen(
+                Saved::class,
+                function (Saved $event) use ($container, $abstract) {
+                    $recompile = new RecompileFrontendAssets(
+                        $container->make($abstract),
+                        $container->make(LocaleManager::class)
+                    );
+                    $recompile->whenSettingsSaved($event);
+                }
             );
         }
     }
@@ -122,15 +146,20 @@ class Frontend implements ExtenderInterface
             return;
         }
 
-        $routes = $container->make("flarum.$this->frontend.routes");
-        $factory = $container->make(RouteHandlerFactory::class);
+        $container->resolving(
+            "flarum.{$this->frontend}.routes",
+            function (RouteCollection $collection, Container $container) {
+                /** @var RouteHandlerFactory $factory */
+                $factory = $container->make(RouteHandlerFactory::class);
 
-        foreach ($this->routes as $route) {
-            $routes->get(
-                $route['path'], $route['name'],
-                $factory->toFrontend($this->frontend, $route['content'])
-            );
-        }
+                foreach ($this->routes as $route) {
+                    $collection->get(
+                        $route['path'], $route['name'],
+                        $factory->toFrontend($this->frontend, $route['content'])
+                    );
+                }
+            }
+        );
     }
 
     private function registerContent(Container $container)

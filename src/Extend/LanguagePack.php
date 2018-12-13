@@ -37,8 +37,16 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
             );
         }
 
-        /** @var LocaleManager $locales */
-        $locales = $container->make(LocaleManager::class);
+        $container->resolving(
+            LocaleManager::class,
+            function (LocaleManager $locales) use ($extension, $locale, $title) {
+                $this->registerLocale($locales, $extension, $locale, $title);
+            }
+        );
+    }
+
+    private function registerLocale(LocaleManager $locales, Extension $extension, $locale, $title)
+    {
         $locales->addLocale($locale, $title);
 
         $directory = $extension->getPath().'/locale';
