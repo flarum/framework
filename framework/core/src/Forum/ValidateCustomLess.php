@@ -54,19 +54,12 @@ class ValidateCustomLess
         $this->container = $container;
     }
 
-    /**
-     * @param Dispatcher $events
-     */
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Saving::class, [$this, 'whenSettingsSaving']);
         $events->listen(Saved::class, [$this, 'whenSettingsSaved']);
     }
 
-    /**
-     * @param Saving $event
-     * @throws ValidationException
-     */
     public function whenSettingsSaving(Saving $event)
     {
         if (! isset($event->settings['custom_less'])) {
@@ -106,9 +99,6 @@ class ValidateCustomLess
         $this->container->instance(SettingsRepositoryInterface::class, $settings);
     }
 
-    /**
-     * @param Saved $event
-     */
     public function whenSettingsSaved(Saved $event)
     {
         if (! isset($event->settings['custom_less'])) {
