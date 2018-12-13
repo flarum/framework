@@ -20,9 +20,6 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionMetadataUpdater
 {
-    /**
-     * @param Dispatcher $events
-     */
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Posted::class, [$this, 'whenPostWasPosted']);
@@ -31,9 +28,6 @@ class DiscussionMetadataUpdater
         $events->listen(Restored::class, [$this, 'whenPostWasRestored']);
     }
 
-    /**
-     * @param Posted $event
-     */
     public function whenPostWasPosted(Posted $event)
     {
         $discussion = $event->post->discussion;
@@ -46,9 +40,6 @@ class DiscussionMetadataUpdater
         }
     }
 
-    /**
-     * @param \Flarum\Post\Event\Deleted $event
-     */
     public function whenPostWasDeleted(Deleted $event)
     {
         $this->removePost($event->post);
@@ -60,17 +51,11 @@ class DiscussionMetadataUpdater
         }
     }
 
-    /**
-     * @param \Flarum\Post\Event\Hidden $event
-     */
     public function whenPostWasHidden(Hidden $event)
     {
         $this->removePost($event->post);
     }
 
-    /**
-     * @param Restored $event
-     */
     public function whenPostWasRestored(Restored $event)
     {
         $discussion = $event->post->discussion;
@@ -83,9 +68,6 @@ class DiscussionMetadataUpdater
         }
     }
 
-    /**
-     * @param Post $post
-     */
     protected function removePost(Post $post)
     {
         $discussion = $post->discussion;
