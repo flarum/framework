@@ -16,6 +16,7 @@ use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Frontend as ActualFrontend;
 use Flarum\Frontend\RecompileFrontendAssets;
+use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
@@ -122,15 +123,20 @@ class Frontend implements ExtenderInterface
             return;
         }
 
-        $routes = $container->make("flarum.$this->frontend.routes");
-        $factory = $container->make(RouteHandlerFactory::class);
+        $container->resolving(
+            "flarum.{$this->frontend}.routes",
+            function (RouteCollection $collection, Container $container) {
+                /** @var RouteHandlerFactory $factory */
+                $factory = $container->make(RouteHandlerFactory::class);
 
-        foreach ($this->routes as $route) {
-            $routes->get(
-                $route['path'], $route['name'],
-                $factory->toFrontend($this->frontend, $route['content'])
-            );
-        }
+                foreach ($this->routes as $route) {
+                    $collection->get(
+                        $route['path'], $route['name'],
+                        $factory->toFrontend($this->frontend, $route['content'])
+                    );
+                }
+            }
+        );
     }
 
     private function registerContent(Container $container)
