@@ -400,4 +400,16 @@ class Gate implements GateContract
     {
         // TODO: Implement abilities() method.
     }
+
+    /**
+     * Get the raw result from the authorization callback.
+     *
+     * @param  string      $ability
+     * @param  array|mixed $arguments
+     * @return mixed
+     */
+    public function raw($ability, $arguments = [])
+    {
+        // TODO: Implement raw() method.
+    }
 }
