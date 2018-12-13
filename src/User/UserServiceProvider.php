@@ -14,6 +14,9 @@ namespace Flarum\User;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\User\Event\EmailChangeRequested;
+use Flarum\User\Event\Registered;
+use Flarum\User\Event\Saving;
 use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
@@ -83,8 +86,10 @@ class UserServiceProvider extends AbstractServiceProvider
 
         $events = $this->app->make('events');
 
-        $events->subscribe(SelfDemotionGuard::class);
-        $events->subscribe(EmailConfirmationMailer::class);
+        $events->listen(Saving::class, SelfDemotionGuard::class);
+        $events->listen(Registered::class, AccountActivationMailer::class);
+        $events->listen(EmailChangeRequested::class, EmailConfirmationMailer::class);
+
         $events->subscribe(UserMetadataUpdater::class);
         $events->subscribe(UserPolicy::class);
 

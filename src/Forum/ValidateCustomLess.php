@@ -19,7 +19,6 @@ use Flarum\Settings\Event\Saving;
 use Flarum\Settings\OverrideSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\FilesystemAdapter;
 use League\Flysystem\Adapter\NullAdapter;
 use League\Flysystem\Filesystem;
@@ -52,12 +51,6 @@ class ValidateCustomLess
         $this->assets = $assets;
         $this->locales = $locales;
         $this->container = $container;
-    }
-
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Saving::class, [$this, 'whenSettingsSaving']);
-        $events->listen(Saved::class, [$this, 'whenSettingsSaved']);
     }
 
     public function whenSettingsSaving(Saving $event)
