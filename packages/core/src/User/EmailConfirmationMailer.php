@@ -42,12 +42,6 @@ class EmailConfirmationMailer
      */
     protected $translator;
 
-    /**
-     * @param \Flarum\Settings\SettingsRepositoryInterface $settings
-     * @param Mailer $mailer
-     * @param UrlGenerator $url
-     * @param Translator $translator
-     */
     public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, Translator $translator)
     {
         $this->settings = $settings;
@@ -65,9 +59,6 @@ class EmailConfirmationMailer
         $events->listen(EmailChangeRequested::class, [$this, 'whenUserEmailChangeWasRequested']);
     }
 
-    /**
-     * @param \Flarum\User\Event\Registered $event
-     */
     public function whenUserWasRegistered(Registered $event)
     {
         $user = $event->user;
@@ -86,9 +77,6 @@ class EmailConfirmationMailer
         });
     }
 
-    /**
-     * @param \Flarum\User\Event\EmailChangeRequested $event
-     */
     public function whenUserEmailChangeWasRequested(EmailChangeRequested $event)
     {
         $email = $event->email;
