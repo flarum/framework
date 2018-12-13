@@ -27,33 +27,35 @@ class Locales implements ExtenderInterface, LifecycleInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        /** @var LocaleManager $locales */
-        $locales = $container->make(LocaleManager::class);
+        $container->resolving(
+            LocaleManager::class,
+            function (LocaleManager $locales) {
+                foreach (new DirectoryIterator($this->directory) as $file) {
+                    if (! $file->isFile()) {
+                        continue;
+                    }
 
-        foreach (new DirectoryIterator($this->directory) as $file) {
-            if (! $file->isFile()) {
-                continue;
+                    $extension = $file->getExtension();
+                    if (! in_array($extension, ['yml', 'yaml'])) {
+                        continue;
+                    }
+
+                    $locales->addTranslations(
+                        $file->getBasename(".$extension"),
+                        $file->getPathname()
+                    );
+                }
             }
-
-            $extension = $file->getExtension();
-            if (! in_array($extension, ['yml', 'yaml'])) {
-                continue;
-            }
-
-            $locales->addTranslations(
-                $file->getBasename(".$extension"),
-                $file->getPathname()
-            );
-        }
+        );
     }
 
     public function onEnable(Container $container, Extension $extension)
     {
-        $container->make('flarum.locales')->clearCache();
+        $container->make(LocaleManager::class)->clearCache();
     }
 
     public function onDisable(Container $container, Extension $extension)
     {
-        $container->make('flarum.locales')->clearCache();
+        $container->make(LocaleManager::class)->clearCache();
     }
 }
