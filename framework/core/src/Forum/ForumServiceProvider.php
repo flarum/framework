@@ -30,6 +30,7 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
+use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Stratigility\MiddlewarePipe;
@@ -141,15 +142,26 @@ class ForumServiceProvider extends AbstractServiceProvider
                     $this->app->make(LocaleManager::class)
                 );
                 $recompile->whenSettingsSaved($event);
+
+                $validator = new ValidateCustomLess(
+                    $this->app->make('flarum.assets.forum'),
+                    $this->app->make('flarum.locales'),
+                    $this->app
+                );
+                $validator->whenSettingsSaved($event);
             }
         );
 
-        $events->subscribe(
-            new ValidateCustomLess(
-                $this->app->make('flarum.assets.forum'),
-                $this->app->make('flarum.locales'),
-                $this->app
-            )
+        $events->listen(
+            Saving::class,
+            function (Saving $event) {
+                $validator = new ValidateCustomLess(
+                    $this->app->make('flarum.assets.forum'),
+                    $this->app->make('flarum.locales'),
+                    $this->app
+                );
+                $validator->whenSettingsSaving($event);
+            }
         );
     }
 
