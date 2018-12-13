@@ -42,12 +42,15 @@ class DefaultLanguagePackGuard
      */
     public function whenExtensionWillBeDisabled(Disabling $event)
     {
-        if (in_array('flarum-locale', $event->extension->extra)) {
-            $defaultLocale = $this->settings->get('default_locale');
-            $locale = array_get($event->extension->extra, 'flarum-locale.code');
-            if ($locale === $defaultLocale) {
-                throw new ForbiddenException('You cannot disable the default language pack!');
-            }
+        if (! in_array('flarum-locale', $event->extension->extra)) {
+            return;
+        }
+
+        $defaultLocale = $this->settings->get('default_locale');
+        $locale = array_get($event->extension->extra, 'flarum-locale.code');
+
+        if ($locale === $defaultLocale) {
+            throw new ForbiddenException('You cannot disable the default language pack!');
         }
     }
 }
