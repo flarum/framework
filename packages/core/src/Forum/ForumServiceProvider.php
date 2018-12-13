@@ -13,9 +13,12 @@ namespace Flarum\Forum;
 
 use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Event\ConfigureMiddleware;
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Assets;
@@ -25,6 +28,8 @@ use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\LocaleManager;
+use Flarum\Settings\Event\Saved;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Stratigility\MiddlewarePipe;
@@ -116,11 +121,26 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $events = $this->app->make('events');
 
-        $events->subscribe(
-            new RecompileFrontendAssets(
-                $this->app->make('flarum.assets.forum'),
-                $this->app->make('flarum.locales')
-            )
+        $events->listen(
+            [Enabled::class, Disabled::class, ClearingCache::class],
+            function () {
+                $recompile = new RecompileFrontendAssets(
+                    $this->app->make('flarum.assets.forum'),
+                    $this->app->make(LocaleManager::class)
+                );
+                $recompile->flush();
+            }
+        );
+
+        $events->listen(
+            Saved::class,
+            function (Saved $event) {
+                $recompile = new RecompileFrontendAssets(
+                    $this->app->make('flarum.assets.forum'),
+                    $this->app->make(LocaleManager::class)
+                );
+                $recompile->whenSettingsSaved($event);
+            }
         );
 
         $events->subscribe(
