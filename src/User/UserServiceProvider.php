@@ -15,6 +15,9 @@ use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Auth\Access\Gate as GateContract;
+use Illuminate\Contracts\Filesystem\Factory;
+use League\Flysystem\FilesystemInterface;
 use RuntimeException;
 
 class UserServiceProvider extends AbstractServiceProvider
@@ -36,18 +39,18 @@ class UserServiceProvider extends AbstractServiceProvider
             });
         });
 
-        $this->app->alias('flarum.gate', 'Illuminate\Contracts\Auth\Access\Gate');
+        $this->app->alias('flarum.gate', GateContract::class);
         $this->app->alias('flarum.gate', Gate::class);
     }
 
     protected function registerAvatarsFilesystem()
     {
         $avatarsFilesystem = function (Container $app) {
-            return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum-avatars')->getDriver();
+            return $app->make(Factory::class)->disk('flarum-avatars')->getDriver();
         };
 
         $this->app->when(AvatarUploader::class)
-            ->needs('League\Flysystem\FilesystemInterface')
+            ->needs(FilesystemInterface::class)
             ->give($avatarsFilesystem);
     }
 
