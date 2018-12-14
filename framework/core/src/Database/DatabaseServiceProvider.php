@@ -12,7 +12,10 @@
 namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolver;
+use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\Connectors\ConnectionFactory;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
@@ -28,14 +31,14 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             $dbConfig = $this->app->config('database');
             $dbConfig['engine'] = 'InnoDB';
             $connection = $factory->make($dbConfig);
-            $connection->setEventDispatcher($this->app->make('Illuminate\Contracts\Events\Dispatcher'));
+            $connection->setEventDispatcher($this->app->make(Dispatcher::class));
 
             return $connection;
         });
 
-        $this->app->alias('flarum.db', 'Illuminate\Database\ConnectionInterface');
+        $this->app->alias('flarum.db', ConnectionInterface::class);
 
-        $this->app->singleton('Illuminate\Database\ConnectionResolverInterface', function () {
+        $this->app->singleton(ConnectionResolverInterface::class, function () {
             $resolver = new ConnectionResolver([
                 'flarum' => $this->app->make('flarum.db'),
             ]);
@@ -44,7 +47,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             return $resolver;
         });
 
-        $this->app->alias('Illuminate\Database\ConnectionResolverInterface', 'db');
+        $this->app->alias(ConnectionResolverInterface::class, 'db');
     }
 
     /**
@@ -52,7 +55,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        AbstractModel::setConnectionResolver($this->app->make('Illuminate\Database\ConnectionResolverInterface'));
+        AbstractModel::setConnectionResolver($this->app->make(ConnectionResolverInterface::class));
         AbstractModel::setEventDispatcher($this->app->make('events'));
     }
 }

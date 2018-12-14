@@ -12,6 +12,7 @@
 namespace Flarum\Settings;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Database\ConnectionInterface;
 
 class SettingsServiceProvider extends AbstractServiceProvider
 {
@@ -23,7 +24,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
         $this->app->singleton(SettingsRepositoryInterface::class, function () {
             return new MemoryCacheSettingsRepository(
                 new DatabaseSettingsRepository(
-                    $this->app->make('Illuminate\Database\ConnectionInterface')
+                    $this->app->make(ConnectionInterface::class)
                 )
             );
         });
