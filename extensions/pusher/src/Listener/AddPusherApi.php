@@ -14,7 +14,6 @@ namespace Flarum\Pusher\Listener;
 use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPusherApi
 {
@@ -31,18 +30,7 @@ class AddPusherApi
         $this->settings = $settings;
     }
 
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Serializing::class, [$this, 'addAttributes']);
-    }
-
-    /**
-     * @param Serializing $event
-     */
-    public function addAttributes(Serializing $event)
+    public function handle(Serializing $event)
     {
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['pusherKey'] = $this->settings->get('flarum-pusher.app_key');
