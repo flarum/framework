@@ -21,7 +21,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
 {
     protected $callback;
 
-    public function configure(callable $callback)
+    public function configure($callback)
     {
         $this->callback = $callback;
 
@@ -34,8 +34,14 @@ class Formatter implements ExtenderInterface, LifecycleInterface
 
         $events->listen(
             Configuring::class,
-            function (Configuring $event) {
-                call_user_func($this->callback, $event->configurator);
+            function (Configuring $event) use ($container) {
+                if (is_string($this->callback)) {
+                    $callback = $container->make($this->callback);
+                } else {
+                    $callback = $this->callback;
+                }
+
+                $callback($event->configurator);
             }
         );
     }
