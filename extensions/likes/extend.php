@@ -9,8 +9,13 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Extend;
+use Flarum\Likes\Event\PostWasLiked;
+use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Listener;
+use Flarum\Likes\Notification\PostLikedBlueprint;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
@@ -24,6 +29,11 @@ return [
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddPostLikesRelationship::class);
         $events->subscribe(Listener\SaveLikesToDatabase::class);
-        $events->subscribe(Listener\SendNotificationWhenPostIsLiked::class);
+
+        $events->listen(ConfigureNotificationTypes::class, function (ConfigureNotificationTypes $event) {
+            $event->add(PostLikedBlueprint::class, PostSerializer::class, ['alert']);
+        });
+        $events->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class);
+        $events->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class);
     },
 ];
