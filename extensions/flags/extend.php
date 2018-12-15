@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Api\Event\Serializing;
+use Flarum\Event\ConfigureModelDates;
 use Flarum\Extend;
 use Flarum\Flags\Api\Controller\CreateFlagController;
 use Flarum\Flags\Api\Controller\DeleteFlagsController;
@@ -30,7 +32,9 @@ return [
         ->delete('/posts/{id}/flags', 'flags.delete', DeleteFlagsController::class),
 
     function (Dispatcher $events) {
-        $events->subscribe(Listener\AddFlagsApi::class);
+        $events->listen(ConfigureModelDates::class, Listener\AddFlagsApiDates::class);
+        $events->listen(Serializing::class, Listener\AddFlagsApiAttributes::class);
+
         $events->subscribe(Listener\AddPostFlagsRelationship::class);
     },
 ];
