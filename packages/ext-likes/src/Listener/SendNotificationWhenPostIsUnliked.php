@@ -11,11 +11,11 @@
 
 namespace Flarum\Likes\Listener;
 
-use Flarum\Likes\Event\PostWasLiked;
+use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Notification\NotificationSyncer;
 
-class SendNotificationWhenPostIsLiked
+class SendNotificationWhenPostIsUnliked
 {
     /**
      * @var NotificationSyncer
@@ -30,12 +30,12 @@ class SendNotificationWhenPostIsLiked
         $this->notifications = $notifications;
     }
 
-    public function handle(PostWasLiked $event)
+    public function handle(PostWasUnliked $event)
     {
         if ($event->post->user->id != $event->user->id) {
             $this->notifications->sync(
                 new PostLikedBlueprint($event->post, $event->user),
-                [$event->post->user]
+                []
             );
         }
     }
