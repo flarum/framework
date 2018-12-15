@@ -13,22 +13,10 @@ namespace Flarum\Lock\Listener;
 
 use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\DiscussionSerializer;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class AddDiscussionLockedAttributes
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
-    }
-
-    /**
-     * @param Serializing $event
-     */
-    public function prepareApiAttributes(Serializing $event)
+    public function handle(Serializing $event)
     {
         if ($event->isSerializer(DiscussionSerializer::class)) {
             $event->attributes['isLocked'] = (bool) $event->model->is_locked;
