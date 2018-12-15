@@ -10,6 +10,8 @@
  */
 
 use Flarum\Extend;
+use Flarum\Formatter\Event\Rendering;
+use Flarum\Mentions\ConfigureMentions;
 use Flarum\Mentions\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
@@ -19,13 +21,17 @@ return [
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less'),
 
+    (new Extend\Formatter)
+        ->configure(ConfigureMentions::class),
+
     function (Dispatcher $events, Factory $views) {
         $events->subscribe(Listener\AddPostMentionedByRelationship::class);
-        $events->subscribe(Listener\FormatPostMentions::class);
-        $events->subscribe(Listener\FormatUserMentions::class);
         $events->subscribe(Listener\UpdatePostMentionsMetadata::class);
         $events->subscribe(Listener\UpdateUserMentionsMetadata::class);
         $events->subscribe(Listener\AddFilterByMentions::class);
+
+        $events->listen(Rendering::class, Listener\FormatPostMentions::class);
+        $events->listen(Rendering::class, Listener\FormatUserMentions::class);
 
         $views->addNamespace('flarum-mentions', __DIR__.'/views');
     },
