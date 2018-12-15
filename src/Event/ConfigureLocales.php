@@ -57,7 +57,7 @@ class ConfigureLocales
             throw new RuntimeException("Language pack $name must define \"extra.flarum-locale.code\" in composer.json.");
         }
 
-        $this->locales->addLocale($locale, $title);
+        $this->locales->addLoadedLocale($locale, $title);
 
         if (! is_dir($localeDir = $directory.'/locale')) {
             throw new RuntimeException("Language pack $name must have a \"locale\" subdirectory.");

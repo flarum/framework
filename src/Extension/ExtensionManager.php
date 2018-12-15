@@ -44,6 +44,11 @@ class ExtensionManager
     protected $filesystem;
 
     /**
+     * @var ExtensionFinder
+     */
+    protected $finder;
+
+    /**
      * @var Collection|null
      */
     protected $extensions;
@@ -53,13 +58,15 @@ class ExtensionManager
         Application $app,
         Migrator $migrator,
         Dispatcher $dispatcher,
-        Filesystem $filesystem
+        Filesystem $filesystem,
+        ExtensionFinder $finder
     ) {
         $this->config = $config;
         $this->app = $app;
         $this->migrator = $migrator;
         $this->dispatcher = $dispatcher;
         $this->filesystem = $filesystem;
+        $this->finder = $finder;
     }
 
     /**
@@ -67,16 +74,10 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->app->basePath().'/vendor/composer/installed.json')) {
+        if (is_null($this->extensions)) {
             $extensions = new Collection();
 
-            // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get($this->app->basePath().'/vendor/composer/installed.json'), true);
-
-            foreach ($installed as $package) {
-                if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
-                    continue;
-                }
+            foreach ($this->finder->getExtensions() as $package) {
                 // Instantiates an Extension object using the package path and composer.json file.
                 $extension = new Extension($this->getExtensionsDir().'/'.Arr::get($package, 'name'), $package);
 

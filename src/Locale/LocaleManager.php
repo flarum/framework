@@ -20,6 +20,8 @@ class LocaleManager
 
     protected $locales = [];
 
+    protected $loadedLocales = 0;
+
     protected $js = [];
 
     protected $css = [];
@@ -50,9 +52,20 @@ class LocaleManager
         $this->locales[$locale] = $name;
     }
 
+    public function addLoadedLocale($locale, $name)
+    {
+        $this->addLocale($locale, $name);
+        $this->loadedLocales++;
+    }
+
     public function getLocales(): array
     {
         return $this->locales;
+    }
+
+    public function getLoadedLocales()
+    {
+        return $this->loadedLocales;
     }
 
     public function hasLocale(string $locale): bool

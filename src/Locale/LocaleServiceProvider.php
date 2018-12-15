@@ -32,6 +32,11 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
         $events->dispatch(new ConfigureLocales($locales));
 
+        if ($locales->getLoadedLocales() < 1) {
+            // Maybe we're just installing Flarum, so we're using our LanguagePackLoader
+            $this->app->make(LanguagePackLoader::class)->load();
+        }
+
         $events->listen(ClearingCache::class, function () use ($locales) {
             $locales->clearCache();
         });
@@ -42,6 +47,8 @@ class LocaleServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
+        $this->app->singleton(LanguagePackLoader::class);
+
         $this->app->singleton(LocaleManager::class, function () {
             return new LocaleManager(
                 $this->app->make('translator'),

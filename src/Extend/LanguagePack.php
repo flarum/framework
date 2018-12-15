@@ -37,17 +37,22 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
             );
         }
 
-        $container->resolving(
-            LocaleManager::class,
-            function (LocaleManager $locales) use ($extension, $locale, $title) {
-                $this->registerLocale($locales, $extension, $locale, $title);
-            }
-        );
+        if ($container->resolved(LocaleManager::class)) {
+            $locales = $container->get(LocaleManager::class);
+            $this->registerLocale($locales, $extension, $locale, $title);
+        } else {
+            $container->resolving(
+                LocaleManager::class,
+                function (LocaleManager $locales) use ($extension, $locale, $title) {
+                    $this->registerLocale($locales, $extension, $locale, $title);
+                }
+            );
+        }
     }
 
     private function registerLocale(LocaleManager $locales, Extension $extension, $locale, $title)
     {
-        $locales->addLocale($locale, $title);
+        $locales->addLoadedLocale($locale, $title);
 
         $directory = $extension->getPath().'/locale';
 

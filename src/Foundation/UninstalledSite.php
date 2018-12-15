@@ -11,6 +11,7 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Extension\ExtensionFinder;
 use Flarum\Install\Installer;
 use Flarum\Install\InstallServiceProvider;
 use Flarum\Locale\LocaleServiceProvider;
@@ -65,6 +66,7 @@ class UninstalledSite implements SiteInterface
 
         $this->registerLogger($laravel);
 
+        $laravel->singleton(ExtensionFinder::class);
         $laravel->register(LocaleServiceProvider::class);
         $laravel->register(FilesystemServiceProvider::class);
         $laravel->register(SessionServiceProvider::class);

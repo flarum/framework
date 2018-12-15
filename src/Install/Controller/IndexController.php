@@ -13,6 +13,7 @@ namespace Flarum\Install\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\Install\Prerequisite\PrerequisiteInterface;
+use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -29,13 +30,20 @@ class IndexController extends AbstractHtmlController
     protected $prerequisite;
 
     /**
+     * @var LocaleManager
+     */
+    protected $locale;
+
+    /**
      * @param Factory $view
      * @param PrerequisiteInterface $prerequisite
+     * @param LocaleManager $locale
      */
-    public function __construct(Factory $view, PrerequisiteInterface $prerequisite)
+    public function __construct(Factory $view, PrerequisiteInterface $prerequisite, LocaleManager $locale)
     {
         $this->view = $view;
         $this->prerequisite = $prerequisite;
+        $this->locale = $locale;
     }
 
     /**
@@ -48,6 +56,13 @@ class IndexController extends AbstractHtmlController
 
         $this->prerequisite->check();
         $errors = $this->prerequisite->getErrors();
+
+        if ($this->locale->getLoadedLocales() < 1) {
+            array_push($errors, [
+                'message' => 'No language pack installed.',
+                'detail' => 'You have to install a language pack to continue with the installation.'
+            ]);
+        }
 
         if (count($errors)) {
             $view->with('content', $this->view->make('flarum.install::errors')->with('errors', $errors));

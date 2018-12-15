@@ -16,6 +16,7 @@ use Exception;
 use Flarum\Console\AbstractCommand;
 use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
+use Flarum\Extension\ExtensionFinder;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application as FlarumApplication;
 use Flarum\Foundation\Site;
@@ -314,7 +315,8 @@ class InstallCommand extends AbstractCommand
             $this->application,
             $this->migrator,
             $this->application->make(Dispatcher::class),
-            $this->application->make('files')
+            $this->application->make('files'),
+            $this->application->make(ExtensionFinder::class)
         );
 
         $disabled = [
