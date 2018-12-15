@@ -11,12 +11,12 @@
 
 namespace Flarum\Lock\Listener;
 
-use Flarum\Lock\Event\DiscussionWasLocked;
+use Flarum\Lock\Event\DiscussionWasUnlocked;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
 use Flarum\Notification\NotificationSyncer;
 
-class CreatePostWhenDiscussionIsLocked
+class CreatePostWhenDiscussionIsUnlocked
 {
     /**
      * @var NotificationSyncer
@@ -28,12 +28,12 @@ class CreatePostWhenDiscussionIsLocked
         $this->notifications = $notifications;
     }
 
-    public function handle(DiscussionWasLocked $event)
+    public function handle(DiscussionWasUnlocked $event)
     {
         $post = DiscussionLockedPost::reply(
             $event->discussion->id,
             $event->user->id,
-            true
+            false
         );
 
         $post = $event->discussion->mergePost($post);
