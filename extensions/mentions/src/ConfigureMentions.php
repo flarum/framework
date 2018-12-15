@@ -12,6 +12,8 @@
 namespace Flarum\Mentions;
 
 use Flarum\Http\UrlGenerator;
+use Flarum\Post\CommentPost;
+use Flarum\User\User;
 use s9e\TextFormatter\Configurator;
 
 class ConfigureMentions
