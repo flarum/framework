@@ -70,20 +70,25 @@ class ConfigureMentions
 
     private function configurePostMentions(Configurator $config)
     {
-        $config->rendering->parameters['PROFILE_URL'] = $this->url->to('forum')->route('user', ['username' => '']);
+        $config->rendering->parameters['DISCUSSION_URL'] = $this->url->to('forum')->route('discussion', ['id' => '']);
 
-        $tagName = 'USERMENTION';
+        $tagName = 'POSTMENTION';
 
         $tag = $config->tags->add($tagName);
+
         $tag->attributes->add('username');
         $tag->attributes->add('displayname');
+        $tag->attributes->add('number')->filterChain->append('#uint');
+        $tag->attributes->add('discussionid')->filterChain->append('#uint');
         $tag->attributes->add('id')->filterChain->append('#uint');
 
-        $tag->template = '<a href="{$PROFILE_URL}{@username}" class="UserMention">@<xsl:value-of select="@displayname"/></a>';
-        $tag->filterChain->prepend([static::class, 'addPostId'])
-            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterUserMentions(tag); }');
+        $tag->template = '<a href="{$DISCUSSION_URL}{@discussionid}/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@displayname"/></a>';
 
-        $config->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
+        $tag->filterChain
+            ->prepend([static::class, 'addPostId'])
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }');
+
+        $config->Preg->match('/\B@(?<username>[a-z0-9_-]+)#(?<id>\d+)/i', $tagName);
     }
 
     /**
