@@ -12,22 +12,10 @@
 namespace Flarum\Mentions\Listener;
 
 use Flarum\Event\ConfigurePostsQuery;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class AddFilterByMentions
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(ConfigurePostsQuery::class, [$this, 'addFilter']);
-    }
-
-    /**
-     * @param ConfigurePostsQuery $event
-     */
-    public function addFilter(ConfigurePostsQuery $event)
+    public function handle(ConfigurePostsQuery $event)
     {
         if ($mentionedId = array_get($event->filter, 'mentioned')) {
             $event->query->join('post_mentions_user', 'posts.id', '=', 'post_mentions_user.post_id')
