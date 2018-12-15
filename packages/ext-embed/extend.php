@@ -11,7 +11,6 @@
 
 use Flarum\Extend;
 use Flarum\Frontend\Document;
-use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 return [
