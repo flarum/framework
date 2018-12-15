@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Api\Event\Serializing;
 use Flarum\Extend;
 use Flarum\Pusher\Api\Controller\AuthController;
 use Flarum\Pusher\Listener;
@@ -26,7 +27,7 @@ return [
         ->post('/pusher/auth', 'pusher.auth', AuthController::class),
 
     function (Dispatcher $events) {
-        $events->subscribe(Listener\AddPusherApi::class);
+        $events->listen(Serializing::class, Listener\AddPusherApi::class);
         $events->subscribe(Listener\PushNewPosts::class);
     },
 ];
