@@ -15,13 +15,11 @@ use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Event\ConfigureModelDates;
 use Flarum\Flags\Flag;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 
-class AddFlagsApi
+class AddFlagsApiAttributes
 {
     /**
      * @var SettingsRepositoryInterface
@@ -36,29 +34,7 @@ class AddFlagsApi
         $this->settings = $settings;
     }
 
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(ConfigureModelDates::class, [$this, 'configureModelDates']);
-        $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
-    }
-
-    /**
-     * @param ConfigureModelDates $event
-     */
-    public function configureModelDates(ConfigureModelDates $event)
-    {
-        if ($event->isModel(User::class)) {
-            $event->dates[] = 'read_flags_at';
-        }
-    }
-
-    /**
-     * @param Serializing $event
-     */
-    public function prepareApiAttributes(Serializing $event)
+    public function handle(Serializing $event)
     {
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['canViewFlags'] = $event->actor->hasPermissionLike('discussion.viewFlags');
