@@ -12,30 +12,15 @@
 namespace Flarum\Tags\Listener;
 
 use Flarum\Api\Controller\ShowForumController;
-use Flarum\Api\Event\Serializing;
 use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddForumTagsRelationship
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
-    }
-
     /**
      * @param Dispatcher $events
      */
@@ -44,7 +29,6 @@ class AddForumTagsRelationship
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
         $events->listen(WillSerializeData::class, [$this, 'loadTagsRelationship']);
         $events->listen(WillGetData::class, [$this, 'includeTagsRelationship']);
-        $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
     }
 
     /**
@@ -82,19 +66,6 @@ class AddForumTagsRelationship
     {
         if ($event->isController(ShowForumController::class)) {
             $event->addInclude(['tags', 'tags.lastPostedDiscussion', 'tags.parent']);
-        }
-    }
-
-    /**
-     * @param Serializing $event
-     */
-    public function prepareApiAttributes(Serializing $event)
-    {
-        if ($event->isSerializer(ForumSerializer::class)) {
-            $event->attributes['minPrimaryTags'] = $this->settings->get('flarum-tags.min_primary_tags');
-            $event->attributes['maxPrimaryTags'] = $this->settings->get('flarum-tags.max_primary_tags');
-            $event->attributes['minSecondaryTags'] = $this->settings->get('flarum-tags.min_secondary_tags');
-            $event->attributes['maxSecondaryTags'] = $this->settings->get('flarum-tags.max_secondary_tags');
         }
     }
 }
