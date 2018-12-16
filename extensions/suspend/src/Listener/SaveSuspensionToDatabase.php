@@ -29,6 +29,7 @@ class SaveSuspensionToDatabase
      * @var SuspendValidator
      */
     protected $validator;
+
     /**
      * @var Dispatcher
      */
@@ -44,18 +45,7 @@ class SaveSuspensionToDatabase
         $this->events = $events;
     }
 
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Saving::class, [$this, 'whenSavingUser']);
-    }
-
-    /**
-     * @param Saving $event
-     */
-    public function whenSavingUser(Saving $event)
+    public function handle(Saving $event)
     {
         $attributes = array_get($event->data, 'attributes', []);
 
