@@ -12,33 +12,10 @@
 namespace Flarum\Subscriptions\Listener;
 
 use Flarum\Discussion\Event\Searching;
-use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Subscriptions\Gambit\SubscriptionGambit;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class FilterDiscussionListBySubscription
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(ConfigureDiscussionGambits::class, [$this, 'addGambit']);
-        $events->listen(Searching::class, [$this, 'filterIgnored']);
-    }
-
-    /**
-     * @param ConfigureDiscussionGambits $event
-     */
-    public function addGambit(ConfigureDiscussionGambits $event)
-    {
-        $event->gambits->add(SubscriptionGambit::class);
-    }
-
-    /**
-     * @param Searching $event
-     */
-    public function filterIgnored(Searching $event)
+    public function handle(Searching $event)
     {
         if (! $event->criteria->query) {
             // might be better as `id IN (subquery)`?

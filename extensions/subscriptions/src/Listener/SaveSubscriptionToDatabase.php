@@ -13,24 +13,12 @@ namespace Flarum\Subscriptions\Listener;
 
 use Flarum\Discussion\Event\Saving;
 use Flarum\User\AssertPermissionTrait;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveSubscriptionToDatabase
 {
     use AssertPermissionTrait;
 
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Saving::class, [$this, 'whenSaving']);
-    }
-
-    /**
-     * @param Saving $event
-     */
-    public function whenSaving(Saving $event)
+    public function handle(Saving $event)
     {
         $discussion = $event->discussion;
         $data = $event->data;
