@@ -12,10 +12,11 @@
 namespace Flarum\Subscriptions\Listener;
 
 use Flarum\Notification\NotificationSyncer;
-use Flarum\Post\Event\Posted;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Hidden;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 
-class SendNotificationWhenReplyIsPosted
+class DeleteNotificationWhenPostIsHiddenOrDeleted
 {
     /**
      * @var NotificationSyncer
@@ -30,20 +31,11 @@ class SendNotificationWhenReplyIsPosted
         $this->notifications = $notifications;
     }
 
-    public function handle(Posted $event)
+    /**
+     * @param Hidden|Deleted $event
+     */
+    public function handle($event)
     {
-        $post = $event->post;
-        $discussion = $post->discussion;
-
-        $notify = $discussion->readers()
-            ->where('users.id', '!=', $post->user_id)
-            ->where('discussion_user.subscription', 'follow')
-            ->where('discussion_user.last_read_post_number', $discussion->last_post_number)
-            ->get();
-
-        $this->notifications->sync(
-            new NewPostBlueprint($event->post),
-            $notify->all()
-        );
+        $this->notifications->delete(new NewPostBlueprint($event->post));
     }
 }
