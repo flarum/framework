@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Api\Event\Serializing;
+use Flarum\Discussion\Event\Saving;
 use Flarum\Extend;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
@@ -35,11 +37,14 @@ return [
 
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddDiscussionTagsRelationship::class);
+
         $events->subscribe(Listener\AddForumTagsRelationship::class);
+        $events->listen(Serializing::class, Listener\PrepareForumTagsApiAttributes::class);
+
         $events->subscribe(Listener\CreatePostWhenTagsAreChanged::class);
         $events->subscribe(Listener\FilterDiscussionListByTags::class);
         $events->subscribe(Listener\FilterPostsQueryByTag::class);
-        $events->subscribe(Listener\SaveTagsToDatabase::class);
+        $events->listen(Saving::class, Listener\SaveTagsToDatabase::class);
         $events->subscribe(Listener\UpdateTagMetadata::class);
 
         $events->subscribe(Access\GlobalPolicy::class);
