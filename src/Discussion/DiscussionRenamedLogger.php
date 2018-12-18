@@ -24,25 +24,16 @@ class DiscussionRenamedLogger
      */
     protected $notifications;
 
-    /**
-     * @param NotificationSyncer $notifications
-     */
     public function __construct(NotificationSyncer $notifications)
     {
         $this->notifications = $notifications;
     }
 
-    /**
-     * @param Dispatcher $events
-     */
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Renamed::class, [$this, 'whenDiscussionWasRenamed']);
     }
 
-    /**
-     * @param \Flarum\Discussion\Event\Renamed $event
-     */
     public function whenDiscussionWasRenamed(Renamed $event)
     {
         $post = DiscussionRenamedPost::reply(

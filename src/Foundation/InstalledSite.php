@@ -146,11 +146,11 @@ class InstalledSite implements SiteInterface
 
         $laravel->register(ExtensionServiceProvider::class);
 
-        $laravel->boot();
-
         foreach ($this->extenders as $extension) {
             $extension->extend($laravel);
         }
+
+        $laravel->boot();
 
         return $laravel;
     }

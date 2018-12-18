@@ -26,14 +26,14 @@ class PostServiceProvider extends AbstractServiceProvider
         $this->registerPostTypes();
 
         $events = $this->app->make('events');
-        $events->subscribe('Flarum\Post\PostPolicy');
+        $events->subscribe(PostPolicy::class);
     }
 
     public function registerPostTypes()
     {
         $models = [
-            'Flarum\Post\CommentPost',
-            'Flarum\Post\DiscussionRenamedPost'
+            CommentPost::class,
+            DiscussionRenamedPost::class
         ];
 
         $this->app->make('events')->fire(
