@@ -49,6 +49,10 @@ class ForumServiceProvider extends AbstractServiceProvider
             return new RouteCollection;
         });
 
+        $this->app->afterResolving('flarum.forum.routes', function (RouteCollection $routes) {
+            $this->populateRoutes($routes);
+        });
+
         $this->app->singleton('flarum.forum.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
@@ -110,8 +114,6 @@ class ForumServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->populateRoutes($this->app->make('flarum.forum.routes'));
-
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
         $this->app->make('view')->share([
