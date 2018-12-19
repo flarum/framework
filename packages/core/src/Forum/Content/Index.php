@@ -58,7 +58,7 @@ class Index
 
         $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
 
-        $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page', 'forum'));
+        $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;
