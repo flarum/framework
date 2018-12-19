@@ -15,7 +15,6 @@ use Flarum\Discussion\Event\Renamed;
 use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\DiscussionRenamedPost;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionRenamedLogger
 {
@@ -29,12 +28,7 @@ class DiscussionRenamedLogger
         $this->notifications = $notifications;
     }
 
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Renamed::class, [$this, 'whenDiscussionWasRenamed']);
-    }
-
-    public function whenDiscussionWasRenamed(Renamed $event)
+    public function handle(Renamed $event)
     {
         $post = DiscussionRenamedPost::reply(
             $event->discussion->id,
