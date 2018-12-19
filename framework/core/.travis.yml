@@ -23,8 +23,8 @@ jobs:
     - php: 7.2
       env: DB=mysql
 
-    - php: 7.2
-      env: DB=mysql PREFIX=forum_
+    - php: 7.3
+      env: DB=mysql
 
     - php: 7.1
       addons:
@@ -35,6 +35,14 @@ jobs:
       addons:
         mariadb: '10.2'
       env: DB=mariadb
+
+    - php: 7.3
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+
+    - php: 7.2
+      env: DB=mysql PREFIX=forum_
 
     - stage: build
       language: generic
