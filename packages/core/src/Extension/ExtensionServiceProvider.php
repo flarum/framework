@@ -27,7 +27,7 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         // Boot extensions when the app is booting. This must be done as a boot
         // listener on the app rather than in the service provider's boot method
         // below, so that extensions have a chance to register things on the
-        // container before the core boot code runs.
+        // container before the core boots up (and starts resolving services).
         $this->app->booting(function (Container $app) {
             $app->make('flarum.extensions')->extend($app);
         });
