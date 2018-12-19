@@ -25,6 +25,7 @@ class UpdateServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.update.routes', function () {
             $routes = new RouteCollection;
             $this->populateRoutes($routes);
+
             return $routes;
         });
     }
