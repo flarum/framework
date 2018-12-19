@@ -36,6 +36,7 @@ use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Hashing\HashServiceProvider;
@@ -146,9 +147,14 @@ class InstalledSite implements SiteInterface
 
         $laravel->register(ExtensionServiceProvider::class);
 
-        foreach ($this->extenders as $extension) {
-            $extension->extend($laravel);
-        }
+        $laravel->booting(function (Container $app) {
+            // Run all local-site extenders before booting service providers
+            // (but after those from "real" extensions, which have been set up
+            // in a service provider above).
+            foreach ($this->extenders as $extension) {
+                $extension->extend($app);
+            }
+        });
 
         $laravel->boot();
 
