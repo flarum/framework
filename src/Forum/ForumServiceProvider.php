@@ -46,11 +46,9 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->singleton('flarum.forum.routes', function () {
-            return new RouteCollection;
-        });
-
-        $this->app->afterResolving('flarum.forum.routes', function (RouteCollection $routes) {
+            $routes = new RouteCollection;
             $this->populateRoutes($routes);
+            return $routes;
         });
 
         $this->app->singleton('flarum.forum.middleware', function (Application $app) {
