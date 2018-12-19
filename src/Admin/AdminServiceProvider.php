@@ -44,6 +44,10 @@ class AdminServiceProvider extends AbstractServiceProvider
             return new RouteCollection;
         });
 
+        $this->app->afterResolving('flarum.admin.routes', function (RouteCollection $routes) {
+            $this->populateRoutes($routes);
+        });
+
         $this->app->singleton('flarum.admin.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
@@ -103,8 +107,6 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->populateRoutes($this->app->make('flarum.admin.routes'));
-
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
         $events = $this->app->make('events');
