@@ -297,6 +297,10 @@ class User extends AbstractModel
             return app(UrlGenerator::class)->to('forum')->path('assets/avatars/'.$value);
         }
 
+        if (empty($value)) {
+            $value = static::$dispatcher->until(new Event\GetAvatarUrl($this));
+        }
+
         return $value;
     }
 
