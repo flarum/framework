@@ -43,6 +43,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.admin.routes', function () {
             $routes = new RouteCollection;
             $this->populateRoutes($routes);
+
             return $routes;
         });
 

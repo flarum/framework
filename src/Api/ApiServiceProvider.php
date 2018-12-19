@@ -42,6 +42,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.api.routes', function () {
             $routes = new RouteCollection;
             $this->populateRoutes($routes);
+
             return $routes;
         });
 
