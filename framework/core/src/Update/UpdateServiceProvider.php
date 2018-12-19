@@ -23,10 +23,10 @@ class UpdateServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->app->singleton('flarum.update.routes', function () {
-            return new RouteCollection;
+            $routes = new RouteCollection;
+            $this->populateRoutes($routes);
+            return $routes;
         });
-
-        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.update');
     }
 
     /**
@@ -34,7 +34,7 @@ class UpdateServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->populateRoutes($this->app->make('flarum.update.routes'));
+        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.update');
     }
 
     /**
