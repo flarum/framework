@@ -40,7 +40,6 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Hashing\HashServiceProvider;
-use Illuminate\Mail\MailServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
 use Monolog\Formatter\LineFormatter;
@@ -118,18 +117,6 @@ class InstalledSite implements SiteInterface
         $laravel->register(MailServiceProvider::class);
         $laravel->register(ViewServiceProvider::class);
         $laravel->register(ValidationServiceProvider::class);
-
-        $settings = $laravel->make(SettingsRepositoryInterface::class);
-
-        $config->set('mail.driver', $settings->get('mail_driver'));
-        $config->set('mail.host', $settings->get('mail_host'));
-        $config->set('mail.port', $settings->get('mail_port'));
-        $config->set('mail.from.address', $settings->get('mail_from'));
-        $config->set('mail.from.name', $settings->get('forum_title'));
-        $config->set('mail.encryption', $settings->get('mail_encryption'));
-        $config->set('mail.username', $settings->get('mail_username'));
-        $config->set('mail.password', $settings->get('mail_password'));
-
         $laravel->register(DiscussionServiceProvider::class);
         $laravel->register(FormatterServiceProvider::class);
         $laravel->register(FrontendServiceProvider::class);
