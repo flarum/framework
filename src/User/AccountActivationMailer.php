@@ -13,12 +13,12 @@ namespace Flarum\User;
 
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\Event\EmailChangeRequested;
+use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Mail\Message;
 
-class EmailConfirmationMailer
+class AccountActivationMailer
 {
     /**
      * @var SettingsRepositoryInterface
@@ -40,6 +40,12 @@ class EmailConfirmationMailer
      */
     protected $translator;
 
+    /**
+     * @param \Flarum\Settings\SettingsRepositoryInterface $settings
+     * @param Mailer $mailer
+     * @param UrlGenerator $url
+     * @param Translator $translator
+     */
     public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, Translator $translator)
     {
         $this->settings = $settings;
@@ -48,16 +54,21 @@ class EmailConfirmationMailer
         $this->translator = $translator;
     }
 
-    public function handle(EmailChangeRequested $event)
+    public function handle(Registered $event)
     {
-        $email = $event->email;
-        $data = $this->getEmailData($event->user, $email);
+        $user = $event->user;
 
-        $body = $this->translator->trans('core.email.confirm_email.body', $data);
+        if ($user->is_email_confirmed) {
+            return;
+        }
 
-        $this->mailer->raw($body, function (Message $message) use ($email, $data) {
-            $message->to($email);
-            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.confirm_email.subject'));
+        $data = $this->getEmailData($user, $user->email);
+
+        $body = $this->translator->trans('core.email.activate_account.body', $data);
+
+        $this->mailer->raw($body, function (Message $message) use ($user, $data) {
+            $message->to($user->email);
+            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.activate_account.subject'));
         });
     }
 

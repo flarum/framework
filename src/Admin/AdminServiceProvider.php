@@ -41,7 +41,10 @@ class AdminServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->singleton('flarum.admin.routes', function () {
-            return new RouteCollection;
+            $routes = new RouteCollection;
+            $this->populateRoutes($routes);
+
+            return $routes;
         });
 
         $this->app->singleton('flarum.admin.middleware', function (Application $app) {
@@ -103,8 +106,6 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->populateRoutes($this->app->make('flarum.admin.routes'));
-
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
         $events = $this->app->make('events');

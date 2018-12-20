@@ -11,6 +11,7 @@
 
 namespace Flarum\Discussion;
 
+use Flarum\Discussion\Event\Renamed;
 use Flarum\Foundation\AbstractServiceProvider;
 
 class DiscussionServiceProvider extends AbstractServiceProvider
@@ -24,6 +25,9 @@ class DiscussionServiceProvider extends AbstractServiceProvider
 
         $events->subscribe(DiscussionMetadataUpdater::class);
         $events->subscribe(DiscussionPolicy::class);
-        $events->subscribe(DiscussionRenamedLogger::class);
+
+        $events->listen(
+            Renamed::class, DiscussionRenamedLogger::class
+        );
     }
 }

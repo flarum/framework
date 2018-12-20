@@ -26,7 +26,6 @@ use Flarum\Locale\LocaleServiceProvider;
 use Flarum\Notification\NotificationServiceProvider;
 use Flarum\Post\PostServiceProvider;
 use Flarum\Search\SearchServiceProvider;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Settings\SettingsServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
 use Flarum\User\SessionServiceProvider;
@@ -36,10 +35,10 @@ use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Hashing\HashServiceProvider;
-use Illuminate\Mail\MailServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
 use Monolog\Formatter\LineFormatter;
@@ -107,48 +106,39 @@ class InstalledSite implements SiteInterface
         $this->registerLogger($laravel);
         $this->registerCache($laravel);
 
-        $laravel->register(DatabaseServiceProvider::class);
-        $laravel->register(MigrationServiceProvider::class);
-        $laravel->register(SettingsServiceProvider::class);
-        $laravel->register(LocaleServiceProvider::class);
+        $laravel->register(AdminServiceProvider::class);
+        $laravel->register(ApiServiceProvider::class);
         $laravel->register(BusServiceProvider::class);
-        $laravel->register(FilesystemServiceProvider::class);
-        $laravel->register(HashServiceProvider::class);
-        $laravel->register(MailServiceProvider::class);
-        $laravel->register(ViewServiceProvider::class);
-        $laravel->register(ValidationServiceProvider::class);
-
-        $settings = $laravel->make(SettingsRepositoryInterface::class);
-
-        $config->set('mail.driver', $settings->get('mail_driver'));
-        $config->set('mail.host', $settings->get('mail_host'));
-        $config->set('mail.port', $settings->get('mail_port'));
-        $config->set('mail.from.address', $settings->get('mail_from'));
-        $config->set('mail.from.name', $settings->get('forum_title'));
-        $config->set('mail.encryption', $settings->get('mail_encryption'));
-        $config->set('mail.username', $settings->get('mail_username'));
-        $config->set('mail.password', $settings->get('mail_password'));
-
+        $laravel->register(DatabaseServiceProvider::class);
         $laravel->register(DiscussionServiceProvider::class);
+        $laravel->register(ExtensionServiceProvider::class);
+        $laravel->register(FilesystemServiceProvider::class);
         $laravel->register(FormatterServiceProvider::class);
+        $laravel->register(ForumServiceProvider::class);
         $laravel->register(FrontendServiceProvider::class);
         $laravel->register(GroupServiceProvider::class);
+        $laravel->register(HashServiceProvider::class);
+        $laravel->register(LocaleServiceProvider::class);
+        $laravel->register(MailServiceProvider::class);
+        $laravel->register(MigrationServiceProvider::class);
         $laravel->register(NotificationServiceProvider::class);
         $laravel->register(PostServiceProvider::class);
         $laravel->register(SearchServiceProvider::class);
         $laravel->register(SessionServiceProvider::class);
-        $laravel->register(UserServiceProvider::class);
+        $laravel->register(SettingsServiceProvider::class);
         $laravel->register(UpdateServiceProvider::class);
+        $laravel->register(UserServiceProvider::class);
+        $laravel->register(ValidationServiceProvider::class);
+        $laravel->register(ViewServiceProvider::class);
 
-        $laravel->register(ApiServiceProvider::class);
-        $laravel->register(ForumServiceProvider::class);
-        $laravel->register(AdminServiceProvider::class);
-
-        $laravel->register(ExtensionServiceProvider::class);
-
-        foreach ($this->extenders as $extension) {
-            $extension->extend($laravel);
-        }
+        $laravel->booting(function (Container $app) {
+            // Run all local-site extenders before booting service providers
+            // (but after those from "real" extensions, which have been set up
+            // in a service provider above).
+            foreach ($this->extenders as $extension) {
+                $extension->extend($app);
+            }
+        });
 
         $laravel->boot();
 
