@@ -9,6 +9,10 @@ install:
   - composer install
   - mysql -e 'CREATE DATABASE flarum;'
 
+before_script:
+  - echo 'error_reporting = E_ALL' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - php -i | grep 'error_reporting'
+
 script:
   - vendor/bin/phpunit --coverage-clover=coverage.xml
 
