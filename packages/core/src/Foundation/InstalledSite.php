@@ -107,32 +107,30 @@ class InstalledSite implements SiteInterface
         $this->registerLogger($laravel);
         $this->registerCache($laravel);
 
-        $laravel->register(DatabaseServiceProvider::class);
-        $laravel->register(MigrationServiceProvider::class);
-        $laravel->register(SettingsServiceProvider::class);
-        $laravel->register(LocaleServiceProvider::class);
+        $laravel->register(AdminServiceProvider::class);
+        $laravel->register(ApiServiceProvider::class);
         $laravel->register(BusServiceProvider::class);
-        $laravel->register(FilesystemServiceProvider::class);
-        $laravel->register(HashServiceProvider::class);
-        $laravel->register(MailServiceProvider::class);
-        $laravel->register(ViewServiceProvider::class);
-        $laravel->register(ValidationServiceProvider::class);
+        $laravel->register(DatabaseServiceProvider::class);
         $laravel->register(DiscussionServiceProvider::class);
+        $laravel->register(ExtensionServiceProvider::class);
+        $laravel->register(FilesystemServiceProvider::class);
         $laravel->register(FormatterServiceProvider::class);
+        $laravel->register(ForumServiceProvider::class);
         $laravel->register(FrontendServiceProvider::class);
         $laravel->register(GroupServiceProvider::class);
+        $laravel->register(HashServiceProvider::class);
+        $laravel->register(LocaleServiceProvider::class);
+        $laravel->register(MailServiceProvider::class);
+        $laravel->register(MigrationServiceProvider::class);
         $laravel->register(NotificationServiceProvider::class);
         $laravel->register(PostServiceProvider::class);
         $laravel->register(SearchServiceProvider::class);
         $laravel->register(SessionServiceProvider::class);
-        $laravel->register(UserServiceProvider::class);
+        $laravel->register(SettingsServiceProvider::class);
         $laravel->register(UpdateServiceProvider::class);
-
-        $laravel->register(ApiServiceProvider::class);
-        $laravel->register(ForumServiceProvider::class);
-        $laravel->register(AdminServiceProvider::class);
-
-        $laravel->register(ExtensionServiceProvider::class);
+        $laravel->register(UserServiceProvider::class);
+        $laravel->register(ValidationServiceProvider::class);
+        $laravel->register(ViewServiceProvider::class);
 
         $laravel->booting(function (Container $app) {
             // Run all local-site extenders before booting service providers
