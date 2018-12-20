@@ -26,7 +26,6 @@ use Flarum\Locale\LocaleServiceProvider;
 use Flarum\Notification\NotificationServiceProvider;
 use Flarum\Post\PostServiceProvider;
 use Flarum\Search\SearchServiceProvider;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Settings\SettingsServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
 use Flarum\User\SessionServiceProvider;
