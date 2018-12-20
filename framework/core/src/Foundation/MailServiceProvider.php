@@ -25,6 +25,10 @@ class MailServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
+        $this->app->singleton('mail.supported_drivers', function () {
+            return ['smtp', 'mail', 'log'];
+        });
+
         $this->app->singleton('swift.mailer', function ($app) {
             $settings = $app->make(SettingsRepositoryInterface::class);
 
