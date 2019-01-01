@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\Auth;
+namespace Flarum\Tests\integration\api\Auth;
 
 use Carbon\Carbon;
 use Flarum\Api\ApiKey;
 use Flarum\Api\Controller\CreateGroupController;
-use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
-use Flarum\Tests\Test\TestCase;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;

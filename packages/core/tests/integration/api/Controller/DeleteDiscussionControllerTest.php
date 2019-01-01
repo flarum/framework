@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\Controller;
+namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\DeleteDiscussionController;
 use Flarum\Discussion\Discussion;

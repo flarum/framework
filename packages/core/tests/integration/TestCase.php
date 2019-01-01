@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Test;
+namespace Flarum\Tests\integration;
 
 use PHPUnit\Framework\TestCase as Test;
 
 abstract class TestCase extends Test
 {
-    use Concerns\CreatesForum,
-        Concerns\MakesApiRequests;
+    use CreatesForum,
+        MakesApiRequests;
 
     public function setUp()
     {
