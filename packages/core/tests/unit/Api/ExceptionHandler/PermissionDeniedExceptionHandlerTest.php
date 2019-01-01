@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\ExceptionHandler;
+namespace Flarum\Tests\unit\Api\ExceptionHandler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\PermissionDeniedExceptionHandler;
-use Flarum\Tests\Test\TestCase;
 use Flarum\User\Exception\PermissionDeniedException;
+use PHPUnit\Framework\TestCase;
 
 class PermissionDeniedExceptionHandlerTest extends TestCase
 {
     private $handler;
 
-    public function init()
+    public function setUp()
     {
         $this->handler = new PermissionDeniedExceptionHandler;
     }

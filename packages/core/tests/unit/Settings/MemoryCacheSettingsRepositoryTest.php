@@ -9,19 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Settings;
+namespace Flarum\Tests\unit\Settings;
 
 use Flarum\Settings\MemoryCacheSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\Test\TestCase;
 use Mockery as m;
+use PHPUnit\Framework\TestCase;
 
 class MemoryCacheSettingsRepositoryTest extends TestCase
 {
     private $baseRepository;
     private $repository;
 
-    public function init()
+    public function setUp()
     {
         $this->baseRepository = m::mock(SettingsRepositoryInterface::class);
         $this->repository = new MemoryCacheSettingsRepository($this->baseRepository);

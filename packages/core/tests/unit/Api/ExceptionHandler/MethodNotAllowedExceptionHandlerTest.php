@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\ExceptionHandler;
+namespace Flarum\Tests\unit\Api\ExceptionHandler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\MethodNotAllowedExceptionHandler;
 use Flarum\Http\Exception\MethodNotAllowedException;
-use Flarum\Tests\Test\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class MethodNotAllowedExceptionHandlerTest extends TestCase
 {
     private $handler;
 
-    public function init()
+    public function setUp()
     {
         $this->handler = new MethodNotAllowedExceptionHandler();
     }

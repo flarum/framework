@@ -9,37 +9,37 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\ExceptionHandler;
+namespace Flarum\Tests\unit\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Api\ExceptionHandler\RouteNotFoundExceptionHandler;
-use Flarum\Http\Exception\RouteNotFoundException;
-use Flarum\Tests\Test\TestCase;
+use Flarum\Api\ExceptionHandler\ModelNotFoundExceptionHandler;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PHPUnit\Framework\TestCase;
 
-class RouteNotFoundExceptionHandlerTest extends TestCase
+class ModelNotFoundExceptionHandlerTest extends TestCase
 {
     private $handler;
 
-    public function init()
+    public function setUp()
     {
-        $this->handler = new RouteNotFoundExceptionHandler();
+        $this->handler = new ModelNotFoundExceptionHandler;
     }
 
     public function test_it_handles_recognisable_exceptions()
     {
         $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages(new RouteNotFoundException()));
+        $this->assertTrue($this->handler->manages(new ModelNotFoundException));
     }
 
     public function test_managing_exceptions()
     {
-        $response = $this->handler->handle(new RouteNotFoundException);
+        $response = $this->handler->handle(new ModelNotFoundException);
 
         $this->assertEquals(404, $response->getStatus());
         $this->assertEquals([
             [
                 'status' => '404',
-                'code' => 'route_not_found'
+                'code' => 'resource_not_found'
             ]
         ], $response->getErrors());
     }
