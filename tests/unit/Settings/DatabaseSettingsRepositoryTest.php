@@ -9,19 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Settings;
+namespace Flarum\Tests\unit\Settings;
 
 use Flarum\Settings\DatabaseSettingsRepository;
-use Flarum\Tests\Test\TestCase;
 use Illuminate\Database\ConnectionInterface;
 use Mockery as m;
+use PHPUnit\Framework\TestCase;
 
 class DatabaseSettingsRepositoryTest extends TestCase
 {
     private $connection;
     private $repository;
 
-    public function init()
+    public function setUp()
     {
         $this->connection = m::mock(ConnectionInterface::class);
         $this->repository = new DatabaseSettingsRepository($this->connection);

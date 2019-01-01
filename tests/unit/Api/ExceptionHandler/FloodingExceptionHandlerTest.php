@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\ExceptionHandler;
+namespace Flarum\Tests\unit\Api\ExceptionHandler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\FloodingExceptionHandler;
 use Flarum\Post\Exception\FloodingException;
-use Flarum\Tests\Test\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class FloodingExceptionHandlerTest extends TestCase
 {
     private $handler;
 
-    public function init()
+    public function setUp()
     {
         $this->handler = new FloodingExceptionHandler;
     }
