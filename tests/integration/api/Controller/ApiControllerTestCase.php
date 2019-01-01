@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\Controller;
+namespace Flarum\Tests\integration\api\Controller;
 
-use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
-use Flarum\Tests\Test\TestCase;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
