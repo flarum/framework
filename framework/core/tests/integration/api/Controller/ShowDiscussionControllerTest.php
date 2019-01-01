@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\Controller;
+namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Discussion\Discussion;
-use Flarum\Tests\Test\Concerns\ManagesContent;
+use Flarum\Tests\integration\ManagesContent;
 
 class ShowDiscussionControllerTest extends ApiControllerTestCase
 {

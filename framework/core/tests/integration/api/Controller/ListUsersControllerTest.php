@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Api\Controller;
+namespace Flarum\Tests\integration\api\Controller;
 
-use Flarum\Api\Controller\ListNotificationsController;
+use Flarum\Api\Controller\ListUsersController;
 
-class ListNotificationsControllerTest extends ApiControllerTestCase
+class ListUsersControllerTest extends ApiControllerTestCase
 {
-    protected $controller = ListNotificationsController::class;
+    protected $controller = ListUsersController::class;
 
     /**
      * @test
@@ -29,9 +29,9 @@ class ListNotificationsControllerTest extends ApiControllerTestCase
     /**
      * @test
      */
-    public function show_index_for_user()
+    public function shows_index_for_admin()
     {
-        $this->actor = $this->getNormalUser();
+        $this->actor = $this->getAdminUser();
 
         $response = $this->callWith();
 

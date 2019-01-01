@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Test\Concerns;
+namespace Flarum\Tests\integration;
 
 use Flarum\Api\Client;
 use Flarum\User\Guest;

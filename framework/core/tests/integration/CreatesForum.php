@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Test\Concerns;
+namespace Flarum\Tests\integration;
 
 use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
@@ -57,9 +57,9 @@ trait CreatesForum
     protected function createsSite()
     {
         $paths = [
-            'base' => __DIR__.'/../../tmp',
-            'public' => __DIR__.'/../../tmp/public',
-            'storage' => __DIR__.'/../../tmp/storage',
+            'base' => __DIR__.'/tmp',
+            'public' => __DIR__.'/tmp/public',
+            'storage' => __DIR__.'/tmp/storage',
         ];
 
         if ($this->isInstalled) {
