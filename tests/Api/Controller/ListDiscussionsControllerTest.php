@@ -14,7 +14,7 @@ namespace Flarum\Tests\Api\Controller;
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Discussion\Discussion;
 
-class ListDiscussionControllerTest extends ApiControllerTestCase
+class ListDiscussionsControllerTest extends ApiControllerTestCase
 {
     protected $controller = ListDiscussionsController::class;
 
