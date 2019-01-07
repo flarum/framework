@@ -39,12 +39,12 @@ class Site
         }
     }
 
-    private static function hasConfigFile($basePath)
+    protected static function hasConfigFile($basePath)
     {
         return file_exists("$basePath/config.php");
     }
 
-    private static function loadConfig($basePath): array
+    protected static function loadConfig($basePath): array
     {
         $config = include "$basePath/config.php";
 
