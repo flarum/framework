@@ -31,6 +31,8 @@ use Psr\Log\LoggerInterface;
 
 class UninstalledSite implements SiteInterface
 {
+    use Concerns\Extending;
+    
     /**
      * @var array
      */
@@ -88,6 +90,12 @@ class UninstalledSite implements SiteInterface
             return new \Illuminate\View\Factory(
                 $engines, $finder, $dispatcher
             );
+        });
+
+        $laravel->booting(function (Container $app) {
+            foreach ($this->extenders as $extension) {
+                $extension->extend($app);
+            }
         });
 
         $laravel->boot();

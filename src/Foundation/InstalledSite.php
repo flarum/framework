@@ -48,6 +48,7 @@ use Psr\Log\LoggerInterface;
 
 class InstalledSite implements SiteInterface
 {
+    use Concerns\Extending;
     /**
      * @var array
      */
@@ -57,11 +58,6 @@ class InstalledSite implements SiteInterface
      * @var array
      */
     private $config;
-
-    /**
-     * @var \Flarum\Extend\ExtenderInterface[]
-     */
-    private $extenders = [];
 
     public function __construct(array $paths, array $config)
     {
@@ -80,17 +76,6 @@ class InstalledSite implements SiteInterface
             $this->bootLaravel(),
             $this->config
         );
-    }
-
-    /**
-     * @param \Flarum\Extend\ExtenderInterface[] $extenders
-     * @return InstalledSite
-     */
-    public function extendWith(array $extenders): self
-    {
-        $this->extenders = $extenders;
-
-        return $this;
     }
 
     private function bootLaravel(): Application
