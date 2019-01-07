@@ -32,7 +32,7 @@ use Psr\Log\LoggerInterface;
 class UninstalledSite implements SiteInterface
 {
     use Concerns\Extending;
-    
+
     /**
      * @var array
      */
