@@ -36,7 +36,7 @@ class CreateTest extends TestCase
                 ['user_id' => 2, 'group_id' => 3],
             ],
             'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 3],
+                ['permission' => 'viewForum', 'group_id' => 3],
             ]
         ]);
     }

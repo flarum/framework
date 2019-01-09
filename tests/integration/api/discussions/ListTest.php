@@ -36,7 +36,7 @@ class ListTest extends TestCase
                 $this->guestGroup(),
             ],
             'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 2],
+                ['permission' => 'viewForum', 'group_id' => 2],
             ]
         ]);
     }

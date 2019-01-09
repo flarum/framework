@@ -61,7 +61,7 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function find(User $actor, Builder $query)
     {
-        if ($actor->cannot('viewDiscussions')) {
+        if ($actor->cannot('viewForum')) {
             $query->whereRaw('FALSE');
 
             return;
