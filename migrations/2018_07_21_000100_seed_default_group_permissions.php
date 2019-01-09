@@ -14,7 +14,7 @@ use Illuminate\Database\Schema\Builder;
 
 $rows = [
     // Guests can view the forum
-    ['permission' => 'viewDiscussions', 'group_id' => Group::GUEST_ID],
+    ['permission' => 'viewForum', 'group_id' => Group::GUEST_ID],
 
     // Members can create and reply to discussions, and view the user list
     ['permission' => 'startDiscussion', 'group_id' => Group::MEMBER_ID],

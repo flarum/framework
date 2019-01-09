@@ -84,10 +84,10 @@ export default class PermissionGrid extends Component {
   viewItems() {
     const items = new ItemList();
 
-    items.add('viewDiscussions', {
+    items.add('viewForum', {
       icon: 'fas fa-eye',
       label: app.translator.trans('core.admin.permissions.view_discussions_label'),
-      permission: 'viewDiscussions',
+      permission: 'viewForum',
       allowGuest: true
     }, 100);
 
