@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -27,20 +26,16 @@ return [
             })
             ->delete();
 
-        $schema->table('discussion_tag', function (Blueprint $table) use ($schema) {
+        $schema->table('discussion_tag', function (Blueprint $table) {
             $table->foreign('discussion_id')->references('id')->on('discussions')->onDelete('cascade');
             $table->foreign('tag_id')->references('id')->on('tags')->onDelete('cascade');
-
-            Migration::fixIndexNames($schema, $table);
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('discussion_tag', function (Blueprint $table) use ($schema) {
+        $schema->table('discussion_tag', function (Blueprint $table) {
             $table->dropForeign(['discussion_id']);
             $table->dropForeign(['tag_id']);
-
-            Migration::fixIndexNames($schema, $table);
         });
     }
 ];
