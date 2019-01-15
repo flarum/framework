@@ -33,7 +33,7 @@ return [
             'last_post_id' => $selectId('posts', 'last_post_id'),
         ]);
 
-        $schema->table('discussions', function (Blueprint $table) use ($schema) {
+        $schema->table('discussions', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('last_posted_user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('hidden_user_id')->references('id')->on('users')->onDelete('set null');
@@ -43,7 +43,7 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) use ($schema) {
+        $schema->table('discussions', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropForeign(['last_posted_user_id']);
             $table->dropForeign(['hidden_user_id']);

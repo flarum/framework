@@ -23,13 +23,13 @@ return [
             })
             ->delete();
 
-        $schema->table('access_tokens', function (Blueprint $table) use ($schema) {
+        $schema->table('access_tokens', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('access_tokens', function (Blueprint $table) use ($schema) {
+        $schema->table('access_tokens', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
         });
     }

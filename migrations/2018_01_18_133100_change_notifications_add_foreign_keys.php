@@ -30,14 +30,14 @@ return [
             })
             ->update(['from_user_id' => null]);
 
-        $schema->table('notifications', function (Blueprint $table) use ($schema) {
+        $schema->table('notifications', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('from_user_id')->references('id')->on('users')->onDelete('set null');
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('notifications', function (Blueprint $table) use ($schema) {
+        $schema->table('notifications', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropForeign(['from_user_id']);
         });
