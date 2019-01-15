@@ -23,13 +23,13 @@ return [
             })
             ->delete();
 
-        $schema->table('group_permission', function (Blueprint $table) use ($schema) {
+        $schema->table('group_permission', function (Blueprint $table) {
             $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('group_permission', function (Blueprint $table) use ($schema) {
+        $schema->table('group_permission', function (Blueprint $table) {
             $table->dropForeign(['group_id']);
         });
     }
