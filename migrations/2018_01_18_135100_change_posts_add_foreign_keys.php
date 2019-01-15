@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
@@ -36,8 +35,6 @@ return [
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('edited_user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('hidden_user_id')->references('id')->on('users')->onDelete('set null');
-
-            Migration::fixIndexNames($schema, $table);
         });
     },
 
@@ -47,8 +44,6 @@ return [
             $table->dropForeign(['discussion_id']);
             $table->dropForeign(['edited_user_id']);
             $table->dropForeign(['hidden_user_id']);
-
-            Migration::fixIndexNames($schema, $table);
         });
     }
 ];

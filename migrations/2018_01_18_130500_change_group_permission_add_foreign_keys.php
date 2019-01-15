@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -26,16 +25,12 @@ return [
 
         $schema->table('group_permission', function (Blueprint $table) use ($schema) {
             $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
-
-            Migration::fixIndexNames($schema, $table);
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('group_permission', function (Blueprint $table) use ($schema) {
             $table->dropForeign(['group_id']);
-
-            Migration::fixIndexNames($schema, $table);
         });
     }
 ];
