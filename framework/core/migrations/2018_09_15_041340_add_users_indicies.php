@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -20,8 +19,6 @@ return [
             $table->index('last_seen_at');
             $table->index('discussion_count');
             $table->index('comment_count');
-
-            Migration::fixIndexNames($schema, $table);
         });
     },
 
@@ -31,8 +28,6 @@ return [
             $table->dropIndex(['last_seen_at']);
             $table->dropIndex(['discussion_count']);
             $table->dropIndex(['comment_count']);
-
-            Migration::fixIndexNames($schema, $table);
         });
     }
 ];
