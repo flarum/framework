@@ -26,14 +26,14 @@ return [
             })
             ->delete();
 
-        $schema->table('group_user', function (Blueprint $table) use ($schema) {
+        $schema->table('group_user', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('group_user', function (Blueprint $table) use ($schema) {
+        $schema->table('group_user', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropForeign(['group_id']);
         });
