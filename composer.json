@@ -54,7 +54,7 @@
         "psr/http-server-middleware": "^1.0",
         "s9e/text-formatter": "^1.2.0",
         "symfony/config": "^3.3",
-        "symfony/console": "^3.3",
+        "symfony/console": "^4.2",
         "symfony/translation": "^3.3",
         "symfony/yaml": "^3.3",
         "tobscure/json-api": "^0.3.0",
