@@ -77,7 +77,7 @@ export default class EditUserModal extends Modal {
         <label>{app.translator.trans('core.forum.edit_user.password_heading')}</label>
         <div>
           <label className="checkbox">
-            <input type="checkbox" checked={this.setPassword()} onChange={e => {
+            <input type="checkbox" value={this.setPassword()} onchange={e => {
               this.setPassword(e.target.checked);
               m.redraw(true);
               if (e.target.checked) this.$('[name=password]').select();
