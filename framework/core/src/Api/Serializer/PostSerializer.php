@@ -43,8 +43,6 @@ class PostSerializer extends BasicPostSerializer
         $canEdit = $gate->allows('edit', $post);
 
         if ($post instanceof CommentPost) {
-            $attributes['contentHtml'] = $post->content_html;
-
             if ($canEdit) {
                 $attributes['content'] = $post->content;
             }
