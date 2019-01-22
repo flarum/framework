@@ -44,7 +44,7 @@ class BasicPostSerializer extends AbstractSerializer
         ];
 
         if ($post instanceof CommentPost) {
-            $attributes['contentHtml'] = $post->content_html;
+            $attributes['contentHtml'] = $post->formatContent($this->request);
         } else {
             $attributes['content'] = $post->content;
         }
