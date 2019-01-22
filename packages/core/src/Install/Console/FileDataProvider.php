@@ -17,7 +17,6 @@ use Symfony\Component\Yaml\Yaml;
 
 class FileDataProvider implements DataProviderInterface
 {
-    protected $default;
     protected $debug = false;
     protected $baseUrl = null;
     protected $databaseConfiguration = [];
@@ -26,9 +25,6 @@ class FileDataProvider implements DataProviderInterface
 
     public function __construct(InputInterface $input)
     {
-        // Get default configuration
-        $this->default = new DefaultsDataProvider();
-
         // Get configuration file path
         $configurationFile = $input->getOption('file');
 
@@ -57,17 +53,33 @@ class FileDataProvider implements DataProviderInterface
 
     public function getDatabaseConfiguration()
     {
-        return $this->databaseConfiguration + $this->default->getDatabaseConfiguration();
+        return $this->databaseConfiguration + [
+            'driver'    => 'mysql',
+            'host'      => 'localhost',
+            'database'  => 'flarum',
+            'username'  => 'root',
+            'password'  => '',
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+            'port'      => '3306',
+            'strict'    => false,
+        ];
     }
 
     public function getBaseUrl()
     {
-        return (! is_null($this->baseUrl)) ? $this->baseUrl : $this->default->getBaseUrl();
+        return $this->baseUrl ?? 'http://flarum.local';
     }
 
     public function getAdminUser()
     {
-        return $this->adminUser + $this->default->getAdminUser();
+        return $this->adminUser + [
+            'username'              => 'admin',
+            'password'              => 'password',
+            'password_confirmation' => 'password',
+            'email'                 => 'admin@example.com',
+        ];
     }
 
     public function getSettings()
