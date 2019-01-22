@@ -21,7 +21,7 @@ class Installation
     private $debug = false;
     private $dbConfig = [];
     private $baseUrl;
-    private $defaultSettings = [];
+    private $customSettings = [];
     private $adminUser = [];
 
     public function __construct($basePath, $publicPath, $storagePath)
@@ -61,7 +61,7 @@ class Installation
 
     public function settings($settings)
     {
-        $this->defaultSettings = $settings;
+        $this->customSettings = $settings;
 
         return $this;
     }
@@ -129,7 +129,7 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\WriteSettings($this->tmp['db'], $this->defaultSettings);
+            return new Steps\WriteSettings($this->tmp['db'], $this->customSettings);
         });
 
         $pipeline->pipe(function () {
