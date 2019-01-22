@@ -24,6 +24,13 @@ class Installation
     private $customSettings = [];
     private $adminUser = [];
 
+    // A few instance variables to persist objects between steps.
+    // Could also be local variables in build(), but this way
+    // access in closures is easier. :)
+
+    /** @var \Illuminate\Database\ConnectionInterface */
+    private $db;
+
     public function __construct($basePath, $publicPath, $storagePath)
     {
         $this->basePath = $basePath;
@@ -98,15 +105,11 @@ class Installation
     {
         $pipeline = new Pipeline;
 
-        // A new array to persist some objects between steps.
-        // It's an instance variable so that access in closures is easier. :)
-        $this->tmp = [];
-
         $pipeline->pipe(function () {
             return new Steps\ConnectToDatabase(
                 $this->dbConfig,
                 function ($connection) {
-                    $this->tmp['db'] = $connection;
+                    $this->db = $connection;
                 }
             );
         });
@@ -118,15 +121,15 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\RunMigrations($this->tmp['db'], $this->getMigrationPath());
+            return new Steps\RunMigrations($this->db, $this->getMigrationPath());
         });
 
         $pipeline->pipe(function () {
-            return new Steps\WriteSettings($this->tmp['db'], $this->customSettings);
+            return new Steps\WriteSettings($this->db, $this->customSettings);
         });
 
         $pipeline->pipe(function () {
-            return new Steps\CreateAdminUser($this->tmp['db'], $this->adminUser);
+            return new Steps\CreateAdminUser($this->db, $this->adminUser);
         });
 
         $pipeline->pipe(function () {
@@ -134,7 +137,7 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->tmp['db'], $this->basePath, $this->getAssetPath());
+            return new Steps\EnableBundledExtensions($this->db, $this->basePath, $this->getAssetPath());
         });
 
         return $pipeline;
