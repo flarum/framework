@@ -16,13 +16,20 @@ use Flarum\Install\Step;
 
 class StoreConfig implements Step, ReversibleStep
 {
-    private $config;
+    private $debugMode;
+
+    private $dbConfig;
+
+    private $baseUrl;
 
     private $configFile;
 
-    public function __construct(array $config, $configFile)
+    public function __construct($debugMode, $dbConfig, $baseUrl, $configFile)
     {
-        $this->config = $config;
+        $this->debugMode = $debugMode;
+        $this->dbConfig = $dbConfig;
+        $this->baseUrl = $baseUrl;
+
         $this->configFile = $configFile;
     }
 
@@ -35,12 +42,46 @@ class StoreConfig implements Step, ReversibleStep
     {
         file_put_contents(
             $this->configFile,
-            '<?php return '.var_export($this->config, true).';'
+            '<?php return '.var_export($this->buildConfig(), true).';'
         );
     }
 
     public function revert()
     {
         @unlink($this->configFile);
+    }
+
+    private function buildConfig()
+    {
+        return [
+            'debug'    => $this->debugMode,
+            'database' => $this->getDatabaseConfig(),
+            'url'      => $this->baseUrl,
+            'paths'    => $this->getPathsConfig(),
+        ];
+    }
+
+    private function getDatabaseConfig()
+    {
+        return [
+            'driver'    => $this->dbConfig['driver'],
+            'host'      => $this->dbConfig['host'],
+            'database'  => $this->dbConfig['database'],
+            'username'  => $this->dbConfig['username'],
+            'password'  => $this->dbConfig['password'],
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => $this->dbConfig['prefix'],
+            'port'      => $this->dbConfig['port'],
+            'strict'    => false,
+        ];
+    }
+
+    private function getPathsConfig()
+    {
+        return [
+            'api'   => 'api',
+            'admin' => 'admin',
+        ];
     }
 }
