@@ -11,20 +11,6 @@
 
 namespace Flarum\Install;
 
-use Flarum\Install\Prerequisite\Composite;
-use Flarum\Install\Prerequisite\PhpExtensions;
-use Flarum\Install\Prerequisite\PhpVersion;
-use Flarum\Install\Prerequisite\PrerequisiteInterface;
-use Flarum\Install\Prerequisite\WritablePaths;
-use Flarum\Install\Steps\BuildConfig;
-use Flarum\Install\Steps\ConnectToDatabase;
-use Flarum\Install\Steps\CreateAdminUser;
-use Flarum\Install\Steps\EnableBundledExtensions;
-use Flarum\Install\Steps\PublishAssets;
-use Flarum\Install\Steps\RunMigrations;
-use Flarum\Install\Steps\StoreConfig;
-use Flarum\Install\Steps\WriteSettings;
-
 class Installation
 {
     private $basePath;
@@ -87,11 +73,11 @@ class Installation
         return $this;
     }
 
-    public function prerequisites(): PrerequisiteInterface
+    public function prerequisites(): Prerequisite\PrerequisiteInterface
     {
-        return new Composite(
-            new PhpVersion('7.1.0'),
-            new PhpExtensions([
+        return new Prerequisite\Composite(
+            new Prerequisite\PhpVersion('7.1.0'),
+            new Prerequisite\PhpExtensions([
                 'dom',
                 'gd',
                 'json',
@@ -100,7 +86,7 @@ class Installation
                 'pdo_mysql',
                 'tokenizer',
             ]),
-            new WritablePaths([
+            new Prerequisite\WritablePaths([
                 $this->basePath,
                 $this->getAssetPath(),
                 $this->storagePath,
@@ -117,7 +103,7 @@ class Installation
         $this->tmp = [];
 
         $pipeline->pipe(function () {
-            return new BuildConfig(
+            return new Steps\BuildConfig(
                 $this->debug, $this->dbConfig, $this->baseUrl,
                 function ($config) {
                     $this->tmp['config'] = $config;
@@ -126,7 +112,7 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new ConnectToDatabase(
+            return new Steps\ConnectToDatabase(
                 $this->dbConfig,
                 function ($connection) {
                     $this->tmp['db'] = $connection;
@@ -135,27 +121,27 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new StoreConfig($this->tmp['config'], $this->getConfigPath());
+            return new Steps\StoreConfig($this->tmp['config'], $this->getConfigPath());
         });
 
         $pipeline->pipe(function () {
-            return new RunMigrations($this->tmp['db'], $this->getMigrationPath());
+            return new Steps\RunMigrations($this->tmp['db'], $this->getMigrationPath());
         });
 
         $pipeline->pipe(function () {
-            return new WriteSettings($this->tmp['db'], $this->defaultSettings);
+            return new Steps\WriteSettings($this->tmp['db'], $this->defaultSettings);
         });
 
         $pipeline->pipe(function () {
-            return new CreateAdminUser($this->tmp['db'], $this->adminUser);
+            return new Steps\CreateAdminUser($this->tmp['db'], $this->adminUser);
         });
 
         $pipeline->pipe(function () {
-            return new PublishAssets($this->basePath, $this->getAssetPath());
+            return new Steps\PublishAssets($this->basePath, $this->getAssetPath());
         });
 
         $pipeline->pipe(function () {
-            return new EnableBundledExtensions($this->tmp['db'], $this->basePath, $this->getAssetPath());
+            return new Steps\EnableBundledExtensions($this->tmp['db'], $this->basePath, $this->getAssetPath());
         });
 
         return $pipeline;
