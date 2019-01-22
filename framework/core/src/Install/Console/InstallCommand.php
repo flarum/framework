@@ -54,12 +54,6 @@ class InstallCommand extends AbstractCommand
             ->setName('install')
             ->setDescription("Run Flarum's installation migration and seeds")
             ->addOption(
-                'defaults',
-                'd',
-                InputOption::VALUE_NONE,
-                'Create default settings and user'
-            )
-            ->addOption(
                 'file',
                 'f',
                 InputOption::VALUE_REQUIRED,
@@ -95,9 +89,7 @@ class InstallCommand extends AbstractCommand
 
     protected function init()
     {
-        if ($this->input->getOption('defaults')) {
-            $this->dataSource = new DefaultsDataProvider();
-        } elseif ($this->input->getOption('file')) {
+        if ($this->input->getOption('file')) {
             $this->dataSource = new FileDataProvider($this->input);
         } else {
             $this->dataSource = new UserDataProvider($this->input, $this->output, $this->getHelperSet()->get('question'));
