@@ -26,12 +26,12 @@ class WriteSettings implements Step
     /**
      * @var array
      */
-    private $defaults;
+    private $custom;
 
-    public function __construct(ConnectionInterface $database, array $defaults)
+    public function __construct(ConnectionInterface $database, array $custom)
     {
         $this->database = $database;
-        $this->defaults = $defaults;
+        $this->custom = $custom;
     }
 
     public function getMessage()
@@ -45,8 +45,36 @@ class WriteSettings implements Step
 
         $repo->set('version', Application::VERSION);
 
-        foreach ($this->defaults as $key => $value) {
+        foreach ($this->getSettings() as $key => $value) {
             $repo->set($key, $value);
         }
+    }
+
+    private function getSettings()
+    {
+        return $this->custom + $this->getDefaults();
+    }
+
+    private function getDefaults()
+    {
+        return [
+            'allow_post_editing' => 'reply',
+            'allow_renaming' => '10',
+            'allow_sign_up' => '1',
+            'custom_less' => '',
+            'default_locale' => 'en',
+            'default_route' => '/all',
+            'extensions_enabled' => '[]',
+            'forum_title' => 'A new Flarum forum',
+            'forum_description' => '',
+            'mail_driver' => 'mail',
+            'mail_from' => 'noreply@localhost',
+            'theme_colored_header' => '0',
+            'theme_dark_mode' => '0',
+            'theme_primary_color' => '#4D698E',
+            'theme_secondary_color' => '#4D698E',
+            'welcome_message' => 'This is beta software and you should not use it in production.',
+            'welcome_title' => 'Welcome to Flarum',
+        ];
     }
 }
