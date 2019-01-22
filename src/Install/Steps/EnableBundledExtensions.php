@@ -67,12 +67,21 @@ class EnableBundledExtensions implements Step
         );
     }
 
-    const DISABLED_EXTENSIONS = [
-        'flarum-akismet',
-        'flarum-auth-facebook',
-        'flarum-auth-github',
-        'flarum-auth-twitter',
-        'flarum-pusher',
+    const EXTENSION_WHITELIST = [
+        'flarum-approval',
+        'flarum-bbcode',
+        'flarum-emoji',
+        'flarum-lang-english',
+        'flarum-flags',
+        'flarum-likes',
+        'flarum-lock',
+        'flarum-markdown',
+        'flarum-mentions',
+        'flarum-statistics',
+        'flarum-sticky',
+        'flarum-subscriptions',
+        'flarum-suspend',
+        'flarum-tags',
     ];
 
     /**
@@ -93,7 +102,7 @@ class EnableBundledExtensions implements Step
 
                 return $extension;
             })->filter(function (Extension $extension) {
-                return ! in_array($extension->getId(), self::DISABLED_EXTENSIONS);
+                return in_array($extension->getId(), self::EXTENSION_WHITELIST);
             })->sortBy(function (Extension $extension) {
                 return $extension->composerJsonAttribute('extra.flarum-extension.title');
             })->mapWithKeys(function (Extension $extension) {
