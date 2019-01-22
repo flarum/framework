@@ -103,15 +103,6 @@ class Installation
         $this->tmp = [];
 
         $pipeline->pipe(function () {
-            return new Steps\BuildConfig(
-                $this->debug, $this->dbConfig, $this->baseUrl,
-                function ($config) {
-                    $this->tmp['config'] = $config;
-                }
-            );
-        });
-
-        $pipeline->pipe(function () {
             return new Steps\ConnectToDatabase(
                 $this->dbConfig,
                 function ($connection) {
@@ -121,7 +112,9 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\StoreConfig($this->tmp['config'], $this->getConfigPath());
+            return new Steps\StoreConfig(
+                $this->debug, $this->dbConfig, $this->baseUrl, $this->getConfigPath()
+            );
         });
 
         $pipeline->pipe(function () {
