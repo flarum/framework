@@ -64,11 +64,31 @@ class UserDataProvider implements DataProviderInterface
     public function getAdminUser()
     {
         return [
-            'username'              => $this->ask('Admin username:'),
-            'password'              => $this->secret('Admin password:'),
-            'password_confirmation' => $this->secret('Admin password (confirmation):'),
-            'email'                 => $this->ask('Admin email address:'),
+            'username' => $this->ask('Admin username:'),
+            'password' => $this->askForAdminPassword(),
+            'email'    => $this->ask('Admin email address:'),
         ];
+    }
+
+    private function askForAdminPassword()
+    {
+        while (true) {
+            $password = $this->secret('Admin password:');
+
+            if (strlen($password) < 8) {
+                $this->validationError('Password must be at least 8 characters.');
+                continue;
+            }
+
+            $confirmation = $this->secret('Admin password (confirmation):');
+
+            if ($password !== $confirmation) {
+                $this->validationError('The password did not match its confirmation.');
+                continue;
+            }
+
+            return $password;
+        }
     }
 
     public function getSettings()
@@ -97,6 +117,12 @@ class UserDataProvider implements DataProviderInterface
         $question->setHidden(true)->setHiddenFallback(true);
 
         return $this->questionHelper->ask($this->input, $this->output, $question);
+    }
+
+    protected function validationError($message)
+    {
+        $this->output->writeln("<error>$message</error>");
+        $this->output->writeln('Please try again.');
     }
 
     public function isDebugMode(): bool

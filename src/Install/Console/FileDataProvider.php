@@ -77,7 +77,6 @@ class FileDataProvider implements DataProviderInterface
         return $this->adminUser + [
             'username'              => 'admin',
             'password'              => 'password',
-            'password_confirmation' => 'password',
             'email'                 => 'admin@example.com',
         ];
     }

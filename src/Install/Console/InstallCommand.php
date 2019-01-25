@@ -120,14 +120,6 @@ class InstallCommand extends AbstractCommand
 
         $admin = $this->dataSource->getAdminUser();
 
-        if (strlen($admin['password']) < 8) {
-            throw new Exception('Password must be at least 8 characters.');
-        }
-
-        if ($admin['password'] !== $admin['password_confirmation']) {
-            throw new Exception('The password did not match its confirmation.');
-        }
-
         if (! filter_var($admin['email'], FILTER_VALIDATE_EMAIL)) {
             throw new Exception('You must enter a valid email.');
         }
