@@ -16,7 +16,6 @@ use Flarum\Group\Group;
 use Flarum\Install\Step;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Hashing\BcryptHasher;
-use UnexpectedValueException;
 
 class CreateAdminUser implements Step
 {
@@ -43,10 +42,6 @@ class CreateAdminUser implements Step
 
     public function run()
     {
-        if ($this->admin['password'] !== $this->admin['password_confirmation']) {
-            throw new UnexpectedValueException('The password did not match its confirmation.');
-        }
-
         $uid = $this->database->table('users')->insertGetId([
             'username' => $this->admin['username'],
             'email' => $this->admin['email'],
