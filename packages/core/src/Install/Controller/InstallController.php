@@ -14,6 +14,7 @@ namespace Flarum\Install\Controller;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Install\Installation;
 use Flarum\Install\StepFailed;
+use Flarum\Install\ValidationFailed;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -59,32 +60,35 @@ class InstallController implements RequestHandlerInterface
 
         $baseUrl = rtrim((string) $request->getUri(), '/');
 
-        $pipeline = $this->installation
-            ->baseUrl($baseUrl)
-            ->databaseConfig([
-                'driver' => 'mysql',
-                'host' => $host,
-                'port' => $port,
-                'database' => array_get($input, 'mysqlDatabase'),
-                'username' => array_get($input, 'mysqlUsername'),
-                'password' => array_get($input, 'mysqlPassword'),
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => array_get($input, 'tablePrefix'),
-                'strict' => false,
-            ])
-            ->adminUser([
-                'username' => array_get($input, 'adminUsername'),
-                'password' => array_get($input, 'adminPassword'),
-                'password_confirmation' => array_get($input, 'adminPasswordConfirmation'),
-                'email' => array_get($input, 'adminEmail'),
-            ])
-            ->settings([
-                'forum_title' => array_get($input, 'forumTitle'),
-                'mail_from' => 'noreply@'.preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)),
-                'welcome_title' => 'Welcome to '.array_get($input, 'forumTitle'),
-            ])
-            ->build();
+        try {
+            $pipeline = $this->installation
+                ->baseUrl($baseUrl)
+                ->databaseConfig([
+                    'driver' => 'mysql',
+                    'host' => $host,
+                    'port' => $port,
+                    'database' => array_get($input, 'mysqlDatabase'),
+                    'username' => array_get($input, 'mysqlUsername'),
+                    'password' => array_get($input, 'mysqlPassword'),
+                    'charset' => 'utf8mb4',
+                    'collation' => 'utf8mb4_unicode_ci',
+                    'prefix' => array_get($input, 'tablePrefix'),
+                    'strict' => false,
+                ])
+                ->adminUser([
+                    'username' => array_get($input, 'adminUsername'),
+                    'password' => $this->getConfirmedAdminPassword($input),
+                    'email' => array_get($input, 'adminEmail'),
+                ])
+                ->settings([
+                    'forum_title' => array_get($input, 'forumTitle'),
+                    'mail_from' => 'noreply@'.preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)),
+                    'welcome_title' => 'Welcome to '.array_get($input, 'forumTitle'),
+                ])
+                ->build();
+        } catch (ValidationFailed $e) {
+            return new Response\HtmlResponse($e->getMessage(), 500);
+        }
 
         try {
             $pipeline->run();
@@ -96,5 +100,17 @@ class InstallController implements RequestHandlerInterface
         $this->authenticator->logIn($session, 1);
 
         return new Response\EmptyResponse;
+    }
+
+    private function getConfirmedAdminPassword(array $input)
+    {
+        $password = array_get($input, 'adminPassword');
+        $confirmation = array_get($input, 'adminPasswordConfirmation');
+
+        if ($password !== $confirmation) {
+            throw new ValidationFailed('The admin password did not match its confirmation.');
+        }
+
+        return $password;
     }
 }
