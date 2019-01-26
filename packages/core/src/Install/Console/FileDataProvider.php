@@ -14,6 +14,7 @@ namespace Flarum\Install\Console;
 use Exception;
 use Flarum\Install\AdminUser;
 use Flarum\Install\DatabaseConfig;
+use Flarum\Install\Installation;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -53,7 +54,17 @@ class FileDataProvider implements DataProviderInterface
         }
     }
 
-    public function getDatabaseConfiguration(): DatabaseConfig
+    public function configure(Installation $installation): Installation
+    {
+        return $installation
+            ->debugMode($this->debug)
+            ->baseUrl($this->baseUrl ?? 'http://flarum.local')
+            ->databaseConfig($this->getDatabaseConfiguration())
+            ->adminUser($this->getAdminUser())
+            ->settings($this->settings);
+    }
+
+    private function getDatabaseConfiguration(): DatabaseConfig
     {
         return new DatabaseConfig(
             $this->databaseConfiguration['driver'] ?? 'mysql',
@@ -66,27 +77,12 @@ class FileDataProvider implements DataProviderInterface
         );
     }
 
-    public function getBaseUrl()
-    {
-        return $this->baseUrl ?? 'http://flarum.local';
-    }
-
-    public function getAdminUser(): AdminUser
+    private function getAdminUser(): AdminUser
     {
         return new AdminUser(
             $this->adminUser['username'] ?? 'admin',
             $this->adminUser['password'] ?? 'password',
             $this->adminUser['email'] ?? 'admin@example.com'
         );
-    }
-
-    public function getSettings()
-    {
-        return $this->settings;
-    }
-
-    public function isDebugMode(): bool
-    {
-        return $this->debug;
     }
 }

@@ -89,16 +89,11 @@ class InstallCommand extends AbstractCommand
 
     protected function install()
     {
-        $this->runPipeline(
-            $this->installation
-                ->configPath($this->input->getOption('config'))
-                ->debugMode($this->dataSource->isDebugMode())
-                ->baseUrl($this->dataSource->getBaseUrl())
-                ->databaseConfig($this->dataSource->getDatabaseConfiguration())
-                ->adminUser($this->dataSource->getAdminUser())
-                ->settings($this->dataSource->getSettings())
-                ->build()
-        );
+        $pipeline = $this->dataSource->configure(
+            $this->installation->configPath($this->input->getOption('config'))
+        )->build();
+
+        $this->runPipeline($pipeline);
     }
 
     private function runPipeline(Pipeline $pipeline)
