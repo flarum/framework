@@ -22,7 +22,9 @@ class Installation
     private $dbConfig = [];
     private $baseUrl;
     private $customSettings = [];
-    private $adminUser = [];
+
+    /** @var AdminUser */
+    private $adminUser;
 
     // A few instance variables to persist objects between steps.
     // Could also be local variables in build(), but this way
@@ -73,7 +75,7 @@ class Installation
         return $this;
     }
 
-    public function adminUser($admin)
+    public function adminUser(AdminUser $admin)
     {
         $this->adminUser = $admin;
 
