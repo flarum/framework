@@ -11,13 +11,15 @@
 
 namespace Flarum\Install\Console;
 
+use Flarum\Install\AdminUser;
+
 interface DataProviderInterface
 {
     public function getDatabaseConfiguration();
 
     public function getBaseUrl();
 
-    public function getAdminUser();
+    public function getAdminUser(): AdminUser;
 
     public function getSettings();
 

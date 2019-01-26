@@ -11,6 +11,7 @@
 
 namespace Flarum\Install\Console;
 
+use Flarum\Install\AdminUser;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -61,13 +62,13 @@ class UserDataProvider implements DataProviderInterface
         return $this->baseUrl = rtrim($this->ask('Base URL:'), '/');
     }
 
-    public function getAdminUser()
+    public function getAdminUser(): AdminUser
     {
-        return [
-            'username' => $this->ask('Admin username:'),
-            'password' => $this->askForAdminPassword(),
-            'email'    => $this->ask('Admin email address:'),
-        ];
+        return new AdminUser(
+            $this->ask('Admin username:'),
+            $this->askForAdminPassword(),
+            $this->ask('Admin email address:')
+        );
     }
 
     private function askForAdminPassword()

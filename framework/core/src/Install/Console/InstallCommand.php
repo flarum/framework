@@ -118,24 +118,13 @@ class InstallCommand extends AbstractCommand
                     $validation->getMessageBag()->toArray())));
         }
 
-        $admin = $this->dataSource->getAdminUser();
-
-        if (! filter_var($admin['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new Exception('You must enter a valid email.');
-        }
-
-        if (! $admin['username'] || preg_match('/[^a-z0-9_-]/i',
-                $admin['username'])) {
-            throw new Exception('Username can only contain letters, numbers, underscores, and dashes.');
-        }
-
         $this->runPipeline(
             $this->installation
                 ->configPath($this->input->getOption('config'))
                 ->debugMode($this->dataSource->isDebugMode())
                 ->baseUrl($this->dataSource->getBaseUrl())
                 ->databaseConfig($dbConfig)
-                ->adminUser($admin)
+                ->adminUser($this->dataSource->getAdminUser())
                 ->settings($this->dataSource->getSettings())
                 ->build()
         );
