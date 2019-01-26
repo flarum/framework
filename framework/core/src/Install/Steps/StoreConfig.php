@@ -11,6 +11,7 @@
 
 namespace Flarum\Install\Steps;
 
+use Flarum\Install\DatabaseConfig;
 use Flarum\Install\ReversibleStep;
 use Flarum\Install\Step;
 
@@ -24,7 +25,7 @@ class StoreConfig implements Step, ReversibleStep
 
     private $configFile;
 
-    public function __construct($debugMode, $dbConfig, $baseUrl, $configFile)
+    public function __construct($debugMode, DatabaseConfig $dbConfig, $baseUrl, $configFile)
     {
         $this->debugMode = $debugMode;
         $this->dbConfig = $dbConfig;
@@ -55,25 +56,9 @@ class StoreConfig implements Step, ReversibleStep
     {
         return [
             'debug'    => $this->debugMode,
-            'database' => $this->getDatabaseConfig(),
+            'database' => $this->dbConfig->getConfig(),
             'url'      => $this->baseUrl,
             'paths'    => $this->getPathsConfig(),
-        ];
-    }
-
-    private function getDatabaseConfig()
-    {
-        return [
-            'driver'    => $this->dbConfig['driver'],
-            'host'      => $this->dbConfig['host'],
-            'database'  => $this->dbConfig['database'],
-            'username'  => $this->dbConfig['username'],
-            'password'  => $this->dbConfig['password'],
-            'charset'   => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix'    => $this->dbConfig['prefix'],
-            'port'      => $this->dbConfig['port'],
-            'strict'    => false,
         ];
     }
 
