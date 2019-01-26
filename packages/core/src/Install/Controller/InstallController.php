@@ -13,6 +13,7 @@ namespace Flarum\Install\Controller;
 
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Install\AdminUser;
+use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 use Flarum\Install\StepFailed;
 use Flarum\Install\ValidationFailed;
@@ -51,31 +52,12 @@ class InstallController implements RequestHandlerInterface
     public function handle(Request $request): ResponseInterface
     {
         $input = $request->getParsedBody();
-
-        $host = array_get($input, 'mysqlHost');
-        $port = '3306';
-
-        if (str_contains($host, ':')) {
-            list($host, $port) = explode(':', $host, 2);
-        }
-
         $baseUrl = rtrim((string) $request->getUri(), '/');
 
         try {
             $pipeline = $this->installation
                 ->baseUrl($baseUrl)
-                ->databaseConfig([
-                    'driver' => 'mysql',
-                    'host' => $host,
-                    'port' => $port,
-                    'database' => array_get($input, 'mysqlDatabase'),
-                    'username' => array_get($input, 'mysqlUsername'),
-                    'password' => array_get($input, 'mysqlPassword'),
-                    'charset' => 'utf8mb4',
-                    'collation' => 'utf8mb4_unicode_ci',
-                    'prefix' => array_get($input, 'tablePrefix'),
-                    'strict' => false,
-                ])
+                ->databaseConfig($this->makeDatabaseConfig($input))
                 ->adminUser($this->makeAdminUser($input))
                 ->settings([
                     'forum_title' => array_get($input, 'forumTitle'),
@@ -97,6 +79,26 @@ class InstallController implements RequestHandlerInterface
         $this->authenticator->logIn($session, 1);
 
         return new Response\EmptyResponse;
+    }
+
+    private function makeDatabaseConfig(array $input): DatabaseConfig
+    {
+        $host = array_get($input, 'mysqlHost');
+        $port = 3306;
+
+        if (str_contains($host, ':')) {
+            list($host, $port) = explode(':', $host, 2);
+        }
+
+        return new DatabaseConfig(
+            'mysql',
+            $host,
+            intval($port),
+            array_get($input, 'mysqlDatabase'),
+            array_get($input, 'mysqlUsername'),
+            array_get($input, 'mysqlPassword'),
+            array_get($input, 'tablePrefix')
+        );
     }
 
     /**

@@ -12,6 +12,7 @@
 namespace Flarum\Install\Console;
 
 use Flarum\Install\AdminUser;
+use Flarum\Install\DatabaseConfig;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,27 +35,24 @@ class UserDataProvider implements DataProviderInterface
         $this->questionHelper = $questionHelper;
     }
 
-    public function getDatabaseConfiguration()
+    public function getDatabaseConfiguration(): DatabaseConfig
     {
         $host = $this->ask('Database host:');
-        $port = '3306';
+        $port = 3306;
 
         if (str_contains($host, ':')) {
             list($host, $port) = explode(':', $host, 2);
         }
 
-        return [
-            'driver'    => 'mysql',
-            'host'      => $host,
-            'port'      => $port,
-            'database'  => $this->ask('Database name:'),
-            'username'  => $this->ask('Database user:'),
-            'password'  => $this->secret('Database password:'),
-            'charset'   => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix'    => $this->ask('Prefix:'),
-            'strict'    => false,
-        ];
+        return new DatabaseConfig(
+            'mysql',
+            $host,
+            intval($port),
+            $this->ask('Database name:'),
+            $this->ask('Database user:'),
+            $this->secret('Database password:'),
+            $this->ask('Prefix:')
+        );
     }
 
     public function getBaseUrl()

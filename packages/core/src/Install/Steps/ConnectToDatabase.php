@@ -11,6 +11,7 @@
 
 namespace Flarum\Install\Steps;
 
+use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Step;
 use Illuminate\Database\Connectors\MySqlConnector;
 use Illuminate\Database\MySqlConnection;
@@ -22,11 +23,9 @@ class ConnectToDatabase implements Step
     private $dbConfig;
     private $store;
 
-    public function __construct($dbConfig, callable $store)
+    public function __construct(DatabaseConfig $dbConfig, callable $store)
     {
         $this->dbConfig = $dbConfig;
-        $this->dbConfig['engine'] = 'InnoDB';
-
         $this->store = $store;
     }
 
@@ -37,7 +36,8 @@ class ConnectToDatabase implements Step
 
     public function run()
     {
-        $pdo = (new MySqlConnector)->connect($this->dbConfig);
+        $config = $this->dbConfig->getConfig();
+        $pdo = (new MySqlConnector)->connect($config);
 
         $version = $pdo->getAttribute(PDO::ATTR_SERVER_VERSION);
 
@@ -48,9 +48,9 @@ class ConnectToDatabase implements Step
         ($this->store)(
             new MySqlConnection(
                 $pdo,
-                $this->dbConfig['database'],
-                $this->dbConfig['prefix'],
-                $this->dbConfig
+                $config['database'],
+                $config['prefix'],
+                $config
             )
         );
     }

@@ -11,12 +11,10 @@
 
 namespace Flarum\Install\Console;
 
-use Exception;
 use Flarum\Console\AbstractCommand;
 use Flarum\Install\Installation;
 use Flarum\Install\Pipeline;
 use Flarum\Install\Step;
-use Illuminate\Contracts\Validation\Factory;
 use Symfony\Component\Console\Input\InputOption;
 
 class InstallCommand extends AbstractCommand
@@ -27,23 +25,16 @@ class InstallCommand extends AbstractCommand
     protected $installation;
 
     /**
-     * @var Factory
-     */
-    protected $validator;
-
-    /**
      * @var DataProviderInterface
      */
     protected $dataSource;
 
     /**
      * @param Installation $installation
-     * @param Factory $validator
      */
-    public function __construct(Installation $installation, Factory $validator)
+    public function __construct(Installation $installation)
     {
         $this->installation = $installation;
-        $this->validator = $validator;
 
         parent::__construct();
     }
@@ -98,32 +89,12 @@ class InstallCommand extends AbstractCommand
 
     protected function install()
     {
-        $dbConfig = $this->dataSource->getDatabaseConfiguration();
-
-        $validation = $this->validator->make(
-            $dbConfig,
-            [
-                'driver' => 'required|in:mysql',
-                'host' => 'required',
-                'database' => 'required|string',
-                'username' => 'required|string',
-                'prefix' => 'nullable|alpha_dash|max:10',
-                'port' => 'nullable|integer|min:1|max:65535',
-            ]
-        );
-
-        if ($validation->fails()) {
-            throw new Exception(implode("\n",
-                call_user_func_array('array_merge',
-                    $validation->getMessageBag()->toArray())));
-        }
-
         $this->runPipeline(
             $this->installation
                 ->configPath($this->input->getOption('config'))
                 ->debugMode($this->dataSource->isDebugMode())
                 ->baseUrl($this->dataSource->getBaseUrl())
-                ->databaseConfig($dbConfig)
+                ->databaseConfig($this->dataSource->getDatabaseConfiguration())
                 ->adminUser($this->dataSource->getAdminUser())
                 ->settings($this->dataSource->getSettings())
                 ->build()

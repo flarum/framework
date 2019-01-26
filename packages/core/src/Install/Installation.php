@@ -19,9 +19,11 @@ class Installation
 
     private $configPath;
     private $debug = false;
-    private $dbConfig = [];
     private $baseUrl;
     private $customSettings = [];
+
+    /** @var DatabaseConfig */
+    private $dbConfig;
 
     /** @var AdminUser */
     private $adminUser;
@@ -54,7 +56,7 @@ class Installation
         return $this;
     }
 
-    public function databaseConfig(array $dbConfig)
+    public function databaseConfig(DatabaseConfig $dbConfig)
     {
         $this->dbConfig = $dbConfig;
 
