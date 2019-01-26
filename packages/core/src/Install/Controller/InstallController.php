@@ -12,6 +12,7 @@
 namespace Flarum\Install\Controller;
 
 use Flarum\Http\SessionAuthenticator;
+use Flarum\Install\AdminUser;
 use Flarum\Install\Installation;
 use Flarum\Install\StepFailed;
 use Flarum\Install\ValidationFailed;
@@ -75,11 +76,7 @@ class InstallController implements RequestHandlerInterface
                     'prefix' => array_get($input, 'tablePrefix'),
                     'strict' => false,
                 ])
-                ->adminUser([
-                    'username' => array_get($input, 'adminUsername'),
-                    'password' => $this->getConfirmedAdminPassword($input),
-                    'email' => array_get($input, 'adminEmail'),
-                ])
+                ->adminUser($this->makeAdminUser($input))
                 ->settings([
                     'forum_title' => array_get($input, 'forumTitle'),
                     'mail_from' => 'noreply@'.preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)),
@@ -102,7 +99,21 @@ class InstallController implements RequestHandlerInterface
         return new Response\EmptyResponse;
     }
 
-    private function getConfirmedAdminPassword(array $input)
+    /**
+     * @param array $input
+     * @return AdminUser
+     * @throws ValidationFailed
+     */
+    private function makeAdminUser(array $input): AdminUser
+    {
+        return new AdminUser(
+            array_get($input, 'adminUsername'),
+            $this->getConfirmedAdminPassword($input),
+            array_get($input, 'adminEmail')
+        );
+    }
+
+    private function getConfirmedAdminPassword(array $input): string
     {
         $password = array_get($input, 'adminPassword');
         $confirmation = array_get($input, 'adminPasswordConfirmation');

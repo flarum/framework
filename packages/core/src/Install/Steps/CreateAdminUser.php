@@ -11,11 +11,10 @@
 
 namespace Flarum\Install\Steps;
 
-use Carbon\Carbon;
 use Flarum\Group\Group;
+use Flarum\Install\AdminUser;
 use Flarum\Install\Step;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Hashing\BcryptHasher;
 
 class CreateAdminUser implements Step
 {
@@ -25,11 +24,11 @@ class CreateAdminUser implements Step
     private $database;
 
     /**
-     * @var array
+     * @var AdminUser
      */
     private $admin;
 
-    public function __construct(ConnectionInterface $database, array $admin)
+    public function __construct(ConnectionInterface $database, AdminUser $admin)
     {
         $this->database = $database;
         $this->admin = $admin;
@@ -37,18 +36,14 @@ class CreateAdminUser implements Step
 
     public function getMessage()
     {
-        return 'Creating admin user '.$this->admin['username'];
+        return 'Creating admin user '.$this->admin->getUsername();
     }
 
     public function run()
     {
-        $uid = $this->database->table('users')->insertGetId([
-            'username' => $this->admin['username'],
-            'email' => $this->admin['email'],
-            'password' => (new BcryptHasher)->make($this->admin['password']),
-            'joined_at' => Carbon::now(),
-            'is_email_confirmed' => 1,
-        ]);
+        $uid = $this->database->table('users')->insertGetId(
+            $this->admin->getAttributes()
+        );
 
         $this->database->table('group_user')->insert([
             'user_id' => $uid,

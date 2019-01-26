@@ -12,6 +12,7 @@
 namespace Flarum\Install\Console;
 
 use Exception;
+use Flarum\Install\AdminUser;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -72,13 +73,13 @@ class FileDataProvider implements DataProviderInterface
         return $this->baseUrl ?? 'http://flarum.local';
     }
 
-    public function getAdminUser()
+    public function getAdminUser(): AdminUser
     {
-        return $this->adminUser + [
-            'username'              => 'admin',
-            'password'              => 'password',
-            'email'                 => 'admin@example.com',
-        ];
+        return new AdminUser(
+            $this->adminUser['username'] ?? 'admin',
+            $this->adminUser['password'] ?? 'password',
+            $this->adminUser['email'] ?? 'admin@example.com'
+        );
     }
 
     public function getSettings()
