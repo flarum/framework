@@ -13,6 +13,7 @@ namespace Flarum\Install\Console;
 
 use Flarum\Install\AdminUser;
 use Flarum\Install\DatabaseConfig;
+use Flarum\Install\Installation;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,7 +36,17 @@ class UserDataProvider implements DataProviderInterface
         $this->questionHelper = $questionHelper;
     }
 
-    public function getDatabaseConfiguration(): DatabaseConfig
+    public function configure(Installation $installation): Installation
+    {
+        return $installation
+            ->debugMode(false)
+            ->baseUrl($this->getBaseUrl())
+            ->databaseConfig($this->getDatabaseConfiguration())
+            ->adminUser($this->getAdminUser())
+            ->settings($this->getSettings());
+    }
+
+    private function getDatabaseConfiguration(): DatabaseConfig
     {
         $host = $this->ask('Database host:');
         $port = 3306;
@@ -55,12 +66,12 @@ class UserDataProvider implements DataProviderInterface
         );
     }
 
-    public function getBaseUrl()
+    private function getBaseUrl()
     {
         return $this->baseUrl = rtrim($this->ask('Base URL:'), '/');
     }
 
-    public function getAdminUser(): AdminUser
+    private function getAdminUser(): AdminUser
     {
         return new AdminUser(
             $this->ask('Admin username:'),
@@ -90,7 +101,7 @@ class UserDataProvider implements DataProviderInterface
         }
     }
 
-    public function getSettings()
+    private function getSettings()
     {
         $title = $this->ask('Forum title:');
         $baseUrl = $this->baseUrl ?: 'http://localhost';
@@ -102,14 +113,14 @@ class UserDataProvider implements DataProviderInterface
         ];
     }
 
-    protected function ask($question, $default = null)
+    private function ask($question, $default = null)
     {
         $question = new Question("<question>$question</question> ", $default);
 
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
-    protected function secret($question)
+    private function secret($question)
     {
         $question = new Question("<question>$question</question> ");
 
@@ -118,14 +129,9 @@ class UserDataProvider implements DataProviderInterface
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
-    protected function validationError($message)
+    private function validationError($message)
     {
         $this->output->writeln("<error>$message</error>");
         $this->output->writeln('Please try again.');
-    }
-
-    public function isDebugMode(): bool
-    {
-        return false;
     }
 }
