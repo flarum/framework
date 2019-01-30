@@ -11,8 +11,10 @@
 
 namespace Flarum\Tests\integration\api\Controller;
 
+use Flarum\Api\Client;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
@@ -46,9 +48,13 @@ abstract class ApiControllerTestCase extends TestCase
         );
     }
 
-    protected function tearDown()
+    public function call(string $controller, User $actor = null, array $queryParams = [], array $body = []): ResponseInterface
     {
-        $this->actor = null;
-        parent::tearDown();
+        /** @var Client $api */
+        $api = $this->app()->getContainer()->make(Client::class);
+
+        $api->setErrorHandler(null);
+
+        return $api->send($controller, $actor ?? new Guest, $queryParams, $body);
     }
 }

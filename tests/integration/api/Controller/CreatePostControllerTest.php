@@ -11,8 +11,9 @@
 
 namespace Flarum\Tests\integration\api\Controller;
 
+use Carbon\Carbon;
 use Flarum\Api\Controller\CreatePostController;
-use Flarum\Discussion\Discussion;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class CreatePostControllerTest extends ApiControllerTestCase
@@ -23,17 +24,28 @@ class CreatePostControllerTest extends ApiControllerTestCase
         'content' => 'reply with predetermined content for automated testing - too-obscure'
     ];
 
-    /**
-     * @var Discussion
-     */
-    protected $discussion;
-
-    protected function init()
+    public function setUp()
     {
-        $this->actor = $this->getNormalUser();
-        $this->discussion = Discussion::start(__CLASS__, $this->actor);
+        parent::setUp();
 
-        $this->discussion->save();
+        $this->prepareDatabase([
+            'discussions' => [
+                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2],
+            ],
+            'posts' => [],
+            'users' => [
+                $this->normalUser(),
+            ],
+            'groups' => [
+                $this->memberGroup(),
+            ],
+            'group_user' => [
+                ['user_id' => 2, 'group_id' => 3],
+            ],
+            'group_permission' => [
+                ['permission' => 'viewDiscussions', 'group_id' => 3],
+            ]
+        ]);
     }
 
     /**
@@ -41,9 +53,11 @@ class CreatePostControllerTest extends ApiControllerTestCase
      */
     public function can_create_reply()
     {
+        $this->actor = User::find(2);
+
         $body = [];
         Arr::set($body, 'data.attributes', $this->data);
-        Arr::set($body, 'data.relationships.discussion.data.id', $this->discussion->id);
+        Arr::set($body, 'data.relationships.discussion.data.id', 1);
 
         $response = $this->callWith($body);
 

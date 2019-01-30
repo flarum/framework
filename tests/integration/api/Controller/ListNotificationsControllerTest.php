@@ -12,10 +12,22 @@
 namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\ListNotificationsController;
+use Flarum\User\User;
 
 class ListNotificationsControllerTest extends ApiControllerTestCase
 {
     protected $controller = ListNotificationsController::class;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->normalUser(),
+            ],
+        ]);
+    }
 
     /**
      * @test
@@ -31,7 +43,7 @@ class ListNotificationsControllerTest extends ApiControllerTestCase
      */
     public function show_index_for_user()
     {
-        $this->actor = $this->getNormalUser();
+        $this->actor = User::find(2);
 
         $response = $this->callWith();
 
