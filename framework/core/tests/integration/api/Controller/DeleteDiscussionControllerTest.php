@@ -11,19 +11,34 @@
 
 namespace Flarum\Tests\integration\api\Controller;
 
+use Carbon\Carbon;
 use Flarum\Api\Controller\DeleteDiscussionController;
-use Flarum\Discussion\Discussion;
+use Flarum\User\User;
 
 class DeleteDiscussionControllerTest extends ApiControllerTestCase
 {
     protected $controller = DeleteDiscussionController::class;
-    protected $discussion;
 
-    protected function init()
+    public function setUp()
     {
-        $this->discussion = Discussion::start(__CLASS__, $this->getNormalUser());
+        parent::setUp();
 
-        $this->discussion->save();
+        $this->prepareDatabase([
+            'discussions' => [
+                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2],
+            ],
+            'posts' => [],
+            'users' => [
+                $this->adminUser(),
+                $this->normalUser(),
+            ],
+            'groups' => [
+                $this->adminGroup(),
+            ],
+            'group_user' => [
+                ['user_id' => 1, 'group_id' => 1],
+            ],
+        ]);
     }
 
     /**
@@ -31,9 +46,9 @@ class DeleteDiscussionControllerTest extends ApiControllerTestCase
      */
     public function admin_can_delete()
     {
-        $this->actor = $this->getAdminUser();
+        $this->actor = User::find(1);
 
-        $response = $this->callWith([], ['id' => $this->discussion->id]);
+        $response = $this->callWith([], ['id' => 1]);
 
         $this->assertEquals(204, $response->getStatusCode());
     }

@@ -13,6 +13,7 @@ namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\CreateGroupController;
 use Flarum\Group\Group;
+use Flarum\User\User;
 use Illuminate\Support\Str;
 
 class CreateGroupControllerTest extends ApiControllerTestCase
@@ -26,6 +27,24 @@ class CreateGroupControllerTest extends ApiControllerTestCase
         'color' => null
     ];
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->adminUser(),
+                $this->normalUser(),
+            ],
+            'groups' => [
+                $this->adminGroup(),
+            ],
+            'group_user' => [
+                ['user_id' => 1, 'group_id' => 1],
+            ],
+        ]);
+    }
+
     /**
      * @test
      * @expectedException \Illuminate\Validation\ValidationException
@@ -33,7 +52,7 @@ class CreateGroupControllerTest extends ApiControllerTestCase
      */
     public function admin_cannot_create_group_without_data()
     {
-        $this->actor = $this->getAdminUser();
+        $this->actor = User::find(1);
 
         $this->callWith();
     }
@@ -43,7 +62,7 @@ class CreateGroupControllerTest extends ApiControllerTestCase
      */
     public function admin_can_create_group()
     {
-        $this->actor = $this->getAdminUser();
+        $this->actor = User::find(1);
 
         $response = $this->callWith($this->data);
 
@@ -65,14 +84,8 @@ class CreateGroupControllerTest extends ApiControllerTestCase
      */
     public function unauthorized_user_cannot_create_group()
     {
-        $this->actor = $this->getNormalUser();
+        $this->actor = User::find(2);
 
         $this->callWith($this->data);
-    }
-
-    public function tearDown()
-    {
-        Group::where('icon', $this->data['icon'])->delete();
-        parent::tearDown();
     }
 }

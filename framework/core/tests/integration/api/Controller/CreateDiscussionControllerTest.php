@@ -13,7 +13,7 @@ namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\CreateDiscussionController;
 use Flarum\Discussion\Discussion;
-use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class CreateDiscussionControllerTest extends ApiControllerTestCase
@@ -25,12 +25,31 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
         'content' => 'predetermined content for automated testing - too-obscure'
     ];
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'discussions' => [],
+            'posts' => [],
+            'users' => [
+                $this->adminUser(),
+            ],
+            'groups' => [
+                $this->adminGroup(),
+            ],
+            'group_user' => [
+                ['user_id' => 1, 'group_id' => 1],
+            ],
+        ]);
+    }
+
     /**
      * @test
      */
     public function can_create_discussion()
     {
-        $this->actor = $this->getAdminUser();
+        $this->actor = User::find(1);
 
         $response = $this->callWith($this->data);
 
@@ -51,7 +70,7 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
      */
     public function cannot_create_discussion_without_content()
     {
-        $this->actor = $this->getAdminUser();
+        $this->actor = User::find(1);
 
         $data = Arr::except($this->data, 'content');
 
@@ -65,18 +84,10 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
      */
     public function cannot_create_discussion_without_title()
     {
-        $this->actor = $this->getAdminUser();
+        $this->actor = User::find(1);
 
         $data = Arr::except($this->data, 'title');
 
         $this->callWith($data);
-    }
-
-    public function tearDown()
-    {
-        Discussion::where('title', $this->data['title'])->delete();
-        // Prevent floodgate from kicking in.
-        Post::where('user_id', $this->getAdminUser()->id)->delete();
-        parent::tearDown();
     }
 }

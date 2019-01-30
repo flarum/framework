@@ -26,6 +26,23 @@ class CreateUserControllerTest extends ApiControllerTestCase
         'email' => 'test@machine.local'
     ];
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->adminUser(),
+            ],
+            'groups' => [
+                $this->adminGroup(),
+            ],
+            'group_user' => [
+                ['user_id' => 1, 'group_id' => 1],
+            ],
+        ]);
+    }
+
     /**
      * @test
      * @expectedException \Illuminate\Validation\ValidationException
@@ -60,7 +77,7 @@ class CreateUserControllerTest extends ApiControllerTestCase
      */
     public function admins_can_create_activated_users()
     {
-        $this->actor = $this->getAdminUser();
+        $this->actor = User::find(1);
 
         $response = $this->callWith(array_merge($this->data, [
             'isEmailConfirmed' => 1
@@ -89,11 +106,5 @@ class CreateUserControllerTest extends ApiControllerTestCase
         } finally {
             $settings->set('allow_sign_up', true);
         }
-    }
-
-    public function tearDown()
-    {
-        User::where('username', $this->data['username'])->delete();
-        parent::tearDown();
     }
 }

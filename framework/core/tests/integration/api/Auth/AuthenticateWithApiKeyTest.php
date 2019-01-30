@@ -13,9 +13,12 @@ namespace Flarum\Tests\integration\api\Auth;
 
 use Carbon\Carbon;
 use Flarum\Api\ApiKey;
+use Flarum\Api\Client;
 use Flarum\Api\Controller\CreateGroupController;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\Guest;
+use Flarum\User\User;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -27,6 +30,18 @@ use Zend\Stratigility\MiddlewarePipe;
 class AuthenticateWithApiKeyTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->adminUser(),
+                $this->normalUser(),
+            ],
+        ]);
+    }
 
     protected function key(int $user_id = null): ApiKey
     {
@@ -45,9 +60,11 @@ class AuthenticateWithApiKeyTest extends TestCase
      */
     public function cannot_authorize_without_key()
     {
-        $this->call(
-            CreateGroupController::class
-        );
+        /** @var Client $api */
+        $api = $this->app()->getContainer()->make(Client::class);
+        $api->setErrorHandler(null);
+
+        $api->send(CreateGroupController::class, new Guest);
     }
 
     /**
@@ -79,7 +96,7 @@ class AuthenticateWithApiKeyTest extends TestCase
      */
     public function personal_api_token_cannot_authenticate_as_anyone()
     {
-        $user = $this->getNormalUser();
+        $user = User::find(2);
 
         $key = $this->key($user->id);
 
@@ -105,7 +122,7 @@ class AuthenticateWithApiKeyTest extends TestCase
      */
     public function personal_api_token_authenticates_user()
     {
-        $user = $this->getNormalUser();
+        $user = User::find(2);
 
         $key = $this->key($user->id);
 
