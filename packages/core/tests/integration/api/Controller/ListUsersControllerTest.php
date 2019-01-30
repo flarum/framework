@@ -12,10 +12,28 @@
 namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\ListUsersController;
+use Flarum\User\User;
 
 class ListUsersControllerTest extends ApiControllerTestCase
 {
     protected $controller = ListUsersController::class;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->adminUser(),
+            ],
+            'groups' => [
+                $this->adminGroup(),
+            ],
+            'group_user' => [
+                ['user_id' => 1, 'group_id' => 1],
+            ],
+        ]);
+    }
 
     /**
      * @test
@@ -31,7 +49,7 @@ class ListUsersControllerTest extends ApiControllerTestCase
      */
     public function shows_index_for_admin()
     {
-        $this->actor = $this->getAdminUser();
+        $this->actor = User::find(1);
 
         $response = $this->callWith();
 

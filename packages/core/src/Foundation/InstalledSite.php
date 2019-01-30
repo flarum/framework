@@ -72,7 +72,7 @@ class InstalledSite implements SiteInterface
     /**
      * Create and boot a Flarum application instance.
      *
-     * @return AppInterface
+     * @return InstalledApp
      */
     public function bootApp(): AppInterface
     {

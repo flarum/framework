@@ -11,14 +11,13 @@
 
 namespace Flarum\Tests\integration\api\Controller;
 
+use Carbon\Carbon;
 use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Discussion\Discussion;
-use Flarum\Tests\integration\ManagesContent;
+use Flarum\User\User;
 
 class ShowDiscussionControllerTest extends ApiControllerTestCase
 {
-    use ManagesContent;
-
     protected $controller = ShowDiscussionController::class;
 
     /**
@@ -26,9 +25,34 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     protected $discussion;
 
-    protected function init()
+    public function setUp()
     {
-        $this->discussion = Discussion::start(__CLASS__, $this->getNormalUser());
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'discussions' => [
+                ['id' => 1, 'title' => 'Empty discussion', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => null, 'comment_count' => 0, 'is_private' => 0],
+                ['id' => 2, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 3, 'title' => 'Private discussion', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => null, 'comment_count' => 0, 'is_private' => 1],
+            ],
+            'posts' => [
+                ['id' => 1, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>a normal reply - too-obscure</p></t>'],
+            ],
+            'users' => [
+                $this->normalUser(),
+            ],
+            'groups' => [
+                $this->guestGroup(),
+                $this->memberGroup(),
+            ],
+            'group_user' => [
+                ['user_id' => 2, 'group_id' => 3],
+            ],
+            'group_permission' => [
+                ['permission' => 'viewDiscussions', 'group_id' => 2],
+                ['permission' => 'viewDiscussions', 'group_id' => 3],
+            ]
+        ]);
     }
 
     /**
@@ -36,11 +60,9 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function author_can_see_discussion()
     {
-        $this->discussion->save();
+        $this->actor = User::find(2);
 
-        $this->actor = $this->getNormalUser();
-
-        $response = $this->callWith([], ['id' => $this->discussion->id]);
+        $response = $this->callWith([], ['id' => 1]);
 
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -51,9 +73,7 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guest_cannot_see_empty_discussion()
     {
-        $this->discussion->save();
-
-        $response = $this->callWith([], ['id' => $this->discussion->id]);
+        $response = $this->callWith([], ['id' => 1]);
 
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -63,11 +83,7 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guest_can_see_discussion()
     {
-        $this->discussion->save();
-
-        $this->addPostByNormalUser();
-
-        $response = $this->callWith([], ['id' => $this->discussion->id]);
+        $response = $this->callWith([], ['id' => 2]);
 
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -78,9 +94,6 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guests_cannot_see_private_discussion()
     {
-        $this->discussion->is_private = true;
-        $this->discussion->save();
-
-        $this->callWith([], ['id' => $this->discussion->id]);
+        $this->callWith([], ['id' => 3]);
     }
 }
