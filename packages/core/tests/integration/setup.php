@@ -15,6 +15,25 @@ use Flarum\Install\Installation;
 
 require __DIR__.'/../../vendor/autoload.php';
 
+$host = env('DB_HOST', 'localhost');
+$port = intval(env('DB_PORT', 3306));
+$name = env('DB_DATABASE', 'flarum_test');
+$user = env('DB_USERNAME', 'root');
+$pass = env('DB_PASSWORD', '');
+$pref = env('DB_PREFIX', '');
+
+echo "Connecting to database $name at $host:$port.\n";
+echo "Logging in as $user with password '$pass'.\n";
+echo "Table prefix: '$pref'\n";
+
+echo "\n\nCancel now if that's not what you want...\n";
+echo "Use the following environment variables for configuration:\n";
+echo "DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_PREFIX\n";
+
+sleep(5);
+
+echo "\nOff we go...\n";
+
 /*
  * Setup installation configuration
  */
@@ -51,3 +70,5 @@ $pipeline = $installation
  */
 
 $pipeline->run();
+
+echo "Installation complete\n";
