@@ -11,10 +11,11 @@
 
 namespace Flarum\Install\Steps;
 
+use Flarum\Install\ReversibleStep;
 use Flarum\Install\Step;
 use Illuminate\Filesystem\Filesystem;
 
-class PublishAssets implements Step
+class PublishAssets implements Step, ReversibleStep
 {
     /**
      * @var string
@@ -41,7 +42,17 @@ class PublishAssets implements Step
     {
         (new Filesystem)->copyDirectory(
             "$this->basePath/vendor/components/font-awesome/webfonts",
-            "$this->assetPath/fonts"
+            $this->targetPath()
         );
+    }
+
+    public function revert()
+    {
+        (new Filesystem)->deleteDirectory($this->targetPath());
+    }
+
+    private function targetPath()
+    {
+        return "$this->assetPath/fonts";
     }
 }
