@@ -56,7 +56,7 @@ class StoreConfig implements Step, ReversibleStep
     {
         return [
             'debug'    => $this->debugMode,
-            'database' => $this->dbConfig->getConfig(),
+            'database' => $this->dbConfig->toArray(),
             'url'      => $this->baseUrl,
             'paths'    => $this->getPathsConfig(),
         ];
