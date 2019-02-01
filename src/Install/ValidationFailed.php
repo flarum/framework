@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Install\Console;
+namespace Flarum\Install;
 
-use Flarum\Install\Installation;
+use Exception;
 
-interface DataProviderInterface
+class ValidationFailed extends Exception
 {
-    public function configure(Installation $installation): Installation;
 }

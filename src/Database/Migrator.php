@@ -146,7 +146,9 @@ class Migrator
      */
     public function reset($path, Extension $extension = null)
     {
-        $migrations = array_reverse($this->repository->getRan($extension->getId()));
+        $migrations = array_reverse($this->repository->getRan(
+            $extension ? $extension->getId() : null
+        ));
 
         $count = count($migrations);
 
