@@ -222,26 +222,16 @@ class ExtensionManager
      * Runs the database migrations for the extension.
      *
      * @param Extension $extension
-     * @param bool|true $up
+     * @param string $direction
      * @return void
      */
-    public function migrate(Extension $extension, $up = true)
+    public function migrate(Extension $extension, $direction = 'up')
     {
-        if (! $extension->hasMigrations()) {
-            return;
-        }
-
-        $migrationDir = $extension->getPath().'/migrations';
-
         $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
             return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
         });
 
-        if ($up) {
-            $this->migrator->run($migrationDir, $extension);
-        } else {
-            $this->migrator->reset($migrationDir, $extension);
-        }
+        $extension->migrate($this->migrator, $direction);
     }
 
     /**
@@ -252,7 +242,7 @@ class ExtensionManager
      */
     public function migrateDown(Extension $extension)
     {
-        return $this->migrate($extension, false);
+        return $this->migrate($extension, 'down');
     }
 
     /**

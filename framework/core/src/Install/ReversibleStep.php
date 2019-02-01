@@ -9,11 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Install\Console;
+namespace Flarum\Install;
 
-use Flarum\Install\Installation;
-
-interface DataProviderInterface
+interface ReversibleStep
 {
-    public function configure(Installation $installation): Installation;
+    public function revert();
 }
