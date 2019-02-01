@@ -19,6 +19,7 @@ use Flarum\Foundation\SiteInterface;
 use Flarum\Foundation\UninstalledSite;
 use Flarum\Http\Server;
 use Flarum\Install\Console\DataProviderInterface;
+use Flarum\Install\DatabaseConfig;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Connectors\MySqlConnector;
 use Illuminate\Database\MySqlConnection;
@@ -73,20 +74,17 @@ trait CreatesForum
         $this->app = $this->site->bootApp();
     }
 
-    protected function getDatabaseConfiguration()
+    protected function getDatabaseConfiguration(): DatabaseConfig
     {
-        return [
-            'driver'    => 'mysql',
-            'host'      => env('DB_HOST', 'localhost'),
-            'database'  => env('DB_DATABASE', 'flarum'),
-            'username'  => env('DB_USERNAME', 'root'),
-            'password'  => env('DB_PASSWORD', ''),
-            'charset'   => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix'    => env('DB_PREFIX', ''),
-            'port'      => '3306',
-            'strict'    => false,
-        ];
+        return new DatabaseConfig(
+            'mysql',
+            env('DB_HOST', 'localhost'),
+            3306,
+            env('DB_DATABASE', 'flarum'),
+            env('DB_USERNAME', 'root'),
+            env('DB_PASSWORD', ''),
+            env('DB_PREFIX', '')
+        );
     }
 
     protected function refreshApplication()
@@ -109,7 +107,7 @@ trait CreatesForum
     {
         return [
             'debug'    => true,
-            'database' => $this->getDatabaseConfiguration(),
+            'database' => $this->getDatabaseConfiguration()->getConfig(),
             'url'      => 'http://flarum.local',
             'paths'    => [
                 'api'   => 'api',
@@ -124,7 +122,7 @@ trait CreatesForum
             return;
         }
 
-        $dbConfig = $this->getDatabaseConfiguration();
+        $dbConfig = $this->getDatabaseConfiguration()->getConfig();
 
         $pdo = (new MySqlConnector)->connect($dbConfig);
         $db = new MySqlConnection($pdo, $dbConfig['database'], $dbConfig['prefix'], $dbConfig);
