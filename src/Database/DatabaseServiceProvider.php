@@ -13,6 +13,7 @@ namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\ConnectionResolverInterface;
@@ -25,30 +26,31 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.db', function () {
-            $factory = new ConnectionFactory($this->app);
+        $this->app->singleton(ConnectionResolverInterface::class, function () {
+            $manager = new Manager($this->app);
 
             $dbConfig = $this->app->config('database');
             $dbConfig['engine'] = 'InnoDB';
             $dbConfig['prefix_indexes'] = true;
-            $connection = $factory->make($dbConfig);
-            $connection->setEventDispatcher($this->app->make(Dispatcher::class));
 
-            return $connection;
-        });
+            $manager->addConnection($dbConfig, 'flarum');
+            $manager->getDatabaseManager()->setDefaultConnection('flarum');
 
-        $this->app->alias('flarum.db', ConnectionInterface::class);
+            $manager->bootEloquent();
 
-        $this->app->singleton(ConnectionResolverInterface::class, function () {
-            $resolver = new ConnectionResolver([
-                'flarum' => $this->app->make('flarum.db'),
-            ]);
-            $resolver->setDefaultConnection('flarum');
-
-            return $resolver;
+            return $manager->getDatabaseManager();
         });
 
         $this->app->alias(ConnectionResolverInterface::class, 'db');
+
+        $this->app->singleton(ConnectionInterface::class, function ($app) {
+            $resolver = $app->make(ConnectionResolverInterface::class);
+
+            return $resolver->connection();
+        });
+
+        $this->app->alias(ConnectionInterface::class, 'db.connection');
+        $this->app->alias(ConnectionInterface::class, 'flarum.db');
     }
 
     /**
