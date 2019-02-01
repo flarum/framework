@@ -52,7 +52,7 @@ class DefaultInstallationTest extends TestCase
     {
         $factory = new ConnectionFactory(app());
 
-        return $factory->make($this->getDatabaseConfiguration()->getConfig());
+        return $factory->make($this->getDatabaseConfiguration()->toArray());
     }
 
     private function getAdmin(): AdminUser

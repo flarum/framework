@@ -11,7 +11,9 @@
 
 namespace Flarum\Install;
 
-class DatabaseConfig
+use Illuminate\Contracts\Support\Arrayable;
+
+class DatabaseConfig implements Arrayable
 {
     private $driver;
     private $host;
@@ -34,7 +36,7 @@ class DatabaseConfig
         $this->validate();
     }
 
-    public function getConfig(): array
+    public function toArray()
     {
         return [
             'driver'    => $this->driver,
