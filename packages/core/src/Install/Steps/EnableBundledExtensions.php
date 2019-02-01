@@ -18,6 +18,7 @@ use Flarum\Install\Step;
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 
@@ -91,7 +92,7 @@ class EnableBundledExtensions implements Step
     {
         $json = file_get_contents("$this->basePath/vendor/composer/installed.json");
 
-        return collect(json_decode($json, true))
+        return (new Collection(json_decode($json, true)))
             ->filter(function ($package) {
                 return Arr::get($package, 'type') == 'flarum-extension';
             })->filter(function ($package) {

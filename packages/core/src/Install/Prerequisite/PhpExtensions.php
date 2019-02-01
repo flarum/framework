@@ -24,7 +24,7 @@ class PhpExtensions implements PrerequisiteInterface
 
     public function problems(): Collection
     {
-        return collect($this->extensions)
+        return (new Collection($this->extensions))
             ->reject(function ($extension) {
                 return extension_loaded($extension);
             })->map(function ($extension) {
