@@ -34,7 +34,7 @@ class Composite implements PrerequisiteInterface
             function (Collection $errors, PrerequisiteInterface $condition) {
                 return $errors->concat($condition->problems());
             },
-            collect()
+            new Collection
         );
     }
 }
