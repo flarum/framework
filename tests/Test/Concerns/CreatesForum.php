@@ -107,7 +107,7 @@ trait CreatesForum
     {
         return [
             'debug'    => true,
-            'database' => $this->getDatabaseConfiguration()->getConfig(),
+            'database' => $this->getDatabaseConfiguration()->toArray(),
             'url'      => 'http://flarum.local',
             'paths'    => [
                 'api'   => 'api',
@@ -122,7 +122,7 @@ trait CreatesForum
             return;
         }
 
-        $dbConfig = $this->getDatabaseConfiguration()->getConfig();
+        $dbConfig = $this->getDatabaseConfiguration()->toArray();
 
         $pdo = (new MySqlConnector)->connect($dbConfig);
         $db = new MySqlConnection($pdo, $dbConfig['database'], $dbConfig['prefix'], $dbConfig);
