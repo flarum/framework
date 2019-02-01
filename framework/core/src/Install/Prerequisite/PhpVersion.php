@@ -24,13 +24,15 @@ class PhpVersion implements PrerequisiteInterface
 
     public function problems(): Collection
     {
+        $collection = new Collection;
+
         if (version_compare(PHP_VERSION, $this->minVersion, '<')) {
-            return collect()->push([
+            $collection->push([
                 'message' => "PHP $this->minVersion is required.",
                 'detail' => 'You are running version '.PHP_VERSION.'. You might want to talk to your system administrator about upgrading to the latest PHP version.',
             ]);
         }
 
-        return collect();
+        return $collection;
     }
 }
