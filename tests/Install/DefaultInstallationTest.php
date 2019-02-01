@@ -11,6 +11,7 @@
 
 namespace Flarum\Tests\Install;
 
+use Flarum\Install\AdminUser;
 use Flarum\Install\Installation;
 use Flarum\Tests\Test\TestCase;
 use Illuminate\Database\Connectors\ConnectionFactory;
@@ -41,11 +42,9 @@ class DefaultInstallationTest extends TestCase
 
         $this->assertFileExists(base_path('config.php'));
 
-        $admin = $this->getAdmin();
-
         $this->assertEquals(
             $this->getDatabase()->table('users')->find(1)->username,
-            $admin['username']
+            'admin'
         );
     }
 
@@ -53,17 +52,16 @@ class DefaultInstallationTest extends TestCase
     {
         $factory = new ConnectionFactory(app());
 
-        return $factory->make($this->getDatabaseConfiguration());
+        return $factory->make($this->getDatabaseConfiguration()->getConfig());
     }
 
-    private function getAdmin()
+    private function getAdmin(): AdminUser
     {
-        return [
-            'username' => 'admin',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-            'email' => 'admin@example.com',
-        ];
+        return new AdminUser(
+            'admin',
+            'password',
+            'admin@example.com'
+        );
     }
 
     private function getSettings()
