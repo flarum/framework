@@ -19,9 +19,11 @@ use Flarum\Foundation\SiteInterface;
 use Flarum\Foundation\UninstalledSite;
 use Flarum\Http\Server;
 use Flarum\Install\Console\DataProviderInterface;
-use Flarum\Install\Console\DefaultsDataProvider;
+use Flarum\Install\DatabaseConfig;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Connectors\ConnectionFactory;
+use Illuminate\Database\Connectors\MySqlConnector;
+use Illuminate\Database\MySqlConnection;
+use Illuminate\Filesystem\Filesystem;
 
 trait CreatesForum
 {
@@ -72,26 +74,21 @@ trait CreatesForum
         $this->app = $this->site->bootApp();
     }
 
-    protected function collectsConfiguration()
+    protected function getDatabaseConfiguration(): DatabaseConfig
     {
-        $this->configuration = new DefaultsDataProvider();
-
-        $this->configuration->setDebugMode();
-        $this->configuration->setSetting('mail_driver', 'log');
-
-        $database = $this->configuration->getDatabaseConfiguration();
-        $database['host'] = env('DB_HOST', $database['host']);
-        $database['database'] = env('DB_DATABASE', $database['database']);
-        $database['username'] = env('DB_USERNAME', $database['username']);
-        $database['password'] = env('DB_PASSWORD', $database['password']);
-        $database['prefix'] = env('DB_PREFIX', $database['prefix']);
-        $this->configuration->setDatabaseConfiguration($database);
+        return new DatabaseConfig(
+            'mysql',
+            env('DB_HOST', 'localhost'),
+            3306,
+            env('DB_DATABASE', 'flarum'),
+            env('DB_USERNAME', 'root'),
+            env('DB_PASSWORD', ''),
+            env('DB_PREFIX', '')
+        );
     }
 
     protected function refreshApplication()
     {
-        $this->collectsConfiguration();
-
         $this->seedsDatabase();
 
         $this->createsSite();
@@ -108,23 +105,10 @@ trait CreatesForum
 
     protected function getFlarumConfig()
     {
-        $dbConfig = $this->configuration->getDatabaseConfiguration();
-
         return [
-            'debug'    => $this->configuration->isDebugMode(),
-            'database' => [
-                'driver'    => $dbConfig['driver'],
-                'host'      => $dbConfig['host'],
-                'database'  => $dbConfig['database'],
-                'username'  => $dbConfig['username'],
-                'password'  => $dbConfig['password'],
-                'charset'   => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix'    => $dbConfig['prefix'],
-                'port'      => $dbConfig['port'],
-                'strict'    => false
-            ],
-            'url'      => $this->configuration->getBaseUrl(),
+            'debug'    => true,
+            'database' => $this->getDatabaseConfiguration()->toArray(),
+            'url'      => 'http://flarum.local',
             'paths'    => [
                 'api'   => 'api',
                 'admin' => 'admin',
@@ -138,13 +122,13 @@ trait CreatesForum
             return;
         }
 
-        $app = app(\Illuminate\Contracts\Foundation\Application::class);
+        $dbConfig = $this->getDatabaseConfiguration()->toArray();
 
-        $factory = new ConnectionFactory($app);
-        $db = $factory->make($this->configuration->getDatabaseConfiguration());
+        $pdo = (new MySqlConnector)->connect($dbConfig);
+        $db = new MySqlConnection($pdo, $dbConfig['database'], $dbConfig['prefix'], $dbConfig);
 
         $repository = new DatabaseMigrationRepository($db, 'migrations');
-        $migrator = new Migrator($repository, $db, app('files'));
+        $migrator = new Migrator($repository, $db, new Filesystem);
 
         if (! $migrator->getRepository()->repositoryExists()) {
             $migrator->getRepository()->createRepository();

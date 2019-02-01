@@ -14,11 +14,6 @@ namespace Flarum\Install;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
-use Flarum\Install\Prerequisite\Composite;
-use Flarum\Install\Prerequisite\PhpExtensions;
-use Flarum\Install\Prerequisite\PhpVersion;
-use Flarum\Install\Prerequisite\PrerequisiteInterface;
-use Flarum\Install\Prerequisite\WritablePaths;
 
 class InstallServiceProvider extends AbstractServiceProvider
 {
@@ -27,31 +22,16 @@ class InstallServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->bind(
-            PrerequisiteInterface::class,
-            function () {
-                return new Composite(
-                    new PhpVersion('7.1.0'),
-                    new PhpExtensions([
-                        'dom',
-                        'gd',
-                        'json',
-                        'mbstring',
-                        'openssl',
-                        'pdo_mysql',
-                        'tokenizer',
-                    ]),
-                    new WritablePaths([
-                        base_path(),
-                        public_path('assets'),
-                        storage_path(),
-                    ])
-                );
-            }
-        );
-
         $this->app->singleton('flarum.install.routes', function () {
             return new RouteCollection;
+        });
+
+        $this->app->singleton(Installation::class, function () {
+            return new Installation(
+                $this->app->basePath(),
+                $this->app->publicPath(),
+                $this->app->storagePath()
+            );
         });
     }
 

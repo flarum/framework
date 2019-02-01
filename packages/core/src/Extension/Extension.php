@@ -11,12 +11,18 @@
 
 namespace Flarum\Extension;
 
+use Flarum\Database\Migrator;
 use Flarum\Extend\Compat;
 use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemInterface;
+use League\Flysystem\MountManager;
+use League\Flysystem\Plugin\ListFiles;
 
 /**
  * @property string $name
@@ -307,6 +313,25 @@ class Extension implements Arrayable
         return realpath($this->path.'/assets/') !== false;
     }
 
+    public function copyAssetsTo(FilesystemInterface $target)
+    {
+        if (! $this->hasAssets()) {
+            return;
+        }
+
+        $mount = new MountManager([
+            'source' => $source = new Filesystem(new Local($this->getPath().'/assets')),
+            'target' => $target,
+        ]);
+
+        $source->addPlugin(new ListFiles);
+        $assetFiles = $source->listFiles('/', true);
+
+        foreach ($assetFiles as $file) {
+            $mount->copy("source://$file[path]", "target://extensions/$this->id/$file[path]");
+        }
+    }
+
     /**
      * Tests whether the extension has migrations.
      *
@@ -315,6 +340,19 @@ class Extension implements Arrayable
     public function hasMigrations()
     {
         return realpath($this->path.'/migrations/') !== false;
+    }
+
+    public function migrate(Migrator $migrator, $direction = 'up')
+    {
+        if (! $this->hasMigrations()) {
+            return;
+        }
+
+        if ($direction == 'up') {
+            return $migrator->run($this->getPath().'/migrations', $this);
+        } else {
+            return $migrator->reset($this->getPath().'/migrations', $this);
+        }
     }
 
     /**
