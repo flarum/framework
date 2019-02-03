@@ -18,6 +18,7 @@ use Flarum\User\PasswordToken;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Support\MessageBag;
 use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -86,7 +87,7 @@ class SavePasswordController implements RequestHandlerInterface
                 throw new ValidationException($validator);
             }
         } catch (ValidationException $e) {
-            $request->getAttribute('session')->put('errors', $e->errors());
+            $request->getAttribute('session')->put('errors', new MessageBag($e->errors()));
 
             return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->token]));
         }
