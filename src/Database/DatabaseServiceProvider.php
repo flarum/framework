@@ -26,19 +26,27 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(ConnectionResolverInterface::class, function () {
-            $manager = new Manager($this->app);
+        $this->app->singleton(Manager::class, function ($app) {
+            $manager = new Manager($app);
 
-            $dbConfig = $this->app->config('database');
-            $dbConfig['engine'] = 'InnoDB';
-            $dbConfig['prefix_indexes'] = true;
+            $config = $app->config('database');
+            $config['engine'] = 'InnoDB';
+            $config['prefix_indexes'] = true;
 
-            $manager->addConnection($dbConfig, 'flarum');
-            $manager->getDatabaseManager()->setDefaultConnection('flarum');
+            $manager->addConnection($config, 'flarum');
 
+            return $manager;
+        });
+
+        $this->app->singleton(ConnectionResolverInterface::class, function ($app) {
+            $manager = $app->make(Manager::class);
+            $manager->setAsGlobal();
             $manager->bootEloquent();
 
-            return $manager->getDatabaseManager();
+            $dbManager = $manager->getDatabaseManager();
+            $dbManager->setDefaultConnection('flarum');
+
+            return $dbManager;
         });
 
         $this->app->alias(ConnectionResolverInterface::class, 'db');
