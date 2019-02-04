@@ -12,11 +12,9 @@
 namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\ConnectionResolverInterface;
-use Illuminate\Database\Connectors\ConnectionFactory;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
 {
@@ -25,30 +23,39 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.db', function () {
-            $factory = new ConnectionFactory($this->app);
+        $this->app->singleton(Manager::class, function ($app) {
+            $manager = new Manager($app);
 
-            $dbConfig = $this->app->config('database');
-            $dbConfig['engine'] = 'InnoDB';
-            $dbConfig['prefix_indexes'] = true;
-            $connection = $factory->make($dbConfig);
-            $connection->setEventDispatcher($this->app->make(Dispatcher::class));
+            $config = $app->config('database');
+            $config['engine'] = 'InnoDB';
+            $config['prefix_indexes'] = true;
 
-            return $connection;
+            $manager->addConnection($config, 'flarum');
+
+            return $manager;
         });
 
-        $this->app->alias('flarum.db', ConnectionInterface::class);
+        $this->app->singleton(ConnectionResolverInterface::class, function ($app) {
+            $manager = $app->make(Manager::class);
+            $manager->setAsGlobal();
+            $manager->bootEloquent();
 
-        $this->app->singleton(ConnectionResolverInterface::class, function () {
-            $resolver = new ConnectionResolver([
-                'flarum' => $this->app->make('flarum.db'),
-            ]);
-            $resolver->setDefaultConnection('flarum');
+            $dbManager = $manager->getDatabaseManager();
+            $dbManager->setDefaultConnection('flarum');
 
-            return $resolver;
+            return $dbManager;
         });
 
         $this->app->alias(ConnectionResolverInterface::class, 'db');
+
+        $this->app->singleton(ConnectionInterface::class, function ($app) {
+            $resolver = $app->make(ConnectionResolverInterface::class);
+
+            return $resolver->connection();
+        });
+
+        $this->app->alias(ConnectionInterface::class, 'db.connection');
+        $this->app->alias(ConnectionInterface::class, 'flarum.db');
     }
 
     /**
