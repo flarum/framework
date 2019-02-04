@@ -12,12 +12,9 @@
 namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\ConnectionResolverInterface;
-use Illuminate\Database\Connectors\ConnectionFactory;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
 {
