@@ -12,7 +12,7 @@
 namespace Flarum\Install\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
-use Flarum\Install\Prerequisite\PrerequisiteInterface;
+use Flarum\Install\Installation;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -24,18 +24,18 @@ class IndexController extends AbstractHtmlController
     protected $view;
 
     /**
-     * @var \Flarum\Install\Prerequisite\PrerequisiteInterface
+     * @var Installation
      */
-    protected $prerequisite;
+    protected $installation;
 
     /**
      * @param Factory $view
-     * @param PrerequisiteInterface $prerequisite
+     * @param Installation $installation
      */
-    public function __construct(Factory $view, PrerequisiteInterface $prerequisite)
+    public function __construct(Factory $view, Installation $installation)
     {
         $this->view = $view;
-        $this->prerequisite = $prerequisite;
+        $this->installation = $installation;
     }
 
     /**
@@ -46,13 +46,12 @@ class IndexController extends AbstractHtmlController
     {
         $view = $this->view->make('flarum.install::app')->with('title', 'Install Flarum');
 
-        $this->prerequisite->check();
-        $errors = $this->prerequisite->getErrors();
+        $problems = $this->installation->prerequisites()->problems();
 
-        if (count($errors)) {
-            $view->with('content', $this->view->make('flarum.install::errors')->with('errors', $errors));
-        } else {
+        if ($problems->isEmpty()) {
             $view->with('content', $this->view->make('flarum.install::install'));
+        } else {
+            $view->with('content', $this->view->make('flarum.install::problems')->with('problems', $problems));
         }
 
         return $view;

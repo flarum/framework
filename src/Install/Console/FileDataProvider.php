@@ -12,12 +12,14 @@
 namespace Flarum\Install\Console;
 
 use Exception;
+use Flarum\Install\AdminUser;
+use Flarum\Install\DatabaseConfig;
+use Flarum\Install\Installation;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class FileDataProvider implements DataProviderInterface
 {
-    protected $default;
     protected $debug = false;
     protected $baseUrl = null;
     protected $databaseConfiguration = [];
@@ -26,9 +28,6 @@ class FileDataProvider implements DataProviderInterface
 
     public function __construct(InputInterface $input)
     {
-        // Get default configuration
-        $this->default = new DefaultsDataProvider();
-
         // Get configuration file path
         $configurationFile = $input->getOption('file');
 
@@ -55,28 +54,35 @@ class FileDataProvider implements DataProviderInterface
         }
     }
 
-    public function getDatabaseConfiguration()
+    public function configure(Installation $installation): Installation
     {
-        return $this->databaseConfiguration + $this->default->getDatabaseConfiguration();
+        return $installation
+            ->debugMode($this->debug)
+            ->baseUrl($this->baseUrl ?? 'http://flarum.local')
+            ->databaseConfig($this->getDatabaseConfiguration())
+            ->adminUser($this->getAdminUser())
+            ->settings($this->settings);
     }
 
-    public function getBaseUrl()
+    private function getDatabaseConfiguration(): DatabaseConfig
     {
-        return (! is_null($this->baseUrl)) ? $this->baseUrl : $this->default->getBaseUrl();
+        return new DatabaseConfig(
+            $this->databaseConfiguration['driver'] ?? 'mysql',
+            $this->databaseConfiguration['host'] ?? 'localhost',
+            $this->databaseConfiguration['port'] ?? 3306,
+            $this->databaseConfiguration['database'] ?? 'flarum',
+            $this->databaseConfiguration['username'] ?? 'root',
+            $this->databaseConfiguration['password'] ?? '',
+            $this->databaseConfiguration['prefix'] ?? ''
+        );
     }
 
-    public function getAdminUser()
+    private function getAdminUser(): AdminUser
     {
-        return $this->adminUser + $this->default->getAdminUser();
-    }
-
-    public function getSettings()
-    {
-        return $this->settings + $this->default->getSettings();
-    }
-
-    public function isDebugMode(): bool
-    {
-        return $this->debug;
+        return new AdminUser(
+            $this->adminUser['username'] ?? 'admin',
+            $this->adminUser['password'] ?? 'password',
+            $this->adminUser['email'] ?? 'admin@example.com'
+        );
     }
 }
