@@ -50,6 +50,7 @@ class DatabaseConfig implements Arrayable
             'prefix'    => $this->prefix,
             'strict'    => false,
             'engine'    => 'InnoDB',
+            'prefix_indexes' => true
         ];
     }
 
