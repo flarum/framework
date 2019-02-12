@@ -19,7 +19,6 @@ use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Event\ClearingCache;
-use Flarum\Foundation\MaintenanceModeHandler;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Assets;
