@@ -19,6 +19,7 @@ use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Foundation\MaintenanceModeHandler;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Assets;
@@ -56,13 +57,14 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.forum.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
+            $pipe->pipe($app->makeWith(HttpMiddleware\MaintenanceMode::class, ['maintenance' => $app->isDownForMaintenance()]));
+
             // All requests should first be piped through our global error handler
             if ($app->inDebugMode()) {
                 $pipe->pipe($app->make(HttpMiddleware\HandleErrorsWithWhoops::class));
             } else {
                 $pipe->pipe($app->make(HttpMiddleware\HandleErrorsWithView::class));
             }
-
             $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
             $pipe->pipe($app->make(HttpMiddleware\CollectGarbage::class));
             $pipe->pipe($app->make(HttpMiddleware\StartSession::class));

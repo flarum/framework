@@ -48,7 +48,7 @@ class InstalledApp implements AppInterface
     public function getRequestHandler()
     {
         if ($this->inMaintenanceMode()) {
-            return new MaintenanceModeHandler();
+//            return new MaintenanceModeHandler();
         } elseif ($this->needsUpdate()) {
             return $this->getUpdaterHandler();
         }
