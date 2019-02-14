@@ -4,12 +4,37 @@
 
 ### Added
 - New `hasPermission()` helper method for `Group` objects ([9684fbc](https://github.com/flarum/core/commit/9684fbc4da07d32aa322d9228302a23418412cb9))
+- Expose supported mail drivers in IoC container ([208bad3](https://github.com/flarum/core/commit/208bad393f37bfdb76007afcddfa4b7451563e9d))
+- More test for some API endpoints ([1670590](https://github.com/flarum/core/commit/167059027e5a066d618599c90164ef1b5a509148))
+- The `Formatter\Rendering` event now receives the HTTP request instance as well ([0ab9fac](https://github.com/flarum/core/commit/0ab9facc4bd59a260575e6fc650793c663e5866a))
+- More and better validation in installer UIs
+- Check and enforce minimum MariaDB ([7ff9a90](https://github.com/flarum/core/commit/7ff9a90204923293adc520d3c02dc984845d4f9f))
+- Revert publication of assets when installation fails ([ed9591c](https://github.com/flarum/core/commit/ed9591c16fb2ea7a4be3387b805d855a53e0a7d5))
+- Benefit from Laravel's database reconnection logic in long-running tasks ([e0becd0](https://github.com/flarum/core/commit/e0becd0c7bda939048923c1f86648793feee78d5))
 
 ### Changed
 - Performance: Actually cache translations on disk ([0d16fac](https://github.com/flarum/core/commit/0d16fac001bb735ee66e82871183516aeac269b7))
+- Allow per-site extenders to override extension extenders ([ba594de](https://github.com/flarum/core/commit/ba594de13a033480834d53d73f747b05fe9796f8))
+- Do not resolve objects from the IoC container (in service providers and extenders) until they are actually used
+- Replace event subscribers (that resolve objects from the IoC container) with listeners (that resolve lazily)
+- Use custom service provider for Mail component ([ac5e26a](https://github.com/flarum/core/commit/ac5e26a254d89e21bd4c115b6cbd40338e2e4b4b))
+- Update to Laravel 5.7, revert custom logic for building database index names
+- Refactored installer, extracted Installation class and pipeline for reuse in CLI and web installers ([790d5be](https://github.com/flarum/core/commit/790d5beee5e283178716bc8f9901c758d9e5b6a0))
+- Use whitelist for enabling pre-installed extensions during installation ([4585f03](https://github.com/flarum/core/commit/4585f03ee356c92942fbc2ae8c683c651b473954))
+- Update minimum MySQL version ([7ff9a90](https://github.com/flarum/core/commit/7ff9a90204923293adc520d3c02dc984845d4f9f))
 
 ### Fixed
-- Fix signing up via OAuth providers ([67f9375](https://github.com/flarum/core/commit/67f9375d4745add194ae3249d526197c32fd5461))
+- Signing up via OAuth providers was broken ([67f9375](https://github.com/flarum/core/commit/67f9375d4745add194ae3249d526197c32fd5461))
+- Group badges were overlapping ([16eb1fa](https://github.com/flarum/core/commit/16eb1fa63b6d7b80ec30c24c0e406a2b7ab09934))
+- API: Endpoint for uninstalling extensions returned an error ([c761802](https://github.com/flarum/core/commit/c76180290056ddbab67baf5ede814fcedf1dcf14))
+- Documentation links in installer were outdated ([b58380e](https://github.com/flarum/core/commit/b58380e224ee54abdade3d0a4cc107ef5c91c9a9))
+- Event posts where counted when aggregating user posts ([671fdec](https://github.com/flarum/core/commit/671fdec8d0a092ccceb5d4d5f657d0f4287fc4c7))
+- Admins could not reset user passwords ([c67fb2d](https://github.com/flarum/core/commit/c67fb2d4b6a128c71d65dc6703310c0b62f91be2))
+- Several down migrations were invalid
+- Validation errors on reset password page resulted in HTTP 404 ([4611abe](https://github.com/flarum/core/commit/4611abe5db8b94ca3dc7bf9c447fca7c67358ee3))
+
+### Removed
+- `php flarum install --defaults` - this was meant to be used in our old development VM ([44c9109](https://github.com/flarum/core/commit/44c91099cd77138bb5fc29f14fb1e81a9781272d))
 
 ## [0.1.0-beta.8.1](https://github.com/flarum/core/compare/v0.1.0-beta.8...v0.1.0-beta.8.1)
 
