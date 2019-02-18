@@ -84,17 +84,21 @@ export default class EditGroupModal extends Modal {
     return items;
   }
 
+  submitData() {
+    return {
+      nameSingular: this.nameSingular(),
+      namePlural: this.namePlural(),
+      color: this.color(),
+      icon: this.icon()
+    };
+  }
+
   onsubmit(e) {
     e.preventDefault();
 
     this.loading = true;
 
-    this.group.save({
-      nameSingular: this.nameSingular(),
-      namePlural: this.namePlural(),
-      color: this.color(),
-      icon: this.icon()
-    }, {errorHandler: this.onerror.bind(this)})
+    this.group.save(this.submitData(), {errorHandler: this.onerror.bind(this)})
       .then(this.hide.bind(this))
       .catch(() => {
         this.loading = false;
