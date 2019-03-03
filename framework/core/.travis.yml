@@ -11,9 +11,9 @@ install:
 
 before_script:
   - echo 'error_reporting = E_ALL' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
-  - composer test:setup
 
 script:
+  - composer test:setup
   - composer test
 
 jobs:
