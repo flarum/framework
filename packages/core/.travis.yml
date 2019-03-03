@@ -7,16 +7,14 @@ cache:
 
 install:
   - composer install
-  - mysql -e 'CREATE DATABASE flarum;'
+  - mysql -e 'CREATE DATABASE flarum_test;'
 
 before_script:
   - echo 'error_reporting = E_ALL' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - composer test:setup
 
 script:
-  - vendor/bin/phpunit --coverage-clover=coverage.xml
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - composer test
 
 jobs:
   include:

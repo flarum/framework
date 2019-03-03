@@ -42,6 +42,11 @@ class InstalledApp implements AppInterface
         $this->config = $config;
     }
 
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
     /**
      * @return \Psr\Http\Server\RequestHandlerInterface
      */
