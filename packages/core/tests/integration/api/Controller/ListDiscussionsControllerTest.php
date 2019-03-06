@@ -93,7 +93,9 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
             'include' => 'mostRelevantPost'
         ]);
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) { return $row['id']; }, $data['data']);
+        $ids = array_map(function ($row) {
+            return $row['id'];
+        }, $data['data']);
 
         // Order-independent comparison
         $this->assertEquals(['2', '3'], $ids, 'IDs do not match', 0.0, 10, true);
