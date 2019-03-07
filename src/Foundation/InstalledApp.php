@@ -47,9 +47,7 @@ class InstalledApp implements AppInterface
      */
     public function getRequestHandler()
     {
-        if ($this->inMaintenanceMode()) {
-//            return new MaintenanceModeHandler();
-        } elseif ($this->needsUpdate()) {
+        if ($this->needsUpdate()) {
             return $this->getUpdaterHandler();
         }
 
@@ -66,11 +64,6 @@ class InstalledApp implements AppInterface
         $pipe->pipe(new RequestHandler($this->container));
 
         return $pipe;
-    }
-
-    private function inMaintenanceMode(): bool
-    {
-        return $this->config['offline'] ?? false;
     }
 
     private function needsUpdate(): bool

@@ -56,7 +56,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.forum.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
-            $pipe->pipe($app->makeWith(HttpMiddleware\MaintenanceMode::class, ['maintenance' => $app->isDownForMaintenance()]));
+            $pipe->pipe($app->make(HttpMiddleware\MaintenanceMode::class, ['maintenance' => $app->isDownForMaintenance()]));
 
             // All requests should first be piped through our global error handler
             if ($app->inDebugMode()) {

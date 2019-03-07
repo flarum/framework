@@ -38,22 +38,15 @@ class MaintenanceMode implements Middleware
 
     public function process(Request $request, Handler $handler): Response
     {
-        if ($this->maintenance && $this->isApiRequest($request)) {
+        if (! $this->maintenance) {
+            return $handler->handle($request);
+        }
+
+        if ($this->isApiRequest($request)) {
             return $this->apiResponse();
         }
 
-        if ($this->maintenance) {
-            $template = 'flarum.forum::frontend.maintenance';
-            $status = 503;
-
-            event(new RenderMaintenancePage($template, $status));
-
-            $view = $this->view->make($template);
-
-            return new HtmlResponse($view->render(), $status);
-        }
-
-        return $handler->handle($request);
+        return $this->htmlResponse();
     }
 
     private function isApiRequest(Request $request): bool
@@ -74,5 +67,17 @@ class MaintenanceMode implements Middleware
             503,
             ['Content-Type' => 'application/vnd.api+json']
         );
+    }
+
+    private function htmlResponse(): Response
+    {
+        $template = 'flarum.forum::frontend.maintenance';
+        $status = 503;
+
+        event(new RenderMaintenancePage($template, $status));
+
+        $view = $this->view->make($template);
+
+        return new HtmlResponse($view->render(), $status);
     }
 }

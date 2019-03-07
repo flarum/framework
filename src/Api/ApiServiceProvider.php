@@ -49,7 +49,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.api.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
-            $pipe->pipe($app->makeWith(HttpMiddleware\MaintenanceMode::class, ['maintenance' => $app->isDownForMaintenance()]));
+            $pipe->pipe($app->make(HttpMiddleware\MaintenanceMode::class, ['maintenance' => $app->isDownForMaintenance()]));
 
             $pipe->pipe($app->make(Middleware\HandleErrors::class));
 
