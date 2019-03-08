@@ -63,8 +63,8 @@ class MailServiceProvider extends AbstractServiceProvider
             case 'log':
                 return new LogTransport($this->app->make(LoggerInterface::class));
             default:
-                if ($this->app->bound('mail.driver.' . $driver)) {
-                    return $this->app->make('mail.driver.' . $driver);
+                if ($this->app->bound('mail.driver.'.$driver)) {
+                    return $this->app->make('mail.driver.'.$driver);
                 }
 
                 throw new InvalidArgumentException('Invalid mail driver configuration');
