@@ -16,6 +16,7 @@ use Flarum\Formatter\Event\Parsing;
 use Flarum\Formatter\Event\Rendering;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
+use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Unparser;
 
@@ -69,13 +70,14 @@ class Formatter
      *
      * @param string $xml
      * @param mixed $context
+     * @param ServerRequestInterface|null $request
      * @return string
      */
-    public function render($xml, $context = null)
+    public function render($xml, $context = null, ServerRequestInterface $request = null)
     {
         $renderer = $this->getRenderer();
 
-        $this->events->dispatch(new Rendering($renderer, $context, $xml));
+        $this->events->dispatch(new Rendering($renderer, $context, $xml, $request));
 
         return $renderer->render($xml);
     }

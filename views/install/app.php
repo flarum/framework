@@ -129,30 +129,30 @@
         animation-name: fadeIn;
       }
 
-      .Errors {
+      .Problems {
         margin-top: 50px;
       }
-      .Errors .Error:first-child {
+      .Problems .Problem:first-child {
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
       }
-      .Errors .Error:last-child {
+      .Problems .Problem:last-child {
         border-bottom-left-radius: 4px;
         border-bottom-right-radius: 4px;
       }
-      .Error {
+      .Problem {
         background: #EDF2F7;
         margin: 0 0 1px;
         padding: 20px 25px;
         text-align: left;
       }
-      .Error-message {
+      .Problem-message {
         font-size: 16px;
         color: #3C5675;
         font-weight: normal;
         margin: 0;
       }
-      .Error-detail {
+      .Problem-detail {
         font-size: 13px;
         margin: 5px 0 0;
       }

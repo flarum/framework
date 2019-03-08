@@ -13,6 +13,7 @@ namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
+use Illuminate\Filesystem\Filesystem;
 
 class MigrationServiceProvider extends AbstractServiceProvider
 {
@@ -21,12 +22,12 @@ class MigrationServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('Flarum\Database\MigrationRepositoryInterface', function ($app) {
+        $this->app->singleton(MigrationRepositoryInterface::class, function ($app) {
             return new DatabaseMigrationRepository($app['flarum.db'], 'migrations');
         });
 
         $this->app->bind(MigrationCreator::class, function (Application $app) {
-            return new MigrationCreator($app->make('Illuminate\Filesystem\Filesystem'), $app->basePath());
+            return new MigrationCreator($app->make(Filesystem::class), $app->basePath());
         });
     }
 }

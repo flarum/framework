@@ -753,7 +753,7 @@ class User extends AbstractModel
      */
     public function refreshCommentCount()
     {
-        $this->comment_count = $this->posts()->count();
+        $this->comment_count = $this->posts()->where('type', 'comment')->count();
 
         return $this;
     }

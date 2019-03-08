@@ -7,13 +7,14 @@ cache:
 
 install:
   - composer install
-  - mysql -e 'CREATE DATABASE flarum;'
+  - mysql -e 'CREATE DATABASE flarum_test;'
+
+before_script:
+  - echo 'error_reporting = E_ALL' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
 script:
-  - vendor/bin/phpunit --coverage-clover=coverage.xml
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - composer test:setup
+  - composer test
 
 jobs:
   include:
@@ -23,8 +24,8 @@ jobs:
     - php: 7.2
       env: DB=mysql
 
-    - php: 7.2
-      env: DB=mysql PREFIX=forum_
+    - php: 7.3
+      env: DB=mysql
 
     - php: 7.1
       addons:
@@ -35,6 +36,14 @@ jobs:
       addons:
         mariadb: '10.2'
       env: DB=mariadb
+
+    - php: 7.3
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+
+    - php: 7.2
+      env: DB=mysql PREFIX=forum_
 
     - stage: build
       language: generic

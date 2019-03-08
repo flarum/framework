@@ -40,7 +40,10 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->singleton('flarum.api.routes', function () {
-            return new RouteCollection;
+            $routes = new RouteCollection;
+            $this->populateRoutes($routes);
+
+            return $routes;
         });
 
         $this->app->singleton('flarum.api.middleware', function (Application $app) {
@@ -90,8 +93,6 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->populateRoutes($this->app->make('flarum.api.routes'));
-
         $this->registerNotificationSerializers();
 
         AbstractSerializeController::setContainer($this->app);

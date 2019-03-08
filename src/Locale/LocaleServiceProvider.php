@@ -26,14 +26,8 @@ class LocaleServiceProvider extends AbstractServiceProvider
      */
     public function boot(Dispatcher $events)
     {
-        $locales = $this->app->make('flarum.locales');
-
-        $locales->addLocale($this->getDefaultLocale(), 'Default');
-
-        $events->dispatch(new ConfigureLocales($locales));
-
-        $events->listen(ClearingCache::class, function () use ($locales) {
-            $locales->clearCache();
+        $events->listen(ClearingCache::class, function () {
+            $this->app->make('flarum.locales')->clearCache();
         });
     }
 
@@ -43,10 +37,16 @@ class LocaleServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->app->singleton(LocaleManager::class, function () {
-            return new LocaleManager(
+            $locales = new LocaleManager(
                 $this->app->make('translator'),
                 $this->getCacheDir()
             );
+
+            $locales->addLocale($this->getDefaultLocale(), 'Default');
+
+            event(new ConfigureLocales($locales));
+
+            return $locales;
         });
 
         $this->app->alias(LocaleManager::class, 'flarum.locales');

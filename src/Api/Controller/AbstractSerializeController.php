@@ -102,7 +102,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         );
 
         $serializer = static::$container->make($this->serializer);
-        $serializer->setActor($request->getAttribute('actor'));
+        $serializer->setRequest($request);
 
         $element = $this->createElement($data, $serializer)
             ->with($this->extractInclude($request))

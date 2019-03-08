@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
@@ -32,23 +31,18 @@ return [
             'hidden_user_id' => $selectId('users', 'hidden_user_id'),
         ]);
 
-        $schema->table('posts', function (Blueprint $table) use ($schema) {
+        $schema->table('posts', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('edited_user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('hidden_user_id')->references('id')->on('users')->onDelete('set null');
-
-            Migration::fixIndexNames($schema, $table);
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) use ($schema) {
+        $schema->table('posts', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-            $table->dropForeign(['discussion_id']);
             $table->dropForeign(['edited_user_id']);
             $table->dropForeign(['hidden_user_id']);
-
-            Migration::fixIndexNames($schema, $table);
         });
     }
 ];
