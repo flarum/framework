@@ -1,0 +1,31 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Flarum\Mail;
+
+use Flarum\Settings\SettingsRepositoryInterface;
+use Swift_Transport;
+
+/**
+ * An interface for a mail service
+ *
+ * This interface provides all methods necessary for configuring, checking and
+ * using one of Laravel's various email drivers throughout Flarum.
+ *
+ * @public
+ */
+interface DriverInterface
+{
+    /**
+     * Build a mail transport based on Flarum's current settings
+     */
+    public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport;
+}
