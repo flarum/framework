@@ -12,7 +12,6 @@
 namespace Flarum\Mail;
 
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Support\MessageBag as MessageBagContract;
 use Illuminate\Mail\Transport\LogTransport;
 use Psr\Log\LoggerInterface;
 use Swift_Transport;
