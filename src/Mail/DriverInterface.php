@@ -15,7 +15,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Swift_Transport;
 
 /**
- * An interface for a mail service
+ * An interface for a mail service.
  *
  * This interface provides all methods necessary for configuring, checking and
  * using one of Laravel's various email drivers throughout Flarum.
@@ -25,7 +25,7 @@ use Swift_Transport;
 interface DriverInterface
 {
     /**
-     * Build a mail transport based on Flarum's current settings
+     * Build a mail transport based on Flarum's current settings.
      */
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport;
 }
