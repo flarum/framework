@@ -2,6 +2,7 @@ import Page from './Page';
 import FieldSet from '../../common/components/FieldSet';
 import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
+import Select from '../../common/components/Select';
 import saveSettings from '../utils/saveSettings';
 
 export default class MailPage extends Page {
@@ -42,42 +43,42 @@ export default class MailPage extends Page {
             </div>
 
             {FieldSet.component({
-              label: app.translator.trans('core.admin.email.server_heading'),
-              className: 'MailPage-MailSettings',
-              children: [
-                <div className="MailPage-MailSettings-input">
-                  <label>{app.translator.trans('core.admin.email.driver_label')}</label>
-                  <input className="FormControl" value={this.values.mail_driver() || ''} oninput={m.withAttr('value', this.values.mail_driver)} />
-                  <label>{app.translator.trans('core.admin.email.host_label')}</label>
-                  <input className="FormControl" value={this.values.mail_host() || ''} oninput={m.withAttr('value', this.values.mail_host)} />
-                  <label>{app.translator.trans('core.admin.email.port_label')}</label>
-                  <input className="FormControl" value={this.values.mail_port() || ''} oninput={m.withAttr('value', this.values.mail_port)} />
-                  <label>{app.translator.trans('core.admin.email.encryption_label')}</label>
-                  <input className="FormControl" value={this.values.mail_encryption() || ''} oninput={m.withAttr('value', this.values.mail_encryption)} />
-                </div>
-              ]
-            })}
-
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.email.account_heading'),
-              className: 'MailPage-MailSettings',
-              children: [
-                <div className="MailPage-MailSettings-input">
-                  <label>{app.translator.trans('core.admin.email.username_label')}</label>
-                  <input className="FormControl" value={this.values.mail_username() || ''} oninput={m.withAttr('value', this.values.mail_username)} />
-                  <label>{app.translator.trans('core.admin.email.password_label')}</label>
-                  <input className="FormControl" value={this.values.mail_password() || ''} oninput={m.withAttr('value', this.values.mail_password)} />
-                </div>
-              ]
-            })}
-
-            {FieldSet.component({
               label: app.translator.trans('core.admin.email.addresses_heading'),
               className: 'MailPage-MailSettings',
               children: [
                 <div className="MailPage-MailSettings-input">
                   <label>{app.translator.trans('core.admin.email.from_label')}</label>
                   <input className="FormControl" value={this.values.mail_from() || ''} oninput={m.withAttr('value', this.values.mail_from)} />
+                </div>
+              ]
+            })}
+
+            {FieldSet.component({
+              label: app.translator.trans('core.admin.email.driver_heading'),
+              className: 'MailPage-MailSettings',
+              children: [
+                <div className="MailPage-MailSettings-input">
+                  <label>{app.translator.trans('core.admin.email.driver_label')}</label>
+                  <Select value={this.values.mail_driver()} options={Object.keys(this.driverFields).reduce((memo, val) => ({...memo, [val]: val}), {})} onchange={this.values.mail_driver} />
+                </div>
+              ]
+            })}
+
+            {this.values.mail_driver() == 'smtp' && FieldSet.component({
+              label: app.translator.trans('core.admin.email.smtp_heading'),
+              className: 'MailPage-MailSettings',
+              children: [
+                <div className="MailPage-MailSettings-input">
+                  <label>{app.translator.trans('core.admin.email.host_label')}</label>
+                  <input className = "FormControl" value={this.values.mail_host() || ''} onInput={m.withAttr('value', this.values.mail_host)} />
+                  <label>{app.translator.trans('core.admin.email.port_label')}</label>
+                  <input className="FormControl" value={this.values.mail_port() || ''} oninput={m.withAttr('value', this.values.mail_port)} />
+                  <label>{app.translator.trans('core.admin.email.encryption_label')}</label>
+                  <input className="FormControl" value={this.values.mail_encryption() || ''} oninput={m.withAttr('value', this.values.mail_encryption)} />
+                  <label>{app.translator.trans('core.admin.email.username_label')}</label>
+                  <input className="FormControl" value={this.values.mail_username() || ''} onInput={m.withAttr('value', this.values.mail_username)}/>
+                  <label>{app.translator.trans('core.admin.email.password_label')}</label>
+                  <input className="FormControl" value={this.values.mail_password() || ''} onInput={m.withAttr('value', this.values.mail_password)}/>
                 </div>
               ]
             })}
