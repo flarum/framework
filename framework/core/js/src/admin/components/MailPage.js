@@ -11,6 +11,12 @@ export default class MailPage extends Page {
 
     this.loading = false;
 
+    this.driverFields = {
+      smtp: ['mail_host', 'mail_port', 'mail_encryption', 'mail_username', 'mail_password'],
+      mail: [],
+      log: [],
+    };
+
     this.fields = [
       'mail_driver',
       'mail_host',
