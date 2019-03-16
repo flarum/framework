@@ -1,0 +1,29 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Flarum\Mail;
+
+use Flarum\Settings\SettingsRepositoryInterface;
+use GuzzleHttp\Client;
+use Illuminate\Mail\Transport\MailgunTransport;
+use Swift_Transport;
+
+class MailgunDriver implements DriverInterface
+{
+    public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
+    {
+        return new MailgunTransport(
+            new Client(['connect_timeout' => 60]),
+            $settings->get('mail_mailgun_secret'),
+            $settings->get('mail_mailgun_domain')
+        );
+    }
+}

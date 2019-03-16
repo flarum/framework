@@ -22,9 +22,12 @@ class MailServiceProvider extends AbstractServiceProvider
     {
         $this->app->singleton('mail.supported_drivers', function () {
             return [
-                'smtp' => SmtpDriver::class,
                 'mail' => SendmailDriver::class,
+                'mailgun' => MailgunDriver::class,
+                'mandrill' => MandrillDriver::class,
                 'log' => LogDriver::class,
+                'ses' => SesDriver::class,
+                'smtp' => SmtpDriver::class,
             ];
         });
 
