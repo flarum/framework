@@ -89,8 +89,9 @@ core:
 
     # These translations are used in the email page of the admin interface.
     email:
-      account_heading: SMTP Account
       addresses_heading: Addresses
+      driver_heading: Choose a driver
+      smtp_heading: SMTP Settings
       driver_label: Driver
       encryption_label: Encryption
       from_label: Sender
@@ -98,7 +99,6 @@ core:
       host_label: Host
       password_label: => core.ref.password
       port_label: Port
-      server_heading: SMTP Server
       submit_button: => core.ref.save_changes
       text: Configure the SMTP settings and addresses your forum will use to send email.
       username_label: => core.ref.username
