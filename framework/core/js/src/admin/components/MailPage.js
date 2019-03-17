@@ -30,12 +30,6 @@ export default class MailPage extends Page {
 
     const settings = app.data.settings;
     this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
-
-    this.localeOptions = {};
-    const locales = app.locales;
-    for (const i in locales) {
-      this.localeOptions[i] = `${locales[i]} (${i})`;
-    }
   }
 
   view() {
