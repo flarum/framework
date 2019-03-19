@@ -13,7 +13,6 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\MailDriverSerializer;
 use Flarum\User\AssertPermissionTrait;
-use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
