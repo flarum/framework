@@ -18,6 +18,13 @@ use Swift_Transport;
 
 class MandrillDriver implements DriverInterface
 {
+    public function availableSettings(): array
+    {
+        return [
+            'mail_mandrill_secret',
+        ];
+    }
+
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
         return new MandrillTransport(
