@@ -25,6 +25,11 @@ use Swift_Transport;
 interface DriverInterface
 {
     /**
+     * Provide a list of settings for this driver.
+     */
+    public function availableSettings(): array;
+
+    /**
      * Build a mail transport based on Flarum's current settings.
      */
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport;

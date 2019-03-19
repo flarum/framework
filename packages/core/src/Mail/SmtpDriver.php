@@ -17,6 +17,17 @@ use Swift_Transport;
 
 class SmtpDriver implements DriverInterface
 {
+    public function availableSettings(): array
+    {
+        return [
+            'mail_host', // a hostname, IPv4 address or IPv6 wrapped in []
+            'mail_port', // a number, defaults to 25
+            'mail_encryption', // "tls" or "ssl"
+            'mail_username', // required
+            'mail_password', // required
+        ];
+    }
+
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
         $transport = new Swift_SmtpTransport(

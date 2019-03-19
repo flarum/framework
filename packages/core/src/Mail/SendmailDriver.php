@@ -17,6 +17,11 @@ use Swift_Transport;
 
 class SendmailDriver implements DriverInterface
 {
+    public function availableSettings(): array
+    {
+        return [];
+    }
+
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
         return new Swift_SendmailTransport;
