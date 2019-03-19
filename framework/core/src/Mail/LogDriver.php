@@ -28,6 +28,11 @@ class LogDriver implements DriverInterface
         $this->logger = $logger;
     }
 
+    public function availableSettings(): array
+    {
+        return [];
+    }
+
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
         return new LogTransport($this->logger);

@@ -18,6 +18,14 @@ use Swift_Transport;
 
 class MailgunDriver implements DriverInterface
 {
+    public function availableSettings(): array
+    {
+        return [
+            'mail_mailgun_secret', // the secret key
+            'mail_mailgun_domain', // the API base URL
+        ];
+    }
+
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
         return new MailgunTransport(
