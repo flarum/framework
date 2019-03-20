@@ -89,7 +89,7 @@ export default class MailPage extends Page {
                 <div className="MailPage-MailSettings-input">
                   {this.driverFields[this.values.mail_driver()].flatMap(field => [
                     <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
-                    <input className="FormControl" value={this.values[field]() || ''} onInput={m.withAttr('value', this.values[field])} />
+                    <input className="FormControl" value={this.values[field]() || ''} oninput={m.withAttr('value', this.values[field])} />
                   ])}
                 </div>
               ]
