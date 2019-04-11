@@ -2,12 +2,17 @@ import { extend } from 'flarum/extend';
 import TextEditor from 'flarum/components/TextEditor';
 import icon from 'flarum/helpers/icon';
 
-import '@webcomponents/custom-elements';
-import 'harmony-reflect';
-import '@github/markdown-toolbar-element';
-import MarkdownArea from 'mdarea/mdarea.js';
+let MarkdownArea;
+
+if (window.Reflect) {
+  require('@webcomponents/custom-elements');
+  require('@github/markdown-toolbar-element');
+  MarkdownArea = require('mdarea/mdarea.js');
+}
 
 app.initializers.add('flarum-markdown', function(app) {
+  if (!MarkdownArea) return;
+
   let index = 1;
 
   extend(TextEditor.prototype, 'init', function() {
