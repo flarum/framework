@@ -94,7 +94,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $assets->css(function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../less/forum.less');
                 $sources->addString(function () {
-                    return $this->app->make(SettingsRepositoryInterface::class)->get('custom_less');
+                    return $this->app->make(SettingsRepositoryInterface::class)->get('custom_less') ?? '';
                 });
             });
 
