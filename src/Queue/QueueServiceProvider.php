@@ -37,29 +37,31 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     public function register()
     {
-        $this->app->singleton('queue.connection', function ($app) {
+        $this->app->singleton(ConnectorInterface::class, function ($app) {
             return $app['queue']->connection();
         });
 
-        $this->app->alias(ConnectorInterface::class, 'queue.connection');
-
-        $this->app->singleton('queue', function ($app) {
+        $this->app->singleton(Factory::class, function ($app) {
             $manager = new QueueManager($app);
 
-            $manager->addConnector('sync', new SyncConnector);
+            $manager->addConnector('sync', function () {
+                return new SyncConnector;
+            });
 
             return $manager;
         });
 
-        $this->app->alias(Factory::class, 'queue');
-
-        $this->app->singleton('queue.worker', function ($app) {
+        $this->app->singleton(Worker::class, function ($app) {
             return new Worker(
                 $app['queue'], $app['events'], $app[ExceptionHandler::class]
             );
         });
 
+        $this->app->alias(ConnectorInterface::class, 'queue.connection');
+        $this->app->alias(Factory::class, 'queue');
         $this->app->alias(Worker::class, 'queue.worker');
+
+        $this->app->make(Factory::class);
 
         $this->registerCommands();
     }
