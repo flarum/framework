@@ -61,8 +61,6 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->app->alias(Factory::class, 'queue');
         $this->app->alias(Worker::class, 'queue.worker');
 
-        $this->app->make(Factory::class);
-
         $this->registerCommands();
     }
 
