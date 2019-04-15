@@ -14,6 +14,8 @@ namespace Flarum\Queue;
 use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Contracts\Queue\Factory;
+use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Connectors\SyncConnector;
 use Illuminate\Queue\Console as Commands;
 use Illuminate\Queue\QueueManager;
@@ -39,6 +41,8 @@ class QueueServiceProvider extends AbstractServiceProvider
             return $app['queue']->connection();
         });
 
+        $this->app->alias(ConnectorInterface::class, 'queue.connection');
+
         $this->app->singleton('queue', function ($app) {
             $manager = new QueueManager($app);
 
@@ -47,11 +51,15 @@ class QueueServiceProvider extends AbstractServiceProvider
             return $manager;
         });
 
+        $this->app->alias(Factory::class, 'queue');
+
         $this->app->singleton('queue.worker', function ($app) {
             return new Worker(
                 $app['queue'], $app['events'], $app[ExceptionHandler::class]
             );
         });
+
+        $this->app->alias(Worker::class, 'queue.worker');
 
         $this->registerCommands();
     }
