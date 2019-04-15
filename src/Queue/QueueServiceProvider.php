@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Flarum\Queue;
 
 use Flarum\Console\Event\Configuring;
@@ -30,7 +39,7 @@ class QueueServiceProvider extends AbstractServiceProvider
             return $app['queue']->connection();
         });
 
-        $this->app->singleton('queue', function($app) {
+        $this->app->singleton('queue', function ($app) {
             $manager = new QueueManager($app);
 
             $manager->addConnector('sync', new SyncConnector);
