@@ -11,6 +11,7 @@
 
 namespace Flarum\User;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
 use League\Flysystem\FilesystemInterface;
@@ -46,7 +47,7 @@ class AvatarUploader
 
     public function remove(User $user)
     {
-        $avatarPath = array_get($user->getAttributes(), 'avatar_url');
+        $avatarPath = Arr::get($user->getAttributes(), 'avatar_url');
 
         $user->afterSave(function () use ($avatarPath) {
             if ($this->uploadDir->has($avatarPath)) {
