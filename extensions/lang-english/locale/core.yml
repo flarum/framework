@@ -94,11 +94,10 @@ core:
       driver_label: Driver
       from_label: Sender
       heading: => core.ref.email
-      mailgun_heading: Mailgun Settings
       mail_encryption_label: Encryption
       mail_host_label: Host
-      mail_mailgun_secret_label: Secret key
       mail_mailgun_domain_label: Domain
+      mail_mailgun_secret_label: Secret key
       mail_mandrill_secret_label: Secret key
       mail_password_label: => core.ref.password
       mail_port_label: Port
@@ -106,6 +105,7 @@ core:
       mail_ses_region_label: Region
       mail_ses_secret_label: Secret
       mail_username_label: => core.ref.username
+      mailgun_heading: Mailgun Settings
       mandrill_heading: Mandrill Settings
       ses_heading: SES Settings
       smtp_heading: SMTP Settings
