@@ -13,6 +13,7 @@ namespace Flarum\Queue;
 
 use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Connectors\SyncConnector;
@@ -60,6 +61,20 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->app->singleton(Listener::class, function ($app) {
             return new Listener($app->basePath());
         });
+
+        $this->app->singleton('cache', function ($app) {
+            $manager = new CacheManager($app);
+
+            $manager->extend('flarum', function () use ($app) {
+                return $app['cache.store'];
+            });
+
+            $manager->setDefaultDriver('flarum');
+
+            return $manager;
+        });
+
+        $this->app['config']->set("cache.stores.flarum", ['driver' => 'flarum']);
 
         $this->app->alias(ConnectorInterface::class, 'queue.connection');
         $this->app->alias(Factory::class, 'queue');
