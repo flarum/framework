@@ -32,10 +32,13 @@
 - Admins could not reset user passwords ([c67fb2d](https://github.com/flarum/core/commit/c67fb2d4b6a128c71d65dc6703310c0b62f91be2))
 - Several down migrations were invalid
 - Validation errors on reset password page resulted in HTTP 404 ([4611abe](https://github.com/flarum/core/commit/4611abe5db8b94ca3dc7bf9c447fca7c67358ee3))
-- Fix `is:unread` gambit ([e17bb0b](https://github.com/flarum/core/commit/e17bb0b4331f2c92459292195c6b7db8cde1f9f3))
+- `is:unread` gambit generated an invalid query ([e17bb0b](https://github.com/flarum/core/commit/e17bb0b4331f2c92459292195c6b7db8cde1f9f3))
+- Entire forum was breaking when the `custom_less` setting was missing from the database ([bf2c5a5](https://github.com/flarum/core/commit/bf2c5a5564dff3f5ef13efe7a8d69f2617570ce6))
+- Dropdown icon was not showing in user card when on user page ([12fdfc9](https://github.com/flarum/core/commit/12fdfc9b544a27f6fe59c82ad6bddd3420cc0181))
 
 ### Removed
 - `php flarum install --defaults` - this was meant to be used in our old development VM ([44c9109](https://github.com/flarum/core/commit/44c91099cd77138bb5fc29f14fb1e81a9781272d))
+- Obsolete `id` attributes in JSON-API responses ([ecc3b5e](https://github.com/flarum/core/commit/ecc3b5e2271f8d9b38d52cd54476d86995dbe32e) and [7a44086](https://github.com/flarum/core/commit/7a44086bf3a0e3ba907dceb13d07ac695eca05ea))
 
 ## [0.1.0-beta.8.1](https://github.com/flarum/core/compare/v0.1.0-beta.8...v0.1.0-beta.8.1)
 
