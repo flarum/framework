@@ -18,6 +18,7 @@ use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Connectors\SyncConnector;
 use Illuminate\Queue\Console as Commands;
+use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Queue\Worker;
@@ -72,6 +73,10 @@ class QueueServiceProvider extends AbstractServiceProvider
             $manager->setDefaultDriver('flarum');
 
             return $manager;
+        });
+
+        $this->app->singleton('queue.failer', function () {
+            return new NullFailedJobProvider();
         });
 
         $this->app['config']->set("cache.stores.flarum", ['driver' => 'flarum']);
