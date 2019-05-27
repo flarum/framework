@@ -79,7 +79,7 @@ class QueueServiceProvider extends AbstractServiceProvider
             return new NullFailedJobProvider();
         });
 
-        $this->app['config']->set("cache.stores.flarum", ['driver' => 'flarum']);
+        $this->app['config']->set('cache.stores.flarum', ['driver' => 'flarum']);
 
         $this->app->alias(ConnectorInterface::class, 'queue.connection');
         $this->app->alias(Factory::class, 'queue');
