@@ -91,7 +91,7 @@ class InstalledApp implements AppInterface
     /**
      * @return \Psr\Http\Server\RequestHandlerInterface
      */
-    public function getUpdaterHandler()
+    private function getUpdaterHandler()
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(
