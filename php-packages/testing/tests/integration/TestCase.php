@@ -24,27 +24,36 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->app();
     }
 
+    /**
+     * @var \Flarum\Foundation\InstalledApp
+     */
     protected $app;
+
+    /**
+     * @var \Psr\Http\Server\RequestHandlerInterface
+     */
+    protected $server;
 
     /**
      * @return \Flarum\Foundation\InstalledApp
      */
     protected function app()
     {
-        if (! is_null($this->app)) {
-            return $this->app;
+        if (is_null($this->app)) {
+            $site = new InstalledSite(
+                [
+                    'base' => __DIR__.'/tmp',
+                    'public' => __DIR__.'/tmp/public',
+                    'storage' => __DIR__.'/tmp/storage',
+                ],
+                include __DIR__.'/tmp/config.php'
+            );
+
+            $this->app = $site->bootApp();
+            $this->server = $this->app->getRequestHandler();
         }
 
-        $site = new InstalledSite(
-            [
-                'base' => __DIR__.'/tmp',
-                'public' => __DIR__.'/tmp/public',
-                'storage' => __DIR__.'/tmp/storage',
-            ],
-            include __DIR__.'/tmp/config.php'
-        );
-
-        return $this->app = $site->bootApp();
+        return $this->app;
     }
 
     protected $database;
