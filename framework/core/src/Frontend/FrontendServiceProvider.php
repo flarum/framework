@@ -72,8 +72,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
     public function addBaseCss(SourceCollector $sources)
     {
-        $sources->addFile(base_path().'/vendor/flarum/core/less/common/variables.less');
-        $sources->addFile(base_path().'/vendor/flarum/core/less/common/mixins.less');
+        $sources->addFile(__DIR__.'/../../less/common/variables.less');
+        $sources->addFile(__DIR__.'/../../less/common/mixins.less');
 
         $this->addLessVariables($sources);
     }
