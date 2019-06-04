@@ -293,7 +293,7 @@ class ExtensionManager
      */
     public function getEnabled()
     {
-        return json_decode($this->config->get('extensions_enabled'), true);
+        return json_decode($this->config->get('extensions_enabled'), true) ?? [];
     }
 
     /**
