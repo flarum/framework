@@ -57,6 +57,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithHeader::class));
+            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
             $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
 
             event(new ConfigureMiddleware($pipe, 'api'));
