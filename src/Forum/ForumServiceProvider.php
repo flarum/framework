@@ -68,6 +68,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
             $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
+            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
             $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
             $pipe->pipe($app->make(HttpMiddleware\ShareErrorsFromSession::class));
 

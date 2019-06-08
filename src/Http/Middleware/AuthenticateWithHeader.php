@@ -44,6 +44,8 @@ class AuthenticateWithHeader implements Middleware
                 $token->touch();
 
                 $actor = $token->user;
+
+                $request = $request->withAttribute('bypassCsrfToken', true);
             }
 
             if (isset($actor)) {
