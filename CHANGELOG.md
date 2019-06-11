@@ -36,6 +36,7 @@
 - Entire forum was breaking when the `custom_less` setting was missing from the database ([bf2c5a5](https://github.com/flarum/core/commit/bf2c5a5564dff3f5ef13efe7a8d69f2617570ce6))
 - Dropdown icon was not showing in user card when on user page ([12fdfc9](https://github.com/flarum/core/commit/12fdfc9b544a27f6fe59c82ad6bddd3420cc0181))
 - Requests were missing the `original*` attributes, which broke installations in subfolders ([56fde28](https://github.com/flarum/core/commit/56fde28e436f52fee0c03c538f0a6049bc584b53))
+- Using `like` in queries would allow underscores to match other users as well ([ee3640e]https://github.com/flarum/core/commit/ee3640e1605ff67fef4b3d5cd0596f14a6ae73c9))
 - Font awesome component package changed paths in version 5.9.0 ([5eb69e1](https://github.com/flarum/core/commit/5eb69e1f59fa73fdfd5badbf41a05a6a040e7426))
 
 ### Removed
