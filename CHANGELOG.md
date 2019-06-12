@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.1.0-beta.9](https://github.com/flarum/core/compare/v0.1.0-beta.8.2...v0.1.0-beta.9)
 
 ### Added
 - New `hasPermission()` helper method for `Group` objects ([9684fbc](https://github.com/flarum/core/commit/9684fbc4da07d32aa322d9228302a23418412cb9))
