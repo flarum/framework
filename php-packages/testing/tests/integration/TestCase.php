@@ -43,6 +43,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             $site = new InstalledSite(
                 [
                     'base' => __DIR__.'/tmp',
+                    'vendor' => __DIR__.'/../../vendor',
                     'public' => __DIR__.'/tmp/public',
                     'storage' => __DIR__.'/tmp/storage',
                 ],
