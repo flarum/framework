@@ -189,7 +189,7 @@ class Tag extends AbstractModel
         $ids = [];
         $hasGlobalPermission = $user->hasPermission($permission);
 
-        $canForTag = function (Tag $tag) use ($user, $permission, $hasGlobalPermission) {
+        $canForTag = function (self $tag) use ($user, $permission, $hasGlobalPermission) {
             return ($hasGlobalPermission && ! $tag->is_restricted) || ($tag->is_restricted && $user->hasPermission('tag'.$tag->id.'.'.$permission));
         };
 
