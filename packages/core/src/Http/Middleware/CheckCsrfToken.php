@@ -39,7 +39,8 @@ class CheckCsrfToken implements Middleware
     private function tokensMatch(Request $request): bool
     {
         $expected = (string) $request->getAttribute('session')->token();
-        $provided = $request->getHeaderLine('X-CSRF-Token'); // TODO: Use form field, if provided
+        $provided = $request->getParsedBody()['csrfToken'] ??
+            $request->getHeaderLine('X-CSRF-Token');
 
         return hash_equals($expected, $provided);
     }
