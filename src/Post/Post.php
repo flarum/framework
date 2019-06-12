@@ -92,19 +92,19 @@ class Post extends AbstractModel
         // When a post is created, set its type according to the value of the
         // subclass. Also give it an auto-incrementing number within the
         // discussion.
-        static::creating(function (Post $post) {
+        static::creating(function (self $post) {
             $post->type = $post::$type;
             $post->number = ++$post->discussion->post_number_index;
             $post->discussion->save();
         });
 
-        static::saving(function (Post $post) {
+        static::saving(function (self $post) {
             $event = new GetModelIsPrivate($post);
 
             $post->is_private = static::$dispatcher->until($event) === true;
         });
 
-        static::deleted(function (Post $post) {
+        static::deleted(function (self $post) {
             $post->raise(new Deleted($post));
 
             Notification::whereSubject($post)->delete();
