@@ -20,16 +20,16 @@ class PublishAssets implements Step, ReversibleStep
     /**
      * @var string
      */
-    private $basePath;
+    private $vendorPath;
 
     /**
      * @var string
      */
     private $assetPath;
 
-    public function __construct($basePath, $assetPath)
+    public function __construct($vendorPath, $assetPath)
     {
-        $this->basePath = $basePath;
+        $this->vendorPath = $vendorPath;
         $this->assetPath = $assetPath;
     }
 
@@ -41,7 +41,7 @@ class PublishAssets implements Step, ReversibleStep
     public function run()
     {
         (new Filesystem)->copyDirectory(
-            "$this->basePath/vendor/components/font-awesome/webfonts",
+            "$this->vendorPath/components/font-awesome/webfonts",
             $this->targetPath()
         );
     }
