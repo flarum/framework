@@ -12,21 +12,21 @@
 namespace Flarum\Database\Console;
 
 use Flarum\Console\AbstractCommand;
-use Illuminate\Contracts\Container\Container;
+use Flarum\Foundation\Application;
 
 class MigrateCommand extends AbstractCommand
 {
     /**
-     * @var Container
+     * @var Application
      */
-    protected $container;
+    protected $app;
 
     /**
-     * @param Container $container
+     * @param Application $application
      */
-    public function __construct(Container $container)
+    public function __construct(Application $application)
     {
-        $this->container = $container;
+        $this->app = $application;
 
         parent::__construct();
     }
@@ -55,16 +55,16 @@ class MigrateCommand extends AbstractCommand
 
     public function upgrade()
     {
-        $this->container->bind('Illuminate\Database\Schema\Builder', function ($container) {
-            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        $this->app->bind('Illuminate\Database\Schema\Builder', function ($app) {
+            return $app->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
         });
 
-        $migrator = $this->container->make('Flarum\Database\Migrator');
+        $migrator = $this->app->make('Flarum\Database\Migrator');
         $migrator->setOutput($this->output);
 
         $migrator->run(__DIR__.'/../../../migrations');
 
-        $extensions = $this->container->make('Flarum\Extension\ExtensionManager');
+        $extensions = $this->app->make('Flarum\Extension\ExtensionManager');
         $extensions->getMigrator()->setOutput($this->output);
 
         foreach ($extensions->getEnabledExtensions() as $name => $extension) {
@@ -75,13 +75,13 @@ class MigrateCommand extends AbstractCommand
             }
         }
 
-        $this->container->make('Flarum\Settings\SettingsRepositoryInterface')->set('version', $this->container->version());
+        $this->app->make('Flarum\Settings\SettingsRepositoryInterface')->set('version', $this->app->version());
 
         $this->info('Publishing assets...');
 
-        $this->container->make('files')->copyDirectory(
-            base_path().'/vendor/components/font-awesome/webfonts',
-            public_path().'/assets/fonts'
+        $this->app->make('files')->copyDirectory(
+            $this->app->basePath().'/vendor/components/font-awesome/webfonts',
+            $this->app->publicPath().'/assets/fonts'
         );
     }
 }
