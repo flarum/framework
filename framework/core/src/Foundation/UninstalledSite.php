@@ -59,6 +59,10 @@ class UninstalledSite implements SiteInterface
 
         $laravel->useStoragePath($this->paths['storage']);
 
+        if (isset($this->paths['vendor'])) {
+            $laravel->useVendorPath($this->paths['vendor']);
+        }
+
         $laravel->instance('env', 'production');
         $laravel->instance('flarum.config', []);
         $laravel->instance('config', $config = $this->getIlluminateConfig());

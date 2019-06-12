@@ -42,6 +42,20 @@ class Application extends Container implements ApplicationContract
     protected $publicPath;
 
     /**
+     * The custom storage path defined by the developer.
+     *
+     * @var string
+     */
+    protected $storagePath;
+
+    /**
+     * A custom vendor path to find dependencies in non-standard environments.
+     *
+     * @var string
+     */
+    protected $vendorPath;
+
+    /**
      * Indicates if the application has "booted".
      *
      * @var bool
@@ -82,13 +96,6 @@ class Application extends Container implements ApplicationContract
      * @var array
      */
     protected $deferredServices = [];
-
-    /**
-     * The custom storage path defined by the developer.
-     *
-     * @var string
-     */
-    protected $storagePath;
 
     /**
      * Create a new Flarum application instance.
@@ -226,7 +233,7 @@ class Application extends Container implements ApplicationContract
      */
     protected function bindPathsInContainer()
     {
-        foreach (['base', 'public', 'storage'] as $path) {
+        foreach (['base', 'public', 'storage', 'vendor'] as $path) {
             $this->instance('path.'.$path, $this->{$path.'Path'}());
         }
     }
@@ -262,6 +269,16 @@ class Application extends Container implements ApplicationContract
     }
 
     /**
+     * Get the path to the vendor directory where dependencies are installed.
+     *
+     * @return string
+     */
+    public function vendorPath()
+    {
+        return $this->vendorPath ?: $this->basePath.DIRECTORY_SEPARATOR.'vendor';
+    }
+
+    /**
      * Set the storage directory.
      *
      * @param string $path
@@ -272,6 +289,21 @@ class Application extends Container implements ApplicationContract
         $this->storagePath = $path;
 
         $this->instance('path.storage', $path);
+
+        return $this;
+    }
+
+    /**
+     * Set the vendor directory.
+     *
+     * @param string $path
+     * @return $this
+     */
+    public function useVendorPath($path)
+    {
+        $this->vendorPath = $path;
+
+        $this->instance('path.vendor', $path);
 
         return $this;
     }
