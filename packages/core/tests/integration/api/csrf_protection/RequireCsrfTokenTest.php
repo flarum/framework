@@ -11,12 +11,9 @@
 
 namespace Flarum\Tests\integration\api\csrf_protection;
 
-use Dflydev\FigCookies\SetCookie;
 use Flarum\Foundation\Application;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Zend\Diactoros\CallbackStream;
-use Zend\Diactoros\ServerRequest;
 
 class RequireCsrfTokenTest extends TestCase
 {
@@ -54,31 +51,23 @@ class RequireCsrfTokenTest extends TestCase
      */
     public function error_when_doing_cookie_auth_without_csrf_token()
     {
-        $auth = $this->server->handle(
-            (new ServerRequest([], [], '/login', 'POST'))
-                ->withBody(new CallbackStream(function () {
-                    return '{"identification": "admin", "password": "password"}';
-                }))
-                ->withHeader('Content-Type', 'application/json')
+        $auth = $this->send(
+            $this->request(
+                'POST', '/login',
+                [
+                    'json' => ['identification' => 'admin', 'password' => 'password'],
+                ]
+            )
         );
 
-        $cookies = array_reduce(
-            $auth->getHeader('Set-Cookie'),
-            function ($memo, $setCookieString) {
-                $setCookie = SetCookie::fromSetCookieString($setCookieString);
-                $memo[$setCookie->getName()] = $setCookie->getValue();
-                return $memo;
-            },
-            []
-        );
-
-        $response = $this->server->handle(
-            (new ServerRequest([], [], '/api/settings', 'POST'))
-                ->withBody(new CallbackStream(function () {
-                    return '{"mail_driver": "log"}';
-                }))
-                ->withCookieParams($cookies)
-                ->withHeader('Content-Type', 'application/json')
+        $response = $this->send(
+            $this->request(
+                'POST', '/api/settings',
+                [
+                    'cookiesFrom' => $auth,
+                    'json' => ['mail_driver' => 'log'],
+                ]
+            )
         );
 
         // Response should be "HTTP 400 Bad Request"
@@ -99,50 +88,32 @@ class RequireCsrfTokenTest extends TestCase
      */
     public function cookie_auth_succeeds_with_csrf_token_in_header()
     {
-        $initial = $this->server->handle(
-            (new ServerRequest([], [], '/', 'GET'))
+        $initial = $this->send(
+            $this->request('GET', '/')
         );
 
         $token = $initial->getHeaderLine('X-CSRF-Token');
-        $cookies = array_reduce(
-            $initial->getHeader('Set-Cookie'),
-            function ($memo, $setCookieString) {
-                $setCookie = SetCookie::fromSetCookieString($setCookieString);
-                $memo[$setCookie->getName()] = $setCookie->getValue();
-                return $memo;
-            },
-            []
-        );
 
-        $auth = $this->server->handle(
-            (new ServerRequest([], [], '/login', 'POST'))
-                ->withBody(new CallbackStream(function () {
-                    return '{"identification": "admin", "password": "password"}';
-                }))
-                ->withCookieParams($cookies)
-                ->withHeader('Content-Type', 'application/json')
-                ->withHeader('X-CSRF-Token', $token)
+        $auth = $this->send(
+            $this->request(
+                'POST', '/login',
+                [
+                    'cookiesFrom' => $initial,
+                    'json' => ['identification' => 'admin', 'password' => 'password'],
+                ]
+            )->withHeader('X-CSRF-Token', $token)
         );
 
         $token = $auth->getHeaderLine('X-CSRF-Token');
-        $cookies = array_reduce(
-            $auth->getHeader('Set-Cookie'),
-            function ($memo, $setCookieString) {
-                $setCookie = SetCookie::fromSetCookieString($setCookieString);
-                $memo[$setCookie->getName()] = $setCookie->getValue();
-                return $memo;
-            },
-            []
-        );
 
-        $response = $this->server->handle(
-            (new ServerRequest([], [], '/api/settings', 'POST'))
-                ->withBody(new CallbackStream(function () {
-                    return '{"mail_driver": "log"}';
-                }))
-                ->withCookieParams($cookies)
-                ->withHeader('Content-Type', 'application/json')
-                ->withHeader('X-CSRF-Token', $token)
+        $response = $this->send(
+            $this->request(
+                'POST', '/api/settings',
+                [
+                    'cookiesFrom' => $auth,
+                    'json' => ['mail_driver' => 'log'],
+                ]
+            )->withHeader('X-CSRF-Token', $token)
         );
 
         // Successful response?
@@ -160,48 +131,32 @@ class RequireCsrfTokenTest extends TestCase
      */
     public function cookie_auth_succeeds_with_csrf_token_in_body()
     {
-        $initial = $this->server->handle(
-            (new ServerRequest([], [], '/', 'GET'))
+        $initial = $this->send(
+            $this->request('GET', '/')
         );
 
         $token = $initial->getHeaderLine('X-CSRF-Token');
-        $cookies = array_reduce(
-            $initial->getHeader('Set-Cookie'),
-            function ($memo, $setCookieString) {
-                $setCookie = SetCookie::fromSetCookieString($setCookieString);
-                $memo[$setCookie->getName()] = $setCookie->getValue();
-                return $memo;
-            },
-            []
-        );
 
-        $auth = $this->server->handle(
-            (new ServerRequest([], [], '/login', 'POST'))
-                ->withBody(new CallbackStream(function () use ($token) {
-                    return '{"identification": "admin", "password": "password", "csrfToken": "'.$token.'"}';
-                }))
-                ->withCookieParams($cookies)
-                ->withHeader('Content-Type', 'application/json')
+        $auth = $this->send(
+            $this->request(
+                'POST', '/login',
+                [
+                    'cookiesFrom' => $initial,
+                    'json' => ['identification' => 'admin', 'password' => 'password', 'csrfToken' => $token],
+                ]
+            )
         );
 
         $token = $auth->getHeaderLine('X-CSRF-Token');
-        $cookies = array_reduce(
-            $auth->getHeader('Set-Cookie'),
-            function ($memo, $setCookieString) {
-                $setCookie = SetCookie::fromSetCookieString($setCookieString);
-                $memo[$setCookie->getName()] = $setCookie->getValue();
-                return $memo;
-            },
-            []
-        );
 
-        $response = $this->server->handle(
-            (new ServerRequest([], [], '/api/settings', 'POST'))
-                ->withBody(new CallbackStream(function () use ($token) {
-                    return '{"mail_driver": "log", "csrfToken": "'.$token.'"}';
-                }))
-                ->withCookieParams($cookies)
-                ->withHeader('Content-Type', 'application/json')
+        $response = $this->send(
+            $this->request(
+                'POST', '/api/settings',
+                [
+                    'cookiesFrom' => $auth,
+                    'json' => ['mail_driver' => 'log', 'csrfToken' => $token],
+                ]
+            )
         );
 
         // Successful response?
@@ -219,13 +174,13 @@ class RequireCsrfTokenTest extends TestCase
      */
     public function master_api_token_does_not_need_csrf_token()
     {
-        $response = $this->server->handle(
-            (new ServerRequest([], [], '/api/settings', 'POST'))
-                ->withBody(new CallbackStream(function () {
-                    return '{"mail_driver": "log"}';
-                }))
-                ->withHeader('Authorization', 'Token superadmin')
-                ->withHeader('Content-Type', 'application/json')
+        $response = $this->send(
+            $this->request(
+                'POST', '/api/settings',
+                [
+                    'json' => ['mail_driver' => 'log'],
+                ]
+            )->withHeader('Authorization', 'Token superadmin')
         );
 
         // Successful response?
