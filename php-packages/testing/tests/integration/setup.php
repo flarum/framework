@@ -41,7 +41,8 @@ echo "\nOff we go...\n";
 $installation = new Installation(
     __DIR__.'/tmp',
     __DIR__.'/tmp/public',
-    __DIR__.'/tmp/storage'
+    __DIR__.'/tmp/storage',
+    __DIR__.'/../../vendor'
 );
 
 $pipeline = $installation
