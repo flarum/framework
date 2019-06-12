@@ -31,7 +31,7 @@ class InstallServiceProvider extends AbstractServiceProvider
                 $this->app->basePath(),
                 $this->app->publicPath(),
                 $this->app->storagePath(),
-                $this->app->vendorPath(),
+                $this->app->vendorPath()
             );
         });
     }
