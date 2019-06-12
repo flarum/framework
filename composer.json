@@ -22,7 +22,7 @@
     "require": {
         "php": ">=7.1",
         "axy/sourcemap": "^0.1.4",
-        "components/font-awesome": "^5.4.2",
+        "components/font-awesome": "5.9.*",
         "dflydev/fig-cookies": "^1.0.2",
         "doctrine/dbal": "^2.7",
         "franzl/whoops-middleware": "^0.4.0",
