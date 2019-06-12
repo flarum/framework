@@ -80,7 +80,7 @@ class MigrateCommand extends AbstractCommand
         $this->info('Publishing assets...');
 
         $this->app->make('files')->copyDirectory(
-            $this->app->basePath().'/vendor/components/font-awesome/webfonts',
+            $this->app->vendorPath().'/components/font-awesome/webfonts',
             $this->app->publicPath().'/assets/fonts'
         );
     }
