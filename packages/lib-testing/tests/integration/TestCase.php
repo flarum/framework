@@ -82,12 +82,26 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         // First, truncate all referenced tables so that they are empty.
         foreach (array_keys($tableData) as $table) {
-            $this->database()->table($table)->truncate();
+            if ($table !== 'settings') {
+                $this->database()->table($table)->truncate();
+            }
         }
 
         // Then, insert all rows required for this test case.
         foreach ($tableData as $table => $rows) {
-            $this->database()->table($table)->insert($rows);
+            foreach ($rows as $row) {
+                if ($table === 'settings') {
+                    $this->database()->table($table)->updateOrInsert(
+                        ['key' => $row['key']],
+                        $row
+                    );
+                } else {
+                    $this->database()->table($table)->updateOrInsert(
+                        isset($row['id']) ? ['id' => $row['id']] : $row,
+                        $row
+                    );
+                }
+            }
         }
 
         // And finally, turn on foreign key checks again.
