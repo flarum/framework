@@ -40,6 +40,9 @@ class CreateUserControllerTest extends ApiControllerTestCase
             'group_user' => [
                 ['user_id' => 1, 'group_id' => 1],
             ],
+            'settings' => [
+                ['key' => 'mail_driver', 'value' => 'log']
+            ]
         ]);
     }
 

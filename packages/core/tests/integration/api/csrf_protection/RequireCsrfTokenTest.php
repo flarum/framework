@@ -11,7 +11,6 @@
 
 namespace Flarum\Tests\integration\api\csrf_protection;
 
-use Flarum\Foundation\Application;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 
@@ -40,8 +39,7 @@ class RequireCsrfTokenTest extends TestCase
                 ['user_id' => 1, 'key' => 'superadmin'],
             ],
             'settings' => [
-                ['key' => 'mail_driver', 'value' => 'mail'],
-                ['key' => 'version', 'value' => Application::VERSION],
+                ['key' => 'csrf_test', 'value' => 1],
             ],
         ]);
     }
@@ -65,7 +63,7 @@ class RequireCsrfTokenTest extends TestCase
                 'POST', '/api/settings',
                 [
                     'cookiesFrom' => $auth,
-                    'json' => ['mail_driver' => 'log'],
+                    'json' => ['csrf_test' => 2],
                 ]
             )
         );
@@ -111,7 +109,7 @@ class RequireCsrfTokenTest extends TestCase
                 'POST', '/api/settings',
                 [
                     'cookiesFrom' => $auth,
-                    'json' => ['mail_driver' => 'log'],
+                    'json' => ['csrf_test' => 2],
                 ]
             )->withHeader('X-CSRF-Token', $token)
         );
@@ -121,8 +119,8 @@ class RequireCsrfTokenTest extends TestCase
 
         // Was the setting actually changed in the database?
         $this->assertEquals(
-            'log',
-            $this->database()->table('settings')->where('key', 'mail_driver')->first()->value
+            2,
+            $this->database()->table('settings')->where('key', 'csrf_test')->first()->value
         );
     }
 
@@ -154,7 +152,7 @@ class RequireCsrfTokenTest extends TestCase
                 'POST', '/api/settings',
                 [
                     'cookiesFrom' => $auth,
-                    'json' => ['mail_driver' => 'log', 'csrfToken' => $token],
+                    'json' => ['csrf_test' => 2, 'csrfToken' => $token],
                 ]
             )
         );
@@ -164,8 +162,8 @@ class RequireCsrfTokenTest extends TestCase
 
         // Was the setting actually changed in the database?
         $this->assertEquals(
-            'log',
-            $this->database()->table('settings')->where('key', 'mail_driver')->first()->value
+            2,
+            $this->database()->table('settings')->where('key', 'csrf_test')->first()->value
         );
     }
 
@@ -178,7 +176,7 @@ class RequireCsrfTokenTest extends TestCase
             $this->request(
                 'POST', '/api/settings',
                 [
-                    'json' => ['mail_driver' => 'log'],
+                    'json' => ['csrf_test' => 2],
                 ]
             )->withHeader('Authorization', 'Token superadmin')
         );
@@ -188,8 +186,8 @@ class RequireCsrfTokenTest extends TestCase
 
         // Was the setting actually changed in the database?
         $this->assertEquals(
-            'log',
-            $this->database()->table('settings')->where('key', 'mail_driver')->first()->value
+            2,
+            $this->database()->table('settings')->where('key', 'csrf_test')->first()->value
         );
     }
 }
