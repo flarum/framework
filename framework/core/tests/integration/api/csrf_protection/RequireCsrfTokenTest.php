@@ -36,11 +36,11 @@ class RequireCsrfTokenTest extends TestCase
             'group_permission' => [
                 ['permission' => 'viewUserList', 'group_id' => 3],
             ],
-            'access_tokens' => [
-                ['user_id' => 1, 'token' => 'superadmin', 'lifetime_seconds' => 30],
+            'api_keys' => [
+                ['user_id' => 1, 'key' => 'superadmin'],
             ],
             'settings' => [
-                ['key' => 'mail_driver', 'value' => 'smtp'],
+                ['key' => 'mail_driver', 'value' => 'mail'],
                 ['key' => 'version', 'value' => Application::VERSION],
             ],
         ]);
