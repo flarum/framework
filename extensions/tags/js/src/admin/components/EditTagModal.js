@@ -74,9 +74,9 @@ export default class EditTagModal extends Modal {
     </div>, 20);
 
     items.add('icon', <div className="Form-group">
-      <label>{app.translator.trans('core.admin.edit_group.icon_label')}</label>
+      <label>{app.translator.trans('flarum-tags.admin.edit_tag.icon_label')}</label>
       <div className="helpText">
-        {app.translator.trans('core.admin.edit_group.icon_text', {a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1"/>})}
+        {app.translator.trans('flarum-tags.admin.edit_tag.icon_text', {a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1"/>})}
       </div>
       <input className="FormControl" placeholder="fas fa-bolt" value={this.icon()} oninput={m.withAttr('value', this.icon)}/>
     </div>, 10);
