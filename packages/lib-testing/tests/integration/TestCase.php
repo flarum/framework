@@ -162,6 +162,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 function ($memo, $setCookieString) {
                     $setCookie = SetCookie::fromSetCookieString($setCookieString);
                     $memo[$setCookie->getName()] = $setCookie->getValue();
+
                     return $memo;
                 },
                 []
