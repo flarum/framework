@@ -15,7 +15,7 @@
         "source": "https://github.com/flarum/akismet"
     },
     "require": {
-        "flarum/core": "^0.1.0-beta.8",
+        "flarum/core": "^0.1.0-beta.9",
         "flarum/approval": "^0.1.0-beta.6",
         "tijsverkoyen/akismet": "^1.1"
     },
