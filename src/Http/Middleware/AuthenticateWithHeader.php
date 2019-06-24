@@ -40,6 +40,7 @@ class AuthenticateWithHeader implements Middleware
 
                 $request = $request->withAttribute('apiKey', $key);
                 $request = $request->withAttribute('bypassFloodgate', true);
+                $request = $request->withAttribute('bypassCsrfToken', true);
             } elseif ($token = AccessToken::find($id)) {
                 $token->touch();
 
