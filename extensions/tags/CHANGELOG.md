@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.1.0-beta.9](https://github.com/flarum/tags/compare/v0.1.0-beta.8.2...v0.1.0-beta.9)
 
 ### Added
 - Allow configuration of icon per tag ([e1a0ff8](https://github.com/flarum/tags/commit/e1a0ff8e0f726fbfe26fa47aea4a0555b109aad0))
