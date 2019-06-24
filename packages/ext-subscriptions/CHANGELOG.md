@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.1.0-beta.9](https://github.com/flarum/subscriptions/compare/v0.1.0-beta.8...v0.1.0-beta.9)
 
 ### Changed
 - Replace event subscribers (that resolve services too early) with listeners ([7ac73b8](https://github.com/flarum/subscriptions/commit/7ac73b834023e997147d4dd9c851a2ea73deba4b))
