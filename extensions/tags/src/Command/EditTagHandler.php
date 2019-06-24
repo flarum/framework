@@ -72,6 +72,10 @@ class EditTagHandler
             $tag->color = $attributes['color'];
         }
 
+        if (isset($attributes['icon'])) {
+            $tag->icon = $attributes['icon'];
+        }
+
         if (isset($attributes['isHidden'])) {
             $tag->is_hidden = (bool) $attributes['isHidden'];
         }
