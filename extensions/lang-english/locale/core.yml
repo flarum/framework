@@ -247,7 +247,7 @@ core:
 
     # These translations are used in the discussion list.
     discussion_list:
-      empty_text: It looks like there are no discussions here.
+      empty_text: It looks as though there are no discussions here.
       load_more_button: => core.ref.load_more
       mark_as_read_tooltip: Mark as Read
       replied_text: "{username} replied {ago}"
