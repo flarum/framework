@@ -43,10 +43,8 @@ class FilterDiscussionListByTags
     {
         $query = $event->search->getQuery();
 
-        foreach ($event->search->getActiveGambits() as $gambit) {
-            if ($gambit instanceof TagGambit) {
-                return;
-            }
+        if (count($event->search->getActiveGambits()) > 0) {
+            return;
         }
 
         $query->whereNotExists(function ($query) {
