@@ -73,8 +73,8 @@ core:
       color_label: => core.ref.color
       delete_button: Delete Group
       delete_confirmation: "Are you sure you want to delete this group? The group members will NOT be deleted."
-      icon_label: Icon
-      icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
+      icon_label: => core.ref.icon
+      icon_text: => core.ref.icon_text
       name_label: Name
       plural_placeholder: Plural (e.g. Mods)
       singular_placeholder: Singular (e.g. Mod)
@@ -553,6 +553,8 @@ core:
     discussions: Discussions                     # Referenced by flarum-statistics.yml
     edit: Edit
     email: Email
+    icon: Icon
+    icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     load_more: Load More
     log_in: Log In
     log_out: Log Out
