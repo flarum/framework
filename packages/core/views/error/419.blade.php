@@ -5,8 +5,8 @@
     {{ $message }}
   </p>
   <p>
-    <a href="{{ $app->url() }}">
-      {{ $translator->trans('core.views.error.419_return_link', ['{forum}' => $settings->get('forum_title')]) }}
+    <a href="javascript:history.back()">
+      {{ $translator->trans('core.views.error.419_return_link') }}
     </a>
   </p>
 @endsection
