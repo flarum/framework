@@ -33,6 +33,7 @@ class TagSerializer extends AbstractSerializer
             'color'              => $tag->color,
             'backgroundUrl'      => $tag->background_path,
             'backgroundMode'     => $tag->background_mode,
+            'icon'               => $tag->icon,
             'iconUrl'            => $tag->icon_path,
             'discussionCount'    => (int) $tag->discussion_count,
             'position'           => $tag->position === null ? null : (int) $tag->position,

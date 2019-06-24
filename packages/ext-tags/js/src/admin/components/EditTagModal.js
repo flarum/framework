@@ -19,6 +19,7 @@ export default class EditTagModal extends Modal {
     this.slug = m.prop(this.tag.slug() || '');
     this.description = m.prop(this.tag.description() || '');
     this.color = m.prop(this.tag.color() || '');
+    this.icon = m.prop(this.tag.icon() || '');
     this.isHidden = m.prop(this.tag.isHidden() || false);
   }
 
@@ -30,7 +31,8 @@ export default class EditTagModal extends Modal {
     return this.name()
       ? tagLabel({
         name: this.name,
-        color: this.color
+        color: this.color,
+        icon: this.icon,
       })
       : app.translator.trans('flarum-tags.admin.edit_tag.title');
   }
@@ -71,6 +73,14 @@ export default class EditTagModal extends Modal {
       <input className="FormControl" placeholder="#aaaaaa" value={this.color()} oninput={m.withAttr('value', this.color)}/>
     </div>, 20);
 
+    items.add('icon', <div className="Form-group">
+      <label>{app.translator.trans('core.admin.edit_group.icon_label')}</label>
+      <div className="helpText">
+        {app.translator.trans('core.admin.edit_group.icon_text', {a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1"/>})}
+      </div>
+      <input className="FormControl" placeholder="fas fa-bolt" value={this.icon()} oninput={m.withAttr('value', this.icon)}/>
+    </div>, 10);
+
     items.add('hidden', <div className="Form-group">
       <div>
         <label className="checkbox">
@@ -103,6 +113,7 @@ export default class EditTagModal extends Modal {
       slug: this.slug(),
       description: this.description(),
       color: this.color(),
+      icon: this.icon(),
       isHidden: this.isHidden()
     };
   }

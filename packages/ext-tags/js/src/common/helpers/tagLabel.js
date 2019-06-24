@@ -1,10 +1,12 @@
 import extract from 'flarum/utils/extract';
+import tagIcon from './tagIcon';
 
 export default function tagLabel(tag, attrs = {}) {
   attrs.style = attrs.style || {};
   attrs.className = 'TagLabel ' + (attrs.className || '');
 
   const link = extract(attrs, 'link');
+  let tagText = tag ? tag.name() : app.translator.trans('flarum-tags.lib.deleted_tag_text');
 
   if (tag) {
     const color = tag.color();
@@ -21,11 +23,10 @@ export default function tagLabel(tag, attrs = {}) {
   } else {
     attrs.className += ' untagged';
   }
-
   return (
     m((link ? 'a' : 'span'), attrs,
       <span className="TagLabel-text">
-        {tag ? tag.name() : app.translator.trans('flarum-tags.lib.deleted_tag_text')}
+        {tag.icon() && tagIcon(tag, {}, {disableColors: true})} {tagText}
       </span>
     )
   );
