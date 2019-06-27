@@ -41,6 +41,7 @@
 - FontAwesome component package changed paths in version 5.9.0 ([5eb69e1](https://github.com/flarum/core/commit/5eb69e1f59fa73fdfd5badbf41a05a6a040e7426))
 - Some server environments had problems accessing the system-wide tmp path for storing JS file maps ([54660eb](https://github.com/flarum/core/commit/54660ebd6311f9ea142f1b573263d0d907400786))
 - Content length of posts.content was not migrated to mediumText in 2017 ([590b311](https://github.com/flarum/core/commit/590b3115708bf94a9c7f169d98c6126380c7056e))
+- An error occurred when going to the previous route if there was no previous route found ([985b87da](https://github.com/flarum/core/commit/985b87da6c9942c568a1a192e2fdcfde72e030ee))
 
 ### Removed
 - `php flarum install --defaults` - this was meant to be used in our old development VM ([44c9109](https://github.com/flarum/core/commit/44c91099cd77138bb5fc29f14fb1e81a9781272d))
