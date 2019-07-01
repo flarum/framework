@@ -26,7 +26,7 @@ export default function tagLabel(tag, attrs = {}) {
   return (
     m((link ? 'a' : 'span'), attrs,
       <span className="TagLabel-text">
-        {tag.icon() && tagIcon(tag, {}, {disableColors: true})} {tagText}
+        {tag.icon() && tagIcon(tag, {}, {useColor: false})} {tagText}
       </span>
     )
   );
