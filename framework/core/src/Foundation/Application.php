@@ -185,7 +185,7 @@ class Application extends Container implements ApplicationContract
 
         $this->instance('app', $this);
 
-        $this->instance('Illuminate\Container\Container', $this);
+        $this->instance(Container::class, $this);
     }
 
     /**
