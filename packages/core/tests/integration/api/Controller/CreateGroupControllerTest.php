@@ -14,6 +14,7 @@ namespace Flarum\Tests\integration\api\Controller;
 use Flarum\Api\Controller\CreateGroupController;
 use Flarum\Group\Group;
 use Flarum\User\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class CreateGroupControllerTest extends ApiControllerTestCase
@@ -72,7 +73,7 @@ class CreateGroupControllerTest extends ApiControllerTestCase
         $group = Group::where('icon', $this->data['icon'])->firstOrFail();
 
         foreach ($this->data as $property => $value) {
-            $this->assertEquals($value, array_get($data, "data.attributes.$property"), "$property not matching to json response");
+            $this->assertEquals($value, Arr::get($data, "data.attributes.$property"), "$property not matching to json response");
             $property = Str::snake($property);
             $this->assertEquals($value, $group->{$property}, "$property not matching to database result");
         }
