@@ -61,3 +61,7 @@ jobs:
         -k $encrypted_678139e2bc67_key
         -i $encrypted_678139e2bc67_iv
       after_success: skip
+
+matrix:
+  allow_failures:
+    - php: 7.4snapshot
