@@ -12,7 +12,12 @@
 namespace Flarum\Database\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Database\Migrator;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder;
 
 class MigrateCommand extends AbstractCommand
 {
@@ -55,16 +60,16 @@ class MigrateCommand extends AbstractCommand
 
     public function upgrade()
     {
-        $this->app->bind('Illuminate\Database\Schema\Builder', function ($app) {
-            return $app->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        $this->app->bind(Builder::class, function ($app) {
+            return $app->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
-        $migrator = $this->app->make('Flarum\Database\Migrator');
+        $migrator = $this->app->make(Migrator::class);
         $migrator->setOutput($this->output);
 
         $migrator->run(__DIR__.'/../../../migrations');
 
-        $extensions = $this->app->make('Flarum\Extension\ExtensionManager');
+        $extensions = $this->app->make(ExtensionManager::class);
         $extensions->getMigrator()->setOutput($this->output);
 
         foreach ($extensions->getEnabledExtensions() as $name => $extension) {
@@ -75,7 +80,7 @@ class MigrateCommand extends AbstractCommand
             }
         }
 
-        $this->app->make('Flarum\Settings\SettingsRepositoryInterface')->set('version', $this->app->version());
+        $this->app->make(SettingsRepositoryInterface::class)->set('version', $this->app->version());
 
         $this->info('Publishing assets...');
 

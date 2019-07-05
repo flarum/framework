@@ -15,14 +15,17 @@ use Carbon\Carbon;
 use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetDisplayName;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
+use Flarum\Http\AccessToken;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
+use Flarum\Post\Post;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\CheckingPassword;
@@ -571,7 +574,7 @@ class User extends AbstractModel
      */
     public function posts()
     {
-        return $this->hasMany('Flarum\Post\Post');
+        return $this->hasMany(Post::class);
     }
 
     /**
@@ -581,7 +584,7 @@ class User extends AbstractModel
      */
     public function discussions()
     {
-        return $this->hasMany('Flarum\Discussion\Discussion');
+        return $this->hasMany(Discussion::class);
     }
 
     /**
@@ -591,7 +594,7 @@ class User extends AbstractModel
      */
     public function read()
     {
-        return $this->belongsToMany('Flarum\Discussion\Discussion');
+        return $this->belongsToMany(Discussion::class);
     }
 
     /**
@@ -601,7 +604,7 @@ class User extends AbstractModel
      */
     public function groups()
     {
-        return $this->belongsToMany('Flarum\Group\Group');
+        return $this->belongsToMany(Group::class);
     }
 
     /**
@@ -611,7 +614,7 @@ class User extends AbstractModel
      */
     public function notifications()
     {
-        return $this->hasMany('Flarum\Notification\Notification');
+        return $this->hasMany(Notification::class);
     }
 
     /**
@@ -664,7 +667,7 @@ class User extends AbstractModel
      */
     public function accessTokens()
     {
-        return $this->hasMany('Flarum\Http\AccessToken');
+        return $this->hasMany(AccessToken::class);
     }
 
     /**
