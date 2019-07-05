@@ -16,6 +16,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 /**
  * Models a notification record in the database.
@@ -104,7 +105,7 @@ class Notification extends AbstractModel
      */
     public function getSubjectModelAttribute()
     {
-        return $this->type ? array_get(static::$subjectModels, $this->type) : null;
+        return $this->type ? Arr::get(static::$subjectModels, $this->type) : null;
     }
 
     /**

@@ -14,6 +14,7 @@ namespace Flarum\Update\Controller;
 use Exception;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Foundation\Application;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -49,7 +50,7 @@ class UpdateController implements RequestHandlerInterface
     {
         $input = $request->getParsedBody();
 
-        if (array_get($input, 'databasePassword') !== $this->app->config('database.password')) {
+        if (Arr::get($input, 'databasePassword') !== $this->app->config('database.password')) {
             return new HtmlResponse('Incorrect database password.', 500);
         }
 

@@ -17,6 +17,7 @@ use Flarum\Discussion\Event\Saving;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class EditDiscussionHandler
 {
@@ -54,7 +55,7 @@ class EditDiscussionHandler
     {
         $actor = $command->actor;
         $data = $command->data;
-        $attributes = array_get($data, 'attributes', []);
+        $attributes = Arr::get($data, 'attributes', []);
 
         $discussion = $this->discussions->findOrFail($command->discussionId, $actor);
 

@@ -19,6 +19,7 @@ use Flarum\Group\GroupValidator;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class EditGroupHandler
 {
@@ -61,7 +62,7 @@ class EditGroupHandler
 
         $this->assertCan($actor, 'edit', $group);
 
-        $attributes = array_get($data, 'attributes', []);
+        $attributes = Arr::get($data, 'attributes', []);
 
         if (isset($attributes['nameSingular']) && isset($attributes['namePlural'])) {
             $group->rename($attributes['nameSingular'], $attributes['namePlural']);

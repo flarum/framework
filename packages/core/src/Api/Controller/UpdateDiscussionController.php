@@ -16,6 +16,7 @@ use Flarum\Discussion\Command\EditDiscussion;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -45,8 +46,8 @@ class UpdateDiscussionController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
-        $discussionId = array_get($request->getQueryParams(), 'id');
-        $data = array_get($request->getParsedBody(), 'data', []);
+        $discussionId = Arr::get($request->getQueryParams(), 'id');
+        $data = Arr::get($request->getParsedBody(), 'data', []);
 
         $discussion = $this->bus->dispatch(
             new EditDiscussion($discussionId, $actor, $data)
@@ -54,7 +55,7 @@ class UpdateDiscussionController extends AbstractShowController
 
         // TODO: Refactor the ReadDiscussion (state) command into EditDiscussion?
         // That's what extensions will do anyway.
-        if ($readNumber = array_get($data, 'attributes.lastReadPostNumber')) {
+        if ($readNumber = Arr::get($data, 'attributes.lastReadPostNumber')) {
             $state = $this->bus->dispatch(
                 new ReadDiscussion($discussionId, $actor, $readNumber)
             );

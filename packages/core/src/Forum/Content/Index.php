@@ -16,6 +16,7 @@ use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Index
@@ -44,9 +45,9 @@ class Index
     {
         $queryParams = $request->getQueryParams();
 
-        $sort = array_pull($queryParams, 'sort');
-        $q = array_pull($queryParams, 'q');
-        $page = array_pull($queryParams, 'page', 1);
+        $sort = Arr::pull($queryParams, 'sort');
+        $q = Arr::pull($queryParams, 'q');
+        $page = Arr::pull($queryParams, 'page', 1);
 
         $sortMap = $this->getSortMap();
 

@@ -14,6 +14,7 @@ namespace Flarum\Frontend;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Arr;
 
 /**
  * A view which renders a HTML skeleton for Flarum's frontend app.
@@ -147,7 +148,7 @@ class Document implements Renderable
      */
     public function render(): string
     {
-        $this->view->share('forum', array_get($this->forumApiDocument, 'data.attributes'));
+        $this->view->share('forum', Arr::get($this->forumApiDocument, 'data.attributes'));
 
         return $this->makeView()->render();
     }
@@ -174,7 +175,7 @@ class Document implements Renderable
      */
     protected function makeTitle(): string
     {
-        return ($this->title ? $this->title.' - ' : '').array_get($this->forumApiDocument, 'data.attributes.title');
+        return ($this->title ? $this->title.' - ' : '').Arr::get($this->forumApiDocument, 'data.attributes.title');
     }
 
     /**

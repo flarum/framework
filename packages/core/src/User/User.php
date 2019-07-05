@@ -37,6 +37,7 @@ use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Support\Arr;
 
 /**
  * @property int $id
@@ -460,7 +461,7 @@ class User extends AbstractModel
             return $value['default'];
         }, static::$preferences);
 
-        $user = array_only((array) json_decode($value, true), array_keys(static::$preferences));
+        $user = Arr::only((array) json_decode($value, true), array_keys(static::$preferences));
 
         return array_merge($defaults, $user);
     }
@@ -508,7 +509,7 @@ class User extends AbstractModel
      */
     public function getPreference($key, $default = null)
     {
-        return array_get($this->preferences, $key, $default);
+        return Arr::get($this->preferences, $key, $default);
     }
 
     /**
