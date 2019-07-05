@@ -68,7 +68,7 @@ class StartSession implements Middleware
         return $this->withSessionCookie($response, $session);
     }
 
-    private function makeSession(Request $request): Store
+    private function makeSession(Request $request): Session
     {
         return new Store(
             $this->config['cookie'],
