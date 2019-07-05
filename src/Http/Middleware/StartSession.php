@@ -67,7 +67,7 @@ class StartSession implements Middleware
         return $this->withSessionCookie($response, $session);
     }
 
-    private function makeSession(Request $request)
+    private function makeSession(Request $request): Store
     {
         return new Store(
             $this->config['cookie'],
@@ -76,12 +76,12 @@ class StartSession implements Middleware
         );
     }
 
-    private function withCsrfTokenHeader(Response $response, Session $session)
+    private function withCsrfTokenHeader(Response $response, Session $session): Response
     {
         return $response->withHeader('X-CSRF-Token', $session->token());
     }
 
-    private function withSessionCookie(Response $response, Session $session)
+    private function withSessionCookie(Response $response, Session $session): Response
     {
         return FigResponseCookies::set(
             $response,
@@ -89,7 +89,7 @@ class StartSession implements Middleware
         );
     }
 
-    private function getSessionLifetimeInSeconds()
+    private function getSessionLifetimeInSeconds(): int
     {
         return $this->config['lifetime'] * 60;
     }
