@@ -21,6 +21,8 @@ use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -227,8 +229,8 @@ class ExtensionManager
      */
     public function migrate(Extension $extension, $direction = 'up')
     {
-        $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
-            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        $this->app->bind(Builder::class, function ($container) {
+            return $container->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
         $extension->migrate($this->migrator, $direction);
