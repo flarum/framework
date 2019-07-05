@@ -16,6 +16,7 @@ use Flarum\Http\CookieFactory;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Session\Store;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -72,7 +73,7 @@ class StartSession implements Middleware
         return new Store(
             $this->config['cookie'],
             $this->handler,
-            array_get($request->getCookieParams(), $this->cookie->getName($this->config['cookie']))
+            Arr::get($request->getCookieParams(), $this->cookie->getName($this->config['cookie']))
         );
     }
 

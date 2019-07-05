@@ -14,6 +14,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use League\Flysystem\Adapter\Local;
@@ -52,7 +53,7 @@ class UploadFaviconController extends ShowForumController
     {
         $this->assertAdmin($request->getAttribute('actor'));
 
-        $file = array_get($request->getUploadedFiles(), 'favicon');
+        $file = Arr::get($request->getUploadedFiles(), 'favicon');
 
         $tmpFile = tempnam($this->app->storagePath().'/tmp', 'favicon');
         $file->moveTo($tmpFile);

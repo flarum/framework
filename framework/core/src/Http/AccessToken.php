@@ -14,6 +14,7 @@ namespace Flarum\Http;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
+use Illuminate\Support\Str;
 
 /**
  * @property string $token
@@ -47,7 +48,7 @@ class AccessToken extends AbstractModel
     {
         $token = new static;
 
-        $token->token = str_random(40);
+        $token->token = Str::random(40);
         $token->user_id = $userId;
         $token->created_at = Carbon::now();
         $token->last_activity_at = Carbon::now();

@@ -12,6 +12,7 @@
 namespace Flarum\Api\Event;
 
 use Flarum\Api\Controller\AbstractSerializeController;
+use Illuminate\Support\Arr;
 
 class WillGetData
 {
@@ -64,7 +65,7 @@ class WillGetData
      */
     public function removeInclude($name)
     {
-        array_forget($this->controller->include, $name);
+        Arr::forget($this->controller->include, $name);
     }
 
     /**
@@ -84,7 +85,7 @@ class WillGetData
      */
     public function removeOptionalInclude($name)
     {
-        array_forget($this->controller->optionalInclude, $name);
+        Arr::forget($this->controller->optionalInclude, $name);
     }
 
     /**
@@ -124,7 +125,7 @@ class WillGetData
      */
     public function removeSortField($field)
     {
-        array_forget($this->controller->sortFields, $field);
+        Arr::forget($this->controller->sortFields, $field);
     }
 
     /**

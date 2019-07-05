@@ -13,6 +13,7 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\Http\AccessToken;
 use Flarum\Http\CookieFactory;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -35,7 +36,7 @@ class RememberFromCookie implements Middleware
 
     public function process(Request $request, Handler $handler): Response
     {
-        $id = array_get($request->getCookieParams(), $this->cookie->getName('remember'));
+        $id = Arr::get($request->getCookieParams(), $this->cookie->getName('remember'));
 
         if ($id) {
             $token = AccessToken::find($id);
