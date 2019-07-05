@@ -13,6 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\User\AssertPermissionTrait;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 
 class UninstallExtensionController extends AbstractDeleteController
@@ -36,7 +37,7 @@ class UninstallExtensionController extends AbstractDeleteController
     {
         $this->assertAdmin($request->getAttribute('actor'));
 
-        $name = array_get($request->getQueryParams(), 'name');
+        $name = Arr::get($request->getQueryParams(), 'name');
 
         if ($this->extensions->getExtension($name) == null) {
             return;

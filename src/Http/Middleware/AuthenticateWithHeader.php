@@ -14,6 +14,7 @@ namespace Flarum\Http\Middleware;
 use Flarum\Api\ApiKey;
 use Flarum\Http\AccessToken;
 use Flarum\User\User;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -29,7 +30,7 @@ class AuthenticateWithHeader implements Middleware
 
         $parts = explode(';', $headerLine);
 
-        if (isset($parts[0]) && starts_with($parts[0], self::TOKEN_PREFIX)) {
+        if (isset($parts[0]) && Str::startsWith($parts[0], self::TOKEN_PREFIX)) {
             $id = substr($parts[0], strlen(self::TOKEN_PREFIX));
 
             if ($key = ApiKey::where('key', $id)->first()) {

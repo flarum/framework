@@ -14,6 +14,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\User\UserRepository;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -47,7 +48,7 @@ class ShowUserController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $id = array_get($request->getQueryParams(), 'id');
+        $id = Arr::get($request->getQueryParams(), 'id');
 
         if (! is_numeric($id)) {
             $id = $this->users->getIdForUsername($id);

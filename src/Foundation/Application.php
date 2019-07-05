@@ -127,7 +127,7 @@ class Application extends Container implements ApplicationContract
      */
     public function config($key, $default = null)
     {
-        return array_get($this->make('flarum.config'), $key, $default);
+        return Arr::get($this->make('flarum.config'), $key, $default);
     }
 
     /**
@@ -149,7 +149,7 @@ class Application extends Container implements ApplicationContract
     public function url($path = null)
     {
         $config = $this->make('flarum.config');
-        $url = array_get($config, 'url', array_get($_SERVER, 'REQUEST_URI'));
+        $url = Arr::get($config, 'url', Arr::get($_SERVER, 'REQUEST_URI'));
 
         if (is_array($url)) {
             if (isset($url[$path])) {
@@ -160,7 +160,7 @@ class Application extends Container implements ApplicationContract
         }
 
         if ($path) {
-            $url .= '/'.array_get($config, "paths.$path", $path);
+            $url .= '/'.Arr::get($config, "paths.$path", $path);
         }
 
         return $url;
