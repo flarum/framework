@@ -45,6 +45,14 @@ jobs:
     - php: 7.2
       env: DB=mysql PREFIX=forum_
 
+    - php: 7.4snapshot
+      env: DB=mysql
+
+    - php: 7.4snapshot
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+
     - stage: build
       language: generic
       if: branch = master AND type = push
