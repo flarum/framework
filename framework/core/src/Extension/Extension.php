@@ -257,9 +257,9 @@ class Extension implements Arrayable
 
     private function getExtenders(): array
     {
-        $extenderFile = $this->getExtenderFile();
+        $extenderFile = "{$this->path}/extend.php";
 
-        if (! $extenderFile) {
+        if (! file_exists($extenderFile)) {
             return [];
         }
 
@@ -283,15 +283,6 @@ class Extension implements Arrayable
                 return $extender instanceof LifecycleInterface;
             }
         );
-    }
-
-    private function getExtenderFile(): ?string
-    {
-        $filename = "{$this->path}/extend.php";
-
-        if (file_exists($filename)) {
-            return $filename;
-        }
     }
 
     /**
