@@ -42,11 +42,19 @@ class HandleErrorsWithWhoops implements Middleware
         try {
             return $handler->handle($request);
         } catch (Throwable $e) {
-            if ($e->getCode() !== 404) {
+            $status = 500;
+            $errorCode = $e->getCode();
+
+            if ($errorCode !== 404) {
                 $this->logger->error($e);
             }
 
-            return WhoopsRunner::handle($e, $request);
+            if (is_int($errorCode) && $errorCode >= 400 && $errorCode < 600) {
+                $status = $errorCode;
+            }
+
+            return WhoopsRunner::handle($e, $request)
+                ->withStatus($status);
         }
     }
 }
