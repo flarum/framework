@@ -11,6 +11,7 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\User\User;
+use Illuminate\Database\Query\Expression;
 
 class NotificationRepository
 {
@@ -24,10 +25,8 @@ class NotificationRepository
      */
     public function findByUser(User $user, $limit = null, $offset = 0)
     {
-        $primaries = Notification::select(
-            app('flarum.db')->raw('MAX(id) AS id'),
-            app('flarum.db')->raw('SUM(read_at IS NULL) AS unread_count')
-        )
+        $primaries = Notification::selectRaw('MAX(id) AS id')
+            ->selectRaw('SUM(read_at IS NULL) AS unread_count')
             ->where('user_id', $user->id)
             ->whereIn('type', $user->getAlertableNotificationTypes())
             ->where('is_deleted', false)
@@ -37,9 +36,11 @@ class NotificationRepository
             ->skip($offset)
             ->take($limit);
 
-        return Notification::select('notifications.*', app('flarum.db')->raw('p.unread_count'))
-            ->mergeBindings($primaries->getQuery())
-            ->join(app('flarum.db')->raw('('.$primaries->toSql().') p'), 'notifications.id', '=', app('flarum.db')->raw('p.id'))
+        return Notification::select('notifications.*')
+            ->selectRaw('p.unread_count')
+            // Expression is necessary until Laravel 5.8.
+            // See https://github.com/laravel/framework/pull/28400
+            ->joinSub($primaries, 'p', 'notifications.id', '=', new Expression('p.id'))
             ->latest()
             ->get();
     }
