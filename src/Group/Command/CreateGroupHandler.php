@@ -17,6 +17,7 @@ use Flarum\Group\Group;
 use Flarum\Group\GroupValidator;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class CreateGroupHandler
 {
@@ -51,10 +52,10 @@ class CreateGroupHandler
         $this->assertCan($actor, 'createGroup');
 
         $group = Group::build(
-            array_get($data, 'attributes.nameSingular'),
-            array_get($data, 'attributes.namePlural'),
-            array_get($data, 'attributes.color'),
-            array_get($data, 'attributes.icon')
+            Arr::get($data, 'attributes.nameSingular'),
+            Arr::get($data, 'attributes.namePlural'),
+            Arr::get($data, 'attributes.color'),
+            Arr::get($data, 'attributes.icon')
         );
 
         $this->events->dispatch(

@@ -16,6 +16,7 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -57,9 +58,9 @@ class CreateTokenController implements RequestHandlerInterface
     {
         $body = $request->getParsedBody();
 
-        $identification = array_get($body, 'identification');
-        $password = array_get($body, 'password');
-        $lifetime = array_get($body, 'lifetime', 3600);
+        $identification = Arr::get($body, 'identification');
+        $password = Arr::get($body, 'password');
+        $lifetime = Arr::get($body, 'lifetime', 3600);
 
         $user = $this->users->findByIdentification($identification);
 

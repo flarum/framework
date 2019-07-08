@@ -11,6 +11,7 @@
 
 namespace Flarum\Foundation;
 
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -38,7 +39,7 @@ class MaintenanceModeHandler implements RequestHandlerInterface
 
     private function isApiRequest(ServerRequestInterface $request): bool
     {
-        return str_contains(
+        return Str::contains(
             $request->getHeaderLine('Accept'),
             'application/vnd.api+json'
         );

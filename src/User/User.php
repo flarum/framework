@@ -15,25 +15,29 @@ use Carbon\Carbon;
 use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Event\GetDisplayName;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
+use Flarum\Http\AccessToken;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
+use Flarum\Post\Post;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\CheckingPassword;
 use Flarum\User\Event\Deleted;
 use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\EmailChangeRequested;
+use Flarum\User\Event\GetDisplayName;
 use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Support\Arr;
 
 /**
  * @property int $id
@@ -115,13 +119,13 @@ class User extends AbstractModel
         parent::boot();
 
         // Don't allow the root admin to be deleted.
-        static::deleting(function (User $user) {
+        static::deleting(function (self $user) {
             if ($user->id == 1) {
                 throw new DomainException('Cannot delete the root admin');
             }
         });
 
-        static::deleted(function (User $user) {
+        static::deleted(function (self $user) {
             $user->raise(new Deleted($user));
 
             Notification::whereSubject($user)->delete();
@@ -457,7 +461,7 @@ class User extends AbstractModel
             return $value['default'];
         }, static::$preferences);
 
-        $user = array_only((array) json_decode($value, true), array_keys(static::$preferences));
+        $user = Arr::only((array) json_decode($value, true), array_keys(static::$preferences));
 
         return array_merge($defaults, $user);
     }
@@ -505,7 +509,7 @@ class User extends AbstractModel
      */
     public function getPreference($key, $default = null)
     {
-        return array_get($this->preferences, $key, $default);
+        return Arr::get($this->preferences, $key, $default);
     }
 
     /**
@@ -571,7 +575,7 @@ class User extends AbstractModel
      */
     public function posts()
     {
-        return $this->hasMany('Flarum\Post\Post');
+        return $this->hasMany(Post::class);
     }
 
     /**
@@ -581,7 +585,7 @@ class User extends AbstractModel
      */
     public function discussions()
     {
-        return $this->hasMany('Flarum\Discussion\Discussion');
+        return $this->hasMany(Discussion::class);
     }
 
     /**
@@ -591,7 +595,7 @@ class User extends AbstractModel
      */
     public function read()
     {
-        return $this->belongsToMany('Flarum\Discussion\Discussion');
+        return $this->belongsToMany(Discussion::class);
     }
 
     /**
@@ -601,7 +605,7 @@ class User extends AbstractModel
      */
     public function groups()
     {
-        return $this->belongsToMany('Flarum\Group\Group');
+        return $this->belongsToMany(Group::class);
     }
 
     /**
@@ -611,7 +615,7 @@ class User extends AbstractModel
      */
     public function notifications()
     {
-        return $this->hasMany('Flarum\Notification\Notification');
+        return $this->hasMany(Notification::class);
     }
 
     /**
@@ -664,7 +668,7 @@ class User extends AbstractModel
      */
     public function accessTokens()
     {
-        return $this->hasMany('Flarum\Http\AccessToken');
+        return $this->hasMany(AccessToken::class);
     }
 
     /**

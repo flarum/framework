@@ -25,7 +25,7 @@ class Application extends Container implements ApplicationContract
      *
      * @var string
      */
-    const VERSION = '0.1.0-beta.8.1';
+    const VERSION = '0.1.0-beta.9';
 
     /**
      * The base path for the Flarum installation.
@@ -40,6 +40,20 @@ class Application extends Container implements ApplicationContract
      * @var string
      */
     protected $publicPath;
+
+    /**
+     * The custom storage path defined by the developer.
+     *
+     * @var string
+     */
+    protected $storagePath;
+
+    /**
+     * A custom vendor path to find dependencies in non-standard environments.
+     *
+     * @var string
+     */
+    protected $vendorPath;
 
     /**
      * Indicates if the application has "booted".
@@ -84,13 +98,6 @@ class Application extends Container implements ApplicationContract
     protected $deferredServices = [];
 
     /**
-     * The custom storage path defined by the developer.
-     *
-     * @var string
-     */
-    protected $storagePath;
-
-    /**
      * Create a new Flarum application instance.
      *
      * @param string|null $basePath
@@ -120,7 +127,7 @@ class Application extends Container implements ApplicationContract
      */
     public function config($key, $default = null)
     {
-        return array_get($this->make('flarum.config'), $key, $default);
+        return Arr::get($this->make('flarum.config'), $key, $default);
     }
 
     /**
@@ -142,7 +149,7 @@ class Application extends Container implements ApplicationContract
     public function url($path = null)
     {
         $config = $this->make('flarum.config');
-        $url = array_get($config, 'url', array_get($_SERVER, 'REQUEST_URI'));
+        $url = Arr::get($config, 'url', Arr::get($_SERVER, 'REQUEST_URI'));
 
         if (is_array($url)) {
             if (isset($url[$path])) {
@@ -153,7 +160,7 @@ class Application extends Container implements ApplicationContract
         }
 
         if ($path) {
-            $url .= '/'.array_get($config, "paths.$path", $path);
+            $url .= '/'.Arr::get($config, "paths.$path", $path);
         }
 
         return $url;
@@ -178,7 +185,7 @@ class Application extends Container implements ApplicationContract
 
         $this->instance('app', $this);
 
-        $this->instance('Illuminate\Container\Container', $this);
+        $this->instance(Container::class, $this);
     }
 
     /**
@@ -226,7 +233,7 @@ class Application extends Container implements ApplicationContract
      */
     protected function bindPathsInContainer()
     {
-        foreach (['base', 'public', 'storage'] as $path) {
+        foreach (['base', 'public', 'storage', 'vendor'] as $path) {
             $this->instance('path.'.$path, $this->{$path.'Path'}());
         }
     }
@@ -262,6 +269,16 @@ class Application extends Container implements ApplicationContract
     }
 
     /**
+     * Get the path to the vendor directory where dependencies are installed.
+     *
+     * @return string
+     */
+    public function vendorPath()
+    {
+        return $this->vendorPath ?: $this->basePath.DIRECTORY_SEPARATOR.'vendor';
+    }
+
+    /**
      * Set the storage directory.
      *
      * @param string $path
@@ -272,6 +289,21 @@ class Application extends Container implements ApplicationContract
         $this->storagePath = $path;
 
         $this->instance('path.storage', $path);
+
+        return $this;
+    }
+
+    /**
+     * Set the vendor directory.
+     *
+     * @param string $path
+     * @return $this
+     */
+    public function useVendorPath($path)
+    {
+        $this->vendorPath = $path;
+
+        $this->instance('path.vendor', $path);
 
         return $this;
     }
@@ -680,7 +712,7 @@ class Application extends Container implements ApplicationContract
     public function registerCoreContainerAliases()
     {
         $aliases = [
-            'app'                  => [\Flarum\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
+            'app'                  => [self::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
             'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
             'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
             'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],

@@ -17,6 +17,8 @@ use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 use Flarum\Install\StepFailed;
 use Flarum\Install\ValidationFailed;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -60,9 +62,9 @@ class InstallController implements RequestHandlerInterface
                 ->databaseConfig($this->makeDatabaseConfig($input))
                 ->adminUser($this->makeAdminUser($input))
                 ->settings([
-                    'forum_title' => array_get($input, 'forumTitle'),
+                    'forum_title' => Arr::get($input, 'forumTitle'),
                     'mail_from' => 'noreply@'.preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)),
-                    'welcome_title' => 'Welcome to '.array_get($input, 'forumTitle'),
+                    'welcome_title' => 'Welcome to '.Arr::get($input, 'forumTitle'),
                 ])
                 ->build();
         } catch (ValidationFailed $e) {
@@ -83,10 +85,10 @@ class InstallController implements RequestHandlerInterface
 
     private function makeDatabaseConfig(array $input): DatabaseConfig
     {
-        $host = array_get($input, 'mysqlHost');
+        $host = Arr::get($input, 'mysqlHost');
         $port = 3306;
 
-        if (str_contains($host, ':')) {
+        if (Str::contains($host, ':')) {
             list($host, $port) = explode(':', $host, 2);
         }
 
@@ -94,10 +96,10 @@ class InstallController implements RequestHandlerInterface
             'mysql',
             $host,
             intval($port),
-            array_get($input, 'mysqlDatabase'),
-            array_get($input, 'mysqlUsername'),
-            array_get($input, 'mysqlPassword'),
-            array_get($input, 'tablePrefix')
+            Arr::get($input, 'mysqlDatabase'),
+            Arr::get($input, 'mysqlUsername'),
+            Arr::get($input, 'mysqlPassword'),
+            Arr::get($input, 'tablePrefix')
         );
     }
 
@@ -109,16 +111,16 @@ class InstallController implements RequestHandlerInterface
     private function makeAdminUser(array $input): AdminUser
     {
         return new AdminUser(
-            array_get($input, 'adminUsername'),
+            Arr::get($input, 'adminUsername'),
             $this->getConfirmedAdminPassword($input),
-            array_get($input, 'adminEmail')
+            Arr::get($input, 'adminEmail')
         );
     }
 
     private function getConfirmedAdminPassword(array $input): string
     {
-        $password = array_get($input, 'adminPassword');
-        $confirmation = array_get($input, 'adminPasswordConfirmation');
+        $password = Arr::get($input, 'adminPassword');
+        $confirmation = Arr::get($input, 'adminPasswordConfirmation');
 
         if ($password !== $confirmation) {
             throw new ValidationFailed('The admin password did not match its confirmation.');

@@ -13,6 +13,7 @@ namespace Flarum\User;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Illuminate\Support\Str;
 
 /**
  * @property string $token
@@ -50,7 +51,7 @@ class PasswordToken extends AbstractModel
     {
         $token = new static;
 
-        $token->token = str_random(40);
+        $token->token = Str::random(40);
         $token->user_id = $userId;
         $token->created_at = Carbon::now();
 

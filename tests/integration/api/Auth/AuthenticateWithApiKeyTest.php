@@ -19,6 +19,7 @@ use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\Guest;
 use Flarum\User\User;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -47,7 +48,7 @@ class AuthenticateWithApiKeyTest extends TestCase
     {
         return ApiKey::unguarded(function () use ($user_id) {
             return ApiKey::query()->firstOrCreate([
-                'key'        => str_random(),
+                'key'        => Str::random(),
                 'user_id'    => $user_id,
                 'created_at' => Carbon::now()
             ]);

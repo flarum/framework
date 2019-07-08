@@ -15,4 +15,8 @@ use Exception;
 
 class TokenMismatchException extends Exception
 {
+    public function __construct($message = null, $code = 419, Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }
