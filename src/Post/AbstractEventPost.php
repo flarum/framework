@@ -11,6 +11,9 @@
 
 namespace Flarum\Post;
 
+/**
+ * @property array $content
+ */
 abstract class AbstractEventPost extends Post
 {
     /**
