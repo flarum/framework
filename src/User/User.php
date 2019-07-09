@@ -448,6 +448,11 @@ class User extends AbstractModel
         })->count();
     }
 
+    public function notificationPreferences()
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
     /**
      * Get the values of all registered preferences for this user, by
      * transforming their stored preferences and merging them with the defaults.
@@ -461,7 +466,7 @@ class User extends AbstractModel
             return $value['default'];
         }, static::$preferences);
 
-        $user = Arr::only((array) json_decode($value, true), array_keys(static::$preferences));
+        $user = Arr::only($this->notificationPreferences->toArray(), array_keys(static::$preferences));
 
         return array_merge($defaults, $user);
     }

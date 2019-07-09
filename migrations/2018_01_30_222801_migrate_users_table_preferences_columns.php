@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Schema\Builder;
-use Illuminate\Support\Arr;
 
 return [
     'up' => function (Builder $builder) {
