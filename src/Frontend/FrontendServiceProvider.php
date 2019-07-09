@@ -30,7 +30,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 );
 
                 $assets->setLessImportDirs([
-                    $this->app->basePath().'/vendor/components/font-awesome/less' => ''
+                    $this->app->vendorPath().'/components/font-awesome/less' => ''
                 ]);
 
                 $assets->css([$this, 'addBaseCss']);
@@ -72,8 +72,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
     public function addBaseCss(SourceCollector $sources)
     {
-        $sources->addFile(base_path().'/vendor/flarum/core/less/common/variables.less');
-        $sources->addFile(base_path().'/vendor/flarum/core/less/common/mixins.less');
+        $sources->addFile(__DIR__.'/../../less/common/variables.less');
+        $sources->addFile(__DIR__.'/../../less/common/mixins.less');
 
         $this->addLessVariables($sources);
     }

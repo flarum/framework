@@ -60,7 +60,7 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
         $data = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals($this->data['title'], $discussion->title);
-        $this->assertEquals($this->data['title'], array_get($data, 'data.attributes.title'));
+        $this->assertEquals($this->data['title'], Arr::get($data, 'data.attributes.title'));
     }
 
     /**

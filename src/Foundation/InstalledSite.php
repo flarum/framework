@@ -23,6 +23,7 @@ use Flarum\Forum\ForumServiceProvider;
 use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Group\GroupServiceProvider;
 use Flarum\Locale\LocaleServiceProvider;
+use Flarum\Mail\MailServiceProvider;
 use Flarum\Notification\NotificationServiceProvider;
 use Flarum\Post\PostServiceProvider;
 use Flarum\Search\SearchServiceProvider;
@@ -98,6 +99,10 @@ class InstalledSite implements SiteInterface
         $laravel = new Application($this->paths['base'], $this->paths['public']);
 
         $laravel->useStoragePath($this->paths['storage']);
+
+        if (isset($this->paths['vendor'])) {
+            $laravel->useVendorPath($this->paths['vendor']);
+        }
 
         $laravel->instance('env', 'production');
         $laravel->instance('flarum.config', $this->config);

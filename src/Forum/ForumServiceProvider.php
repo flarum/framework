@@ -68,6 +68,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
             $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
+            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
             $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
             $pipe->pipe($app->make(HttpMiddleware\ShareErrorsFromSession::class));
 
@@ -94,7 +95,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $assets->css(function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../less/forum.less');
                 $sources->addString(function () {
-                    return $this->app->make(SettingsRepositoryInterface::class)->get('custom_less');
+                    return $this->app->make(SettingsRepositoryInterface::class)->get('custom_less', '');
                 });
             });
 

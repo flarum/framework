@@ -308,4 +308,11 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'cache.clear',
         $route->toController(Controller\ClearCacheController::class)
     );
+
+    // List available mail drivers and their configuration fields
+    $map->get(
+        '/mail-drivers',
+        'mailDrivers.index',
+        $route->toController(Controller\ListMailDriversController::class)
+    );
 };
