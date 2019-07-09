@@ -18,28 +18,27 @@ return [
         $db = $builder->getConnection();
 
         $db->table('users')
+            ->select(['id', 'preferences'])
             ->whereNotNull('preferences')
             ->orderBy('id')
-            ->chunk(50, function (Collection $users) use ($db) {
-                $users->each(function ($user) use ($db) {
-                    collect(json_decode(Arr::get($user, 'preferences', '{}')))
-                        ->each(function ($value, $key) use ($user, $db) {
-                            if ($key === 'discloses_online') {
-                                $db->table('users')
-                                    ->where('id', $user['id'])
-                                    ->update(['discloses_online' => (bool) $value]);
-                            }
-                            if (preg_match('/^notify_(?<type>[^_]+)_(?<channel>.*)$/', $key, $matches)) {
-                                $db->table('notification_preferences')
-                                    ->insert([
-                                        'user_id' => $user['id'],
-                                        'type' => $matches['type'],
-                                        'channel' => $matches['channel'],
-                                        'enabled' => (bool) $value
-                                    ]);
-                            }
-                        });
-                });
+            ->each(function ($user) use ($db) {
+                collect(json_decode($user->preferences ?? '{}'))
+                    ->each(function ($value, $key) use ($user, $db) {
+                        if ($key === 'discloseOnline') {
+                            $db->table('users')
+                                ->where('id', $user->id)
+                                ->update(['disclose_online' => (bool) $value]);
+                        }
+                        if (preg_match('/^notify_(?<type>[^_]+)_(?<channel>.*)$/', $key, $matches)) {
+                            $db->table('notification_preferences')
+                                ->insert([
+                                    'user_id' => $user->id,
+                                    'type' => $matches['type'],
+                                    'channel' => $matches['channel'],
+                                    'enabled' => (bool) $value
+                                ]);
+                        }
+                    });
             });
     },
 

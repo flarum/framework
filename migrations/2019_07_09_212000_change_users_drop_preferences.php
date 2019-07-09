@@ -14,13 +14,13 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) {
+        $schema->table('users', function (Blueprint $table) {
             $table->dropColumn('preferences');
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) {
+        $schema->table('users', function (Blueprint $table) {
             $table->binary('preferences')->nullable();
         });
     }
