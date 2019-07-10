@@ -14,7 +14,7 @@ export default class MarkdownButton extends Component {
   view() {
     return <button className="Button Button--icon Button--link" title={this.title()} data-hotkey={this.props.hotkey}
                    onclick={this.click.bind(this)} onkeydown={this.keydown.bind(this)}>
-      {icon(this.icon())}
+      {icon(this.props.icon)}
     </button>;
   }
 
@@ -26,7 +26,7 @@ export default class MarkdownButton extends Component {
   }
 
   click() {
-    return apply(this.element, this.styles());
+    return apply(this.element, this.props.style);
   }
 
   title() {
@@ -35,13 +35,5 @@ export default class MarkdownButton extends Component {
     if (this.props.hotkey) tooltip += ` <${modifierKey}-${this.props.hotkey}>`;
 
     return tooltip;
-  }
-
-  icon() {
-    return this.props.icon;
-  }
-
-  styles() {
-    return this.props.style;
   }
 }
