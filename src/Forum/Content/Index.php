@@ -58,9 +58,11 @@ class Index
         ];
 
         $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
+        $defaultRoute = app()->make('flarum.settings')->get('default_route');
 
         $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
+        $document->canonicalUrl = $defaultRoute === '/all' ? app()->url() : $request->getUri()->withQuery('');
 
         return $document;
     }
