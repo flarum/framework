@@ -2,8 +2,6 @@
   "private": true,
   "name": "@flarum/markdown",
   "dependencies": {
-    "@github/markdown-toolbar-element": "^0.1.1",
-    "@webcomponents/custom-elements": "^1.2.1",
     "flarum-webpack-config": "0.1.0-beta.10",
     "mdarea": "^0.0.10",
     "webpack": "^4.26.0",
