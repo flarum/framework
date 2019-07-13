@@ -9,6 +9,7 @@
     "expose-loader": "^0.7.5",
     "flarum-webpack-config": "0.1.0-beta.10",
     "hc-sticky": "^2.2.3",
+    "imports-loader": "^0.8.0",
     "jquery": "^3.4.1",
     "jquery.hotkeys": "^0.1.0",
     "lodash-es": "^4.17.14",
@@ -18,7 +19,8 @@
     "spin.js": "^3.1.0",
     "webpack": "^4.35.3",
     "webpack-cli": "^3.3.5",
-    "webpack-merge": "^4.2.1"
+    "webpack-merge": "^4.2.1",
+    "zepto": "^1.2.0"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
