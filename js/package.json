@@ -5,6 +5,7 @@
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.5",
     "color-thief-browser": "^2.0.2",
+    "dayjs": "^1.8.15",
     "expose-loader": "^0.7.5",
     "flarum-webpack-config": "0.1.0-beta.10",
     "jquery": "^3.4.1",
@@ -12,12 +13,11 @@
     "lodash-es": "^4.17.14",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
     "mithril": "^0.2.8",
-    "moment": "^2.22.2",
     "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.1.2",
-    "webpack-merge": "^4.1.4"
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.5",
+    "webpack-merge": "^4.2.1"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",

@@ -6,7 +6,7 @@
  * @return {Object}
  */
 export default function fullTime(time) {
-  const mo = moment(time);
+  const mo = dayjs(time);
 
   const datetime = mo.format();
   const full = mo.format('LLLL');

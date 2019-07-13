@@ -239,7 +239,7 @@ export default class PostStreamScrubber extends Component {
 
     this.index = index;
     this.visible = visible;
-    this.description = period ? moment(period).format('MMMM YYYY') : '';
+    this.description = period ? dayjs(period).format('MMMM YYYY') : '';
   }
 
   config(isInitialized, context) {
