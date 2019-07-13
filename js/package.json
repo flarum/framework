@@ -8,6 +8,7 @@
     "dayjs": "^1.8.15",
     "expose-loader": "^0.7.5",
     "flarum-webpack-config": "0.1.0-beta.10",
+    "hc-sticky": "^2.2.3",
     "jquery": "^3.4.1",
     "jquery.hotkeys": "^0.1.0",
     "lodash-es": "^4.17.14",
