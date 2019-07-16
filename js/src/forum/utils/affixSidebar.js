@@ -11,11 +11,11 @@ export default function affixSidebar(element, isInitialized) {
 
   const $sidebar = $(element);
   const $header = $('#header');
-  const $affixElement = $sidebar.find('> ul');
+  const $affixElement = $sidebar.find('> ul')[0];
 
   $(window).off('.affix');
 
-  $affixElement.hcSticky({
+  new hcSticky($affixElement, {
     stickTo: element,
     top: $header.outerHeight(true) + parseInt($sidebar.css('margin-top'), 10),
   });
