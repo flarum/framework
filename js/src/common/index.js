@@ -1,7 +1,8 @@
 import 'expose-loader?jQuery!zepto';
-import 'expose-loader?m!mithril';
 import 'expose-loader?moment!expose-loader?dayjs!dayjs';
+import 'expose-loader?m!mithril';
 import 'expose-loader?m.bidi!m.attrs.bidi';
+import 'expose-loader?Mousetrap!mousetrap';
 
 import 'zepto/src/selector';
 import 'zepto/src/fx';
@@ -14,7 +15,6 @@ import 'bootstrap/js/dropdown';
 import 'bootstrap/js/modal';
 import 'bootstrap/js/tooltip';
 import 'bootstrap/js/transition';
-import 'jquery.hotkeys/jquery.hotkeys';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
