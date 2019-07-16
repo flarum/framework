@@ -83,7 +83,9 @@ class Composer extends Component {
     });
 
     // When the escape key is pressed on any inputs, close the composer.
-    this.$().on('keydown', ':input', 'esc', () => this.close());
+    this.$().on('keydown', ':input', e => {
+      if (e.key === 'Escape') this.close();
+    });
 
     // Don't let the user leave the page without first giving the composer's
     // component a chance to scream at the user to make sure they don't
@@ -272,7 +274,7 @@ class Composer extends Component {
     // current height of the composer, as well as the page's scroll position, so
     // that we can smoothly transition from the old to the new state.
     const oldPosition = this.position;
-    const $composer = this.$().stop(true);
+    const $composer = this.$();
     const oldHeight = $composer.outerHeight();
     const scrollTop = $(window).scrollTop();
 
@@ -294,7 +296,9 @@ class Composer extends Component {
       $composer.css({height: oldHeight});
     }
 
-    $composer.animate({bottom: 0, height: newHeight}, 'fast', () => this.component.focus());
+    $composer.css({bottom: 0, height: newHeight});
+
+    this.component.focus();
 
     this.updateBodyPadding();
     $(window).scrollTop(scrollTop);
@@ -346,7 +350,9 @@ class Composer extends Component {
     // Animate the composer sliding down off the bottom edge of the viewport.
     // Only when the animation is completed, update the Composer state flag and
     // other elements on the page.
-    $composer.stop(true).animate({bottom: -$composer.height()}, 'fast', () => {
+    $composer
+      // .stop(true)
+      .animate({bottom: -$composer.height()}, 'fast', () => {
       this.position = Composer.PositionEnum.HIDDEN;
       this.clear();
       m.redraw();
