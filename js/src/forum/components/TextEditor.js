@@ -58,8 +58,7 @@ export default class TextEditor extends Component {
       m.redraw();
     };
 
-    $(element).bind('keydown', 'meta+return', handler);
-    $(element).bind('keydown', 'ctrl+return', handler);
+    Mousetrap(element).bind('mod+return', handler);
   }
 
   /**
