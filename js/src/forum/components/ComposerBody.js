@@ -71,7 +71,7 @@ export default class ComposerBody extends Component {
    * Draw focus to the text editor.
    */
   focus() {
-    this.$(':input:enabled:visible:first').focus();
+    this.$(':input').not('[disabled]').not(':hidden').first().focus();
   }
 
   /**

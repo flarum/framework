@@ -5,6 +5,7 @@ import 'expose-loader?m.bidi!m.attrs.bidi';
 import 'expose-loader?Mousetrap!mousetrap';
 
 import 'zepto/src/selector';
+import 'zepto/src/data';
 import 'zepto/src/fx';
 import 'zepto/src/fx_methods';
 
