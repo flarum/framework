@@ -1,3 +1,5 @@
+import jump from 'jump.js';
+
 ['width', 'height'].forEach(function(dimension) {
   const Dimension = dimension.replace(/./, function (m) {
     return m[0].toUpperCase()
@@ -21,11 +23,33 @@
   };
 });
 
-$.fn.extend = $.extend.bind($);
-
+// allow use of $(':input')
 $.expr[':']['input'] = function() {
   if (('disabled' in this) || ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON'].includes(this.tagName)) return this;
 };
+
+// add $().hover() method
+$.fn.hover = function(hover, leave) {
+  return this
+    .on('mouseenter', hover)
+    .on('mouseleave', leave || hover);
+};
+
+// add animated scroll
+$.fn.animatedScrollTop = function (to, duration = $.fx.speeds._default, callback) {
+  if (typeof to === 'number') to -= (window.scrollY || window.pageYOffset);
+
+  jump(to, {
+    duration: $.fx.speeds[duration] || duration,
+    callback
+  });
+
+  return this;
+};
+
+// required for compatibility with jquery plugins
+// ex: bootstrap plugins
+$.fn.extend = $.extend.bind($);
 
 /**
  * Enable special events on Zepto

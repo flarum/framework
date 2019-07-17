@@ -303,7 +303,7 @@ export default class Search extends Component {
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.stop(true).animate({scrollTop}, 100);
+        $dropdown.animate({scrollTop}, 100);
       }
     }
   }

@@ -147,7 +147,7 @@ export default class LogInModal extends Modal {
   }
 
   onready() {
-    this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').select();
+    this.$(`[name="${this.identification() ? 'password' : 'identification'}"]`).select();
   }
 
   onsubmit(e) {

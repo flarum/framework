@@ -131,7 +131,7 @@ export default class Modal extends Component {
     m.redraw();
 
     if (error.status === 422 && error.response.errors) {
-      this.$('form [name=' + error.response.errors[0].source.pointer.replace('/data/attributes/', '') + ']').select();
+      this.$('form [name="' + error.response.errors[0].source.pointer.replace('/data/attributes/', '') + '"]').select();
     } else {
       this.onready();
     }

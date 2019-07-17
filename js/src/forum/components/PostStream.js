@@ -53,7 +53,7 @@ class PostStream extends Component {
     // discussion and then scroll to the very bottom of the page.
     if (number === 'reply') {
       return this.goToLast().then(() => {
-        $('html,body').stop(true).animate({
+        $('html,body').animate({
           scrollTop: $(document).height() - $(window).height()
         }, 'fast', () => {
           this.flashItem(this.$('.PostStream-item:last-child'));
@@ -70,7 +70,7 @@ class PostStream extends Component {
     return promise.then(() => {
       m.redraw(true);
 
-      this.scrollToNumber(number, noAnimation).done(this.unpause.bind(this));
+      this.scrollToNumber(number, noAnimation).then(this.unpause.bind(this));
     });
   }
 
@@ -93,7 +93,7 @@ class PostStream extends Component {
     return promise.then(() => {
       anchorScroll(this.$('.PostStream-item:' + (backwards ? 'last' : 'first')), () => m.redraw(true));
 
-      this.scrollToIndex(index, noAnimation, backwards).done(this.unpause.bind(this));
+      this.scrollToIndex(index, noAnimation, backwards).then(this.unpause.bind(this));
     });
   }
 
@@ -275,7 +275,6 @@ class PostStream extends Component {
     setTimeout(() => this.scrollListener.start());
 
     context.onunload = () => {
-      this.scrollListener.stop();
       clearTimeout(this.calculatePositionTimeout);
     };
   }
@@ -295,7 +294,7 @@ class PostStream extends Component {
     const loadAheadDistance = 300;
 
     if (this.visibleStart > 0) {
-      const $item = this.$('.PostStream-item[data-index=' + this.visibleStart + ']');
+      const $item = this.$(`.PostStream-item[data-index="${this.visibleStart}"]`);
 
       if ($item.length && $item.offset().top > viewportTop - loadAheadDistance) {
         this.loadPrevious();
@@ -303,7 +302,7 @@ class PostStream extends Component {
     }
 
     if (this.visibleEnd < this.count()) {
-      const $item = this.$('.PostStream-item[data-index=' + (this.visibleEnd - 1) + ']');
+      const $item = this.$(`.PostStream-item[data-index="${this.visibleEnd - 1}"]`);
 
       if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
         this.loadNext();
@@ -513,9 +512,9 @@ class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToNumber(number, noAnimation) {
-    const $item = this.$(`.PostStream-item[data-number=${number}]`);
+    const $item = this.$(`.PostStream-item[data-number="${number}"]`);
 
-    return this.scrollToItem($item, noAnimation).done(this.flashItem.bind(this, $item));
+    return this.scrollToItem($item, noAnimation).then(this.flashItem.bind(this, $item));
   }
 
   /**
@@ -528,7 +527,7 @@ class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToIndex(index, noAnimation, bottom) {
-    const $item = this.$(`.PostStream-item[data-index=${index}]`);
+    const $item = this.$(`.PostStream-item[data-index="${index}"]`);
 
     return this.scrollToItem($item, noAnimation, true, bottom);
   }
@@ -545,7 +544,8 @@ class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToItem($item, noAnimation, force, bottom) {
-    const $container = $('html, body').stop(true);
+    const $container = $('html, body');
+    const deferred = m.deferred();
 
     if ($item.length) {
       const itemTop = $item.offset().top - this.getMarginTop();
@@ -563,13 +563,17 @@ class PostStream extends Component {
 
         if (noAnimation) {
           $container.scrollTop(top);
+
+          deferred.resolve();
         } else if (top !== scrollTop) {
-          $container.animate({scrollTop: top}, 'fast');
+          $container.animatedScrollTop(top, 'fast', () => deferred.resolve());
         }
       }
+    } else {
+      deferred.resolve();
     }
 
-    return $container.promise();
+    return deferred.promise;
   }
 
   /**
