@@ -11,6 +11,7 @@
     "hc-sticky": "^2.2.3",
     "imports-loader": "^0.8.0",
     "jquery": "^3.4.1",
+    "jump.js": "^1.0.2",
     "lodash-es": "^4.17.14",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
     "mithril": "^0.2.8",

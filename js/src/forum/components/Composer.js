@@ -351,7 +351,6 @@ class Composer extends Component {
     // Only when the animation is completed, update the Composer state flag and
     // other elements on the page.
     $composer
-      // .stop(true)
       .animate({bottom: -$composer.height()}, 'fast', () => {
       this.position = Composer.PositionEnum.HIDDEN;
       this.clear();

@@ -72,7 +72,7 @@ export default class PostStreamScrubber extends Component {
       };
 
       if (context.oldStyle) {
-        $element.stop(true).css(context.oldStyle).animate(newStyle);
+        $element.css(context.oldStyle).animate(newStyle);
       } else {
         $element.css(newStyle);
       }
@@ -288,8 +288,6 @@ export default class PostStreamScrubber extends Component {
   }
 
   ondestroy() {
-    this.scrollListener.stop();
-
     this.props.stream.off('unpaused', this.handlers.streamWasUnpaused);
 
     $(window)
@@ -325,7 +323,7 @@ export default class PostStreamScrubber extends Component {
     const func = animate ? 'animate' : 'css';
     for (const part in heights) {
       const $part = $scrubber.find(`.Scrubber-${part}`);
-      $part.stop(true, true)[func]({height: heights[part] + '%'}, 'fast');
+      $part[func]({height: heights[part] + '%'}, 'fast');
 
       // jQuery likes to put overflow:hidden, but because the scrollbar handle
       // has a negative margin-left, we need to override.
