@@ -29,6 +29,18 @@ export default class DiscussionList extends Component {
     this.moreResults = false;
 
     /**
+     * Current page in discussion list
+     */
+    this.page = Number(m.route.param('page')) || 1;
+
+    /**
+     * Number of discussions to offset for pagination
+     *
+     * @type {number}
+     */
+    this.offset = (this.page - 1) * 20;
+
+    /**
      * The discussions in the discussion list.
      *
      * @type {Discussion[]}
@@ -140,10 +152,10 @@ export default class DiscussionList extends Component {
   /**
    * Load a new page of discussion results.
    *
-   * @param {Integer} offset The index to start the page at.
+   * @param {Number} offset The index to start the page at.
    * @return {Promise}
    */
-  loadResults(offset) {
+  loadResults(offset = this.offset) {
     const preloadedDiscussions = app.preloadedApiDocument();
 
     if (preloadedDiscussions) {
@@ -165,7 +177,9 @@ export default class DiscussionList extends Component {
   loadMore() {
     this.loading = true;
 
-    this.loadResults(this.discussions.length).then(this.parseResults.bind(this));
+    this.page++;
+
+    this.loadResults((this.offset += 20)).then(this.parseResults.bind(this));
   }
 
   /**
@@ -180,7 +194,21 @@ export default class DiscussionList extends Component {
     this.loading = false;
     this.moreResults = !!results.payload.links.next;
 
+    // Construct a URL to this discussion with the updated page, then
+    // replace it into the window's history and our own history stack.
     m.lazyRedraw();
+
+    const query = m.route.parseQueryString(document.location.search);
+
+    if (this.page !== query.page) {
+      if (this.page !== 1) query.page = this.page;
+
+      const url = new URL(document.location.href);
+
+      url.search = m.route.buildQueryString(query);
+
+      window.history.replaceState(null, document.title, url);
+    }
 
     return results;
   }
