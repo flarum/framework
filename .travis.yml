@@ -19,12 +19,18 @@ script:
 jobs:
   include:
     - php: 7.1
+      services:
+        - mysql
       env: DB=mysql
 
     - php: 7.2
+      services:
+        - mysql
       env: DB=mysql
 
     - php: 7.3
+      services:
+        - mysql
       env: DB=mysql
 
     - php: 7.1
@@ -43,9 +49,13 @@ jobs:
       env: DB=mariadb
 
     - php: 7.2
+      services:
+        - mysql
       env: DB=mysql PREFIX=forum_
 
     - php: 7.4snapshot
+      services:
+        - mysql
       env: DB=mysql
 
     - php: 7.4snapshot
