@@ -757,7 +757,10 @@ class User extends AbstractModel
      */
     public function refreshCommentCount()
     {
-        $this->comment_count = $this->posts()->where('type', 'comment')->count();
+        $this->comment_count = $this->posts()
+            ->where('type', 'comment')
+            ->where('is_private', false)
+            ->count();
 
         return $this;
     }
@@ -769,7 +772,9 @@ class User extends AbstractModel
      */
     public function refreshDiscussionCount()
     {
-        $this->discussion_count = $this->discussions()->count();
+        $this->discussion_count = $this->discussions()
+            ->where('is_private', false)
+            ->count();
 
         return $this;
     }
