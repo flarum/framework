@@ -13,6 +13,7 @@ use Flarum\Api\Controller\CreateDiscussionController;
 use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 class CreateDiscussionControllerTest extends ApiControllerTestCase
 {
@@ -63,8 +64,6 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Illuminate\Validation\ValidationException
-     * @expectedExceptionMessage The given data was invalid.
      */
     public function cannot_create_discussion_without_content()
     {
@@ -72,19 +71,23 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
 
         $data = Arr::except($this->data, 'content');
 
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('The given data was invalid.');
+
         $this->callWith($data);
     }
 
     /**
      * @test
-     * @expectedException \Illuminate\Validation\ValidationException
-     * @expectedExceptionMessage The given data was invalid.
      */
     public function cannot_create_discussion_without_title()
     {
         $this->actor = User::find(1);
 
         $data = Arr::except($this->data, 'title');
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('The given data was invalid.');
 
         $this->callWith($data);
     }

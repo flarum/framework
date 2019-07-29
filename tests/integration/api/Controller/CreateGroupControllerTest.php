@@ -11,9 +11,11 @@ namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\CreateGroupController;
 use Flarum\Group\Group;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CreateGroupControllerTest extends ApiControllerTestCase
 {
@@ -46,12 +48,13 @@ class CreateGroupControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Illuminate\Validation\ValidationException
-     * @expectedExceptionMessage The given data was invalid.
      */
     public function admin_cannot_create_group_without_data()
     {
         $this->actor = User::find(1);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('The given data was invalid.');
 
         $this->callWith();
     }
@@ -79,11 +82,12 @@ class CreateGroupControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Flarum\User\Exception\PermissionDeniedException
      */
     public function unauthorized_user_cannot_create_group()
     {
         $this->actor = User::find(2);
+
+        $this->expectException(PermissionDeniedException::class);
 
         $this->callWith($this->data);
     }

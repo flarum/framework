@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\ListUsersController;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 
 class ListUsersControllerTest extends ApiControllerTestCase
@@ -35,10 +36,11 @@ class ListUsersControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Flarum\User\Exception\PermissionDeniedException
      */
     public function disallows_index_for_guest()
     {
+        $this->expectException(PermissionDeniedException::class);
+
         $this->callWith();
     }
 
