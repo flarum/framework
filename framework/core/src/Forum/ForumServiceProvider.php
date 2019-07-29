@@ -53,6 +53,10 @@ class ForumServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
+        $this->app->afterResolving('flarum.forum.routes', function (RouteCollection $routes) {
+            $this->setDefaultRoute($routes);
+        });
+
         $this->app->singleton('flarum.forum.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
@@ -181,7 +185,16 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->app->make('events')->fire(
             new ConfigureForumRoutes($routes, $factory)
         );
+    }
 
+    /**
+     * Determine the default route.
+     *
+     * @param RouteCollection $routes
+     */
+    protected function setDefaultRoute(RouteCollection $routes)
+    {
+        $factory = $this->app->make(RouteHandlerFactory::class);
         $defaultRoute = $this->app->make('flarum.settings')->get('default_route');
 
         if (isset($routes->getRouteData()[0]['GET'][$defaultRoute])) {
