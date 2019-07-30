@@ -1,3 +1,5 @@
+import MicroModal from 'micromodal';
+
 import Component from '../Component';
 import Modal from './Modal';
 
@@ -14,7 +16,7 @@ export default class ModalManager extends Component {
 
   view() {
     return (
-      <div className="ModalManager modal fade">
+      <div className="ModalManager modal" id="Modal">
         {this.component && this.component.render()}
       </div>
     );
@@ -27,10 +29,6 @@ export default class ModalManager extends Component {
     // part of the global UI that persists between routes), we will flag the DOM
     // to be retained across route changes.
     context.retain = true;
-
-    this.$()
-      .on('hidden.bs.modal', this.clear.bind(this))
-      .on('shown.bs.modal', this.onready.bind(this));
   }
 
   /**
@@ -53,11 +51,24 @@ export default class ModalManager extends Component {
 
     m.redraw(true);
 
-    const dismissible = !!this.component.isDismissible();
-    this.$().modal({
-      backdrop: dismissible || 'static',
-      keyboard: dismissible
-    }).modal('show');
+    if (!$('.modal-backdrop').length) {
+      $('<div />').addClass('modal-backdrop')
+        .on('click', () => this.close())
+        .appendTo('body');
+    }
+
+    MicroModal.show('Modal', {
+      awaitCloseAnimation: true,
+      onClose: () => {
+        $('.modal-backdrop').fadeOut(200, function () {
+          this.remove();
+        });
+
+        this.showing = false;
+      }
+    });
+
+    this.onready();
   }
 
   /**
@@ -70,13 +81,10 @@ export default class ModalManager extends Component {
 
     // Don't hide the modal immediately, because if the consumer happens to call
     // the `show` method straight after to show another modal dialog, it will
-    // cause Bootstrap's modal JS to misbehave. Instead we will wait for a tiny
+    // cause the new modal dialog to disappear. Instead we will wait for a tiny
     // bit to give the `show` method the opportunity to prevent this from going
     // ahead.
-    this.hideTimeout = setTimeout(() => {
-      this.$().modal('hide');
-      this.showing = false;
-    });
+    this.hideTimeout = setTimeout(() => MicroModal.close('Modal'));
   }
 
   /**
