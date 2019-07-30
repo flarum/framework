@@ -1,5 +1,6 @@
 import jump from 'jump.js';
 
+// add $.fn.outerWidth and $.fn.outerHeight
 ['width', 'height'].forEach(function(dimension) {
   const Dimension = dimension.replace(/./, function (m) {
     return m[0].toUpperCase()

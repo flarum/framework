@@ -13,7 +13,6 @@ import './utils/patchZepto';
 
 import 'hc-sticky';
 import 'bootstrap/js/dropdown';
-import 'bootstrap/js/modal';
 import 'bootstrap/js/tooltip';
 import 'bootstrap/js/transition';
 

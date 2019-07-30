@@ -14,6 +14,7 @@
     "jump.js": "^1.0.2",
     "lodash-es": "^4.17.15",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
+    "micromodal": "^0.4.0",
     "mithril": "^0.2.8",
     "mousetrap": "^1.6.3",
     "punycode": "^2.1.1",

@@ -15,12 +15,12 @@
   left: 0;
   z-index: @zindex-modal-background;
   background-color: @overlay-bg;
-  opacity: 0;
-  .transition(0.2s opacity);
+  animation: fadeIn 0.2s;
+}
 
-  &.in {
-    opacity: 1;
-  }
+@keyframes modalScaleIn {
+  from { .scale(.9); }
+  to { .scale(1) }
 }
 
 // Container that the modal scrolls within
@@ -40,8 +40,21 @@
     .scale(0.9);
     .transition-transform(0.2s ease-out);
   }
-  &.in .Modal {
-    .scale(1);
+
+  &[aria-hidden="false"] {
+    animation: fadeIn .3s, modalScaleIn .2s;
+
+    .Modal {
+      .scale(1);
+    }
+  }
+
+  &[aria-hidden="true"] {
+    animation: fadeOut .3s;
+  }
+
+  &.is-open {
+    display: block;
   }
 }
 .modal-open .ModalManager {
