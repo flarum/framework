@@ -14,6 +14,7 @@ namespace Flarum\Forum\Content;
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
@@ -32,13 +33,20 @@ class Index
     protected $view;
 
     /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    /**
      * @param Client $api
      * @param Factory $view
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(Client $api, Factory $view)
+    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings)
     {
         $this->api = $api;
         $this->view = $view;
+        $this->settings = $settings;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -58,7 +66,7 @@ class Index
         ];
 
         $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
-        $defaultRoute = app()->make('flarum.settings')->get('default_route');
+        $defaultRoute = $this->settings->get('default_route');
 
         $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
