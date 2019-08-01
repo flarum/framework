@@ -1,6 +1,6 @@
 /*global s9e*/
 
-import twemoji from 'twemoji/2/twemoji.npm';
+import twemoji from 'twemoji';
 
 import { override } from 'flarum/extend';
 import Post from 'flarum/models/Post';

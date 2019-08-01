@@ -1,10 +1,10 @@
 import getCaretCoordinates from 'textarea-caret';
+import emojiMap from 'simple-emoji-map';
 
 import { extend } from 'flarum/extend';
 import ComposerBody from 'flarum/components/ComposerBody';
 import TextEditor from 'flarum/components/TextEditor';
 import TextEditorButton from 'flarum/components/TextEditorButton';
-import emojiMap from './generated/emojiMap.json';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 
