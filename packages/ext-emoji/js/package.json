@@ -2,18 +2,15 @@
   "private": true,
   "name": "@flarum/emoji",
   "dependencies": {
-    "emojibase-data": "^3.2.0",
     "flarum-webpack-config": "0.1.0-beta.10",
+    "simple-emoji-map": "^0.3.0",
     "textarea-caret": "^3.1.0",
-    "twemoji": "^11.2.0",
-    "webpack": "^4.26.0",
-    "webpack-cli": "^3.1.2"
+    "twemoji": "^12.1.2",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.5"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
-    "build": "webpack --mode production",
-    "predev": "npm run generate-emoji-map",
-    "prebuild": "npm run generate-emoji-map",
-    "generate-emoji-map": "node ./scripts/generate-emoji-map.js"
+    "build": "webpack --mode production"
   }
 }
