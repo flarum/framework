@@ -16,7 +16,7 @@ export default class ModalManager extends Component {
 
   view() {
     return (
-      <div className="ModalManager modal" id="Modal">
+      <div className="ModalManager modal" id="Modal" onclick={this.onclick.bind(this)}>
         {this.component && this.component.render()}
       </div>
     );
@@ -53,7 +53,6 @@ export default class ModalManager extends Component {
 
     if (!$('.modal-backdrop').length) {
       $('<div />').addClass('modal-backdrop')
-        .on('click', () => this.close())
         .appendTo('body');
     }
 
@@ -69,6 +68,12 @@ export default class ModalManager extends Component {
     });
 
     this.onready();
+  }
+
+  onclick(e) {
+    if (e.target === this.element) {
+      this.close();
+    }
   }
 
   /**
