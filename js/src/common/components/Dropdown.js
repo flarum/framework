@@ -44,13 +44,15 @@ export default class Dropdown extends Component {
     );
   }
 
-  config(isInitialized) {
+  config(isInitialized, ...attrs) {
     if (isInitialized) return;
+
+    this.$('> Dropdown-toggle').dropdown();
 
     // When opening the dropdown menu, work out if the menu goes beyond the
     // bottom of the viewport. If it does, we will apply class to make it show
     // above the toggle button instead of below it.
-    this.$().on('shown.bs.dropdown', () => {
+    this.element.addEventListener('shown.bs.dropdown', () => {
       this.showing = true;
 
       if (this.props.onshow) {
@@ -79,7 +81,7 @@ export default class Dropdown extends Component {
       );
     });
 
-    this.$().on('hidden.bs.dropdown', () => {
+    this.element.addEventListener('hidden.bs.dropdown', () => {
       this.showing = false;
 
       if (this.props.onhide) {
