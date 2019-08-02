@@ -47,7 +47,7 @@ export default class Dropdown extends Component {
   config(isInitialized) {
     if (isInitialized) return;
 
-    this.$('> Dropdown-toggle').dropdown();
+    this.$('> .Dropdown-toggle').dropdown();
 
     // When opening the dropdown menu, work out if the menu goes beyond the
     // bottom of the viewport. If it does, we will apply class to make it show
