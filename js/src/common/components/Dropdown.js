@@ -44,7 +44,7 @@ export default class Dropdown extends Component {
     );
   }
 
-  config(isInitialized, ...attrs) {
+  config(isInitialized) {
     if (isInitialized) return;
 
     this.$('> Dropdown-toggle').dropdown();
