@@ -17,11 +17,10 @@ use Illuminate\Cache\CacheManager;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Queue\Connectors\ConnectorInterface;
-use Illuminate\Queue\Connectors\SyncConnector;
 use Illuminate\Queue\Console as Commands;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener;
-use Illuminate\Queue\QueueManager;
+use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
 
 class QueueServiceProvider extends AbstractServiceProvider
@@ -40,18 +39,18 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     public function register()
     {
-        $this->app->singleton(ConnectorInterface::class, function ($app) {
-            return $app['queue']->connection();
+        // Register a simple connection factory that always returns the same
+        // connection, as that is enough for our purposes.
+        $this->app->singleton(Factory::class, function () {
+            return new QueueFactory(function () {
+                return $this->app->make('flarum.queue.connection');
+            });
         });
 
-        $this->app->singleton(Factory::class, function ($app) {
-            $manager = new QueueManager($app);
-
-            $manager->addConnector('sync', function () {
-                return new SyncConnector;
-            });
-
-            return $manager;
+        // Extensions can override this binding if they want to make Flarum use
+        // a different queuing backend.
+        $this->app->singleton('flarum.queue.connection', function () {
+            return new SyncQueue;
         });
 
         $this->app->singleton(ExceptionHandling::class, function ($app) {
@@ -60,7 +59,9 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton(Worker::class, function ($app) {
             return new Worker(
-                $app['queue'], $app['events'], $app->make(ExceptionHandling::class)
+                new HackyManagerForWorker($app[Factory::class]),
+                $app['events'],
+                $app[ExceptionHandling::class]
             );
         });
 
@@ -97,10 +98,8 @@ class QueueServiceProvider extends AbstractServiceProvider
     protected function registerCommands()
     {
         $this->app['events']->listen(Configuring::class, function (Configuring $event) {
-            if (! in_array($event->app['config']->get('queue.default'), ['sync', 'null'])) {
-                foreach ($this->commands as $command) {
-                    $event->addCommand($command);
-                }
+            foreach ($this->commands as $command) {
+                $event->addCommand($command);
             }
         });
     }
