@@ -2,7 +2,7 @@ import { extend } from 'flarum/extend';
 import TextEditor from 'flarum/components/TextEditor';
 import MarkdownArea from 'mdarea';
 
-import './pollyfills';
+import './polyfills';
 import MarkdownToolbar from './components/MarkdownToolbar';
 import MarkdownButton from './components/MarkdownButton';
 
