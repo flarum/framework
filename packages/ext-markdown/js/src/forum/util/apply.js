@@ -1,5 +1,5 @@
 import insertText from './insertText';
-import {blockStyle, isMultipleLines, multilineStyle, orderedList} from "./styles";
+import { blockStyle, isMultipleLines, multilineStyle, orderedList } from './styles';
 
 export const styleSelectedText = (textarea, styleArgs) => {
   const text = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);

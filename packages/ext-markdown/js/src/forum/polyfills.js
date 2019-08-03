@@ -1,3 +1,4 @@
+/*! https://mths.be/startswith v0.2.0 by @mathias */
 if (!String.prototype.startsWith) {
   Object.defineProperty(String.prototype, 'startsWith', {
     value: function(search, pos) {
