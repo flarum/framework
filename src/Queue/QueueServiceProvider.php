@@ -25,14 +25,12 @@ use Illuminate\Queue\Worker;
 class QueueServiceProvider extends AbstractServiceProvider
 {
     protected $commands = [
-        Commands\FailedTableCommand::class,
         Commands\FlushFailedCommand::class,
         Commands\ForgetFailedCommand::class,
         Commands\ListenCommand::class,
         Commands\ListFailedCommand::class,
         Commands\RestartCommand::class,
         Commands\RetryCommand::class,
-        Commands\TableCommand::class,
         Commands\WorkCommand::class,
     ];
 
