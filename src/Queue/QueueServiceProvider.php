@@ -68,10 +68,13 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('cache', function ($app) {
             return new class($app) {
-                public function __construct($app) {
+                public function __construct($app)
+                {
                     $this->app = $app;
                 }
-                public function driver() {
+
+                public function driver()
+                {
                     return $this->app['cache.store'];
                 }
             };
