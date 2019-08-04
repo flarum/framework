@@ -14,6 +14,7 @@ namespace Flarum\Forum\Content;
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
@@ -38,15 +39,22 @@ class Index
     protected $settings;
 
     /**
+     * @var UrlGenerator
+     */
+    protected $url;
+
+    /**
      * @param Client $api
      * @param Factory $view
      * @param SettingsRepositoryInterface $settings
+     * @param UrlGenerator $url
      */
-    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings)
+    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings, UrlGenerator $url)
     {
         $this->api = $api;
         $this->view = $view;
         $this->settings = $settings;
+        $this->url = $url;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -70,7 +78,7 @@ class Index
 
         $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
-        $document->canonicalUrl = $defaultRoute === '/all' ? app()->url() : $request->getUri()->withQuery('');
+        $document->canonicalUrl = $defaultRoute === '/all' ? $this->url->to('forum')->base() : $request->getUri()->withQuery('');
 
         return $document;
     }
