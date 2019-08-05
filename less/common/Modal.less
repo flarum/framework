@@ -15,7 +15,7 @@
   left: 0;
   z-index: @zindex-modal-background;
   background-color: @overlay-bg;
-  animation: fadeIn 0.2s;
+  .animation(fadeIn 0.2s);
 }
 
 @keyframes modalScaleIn {
@@ -49,7 +49,7 @@
   }
 
   &[aria-hidden="false"] {
-    animation: modalFadeIn .5s, modalScaleIn .4s;
+    .animation(e("modalFadeIn .5s, modalScaleIn .4s"));
 
     .Modal {
       .scale(1);
@@ -57,7 +57,7 @@
   }
 
   &[aria-hidden="true"] {
-    animation: fadeOut .3s;
+    .animation(fadeOut .3s);
   }
 
   &.is-open {

@@ -13,7 +13,6 @@ import './utils/patchZepto';
 
 import 'hc-sticky';
 import 'bootstrap/js/dropdown';
-import 'bootstrap/js/tooltip';
 import 'bootstrap/js/transition';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
