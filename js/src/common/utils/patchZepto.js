@@ -1,4 +1,27 @@
 import jump from 'jump.js';
+import Tooltip from 'tooltip.js';
+
+// add $.fn.tooltip
+$.fn.tooltip = function (option) {
+  return this.each(function () {
+    const $this = $(this);
+    let data = $this.data('bs.tooltip');
+    const options = typeof option === 'object' && option || {};
+
+    if ($this.attr('title')) {
+      options.title = $this.attr('title');
+      $this.removeAttr('title');
+      $this.attr('data-original-title', options.title);
+    }
+
+    if (option === 'destroy') option = 'dispose';
+
+    if (!data && ['dispose', 'hide'].includes(option)) return;
+
+    if (!data) $this.data('bs.tooltip', (data = new Tooltip(this, options)));
+    if (typeof option === 'string' && data[option]) data[option]();
+  });
+};
 
 // add $.fn.outerWidth and $.fn.outerHeight
 ['width', 'height'].forEach(function(dimension) {

@@ -10,13 +10,14 @@
   font-weight: normal;
   line-height: 1.4;
   opacity: 0;
-  .transition(0.15s opacity linear);
+  .transition(e("0.15s visibility linear, 0.15s opacity linear"));
+  .animation(fadeIn 0.15s);
 
-  &.in     { opacity: 1; }
-  &.top    { margin-top:  -3px; padding: @tooltip-arrow-width 0; }
-  &.right  { margin-left:  3px; padding: 0 @tooltip-arrow-width; }
-  &.bottom { margin-top:   3px; padding: @tooltip-arrow-width 0; }
-  &.left   { margin-left: -3px; padding: 0 @tooltip-arrow-width; }
+  &[aria-hidden="false"]  { opacity: 1; }
+  &[x-placement="top"]    { margin-top:  -3px; padding: @tooltip-arrow-width 0; }
+  &[x-placement="right"]  { margin-left:  3px; padding: 0 @tooltip-arrow-width; }
+  &[x-placement="bottom"] { margin-top:   3px; padding: @tooltip-arrow-width 0; }
+  &[x-placement="left"]    { margin-left: -3px; padding: 0 @tooltip-arrow-width; }
 }
 
 // Wrapper for the tooltip content
@@ -40,31 +41,32 @@
   border-color: transparent;
   border-style: solid;
 }
+
 .tooltip {
-  &.top .tooltip-arrow {
-    bottom: 0;
-    left: 50%;
+  &[x-placement="top"] .tooltip-arrow {
+    bottom: 0.2px;
+    left: 50% !important;
     margin-left: -@tooltip-arrow-width;
     border-width: @tooltip-arrow-width @tooltip-arrow-width 0;
     border-top-color: @tooltip-bg;
   }
-  &.right .tooltip-arrow {
-    top: 50%;
-    left: 0;
+  &[x-placement="right"] .tooltip-arrow {
+    top: 50% !important;
+    left: 0.2px;
     margin-top: -@tooltip-arrow-width;
     border-width: @tooltip-arrow-width @tooltip-arrow-width @tooltip-arrow-width 0;
     border-right-color: @tooltip-bg;
   }
-  &.left .tooltip-arrow {
-    top: 50%;
-    right: 0;
+  &[x-placement="left"] .tooltip-arrow {
+    top: 50% !important;
+    right: 0.2px;
     margin-top: -@tooltip-arrow-width;
     border-width: @tooltip-arrow-width 0 @tooltip-arrow-width @tooltip-arrow-width;
     border-left-color: @tooltip-bg;
   }
-  &.bottom .tooltip-arrow {
-    top: 0;
-    left: 50%;
+  &[x-placement="bottom"] .tooltip-arrow {
+    top: 0.2px;
+    left: 50% !important;
     margin-left: -@tooltip-arrow-width;
     border-width: 0 @tooltip-arrow-width @tooltip-arrow-width;
     border-bottom-color: @tooltip-bg;
