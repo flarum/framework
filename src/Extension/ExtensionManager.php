@@ -283,7 +283,13 @@ class ExtensionManager
      */
     public function extend(Container $app)
     {
-        foreach ($this->getEnabledExtensions() as $extension) {
+        $extensions = new Collection($this->getEnabledExtensions());
+
+        $extensions = $extensions->sortByDesc(function ($extension, $name) {
+            return $extension->composerJsonAttribute('extra.flarum-extension.priority');
+        });
+
+        foreach ($extensions as $extension) {
             $extension->extend($app);
         }
     }
