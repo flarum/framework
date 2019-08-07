@@ -276,7 +276,7 @@ class ExtensionManager
 
         return $enabled->sortByDesc(function ($extension, $name) {
             return $extension->composerJsonAttribute('extra.flarum-extension.priority');
-        });;
+        });
     }
 
     /**
