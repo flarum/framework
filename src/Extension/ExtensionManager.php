@@ -21,8 +21,6 @@ use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -88,9 +86,10 @@ class ExtensionManager
 
                 $extensions->put($extension->getId(), $extension);
             }
-            $this->extensions = $extensions->sortBy(function ($extension, $name) {
-                return $extension->composerJsonAttribute('extra.flarum-extension.title');
+            $this->extensions = $extensions->sortByDesc(function ($extension, $name) {
+                return $extension->composerJsonAttribute('extra.flarum-extension.priority');
             });
+
         }
 
         return $this->extensions;
@@ -229,8 +228,8 @@ class ExtensionManager
      */
     public function migrate(Extension $extension, $direction = 'up')
     {
-        $this->app->bind(Builder::class, function ($container) {
-            return $container->make(ConnectionInterface::class)->getSchemaBuilder();
+        $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
+            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
         });
 
         $extension->migrate($this->migrator, $direction);
@@ -264,7 +263,8 @@ class ExtensionManager
      */
     public function getEnabledExtensions()
     {
-        $enabled = [];
+        $enabled = new Collection();
+
         $extensions = $this->getExtensions();
 
         foreach ($this->getEnabled() as $id) {
@@ -273,7 +273,9 @@ class ExtensionManager
             }
         }
 
-        return $enabled;
+        return $enabled->sortByDesc(function ($extension, $name) {
+            return $extension->composerJsonAttribute('extra.flarum-extension.priority');
+        });;
     }
 
     /**
@@ -283,13 +285,7 @@ class ExtensionManager
      */
     public function extend(Container $app)
     {
-        $extensions = new Collection($this->getEnabledExtensions());
-
-        $extensions = $extensions->sortByDesc(function ($extension, $name) {
-            return $extension->composerJsonAttribute('extra.flarum-extension.priority');
-        });
-
-        foreach ($extensions as $extension) {
+        foreach ($this->getEnabledExtensions() as $extension) {
             $extension->extend($app);
         }
     }
