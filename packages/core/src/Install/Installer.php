@@ -17,8 +17,6 @@ use Flarum\Http\Middleware\HandleErrorsWithWhoops;
 use Flarum\Http\Middleware\StartSession;
 use Flarum\Install\Console\InstallCommand;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Translation\Translator;
-use Illuminate\Validation\Factory;
 use Zend\Stratigility\MiddlewarePipe;
 
 class Installer implements AppInterface
@@ -55,8 +53,7 @@ class Installer implements AppInterface
     {
         return [
             new InstallCommand(
-                $this->container->make(Installation::class),
-                new Factory($this->container->make(Translator::class))
+                $this->container->make(Installation::class)
             ),
         ];
     }
