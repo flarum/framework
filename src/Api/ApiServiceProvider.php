@@ -20,12 +20,13 @@ use Flarum\Event\ConfigureMiddleware;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\ErrorHandling\JsonApiRenderer;
+use Flarum\Foundation\ErrorHandling\Registry;
+use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
-use Tobscure\JsonApi\ErrorHandler;
-use Tobscure\JsonApi\Exception\Handler\InvalidParameterExceptionHandler;
 use Zend\Stratigility\MiddlewarePipe;
 
 class ApiServiceProvider extends AbstractServiceProvider
@@ -49,7 +50,11 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.api.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
-            $pipe->pipe($app->make(Middleware\HandleErrors::class));
+            $pipe->pipe(new HttpMiddleware\HandleErrors(
+                $app->make(Registry::class),
+                $app->make(JsonApiRenderer::class),
+                $app->make(Reporter::class)
+            ));
 
             $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
             $pipe->pipe($app->make(Middleware\FakeHttpMethods::class));
@@ -67,25 +72,6 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->app->afterResolving('flarum.api.middleware', function (MiddlewarePipe $pipe) {
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.api.routes')));
-        });
-
-        $this->app->singleton(ErrorHandler::class, function () {
-            $handler = new ErrorHandler;
-
-            $handler->registerHandler(new ExceptionHandler\FloodingExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\IlluminateValidationExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\InvalidAccessTokenExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\InvalidConfirmationTokenExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\MethodNotAllowedExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\ModelNotFoundExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\PermissionDeniedExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\RouteNotFoundExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\TokenMismatchExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\ValidationExceptionHandler);
-            $handler->registerHandler(new InvalidParameterExceptionHandler);
-            $handler->registerHandler(new ExceptionHandler\FallbackExceptionHandler($this->app->inDebugMode(), $this->app->make('log')));
-
-            return $handler;
         });
     }
 
