@@ -12,11 +12,12 @@
 namespace Flarum\Http\Exception;
 
 use Exception;
+use Flarum\Foundation\KnownError;
 
-class RouteNotFoundException extends Exception
+class RouteNotFoundException extends Exception implements KnownError
 {
-    public function __construct($message = null, $code = 404, Exception $previous = null)
+    public function getType(): string
     {
-        parent::__construct($message, $code, $previous);
+        return 'route_not_found';
     }
 }
