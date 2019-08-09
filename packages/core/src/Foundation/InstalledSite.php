@@ -117,6 +117,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(DatabaseServiceProvider::class);
         $laravel->register(DiscussionServiceProvider::class);
         $laravel->register(ExtensionServiceProvider::class);
+        $laravel->register(ErrorServiceProvider::class);
         $laravel->register(FilesystemServiceProvider::class);
         $laravel->register(FormatterServiceProvider::class);
         $laravel->register(ForumServiceProvider::class);
