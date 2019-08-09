@@ -68,8 +68,6 @@ class Frontend
     {
         $actor = $request->getAttribute('actor');
 
-        $this->api->setErrorHandler(null);
-
         return $this->getResponseBody(
             $this->api->send(ShowForumController::class, $actor)
         );
