@@ -13,11 +13,9 @@ namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\CreateGroupController;
 use Flarum\Group\Group;
-use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class CreateGroupControllerTest extends ApiControllerTestCase
 {
@@ -55,10 +53,7 @@ class CreateGroupControllerTest extends ApiControllerTestCase
     {
         $this->actor = User::find(1);
 
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('The given data was invalid.');
-
-        $this->callWith();
+        $this->assertEquals(422, $this->callWith()->getStatusCode());
     }
 
     /**
@@ -89,8 +84,6 @@ class CreateGroupControllerTest extends ApiControllerTestCase
     {
         $this->actor = User::find(2);
 
-        $this->expectException(PermissionDeniedException::class);
-
-        $this->callWith($this->data);
+        $this->assertEquals(403, $this->callWith($this->data)->getStatusCode());
     }
 }

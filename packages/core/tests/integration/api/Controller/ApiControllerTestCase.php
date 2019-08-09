@@ -53,8 +53,6 @@ abstract class ApiControllerTestCase extends TestCase
         /** @var Client $api */
         $api = $this->app()->getContainer()->make(Client::class);
 
-        $api->setErrorHandler(null);
-
         return $api->send($controller, $actor ?? new Guest, $queryParams, $body);
     }
 }

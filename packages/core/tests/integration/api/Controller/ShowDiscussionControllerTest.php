@@ -15,7 +15,6 @@ use Carbon\Carbon;
 use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Discussion\Discussion;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ShowDiscussionControllerTest extends ApiControllerTestCase
 {
@@ -73,11 +72,9 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guest_cannot_see_empty_discussion()
     {
-        $this->expectException(ModelNotFoundException::class);
-
         $response = $this->callWith([], ['id' => 1]);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     /**
@@ -95,8 +92,8 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guests_cannot_see_private_discussion()
     {
-        $this->expectException(ModelNotFoundException::class);
+        $response = $this->callWith([], ['id' => 3]);
 
-        $this->callWith([], ['id' => 3]);
+        $this->assertEquals(404, $response->getStatusCode());
     }
 }
