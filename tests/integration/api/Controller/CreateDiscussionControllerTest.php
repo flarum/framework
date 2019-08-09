@@ -15,7 +15,6 @@ use Flarum\Api\Controller\CreateDiscussionController;
 use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\ValidationException;
 
 class CreateDiscussionControllerTest extends ApiControllerTestCase
 {
@@ -72,11 +71,9 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
         $this->actor = User::find(1);
 
         $data = Arr::except($this->data, 'content');
+        $response = $this->callWith($data);
 
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('The given data was invalid.');
-
-        $this->callWith($data);
+        $this->assertEquals(422, $response->getStatusCode());
     }
 
     /**
@@ -87,10 +84,8 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
         $this->actor = User::find(1);
 
         $data = Arr::except($this->data, 'title');
+        $response = $this->callWith($data);
 
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('The given data was invalid.');
-
-        $this->callWith($data);
+        $this->assertEquals(422, $response->getStatusCode());
     }
 }

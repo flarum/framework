@@ -17,7 +17,6 @@ use Flarum\Api\Client;
 use Flarum\Api\Controller\CreateGroupController;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Support\Str;
@@ -63,11 +62,10 @@ class AuthenticateWithApiKeyTest extends TestCase
     {
         /** @var Client $api */
         $api = $this->app()->getContainer()->make(Client::class);
-        $api->setErrorHandler(null);
 
-        $this->expectException(PermissionDeniedException::class);
+        $response = $api->send(CreateGroupController::class, new Guest);
 
-        $api->send(CreateGroupController::class, new Guest);
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**
