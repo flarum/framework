@@ -68,7 +68,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $pipe->pipe(new HttpMiddleware\HandleErrors(
                 $app->make(Registry::class),
                 $app->inDebugMode() ? $app->make(WhoopsRenderer::class) : $app->make(ViewRenderer::class),
-                $app->make(Reporter::class)
+                $app->tagged(Reporter::class)
             ));
 
             $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));

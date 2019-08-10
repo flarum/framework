@@ -71,6 +71,6 @@ class ErrorServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->app->singleton(Reporter::class, LogReporter::class);
+        $this->app->tag(LogReporter::class, Reporter::class);
     }
 }
