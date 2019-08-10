@@ -43,7 +43,7 @@ class Installer implements AppInterface
         $pipe->pipe(new HandleErrors(
             $this->container->make(Registry::class),
             $this->container->make(WhoopsRenderer::class),
-            $this->container->make(Reporter::class)
+            $this->container->tagged(Reporter::class)
         ));
         $pipe->pipe($this->container->make(StartSession::class));
         $pipe->pipe(
