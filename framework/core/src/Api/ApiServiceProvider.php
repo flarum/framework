@@ -53,7 +53,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             $pipe->pipe(new HttpMiddleware\HandleErrors(
                 $app->make(Registry::class),
                 $app->make(JsonApiRenderer::class),
-                $app->make(Reporter::class)
+                $app->tagged(Reporter::class)
             ));
 
             $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
