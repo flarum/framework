@@ -13,7 +13,6 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\Foundation\ErrorHandling\Formatter;
 use Flarum\Foundation\ErrorHandling\Registry;
-use Flarum\Foundation\ErrorHandling\Reporter;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -33,15 +32,15 @@ class HandleErrors implements Middleware
     protected $formatter;
 
     /**
-     * @var Reporter
+     * @var \Flarum\Foundation\ErrorHandling\Reporter[]
      */
-    protected $reporter;
+    protected $reporters;
 
-    public function __construct(Registry $registry, Formatter $formatter, Reporter $reporter)
+    public function __construct(Registry $registry, Formatter $formatter, array $reporters)
     {
         $this->registry = $registry;
         $this->formatter = $formatter;
-        $this->reporter = $reporter;
+        $this->reporters = $reporters;
     }
 
     /**
@@ -55,7 +54,9 @@ class HandleErrors implements Middleware
             $error = $this->registry->handle($e);
 
             if ($error->shouldBeReported()) {
-                $this->reporter->report($error);
+                foreach ($this->reporters as $reporter) {
+                    $reporter->report($error);
+                }
             }
 
             return $this->formatter->format($error, $request);
