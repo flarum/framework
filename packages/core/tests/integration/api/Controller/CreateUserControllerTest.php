@@ -13,10 +13,8 @@ namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\CreateUserController;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\ValidationException;
 
 class CreateUserControllerTest extends ApiControllerTestCase
 {
@@ -53,10 +51,9 @@ class CreateUserControllerTest extends ApiControllerTestCase
      */
     public function cannot_create_user_without_data()
     {
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('The given data was invalid.');
+        $response = $this->callWith();
 
-        $this->callWith();
+        $this->assertEquals(422, $response->getStatusCode());
     }
 
     /**
@@ -106,12 +103,9 @@ class CreateUserControllerTest extends ApiControllerTestCase
         $settings = app(SettingsRepositoryInterface::class);
         $settings->set('allow_sign_up', false);
 
-        $this->expectException(PermissionDeniedException::class);
+        $response = $this->callWith($this->data);
+        $this->assertEquals(403, $response->getStatusCode());
 
-        try {
-            $this->callWith($this->data);
-        } finally {
-            $settings->set('allow_sign_up', true);
-        }
+        $settings->set('allow_sign_up', true);
     }
 }

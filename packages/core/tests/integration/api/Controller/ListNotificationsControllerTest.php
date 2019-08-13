@@ -12,7 +12,6 @@
 namespace Flarum\Tests\integration\api\Controller;
 
 use Flarum\Api\Controller\ListNotificationsController;
-use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 
 class ListNotificationsControllerTest extends ApiControllerTestCase
@@ -35,9 +34,9 @@ class ListNotificationsControllerTest extends ApiControllerTestCase
      */
     public function disallows_index_for_guest()
     {
-        $this->expectException(PermissionDeniedException::class);
+        $response = $this->callWith();
 
-        $this->callWith();
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**

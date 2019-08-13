@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\unit\Api\ExceptionHandler;
+namespace Flarum\Tests\unit\Foundation\ErrorHandling\ExceptionHandler;
 
-use Exception;
-use Flarum\Api\ExceptionHandler\IlluminateValidationExceptionHandler;
+use Flarum\Foundation\ErrorHandling\ExceptionHandler\IlluminateValidationExceptionHandler;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
@@ -28,29 +27,20 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
         $this->handler = new IlluminateValidationExceptionHandler;
     }
 
-    public function test_it_handles_familiar_exceptions()
-    {
-        $validException = new ValidationException($this->makeValidator());
-
-        $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages($validException));
-    }
-
     public function test_it_creates_the_desired_output()
     {
         $exception = new ValidationException($this->makeValidator(['foo' => ''], ['foo' => 'required']));
 
-        $response = $this->handler->handle($exception);
+        $error = $this->handler->handle($exception);
 
-        $this->assertEquals(422, $response->getStatus());
+        $this->assertEquals(422, $error->getStatusCode());
+        $this->assertEquals('validation_error', $error->getType());
         $this->assertEquals([
             [
-                'status' => '422',
-                'code' => 'validation_error',
                 'detail' => 'validation.required',
                 'source' => ['pointer' => '/data/attributes/foo']
             ]
-        ], $response->getErrors());
+        ], $error->getDetails());
     }
 
     private function makeValidator($data = [], $rules = [])
