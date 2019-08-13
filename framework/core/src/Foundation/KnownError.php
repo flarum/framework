@@ -9,15 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\Exception;
+namespace Flarum\Foundation;
 
-use Exception;
-use Flarum\Foundation\KnownError;
-
-class ForbiddenException extends Exception implements KnownError
+interface KnownError
 {
-    public function getType(): string
-    {
-        return 'forbidden';
-    }
+    public function getType(): string;
 }

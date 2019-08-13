@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\unit\Api\ExceptionHandler;
+namespace Flarum\Tests\unit\Foundation\ErrorHandling\ExceptionHandler;
 
-use Exception;
-use Flarum\Api\ExceptionHandler\ValidationExceptionHandler;
+use Flarum\Foundation\ErrorHandling\ExceptionHandler\ValidationExceptionHandler;
 use Flarum\Foundation\ValidationException;
 use PHPUnit\Framework\TestCase;
 
@@ -25,33 +24,24 @@ class ValidationExceptionHandlerTest extends TestCase
         $this->handler = new ValidationExceptionHandler;
     }
 
-    public function test_it_handles_recognisable_exceptions()
-    {
-        $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages(new ValidationException([])));
-    }
-
     public function test_managing_exceptions()
     {
-        $response = $this->handler->handle(new ValidationException(
+        $error = $this->handler->handle(new ValidationException(
             ['foo' => 'Attribute error'],
             ['bar' => 'Relationship error']
         ));
 
-        $this->assertEquals(422, $response->getStatus());
+        $this->assertEquals(422, $error->getStatusCode());
+        $this->assertEquals('validation_error', $error->getType());
         $this->assertEquals([
             [
-                'status' => '422',
-                'code' => 'validation_error',
                 'detail' => 'Attribute error',
                 'source' => ['pointer' => '/data/attributes/foo']
             ],
             [
-                'status' => '422',
-                'code' => 'validation_error',
                 'detail' => 'Relationship error',
                 'source' => ['pointer' => '/data/relationships/bar']
             ]
-        ], $response->getErrors());
+        ], $error->getDetails());
     }
 }

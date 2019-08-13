@@ -12,7 +12,12 @@
 namespace Flarum\Post\Exception;
 
 use Exception;
+use Flarum\Foundation\KnownError;
 
-class FloodingException extends Exception
+class FloodingException extends Exception implements KnownError
 {
+    public function getType(): string
+    {
+        return 'too_many_requests';
+    }
 }
