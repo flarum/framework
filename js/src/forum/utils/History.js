@@ -92,7 +92,7 @@ export default class History {
 
     this.stack.pop();
 
-    m.route(this.getCurrent().url);
+    this.canGoBack() ? m.route(this.getCurrent().url) : this.home();
   }
 
   /**
