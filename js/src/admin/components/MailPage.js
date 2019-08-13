@@ -2,36 +2,55 @@ import Page from './Page';
 import FieldSet from '../../common/components/FieldSet';
 import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
+import Select from '../../common/components/Select';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
 import saveSettings from '../utils/saveSettings';
 
 export default class MailPage extends Page {
   init() {
     super.init();
 
-    this.loading = false;
+    this.loading = true;
+    this.saving = false;
 
-    this.fields = [
-      'mail_driver',
-      'mail_host',
-      'mail_from',
-      'mail_port',
-      'mail_username',
-      'mail_password',
-      'mail_encryption'
-    ];
+    this.driverFields = {};
+    this.fields = ['mail_driver', 'mail_from'];
     this.values = {};
 
     const settings = app.data.settings;
     this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
 
-    this.localeOptions = {};
-    const locales = app.locales;
-    for (const i in locales) {
-      this.localeOptions[i] = `${locales[i]} (${i})`;
-    }
+    app.request({
+      method: 'GET',
+      url: app.forum.attribute('apiUrl') + '/mail-drivers'
+    }).then(response => {
+      this.driverFields = response['data'].reduce(
+        (hash, driver) => ({...hash, [driver['id']]: driver['attributes']['fields']}),
+        {}
+      );
+
+      Object.keys(this.driverFields).flatMap(key => this.driverFields[key]).forEach(
+        key => {
+          this.fields.push(key);
+          this.values[key] = m.prop(settings[key]);
+        }
+      );
+      this.loading = false;
+      m.redraw();
+    });
   }
 
   view() {
+    if (this.loading) {
+      return (
+        <div className="MailPage">
+          <div className="container">
+            <LoadingIndicator />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="MailPage">
         <div className="container">
@@ -40,36 +59,6 @@ export default class MailPage extends Page {
             <div className="helpText">
               {app.translator.trans('core.admin.email.text')}
             </div>
-
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.email.server_heading'),
-              className: 'MailPage-MailSettings',
-              children: [
-                <div className="MailPage-MailSettings-input">
-                  <label>{app.translator.trans('core.admin.email.driver_label')}</label>
-                  <input className="FormControl" value={this.values.mail_driver() || ''} oninput={m.withAttr('value', this.values.mail_driver)} />
-                  <label>{app.translator.trans('core.admin.email.host_label')}</label>
-                  <input className="FormControl" value={this.values.mail_host() || ''} oninput={m.withAttr('value', this.values.mail_host)} />
-                  <label>{app.translator.trans('core.admin.email.port_label')}</label>
-                  <input className="FormControl" value={this.values.mail_port() || ''} oninput={m.withAttr('value', this.values.mail_port)} />
-                  <label>{app.translator.trans('core.admin.email.encryption_label')}</label>
-                  <input className="FormControl" value={this.values.mail_encryption() || ''} oninput={m.withAttr('value', this.values.mail_encryption)} />
-                </div>
-              ]
-            })}
-
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.email.account_heading'),
-              className: 'MailPage-MailSettings',
-              children: [
-                <div className="MailPage-MailSettings-input">
-                  <label>{app.translator.trans('core.admin.email.username_label')}</label>
-                  <input className="FormControl" value={this.values.mail_username() || ''} oninput={m.withAttr('value', this.values.mail_username)} />
-                  <label>{app.translator.trans('core.admin.email.password_label')}</label>
-                  <input className="FormControl" value={this.values.mail_password() || ''} oninput={m.withAttr('value', this.values.mail_password)} />
-                </div>
-              ]
-            })}
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.email.addresses_heading'),
@@ -82,11 +71,35 @@ export default class MailPage extends Page {
               ]
             })}
 
+            {FieldSet.component({
+              label: app.translator.trans('core.admin.email.driver_heading'),
+              className: 'MailPage-MailSettings',
+              children: [
+                <div className="MailPage-MailSettings-input">
+                  <label>{app.translator.trans('core.admin.email.driver_label')}</label>
+                  <Select value={this.values.mail_driver()} options={Object.keys(this.driverFields).reduce((memo, val) => ({...memo, [val]: val}), {})} onchange={this.values.mail_driver} />
+                </div>
+              ]
+            })}
+
+            {Object.keys(this.driverFields[this.values.mail_driver()]).length > 0 && FieldSet.component({
+              label: app.translator.trans(`core.admin.email.${this.values.mail_driver()}_heading`),
+              className: 'MailPage-MailSettings',
+              children: [
+                <div className="MailPage-MailSettings-input">
+                  {this.driverFields[this.values.mail_driver()].flatMap(field => [
+                    <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
+                    <input className="FormControl" value={this.values[field]() || ''} oninput={m.withAttr('value', this.values[field])} />
+                  ])}
+                </div>
+              ]
+            })}
+
             {Button.component({
               type: 'submit',
               className: 'Button Button--primary',
               children: app.translator.trans('core.admin.email.submit_button'),
-              loading: this.loading,
+              loading: this.saving,
               disabled: !this.changed()
             })}
           </form>
@@ -102,9 +115,9 @@ export default class MailPage extends Page {
   onsubmit(e) {
     e.preventDefault();
 
-    if (this.loading) return;
+    if (this.saving) return;
 
-    this.loading = true;
+    this.saving = true;
     app.alerts.dismiss(this.successAlert);
 
     const settings = {};
@@ -117,7 +130,7 @@ export default class MailPage extends Page {
       })
       .catch(() => {})
       .then(() => {
-        this.loading = false;
+        this.saving = false;
         m.redraw();
       });
   }

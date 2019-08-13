@@ -66,6 +66,17 @@ class PostPolicy extends AbstractPolicy
      */
     public function find(User $actor, $query)
     {
+        // Make sure the post's discussion is visible as well.
+        $query->whereExists(function ($query) use ($actor) {
+            $query->selectRaw('1')
+                ->from('discussions')
+                ->whereColumn('discussions.id', 'posts.discussion_id');
+
+            $this->events->dispatch(
+                new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'view')
+            );
+        });
+
         // Hide private posts by default.
         $query->where(function ($query) use ($actor) {
             $query->where('posts.is_private', false)
@@ -104,9 +115,9 @@ class PostPolicy extends AbstractPolicy
      */
     public function edit(User $actor, Post $post)
     {
-        // A post is allowed to be edited if the user has permission to moderate
-        // the discussion which it's in, or if they are the author and the post
-        // hasn't been deleted by someone else.
+        // A post is allowed to be edited if the user is the author, the post
+        // hasn't been deleted by someone else, and the user is allowed to
+        // create new replies in the discussion.
         if ($post->user_id == $actor->id && (! $post->hidden_at || $post->hidden_user_id == $actor->id) && $actor->can('reply', $post->discussion)) {
             $allowEditing = $this->settings->get('allow_post_editing');
 
@@ -116,5 +127,15 @@ class PostPolicy extends AbstractPolicy
                 return true;
             }
         }
+    }
+
+    /**
+     * @param User $actor
+     * @param Post $post
+     * @return bool|null
+     */
+    public function hide(User $actor, Post $post)
+    {
+        return $this->edit($actor, $post);
     }
 }

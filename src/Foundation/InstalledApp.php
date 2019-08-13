@@ -22,6 +22,7 @@ use Illuminate\Contracts\Container\Container;
 use Middlewares\BasePath;
 use Middlewares\BasePathRouter;
 use Middlewares\RequestHandler;
+use Zend\Stratigility\Middleware\OriginalMessages;
 use Zend\Stratigility\MiddlewarePipe;
 
 class InstalledApp implements AppInterface
@@ -42,6 +43,11 @@ class InstalledApp implements AppInterface
         $this->config = $config;
     }
 
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
     /**
      * @return \Psr\Http\Server\RequestHandlerInterface
      */
@@ -56,6 +62,7 @@ class InstalledApp implements AppInterface
         $pipe = new MiddlewarePipe;
 
         $pipe->pipe(new BasePath($this->basePath()));
+        $pipe->pipe(new OriginalMessages);
         $pipe->pipe(
             new BasePathRouter([
                 $this->subPath('api') => 'flarum.api.middleware',
@@ -84,7 +91,7 @@ class InstalledApp implements AppInterface
     /**
      * @return \Psr\Http\Server\RequestHandlerInterface
      */
-    public function getUpdaterHandler()
+    private function getUpdaterHandler()
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(

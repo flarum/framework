@@ -147,24 +147,36 @@
       border-radius: 0;
     }
   }
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 1em;
+    margin-bottom: 16px;
+    font-weight: bold;
+  }
   h1 {
-    font-size: 160%;
+    font-size: 225%;
   }
   h2 {
-    font-size: 120%;
-    font-weight: bold;
+    font-size: 175%;
   }
   h3 {
-    font-size: 100%;
-    font-weight: bold;
-    text-transform: uppercase;
+    font-size: 150%;
   }
-  h4, h5, h6 {
+  h4 {
+    font-size: 125%;
+  }
+  h5, h6 {
     font-size: 100%;
-    font-weight: bold;
+  }
+  h6 {
+    color: @muted-more-color;
   }
   img, iframe {
     max-width: 100%;
+  }
+}
+.Post-body, .Post-preview {
+  > *:first-child {
+    margin-top: 0 !important;
   }
 }
 

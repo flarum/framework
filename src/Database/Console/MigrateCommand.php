@@ -12,21 +12,26 @@
 namespace Flarum\Database\Console;
 
 use Flarum\Console\AbstractCommand;
-use Illuminate\Contracts\Container\Container;
+use Flarum\Database\Migrator;
+use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\Application;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder;
 
 class MigrateCommand extends AbstractCommand
 {
     /**
-     * @var Container
+     * @var Application
      */
-    protected $container;
+    protected $app;
 
     /**
-     * @param Container $container
+     * @param Application $application
      */
-    public function __construct(Container $container)
+    public function __construct(Application $application)
     {
-        $this->container = $container;
+        $this->app = $application;
 
         parent::__construct();
     }
@@ -55,24 +60,33 @@ class MigrateCommand extends AbstractCommand
 
     public function upgrade()
     {
-        $this->container->bind('Illuminate\Database\Schema\Builder', function ($container) {
-            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        $this->app->bind(Builder::class, function ($app) {
+            return $app->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
-        $migrator = $this->container->make('Flarum\Database\Migrator');
+        $migrator = $this->app->make(Migrator::class);
         $migrator->setOutput($this->output);
 
         $migrator->run(__DIR__.'/../../../migrations');
 
-        $extensions = $this->container->make('Flarum\Extension\ExtensionManager');
+        $extensions = $this->app->make(ExtensionManager::class);
         $extensions->getMigrator()->setOutput($this->output);
 
         foreach ($extensions->getEnabledExtensions() as $name => $extension) {
-            $this->info('Migrating extension: '.$name);
+            if ($extension->hasMigrations()) {
+                $this->info('Migrating extension: '.$name);
 
-            $extensions->migrate($extension);
+                $extensions->migrate($extension);
+            }
         }
 
-        $this->container->make('Flarum\Settings\SettingsRepositoryInterface')->set('version', $this->container->version());
+        $this->app->make(SettingsRepositoryInterface::class)->set('version', $this->app->version());
+
+        $this->info('Publishing assets...');
+
+        $this->app->make('files')->copyDirectory(
+            $this->app->vendorPath().'/components/font-awesome/webfonts',
+            $this->app->publicPath().'/assets/fonts'
+        );
     }
 }

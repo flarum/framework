@@ -38,7 +38,8 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('notifications', function (Blueprint $table) {
-            $table->dropForeign(['user_id', 'from_user_id']);
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['from_user_id']);
         });
     }
 ];

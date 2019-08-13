@@ -62,7 +62,7 @@ class Group extends AbstractModel
     {
         parent::boot();
 
-        static::deleted(function (Group $group) {
+        static::deleted(function (self $group) {
             $group->raise(new Deleted($group));
         });
     }
@@ -125,5 +125,20 @@ class Group extends AbstractModel
     public function permissions()
     {
         return $this->hasMany(Permission::class);
+    }
+
+    /**
+     * Check whether the group has a certain permission.
+     *
+     * @param string $permission
+     * @return bool
+     */
+    public function hasPermission($permission)
+    {
+        if ($this->id == self::ADMINISTRATOR_ID) {
+            return true;
+        }
+
+        return $this->permissions->contains('permission', $permission);
     }
 }

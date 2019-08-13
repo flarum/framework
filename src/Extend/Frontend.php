@@ -11,11 +11,18 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
-use Flarum\Frontend\Asset\ExtensionAssets;
-use Flarum\Frontend\CompilerFactory;
-use Flarum\Frontend\HtmlDocumentFactory;
+use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Frontend\Assets;
+use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Frontend as ActualFrontend;
+use Flarum\Frontend\RecompileFrontendAssets;
+use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Locale\LocaleManager;
+use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
 
 class Frontend implements ExtenderInterface
@@ -27,26 +34,26 @@ class Frontend implements ExtenderInterface
     protected $routes = [];
     protected $content = [];
 
-    public function __construct($frontend)
+    public function __construct(string $frontend)
     {
         $this->frontend = $frontend;
     }
 
-    public function css($path)
+    public function css(string $path)
     {
         $this->css[] = $path;
 
         return $this;
     }
 
-    public function js($path)
+    public function js(string $path)
     {
         $this->js = $path;
 
         return $this;
     }
 
-    public function route($path, $name, $content = null)
+    public function route(string $path, string $name, $content = null)
     {
         $this->routes[] = compact('path', 'name', 'content');
 
@@ -77,16 +84,60 @@ class Frontend implements ExtenderInterface
             return;
         }
 
-        $container->resolving(
-            "flarum.$this->frontend.assets",
-            function (CompilerFactory $assets) use ($moduleName) {
-                $assets->add(function () use ($moduleName) {
-                    return new ExtensionAssets(
-                        $moduleName, $this->css, $this->js
-                    );
+        $abstract = 'flarum.assets.'.$this->frontend;
+
+        $container->resolving($abstract, function (Assets $assets) use ($moduleName) {
+            if ($this->js) {
+                $assets->js(function (SourceCollector $sources) use ($moduleName) {
+                    $sources->addString(function () {
+                        return 'var module={}';
+                    });
+                    $sources->addFile($this->js);
+                    $sources->addString(function () use ($moduleName) {
+                        return "flarum.extensions['$moduleName']=module.exports";
+                    });
                 });
             }
-        );
+
+            if ($this->css) {
+                $assets->css(function (SourceCollector $sources) {
+                    foreach ($this->css as $path) {
+                        $sources->addFile($path);
+                    }
+                });
+            }
+        });
+
+        if (! $container->bound($abstract)) {
+            $container->bind($abstract, function (Container $container) {
+                return $container->make('flarum.assets.factory')($this->frontend);
+            });
+
+            /** @var \Illuminate\Contracts\Events\Dispatcher $events */
+            $events = $container->make('events');
+
+            $events->listen(
+                [Enabled::class, Disabled::class, ClearingCache::class],
+                function () use ($container, $abstract) {
+                    $recompile = new RecompileFrontendAssets(
+                        $container->make($abstract),
+                        $container->make(LocaleManager::class)
+                    );
+                    $recompile->flush();
+                }
+            );
+
+            $events->listen(
+                Saved::class,
+                function (Saved $event) use ($container, $abstract) {
+                    $recompile = new RecompileFrontendAssets(
+                        $container->make($abstract),
+                        $container->make(LocaleManager::class)
+                    );
+                    $recompile->whenSettingsSaved($event);
+                }
+            );
+        }
     }
 
     private function registerRoutes(Container $container)
@@ -95,15 +146,20 @@ class Frontend implements ExtenderInterface
             return;
         }
 
-        $routes = $container->make("flarum.$this->frontend.routes");
-        $factory = $container->make(RouteHandlerFactory::class);
+        $container->resolving(
+            "flarum.{$this->frontend}.routes",
+            function (RouteCollection $collection, Container $container) {
+                /** @var RouteHandlerFactory $factory */
+                $factory = $container->make(RouteHandlerFactory::class);
 
-        foreach ($this->routes as $route) {
-            $routes->get(
-                $route['path'], $route['name'],
-                $factory->toFrontend($this->frontend, $route['content'])
-            );
-        }
+                foreach ($this->routes as $route) {
+                    $collection->get(
+                        $route['path'], $route['name'],
+                        $factory->toFrontend($this->frontend, $route['content'])
+                    );
+                }
+            }
+        );
     }
 
     private function registerContent(Container $container)
@@ -113,14 +169,14 @@ class Frontend implements ExtenderInterface
         }
 
         $container->resolving(
-            "flarum.$this->frontend.frontend",
-            function (HtmlDocumentFactory $view, Container $container) {
+            "flarum.frontend.$this->frontend",
+            function (ActualFrontend $frontend, Container $container) {
                 foreach ($this->content as $content) {
                     if (is_string($content)) {
                         $content = $container->make($content);
                     }
 
-                    $view->add($content);
+                    $frontend->content($content);
                 }
             }
         );

@@ -99,7 +99,7 @@ export default class PostStreamScrubber extends Component {
                 <div className="Scrubber-bar"/>
                 <div className="Scrubber-info">
                   <strong>{viewing}</strong>
-                  <span class="Scrubber-description">{retain || this.description}</span>
+                  <span className="Scrubber-description">{retain || this.description}</span>
                 </div>
               </div>
               <div className="Scrubber-after"/>
@@ -132,7 +132,7 @@ export default class PostStreamScrubber extends Component {
    */
   goToLast() {
     this.props.stream.goToLast();
-    this.index = this.props.stream.count();
+    this.index = this.count();
     this.renderScrollbar(true);
   }
 
@@ -190,7 +190,6 @@ export default class PostStreamScrubber extends Component {
     const marginTop = stream.getMarginTop();
     const viewportTop = scrollTop + marginTop;
     const viewportHeight = $(window).height() - marginTop;
-    const viewportBottom = viewportTop + viewportHeight;
 
     // Before looping through all of the posts, we reset the scrollbar
     // properties to a 'default' state. These values reflect what would be
@@ -315,7 +314,7 @@ export default class PostStreamScrubber extends Component {
     const visible = this.visible || 1;
 
     const $scrubber = this.$();
-    $scrubber.find('.Scrubber-index').text(formatNumber(Math.ceil(index + visible)));
+    $scrubber.find('.Scrubber-index').text(formatNumber(Math.min(Math.ceil(index + visible), count)));
     $scrubber.find('.Scrubber-description').text(this.description);
     $scrubber.toggleClass('disabled', this.disabled());
 

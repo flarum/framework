@@ -1,7 +1,5 @@
 language: php
 
-sudo: false
-
 cache:
   directories:
     - $HOME/.composer/cache
@@ -9,24 +7,31 @@ cache:
 
 install:
   - composer install
-  - mysql -e 'CREATE DATABASE flarum;'
+  - mysql -e 'CREATE DATABASE flarum_test;'
+
+before_script:
+  - echo 'error_reporting = E_ALL' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
 script:
-  - vendor/bin/phpunit --coverage-clover=coverage.xml
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - composer test:setup
+  - composer test
 
 jobs:
   include:
     - php: 7.1
+      services:
+        - mysql
       env: DB=mysql
 
     - php: 7.2
+      services:
+        - mysql
       env: DB=mysql
 
-    - php: 7.2
-      env: DB=mysql PREFIX=forum_
+    - php: 7.3
+      services:
+        - mysql
+      env: DB=mysql
 
     - php: 7.1
       addons:
@@ -34,6 +39,26 @@ jobs:
       env: DB=mariadb
 
     - php: 7.2
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+
+    - php: 7.3
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+
+    - php: 7.2
+      services:
+        - mysql
+      env: DB=mysql PREFIX=forum_
+
+    - php: 7.4snapshot
+      services:
+        - mysql
+      env: DB=mysql
+
+    - php: 7.4snapshot
       addons:
         mariadb: '10.2'
       env: DB=mariadb
@@ -46,3 +71,7 @@ jobs:
         -k $encrypted_678139e2bc67_key
         -i $encrypted_678139e2bc67_iv
       after_success: skip
+
+matrix:
+  allow_failures:
+    - php: 7.4snapshot

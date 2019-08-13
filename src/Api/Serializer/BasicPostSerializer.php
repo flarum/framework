@@ -37,14 +37,13 @@ class BasicPostSerializer extends AbstractSerializer
         }
 
         $attributes = [
-            'id'          => (int) $post->id,
             'number'      => (int) $post->number,
             'createdAt'   => $this->formatDate($post->created_at),
             'contentType' => $post->type
         ];
 
         if ($post instanceof CommentPost) {
-            $attributes['contentHtml'] = $post->content_html;
+            $attributes['contentHtml'] = $post->formatContent($this->request);
         } else {
             $attributes['content'] = $post->content;
         }

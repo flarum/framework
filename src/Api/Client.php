@@ -12,11 +12,14 @@
 namespace Flarum\Api;
 
 use Exception;
+use Flarum\Foundation\ErrorHandling\JsonApiRenderer;
+use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Throwable;
 use Zend\Diactoros\ServerRequestFactory;
 
 class Client
@@ -27,18 +30,18 @@ class Client
     protected $container;
 
     /**
-     * @var ErrorHandler
+     * @var Registry
      */
-    protected $errorHandler;
+    protected $registry;
 
     /**
      * @param Container $container
-     * @param ErrorHandler $errorHandler
+     * @param Registry $registry
      */
-    public function __construct(Container $container, ErrorHandler $errorHandler = null)
+    public function __construct(Container $container, Registry $registry)
     {
         $this->container = $container;
-        $this->errorHandler = $errorHandler;
+        $this->registry = $registry;
     }
 
     /**
@@ -69,23 +72,14 @@ class Client
 
         try {
             return $controller->handle($request);
-        } catch (Exception $e) {
-            if (! $this->errorHandler) {
+        } catch (Throwable $e) {
+            $error = $this->registry->handle($e);
+
+            if ($error->shouldBeReported()) {
                 throw $e;
             }
 
-            return $this->errorHandler->handle($e);
+            return (new JsonApiRenderer)->format($error, $request);
         }
-    }
-
-    /**
-     * @param ErrorHandler $errorHandler
-     * @return Client
-     */
-    public function setErrorHandler(?ErrorHandler $errorHandler): self
-    {
-        $this->errorHandler = $errorHandler;
-
-        return $this;
     }
 }

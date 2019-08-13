@@ -14,24 +14,16 @@ namespace Flarum\User;
 use Flarum\Group\Group;
 use Flarum\User\Event\Saving;
 use Flarum\User\Exception\PermissionDeniedException;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class SelfDemotionGuard
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Saving::class, [$this, 'whenUserWillBeSaved']);
-    }
-
     /**
      * Prevent an admin from removing their admin permission via the API.
      * @param Saving $event
      * @throws PermissionDeniedException
      */
-    public function whenUserWillBeSaved(Saving $event)
+    public function handle(Saving $event)
     {
         // Non-admin users pose no problem
         if (! $event->actor->isAdmin()) {
@@ -44,7 +36,7 @@ class SelfDemotionGuard
             return;
         }
 
-        $groups = array_get($event->data, 'relationships.groups.data');
+        $groups = Arr::get($event->data, 'relationships.groups.data');
 
         // If there is no group data (not even an empty array), this means
         // groups were not changed (and thus not removed) - we're fine!

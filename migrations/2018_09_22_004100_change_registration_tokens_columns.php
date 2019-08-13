@@ -24,7 +24,7 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('auth_tokens', function (Blueprint $table) {
+        $schema->table('registration_tokens', function (Blueprint $table) {
             $table->dropColumn('provider', 'identifier', 'user_attributes');
 
             $table->string('payload', 150)->change();

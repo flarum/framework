@@ -160,7 +160,7 @@ export default class Search extends Component {
               search.loadingSources++;
 
               source.search(query).then(() => {
-                search.loadingSources--;
+                search.loadingSources = Math.max(0, search.loadingSources - 1);
                 m.redraw();
               });
             });
@@ -189,6 +189,9 @@ export default class Search extends Component {
    * Navigate to the currently selected search result and close the list.
    */
   selectResult() {
+    clearTimeout(this.searchTimeout);
+    this.loadingSources = 0;
+
     if (this.value()) {
       m.route(this.getItem(this.index).find('a').attr('href'));
     } else {

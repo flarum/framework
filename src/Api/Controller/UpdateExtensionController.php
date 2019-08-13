@@ -13,6 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\User\AssertPermissionTrait;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -42,8 +43,8 @@ class UpdateExtensionController implements RequestHandlerInterface
     {
         $this->assertAdmin($request->getAttribute('actor'));
 
-        $enabled = array_get($request->getParsedBody(), 'enabled');
-        $name = array_get($request->getQueryParams(), 'name');
+        $enabled = Arr::get($request->getParsedBody(), 'enabled');
+        $name = Arr::get($request->getQueryParams(), 'name');
 
         if ($enabled === true) {
             $this->extensions->enable($name);

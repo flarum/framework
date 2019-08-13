@@ -12,15 +12,15 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
-use Flarum\Frontend\Content\ContentInterface;
-use Flarum\Frontend\HtmlDocument;
+use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class Discussion implements ContentInterface
+class Discussion
 {
     /**
      * @var Client
@@ -49,15 +49,15 @@ class Discussion implements ContentInterface
         $this->view = $view;
     }
 
-    public function __invoke(HtmlDocument $document, Request $request)
+    public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
-        $page = max(1, array_get($queryParams, 'page'));
+        $page = max(1, Arr::get($queryParams, 'page'));
 
         $params = [
-            'id' => (int) array_get($queryParams, 'id'),
+            'id' => (int) Arr::get($queryParams, 'id'),
             'page' => [
-                'near' => array_get($queryParams, 'near'),
+                'near' => Arr::get($queryParams, 'near'),
                 'offset' => ($page - 1) * 20,
                 'limit' => 20
             ]
@@ -66,7 +66,7 @@ class Discussion implements ContentInterface
         $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
 
         $getResource = function ($link) use ($apiDocument) {
-            return array_first($apiDocument->included, function ($value) use ($link) {
+            return Arr::first($apiDocument->included, function ($value) use ($link) {
                 return $value->type === $link->type && $value->id === $link->id;
             });
         };

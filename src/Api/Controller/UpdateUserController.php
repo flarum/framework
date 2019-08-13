@@ -12,9 +12,11 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\CurrentUserSerializer;
+use Flarum\Api\Serializer\UserSerializer;
 use Flarum\User\Command\EditUser;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -23,7 +25,7 @@ class UpdateUserController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = CurrentUserSerializer::class;
+    public $serializer = UserSerializer::class;
 
     /**
      * {@inheritdoc}
@@ -48,14 +50,18 @@ class UpdateUserController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $id = array_get($request->getQueryParams(), 'id');
+        $id = Arr::get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
-        $data = array_get($request->getParsedBody(), 'data', []);
+        $data = Arr::get($request->getParsedBody(), 'data', []);
+
+        if ($actor->id == $id) {
+            $this->serializer = CurrentUserSerializer::class;
+        }
 
         // Require the user's current password if they are attempting to change
         // their own email address.
         if (isset($data['attributes']['email']) && $actor->id == $id) {
-            $password = array_get($request->getParsedBody(), 'meta.password');
+            $password = Arr::get($request->getParsedBody(), 'meta.password');
 
             if (! $actor->checkPassword($password)) {
                 throw new PermissionDeniedException;

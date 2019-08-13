@@ -301,4 +301,18 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'favicon.delete',
         $route->toController(Controller\DeleteFaviconController::class)
     );
+
+    // Clear the cache
+    $map->delete(
+        '/cache',
+        'cache.clear',
+        $route->toController(Controller\ClearCacheController::class)
+    );
+
+    // List available mail drivers and their configuration fields
+    $map->get(
+        '/mail-drivers',
+        'mailDrivers.index',
+        $route->toController(Controller\ListMailDriversController::class)
+    );
 };

@@ -22,6 +22,8 @@ use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\ImageManager;
 
@@ -75,19 +77,19 @@ class RegisterUserHandler
             $this->assertAdmin($actor);
         }
 
-        $password = array_get($data, 'attributes.password');
+        $password = Arr::get($data, 'attributes.password');
 
         // If a valid authentication token was provided as an attribute,
         // then we won't require the user to choose a password.
         if (isset($data['attributes']['token'])) {
             $token = RegistrationToken::validOrFail($data['attributes']['token']);
 
-            $password = $password ?: str_random(20);
+            $password = $password ?: Str::random(20);
         }
 
         $user = User::register(
-            array_get($data, 'attributes.username'),
-            array_get($data, 'attributes.email'),
+            Arr::get($data, 'attributes.username'),
+            Arr::get($data, 'attributes.email'),
             $password
         );
 
@@ -95,7 +97,7 @@ class RegisterUserHandler
             $this->applyToken($user, $token);
         }
 
-        if ($actor->isAdmin() && array_get($data, 'attributes.isEmailConfirmed')) {
+        if ($actor->isAdmin() && Arr::get($data, 'attributes.isEmailConfirmed')) {
             $user->activate();
         }
 

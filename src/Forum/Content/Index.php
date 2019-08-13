@@ -13,13 +13,15 @@ namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ListDiscussionsController;
-use Flarum\Frontend\Content\ContentInterface;
-use Flarum\Frontend\HtmlDocument;
+use Flarum\Frontend\Document;
+use Flarum\Http\UrlGenerator;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class Index implements ContentInterface
+class Index
 {
     /**
      * @var Client
@@ -32,25 +34,36 @@ class Index implements ContentInterface
     protected $view;
 
     /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    /**
+     * @var UrlGenerator
+     */
+    protected $url;
+
+    /**
      * @param Client $api
      * @param Factory $view
+     * @param SettingsRepositoryInterface $settings
+     * @param UrlGenerator $url
      */
-    public function __construct(Client $api, Factory $view)
+    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings, UrlGenerator $url)
     {
         $this->api = $api;
         $this->view = $view;
+        $this->settings = $settings;
+        $this->url = $url;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(HtmlDocument $document, Request $request)
+    public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
 
-        $sort = array_pull($queryParams, 'sort');
-        $q = array_pull($queryParams, 'q');
-        $page = array_pull($queryParams, 'page', 1);
+        $sort = Arr::pull($queryParams, 'sort');
+        $q = Arr::pull($queryParams, 'q');
+        $page = Arr::pull($queryParams, 'page', 1);
 
         $sortMap = $this->getSortMap();
 
@@ -61,9 +74,11 @@ class Index implements ContentInterface
         ];
 
         $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
+        $defaultRoute = $this->settings->get('default_route');
 
-        $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page', 'forum'));
+        $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
+        $document->canonicalUrl = $defaultRoute === '/all' ? $this->url->to('forum')->base() : $request->getUri()->withQuery('');
 
         return $document;
     }

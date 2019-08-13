@@ -34,7 +34,8 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('group_user', function (Blueprint $table) {
-            $table->dropForeign(['user_id', 'group_id']);
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['group_id']);
         });
     }
 ];

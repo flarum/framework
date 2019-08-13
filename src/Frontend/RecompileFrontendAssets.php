@@ -11,17 +11,13 @@
 
 namespace Flarum\Frontend;
 
-use Flarum\Extension\Event\Disabled;
-use Flarum\Extension\Event\Enabled;
-use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class RecompileFrontendAssets
 {
     /**
-     * @var CompilerFactory
+     * @var Assets
      */
     protected $assets;
 
@@ -31,24 +27,13 @@ class RecompileFrontendAssets
     protected $locales;
 
     /**
-     * @param CompilerFactory $assets
+     * @param Assets $assets
      * @param LocaleManager $locales
      */
-    public function __construct(CompilerFactory $assets, LocaleManager $locales)
+    public function __construct(Assets $assets, LocaleManager $locales)
     {
         $this->assets = $assets;
         $this->locales = $locales;
-    }
-
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Saved::class, [$this, 'whenSettingsSaved']);
-        $events->listen(Enabled::class, [$this, 'flush']);
-        $events->listen(Disabled::class, [$this, 'flush']);
-        $events->listen(ClearingCache::class, [$this, 'flush']);
     }
 
     public function whenSettingsSaved(Saved $event)

@@ -12,10 +12,11 @@
 namespace Flarum\Post;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Event\GetModelIsPrivate;
-use Flarum\Event\ScopeModelVisibility;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -42,6 +43,7 @@ use Illuminate\Database\Eloquent\Builder;
 class Post extends AbstractModel
 {
     use EventGeneratorTrait;
+    use ScopeVisibilityTrait;
 
     protected $table = 'posts';
 
@@ -90,45 +92,25 @@ class Post extends AbstractModel
         // When a post is created, set its type according to the value of the
         // subclass. Also give it an auto-incrementing number within the
         // discussion.
-        static::creating(function (Post $post) {
+        static::creating(function (self $post) {
             $post->type = $post::$type;
             $post->number = ++$post->discussion->post_number_index;
             $post->discussion->save();
         });
 
-        static::saving(function (Post $post) {
+        static::saving(function (self $post) {
             $event = new GetModelIsPrivate($post);
 
             $post->is_private = static::$dispatcher->until($event) === true;
         });
 
-        static::deleted(function (Post $post) {
+        static::deleted(function (self $post) {
             $post->raise(new Deleted($post));
+
+            Notification::whereSubject($post)->delete();
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
-    }
-
-    /**
-     * @param Builder $query
-     * @param User $actor
-     */
-    public function scopeWhereVisibleTo(Builder $query, User $actor)
-    {
-        static::$dispatcher->dispatch(
-            new ScopeModelVisibility($query, $actor, 'view')
-        );
-
-        // Make sure the post's discussion is visible as well
-        $query->whereExists(function ($query) use ($actor) {
-            $query->selectRaw('1')
-                ->from('discussions')
-                ->whereColumn('discussions.id', 'posts.discussion_id');
-
-            static::$dispatcher->dispatch(
-                new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'view')
-            );
-        });
     }
 
     /**

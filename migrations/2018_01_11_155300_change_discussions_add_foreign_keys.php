@@ -44,10 +44,11 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('discussions', function (Blueprint $table) {
-            $table->dropForeign([
-                'user_id', 'last_posted_user_id', 'hidden_user_id',
-                'first_post_id', 'last_post_id'
-            ]);
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['last_posted_user_id']);
+            $table->dropForeign(['hidden_user_id']);
+            $table->dropForeign(['first_post_id']);
+            $table->dropForeign(['last_post_id']);
         });
     }
 ];

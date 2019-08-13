@@ -12,59 +12,47 @@
 namespace Flarum\Frontend;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Http\UrlGenerator;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        // Yo dawg, I heard you like factories, so I made you a factory to
-        // create your factory. We expose a couple of factory functions that
-        // will create frontend factories and configure them with some default
-        // settings common to both the forum and admin frontends.
-
-        $this->app->singleton('flarum.frontend.assets.defaults', function () {
+        $this->app->singleton('flarum.assets.factory', function () {
             return function (string $name) {
-                $assets = new CompilerFactory(
+                $assets = new Assets(
                     $name,
                     $this->app->make('filesystem')->disk('flarum-assets'),
                     $this->app->storagePath()
                 );
 
                 $assets->setLessImportDirs([
-                    $this->app->basePath().'/vendor/components/font-awesome/less' => ''
+                    $this->app->vendorPath().'/components/font-awesome/less' => ''
                 ]);
 
-                $assets->add(function () use ($name) {
-                    $translations = $this->app->make(Asset\Translations::class);
-                    $translations->setFilter(function (string $id) use ($name) {
-                        return preg_match('/^.+(?:\.|::)(?:'.$name.'|lib)\./', $id);
-                    });
-
-                    return [
-                        new Asset\CoreAssets($name),
-                        $this->app->make(Asset\LessVariables::class),
-                        $translations,
-                        $this->app->make(Asset\LocaleAssets::class)
-                    ];
-                });
+                $assets->css([$this, 'addBaseCss']);
+                $assets->localeCss([$this, 'addBaseCss']);
 
                 return $assets;
             };
         });
 
-        $this->app->singleton('flarum.frontend.view.defaults', function () {
+        $this->app->singleton('flarum.frontend.factory', function () {
             return function (string $name) {
-                $view = $this->app->make(HtmlDocumentFactory::class);
+                $frontend = $this->app->make(Frontend::class);
 
-                $view->setCommitAssets($this->app->inDebugMode());
+                $frontend->content(function (Document $document) use ($name) {
+                    $document->layoutView = 'flarum::frontend.'.$name;
+                });
 
-                $view->add(new Content\Layout('flarum::frontend.'.$name));
-                $view->add($this->app->make(Content\CorePayload::class));
-                $view->add($this->app->make(Content\Meta::class));
+                $frontend->content($this->app->make(Content\Assets::class)->forFrontend($name));
+                $frontend->content($this->app->make(Content\CorePayload::class));
+                $frontend->content($this->app->make(Content\Meta::class));
 
-                return $view;
+                return $frontend;
             };
         });
     }
@@ -80,5 +68,31 @@ class FrontendServiceProvider extends AbstractServiceProvider
             'translator' => $this->app->make('translator'),
             'url' => $this->app->make(UrlGenerator::class)
         ]);
+    }
+
+    public function addBaseCss(SourceCollector $sources)
+    {
+        $sources->addFile(__DIR__.'/../../less/common/variables.less');
+        $sources->addFile(__DIR__.'/../../less/common/mixins.less');
+
+        $this->addLessVariables($sources);
+    }
+
+    private function addLessVariables(SourceCollector $sources)
+    {
+        $sources->addString(function () {
+            $settings = $this->app->make(SettingsRepositoryInterface::class);
+
+            $vars = [
+                'config-primary-color'   => $settings->get('theme_primary_color', '#000'),
+                'config-secondary-color' => $settings->get('theme_secondary_color', '#000'),
+                'config-dark-mode'       => $settings->get('theme_dark_mode') ? 'true' : 'false',
+                'config-colored-header'  => $settings->get('theme_colored_header') ? 'true' : 'false'
+            ];
+
+            return array_reduce(array_keys($vars), function ($string, $name) use ($vars) {
+                return $string."@$name: {$vars[$name]};";
+            }, '');
+        });
     }
 }

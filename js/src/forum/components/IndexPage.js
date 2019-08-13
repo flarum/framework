@@ -102,7 +102,7 @@ export default class IndexPage extends Page {
     // previous hero. Maintain the same scroll position relative to the bottom
     // of the hero so that the sidebar doesn't jump around.
     const oldHeroHeight = app.cache.heroHeight;
-    const heroHeight = app.cache.heroHeight = this.$('.Hero').outerHeight();
+    const heroHeight = app.cache.heroHeight = this.$('.Hero').outerHeight() || 0;
     const scrollTop = app.cache.scrollTop;
 
     $('#app').css('min-height', $(window).height() + heroHeight);

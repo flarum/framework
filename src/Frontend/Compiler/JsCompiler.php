@@ -21,6 +21,10 @@ class JsCompiler extends RevisionCompiler
      */
     protected function save(string $file, array $sources): bool
     {
+        if (empty($sources)) {
+            return false;
+        }
+
         $mapFile = $file.'.map';
 
         $map = new SourceMap();
@@ -54,7 +58,7 @@ class JsCompiler extends RevisionCompiler
 
         $this->assetsDir->put($file, implode("\n", $output));
 
-        $mapTemp = tempnam(sys_get_temp_dir(), $mapFile);
+        $mapTemp = @tempnam(storage_path('tmp'), $mapFile);
         $map->save($mapTemp);
         $this->assetsDir->put($mapFile, file_get_contents($mapTemp));
         @unlink($mapTemp);
@@ -67,7 +71,7 @@ class JsCompiler extends RevisionCompiler
      */
     protected function format(string $string): string
     {
-        return preg_replace('~//# sourceMappingURL.*$~s', '', $string).";\n";
+        return preg_replace('~//# sourceMappingURL.*$~m', '', $string).";\n";
     }
 
     /**
