@@ -16,6 +16,7 @@ use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Command\ConfirmEmail;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -58,7 +59,7 @@ class ConfirmEmailController implements RequestHandlerInterface
     public function handle(Request $request): ResponseInterface
     {
         try {
-            $token = array_get($request->getQueryParams(), 'token');
+            $token = Arr::get($request->getQueryParams(), 'token');
 
             $user = $this->bus->dispatch(
                 new ConfirmEmail($token)

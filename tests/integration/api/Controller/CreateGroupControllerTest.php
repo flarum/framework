@@ -14,6 +14,7 @@ namespace Flarum\Tests\integration\api\Controller;
 use Flarum\Api\Controller\CreateGroupController;
 use Flarum\Group\Group;
 use Flarum\User\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class CreateGroupControllerTest extends ApiControllerTestCase
@@ -47,14 +48,12 @@ class CreateGroupControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Illuminate\Validation\ValidationException
-     * @expectedExceptionMessage The given data was invalid.
      */
     public function admin_cannot_create_group_without_data()
     {
         $this->actor = User::find(1);
 
-        $this->callWith();
+        $this->assertEquals(422, $this->callWith()->getStatusCode());
     }
 
     /**
@@ -72,7 +71,7 @@ class CreateGroupControllerTest extends ApiControllerTestCase
         $group = Group::where('icon', $this->data['icon'])->firstOrFail();
 
         foreach ($this->data as $property => $value) {
-            $this->assertEquals($value, array_get($data, "data.attributes.$property"), "$property not matching to json response");
+            $this->assertEquals($value, Arr::get($data, "data.attributes.$property"), "$property not matching to json response");
             $property = Str::snake($property);
             $this->assertEquals($value, $group->{$property}, "$property not matching to database result");
         }
@@ -80,12 +79,11 @@ class CreateGroupControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Flarum\User\Exception\PermissionDeniedException
      */
     public function unauthorized_user_cannot_create_group()
     {
         $this->actor = User::find(2);
 
-        $this->callWith($this->data);
+        $this->assertEquals(403, $this->callWith($this->data)->getStatusCode());
     }
 }

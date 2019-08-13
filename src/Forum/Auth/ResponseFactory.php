@@ -15,6 +15,7 @@ use Flarum\Http\Rememberer;
 use Flarum\User\LoginProvider;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
@@ -43,7 +44,7 @@ class ResponseFactory
 
         $provided = $registration->getProvided();
 
-        if (! empty($provided['email']) && $user = User::where(array_only($provided, 'email'))->first()) {
+        if (! empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
             $user->loginProviders()->create(compact('provider', 'identifier'));
 
             return $this->makeLoggedInResponse($user);

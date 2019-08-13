@@ -40,17 +40,20 @@ class CreateUserControllerTest extends ApiControllerTestCase
             'group_user' => [
                 ['user_id' => 1, 'group_id' => 1],
             ],
+            'settings' => [
+                ['key' => 'mail_driver', 'value' => 'log']
+            ]
         ]);
     }
 
     /**
      * @test
-     * @expectedException \Illuminate\Validation\ValidationException
-     * @expectedExceptionMessage The given data was invalid.
      */
     public function cannot_create_user_without_data()
     {
-        $this->callWith();
+        $response = $this->callWith();
+
+        $this->assertEquals(422, $response->getStatusCode());
     }
 
     /**
@@ -93,7 +96,6 @@ class CreateUserControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Flarum\User\Exception\PermissionDeniedException
      */
     public function disabling_sign_up_prevents_user_creation()
     {
@@ -101,10 +103,9 @@ class CreateUserControllerTest extends ApiControllerTestCase
         $settings = app(SettingsRepositoryInterface::class);
         $settings->set('allow_sign_up', false);
 
-        try {
-            $this->callWith($this->data);
-        } finally {
-            $settings->set('allow_sign_up', true);
-        }
+        $response = $this->callWith($this->data);
+        $this->assertEquals(403, $response->getStatusCode());
+
+        $settings->set('allow_sign_up', true);
     }
 }

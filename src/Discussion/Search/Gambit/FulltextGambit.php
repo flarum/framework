@@ -29,9 +29,10 @@ class FulltextGambit implements GambitInterface
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 
-        // The @ character crashes fulltext searches on InnoDB tables.
-        // See https://bugs.mysql.com/bug.php?id=74042
-        $bit = str_replace('@', '*', $bit);
+        // Replace all non-word characters with spaces.
+        // We do this to prevent MySQL fulltext search boolean mode from taking
+        // effect: https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
+        $bit = preg_replace('/[^\p{L}\p{N}_]+/u', ' ', $bit);
 
         $query = $search->getQuery();
         $grammar = $query->getGrammar();

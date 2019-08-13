@@ -19,6 +19,7 @@ use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\Guest;
 use Flarum\User\User;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -47,7 +48,7 @@ class AuthenticateWithApiKeyTest extends TestCase
     {
         return ApiKey::unguarded(function () use ($user_id) {
             return ApiKey::query()->firstOrCreate([
-                'key'        => str_random(),
+                'key'        => Str::random(),
                 'user_id'    => $user_id,
                 'created_at' => Carbon::now()
             ]);
@@ -56,15 +57,15 @@ class AuthenticateWithApiKeyTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Flarum\User\Exception\PermissionDeniedException
      */
     public function cannot_authorize_without_key()
     {
         /** @var Client $api */
         $api = $this->app()->getContainer()->make(Client::class);
-        $api->setErrorHandler(null);
 
-        $api->send(CreateGroupController::class, new Guest);
+        $response = $api->send(CreateGroupController::class, new Guest);
+
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**

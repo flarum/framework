@@ -11,6 +11,8 @@
 
 namespace Flarum\Settings;
 
+use Illuminate\Support\Arr;
+
 /**
  * A settings repository decorator that allows overriding certain values.
  *
@@ -46,7 +48,7 @@ class OverrideSettingsRepository implements SettingsRepositoryInterface
             return $this->overrides[$key];
         }
 
-        return array_get($this->all(), $key, $default);
+        return Arr::get($this->all(), $key, $default);
     }
 
     public function set($key, $value)

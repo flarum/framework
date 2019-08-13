@@ -12,11 +12,12 @@
 namespace Flarum\User\Exception;
 
 use Exception;
+use Flarum\Foundation\KnownError;
 
-class PermissionDeniedException extends Exception
+class PermissionDeniedException extends Exception implements KnownError
 {
-    public function __construct($message = null, $code = 403, Exception $previous = null)
+    public function getType(): string
     {
-        parent::__construct($message, $code, $previous);
+        return 'permission_denied';
     }
 }

@@ -20,6 +20,18 @@ use RuntimeException;
 
 class LanguagePack implements ExtenderInterface, LifecycleInterface
 {
+    private $path;
+
+    /**
+     * LanguagePack constructor.
+     *
+     * @param string|null $path Path to yaml language files.
+     */
+    public function __construct(string $path = '/locale')
+    {
+        $this->path = $path;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         if (is_null($extension)) {
@@ -49,11 +61,11 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
     {
         $locales->addLocale($locale, $title);
 
-        $directory = $extension->getPath().'/locale';
+        $directory = $extension->getPath().$this->path;
 
         if (! is_dir($directory)) {
             throw new RuntimeException(
-                'Language packs must have a "locale" subdirectory.'
+                'Expected to find "'.$this->path.'" directory in language pack.'
             );
         }
 

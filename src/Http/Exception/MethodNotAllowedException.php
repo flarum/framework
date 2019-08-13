@@ -12,11 +12,12 @@
 namespace Flarum\Http\Exception;
 
 use Exception;
+use Flarum\Foundation\KnownError;
 
-class MethodNotAllowedException extends Exception
+class MethodNotAllowedException extends Exception implements KnownError
 {
-    public function __construct($message = null, $code = 405, Exception $previous = null)
+    public function getType(): string
     {
-        parent::__construct($message, $code, $previous);
+        return 'method_not_allowed';
     }
 }

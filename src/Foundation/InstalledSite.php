@@ -100,6 +100,10 @@ class InstalledSite implements SiteInterface
 
         $laravel->useStoragePath($this->paths['storage']);
 
+        if (isset($this->paths['vendor'])) {
+            $laravel->useVendorPath($this->paths['vendor']);
+        }
+
         $laravel->instance('env', 'production');
         $laravel->instance('flarum.config', $this->config);
         $laravel->instance('config', $config = $this->getIlluminateConfig($laravel));
@@ -113,6 +117,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(DatabaseServiceProvider::class);
         $laravel->register(DiscussionServiceProvider::class);
         $laravel->register(ExtensionServiceProvider::class);
+        $laravel->register(ErrorServiceProvider::class);
         $laravel->register(FilesystemServiceProvider::class);
         $laravel->register(FormatterServiceProvider::class);
         $laravel->register(ForumServiceProvider::class);

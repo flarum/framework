@@ -20,6 +20,7 @@ use Flarum\Post\Event\Saving;
 use Flarum\Post\PostValidator;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class PostReplyHandler
 {
@@ -86,12 +87,12 @@ class PostReplyHandler
         // opportunity to alter the post entity based on data in the command.
         $post = CommentPost::reply(
             $discussion->id,
-            array_get($command->data, 'attributes.content'),
+            Arr::get($command->data, 'attributes.content'),
             $actor->id,
             $command->ipAddress
         );
 
-        if ($actor->isAdmin() && ($time = array_get($command->data, 'attributes.createdAt'))) {
+        if ($actor->isAdmin() && ($time = Arr::get($command->data, 'attributes.createdAt'))) {
             $post->created_at = new Carbon($time);
         }
 

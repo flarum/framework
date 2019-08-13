@@ -60,34 +60,32 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
         $data = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals($this->data['title'], $discussion->title);
-        $this->assertEquals($this->data['title'], array_get($data, 'data.attributes.title'));
+        $this->assertEquals($this->data['title'], Arr::get($data, 'data.attributes.title'));
     }
 
     /**
      * @test
-     * @expectedException \Illuminate\Validation\ValidationException
-     * @expectedExceptionMessage The given data was invalid.
      */
     public function cannot_create_discussion_without_content()
     {
         $this->actor = User::find(1);
 
         $data = Arr::except($this->data, 'content');
+        $response = $this->callWith($data);
 
-        $this->callWith($data);
+        $this->assertEquals(422, $response->getStatusCode());
     }
 
     /**
      * @test
-     * @expectedException \Illuminate\Validation\ValidationException
-     * @expectedExceptionMessage The given data was invalid.
      */
     public function cannot_create_discussion_without_title()
     {
         $this->actor = User::find(1);
 
         $data = Arr::except($this->data, 'title');
+        $response = $this->callWith($data);
 
-        $this->callWith($data);
+        $this->assertEquals(422, $response->getStatusCode());
     }
 }
