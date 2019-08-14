@@ -100,25 +100,25 @@ export default {
       return;
     }
 
-    const showAlert = type => {
-      const { username, email } = this.data.attributes;
-
-      app.alerts.show(new Alert({
-        type,
-        children: app.translator.trans(
-          `core.forum.user.delete_alert_${type}`, { username, email }
-        )
-      }));
-    };
-
     this.delete().then(() => {
-      showAlert('success');
+      this.showDeletionAlert('success');
       if (app.current instanceof UserPage && app.current.user === this) {
         app.history.back();
       } else {
         window.location.reload();
       }
-    }).catch(() => showAlert('error'));
+    }).catch(() => this.showDeletionAlert('error'));
+  },
+
+  showDeletionAlert(type) {
+    const { username, email } = this.data.attributes;
+
+    app.alerts.show(new Alert({
+      type,
+      children: app.translator.trans(
+        `core.forum.user.delete_alert_${type}`, { username, email }
+      )
+    }));
   },
 
   /**
