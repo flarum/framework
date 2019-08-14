@@ -461,12 +461,12 @@ core:
 
     # Translations in this namespace are displayed when Flarum encounters an error.
     error:
-      403_message: You do not have permission to access this page.
-      404_message: The page you requested could not be found.
-      404_return_link: "Return to {forum}"
-      419_message: You have been inactive for too long.
-      419_return_link: Go back, to try again
-      500_message: An error occurred while trying to load this page.
+      csrf_token_mismatch: You have been inactive for too long.
+      csrf_token_mismatch_return_link: Go back, to try again
+      forbidden: You do not have permission to access this page.
+      not_found: The page you requested could not be found.
+      not_found_return_link: "Return to {forum}"
+      unknown: An error occurred while trying to load this page.
 
     # Translations in this namespace are displayed by the basic HTML discussion index.
     index:
