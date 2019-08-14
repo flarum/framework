@@ -51,26 +51,29 @@ class ViewRenderer implements Formatter
         return new HtmlResponse($view->render(), $error->getStatusCode());
     }
 
+    const ERRORS_WITH_VIEWS = ['csrf_token_mismatch', 'not_found'];
+
     private function determineView(HandledError $error): string
     {
-        $view = [
-            'route_not_found' => '404',
-            'csrf_token_mismatch' => '419',
-        ][$error->getType()] ?? 'default';
+        $type = $error->getType();
 
-        return "flarum.forum::error.$view";
+        if (in_array($type, self::ERRORS_WITH_VIEWS)) {
+            return "flarum.forum::error.$type";
+        } else {
+            return 'flarum.forum::error.default';
+        }
     }
 
     private function getMessage(HandledError $error)
     {
-        return $this->getTranslationIfExists($error->getStatusCode())
+        return $this->getTranslationIfExists($error->getType())
             ?? $this->getTranslationIfExists('unknown')
             ?? 'An error occurred while trying to load this page.';
     }
 
     private function getTranslationIfExists(string $errorType)
     {
-        $key = "core.views.error.${errorType}_message";
+        $key = "core.views.error.$errorType";
         $translation = $this->translator->trans($key, ['{forum}' => $this->settings->get('forum_title')]);
 
         return $translation === $key ? null : $translation;
