@@ -467,7 +467,6 @@ core:
       419_message: You have been inactive for too long.
       419_return_link: Go back, to try again
       500_message: An error occurred while trying to load this page.
-      503_message: "{forum} is undergoing maintenance. Thanks for your patience!"
 
     # Translations in this namespace are displayed by the basic HTML discussion index.
     index:
