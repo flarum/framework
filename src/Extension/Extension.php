@@ -257,9 +257,9 @@ class Extension implements Arrayable
 
     private function getExtenders(): array
     {
-        $extenderFile = "{$this->path}/extend.php";
+        $extenderFile = $this->getExtenderFile();
 
-        if (! file_exists($extenderFile)) {
+        if (! $extenderFile) {
             return [];
         }
 
@@ -283,6 +283,24 @@ class Extension implements Arrayable
                 return $extender instanceof LifecycleInterface;
             }
         );
+    }
+
+    private function getExtenderFile(): ?string
+    {
+        $filename = "{$this->path}/extend.php";
+
+        if (file_exists($filename)) {
+            return $filename;
+        }
+
+        // To give extension authors some time to migrate to the new extension
+        // format, we will also fallback to the old bootstrap.php name. Consider
+        // this feature deprecated.
+        $deprecatedFilename = "{$this->path}/bootstrap.php";
+
+        if (file_exists($deprecatedFilename)) {
+            return $deprecatedFilename;
+        }
     }
 
     /**

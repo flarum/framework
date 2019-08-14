@@ -100,4 +100,52 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
         // Order-independent comparison
         $this->assertEquals(['2', '3'], $ids, 'IDs do not match', 0.0, 10, true);
     }
+
+    /**
+     * @test
+     */
+    public function ignores_non_word_characters_when_searching()
+    {
+        $this->database()->table('posts')->insert([
+            ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
+            ['id' => 3, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
+        ]);
+
+        $this->database()->table('discussions')->insert([
+            ['id' => 2, 'title' => 'lightsail in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 2, 'comment_count' => 1],
+            ['id' => 3, 'title' => 'not in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 3, 'comment_count' => 1],
+        ]);
+
+        $response = $this->callWith([], [
+            'filter' => ['q' => 'lightsail+'],
+            'include' => 'mostRelevantPost'
+        ]);
+        $data = json_decode($response->getBody()->getContents(), true);
+        $ids = array_map(function ($row) {
+            return $row['id'];
+        }, $data['data']);
+
+        // Order-independent comparison
+        $this->assertEquals(['2', '3'], $ids, 'IDs do not match', 0.0, 10, true);
+    }
+
+    /**
+     * @test
+     */
+    public function search_for_special_characters_gives_empty_result()
+    {
+        $response = $this->callWith([], [
+            'filter' => ['q' => '*'],
+            'include' => 'mostRelevantPost'
+        ]);
+        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals([], $data['data']);
+
+        $response = $this->callWith([], [
+            'filter' => ['q' => '@'],
+            'include' => 'mostRelevantPost'
+        ]);
+        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals([], $data['data']);
+    }
 }

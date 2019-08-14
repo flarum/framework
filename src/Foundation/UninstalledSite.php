@@ -69,6 +69,7 @@ class UninstalledSite implements SiteInterface
 
         $this->registerLogger($laravel);
 
+        $laravel->register(ErrorServiceProvider::class);
         $laravel->register(LocaleServiceProvider::class);
         $laravel->register(FilesystemServiceProvider::class);
         $laravel->register(SessionServiceProvider::class);
