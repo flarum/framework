@@ -38,8 +38,7 @@ class ErrorServiceProvider extends AbstractServiceProvider
                 'permission_denied' => 403,
 
                 // 404 Not Found
-                'model_not_found' => 404,
-                'route_not_found' => 404,
+                'not_found' => 404,
 
                 // 405 Method Not Allowed
                 'method_not_allowed' => 405,
@@ -52,7 +51,7 @@ class ErrorServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.error.classes', function () {
             return [
                 InvalidParameterException::class => 'invalid_parameter',
-                ModelNotFoundException::class => 'model_not_found',
+                ModelNotFoundException::class => 'not_found',
             ];
         });
 

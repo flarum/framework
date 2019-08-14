@@ -18,6 +18,6 @@ class RouteNotFoundException extends Exception implements KnownError
 {
     public function getType(): string
     {
-        return 'route_not_found';
+        return 'not_found';
     }
 }
