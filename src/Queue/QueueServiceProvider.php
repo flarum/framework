@@ -46,8 +46,11 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
-        $this->app->singleton('flarum.queue.connection', function () {
-            return new SyncQueue;
+        $this->app->singleton('flarum.queue.connection', function ($app) {
+            $queue = new SyncQueue;
+            $queue->setContainer($app);
+
+            return $queue;
         });
 
         $this->app->singleton(ExceptionHandling::class, function ($app) {
