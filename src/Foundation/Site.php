@@ -61,6 +61,12 @@ class Site
             return [];
         }
 
-        return array_flatten(require $extenderFile);
+        $extenders = require $extenderFile;
+
+        if (! is_array($extenders)) {
+            return [];
+        }
+
+        return array_flatten($extenders);
     }
 }
