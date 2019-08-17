@@ -169,7 +169,7 @@ class CommentPost extends Post
      * @param ServerRequestInterface $request
      * @return string
      */
-    public function formatContent(ServerRequestInterface $request)
+    public function formatContent(ServerRequestInterface $request = null)
     {
         return static::$formatter->render($this->attributes['content'], $this, $request);
     }
