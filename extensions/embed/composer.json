@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Embed",
             "icon": {
-                "name": "code",
+                "name": "fas fa-code",
                 "backgroundColor": "#B9D233",
                 "color": "#fff"
             }
