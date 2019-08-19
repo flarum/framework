@@ -24,6 +24,7 @@ use Flarum\Locale\LocaleServiceProvider;
 use Flarum\Mail\MailServiceProvider;
 use Flarum\Notification\NotificationServiceProvider;
 use Flarum\Post\PostServiceProvider;
+use Flarum\Queue\QueueServiceProvider;
 use Flarum\Search\SearchServiceProvider;
 use Flarum\Settings\SettingsServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
@@ -127,6 +128,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(MigrationServiceProvider::class);
         $laravel->register(NotificationServiceProvider::class);
         $laravel->register(PostServiceProvider::class);
+        $laravel->register(QueueServiceProvider::class);
         $laravel->register(SearchServiceProvider::class);
         $laravel->register(SessionServiceProvider::class);
         $laravel->register(SettingsServiceProvider::class);
@@ -177,6 +179,9 @@ class InstalledSite implements SiteInterface
                         'root'   => $this->paths['public'].'/assets/avatars'
                     ]
                 ]
+            ],
+            'queue' => [
+                'default' => 'sync'
             ],
             'session' => [
                 'lifetime' => 120,
