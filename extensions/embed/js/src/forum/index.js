@@ -6,12 +6,7 @@ import ForumApplication from 'flarum/ForumApplication';
 import Composer from 'flarum/components/Composer';
 import PostStream from 'flarum/components/PostStream';
 import ModalManager from 'flarum/components/ModalManager';
-import AlertManager from 'flarum/components/AlertManager';
 import PostMeta from 'flarum/components/PostMeta';
-import mapRoutes from 'flarum/utils/mapRoutes';
-import Pane from 'flarum/utils/Pane';
-import Drawer from 'flarum/utils/Drawer';
-import ScrollListener from 'flarum/utils/ScrollListener';
 
 import DiscussionPage from 'flarum/components/DiscussionPage';
 
