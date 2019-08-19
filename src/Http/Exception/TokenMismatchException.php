@@ -12,11 +12,12 @@
 namespace Flarum\Http\Exception;
 
 use Exception;
+use Flarum\Foundation\KnownError;
 
-class TokenMismatchException extends Exception
+class TokenMismatchException extends Exception implements KnownError
 {
-    public function __construct($message = null, $code = 419, Exception $previous = null)
+    public function getType(): string
     {
-        parent::__construct($message, $code, $previous);
+        return 'csrf_token_mismatch';
     }
 }

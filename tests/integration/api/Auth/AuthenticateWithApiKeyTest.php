@@ -57,15 +57,15 @@ class AuthenticateWithApiKeyTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Flarum\User\Exception\PermissionDeniedException
      */
     public function cannot_authorize_without_key()
     {
         /** @var Client $api */
         $api = $this->app()->getContainer()->make(Client::class);
-        $api->setErrorHandler(null);
 
-        $api->send(CreateGroupController::class, new Guest);
+        $response = $api->send(CreateGroupController::class, new Guest);
+
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**

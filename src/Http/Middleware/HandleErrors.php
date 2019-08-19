@@ -11,27 +11,36 @@
 
 namespace Flarum\Http\Middleware;
 
-use Franzl\Middleware\Whoops\WhoopsRunner;
+use Flarum\Foundation\ErrorHandling\Formatter;
+use Flarum\Foundation\ErrorHandling\Registry;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
-class HandleErrorsWithWhoops implements Middleware
+class HandleErrors implements Middleware
 {
     /**
-     * @var LoggerInterface
+     * @var Registry
      */
-    protected $logger;
+    protected $registry;
 
     /**
-     * @param LoggerInterface $logger
+     * @var Formatter
      */
-    public function __construct(LoggerInterface $logger)
+    protected $formatter;
+
+    /**
+     * @var \Flarum\Foundation\ErrorHandling\Reporter[]
+     */
+    protected $reporters;
+
+    public function __construct(Registry $registry, Formatter $formatter, array $reporters)
     {
-        $this->logger = $logger;
+        $this->registry = $registry;
+        $this->formatter = $formatter;
+        $this->reporters = $reporters;
     }
 
     /**
@@ -42,19 +51,15 @@ class HandleErrorsWithWhoops implements Middleware
         try {
             return $handler->handle($request);
         } catch (Throwable $e) {
-            $status = 500;
-            $errorCode = $e->getCode();
+            $error = $this->registry->handle($e);
 
-            if ($errorCode !== 404) {
-                $this->logger->error($e);
+            if ($error->shouldBeReported()) {
+                foreach ($this->reporters as $reporter) {
+                    $reporter->report($error);
+                }
             }
 
-            if (is_int($errorCode) && $errorCode >= 400 && $errorCode < 600) {
-                $status = $errorCode;
-            }
-
-            return WhoopsRunner::handle($e, $request)
-                ->withStatus($status);
+            return $this->formatter->format($error, $request);
         }
     }
 }

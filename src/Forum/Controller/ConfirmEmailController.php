@@ -14,13 +14,11 @@ namespace Flarum\Forum\Controller;
 use Flarum\Foundation\Application;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Command\ConfirmEmail;
-use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class ConfirmEmailController implements RequestHandlerInterface
@@ -58,15 +56,11 @@ class ConfirmEmailController implements RequestHandlerInterface
      */
     public function handle(Request $request): ResponseInterface
     {
-        try {
-            $token = Arr::get($request->getQueryParams(), 'token');
+        $token = Arr::get($request->getQueryParams(), 'token');
 
-            $user = $this->bus->dispatch(
-                new ConfirmEmail($token)
-            );
-        } catch (InvalidConfirmationTokenException $e) {
-            return new HtmlResponse('Invalid confirmation token');
-        }
+        $user = $this->bus->dispatch(
+            new ConfirmEmail($token)
+        );
 
         $session = $request->getAttribute('session');
         $this->authenticator->logIn($session, $user->id);

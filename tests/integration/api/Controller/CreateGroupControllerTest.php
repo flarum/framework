@@ -48,14 +48,12 @@ class CreateGroupControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Illuminate\Validation\ValidationException
-     * @expectedExceptionMessage The given data was invalid.
      */
     public function admin_cannot_create_group_without_data()
     {
         $this->actor = User::find(1);
 
-        $this->callWith();
+        $this->assertEquals(422, $this->callWith()->getStatusCode());
     }
 
     /**
@@ -81,12 +79,11 @@ class CreateGroupControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Flarum\User\Exception\PermissionDeniedException
      */
     public function unauthorized_user_cannot_create_group()
     {
         $this->actor = User::find(2);
 
-        $this->callWith($this->data);
+        $this->assertEquals(403, $this->callWith($this->data)->getStatusCode());
     }
 }

@@ -37,11 +37,12 @@ class ListUsersControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Flarum\User\Exception\PermissionDeniedException
      */
     public function disallows_index_for_guest()
     {
-        $this->callWith();
+        $response = $this->callWith();
+
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**
