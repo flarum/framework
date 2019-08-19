@@ -180,9 +180,6 @@ class InstalledSite implements SiteInterface
                     ]
                 ]
             ],
-            'queue' => [
-                'default' => 'sync'
-            ],
             'session' => [
                 'lifetime' => 120,
                 'files' => $this->paths['storage'].'/sessions',
