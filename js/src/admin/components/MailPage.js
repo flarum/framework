@@ -115,12 +115,12 @@ export default class MailPage extends Page {
       };
 
       return [
-          <label>{app.translator.trans(`core.admin.email.${field}_label`)}}</label>,
+          <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
           <Select value={this.values[field]() || Object.keys(endpoints)[0]} options={endpoints} onchange={this.values[field]} />
       ];
     } else {
         return [
-            <label>{app.translator.trans(`core.admin.email.${field}_label`)}}</label>,
+            <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
             <input className="FormControl" value={this.values[field]() || ''} oninput={m.withAttr('value', this.values[field])} />
         ];
     }
