@@ -125,7 +125,6 @@ export default class MailPage extends Page {
         ];
     }
 
-
   }
 
   changed() {
