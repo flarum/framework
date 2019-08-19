@@ -69,13 +69,12 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function guest_cannot_see_empty_discussion()
     {
         $response = $this->callWith([], ['id' => 1]);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     /**
@@ -90,10 +89,11 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
 
     /**
      * @test
-     * @expectedException \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function guests_cannot_see_private_discussion()
     {
-        $this->callWith([], ['id' => 3]);
+        $response = $this->callWith([], ['id' => 3]);
+
+        $this->assertEquals(404, $response->getStatusCode());
     }
 }

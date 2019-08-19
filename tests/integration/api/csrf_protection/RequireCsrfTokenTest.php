@@ -190,4 +190,34 @@ class RequireCsrfTokenTest extends TestCase
             $this->database()->table('settings')->where('key', 'csrf_test')->first()->value
         );
     }
+
+    /**
+     * @test
+     */
+    public function access_token_does_not_need_csrf_token()
+    {
+        $this->database()->table('access_tokens')->insert(
+            ['token' => 'myaccesstoken', 'user_id' => 1]
+        );
+
+        $response = $this->send(
+            $this->request(
+                'POST', '/api/settings',
+                [
+                    'json' => ['csrf_test' => 2],
+                ]
+            )->withHeader('Authorization', 'Token myaccesstoken')
+        );
+
+        // Successful response?
+        $this->assertEquals(204, $response->getStatusCode());
+
+        // Was the setting actually changed in the database?
+        $this->assertEquals(
+            2,
+            $this->database()->table('settings')->where('key', 'csrf_test')->first()->value
+        );
+
+        $this->database()->table('access_tokens')->where('token', 'myaccesstoken')->delete();
+    }
 }
