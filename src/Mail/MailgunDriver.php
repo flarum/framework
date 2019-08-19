@@ -23,6 +23,7 @@ class MailgunDriver implements DriverInterface
         return [
             'mail_mailgun_secret', // the secret key
             'mail_mailgun_domain', // the API base URL
+            'mail_mailgun_endpoint'
         ];
     }
 
@@ -31,7 +32,8 @@ class MailgunDriver implements DriverInterface
         return new MailgunTransport(
             new Client(['connect_timeout' => 60]),
             $settings->get('mail_mailgun_secret'),
-            $settings->get('mail_mailgun_domain')
+            $settings->get('mail_mailgun_domain'),
+            $settings->get('mail_mailgun_endpoint')
         );
     }
 }

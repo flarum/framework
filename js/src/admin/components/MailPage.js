@@ -87,10 +87,7 @@ export default class MailPage extends Page {
               className: 'MailPage-MailSettings',
               children: [
                 <div className="MailPage-MailSettings-input">
-                  {this.driverFields[this.values.mail_driver()].flatMap(field => [
-                    <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
-                    <input className="FormControl" value={this.values[field]() || ''} oninput={m.withAttr('value', this.values[field])} />
-                  ])}
+                  {this.driverFields[this.values.mail_driver()].flatMap(field => this.getMailSettingsElementForm(field))}
                 </div>
               ]
             })}
@@ -106,6 +103,29 @@ export default class MailPage extends Page {
         </div>
       </div>
     );
+  }
+
+    getMailSettingsElementForm(field) {
+
+    if (field === 'mail_mailgun_endpoint') {
+
+      let endpoints = {
+        'api.eu.mailgun.net': 'EU Endpoint',
+        'api.mailgun.net': 'US Endpoint',
+      };
+
+      return [
+          <label>{app.translator.trans(`core.admin.email.${field}_label`)}}</label>,
+          <Select value={this.values[field]() || Object.keys(endpoints)[0]} options={endpoints} onchange={this.values[field]} />
+      ];
+    } else {
+        return [
+            <label>{app.translator.trans(`core.admin.email.${field}_label`)}}</label>,
+            <input className="FormControl" value={this.values[field]() || ''} oninput={m.withAttr('value', this.values[field])} />
+        ];
+    }
+
+
   }
 
   changed() {
