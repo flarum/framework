@@ -11,7 +11,15 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
+use Throwable;
+
 interface Reporter
 {
-    public function report(HandledError $error);
+    /**
+     * Report an error that Flarum was not able to handle to a backend.
+     *
+     * @param Throwable $error
+     * @return void
+     */
+    public function report(Throwable $error);
 }
