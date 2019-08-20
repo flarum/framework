@@ -56,7 +56,7 @@ class ViewFormatter implements HttpFormatter
     public function format(HandledError $error, Request $request): Response
     {
         $view = $this->view->make($this->determineView($error))
-            ->with('error', $error->getError())
+            ->with('error', $error->getException())
             ->with('message', $this->getMessage($error));
 
         return new HtmlResponse($view->render(), $error->getStatusCode());

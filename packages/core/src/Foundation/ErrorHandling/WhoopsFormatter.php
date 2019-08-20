@@ -28,7 +28,7 @@ class WhoopsFormatter implements HttpFormatter
 {
     public function format(HandledError $error, Request $request): Response
     {
-        return WhoopsRunner::handle($error->getError(), $request)
+        return WhoopsRunner::handle($error->getException(), $request)
             ->withStatus($error->getStatusCode());
     }
 }

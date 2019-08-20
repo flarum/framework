@@ -62,7 +62,7 @@ class HandleErrors implements Middleware
 
             if ($error->shouldBeReported()) {
                 foreach ($this->reporters as $reporter) {
-                    $reporter->report($error);
+                    $reporter->report($error->getException());
                 }
             }
 
