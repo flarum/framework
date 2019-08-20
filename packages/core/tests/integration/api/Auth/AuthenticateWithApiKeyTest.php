@@ -65,7 +65,7 @@ class AuthenticateWithApiKeyTest extends TestCase
 
         $response = $api->send(CreateGroupController::class, new Guest);
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(401, $response->getStatusCode());
     }
 
     /**

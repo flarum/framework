@@ -11,18 +11,30 @@
 
 namespace Flarum\User;
 
+use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
 
 trait AssertPermissionTrait
 {
     /**
-     * @param $condition
+     * @param bool $condition
      * @throws PermissionDeniedException
      */
     protected function assertPermission($condition)
     {
         if (! $condition) {
             throw new PermissionDeniedException;
+        }
+    }
+
+    /**
+     * @param bool $condition
+     * @throws NotAuthenticatedException
+     */
+    protected function assertAuthentication($condition)
+    {
+        if (! $condition) {
+            throw new NotAuthenticatedException;
         }
     }
 
@@ -39,20 +51,11 @@ trait AssertPermissionTrait
 
     /**
      * @param User $actor
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    protected function assertGuest(User $actor)
-    {
-        $this->assertPermission($actor->isGuest());
-    }
-
-    /**
-     * @param User $actor
-     * @throws PermissionDeniedException
+     * @throws NotAuthenticatedException
      */
     protected function assertRegistered(User $actor)
     {
-        $this->assertPermission(! $actor->isGuest());
+        $this->assertAuthentication(! $actor->isGuest());
     }
 
     /**
