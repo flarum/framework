@@ -13,6 +13,9 @@ namespace Flarum\Foundation\ErrorHandling;
 
 use Psr\Log\LoggerInterface;
 
+/**
+ * Log caught exceptions to a PSR-3 logger instance.
+ */
 class LogReporter implements Reporter
 {
     /**

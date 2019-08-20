@@ -19,6 +19,13 @@ use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
 use Throwable;
 
+/**
+ * Catch exceptions thrown in a PSR-15 middleware stack and handle them safely.
+ *
+ * All errors will be rendered using the provided formatter. In addition,
+ * unknown errors will be passed on to one or multiple
+ * {@see \Flarum\Foundation\ErrorHandling\Reporter} instances.
+ */
 class HandleErrors implements Middleware
 {
     /**
