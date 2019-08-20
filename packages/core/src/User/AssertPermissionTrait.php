@@ -17,6 +17,13 @@ use Flarum\User\Exception\PermissionDeniedException;
 trait AssertPermissionTrait
 {
     /**
+     * Ensure the current user is allowed to do something.
+     *
+     * If the condition is not met, an exception will be thrown that signals the
+     * lack of permissions. This is about *authorization*, i.e. retrying such a
+     * request / operation without a change in permissions (or using another
+     * user account) is pointless.
+     *
      * @param bool $condition
      * @throws PermissionDeniedException
      */
@@ -28,6 +35,12 @@ trait AssertPermissionTrait
     }
 
     /**
+     * Ensure the current user is authenticated.
+     *
+     * This will throw an exception for guest users, signaling that
+     * *authorization* failed. Thus, they could retry the operation after
+     * logging in (or using other means of authentication).
+     *
      * @param bool $condition
      * @throws NotAuthenticatedException
      */
