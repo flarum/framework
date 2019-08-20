@@ -47,7 +47,7 @@ class HandledError
         return $this;
     }
 
-    public function getError(): Throwable
+    public function getException(): Throwable
     {
         return $this->error;
     }
