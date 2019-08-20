@@ -20,8 +20,8 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
-use Flarum\Foundation\ErrorHandling\ViewRenderer;
-use Flarum\Foundation\ErrorHandling\WhoopsRenderer;
+use Flarum\Foundation\ErrorHandling\ViewFormatter;
+use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
@@ -67,7 +67,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             // All requests should first be piped through our global error handler
             $pipe->pipe(new HttpMiddleware\HandleErrors(
                 $app->make(Registry::class),
-                $app->inDebugMode() ? $app->make(WhoopsRenderer::class) : $app->make(ViewRenderer::class),
+                $app->inDebugMode() ? $app->make(WhoopsFormatter::class) : $app->make(ViewFormatter::class),
                 $app->tagged(Reporter::class)
             ));
 
