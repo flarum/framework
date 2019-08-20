@@ -14,6 +14,13 @@ namespace Flarum\Foundation\ErrorHandling;
 use Flarum\Foundation\KnownError;
 use Throwable;
 
+/**
+ * Flarum's central registry of known error types.
+ *
+ * It knows how to deal with errors raised both within Flarum's core and outside
+ * of it, map them to error "types" and how to determine appropriate HTTP status
+ * codes for them.
+ */
 class Registry
 {
     private $statusMap;
@@ -27,6 +34,18 @@ class Registry
         $this->handlerMap = $handlerMap;
     }
 
+    /**
+     * Map exceptions to handled errors.
+     *
+     * This can map internal ({@see \Flarum\Foundation\KnownError}) as well as
+     * external exceptions (any classes inheriting from \Throwable) to instances
+     * of {@see \Flarum\Foundation\ErrorHandling\HandledError}.
+     *
+     * Even for unknown exceptions, a generic fallback will always be returned.
+     *
+     * @param Throwable $error
+     * @return HandledError
+     */
     public function handle(Throwable $error): HandledError
     {
         return $this->handleKnownTypes($error)
