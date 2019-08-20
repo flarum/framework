@@ -10,7 +10,7 @@
 namespace Flarum\Api;
 
 use Exception;
-use Flarum\Foundation\ErrorHandling\JsonApiRenderer;
+use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
@@ -77,7 +77,7 @@ class Client
                 throw $e;
             }
 
-            return (new JsonApiRenderer)->format($error, $request);
+            return (new JsonApiFormatter)->format($error, $request);
         }
     }
 }

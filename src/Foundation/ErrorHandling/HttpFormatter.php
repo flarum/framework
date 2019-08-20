@@ -11,15 +11,10 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
-use Franzl\Middleware\Whoops\WhoopsRunner;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class WhoopsRenderer implements Formatter
+interface HttpFormatter
 {
-    public function format(HandledError $error, Request $request): Response
-    {
-        return WhoopsRunner::handle($error->getError(), $request)
-            ->withStatus($error->getStatusCode());
-    }
+    public function format(HandledError $error, Request $request): Response;
 }

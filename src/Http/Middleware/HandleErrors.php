@@ -11,7 +11,7 @@
 
 namespace Flarum\Http\Middleware;
 
-use Flarum\Foundation\ErrorHandling\Formatter;
+use Flarum\Foundation\ErrorHandling\HttpFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -27,7 +27,7 @@ class HandleErrors implements Middleware
     protected $registry;
 
     /**
-     * @var Formatter
+     * @var HttpFormatter
      */
     protected $formatter;
 
@@ -36,7 +36,7 @@ class HandleErrors implements Middleware
      */
     protected $reporters;
 
-    public function __construct(Registry $registry, Formatter $formatter, array $reporters)
+    public function __construct(Registry $registry, HttpFormatter $formatter, array $reporters)
     {
         $this->registry = $registry;
         $this->formatter = $formatter;
