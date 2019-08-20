@@ -14,7 +14,7 @@ namespace Flarum\Install;
 use Flarum\Foundation\AppInterface;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
-use Flarum\Foundation\ErrorHandling\WhoopsRenderer;
+use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\StartSession;
@@ -42,7 +42,7 @@ class Installer implements AppInterface
         $pipe = new MiddlewarePipe;
         $pipe->pipe(new HandleErrors(
             $this->container->make(Registry::class),
-            $this->container->make(WhoopsRenderer::class),
+            $this->container->make(WhoopsFormatter::class),
             $this->container->tagged(Reporter::class)
         ));
         $pipe->pipe($this->container->make(StartSession::class));

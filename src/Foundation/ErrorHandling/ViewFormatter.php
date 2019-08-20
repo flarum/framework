@@ -18,7 +18,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
-class ViewRenderer implements Formatter
+class ViewFormatter implements HttpFormatter
 {
     /**
      * @var ViewFactory

@@ -11,23 +11,15 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
-use Flarum\Api\JsonApiResponse;
+use Franzl\Middleware\Whoops\WhoopsRunner;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Tobscure\JsonApi\Document;
 
-class JsonApiRenderer implements Formatter
+class WhoopsFormatter implements HttpFormatter
 {
     public function format(HandledError $error, Request $request): Response
     {
-        $document = new Document;
-        $document->setErrors([
-            [
-                'status' => (string) $error->getStatusCode(),
-                'code' => $error->getType(),
-            ],
-        ]);
-
-        return new JsonApiResponse($document, $error->getStatusCode());
+        return WhoopsRunner::handle($error->getError(), $request)
+            ->withStatus($error->getStatusCode());
     }
 }
