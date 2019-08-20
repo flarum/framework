@@ -35,18 +35,18 @@ trait AssertPermissionTrait
     }
 
     /**
-     * Ensure the current user is authenticated.
+     * Ensure the given actor is authenticated.
      *
      * This will throw an exception for guest users, signaling that
      * *authorization* failed. Thus, they could retry the operation after
      * logging in (or using other means of authentication).
      *
-     * @param bool $condition
+     * @param User $actor
      * @throws NotAuthenticatedException
      */
-    protected function assertAuthentication($condition)
+    protected function assertRegistered(User $actor)
     {
-        if (! $condition) {
+        if ($actor->isGuest()) {
             throw new NotAuthenticatedException;
         }
     }
@@ -60,15 +60,6 @@ trait AssertPermissionTrait
     protected function assertCan(User $actor, $ability, $arguments = [])
     {
         $this->assertPermission($actor->can($ability, $arguments));
-    }
-
-    /**
-     * @param User $actor
-     * @throws NotAuthenticatedException
-     */
-    protected function assertRegistered(User $actor)
-    {
-        $this->assertAuthentication(! $actor->isGuest());
     }
 
     /**
