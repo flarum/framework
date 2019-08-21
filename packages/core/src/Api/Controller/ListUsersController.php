@@ -72,7 +72,6 @@ class ListUsersController extends AbstractListController
     {
         $actor = $request->getAttribute('actor');
 
-        $this->assertRegistered($actor);
         $this->assertCan($actor, 'viewUserList');
 
         $query = Arr::get($this->extractFilter($request), 'q');
