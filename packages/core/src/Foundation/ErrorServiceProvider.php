@@ -33,7 +33,6 @@ class ErrorServiceProvider extends AbstractServiceProvider
                 'invalid_access_token' => 401,
 
                 // 403 Forbidden
-                'forbidden' => 403,
                 'invalid_confirmation_token' => 403,
                 'permission_denied' => 403,
 
