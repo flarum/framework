@@ -463,10 +463,11 @@ core:
     error:
       csrf_token_mismatch: You have been inactive for too long.
       csrf_token_mismatch_return_link: Go back, to try again
-      forbidden: You do not have permission to access this page.
       invalid_confirmation_token: This confirmation link has already been used or is invalid.
+      not_authenticated: You do not have permission to access this page. Try again after logging in.
       not_found: The page you requested could not be found.
       not_found_return_link: "Return to {forum}"
+      permission_denied: You do not have permission to access this page.
       unknown: An error occurred while trying to load this page.
 
     # Translations in this namespace are displayed by the basic HTML discussion index.
