@@ -33,9 +33,6 @@ jobs:
           - php: 7.2
             service: mariadb
             prefix: flarum_
-          - php: 7.3
-            service: mariadb
-            prefix: flarum_
 
     services:
       mysql:
