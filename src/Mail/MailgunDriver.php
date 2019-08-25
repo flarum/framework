@@ -34,7 +34,6 @@ class MailgunDriver implements DriverInterface
         ];
     }
 
-
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
         return new MailgunTransport(
