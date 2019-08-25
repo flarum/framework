@@ -18,14 +18,23 @@ use Swift_Transport;
 
 class MailgunDriver implements DriverInterface
 {
-    public function availableSettings(): array
+    public function availableSettings(): object
     {
-        return [
-            'mail_mailgun_secret', // the secret key
-            'mail_mailgun_domain', // the API base URL
-            'mail_mailgun_endpoint'
+        return (object)[
+            'mail_mailgun_secret' => [], // the secret key
+            'mail_mailgun_domain' => [], // the API base URL
+            'mail_mailgun_endpoint' => [],
+            'mail_mailgun_endpoints' => [
+                'type' => 'select',
+                'values' => [
+                    'api.mailgun.net' => 'US Endpoint',
+                    'api.eu.mailgun.net' => 'EU Endpoint'
+                ]
+
+            ]
         ];
     }
+
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {

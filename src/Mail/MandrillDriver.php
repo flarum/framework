@@ -18,10 +18,10 @@ use Swift_Transport;
 
 class MandrillDriver implements DriverInterface
 {
-    public function availableSettings(): array
+    public function availableSettings(): object
     {
-        return [
-            'mail_mandrill_secret',
+        return (object)[
+            'mail_mandrill_secret' => [],
         ];
     }
 

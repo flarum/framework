@@ -18,12 +18,12 @@ use Swift_Transport;
 
 class SesDriver implements DriverInterface
 {
-    public function availableSettings(): array
+    public function availableSettings(): object
     {
-        return [
-            'mail_ses_key',
-            'mail_ses_secret',
-            'mail_ses_region',
+        return (object)[
+            'mail_ses_key' => [],
+            'mail_ses_secret' => [],
+            'mail_ses_region' => [],
         ];
     }
 

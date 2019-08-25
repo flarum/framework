@@ -18,7 +18,9 @@ export default class MailPage extends Page {
     this.values = {};
 
     const settings = app.data.settings;
-    this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
+      console.log('settings', settings);
+
+      this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
 
     app.request({
       method: 'GET',
@@ -29,12 +31,15 @@ export default class MailPage extends Page {
         {}
       );
 
-      Object.keys(this.driverFields).flatMap(key => this.driverFields[key]).forEach(
-        key => {
-          this.fields.push(key);
-          this.values[key] = m.prop(settings[key]);
+
+
+    for (let driverName in this.driverFields) {
+        for (let driverOptionKey in this.driverFields[driverName]) {
+            this.fields.push(driverOptionKey);
+            this.values[driverOptionKey] = m.prop(settings[driverOptionKey]);
         }
-      );
+    }
+
       this.loading = false;
       m.redraw();
     });
@@ -87,7 +92,7 @@ export default class MailPage extends Page {
               className: 'MailPage-MailSettings',
               children: [
                 <div className="MailPage-MailSettings-input">
-                  {this.driverFields[this.values.mail_driver()].flatMap(field => this.getMailSettingsElementForm(field))}
+                    {this.getMailSettingsElementForm(this.driverFields[this.values.mail_driver()])}
                 </div>
               ]
             })}
@@ -105,26 +110,36 @@ export default class MailPage extends Page {
     );
   }
 
-    getMailSettingsElementForm(field) {
+    getMailSettingsElementForm(obj) {
 
-    if (field === 'mail_mailgun_endpoint') {
+        let full_fields = [];
+        for (let element in obj) {
+            let fields = [];
 
-      let endpoints = {
-        'api.eu.mailgun.net': 'EU Endpoint',
-        'api.mailgun.net': 'US Endpoint',
-      };
 
-      return [
-          <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
-          <Select value={this.values[field]() || Object.keys(endpoints)[0]} options={endpoints} onchange={this.values[field]} />
-      ];
-    } else {
-        return [
-            <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
-            <input className="FormControl" value={this.values[field]() || ''} oninput={m.withAttr('value', this.values[field])} />
-        ];
-    }
+            if (obj[element].type && obj[element].type === 'select') {
 
+                let field = element;
+                let values = obj[element].values;
+
+                fields.push(<label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>);
+                fields.push(<Select value={this.values[field]() || values} options={values} onchange={this.values[field]} />);
+
+            } else {
+                let field = element;
+
+                fields.push(<label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>);
+                fields.push(<input className="FormControl" value={this.values[field]() || ''} onInput={m.withAttr('value', this.values[field])}/>);
+
+
+            }
+
+            full_fields.push(fields);
+
+        }
+
+
+        return full_fields;
   }
 
   changed() {

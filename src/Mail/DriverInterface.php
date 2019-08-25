@@ -27,7 +27,7 @@ interface DriverInterface
     /**
      * Provide a list of settings for this driver.
      */
-    public function availableSettings(): array;
+    public function availableSettings(): object;
 
     /**
      * Build a mail transport based on Flarum's current settings.
