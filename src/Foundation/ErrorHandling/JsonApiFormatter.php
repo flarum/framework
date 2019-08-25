@@ -16,7 +16,12 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobscure\JsonApi\Document;
 
-class JsonApiRenderer implements Formatter
+/**
+ * A formatter to render exceptions as valid {JSON:API} error object.
+ *
+ * See https://jsonapi.org/format/1.0/#errors.
+ */
+class JsonApiFormatter implements HttpFormatter
 {
     public function format(HandledError $error, Request $request): Response
     {

@@ -12,7 +12,11 @@
 namespace Flarum\Foundation\ErrorHandling;
 
 use Psr\Log\LoggerInterface;
+use Throwable;
 
+/**
+ * Log caught exceptions to a PSR-3 logger instance.
+ */
 class LogReporter implements Reporter
 {
     /**
@@ -25,8 +29,8 @@ class LogReporter implements Reporter
         $this->logger = $logger;
     }
 
-    public function report(HandledError $error)
+    public function report(Throwable $error)
     {
-        $this->logger->error($error->getError());
+        $this->logger->error($error);
     }
 }

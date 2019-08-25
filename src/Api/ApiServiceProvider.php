@@ -20,7 +20,7 @@ use Flarum\Event\ConfigureMiddleware;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
-use Flarum\Foundation\ErrorHandling\JsonApiRenderer;
+use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Http\Middleware as HttpMiddleware;
@@ -52,7 +52,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
             $pipe->pipe(new HttpMiddleware\HandleErrors(
                 $app->make(Registry::class),
-                $app->make(JsonApiRenderer::class),
+                $app->make(JsonApiFormatter::class),
                 $app->tagged(Reporter::class)
             ));
 
