@@ -116,8 +116,7 @@ export default class MailPage extends Page {
         for (let element in obj) {
             let fields = [];
 
-
-            if (obj[element].type && obj[element].type === 'select') {
+            if (obj[element] && obj[element].type && obj[element].type === 'select') {
 
                 let field = element;
                 let values = obj[element].values;

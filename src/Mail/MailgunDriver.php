@@ -23,8 +23,7 @@ class MailgunDriver implements DriverInterface
         return (object)[
             'mail_mailgun_secret' => [], // the secret key
             'mail_mailgun_domain' => [], // the API base URL
-            'mail_mailgun_endpoint' => [],
-            'mail_mailgun_endpoints' => [
+            'mail_mailgun_endpoint' => [ // region's endpoint
                 'type' => 'select',
                 'values' => [
                     'api.mailgun.net' => 'US Endpoint',
