@@ -19,7 +19,7 @@ class SendmailDriver implements DriverInterface
 {
     public function availableSettings(): object
     {
-        return (object)[];
+        return (object) [];
     }
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport

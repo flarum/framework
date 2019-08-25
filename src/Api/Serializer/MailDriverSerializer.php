@@ -40,9 +40,6 @@ class MailDriverSerializer extends AbstractSerializer
         return [
             'fields' => $driver->availableSettings(),
         ];
-
-
-
     }
 
     public function getId($model)

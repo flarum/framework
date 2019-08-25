@@ -20,7 +20,7 @@ class MailgunDriver implements DriverInterface
 {
     public function availableSettings(): object
     {
-        return (object)[
+        return (object) [
             'mail_mailgun_secret' => [], // the secret key
             'mail_mailgun_domain' => [], // the API base URL
             'mail_mailgun_endpoint' => [ // region's endpoint

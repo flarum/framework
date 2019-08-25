@@ -20,7 +20,7 @@ class SesDriver implements DriverInterface
 {
     public function availableSettings(): object
     {
-        return (object)[
+        return (object) [
             'mail_ses_key' => [],
             'mail_ses_secret' => [],
             'mail_ses_region' => [],
