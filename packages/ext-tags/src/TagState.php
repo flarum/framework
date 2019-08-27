@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * @property int $user_id
  * @property int $tag_id
- * @property \Carbon\Carbon|null $read_time
+ * @property \Carbon\Carbon|null $marked_as_read_at
  * @property bool $is_hidden
  * @property Tag $tag
  * @property User $user
