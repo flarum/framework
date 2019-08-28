@@ -233,6 +233,7 @@ export default class PermissionGrid extends Component {
       label: app.translator.trans('core.admin.permissions.edit_user_label'),
       permission: 'user.edit'
     }, 60);
+    
     return items;
   }
 
