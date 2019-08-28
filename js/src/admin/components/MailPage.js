@@ -18,9 +18,8 @@ export default class MailPage extends Page {
     this.values = {};
 
     const settings = app.data.settings;
-      console.log('settings', settings);
 
-      this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
+    this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
 
     app.request({
       method: 'GET',
