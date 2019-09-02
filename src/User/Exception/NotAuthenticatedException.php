@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\Exception;
+namespace Flarum\User\Exception;
 
 use Exception;
 use Flarum\Foundation\KnownError;
 
-class ForbiddenException extends Exception implements KnownError
+class NotAuthenticatedException extends Exception implements KnownError
 {
     public function getType(): string
     {
-        return 'forbidden';
+        return 'not_authenticated';
     }
 }

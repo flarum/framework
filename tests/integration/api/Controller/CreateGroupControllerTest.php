@@ -80,7 +80,7 @@ class CreateGroupControllerTest extends ApiControllerTestCase
     /**
      * @test
      */
-    public function unauthorized_user_cannot_create_group()
+    public function normal_user_cannot_create_group()
     {
         $this->actor = User::find(2);
 
