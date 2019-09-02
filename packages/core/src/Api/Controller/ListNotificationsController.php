@@ -15,12 +15,14 @@ use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\NotificationRepository;
-use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ListNotificationsController extends AbstractListController
 {
+    use AssertPermissionTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -67,9 +69,7 @@ class ListNotificationsController extends AbstractListController
     {
         $actor = $request->getAttribute('actor');
 
-        if ($actor->isGuest()) {
-            throw new PermissionDeniedException;
-        }
+        $this->assertRegistered($actor);
 
         $actor->markNotificationsAsRead()->save();
 
