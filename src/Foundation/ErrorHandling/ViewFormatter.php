@@ -18,7 +18,18 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
-class ViewRenderer implements Formatter
+/**
+ * A formatter for turning caught exceptions into "pretty" HTML error pages.
+ *
+ * For certain known error types, we display pages with dedicated information
+ * relevant to this class of error, e.g. a page with a search form for HTTP 404
+ * "Not Found" errors. We look for templates in the `views/error` directory.
+ *
+ * If no specific template exists, a generic "Something went wrong" page will be
+ * displayed, optionally enriched with a more specific error message if found in
+ * the translation files.
+ */
+class ViewFormatter implements HttpFormatter
 {
     /**
      * @var ViewFactory
@@ -45,7 +56,7 @@ class ViewRenderer implements Formatter
     public function format(HandledError $error, Request $request): Response
     {
         $view = $this->view->make($this->determineView($error))
-            ->with('error', $error->getError())
+            ->with('error', $error->getException())
             ->with('message', $this->getMessage($error));
 
         return new HtmlResponse($view->render(), $error->getStatusCode());

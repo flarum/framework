@@ -36,7 +36,6 @@
         "illuminate/filesystem": "5.7.*",
         "illuminate/hashing": "5.7.*",
         "illuminate/mail": "5.7.*",
-        "illuminate/notifications": "5.7.*",
         "illuminate/queue": "5.7.*",
         "illuminate/session": "5.7.*",
         "illuminate/support": "5.7.*",

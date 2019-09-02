@@ -11,7 +11,7 @@
 
 namespace Flarum\Http\Middleware;
 
-use Flarum\Foundation\ErrorHandling\Formatter;
+use Flarum\Foundation\ErrorHandling\HttpFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -19,6 +19,13 @@ use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
 use Throwable;
 
+/**
+ * Catch exceptions thrown in a PSR-15 middleware stack and handle them safely.
+ *
+ * All errors will be rendered using the provided formatter. In addition,
+ * unknown errors will be passed on to one or multiple
+ * {@see \Flarum\Foundation\ErrorHandling\Reporter} instances.
+ */
 class HandleErrors implements Middleware
 {
     /**
@@ -27,7 +34,7 @@ class HandleErrors implements Middleware
     protected $registry;
 
     /**
-     * @var Formatter
+     * @var HttpFormatter
      */
     protected $formatter;
 
@@ -36,7 +43,7 @@ class HandleErrors implements Middleware
      */
     protected $reporters;
 
-    public function __construct(Registry $registry, Formatter $formatter, array $reporters)
+    public function __construct(Registry $registry, HttpFormatter $formatter, array $reporters)
     {
         $this->registry = $registry;
         $this->formatter = $formatter;
@@ -55,7 +62,7 @@ class HandleErrors implements Middleware
 
             if ($error->shouldBeReported()) {
                 foreach ($this->reporters as $reporter) {
-                    $reporter->report($error);
+                    $reporter->report($error->getException());
                 }
             }
 
