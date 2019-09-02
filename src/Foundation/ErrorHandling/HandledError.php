@@ -13,6 +13,13 @@ namespace Flarum\Foundation\ErrorHandling;
 
 use Throwable;
 
+/**
+ * An error that was caught / interpreted by Flarum's error handling stack.
+ *
+ * Most importantly, such an error has a "type" (which is used to look up
+ * translated error messages and views to render pretty HTML pages) and an
+ * associated HTTP status code for used in rendering HTTP error responses.
+ */
 class HandledError
 {
     private $error;
@@ -40,7 +47,7 @@ class HandledError
         return $this;
     }
 
-    public function getError(): Throwable
+    public function getException(): Throwable
     {
         return $this->error;
     }
