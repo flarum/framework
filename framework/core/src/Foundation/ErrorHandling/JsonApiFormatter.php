@@ -26,12 +26,21 @@ class JsonApiFormatter implements HttpFormatter
     public function format(HandledError $error, Request $request): Response
     {
         $document = new Document;
-        $document->setErrors([
-            [
-                'status' => (string) $error->getStatusCode(),
-                'code' => $error->getType(),
-            ],
-        ]);
+
+        $data = [
+            'status' => (string) $error->getStatusCode(),
+            'code' => $error->getType(),
+        ];
+        $details = $error->getDetails();
+
+        if (empty($details)) {
+            $document->setErrors([$data]);
+        } else {
+            $document->setErrors(array_map(
+                function ($row) use ($data) { return array_merge($data, $row); },
+                $details
+            ));
+        }
 
         return new JsonApiResponse($document, $error->getStatusCode());
     }
