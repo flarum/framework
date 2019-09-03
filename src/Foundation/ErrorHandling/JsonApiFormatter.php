@@ -37,7 +37,9 @@ class JsonApiFormatter implements HttpFormatter
             $document->setErrors([$data]);
         } else {
             $document->setErrors(array_map(
-                function ($row) use ($data) { return array_merge($data, $row); },
+                function ($row) use ($data) {
+                    return array_merge($data, $row);
+                },
                 $details
             ));
         }
