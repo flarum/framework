@@ -58,6 +58,32 @@ class CreationTest extends TestCase
         );
 
         $this->assertEquals(422, $response->getStatusCode());
+
+        // The response body should contain details about the failed validation
+        $body = (string) $response->getBody();
+        $this->assertJson($body);
+        $this->assertEquals([
+            'errors' => [
+                [
+                    'status' => '422',
+                    'code' => 'validation_error',
+                    'detail' => 'validation.required',
+                    'source' => ['pointer' => '/data/attributes/username'],
+                ],
+                [
+                    'status' => '422',
+                    'code' => 'validation_error',
+                    'detail' => 'validation.required',
+                    'source' => ['pointer' => '/data/attributes/email'],
+                ],
+                [
+                    'status' => '422',
+                    'code' => 'validation_error',
+                    'detail' => 'validation.required',
+                    'source' => ['pointer' => '/data/attributes/password'],
+                ],
+            ],
+        ], json_decode($body, true));
     }
 
     /**
