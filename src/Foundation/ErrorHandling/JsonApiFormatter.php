@@ -27,23 +27,37 @@ class JsonApiFormatter implements HttpFormatter
     {
         $document = new Document;
 
+        if ($error->hasDetails()) {
+            $document->setErrors($this->withDetails($error));
+        } else {
+            $document->setErrors($this->simple($error));
+        }
+
+        return new JsonApiResponse($document, $error->getStatusCode());
+    }
+
+    private function simple(HandledError $error): array
+    {
+        return [
+            [
+                'status' => (string) $error->getStatusCode(),
+                'code' => $error->getType(),
+            ]
+        ];
+    }
+
+    private function withDetails(HandledError $error): array
+    {
         $data = [
             'status' => (string) $error->getStatusCode(),
             'code' => $error->getType(),
         ];
-        $details = $error->getDetails();
 
-        if (empty($details)) {
-            $document->setErrors([$data]);
-        } else {
-            $document->setErrors(array_map(
-                function ($row) use ($data) {
-                    return array_merge($data, $row);
-                },
-                $details
-            ));
-        }
-
-        return new JsonApiResponse($document, $error->getStatusCode());
+        return array_map(
+            function ($row) use ($data) {
+                return array_merge($data, $row);
+            },
+            $error->getDetails()
+        );
     }
 }
