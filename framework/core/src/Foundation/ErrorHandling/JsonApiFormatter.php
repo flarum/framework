@@ -23,6 +23,13 @@ use Tobscure\JsonApi\Document;
  */
 class JsonApiFormatter implements HttpFormatter
 {
+    private $includeTrace;
+
+    public function __construct($includeTrace = false)
+    {
+        $this->includeTrace = $includeTrace;
+    }
+
     public function format(HandledError $error, Request $request): Response
     {
         $document = new Document;
@@ -30,20 +37,24 @@ class JsonApiFormatter implements HttpFormatter
         if ($error->hasDetails()) {
             $document->setErrors($this->withDetails($error));
         } else {
-            $document->setErrors($this->simple($error));
+            $document->setErrors($this->default($error));
         }
 
         return new JsonApiResponse($document, $error->getStatusCode());
     }
 
-    private function simple(HandledError $error): array
+    private function default(HandledError $error): array
     {
-        return [
-            [
-                'status' => (string) $error->getStatusCode(),
-                'code' => $error->getType(),
-            ]
+        $default = [
+            'status' => (string) $error->getStatusCode(),
+            'code' => $error->getType(),
         ];
+
+        if ($this->includeTrace) {
+            $default['detail'] = (string) $error->getException();
+        }
+
+        return [$default];
     }
 
     private function withDetails(HandledError $error): array
