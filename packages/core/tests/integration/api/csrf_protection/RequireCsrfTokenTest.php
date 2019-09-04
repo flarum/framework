@@ -74,11 +74,11 @@ class RequireCsrfTokenTest extends TestCase
         // The response body should contain proper error details
         $body = (string) $response->getBody();
         $this->assertJson($body);
-        $this->assertEquals([
-            'errors' => [
-                ['status' => '400', 'code' => 'csrf_token_mismatch'],
-            ],
-        ], json_decode($body, true));
+
+        $json = json_decode($body, true);
+        $this->assertCount(1, $json['errors']);
+        $this->assertEquals('400', $json['errors'][0]['status']);
+        $this->assertEquals('csrf_token_mismatch', $json['errors'][0]['code']);
     }
 
     /**
