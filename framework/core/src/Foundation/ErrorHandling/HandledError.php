@@ -71,4 +71,9 @@ class HandledError
     {
         return $this->details;
     }
+
+    public function hasDetails(): bool
+    {
+        return ! empty($this->details);
+    }
 }
