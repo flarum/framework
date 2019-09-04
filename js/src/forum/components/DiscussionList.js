@@ -205,14 +205,4 @@ export default class DiscussionList extends Component {
       this.discussions.splice(index, 1);
     }
   }
-
-  /**
-   * Add a discussion to the top of the list.
-   *
-   * @param {Discussion} discussion
-   * @public
-   */
-  addDiscussion(discussion) {
-    this.discussions.unshift(discussion);
-  }
 }
