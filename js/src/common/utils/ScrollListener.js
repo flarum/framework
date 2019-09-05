@@ -1,4 +1,4 @@
-const scroll = window.requestAnimationFrame ||
+const later = window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.mozRequestAnimationFrame ||
   window.msRequestAnimationFrame ||
@@ -17,7 +17,7 @@ export default class ScrollListener {
    */
   constructor(callback) {
     this.callback = callback;
-    this.lastTop = -1;
+    this.ticking = false;
   }
 
   /**
@@ -27,27 +27,27 @@ export default class ScrollListener {
    * @protected
    */
   loop() {
-    if (!this.active) return;
+    // THROTTLE: If the callback is still running (or hasn't yet run), we ignore
+    // further scroll events.
+    if (this.ticking) return;
 
-    this.update();
+    // Schedule the callback to be executed soon (TM), and stop throttling once
+    // the callback is done.
+    later(() => {
+      this.update();
+      this.ticking = false;
+    });
 
-    scroll(this.loop.bind(this));
+    this.ticking = true;
   }
 
   /**
-   * Check if the scroll position has changed; if it has, run the handler.
+   * Run the callback, whether there was a scroll event or not.
    *
-   * @param {Boolean} [force=false] Whether or not to force the handler to be
-   *     run, even if the scroll position hasn't changed.
    * @public
    */
-  update(force) {
-    const top = window.pageYOffset;
-
-    if (this.lastTop !== top || force) {
-      this.callback(top);
-      this.lastTop = top;
-    }
+  update() {
+    this.callback(window.pageYOffset);
   }
 
   /**
@@ -57,8 +57,10 @@ export default class ScrollListener {
    */
   start() {
     if (!this.active) {
-      this.active = true;
-      this.loop();
+      window.addEventListener(
+        'scroll',
+        this.active = this.loop.bind(this)
+      );
     }
   }
 
@@ -68,6 +70,8 @@ export default class ScrollListener {
    * @public
    */
   stop() {
-    this.active = false;
+    window.removeEventListener('scroll', this.active);
+
+    this.active = null;
   }
 }
