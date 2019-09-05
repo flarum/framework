@@ -12,13 +12,30 @@
 namespace Flarum\Frontend\Content;
 
 use Flarum\Frontend\Document;
+use Flarum\Locale\LocaleManager;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Meta
 {
+    /**
+     * @var LocaleManager
+     */
+    private $locales;
+
+    /**
+     * @param LocaleManager $locales
+     */
+    public function __construct(LocaleManager $locales)
+    {
+        $this->locales = $locales;
+    }
+
     public function __invoke(Document $document, Request $request)
     {
+        $document->language = $this->locales->getLocale();
+        $document->direction = 'ltr';
+
         $document->meta = array_merge($document->meta, $this->buildMeta($document));
         $document->head = array_merge($document->head, $this->buildHead($document));
     }
