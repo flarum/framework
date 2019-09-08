@@ -60,6 +60,10 @@ export default class Dropdown extends Component {
       m.redraw();
 
       const $menu = this.$('.Dropdown-menu');
+
+      // return if menu is not found
+      if (!$menu.length) return;
+
       const isRight = $menu.hasClass('Dropdown-menu--right');
 
       $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
