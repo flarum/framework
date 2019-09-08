@@ -85,8 +85,8 @@ class Installation
     public function normaliseBaseUrl($baseUrl)
     {
         $normalisedBaseUrl = rtrim($baseUrl, '/');
-        if (!preg_match("#^https?://#i", $normalisedBaseUrl)) {
-            $normalisedBaseUrl = sprintf("http://%s", $normalisedBaseUrl);
+        if (! preg_match('#^https?://#i', $normalisedBaseUrl)) {
+            $normalisedBaseUrl = sprintf('http://%s', $normalisedBaseUrl);
         }
 
         $parseUrl = parse_url($normalisedBaseUrl);
@@ -97,7 +97,7 @@ class Installation
         }
 
         return rtrim(
-            sprintf("%s://%s%s", $parseUrl['scheme'], $parseUrl['host'], $path),
+            sprintf('%s://%s%s', $parseUrl['scheme'], $parseUrl['host'], $path),
             '/'
         );
     }
