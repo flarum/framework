@@ -11,6 +11,8 @@
 
 namespace Flarum\Install;
 
+use Psr\Http\Message\UriInterface;
+
 class Installation
 {
     private $basePath;
@@ -65,9 +67,21 @@ class Installation
         return $this;
     }
 
+    /**
+     * @param \Psr\Http\Message\UriInterface|string $baseUrl
+     * @return $this
+     */
     public function baseUrl($baseUrl)
     {
-        $this->baseUrl = $baseUrl;
+        if ($baseUrl instanceof UriInterface) {
+            $this->baseUrl = sprintf("%s://%s", $baseUrl->getScheme(), $baseUrl->getHost());
+        } else {
+            $this->baseUrl = rtrim($baseUrl, '/');
+
+            if (!preg_match("#^https?://#i", $this->baseUrl)) {
+                $this->baseUrl = sprintf("http://%s", $this->baseUrl);
+            }
+        }
 
         return $this;
     }
