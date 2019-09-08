@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Util\Str;
+use \Illuminate\Support\Str;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
