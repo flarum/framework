@@ -522,8 +522,12 @@ class Composer extends Component {
    * @param {Integer} height
    */
   changeHeight(height) {
+    this.$().css('transition', 'all 0s');
+
     this.height = height;
     this.updateHeight();
+
+    this.$().css('transition', '');
 
     localStorage.setItem('composerHeight', this.height);
   }
