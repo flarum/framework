@@ -12,10 +12,18 @@
  * @param {Function} callback The callback to run that will change page content.
  */
 export default function anchorScroll(element, callback) {
+  const $element = $(element);
+
+  // return if element doesn't exist
+  if (!$element.length) {
+    callback();
+    return;
+  }
+
   const $window = $(window);
-  const relativeScroll = $(element).offset().top - $window.scrollTop();
+  const relativeScroll = $element.offset().top - $window.scrollTop();
 
   callback();
 
-  $window.scrollTop($(element).offset().top - relativeScroll);
+  $window.scrollTop($element.offset().top - relativeScroll);
 }
