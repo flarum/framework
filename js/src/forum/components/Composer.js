@@ -77,8 +77,12 @@ class Composer extends Component {
 
     // Whenever any of the inputs inside the composer are have focus, we want to
     // add a class to the composer to draw attention to it.
-    this.$().on('focus blur', ':input', e => {
-      this.active = e.type === 'focusin';
+    this.$().on('focus', ':input', () => {
+      this.active = true;
+      m.redraw();
+    });
+    this.$().on('blur', ':input', () => {
+      this.active = false;
       m.redraw();
     });
 
