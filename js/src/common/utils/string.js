@@ -13,17 +13,24 @@ export function truncate(string, length, start = 0) {
 }
 
 /**
- * Create a slug out of the given string. Non-alphanumeric characters are
- * converted to hyphens.
+ * Create a slug out of the given string.
  *
  * @param {String} string
  * @return {String}
  */
 export function slug(string) {
-  return string.toLowerCase()
-    .replace(/[^a-z0-9]/gi, '-')
-    .replace(/-+/g, '-')
-    .replace(/-$|^-/g, '');
+    const originCharacters = 'àáäâãåăæąçćčđďèéěėëêęğǵḧìíïîįłḿǹńňñòóöôœøṕŕřßşśšșťțùúüûǘůűūųẃẍÿýźžż·/_,:;';
+    const replaceCharacters = 'aaaaaaaaacccddeeeeeeegghiiiiilmnnnnooooooprrsssssttuuuuuuuuuwxyyzzz------';
+    const pattern = new RegExp(originCharacters.split('').join('|'), 'g');
+
+    return string.toString().toLowerCase()
+        .replace(/\s+/g, '-') // Replace spaces with -.
+        .replace(pattern, characters => replaceCharacters.charAt(originCharacters.indexOf(characters)))
+        .replace(/&/g, '-and-') // Replace & with 'and'.
+        .replace(/[^\w\-]+/g, '') // Remove all non-word characters.
+        .replace(/\-\-+/g, '-') // Replace multiple - with single -.
+        .replace(/^-+/, '') // Trim - from start of text.
+        .replace(/-+$/, '') // Trim - from end of text.
 }
 
 /**
