@@ -71,7 +71,7 @@ class Installation
      */
     public function baseUrl(BaseUrl $baseUrl)
     {
-        $this->baseUrl = $baseUrl;
+        $this->baseUrl = (string) $baseUrl;
 
         return $this;
     }
