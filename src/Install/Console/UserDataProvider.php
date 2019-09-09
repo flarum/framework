@@ -12,6 +12,7 @@
 namespace Flarum\Install\Console;
 
 use Flarum\Install\AdminUser;
+use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 use Illuminate\Support\Str;
@@ -41,7 +42,7 @@ class UserDataProvider implements DataProviderInterface
     {
         return $installation
             ->debugMode(false)
-            ->baseUrl($this->getBaseUrl())
+            ->baseUrl(BaseUrl::fromString($this->getBaseUrl()))
             ->databaseConfig($this->getDatabaseConfiguration())
             ->adminUser($this->getAdminUser())
             ->settings($this->getSettings());
@@ -67,7 +68,7 @@ class UserDataProvider implements DataProviderInterface
         );
     }
 
-    private function getBaseUrl()
+    private function getBaseUrl(): string
     {
         return $this->baseUrl = $this->ask('Base URL:(Default: http://flarum.local)', 'http://flarum.local');
     }

@@ -13,6 +13,7 @@ namespace Flarum\Install\Console;
 
 use Exception;
 use Flarum\Install\AdminUser;
+use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,7 +59,7 @@ class FileDataProvider implements DataProviderInterface
     {
         return $installation
             ->debugMode($this->debug)
-            ->baseUrl($this->baseUrl)
+            ->baseUrl(BaseUrl::fromString($this->baseUrl))
             ->databaseConfig($this->getDatabaseConfiguration())
             ->adminUser($this->getAdminUser())
             ->settings($this->settings);

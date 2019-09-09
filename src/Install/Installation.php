@@ -68,38 +68,14 @@ class Installation
     }
 
     /**
-     * @param UriInterface|string $baseUrl
+     * @param \Flarum\Install\BaseUrl $baseUrl
      * @return $this
      */
-    public function baseUrl($baseUrl)
+    public function baseUrl(BaseUrl $baseUrl)
     {
-        $this->baseUrl = $this->normaliseBaseUrl($baseUrl);
+        $this->baseUrl = $baseUrl;
 
         return $this;
-    }
-
-    /**
-     * @param UriInterface|string $baseUrl
-     * @return string
-     */
-    public function normaliseBaseUrl($baseUrl)
-    {
-        $normalisedBaseUrl = rtrim($baseUrl, '/');
-        if (! preg_match('#^https?://#i', $normalisedBaseUrl)) {
-            $normalisedBaseUrl = sprintf('http://%s', $normalisedBaseUrl);
-        }
-
-        $parseUrl = parse_url($normalisedBaseUrl);
-
-        $path = $parseUrl['path'] ?? null;
-        if (isset($parseUrl['path']) && strrpos($parseUrl['path'], '.php') !== false) {
-            $path = substr($parseUrl['path'], 0, strrpos($parseUrl['path'], '/'));
-        }
-
-        return rtrim(
-            sprintf('%s://%s%s', $parseUrl['scheme'], $parseUrl['host'], $path),
-            '/'
-        );
     }
 
     public function settings($settings)

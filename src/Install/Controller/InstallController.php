@@ -13,6 +13,7 @@ namespace Flarum\Install\Controller;
 
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Install\AdminUser;
+use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 use Flarum\Install\StepFailed;
@@ -58,7 +59,7 @@ class InstallController implements RequestHandlerInterface
 
         try {
             $pipeline = $this->installation
-                ->baseUrl($baseUrl)
+                ->baseUrl(BaseUrl::fromUri($baseUrl))
                 ->databaseConfig($this->makeDatabaseConfig($input))
                 ->adminUser($this->makeAdminUser($input))
                 ->settings([
