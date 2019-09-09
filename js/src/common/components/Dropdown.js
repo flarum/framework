@@ -61,7 +61,8 @@ export default class Dropdown extends Component {
 
       const $menu = this.$('.Dropdown-menu');
 
-      // return if menu is not found
+      // Return early to avoid errors if the menu element doesn't exist.
+      // $.fn.offset() returns null if the element doesn't exist.
       if (!$menu.length) return;
 
       const isRight = $menu.hasClass('Dropdown-menu--right');

@@ -14,7 +14,8 @@
 export default function anchorScroll(element, callback) {
   const $element = $(element);
 
-  // return if element doesn't exist
+  // $element.offset() is null if element doesn't exist,
+  // so we call the callback now and return instead of scrolling.
   if (!$element.length) {
     callback();
     return;
