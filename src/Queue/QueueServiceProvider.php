@@ -27,9 +27,9 @@ class QueueServiceProvider extends AbstractServiceProvider
     protected $commands = [
         Commands\FlushFailedCommand::class,
         Commands\ForgetFailedCommand::class,
-        Commands\ListenCommand::class,
+//        Commands\ListenCommand::class,
         Commands\ListFailedCommand::class,
-        Commands\RestartCommand::class,
+//        Commands\RestartCommand::class,
         Commands\RetryCommand::class,
         Commands\WorkCommand::class,
     ];
