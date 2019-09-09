@@ -122,7 +122,7 @@ export default class TextEditor extends Component {
   setSelectionRange(start, end) {
     const $textarea = this.$('textarea');
 
-    if (!$textarea[0]) return;
+    if (!$textarea.length) return;
 
     $textarea[0].setSelectionRange(start, end);
     $textarea.focus();
@@ -136,7 +136,7 @@ export default class TextEditor extends Component {
   getSelectionRange() {
     const $textarea = this.$('textarea');
 
-    if (!$textarea[0]) return [0, 0];
+    if (!$textarea.length) return [0, 0];
 
     return [$textarea[0].selectionStart, $textarea[0].selectionEnd];
   }
