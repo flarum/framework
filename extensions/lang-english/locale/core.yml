@@ -322,6 +322,7 @@ core:
       discussion_renamed_text: "{username} changed the title"
       empty_text: No Notifications
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
+      mark_as_read_tooltip: Mark as Read
       title: => core.ref.notifications
       tooltip: => core.ref.notifications
 
