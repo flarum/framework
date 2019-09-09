@@ -11,8 +11,6 @@
 
 namespace Flarum\Install;
 
-use Psr\Http\Message\UriInterface;
-
 class Installation
 {
     private $basePath;

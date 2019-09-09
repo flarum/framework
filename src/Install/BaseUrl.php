@@ -30,18 +30,18 @@ final class BaseUrl
      * @param string $baseUrl
      * @return \Flarum\Install\BaseUrl
      */
-    public static function fromString(string $baseUrl): BaseUrl
+    public static function fromString(string $baseUrl): self
     {
-        return new BaseUrl($baseUrl);
+        return new self($baseUrl);
     }
 
     /**
      * @param \Psr\Http\Message\UriInterface $baseUrl
      * @return \Flarum\Install\BaseUrl
      */
-    public static function fromUri(UriInterface $baseUrl): BaseUrl
+    public static function fromUri(UriInterface $baseUrl): self
     {
-        return BaseUrl::fromString((string) $baseUrl);
+        return self::fromString((string) $baseUrl);
     }
 
     /**
