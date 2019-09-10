@@ -1,3 +1,12 @@
+/*!
+ * Includes modified code from GitHub Markdown Toolbar Element
+ * https://github.com/github/markdown-toolbar-element/
+ *
+ * Original Copyright GitHub, Inc.
+ * Released under the MIT license
+ * https://github.com/github/markdown-toolbar-element/blob/master/LICENSE
+ */
+
 import { extend } from 'flarum/extend';
 import TextEditor from 'flarum/components/TextEditor';
 import MarkdownArea from 'mdarea';

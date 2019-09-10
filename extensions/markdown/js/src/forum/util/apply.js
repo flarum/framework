@@ -1,4 +1,4 @@
-/*!
+/*
  * Original Copyright GitHub, Inc. Licensed under the MIT License.
  * See license text at https://github.com/github/markdown-toolbar-element/blob/master/LICENSE.
  */
