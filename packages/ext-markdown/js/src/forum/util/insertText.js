@@ -1,3 +1,8 @@
+/*
+ * Original Copyright GitHub, Inc. Licensed under the MIT License.
+ * See license text at https://github.com/github/markdown-toolbar-element/blob/master/LICENSE.
+ */
+
 export let canInsertText = null;
 
 export default (textarea, { text, selectionStart, selectionEnd }) => {
