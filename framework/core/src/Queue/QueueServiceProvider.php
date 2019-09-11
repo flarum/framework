@@ -18,8 +18,8 @@ use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Console as Commands;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
-use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Listener as QueueListener;
+use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
 
 class QueueServiceProvider extends AbstractServiceProvider
