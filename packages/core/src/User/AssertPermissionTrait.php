@@ -60,13 +60,18 @@ trait AssertPermissionTrait
      */
     protected function assertCan(User $actor, $ability, $arguments = [])
     {
+        // Identify whether guest or user has the permission.
+        $can = $actor->can($ability, $arguments);
+
         // For non-authenticated users, we throw a different exception to signal
         // that logging in may help.
-        $this->assertRegistered($actor);
+        if (! $can) {
+            $this->assertRegistered($actor);
+        }
 
         // If we're logged in, then we need to communicate that the current
         // account simply does not have enough permissions.
-        $this->assertPermission($actor->can($ability, $arguments));
+        $this->assertPermission($can);
     }
 
     /**
