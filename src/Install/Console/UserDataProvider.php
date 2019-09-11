@@ -14,6 +14,7 @@ namespace Flarum\Install\Console;
 use Flarum\Install\AdminUser;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -51,7 +52,7 @@ class UserDataProvider implements DataProviderInterface
         $host = $this->ask('Database host:');
         $port = 3306;
 
-        if (str_contains($host, ':')) {
+        if (Str::contains($host, ':')) {
             list($host, $port) = explode(':', $host, 2);
         }
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.1.0-beta.9](https://github.com/flarum/core/compare/v0.1.0-beta.8.2...v0.1.0-beta.9)
 
 ### Added
 - New `hasPermission()` helper method for `Group` objects ([9684fbc](https://github.com/flarum/core/commit/9684fbc4da07d32aa322d9228302a23418412cb9))
@@ -11,6 +11,7 @@
 - Check and enforce minimum MariaDB ([7ff9a90](https://github.com/flarum/core/commit/7ff9a90204923293adc520d3c02dc984845d4f9f))
 - Revert publication of assets when installation fails ([ed9591c](https://github.com/flarum/core/commit/ed9591c16fb2ea7a4be3387b805d855a53e0a7d5))
 - Benefit from Laravel's database reconnection logic in long-running tasks ([e0becd0](https://github.com/flarum/core/commit/e0becd0c7bda939048923c1f86648793feee78d5))
+- The "vendor path" (where Composer dependencies can be found) can now be configured ([5e1680c](https://github.com/flarum/core/commit/5e1680c458cd3ba274faeb92de3ac2053789131e))
 
 ### Changed
 - Performance: Actually cache translations on disk ([0d16fac](https://github.com/flarum/core/commit/0d16fac001bb735ee66e82871183516aeac269b7))
@@ -32,9 +33,19 @@
 - Admins could not reset user passwords ([c67fb2d](https://github.com/flarum/core/commit/c67fb2d4b6a128c71d65dc6703310c0b62f91be2))
 - Several down migrations were invalid
 - Validation errors on reset password page resulted in HTTP 404 ([4611abe](https://github.com/flarum/core/commit/4611abe5db8b94ca3dc7bf9c447fca7c67358ee3))
+- `is:unread` gambit generated an invalid query ([e17bb0b](https://github.com/flarum/core/commit/e17bb0b4331f2c92459292195c6b7db8cde1f9f3))
+- Entire forum was breaking when the `custom_less` setting was missing from the database ([bf2c5a5](https://github.com/flarum/core/commit/bf2c5a5564dff3f5ef13efe7a8d69f2617570ce6))
+- Dropdown icon was not showing in user card when on user page ([12fdfc9](https://github.com/flarum/core/commit/12fdfc9b544a27f6fe59c82ad6bddd3420cc0181))
+- Requests were missing the `original*` attributes, which broke installations in subfolders ([56fde28](https://github.com/flarum/core/commit/56fde28e436f52fee0c03c538f0a6049bc584b53))
+- Special characters such as `%` and `_` could return incorrect results ([ee3640e](https://github.com/flarum/core/commit/ee3640e1605ff67fef4b3d5cd0596f14a6ae73c9))
+- FontAwesome component package changed paths in version 5.9.0 ([5eb69e1](https://github.com/flarum/core/commit/5eb69e1f59fa73fdfd5badbf41a05a6a040e7426))
+- Some server environments had problems accessing the system-wide tmp path for storing JS file maps ([54660eb](https://github.com/flarum/core/commit/54660ebd6311f9ea142f1b573263d0d907400786))
+- Content length of posts.content was not migrated to mediumText in 2017 ([590b311](https://github.com/flarum/core/commit/590b3115708bf94a9c7f169d98c6126380c7056e))
+- An error occurred when going to the previous route if there was no previous route found ([985b87da](https://github.com/flarum/core/commit/985b87da6c9942c568a1a192e2fdcfde72e030ee))
 
 ### Removed
 - `php flarum install --defaults` - this was meant to be used in our old development VM ([44c9109](https://github.com/flarum/core/commit/44c91099cd77138bb5fc29f14fb1e81a9781272d))
+- Obsolete `id` attributes in JSON-API responses ([ecc3b5e](https://github.com/flarum/core/commit/ecc3b5e2271f8d9b38d52cd54476d86995dbe32e) and [7a44086](https://github.com/flarum/core/commit/7a44086bf3a0e3ba907dceb13d07ac695eca05ea))
 
 ## [0.1.0-beta.8.1](https://github.com/flarum/core/compare/v0.1.0-beta.8...v0.1.0-beta.8.1)
 

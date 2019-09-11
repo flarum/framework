@@ -1,0 +1,65 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [7.1, 7.2, 7.3]
+        service: ['mysql:5.7', mariadb]
+        prefix: ['', flarum_]
+
+        include:
+          - service: 'mysql:5.7'
+            db: MySQL
+          - service: mariadb
+            db: MariaDB
+          - prefix: flarum_
+            prefixStr: (prefix)
+
+        exclude:
+          - php: 7.1
+            service: 'mysql:5.7'
+            prefix: flarum_
+          - php: 7.1
+            service: mariadb
+            prefix: flarum_
+          - php: 7.2
+            service: 'mysql:5.7'
+            prefix: flarum_
+          - php: 7.2
+            service: mariadb
+            prefix: flarum_
+
+    services:
+      mysql:
+        image: ${{ matrix.service }}
+        ports:
+          - 13306:3306
+
+    name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Select PHP version
+        run: sudo update-alternatives --set php $(which php${{ matrix.php }})
+
+      - name: Create MySQL Database
+        run: mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+
+      - name: Install Composer dependencies
+        run: composer install
+
+      - name: Setup Composer tests
+        run: composer test:setup
+        env:
+          DB_PORT: 13306
+          DB_PASSWORD: root
+          DB_PREFIX: ${{ matrix.prefix }}
+
+      - name: Run Composer tests
+        run: composer test

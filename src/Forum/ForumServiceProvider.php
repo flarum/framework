@@ -18,6 +18,10 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\ErrorHandling\Registry;
+use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\ErrorHandling\ViewFormatter;
+use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
@@ -53,21 +57,26 @@ class ForumServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
+        $this->app->afterResolving('flarum.forum.routes', function (RouteCollection $routes) {
+            $this->setDefaultRoute($routes);
+        });
+
         $this->app->singleton('flarum.forum.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
             // All requests should first be piped through our global error handler
-            if ($app->inDebugMode()) {
-                $pipe->pipe($app->make(HttpMiddleware\HandleErrorsWithWhoops::class));
-            } else {
-                $pipe->pipe($app->make(HttpMiddleware\HandleErrorsWithView::class));
-            }
+            $pipe->pipe(new HttpMiddleware\HandleErrors(
+                $app->make(Registry::class),
+                $app->inDebugMode() ? $app->make(WhoopsFormatter::class) : $app->make(ViewFormatter::class),
+                $app->tagged(Reporter::class)
+            ));
 
             $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
             $pipe->pipe($app->make(HttpMiddleware\CollectGarbage::class));
             $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
             $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
+            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
             $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
             $pipe->pipe($app->make(HttpMiddleware\ShareErrorsFromSession::class));
 
@@ -94,7 +103,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $assets->css(function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../less/forum.less');
                 $sources->addString(function () {
-                    return $this->app->make(SettingsRepositoryInterface::class)->get('custom_less');
+                    return $this->app->make(SettingsRepositoryInterface::class)->get('custom_less', '');
                 });
             });
 
@@ -180,7 +189,16 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->app->make('events')->fire(
             new ConfigureForumRoutes($routes, $factory)
         );
+    }
 
+    /**
+     * Determine the default route.
+     *
+     * @param RouteCollection $routes
+     */
+    protected function setDefaultRoute(RouteCollection $routes)
+    {
+        $factory = $this->app->make(RouteHandlerFactory::class);
         $defaultRoute = $this->app->make('flarum.settings')->get('default_route');
 
         if (isset($routes->getRouteData()[0]['GET'][$defaultRoute])) {

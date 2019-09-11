@@ -12,8 +12,9 @@
 namespace Flarum\Extension;
 
 use Flarum\Extension\Event\Disabling;
-use Flarum\Http\Exception\ForbiddenException;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Exception\PermissionDeniedException;
+use Illuminate\Support\Arr;
 
 class DefaultLanguagePackGuard
 {
@@ -34,10 +35,10 @@ class DefaultLanguagePackGuard
         }
 
         $defaultLocale = $this->settings->get('default_locale');
-        $locale = array_get($event->extension->extra, 'flarum-locale.code');
+        $locale = Arr::get($event->extension->extra, 'flarum-locale.code');
 
         if ($locale === $defaultLocale) {
-            throw new ForbiddenException('You cannot disable the default language pack!');
+            throw new PermissionDeniedException('You cannot disable the default language pack!');
         }
     }
 }

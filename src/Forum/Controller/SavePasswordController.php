@@ -18,6 +18,7 @@ use Flarum\User\PasswordToken;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Support\Arr;
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
@@ -72,9 +73,9 @@ class SavePasswordController implements RequestHandlerInterface
     {
         $input = $request->getParsedBody();
 
-        $token = PasswordToken::findOrFail(array_get($input, 'passwordToken'));
+        $token = PasswordToken::findOrFail(Arr::get($input, 'passwordToken'));
 
-        $password = array_get($input, 'password');
+        $password = Arr::get($input, 'password');
 
         try {
             // todo: probably shouldn't use the user validator for this,

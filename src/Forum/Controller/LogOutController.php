@@ -20,6 +20,7 @@ use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Event\LoggedOut;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -94,7 +95,7 @@ class LogOutController implements RequestHandlerInterface
         $session = $request->getAttribute('session');
         $actor = $request->getAttribute('actor');
 
-        $url = array_get($request->getQueryParams(), 'return', $this->app->url());
+        $url = Arr::get($request->getQueryParams(), 'return', $this->app->url());
 
         // If there is no user logged in, return to the index.
         if ($actor->isGuest()) {
@@ -105,8 +106,8 @@ class LogOutController implements RequestHandlerInterface
         // allow the user to press a button to complete the log out process.
         $csrfToken = $session->token();
 
-        if (array_get($request->getQueryParams(), 'token') !== $csrfToken) {
-            $return = array_get($request->getQueryParams(), 'return');
+        if (Arr::get($request->getQueryParams(), 'token') !== $csrfToken) {
+            $return = Arr::get($request->getQueryParams(), 'return');
 
             $view = $this->view->make('flarum.forum::log-out')
                 ->with('url', $this->url->to('forum')->route('logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));

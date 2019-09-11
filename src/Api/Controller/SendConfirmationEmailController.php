@@ -18,6 +18,7 @@ use Flarum\User\EmailToken;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -67,7 +68,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $id = array_get($request->getQueryParams(), 'id');
+        $id = Arr::get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
 
         $this->assertRegistered($actor);

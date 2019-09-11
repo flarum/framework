@@ -11,6 +11,7 @@
 
 namespace Flarum\Http\Middleware;
 
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -20,7 +21,7 @@ class ParseJsonBody implements Middleware
 {
     public function process(Request $request, Handler $handler): Response
     {
-        if (str_contains($request->getHeaderLine('content-type'), 'json')) {
+        if (Str::contains($request->getHeaderLine('content-type'), 'json')) {
             $input = json_decode($request->getBody(), true);
 
             $request = $request->withParsedBody($input ?: []);

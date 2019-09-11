@@ -13,6 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Group\Permission;
 use Flarum\User\AssertPermissionTrait;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -30,8 +31,8 @@ class SetPermissionController implements RequestHandlerInterface
         $this->assertAdmin($request->getAttribute('actor'));
 
         $body = $request->getParsedBody();
-        $permission = array_get($body, 'permission');
-        $groupIds = array_get($body, 'groupIds');
+        $permission = Arr::get($body, 'permission');
+        $groupIds = Arr::get($body, 'groupIds');
 
         Permission::where('permission', $permission)->delete();
 

@@ -14,6 +14,7 @@ namespace Flarum\Frontend\Compiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Compiler\Source\SourceInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Arr;
 
 class RevisionCompiler implements CompilerInterface
 {
@@ -202,7 +203,7 @@ class RevisionCompiler implements CompilerInterface
         if ($this->assetsDir->has(static::REV_MANIFEST)) {
             $manifest = json_decode($this->assetsDir->read(static::REV_MANIFEST), true);
 
-            return array_get($manifest, $this->filename);
+            return Arr::get($manifest, $this->filename);
         }
 
         return null;

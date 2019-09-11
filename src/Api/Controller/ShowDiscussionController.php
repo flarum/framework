@@ -16,6 +16,8 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -73,7 +75,7 @@ class ShowDiscussionController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $discussionId = array_get($request->getQueryParams(), 'id');
+        $discussionId = Arr::get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
         $include = $this->extractInclude($request);
 
@@ -86,7 +88,7 @@ class ShowDiscussionController extends AbstractShowController
         }
 
         $discussion->load(array_filter($include, function ($relationship) {
-            return ! starts_with($relationship, 'posts');
+            return ! Str::startsWith($relationship, 'posts');
         }));
 
         return $discussion;
@@ -150,7 +152,7 @@ class ShowDiscussionController extends AbstractShowController
         $queryParams = $request->getQueryParams();
         $actor = $request->getAttribute('actor');
 
-        if (($near = array_get($queryParams, 'page.near')) > 1) {
+        if (($near = Arr::get($queryParams, 'page.near')) > 1) {
             $offset = $this->posts->getIndexForNumber($discussion->id, $near, $actor);
             $offset = max(0, $offset - $limit / 2);
         } else {

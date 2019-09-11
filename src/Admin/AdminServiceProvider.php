@@ -16,6 +16,10 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\ErrorHandling\Registry;
+use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\ErrorHandling\ViewFormatter;
+use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
@@ -51,16 +55,17 @@ class AdminServiceProvider extends AbstractServiceProvider
             $pipe = new MiddlewarePipe;
 
             // All requests should first be piped through our global error handler
-            if ($app->inDebugMode()) {
-                $pipe->pipe($app->make(HttpMiddleware\HandleErrorsWithWhoops::class));
-            } else {
-                $pipe->pipe($app->make(HttpMiddleware\HandleErrorsWithView::class));
-            }
+            $pipe->pipe(new HttpMiddleware\HandleErrors(
+                $app->make(Registry::class),
+                $app->inDebugMode() ? $app->make(WhoopsFormatter::class) : $app->make(ViewFormatter::class),
+                $app->tagged(Reporter::class)
+            ));
 
             $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
             $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
             $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
+            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
             $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
             $pipe->pipe($app->make(Middleware\RequireAdministrateAbility::class));
 

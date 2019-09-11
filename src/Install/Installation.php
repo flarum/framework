@@ -16,6 +16,7 @@ class Installation
     private $basePath;
     private $publicPath;
     private $storagePath;
+    private $vendorPath;
 
     private $configPath;
     private $debug = false;
@@ -35,11 +36,12 @@ class Installation
     /** @var \Illuminate\Database\ConnectionInterface */
     private $db;
 
-    public function __construct($basePath, $publicPath, $storagePath)
+    public function __construct($basePath, $publicPath, $storagePath, $vendorPath)
     {
         $this->basePath = $basePath;
         $this->publicPath = $publicPath;
         $this->storagePath = $storagePath;
+        $this->vendorPath = $vendorPath;
     }
 
     public function configPath($path)
@@ -137,11 +139,11 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\PublishAssets($this->basePath, $this->getAssetPath());
+            return new Steps\PublishAssets($this->vendorPath, $this->getAssetPath());
         });
 
         $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->db, $this->basePath, $this->getAssetPath());
+            return new Steps\EnableBundledExtensions($this->db, $this->vendorPath, $this->getAssetPath());
         });
 
         return $pipeline;

@@ -1,6 +1,6 @@
 <h2>Update Flarum</h2>
 
-<p>Enter your database password to update Flarum. Before you proceed, you should <strong>back up your database</strong>. If you have any trouble, get help on the <a href="http://flarum.org/docs/updating" target="_blank">Flarum website</a>.</p>
+<p>Enter your database password to update Flarum. Before you proceed, you should <strong>back up your database</strong>. If you have any trouble, get help on the <a href="http://flarum.org/docs/update.html" target="_blank">Flarum website</a>.</p>
 
 <form method="post">
   <div id="error" style="display:none"></div>

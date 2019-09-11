@@ -1,3 +1,4 @@
+import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import EditUserModal from '../components/EditUserModal';
@@ -95,15 +96,33 @@ export default {
    * Delete the user.
    */
   deleteAction() {
-    if (confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
-      this.delete().then(() => {
-        if (app.current instanceof UserPage && app.current.user === this) {
-          app.history.back();
-        } else {
-          window.location.reload();
-        }
-      });
+    if (!confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
+      return;
     }
+
+    this.delete().then(() => {
+      this.showDeletionAlert('success');
+      if (app.current instanceof UserPage && app.current.user === this) {
+        app.history.back();
+      } else {
+        window.location.reload();
+      }
+    }).catch(() => this.showDeletionAlert('error'));
+  },
+
+  showDeletionAlert(type) {
+    const { username, email } = this.data.attributes;
+    const message = {
+      success: 'core.forum.user_controls.delete_success_message',
+      error: 'core.forum.user_controls.delete_error_message',
+    }[type];
+
+    app.alerts.show(new Alert({
+      type,
+      children: app.translator.trans(
+        message, { username, email }
+      )
+    }));
   },
 
   /**

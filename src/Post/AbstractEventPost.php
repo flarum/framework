@@ -11,13 +11,16 @@
 
 namespace Flarum\Post;
 
+/**
+ * @property array $content
+ */
 abstract class AbstractEventPost extends Post
 {
     /**
      * Unserialize the content attribute from the database's JSON value.
      *
      * @param string $value
-     * @return string
+     * @return array
      */
     public function getContentAttribute($value)
     {

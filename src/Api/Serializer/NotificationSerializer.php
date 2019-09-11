@@ -44,7 +44,6 @@ class NotificationSerializer extends AbstractSerializer
         }
 
         return [
-            'id'          => (int) $notification->id,
             'contentType' => $notification->type,
             'content'     => $notification->data,
             'createdAt'   => $this->formatDate($notification->created_at),

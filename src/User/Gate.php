@@ -13,6 +13,7 @@ namespace Flarum\User;
 
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
@@ -98,7 +99,7 @@ class Gate implements GateContract
     {
         if (is_callable($callback)) {
             $this->abilities[$ability] = $callback;
-        } elseif (is_string($callback) && str_contains($callback, '@')) {
+        } elseif (is_string($callback) && Str::contains($callback, '@')) {
             $this->abilities[$ability] = $this->buildAbilityCallback($callback);
         } else {
             throw new InvalidArgumentException("Callback must be a callable or a 'Class@method' string.");

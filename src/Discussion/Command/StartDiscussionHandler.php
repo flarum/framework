@@ -20,6 +20,7 @@ use Flarum\Post\Command\PostReply;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
+use Illuminate\Support\Arr;
 
 class StartDiscussionHandler
 {
@@ -66,7 +67,7 @@ class StartDiscussionHandler
         // an opportunity to alter the discussion entity based on data in the
         // command they may have passed through in the controller.
         $discussion = Discussion::start(
-            array_get($data, 'attributes.title'),
+            Arr::get($data, 'attributes.title'),
             $actor
         );
 

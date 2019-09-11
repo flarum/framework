@@ -2,7 +2,6 @@ import Component from '../../common/Component';
 import icon from '../../common/helpers/icon';
 import ScrollListener from '../../common/utils/ScrollListener';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
-import computed from '../../common/utils/computed';
 import formatNumber from '../../common/utils/formatNumber';
 
 /**
@@ -365,7 +364,7 @@ export default class PostStreamScrubber extends Component {
   }
 
   onresize() {
-    this.scrollListener.update(true);
+    this.scrollListener.update();
 
     // Adjust the height of the scrollbar so that it fills the height of
     // the sidebar and doesn't overlap the footer.

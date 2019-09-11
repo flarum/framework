@@ -18,6 +18,7 @@ use Flarum\Post\PostRepository;
 use Flarum\Post\PostValidator;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class EditPostHandler
 {
@@ -59,7 +60,7 @@ class EditPostHandler
         $post = $this->posts->findOrFail($command->postId, $actor);
 
         if ($post instanceof CommentPost) {
-            $attributes = array_get($data, 'attributes', []);
+            $attributes = Arr::get($data, 'attributes', []);
 
             if (isset($attributes['content'])) {
                 $this->assertCan($actor, 'edit', $post);

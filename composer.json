@@ -22,7 +22,7 @@
     "require": {
         "php": ">=7.1",
         "axy/sourcemap": "^0.1.4",
-        "components/font-awesome": "^5.4.2",
+        "components/font-awesome": "5.9.*",
         "dflydev/fig-cookies": "^1.0.2",
         "doctrine/dbal": "^2.7",
         "franzl/whoops-middleware": "^0.4.0",
@@ -36,6 +36,7 @@
         "illuminate/filesystem": "5.7.*",
         "illuminate/hashing": "5.7.*",
         "illuminate/mail": "5.7.*",
+        "illuminate/queue": "5.7.*",
         "illuminate/session": "5.7.*",
         "illuminate/support": "5.7.*",
         "illuminate/validation": "5.7.*",
@@ -63,8 +64,8 @@
         "zendframework/zend-stratigility": "^3.0"
     },
     "require-dev": {
-        "mockery/mockery": "^0.9.4",
-        "phpunit/phpunit": "^6.0"
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^7.0"
     },
     "autoload": {
         "psr-4": {
@@ -86,5 +87,20 @@
         "branch-alias": {
             "dev-master": "0.1.x-dev"
         }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     }
 }

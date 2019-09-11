@@ -56,7 +56,24 @@ class Server
         try {
             return $this->site->bootApp();
         } catch (Throwable $e) {
-            exit('Error booting Flarum: '.$e->getMessage());
+            exit($this->formatBootException($e));
         }
+    }
+
+    /**
+     * Display the most relevant information about an early exception.
+     */
+    private function formatBootException(Throwable $error): string
+    {
+        $message = $error->getMessage();
+        $file = $error->getFile();
+        $line = $error->getLine();
+        $type = get_class($error);
+
+        return <<<ERROR
+            Flarum encountered a boot error ($type)<br />
+            <b>$message</b><br />
+            thrown in <b>$file</b> on line <b>$line</b>
+ERROR;
     }
 }

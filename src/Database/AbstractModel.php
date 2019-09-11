@@ -55,13 +55,13 @@ abstract class AbstractModel extends Eloquent
     {
         parent::boot();
 
-        static::saved(function (AbstractModel $model) {
+        static::saved(function (self $model) {
             foreach ($model->releaseAfterSaveCallbacks() as $callback) {
                 $callback($model);
             }
         });
 
-        static::deleted(function (AbstractModel $model) {
+        static::deleted(function (self $model) {
             foreach ($model->releaseAfterDeleteCallbacks() as $callback) {
                 $callback($model);
             }

@@ -13,6 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Post\Command\DeletePost;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 
 class DeletePostController extends AbstractDeleteController
@@ -36,7 +37,7 @@ class DeletePostController extends AbstractDeleteController
     protected function delete(ServerRequestInterface $request)
     {
         $this->bus->dispatch(
-            new DeletePost(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
+            new DeletePost(Arr::get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
         );
     }
 }

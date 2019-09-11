@@ -16,6 +16,7 @@ use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Discussion\Command\StartDiscussion;
 use Flarum\Post\Floodgate;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -63,14 +64,14 @@ class CreateDiscussionController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
-        $ipAddress = array_get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
+        $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 
         if (! $request->getAttribute('bypassFloodgate')) {
             $this->floodgate->assertNotFlooding($actor);
         }
 
         $discussion = $this->bus->dispatch(
-            new StartDiscussion($actor, array_get($request->getParsedBody(), 'data', []), $ipAddress)
+            new StartDiscussion($actor, Arr::get($request->getParsedBody(), 'data', []), $ipAddress)
         );
 
         // After creating the discussion, we assume that the user has seen all

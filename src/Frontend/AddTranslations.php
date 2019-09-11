@@ -13,6 +13,7 @@ namespace Flarum\Frontend;
 
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Locale\LocaleManager;
+use Illuminate\Support\Arr;
 
 class AddTranslations
 {
@@ -56,7 +57,7 @@ class AddTranslations
     {
         $translations = $this->locales->getTranslator()->getCatalogue($locale)->all('messages');
 
-        return array_only(
+        return Arr::only(
             $translations,
             array_filter(array_keys($translations), $this->filter)
         );

@@ -32,17 +32,17 @@ class EnableBundledExtensions implements Step
     /**
      * @var string
      */
-    private $basePath;
+    private $vendorPath;
 
     /**
      * @var string
      */
     private $assetPath;
 
-    public function __construct(ConnectionInterface $database, $basePath, $assetPath)
+    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath)
     {
         $this->database = $database;
-        $this->basePath = $basePath;
+        $this->vendorPath = $vendorPath;
         $this->assetPath = $assetPath;
     }
 
@@ -90,7 +90,7 @@ class EnableBundledExtensions implements Step
      */
     private function loadExtensions()
     {
-        $json = file_get_contents("$this->basePath/vendor/composer/installed.json");
+        $json = file_get_contents("$this->vendorPath/composer/installed.json");
 
         return (new Collection(json_decode($json, true)))
             ->filter(function ($package) {
@@ -98,7 +98,7 @@ class EnableBundledExtensions implements Step
             })->filter(function ($package) {
                 return ! empty(Arr::get($package, 'name'));
             })->map(function ($package) {
-                $extension = new Extension($this->basePath.'/vendor/'.Arr::get($package, 'name'), $package);
+                $extension = new Extension($this->vendorPath.'/'.Arr::get($package, 'name'), $package);
                 $extension->setVersion(Arr::get($package, 'version'));
 
                 return $extension;

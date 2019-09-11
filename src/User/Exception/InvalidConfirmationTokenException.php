@@ -12,7 +12,12 @@
 namespace Flarum\User\Exception;
 
 use Exception;
+use Flarum\Foundation\KnownError;
 
-class InvalidConfirmationTokenException extends Exception
+class InvalidConfirmationTokenException extends Exception implements KnownError
 {
+    public function getType(): string
+    {
+        return 'invalid_confirmation_token';
+    }
 }

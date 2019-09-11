@@ -45,8 +45,8 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
         $query->$method(compact('key', 'value'));
     }
 
-    public function delete($keyLike)
+    public function delete($key)
     {
-        $this->database->table('settings')->where('key', 'like', $keyLike)->delete();
+        $this->database->table('settings')->where('key', $key)->delete();
     }
 }

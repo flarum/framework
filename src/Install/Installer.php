@@ -12,13 +12,14 @@
 namespace Flarum\Install;
 
 use Flarum\Foundation\AppInterface;
+use Flarum\Foundation\ErrorHandling\Registry;
+use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Http\Middleware\DispatchRoute;
-use Flarum\Http\Middleware\HandleErrorsWithWhoops;
+use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\StartSession;
 use Flarum\Install\Console\InstallCommand;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Translation\Translator;
-use Illuminate\Validation\Factory;
 use Zend\Stratigility\MiddlewarePipe;
 
 class Installer implements AppInterface
@@ -39,7 +40,11 @@ class Installer implements AppInterface
     public function getRequestHandler()
     {
         $pipe = new MiddlewarePipe;
-        $pipe->pipe($this->container->make(HandleErrorsWithWhoops::class));
+        $pipe->pipe(new HandleErrors(
+            $this->container->make(Registry::class),
+            $this->container->make(WhoopsFormatter::class),
+            $this->container->tagged(Reporter::class)
+        ));
         $pipe->pipe($this->container->make(StartSession::class));
         $pipe->pipe(
             new DispatchRoute($this->container->make('flarum.install.routes'))
@@ -55,8 +60,7 @@ class Installer implements AppInterface
     {
         return [
             new InstallCommand(
-                $this->container->make(Installation::class),
-                new Factory($this->container->make(Translator::class))
+                $this->container->make(Installation::class)
             ),
         ];
     }

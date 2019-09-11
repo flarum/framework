@@ -49,8 +49,8 @@ class DiscussionRepository
      */
     public function getReadIds(User $user)
     {
-        return Discussion::leftJoin('discussions_users', 'discussions_users.discussion_id', '=', 'discussions.id')
-            ->where('user_id', $user->id)
+        return Discussion::leftJoin('discussion_user', 'discussion_user.discussion_id', '=', 'discussions.id')
+            ->where('discussion_user.user_id', $user->id)
             ->whereColumn('last_read_post_number', '>=', 'last_post_number')
             ->pluck('id')
             ->all();

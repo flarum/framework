@@ -14,6 +14,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\User\Command\DeleteAvatar;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -43,7 +44,7 @@ class DeleteAvatarController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new DeleteAvatar(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
+            new DeleteAvatar(Arr::get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
         );
     }
 }

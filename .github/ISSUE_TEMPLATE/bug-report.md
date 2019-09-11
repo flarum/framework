@@ -3,9 +3,6 @@ name: "🐛 Bug Report"
 about: "If something isn't working as expected"
 
 ---
-<!--
-IMPORTANT: If you discover a security vulnerability within Flarum, please send an email to [security@flarum.org](mailto:security@flarum.org) instead. We will address these with the utmost urgency and it will prevent vulnerabilities, which may be abused, from popping up on our issue tracker.
--->
 ## Bug Report
 
 **Current Behavior**

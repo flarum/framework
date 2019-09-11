@@ -12,7 +12,12 @@
 namespace Flarum\Http\Exception;
 
 use Exception;
+use Flarum\Foundation\KnownError;
 
-class TokenMismatchException extends Exception
+class TokenMismatchException extends Exception implements KnownError
 {
+    public function getType(): string
+    {
+        return 'csrf_token_mismatch';
+    }
 }

@@ -14,6 +14,7 @@ namespace Flarum\Api;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -38,7 +39,7 @@ class ApiKey extends AbstractModel
     {
         $key = new static;
 
-        $key->key = str_random(40);
+        $key->key = Str::random(40);
 
         return $key;
     }

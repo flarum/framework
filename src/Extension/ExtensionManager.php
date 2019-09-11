@@ -21,6 +21,8 @@ use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -67,11 +69,11 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->app->basePath().'/vendor/composer/installed.json')) {
+        if (is_null($this->extensions) && $this->filesystem->exists($this->app->vendorPath().'/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get($this->app->basePath().'/vendor/composer/installed.json'), true);
+            $installed = json_decode($this->filesystem->get($this->app->vendorPath().'/composer/installed.json'), true);
 
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
@@ -227,8 +229,8 @@ class ExtensionManager
      */
     public function migrate(Extension $extension, $direction = 'up')
     {
-        $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
-            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        $this->app->bind(Builder::class, function ($container) {
+            return $container->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
         $extension->migrate($this->migrator, $direction);
@@ -293,7 +295,7 @@ class ExtensionManager
      */
     public function getEnabled()
     {
-        return json_decode($this->config->get('extensions_enabled'), true);
+        return json_decode($this->config->get('extensions_enabled'), true) ?? [];
     }
 
     /**
@@ -326,6 +328,6 @@ class ExtensionManager
      */
     protected function getExtensionsDir()
     {
-        return $this->app->basePath().'/vendor';
+        return $this->app->vendorPath();
     }
 }

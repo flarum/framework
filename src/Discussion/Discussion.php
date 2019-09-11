@@ -98,7 +98,7 @@ class Discussion extends AbstractModel
     {
         parent::boot();
 
-        static::deleting(function (Discussion $discussion) {
+        static::deleting(function (self $discussion) {
             Notification::whereSubjectModel(Post::class)
                 ->whereIn('subject_id', function ($query) use ($discussion) {
                     $query->select('id')->from('posts')->where('discussion_id', $discussion->id);
@@ -106,13 +106,13 @@ class Discussion extends AbstractModel
                 ->delete();
         });
 
-        static::deleted(function (Discussion $discussion) {
+        static::deleted(function (self $discussion) {
             $discussion->raise(new Deleted($discussion));
 
             Notification::whereSubject($discussion)->delete();
         });
 
-        static::saving(function (Discussion $discussion) {
+        static::saving(function (self $discussion) {
             $event = new GetModelIsPrivate($discussion);
 
             $discussion->is_private = static::$dispatcher->until($event) === true;

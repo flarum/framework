@@ -2,7 +2,6 @@ import Component from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
 import anchorScroll from '../../common/utils/anchorScroll';
-import mixin from '../../common/utils/mixin';
 import evented from '../../common/utils/evented';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
@@ -586,7 +585,7 @@ class PostStream extends Component {
    */
   unpause() {
     this.paused = false;
-    this.scrollListener.update(true);
+    this.scrollListener.update();
     this.trigger('unpaused');
   }
 }

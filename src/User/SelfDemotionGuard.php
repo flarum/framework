@@ -14,6 +14,7 @@ namespace Flarum\User;
 use Flarum\Group\Group;
 use Flarum\User\Event\Saving;
 use Flarum\User\Exception\PermissionDeniedException;
+use Illuminate\Support\Arr;
 
 class SelfDemotionGuard
 {
@@ -35,7 +36,7 @@ class SelfDemotionGuard
             return;
         }
 
-        $groups = array_get($event->data, 'relationships.groups.data');
+        $groups = Arr::get($event->data, 'relationships.groups.data');
 
         // If there is no group data (not even an empty array), this means
         // groups were not changed (and thus not removed) - we're fine!

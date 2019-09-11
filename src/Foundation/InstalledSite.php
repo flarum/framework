@@ -23,8 +23,10 @@ use Flarum\Forum\ForumServiceProvider;
 use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Group\GroupServiceProvider;
 use Flarum\Locale\LocaleServiceProvider;
+use Flarum\Mail\MailServiceProvider;
 use Flarum\Notification\NotificationServiceProvider;
 use Flarum\Post\PostServiceProvider;
+use Flarum\Queue\QueueServiceProvider;
 use Flarum\Search\SearchServiceProvider;
 use Flarum\Settings\SettingsServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
@@ -72,7 +74,7 @@ class InstalledSite implements SiteInterface
     /**
      * Create and boot a Flarum application instance.
      *
-     * @return AppInterface
+     * @return InstalledApp
      */
     public function bootApp(): AppInterface
     {
@@ -99,6 +101,10 @@ class InstalledSite implements SiteInterface
 
         $laravel->useStoragePath($this->paths['storage']);
 
+        if (isset($this->paths['vendor'])) {
+            $laravel->useVendorPath($this->paths['vendor']);
+        }
+
         $laravel->instance('env', 'production');
         $laravel->instance('flarum.config', $this->config);
         $laravel->instance('config', $config = $this->getIlluminateConfig($laravel));
@@ -112,6 +118,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(DatabaseServiceProvider::class);
         $laravel->register(DiscussionServiceProvider::class);
         $laravel->register(ExtensionServiceProvider::class);
+        $laravel->register(ErrorServiceProvider::class);
         $laravel->register(FilesystemServiceProvider::class);
         $laravel->register(FormatterServiceProvider::class);
         $laravel->register(ForumServiceProvider::class);
@@ -123,6 +130,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(MigrationServiceProvider::class);
         $laravel->register(NotificationServiceProvider::class);
         $laravel->register(PostServiceProvider::class);
+        $laravel->register(QueueServiceProvider::class);
         $laravel->register(SearchServiceProvider::class);
         $laravel->register(SessionServiceProvider::class);
         $laravel->register(SettingsServiceProvider::class);

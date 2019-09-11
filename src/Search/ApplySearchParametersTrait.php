@@ -11,6 +11,8 @@
 
 namespace Flarum\Search;
 
+use Illuminate\Support\Str;
+
 trait ApplySearchParametersTrait
 {
     /**
@@ -29,10 +31,10 @@ trait ApplySearchParametersTrait
             foreach ($sort as $field => $order) {
                 if (is_array($order)) {
                     foreach ($order as $value) {
-                        $search->getQuery()->orderByRaw(snake_case($field).' != ?', [$value]);
+                        $search->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
                     }
                 } else {
-                    $search->getQuery()->orderBy(snake_case($field), $order);
+                    $search->getQuery()->orderBy(Str::snake($field), $order);
                 }
             }
         }

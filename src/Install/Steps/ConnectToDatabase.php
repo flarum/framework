@@ -15,6 +15,7 @@ use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Step;
 use Illuminate\Database\Connectors\MySqlConnector;
 use Illuminate\Database\MySqlConnection;
+use Illuminate\Support\Str;
 use RangeException;
 
 class ConnectToDatabase implements Step
@@ -40,7 +41,7 @@ class ConnectToDatabase implements Step
 
         $version = $pdo->query('SELECT VERSION()')->fetchColumn();
 
-        if (str_contains($version, 'MariaDB')) {
+        if (Str::contains($version, 'MariaDB')) {
             if (version_compare($version, '10.0.5', '<')) {
                 throw new RangeException('MariaDB version too low. You need at least MariaDB 10.0.5');
             }

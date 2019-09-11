@@ -14,6 +14,7 @@ namespace Flarum\User;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
+use Illuminate\Support\Str;
 
 /**
  * @property string $token
@@ -54,7 +55,7 @@ class EmailToken extends AbstractModel
     {
         $token = new static;
 
-        $token->token = str_random(40);
+        $token->token = Str::random(40);
         $token->user_id = $userId;
         $token->email = $email;
         $token->created_at = Carbon::now();

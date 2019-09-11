@@ -13,6 +13,7 @@ namespace Flarum\Event;
 
 use DirectoryIterator;
 use Flarum\Locale\LocaleManager;
+use Illuminate\Support\Arr;
 use RuntimeException;
 
 /**
@@ -49,8 +50,8 @@ class ConfigureLocales
                 throw new RuntimeException("Error parsing composer.json in $name: ".json_last_error_msg());
             }
 
-            $locale = array_get($json, 'extra.flarum-locale.code');
-            $title = array_get($json, 'extra.flarum-locale.title', $title);
+            $locale = Arr::get($json, 'extra.flarum-locale.code');
+            $title = Arr::get($json, 'extra.flarum-locale.title', $title);
         }
 
         if (! isset($locale)) {

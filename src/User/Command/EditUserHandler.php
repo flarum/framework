@@ -19,6 +19,7 @@ use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 class EditUserHandler
@@ -64,8 +65,8 @@ class EditUserHandler
         $canEdit = $actor->can('edit', $user);
         $isSelf = $actor->id === $user->id;
 
-        $attributes = array_get($data, 'attributes', []);
-        $relationships = array_get($data, 'relationships', []);
+        $attributes = Arr::get($data, 'attributes', []);
+        $relationships = Arr::get($data, 'relationships', []);
         $validate = [];
 
         if (isset($attributes['username'])) {
@@ -115,7 +116,7 @@ class EditUserHandler
 
             $newGroupIds = [];
             foreach ($relationships['groups']['data'] as $group) {
-                if ($id = array_get($group, 'id')) {
+                if ($id = Arr::get($group, 'id')) {
                     $newGroupIds[] = $id;
                 }
             }
