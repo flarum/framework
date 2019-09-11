@@ -190,7 +190,7 @@ export default class Model {
    * @public
    */
   delete(data, options = {}) {
-    if (!this.exists) return m.deferred.resolve().promise;
+    if (!this.exists) return m.deferred().resolve().promise;
 
     return app.request(Object.assign({
       method: 'DELETE',
