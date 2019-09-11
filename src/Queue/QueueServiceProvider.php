@@ -36,7 +36,9 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     public function register()
     {
-        define('ARTISAN_BINARY', 'flarum');
+        if (! defined('ARTISAN_BINARY')) {
+            define('ARTISAN_BINARY', 'flarum');
+        }
 
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
