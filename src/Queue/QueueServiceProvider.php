@@ -36,10 +36,6 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     public function register()
     {
-        if (! defined('ARTISAN_BINARY')) {
-            define('ARTISAN_BINARY', 'flarum');
-        }
-
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
         $this->app->singleton(Factory::class, function () {
@@ -69,10 +65,13 @@ class QueueServiceProvider extends AbstractServiceProvider
             );
         });
 
+        // Override the Laravel native Listener, so that we can ignore the environment
+        // option and force the binary to flarum.
         $this->app->singleton(QueueListener::class, function ($app) {
             return new Listener($app->basePath());
         });
 
+        // Bind a simple cache manager that returns the cache store.
         $this->app->singleton('cache', function ($app) {
             return new class($app) {
                 public function __construct($app)
