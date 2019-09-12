@@ -9,15 +9,38 @@ jobs:
     strategy:
       matrix:
         php: [7.1, 7.2, 7.3]
-        db: ['mysql:5.7', mariadb]
+        service: ['mysql:5.7', mariadb]
+        prefix: ['', flarum_]
+
+        include:
+          - service: 'mysql:5.7'
+            db: MySQL
+          - service: mariadb
+            db: MariaDB
+          - prefix: flarum_
+            prefixStr: (prefix)
+
+        exclude:
+          - php: 7.1
+            service: 'mysql:5.7'
+            prefix: flarum_
+          - php: 7.1
+            service: mariadb
+            prefix: flarum_
+          - php: 7.2
+            service: 'mysql:5.7'
+            prefix: flarum_
+          - php: 7.2
+            service: mariadb
+            prefix: flarum_
 
     services:
       mysql:
-        image: ${{ matrix.db }}
+        image: ${{ matrix.service }}
         ports:
           - 13306:3306
 
-    name: PHP ${{ matrix.php }} with ${{ matrix.db }}
+    name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
 
     steps:
       - uses: actions/checkout@master
@@ -36,6 +59,7 @@ jobs:
         env:
           DB_PORT: 13306
           DB_PASSWORD: root
+          DB_PREFIX: ${{ matrix.prefix }}
 
       - name: Run Composer tests
         run: composer test
