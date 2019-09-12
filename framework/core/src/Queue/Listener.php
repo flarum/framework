@@ -21,4 +21,9 @@ class Listener extends \Illuminate\Queue\Listener
 
         return $command;
     }
+
+    protected function artisanBinary()
+    {
+        return 'flarum';
+    }
 }
