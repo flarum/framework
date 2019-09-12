@@ -62,7 +62,7 @@ export default {
       items.add('edit', Button.component({
         icon: 'fas fa-pencil-alt',
         children: app.translator.trans('core.forum.user_controls.edit_button'),
-        onclick: this.editAction.bind(user)
+        onclick: this.editAction.bind(this, user)
       }));
     }
 
@@ -135,8 +135,10 @@ export default {
 
   /**
    * Edit the user.
+   *
+   * @param {User} user
    */
-  editAction() {
-    app.modal.show(new EditUserModal({user: this}));
+  editAction(user) {
+    app.modal.show(new EditUserModal({ user }));
   }
 };
