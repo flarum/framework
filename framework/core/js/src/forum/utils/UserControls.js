@@ -62,7 +62,7 @@ export default {
       items.add('edit', Button.component({
         icon: 'fas fa-pencil-alt',
         children: app.translator.trans('core.forum.user_controls.edit_button'),
-        onclick: this.editAction.bind(user)
+        onclick: this.editAction.bind(this, user)
       }));
     }
 
@@ -85,7 +85,7 @@ export default {
       items.add('delete', Button.component({
         icon: 'fas fa-times',
         children: app.translator.trans('core.forum.user_controls.delete_button'),
-        onclick: this.deleteAction.bind(user)
+        onclick: this.deleteAction.bind(this, user)
       }));
     }
 
@@ -94,24 +94,32 @@ export default {
 
   /**
    * Delete the user.
+   *
+   * @param {User} user
    */
-  deleteAction() {
+  deleteAction(user) {
     if (!confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
       return;
     }
 
-    this.delete().then(() => {
-      this.showDeletionAlert('success');
-      if (app.current instanceof UserPage && app.current.user === this) {
+    user.delete().then(() => {
+      this.showDeletionAlert(user, 'success');
+      if (app.current instanceof UserPage && app.current.user === user) {
         app.history.back();
       } else {
         window.location.reload();
       }
-    }).catch(() => this.showDeletionAlert('error'));
+    }).catch(() => this.showDeletionAlert(user, 'error'));
   },
 
-  showDeletionAlert(type) {
-    const { username, email } = this.data.attributes;
+  /**
+   * Show deletion alert of user.
+   *
+   * @param {User} user
+   * @param {string} type
+   */
+  showDeletionAlert(user, type) {
+    const { username, email } = user.data.attributes;
     const message = {
       success: 'core.forum.user_controls.delete_success_message',
       error: 'core.forum.user_controls.delete_error_message',
@@ -127,8 +135,10 @@ export default {
 
   /**
    * Edit the user.
+   *
+   * @param {User} user
    */
-  editAction() {
-    app.modal.show(new EditUserModal({user: this}));
+  editAction(user) {
+    app.modal.show(new EditUserModal({ user }));
   }
 };
