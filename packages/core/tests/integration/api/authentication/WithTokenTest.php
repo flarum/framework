@@ -60,4 +60,33 @@ class WithTokenTest extends TestCase
         $token = $data['token'];
         $this->assertEquals(2, AccessToken::findOrFail($token)->user_id);
     }
+
+    /**
+     * @test
+     */
+    public function failure_with_invalid_credentials()
+    {
+        $response = $this->send(
+            $this->request(
+                'POST', '/api/token',
+                [
+                    'json' => [
+                        'identification' => 'normal',
+                        'password' => 'too-incorrect'
+                    ],
+                ]
+            )->withAttribute('bypassCsrfToken', true)
+        );
+
+        // HTTP 401 signals an authentication problem
+        $this->assertEquals(401, $response->getStatusCode());
+
+        // The response body should contain an error code
+        $body = (string) $response->getBody();
+        $this->assertJson($body);
+
+        $data = json_decode($body, true);
+        $this->assertCount(1, $data['errors']);
+        $this->assertEquals('not_authenticated', $data['errors'][0]['code']);
+    }
 }
