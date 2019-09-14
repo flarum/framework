@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\integration\api\users;
 
+use Flarum\Group\Permission;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 
@@ -26,7 +27,9 @@ class ListTest extends TestCase
             ],
             'groups' => [
                 $this->adminGroup(),
+                $this->guestGroup(),
             ],
+            'group_permission' => [],
             'group_user' => [
                 ['user_id' => 1, 'group_id' => 1],
             ],
@@ -46,6 +49,25 @@ class ListTest extends TestCase
         );
 
         $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function shows_index_for_guest_when_they_have_permission()
+    {
+        Permission::unguarded(function () {
+            Permission::create([
+                'permission' => 'viewUserList',
+                'group_id' => 2,
+            ]);
+        });
+
+        $response = $this->send(
+            $this->request('GET', '/api/users')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     /**
