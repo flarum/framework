@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\Controller;
+namespace Flarum\Tests\integration\api\notifications;
 
-use Flarum\Api\Controller\ListNotificationsController;
-use Flarum\User\User;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
 
-class ListNotificationsControllerTest extends ApiControllerTestCase
+class ListTest extends TestCase
 {
-    protected $controller = ListNotificationsController::class;
+    use RetrievesAuthorizedUsers;
 
     public function setUp()
     {
@@ -26,6 +26,9 @@ class ListNotificationsControllerTest extends ApiControllerTestCase
             'users' => [
                 $this->normalUser(),
             ],
+            'access_tokens' => [
+                ['token' => 'normaltoken', 'user_id' => 2],
+            ],
         ]);
     }
 
@@ -34,7 +37,9 @@ class ListNotificationsControllerTest extends ApiControllerTestCase
      */
     public function disallows_index_for_guest()
     {
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->request('GET', '/api/notifications')
+        );
 
         $this->assertEquals(401, $response->getStatusCode());
     }
@@ -42,11 +47,12 @@ class ListNotificationsControllerTest extends ApiControllerTestCase
     /**
      * @test
      */
-    public function show_index_for_user()
+    public function shows_index_for_user()
     {
-        $this->actor = User::find(2);
-
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->request('GET', '/api/notifications')
+                ->withHeader('Authorization', 'Token normaltoken')
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
     }
