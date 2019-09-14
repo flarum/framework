@@ -7,14 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\Controller;
+namespace Flarum\Tests\integration\api\users;
 
-use Flarum\Api\Controller\ListUsersController;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 
-class ListUsersControllerTest extends ApiControllerTestCase
+class ListTest extends TestCase
 {
-    protected $controller = ListUsersController::class;
+    use RetrievesAuthorizedUsers;
 
     public function setUp()
     {
@@ -30,6 +31,9 @@ class ListUsersControllerTest extends ApiControllerTestCase
             'group_user' => [
                 ['user_id' => 1, 'group_id' => 1],
             ],
+            'access_tokens' => [
+                ['token' => 'admintoken', 'user_id' => 1],
+            ],
         ]);
     }
 
@@ -38,7 +42,9 @@ class ListUsersControllerTest extends ApiControllerTestCase
      */
     public function disallows_index_for_guest()
     {
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->request('GET', '/api/users')
+        );
 
         $this->assertEquals(401, $response->getStatusCode());
     }
@@ -48,9 +54,10 @@ class ListUsersControllerTest extends ApiControllerTestCase
      */
     public function shows_index_for_admin()
     {
-        $this->actor = User::find(1);
-
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->request('GET', '/api/users')
+                ->withHeader('Authorization', 'Token admintoken')
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
     }
