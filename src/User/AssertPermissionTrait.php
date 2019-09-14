@@ -55,28 +55,17 @@ trait AssertPermissionTrait
      * @param User $actor
      * @param string $ability
      * @param mixed $arguments
-     * @throws NotAuthenticatedException
      * @throws PermissionDeniedException
      */
     protected function assertCan(User $actor, $ability, $arguments = [])
     {
-        // Identify whether guest or user has the permission.
-        $can = $actor->can($ability, $arguments);
-
-        // For non-authenticated users, we throw a different exception to signal
-        // that logging in may help.
-        if (! $can) {
-            $this->assertRegistered($actor);
-        }
-
-        // If we're logged in, then we need to communicate that the current
-        // account simply does not have enough permissions.
-        $this->assertPermission($can);
+        $this->assertPermission(
+            $actor->can($ability, $arguments)
+        );
     }
 
     /**
      * @param User $actor
-     * @throws NotAuthenticatedException
      * @throws PermissionDeniedException
      */
     protected function assertAdmin(User $actor)

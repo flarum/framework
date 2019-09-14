@@ -50,7 +50,7 @@ class ListTest extends TestCase
             $this->request('GET', '/api/users')
         );
 
-        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**
