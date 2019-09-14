@@ -13,7 +13,6 @@ namespace Flarum\Tests\integration\api\users;
 
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Flarum\User\User;
 
 class ListTest extends TestCase
 {
