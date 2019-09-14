@@ -49,6 +49,7 @@ class CreateGroupHandler
         $actor = $command->actor;
         $data = $command->data;
 
+        $this->assertRegistered($actor);
         $this->assertCan($actor, 'createGroup');
 
         $group = Group::build(
