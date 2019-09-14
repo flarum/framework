@@ -12,7 +12,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\AccessToken;
-use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
@@ -65,7 +65,7 @@ class CreateTokenController implements RequestHandlerInterface
         $user = $this->users->findByIdentification($identification);
 
         if (! $user || ! $user->checkPassword($password)) {
-            throw new PermissionDeniedException;
+            throw new NotAuthenticatedException;
         }
 
         $token = AccessToken::generate($user->id, $lifetime);

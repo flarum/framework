@@ -18,7 +18,7 @@ use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Console as Commands;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
-use Illuminate\Queue\Listener;
+use Illuminate\Queue\Listener as QueueListener;
 use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
 
@@ -27,9 +27,9 @@ class QueueServiceProvider extends AbstractServiceProvider
     protected $commands = [
         Commands\FlushFailedCommand::class,
         Commands\ForgetFailedCommand::class,
-        Commands\ListenCommand::class,
+        Console\ListenCommand::class,
         Commands\ListFailedCommand::class,
-        Commands\RestartCommand::class,
+//        Commands\RestartCommand::class,
         Commands\RetryCommand::class,
         Commands\WorkCommand::class,
     ];
@@ -65,10 +65,13 @@ class QueueServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->app->singleton(Listener::class, function ($app) {
+        // Override the Laravel native Listener, so that we can ignore the environment
+        // option and force the binary to flarum.
+        $this->app->singleton(QueueListener::class, function ($app) {
             return new Listener($app->basePath());
         });
 
+        // Bind a simple cache manager that returns the cache store.
         $this->app->singleton('cache', function ($app) {
             return new class($app) {
                 public function __construct($app)

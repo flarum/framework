@@ -16,7 +16,7 @@ IMPORTANT: We applaud pull requests, they excite us every single time. As we hav
 **Confirmed**
 
 - [ ] Frontend changes: tested on a local Flarum installation.
-- [ ] Backend changes: tests are green (run `php vendor/bin/phpunit`).
+- [ ] Backend changes: tests are green (run `composer test`).
 
 **Required changes:**
 

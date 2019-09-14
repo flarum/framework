@@ -2,6 +2,7 @@ import Component from '../../common/Component';
 import avatar from '../../common/helpers/avatar';
 import icon from '../../common/helpers/icon';
 import humanTime from '../../common/helpers/humanTime';
+import Button from '../../common/components/Button';
 
 /**
  * The `Notification` component abstract displays a single notification.
@@ -26,6 +27,17 @@ export default class Notification extends Component {
 
           if (!isInitialized) $(element).click(this.markAsRead.bind(this));
         }}>
+        {!notification.isRead() && Button.component({
+          className: 'Notification-action Button Button--icon Button--link',
+          icon: 'fas fa-check',
+          title: app.translator.trans('core.forum.notifications.mark_as_read_tooltip'),
+          onclick: e => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            this.markAsRead();
+          }
+        })}
         {avatar(notification.fromUser())}
         {icon(this.icon(), {className: 'Notification-icon'})}
         <span className="Notification-content">{this.content()}</span>
