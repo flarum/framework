@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-beta.10](https://github.com/flarum/tags/compare/v0.1.0-beta.9...v0.1.0-beta.10)
+
+### Added
+- SEO: The tags page now has a `rel="canonical"` meta tag, preventing duplicate content (#64)
+- SEO: The tags page now has server-rendered content, for better indexing by search engines (#64)
+
 ## [0.1.0-beta.9](https://github.com/flarum/tags/compare/v0.1.0-beta.8.2...v0.1.0-beta.9)
 
 ### Added
