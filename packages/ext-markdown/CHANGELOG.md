@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.0-beta.10](https://github.com/flarum/markdown/compare/v0.1.0-beta.9...v0.1.0-beta.10)
+
+### Added
+- The toolbar now has an image button (#8)
+
+### Fixed
+- Unusable toolbar in IE11 (#8)
+- Tabbing out of the post composer was not possible (#8)
+
 ## [0.1.0-beta.9](https://github.com/flarum/markdown/compare/v0.1.0-beta.8...v0.1.0-beta.9)
 
 ### Fixed
