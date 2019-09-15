@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.10](https://github.com/flarum/mentions/compare/v0.1.0-beta.9...v0.1.0-beta.10)
+
+### Fixed
+- Mentions for usernames containing underscores and other special characters could link to wrong users (#37)
+
 ## [0.1.0-beta.9](https://github.com/flarum/mentions/compare/v0.1.0-beta.8.1...v0.1.0-beta.9)
 
 ### Changed
