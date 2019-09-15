@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-beta.10](https://github.com/flarum/embed/compare/v0.1.0-beta.9...v0.1.0-beta.10)
+
+### Fixed
+- JavaScript code was not compiled (#6)
+- Icon was not updated for FontAwesome 5 (#6)
+
 ## [0.1.0-beta.9](https://github.com/flarum/embed/compare/v0.1.0-beta.8...v0.1.0-beta.9)
 
 ### Fixed
