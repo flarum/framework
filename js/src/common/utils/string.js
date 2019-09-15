@@ -7,9 +7,9 @@
  * @return {String}
  */
 export function truncate(string, length, start = 0) {
-  return (start > 0 ? '...' : '') +
-    string.substring(start, start + length) +
-    (string.length > start + length ? '...' : '');
+    return (start > 0 ? '...' : '') +
+        string.substring(start, start + length) +
+        (string.length > start + length ? '...' : '');
 }
 
 /**
@@ -19,18 +19,23 @@ export function truncate(string, length, start = 0) {
  * @return {String}
  */
 export function slug(string) {
-    const originCharacters = 'àáäâãåăæąçćčđďèéěėëêęğǵḧìíïîįłḿǹńňñòóöôœøṕŕřßşśšșťțùúüûǘůűūųẃẍÿýźžż·/_,:;';
-    const replaceCharacters = 'aaaaaaaaacccddeeeeeeegghiiiiilmnnnnooooooprrsssssttuuuuuuuuuwxyyzzz------';
-    const pattern = new RegExp(originCharacters.split('').join('|'), 'g');
-
     return string.toString().toLowerCase()
-        .replace(/\s+/g, '-') // Replace spaces with -.
-        .replace(pattern, characters => replaceCharacters.charAt(originCharacters.indexOf(characters)))
-        .replace(/&/g, '-and-') // Replace & with 'and'.
-        .replace(/[^\w\-]+/g, '') // Remove all non-word characters.
-        .replace(/\-\-+/g, '-') // Replace multiple - with single -.
-        .replace(/^-+/, '') // Trim - from start of text.
-        .replace(/-+$/, '') // Trim - from end of text.
+        .replace(/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/g, 'a')
+        .replace(/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/g, 'e')
+        .replace(/(ì|í|ị|ỉ|ĩ)/g, 'i')
+        .replace(/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ||ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/g, 'o')
+        .replace(/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/g, 'u')
+        .replace(/(ỳ|ý|ỵ|ỷ|ỹ)/g, 'y')
+        .replace(/(đ)/g, 'd')
+        .replace(/&/g, '-and-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '')
+        .replace(/([^0-9a-z-\s])/g, '')
+        .replace(/(\s+)/g, '-')
+        .replace(/^-+/g, '')
+        .replace(/-+$/g, '');
 }
 
 /**
@@ -41,15 +46,15 @@ export function slug(string) {
  * @return {String}
  */
 export function getPlainContent(string) {
-  const html = string
-    .replace(/(<\/p>|<br>)/g, '$1 &nbsp;')
-    .replace(/<img\b[^>]*>/ig, ' ');
+    const html = string
+        .replace(/(<\/p>|<br>)/g, '$1 &nbsp;')
+        .replace(/<img\b[^>]*>/ig, ' ');
 
-  const dom = $('<div/>').html(html);
+    const dom = $('<div/>').html(html);
 
-  dom.find(getPlainContent.removeSelectors.join(',')).remove();
+    dom.find(getPlainContent.removeSelectors.join(',')).remove();
 
-  return dom.text().replace(/\s+/g, ' ').trim();
+    return dom.text().replace(/\s+/g, ' ').trim();
 }
 
 /**
@@ -66,5 +71,5 @@ getPlainContent.removeSelectors = ['blockquote', 'script'];
  * @return {String}
  */
 export function ucfirst(string) {
-  return string.substr(0, 1).toUpperCase() + string.substr(1);
+    return string.substr(0, 1).toUpperCase() + string.substr(1);
 }
