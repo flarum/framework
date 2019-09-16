@@ -15,7 +15,7 @@
         "source": "https://github.com/flarum/emoji"
     },
     "require": {
-        "flarum/core": "^0.1.0-beta.8"
+        "flarum/core": "^0.1.0-beta.10"
     },
     "extra": {
         "branch-alias": {
