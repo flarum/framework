@@ -230,7 +230,7 @@ export default class PermissionGrid extends Component {
 
     items.add('userEdit', {
       icon: 'fas fa-user-cog',
-      label: app.translator.trans('core.admin.permissions.edit_user_label'),
+      label: app.translator.trans('core.admin.permissions.edit_users_label'),
       permission: 'user.edit'
     }, 60);
     

@@ -74,7 +74,7 @@ class RegisterUserHandler
         $data = $command->data;
 
         if (! $this->settings->get('allow_sign_up')) {
-            $this->assertPermission($actor->can('administrate'));
+            $this->assertAdmin($actor);
         }
 
         $password = Arr::get($data, 'attributes.password');
