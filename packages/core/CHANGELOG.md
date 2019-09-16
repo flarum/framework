@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.1.0-beta.10](https://github.com/flarum/core/compare/v0.1.0-beta.9...v0.1.0-beta.10)
+
+### Added
+- Initial queue support: Infrastructure for offloading long-running tasks (e.g. email sending) to background workers (#1773)
+- Notifications can now be marked as read without visiting a discussion (#151)
+- SEO: The discussion list now has a `rel="canonical"` meta tag, preventing duplicate content (#1134, #1814)
+- The "Edit User" permission can now be edited in the UI (#1845)
+- New status message and redirect after user deletion (#1750, #1777)
+- Errors in Flarum's boot process are now presented with more detailed information (#1607)
+
+### Changed
+- Better, more detailed and extensible error handling (#1641, #1843)
+- Error pages in debug mode now return the same HTTP status codes as in production (#1648)
+- Tweak HTTP status codes for authentication / authorization errors (#1854)
+- Already-used links from account activation emails now show a better error message (#1337)
+
+### Fixed
+- Security vulnerabilities in dependencies
+- Performance: High CPU usage when scrolling in a discussion (#1222)
+- Special characters crashed the search (#1498)
+- Missing declarations for language and text direction in HTML output (#1772)
+- Private messages were counted in user post counts (#1695)
+- Extensions could not change the forum's default page (#1819)
+- API requests authenticated using access tokens needed to provide a CSRF token (#1828)
+- Accessibility: Screenreaders did not read the "Back to discussion list" link (#1835)
+
 ## [0.1.0-beta.9](https://github.com/flarum/core/compare/v0.1.0-beta.8.2...v0.1.0-beta.9)
 
 ### Added
