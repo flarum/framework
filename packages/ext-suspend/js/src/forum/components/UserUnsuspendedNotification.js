@@ -4,7 +4,7 @@ import humanTime from 'flarum/helpers/humanTime';
 
 export default class UserUnsuspendedNotification extends Notification {
   icon() {
-    return 'ban';
+    return 'fas fa-ban';
   }
 
   href() {
