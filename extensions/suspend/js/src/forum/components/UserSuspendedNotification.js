@@ -1,6 +1,4 @@
 import Notification from 'flarum/components/Notification';
-import username from 'flarum/helpers/username';
-import humanTime from 'flarum/helpers/humanTime';
 
 export default class UserSuspendedNotification extends Notification {
   icon() {
