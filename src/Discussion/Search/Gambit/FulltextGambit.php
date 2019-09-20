@@ -15,7 +15,6 @@ use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Post\Post;
 use Flarum\Search\AbstractSearch;
 use Flarum\Search\GambitInterface;
-use Illuminate\Database\Query\Expression;
 use LogicException;
 
 class FulltextGambit implements GambitInterface
@@ -42,7 +41,7 @@ class FulltextGambit implements GambitInterface
         $subquery = Post::whereVisibleTo($search->getActor())
             ->select('posts.discussion_id')
             ->from('posts')
-            ->where('posts.content','like', '%' . $bit . '%')
+            ->where('posts.content', 'like', '%' . $bit . '%')
             ->where('posts.type', '=', 'comment')
             ->where('posts.is_private', '=', 0)
             ->orderBy('id');
@@ -50,7 +49,7 @@ class FulltextGambit implements GambitInterface
             ->where(function ($query) use ($subquery, $bit) {
                 $query
                     ->where('id', 'in', $subquery)
-                    ->orWhere('discussions.title', 'like', '%' . $bit . '%');
+                    ->orWhere('discussions.title', 'like', '%'.$bit.'%');
             })
             ->where('discussions.is_private', '=', 0)
             ->orderBy('discussions.last_posted_at', 'desc');
