@@ -41,7 +41,7 @@ class FulltextGambit implements GambitInterface
         $subquery = Post::whereVisibleTo($search->getActor())
             ->select('posts.discussion_id')
             ->from('posts')
-            ->where('posts.content', 'like', '%' . $bit . '%')
+            ->where('posts.content', 'like', '%'.$bit.'%')
             ->where('posts.type', '=', 'comment')
             ->where('posts.is_private', '=', 0)
             ->orderBy('id');
