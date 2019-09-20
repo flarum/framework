@@ -1,10 +1,8 @@
 import Notification from 'flarum/components/Notification';
-import username from 'flarum/helpers/username';
-import humanTime from 'flarum/helpers/humanTime';
 
 export default class UserUnsuspendedNotification extends Notification {
   icon() {
-    return 'ban';
+    return 'fas fa-ban';
   }
 
   href() {
