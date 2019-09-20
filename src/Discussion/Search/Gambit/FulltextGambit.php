@@ -38,9 +38,7 @@ class FulltextGambit implements GambitInterface
         $grammar = $query->getGrammar();
 
         // Construct a subquery to fetch discussions which contain relevant
-        // posts. Retrieve the collective relevance of each discussion's posts,
-        // which we will use later in the order by clause, and also retrieve
-        // the ID of the most relevant post.
+        // posts.
         $subquery = Post::whereVisibleTo($search->getActor())
             ->select('posts.discussion_id')
             ->from('posts')
