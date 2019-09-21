@@ -91,6 +91,7 @@ Object.assign(User.prototype, {
       user.freshness = new Date();
       m.redraw();
     };
+    image.crossOrigin = 'Anonymous';
     image.src = this.avatarUrl();
   },
 
