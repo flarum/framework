@@ -65,9 +65,13 @@ class Installation
         return $this;
     }
 
-    public function baseUrl($baseUrl)
+    /**
+     * @param \Flarum\Install\BaseUrl $baseUrl
+     * @return $this
+     */
+    public function baseUrl(BaseUrl $baseUrl)
     {
-        $this->baseUrl = $baseUrl;
+        $this->baseUrl = (string) $baseUrl;
 
         return $this;
     }
