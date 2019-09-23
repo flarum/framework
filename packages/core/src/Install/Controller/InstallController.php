@@ -55,16 +55,16 @@ class InstallController implements RequestHandlerInterface
     public function handle(Request $request): ResponseInterface
     {
         $input = $request->getParsedBody();
-        $baseUrl = $request->getUri();
+        $baseUrl = BaseUrl::fromUri($request->getUri());
 
         try {
             $pipeline = $this->installation
-                ->baseUrl(BaseUrl::fromUri($baseUrl))
+                ->baseUrl($baseUrl)
                 ->databaseConfig($this->makeDatabaseConfig($input))
                 ->adminUser($this->makeAdminUser($input))
                 ->settings([
                     'forum_title' => Arr::get($input, 'forumTitle'),
-                    'mail_from' => 'noreply@'.preg_replace('/^www\./i', '', $baseUrl->getHost()),
+                    'mail_from' => $baseUrl->toEmail('noreply'),
                     'welcome_title' => 'Welcome to '.Arr::get($input, 'forumTitle'),
                 ])
                 ->build();

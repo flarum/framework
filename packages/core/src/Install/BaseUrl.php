@@ -15,60 +15,49 @@ use Psr\Http\Message\UriInterface;
 
 final class BaseUrl
 {
-    /** @var UriInterface|string */
-    private $baseUrl;
+    /** @var string */
+    private $normalized;
 
-    /**
-     * @param UriInterface|string $baseUrl
-     */
-    private function __construct($baseUrl)
+    private function __construct(string $baseUrl)
     {
-        $this->baseUrl = $this->normalise($baseUrl);
+        $this->normalized = $this->normalize($baseUrl);
     }
 
-    /**
-     * @param string $baseUrl
-     * @return \Flarum\Install\BaseUrl
-     */
     public static function fromString(string $baseUrl): self
     {
         return new self($baseUrl);
     }
 
-    /**
-     * @param \Psr\Http\Message\UriInterface $baseUrl
-     * @return \Flarum\Install\BaseUrl
-     */
     public static function fromUri(UriInterface $baseUrl): self
     {
-        return self::fromString((string) $baseUrl);
+        return new self((string) $baseUrl);
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
-        return $this->baseUrl;
+        return $this->normalized;
     }
 
-    /**
-     * @param UriInterface|string $baseUrl
-     * @return string
-     */
-    private function normalise($baseUrl): string
+    public function toEmail(string $mailbox): string
+    {
+        $host = preg_replace('/^www\./i', '', parse_url($this->normalized, PHP_URL_HOST));
+
+        return "$mailbox@$host";
+    }
+
+    private function normalize(string $baseUrl): string
     {
         // Empty base url is still valid
         if (empty($baseUrl)) {
             return '';
         }
 
-        $normalisedBaseUrl = trim($baseUrl, '/');
-        if (! preg_match('#^https?://#i', $normalisedBaseUrl)) {
-            $normalisedBaseUrl = sprintf('http://%s', $normalisedBaseUrl);
+        $normalizedBaseUrl = trim($baseUrl, '/');
+        if (! preg_match('#^https?://#i', $normalizedBaseUrl)) {
+            $normalizedBaseUrl = sprintf('http://%s', $normalizedBaseUrl);
         }
 
-        $parseUrl = parse_url($normalisedBaseUrl);
+        $parseUrl = parse_url($normalizedBaseUrl);
 
         $path = $parseUrl['path'] ?? null;
         if (isset($parseUrl['path']) && strrpos($parseUrl['path'], '.php') !== false) {
