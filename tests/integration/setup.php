@@ -8,6 +8,7 @@
  */
 
 use Flarum\Install\AdminUser;
+use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 
@@ -46,7 +47,7 @@ $installation = new Installation(
 $pipeline = $installation
     ->configPath('config.php')
     ->debugMode(true)
-    ->baseUrl('http://localhost')
+    ->baseUrl(BaseUrl::fromString('http://localhost'))
     ->databaseConfig(new DatabaseConfig(
         'mysql',
         env('DB_HOST', 'localhost'),

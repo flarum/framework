@@ -11,6 +11,7 @@ namespace Flarum\Install\Console;
 
 use Exception;
 use Flarum\Install\AdminUser;
+use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,7 +44,7 @@ class FileDataProvider implements DataProviderInterface
 
             // Define configuration variables
             $this->debug = $configuration['debug'] ?? false;
-            $this->baseUrl = isset($configuration['baseUrl']) ? rtrim($configuration['baseUrl'], '/') : null;
+            $this->baseUrl = $configuration['baseUrl'] ?? 'http://flarum.local';
             $this->databaseConfiguration = $configuration['databaseConfiguration'] ?? [];
             $this->adminUser = $configuration['adminUser'] ?? [];
             $this->settings = $configuration['settings'] ?? [];
@@ -56,7 +57,7 @@ class FileDataProvider implements DataProviderInterface
     {
         return $installation
             ->debugMode($this->debug)
-            ->baseUrl($this->baseUrl ?? 'http://flarum.local')
+            ->baseUrl(BaseUrl::fromString($this->baseUrl))
             ->databaseConfig($this->getDatabaseConfiguration())
             ->adminUser($this->getAdminUser())
             ->settings($this->settings);
