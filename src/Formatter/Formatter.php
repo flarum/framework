@@ -140,7 +140,7 @@ class Formatter
 
         foreach ($dom->getElementsByTagName('a') as $a) {
             $a->setAttribute('target', '_blank');
-            $a->setAttribute('rel', 'nofollow');
+            $a->setAttribute('rel', 'nofollow ugc');
         }
 
         $dom->saveChanges();
