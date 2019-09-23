@@ -12,14 +12,13 @@
 namespace Flarum\Tests\unit;
 
 use Flarum\Install\BaseUrl;
-use Flarum\Tests\integration\TestCase;
+use PHPUnit\Framework\TestCase;
+use Zend\Diactoros\Uri;
 
 class BaseUrlTest extends TestCase
 {
     /**
      * @dataProvider urlProvider
-     * @param $uri
-     * @param $expected
      */
     public function test_base_url_simulating_cli_installer($uri, $expected)
     {
@@ -28,14 +27,23 @@ class BaseUrlTest extends TestCase
 
     /**
      * @dataProvider urlProvider
-     * @param $uri
-     * @param $expected
      */
     public function test_base_url_simulating_web_installer($uri, $expected)
     {
-        $request = $this->request('get', $uri);
+        $uri = new Uri($uri);
 
-        $this->assertEquals($expected, BaseUrl::fromUri($request->getUri()));
+        $this->assertEquals($expected, BaseUrl::fromUri($uri));
+    }
+
+    /**
+     * @dataProvider emailProvider
+     */
+    public function test_default_email_generation($uri, $expected)
+    {
+        $this->assertEquals(
+            $expected,
+            BaseUrl::fromString($uri)->toEmail('noreply')
+        );
     }
 
     public function urlProvider()
@@ -54,6 +62,24 @@ class BaseUrlTest extends TestCase
             ['http://flarum.org/flarum/index.php/', 'http://flarum.org/flarum'],
             ['sub.flarum.org',                      'http://sub.flarum.org'],
             ['http://sub.flarum.org',               'http://sub.flarum.org'],
+        ];
+    }
+
+    public function emailProvider()
+    {
+        return [
+            ['flarum.org',                          'noreply@flarum.org'],
+            ['flarum.org/',                         'noreply@flarum.org'],
+            ['http://flarum.org',                   'noreply@flarum.org'],
+            ['http://flarum.org/',                  'noreply@flarum.org'],
+            ['https://flarum.org',                  'noreply@flarum.org'],
+            ['http://flarum.org/index.php',         'noreply@flarum.org'],
+            ['http://flarum.org/index.php/',        'noreply@flarum.org'],
+            ['http://flarum.org/flarum',            'noreply@flarum.org'],
+            ['http://flarum.org/flarum/index.php',  'noreply@flarum.org'],
+            ['http://flarum.org/flarum/index.php/', 'noreply@flarum.org'],
+            ['sub.flarum.org',                      'noreply@sub.flarum.org'],
+            ['http://sub.flarum.org',               'noreply@sub.flarum.org'],
         ];
     }
 }
