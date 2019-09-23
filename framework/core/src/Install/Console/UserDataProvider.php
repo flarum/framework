@@ -29,6 +29,7 @@ class UserDataProvider implements DataProviderInterface
 
     protected $questionHelper;
 
+    /** @var BaseUrl */
     protected $baseUrl;
 
     public function __construct(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
@@ -42,7 +43,7 @@ class UserDataProvider implements DataProviderInterface
     {
         return $installation
             ->debugMode(false)
-            ->baseUrl(BaseUrl::fromString($this->getBaseUrl()))
+            ->baseUrl($this->getBaseUrl())
             ->databaseConfig($this->getDatabaseConfiguration())
             ->adminUser($this->getAdminUser())
             ->settings($this->getSettings());
@@ -68,15 +69,17 @@ class UserDataProvider implements DataProviderInterface
         );
     }
 
-    private function getBaseUrl(): string
+    private function getBaseUrl(): BaseUrl
     {
-        return $this->baseUrl = $this->ask('Base URL:(Default: http://flarum.local)', 'http://flarum.local');
+        $baseUrl = $this->ask('Base URL (Default: http://flarum.local):', 'http://flarum.local');
+
+        return $this->baseUrl = BaseUrl::fromString($baseUrl);
     }
 
     private function getAdminUser(): AdminUser
     {
         return new AdminUser(
-            $this->ask('Admin username:(Default: admin)', 'admin'),
+            $this->ask('Admin username (Default: admin):', 'admin'),
             $this->askForAdminPassword(),
             $this->ask('Admin email address (required):')
         );
@@ -109,7 +112,7 @@ class UserDataProvider implements DataProviderInterface
 
         return [
             'forum_title' => $title,
-            'mail_from' => 'noreply@'.preg_replace('/^www\./i', '', parse_url($this->baseUrl, PHP_URL_HOST)),
+            'mail_from' => $this->baseUrl->toEmail('noreply'),
             'welcome_title' => 'Welcome to '.$title,
         ];
     }
