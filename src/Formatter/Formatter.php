@@ -139,7 +139,8 @@ class Formatter
         $dom = $configurator->tags['URL']->template->asDOM();
 
         foreach ($dom->getElementsByTagName('a') as $a) {
-            $a->setAttribute('rel', 'nofollow ugc');
+            $rel = $a->getAttribute('rel');
+            $a->setAttribute('rel', "$rel nofollow ugc");
         }
 
         $dom->saveChanges();
