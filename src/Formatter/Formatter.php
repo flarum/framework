@@ -137,7 +137,6 @@ class Formatter
         $dom = $configurator->tags['URL']->template->asDOM();
 
         foreach ($dom->getElementsByTagName('a') as $a) {
-            $a->setAttribute('target', '_blank');
             $a->setAttribute('rel', 'nofollow ugc');
         }
 
