@@ -27,6 +27,11 @@ return [
                                 ->where('id', $user->id)
                                 ->update(['disclose_online' => (bool) $value]);
                         }
+                        if ($key === 'locale') {
+                            $db->table('users')
+                                ->where('id', $user->id)
+                                ->update(['locale' => $value]);
+                        }
                         if (preg_match('/^notify_(?<type>[^_]+)_(?<channel>.*)$/', $key, $matches)) {
                             $db->table('notification_preferences')
                                 ->insert([

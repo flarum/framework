@@ -16,12 +16,15 @@ return [
     'up' => function (Builder $schema) {
         $schema->table('users', function (Blueprint $table) {
             $table->boolean('disclose_online')->default(false);
+            $table->string('locale')->nullable();
+
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('users', function (Blueprint $table) {
             $table->dropColumn('disclose_online');
+            $table->dropColumn('locale');
         });
     }
 ];
