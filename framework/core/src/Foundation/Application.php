@@ -23,7 +23,7 @@ class Application extends Container implements ApplicationContract
      *
      * @var string
      */
-    const VERSION = '0.1.0-beta.10';
+    const VERSION = '0.1.0-beta.11';
 
     /**
      * The base path for the Flarum installation.
