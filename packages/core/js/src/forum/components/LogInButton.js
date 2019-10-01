@@ -13,7 +13,7 @@ export default class LogInButton extends Button {
     props.className = (props.className || '') + ' LogInButton';
 
     props.onclick = function() {
-      const width = 600;
+      const width = 580;
       const height = 400;
       const $window = $(window);
 
