@@ -22,7 +22,7 @@ export default class LogInButton extends Button {
         `height=${height},` +
         `top=${$window.height() / 2 - height / 2},` +
         `left=${$window.width() / 2 - width / 2},` +
-        'status=no,scrollbars=no,resizable=no');
+        'status=no,scrollbars=yes,resizable=no');
     };
 
     super.initProps(props);
