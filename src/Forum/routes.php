@@ -28,7 +28,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->get(
         '/u/{username}[/{filter:[^/]*}]',
         'user',
-        $route->toForum()
+        $route->toForum(Content\User::class)
     );
 
     $map->get(

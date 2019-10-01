@@ -88,6 +88,8 @@ export default class UserPage extends Page {
   loadUser(username) {
     const lowercaseUsername = username.toLowerCase();
 
+    app.preloadedApiDocument();
+
     app.store.all('users').some(user => {
       if (user.username().toLowerCase() === lowercaseUsername && user.joinTime()) {
         this.show(user);
