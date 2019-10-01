@@ -16,6 +16,7 @@ use Flarum\Foundation\Application;
 use Flarum\Foundation\SiteInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Server
 {
@@ -46,6 +47,8 @@ class Server
         $app = Application::getInstance();
 
         $events = $app->make(Dispatcher::class);
-        $events->fire(new Configuring($app, $console));
+        $events->fire(new Configuring($app, $console, $dispatcher = new EventDispatcher()));
+
+        $console->setDispatcher($dispatcher);
     }
 }
