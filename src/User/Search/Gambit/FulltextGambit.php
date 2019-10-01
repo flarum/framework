@@ -31,14 +31,24 @@ class FulltextGambit implements GambitInterface
     }
 
     /**
+     * @param $searchValue
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function getUserSearchSubQuery($searchValue)
+    {
+        return $this->users
+            ->query()
+            ->select('id')
+            ->where('username', 'like', "{$searchValue}%");
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function apply(AbstractSearch $search, $bit)
+    public function apply(AbstractSearch $search, $searchValue)
     {
-        $users = $this->users->getIdsForUsername($bit, $search->getActor());
-
-        $search->getQuery()->whereIn('id', $users);
-
-        $search->setDefaultSort(['id' => $users]);
+        $search->getQuery()
+            ->whereIn('id',
+                $this->getUserSearchSubQuery($searchValue));
     }
 }
