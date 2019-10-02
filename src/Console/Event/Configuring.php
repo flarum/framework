@@ -12,7 +12,6 @@ namespace Flarum\Console\Event;
 use Flarum\Foundation\Application;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Application as ConsoleApplication;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Configure the console application.
