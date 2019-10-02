@@ -13,9 +13,13 @@ namespace Flarum\Console;
 
 use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\ErrorHandling\Registry;
+use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\SiteInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Server
@@ -46,8 +50,31 @@ class Server
     {
         $app = Application::getInstance();
 
+        $this->handleErrors($app, $console);
+
         $events = $app->make(Dispatcher::class);
-        $events->fire(new Configuring($app, $console, $dispatcher = new EventDispatcher()));
+
+        $events->fire(new Configuring($app, $console));
+    }
+
+    private function handleErrors(Application $app, ConsoleApplication $console)
+    {
+        $dispatcher = new EventDispatcher();
+
+        $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) use ($app) {
+            /** @var Registry $registry */
+            $registry = $app->make(Registry::class);
+
+            $error = $registry->handle($event->getError());
+
+            $reporters = $app->tagged(Reporter::class);
+
+            if ($error->shouldBeReported()) {
+                foreach ($reporters as $reporter) {
+                    $reporter->report($error->getException());
+                }
+            }
+        });
 
         $console->setDispatcher($dispatcher);
     }

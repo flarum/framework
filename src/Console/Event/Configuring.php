@@ -32,21 +32,15 @@ class Configuring
      * @var ConsoleApplication
      */
     public $console;
-    /**
-     * @var EventDispatcher
-     */
-    public $eventDispatcher;
 
     /**
      * @param Application        $app
      * @param ConsoleApplication $console
-     * @param EventDispatcher    $eventDispatcher
      */
-    public function __construct(Application $app, ConsoleApplication $console, EventDispatcher $eventDispatcher)
+    public function __construct(Application $app, ConsoleApplication $console)
     {
         $this->app = $app;
         $this->console = $console;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
