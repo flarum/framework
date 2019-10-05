@@ -16,6 +16,7 @@ use Flarum\Api\Controller\ShowUserController;
 use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
+use Flarum\User\User as FlarumUser;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -61,14 +62,14 @@ class User
     }
 
     /**
-     * Get the result of an API request to show a discussion.
+     * Get the result of an API request to show a user.
      *
-     * @param \Flarum\User\User $actor
+     * @param FlarumUser $actor
      * @param array $params
      * @return object
      * @throws RouteNotFoundException
      */
-    protected function getApiDocument(\Flarum\User\User $actor, array $params)
+    protected function getApiDocument(FlarumUser $actor, array $params)
     {
         $response = $this->api->send(ShowUserController::class, $actor, $params);
         $statusCode = $response->getStatusCode();
