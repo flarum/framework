@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Flarum\Subscriptions\Job;
-
 
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Post;
@@ -35,7 +42,8 @@ class SendReplyNotification implements ShouldQueue
         $this->lastPostNumber = $lastPostNumber;
     }
 
-    public function handle(NotificationSyncer $notifications) {
+    public function handle(NotificationSyncer $notifications)
+    {
         $post = $this->post;
         $discussion = $post->discussion;
 
