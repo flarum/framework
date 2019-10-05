@@ -15,6 +15,7 @@ use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Illuminate\Contracts\Queue\Factory;
+use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Console as Commands;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
@@ -89,6 +90,8 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->app->singleton('queue.failer', function () {
             return new NullFailedJobProvider();
         });
+
+        $this->app->alias('flarum.queue.connection', Queue::class);
 
         $this->app->alias(ConnectorInterface::class, 'queue.connection');
         $this->app->alias(Factory::class, 'queue');
