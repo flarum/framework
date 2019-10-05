@@ -9,39 +9,26 @@
 
 namespace Flarum\Subscriptions\Listener;
 
-use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Event\Posted;
-use Flarum\Subscriptions\Notification\NewPostBlueprint;
+use Flarum\Subscriptions\Job\SendReplyNotification;
+use Illuminate\Contracts\Queue\Queue;
 
 class SendNotificationWhenReplyIsPosted
 {
     /**
-     * @var NotificationSyncer
+     * @var Queue
      */
-    protected $notifications;
+    protected $queue;
 
-    /**
-     * @param NotificationSyncer $notifications
-     */
-    public function __construct(NotificationSyncer $notifications)
+    public function __construct(Queue $queue)
     {
-        $this->notifications = $notifications;
+        $this->queue = $queue;
     }
 
     public function handle(Posted $event)
     {
-        $post = $event->post;
-        $discussion = $post->discussion;
-
-        $notify = $discussion->readers()
-            ->where('users.id', '!=', $post->user_id)
-            ->where('discussion_user.subscription', 'follow')
-            ->where('discussion_user.last_read_post_number', $discussion->last_post_number)
-            ->get();
-
-        $this->notifications->sync(
-            new NewPostBlueprint($event->post),
-            $notify->all()
+        $this->queue->push(
+            new SendReplyNotification($event->post, $event->post->discussion->last_post_number)
         );
     }
 }
