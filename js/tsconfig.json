@@ -1,0 +1,6 @@
+{
+  "extends": "flarum-webpack-config/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve"
+  }
+}
