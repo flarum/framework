@@ -18,23 +18,38 @@ use Flarum\Group\Permission;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $slug
+ * @property string $description
+ * @property string $color
+ * @property string $background_path
+ * @property string $background_mode
+ * @property int $position
+ * @property int $parent_id
+ * @property string $default_sort
+ * @property bool $is_restricted
+ * @property bool $is_hidden
+ * @property int $discussion_count
+ * @property \Carbon\Carbon $last_posted_at
+ * @property int $last_posted_discussion_id
+ * @property int $last_posted_user_id
+ * @property string $icon
+ */
 class Tag extends AbstractModel
 {
     use ScopeVisibilityTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $table = 'tags';
 
-    /**
-     * {@inheritdoc}
-     */
     protected $dates = ['last_posted_at'];
 
-    /**
-     * {@inheritdoc}
-     */
+    protected $casts = [
+        'is_hidden' => 'bool',
+        'is_restricted' => 'bool'
+    ];
+
     public static function boot()
     {
         parent::boot();
@@ -51,6 +66,7 @@ class Tag extends AbstractModel
      * @param string $slug
      * @param string $description
      * @param string $color
+     * @param string $icon
      * @param bool $isHidden
      * @return static
      */
@@ -68,43 +84,26 @@ class Tag extends AbstractModel
         return $tag;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function parent()
     {
         return $this->belongsTo(self::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function lastPostedDiscussion()
     {
         return $this->belongsTo(Discussion::class, 'last_posted_discussion_id');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function lastPostedUser()
     {
         return $this->belongsTo(User::class, 'last_posted_user_id');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
     public function discussions()
     {
         return $this->belongsToMany(Discussion::class);
     }
 
-    /**
-     * Refresh a tag's last discussion details.
-     *
-     * @return $this
-     */
     public function refreshLastPostedDiscussion()
     {
         if ($lastPostedDiscussion = $this->discussions()->latest('last_posted_at')->first()) {
@@ -114,12 +113,6 @@ class Tag extends AbstractModel
         return $this;
     }
 
-    /**
-     * Set the tag's last discussion details.
-     *
-     * @param Discussion $discussion
-     * @return $this
-     */
     public function setLastPostedDiscussion(Discussion $discussion)
     {
         $this->last_posted_at = $discussion->last_posted_at;
@@ -173,13 +166,7 @@ class Tag extends AbstractModel
         ]);
     }
 
-    /**
-     * @param User $user
-     * @param string $permission
-     * @param bool $condition
-     * @return array
-     */
-    protected static function getIdsWherePermission(User $user, $permission, $condition = true)
+    protected static function getIdsWherePermission(User $user, string $permission, bool $condition = true): array
     {
         static $tags;
 
@@ -209,22 +196,12 @@ class Tag extends AbstractModel
         return $ids;
     }
 
-    /**
-     * @param User $user
-     * @param string $permission
-     * @return array
-     */
-    public static function getIdsWhereCan(User $user, $permission)
+    public static function getIdsWhereCan(User $user, string $permission): array
     {
         return static::getIdsWherePermission($user, $permission, true);
     }
 
-    /**
-     * @param User $user
-     * @param string $permission
-     * @return array
-     */
-    public static function getIdsWhereCannot(User $user, $permission)
+    public static function getIdsWhereCannot(User $user, string $permission): array
     {
         return static::getIdsWherePermission($user, $permission, false);
     }
