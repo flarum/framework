@@ -11,7 +11,7 @@ namespace Flarum\Settings;
 
 interface SettingsRepositoryInterface
 {
-    public function all();
+    public function all(): array;
 
     public function get($key, $default = null);
 
