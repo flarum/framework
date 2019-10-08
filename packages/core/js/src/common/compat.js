@@ -37,6 +37,7 @@ import Placeholder from './components/Placeholder';
 import Separator from './components/Separator';
 import Dropdown from './components/Dropdown';
 import SplitDropdown from './components/SplitDropdown';
+import RequestErrorModal from './components/RequestErrorModal';
 import FieldSet from './components/FieldSet';
 import Select from './components/Select';
 import Navigation from './components/Navigation';
@@ -100,6 +101,7 @@ export default {
   'components/Separator': Separator,
   'components/Dropdown': Dropdown,
   'components/SplitDropdown': SplitDropdown,
+  'components/RequestErrorModal': RequestErrorModal,
   'components/FieldSet': FieldSet,
   'components/Select': Select,
   'components/Navigation': Navigation,
