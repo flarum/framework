@@ -22,7 +22,7 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
         $this->database = $connection;
     }
 
-    public function all()
+    public function all(): array
     {
         return $this->database->table('settings')->pluck('value', 'key')->all();
     }
