@@ -1,7 +1,9 @@
 import ItemList from './utils/ItemList';
 import Alert from './components/Alert';
+import Button from './components/Button';
 import ModalManager from './components/ModalManager';
 import AlertManager from './components/AlertManager';
+import RequestErrorModal from './components/RequestErrorModal';
 import Translator from './Translator';
 import Store from './Store';
 import Session from './Session';
@@ -141,7 +143,7 @@ export default class Application {
   bootExtensions(extensions) {
     Object.keys(extensions).forEach(name => {
       const extension = extensions[name];
-      
+
       const extenders = flattenDeep(extension.extend);
 
       for (const extender of extenders) {
@@ -330,7 +332,10 @@ export default class Application {
 
       error.alert = new Alert({
         type: 'error',
-        children
+        children,
+        controls: app.forum.attribute('debug') ? [
+          <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>Debug</Button>
+        ] : undefined
       });
 
       try {
@@ -343,6 +348,16 @@ export default class Application {
     });
 
     return deferred.promise;
+  }
+
+  /**
+   * @param {RequestError} error
+   * @private
+   */
+  showDebug(error) {
+    this.alerts.dismiss(this.requestErrorAlert);
+
+    this.modal.show(new RequestErrorModal({error}));
   }
 
   /**
