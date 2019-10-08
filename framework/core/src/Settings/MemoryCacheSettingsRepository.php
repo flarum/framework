@@ -26,7 +26,7 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
         $this->inner = $inner;
     }
 
-    public function all()
+    public function all(): array
     {
         if (! $this->isCached) {
             $this->cache = $this->inner->all();
