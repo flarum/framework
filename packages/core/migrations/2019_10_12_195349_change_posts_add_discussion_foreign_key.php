@@ -9,7 +9,7 @@ return [
         // foreign keys without any issues.
         $connection = $schema->getConnection();
         $connection->table('posts')
-            ->orWhereNotExists(function ($query) {
+            ->whereNotExists(function ($query) {
                 $query->selectRaw(1)->from('discussions')->whereColumn('id', 'discussion_id');
             })
             ->delete();
