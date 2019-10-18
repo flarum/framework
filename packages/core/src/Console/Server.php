@@ -67,6 +67,7 @@ class Server
 
             $error = $registry->handle($event->getError());
 
+            /** @var Reporter[] $reporters */
             $reporters = $app->tagged(Reporter::class);
 
             if ($error->shouldBeReported()) {
