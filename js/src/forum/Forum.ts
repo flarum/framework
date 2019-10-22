@@ -9,13 +9,13 @@ import PostsUserPage from './components/PostsUserPage';
 
 export default class Forum extends Application {
     routes = {
-        'index': { path: '/', component: new IndexPage() },
-        'index.filter': { path: '/:filter', component: new IndexPage() },
+        'index': { path: '/', component: IndexPage },
+        'index.filter': { path: '/:filter', component: IndexPage },
 
-        'user': { path: '/u/:username', component: new PostsUserPage() },
-        'user.posts': { path: '/u/:username', component: new PostsUserPage() },
-        'user.discussions': { path: '/u/:username', component: new PostsUserPage() },
-        'settings': { path: '/u/:username', component: new PostsUserPage() },
+        'user': { path: '/u/:username', component: PostsUserPage },
+        'user.posts': { path: '/u/:username', component: PostsUserPage },
+        'user.discussions': { path: '/u/:username', component: PostsUserPage },
+        'settings': { path: '/u/:username', component: PostsUserPage },
     };
 
     /**
