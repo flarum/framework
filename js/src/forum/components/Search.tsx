@@ -7,6 +7,8 @@ import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
 import SearchSource from './SearchSource';
 
+import Stream from 'mithril/stream';
+
 /**
  * The `Search` component displays a menu of as-you-type results from a variety
  * of sources.
@@ -20,7 +22,7 @@ export default class Search extends Component {
   /**
    * The value of the search input.
    */
-  value: Function = m.prop('');
+  value: Stream<string> = m.prop('');
 
   /**
    * Whether or not the search input has focus.
@@ -71,8 +73,6 @@ export default class Search extends Component {
 
     // Hide the search view if no sources were loaded
     if (!this.sources.length) return <div/>;
-
-    console.log('Search#view - loading:', this.loadingSources)
 
     return (
       <div className={'Search ' + classNames({

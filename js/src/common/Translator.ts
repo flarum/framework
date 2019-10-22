@@ -1,6 +1,6 @@
 import extract from './utils/extract';
+import extractText from './utils/extractText';
 import username from './helpers/username';
-import extractText from "./utils/extractText";
 
 type Translations = { [key: string]: string };
 
