@@ -3,6 +3,7 @@
   "name": "@flarum/core",
   "dependencies": {
     "bootstrap": "^3.4.1",
+    "classnames": "^2.2.6",
     "color-thief-browser": "^2.0.2",
     "dayjs": "^1.8.16",
     "expose-loader": "^0.7.5",
@@ -24,18 +25,11 @@
     "zepto": "^1.2.0"
   },
   "devDependencies": {
-    "husky": "^4.2.5",
-    "prettier": "2.0.2"
+    "@types/classnames": "^2.2.9",
+    "@types/zepto": "^1.0.30"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
-    "build": "webpack --mode production",
-    "format": "prettier --write src",
-    "format-check": "prettier --check src"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run format"
-    }
+    "build": "webpack --mode production"
   }
 }

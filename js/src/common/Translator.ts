@@ -1,3 +1,6 @@
+import extract from './utils/extract';
+import username from './helpers/username';
+
 type Translations = { [key: string]: string };
 
 export default class Translator {
@@ -32,8 +35,8 @@ export default class Translator {
 
     apply(translation: string, input: any) {
         if ('user' in input) {
-            // const user = extract(input, 'user');
-            // if (!input.username) input.username = username(user);
+            const user = extract(input, 'user');
+            if (!input.username) input.username = username(user);
         }
 
         const parts = translation.split(new RegExp('({[a-z0-9_]+}|</?[a-z0-9_]+>)', 'gi'));

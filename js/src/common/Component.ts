@@ -1,25 +1,45 @@
 import Mithril from 'mithril';
 
-export interface ComponentProps {
-    oninit: Function;
-    view: Function;
-    component: Object;
-    props: Object;
-    attrs: { key: string } | null;
+export type ComponentProps = {
+  children?: Mithril.Children,
+
+  className?: string;
+
+  [key: string]: any;
 }
 
-export default class Component {
+export default class Component<T extends ComponentProps = any> {
     protected element: HTMLElement;
 
+    protected props = <T> {};
+
+    view(vnode) {
+        throw new Error('Component#view must be implemented by subclass');
+    }
+
+    oninit(vnode) {
+        this.setProps(vnode.attrs);
+    }
+
     oncreate(vnode) {
+        this.setProps(vnode.attrs);
         this.element = vnode.dom;
     }
 
-    /**
-     * @param vnode 
-     */
-    view(vnode) {
-        throw new Error('Component#view must be implemented by subclass');
+    onbeforeupdate(vnode) {
+        this.setProps(vnode.attrs);
+    }
+
+    onupdate(vnode) {
+        this.setProps(vnode.attrs);
+    }
+
+    onbeforeremove(vnode) {
+        this.setProps(vnode.attrs);
+    }
+
+    onremove(vnode) {
+        this.setProps(vnode.attrs);
     }
 
     /**
@@ -35,20 +55,25 @@ export default class Component {
      * @returns {jQuery} the jQuery object for the DOM node
      * @final
      */
-    public $(selector?: string) {
+    $(selector?: string) {
         const $element = $(this.element);
 
         return selector ? $element.find(selector) : $element;
     }
 
-    /**
-     * @deprecated add component via m(Component, props) directly
-     */
-    public static component(props: any = {}, children?: Mithril.ChildArrayOrPrimitive) {
-        const componentProps = Object.assign({}, props);
+    static component(props: ComponentProps|any = {}, children?: Mithril.Children) {
+        const componentProps: ComponentProps = Object.assign({}, props);
 
         if (children) componentProps.children = children;
 
         return m(this, componentProps);
+    }
+
+    static initProps(props: ComponentProps = {}) {}
+
+    private setProps(props: T) {
+        (this.constructor as typeof Component).initProps(props);
+
+        this.props = props;
     }
 }
