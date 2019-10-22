@@ -37,14 +37,20 @@ export default class UsersSearchSource extends SearchSource {
       <li className="Dropdown-header">{app.translator.trans('core.forum.search.users_heading')}</li>,
       results.map(user => {
         const name = username(user);
+
+        if (!name.children) {
+          name.children = [name.text];
+          delete name.text;
+        }
+
         name.children[0] = highlight(name.children[0], query);
 
         return (
           <li className="UserSearchResult" data-index={'users' + user.id()}>
-            <a href={app.route.user(user)} oncreate={m.route}>
+            <m.route.Link href={app.route.user(user)}>
               {avatar(user)}
               {name}
-            </a>
+            </m.route.Link>
           </li>
         );
       })

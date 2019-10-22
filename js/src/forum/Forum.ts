@@ -16,6 +16,8 @@ export default class Forum extends Application {
         'user.posts': { path: '/u/:username', component: PostsUserPage },
         'user.discussions': { path: '/u/:username', component: PostsUserPage },
         'settings': { path: '/u/:username', component: PostsUserPage },
+
+        'discussion': { path: '/d/:id', IndexPage },
     };
 
     /**
