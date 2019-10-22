@@ -22,6 +22,11 @@ export default abstract class UserPage extends Page {
   user: User;
   bodyClass: string = 'App--user';
 
+  /**
+   * The username of the currently loaded user
+   */
+  username: string;
+
   view() {
     return (
       <div className="UserPage">
@@ -54,7 +59,6 @@ export default abstract class UserPage extends Page {
    */
   abstract content();
 
-
   /**
    * Initialize the component with a user, and trigger the loading of their
    * activity feed.
@@ -73,6 +77,10 @@ export default abstract class UserPage extends Page {
    */
   loadUser(username: string) {
     const lowercaseUsername = username.toLowerCase();
+
+    if (lowercaseUsername == this.username) return;
+
+    this.username = lowercaseUsername;
 
     app.store.all('users').some(user => {
       if (user.username().toLowerCase() === lowercaseUsername && user.joinTime()) {

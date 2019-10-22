@@ -33,7 +33,13 @@ export default class PostsUserPage extends UserPage {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.loadUser(m.route.param('username'));
+    this.loadUser(vnode.attrs.username);
+  }
+
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
+    this.loadUser(vnode.attrs.username);
   }
 
   content() {
@@ -69,7 +75,7 @@ export default class PostsUserPage extends UserPage {
           {this.posts.map(post => (
             <li>
               <div className="PostsUserPage-discussion">
-                {app.translator.trans('core.forum.user.in_discussion_text', {discussion: <a href={app.route.post(post)} oncreate={m.route}>{post.discussion().title()}</a>})}
+                {app.translator.trans('core.forum.user.in_discussion_text', {discussion: <m.route.Link href={app.route.post(post)}>{post.discussion().title()}</m.route.Link>})}
               </div>
               {CommentPost.component({post})}
             </li>

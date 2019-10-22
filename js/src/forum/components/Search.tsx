@@ -185,7 +185,7 @@ export default class Search extends Component {
     this.loadingSources = 0;
 
     if (this.value()) {
-      m.route(this.getItem(this.index).find('a').attr('href'));
+      m.route.set(this.getItem(this.index).find('a').attr('href'));
     } else {
       this.clear();
     }
