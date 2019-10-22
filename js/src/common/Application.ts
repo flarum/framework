@@ -7,6 +7,7 @@ import Store from './Store';
 
 import extract from './utils/extract';
 import mapRoutes from './utils/mapRoutes';
+import Drawer from './utils/Drawer';
 import {extend} from './extend';
 
 import Forum from './models/Forum';
@@ -14,6 +15,7 @@ import Discussion from './models/Discussion';
 import User from './models/User';
 import Post from './models/Post';
 import Group from './models/Group';
+import Notification from './models/Notification';
 
 import RequestError from './utils/RequestError';
 import Alert from './components/Alert';
@@ -32,7 +34,7 @@ export default abstract class Application {
      */
     forum: Forum;
 
-    data: ApplicationData | undefined;
+    data: ApplicationData;
 
     translator = new Translator();
     bus = new Bus();
@@ -51,8 +53,16 @@ export default abstract class Application {
         discussions: Discussion,
         posts: Post,
         groups: Group,
-        // notifications: Notification
+        notifications: Notification
     });
+
+    drawer = new Drawer();
+
+    /**
+     * A local cache that can be used to store data at the application level, so
+     * that is persists between different routes.
+     */
+    cache = {};
 
     routes = {};
 
@@ -68,8 +78,6 @@ export default abstract class Application {
     mount(basePath = '') {
         // this.modal = m.mount(document.getElementById('modal'), <ModalManager />);
         // this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
-
-        // this.drawer = new Drawer();
 
         m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
     }
@@ -151,7 +159,7 @@ export default abstract class Application {
     route(name: string, params: object = {}): string {
         const route = this.routes[name];
 
-        if (!route) throw new Error(`Route ${name} does not exist`);
+        if (!route) throw new Error(`Route '${name}' does not exist`);
 
         const url = route.path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
         const queryString = m.buildQueryString(params);

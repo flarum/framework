@@ -2,9 +2,9 @@ import Component from '../../common/Component';
 import Button from '../../common/components/Button';
 // import LogInModal from './LogInModal';
 // import SignUpModal from './SignUpModal';
-// import SessionDropdown from './SessionDropdown';
+import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
-// import NotificationsDropdown from './NotificationsDropdown';
+import NotificationsDropdown from './NotificationsDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 
@@ -32,7 +32,7 @@ export default class HeaderSecondary extends Component {
 
     items.add('search', Search.component(), 30);
 
-    if (app.forum.attribute("showLanguageSelector") && Object.keys(app.data.locales).length > 0) {
+    if (app.forum.attribute("showLanguageSelector") && Object.keys(app.data.locales).length > 1) {
       const locales = [];
 
       for (const locale in app.data.locales) {
@@ -58,8 +58,8 @@ export default class HeaderSecondary extends Component {
     }
 
     if (app.session.user) {
-      // items.add('notifications', NotificationsDropdown.component(), 10);
-      // items.add('session', SessionDropdown.component(), 0);
+      items.add('notifications', NotificationsDropdown.component(), 10);
+      items.add('session', SessionDropdown.component(), 0);
     } else {
       if (app.forum.attribute('allowSignUp')) {
         items.add('signUp',

@@ -1,5 +1,5 @@
-class Item {
-    content: any;
+class Item<T> {
+    content: T;
     priority: number;
     key: number = 0;
 
@@ -9,8 +9,8 @@ class Item {
     }
 }
 
-export default class ItemList {
-    private items: { [key: string]: Item } = {};
+export default class ItemList<T = any> {
+    private items: { [key: string]: Item<T> } = {};
 
     /**
      * Check whether the list is empty.
@@ -30,9 +30,6 @@ export default class ItemList {
 
     /**
      * Check whether an item is present in the list.
-     *
-     * @param key
-     * @returns {boolean}
      */
     has(key: any): boolean {
         return !!this.items[key];
@@ -40,12 +37,8 @@ export default class ItemList {
 
     /**
      * Get the content of an item.
-     *
-     * @param {String} key
-     * @return {*}
-     * @public
      */
-    get(key: any) {
+    get(key: any): T {
         return this.items[key].content;
     }
 
@@ -65,8 +58,8 @@ export default class ItemList {
         return this;
     }
 
-    toArray<T>(): T[] {
-        const items: Item[] = [];
+    toArray(): T[] {
+        const items: Item<T>[] = [];
 
         for (const i in this.items) {
             if (this.items.hasOwnProperty(i)) {
