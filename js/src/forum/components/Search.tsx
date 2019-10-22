@@ -1,7 +1,6 @@
 import Component from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import ItemList from '../../common/utils/ItemList';
-import extractText from '../../common/utils/extractText';
 import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import icon from '../../common/helpers/icon';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
@@ -85,7 +84,7 @@ export default class Search extends Component {
         <div className="Search-input">
           <input className="FormControl"
                  type="search"
-                 placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
+                 placeholder={app.translator.transText('core.forum.header.search_placeholder')}
                  value={this.value()}
                  oninput={m.withAttr('value', this.value)}
                  onfocus={() => this.hasFocus = true}
