@@ -1,7 +1,7 @@
 class Item {
-    public content: any;
-    public priority: number;
-    public key: number = 0;
+    content: any;
+    priority: number;
+    key: number = 0;
 
     constructor(content: any, priority: number) {
         this.content = content;
@@ -45,7 +45,7 @@ export default class ItemList {
      * @return {*}
      * @public
      */
-    get(key: any): any {
+    get(key: any) {
         return this.items[key].content;
     }
 
@@ -59,13 +59,13 @@ export default class ItemList {
      * @return {ItemList}
      * @public
      */
-    add(key: any, content: any, priority = 0) {
+    add(key: any, content: T, priority = 0) {
         this.items[key] = new Item(content, priority);
 
         return this;
     }
 
-    get toArray() {
+    toArray<T>(): T[] {
         const items: Item[] = [];
 
         for (const i in this.items) {

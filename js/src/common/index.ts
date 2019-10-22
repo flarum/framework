@@ -3,29 +3,28 @@ import 'expose-loader?moment!expose-loader?dayjs!dayjs';
 import 'expose-loader?m!mithril';
 import 'expose-loader?m.bidi!m.attrs.bidi';
 import 'expose-loader?Mousetrap!mousetrap';
+import 'expose-loader?classNames!classNames';
 
 import 'zepto/src/selector';
 import 'zepto/src/data';
 import 'zepto/src/fx';
 import 'zepto/src/fx_methods';
 
-// import './utils/patchZepto';
+import './utils/patchZepto';
 
-// import 'hc-sticky';
-// import 'bootstrap/js/dropdown';
-// import 'bootstrap/js/transition';
+import 'hc-sticky';
+import 'bootstrap/js/dropdown';
+import 'bootstrap/js/transition';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
-
-import dayjs from 'dayjs';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
 import patchMithril from './utils/patchMithril';
 
-patchMithril(window);
+patchMithril();
 
 // import * as Extend from './extend/index';
 

@@ -1,12 +1,12 @@
 import Component from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import ItemList from '../../common/utils/ItemList';
-import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import icon from '../../common/helpers/icon';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
+import SearchSource from './SearchSource';
 
 /**
  * The `Search` component displays a menu of as-you-type results from a variety
@@ -18,52 +18,42 @@ import UsersSearchSource from './UsersSearchSource';
  * `clearSearch` method on the controller.
  */
 export default class Search extends Component {
-  init() {
-    /**
-     * The value of the search input.
-     *
-     * @type {Function}
-     */
-    this.value = m.prop('');
+  /**
+   * The value of the search input.
+   */
+  value: Function = m.prop('');
 
-    /**
-     * Whether or not the search input has focus.
-     *
-     * @type {Boolean}
-     */
-    this.hasFocus = false;
+  /**
+   * Whether or not the search input has focus.
+   */
+  hasFocus: boolean = false;
 
-    /**
-     * An array of SearchSources.
-     *
-     * @type {SearchSource[]}
-     */
-    this.sources = null;
+  /**
+   * An array of SearchSources.
+   */
+  sources: SearchSource[] = null;
 
-    /**
-     * The number of sources that are still loading results.
-     *
-     * @type {Integer}
-     */
-    this.loadingSources = 0;
+  /**
+   * The number of sources that are still loading results.
+   */
+  loadingSources = 0;
 
-    /**
-     * A list of queries that have been searched for.
-     *
-     * @type {Array}
-     */
-    this.searched = [];
+  /**
+   * A list of queries that have been searched for.
+   */
+  searched: string[] = [];
 
-    /**
-     * The index of the currently-selected <li> in the results list. This can be
-     * a unique string (to account for the fact that an item's position may jump
-     * around as new results load), but otherwise it will be numeric (the
-     * sequential position within the list).
-     *
-     * @type {String|Integer}
-     */
-    this.index = 0;
-  }
+  /**
+   * The index of the currently-selected <li> in the results list. This can be
+   * a unique string (to account for the fact that an item's position may jump
+   * around as new results load), but otherwise it will be numeric (the
+   * sequential position within the list).
+   */
+  index: string|number = 0;
+
+  navigator: KeyboardNavigatable;
+
+  searchTimeout: number;
 
   view() {
     const currentSearch = this.getCurrentSearch();
@@ -83,8 +73,10 @@ export default class Search extends Component {
     // Hide the search view if no sources were loaded
     if (!this.sources.length) return <div/>;
 
+    console.log('Search#view - loading:', this.loadingSources)
+
     return (
-      <div className={'Search ' + classList({
+      <div className={'Search ' + classNames({
         open: this.value() && this.hasFocus,
         focused: this.hasFocus,
         active: !!currentSearch,
@@ -92,12 +84,12 @@ export default class Search extends Component {
       })}>
         <div className="Search-input">
           <input className="FormControl"
-            type="search"
-            placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
-            value={this.value()}
-            oninput={m.withAttr('value', this.value)}
-            onfocus={() => this.hasFocus = true}
-            onblur={() => this.hasFocus = false}/>
+                 type="search"
+                 placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
+                 value={this.value()}
+                 oninput={m.withAttr('value', this.value)}
+                 onfocus={() => this.hasFocus = true}
+                 onblur={() => this.hasFocus = false}/>
           {this.loadingSources
             ? LoadingIndicator.component({size: 'tiny', className: 'Button Button--icon Button--link'})
             : currentSearch
@@ -113,11 +105,11 @@ export default class Search extends Component {
     );
   }
 
-  config(isInitialized) {
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
-
-    if (isInitialized) return;
 
     const search = this;
 
@@ -135,6 +127,7 @@ export default class Search extends Component {
     const $input = this.$('input');
 
     this.navigator = new KeyboardNavigatable();
+
     this.navigator
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
@@ -269,11 +262,11 @@ export default class Search extends Component {
    * Set the currently-selected search result item to the one with the given
    * index.
    *
-   * @param {Integer} index
-   * @param {Boolean} scrollToItem Whether or not to scroll the dropdown so that
+   * @param index
+   * @param scrollToItem Whether or not to scroll the dropdown so that
    *     the item is in view.
    */
-  setIndex(index, scrollToItem) {
+  setIndex(index: number, scrollToItem?: boolean) {
     const $items = this.selectableItems();
     const $dropdown = $items.parent();
 

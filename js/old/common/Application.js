@@ -141,7 +141,7 @@ export default class Application {
   bootExtensions(extensions) {
     Object.keys(extensions).forEach(name => {
       const extension = extensions[name];
-      
+
       const extenders = flattenDeep(extension.extend);
 
       for (const extender of extenders) {
@@ -240,7 +240,7 @@ export default class Application {
     // prevent redraws from occurring.
     options.background = options.background || true;
 
-    extend(options, 'config', (result, xhr) => xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken));
+      extend(options, 'config', (result, xhr) => xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken));
 
     // If the method is something like PATCH or DELETE, which not all servers
     // and clients support, then we'll send it as a POST request with the

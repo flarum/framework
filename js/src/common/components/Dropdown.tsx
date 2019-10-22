@@ -1,6 +1,18 @@
-import Component from '../Component';
+import Component, {ComponentProps} from '../Component';
 import icon from '../helpers/icon';
 import listItems from '../helpers/listItems';
+
+export interface DropdownProps extends ComponentProps {
+  buttonClassName?: string;
+  menuClassName?: string;
+  label?: string;
+  icon?: string;
+  caretIcon?: undefined|string;
+
+  onhide?: Function;
+  onshow?: Function;
+  onclick?: Function;
+}
 
 /**
  * The `Dropdown` component displays a button which, when clicked, shows a
@@ -18,12 +30,10 @@ import listItems from '../helpers/listItems';
  *
  * The children will be displayed as a list inside of the dropdown menu.
  */
-export default class Dropdown extends Component {
-  protected showing = false;
+export default class Dropdown<T extends DropdownProps = DropdownProps> extends Component<T> {
+  showing: boolean;
 
-  static initProps(props) {
-    super.initProps(props);
-
+  static initProps(props: DropdownProps) {
     props.className = props.className || '';
     props.buttonClassName = props.buttonClassName || '';
     props.menuClassName = props.menuClassName || '';
@@ -31,25 +41,19 @@ export default class Dropdown extends Component {
     props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fas fa-caret-down';
   }
 
-  init() {
-    super.oninit();
-
-    this.showing = false;
-  }
-
   view() {
     const items = this.props.children ? listItems(this.props.children) : [];
 
     return (
-      <div className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
+      <div className={`ButtonGroup Dropdown dropdown ${this.props.className} itemCount${items.length}${this.showing ? ' open' : ''}`}>
         {this.getButton()}
         {this.getMenu(items)}
       </div>
     );
   }
 
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     this.$('> .Dropdown-toggle').dropdown();
 
@@ -98,11 +102,8 @@ export default class Dropdown extends Component {
 
   /**
    * Get the template for the button.
-   *
-   * @return {*}
-   * @protected
    */
-  getButton() {
+  protected getButton(): any {
     return (
       <button
         className={'Dropdown-toggle ' + this.props.buttonClassName}
@@ -117,17 +118,18 @@ export default class Dropdown extends Component {
    * Get the template for the button's content.
    *
    * @return {*}
-   * @protected
    */
-  getButtonContent() {
+  protected getButtonContent() {
+    const attrs = this.props;
+
     return [
-      this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}) : '',
-      <span className="Button-label">{this.props.label}</span>,
-      this.props.caretIcon ? icon(this.props.caretIcon, {className: 'Button-caret'}) : ''
+      attrs.icon ? icon(attrs.icon, {className: 'Button-icon'}) : '',
+      <span className="Button-label">{attrs.label}</span>,
+      attrs.caretIcon ? icon(attrs.caretIcon, {className: 'Button-caret'}) : ''
     ];
   }
 
-  getMenu(items) {
+  protected getMenu(items) {
     return (
       <ul className={'Dropdown-menu dropdown-menu ' + this.props.menuClassName}>
         {items}
