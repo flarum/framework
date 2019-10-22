@@ -1,5 +1,6 @@
 import extract from './utils/extract';
 import username from './helpers/username';
+import extractText from "./utils/extractText";
 
 type Translations = { [key: string]: string };
 
@@ -31,6 +32,10 @@ export default class Translator {
         }
 
         return id;
+    }
+
+    transText(id: string, parameters = null) {
+      return extractText(this.trans(id, parameters));
     }
 
     apply(translation: string, input: any) {
