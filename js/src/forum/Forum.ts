@@ -1,14 +1,21 @@
 import Application from '../common/Application';
 import History from './utils/History';
 
-import IndexPage from './components/IndexPage';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 
+import IndexPage from './components/IndexPage';
+import PostsUserPage from './components/PostsUserPage';
+
 export default class Forum extends Application {
     routes = {
-        'index': { path: '/', component: IndexPage.component() },
-        'index.filter': {path: '/:filter', component: IndexPage.component() },
+        'index': { path: '/', component: new IndexPage() },
+        'index.filter': { path: '/:filter', component: new IndexPage() },
+
+        'user': { path: '/u/:username', component: new PostsUserPage() },
+        'user.posts': { path: '/u/:username', component: new PostsUserPage() },
+        'user.discussions': { path: '/u/:username', component: new PostsUserPage() },
+        'settings': { path: '/u/:username', component: new PostsUserPage() },
     };
 
     /**
