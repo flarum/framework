@@ -42,14 +42,14 @@ export default class SessionDropdown extends Dropdown {
     const items = new ItemList();
     const user = app.session.user;
 
-    // items.add('profile',
-    //   LinkButton.component({
-    //     icon: 'fas fa-user',
-    //     children: app.translator.trans('core.forum.header.profile_button'),
-    //     href: app.route.user(user)
-    //   }),
-    //   100
-    // );
+    items.add('profile',
+      LinkButton.component({
+        icon: 'fas fa-user',
+        children: app.translator.trans('core.forum.header.profile_button'),
+        href: app.route.user(user)
+      }),
+      100
+    );
 
     // items.add('settings',
     //   LinkButton.component({

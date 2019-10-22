@@ -21,13 +21,13 @@ interface LinkButtonProps extends ButtonProps {
 export default class LinkButton extends Button<LinkButtonProps> {
   static initProps(props: LinkButtonProps) {
     props.active = this.isActive(props);
-    props.oncreate = props.oncreate || m.route;
+    props.oncreate = props.oncreate;
   }
 
   view(vnode) {
     const vdom = super.view(vnode);
 
-    vdom.tag = 'a';
+    vdom.tag = m.route.Link;
 
     return vdom;
   }

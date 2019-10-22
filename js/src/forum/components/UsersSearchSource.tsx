@@ -41,7 +41,7 @@ export default class UsersSearchSource extends SearchSource {
 
         return (
           <li className="UserSearchResult" data-index={'users' + user.id()}>
-            <a href={app.route.user(user)} config={m.route}>
+            <a href={app.route.user(user)} oncreate={m.route}>
               {avatar(user)}
               {name}
             </a>
