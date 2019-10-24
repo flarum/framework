@@ -368,10 +368,18 @@ export default class IndexPage extends Page {
    * @return void
    */
   markAllAsRead() {
-    const confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));
+    app.request({
+      method: 'POST',
+      url: app.forum.attribute('apiUrl') + '/discussions/read'
+    }).then(payload => {
+      app.store.pushPayload(payload);
+      app.markedAllAsRead = true;
+      m.redraw();
 
-    if (confirmation) {
-      app.session.user.save({markedAllAsReadAt: new Date()});
-    }
+      setTimeout(() => {
+        app.markedAllAsRead = false;
+        m.redraw();
+      }, 10000);
+    });
   }
 }

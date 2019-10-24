@@ -1,4 +1,6 @@
 import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';
+import listItems from '../../common/helpers/listItems';
 import DiscussionListItem from './DiscussionListItem';
 import Button from '../../common/components/Button';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
@@ -38,6 +40,32 @@ export default class DiscussionList extends Component {
     this.refresh();
   }
 
+  aboveDiscussions() {
+    const items = new ItemList();
+
+    if (app.markedAllAsRead) {
+      items.add('cancel-read-all', Button.component({
+        className: 'Button Button--block',
+        onclick: () => {
+          app.request({
+            method: 'DELETE',
+            url: app.forum.attribute('apiUrl') + '/discussions/read'
+          }).then(payload => {
+            app.store.pushPayload(payload);
+            app.markedAllAsRead = false;
+            this.cancellingAllRead = false;
+            m.redraw();
+          });
+          this.cancellingAllRead = true;
+        },
+        loading: this.cancellingAllRead,
+        children: app.translator.trans('core.forum.index.mark_all_as_read_done')
+      }));
+    }
+
+    return items;
+  }
+
   view() {
     const params = this.props.params;
     let loading;
@@ -64,6 +92,7 @@ export default class DiscussionList extends Component {
     return (
       <div className={'DiscussionList'+(this.props.params.q ? ' DiscussionList--searchResults' : '')}>
         <ul className="DiscussionList-discussions">
+          {listItems(this.aboveDiscussions().toArray())}
           {this.discussions.map(discussion => {
             return (
               <li key={discussion.id()} data-id={discussion.id()}>

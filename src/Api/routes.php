@@ -144,6 +144,20 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\CreateDiscussionController::class)
     );
 
+    // Mark all discussions as read
+    $map->post(
+        '/discussions/read',
+        'discussions.readAll',
+        $route->toController(Controller\ReadAllDiscussionsController::class)
+    );
+
+    // Cancel marking all discussions as read
+    $map->delete(
+        '/discussions/read',
+        'discussions.cancelReadAll',
+        $route->toController(Controller\ReadAllDiscussionsCancelController::class)
+    );
+
     // Show a single discussion
     $map->get(
         '/discussions/{id}',

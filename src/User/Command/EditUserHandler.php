@@ -98,11 +98,6 @@ class EditUserHandler
             $validate['password'] = $attributes['password'];
         }
 
-        if (! empty($attributes['markedAllAsReadAt'])) {
-            $this->assertPermission($isSelf);
-            $user->markAllAsRead();
-        }
-
         if (! empty($attributes['preferences'])) {
             $this->assertPermission($isSelf);
 
