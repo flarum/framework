@@ -17,7 +17,6 @@ return [
         $schema->table('users', function (Blueprint $table) {
             $table->boolean('disclose_online')->default(false);
             $table->string('locale')->nullable();
-
         });
     },
 
