@@ -10,6 +10,7 @@
  */
 
 use Illuminate\Database\Schema\Builder;
+use Illuminate\Support\Str;
 
 return [
     'up' => function (Builder $builder) {
@@ -22,10 +23,10 @@ return [
             ->each(function ($user) use ($db) {
                 collect(json_decode($user->preferences ?? '{}'))
                     ->each(function ($value, $key) use ($user, $db) {
-                        if ($key === 'discloseOnline') {
+                        if (in_array($key, ['discloseOnline', 'followAfterReply'])) {
                             $db->table('users')
                                 ->where('id', $user->id)
-                                ->update(['disclose_online' => (bool) $value]);
+                                ->update([Str::snake($key) => (bool) $value]);
                         }
                         if ($key === 'locale') {
                             $db->table('users')
