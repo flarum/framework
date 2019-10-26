@@ -53,7 +53,7 @@ class FulltextGambit implements GambitInterface
         // discussions that have a relevant title or that contain relevant posts.
         $query
             ->addSelect('posts_ft.most_relevant_post_id')
-            ->leftJoin(
+            ->join(
                 new Expression('('.$subquery->toSql().') '.$grammar->wrapTable('posts_ft')),
                 'posts_ft.discussion_id', '=', 'discussions.id'
             )
