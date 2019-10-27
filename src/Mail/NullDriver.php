@@ -10,22 +10,11 @@
 namespace Flarum\Mail;
 
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Mail\Transport\LogTransport;
-use Psr\Log\LoggerInterface;
+use Swift_NullTransport;
 use Swift_Transport;
 
-class LogDriver implements DriverInterface
+class NullDriver implements DriverInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
     public function availableSettings(): array
     {
         return [];
@@ -38,6 +27,6 @@ class LogDriver implements DriverInterface
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
-        return new LogTransport($this->logger);
+        return new Swift_NullTransport();
     }
 }
