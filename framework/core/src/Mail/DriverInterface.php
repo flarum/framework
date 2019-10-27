@@ -32,6 +32,11 @@ interface DriverInterface
     public function availableSettings(): array;
 
     /**
+     * Provide a list of required settings for this driver.
+     */
+    public function requiredFields(): array;
+
+    /**
      * Build a mail transport based on Flarum's current settings.
      */
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport;
