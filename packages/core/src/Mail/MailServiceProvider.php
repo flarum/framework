@@ -33,7 +33,15 @@ class MailServiceProvider extends AbstractServiceProvider
             $settings = $this->app->make(SettingsRepositoryInterface::class);
             $drivers = $this->app->make('mail.supported_drivers');
 
-            return $this->app->make($drivers[$settings->get('mail_driver')]);
+            $driver = $this->app->make($drivers[$settings->get('mail_driver')]);
+
+            // check that all required fields have been filled
+            $settings = $this->app->make(SettingsRepositoryInterface::class);
+            $valid = $driver && array_reduce($driver->requiredFields(), function ($carry, $field) use ($settings) {
+                return $carry && ! empty($settings->get($field));
+            }, true);
+
+            return $valid ? $driver : $this->app->make(NullDriver::class);
         });
 
         $this->app->alias('mail.driver', DriverInterface::class);

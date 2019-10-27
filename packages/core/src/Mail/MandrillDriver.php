@@ -23,6 +23,11 @@ class MandrillDriver implements DriverInterface
         ];
     }
 
+    public function requiredFields(): array
+    {
+        return $this->availableSettings();
+    }
+
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
         return new MandrillTransport(
