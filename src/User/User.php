@@ -459,6 +459,7 @@ class User extends AbstractModel
      *
      * @param string $value
      * @return array
+     * @deprecated 0.1.0-beta.11: `users.preferences` is no longer used.
      */
     public function getPreferencesAttribute($value)
     {
@@ -475,6 +476,7 @@ class User extends AbstractModel
      * Encode an array of preferences for storage in the database.
      *
      * @param mixed $value
+     * @deprecated 0.1.0-beta.11: `users.preferences` is no longer used.
      */
     public function setPreferencesAttribute($value)
     {
@@ -511,6 +513,7 @@ class User extends AbstractModel
      * @param string $key
      * @param mixed $default
      * @return mixed
+     * @deprecated 0.1.0-beta.11: `users.preferences` is no longer used.
      */
     public function getPreference($key, $default = null)
     {
@@ -523,6 +526,7 @@ class User extends AbstractModel
      * @param string $key
      * @param mixed $value
      * @return $this
+     * @deprecated 0.1.0-beta.11: `users.preferences` is no longer used.
      */
     public function setPreference($key, $value)
     {
@@ -736,6 +740,7 @@ class User extends AbstractModel
      * @param string $key
      * @param callable $transformer
      * @param mixed $default
+     * @deprecated 0.1.0-beta.11: `users.preferences` is no longer used, use NotificationPreference::addPreference.
      */
     public static function addPreference($key, callable $transformer = null, $default = null)
     {
@@ -749,6 +754,7 @@ class User extends AbstractModel
      * @param string $type
      * @param string $method
      * @return string
+     * @deprecated 0.1.0-beta.11: `users.preferences` is no longer used, use NotificationPreference::getPreferenceKey.
      */
     public static function getNotificationPreferenceKey($type, $method)
     {
