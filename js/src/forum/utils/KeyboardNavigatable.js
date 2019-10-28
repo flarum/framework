@@ -81,7 +81,7 @@ export default class KeyboardNavigatable {
       e.stopPropagation();
       e.preventDefault();
       callback(e);
-    }
+    };
 
     return this;
   }
