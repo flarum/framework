@@ -138,7 +138,7 @@ export default class KeyboardNavigatable {
    */
   navigate(event) {
     // This callback determines whether keyboard should be handled or ignored.
-    if (!this.whenCallback()) return;
+    if (!this.whenCallback(event)) return;
 
     const keyCallback = this.callbacks[event.which];
     if (keyCallback) {
