@@ -19,9 +19,20 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 
 class CheckCsrfToken implements Middleware
 {
+    protected $ignorePaths = [];
+
+    public function ignorePath(string $path)
+    {
+        $this->ignorePaths[] = $path;
+    }
+
     public function process(Request $request, Handler $handler): Response
     {
         if (in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'])) {
+            return $handler->handle($request);
+        }
+
+        if (in_array($request->getUri()->getPath(), $this->ignorePaths)) {
             return $handler->handle($request);
         }
 

@@ -47,6 +47,14 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
+        $this->app->singleton('flarum.api.csrf-middleware', function () {
+            $checkCsrf = $this->app->make(HttpMiddleware\CheckCsrfToken::class);
+
+            $checkCsrf->ignorePath('/token');
+
+            return $checkCsrf;
+        });
+
         $this->app->singleton('flarum.api.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
@@ -62,7 +70,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithHeader::class));
-            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
+            $pipe->pipe($app->make('flarum.api.csrf-middleware'));
             $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
 
             event(new ConfigureMiddleware($pipe, 'api'));

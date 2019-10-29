@@ -61,6 +61,8 @@ class ForumServiceProvider extends AbstractServiceProvider
             $this->setDefaultRoute($routes);
         });
 
+        $this->app->singleton('flarum.forum.csrf-middleware', HttpMiddleware\CheckCsrfToken::class);
+
         $this->app->singleton('flarum.forum.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
@@ -76,7 +78,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
             $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
-            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
+            $pipe->pipe($app->make('flarum.forum.csrf-middleware'));
             $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
             $pipe->pipe($app->make(HttpMiddleware\ShareErrorsFromSession::class));
 

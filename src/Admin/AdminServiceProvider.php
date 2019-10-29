@@ -51,6 +51,8 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
+        $this->app->singleton('flarum.admin.csrf-middleware', HttpMiddleware\CheckCsrfToken::class);
+
         $this->app->singleton('flarum.admin.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
@@ -65,7 +67,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
             $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
             $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
-            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
+            $pipe->pipe($app->make('flarum.admin.csrf-middleware'));
             $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
             $pipe->pipe($app->make(Middleware\RequireAdministrateAbility::class));
 

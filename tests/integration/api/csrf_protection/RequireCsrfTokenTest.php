@@ -25,6 +25,7 @@ class RequireCsrfTokenTest extends TestCase
         $this->prepareDatabase([
             'users' => [
                 $this->adminUser(),
+                $this->normalUser(),
             ],
             'groups' => [
                 $this->adminGroup(),
@@ -40,6 +41,9 @@ class RequireCsrfTokenTest extends TestCase
             ],
             'settings' => [
                 ['key' => 'csrf_test', 'value' => 1],
+            ],
+            'access_tokens' => [
+                // Clears the access_tokens table
             ],
         ]);
     }
@@ -219,5 +223,33 @@ class RequireCsrfTokenTest extends TestCase
         );
 
         $this->database()->table('access_tokens')->where('token', 'myaccesstoken')->delete();
+    }
+
+    /**
+     * @test
+     */
+    public function creating_user_token_does_not_need_csrf_token()
+    {
+        $response = $this->send(
+            $this->request(
+                'POST', '/api/token',
+                [
+                    'json' => [
+                        'identification' => 'normal',
+                        'password' => 'too-obscure',
+                    ],
+                ]
+            )
+        );
+
+        // Successful response?
+        $this->assertEquals(200, $response->getStatusCode());
+
+        // The user should now have a token
+        $this->assertTrue(
+            $this->database()->table('access_tokens')->where('user_id', 2)->exists()
+        );
+
+        $this->database()->table('access_tokens')->where('user_id', 2)->delete();
     }
 }
