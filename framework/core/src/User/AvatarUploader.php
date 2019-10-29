@@ -46,7 +46,7 @@ class AvatarUploader
 
     public function remove(User $user)
     {
-        $avatarPath = $user->avatar_path;
+        $avatarPath = $user->getOriginal('avatar_url');
 
         $user->afterSave(function () use ($avatarPath) {
             if ($this->uploadDir->has($avatarPath)) {
