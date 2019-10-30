@@ -27,7 +27,9 @@ class DeleteDiscussionControllerTest extends ApiControllerTestCase
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2],
             ],
-            'posts' => [],
+            'posts' => [
+                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>'],
+            ],
             'users' => [
                 $this->adminUser(),
                 $this->normalUser(),
@@ -51,5 +53,17 @@ class DeleteDiscussionControllerTest extends ApiControllerTestCase
         $response = $this->callWith([], ['id' => 1]);
 
         $this->assertEquals(204, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function deleting_discussions_deletes_their_posts()
+    {
+        $this->actor = User::find(1);
+
+        $this->callWith([], ['id' => 1]);
+
+        $this->assertNull($this->database()->table('posts')->find(1), 'Post exists in the DB');
     }
 }
