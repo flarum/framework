@@ -13,10 +13,14 @@ namespace Flarum\Queue;
 
 use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ErrorHandling\Registry;
+use Flarum\Foundation\ErrorHandling\Reporter;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Illuminate\Contracts\Queue\Factory;
+use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Console as Commands;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
 use Illuminate\Queue\SyncQueue;
@@ -90,6 +94,8 @@ class QueueServiceProvider extends AbstractServiceProvider
             return new NullFailedJobProvider();
         });
 
+        $this->app->alias('flarum.queue.connection', Queue::class);
+
         $this->app->alias(ConnectorInterface::class, 'queue.connection');
         $this->app->alias(Factory::class, 'queue');
         $this->app->alias(Worker::class, 'queue.worker');
@@ -103,6 +109,25 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->app['events']->listen(Configuring::class, function (Configuring $event) {
             foreach ($this->commands as $command) {
                 $event->addCommand($command);
+            }
+        });
+    }
+
+    public function boot()
+    {
+        $this->app['events']->listen(JobFailed::class, function (JobFailed $event) {
+            /** @var Registry $registry */
+            $registry = $this->app->make(Registry::class);
+
+            $error = $registry->handle($event->exception);
+
+            /** @var Reporter[] $reporters */
+            $reporters = $this->app->tagged(Reporter::class);
+
+            if ($error->shouldBeReported()) {
+                foreach ($reporters as $reporter) {
+                    $reporter->report($error->getException());
+                }
             }
         });
     }

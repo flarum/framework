@@ -76,7 +76,7 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
     /**
      * @test
      */
-    public function can_search_for_word_in_title_and_post()
+    public function can_search_for_word_in_post()
     {
         $this->database()->table('posts')->insert([
             ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
@@ -98,7 +98,7 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
         }, $data['data']);
 
         // Order-independent comparison
-        $this->assertEquals(['2', '3'], $ids, 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['3'], $ids, 'IDs do not match', 0.0, 10, true);
     }
 
     /**
@@ -126,7 +126,7 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
         }, $data['data']);
 
         // Order-independent comparison
-        $this->assertEquals(['2', '3'], $ids, 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['3'], $ids, 'IDs do not match', 0.0, 10, true);
     }
 
     /**

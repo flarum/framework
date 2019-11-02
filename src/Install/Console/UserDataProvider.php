@@ -12,6 +12,7 @@
 namespace Flarum\Install\Console;
 
 use Flarum\Install\AdminUser;
+use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 use Illuminate\Support\Str;
@@ -28,6 +29,7 @@ class UserDataProvider implements DataProviderInterface
 
     protected $questionHelper;
 
+    /** @var BaseUrl */
     protected $baseUrl;
 
     public function __construct(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
@@ -49,7 +51,7 @@ class UserDataProvider implements DataProviderInterface
 
     private function getDatabaseConfiguration(): DatabaseConfig
     {
-        $host = $this->ask('Database host:');
+        $host = $this->ask('Database host (required):');
         $port = 3306;
 
         if (Str::contains($host, ':')) {
@@ -60,31 +62,33 @@ class UserDataProvider implements DataProviderInterface
             'mysql',
             $host,
             intval($port),
-            $this->ask('Database name:'),
-            $this->ask('Database user:'),
+            $this->ask('Database name (required):'),
+            $this->ask('Database user (required):'),
             $this->secret('Database password:'),
             $this->ask('Prefix:')
         );
     }
 
-    private function getBaseUrl()
+    private function getBaseUrl(): BaseUrl
     {
-        return $this->baseUrl = rtrim($this->ask('Base URL:'), '/');
+        $baseUrl = $this->ask('Base URL (Default: http://flarum.local):', 'http://flarum.local');
+
+        return $this->baseUrl = BaseUrl::fromString($baseUrl);
     }
 
     private function getAdminUser(): AdminUser
     {
         return new AdminUser(
-            $this->ask('Admin username:'),
+            $this->ask('Admin username (Default: admin):', 'admin'),
             $this->askForAdminPassword(),
-            $this->ask('Admin email address:')
+            $this->ask('Admin email address (required):')
         );
     }
 
     private function askForAdminPassword()
     {
         while (true) {
-            $password = $this->secret('Admin password:');
+            $password = $this->secret('Admin password (required >= 8 characters):');
 
             if (strlen($password) < 8) {
                 $this->validationError('Password must be at least 8 characters.');
@@ -105,11 +109,10 @@ class UserDataProvider implements DataProviderInterface
     private function getSettings()
     {
         $title = $this->ask('Forum title:');
-        $baseUrl = $this->baseUrl ?: 'http://localhost';
 
         return [
             'forum_title' => $title,
-            'mail_from' => 'noreply@'.preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)),
+            'mail_from' => $this->baseUrl->toEmail('noreply'),
             'welcome_title' => 'Welcome to '.$title,
         ];
     }

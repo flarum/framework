@@ -33,7 +33,7 @@ class Configuring
     public $console;
 
     /**
-     * @param Application $app
+     * @param Application        $app
      * @param ConsoleApplication $console
      */
     public function __construct(Application $app, ConsoleApplication $console)
