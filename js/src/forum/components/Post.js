@@ -39,7 +39,7 @@ export default class Post extends Component {
   view() {
     const attrs = this.attrs();
 
-    attrs.className = 'Post ' + (this.loading ? 'Post--loading ' : '') + (attrs.className || '');
+    attrs.className = 'Post ' + (this.loading ? 'Post--loading ' : '') + (this.props.post.user() === app.session.user ? 'Post--self' : '') + (attrs.className || '');
 
     return (
       <article {...attrs}>
