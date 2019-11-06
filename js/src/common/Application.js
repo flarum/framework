@@ -330,12 +330,14 @@ export default class Application {
           children = app.translator.trans('core.lib.error.generic_message');
       }
 
+      const isDebug = app.forum.attribute('debug');
+
       error.alert = new Alert({
         type: 'error',
         children,
-        controls: app.forum.attribute('debug') ? [
+        controls: isDebug && [
           <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>Debug</Button>
-        ] : undefined
+        ]
       });
 
       try {
@@ -355,7 +357,7 @@ export default class Application {
    * @private
    */
   showDebug(error) {
-    this.alerts.dismiss(this.requestErrorAlert);
+    this.alerts.dismiss(this.requestError.alert);
 
     this.modal.show(new RequestErrorModal({error}));
   }
