@@ -43,7 +43,21 @@ jobs:
     name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
 
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - uses: actions/cache@v1
+        id: cache
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Select PHP version
         run: sudo update-alternatives --set php $(which php${{ matrix.php }})
@@ -52,6 +66,7 @@ jobs:
         run: mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
 
       - name: Install Composer dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: composer install
 
       - name: Setup Composer tests
