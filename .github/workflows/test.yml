@@ -21,12 +21,6 @@ jobs:
             prefixStr: (prefix)
 
         exclude:
-          - php: 7.1
-            service: 'mysql:5.7'
-            prefix: flarum_
-          - php: 7.1
-            service: mariadb
-            prefix: flarum_
           - php: 7.2
             service: 'mysql:5.7'
             prefix: flarum_
