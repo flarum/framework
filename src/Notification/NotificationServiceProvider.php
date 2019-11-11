@@ -36,7 +36,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
             DiscussionRenamedBlueprint::class => ['alert']
         ];
 
-        $this->app->make('events')->fire(
+        $this->app->make('events')->dispatch(
             new ConfigureNotificationTypes($blueprints)
         );
 

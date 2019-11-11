@@ -92,6 +92,6 @@ if (! function_exists('event')) {
      */
     function event($event, $payload = [], $halt = false)
     {
-        return app('events')->fire($event, $payload, $halt);
+        return app('events')->dispatch($event, $payload, $halt);
     }
 }

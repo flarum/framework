@@ -51,7 +51,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 $gambits->add(EmailGambit::class);
                 $gambits->add(GroupGambit::class);
 
-                $app->make('events')->fire(
+                $app->make('events')->dispatch(
                     new ConfigureUserGambits($gambits)
                 );
 
@@ -72,7 +72,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 $gambits->add(HiddenGambit::class);
                 $gambits->add(UnreadGambit::class);
 
-                $app->make('events')->fire(
+                $app->make('events')->dispatch(
                     new ConfigureDiscussionGambits($gambits)
                 );
 

@@ -12,13 +12,13 @@
 namespace Flarum\Foundation;
 
 use Illuminate\Container\Container;
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
+use Illuminate\Contracts\Container\Container as Contract;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
-class Application extends Container implements ApplicationContract
+class Application extends Container implements Contract
 {
     /**
      * The Flarum version.
@@ -239,7 +239,7 @@ class Application extends Container implements ApplicationContract
     }
 
     /**
-     * Get the base path of the Laravel installation.
+     * Get the base path of the Flarum installation.
      *
      * @return string
      */
@@ -311,15 +311,13 @@ class Application extends Container implements ApplicationContract
     /**
      * Get or check the current application environment.
      *
-     * @param mixed
+     * @param array|string[] $environments
      * @return string
      */
-    public function environment()
+    public function environment(...$environments)
     {
-        if (func_num_args() > 0) {
-            $patterns = is_array(func_get_arg(0)) ? func_get_arg(0) : func_get_args();
-
-            foreach ($patterns as $pattern) {
+        if ($environments) {
+            foreach ($environments as $pattern) {
                 if (Str::is($pattern, $this['env'])) {
                     return true;
                 }
@@ -349,15 +347,6 @@ class Application extends Container implements ApplicationContract
     public function runningUnitTests()
     {
         return $this['env'] == 'testing';
-    }
-
-    /**
-     * Register all of the configured providers.
-     *
-     * @return void
-     */
-    public function registerConfiguredProviders()
-    {
     }
 
     /**
@@ -436,7 +425,7 @@ class Application extends Container implements ApplicationContract
      */
     protected function markAsRegistered($provider)
     {
-        $this['events']->fire($class = get_class($provider), [$provider]);
+        $this['events']->dispatch($class = get_class($provider), [$provider]);
 
         $this->serviceProviders[] = $provider;
 
@@ -757,9 +746,6 @@ class Application extends Container implements ApplicationContract
         return storage_path('app/cache/packages.php');
     }
 
-    /**
-     * @return string
-     */
     public function resourcePath()
     {
         return storage_path('resources');

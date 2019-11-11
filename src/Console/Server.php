@@ -54,7 +54,7 @@ class Server
 
         $events = $app->make(Dispatcher::class);
 
-        $events->fire(new Configuring($app, $console));
+        $events->dispatch(new Configuring($app, $console));
     }
 
     private function handleErrors(Application $app, ConsoleApplication $console)
