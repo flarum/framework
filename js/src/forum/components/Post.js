@@ -39,7 +39,7 @@ export default class Post extends Component {
   view() {
     const attrs = this.attrs();
 
-    attrs.className = 'Post ' + (this.loading ? 'Post--loading ' : '') + (this.props.post.user() === app.session.user ? 'Post--self' : '') + (attrs.className || '');
+    attrs.className = this.classes().join(' ');
 
     return (
       <article {...attrs}>
@@ -96,6 +96,20 @@ export default class Post extends Component {
    */
   content() {
     return [];
+  }
+
+  classes() {
+    let classes = ['Post'];
+
+    if (this.loading) {
+      classes.push('Post--loading');
+    }
+
+    if (this.props.post.user() === app.session.user) {
+      classes.push('Post--by-actor');
+    }
+
+    return classes;
   }
 
   /**
