@@ -39,7 +39,7 @@ export default class Post extends Component {
   view() {
     const attrs = this.attrs();
 
-    attrs.className = this.classes().join(' ');
+    attrs.className = this.classes(attrs.className).join(' ');
 
     return (
       <article {...attrs}>
@@ -98,8 +98,14 @@ export default class Post extends Component {
     return [];
   }
 
-  classes() {
-    let classes = ['Post'];
+  /**
+   * Get the post's classes.
+   * 
+   * @param string classes
+   * @returns {string[]}
+   */
+  classes(existing) {
+    let classes = (existing || '').split(' ').concat(['Post']);
 
     if (this.loading) {
       classes.push('Post--loading');
