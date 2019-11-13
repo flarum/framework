@@ -480,7 +480,7 @@ class User extends AbstractModel
      */
     public function setPreferencesAttribute($value)
     {
-        $this->attributes['preferences'] = json_encode($value);
+        throw new \Exception("user.preferences table is deprecated");
     }
 
     /**
@@ -490,9 +490,11 @@ class User extends AbstractModel
      * @param string $type
      * @return bool
      */
-    public function shouldAlert($type)
+    public function shouldAlert(string $type): bool
     {
-        return (bool) $this->getPreference(static::getNotificationPreferenceKey($type, 'alert'));
+        return $this->notificationPreferences()
+            ->shouldBeNotified($type, 'email')
+            ->exists();
     }
 
     /**
@@ -502,9 +504,11 @@ class User extends AbstractModel
      * @param string $type
      * @return bool
      */
-    public function shouldEmail($type)
+    public function shouldEmail(string $type): bool
     {
-        return (bool) $this->getPreference(static::getNotificationPreferenceKey($type, 'email'));
+        return $this->notificationPreferences()
+            ->shouldBeNotified($type, 'email')
+            ->exists();
     }
 
     /**
@@ -530,19 +534,7 @@ class User extends AbstractModel
      */
     public function setPreference($key, $value)
     {
-        if (isset(static::$preferences[$key])) {
-            $preferences = $this->preferences;
-
-            if (! is_null($transformer = static::$preferences[$key]['transformer'])) {
-                $preferences[$key] = call_user_func($transformer, $value);
-            } else {
-                $preferences[$key] = $value;
-            }
-
-            $this->preferences = $preferences;
-        }
-
-        return $this;
+        throw new \Exception('Deprecated since v0.1.0-beta.11');
     }
 
     /**
