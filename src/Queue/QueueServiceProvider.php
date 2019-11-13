@@ -107,6 +107,13 @@ class QueueServiceProvider extends AbstractServiceProvider
     protected function registerCommands()
     {
         $this->app['events']->listen(Configuring::class, function (Configuring $event) {
+            $queue = $this->app->make(Queue::class);
+
+            // There is no need to have the queue commands when using the sync driver.
+            if ($queue instanceof SyncQueue) {
+                return;
+            }
+
             foreach ($this->commands as $command) {
                 $event->addCommand($command);
             }
