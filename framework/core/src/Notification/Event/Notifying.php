@@ -11,7 +11,7 @@ namespace Flarum\Notification\Event;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
 
-class Sending
+class Notifying
 {
     /**
      * The blueprint for the notification.
