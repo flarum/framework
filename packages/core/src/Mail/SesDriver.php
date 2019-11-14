@@ -19,15 +19,10 @@ class SesDriver implements DriverInterface
     public function availableSettings(): array
     {
         return [
-            'mail_ses_key' => '',
-            'mail_ses_secret' => '',
-            'mail_ses_region' => '',
+            'mail_ses_key' => 'required',
+            'mail_ses_secret' => 'required',
+            'mail_ses_region' => 'required',
         ];
-    }
-
-    public function requiredFields(): array
-    {
-        return $this->availableSettings();
     }
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport

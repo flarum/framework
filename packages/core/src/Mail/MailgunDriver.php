@@ -19,18 +19,9 @@ class MailgunDriver implements DriverInterface
     public function availableSettings(): array
     {
         return [
-            'mail_mailgun_secret' => '', // the secret key
-            'mail_mailgun_domain' => '', // the API base URL
-            'mail_mailgun_region' => [ // region's endpoint
-                'api.mailgun.net' => 'US',
-                'api.eu.mailgun.net' => 'EU',
-            ],
+            'mail_mailgun_secret' => 'required', // the secret key
+            'mail_mailgun_domain' => 'required|regex:/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/', // the API base URL
         ];
-    }
-
-    public function requiredFields(): array
-    {
-        return $this->availableSettings();
     }
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport

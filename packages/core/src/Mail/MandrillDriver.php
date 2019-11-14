@@ -19,13 +19,8 @@ class MandrillDriver implements DriverInterface
     public function availableSettings(): array
     {
         return [
-            'mail_mandrill_secret' => '',
+            'mail_mandrill_secret' => 'required',
         ];
-    }
-
-    public function requiredFields(): array
-    {
-        return $this->availableSettings();
     }
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport

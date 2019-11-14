@@ -18,20 +18,11 @@ class SmtpDriver implements DriverInterface
     public function availableSettings(): array
     {
         return [
-            'mail_host' => '', // a hostname, IPv4 address or IPv6 wrapped in []
-            'mail_port' => '', // a number, defaults to 25
-            'mail_encryption' => '', // "tls" or "ssl"
-            'mail_username' => '',
-            'mail_password' => '',
-        ];
-    }
-
-    public function requiredFields(): array
-    {
-        return [
-            'mail_host',
-            'mail_username',
-            'mail_password',
+            'mail_host' => 'required', // a hostname, IPv4 address or IPv6 wrapped in []
+            'mail_port' => 'nullable|integer', // a number, defaults to 25
+            'mail_encryption' => 'nullable|in:tls,ssl', // "tls" or "ssl"
+            'mail_username' => 'required',
+            'mail_password' => 'required',
         ];
     }
 
