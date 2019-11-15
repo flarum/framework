@@ -33,7 +33,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         Commands\ForgetFailedCommand::class,
         Console\ListenCommand::class,
         Commands\ListFailedCommand::class,
-//        Commands\RestartCommand::class,
+        Commands\RestartCommand::class,
         Commands\RetryCommand::class,
         Commands\WorkCommand::class,
     ];
@@ -86,6 +86,11 @@ class QueueServiceProvider extends AbstractServiceProvider
                 public function driver()
                 {
                     return $this->app['cache.store'];
+                }
+
+                public function __call($name, $arguments)
+                {
+                    return call_user_func_array([$this->driver(), $name], $arguments);
                 }
             };
         });
