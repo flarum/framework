@@ -22,6 +22,20 @@ export default class DiscussionList extends Component {
     this.loading = true;
 
     /**
+     * Whether or not discussion results are loading for the previous page.
+     *
+     * @type {Boolean}
+     */
+    this.loadingPrev = false;
+
+    /**
+     * Whether or not there are previous results that can be loaded
+     *
+     * @type {boolean}
+     */
+    this.previousResults = false;
+
+    /**
      * Whether or not there are more results that can be loaded.
      *
      * @type {Boolean}
@@ -30,15 +44,38 @@ export default class DiscussionList extends Component {
 
     /**
      * Current page in discussion list
+     *
+     * @type {number}
      */
     this.page = Number(m.route.param('page')) || 1;
+
+    /**
+     * First page loaded in discussion list
+     *
+     * @type {number}
+     */
+    this.firstLoadedPage = this.page;
+
+    /**
+     * Last page loaded in discussion list
+     *
+     * @type {number}
+     */
+    this.lastLoadedPage = this.page;
+
+    /**
+     * Discussions per page
+     *
+     * @type {number}
+     */
+    this.offsetBy = 20;
 
     /**
      * Number of discussions to offset for pagination
      *
      * @type {number}
      */
-    this.offset = (this.page - 1) * 20;
+    this.offset = (this.page - 1) * this.offsetBy;
 
     /**
      * The discussions in the discussion list.
@@ -47,22 +84,18 @@ export default class DiscussionList extends Component {
      */
     this.discussions = [];
 
+    /**
+     * When getting more discussions, put the new discussions at the top of the discussion list
+     *
+     * @type {boolean}
+     */
+    this.addResultsToBeginning = false;
+
     this.refresh();
   }
 
   view() {
     const params = this.props.params;
-    let loading;
-
-    if (this.loading) {
-      loading = LoadingIndicator.component();
-    } else if (this.moreResults) {
-      loading = Button.component({
-        children: app.translator.trans('core.forum.discussion_list.load_more_button'),
-        className: 'Button',
-        onclick: this.loadMore.bind(this),
-      });
-    }
 
     if (this.discussions.length === 0 && !this.loading) {
       const text = app.translator.trans('core.forum.discussion_list.empty_text');
@@ -71,6 +104,9 @@ export default class DiscussionList extends Component {
 
     return (
       <div className={'DiscussionList' + (this.props.params.q ? ' DiscussionList--searchResults' : '')}>
+        {this.loadingPrev
+          ? LoadingIndicator.component()
+          : this.firstLoadedPage !== 1 && <div className="DiscussionList-loadPrev">{this.getLoadButton(false)}</div>}
         <ul className="DiscussionList-discussions">
           {this.discussions.map((discussion) => {
             return (
@@ -80,7 +116,7 @@ export default class DiscussionList extends Component {
             );
           })}
         </ul>
-        <div className="DiscussionList-loadMore">{loading}</div>
+        <div className="DiscussionList-loadMore">{this.loading ? LoadingIndicator.component() : this.moreResults && this.getLoadButton()}</div>
       </div>
     );
   }
@@ -172,14 +208,20 @@ export default class DiscussionList extends Component {
   /**
    * Load the next page of discussion results.
    *
+   * @param isNext the page to load is the next page, false for previous page
    * @public
    */
-  loadMore() {
-    this.loading = true;
+  load(isNext = true) {
+    if (isNext) {
+      this.loading = true;
+      this.page = ++this.lastLoadedPage;
+    } else if (this.firstLoadedPage !== 1) {
+      this.loadingPrev = true;
+      this.page = --this.firstLoadedPage;
+      this.addResultsToBeginning = true;
+    }
 
-    this.page++;
-
-    this.loadResults((this.offset += 20)).then(this.parseResults.bind(this));
+    this.loadResults((this.offset = (this.page - 1) * this.offsetBy)).then(this.parseResults.bind(this));
   }
 
   /**
@@ -189,19 +231,31 @@ export default class DiscussionList extends Component {
    * @return {Discussion[]}
    */
   parseResults(results) {
-    [].push.apply(this.discussions, results);
+    // If the results need to be added to the beginning of the discussion list
+    // do so, and reset the value for the variable keeping track of this necessity
+    if (this.addResultsToBeginning) {
+      [].unshift.apply(this.discussions, results);
+      this.addResultsToBeginning = false;
+    } else {
+      [].push.apply(this.discussions, results);
+    }
 
     this.loading = false;
+    this.loadingPrev = false;
+    this.previousResults = !!results.payload.links.prev;
     this.moreResults = !!results.payload.links.next;
 
     // Construct a URL to this discussion with the updated page, then
     // replace it into the window's history and our own history stack.
     m.lazyRedraw();
 
-    const query = m.route.parseQueryString(document.location.search);
+    // Update page parameter in URL
+    // not supported in  IE
+    if (typeof window.URL === 'function') {
+      const query = m.route.parseQueryString(document.location.search);
 
-    if (this.page !== query.page) {
       if (this.page !== 1) query.page = this.page;
+      else delete query.page;
 
       const url = new URL(document.location.href);
 
@@ -235,5 +289,18 @@ export default class DiscussionList extends Component {
    */
   addDiscussion(discussion) {
     this.discussions.unshift(discussion);
+  }
+
+  /**
+   * Get the "Load More" or "Load Previous" page buttons
+   *
+   * @param isNext
+   */
+  getLoadButton(isNext = true) {
+    return Button.component({
+      children: app.translator.trans(`core.forum.discussion_list.load_${isNext ? 'more' : 'prev'}_button`),
+      className: 'Button',
+      onclick: this.load.bind(this, isNext),
+    });
   }
 }
