@@ -117,7 +117,7 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
         $events = app(Dispatcher::class);
 
         $events->listen(ScopeModelVisibility::class, function (ScopeModelVisibility $event) {
-            $event->query->orWhereRaw('1=1');
+            $event->query->whereRaw('1=1');
         });
 
         $response = $this->callWith([], ['id' => 4]);
