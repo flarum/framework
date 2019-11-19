@@ -480,7 +480,6 @@ class User extends AbstractModel
      */
     public function setPreferencesAttribute($value)
     {
-        throw new \Exception("user.preferences table is deprecated");
     }
 
     /**
@@ -534,7 +533,6 @@ class User extends AbstractModel
      */
     public function setPreference($key, $value)
     {
-        throw new \Exception('Deprecated since v0.1.0-beta.11');
     }
 
     /**
@@ -732,7 +730,6 @@ class User extends AbstractModel
      * @param string $key
      * @param callable $transformer
      * @param mixed $default
-     * @deprecated 0.1.0-beta.11: `users.preferences` is no longer used, use NotificationPreference::addPreference.
      */
     public static function addPreference($key, callable $transformer = null, $default = null)
     {
@@ -750,7 +747,6 @@ class User extends AbstractModel
      */
     public static function getNotificationPreferenceKey($type, $method)
     {
-        return 'notify_'.$type.'_'.$method;
     }
 
     /**
