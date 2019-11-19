@@ -110,6 +110,18 @@ export default class PermissionGrid extends Component {
       })
     }, 90);
 
+    items.add('confirmedUser', {
+      icon: 'fas fa-envelope',
+      label: app.translator.trans('core.admin.permissions.is_confirmed_label'),
+      setting: () => SettingDropdown.component({
+        key: 'allow_confirmed_user',
+        options: [
+          {value: '1', label: app.translator.trans('core.admin.permissions_controls.is_confirmed_yes_button')},
+          {value: '0', label: app.translator.trans('core.admin.permissions_controls.is_confirmed_no_button')}
+        ]
+      })
+    }, 90);
+
     items.add('viewLastSeenAt', {
       icon: 'far fa-clock',
       label: app.translator.trans('core.admin.permissions.view_last_seen_at_label'),
@@ -233,7 +245,7 @@ export default class PermissionGrid extends Component {
       label: app.translator.trans('core.admin.permissions.edit_users_label'),
       permission: 'user.edit'
     }, 60);
-    
+
     return items;
   }
 

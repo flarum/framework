@@ -50,6 +50,10 @@ class EmailConfirmationMailer
 
     public function handle(EmailChangeRequested $event)
     {
+        if (! $this->settings->get('allow_confirmed_user')) {
+            return;
+        }
+
         $email = $event->email;
         $data = $this->getEmailData($event->user, $email);
 

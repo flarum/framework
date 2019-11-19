@@ -56,6 +56,10 @@ class AccountActivationMailer
 
     public function handle(Registered $event)
     {
+        if (! $this->settings->get('allow_confirmed_user')) {
+            return;
+        }
+
         $user = $event->user;
 
         if ($user->is_email_confirmed) {
