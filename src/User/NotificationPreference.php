@@ -23,7 +23,7 @@ use InvalidArgumentException;
  */
 class NotificationPreference extends AbstractModel
 {
-    static protected $channels = [];
+    protected static $channels = [];
 
     public function user()
     {
