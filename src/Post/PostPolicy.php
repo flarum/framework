@@ -100,9 +100,11 @@ class PostPolicy extends AbstractPolicy
                             ->whereColumn('discussions.id', 'posts.discussion_id')
                             ->where(function ($query) use ($actor) {
                                 $query->whereRaw('1=0');
-                                $this->events->dispatch(
-                                    new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'hidePosts')
-                                );
+                                $query->orWhere(function ($query) use ($actor) {
+                                    $this->events->dispatch(
+                                        new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'hidePosts')
+                                    );
+                                });
                             });
                     });
             });
