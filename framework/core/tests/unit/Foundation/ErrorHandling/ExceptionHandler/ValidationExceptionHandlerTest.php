@@ -13,7 +13,7 @@ namespace Flarum\Tests\unit\Foundation\ErrorHandling\ExceptionHandler;
 
 use Flarum\Foundation\ErrorHandling\ExceptionHandler\ValidationExceptionHandler;
 use Flarum\Foundation\ValidationException;
-use PHPUnit\Framework\TestCase;
+use Flarum\Tests\unit\TestCase;
 
 class ValidationExceptionHandlerTest extends TestCase
 {

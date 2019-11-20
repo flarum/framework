@@ -12,11 +12,11 @@
 namespace Flarum\Tests\unit\Foundation\ErrorHandling\ExceptionHandler;
 
 use Flarum\Foundation\ErrorHandling\ExceptionHandler\IlluminateValidationExceptionHandler;
+use Flarum\Tests\unit\TestCase;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
-use PHPUnit\Framework\TestCase;
 
 class IlluminateValidationExceptionHandlerTest extends TestCase
 {
