@@ -12,9 +12,9 @@
 namespace Flarum\Tests\unit\Settings;
 
 use Flarum\Settings\DatabaseSettingsRepository;
+use Flarum\Tests\unit\TestCase;
 use Illuminate\Database\ConnectionInterface;
 use Mockery as m;
-use PHPUnit\Framework\TestCase;
 
 class DatabaseSettingsRepositoryTest extends TestCase
 {

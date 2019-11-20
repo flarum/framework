@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\unit;
+namespace Flarum\Tests\unit\Install;
 
 use Flarum\Install\BaseUrl;
-use PHPUnit\Framework\TestCase;
+use Flarum\Tests\unit\TestCase;
 use Zend\Diactoros\Uri;
 
 class BaseUrlTest extends TestCase
