@@ -117,7 +117,9 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
         $events = app(Dispatcher::class);
 
         $events->listen(ScopeModelVisibility::class, function (ScopeModelVisibility $event) {
-            $event->query->whereRaw('1=1');
+            if ($event->ability === 'discussion.hidePosts') {
+                $event->query->whereRaw('1=1');
+            }
         });
 
         $response = $this->callWith([], ['id' => 4]);
