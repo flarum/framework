@@ -11,6 +11,7 @@
 
 namespace Flarum\Tests\unit\User;
 
+use Flarum\Tests\unit\TestCase;
 use Flarum\User\AvatarUploader;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -18,13 +19,9 @@ use Illuminate\Database\Eloquent\Model;
 use Intervention\Image\ImageManagerStatic;
 use League\Flysystem\FilesystemInterface;
 use Mockery as m;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use PHPUnit\Framework\TestCase;
 
 class AvatarUploaderTest extends TestCase
 {
-    use MockeryPHPUnitIntegration;
-
     private $dispatcher;
     private $filesystem;
     private $uploader;
@@ -41,8 +38,8 @@ class AvatarUploaderTest extends TestCase
 
     public function test_removing_avatar_removes_file()
     {
-        $this->filesystem->shouldReceive('has')->with('ABCDEFGHabcdefgh.png');
-        $this->filesystem->shouldReceive('delete')->with('ABCDEFGHabcdefgh.png')->andReturn(true);
+        $this->filesystem->shouldReceive('has')->with('ABCDEFGHabcdefgh.png')->andReturn(true);
+        $this->filesystem->shouldReceive('delete')->with('ABCDEFGHabcdefgh.png')->once();
 
         $user = new User();
         $user->changeAvatarPath('ABCDEFGHabcdefgh.png');
@@ -51,6 +48,11 @@ class AvatarUploaderTest extends TestCase
         $user->syncOriginal();
 
         $this->uploader->remove($user);
+
+        // Simulate saving
+        foreach ($user->releaseAfterSaveCallbacks() as $callback) {
+            $callback($user);
+        }
         $user->syncOriginal();
 
         $this->assertEquals(null, $user->getOriginal('avatar_url'));
@@ -58,7 +60,7 @@ class AvatarUploaderTest extends TestCase
 
     public function test_removing_url_avatar_removes_no_file()
     {
-        $this->filesystem->shouldReceive('has')->with('https://example.com/avatar.png')->andReturn(false);
+        $this->filesystem->shouldReceive('has')->with('https://example.com/avatar.png')->andReturn(false)->once();
         $this->filesystem->shouldNotReceive('delete');
 
         $user = new User();
@@ -66,6 +68,11 @@ class AvatarUploaderTest extends TestCase
         $user->syncOriginal();
 
         $this->uploader->remove($user);
+
+        // Simulate saving
+        foreach ($user->releaseAfterSaveCallbacks() as $callback) {
+            $callback($user);
+        }
         $user->syncOriginal();
 
         $this->assertEquals(null, $user->getOriginal('avatar_url'));
@@ -73,15 +80,20 @@ class AvatarUploaderTest extends TestCase
 
     public function test_changing_avatar_removes_file()
     {
-        $this->filesystem->shouldReceive('put');
+        $this->filesystem->shouldReceive('put')->once();
         $this->filesystem->shouldReceive('has')->with('ABCDEFGHabcdefgh.png')->andReturn(true);
-        $this->filesystem->shouldReceive('delete')->with('ABCDEFGHabcdefgh.png');
+        $this->filesystem->shouldReceive('delete')->with('ABCDEFGHabcdefgh.png')->once();
 
         $user = new User();
         $user->changeAvatarPath('ABCDEFGHabcdefgh.png');
         $user->syncOriginal();
 
         $this->uploader->upload($user, ImageManagerStatic::canvas(50, 50));
+
+        // Simulate saving
+        foreach ($user->releaseAfterSaveCallbacks() as $callback) {
+            $callback($user);
+        }
         $user->syncOriginal();
 
         $this->assertNotEquals('ABCDEFGHabcdefgh.png', $user->getOriginal('avatar_url'));
