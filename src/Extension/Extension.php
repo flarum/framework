@@ -301,6 +301,8 @@ class Extension implements Arrayable
         if (file_exists($deprecatedFilename)) {
             return $deprecatedFilename;
         }
+
+        return null;
     }
 
     /**

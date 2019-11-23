@@ -33,7 +33,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         Commands\ForgetFailedCommand::class,
         Console\ListenCommand::class,
         Commands\ListFailedCommand::class,
-//        Commands\RestartCommand::class,
+        Commands\RestartCommand::class,
         Commands\RetryCommand::class,
         Commands\WorkCommand::class,
     ];
@@ -87,6 +87,11 @@ class QueueServiceProvider extends AbstractServiceProvider
                 {
                     return $this->app['cache.store'];
                 }
+
+                public function __call($name, $arguments)
+                {
+                    return call_user_func_array([$this->driver(), $name], $arguments);
+                }
             };
         });
 
@@ -107,6 +112,13 @@ class QueueServiceProvider extends AbstractServiceProvider
     protected function registerCommands()
     {
         $this->app['events']->listen(Configuring::class, function (Configuring $event) {
+            $queue = $this->app->make(Queue::class);
+
+            // There is no need to have the queue commands when using the sync driver.
+            if ($queue instanceof SyncQueue) {
+                return;
+            }
+
             foreach ($this->commands as $command) {
                 $event->addCommand($command);
             }

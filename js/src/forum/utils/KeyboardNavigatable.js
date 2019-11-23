@@ -7,10 +7,24 @@
  */
 export default class KeyboardNavigatable {
   constructor() {
+    /**
+     * Callback to be executed for a specified input.
+     *
+     * @callback KeyboardNavigatable~keyCallback
+     * @param {KeyboardEvent} event
+     * @returns {boolean}
+     */
     this.callbacks = {};
 
-    // By default, always handle keyboard navigation.
-    this.whenCallback = () => true;
+    /**
+     * Callback that determines whether keyboard input should be handled.
+     * By default, always handle keyboard navigation.
+     *
+     * @callback whenCallback
+     * @param {KeyboardEvent} event
+     * @returns {boolean}
+     */
+    this.whenCallback = event => true;
   }
 
   /**
@@ -19,7 +33,7 @@ export default class KeyboardNavigatable {
    * This will be triggered by the Up key.
    *
    * @public
-   * @param {Function} callback
+   * @param {KeyboardNavigatable~keyCallback} callback
    * @return {KeyboardNavigatable}
    */
   onUp(callback) {
@@ -37,7 +51,7 @@ export default class KeyboardNavigatable {
    * This will be triggered by the Down key.
    *
    * @public
-   * @param {Function} callback
+   * @param {KeyboardNavigatable~keyCallback} callback
    * @return {KeyboardNavigatable}
    */
   onDown(callback) {
@@ -55,7 +69,7 @@ export default class KeyboardNavigatable {
    * This will be triggered by the Return and Tab keys..
    *
    * @public
-   * @param {Function} callback
+   * @param {KeyboardNavigatable~keyCallback} callback
    * @return {KeyboardNavigatable}
    */
   onSelect(callback) {
@@ -73,7 +87,7 @@ export default class KeyboardNavigatable {
    * This will be triggered by the Escape key.
    *
    * @public
-   * @param {Function} callback
+   * @param {KeyboardNavigatable~keyCallback} callback
    * @return {KeyboardNavigatable}
    */
   onCancel(callback) {
@@ -81,7 +95,7 @@ export default class KeyboardNavigatable {
       e.stopPropagation();
       e.preventDefault();
       callback(e);
-    }
+    };
 
     return this;
   }
@@ -92,7 +106,7 @@ export default class KeyboardNavigatable {
    * This will be triggered by the Backspace key.
    *
    * @public
-   * @param {Function} callback
+   * @param {KeyboardNavigatable~keyCallback} callback
    * @return {KeyboardNavigatable}
    */
   onRemove(callback) {
@@ -110,7 +124,7 @@ export default class KeyboardNavigatable {
    * Provide a callback that determines whether keyboard input should be handled.
    *
    * @public
-   * @param {Function} callback
+   * @param {KeyboardNavigatable~whenCallback} callback
    * @return {KeyboardNavigatable}
    */
   when(callback) {
@@ -138,7 +152,7 @@ export default class KeyboardNavigatable {
    */
   navigate(event) {
     // This callback determines whether keyboard should be handled or ignored.
-    if (!this.whenCallback()) return;
+    if (!this.whenCallback(event)) return;
 
     const keyCallback = this.callbacks[event.which];
     if (keyCallback) {

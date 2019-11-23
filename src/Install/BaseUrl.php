@@ -38,6 +38,15 @@ final class BaseUrl
         return $this->normalized;
     }
 
+    /**
+     * Generate a valid e-mail address for this base URL's domain.
+     *
+     * This uses the given mailbox name and our already normalized host name to
+     * construct an email address.
+     *
+     * @param string $mailbox
+     * @return string
+     */
     public function toEmail(string $mailbox): string
     {
         $host = preg_replace('/^www\./i', '', parse_url($this->normalized, PHP_URL_HOST));
