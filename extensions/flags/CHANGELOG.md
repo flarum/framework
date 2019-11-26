@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.10](https://github.com/flarum/flags/compare/v0.1.0-beta.9...v0.1.0-beta.10)
+
+### Fixed
+- Guests visiting `api/flags` trigger an exception ([d4680a0](https://github.com/flarum/flags/pull/19/commits/d4680a041afdb286ac85865e5b1f51345a6f9384))
+
 ## [0.1.0-beta.9](https://github.com/flarum/flags/compare/v0.1.0-beta.8.1...v0.1.0-beta.9)
 
 ### Changed
