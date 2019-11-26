@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.11](https://github.com/flarum/tags/compare/v0.1.0-beta.10...v0.1.0-beta.11)
+
+### Fixed
+- Tag change events triggered errors for deleted tags ([e5694e5](https://github.com/flarum/tags/pull/66/commits/e5694e51ef7851523ac6e467b4d7d98d471fd997))
+
 ## [0.1.0-beta.10](https://github.com/flarum/tags/compare/v0.1.0-beta.9...v0.1.0-beta.10)
 
 ### Added
