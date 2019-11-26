@@ -2,19 +2,30 @@
 
 ## [0.1.0-beta.11](https://github.com/flarum/core/compare/v0.1.0-beta.10...v0.1.0-beta.11)
 
-### Changed
+### Added
+- Comments have an additional class `Post--by-actor` when posted by the user (#1927)
 
+### Changed
 - Improved support for URL identification during installation (#1861)
-- KeyboardNavigatable now has the a callback ability (#1922)
-- Links are no longer opened with target=_blank but in the same window (#859)
-- Links now have `nofollow ugc` by default as their rel (#859, #1884)
+- KeyboardNavigatable now has a callback ability (#1922)
+- Links are no longer opened with target `_blank` but in the same window (#859)
+- Links now have `nofollow ugc` by default as their `rel` attribute (#859, #1884)
+- Improved performance of the full text gambit when searching for users (#1877)
+- The Queue implementation is now available under its Illuminate contract
 
 ### Fixed
-
+- No error handling was possible in the console/cli (#1789)
+- Enable scrollbars in log in modals so it fits for GitHub (#1716)
+- Reduce log in modal for SSO so it fits for Facebook (#1727)
 - Deleting discussions permanently did not delete its posts (#1909)
 - Fixed the queue:restart command (#1932)
 - Deleted posts were visible to all visitors (#1827)
 - Old avatars weren't being deleted when replaced (#1918)
+- The search performance regression was reverted (#1764)
+- No profile background could be set for remote images (#445)
+- Back button sends to home even though it could actually go back (#1942)
+- Debug button no longer visible (#1687)
+- Modals on smaller screens use the whole width of the page
 
 ## [0.1.0-beta.10](https://github.com/flarum/core/compare/v0.1.0-beta.9...v0.1.0-beta.10)
 
