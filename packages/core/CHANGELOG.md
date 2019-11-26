@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.0-beta.11](https://github.com/flarum/core/compare/v0.1.0-beta.10...v0.1.0-beta.11)
+
+### Changed
+
+- Improved support for URL identification during installation (#1861)
+- KeyboardNavigatable now has the a callback ability (#1922)
+- Links are no longer opened with target=_blank but in the same window (#859)
+- Links now have `nofollow ugc` by default as their rel (#859, #1884)
+
+### Fixed
+
+- Deleting discussions permanently did not delete its posts (#1909)
+- Fixed the queue:restart command (#1932)
+- Deleted posts were visible to all visitors (#1827)
+- Old avatars weren't being deleted when replaced (#1918)
+
 ## [0.1.0-beta.10](https://github.com/flarum/core/compare/v0.1.0-beta.9...v0.1.0-beta.10)
 
 ### Added
