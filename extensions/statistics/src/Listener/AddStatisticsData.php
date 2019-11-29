@@ -16,9 +16,8 @@ use DateTimeZone;
 use Flarum\Discussion\Discussion;
 use Flarum\Frontend\Document;
 use Flarum\Post\Post;
-use Flarum\User\User;
-use Flarum\Frontend\Event\Rendering;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class AddStatisticsData
