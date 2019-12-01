@@ -11,7 +11,7 @@ namespace Flarum\Settings;
 
 class UninstalledSettingsRepository implements SettingsRepositoryInterface
 {
-    public function all()
+    public function all(): array
     {
         return [];
     }
