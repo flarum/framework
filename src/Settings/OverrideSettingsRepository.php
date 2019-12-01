@@ -35,7 +35,7 @@ class OverrideSettingsRepository implements SettingsRepositoryInterface
         $this->overrides = $overrides;
     }
 
-    public function all()
+    public function all(): array
     {
         return array_merge($this->inner->all(), $this->overrides);
     }
