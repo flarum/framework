@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-beta.11](https://github.com/flarum/core/compare/v0.1.0-beta.11...v0.1.0-beta.11.1)
+
+### Fixed
+
+- Saving custom css in admin failed (#1946)
+
 ## [0.1.0-beta.11](https://github.com/flarum/core/compare/v0.1.0-beta.10...v0.1.0-beta.11)
 
 ### Added
