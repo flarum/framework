@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0-beta.11](https://github.com/flarum/core/compare/v0.1.0-beta.11...v0.1.0-beta.11.1)
+## [0.1.0-beta.11.1](https://github.com/flarum/core/compare/v0.1.0-beta.11...v0.1.0-beta.11.1)
 
 ### Fixed
 
