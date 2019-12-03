@@ -13,6 +13,7 @@ import mapRoutes from './utils/mapRoutes';
 import RequestError from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
 import { extend } from './extend';
+import {getPlainContent, truncate} from "./utils/string";
 
 import Forum from './models/Forum';
 import User from './models/User';
@@ -223,6 +224,25 @@ export default class Application {
     document.title = (this.titleCount ? `(${this.titleCount}) ` : '') +
       (this.title ? this.title + ' - ' : '') +
       this.forum.attribute('title');
+  }
+
+  /**
+   * Set the <meta name="description"> of the page.
+   *
+   * @param {String} description
+   * @public
+   */
+  setDescription(description) {
+    if (description !== null && description.length > 0) {
+      description = truncate(getPlainContent(description), 160, 0);
+    }
+    this.description = description;
+    this.updateDescription();
+  }
+
+  updateDescription() {
+    document.head.querySelector('meta[name=description]').content =
+      (this.description ? this.description : this.forum.attribute('description'));
   }
 
   /**
