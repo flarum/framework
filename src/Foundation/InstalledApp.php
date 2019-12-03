@@ -92,6 +92,7 @@ class InstalledApp implements AppInterface
     private function getUpdaterHandler()
     {
         $pipe = new MiddlewarePipe;
+        $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(
             new DispatchRoute($this->container->make('flarum.update.routes'))
         );
