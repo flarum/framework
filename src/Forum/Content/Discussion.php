@@ -89,6 +89,8 @@ class Discussion
         }
 
         $document->title = $apiDocument->data->attributes->title;
+        $description = trim(preg_replace('/\s+/', ' ', strip_tags($apiDocument->included[0]->attributes->contentHtml)));
+        $document->meta['description'] = mb_strlen($description) > 160 ? mb_substr($description, 0, 157) . '...' : mb_substr($description, 0, 160);
         $document->canonicalUrl = $url([]);
         $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'getResource', 'posts', 'url'));
         $document->payload['apiDocument'] = $apiDocument;

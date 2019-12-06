@@ -120,6 +120,10 @@ export default class DiscussionPage extends Page {
 
     if (this.discussion) {
       app.setTitle(this.discussion.title());
+      const firstPost = this.discussion.firstPost();
+      if (firstPost) {
+        app.setDescription(firstPost.contentPlain());
+      }
     }
   }
 
