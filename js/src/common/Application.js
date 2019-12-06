@@ -235,7 +235,7 @@ export default class Application {
    */
   setDescription(description) {
     if (description !== null && description.length > 0) {
-      description = `${truncate(getPlainContent(description), 160, 0)}`;
+      description = truncate(getPlainContent(description), 160, 0);
     }
     this.description = description;
     this.updateDescription();
