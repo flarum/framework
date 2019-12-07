@@ -3,9 +3,7 @@ daysUntilClose: 90
 
 exemptLabels:
 - type/bug
-- type/cleanup
-- type/feature
-- type/infrastructure
+- type/regression
 - critical
 - security
 exemptMilestones: true
