@@ -3,10 +3,8 @@
 /*
  * This file is part of Flarum.
  *
- * (c) Toby Zerner <toby.zerner@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
 namespace Flarum\Foundation;
@@ -94,6 +92,7 @@ class InstalledApp implements AppInterface
     private function getUpdaterHandler()
     {
         $pipe = new MiddlewarePipe;
+        $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(
             new DispatchRoute($this->container->make('flarum.update.routes'))
         );

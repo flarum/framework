@@ -3,10 +3,8 @@
 /*
  * This file is part of Flarum.
  *
- * (c) Toby Zerner <toby.zerner@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
 namespace Flarum\Http;
@@ -31,10 +29,8 @@ class Server
 
     public function listen()
     {
-        $app = $this->safelyBootApp();
-
         $runner = new RequestHandlerRunner(
-            $app->getRequestHandler(),
+            $this->safelyBootAndGetHandler(),
             new SapiEmitter,
             [ServerRequestFactory::class, 'fromGlobals'],
             function (Throwable $e) {
@@ -47,14 +43,17 @@ class Server
     }
 
     /**
-     * Try to boot Flarum, and prevent exceptions from exposing sensitive info.
+     * Try to boot Flarum, and retrieve the app's HTTP request handler.
      *
-     * @return \Flarum\Foundation\AppInterface
+     * We catch all exceptions happening during this process and format them to
+     * prevent exposure of sensitive information.
+     *
+     * @return \Psr\Http\Server\RequestHandlerInterface
      */
-    private function safelyBootApp()
+    private function safelyBootAndGetHandler()
     {
         try {
-            return $this->site->bootApp();
+            return $this->site->bootApp()->getRequestHandler();
         } catch (Throwable $e) {
             exit($this->formatBootException($e));
         }
