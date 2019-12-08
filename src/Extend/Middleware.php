@@ -18,7 +18,7 @@ class Middleware implements ExtenderInterface
     private $middlewares = [];
     private $stack;
 
-    public function __construct(string $stack)
+    public function __construct(string $frontend)
     {
         $this->stack = $stack;
     }
