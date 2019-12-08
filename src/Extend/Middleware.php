@@ -16,11 +16,11 @@ use Zend\Stratigility\MiddlewarePipe;
 class Middleware implements ExtenderInterface
 {
     private $middlewares = [];
-    private $stack;
+    private $frontend;
 
     public function __construct(string $frontend)
     {
-        $this->stack = $stack;
+        $this->frontend = $frontend;
     }
 
     public function add($middleware)
@@ -32,7 +32,7 @@ class Middleware implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->resolving("flarum.{$this->stack}.middleware", function (MiddlewarePipe $pipe) use ($container) {
+        $container->resolving("flarum.{$this->frontend}.middleware", function (MiddlewarePipe $pipe) use ($container) {
             foreach ($this->middlewares as $middleware) {
                 $pipe->pipe($container->make($middleware));
             }
