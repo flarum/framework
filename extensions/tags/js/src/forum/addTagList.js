@@ -19,7 +19,7 @@ export default function() {
 
     if (app.current instanceof TagsPage) return;
 
-    items.add('separator', Separator.component(), -10);
+    items.add('separator', Separator.component(), -12);
 
     const params = this.stickyParams();
     const tags = app.store.all('tags');
@@ -32,7 +32,7 @@ export default function() {
         active = currentTag.parent() === tag;
       }
 
-      items.add('tag' + tag.id(), TagLinkButton.component({tag, params, active}), -10);
+      items.add('tag' + tag.id(), TagLinkButton.component({tag, params, active}), -12);
     };
 
     sortTags(tags)
@@ -49,7 +49,7 @@ export default function() {
       items.add('moreTags', LinkButton.component({
         children: app.translator.trans('flarum-tags.forum.index.more_link'),
         href: app.route('tags')
-      }), -10);
+      }), -12);
     }
   });
 }
