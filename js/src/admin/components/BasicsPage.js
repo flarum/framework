@@ -33,7 +33,7 @@ export default class BasicsPage extends Page {
       this.localeOptions[i] = `${locales[i]} (${i})`;
     }
 
-    if (typeof this.values.show_language_selector() !== "number") this.values.show_language_selector(1);
+    if (typeof settings['show_language_selector'] !== "number") this.values.show_language_selector(1);
   }
 
   view() {
