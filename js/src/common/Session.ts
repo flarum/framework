@@ -27,7 +27,7 @@ export default class Session {
   login(body: { identification: string, password: string }, options = {}) {
     return app.request(Object.assign({
       method: 'POST',
-      url: app.forum.attribute('baseUrl') + '/login',
+      url: `${app.forum.attribute('baseUrl')}/login`,
       body
     }, options));
   }
