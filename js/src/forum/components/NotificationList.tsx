@@ -193,7 +193,7 @@ export default class NotificationList extends Component {
     });
 
     app.request({
-      url: app.forum.attribute('apiUrl') + '/notifications/read',
+      url: `${app.forum.attribute('apiUrl')}/notifications/read`,
       method: 'POST'
     });
   }

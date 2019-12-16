@@ -147,7 +147,7 @@ export default class Model {
     return app.request(Object.assign({
       method: this.exists ? 'PATCH' : 'POST',
       url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-      data: request
+      body: request
     }, options)).then(
       // If everything went well, we'll make sure the store knows that this
       // model exists now (if it didn't already), and we'll push the data that
@@ -176,13 +176,13 @@ export default class Model {
    * @return {Promise}
    * @public
    */
-  delete(data, options = {}) {
+  delete(body, options = {}) {
     if (!this.exists) return m.deferred.resolve().promise;
 
     return app.request(Object.assign({
       method: 'DELETE',
       url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-      data
+      body
     }, options)).then(() => {
       this.exists = false;
       this.store.remove(this);

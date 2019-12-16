@@ -158,7 +158,7 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
     if (this.loading) return;
 
     const user = this.props.user;
-    const data = new FormData();
+    const body = new FormData();
     data.append('avatar', file);
 
     this.loading = true;
@@ -166,9 +166,9 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
 
     app.request({
       method: 'POST',
-      url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
+      url: `${app.forum.attribute('apiUrl')}/users/${user.id()}/avatar`,
       serialize: raw => raw,
-      data
+      body
     }).then(
       this.success.bind(this),
       this.failure.bind(this)
@@ -186,7 +186,7 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
 
     app.request({
       method: 'DELETE',
-      url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar'
+      url: `${app.forum.attribute('apiUrl')}/users/${user.id()}/avatar`
     }).then(
       this.success.bind(this),
       this.failure.bind(this)
