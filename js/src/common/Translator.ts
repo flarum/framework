@@ -65,7 +65,7 @@ export default class Translator {
                     }
                 }
             } else {
-                open[0].push(part);
+                open[0].push({ tag: 'span', text: part });
             }
         });
 

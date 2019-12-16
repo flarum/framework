@@ -77,7 +77,7 @@ export default class Store {
    * @param query
    * @param options
    */
-  find<T extends Model = Model>(type: string, id?: number|Array<number>|any, query = {}, options = {}): Promise<T[]> {
+  find<T extends Model = Model>(type: string, id?: number|number[]|any, query = {}, options = {}): Promise<T[]> {
     let data = query;
     let url = `${app.forum.attribute('apiUrl')}/${type}`;
 

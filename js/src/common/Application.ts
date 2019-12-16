@@ -19,12 +19,13 @@ import Notification from './models/Notification';
 
 import RequestError from './utils/RequestError';
 import Alert from './components/Alert';
+import ModalManager from './components/ModalManager';
 
 export type ApplicationData = {
     apiDocument: any;
     locale: string;
     locales: any;
-    resources: Array<any>;
+    resources: any[];
     session: any;
 };
 
@@ -42,7 +43,7 @@ export default abstract class Application {
     /**
      * The app's session.
      */
-    session?: Session;
+    session: Session;
 
     /**
      * The app's data store.
@@ -57,6 +58,8 @@ export default abstract class Application {
     });
 
     drawer = new Drawer();
+
+    modal: ModalManager;
 
     /**
      * A local cache that can be used to store data at the application level, so
@@ -76,7 +79,8 @@ export default abstract class Application {
     private requestError: Alert = null;
 
     mount(basePath = '') {
-        // this.modal = m.mount(document.getElementById('modal'), <ModalManager />);
+        m.mount(document.getElementById('modal'), new ModalManager());
+
         // this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
 
         m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
