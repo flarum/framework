@@ -1,7 +1,5 @@
 import Mithril from "mithril";
 
-import Alert from "../components/Alert";
-
 export interface RequestErrorResponse extends JSON {
     errors?: {
         code: string;
@@ -17,7 +15,7 @@ export default class RequestError {
     options: Mithril.RequestOptions;
     xhr: XMLHttpRequest;
     response?: RequestErrorResponse;
-    alert?: Alert;
+    alert?: Mithril.Vnode;
 
     constructor(status, responseText, options, xhr) {
       this.status = status;

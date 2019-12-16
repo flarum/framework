@@ -1,5 +1,4 @@
 import Component, {ComponentProps} from '../Component';
-import Alert from './Alert';
 import Button from './Button';
 import RequestError from "../utils/RequestError";
 
@@ -11,13 +10,13 @@ export default abstract class Modal<T extends ComponentProps = ComponentProps> e
     /**
      * An alert component to show below the header.
      */
-    alert: Alert;
+    alert: Mithril.Vnode;
 
     loading: boolean;
 
     view() {
         if (this.alert) {
-            this.alert.props.dismissible = false;
+            this.alert.attrs.dismissible = false;
         }
 
         return (
@@ -38,7 +37,7 @@ export default abstract class Modal<T extends ComponentProps = ComponentProps> e
                             <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
                         </div>
 
-                        {alert && <div className="Modal-alert">{this.alert}</div>}
+                        {this.alert && <div className="Modal-alert">{this.alert}</div>}
 
                         {this.content()}
                     </form>
