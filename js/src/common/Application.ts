@@ -247,7 +247,7 @@ export default abstract class Application {
       // return new Promise((resolve, reject) => )
 
       return m.request(options)
-        .catch(error => {
+        .then(res => res, error => {
         this.requestError = error;
 
         let children;
@@ -286,6 +286,7 @@ export default abstract class Application {
         try {
           options.errorHandler(error);
         } catch (error) {
+            console.error(error);
           // this.alerts.show(error.alert);
         }
 

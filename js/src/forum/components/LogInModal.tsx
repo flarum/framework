@@ -39,8 +39,6 @@ export default class LogInModal extends Modal<LogInModalProps> {
     oninit(vnode) {
         super.oninit(vnode);
 
-        console.log('#oninit');
-
         this.identification = m.prop(this.props.identification || '');
 
         this.password = m.prop(this.props.password || '');
@@ -178,7 +176,7 @@ export default class LogInModal extends Modal<LogInModalProps> {
 
     onerror(error) {
         if (error.status === 401) {
-            error.alert.props.children = app.translator.trans('core.forum.log_in.invalid_login_message');
+            error.alert.attrs.children = app.translator.trans('core.forum.log_in.invalid_login_message');
         }
 
         super.onerror(error);
