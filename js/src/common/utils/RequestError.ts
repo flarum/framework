@@ -2,12 +2,21 @@ import Mithril from "mithril";
 
 import Alert from "../components/Alert";
 
+export interface RequestErrorResponse extends JSON {
+    errors?: {
+        code: string;
+        source?: {
+            pointer: string;
+        };
+    }[];
+}
+
 export default class RequestError {
     status: number;
     responseText: string;
     options: Mithril.RequestOptions;
     xhr: XMLHttpRequest;
-    response?: JSON;
+    response?: RequestErrorResponse;
     alert?: Alert;
 
     constructor(status, responseText, options, xhr) {

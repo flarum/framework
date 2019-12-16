@@ -54,7 +54,7 @@ export default class Button<T extends ButtonProps = ButtonProps> extends Compone
       delete attrs.onclick;
     }
 
-    return <button {...attrs}>{this.getButtonContent(attrs.icon, attrs.loading, children)}</button>;
+    return <button {...attrs}>{this.getButtonContent(iconName, attrs.loading, children)}</button>;
   }
 
   /**

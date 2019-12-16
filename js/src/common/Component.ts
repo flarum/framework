@@ -9,9 +9,9 @@ export type ComponentProps = {
 }
 
 export default class Component<T extends ComponentProps = any> {
-    protected element: HTMLElement;
+    element: HTMLElement;
 
-    protected props = <T> {};
+    props = <T> {};
 
     view(vnode) {
         throw new Error('Component#view must be implemented by subclass');

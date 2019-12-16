@@ -1,3 +1,5 @@
+import User from './models/User';
+
 /**
  * The `Session` class defines the current user session. It stores a reference
  * to the current authenticated user, and provides methods to log in/out.
@@ -22,11 +24,11 @@ export default class Session {
   /**
    * Attempt to log in a user.
    */
-  login(data: { identification: string, password: string }, options = {}): Promise {
+  login(body: { identification: string, password: string }, options = {}) {
     return app.request(Object.assign({
       method: 'POST',
       url: app.forum.attribute('baseUrl') + '/login',
-      data
+      body
     }, options));
   }
 
@@ -36,6 +38,6 @@ export default class Session {
    * @public
    */
   logout() {
-    window.location = app.forum.attribute('baseUrl') + '/logout?token=' + this.csrfToken;
+    window.location.href = `${app.forum.attribute('baseUrl')}/logout?token=${this.csrfToken}`;
   }
 }
