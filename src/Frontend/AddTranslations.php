@@ -57,7 +57,7 @@ class AddTranslations
         $translations = $catalogue->all('messages');
         while ($catalogue = $catalogue->getFallbackCatalogue()) {
             $translations = array_replace($catalogue->all('messages'), $translations);
-        }        
+        }
 
         return Arr::only(
             $translations,
