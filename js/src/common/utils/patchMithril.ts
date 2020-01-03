@@ -1,9 +1,10 @@
+import m from 'mithril';
 import prop from 'mithril/stream';
 
 export default () => {
-    const mo = global.m;
+    const mo = window['m'];
 
-    const m = function (comp, ...args) {
+    const _m = function (comp, ...args) {
         const node = mo.apply(this, arguments);
 
         if (!node.attrs) node.attrs = {};
@@ -22,13 +23,13 @@ export default () => {
         return node;
     };
 
-    Object.keys(mo).forEach(key => m[key] = mo[key]);
+    Object.keys(mo).forEach(key => _m[key] = mo[key]);
 
-    m.withAttr = (key: string, cb: Function) => function () {
+    _m.withAttr = (key: string, cb: Function) => function () {
         cb(this.getAttribute(key) || this[key]);
     };
 
-    m.prop = prop;
+    _m.prop = prop;
 
-    global.m = m;
+    window['m'] = _m;
 }

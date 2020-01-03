@@ -27,7 +27,7 @@ export default class UsersSearchSource extends SearchSource {
     query = query.toLowerCase();
 
     const results = (this.results[query] || [])
-      .concat(app.store.all<User>('users').filter((user: User) => [user.username(), user.displayName()].some(value => value.toLowerCase().substr(0, query.length) === query)))
+      .concat(app.store.all<User>('users').filter(user => [user.username(), user.displayName()].some(value => value.toLowerCase().substr(0, query.length) === query)))
       .filter((e, i, arr) => arr.lastIndexOf(e) === i)
       .sort((a, b) => a.displayName().localeCompare(b.displayName()));
 

@@ -21,7 +21,7 @@ export default class DiscussionsSearchSource extends SearchSource {
       include: 'mostRelevantPost'
     };
 
-    return app.store.find('discussions', params).then(results => this.results[query] = results);
+    return app.store.find<Discussion>('discussions', params).then(results => this.results[query] = results);
   }
 
   view(query: string) {

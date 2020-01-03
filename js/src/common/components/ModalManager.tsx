@@ -17,8 +17,6 @@ export default class ModalManager extends Component {
         super.oncreate(vnode);
 
         app.modal = this;
-
-        window.vnode = vnode;
     }
 
     view() {
@@ -44,7 +42,7 @@ export default class ModalManager extends Component {
 
         // if (app.current) app.current.retain = true;
 
-        m.redraw(true);
+        m.redraw();
 
         if (!$('.modal-backdrop').length) {
             $('<div />').addClass('modal-backdrop')
@@ -99,7 +97,7 @@ export default class ModalManager extends Component {
 
         app.current.retain = false;
 
-        m.lazyRedraw();
+        m.redraw();
     }
 
     /**
@@ -109,7 +107,7 @@ export default class ModalManager extends Component {
      */
     onready() {
         if (this.component && this.component.onready) {
-            this.component.onready(this.$());
+            this.component.onready();
         }
     }
 }

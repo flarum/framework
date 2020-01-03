@@ -24,7 +24,7 @@ export default class Session {
   /**
    * Attempt to log in a user.
    */
-  login(body: { identification: string, password: string }, options = {}) {
+  login(body: { identification: string, password: string, remember?: string }, options = {}) {
     return app.request(Object.assign({
       method: 'POST',
       url: `${app.forum.attribute('baseUrl')}/login`,

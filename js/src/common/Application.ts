@@ -65,7 +65,9 @@ export default abstract class Application {
      * A local cache that can be used to store data at the application level, so
      * that is persists between different routes.
      */
-    cache = {};
+    cache = {
+        notifications: null,
+    };
 
     routes = {};
 

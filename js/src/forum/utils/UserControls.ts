@@ -75,8 +75,8 @@ export default {
   /**
    * Delete the user.
    */
-  deleteAction() {
-    if (confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
+  deleteAction(this: User) {
+    if (confirm(app.translator.transText('core.forum.user_controls.delete_confirmation'))) {
       this.delete().then(() => {
         if (app.current instanceof UserPage && app.current.user === this) {
           app.history.back();
@@ -90,7 +90,7 @@ export default {
   /**
    * Edit the user.
    */
-  editAction() {
+  editAction(this: User) {
     app.modal.show(new EditUserModal({user: this}));
   }
 };

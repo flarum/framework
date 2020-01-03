@@ -82,7 +82,7 @@ export default abstract class UserPage extends Page {
 
     this.username = lowercaseUsername;
 
-    app.store.all('users').some(user => {
+    app.store.all<User>('users').some(user => {
       if (user.username().toLowerCase() === lowercaseUsername && user.joinTime()) {
         this.show(user);
         return true;

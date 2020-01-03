@@ -158,7 +158,7 @@ export default class NotificationList extends Component {
 
     const params = app.cache.notifications ? {page: {offset: app.cache.notifications.length * 10}} : null;
 
-    return app.store.find('notifications', params)
+    return app.store.find<Notification>('notifications', params)
       .then(this.parseResults.bind(this))
       .catch(() => {})
       .then(() => {
@@ -170,7 +170,7 @@ export default class NotificationList extends Component {
   /**
    * Parse results and append them to the notification list.
    */
-  parseResults(results: Notification[]|any): Notification[]|any {
+  parseResults(results: Notification[]): Notification[] {
     app.cache.notifications = app.cache.notifications || [];
 
     if (results.length) app.cache.notifications.push(results);

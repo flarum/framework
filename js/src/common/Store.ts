@@ -9,7 +9,7 @@ export default class Store {
    * The local data store. A tree of resource types to IDs, such that
    * accessing data[type][id] will return the model for that type/ID.
    */
-  protected data: { [key: string]: { [key: number]: Model }} = {};
+  data: { [key: string]: { [key: number]: Model }} = {};
 
   /**
    * The model registry. A map of resource types to the model class that
