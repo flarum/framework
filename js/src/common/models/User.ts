@@ -30,7 +30,7 @@ export default class User extends Model {
   canDelete = Model.attribute('canDelete') as () => boolean;
 
   avatarColor = null;
-  color = computed('username', 'avatarUrl', 'avatarColor', function(username, avatarUrl, avatarColor) {
+  color = computed(['username', 'avatarUrl', 'avatarColor'], function(username, avatarUrl, avatarColor) {
     // If we've already calculated and cached the dominant color of the user's
     // avatar, then we can return that in RGB format. If we haven't, we'll want
     // to calculate it. Unless the user doesn't have an avatar, in which case
@@ -92,6 +92,6 @@ export default class User extends Model {
 
     Object.assign(preferences, newPreferences);
 
-    return this.save({preferences});
+    return <Promise<User>> this.save({preferences});
   }
 }

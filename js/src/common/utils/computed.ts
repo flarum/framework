@@ -6,9 +6,8 @@
  * @param {function} compute The function which computes the value using the
  *     dependent values.
  */
-export default function computed(...dependentKeys: string[]|Function[]): () => any {
-  const keys = <string[]> dependentKeys.slice(0, -1);
-  const compute = <Function> dependentKeys.slice(-1)[0];
+export default function computed(dependentKeys: string|string[], compute: Function): () => any {
+  const keys = Array.from(dependentKeys);
 
   const dependentValues = {};
   let computedValue;

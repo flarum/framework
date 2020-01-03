@@ -12,6 +12,8 @@
     - `app.bus` for some event hooking
 * Translator
     - Added `app.translator.transText`, automatically extracts text from `translator.trans` output
+* Utils
+    - Changed `computed` util to require multiple keys to be passed as an array
 
 #### Forum
 * Forum Application

@@ -1,3 +1,5 @@
+import Mithril from 'mithril';
+
 import Component, {ComponentProps} from '../Component';
 import Button from './Button';
 import RequestError from "../utils/RequestError";

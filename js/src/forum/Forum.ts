@@ -4,8 +4,12 @@ import History from './utils/History';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 
+import Page from './components/Page';
 import IndexPage from './components/IndexPage';
 import PostsUserPage from './components/PostsUserPage';
+import User from "../common/models/User";
+import Post from "../common/models/Post";
+import Discussion from "../common/models/Discussion";
 
 export default class Forum extends Application {
     routes = {
@@ -25,6 +29,9 @@ export default class Forum extends Application {
      * so that they can easily navigate back to the previous route.
      */
     history: History = new History();
+
+    previous: Page;
+    current: Page;
 
     mount() {
       // Get the configured default route and update that route's path to be '/'.
@@ -72,7 +79,7 @@ export default class Forum extends Application {
     setupRoutes() {
       super.setupRoutes();
 
-      this.route.discussion = (discussion, near) => {
+      this.route.discussion = (discussion: Discussion, near?: number): string => {
         const slug = discussion.slug();
         return this.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
           id: discussion.id() + (slug.trim() ? '-' + slug : ''),
@@ -82,21 +89,15 @@ export default class Forum extends Application {
 
       /**
        * Generate a URL to a post.
-       *
-       * @param {Post} post
-       * @return {String}
        */
-      this.route.post = post => {
+      this.route.post = (post: Post): string => {
         return this.route.discussion(post.discussion(), post.number());
       };
 
       /**
        * Generate a URL to a user.
-       *
-       * @param {User} user
-       * @return {String}
        */
-      this.route.user = user => {
+      this.route.user = (user: User): string => {
         return this.route('user', {
           username: user.username()
         });
