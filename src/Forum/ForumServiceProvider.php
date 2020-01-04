@@ -35,7 +35,7 @@ use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Component\Translation\TranslatorInterface;
-use Zend\Stratigility\MiddlewarePipe;
+use Laminas\Stratigility\MiddlewarePipe;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {

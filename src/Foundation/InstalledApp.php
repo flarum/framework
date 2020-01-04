@@ -20,8 +20,8 @@ use Illuminate\Contracts\Container\Container;
 use Middlewares\BasePath;
 use Middlewares\BasePathRouter;
 use Middlewares\RequestHandler;
-use Zend\Stratigility\Middleware\OriginalMessages;
-use Zend\Stratigility\MiddlewarePipe;
+use Laminas\Stratigility\Middleware\OriginalMessages;
+use Laminas\Stratigility\MiddlewarePipe;
 
 class InstalledApp implements AppInterface
 {

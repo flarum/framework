@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response;
+use Laminas\Diactoros\Response;
 
 class InstallController implements RequestHandlerInterface
 {

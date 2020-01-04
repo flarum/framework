@@ -14,7 +14,7 @@ use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
-use Zend\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
 
 class ClearCacheController extends AbstractDeleteController
 {

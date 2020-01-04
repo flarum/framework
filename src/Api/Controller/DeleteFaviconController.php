@@ -15,7 +15,7 @@ use Flarum\User\AssertPermissionTrait;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
 
 class DeleteFaviconController extends AbstractDeleteController
 {

@@ -64,9 +64,9 @@
         "symfony/translation": "^3.3",
         "symfony/yaml": "^3.3",
         "tobscure/json-api": "^0.3.0",
-        "zendframework/zend-diactoros": "^1.8.4",
-        "zendframework/zend-httphandlerrunner": "^1.0",
-        "zendframework/zend-stratigility": "^3.0"
+        "laminas/laminas-diactoros": "^1.8.4",
+        "laminas/laminas-httphandlerrunner": "^1.0",
+        "laminas/laminas-stratigility": "^3.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.0",
