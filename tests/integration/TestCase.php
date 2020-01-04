@@ -14,8 +14,8 @@ use Flarum\Foundation\InstalledSite;
 use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\CallbackStream;
-use Zend\Diactoros\ServerRequest;
+use Laminas\Diactoros\CallbackStream;
+use Laminas\Diactoros\ServerRequest;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
