@@ -55,6 +55,7 @@ class AddTranslations
     {
         $catalogue = $this->locales->getTranslator()->getCatalogue($locale);
         $translations = $catalogue->all('messages');
+
         while ($catalogue = $catalogue->getFallbackCatalogue()) {
             $translations = array_replace($catalogue->all('messages'), $translations);
         }
