@@ -1,7 +1,7 @@
 import highlight from '../../common/helpers/highlight';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
-import SearchSource from "./SearchSource";
+import SearchSource from './SearchSource';
 import User from '../../common/models/User';
 
 /**

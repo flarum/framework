@@ -1,7 +1,7 @@
 import Separator from '../components/Separator';
 
 export function isSeparator(item) {
-  return item && item.component === Separator;
+  return item?.tag === Separator;
 }
 
 export function withoutUnnecessarySeparators(items) {

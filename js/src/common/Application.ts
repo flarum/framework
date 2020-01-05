@@ -1,4 +1,4 @@
-import Mithril from "mithril";
+import Mithril from 'mithril';
 
 import Bus from './Bus';
 import Translator from './Translator';

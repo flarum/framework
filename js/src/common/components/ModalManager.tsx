@@ -1,6 +1,6 @@
 import MicroModal from 'micromodal';
 
-import Component from "../Component";
+import Component from '../Component';
 import Modal from './Modal';
 
 /**
@@ -106,7 +106,7 @@ export default class ModalManager extends Component {
      * @protected
      */
     onready() {
-        if (this.component && this.component.onready) {
+        if (this.component?.onready) {
             this.component.onready();
         }
     }
