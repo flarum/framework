@@ -3,7 +3,7 @@ import stringToColor from '../utils/stringToColor';
 import ItemList from '../utils/ItemList';
 import computed from '../utils/computed';
 import GroupBadge from '../components/GroupBadge';
-import Group from "./Group";
+import Group from './Group';
 
 export default class User extends Model {
   username = Model.attribute('username') as () => string;

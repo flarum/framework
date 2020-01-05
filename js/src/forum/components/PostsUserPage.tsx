@@ -1,9 +1,9 @@
 import UserPage from './UserPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
-// import Placeholder from '../../common/components/Placeholder';
-// import CommentPost from './CommentPost';
-import Post from "../../common/models/Post";
+import Placeholder from '../../common/components/Placeholder';
+import CommentPost from './CommentPost';
+import Post from '../../common/models/Post';
 
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their
@@ -43,8 +43,6 @@ export default class PostsUserPage extends UserPage {
   }
 
   content() {
-    return <p>test</p>;
-
     if (this.posts.length === 0 && ! this.loading) {
       return (
         <div className="PostsUserPage">

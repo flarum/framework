@@ -39,7 +39,7 @@ export default class ItemList<T = any> {
      * Get the content of an item.
      */
     get(key: any): T {
-        return this.items[key].content;
+        return this.items[key]?.content;
     }
 
     /**
@@ -66,6 +66,7 @@ export default class ItemList<T = any> {
                 if (this.items[i] !== null && this.items[i] instanceof Item) {
                     this.items[i].content = Object(this.items[i].content);
 
+                    // @ts-ignore
                     this.items[i].content.itemName = i;
                     items.push(this.items[i]);
                     this.items[i].key = items.length;

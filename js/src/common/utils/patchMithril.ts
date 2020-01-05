@@ -1,10 +1,29 @@
 import m from 'mithril';
 import prop from 'mithril/stream';
 
+import Component from '../Component';
+
 export default () => {
     const mo = window['m'];
 
     const _m = function (comp, ...args) {
+        if (!arguments[1]) arguments[1] = {};
+
+        if (comp.prototype && comp.prototype instanceof Component) {
+            let children = args.slice(1);
+            if (children.length === 1 && Array.isArray(children[0])) {
+                children = children[0];
+            }
+
+            if (children) {
+                Object.defineProperty(arguments[1], 'children', {
+                    writable: true,
+                });
+
+                arguments[1].children = (arguments[1].children || []).concat(children);
+            }
+        }
+
         const node = mo.apply(this, arguments);
 
         if (!node.attrs) node.attrs = {};
