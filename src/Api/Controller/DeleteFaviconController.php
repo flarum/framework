@@ -12,10 +12,10 @@ namespace Flarum\Api\Controller;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
+use Laminas\Diactoros\Response\EmptyResponse;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use Psr\Http\Message\ServerRequestInterface;
-use Laminas\Diactoros\Response\EmptyResponse;
 
 class DeleteFaviconController extends AbstractDeleteController
 {

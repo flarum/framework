@@ -12,10 +12,10 @@ namespace Flarum\Tests\integration;
 use Dflydev\FigCookies\SetCookie;
 use Flarum\Foundation\InstalledSite;
 use Illuminate\Database\ConnectionInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Laminas\Diactoros\CallbackStream;
 use Laminas\Diactoros\ServerRequest;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {

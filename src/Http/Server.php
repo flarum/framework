@@ -10,13 +10,13 @@
 namespace Flarum\Http;
 
 use Flarum\Foundation\SiteInterface;
-use Throwable;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\HttpHandlerRunner\RequestHandlerRunner;
 use Laminas\Stratigility\Middleware\ErrorResponseGenerator;
+use Throwable;
 
 class Server
 {

@@ -9,8 +9,8 @@
 
 namespace Flarum\Api;
 
-use Tobscure\JsonApi\Document;
 use Laminas\Diactoros\Response\JsonResponse;
+use Tobscure\JsonApi\Document;
 
 class JsonApiResponse extends JsonResponse
 {

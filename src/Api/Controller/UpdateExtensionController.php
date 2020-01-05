@@ -12,10 +12,10 @@ namespace Flarum\Api\Controller;
 use Flarum\Extension\ExtensionManager;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\EmptyResponse;
 
 class UpdateExtensionController implements RequestHandlerInterface
 {

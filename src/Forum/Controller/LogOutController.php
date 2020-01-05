@@ -19,11 +19,11 @@ use Flarum\User\Event\LoggedOut;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\HtmlResponse;
+use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
-use Laminas\Diactoros\Response\HtmlResponse;
-use Laminas\Diactoros\Response\RedirectResponse;
 
 class LogOutController implements RequestHandlerInterface
 {
