@@ -17,11 +17,11 @@ use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Laminas\Stratigility\Middleware\OriginalMessages;
+use Laminas\Stratigility\MiddlewarePipe;
 use Middlewares\BasePath;
 use Middlewares\BasePathRouter;
 use Middlewares\RequestHandler;
-use Zend\Stratigility\Middleware\OriginalMessages;
-use Zend\Stratigility\MiddlewarePipe;
 
 class InstalledApp implements AppInterface
 {

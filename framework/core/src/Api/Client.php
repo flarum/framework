@@ -15,10 +15,10 @@ use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
+use Laminas\Diactoros\ServerRequestFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
-use Zend\Diactoros\ServerRequestFactory;
 
 class Client
 {

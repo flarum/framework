@@ -14,8 +14,8 @@ use Flarum\User\LoginProvider;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ResponseInterface;
-use Zend\Diactoros\Response\HtmlResponse;
 
 class ResponseFactory
 {
