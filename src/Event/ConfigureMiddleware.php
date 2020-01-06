@@ -9,7 +9,7 @@
 
 namespace Flarum\Event;
 
-use Zend\Stratigility\MiddlewarePipe;
+use Laminas\Stratigility\MiddlewarePipe;
 
 /**
  * @deprecated

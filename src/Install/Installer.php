@@ -18,7 +18,7 @@ use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\StartSession;
 use Flarum\Install\Console\InstallCommand;
 use Illuminate\Contracts\Container\Container;
-use Zend\Stratigility\MiddlewarePipe;
+use Laminas\Stratigility\MiddlewarePipe;
 
 class Installer implements AppInterface
 {

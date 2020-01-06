@@ -13,10 +13,10 @@ use Flarum\User\Command\RequestPasswordReset;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response\EmptyResponse;
 
 class ForgotPasswordController implements RequestHandlerInterface
 {

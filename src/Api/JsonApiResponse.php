@@ -9,8 +9,8 @@
 
 namespace Flarum\Api;
 
+use Laminas\Diactoros\Response\JsonResponse;
 use Tobscure\JsonApi\Document;
-use Zend\Diactoros\Response\JsonResponse;
 
 class JsonApiResponse extends JsonResponse
 {

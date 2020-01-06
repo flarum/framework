@@ -18,10 +18,10 @@ use Flarum\Install\StepFailed;
 use Flarum\Install\ValidationFailed;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response;
 
 class InstallController implements RequestHandlerInterface
 {
