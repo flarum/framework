@@ -14,10 +14,10 @@ use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Command\ConfirmEmail;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response\RedirectResponse;
 
 class ConfirmEmailController implements RequestHandlerInterface
 {
