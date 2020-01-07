@@ -61,7 +61,7 @@ class TagRepository
      * @param User|null $user
      * @return int
      */
-    public function getIdForSlug($slug, User $user = null) : ?int
+    public function getIdForSlug($slug, User $user = null): ?int
     {
         $query = Tag::where('slug', $slug);
 
