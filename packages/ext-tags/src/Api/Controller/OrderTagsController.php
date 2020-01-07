@@ -11,10 +11,10 @@ namespace Flarum\Tags\Api\Controller;
 
 use Flarum\Tags\Tag;
 use Flarum\User\AssertPermissionTrait;
+use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response\EmptyResponse;
 
 class OrderTagsController implements RequestHandlerInterface
 {
