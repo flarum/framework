@@ -50,7 +50,7 @@ class Discussion
     public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
-        $page = max(1, Arr::get($queryParams, 'page'));
+        $page = max(1, intval(Arr::get($queryParams, 'page')));
 
         $params = [
             'id' => (int) Arr::get($queryParams, 'id'),

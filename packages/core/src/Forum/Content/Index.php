@@ -61,7 +61,7 @@ class Index
 
         $sort = Arr::pull($queryParams, 'sort');
         $q = Arr::pull($queryParams, 'q');
-        $page = Arr::pull($queryParams, 'page', 1);
+        $page = max(1, intval(Arr::pull($queryParams, 'page')));
 
         $sortMap = $this->getSortMap();
 
