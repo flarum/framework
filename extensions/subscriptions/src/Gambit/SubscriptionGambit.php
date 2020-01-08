@@ -26,14 +26,12 @@ class SubscriptionGambit extends AbstractRegexGambit
     {
         $actor = $search->getActor();
 
-        // might be better as `id IN (subquery)`?
-        $method = $negate ? 'whereNotExists' : 'whereExists';
-        $search->getQuery()->$method(function ($query) use ($actor, $matches) {
-            $query->selectRaw('1')
-                  ->from('discussion_user')
-                  ->whereColumn('discussions.id', 'discussion_id')
-                  ->where('user_id', $actor->id)
-                  ->where('subscription', $matches[1] === 'follow' ? 'follow' : 'ignore');
+        $method = $negate ? 'whereNotIn' : 'whereIn';
+        $search->getQuery()->$method('id', function ($query) use ($actor, $matches) {
+            $query->select('discussion_id')
+                ->from('discussion_user')
+                ->where('user_id', $actor->id)
+                ->where('subscription', $matches[1] === 'follow' ? 'follow' : 'ignore');
         });
     }
 }
