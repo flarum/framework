@@ -19,9 +19,9 @@ class SesDriver implements DriverInterface
     public function availableSettings(): array
     {
         return [
-            'mail_ses_key',
-            'mail_ses_secret',
-            'mail_ses_region',
+            'mail_ses_key' => '',
+            'mail_ses_secret' => '',
+            'mail_ses_region' => '',
         ];
     }
 

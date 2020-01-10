@@ -19,7 +19,7 @@ class MandrillDriver implements DriverInterface
     public function availableSettings(): array
     {
         return [
-            'mail_mandrill_secret',
+            'mail_mandrill_secret' => '',
         ];
     }
 

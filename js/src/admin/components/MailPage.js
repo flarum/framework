@@ -29,12 +29,13 @@ export default class MailPage extends Page {
         {}
       );
 
-      Object.keys(this.driverFields).flatMap(key => this.driverFields[key]).forEach(
-        key => {
-          this.fields.push(key);
-          this.values[key] = m.prop(settings[key]);
+      for (const driver in this.driverFields) {
+        for (const field in this.driverFields[driver]) {
+          this.fields.push(field);
+          this.values[field] = m.prop(settings[field]);
         }
-      );
+      }
+
       this.loading = false;
       m.redraw();
     });
@@ -87,9 +88,9 @@ export default class MailPage extends Page {
               className: 'MailPage-MailSettings',
               children: [
                 <div className="MailPage-MailSettings-input">
-                  {this.driverFields[this.values.mail_driver()].flatMap(field => [
+                  {Object.keys(this.driverFields[this.values.mail_driver()]).map(field => [
                     <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
-                    <input className="FormControl" value={this.values[field]() || ''} oninput={m.withAttr('value', this.values[field])} />
+                    this.renderField(field),
                   ])}
                 </div>
               ]
@@ -106,6 +107,18 @@ export default class MailPage extends Page {
         </div>
       </div>
     );
+  }
+
+  renderField(name) {
+    const driver = this.values.mail_driver();
+    const field = this.driverFields[driver][name];
+    const prop = this.values[name];
+
+    if (typeof field === 'string') {
+      return <input className="FormControl" value={prop() || ''} oninput={m.withAttr('value', prop)}/>;
+    } else {
+      return <Select value={prop()} options={field} onchange={prop} />;
+    }
   }
 
   changed() {
