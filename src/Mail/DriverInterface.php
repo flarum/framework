@@ -24,6 +24,10 @@ interface DriverInterface
 {
     /**
      * Provide a list of settings for this driver.
+     *
+     * The list must be an array of field names (keys) mapping to their type
+     * (the empty string "" for a text field; or an array of possible values for
+     * a dropdown field).
      */
     public function availableSettings(): array;
 
