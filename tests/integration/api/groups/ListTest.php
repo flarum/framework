@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\groups;
 
 use Flarum\Group\Group;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\User;
 
 class ListTest extends TestCase
 {
@@ -55,7 +56,7 @@ class ListTest extends TestCase
      */
     public function shows_index_for_admin()
     {
-        $this->actor = $this->adminUser();
+        $this->actor = User::find(1);
         $response = $this->callWith();
 
         $this->assertEquals(200, $response->getStatusCode());
