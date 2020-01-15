@@ -3,6 +3,7 @@ import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
 import ItemList from '../../common/utils/ItemList';
+import Checkbox from '../../common/components/Checkbox';
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
@@ -16,6 +17,7 @@ export default class EditGroupModal extends Modal {
     this.namePlural = m.prop(this.group.namePlural() || '');
     this.icon = m.prop(this.group.icon() || '');
     this.color = m.prop(this.group.color() || '');
+    this.isHidden = m.prop(this.group.isHidden() || false);
   }
 
   className() {
@@ -67,6 +69,16 @@ export default class EditGroupModal extends Modal {
       <input className="FormControl" placeholder="fas fa-bolt" value={this.icon()} oninput={m.withAttr('value', this.icon)}/>
     </div>, 10);
 
+
+    items.add('hidden', <div className="Form-group">
+      <div>
+        <label className="checkbox">
+          <input type="checkbox" value="1" checked={this.isHidden()} onChange={m.withAttr('checked', this.isHidden)}/>
+          {app.translator.trans('core.admin.edit_group.hide_label')}
+        </label>
+      </div>
+    </div>, 10);
+
     items.add('submit', <div className="Form-group">
       {Button.component({
         type: 'submit',
@@ -89,7 +101,8 @@ export default class EditGroupModal extends Modal {
       nameSingular: this.nameSingular(),
       namePlural: this.namePlural(),
       color: this.color(),
-      icon: this.icon()
+      icon: this.icon(),
+      isHidden: this.isHidden()
     };
   }
 
