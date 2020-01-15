@@ -23,6 +23,7 @@ use Flarum\User\User;
  * @property string $name_plural
  * @property string|null $color
  * @property string|null $icon
+ * @property bool $is_hidden
  * @property \Illuminate\Database\Eloquent\Collection $users
  * @property \Illuminate\Database\Eloquent\Collection $permissions
  */
@@ -74,7 +75,7 @@ class Group extends AbstractModel
      * @param string $icon
      * @return static
      */
-    public static function build($nameSingular, $namePlural, $color, $icon)
+    public static function build(string $nameSingular, string $namePlural, string $color, string $icon, bool $isHidden = false): Group
     {
         $group = new static;
 
@@ -82,6 +83,7 @@ class Group extends AbstractModel
         $group->name_plural = $namePlural;
         $group->color = $color;
         $group->icon = $icon;
+        $group->is_hidden = $isHidden;
 
         $group->raise(new Created($group));
 

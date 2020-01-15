@@ -74,6 +74,10 @@ class EditGroupHandler
             $group->icon = $attributes['icon'];
         }
 
+        if (isset($attributes['isHidden'])) {
+            $group->is_hidden = $attributes['isHidden'];
+        }
+
         $this->events->dispatch(
             new Saving($group, $actor, $data)
         );
