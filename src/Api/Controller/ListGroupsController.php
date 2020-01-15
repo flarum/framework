@@ -26,6 +26,8 @@ class ListGroupsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        return Group::all();
+        $actor = $request->getAttribute('actor');
+
+        return Group::whereVisibleTo($actor)->get();
     }
 }
