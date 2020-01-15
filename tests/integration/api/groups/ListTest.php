@@ -14,10 +14,31 @@ use Flarum\Tests\integration\TestCase;
 
 class ListTest extends TestCase
 {
+    protected $controller = ListGroupsController::class;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->adminUser(),
+                $this->normalUser(),
+            ],
+            'groups' => [
+                $this->adminGroup(),
+                $this->hiddenGroup()
+            ],
+            'group_user' => [
+                ['user_id' => 1, 'group_id' => 1],
+            ],
+        ]);
+    }
+
     /**
      * @test
      */
-    public function shows_index_for_guest()
+    public function shows_limited_index_for_guest()
     {
         $response = $this->send(
             $this->request('GET', '/api/groups')
@@ -26,6 +47,33 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
 
+        $this->assertEquals(Group::where('is_hidden', 0)->count(), count($data['data']));
+    }
+
+
+    /**
+     * @test
+     */
+    public function shows_index_for_admin()
+    {
+        $this->actor = $this->adminUser();
+        $response = $this->callWith();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
         $this->assertEquals(Group::count(), count($data['data']));
+    }
+
+    protected function hiddenGroup(): array
+    {
+        return [
+            'id' => 10,
+            'name_singular' => 'Hidden',
+            'name_plural' => 'Ninjas',
+            'color' => null,
+            'icon' => 'fas fa-wrench',
+            'is_hidden' => 1
+        ];
     }
 }
