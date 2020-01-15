@@ -50,7 +50,6 @@ class ListTest extends TestCase
         $this->assertEquals(Group::where('is_hidden', 0)->count(), count($data['data']));
     }
 
-
     /**
      * @test
      */
