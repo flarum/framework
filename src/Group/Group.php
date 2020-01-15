@@ -75,7 +75,7 @@ class Group extends AbstractModel
      * @param string $icon
      * @return static
      */
-    public static function build(string $nameSingular, string $namePlural, string $color, string $icon, bool $isHidden = false): Group
+    public static function build(string $nameSingular, string $namePlural, string $color, string $icon, bool $isHidden = false): self
     {
         $group = new static;
 
