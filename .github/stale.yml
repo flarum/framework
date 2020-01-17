@@ -1,9 +1,10 @@
 daysUntilStale: 90
-daysUntilClose: 90
+daysUntilClose: 30
 
 staleLabel: stale
 
 exemptLabels:
+- org/keep
 - type/bug
 - type/regression
 - critical
