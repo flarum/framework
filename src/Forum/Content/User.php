@@ -12,9 +12,9 @@ namespace Flarum\Forum\Content;
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Frontend\Document;
-use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User as FlarumUser;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -66,7 +66,7 @@ class User
      * @param FlarumUser $actor
      * @param array $params
      * @return object
-     * @throws RouteNotFoundException
+     * @throws ModelNotFoundException
      */
     protected function getApiDocument(FlarumUser $actor, array $params)
     {
@@ -74,7 +74,7 @@ class User
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {
-            throw new RouteNotFoundException;
+            throw new ModelNotFoundException;
         }
 
         return json_decode($response->getBody());
