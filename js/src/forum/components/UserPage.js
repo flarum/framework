@@ -94,7 +94,7 @@ export default class UserPage extends Page {
     app.preloadedApiDocument();
 
     app.store.all('users').some(user => {
-      if (user.username().toLowerCase() === lowercaseUsername && user.joinTime()) {
+      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username) && user.joinTime()) {
         this.show(user);
         return true;
       }
