@@ -48,9 +48,8 @@ class AdminServiceProvider extends AbstractServiceProvider
 
             return $routes;
         });
-
-
-        $this->app->singleton('flarum.admin.middleware', function() {
+        
+        $this->app->singleton('flarum.admin.middleware', function () {
             return [
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\StartSession::class,

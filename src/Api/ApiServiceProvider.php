@@ -45,7 +45,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
-        $this->app->singleton('flarum.api.middleware', function() {
+        $this->app->singleton('flarum.api.middleware', function () {
             return [
                 HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,

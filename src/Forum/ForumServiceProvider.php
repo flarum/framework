@@ -59,7 +59,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $this->setDefaultRoute($routes);
         });
 
-        $this->app->singleton('flarum.forum.middleware', function() {
+        $this->app->singleton('flarum.forum.middleware', function () {
             return [
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\CollectGarbage::class,
