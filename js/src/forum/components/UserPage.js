@@ -88,6 +88,9 @@ export default class UserPage extends Page {
   loadUser(username) {
     const lowercaseUsername = username.toLowerCase();
 
+    // Load the preloaded user object, if any, into the global app store
+    // We don't use the output of the method because it returns raw JSON
+    // instead of the parsed models
     app.preloadedApiDocument();
 
     app.store.all('users').some(user => {
