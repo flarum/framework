@@ -17,6 +17,8 @@ class Middleware implements ExtenderInterface
     protected $addMiddlewares = [];
     protected $removeMiddlewares = [];
     protected $replaceMiddlewares = [];
+    protected $insertBeforeMiddlewares = [];
+    protected $insertAfterMiddlewares = [];
     protected $frontend;
 
     public function __construct(string $frontend)
@@ -31,24 +33,32 @@ class Middleware implements ExtenderInterface
         return $this;
     }
 
-    public function replace($originalMiddleware, $newMiddleware) {
+    public function replace($originalMiddleware, $newMiddleware)
+    {
         $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
 
         return $this;
     }
 
-    public function remove($middleware) {
+    public function remove($middleware)
+    {
         $this->removeMiddlewares[] = $middleware;
 
         return $this;
     }
 
-    public function insertBefore($originalMiddleware, $newMiddleware) {
+    public function insertBefore($originalMiddleware, $newMiddleware)
+    {
+        $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
 
+        return $this;
     }
 
-    public function insertAfter($originalMiddleware, $newMiddleware) {
+    public function insertAfter($originalMiddleware, $newMiddleware)
+    {
+        $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
 
+        return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
@@ -64,6 +74,22 @@ class Middleware implements ExtenderInterface
                         array_keys($existingMiddleware, $originalMiddleware),
                         $newMiddleware
                     )
+                );
+            }
+
+            foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddleware) {
+                array_splice($existingMiddleware,
+                    array_search($originalMiddleware, $existingMiddleware),
+                    0,
+                    $newMiddleware
+                );
+            }
+
+            foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddleware) {
+                array_splice($existingMiddleware,
+                    array_search($originalMiddleware, $existingMiddleware) + 1,
+                    0,
+                    $newMiddleware
                 );
             }
 
