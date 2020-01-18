@@ -53,9 +53,10 @@ class User
         ];
 
         $apiDocument = $this->getApiDocument($actor, $params);
+        $user = $apiDocument->data->attributes;
 
-        $document->title = $apiDocument->data->attributes->title;
-        $document->canonicalUrl = $this->url->to('forum')->route('user', ['username' => $userId]);
+        $document->title = $user->displayName;
+        $document->canonicalUrl = $this->url->to('forum')->route('user', ['username' => $user->username]);
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;
