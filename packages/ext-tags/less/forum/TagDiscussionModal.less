@@ -108,19 +108,13 @@
       background: @control-bg;
     }
     &.selected {
-      .TagIcon {
-        position: relative;
-
-        &:before {
-          .fa();
-          content: @fa-var-check;
-          color: @muted-color;
-          position: absolute;
-          font-size: 14px;
-          width: 100%;
-          text-align: center;
-          padding-top: 1px;
-        }
+      .icon::before {
+        .fa();
+        content: @fa-var-check !important;
+        color: @muted-color !important;
+        font-size: 14px;
+        width: 100%;
+        text-align: center;
       }
       &.colored .TagIcon:before {
         color: #fff;
