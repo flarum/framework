@@ -71,7 +71,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
 
         $this->assertRegistered($actor);
 
-        if ($actor->id != $id || $actor->is_activated) {
+        if ($actor->id != $id || $actor->is_email_confirmed) {
             throw new PermissionDeniedException;
         }
 

@@ -44,9 +44,7 @@ class ConfirmEmailHandler
         $user = $token->user;
         $user->changeEmail($token->email);
 
-        if (! $user->is_activated) {
-            $user->activate();
-        }
+        $user->activate();
 
         $user->save();
         $this->dispatchEventsFor($user);
