@@ -10,8 +10,6 @@
 namespace Flarum\Mail;
 
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Support\MessageBag;
 use Swift_Transport;
 
 /**
@@ -46,12 +44,14 @@ interface DriverInterface
      * presence of validation problems with the configured mail driver, Flarum
      * will fall back to its no-op {@see \Flarum\Mail\NullDriver}.
      */
-    public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag;
+    // TODO: Uncomment for beta.13
+    //public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag;
 
     /**
      * Does this driver actually send out emails?
      */
-    public function canSend(): bool;
+    // TODO: Uncomment for beta.13
+    //public function canSend(): bool;
 
     /**
      * Build a mail transport based on Flarum's current settings.
