@@ -16,6 +16,10 @@ export function truncate(string, length, start = 0) {
  * Create a slug out of the given string. Non-alphanumeric characters are
  * converted to hyphens.
  *
+ * NOTE: This method does not use the comparably sophisticated transliteration
+ * mechanism that is employed in the backend. Therefore, it should only be used
+ * to *suggest* slugs that can be overridden by the user.
+ *
  * @param {String} string
  * @return {String}
  */
