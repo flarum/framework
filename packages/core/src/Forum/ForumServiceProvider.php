@@ -59,7 +59,20 @@ class ForumServiceProvider extends AbstractServiceProvider
             $this->setDefaultRoute($routes);
         });
 
-        $this->app->singleton('flarum.forum.middleware', function (Application $app) {
+        $this->app->singleton('flarum.forum.middleware', function () {
+            return [
+                HttpMiddleware\ParseJsonBody::class,
+                HttpMiddleware\CollectGarbage::class,
+                HttpMiddleware\StartSession::class,
+                HttpMiddleware\RememberFromCookie::class,
+                HttpMiddleware\AuthenticateWithSession::class,
+                HttpMiddleware\CheckCsrfToken::class,
+                HttpMiddleware\SetLocale::class,
+                HttpMiddleware\ShareErrorsFromSession::class
+            ];
+        });
+
+        $this->app->singleton('flarum.forum.handler', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
             // All requests should first be piped through our global error handler
@@ -69,22 +82,15 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $app->tagged(Reporter::class)
             ));
 
-            $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
-            $pipe->pipe($app->make(HttpMiddleware\CollectGarbage::class));
-            $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
-            $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
-            $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
-            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
-            $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
-            $pipe->pipe($app->make(HttpMiddleware\ShareErrorsFromSession::class));
+            foreach ($this->app->make('flarum.forum.middleware') as $middleware) {
+                $pipe->pipe($this->app->make($middleware));
+            }
 
             event(new ConfigureMiddleware($pipe, 'forum'));
 
-            return $pipe;
-        });
-
-        $this->app->afterResolving('flarum.forum.middleware', function (MiddlewarePipe $pipe) {
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.forum.routes')));
+
+            return $pipe;
         });
 
         $this->app->bind('flarum.assets.forum', function () {

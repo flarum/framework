@@ -63,9 +63,9 @@ class InstalledApp implements AppInterface
         $pipe->pipe(new OriginalMessages);
         $pipe->pipe(
             new BasePathRouter([
-                $this->subPath('api') => 'flarum.api.middleware',
-                $this->subPath('admin') => 'flarum.admin.middleware',
-                '/' => 'flarum.forum.middleware',
+                $this->subPath('api') => 'flarum.api.handler',
+                $this->subPath('admin') => 'flarum.admin.handler',
+                '/' => 'flarum.forum.handler',
             ])
         );
         $pipe->pipe(new RequestHandler($this->container));

@@ -49,7 +49,19 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
-        $this->app->singleton('flarum.admin.middleware', function (Application $app) {
+        $this->app->singleton('flarum.admin.middleware', function () {
+            return [
+                HttpMiddleware\ParseJsonBody::class,
+                HttpMiddleware\StartSession::class,
+                HttpMiddleware\RememberFromCookie::class,
+                HttpMiddleware\AuthenticateWithSession::class,
+                HttpMiddleware\CheckCsrfToken::class,
+                HttpMiddleware\SetLocale::class,
+                Middleware\RequireAdministrateAbility::class,
+            ];
+        });
+
+        $this->app->singleton('flarum.admin.handler', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
             // All requests should first be piped through our global error handler
@@ -59,21 +71,15 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $app->tagged(Reporter::class)
             ));
 
-            $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
-            $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
-            $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
-            $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
-            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
-            $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
-            $pipe->pipe($app->make(Middleware\RequireAdministrateAbility::class));
+            foreach ($this->app->make('flarum.admin.middleware') as $middleware) {
+                $pipe->pipe($this->app->make($middleware));
+            }
 
             event(new ConfigureMiddleware($pipe, 'admin'));
 
-            return $pipe;
-        });
-
-        $this->app->afterResolving('flarum.admin.middleware', function (MiddlewarePipe $pipe) {
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.admin.routes')));
+
+            return $pipe;
         });
 
         $this->app->bind('flarum.assets.admin', function () {
