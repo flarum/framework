@@ -11,11 +11,14 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
-use Laminas\Stratigility\MiddlewarePipe;
 
 class Middleware implements ExtenderInterface
 {
-    protected $middlewares = [];
+    protected $addMiddlewares = [];
+    protected $removeMiddlewares = [];
+    protected $replaceMiddlewares = [];
+    protected $insertBeforeMiddlewares = [];
+    protected $insertAfterMiddlewares = [];
     protected $frontend;
 
     public function __construct(string $frontend)
@@ -25,17 +28,74 @@ class Middleware implements ExtenderInterface
 
     public function add($middleware)
     {
-        $this->middlewares[] = $middleware;
+        $this->addMiddlewares[] = $middleware;
+
+        return $this;
+    }
+
+    public function replace($originalMiddleware, $newMiddleware)
+    {
+        $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
+
+        return $this;
+    }
+
+    public function remove($middleware)
+    {
+        $this->removeMiddlewares[] = $middleware;
+
+        return $this;
+    }
+
+    public function insertBefore($originalMiddleware, $newMiddleware)
+    {
+        $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
+
+        return $this;
+    }
+
+    public function insertAfter($originalMiddleware, $newMiddleware)
+    {
+        $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
 
         return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->resolving("flarum.{$this->frontend}.middleware", function (MiddlewarePipe $pipe) use ($container) {
-            foreach ($this->middlewares as $middleware) {
-                $pipe->pipe($container->make($middleware));
+        $container->extend("flarum.{$this->frontend}.middleware", function ($existingMiddleware) {
+            foreach ($this->addMiddlewares as $addMiddleware) {
+                $existingMiddleware[] = $addMiddleware;
             }
+
+            foreach ($this->replaceMiddlewares as $originalMiddleware => $newMiddleware) {
+                $existingMiddleware = array_replace($existingMiddleware,
+                    array_fill_keys(
+                        array_keys($existingMiddleware, $originalMiddleware),
+                        $newMiddleware
+                    )
+                );
+            }
+
+            foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddleware) {
+                array_splice($existingMiddleware,
+                    array_search($originalMiddleware, $existingMiddleware),
+                    0,
+                    $newMiddleware
+                );
+            }
+
+            foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddleware) {
+                array_splice($existingMiddleware,
+                    array_search($originalMiddleware, $existingMiddleware) + 1,
+                    0,
+                    $newMiddleware
+                );
+            }
+
+            $existingMiddleware = array_diff($existingMiddleware, $this->removeMiddlewares);
+
+            return $existingMiddleware;
         });
     }
 }

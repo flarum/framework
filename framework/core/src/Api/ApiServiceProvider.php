@@ -45,7 +45,20 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
-        $this->app->singleton('flarum.api.middleware', function (Application $app) {
+        $this->app->singleton('flarum.api.middleware', function () {
+            return [
+                HttpMiddleware\ParseJsonBody::class,
+                Middleware\FakeHttpMethods::class,
+                HttpMiddleware\StartSession::class,
+                HttpMiddleware\RememberFromCookie::class,
+                HttpMiddleware\AuthenticateWithSession::class,
+                HttpMiddleware\AuthenticateWithHeader::class,
+                HttpMiddleware\CheckCsrfToken::class,
+                HttpMiddleware\SetLocale::class,
+            ];
+        });
+
+        $this->app->singleton('flarum.api.handler', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
             $pipe->pipe(new HttpMiddleware\HandleErrors(
@@ -54,22 +67,15 @@ class ApiServiceProvider extends AbstractServiceProvider
                 $app->tagged(Reporter::class)
             ));
 
-            $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
-            $pipe->pipe($app->make(Middleware\FakeHttpMethods::class));
-            $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
-            $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
-            $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
-            $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithHeader::class));
-            $pipe->pipe($app->make(HttpMiddleware\CheckCsrfToken::class));
-            $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
+            foreach ($this->app->make('flarum.api.middleware') as $middleware) {
+                $pipe->pipe($this->app->make($middleware));
+            }
 
             event(new ConfigureMiddleware($pipe, 'api'));
 
-            return $pipe;
-        });
-
-        $this->app->afterResolving('flarum.api.middleware', function (MiddlewarePipe $pipe) {
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.api.routes')));
+
+            return $pipe;
         });
     }
 
