@@ -10,7 +10,9 @@
 namespace Flarum\Mail;
 
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Mail\Transport\LogTransport;
+use Illuminate\Support\MessageBag;
 use Psr\Log\LoggerInterface;
 use Swift_Transport;
 
@@ -29,6 +31,16 @@ class LogDriver implements DriverInterface
     public function availableSettings(): array
     {
         return [];
+    }
+
+    public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag
+    {
+        return new MessageBag;
+    }
+
+    public function canSend(): bool
+    {
+        return false;
     }
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
