@@ -6,32 +6,32 @@ import Select from '../../common/components/Select';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import saveSettings from '../utils/saveSettings';
 
-// From https://www.30secondsofcode.org/snippet/deepFlatten
-// Array.prototype.flatMap is not supported in IE or Edge
-const deepFlatten = arr => [].concat(...arr.map(v => (Array.isArray(v) ? deepFlatten(v) : v)));
-
 export default class MailPage extends Page {
   init() {
     super.init();
 
-    this.loading = true;
     this.saving = false;
+    this.refresh();
+  }
+
+  refresh() {
+    this.loading = true;
 
     this.driverFields = {};
     this.fields = ['mail_driver', 'mail_from'];
     this.values = {};
+    this.status = {sending: false, errors: {}};
 
     const settings = app.data.settings;
     this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
 
     app.request({
       method: 'GET',
-      url: app.forum.attribute('apiUrl') + '/mail-drivers'
+      url: app.forum.attribute('apiUrl') + '/mail-settings'
     }).then(response => {
-      this.driverFields = response['data'].reduce(
-        (hash, driver) => ({...hash, [driver['id']]: driver['attributes']['fields']}),
-        {}
-      );
+      this.driverFields = response['data']['attributes']['fields'];
+      this.status.sending = response['data']['attributes']['sending'];
+      this.status.errors = response['data']['attributes']['errors'];
 
       for (const driver in this.driverFields) {
         for (const field in this.driverFields[driver]) {
@@ -46,7 +46,7 @@ export default class MailPage extends Page {
   }
 
   view() {
-    if (this.loading) {
+    if (this.loading || this.saving) {
       return (
         <div className="MailPage">
           <div className="container">
@@ -90,19 +90,20 @@ export default class MailPage extends Page {
               ]
             })}
 
+            {this.status.sending || Alert.component({
+              children: app.translator.trans('core.admin.email.not_sending_message'),
+              dismissible: false,
+            })}
+
             {fieldKeys.length > 0 && FieldSet.component({
               label: app.translator.trans(`core.admin.email.${this.values.mail_driver()}_heading`),
               className: 'MailPage-MailSettings',
               children: [
-                fieldKeys.filter(field => fields[field] && fields[field].indexOf('required') !== -1 && !this.values[field]()).length > 0 && Alert.component({
-                  children: app.translator.trans('core.admin.email.incomplete_configuration_text'),
-                  dismissible: false,
-                }),
-
                 <div className="MailPage-MailSettings-input">
                   {fieldKeys.map(field => [
-                    <label>{app.translator.trans(`core.admin.email.${field}_label`)} {(fields[field] || '').indexOf('required') !== -1 ? '*' : ''}</label>,
+                    <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
                     this.renderField(field),
+                    this.status.errors[field] && <p className='ValidationError'>{this.status.errors[field]}</p>,
                   ])}
                 </div>
               ]
@@ -112,7 +113,6 @@ export default class MailPage extends Page {
               type: 'submit',
               className: 'Button Button--primary',
               children: app.translator.trans('core.admin.email.submit_button'),
-              loading: this.saving,
               disabled: !this.changed()
             })}
           </form>
@@ -127,7 +127,7 @@ export default class MailPage extends Page {
     const prop = this.values[name];
 
     if (typeof field === 'string') {
-      return <input className="FormControl" value={prop() || ''} oninput={m.withAttr('value', prop)} required={(fields[field] || '').indexOf('required') !== -1} />;
+      return <input className="FormControl" value={prop() || ''} oninput={m.withAttr('value', prop)} />;
     } else {
       return <Select value={prop()} options={field} onchange={prop} />;
     }
@@ -156,7 +156,7 @@ export default class MailPage extends Page {
       .catch(() => {})
       .then(() => {
         this.saving = false;
-        m.redraw();
+        this.refresh();
       });
   }
 }

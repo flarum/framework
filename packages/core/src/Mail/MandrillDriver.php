@@ -11,7 +11,9 @@ namespace Flarum\Mail;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Mail\Transport\MandrillTransport;
+use Illuminate\Support\MessageBag;
 use Swift_Transport;
 
 class MandrillDriver implements DriverInterface
@@ -19,8 +21,20 @@ class MandrillDriver implements DriverInterface
     public function availableSettings(): array
     {
         return [
-            'mail_mandrill_secret' => 'required',
+            'mail_mandrill_secret' => '',
         ];
+    }
+
+    public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag
+    {
+        return $validator->make($settings->all(), [
+            'mail_mandrill_secret' => 'required',
+        ])->errors();
+    }
+
+    public function canSend(): bool
+    {
+        return true;
     }
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport

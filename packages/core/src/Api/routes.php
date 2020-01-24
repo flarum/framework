@@ -307,10 +307,10 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ClearCacheController::class)
     );
 
-    // List available mail drivers and their configuration fields
+    // List available mail drivers, available fields and validation status
     $map->get(
-        '/mail-drivers',
-        'mailDrivers.index',
-        $route->toController(Controller\ListMailDriversController::class)
+        '/mail-settings',
+        'mailSettings.index',
+        $route->toController(Controller\ShowMailSettingsController::class)
     );
 };
