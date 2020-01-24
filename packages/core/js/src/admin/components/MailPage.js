@@ -73,8 +73,10 @@ export default class MailPage extends Page {
               className: 'MailPage-MailSettings',
               children: [
                 <div className="MailPage-MailSettings-input">
-                  <label>{app.translator.trans('core.admin.email.from_label')}</label>
-                  <input className="FormControl" value={this.values.mail_from() || ''} oninput={m.withAttr('value', this.values.mail_from)} />
+                  <label>
+                    {app.translator.trans('core.admin.email.from_label')}
+                    <input className="FormControl" value={this.values.mail_from() || ''} oninput={m.withAttr('value', this.values.mail_from)} />
+                  </label>
                 </div>
               ]
             })}
@@ -84,8 +86,10 @@ export default class MailPage extends Page {
               className: 'MailPage-MailSettings',
               children: [
                 <div className="MailPage-MailSettings-input">
-                  <label>{app.translator.trans('core.admin.email.driver_label')}</label>
-                  <Select value={this.values.mail_driver()} options={Object.keys(this.driverFields).reduce((memo, val) => ({...memo, [val]: val}), {})} onchange={this.values.mail_driver} />
+                  <label>
+                    {app.translator.trans('core.admin.email.driver_label')}
+                    <Select value={this.values.mail_driver()} options={Object.keys(this.driverFields).reduce((memo, val) => ({...memo, [val]: val}), {})} onchange={this.values.mail_driver} />
+                  </label>
                 </div>
               ]
             })}
@@ -101,8 +105,10 @@ export default class MailPage extends Page {
               children: [
                 <div className="MailPage-MailSettings-input">
                   {fieldKeys.map(field => [
-                    <label>{app.translator.trans(`core.admin.email.${field}_label`)}</label>,
-                    this.renderField(field),
+                    <label>
+                      {app.translator.trans(`core.admin.email.${field}_label`)}
+                      {this.renderField(field)}
+                    </label>,
                     this.status.errors[field] && <p className='ValidationError'>{this.status.errors[field]}</p>,
                   ])}
                 </div>
