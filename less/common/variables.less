@@ -68,14 +68,18 @@
 @hero-color:                       @control-color;
 @hero-muted-color:                 @control-color;
 
+@error-color:                      #d83e3e;
+
 @alert-bg:                         #fff2ae;
 @alert-color:                      #ad6c00;
 
-@alert-error-bg:                   #d83e3e;
+@alert-error-bg:                   @error-color;
 @alert-error-color:                #fff;
 
 @alert-success-bg:                 #B4F1AF;
 @alert-success-color:              #33722D;
+
+@validation-error-color:           @error-color;
 
 .define-header(@config-colored-header);
 .define-header(false) {
