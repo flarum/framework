@@ -21,16 +21,21 @@ interface LinkButtonProps extends ButtonProps {
 export default class LinkButton extends Button<LinkButtonProps> {
   static initProps(props: LinkButtonProps) {
     props.active = this.isActive(props);
-    props.oncreate = props.oncreate;
   }
 
-  view(vnode) {
+    view(vnode) {
     const vdom = super.view(vnode);
 
     vdom.tag = m.route.Link;
 
     return vdom;
   }
+
+    onupdate(vnode) {
+        super.onupdate(vnode);
+
+        this.props.active = LinkButton.isActive(this.props);
+    }
 
   /**
    * Determine whether a component with the given props is 'active'.

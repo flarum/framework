@@ -44,7 +44,7 @@ export default class Post<T extends PostProps = PostProps> extends Component<Pos
         const controls = PostControls.controls(this.props.post, this).toArray();
         const attrs = this.attrs();
 
-        attrs.className = classNames('Post', this.loading && 'Post--loading', attrs.className);
+        attrs.className = classNames(this.classes(attrs.className));
 
         return (
             <article {...attrs}>
@@ -100,6 +100,20 @@ export default class Post<T extends PostProps = PostProps> extends Component<Pos
      */
     content() {
         return [];
+    }
+
+    classes(existing) {
+        let classes = (existing || '').split(' ').concat(['Post']);
+
+        if (this.loading) {
+            classes.push('Post--loading');
+        }
+
+        if (this.props.post.user() === app.session.user) {
+            classes.push('Post--by-actor');
+        }
+
+        return classes;
     }
 
     /**

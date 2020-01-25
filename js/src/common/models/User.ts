@@ -81,6 +81,7 @@ export default class User extends Model {
       user.freshness = new Date();
       m.redraw();
     };
+    image.crossOrigin = 'anonymous';
     image.src = this.avatarUrl();
   }
 

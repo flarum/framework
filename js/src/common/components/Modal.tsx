@@ -48,6 +48,12 @@ export default abstract class Modal<T extends ComponentProps = ComponentProps> e
         );
     }
 
+    oncreate(vnode) {
+        super.oncreate(vnode);
+
+        app.modal.component = this;
+    }
+
     /**
      * Determine whether or not the modal should be dismissible via an 'x' button.
      */

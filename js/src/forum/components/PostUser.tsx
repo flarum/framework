@@ -5,6 +5,7 @@ import username from '../../common/helpers/username';
 import userOnline from '../../common/helpers/userOnline';
 import listItems from '../../common/helpers/listItems';
 import {PostProps} from "./Post";
+import LinkButton from "../../common/components/LinkButton";
 
 /**
  * The `PostUser` component shows the avatar and username of a post's author.
@@ -40,11 +41,11 @@ export default class PostUser extends Component<PostProps> {
         return (
             <div className="PostUser">
                 <h3>
-                    <m.route.Link href={app.route.user(user)}>
+                    <LinkButton href={app.route.user(user)}>
                         {avatar(user, {className: 'PostUser-avatar'})}
                         {userOnline(user)}
                         {username(user)}
-                    </m.route.Link>
+                    </LinkButton>
                 </h3>
                 <ul className="PostUser-badges badges">
                     {listItems(user.badges().toArray())}

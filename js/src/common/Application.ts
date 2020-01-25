@@ -4,11 +4,12 @@ import Bus from './Bus';
 import Translator from './Translator';
 import Session from './Session';
 import Store from './Store';
+import {extend} from './extend';
 
 import extract from './utils/extract';
 import mapRoutes from './utils/mapRoutes';
 import Drawer from './utils/Drawer';
-import {extend} from './extend';
+import RequestError from './utils/RequestError';
 
 import Forum from './models/Forum';
 import Discussion from './models/Discussion';
@@ -17,9 +18,10 @@ import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
 
-import RequestError from './utils/RequestError';
 import Alert from './components/Alert';
+import Button from './components/Button';
 import ModalManager from './components/ModalManager';
+import RequestErrorModal from './components/RequestErrorModal';
 
 export type ApplicationData = {
     apiDocument: any;
@@ -280,9 +282,20 @@ export default abstract class Application {
             children = this.translator.trans('core.lib.error.generic_message');
         }
 
+        const isDebug = app.forum.attribute('debug');
+
+        this.showDebug(error);
+
         error.alert = Alert.component({
           type: 'error',
-          children
+          children,
+          controls: isDebug && [
+              Button.component({
+                  className: 'Button Button--link',
+                  onclick: this.showDebug.bind(this, error),
+                  children: 'DEBUG', // TODO make translatable
+              })
+          ]
         });
 
         try {
@@ -294,7 +307,11 @@ export default abstract class Application {
 
         return Promise.reject(error);
       });
+    }
 
-      // return deferred.promise;
+    private showDebug(error: RequestError) {
+        // this.alerts.dismiss(this.requestError.alert);
+
+        this.modal.show(RequestErrorModal.component({error}));
     }
 }
