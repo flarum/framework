@@ -88,7 +88,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
 
         $this->mailer->raw($body, function (Message $message) use ($actor, $data) {
             $message->to($actor->email);
-            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.activate_account.subject'));
+            $message->subject($this->translator->trans('core.email.activate_account.subject'));
         });
 
         return new EmptyResponse;
