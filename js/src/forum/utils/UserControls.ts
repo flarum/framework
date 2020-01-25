@@ -77,7 +77,7 @@ export default {
    * Delete the user.
    */
   deleteAction(user: User) {
-    if (!confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
+    if (!confirm(app.translator.transText('core.forum.user_controls.delete_confirmation'))) {
       return;
     }
 
