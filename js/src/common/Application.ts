@@ -284,8 +284,6 @@ export default abstract class Application {
 
         const isDebug = app.forum.attribute('debug');
 
-        this.showDebug(error);
-
         error.alert = Alert.component({
           type: 'error',
           children,
