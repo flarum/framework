@@ -102,7 +102,7 @@ export default class ReplyComposer extends ComposerBody {
           app.alerts.show(
             alert = new Alert({
               type: 'success',
-              message: app.translator.trans('core.forum.composer_reply.posted_message'),
+              children: app.translator.trans('core.forum.composer_reply.posted_message'),
               controls: [viewButton]
             })
           );
