@@ -41,10 +41,9 @@ export default function listItems(items) {
 
     const node = isListItem
       ? item
-      : <li className={classNames([
-            (item.itemName ? 'item-' + item.itemName : ''),
-            className,
-            (active ? 'active' : '')
+      : <li className={classNames(className, [
+            (item.itemName && `item-${item.itemName}`),
+            active && 'active',
           ])}
             key={item.attrs?.key || item.itemName}>
         {item}

@@ -51,14 +51,14 @@ export default class SessionDropdown extends Dropdown {
       100
     );
 
-    // items.add('settings',
-    //   LinkButton.component({
-    //     icon: 'fas fa-cog',
-    //     children: app.translator.trans('core.forum.header.settings_button'),
-    //     href: app.route('settings')
-    //   }),
-    //   50
-    // );
+    items.add('settings',
+      LinkButton.component({
+        icon: 'fas fa-cog',
+        children: app.translator.trans('core.forum.header.settings_button'),
+        href: app.route('settings')
+      }),
+      50
+    );
 
     if (app.forum.attribute('adminUrl')) {
       items.add('administration',
@@ -67,7 +67,6 @@ export default class SessionDropdown extends Dropdown {
           children: app.translator.trans('core.forum.header.admin_button'),
           href: app.forum.attribute('adminUrl'),
           target: '_blank',
-          config: () => {}
         }),
         0
       );
