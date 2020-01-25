@@ -2,6 +2,7 @@ import MicroModal from 'micromodal';
 
 import Component from '../Component';
 import Modal from './Modal';
+import {Vnode} from "mithril";
 
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog
@@ -9,9 +10,11 @@ import Modal from './Modal';
  * overwrite the previous one.
  */
 export default class ModalManager extends Component {
+    private node: Vnode;
+
     showing: boolean;
-    component: Modal;
     hideTimeout: number;
+    component?: Modal;
 
     oncreate(vnode) {
         super.oncreate(vnode);
@@ -22,7 +25,7 @@ export default class ModalManager extends Component {
     view() {
         return (
             <div className="ModalManager modal" id="Modal" onclick={this.onclick.bind(this)} key="modal">
-                {this.component && m(this.component)}
+                {this.node}
             </div>
         );
     }
@@ -30,15 +33,15 @@ export default class ModalManager extends Component {
     /**
      * Show a modal dialog.
      */
-    show(component: Modal) {
-        if (!(component instanceof Modal)) {
+    show(component) {
+        if (!(component instanceof Modal) && !(component.tag?.prototype instanceof Modal)) {
             throw new Error('The ModalManager component can only show Modal components');
         }
 
         clearTimeout(this.hideTimeout);
 
         this.showing = true;
-        this.component = component;
+        this.node = component.tag ? component : m(component);
 
         // if (app.current) app.current.retain = true;
 
@@ -95,7 +98,7 @@ export default class ModalManager extends Component {
 
         this.component = null;
 
-        app.current.retain = false;
+        // app.current.retain = false;
 
         m.redraw();
     }
