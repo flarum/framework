@@ -1,24 +1,20 @@
 import Stream from 'mithril/stream';
 
-import Modal from '../../common/components/Modal';
 import {ComponentProps} from '../../common/Component';
+import Modal from '../../common/components/Modal';
 import ItemList from "../../common/utils/ItemList";
 import Button from "../../common/components/Button";
 
+import LogInButtons from './LogInButtons';
+
 export interface LogInModalProps extends ComponentProps {
-    username?: string;
+    identification?: string;
     password?: string;
     remember?: boolean;
 }
 
 /**
  * The `LogInModal` component displays a modal dialog with a login form.
- *
- * ### Props
- *
- * - `identification`
- * - `password`
- * - `remember`
  */
 export default class LogInModal extends Modal<LogInModalProps> {
     /**
@@ -67,7 +63,7 @@ export default class LogInModal extends Modal<LogInModalProps> {
 
     body() {
         return [
-            // <LogInButtons/>,
+            <LogInButtons/>,
 
             <div className="Form Form--centered">
                 {this.fields().toArray()}
