@@ -32,10 +32,7 @@ export interface ButtonProps extends ComponentProps {
  */
 export default class Button<T extends ButtonProps = ButtonProps> extends Component<T> {
   view(vnode) {
-    const attrs: ButtonProps = vnode.attrs;
-    const children = attrs.children;
-
-    delete attrs.children;
+    const { children, ...attrs} = vnode.attrs;
 
     attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button';
@@ -50,7 +47,7 @@ export default class Button<T extends ButtonProps = ButtonProps> extends Compone
 
     const loading = extract(attrs, 'loading');
     if (attrs.disabled || loading) {
-      attrs.className += ' disabled' + (loading ? ' loading' : '');
+      attrs.className += ' ' + classNames('disabled', loading && 'loading');
       delete attrs.onclick;
     }
 
