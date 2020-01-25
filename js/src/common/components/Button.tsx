@@ -37,7 +37,13 @@ export default class Button<T extends ButtonProps = ButtonProps> extends Compone
     attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button';
 
-    // If nothing else is provided, we use the textual button content as tooltip
+    // If a tooltip was provided for buttons without additional content, we also
+    // use this tooltip as text for screen readers
+    if (attrs.title && !this.props.children) {
+      attrs['aria-label'] = attrs.title;
+    }
+
+      // If nothing else is provided, we use the textual button content as tooltip
     if (!attrs.title && this.props.children) {
       attrs.title = extractText(this.props.children);
     }

@@ -1,3 +1,5 @@
+export type KeyboardEventCallback = (KeyboardEvent) => boolean|void;
+
 /**
  * The `KeyboardNavigatable` class manages lists that can be navigated with the
  * keyboard, calling callbacks for each actions.
@@ -6,17 +8,24 @@
  * API for use.
  */
 export default class KeyboardNavigatable {
-  callbacks = {};
+  /**
+   * Callback to be executed for a specified input.
+   *
+   * @callback KeyboardNavigatable~keyCallback
+   * @param {KeyboardEvent} event
+   * @returns {boolean}
+   */
+  callbacks: { [key: number]: KeyboardEventCallback } = {};
 
   // By default, always handle keyboard navigation.
-  whenCallback = () => true;
+  whenCallback: KeyboardEventCallback = () => true;
 
   /**
    * Provide a callback to be executed when navigating upwards.
    *
    * This will be triggered by the Up key.
    */
-  onUp(callback: Function): this {
+  onUp(callback: KeyboardEventCallback): this {
     this.callbacks[38] = e => {
       e.preventDefault();
       callback(e);
@@ -30,7 +39,7 @@ export default class KeyboardNavigatable {
    *
    * This will be triggered by the Down key.
    */
-  onDown(callback: Function): this {
+  onDown(callback: KeyboardEventCallback): this {
     this.callbacks[40] = e => {
       e.preventDefault();
       callback(e);
@@ -44,7 +53,7 @@ export default class KeyboardNavigatable {
    *
    * This will be triggered by the Return and Tab keys..
    */
-  onSelect(callback: Function): this {
+  onSelect(callback: KeyboardEventCallback): this {
     this.callbacks[9] = this.callbacks[13] = e => {
       e.preventDefault();
       callback(e);
@@ -87,7 +96,7 @@ export default class KeyboardNavigatable {
   /**
    * Provide a callback that determines whether keyboard input should be handled.
    */
-  when(callback: () => boolean): this {
+  when(callback: KeyboardEventCallback): this {
     this.whenCallback = callback;
 
     return this;
@@ -106,7 +115,7 @@ export default class KeyboardNavigatable {
    */
   navigate(event: KeyboardEvent) {
     // This callback determines whether keyboard should be handled or ignored.
-    if (!this.whenCallback()) return;
+    if (!this.whenCallback(event)) return;
 
     const keyCallback = this.callbacks[event.which];
     if (keyCallback) {
