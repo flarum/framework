@@ -29,24 +29,30 @@ export default function listItems(items) {
   if (!(items instanceof Array)) items = [items];
 
   return withoutUnnecessarySeparators(items).map(item => {
-    const isListItem = item.component && item.component.isListItem;
-    const active = item.component && item.component.isActive && item.component.isActive(item.props);
-    const className = item.props ? item.props.itemClassName : item.itemClassName;
+    const isListItem = item.tag?.isListItem;
+    const active = item.tag?.isActive && item.tag.isActive(item.attrs);
+    const className = item.attrs?.itemClassName || item.itemClassName;
 
     if (isListItem) {
       item.attrs = item.attrs || {};
       item.attrs.key = item.attrs.key || item.itemName;
+      item.key = item.attrs.key;
     }
 
-    return isListItem
+    const node = isListItem
       ? item
       : <li className={classNames([
-        (item.itemName ? 'item-' + item.itemName : ''),
-        className,
-        (active ? 'active' : '')
-      ])}
-            key={item.itemName}>
+            (item.itemName ? 'item-' + item.itemName : ''),
+            className,
+            (active ? 'active' : '')
+          ])}
+            key={item.attrs?.key || item.itemName}>
         {item}
       </li>;
+
+
+    node.state = node.state || {};
+
+    return node;
   });
 }
