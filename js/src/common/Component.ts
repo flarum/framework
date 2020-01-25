@@ -51,11 +51,10 @@ export default class Component<T extends ComponentProps = any> {
      * containing all of the `li` elements inside the DOM element of this
      * component.
      *
-     * @param {String} [selector] a jQuery-compatible selector string
-     * @returns {jQuery} the jQuery object for the DOM node
+     * @param selector a jQuery-compatible selector string
      * @final
      */
-    $(selector?: string) {
+    $(selector?: string): ZeptoCollection {
         const $element = $(this.element);
 
         return selector ? $element.find(selector) : $element;

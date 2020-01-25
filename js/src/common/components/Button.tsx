@@ -31,8 +31,8 @@ export interface ButtonProps extends ComponentProps {
  * be used to represent any generic clickable control, like a menu item.
  */
 export default class Button<T extends ButtonProps = ButtonProps> extends Component<T> {
-  view(vnode) {
-    const { children, ...attrs} = vnode.attrs;
+  view() {
+    const { children, ...attrs} = this.props;
 
     attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button';

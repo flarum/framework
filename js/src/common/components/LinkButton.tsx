@@ -1,7 +1,7 @@
 import Button, {ButtonProps} from './Button';
 
 interface LinkButtonProps extends ButtonProps {
-  active: boolean;
+  active: string;
   oncreate: Function;
   href?: string;
 }
@@ -23,26 +23,22 @@ export default class LinkButton extends Button<LinkButtonProps> {
     props.active = this.isActive(props);
   }
 
-    view(vnode) {
-    const vdom = super.view(vnode);
+  view() {
+    const vdom = super.view();
 
     vdom.tag = m.route.Link;
 
     return vdom;
   }
 
-    onupdate(vnode) {
-        super.onupdate(vnode);
-
-        this.props.active = LinkButton.isActive(this.props);
-    }
-
   /**
    * Determine whether a component with the given props is 'active'.
    */
-  static isActive(props: LinkButtonProps): boolean {
-    return typeof props.active !== 'undefined'
-      ? props.active
-      : m.route.get() === props.href;
+  static isActive(props: LinkButtonProps): string {
+    return String(
+      typeof props.active !== 'undefined'
+        ? props.active
+        : m.route.get() === props.href
+    );
   }
 }
