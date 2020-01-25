@@ -78,13 +78,13 @@ export default class Store {
    * @param options
    */
   find<T extends Model = Model>(type: string, id?: number|number[]|any, query = {}, options = {}): Promise<T[]> {
-    let body = query;
+    let params = query;
     let url = `${app.forum.attribute('apiUrl')}/${type}`;
 
     if (id instanceof Array) {
       url += `?filter[id]=${id.join(',')}`;
     } else if (typeof id === 'object') {
-        body = id;
+        params = id;
     } else if (id) {
       url += `/${id}`;
     }
@@ -92,7 +92,7 @@ export default class Store {
     return app.request(Object.assign({
       method: 'GET',
       url,
-      body
+      params
     }, options)).then(this.pushPayload.bind(this));
   }
 
