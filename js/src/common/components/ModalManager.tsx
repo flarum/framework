@@ -41,7 +41,7 @@ export default class ModalManager extends Component {
         clearTimeout(this.hideTimeout);
 
         this.showing = true;
-        this.node = component.tag ? component : m(component);
+        this.node = component.tag ? component : component.render();
 
         // if (app.current) app.current.retain = true;
 
