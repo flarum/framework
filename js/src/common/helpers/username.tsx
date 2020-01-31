@@ -5,7 +5,7 @@
  * @param {User} user
  */
 export default function username(user): any {
-  const name = (user && user.displayName()) || app.translator.trans('core.lib.username.deleted_text');
+    const name = (user && user.displayName()) || app.translator.trans('core.lib.username.deleted_text');
 
-  return <span className="username">{name}</span>;
+    return <span className="username">{name}</span>;
 }

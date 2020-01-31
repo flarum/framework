@@ -2,7 +2,7 @@ import MicroModal from 'micromodal';
 
 import Component from '../Component';
 import Modal from './Modal';
-import {Vnode} from "mithril";
+import { Vnode } from 'mithril';
 
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog
@@ -48,19 +48,20 @@ export default class ModalManager extends Component {
         m.redraw();
 
         if (!$('.modal-backdrop').length) {
-            $('<div />').addClass('modal-backdrop')
+            $('<div />')
+                .addClass('modal-backdrop')
                 .appendTo('body');
         }
 
         MicroModal.show('Modal', {
             awaitCloseAnimation: true,
             onClose: () => {
-                $('.modal-backdrop').fadeOut(200, function () {
+                $('.modal-backdrop').fadeOut(200, function() {
                     this.remove();
                 });
 
                 this.showing = false;
-            }
+            },
         });
 
         this.onready();

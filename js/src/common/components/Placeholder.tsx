@@ -1,7 +1,7 @@
-import Component, {ComponentProps} from '../Component';
+import Component, { ComponentProps } from '../Component';
 
 export interface PlaceholderProps extends ComponentProps {
-    text: string
+    text: string;
 }
 
 /**

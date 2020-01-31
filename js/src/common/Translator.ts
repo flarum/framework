@@ -35,7 +35,7 @@ export default class Translator {
     }
 
     transText(id: string, parameters = null) {
-      return extractText(this.trans(id, parameters));
+        return extractText(this.trans(id, parameters));
     }
 
     apply(translation: string, input: any) {

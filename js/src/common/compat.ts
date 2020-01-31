@@ -4,6 +4,6 @@ import Modal from './components/Modal';
 
 export default {
     extend: extend,
-    
-    'components/Modal': Modal
+
+    'components/Modal': Modal,
 };

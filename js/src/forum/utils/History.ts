@@ -1,7 +1,7 @@
 export interface StackItem {
-  name: string;
-  title: string;
-  url?: string;
+    name: string;
+    title: string;
+    url?: string;
 }
 
 /**
@@ -16,89 +16,89 @@ export interface StackItem {
  * rather than the previous discussion.
  */
 export default class History {
-  /**
-   * The stack of routes that have been navigated to.
-   */
-  protected stack: StackItem[] = [];
+    /**
+     * The stack of routes that have been navigated to.
+     */
+    protected stack: StackItem[] = [];
 
-  /**
-   * Get the item on the top of the stack.
-   */
-  getCurrent(): StackItem {
-    return this.stack[this.stack.length - 1];
-  }
-
-  /**
-   * Get the previous item on the stack.
-   */
-  getPrevious(): StackItem {
-    return this.stack[this.stack.length - 2];
-  }
-
-  /**
-   * Push an item to the top of the stack.
-   *
-   * @param {String} name The name of the route.
-   * @param {String} title The title of the route.
-   * @param {String} [url] The URL of the route. The current URL will be used if
-   *     not provided.
-   */
-  push(name: string, title: string, url: string = m.route.get()) {
-    // If we're pushing an item with the same name as second-to-top item in the
-    // stack, we will assume that the user has clicked the 'back' button in
-    // their browser. In this case, we don't want to push a new item, so we will
-    // pop off the top item, and then the second-to-top item will be overwritten
-    // below.
-    const secondTop = this.stack[this.stack.length - 2];
-    if (secondTop && secondTop.name === name) {
-      this.stack.pop();
+    /**
+     * Get the item on the top of the stack.
+     */
+    getCurrent(): StackItem {
+        return this.stack[this.stack.length - 1];
     }
 
-    // If we're pushing an item with the same name as the top item in the stack,
-    // then we'll overwrite it with the new URL.
-    const top = this.getCurrent();
-    if (top && top.name === name) {
-      Object.assign(top, {url, title});
-    } else {
-      this.stack.push({name, url, title});
-    }
-  }
-
-  /**
-   * Check whether or not the history stack is able to be popped.
-   */
-  canGoBack(): boolean {
-    return this.stack.length > 1;
-  }
-
-  /**
-   * Go back to the previous route in the history stack.
-   */
-  back() {
-    if (! this.canGoBack()) {
-      return this.home();
+    /**
+     * Get the previous item on the stack.
+     */
+    getPrevious(): StackItem {
+        return this.stack[this.stack.length - 2];
     }
 
-    this.stack.pop();
+    /**
+     * Push an item to the top of the stack.
+     *
+     * @param {String} name The name of the route.
+     * @param {String} title The title of the route.
+     * @param {String} [url] The URL of the route. The current URL will be used if
+     *     not provided.
+     */
+    push(name: string, title: string, url: string = m.route.get()) {
+        // If we're pushing an item with the same name as second-to-top item in the
+        // stack, we will assume that the user has clicked the 'back' button in
+        // their browser. In this case, we don't want to push a new item, so we will
+        // pop off the top item, and then the second-to-top item will be overwritten
+        // below.
+        const secondTop = this.stack[this.stack.length - 2];
+        if (secondTop && secondTop.name === name) {
+            this.stack.pop();
+        }
 
-    m.route.set(this.getCurrent().url);
-  }
+        // If we're pushing an item with the same name as the top item in the stack,
+        // then we'll overwrite it with the new URL.
+        const top = this.getCurrent();
+        if (top && top.name === name) {
+            Object.assign(top, { url, title });
+        } else {
+            this.stack.push({ name, url, title });
+        }
+    }
 
-  /**
-   * Get the URL of the previous page.
-   */
-  backUrl(): string {
-    const secondTop = this.stack[this.stack.length - 2];
+    /**
+     * Check whether or not the history stack is able to be popped.
+     */
+    canGoBack(): boolean {
+        return this.stack.length > 1;
+    }
 
-    return secondTop.url;
-  }
+    /**
+     * Go back to the previous route in the history stack.
+     */
+    back() {
+        if (!this.canGoBack()) {
+            return this.home();
+        }
 
-  /**
-   * Go to the first route in the history stack.
-   */
-  home() {
-    this.stack.splice(0);
+        this.stack.pop();
 
-    m.route.set('/');
-  }
+        m.route.set(this.getCurrent().url);
+    }
+
+    /**
+     * Get the URL of the previous page.
+     */
+    backUrl(): string {
+        const secondTop = this.stack[this.stack.length - 2];
+
+        return secondTop.url;
+    }
+
+    /**
+     * Go to the first route in the history stack.
+     */
+    home() {
+        this.stack.splice(0);
+
+        m.route.set('/');
+    }
 }

@@ -1,4 +1,4 @@
-import Mithril from "mithril";
+import Mithril from 'mithril';
 
 export interface RequestErrorResponse extends JSON {
     errors?: {
@@ -18,17 +18,17 @@ export default class RequestError {
     alert?: Mithril.Vnode;
 
     constructor(status, responseText, options, xhr) {
-      this.status = status;
-      this.responseText = responseText;
-      this.options = options;
-      this.xhr = xhr;
+        this.status = status;
+        this.responseText = responseText;
+        this.options = options;
+        this.xhr = xhr;
 
-      try {
-        this.response = JSON.parse(responseText);
-      } catch (e) {
-        this.response = null;
-      }
+        try {
+            this.response = JSON.parse(responseText);
+        } catch (e) {
+            this.response = null;
+        }
 
-      this.alert = null;
+        this.alert = null;
     }
 }

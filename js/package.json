@@ -27,7 +27,7 @@
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production",
-    "lint": "prettier --single-quote --trailing-comma es5 --print-width 150 --tab-width 4 --write \"src/**/*\""
+    "lint": "prettier --single-quote --trailing-comma es5 --print-width 150 --tab-width 4 --write \"src/**/*\" \"*.{ts,js}\""
   },
   "devDependencies": {
     "@types/classnames": "^2.2.9",

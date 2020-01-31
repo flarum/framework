@@ -26,7 +26,7 @@ export default class CommentPost extends Post {
 
         // Create an instance of the component that displays the post's author so
         // that we can force the post to rerender when the user card is shown.
-        this.postUser = PostUser.component({post: this.props.post});
+        this.postUser = PostUser.component({ post: this.props.post });
 
         this.subtree.check(
             () => this.postUser.cardVisible,
@@ -38,14 +38,18 @@ export default class CommentPost extends Post {
         // Note: we avoid using JSX for the <ul> below because it results in some
         // weirdness in Mithril.js 0.1.x (see flarum/core#975). This workaround can
         // be reverted when we upgrade to Mithril 1.0.
-        return super.content().concat([
-            <header className="Post-header">{m('ul', listItems(this.headerItems().toArray()))}</header>,
-            <div className="Post-body">
-                {this.isEditing()
-                    ? <div className="Post-preview" config={this.configPreview.bind(this)}/>
-                    : m.trust(this.props.post.contentHtml())}
-            </div>
-        ]);
+        return super
+            .content()
+            .concat([
+                <header className="Post-header">{m('ul', listItems(this.headerItems().toArray()))}</header>,
+                <div className="Post-body">
+                    {this.isEditing() ? (
+                        <div className="Post-preview" config={this.configPreview.bind(this)} />
+                    ) : (
+                        m.trust(this.props.post.contentHtml())
+                    )}
+                </div>,
+            ]);
     }
 
     onupdate(vnode) {
@@ -77,13 +81,16 @@ export default class CommentPost extends Post {
         const post = this.props.post;
         const attrs = super.attrs();
 
-        attrs.className = (attrs.className || '') + ' ' + classNames({
-            'CommentPost': true,
-            'Post--hidden': post.isHidden(),
-            'Post--edited': post.isEdited(),
-            'revealContent': this.revealContent,
-            'editing': this.isEditing()
-        });
+        attrs.className =
+            (attrs.className || '') +
+            ' ' +
+            classNames({
+                CommentPost: true,
+                'Post--hidden': post.isHidden(),
+                'Post--edited': post.isEdited(),
+                revealContent: this.revealContent,
+                editing: this.isEditing(),
+            });
 
         return attrs;
     }
@@ -125,7 +132,7 @@ export default class CommentPost extends Post {
     headerItems() {
         const items = new ItemList();
         const post = this.props.post;
-        const props = {post};
+        const props = { post };
 
         items.add('user', this.postUser, 100);
         // items.add('meta', PostMeta.component(props));
@@ -137,13 +144,14 @@ export default class CommentPost extends Post {
         // If the post is hidden, add a button that allows toggling the visibility
         // of the post's content.
         if (post.isHidden()) {
-            items.add('toggle', (
+            items.add(
+                'toggle',
                 Button.component({
                     className: 'Button Button--default Button--more',
                     icon: 'fas fa-ellipsis-h',
-                    onclick: this.toggleContent.bind(this)
+                    onclick: this.toggleContent.bind(this),
                 })
-            ));
+            );
         }
 
         return items;

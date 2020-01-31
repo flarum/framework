@@ -9,28 +9,30 @@ import { truncate } from '../utils/string';
  * @param {Integer} [length] The number of characters to truncate the string to.
  *     The string will be truncated surrounding the first match.
  */
-export default function highlight(string: string, phrase: string|RegExp, length?: number): any {
-  if (!phrase && !length) return string;
+export default function highlight(string: string, phrase: string | RegExp, length?: number): any {
+    if (!phrase && !length) return string;
 
-  // Convert the word phrase into a global regular expression (if it isn't
-  // already) so we can search the string for matched.
-  const regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
+    // Convert the word phrase into a global regular expression (if it isn't
+    // already) so we can search the string for matched.
+    const regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
 
-  let highlighted = string;
-  let start = 0;
+    let highlighted = string;
+    let start = 0;
 
-  // If a length was given, the truncate the string surrounding the first match.
-  if (length) {
-    if (phrase) start = Math.max(0, string.search(regexp) - length / 2);
+    // If a length was given, the truncate the string surrounding the first match.
+    if (length) {
+        if (phrase) start = Math.max(0, string.search(regexp) - length / 2);
 
-    highlighted = truncate(highlighted, length, start);
-  }
+        highlighted = truncate(highlighted, length, start);
+    }
 
-  // Convert the string into HTML entities, then highlight all matches with
-  // <mark> tags. Then we will return the result as a trusted HTML string.
-  highlighted = $('<div/>').text(highlighted).html();
+    // Convert the string into HTML entities, then highlight all matches with
+    // <mark> tags. Then we will return the result as a trusted HTML string.
+    highlighted = $('<div/>')
+        .text(highlighted)
+        .html();
 
-  if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');
+    if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');
 
-  return m.trust(highlighted);
+    return m.trust(highlighted);
 }

@@ -16,24 +16,20 @@ import extract from '../utils/extract';
  * All other props will be assigned as attributes on the badge element.
  */
 export default class Badge extends Component {
-  view(vnode) {
-    const attrs = vnode.attrs;
-    const type = extract(attrs, 'type');
-    const iconName = extract(attrs, 'icon');
+    view(vnode) {
+        const attrs = vnode.attrs;
+        const type = extract(attrs, 'type');
+        const iconName = extract(attrs, 'icon');
 
-    attrs.className = `Badge ${type ? `Badge--${type}` : ''} ${attrs.className || ''}`;
-    attrs.title = extract(attrs, 'label') || '';
+        attrs.className = `Badge ${type ? `Badge--${type}` : ''} ${attrs.className || ''}`;
+        attrs.title = extract(attrs, 'label') || '';
 
-    return (
-      <span {...attrs}>
-        {iconName ? icon(iconName, {className: 'Badge-icon'}) : m.trust('&nbsp;')}
-      </span>
-    );
-  }
+        return <span {...attrs}>{iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;')}</span>;
+    }
 
-  oncreate(vnode) {
-    super.oncreate(vnode);
+    oncreate(vnode) {
+        super.oncreate(vnode);
 
-    if (this.props.label) this.$().tooltip({container: 'body'});
-  }
+        if (this.props.label) this.$().tooltip({ container: 'body' });
+    }
 }

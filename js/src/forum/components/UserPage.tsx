@@ -16,143 +16,145 @@ import User from '../../common/models/User';
  * examples.
  */
 export default abstract class UserPage extends Page {
-  /**
-   * The user this page is for.
-   */
-  user: User;
-  bodyClass: string = 'App--user';
+    /**
+     * The user this page is for.
+     */
+    user: User;
+    bodyClass: string = 'App--user';
 
-  /**
-   * The username of the currently loaded user
-   */
-  username: string;
+    /**
+     * The username of the currently loaded user
+     */
+    username: string;
 
-  view() {
-    return (
-      <div className="UserPage">
-        {this.user ? [
-          UserCard.component({
-            user: this.user,
-            className: 'Hero UserHero',
-            editable: this.user.canEdit() || this.user === app.session.user,
-            controlsButtonClassName: 'Button'
-          }),
-          <div className="container">
-            <div className="sideNavContainer">
-              <nav className="sideNav UserPage-nav" config={affixSidebar}>
-                <ul>{listItems(this.sidebarItems().toArray())}</ul>
-              </nav>
-              <div className="sideNavOffset UserPage-content">
-                {this.content()}
-              </div>
+    view() {
+        return (
+            <div className="UserPage">
+                {this.user
+                    ? [
+                          UserCard.component({
+                              user: this.user,
+                              className: 'Hero UserHero',
+                              editable: this.user.canEdit() || this.user === app.session.user,
+                              controlsButtonClassName: 'Button',
+                          }),
+                          <div className="container">
+                              <div className="sideNavContainer">
+                                  <nav className="sideNav UserPage-nav" config={affixSidebar}>
+                                      <ul>{listItems(this.sidebarItems().toArray())}</ul>
+                                  </nav>
+                                  <div className="sideNavOffset UserPage-content">{this.content()}</div>
+                              </div>
+                          </div>,
+                      ]
+                    : [LoadingIndicator.component({ lassName: 'LoadingIndicator--block' })]}
             </div>
-          </div>
-        ] : [
-          LoadingIndicator.component({lassName: 'LoadingIndicator--block'})
-        ]}
-      </div>
-    );
-  }
-
-  /**
-   * Get the content to display in the user page.
-   */
-  abstract content();
-
-  /**
-   * Initialize the component with a user, and trigger the loading of their
-   * activity feed.
-   */
-  protected show(user: User) {
-    this.user = user;
-
-    app.setTitle(user.displayName());
-
-    m.redraw();
-  }
-
-  /**
-   * Given a username, load the user's profile from the store, or make a request
-   * if we don't have it yet. Then initialize the profile page with that user.
-   */
-  loadUser(username: string) {
-    const lowercaseUsername = username.toLowerCase();
-
-    // Load the preloaded user object, if any, into the global app store
-    // We don't use the output of the method because it returns raw JSON
-    // instead of the parsed models
-    app.preloadedApiDocument();
-
-    if (lowercaseUsername == this.username) return;
-
-    this.username = lowercaseUsername;
-
-    app.store.all<User>('users').some(user => {
-      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username) && user.joinTime()) {
-        this.show(user);
-        return true;
-      }
-    });
-
-    if (!this.user) {
-      app.store.find('users', username).then(this.show.bind(this));
-    }
-  }
-
-  /**
-   * Build an item list for the content of the sidebar.
-   */
-  sidebarItems() {
-    const items = new ItemList();
-
-    items.add('nav',
-      SelectDropdown.component({
-        children: this.navItems().toArray(),
-        className: 'App-titleControl',
-        buttonClassName: 'Button'
-      })
-    );
-
-    return items;
-  }
-
-  /**
-   * Build an item list for the navigation in the sidebar.
-   */
-  navItems() {
-    const items = new ItemList();
-    const user = this.user;
-
-    items.add('posts',
-      LinkButton.component({
-        href: app.route('user.posts', {username: user.username()}),
-        children: [app.translator.trans('core.forum.user.posts_link'), <span className="Button-badge">{user.commentCount()}</span>],
-        icon: 'far fa-comment'
-      }),
-      100
-    );
-
-    items.add('discussions',
-      LinkButton.component({
-        href: app.route('user.discussions', {username: user.username()}),
-        children: [app.translator.trans('core.forum.user.discussions_link'), <span className="Button-badge">{user.discussionCount()}</span>],
-        icon: 'fas fa-bars'
-      }),
-      90
-    );
-
-    if (app.session.user === user) {
-      items.add('separator', Separator.component(), -90);
-      items.add('settings',
-        LinkButton.component({
-          href: app.route('settings'),
-          children: app.translator.trans('core.forum.user.settings_link'),
-          icon: 'fas fa-cog'
-        }),
-        -100
-      );
+        );
     }
 
-    return items;
-  }
+    /**
+     * Get the content to display in the user page.
+     */
+    abstract content();
+
+    /**
+     * Initialize the component with a user, and trigger the loading of their
+     * activity feed.
+     */
+    protected show(user: User) {
+        this.user = user;
+
+        app.setTitle(user.displayName());
+
+        m.redraw();
+    }
+
+    /**
+     * Given a username, load the user's profile from the store, or make a request
+     * if we don't have it yet. Then initialize the profile page with that user.
+     */
+    loadUser(username: string) {
+        const lowercaseUsername = username.toLowerCase();
+
+        // Load the preloaded user object, if any, into the global app store
+        // We don't use the output of the method because it returns raw JSON
+        // instead of the parsed models
+        app.preloadedApiDocument();
+
+        if (lowercaseUsername == this.username) return;
+
+        this.username = lowercaseUsername;
+
+        app.store.all<User>('users').some(user => {
+            if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username) && user.joinTime()) {
+                this.show(user);
+                return true;
+            }
+        });
+
+        if (!this.user) {
+            app.store.find('users', username).then(this.show.bind(this));
+        }
+    }
+
+    /**
+     * Build an item list for the content of the sidebar.
+     */
+    sidebarItems() {
+        const items = new ItemList();
+
+        items.add(
+            'nav',
+            SelectDropdown.component({
+                children: this.navItems().toArray(),
+                className: 'App-titleControl',
+                buttonClassName: 'Button',
+            })
+        );
+
+        return items;
+    }
+
+    /**
+     * Build an item list for the navigation in the sidebar.
+     */
+    navItems() {
+        const items = new ItemList();
+        const user = this.user;
+
+        items.add(
+            'posts',
+            LinkButton.component({
+                href: app.route('user.posts', { username: user.username() }),
+                children: [app.translator.trans('core.forum.user.posts_link'), <span className="Button-badge">{user.commentCount()}</span>],
+                icon: 'far fa-comment',
+            }),
+            100
+        );
+
+        items.add(
+            'discussions',
+            LinkButton.component({
+                href: app.route('user.discussions', { username: user.username() }),
+                children: [app.translator.trans('core.forum.user.discussions_link'), <span className="Button-badge">{user.discussionCount()}</span>],
+                icon: 'fas fa-bars',
+            }),
+            90
+        );
+
+        if (app.session.user === user) {
+            items.add('separator', Separator.component(), -90);
+            items.add(
+                'settings',
+                LinkButton.component({
+                    href: app.route('settings'),
+                    children: app.translator.trans('core.forum.user.settings_link'),
+                    icon: 'fas fa-cog',
+                }),
+                -100
+            );
+        }
+
+        return items;
+    }
 }
