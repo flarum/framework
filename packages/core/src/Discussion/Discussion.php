@@ -23,7 +23,7 @@ use Flarum\Notification\Notification;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
-use Flarum\Util\Str;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
