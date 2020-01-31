@@ -7,7 +7,7 @@
     "color-thief-browser": "^2.0.2",
     "dayjs": "^1.8.16",
     "expose-loader": "^0.7.5",
-    "flarum-webpack-config": "file:../../flarum-webpack-config",
+    "flarum-webpack-config": "^0.1.0-beta.10",
     "hc-sticky": "^2.2.3",
     "imports-loader": "^0.8.0",
     "jump.js": "^1.0.2",
@@ -24,12 +24,14 @@
     "webpack-merge": "^4.2.2",
     "zepto": "^1.2.0"
   },
-  "devDependencies": {
-    "@types/classnames": "^2.2.9",
-    "@types/zepto": "^1.0.30"
-  },
   "scripts": {
     "dev": "webpack --mode development --watch",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "lint": "prettier --single-quote --trailing-comma es5 --print-width 150 --tab-width 4 --write \"src/**/*\""
+  },
+  "devDependencies": {
+    "@types/classnames": "^2.2.9",
+    "@types/zepto": "^1.0.30",
+    "prettier": "^1.19.1"
   }
 }
