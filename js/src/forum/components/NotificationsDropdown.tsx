@@ -40,7 +40,7 @@ export default class NotificationsDropdown extends Dropdown {
     getMenu() {
         return (
             <div className={'Dropdown-menu ' + this.props.menuClassName} onclick={this.menuClick.bind(this)}>
-                {this.showing ? m(this.list) : ''}
+                {this.showing ? this.list.render() : ''}
             </div>
         );
     }
