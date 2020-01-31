@@ -11,7 +11,11 @@ export type ComponentProps = {
 export default class Component<T extends ComponentProps = any> {
     element: HTMLElement;
 
-    props = <T>{};
+    props: T;
+
+    constructor(props: T = <T>{}) {
+        this.props = props;
+    }
 
     view(vnode) {
         throw new Error('Component#view must be implemented by subclass');
@@ -58,6 +62,10 @@ export default class Component<T extends ComponentProps = any> {
         const $element = $(this.element);
 
         return selector ? $element.find(selector) : $element;
+    }
+
+    render() {
+        return m(this, this.props);
     }
 
     static component(props: ComponentProps | any = {}, children?: Mithril.Children) {
