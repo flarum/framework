@@ -13,15 +13,18 @@ import Discussion from "../common/models/Discussion";
 
 export default class Forum extends Application {
     routes = {
-        'index': { path: '/', component: IndexPage },
-        'index.filter': { path: '/:filter', component: IndexPage },
+        'index': { path: '/all', component: IndexPage },
+
+        'discussion': { path: '/d/:id', component: IndexPage },
+        'discussion.near': { path: '/d/:id/:near', component: IndexPage },
 
         'user': { path: '/u/:username', component: PostsUserPage },
         'user.posts': { path: '/u/:username', component: PostsUserPage },
-        'user.discussions': { path: '/u/:username', component: PostsUserPage },
-        'settings': { path: '/u/:username', component: PostsUserPage },
+        'user.discussions': { path: '/u/:username/discussions', component: PostsUserPage },
 
-        'discussion': { path: '/d/:id', IndexPage },
+        'settings': { path: '/settings', component: PostsUserPage },
+
+        'index.filter': { path: '/:filter', component: IndexPage },
     };
 
     /**
