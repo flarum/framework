@@ -108,7 +108,10 @@ class UninstalledSite implements SiteInterface
                 'lifetime' => 120,
                 'files' => $this->paths['storage'].'/sessions',
                 'cookie' => 'session'
-            ]
+            ],
+            'view' => [
+                'paths' => [],
+            ],
         ]);
     }
 
