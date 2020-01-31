@@ -10,139 +10,139 @@ import Post from '../../common/models/Post';
  * profile.
  */
 export default class PostsUserPage extends UserPage {
-  /**
-   * Whether or not the activity feed is currently loading.
-   */
-  loading = true;
+    /**
+     * Whether or not the activity feed is currently loading.
+     */
+    loading = true;
 
-  /**
-   * Whether or not there are any more activity items that can be loaded.
-   */
-  moreResults = false;
+    /**
+     * Whether or not there are any more activity items that can be loaded.
+     */
+    moreResults = false;
 
-  /**
-   * The Post models in the feed.
-   */
-  posts: Post[] = [];
+    /**
+     * The Post models in the feed.
+     */
+    posts: Post[] = [];
 
-  /**
-   * The number of activity items to load per request.
-   */
-  loadLimit = 20;
+    /**
+     * The number of activity items to load per request.
+     */
+    loadLimit = 20;
 
-  oninit(vnode) {
-    super.oninit(vnode);
+    oninit(vnode) {
+        super.oninit(vnode);
 
-    this.loadUser(vnode.attrs.username);
-  }
-
-  onupdate(vnode) {
-    super.onupdate(vnode);
-
-    this.loadUser(vnode.attrs.username);
-  }
-
-  content() {
-    if (this.posts.length === 0 && ! this.loading) {
-      return (
-        <div className="PostsUserPage">
-          <Placeholder text={app.translator.trans('core.forum.user.posts_empty_text')} />
-        </div>
-      );
+        this.loadUser(vnode.attrs.username);
     }
 
-    let footer;
+    onupdate(vnode) {
+        super.onupdate(vnode);
 
-    if (this.loading) {
-      footer = LoadingIndicator.component();
-    } else if (this.moreResults) {
-      footer = (
-        <div className="PostsUserPage-loadMore">
-          {Button.component({
-            children: app.translator.trans('core.forum.user.posts_load_more_button'),
-            className: 'Button',
-            onclick: this.loadMore.bind(this)
-          })}
-        </div>
-      );
+        this.loadUser(vnode.attrs.username);
     }
 
-    return (
-      <div className="PostsUserPage">
-        <ul className="PostsUserPage-list">
-          {this.posts.map(post => (
-            <li>
-              <div className="PostsUserPage-discussion">
-                {app.translator.trans('core.forum.user.in_discussion_text', {discussion: <m.route.Link href={app.route.post(post)}>{post.discussion().title()}</m.route.Link>})}
-              </div>
-              {CommentPost.component({post})}
-            </li>
-          ))}
-        </ul>
-        <div className="PostsUserPage-loadMore">
-          {footer}
-        </div>
-      </div>
-    );
-  }
+    content() {
+        if (this.posts.length === 0 && !this.loading) {
+            return (
+                <div className="PostsUserPage">
+                    <Placeholder text={app.translator.trans('core.forum.user.posts_empty_text')} />
+                </div>
+            );
+        }
 
-  /**
-   * Initialize the component with a user, and trigger the loading of their
-   * activity feed.
-   */
-  show(user) {
-    super.show(user);
+        let footer;
 
-    this.refresh();
-  }
+        if (this.loading) {
+            footer = LoadingIndicator.component();
+        } else if (this.moreResults) {
+            footer = (
+                <div className="PostsUserPage-loadMore">
+                    {Button.component({
+                        children: app.translator.trans('core.forum.user.posts_load_more_button'),
+                        className: 'Button',
+                        onclick: this.loadMore.bind(this),
+                    })}
+                </div>
+            );
+        }
 
-  /**
-   * Clear and reload the user's activity feed.
-   */
-  refresh() {
-    this.loading = true;
-    this.posts = [];
+        return (
+            <div className="PostsUserPage">
+                <ul className="PostsUserPage-list">
+                    {this.posts.map(post => (
+                        <li>
+                            <div className="PostsUserPage-discussion">
+                                {app.translator.trans('core.forum.user.in_discussion_text', {
+                                    discussion: <m.route.Link href={app.route.post(post)}>{post.discussion().title()}</m.route.Link>,
+                                })}
+                            </div>
+                            {CommentPost.component({ post })}
+                        </li>
+                    ))}
+                </ul>
+                <div className="PostsUserPage-loadMore">{footer}</div>
+            </div>
+        );
+    }
 
-    m.redraw();
+    /**
+     * Initialize the component with a user, and trigger the loading of their
+     * activity feed.
+     */
+    show(user) {
+        super.show(user);
 
-    this.loadResults().then(this.parseResults.bind(this));
-  }
+        this.refresh();
+    }
 
-  /**
-   * Load a new page of the user's activity feed.
-   *
-   * @param offset The position to start getting results from.
-   */
-  protected loadResults(offset?: number): Promise<Post[]> {
-    return app.store.find<Post>('posts', {
-      filter: {
-        user: this.user.id(),
-        type: 'comment'
-      },
-      page: {offset, limit: this.loadLimit},
-      sort: '-createdAt'
-    });
-  }
+    /**
+     * Clear and reload the user's activity feed.
+     */
+    refresh() {
+        this.loading = true;
+        this.posts = [];
 
-  /**
-   * Load the next page of results.
-   */
-  loadMore() {
-    this.loading = true;
-    this.loadResults(this.posts.length).then(this.parseResults.bind(this));
-  }
+        m.redraw();
 
-  /**
-   * Parse results and append them to the activity feed.
-   */
-  parseResults(results: Post[]): Post[] {
-    this.loading = false;
+        this.loadResults().then(this.parseResults.bind(this));
+    }
 
-    [].push.apply(this.posts, results);
+    /**
+     * Load a new page of the user's activity feed.
+     *
+     * @param offset The position to start getting results from.
+     */
+    protected loadResults(offset?: number): Promise<Post[]> {
+        return app.store.find<Post>('posts', {
+            filter: {
+                user: this.user.id(),
+                type: 'comment',
+            },
+            page: { offset, limit: this.loadLimit },
+            sort: '-createdAt',
+        });
+    }
 
-    this.moreResults = results.length >= this.loadLimit;
-    m.redraw();
+    /**
+     * Load the next page of results.
+     */
+    loadMore() {
+        this.loading = true;
+        this.loadResults(this.posts.length).then(this.parseResults.bind(this));
+    }
 
-    return results;
-  }
+    /**
+     * Parse results and append them to the activity feed.
+     */
+    parseResults(results: Post[]): Post[] {
+        this.loading = false;
+
+        [].push.apply(this.posts, results);
+
+        this.moreResults = results.length >= this.loadLimit;
+        m.redraw();
+
+        return results;
+    }
 }

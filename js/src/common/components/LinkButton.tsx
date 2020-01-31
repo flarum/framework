@@ -1,9 +1,9 @@
-import Button, {ButtonProps} from './Button';
+import Button, { ButtonProps } from './Button';
 
 interface LinkButtonProps extends ButtonProps {
-  active: boolean;
-  oncreate: Function;
-  href?: string;
+    active: boolean;
+    oncreate: Function;
+    href?: string;
 }
 
 /**
@@ -19,25 +19,23 @@ interface LinkButtonProps extends ButtonProps {
  *   the `active` prop will automatically be set to true.
  */
 export default class LinkButton extends Button<LinkButtonProps> {
-  static initProps(props: LinkButtonProps) {
-    props.active = this.isActive(props);
-  }
+    static initProps(props: LinkButtonProps) {
+        props.active = this.isActive(props);
+    }
 
-  view() {
-    const vdom = super.view();
+    view() {
+        const vdom = super.view();
 
-    vdom.tag = m.route.Link;
-    vdom.attrs.active = String(vdom.attrs.active);
+        vdom.tag = m.route.Link;
+        vdom.attrs.active = String(vdom.attrs.active);
 
-    return vdom;
-  }
+        return vdom;
+    }
 
-  /**
-   * Determine whether a component with the given props is 'active'.
-   */
-  static isActive(props: LinkButtonProps): boolean {
-    return typeof props.active !== 'undefined'
-      ? props.active
-      : m.route.get() === props.href;
-  }
+    /**
+     * Determine whether a component with the given props is 'active'.
+     */
+    static isActive(props: LinkButtonProps): boolean {
+        return typeof props.active !== 'undefined' ? props.active : m.route.get() === props.href;
+    }
 }

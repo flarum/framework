@@ -4,8 +4,8 @@ import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import userOnline from '../../common/helpers/userOnline';
 import listItems from '../../common/helpers/listItems';
-import {PostProps} from "./Post";
-import LinkButton from "../../common/components/LinkButton";
+import { PostProps } from './Post';
+import LinkButton from '../../common/components/LinkButton';
 
 /**
  * The `PostUser` component shows the avatar and username of a post's author.
@@ -23,7 +23,9 @@ export default class PostUser extends Component<PostProps> {
         if (!user) {
             return (
                 <div className="PostUser">
-                    <h3>{avatar(user, {className: 'PostUser-avatar'})} {username(user)}</h3>
+                    <h3>
+                        {avatar(user, { className: 'PostUser-avatar' })} {username(user)}
+                    </h3>
                 </div>
             );
         }
@@ -34,7 +36,7 @@ export default class PostUser extends Component<PostProps> {
             card = UserCard.component({
                 user,
                 className: 'UserCard--popover',
-                controlsButtonClassName: 'Button Button--icon Button--flat'
+                controlsButtonClassName: 'Button Button--icon Button--flat',
             });
         }
 
@@ -42,14 +44,12 @@ export default class PostUser extends Component<PostProps> {
             <div className="PostUser">
                 <h3>
                     <LinkButton href={app.route.user(user)}>
-                        {avatar(user, {className: 'PostUser-avatar'})}
+                        {avatar(user, { className: 'PostUser-avatar' })}
                         {userOnline(user)}
                         {username(user)}
                     </LinkButton>
                 </h3>
-                <ul className="PostUser-badges badges">
-                    {listItems(user.badges().toArray())}
-                </ul>
+                <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
                 {card}
             </div>
         );
@@ -86,7 +86,8 @@ export default class PostUser extends Component<PostProps> {
      * Hide the user card.
      */
     hideCard() {
-        this.$('.UserCard').removeClass('in')
+        this.$('.UserCard')
+            .removeClass('in')
             .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
                 this.cardVisible = false;
                 m.redraw();

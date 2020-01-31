@@ -1,13 +1,13 @@
-import Component, {ComponentProps} from '../../common/Component';
+import Component, { ComponentProps } from '../../common/Component';
 import Dropdown from '../../common/components/Dropdown';
 import PostControls from '../utils/PostControls';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
-import SubtreeRetainer from "../../common/utils/SubtreeRetainer";
+import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import PostModel from '../../common/models/Post';
 
 export interface PostProps extends ComponentProps {
-    post: PostModel
+    post: PostModel;
 }
 
 /**
@@ -53,20 +53,27 @@ export default class Post<T extends PostProps = PostProps> extends Component<Pos
                     <aside className="Post-actions">
                         <ul>
                             {listItems(this.actionItems().toArray())}
-                            {controls.length ? <li>
-                                <Dropdown
-                                    className="Post-controls"
-                                    buttonClassName="Button Button--icon Button--flat"
-                                    menuClassName="Dropdown-menu--right"
-                                    icon="fas fa-ellipsis-h"
-                                    onshow={() => this.$('.Post-actions').addClass('open')}
-                                    onhide={() => this.$('.Post-actions').removeClass('open')}>
-                                    {controls}
-                                </Dropdown>
-                            </li> : ''}
+                            {controls.length ? (
+                                <li>
+                                    <Dropdown
+                                        className="Post-controls"
+                                        buttonClassName="Button Button--icon Button--flat"
+                                        menuClassName="Dropdown-menu--right"
+                                        icon="fas fa-ellipsis-h"
+                                        onshow={() => this.$('.Post-actions').addClass('open')}
+                                        onhide={() => this.$('.Post-actions').removeClass('open')}
+                                    >
+                                        {controls}
+                                    </Dropdown>
+                                </li>
+                            ) : (
+                                ''
+                            )}
                         </ul>
                     </aside>
-                    <footer className="Post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></footer>
+                    <footer className="Post-footer">
+                        <ul>{listItems(this.footerItems().toArray())}</ul>
+                    </footer>
                 </div>
                 );
             </article>

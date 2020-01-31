@@ -2,9 +2,7 @@
  * Truncate a string to the given length, appending ellipses if necessary.
  */
 export function truncate(string: string, length: number, start = 0): string {
-  return (start > 0 ? '...' : '') +
-    string.substring(start, start + length) +
-    (string.length > start + length ? '...' : '');
+    return (start > 0 ? '...' : '') + string.substring(start, start + length) + (string.length > start + length ? '...' : '');
 }
 
 /**
@@ -12,10 +10,11 @@ export function truncate(string: string, length: number, start = 0): string {
  * converted to hyphens.
  */
 export function slug(string: string): string {
-  return string.toLowerCase()
-    .replace(/[^a-z0-9]/gi, '-')
-    .replace(/-+/g, '-')
-    .replace(/-$|^-/g, '');
+    return string
+        .toLowerCase()
+        .replace(/[^a-z0-9]/gi, '-')
+        .replace(/-+/g, '-')
+        .replace(/-$|^-/g, '');
 }
 
 /**
@@ -23,15 +22,16 @@ export function slug(string: string): string {
  * meaningful punctuation.
  */
 export function getPlainContent(string: string): string {
-  const html = string
-    .replace(/(<\/p>|<br>)/g, '$1 &nbsp;')
-    .replace(/<img\b[^>]*>/ig, ' ');
+    const html = string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;').replace(/<img\b[^>]*>/gi, ' ');
 
-  const dom = $('<div/>').html(html);
+    const dom = $('<div/>').html(html);
 
-  dom.find(getPlainContent.removeSelectors.join(',')).remove();
+    dom.find(getPlainContent.removeSelectors.join(',')).remove();
 
-  return dom.text().replace(/\s+/g, ' ').trim();
+    return dom
+        .text()
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 /**
@@ -45,5 +45,5 @@ getPlainContent.removeSelectors = ['blockquote', 'script'];
  * Make a string's first character uppercase.
  */
 export function ucfirst(string: string): string {
-  return string.substr(0, 1).toUpperCase() + string.substr(1);
+    return string.substr(0, 1).toUpperCase() + string.substr(1);
 }

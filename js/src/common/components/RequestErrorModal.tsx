@@ -1,9 +1,9 @@
 import Modal from './Modal';
-import {ComponentProps} from '../Component';
+import { ComponentProps } from '../Component';
 import RequestError from '../utils/RequestError';
 
 export interface RequestErrorModalProps extends ComponentProps {
-  error: RequestError,
+    error: RequestError;
 }
 
 export default class RequestErrorModal<T extends RequestErrorModalProps = RequestErrorModalProps> extends Modal<T> {
@@ -12,9 +12,7 @@ export default class RequestErrorModal<T extends RequestErrorModalProps = Reques
     }
 
     title(): string {
-        return this.props.error.xhr
-            ? `${this.props.error.xhr.status} ${this.props.error.xhr.statusText}`
-            : '';
+        return this.props.error.xhr ? `${this.props.error.xhr.status} ${this.props.error.xhr.statusText}` : '';
     }
 
     content() {
@@ -26,11 +24,15 @@ export default class RequestErrorModal<T extends RequestErrorModalProps = Reques
             responseText = this.props.error.responseText;
         }
 
-        return <div className="Modal-body">
-            <pre>
-                {this.props.error.options.method} {this.props.error.options.url}<br/><br/>
-                {responseText}
-            </pre>
-        </div>
+        return (
+            <div className="Modal-body">
+                <pre>
+                    {this.props.error.options.method} {this.props.error.options.url}
+                    <br />
+                    <br />
+                    {responseText}
+                </pre>
+            </div>
+        );
     }
 }

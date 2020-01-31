@@ -1,17 +1,17 @@
 import Mithril from 'mithril';
 
 export type ComponentProps = {
-  children?: Mithril.Children,
+    children?: Mithril.Children;
 
-  className?: string;
+    className?: string;
 
-  [key: string]: any;
-}
+    [key: string]: any;
+};
 
 export default class Component<T extends ComponentProps = any> {
     element: HTMLElement;
 
-    props = <T> {};
+    props = <T>{};
 
     view(vnode) {
         throw new Error('Component#view must be implemented by subclass');
@@ -60,7 +60,7 @@ export default class Component<T extends ComponentProps = any> {
         return selector ? $element.find(selector) : $element;
     }
 
-    static component(props: ComponentProps|any = {}, children?: Mithril.Children) {
+    static component(props: ComponentProps | any = {}, children?: Mithril.Children) {
         const componentProps: ComponentProps = Object.assign({}, props);
 
         if (children) componentProps.children = children;

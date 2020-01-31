@@ -1,21 +1,21 @@
 import Separator from '../components/Separator';
 
 export function isSeparator(item) {
-  return item?.tag === Separator;
+    return item?.tag === Separator;
 }
 
 export function withoutUnnecessarySeparators(items) {
-  const newItems = [];
-  let prevItem;
+    const newItems = [];
+    let prevItem;
 
-  items.forEach((item, i) => {
-    if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
-      prevItem = item;
-      newItems.push(item);
-    }
-  });
+    items.forEach((item, i) => {
+        if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
+            prevItem = item;
+            newItems.push(item);
+        }
+    });
 
-  return newItems;
+    return newItems;
 }
 
 /**
@@ -26,32 +26,32 @@ export function withoutUnnecessarySeparators(items) {
  * @return {Array}
  */
 export default function listItems(items) {
-  if (!(items instanceof Array)) items = [items];
+    if (!(items instanceof Array)) items = [items];
 
-  return withoutUnnecessarySeparators(items).map(item => {
-    const isListItem = item.tag?.isListItem;
-    const active = item.tag?.isActive && item.tag.isActive(item.attrs);
-    const className = item.attrs?.itemClassName || item.itemClassName;
+    return withoutUnnecessarySeparators(items).map(item => {
+        const isListItem = item.tag?.isListItem;
+        const active = item.tag?.isActive && item.tag.isActive(item.attrs);
+        const className = item.attrs?.itemClassName || item.itemClassName;
 
-    if (isListItem) {
-      item.attrs = item.attrs || {};
-      item.attrs.key = item.attrs.key || item.itemName;
-      item.key = item.attrs.key;
-    }
+        if (isListItem) {
+            item.attrs = item.attrs || {};
+            item.attrs.key = item.attrs.key || item.itemName;
+            item.key = item.attrs.key;
+        }
 
-    const node = isListItem
-      ? item
-      : <li className={classNames(className, [
-            (item.itemName && `item-${item.itemName}`),
-            active && 'active',
-          ])}
-            key={item.attrs?.key || item.itemName}>
-        {item}
-      </li>;
+        const node = isListItem ? (
+            item
+        ) : (
+            <li
+                className={classNames(className, [item.itemName && `item-${item.itemName}`, active && 'active'])}
+                key={item.attrs?.key || item.itemName}
+            >
+                {item}
+            </li>
+        );
 
+        node.state = node.state || {};
 
-    node.state = node.state || {};
-
-    return node;
-  });
+        return node;
+    });
 }

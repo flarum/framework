@@ -1,11 +1,11 @@
-import {Vnode} from "mithril";
+import { Vnode } from 'mithril';
 
 // import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import ItemList from '../../common/utils/ItemList';
-import Post from "../../common/models/Post";
-import PostComponent from "../../forum/components/Post";
+import Post from '../../common/models/Post';
+import PostComponent from '../../forum/components/Post';
 
 /**
  * The `PostControls` utility constructs a list of buttons for a post which
@@ -60,10 +60,16 @@ export default {
 
         if (post.contentType() === 'comment' && post.canEdit()) {
             if (!post.isHidden()) {
-                items.add('edit', Button.component({
-                    icon: 'fas fa-pencil-alt',
-                    onclick: this.editAction.bind(post)
-                }, app.translator.trans('core.forum.post_controls.edit_button')));
+                items.add(
+                    'edit',
+                    Button.component(
+                        {
+                            icon: 'fas fa-pencil-alt',
+                            onclick: this.editAction.bind(post),
+                        },
+                        app.translator.trans('core.forum.post_controls.edit_button')
+                    )
+                );
             }
         }
 
@@ -83,26 +89,35 @@ export default {
 
         if (post.contentType() === 'comment' && !post.isHidden()) {
             if (post.canHide()) {
-                items.add('hide', Button.component({
-                    icon: 'far fa-trash-alt',
-                    children: app.translator.trans('core.forum.post_controls.delete_button'),
-                    onclick: this.hideAction.bind(post)
-                }));
+                items.add(
+                    'hide',
+                    Button.component({
+                        icon: 'far fa-trash-alt',
+                        children: app.translator.trans('core.forum.post_controls.delete_button'),
+                        onclick: this.hideAction.bind(post),
+                    })
+                );
             }
         } else {
             if (post.contentType() === 'comment' && post.canHide()) {
-                items.add('restore', Button.component({
-                    icon: 'fas fa-reply',
-                    children: app.translator.trans('core.forum.post_controls.restore_button'),
-                    onclick: this.restoreAction.bind(post)
-                }));
+                items.add(
+                    'restore',
+                    Button.component({
+                        icon: 'fas fa-reply',
+                        children: app.translator.trans('core.forum.post_controls.restore_button'),
+                        onclick: this.restoreAction.bind(post),
+                    })
+                );
             }
             if (post.canDelete()) {
-                items.add('delete', Button.component({
-                    icon: 'fas fa-times',
-                    children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
-                    onclick: this.deleteAction.bind(post, context)
-                }));
+                items.add(
+                    'delete',
+                    Button.component({
+                        icon: 'fas fa-times',
+                        children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
+                        onclick: this.deleteAction.bind(post, context),
+                    })
+                );
             }
         }
 
@@ -171,5 +186,5 @@ export default {
                 if (context) context.loading = false;
                 m.redraw();
             });
-    }
+    },
 };

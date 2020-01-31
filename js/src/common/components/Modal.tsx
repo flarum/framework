@@ -1,8 +1,8 @@
 import Mithril from 'mithril';
 
-import Component, {ComponentProps} from '../Component';
+import Component, { ComponentProps } from '../Component';
 import Button from './Button';
-import RequestError from "../utils/RequestError";
+import RequestError from '../utils/RequestError';
 
 /**
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
@@ -29,10 +29,12 @@ export default abstract class Modal<T extends ComponentProps = ComponentProps> e
                             {Button.component({
                                 icon: 'fas fa-times',
                                 onclick: this.hide.bind(this),
-                                className: 'Button Button--icon Button--link'
+                                className: 'Button Button--icon Button--link',
                             })}
                         </div>
-                    ) : ''}
+                    ) : (
+                        ''
+                    )}
 
                     <form onsubmit={this.onsubmit.bind(this)}>
                         <div className="Modal-header">
@@ -85,7 +87,11 @@ export default abstract class Modal<T extends ComponentProps = ComponentProps> e
      * Focus on the first input when the modal is ready to be used.
      */
     onready() {
-        this.$('form').find('input, select, textarea').first().focus().select();
+        this.$('form')
+            .find('input, select, textarea')
+            .first()
+            .focus()
+            .select();
     }
 
     onhide() {}
