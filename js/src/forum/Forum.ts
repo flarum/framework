@@ -7,6 +7,8 @@ import HeaderSecondary from './components/HeaderSecondary';
 import Page from './components/Page';
 import IndexPage from './components/IndexPage';
 import PostsUserPage from './components/PostsUserPage';
+import SettingsPage from './components/SettingsPage';
+
 import User from '../common/models/User';
 import Post from '../common/models/Post';
 import Discussion from '../common/models/Discussion';
@@ -22,7 +24,7 @@ export default class Forum extends Application {
         'user.posts': { path: '/u/:username', component: PostsUserPage },
         'user.discussions': { path: '/u/:username/discussions', component: PostsUserPage },
 
-        settings: { path: '/settings', component: PostsUserPage },
+        settings: { path: '/settings', component: SettingsPage },
 
         'index.filter': { path: '/:filter', component: IndexPage },
     };

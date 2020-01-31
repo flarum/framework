@@ -5,6 +5,14 @@ import computed from '../utils/computed';
 import GroupBadge from '../components/GroupBadge';
 import Group from './Group';
 
+export interface UserPreferences {
+    discloseOnline?: boolean;
+    indexProfile?: boolean;
+    locale?: string;
+
+    [key: string]: any;
+}
+
 export default class User extends Model {
     username = Model.attribute('username') as () => string;
 
@@ -14,7 +22,7 @@ export default class User extends Model {
     password = Model.attribute('password') as () => string;
 
     avatarUrl = Model.attribute('avatarUrl') as () => string;
-    preferences = Model.attribute('preferences') as () => string;
+    preferences = Model.attribute('preferences') as () => UserPreferences;
     groups = Model.hasMany('groups') as () => Group[];
 
     joinTime = Model.attribute('joinTime', Model.transformDate) as () => Date;
