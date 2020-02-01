@@ -1,8 +1,8 @@
 import Button, { ButtonProps } from './Button';
 
 interface LinkButtonProps extends ButtonProps {
-    active: boolean;
-    oncreate: Function;
+    active?: boolean;
+    oncreate?: Function;
     href?: string;
 }
 
