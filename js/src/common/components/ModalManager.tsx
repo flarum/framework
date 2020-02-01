@@ -10,7 +10,7 @@ import { Vnode } from 'mithril';
  * overwrite the previous one.
  */
 export default class ModalManager extends Component {
-    private node: Vnode;
+    protected node: Vnode;
 
     showing: boolean;
     hideTimeout: number;
@@ -89,10 +89,8 @@ export default class ModalManager extends Component {
 
     /**
      * Clear content from the modal area.
-     *
-     * @protected
      */
-    clear() {
+    protected clear() {
         if (this.component) {
             this.component.onhide();
         }
@@ -106,11 +104,9 @@ export default class ModalManager extends Component {
 
     /**
      * When the modal dialog is ready to be used, tell it!
-     *
-     * @protected
      */
-    onready() {
-        if (this.component?.onready) {
+    protected onready() {
+        if (this.component) {
             this.component.onready();
         }
     }
