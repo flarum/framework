@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\User\Concerns;
 
 use Flarum\User\User;
@@ -7,8 +14,6 @@ use Illuminate\Support\Arr;
 
 trait DeprecatedUserPreferences
 {
-
-
     /**
      * Get the values of all registered preferences for this user, by
      * transforming their stored preferences and merging them with the defaults.
