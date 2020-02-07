@@ -16,6 +16,7 @@ use Laminas\Diactoros\CallbackStream;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -23,11 +24,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * @var \Flarum\Foundation\InstalledApp
      */
     protected $app;
-
-    /**
-     * @var \Psr\Http\Server\RequestHandlerInterface
-     */
-    protected $server;
 
     /**
      * @return \Flarum\Foundation\InstalledApp
@@ -50,6 +46,20 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         }
 
         return $this->app;
+    }
+
+    /**
+     * @var RequestHandlerInterface
+     */
+    protected $server;
+
+    protected function server(): RequestHandlerInterface
+    {
+        if (is_null($this->server)) {
+            $this->server = $this->app()->getRequestHandler();
+        }
+
+        return $this->server;
     }
 
     protected $database;
@@ -103,7 +113,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function send(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->server->handle($request);
+        return $this->server()->handle($request);
     }
 
     /**
