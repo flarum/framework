@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration;
 
 use Dflydev\FigCookies\SetCookie;
+use Flarum\Extend\ExtenderInterface;
 use Flarum\Foundation\InstalledSite;
 use Illuminate\Database\ConnectionInterface;
 use Laminas\Diactoros\CallbackStream;
@@ -41,11 +42,22 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 include __DIR__.'/tmp/config.php'
             );
 
+            $site->extendWith($this->extenders);
+
             $this->app = $site->bootApp();
-            $this->server = $this->app->getRequestHandler();
         }
 
         return $this->app;
+    }
+
+    /**
+     * @var ExtenderInterface[]
+     */
+    protected $extenders = [];
+
+    protected function extend(ExtenderInterface $extender)
+    {
+        $this->extenders[] = $extender;
     }
 
     /**
