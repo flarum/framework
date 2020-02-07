@@ -9,6 +9,7 @@ import IndexPage from './components/IndexPage';
 import DiscussionList from './components/DiscussionList';
 import DiscussionPage from './components/DiscussionPage';
 import PostsUserPage from './components/PostsUserPage';
+import DiscussionsUserPage from './components/DiscussionsUserPage';
 import SettingsPage from './components/SettingsPage';
 
 import CommentPost from './components/CommentPost';
@@ -26,7 +27,7 @@ export default class Forum extends Application {
 
         user: { path: '/u/:username', component: PostsUserPage },
         'user.posts': { path: '/u/:username', component: PostsUserPage },
-        'user.discussions': { path: '/u/:username/discussions', component: PostsUserPage },
+        'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage },
 
         settings: { path: '/settings', component: SettingsPage },
 
