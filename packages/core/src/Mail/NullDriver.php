@@ -12,10 +12,10 @@ namespace Flarum\Mail;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
-use Swift_SendmailTransport;
+use Swift_NullTransport;
 use Swift_Transport;
 
-class SendmailDriver implements DriverInterface
+class NullDriver implements DriverInterface
 {
     public function availableSettings(): array
     {
@@ -29,11 +29,11 @@ class SendmailDriver implements DriverInterface
 
     public function canSend(): bool
     {
-        return true;
+        return false;
     }
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
-        return new Swift_SendmailTransport;
+        return new Swift_NullTransport();
     }
 }
