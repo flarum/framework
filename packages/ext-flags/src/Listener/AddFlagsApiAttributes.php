@@ -14,7 +14,7 @@ use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Flags\Flag;
-use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 
@@ -78,12 +78,7 @@ class AddFlagsApiAttributes
         return $query->distinct()->count('flags.post_id');
     }
 
-    /**
-     * @param User $actor
-     * @param CommentPost $post
-     * @return bool
-     */
-    protected function checkFlagOwnPostSetting(User $actor, CommentPost $post): bool
+    protected function checkFlagOwnPostSetting(User $actor, Post $post): bool
     {
         if ($actor->id === $post->user_id) {
             // If $actor is the post author, check to see if the setting is enabled
