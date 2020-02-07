@@ -112,12 +112,4 @@ export default class FlagPostModal extends Modal {
       .catch(() => {})
       .then(this.loaded.bind(this));
   }
-
-  onerror(error) {
-    if (error.status === 422) {
-      error.alert.props.children = app.translator.trans('flarum-flags.forum.flag_post.reason-needed');
-    }
-
-    super.onerror(error);
-  }
 }
