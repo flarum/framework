@@ -19,14 +19,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-
-        // Boot the Flarum app
-        $this->app();
-    }
-
     /**
      * @var \Flarum\Foundation\InstalledApp
      */
