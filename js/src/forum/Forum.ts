@@ -6,9 +6,12 @@ import HeaderSecondary from './components/HeaderSecondary';
 
 import Page from './components/Page';
 import IndexPage from './components/IndexPage';
+import DiscussionList from './components/DiscussionList';
 import DiscussionPage from './components/DiscussionPage';
 import PostsUserPage from './components/PostsUserPage';
 import SettingsPage from './components/SettingsPage';
+
+import CommentPost from './components/CommentPost';
 
 import User from '../common/models/User';
 import Post from '../common/models/Post';
