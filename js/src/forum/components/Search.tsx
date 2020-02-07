@@ -76,15 +76,13 @@ export default class Search extends Component {
 
         return (
             <div
-                className={
-                    'Search ' +
-                    classNames({
-                        open: this.value() && this.hasFocus,
-                        focused: this.hasFocus,
-                        active: !!currentSearch,
-                        loading: !!this.loadingSources,
-                    })
-                }
+                className={classNames(
+                    'Search',
+                    this.value() && this.hasFocus && 'open',
+                    this.hasFocus && 'focused',
+                    !!currentSearch && 'active',
+                    !!this.loadingSources && 'loading'
+                )}
             >
                 <div className="Search-input">
                     <input
@@ -143,7 +141,7 @@ export default class Search extends Component {
 
         // Handle input key events on the search input, triggering results to load.
         $input
-            .on('input focus', function() {
+            .on('input focus', function(this: HTMLInputElement) {
                 const query = this.value.toLowerCase();
 
                 if (!query) return;
