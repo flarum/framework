@@ -53,7 +53,7 @@ export default class Button<T extends ButtonProps = ButtonProps> extends Compone
 
         const loading = extract(attrs, 'loading');
         if (attrs.disabled || loading) {
-            attrs.className += ' ' + classNames('disabled', loading && 'loading');
+            attrs.className = classNames(attrs.className, 'disabled', loading && 'loading');
             delete attrs.onclick;
         }
 

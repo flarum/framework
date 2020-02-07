@@ -43,7 +43,7 @@ export default function listItems(items) {
             item
         ) : (
             <li
-                className={classNames(className, [item.itemName && `item-${item.itemName}`, active && 'active'])}
+                className={classNames(className, item.itemName && `item-${item.itemName}`, active && 'active')}
                 key={item.attrs?.key || item.itemName}
             >
                 {item}
