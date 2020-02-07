@@ -210,6 +210,12 @@ export default class PermissionGrid extends Component {
       permission: 'discussion.delete'
     }, 80);
 
+    items.add('postWithoutThrottle', {
+      icon: 'fas fa-swimmer',
+      label: app.translator.trans('core.admin.permissions.post_without_throttle_label'),
+      permission: 'postWithoutThrottle'
+    }, 70);
+
     items.add('editPosts', {
       icon: 'fas fa-pencil-alt',
       label: app.translator.trans('core.admin.permissions.edit_posts_label'),
@@ -233,7 +239,7 @@ export default class PermissionGrid extends Component {
       label: app.translator.trans('core.admin.permissions.edit_users_label'),
       permission: 'user.edit'
     }, 60);
-    
+
     return items;
   }
 
