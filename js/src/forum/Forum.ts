@@ -6,6 +6,7 @@ import HeaderSecondary from './components/HeaderSecondary';
 
 import Page from './components/Page';
 import IndexPage from './components/IndexPage';
+import DiscussionPage from './components/DiscussionPage';
 import PostsUserPage from './components/PostsUserPage';
 import SettingsPage from './components/SettingsPage';
 
@@ -17,8 +18,8 @@ export default class Forum extends Application {
     routes = {
         index: { path: '/all', component: IndexPage },
 
-        discussion: { path: '/d/:id', component: IndexPage },
-        'discussion.near': { path: '/d/:id/:near', component: IndexPage },
+        discussion: { path: '/d/:id', component: DiscussionPage },
+        'discussion.near': { path: '/d/:id/:near', component: DiscussionPage },
 
         user: { path: '/u/:username', component: PostsUserPage },
         'user.posts': { path: '/u/:username', component: PostsUserPage },
@@ -34,6 +35,11 @@ export default class Forum extends Application {
      * so that they can easily navigate back to the previous route.
      */
     history: History = new History();
+
+    postComponents = {
+        comment: CommentPost,
+        // discussionRenamed: DiscussionRenamedPost
+    };
 
     previous: Page;
     current: Page;
