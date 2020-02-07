@@ -12,6 +12,8 @@ export default class Model {
      */
     data: any;
 
+    payload: any;
+
     /**
      * The time at which the model's data was last updated. Watching the value
      * of this property is a fast way to retain/cache a subtree if data hasn't

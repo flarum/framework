@@ -35,21 +35,14 @@ export default class CommentPost extends Post {
     }
 
     content() {
-        // Note: we avoid using JSX for the <ul> below because it results in some
-        // weirdness in Mithril.js 0.1.x (see flarum/core#975). This workaround can
-        // be reverted when we upgrade to Mithril 1.0.
-        return super
-            .content()
-            .concat([
-                <header className="Post-header">{m('ul', listItems(this.headerItems().toArray()))}</header>,
-                <div className="Post-body">
-                    {this.isEditing() ? (
-                        <div className="Post-preview" config={this.configPreview.bind(this)} />
-                    ) : (
-                        m.trust(this.props.post.contentHtml())
-                    )}
-                </div>,
-            ]);
+        return super.content().concat([
+            <header className="Post-header">
+                <ul>{listItems(this.headerItems().toArray())}</ul>
+            </header>,
+            <div className="Post-body">
+                {this.isEditing() ? <div className="Post-preview" config={this.configPreview.bind(this)} /> : m.trust(this.props.post.contentHtml())}
+            </div>,
+        ]);
     }
 
     onupdate(vnode) {
