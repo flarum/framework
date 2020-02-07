@@ -4,6 +4,7 @@ import Post from 'flarum/components/Post';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import PostControls from 'flarum/utils/PostControls';
+import humanTime from 'flarum/utils/humanTime';
 
 export default function() {
   extend(Post.prototype, 'attrs', function(attrs) {
@@ -105,9 +106,10 @@ export default function() {
       const user = flag.user();
       const reason = flag.reason();
       const detail = flag.reasonDetail();
+      const time = humanTime(flag.createdAt());
 
       return [
-        app.translator.trans(reason ? 'flarum-flags.forum.post.flagged_by_with_reason_text' : 'flarum-flags.forum.post.flagged_by_text', {user, reason}),
+        app.translator.trans(reason ? 'flarum-flags.forum.post.flagged_by_with_reason_text' : 'flarum-flags.forum.post.flagged_by_text', {time, user, reason}),
         detail ? <span className="Post-flagged-detail">{detail}</span> : ''
       ];
     }

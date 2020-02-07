@@ -12,7 +12,7 @@ export default class FlagPostModal extends Modal {
   }
 
   className() {
-    return 'FlagPostModal Modal--small';
+    return 'FlagPostModal Modal--medium';
   }
 
   title() {
@@ -46,6 +46,9 @@ export default class FlagPostModal extends Modal {
                 <input type="radio" name="reason" checked={this.reason() === 'off_topic'} value="off_topic" onclick={m.withAttr('value', this.reason)}/>
                 <strong>{app.translator.trans('flarum-flags.forum.flag_post.reason_off_topic_label')}</strong>
                 {app.translator.trans('flarum-flags.forum.flag_post.reason_off_topic_text')}
+                {this.reason() === 'off_topic' ? (
+                  <textarea className="FormControl" placeholder={app.translator.trans('flarum-flags.forum.flag_post.optional_details')} value={this.reasonDetail()} oninput={m.withAttr('value', this.reasonDetail)}></textarea>
+                ) : ''}
               </label>
 
               <label className="checkbox">
@@ -54,12 +57,18 @@ export default class FlagPostModal extends Modal {
                 {app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_text', {
                   a: guidelinesUrl ? <a href={guidelinesUrl} target="_blank"/> : undefined
                 })}
+                {this.reason() === 'inappropriate' ? (
+                  <textarea className="FormControl" placeholder={app.translator.trans('flarum-flags.forum.flag_post.optional_details')} value={this.reasonDetail()} oninput={m.withAttr('value', this.reasonDetail)}></textarea>
+                ) : ''}
               </label>
 
               <label className="checkbox">
                 <input type="radio" name="reason" checked={this.reason() === 'spam'} value="spam" onclick={m.withAttr('value', this.reason)}/>
                 <strong>{app.translator.trans('flarum-flags.forum.flag_post.reason_spam_label')}</strong>
                 {app.translator.trans('flarum-flags.forum.flag_post.reason_spam_text')}
+                {this.reason() === 'spam' ? (
+                  <textarea className="FormControl" placeholder={app.translator.trans('flarum-flags.forum.flag_post.optional_details')} value={this.reasonDetail()} oninput={m.withAttr('value', this.reasonDetail)}></textarea>
+                ) : ''}
               </label>
 
               <label className="checkbox">
@@ -98,9 +107,17 @@ export default class FlagPostModal extends Modal {
         user: app.session.user,
         post: this.props.post
       }
-    })
+    }, {errorHandler: this.onerror.bind(this)})
       .then(() => this.success = true)
       .catch(() => {})
       .then(this.loaded.bind(this));
+  }
+
+  onerror(error) {
+    if (error.status === 422) {
+      error.alert.props.children = app.translator.trans('flarum-flags.forum.flag_post.reason-needed');
+    }
+
+    super.onerror(error);
   }
 }
