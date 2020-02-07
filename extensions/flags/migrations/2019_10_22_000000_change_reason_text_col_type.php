@@ -19,7 +19,7 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('flags', function (Blueprint $table) {
-            $table->string(['reason_detail'])->change();
+            $table->string('reason_detail')->change();
         });
     }
 ];
