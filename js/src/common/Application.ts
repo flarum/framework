@@ -67,9 +67,7 @@ export default abstract class Application {
      * A local cache that can be used to store data at the application level, so
      * that is persists between different routes.
      */
-    cache = {
-        notifications: null,
-    };
+    cache: { [key: string]: any } = {};
 
     routes = {};
 
@@ -243,10 +241,6 @@ export default abstract class Application {
 
         // Now make the request. If it's a failure, inspect the error that was
         // returned and show an alert containing its contents.
-        // const deferred = m.deferred();
-
-        // return new Promise((resolve, reject) => )
-
         return m.request(options).then(
             res => res,
             error => {

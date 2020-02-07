@@ -43,11 +43,11 @@ export default class PostUser extends Component<PostProps> {
         return (
             <div className="PostUser">
                 <h3>
-                    <LinkButton href={app.route.user(user)}>
+                    <m.route.Link href={app.route.user(user)}>
                         {avatar(user, { className: 'PostUser-avatar' })}
                         {userOnline(user)}
                         {username(user)}
-                    </LinkButton>
+                    </m.route.Link>
                 </h3>
                 <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
                 {card}

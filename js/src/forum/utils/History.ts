@@ -43,7 +43,7 @@ export default class History {
      * @param {String} [url] The URL of the route. The current URL will be used if
      *     not provided.
      */
-    push(name: string, title: string, url: string = m.route.get()) {
+    push(name: string, title?: string, url: string = m.route.get()) {
         // If we're pushing an item with the same name as second-to-top item in the
         // stack, we will assume that the user has clicked the 'back' button in
         // their browser. In this case, we don't want to push a new item, so we will

@@ -17,6 +17,7 @@ import CommentPost from './components/CommentPost';
 import User from '../common/models/User';
 import Post from '../common/models/Post';
 import Discussion from '../common/models/Discussion';
+import Notification from '../common/models/Notification';
 
 export default class Forum extends Application {
     routes = {
@@ -39,6 +40,12 @@ export default class Forum extends Application {
      * so that they can easily navigate back to the previous route.
      */
     history: History = new History();
+
+    cache: {
+        notifications?: Notification[];
+        discussionList?: DiscussionList;
+        [key: string]: any;
+    } = {};
 
     postComponents = {
         comment: CommentPost,
