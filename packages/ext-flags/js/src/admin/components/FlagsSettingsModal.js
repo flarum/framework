@@ -18,7 +18,7 @@ export default class FlagsSettingsModal extends SettingsModal {
       <div className="Form-group">
         <label className="checkbox">
           <input type="checkbox" bidi={this.setting('flarum-flags.can_flag_own')}/>
-          {app.translator.trans('flarum-flags.admin.settings.user_can_flag_own_posts')}
+          {app.translator.trans('flarum-flags.admin.settings.flag_own_posts_label')}
         </label>
       </div>
     ];

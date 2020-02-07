@@ -75,7 +75,7 @@ class CreateFlagHandler
 
         if (array_get($data, 'attributes.reason') === null && array_get($data, 'attributes.reasonDetail') === '') {
             throw new ValidationException([
-                'message' => $this->translator->trans('flarum-flags.forum.flag_post.reason-needed')
+                'message' => $this->translator->trans('flarum-flags.forum.flag_post.reason_missing_message')
             ]);
         }
 
