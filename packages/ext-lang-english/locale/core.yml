@@ -158,6 +158,7 @@ core:
       moderate_heading: Moderate
       new_group_button: New Group
       participate_heading: Participate
+      post_without_throttle_label: Reply multiple times without waiting
       read_heading: Read
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
