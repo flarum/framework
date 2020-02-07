@@ -20,7 +20,7 @@ export default class Discussion extends Model {
     lastPostNumber = Model.attribute('lastPostNumber') as () => number;
 
     commentCount = Model.attribute('commentCount') as () => number;
-    replyCount = computed('commentCount', commentCount => Math.max(0, commentCount - 1)) as () => string;
+    replyCount = computed('commentCount', commentCount => Math.max(0, commentCount - 1)) as () => number;
     posts = Model.hasMany('posts') as () => Post[];
     mostRelevantPost = Model.hasOne('mostRelevantPost') as () => Post;
 
