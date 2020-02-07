@@ -10,11 +10,11 @@ flarum-flags:
     # These translations are used in the Permissions page of the admin interface.
     permissions:
       flag_posts_label: Flag posts
-      flag_own_posts_label: Allow users to flag their own posts
       view_flags_label: View flagged posts
 
     # These translations are used in the Flags Settings modal dialog.
     settings:
+      flag_own_posts_label: Allow users to flag their own posts
       guidelines_url_label: Community Guidelines URL
       title: Flags Settings
 
