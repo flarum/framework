@@ -3,7 +3,7 @@ import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
 import ItemList from '../../common/utils/ItemList';
-import Checkbox from '../../common/components/Checkbox';
+import Switch from '../../common/components/Switch';
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
@@ -92,12 +92,11 @@ export default class EditGroupModal extends Modal {
     );
 
     items.add('hidden', <div className="Form-group">
-      <div>
-        <label className="checkbox">
-          <input type="checkbox" value="1" checked={this.isHidden()} onChange={m.withAttr('checked', this.isHidden)} />
-          {app.translator.trans('core.admin.edit_group.hide_label')}
-        </label>
-      </div>
+      {Switch.component({
+        state: !!Number(this.isHidden()),
+        children: app.translator.trans('core.admin.edit_group.hide_label'),
+        onchange: this.isHidden
+      })}
     </div>, 10);
 
     items.add(
