@@ -150,7 +150,7 @@ export default class AvatarEditor extends Component {
     const user = this.props.user;
     const $input = $('<input type="file">');
 
-    $input.appendTo('body').hide().click().on('change', e => {
+    $input.appendTo('body').hide().click().on('input', e => {
       this.upload($(e.target)[0].files[0]);
     });
   }
