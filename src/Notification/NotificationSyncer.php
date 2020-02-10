@@ -10,6 +10,7 @@
 namespace Flarum\Notification;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\Job\SendEmailNotificationJob;
 use Flarum\Notification\Job\SendNotificationsJob;
 use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
@@ -109,9 +110,14 @@ class NotificationSyncer
 
         // Create a notification record, and send an email, for all users
         // receiving this notification for the first time (we know because they
-        // didn't have a record in the database).
+        // didn't have a record in the database). As both operations can be
+        // intensive on resources (database and mail server), we queue them.
         if (count($newRecipients)) {
             $this->queue->push(new SendNotificationsJob($blueprint, $newRecipients));
+        }
+
+        if ($blueprint instanceof MailableInterface) {
+            $this->mailNotifications($blueprint, $newRecipients);
         }
     }
 
@@ -152,6 +158,21 @@ class NotificationSyncer
         $callback();
 
         static::$onePerUser = false;
+    }
+
+    /**
+     * Mail a notification to a list of users.
+     *
+     * @param MailableInterface $blueprint
+     * @param User[] $recipients
+     */
+    protected function mailNotifications(MailableInterface $blueprint, array $recipients)
+    {
+        foreach ($recipients as $user) {
+            if ($user->shouldEmail($blueprint::getType())) {
+                $this->queue->push(new SendEmailNotificationJob($blueprint, $user));
+            }
+        }
     }
 
     /**
