@@ -27,8 +27,8 @@ export default class AdminApplication extends Application {
    * @inheritdoc
    */
   mount() {
-    m.mount(document.getElementById('app-navigation'), Navigation.component({className: 'App-backControl', drawer: true}));
-    m.mount(document.getElementById('header-navigation'), Navigation.component());
+    m.mount(document.getElementById('app-navigation'), Navigation.component({back: false, className: 'App-backControl', drawer: true}));
+    m.mount(document.getElementById('header-navigation'), Navigation.component({back: true, drawer: false}));
     m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
     m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
     m.mount(document.getElementById('admin-navigation'), AdminNav.component());

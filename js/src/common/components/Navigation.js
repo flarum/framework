@@ -26,7 +26,7 @@ export default class Navigation extends Component {
         onmouseenter={pane && pane.show.bind(pane)}
         onmouseleave={pane && pane.onmouseleave.bind(pane)}>
         {history.canGoBack()
-          ? [this.getBackButton(), this.getPaneButton()]
+          ? [this.getBackButton(), this.getPaneButton(), this.getDrawerButton()]
           : this.getDrawerButton()}
       </div>
     );
@@ -45,7 +45,9 @@ export default class Navigation extends Component {
    * @return {Object}
    * @protected
    */
-  getBackButton() {
+    getBackButton() {
+    if (!this.props.back) return '';
+
     const {history} = app;
     const previous = history.getPrevious() || {};
 
