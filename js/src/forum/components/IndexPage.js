@@ -53,6 +53,7 @@ export default class IndexPage extends Page {
 
     if (!app.cache.discussionList) {
       app.cache.discussionList = new DiscussionList({params});
+      app.cache.discussionList.retain = true;
     }
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));

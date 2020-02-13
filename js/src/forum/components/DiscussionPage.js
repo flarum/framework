@@ -1,6 +1,7 @@
 import Page from './Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
+import DiscussionList from './DiscussionList';
 import PostStream from './PostStream';
 import PostStreamScrubber from './PostStreamScrubber';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
@@ -32,18 +33,20 @@ export default class DiscussionPage extends Page {
 
     this.refresh();
 
-    // If the discussion list has been loaded, then we'll enable the pane (and
-    // hide it by default). Also, if we've just come from another discussion
-    // page, then we don't want Mithril to redraw the whole page – if it did,
+    // If the discussion list hasn't been loaded, load it in with default values.
+    // Also, if we've just come from another discussion page
+    // then we don't want Mithril to redraw the whole page – if it did,
     // then the pane would which would be slow and would cause problems with
     // event handlers.
-    if (app.cache.discussionList) {
-      app.pane.enable();
-      app.pane.hide();
+    if (!app.cache.discussionList) {
+      app.cache.discussionList = new DiscussionList({params: {}});
+    }
 
-      if (app.previous instanceof DiscussionPage) {
+    app.pane.enable();
+    app.pane.hide();
+
+    if (app.previous instanceof DiscussionPage) {
         m.redraw.strategy('diff');
-      }
     }
 
     app.history.push('discussion');
