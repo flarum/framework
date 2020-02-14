@@ -77,15 +77,6 @@ export default class EditGroupModal extends Modal {
       })}
     </div>, 10);
 
-    // items.add('hidden', <div className="Form-group">
-    //   <div>
-    //     <label className="checkbox">
-    //       <input type="checkbox" value="1" checked={this.isHidden()} onChange={m.withAttr('checked', this.isHidden)}/>
-    //       {app.translator.trans('core.admin.edit_group.hide_label')}
-    //     </label>
-    //   </div>
-    // </div>, 10);
-
     items.add('submit', <div className="Form-group">
       {Button.component({
         type: 'submit',
