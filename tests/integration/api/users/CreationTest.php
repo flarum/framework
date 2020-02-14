@@ -111,7 +111,7 @@ class CreationTest extends TestCase
         /** @var User $user */
         $user = User::where('username', 'test')->firstOrFail();
 
-        $this->assertEquals(0, $user->is_activated);
+        $this->assertEquals(0, $user->is_email_confirmed);
         $this->assertEquals('test', $user->username);
         $this->assertEquals('test@machine.local', $user->email);
     }
