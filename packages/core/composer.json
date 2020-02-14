@@ -60,7 +60,7 @@
         "psr/http-message": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0",
-        "s9e/text-formatter": "^1.2.0",
+        "s9e/text-formatter": "^2.2.0",
         "symfony/config": "^3.3",
         "symfony/console": "^4.2",
         "symfony/event-dispatcher": "^4.3.2",
