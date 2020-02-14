@@ -10,32 +10,21 @@
 namespace Flarum\Tests\integration;
 
 use Dflydev\FigCookies\SetCookie;
+use Flarum\Extend\ExtenderInterface;
 use Flarum\Foundation\InstalledSite;
 use Illuminate\Database\ConnectionInterface;
 use Laminas\Diactoros\CallbackStream;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-
-        // Boot the Flarum app
-        $this->app();
-    }
-
     /**
      * @var \Flarum\Foundation\InstalledApp
      */
     protected $app;
-
-    /**
-     * @var \Psr\Http\Server\RequestHandlerInterface
-     */
-    protected $server;
 
     /**
      * @return \Flarum\Foundation\InstalledApp
@@ -53,11 +42,36 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 include __DIR__.'/tmp/config.php'
             );
 
+            $site->extendWith($this->extenders);
+
             $this->app = $site->bootApp();
-            $this->server = $this->app->getRequestHandler();
         }
 
         return $this->app;
+    }
+
+    /**
+     * @var ExtenderInterface[]
+     */
+    protected $extenders = [];
+
+    protected function extend(ExtenderInterface $extender)
+    {
+        $this->extenders[] = $extender;
+    }
+
+    /**
+     * @var RequestHandlerInterface
+     */
+    protected $server;
+
+    protected function server(): RequestHandlerInterface
+    {
+        if (is_null($this->server)) {
+            $this->server = $this->app()->getRequestHandler();
+        }
+
+        return $this->server;
     }
 
     protected $database;
@@ -111,7 +125,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function send(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->server->handle($request);
+        return $this->server()->handle($request);
     }
 
     /**
