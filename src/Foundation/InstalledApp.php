@@ -14,6 +14,7 @@ use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
+use Flarum\Foundation\Console\SkeletonCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -116,6 +117,7 @@ class InstalledApp implements AppInterface
     public function getConsoleCommands()
     {
         return [
+            $this->container->make(SkeletonCommand::class),
             $this->container->make(GenerateMigrationCommand::class),
             $this->container->make(InfoCommand::class, ['config' => $this->config]),
             $this->container->make(MigrateCommand::class),
