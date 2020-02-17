@@ -13,7 +13,8 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Install\StructureSkeleton;
 use Symfony\Component\Console\Input\InputArgument;
 
-class SkeletonCommand extends AbstractCommand {
+class SkeletonCommand extends AbstractCommand
+{
 
     /**
      * {@inheritdoc}
@@ -37,10 +38,10 @@ class SkeletonCommand extends AbstractCommand {
     {
         if ($this->input->getArgument('enable') == 'On') {
             $out = StructureSkeleton::enableShared();
-        } else if ($this->input->getArgument('enable') == 'Off') {
+        } elseif ($this->input->getArgument('enable') == 'Off') {
             $out = StructureSkeleton::disableShared();
         } else {
-            $this->error("Invalid Option: Must be On or Off.");
+            $this->error('Invalid Option: Must be On or Off.');
         }
 
         if (isset($out)) {
