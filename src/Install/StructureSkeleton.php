@@ -24,6 +24,8 @@ class StructureSkeleton
         $compatPaths = [
             $compatDir . "/site.php" => $appDir . "/site.php",
             $compatDir . "/site.php.shared" => $appDir . "/site.php.shared",
+            $compatDir . "/.nginx.conf" => $appDir . "/.nginx.conf",
+            $compatDir . "/.nginx.conf.shared" => $appDir . "/.nginx.conf.shared",
             $compatDir . "/index.php" => $appDir . "/public/index.php",
             $compatDir . "/index.php.shared" => $appDir . "/public/index.php.shared",
             $compatDir . "/.htaccess" => $appDir . "/public/.htaccess",
@@ -31,17 +33,17 @@ class StructureSkeleton
         ];
 
         foreach ($compatPaths as $compatPath => $appPath) {
-            if (!file_exists($appPath) and (!strict or md5_file($compatPath) == md5_file($appPath))) {
+            if (!file_exists($appPath) or ($strict and md5_file($compatPath) != md5_file($appPath))) {
                 copy($compatPath, $appPath);
             }
         }
     }
 
-    private static function switchSitePhps() {
+    private static function switchSharedFiles($path) {
         $root = getcwd();
-        rename($root . '/site.php', $root . '/site.php.tmp');
-        rename($root . '/site.php.shared', $root . '/site.php');
-        rename($root . '/site.php.tmp', $root . '/site.php.shared');
+        rename($path, $path . '.tmp');
+        rename($path . '.shared', $path);
+        rename($path . '.tmp', $path . '.shared');
     }
 
     public static function enableShared()
@@ -54,7 +56,8 @@ class StructureSkeleton
             foreach (StructureSkeleton::$publicPaths as $dedicatedPath => $sharedPath) {
                 exec("mv -f " . $root . $dedicatedPath . " " . $root . $sharedPath);
             }
-            StructureSkeleton::switchSitePhps();
+            StructureSkeleton::switchSharedFiles($root . '/site.php');
+            StructureSkeleton::switchSharedFiles($root . '/.nginx.conf');
             return "Restructured into shared hosting mode.";
         } else {
             return "Already in shared hosting mode.";
@@ -70,7 +73,8 @@ class StructureSkeleton
             foreach (StructureSkeleton::$publicPaths as $dedicatedPath => $sharedPath) {
                 exec("mv -f " . $root . $sharedPath . " " . $root . $dedicatedPath);
             }
-            StructureSkeleton::switchSitePhps();
+            StructureSkeleton::switchSharedFiles($root . '/site.php');
+            StructureSkeleton::switchSharedFiles($root . '/.nginx.conf');
             return "Restructured out of shared hosting mode.";
         } else {
             return "Already not in shared hosting mode.";
