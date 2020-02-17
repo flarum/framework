@@ -77,7 +77,7 @@ class StructureSkeleton
                 exec('mv -f '.$root.$sharedPath.' '.$root.$dedicatedPath);
             }
             self::switchSharedFiles($root.'/site.php');
-            self::switchSharedFiles($root . '/.nginx.conf');
+            self::switchSharedFiles($root.'/.nginx.conf');
 
             return 'Restructured out of shared hosting mode.';
         } else {
