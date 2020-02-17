@@ -15,7 +15,6 @@ use Symfony\Component\Console\Input\InputArgument;
 
 class SkeletonCommand extends AbstractCommand
 {
-
     /**
      * {@inheritdoc}
      */

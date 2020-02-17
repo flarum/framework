@@ -11,7 +11,6 @@ namespace Flarum\Install;
 
 class StructureSkeleton
 {
-
     private static $publicPaths = [
         '/public/assets' => '/assets',
         '/public/.htaccess.shared' => '/.htaccess',
