@@ -110,7 +110,7 @@ class Middleware implements ExtenderInterface
         });
 
         $container->extend("flarum.{$this->frontend}.csrfExemptRoutes", function ($existingExemptRoutes) {
-            return $existingExemptRoutes + $this->csrfExemptRoutes;
+            return array_merge($existingExemptRoutes + $this->csrfExemptRoutes);
         });
     }
 }
