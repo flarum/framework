@@ -29,7 +29,7 @@ class CheckCsrfToken implements Middleware
     {
         foreach ($this->exemptRoutes as $exemptRoute) {
             $path = $request->getUri()->getPath() ?: '/';
-            if (fnmatch($exemptRoute, $path) or fnmatch($exemptRoute, (string)$request->getUri())) {
+            if (fnmatch($exemptRoute, $path) or fnmatch($exemptRoute, (string) $request->getUri())) {
                 return $handler->handle($request);
             }
         }
