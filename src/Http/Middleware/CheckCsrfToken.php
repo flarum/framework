@@ -17,8 +17,23 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 
 class CheckCsrfToken implements Middleware
 {
+
+    protected $exemptRoutes;
+
+    public function __construct(array $exemptRoutes)
+    {
+        $this->exemptRoutes = $exemptRoutes;
+    }
+
     public function process(Request $request, Handler $handler): Response
     {
+        foreach ($this->exemptRoutes as $exemptRoute) {
+            $path = $request->getUri()->getPath() ?: '/';
+            if (fnmatch($exemptRoute, $path) or fnmatch($exemptRoute, (string)$request->getUri())) {
+                return $handler->handle($request);
+            }
+        }
+
         if (in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'])) {
             return $handler->handle($request);
         }

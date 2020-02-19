@@ -58,6 +58,11 @@ class ForumServiceProvider extends AbstractServiceProvider
             $this->setDefaultRoute($routes);
         });
 
+        $this->app->singleton('flarum.forum.csrfExemptRoutes', function () {
+            // No exempt routes by default
+            return [];
+        });
+
         $this->app->singleton('flarum.forum.middleware', function () {
             return [
                 HttpMiddleware\ParseJsonBody::class,
@@ -82,7 +87,11 @@ class ForumServiceProvider extends AbstractServiceProvider
             ));
 
             foreach ($this->app->make('flarum.forum.middleware') as $middleware) {
-                $pipe->pipe($this->app->make($middleware));
+                if ($middleware == HttpMiddleware\CheckCsrfToken::class) {
+                    $pipe->pipe(new HttpMiddleware\CheckCsrfToken($this->app->make('flarum.forum.csrfExemptRoutes')));
+                } else {
+                    $pipe->pipe($this->app->make($middleware));
+                }
             }
 
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.forum.routes')));

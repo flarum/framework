@@ -48,6 +48,11 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
+        $this->app->singleton('flarum.admin.csrfExemptRoutes', function () {
+            // No exempt routes by default
+            return [];
+        });
+
         $this->app->singleton('flarum.admin.middleware', function () {
             return [
                 HttpMiddleware\ParseJsonBody::class,
@@ -71,7 +76,11 @@ class AdminServiceProvider extends AbstractServiceProvider
             ));
 
             foreach ($this->app->make('flarum.admin.middleware') as $middleware) {
-                $pipe->pipe($this->app->make($middleware));
+                if ($middleware == HttpMiddleware\CheckCsrfToken::class) {
+                    $pipe->pipe(new HttpMiddleware\CheckCsrfToken($this->app->make('flarum.admin.csrfExemptRoutes')));
+                } else {
+                    $pipe->pipe($this->app->make($middleware));
+                }
             }
 
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.admin.routes')));

@@ -14,12 +14,13 @@ use Illuminate\Contracts\Container\Container;
 
 class Middleware implements ExtenderInterface
 {
-    private $addMiddlewares = [];
-    private $removeMiddlewares = [];
-    private $replaceMiddlewares = [];
-    private $insertBeforeMiddlewares = [];
-    private $insertAfterMiddlewares = [];
-    private $frontend;
+    protected $addMiddlewares = [];
+    protected $removeMiddlewares = [];
+    protected $replaceMiddlewares = [];
+    protected $insertBeforeMiddlewares = [];
+    protected $insertAfterMiddlewares = [];
+    protected $csrfExemptRoutes = [];
+    protected $frontend;
 
     public function __construct(string $frontend)
     {
@@ -57,6 +58,13 @@ class Middleware implements ExtenderInterface
     public function insertAfter($originalMiddleware, $newMiddleware)
     {
         $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
+
+        return $this;
+    }
+
+    public function addCsrfExemptRoute($route)
+    {
+        $this->csrfExemptRoutes[] = $route;
 
         return $this;
     }
@@ -99,6 +107,10 @@ class Middleware implements ExtenderInterface
             $existingMiddleware = array_diff($existingMiddleware, $this->removeMiddlewares);
 
             return $existingMiddleware;
+        });
+
+        $container->extend("flarum.{$this->frontend}.csrfExemptRoutes", function ($existingExemptRoutes) {
+            return $existingExemptRoutes + $this->csrfExemptRoutes;
         });
     }
 }
