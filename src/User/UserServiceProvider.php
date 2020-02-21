@@ -64,12 +64,17 @@ class UserServiceProvider extends AbstractServiceProvider
             // Fire an event so that core and extension policies can hook into
             // this permission query and explicitly grant or deny the
             // permission.
-            $allowed = $this->app->make('events')->until(
+            $allowed = $this->app->make('events')->fire(
                 new GetPermission($actor, $ability, $model)
             );
 
-            if (! is_null($allowed)) {
-                return $allowed;
+            foreach ($allowed as $key => $value) {
+                if (is_null($value)) {
+                    unset($allowed[$key]);
+                }
+            }
+            if (! empty($allowed)) {
+                return ! in_array(false, $allowed, true);
             }
 
             // If no policy covered this permission query, we will only grant
