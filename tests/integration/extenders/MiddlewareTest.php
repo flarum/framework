@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
@@ -11,9 +18,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class MiddlewareTest extends TestCase
 {
-
     // This adds the first custom middleware for test that require a middleware to already exist
-    private function add_first_middleware() {
+    private function add_first_middleware()
+    {
         $this->extend(
             (new Extend\Middleware('forum'))->add(FirstTestMiddleware::class)
         );
@@ -22,7 +29,8 @@ class MiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function can_add_middleware() {
+    public function can_add_middleware()
+    {
         $this->extend(
             (new Extend\Middleware('forum'))->add(FirstTestMiddleware::class)
         );
@@ -36,7 +44,8 @@ class MiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function can_replace_middleware() {
+    public function can_replace_middleware()
+    {
         $this->add_first_middleware();
         $this->extend(
             (new Extend\Middleware('forum'))->replace(FirstTestMiddleware::class, SecondTestMiddleware::class)
@@ -52,7 +61,8 @@ class MiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function can_remove_middleware() {
+    public function can_remove_middleware()
+    {
         $this->add_first_middleware();
         $this->extend(
             (new Extend\Middleware('forum'))->remove(FirstTestMiddleware::class)
@@ -65,17 +75,22 @@ class MiddlewareTest extends TestCase
     }
 }
 
-class FirstTestMiddleware implements MiddlewareInterface {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+class FirstTestMiddleware implements MiddlewareInterface
+{
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
         $response = $handler->handle($request);
+
         return $response->withAddedHeader('X-First-Test-Middleware', 'This is a test!');
     }
 }
 
-class SecondTestMiddleware implements MiddlewareInterface {
+class SecondTestMiddleware implements MiddlewareInterface
+{
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
+
         return $response->withAddedHeader('X-Second-Test-Middleware', 'This is another test!');
     }
 }
