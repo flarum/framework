@@ -44,7 +44,7 @@ export default class PermissionGrid extends Component {
             </tr>
             {section.children.map(child => (
               <tr className="PermissionGrid-child">
-                <th>{icon(child.icon)}{child.label}</th>
+                <th>{icon(child.icon, {className: 'fa-fw'})}{child.label}</th>
                 {permissionCells(child)}
                 <td/>
               </tr>
