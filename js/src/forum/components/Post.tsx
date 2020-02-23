@@ -4,11 +4,7 @@ import PostControls from '../utils/PostControls';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
-import PostModel from '../../common/models/Post';
-
-export interface PostProps extends ComponentProps {
-    post: PostModel;
-}
+import { PostProp } from '../../common/concerns/ComponentProps';
 
 /**
  * The `Post` component displays a single post. The basic post template just
@@ -17,7 +13,7 @@ export interface PostProps extends ComponentProps {
  *
  * @abstract
  */
-export default class Post<T extends PostProps = PostProps> extends Component<PostProps> {
+export default class Post<T extends PostProp = PostProp> extends Component<T> {
     loading = false;
     controlsOpen = false;
 
