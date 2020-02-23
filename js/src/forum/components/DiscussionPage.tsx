@@ -270,7 +270,7 @@ export default class DiscussionPage extends Page {
         // replace it into the window's history and our own history stack.
         const url = app.route.discussion(discussion, (this.near = startNumber));
 
-        m.route(url, true);
+        m.route.set(url, true);
         window.history.replaceState(null, document.title, url);
 
         app.history.push('discussion', discussion.title());
