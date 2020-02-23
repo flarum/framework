@@ -51,8 +51,8 @@ export default class Evented {
      * @param handler The function to handle the event.
      */
     one(event: string, handler: EventHandler): this {
-        const wrapper = function() {
-            handler.apply(this, arguments);
+        const wrapper = function(this: Evented) {
+            handler.apply(this, Array.from(arguments));
 
             this.off(event, wrapper);
         };
