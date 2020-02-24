@@ -2,7 +2,7 @@ export default function tagIcon(tag, attrs = {}, settings = {}) {
   const hasIcon = tag && tag.icon();
   const { useColor = true } = settings;
 
-  attrs.className = hasIcon ? 'icon ' + tag.icon() + ' ' + (attrs.className || '') : 'icon TagIcon ' + (attrs.className || '');
+  attrs.className = 'icon TagIcon '+ (attrs.className || '') + ' ' + (hasIcon ? tag.icon() : 'default');
 
   if (tag) {
     attrs.style = attrs.style || {};
