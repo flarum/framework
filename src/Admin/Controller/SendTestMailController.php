@@ -29,7 +29,6 @@ class SendTestMailController implements RequestHandlerInterface
 
     protected $translator;
 
-
     public function __construct(Application $app, TranslatorInterface $translator)
     {
         $this->app = $app;
@@ -52,7 +51,7 @@ class SendTestMailController implements RequestHandlerInterface
 
         $testRecipientEmail = Arr::get($settings, 'mail_test_recipient');
 
-        if (!filter_var($testRecipientEmail, FILTER_VALIDATE_EMAIL)) {
+        if (! filter_var($testRecipientEmail, FILTER_VALIDATE_EMAIL)) {
             return $this->response([$this->translator->trans('core.email.send_test.invalid_recipient', ['email' => $testRecipientEmail])], 400);
         }
 
@@ -101,7 +100,7 @@ class SendTestMailController implements RequestHandlerInterface
     private function response($message, $status = 200)
     {
         return new JsonResponse([
-            "message" => $message
+            'message' => $message
         ], $status);
     }
 }

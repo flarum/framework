@@ -36,11 +36,13 @@ class TemporarySettingsRepository implements SettingsRepositoryInterface
         }
     }
 
-    public function set($key, $value) {
+    public function set($key, $value)
+    {
         $this->settings[$key] = $value;
     }
 
-    public function delete($keyLike) {
+    public function delete($keyLike)
+    {
         unset($this->settings[$key]);
     }
 }
