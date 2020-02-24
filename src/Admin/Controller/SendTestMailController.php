@@ -19,18 +19,21 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Swift_Mailer;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class SendTestMailController implements RequestHandlerInterface
 {
     use AssertPermissionTrait;
 
-    protected static $container;
-
     protected $app;
 
-    public function __construct(Application $app)
+    protected $translator;
+
+
+    public function __construct(Application $app, TranslatorInterface $translator)
     {
         $this->app = $app;
+        $this->translator = $translator;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -43,21 +46,21 @@ class SendTestMailController implements RequestHandlerInterface
 
         foreach ($requiredSettings as $setting) {
             if (! array_key_exists($setting, $settings)) {
-                return $this->response(["Required setting '$setting' is missing."], 400);
+                return $this->response([$this->translator->trans('core.email.send_test.missing_setting', ['setting' => $setting])], 400);
             }
         }
 
         $testRecipientEmail = Arr::get($settings, 'mail_test_recipient');
 
         if (!filter_var($testRecipientEmail, FILTER_VALIDATE_EMAIL)) {
-            return $this->response(["Provided test recipient address, $testRecipientEmail, is not a valid email."], 400);
+            return $this->response([$this->translator->trans('core.email.send_test.invalid_recipient', ['email' => $testRecipientEmail])], 400);
         }
 
         $drivers = $this->app->make('mail.supported_drivers');
         $driverKey = Arr::get($settings, 'mail_driver');
 
         if (empty($drivers[$driverKey])) {
-            return $this->response(["Unsupported driver: '$driverKey'"], 400);
+            return $this->response([$this->translator->trans('core.email.send_test.unsupported_driver', ['driver' => $driverKey])], 400);
         }
 
         $driver = $this->app->make($drivers[$driverKey]);
@@ -68,7 +71,7 @@ class SendTestMailController implements RequestHandlerInterface
             if (array_key_exists($setting, $settings)) {
                 $settingsRepository->set($setting, Arr::get($settings, $setting));
             } else {
-                return $this->response(["Required setting '$setting' is missing."], 400);
+                return $this->response([$this->translator->trans('core.email.send_test.missing_setting', ['setting' => $setting])], 400);
             }
         }
 
@@ -84,15 +87,15 @@ class SendTestMailController implements RequestHandlerInterface
 
         $message = $mailer->createMessage();
 
-        $message->setSubject('Flarum Email Test');
+        $message->setSubject($this->translator->trans('core.email.send_test.subject'));
         $message->setSender(Arr::get($settings, 'mail_from'));
         $message->setFrom(Arr::get($settings, 'mail_from'));
         $message->setTo($testRecipientEmail);
-        $message->setBody("Hello,\n\nThis is a test email to confirm that your Flarum email configuration is working properly. Have a great day!\n\nBest,\nFlarum Mail Bot");
+        $message->setBody($this->translator->trans('core.email.send_test.body', ['username' => $request->getAttribute('actor')->usernamey]));
 
         $mailer->send($message);
 
-        return $this->response(['Success']);
+        return $this->response([]);
     }
 
     private function response($message, $status = 200)

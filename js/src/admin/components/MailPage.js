@@ -122,19 +122,19 @@ export default class MailPage extends Page {
               })}
 
             {FieldSet.component({
-              label: app.translator.trans('core.admin.email.send_test_email_heading'),
+              label: app.translator.trans('core.admin.email.send_test_mail_heading'),
               className: 'MailPage-MailSettings',
               children: [
                 <div className="MailPage-MailSettings-input">
                   <label>
-                    {app.translator.trans('core.admin.email.send_to_label')}
+                    {app.translator.trans('core.admin.email.send_test_mail_recipient_label')}
                     <input className="FormControl" value={this.values.mail_test_recipient() || ''} oninput={m.withAttr('value', this.values.mail_test_recipient)} />
                   </label>
                 </div>,
                 Button.component({
                   type: 'button',
                   className: 'Button Button--primary',
-                  children: app.translator.trans('core.admin.email.send_test_email_button'),
+                  children: app.translator.trans('core.admin.email.send_test_mail_button'),
                   onclick: () => this.sendTestEmail()
                 })
               ]
@@ -181,7 +181,7 @@ export default class MailPage extends Page {
     }).then(response => {
       app.alerts.show(new Alert({
         type: 'success',
-        children: 'Test email sent successfully!'
+        children: app.translator.trans('core.admin.email.send_test_mail_success')
       }));
     }).catch(error => {
       JSON.parse(error.responseText)['message'].forEach(errorMessage => {
