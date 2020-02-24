@@ -18,7 +18,7 @@ export default class MailPage extends Page {
     this.loading = true;
 
     this.driverFields = {};
-    this.fields = ['mail_driver', 'mail_from'];
+    this.fields = ['mail_driver', 'mail_from', 'mail_test_recipient'];
     this.values = {};
     this.status = { sending: false, errors: {} };
 
@@ -121,6 +121,26 @@ export default class MailPage extends Page {
                 ],
               })}
 
+            {FieldSet.component({
+              label: app.translator.trans('core.admin.email.send_test_email_heading'),
+              className: 'MailPage-MailSettings',
+              children: [
+                <div className="MailPage-MailSettings-input">
+                  <label>
+                    {app.translator.trans('core.admin.email.send_to_label')}
+                    <input className="FormControl" value={this.values.mail_test_recipient() || ''} oninput={m.withAttr('value', this.values.mail_test_recipient)} />
+                  </label>
+                </div>,
+                Button.component({
+                  type: 'button',
+                  className: 'Button Button--primary',
+                  children: app.translator.trans('core.admin.email.send_test_email_button'),
+                  onclick: () => this.sendTestEmail()
+                })
+              ]
+            })}
+
+
             {Button.component({
               type: 'submit',
               className: 'Button Button--primary',
@@ -147,6 +167,30 @@ export default class MailPage extends Page {
 
   changed() {
     return this.fields.some((key) => this.values[key]() !== app.data.settings[key]);
+  }
+
+  sendTestEmail() {
+    const settings = {};
+
+    this.fields.forEach(key => settings[key] = this.values[key]());
+
+    app.request({
+      method: 'POST',
+      url: app.forum.attribute('adminUrl') + '/testmail',
+      data: settings
+    }).then(response => {
+      app.alerts.show(new Alert({
+        type: 'success',
+        children: 'Test email sent successfully!'
+      }));
+    }).catch(error => {
+      JSON.parse(error.responseText)['message'].forEach(errorMessage => {
+        app.alerts.show(new Alert({
+          type: 'error',
+          children: errorMessage
+        }));
+      });
+    });
   }
 
   onsubmit(e) {
