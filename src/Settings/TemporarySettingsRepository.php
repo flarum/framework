@@ -9,6 +9,15 @@
 
 namespace Flarum\Settings;
 
+/**
+ * This settings repository acts as temporary storage for settings that
+ * are not stored in the database.
+ *
+ * This can be used to encapsulate settings in a SettingsRepositoryInterface
+ * without having to store them in the database.
+ *
+ * @see \Flarum\Admin\Controller\SendTestMailController for an example usage.
+ */
 class TemporarySettingsRepository implements SettingsRepositoryInterface
 {
     protected $settings = [];
