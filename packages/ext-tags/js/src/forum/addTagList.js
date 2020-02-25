@@ -32,7 +32,7 @@ export default function() {
         active = currentTag.parent() === tag;
       }
 
-      items.add('tag' + tag.id(), TagLinkButton.component({tag, params, active}), -12);
+      items.add('tag' + tag.id(), TagLinkButton.component({tag, params, active}), -14);
     };
 
     sortTags(tags)
@@ -49,7 +49,7 @@ export default function() {
       items.add('moreTags', LinkButton.component({
         children: app.translator.trans('flarum-tags.forum.index.more_link'),
         href: app.route('tags')
-      }), -12);
+      }), -16);
     }
   });
 }
