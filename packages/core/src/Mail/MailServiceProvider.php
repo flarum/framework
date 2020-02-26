@@ -35,13 +35,9 @@ class MailServiceProvider extends AbstractServiceProvider
             $settings = $this->app->make(SettingsRepositoryInterface::class);
             $validator = $this->app->make(Factory::class);
 
-            if (method_exists($configured, 'validate')) {
-                return $configured->validate($settings, $validator)->any()
-                    ? $this->app->make(NullDriver::class)
-                    : $configured;
-            } else {
-                return $configured;
-            }
+            return $configured->validate($settings, $validator)->any()
+                ? $this->app->make(NullDriver::class)
+                : $configured;
         });
 
         $this->app->alias('mail.driver', DriverInterface::class);

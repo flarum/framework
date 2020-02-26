@@ -41,15 +41,11 @@ class ShowMailSettingsController extends AbstractShowController
         $actual = self::$container->make('mail.driver');
         $validator = self::$container->make(Factory::class);
 
-        if (method_exists($configured, 'validate')) {
-            $errors = $configured->validate($settings, $validator);
-        } else {
-            $errors = new \Illuminate\Support\MessageBag;
-        }
+        $errors = $configured->validate($settings, $validator);
 
         return [
             'drivers' => $drivers,
-            'sending' => method_exists($actual, 'canSend') ? $actual->canSend() : true,
+            'sending' => $actual->canSend(),
             'errors' => $errors,
         ];
     }
