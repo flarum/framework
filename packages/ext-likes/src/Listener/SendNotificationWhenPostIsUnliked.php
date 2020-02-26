@@ -30,7 +30,7 @@ class SendNotificationWhenPostIsUnliked
 
     public function handle(PostWasUnliked $event)
     {
-        if ($event->post->user->id != $event->user->id) {
+        if ($event->post->user && $event->post->user->id != $event->user->id) {
             $this->notifications->sync(
                 new PostLikedBlueprint($event->post, $event->user),
                 []
