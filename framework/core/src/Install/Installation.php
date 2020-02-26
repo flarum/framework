@@ -87,7 +87,7 @@ class Installation
     public function prerequisites(): Prerequisite\PrerequisiteInterface
     {
         return new Prerequisite\Composite(
-            new Prerequisite\PhpVersion('7.1.0'),
+            new Prerequisite\PhpVersion('7.2.0'),
             new Prerequisite\PhpExtensions([
                 'dom',
                 'gd',
