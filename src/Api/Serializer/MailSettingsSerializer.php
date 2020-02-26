@@ -36,7 +36,19 @@ class MailSettingsSerializer extends AbstractSerializer
 
     private function serializeDriver(DriverInterface $driver)
     {
-        return $driver->availableSettings();
+        $settings = $driver->availableSettings();
+
+        if (key($settings) === 0) {
+            // BACKWARDS COMPATIBILITY: Support a simple list of fields (without
+            // type or additional metadata).
+            // Turns ["f1", "f2"] into {"f1": "", "f2": ""}
+            // @deprecated since 0.1.0-beta.12
+            $settings = array_reduce($settings, function ($memo, $key) {
+                return [$key => ''] + $memo;
+            }, []);
+        }
+
+        return $settings;
     }
 
     public function getId($model)
