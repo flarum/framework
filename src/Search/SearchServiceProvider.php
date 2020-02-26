@@ -11,6 +11,7 @@ namespace Flarum\Search;
 
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\Gambit\AuthorGambit;
+use Flarum\Discussion\Search\Gambit\ContributorGambit;
 use Flarum\Discussion\Search\Gambit\CreatedGambit;
 use Flarum\Discussion\Search\Gambit\FulltextGambit as DiscussionFulltextGambit;
 use Flarum\Discussion\Search\Gambit\HiddenGambit;
@@ -66,6 +67,7 @@ class SearchServiceProvider extends AbstractServiceProvider
 
                 $gambits->setFulltextGambit(DiscussionFulltextGambit::class);
                 $gambits->add(AuthorGambit::class);
+                $gambits->add(ContributorGambit::class);
                 $gambits->add(CreatedGambit::class);
                 $gambits->add(HiddenGambit::class);
                 $gambits->add(UnreadGambit::class);
