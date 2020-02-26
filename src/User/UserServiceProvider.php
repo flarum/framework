@@ -64,17 +64,29 @@ class UserServiceProvider extends AbstractServiceProvider
             // Fire an event so that core and extension policies can hook into
             // this permission query and explicitly grant or deny the
             // permission.
-            $allowed = $this->app->make('events')->fire(
+            $handler = $this->app->make('events');
+
+            $allowed = $handler->fire(
                 new GetPermission($actor, $ability, $model)
             );
 
+            if (count($allowed) != count($handler->getListeners(GetPermission::class))) {
+                // This means that at least one handler returned false, causing
+                // laravel to return before firing all events. This means that the
+                // permission has been denied.
+                return false;
+            }
+
             foreach ($allowed as $key => $value) {
+                // Remove any null values so that the following empty statement works properly
                 if (is_null($value)) {
                     unset($allowed[$key]);
                 }
             }
+
             if (! empty($allowed)) {
-                return ! in_array(false, $allowed, true);
+                // Grant the permission if any handlers explicitly return true
+                return in_array(true, $allowed, true);
             }
 
             // If no policy covered this permission query, we will only grant
