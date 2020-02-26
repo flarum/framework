@@ -107,15 +107,24 @@
     &.active {
       background: @control-bg;
     }
+
+    .icon::before {
+      display: inline-block;
+      width: 16px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
     &.selected {
       .icon::before {
         .fa();
         content: @fa-var-check !important;
-        color: @muted-color !important;
+        color: @muted-color;
         font-size: 14px;
-        width: 100%;
         text-align: center;
+        vertical-align: 1px;
       }
+
       &.colored .TagIcon:before {
         color: #fff;
       }
@@ -123,6 +132,7 @@
     .TagIcon {
       vertical-align: top;
       margin-top: 3px;
+      margin-left: 0;
     }
   }
 }
