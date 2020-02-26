@@ -1,8 +1,14 @@
+import classList from 'flarum/utils/classList';
+
 export default function tagIcon(tag, attrs = {}, settings = {}) {
   const hasIcon = tag && tag.icon();
   const { useColor = true } = settings;
 
-  attrs.className = 'icon TagIcon '+ (attrs.className || '') + ' ' + (hasIcon ? tag.icon() : 'default');
+  attrs.className = classList([
+    attrs.className,
+    'icon',
+    hasIcon ? tag.icon() : 'TagIcon'
+  ]);
 
   if (tag) {
     attrs.style = attrs.style || {};
