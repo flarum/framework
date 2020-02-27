@@ -26,7 +26,7 @@ class UpdatedGambit extends AbstractRegexGambit
      */
     protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
-        if (!$search instanceof DiscussionSearch) {
+        if (! $search instanceof DiscussionSearch) {
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 
