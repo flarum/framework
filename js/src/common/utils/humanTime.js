@@ -18,26 +18,15 @@ export default function humanTime(time) {
 
   const day = 864e5;
   const diff = m.diff(moment());
-  const userLang = (navigator.language || navigator.userLanguage).toLowerCase();
   let ago = null;
 
   // If this date was more than a month ago, we'll show the name of the month
   // in the string. If it wasn't this year, we'll show the year as well.
   if (diff < -30 * day) {
     if (m.year() === moment().year()) {
-      // By default, moment's en locale uses MDY. If language is english and the user's browser is not US or CA, DMY should be used instead.
-      if (moment.locale() == 'en' && (userLang == 'en-us' || userLang == 'en-ca')) {
-        ago = m.format('MMM D');
-      } else {
-        ago = m.format('D MMM');
-      }
+      ago = m.format('D MMM');
     } else {
-      // By default, moment's en locale uses MDY. If the user's browser is not US or CA, DMY should be used instead.
-      if (moment.locale() == 'en' && !(userLang == 'en-us' || userLang == 'en-ca')) {
-        ago = m.format('D MMM YYYY');
-      } else {
-        ago = m.format('ll');
-      }
+      ago = m.format('ll');
     }
   } else {
     ago = m.fromNow();
