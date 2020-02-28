@@ -37,22 +37,17 @@ class SendTestMailController implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $actor = $request->getAttribute('actor');
+        $this->assertAdmin($actor);
 
         $settings = $request->getParsedBody();
 
-        $requiredSettings = ['mail_driver', 'mail_from', 'mail_test_recipient'];
+        $requiredSettings = ['mail_driver', 'mail_from'];
 
         foreach ($requiredSettings as $setting) {
             if (! array_key_exists($setting, $settings)) {
                 return $this->response([$this->translator->trans('core.email.send_test.missing_setting', ['setting' => $setting])], 400);
             }
-        }
-
-        $testRecipientEmail = Arr::get($settings, 'mail_test_recipient');
-
-        if (! filter_var($testRecipientEmail, FILTER_VALIDATE_EMAIL)) {
-            return $this->response([$this->translator->trans('core.email.send_test.invalid_recipient', ['email' => $testRecipientEmail])], 400);
         }
 
         $drivers = $this->app->make('mail.supported_drivers');
@@ -89,8 +84,8 @@ class SendTestMailController implements RequestHandlerInterface
         $message->setSubject($this->translator->trans('core.email.send_test.subject'));
         $message->setSender(Arr::get($settings, 'mail_from'));
         $message->setFrom(Arr::get($settings, 'mail_from'));
-        $message->setTo($testRecipientEmail);
-        $message->setBody($this->translator->trans('core.email.send_test.body', ['username' => $request->getAttribute('actor')->usernamey]));
+        $message->setTo($actor->email);
+        $message->setBody($this->translator->trans('core.email.send_test.body', ['{username}' => $actor->username]));
 
         $mailer->send($message);
 

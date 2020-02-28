@@ -18,7 +18,7 @@ export default class MailPage extends Page {
     this.loading = true;
 
     this.driverFields = {};
-    this.fields = ['mail_driver', 'mail_from', 'mail_test_recipient'];
+    this.fields = ['mail_driver', 'mail_from'];
     this.values = {};
     this.status = { sending: false, errors: {} };
 
@@ -125,11 +125,8 @@ export default class MailPage extends Page {
               label: app.translator.trans('core.admin.email.send_test_mail_heading'),
               className: 'MailPage-MailSettings',
               children: [
-                <div className="MailPage-MailSettings-input">
-                  <label>
-                    {app.translator.trans('core.admin.email.send_test_mail_recipient_label')}
-                    <input className="FormControl" value={this.values.mail_test_recipient() || ''} oninput={m.withAttr('value', this.values.mail_test_recipient)} />
-                  </label>
+                <div className="helpText">
+                    {app.translator.trans('core.admin.email.send_test_mail_text', {email: app.session.user.email()})}
                 </div>,
                 Button.component({
                   type: 'button',
