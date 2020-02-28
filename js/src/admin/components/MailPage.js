@@ -176,7 +176,7 @@ export default class MailPage extends Page {
 
     app.request({
       method: 'POST',
-      url: app.forum.attribute('adminUrl') + '/testmail',
+      url: app.forum.attribute('apiUrl') + '/mail/test',
       data: settings
     }).then(response => {
       app.alerts.show(new Alert({

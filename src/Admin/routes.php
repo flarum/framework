@@ -17,9 +17,4 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'index',
         $route->toAdmin()
     );
-    $map->post(
-        '/testmail',
-        'testMail',
-        $route->toController(Controller\SendTestMailController::class)
-    );
 };

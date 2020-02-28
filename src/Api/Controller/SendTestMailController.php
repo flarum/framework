@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Admin\Controller;
+namespace Flarum\Api\Controller;
 
 use Flarum\Foundation\Application;
 use Flarum\Settings\TemporarySettingsRepository;

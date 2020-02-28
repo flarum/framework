@@ -313,4 +313,11 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'mailSettings.index',
         $route->toController(Controller\ShowMailSettingsController::class)
     );
+
+    // Send test mail post
+    $map->post(
+        '/mail/test',
+        'mailTest',
+        $route->toController(Controller\SendTestMailController::class)
+    );
 };
