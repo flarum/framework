@@ -28,7 +28,7 @@ export default class MailPage extends Page {
     app
       .request({
         method: 'GET',
-        url: app.forum.attribute('apiUrl') + '/mail-settings',
+        url: app.forum.attribute('apiUrl') + '/mail/settings',
       })
       .then((response) => {
         this.driverFields = response['data']['attributes']['fields'];
