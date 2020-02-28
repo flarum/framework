@@ -222,4 +222,17 @@ class Post extends AbstractModel
     {
         static::$models[$type] = $model;
     }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function canUserView(User $user)
+    {
+        return ($this->discussion->user_id == $user->id || !$this->discussion->is_private)
+            && ($this->discussion->user_id == $user->id || !$this->discussion->hidden_at)
+            && ($this->user_id == $user->id || !$this->is_private)
+            && ($this->user_id == $user->id || !$this->hidden_at)
+            && (in_array($this->type, ['comment', 'discussionRenamed', 'discussionLocked', 'discussionStickied', 'discussionTagged']));
+    }
 }
