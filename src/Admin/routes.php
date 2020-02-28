@@ -7,7 +7,6 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Admin\Controller;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 
