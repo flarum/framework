@@ -9,9 +9,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Foundation\Application;
 use Flarum\Settings\TemporarySettingsRepository;
 use Flarum\User\AssertPermissionTrait;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -25,13 +25,13 @@ class SendTestMailController implements RequestHandlerInterface
 {
     use AssertPermissionTrait;
 
-    protected $app;
+    protected $container;
 
     protected $translator;
 
-    public function __construct(Application $app, TranslatorInterface $translator)
+    public function __construct(Container $container, TranslatorInterface $translator)
     {
-        $this->app = $app;
+        $this->container = $container;
         $this->translator = $translator;
     }
 
@@ -50,14 +50,14 @@ class SendTestMailController implements RequestHandlerInterface
             }
         }
 
-        $drivers = $this->app->make('mail.supported_drivers');
+        $drivers = $this->container->make('mail.supported_drivers');
         $driverKey = Arr::get($settings, 'mail_driver');
 
         if (empty($drivers[$driverKey])) {
             return $this->response([$this->translator->trans('core.email.send_test.unsupported_driver', ['driver' => $driverKey])], 400);
         }
 
-        $driver = $this->app->make($drivers[$driverKey]);
+        $driver = $this->container->make($drivers[$driverKey]);
 
         $settingsRepository = new TemporarySettingsRepository();
 
@@ -69,7 +69,7 @@ class SendTestMailController implements RequestHandlerInterface
             }
         }
 
-        $validator = $this->app->make(Factory::class);
+        $validator = $this->container->make(Factory::class);
 
         $errors = $driver->validate($settingsRepository, $validator);
 
