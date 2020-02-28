@@ -11,6 +11,7 @@ export default class MailPage extends Page {
     super.init();
 
     this.saving = false;
+    this.sendingTest = false;
     this.refresh();
   }
 
@@ -132,6 +133,7 @@ export default class MailPage extends Page {
                   type: 'button',
                   className: 'Button Button--primary',
                   children: app.translator.trans('core.admin.email.send_test_mail_button'),
+                  disabled: this.sendingTestEmail(),
                   onclick: () => this.sendTestEmail()
                 })
               ]
@@ -166,8 +168,16 @@ export default class MailPage extends Page {
     return this.fields.some((key) => this.values[key]() !== app.data.settings[key]);
   }
 
+  sendingTestEmail() {
+    return this.sendingTest;
+  }
+
   sendTestEmail() {
+    if (this.saving || this.sendingTest) return;
+
+    this.sendingTest = true;
     const settings = {};
+    console.log(this.sendingTest);
 
     this.fields.forEach(key => settings[key] = this.values[key]());
 
@@ -176,24 +186,37 @@ export default class MailPage extends Page {
       url: app.forum.attribute('apiUrl') + '/mail/test',
       data: settings
     }).then(response => {
+      this.sendingTest = false;
       app.alerts.show(new Alert({
         type: 'success',
         children: app.translator.trans('core.admin.email.send_test_mail_success')
       }));
+      this.sendingTest = false;
+      console.log(this.sendingTest);
     }).catch(error => {
-      JSON.parse(error.responseText)['message'].forEach(errorMessage => {
+      this.sendingTest = false;
+      const response = JSON.parse(error.responseText)['message'];
+      if (Array.isArray(response)) {
+        response.forEach(errorMessage => {
+          app.alerts.show(new Alert({
+            type: 'error',
+            children: errorMessage
+          }));
+        });
+      }
+      else {
         app.alerts.show(new Alert({
           type: 'error',
-          children: errorMessage
+          children: app.translator.trans('core.admin.email.send_test_mail_error')
         }));
-      });
+      }
     });
   }
 
   onsubmit(e) {
     e.preventDefault();
 
-    if (this.saving) return;
+    if (this.saving || this.sendingTest) return;
 
     this.saving = true;
     app.alerts.dismiss(this.successAlert);
