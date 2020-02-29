@@ -57,7 +57,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function extend(ExtenderInterface $extender)
     {
-        $this->extenders[] = $extender;
+        if (is_null($this->app)) {
+            $this->extenders[] = $extender;
+        } else {
+            $extender->extend($this->app->getContainer());
+        }
     }
 
     /**
