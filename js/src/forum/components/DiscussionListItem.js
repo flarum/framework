@@ -73,7 +73,11 @@ export default class DiscussionListItem extends Component {
       }
 
       const phrase = this.props.params.q;
-      this.highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
+      try {
+        this.highlightRegExp = new RegExp(phrase+'|'+phrase.trim().replace(/\s+/g, '|'), 'gi');
+      } catch {
+        this.highlightRegExp = new RegExp(phrase + '|' +phrase.trim().replace(/[\/\\^$*+?.()|[\]{}]/g, '').replace(/\s+/g, '|'), 'gi');
+      }
     } else {
       jumpTo = Math.min(discussion.lastPostNumber(), (discussion.lastReadPostNumber() || 0) + 1);
     }
