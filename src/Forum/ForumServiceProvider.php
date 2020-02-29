@@ -63,7 +63,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             return [];
         });
 
-        $app->bind('flarum.forum.middleware.csrf', function ($app) {
+        $this->$app->singleton('flarum.forum.middleware.csrf', function ($app) {
             return new HttpMiddleware\CheckCsrfToken($this->app->make('flarum.forum.csrfExemptRoutes'));
         });
 
