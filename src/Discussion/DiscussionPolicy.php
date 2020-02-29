@@ -139,7 +139,11 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function hide(User $actor, Discussion $discussion)
     {
-        if ($discussion->user_id == $actor->id && $discussion->participant_count <= 1 && $actor->can('reply', $discussion)) {
+        if ($discussion->user_id == $actor->id
+            && $discussion->participant_count <= 1
+            && (!$discussion->hidden_at || $discussion->hidden_user_id == $actor->id)
+            && $actor->can('reply', $discussion)
+        ) {
             return true;
         }
     }
