@@ -45,8 +45,8 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->singleton('flarum.api.csrfExemptRoutes', function () {
-            // No exempt routes by default
-            return [];
+            // Exempt API token view by default
+            return ['/api/token'];
         });
 
         $app->bind('flarum.api.middleware.csrf', function ($app) {
