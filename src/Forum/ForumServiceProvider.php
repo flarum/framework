@@ -63,6 +63,10 @@ class ForumServiceProvider extends AbstractServiceProvider
             return [];
         });
 
+        $app->bind('flarum.forum.middleware.csrf', function ($app) {
+            return new HttpMiddleware\CheckCsrfToken($this->app->make('flarum.forum.csrfExemptRoutes'));
+        });
+
         $this->app->singleton('flarum.forum.middleware', function () {
             return [
                 HttpMiddleware\ParseJsonBody::class,
@@ -70,7 +74,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
-                HttpMiddleware\CheckCsrfToken::class,
+                'flarum.forum.middleware.csrf',
                 HttpMiddleware\SetLocale::class,
                 HttpMiddleware\ShareErrorsFromSession::class
             ];
@@ -87,11 +91,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             ));
 
             foreach ($this->app->make('flarum.forum.middleware') as $middleware) {
-                if ($middleware == HttpMiddleware\CheckCsrfToken::class) {
-                    $pipe->pipe(new HttpMiddleware\CheckCsrfToken($this->app->make('flarum.forum.csrfExemptRoutes')));
-                } else {
-                    $pipe->pipe($this->app->make($middleware));
-                }
+                $pipe->pipe($this->app->make($middleware));
             }
 
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.forum.routes')));
