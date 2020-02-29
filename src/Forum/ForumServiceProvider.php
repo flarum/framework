@@ -86,8 +86,6 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $pipe->pipe($this->app->make($middleware));
             }
 
-            event(new ConfigureMiddleware($pipe, 'forum'));
-
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.forum.routes')));
 
             return $pipe;
