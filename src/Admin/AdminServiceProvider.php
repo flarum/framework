@@ -53,7 +53,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             return [];
         });
 
-        $this->$app->singleton('flarum.admin.middleware.csrf', function () {
+        $this->app->singleton('flarum.admin.middleware.csrf', function () {
             return new HttpMiddleware\CheckCsrfToken($this->app->make('flarum.admin.csrfExemptRoutes'));
         });
 

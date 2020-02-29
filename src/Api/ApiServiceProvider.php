@@ -49,7 +49,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             return ['/api/token'];
         });
 
-        $this->$app->singleton('flarum.api.middleware.csrf', function () {
+        $this->app->singleton('flarum.api.middleware.csrf', function () {
             return new HttpMiddleware\CheckCsrfToken($this->app->make('flarum.api.csrfExemptRoutes'));
         });
 
