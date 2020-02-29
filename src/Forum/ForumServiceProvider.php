@@ -10,7 +10,6 @@
 namespace Flarum\Forum;
 
 use Flarum\Event\ConfigureForumRoutes;
-use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
