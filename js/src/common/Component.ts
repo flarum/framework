@@ -14,7 +14,7 @@ export default class Component<T extends ComponentProps = any> {
     props: T;
 
     constructor(props: T = <T>{}) {
-        this.props = props;
+        this.props = props.tag ? <T>{} : props;
     }
 
     view(vnode) {
@@ -65,7 +65,18 @@ export default class Component<T extends ComponentProps = any> {
     }
 
     render() {
-        return m(this, this.props);
+        return m.fragment(
+            {
+                ...this.props,
+                oninit: (...args) => this.oninit(...args),
+                oncreate: (...args) => this.oncreate(...args),
+                onbeforeupdate: (...args) => this.onbeforeupdate(...args),
+                onupdate: (...args) => this.onupdate.bind(...args),
+                onbeforeremove: (...args) => this.onbeforeremove.bind(...args),
+                onremove: (...args) => this.onremove.bind(...args),
+            },
+            this.view()
+        );
     }
 
     static component(props: ComponentProps | any = {}, children?: Mithril.Children) {
