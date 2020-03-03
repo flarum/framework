@@ -141,7 +141,7 @@ class DiscussionPolicy extends AbstractPolicy
     {
         if ($discussion->user_id == $actor->id
             && $discussion->participant_count <= 1
-            && (!$discussion->hidden_at || $discussion->hidden_user_id == $actor->id)
+            && (! $discussion->hidden_at || $discussion->hidden_user_id == $actor->id)
             && $actor->can('reply', $discussion)
         ) {
             return true;
