@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.12](https://github.com/flarum/flags/compare/v0.1.0-beta.10...v0.1.0-beta.12)
+
+- Larger flag modal, disallow users to flag their own posts, increase flag message size, 
+allow comment on more reasons, disabled submit on other without comment ([5292e6c](https://github.com/flarum/flags/commit/5292e6cf8a3d4610171f44a6feebb7b31794dd11))
+
 ## [0.1.0-beta.10](https://github.com/flarum/flags/compare/v0.1.0-beta.9...v0.1.0-beta.10)
 
 ### Fixed
