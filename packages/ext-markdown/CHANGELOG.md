@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.12](https://github.com/flarum/markdown/compare/v0.1.0-beta.10...v0.1.0-beta.12)
+
+### Fixed
+- Mentions could be seen within spoiler blocks (#13)
+
 ## [0.1.0-beta.10](https://github.com/flarum/markdown/compare/v0.1.0-beta.9...v0.1.0-beta.10)
 
 ### Added
