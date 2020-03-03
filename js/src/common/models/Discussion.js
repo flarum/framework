@@ -7,6 +7,7 @@ export default class Discussion extends Model {}
 
 Object.assign(Discussion.prototype, {
   title: Model.attribute('title'),
+  slug: Model.attribute('slug'),
   idWithSlug: Model.attribute('idWithSlug'),
 
   createdAt: Model.attribute('createdAt', Model.transformDate),
