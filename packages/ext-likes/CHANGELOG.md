@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-beta.12](https://github.com/flarum/likes/compare/v0.1.0-beta.9...v0.1.0-beta.12)
+
+### Fixed
+
+- Fix notifications being sent to deleted users ([726ddfe](https://github.com/flarum/likes/commit/726ddfe1b45f2752f6179848a7128e520b1860fc))
+
 ## [0.1.0-beta.9](https://github.com/flarum/likes/compare/v0.1.0-beta.8.1...v0.1.0-beta.9)
 
 ### Changed
