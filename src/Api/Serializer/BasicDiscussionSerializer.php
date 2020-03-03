@@ -36,7 +36,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
         return [
             'title' => $discussion->title,
             'slug'  => $discussion->slug,
-            'idWithSlug' => $discussion->id.trim($discussion->slug) ? '-'.$discussion->slug : ''
+            'idWithSlug' => $discussion->id.(trim($discussion->slug) ? '-'.$discussion->slug : '')
         ];
     }
 
