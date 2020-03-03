@@ -18,7 +18,7 @@
 
     .LoadingIndicator {
       display: inline-block;
-      margin-left: -15px;
+      margin-left: 20px;
     }
   }
 }
@@ -66,4 +66,9 @@
   .disabled & {
     color: @muted-more-color !important;
   }
+}
+.Checkbox.loading {
+    .Checkbox-display {
+        opacity: 0.5;
+    }
 }
