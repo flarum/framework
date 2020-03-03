@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-beta.12](https://github.com/flarum/tags/compare/v0.1.0-beta.11...v0.1.0-beta.12)
+
+### Fixed
+- Icons misaligned in tag selection modal (#73, #76)
+- Selected tags indiscernible when they have no icon (#68, #76)
+- Group permissions weren't really deleted when a tag was opened up again to the public (#65) 
+
 ## [0.1.0-beta.11](https://github.com/flarum/tags/compare/v0.1.0-beta.10...v0.1.0-beta.11)
 
 ### Fixed
