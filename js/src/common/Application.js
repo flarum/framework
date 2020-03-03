@@ -211,7 +211,11 @@ export default class Application {
   }
 
   updateTitle() {
-    document.title = (this.titleCount ? `(${this.titleCount}) ` : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
+    if (m.route() == '/') {
+      document.title = this.forum.attribute('title');
+    } else {
+      document.title = (this.titleCount ? `(${this.titleCount}) ` : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
+    }
   }
 
   /**
