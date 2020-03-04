@@ -10,7 +10,6 @@
 namespace Flarum\Forum;
 
 use Flarum\Event\ConfigureForumRoutes;
-use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
@@ -85,8 +84,6 @@ class ForumServiceProvider extends AbstractServiceProvider
             foreach ($this->app->make('flarum.forum.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
             }
-
-            event(new ConfigureMiddleware($pipe, 'forum'));
 
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.forum.routes')));
 
