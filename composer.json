@@ -6,16 +6,27 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Toby Zerner",
-            "email": "toby.zerner@gmail.com"
-        },
-        {
             "name": "Franz Liedke",
             "email": "franz@develophp.org"
         },
         {
             "name": "Daniel Klabbers",
-            "email": "daniel@klabbers.email"
+            "email": "daniel@klabbers.email",
+            "homepage": "https://luceos.com"
+        },
+        {
+            "name": "David Sevilla Martin",
+            "email": "me+flarum@datitisev.me",
+            "homepage": "https://datitisev.me"
+        },
+        {
+            "name": "Clark Winkelmann",
+            "email": "clark.winkelmann@gmail.com",
+            "homepage": "https://clarkwinkelmann.com"
+        },
+        {
+            "name": "Matthew Kilgore",
+            "email": "matthew@kilgore.dev"
         }
     ],
     "support": {
