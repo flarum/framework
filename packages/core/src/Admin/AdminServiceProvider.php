@@ -9,7 +9,6 @@
 
 namespace Flarum\Admin;
 
-use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
@@ -74,8 +73,6 @@ class AdminServiceProvider extends AbstractServiceProvider
             foreach ($this->app->make('flarum.admin.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
             }
-
-            event(new ConfigureMiddleware($pipe, 'admin'));
 
             $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.admin.routes')));
 
