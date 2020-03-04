@@ -1,9 +1,33 @@
 # Changelog
 
+## [0.1.0-beta.12](https://github.com/flarum/core/compare/v0.1.0-beta.11.1...v0.1.0-beta.12)
+
+### Added
+- Full support for PHP 7.4 (#1980)
+- Mail settings: Configure region for the Mailgun driver (#1834, #1850)
+- Mail settings: Alert admins about incomplete settings (#1763, #1921)
+- New permission that allows users to post without throttling (#1255, #1938)
+- Basic transliteration of discussion "slugs" / pretty URLs (#194, #1975)
+- User profiles: Render basic content on server side (#1901)
+- New extender for configuring middleware (#1919, #1952, #1957, #1971)
+- New extender for configuring error handling (#1781, #1970)
+- Automated tests for PHP extenders to guarantee their backwards compatibility
+
+### Changed
+- Profile URLs for non-existing users properly return HTTP 404 (#1846, #1901)
+- Confirmation email subject no longer contains the forum title (#1613)
+- Improved error handling during Flarum's early boot phase (#1607)
+- Updated deprecated "Zend" libraries to their new "Laminas" equivalents (#1963)
+
+### Fixed
+- Update page did not work when installed in subdirectories (#1947)
+- Avatar upload did not work in IE11 / Edge (#1125, #1570)
+- Translation fallback was ignored for client-rendered pages (#1774, #1961)
+- The success alert when posting replies was invisible (#1976)
+
 ## [0.1.0-beta.11.1](https://github.com/flarum/core/compare/v0.1.0-beta.11...v0.1.0-beta.11.1)
 
 ### Fixed
-
 - Saving custom css in admin failed (#1946)
 
 ## [0.1.0-beta.11](https://github.com/flarum/core/compare/v0.1.0-beta.10...v0.1.0-beta.11)
