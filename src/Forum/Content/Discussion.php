@@ -89,6 +89,7 @@ class Discussion
         }
 
         $document->title = $apiDocument->data->attributes->title;
+        $document->meta['description'] = $apiDocument->data->attributes->excerpt;
         $document->canonicalUrl = $url([]);
         $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'getResource', 'posts', 'url'));
         $document->payload['apiDocument'] = $apiDocument;
