@@ -84,7 +84,7 @@ class Tag
         if ($tag->description) {
             $document->meta['description'] = $tag->description;
         } else {
-            $document->meta['description'] = $this->translator->trans('flarum-tags.forum.meta.tag_description', ['{tag}' => $tag->name]);
+            $document->meta['description'] = $this->translator->trans('flarum-tags.forum.tag.meta_description_text', ['{tag}' => $tag->name]);
         }
         $document->content = $this->view->make('tags::frontend.content.tag', compact('apiDocument', 'page', 'tag'));
         $document->payload['apiDocument'] = $apiDocument;
