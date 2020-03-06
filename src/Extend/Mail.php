@@ -16,9 +16,15 @@ class Mail implements ExtenderInterface
 {
     protected $addDrivers = [];
 
-    public function add($humanName, $driver)
+    /**
+     * Get the result of an API request to show a user.
+     *
+     * @param string $identifier Identifier for mail driver. E.g. 'smtp' for SmtpDriver
+     * @param string $driver ::class attribute of driver class, which must implement Flarum\Mail\DriverInterface
+     */
+    public function add(string $identifier, $driver)
     {
-        $this->addDrivers[$humanName] = $driver;
+        $this->addDrivers[$identifier] = $driver;
 
         return $this;
     }
