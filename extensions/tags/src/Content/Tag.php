@@ -14,6 +14,7 @@ use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
 use Flarum\Tags\TagRepository;
 use Flarum\User\User;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -36,14 +37,22 @@ class Tag
     protected $tags;
 
     /**
+     * @var Translator
+     */
+    protected $translator;
+
+    /**
      * @param Client $api
      * @param Factory $view
+     * @param TagRepository $tags
+     * @param Translator $translator
      */
-    public function __construct(Client $api, Factory $view, TagRepository $tags)
+    public function __construct(Client $api, Factory $view, TagRepository $tags, Translator $translator)
     {
         $this->api = $api;
         $this->view = $view;
         $this->tags = $tags;
+        $this->translator = $translator;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -71,6 +80,12 @@ class Tag
 
         $apiDocument = $this->getApiDocument($actor, $params);
 
+        $document->title = $tag->name;
+        if ($tag->description) {
+            $document->meta['description'] = $tag->description;
+        } else {
+            $document->meta['description'] = $this->translator->trans('flarum-tags.forum.meta.tag_description', ['{tag}' => $tag->name]);
+        }
         $document->content = $this->view->make('tags::frontend.content.tag', compact('apiDocument', 'page', 'tag'));
         $document->payload['apiDocument'] = $apiDocument;
 

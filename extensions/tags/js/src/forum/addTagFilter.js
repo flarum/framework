@@ -23,8 +23,14 @@ export default function() {
   extend(IndexPage.prototype, 'view', function(vdom) {
     const tag = this.currentTag();
 
+    if (tag) vdom.attrs.className += ' IndexPage--tag'+tag.id();
+  });
+
+  extend(IndexPage.prototype, 'config', function() {
+    const tag = this.currentTag();
+
     if (tag) {
-      vdom.attrs.className += ' IndexPage--tag'+tag.id();
+      app.setTitle(tag.name());
     }
   });
 
