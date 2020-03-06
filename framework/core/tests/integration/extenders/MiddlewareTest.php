@@ -29,6 +29,17 @@ class MiddlewareTest extends TestCase
     /**
      * @test
      */
+    public function custom_header_is_not_present_by_default()
+    {
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayNotHasKey('X-First-Test-Middleware', $response->getHeaders());
+    }
+
+    /**
+     * @test
+     */
     public function can_add_middleware()
     {
         $this->extend(
