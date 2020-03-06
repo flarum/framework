@@ -17,7 +17,9 @@ class ValidationExceptionHandler
     public function handle(ValidationException $e)
     {
         return (new HandledError(
-            $e, 'validation_error', 422
+            $e,
+            'validation_error',
+            422
         ))->withDetails(array_merge(
             $this->buildDetails($e->getAttributes(), '/data/attributes'),
             $this->buildDetails($e->getRelationships(), '/data/relationships')

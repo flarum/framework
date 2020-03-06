@@ -120,7 +120,10 @@ class Installation
 
         $pipeline->pipe(function () {
             return new Steps\StoreConfig(
-                $this->debug, $this->dbConfig, $this->baseUrl, $this->getConfigPath()
+                $this->debug,
+                $this->dbConfig,
+                $this->baseUrl,
+                $this->getConfigPath()
             );
         });
 

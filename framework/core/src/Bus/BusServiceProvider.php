@@ -26,11 +26,13 @@ class BusServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->alias(
-            BaseDispatcher::class, DispatcherContract::class
+            BaseDispatcher::class,
+            DispatcherContract::class
         );
 
         $this->app->alias(
-            BaseDispatcher::class, QueueingDispatcherContract::class
+            BaseDispatcher::class,
+            QueueingDispatcherContract::class
         );
     }
 }

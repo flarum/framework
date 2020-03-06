@@ -152,7 +152,8 @@ class Frontend implements ExtenderInterface
 
                 foreach ($this->routes as $route) {
                     $collection->get(
-                        $route['path'], $route['name'],
+                        $route['path'],
+                        $route['name'],
                         $factory->toFrontend($this->frontend, $route['content'])
                     );
                 }

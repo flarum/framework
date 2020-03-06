@@ -89,7 +89,9 @@ class UninstalledSite implements SiteInterface
             $dispatcher = $app->make(Dispatcher::class);
 
             return new \Illuminate\View\Factory(
-                $engines, $finder, $dispatcher
+                $engines,
+                $finder,
+                $dispatcher
             );
         });
 

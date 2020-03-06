@@ -17,7 +17,9 @@ class IlluminateValidationExceptionHandler
     public function handle(ValidationException $e): HandledError
     {
         return (new HandledError(
-            $e, 'validation_error', 422
+            $e,
+            'validation_error',
+            422
         ))->withDetails($this->errorDetails($e));
     }
 
