@@ -123,6 +123,17 @@ export default class MailPage extends Page {
               })}
 
             {FieldSet.component({
+              children: [
+                Button.component({
+                    type: 'submit',
+                    className: 'Button Button--primary',
+                    children: app.translator.trans('core.admin.email.submit_button'),
+                    disabled: !this.changed()
+                  })
+              ]
+            })}
+
+            {FieldSet.component({
               label: app.translator.trans('core.admin.email.send_test_mail_heading'),
               className: 'MailPage-MailSettings',
               children: [
@@ -133,18 +144,10 @@ export default class MailPage extends Page {
                   type: 'button',
                   className: 'Button Button--primary',
                   children: app.translator.trans('core.admin.email.send_test_mail_button'),
-                  disabled: this.sendingTest(),
+                  disabled: this.sendingTest() || this.changed(),
                   onclick: () => this.sendTestEmail()
                 })
               ]
-            })}
-
-
-            {Button.component({
-              type: 'submit',
-              className: 'Button Button--primary',
-              children: app.translator.trans('core.admin.email.submit_button'),
-              disabled: !this.changed(),
             })}
           </form>
         </div>

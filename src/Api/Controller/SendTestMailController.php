@@ -9,16 +9,14 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Settings\TemporarySettingsRepository;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Container\Container;
-use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Support\Arr;
-use Laminas\Diactoros\Response\JsonResponse;
+use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Mail\Message;
+use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Swift_Mailer;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class SendTestMailController implements RequestHandlerInterface
@@ -27,11 +25,14 @@ class SendTestMailController implements RequestHandlerInterface
 
     protected $container;
 
+    protected $mailer;
+
     protected $translator;
 
-    public function __construct(Container $container, TranslatorInterface $translator)
+    public function __construct(Container $container, TranslatorInterface $translator, Mailer $mailer)
     {
         $this->container = $container;
+        $this->mailer = $mailer;
         $this->translator = $translator;
     }
 
@@ -40,62 +41,13 @@ class SendTestMailController implements RequestHandlerInterface
         $actor = $request->getAttribute('actor');
         $this->assertAdmin($actor);
 
-        $settings = $request->getParsedBody();
+        $body = $this->translator->trans('core.email.send_test.body', ['{username}' => $actor->username]);
 
-        $requiredSettings = ['mail_driver', 'mail_from'];
+        $this->mailer->raw($body, function (Message $message) use ($actor) {
+            $message->to($actor->email);
+            $message->subject($this->translator->trans('core.email.send_test.subject'));
+        });
 
-        foreach ($requiredSettings as $setting) {
-            if (! array_key_exists($setting, $settings)) {
-                return $this->response([$this->translator->trans('core.email.send_test.missing_setting', ['setting' => $setting])], 400);
-            }
-        }
-
-        $drivers = $this->container->make('mail.supported_drivers');
-        $driverKey = Arr::get($settings, 'mail_driver');
-
-        if (empty($drivers[$driverKey])) {
-            return $this->response([$this->translator->trans('core.email.send_test.unsupported_driver', ['driver' => $driverKey])], 400);
-        }
-
-        $driver = $this->container->make($drivers[$driverKey]);
-
-        $settingsRepository = new TemporarySettingsRepository();
-
-        foreach ($driver->availableSettings() as $setting => $default) {
-            if (array_key_exists($setting, $settings)) {
-                $settingsRepository->set($setting, Arr::get($settings, $setting));
-            } else {
-                return $this->response([$this->translator->trans('core.email.send_test.missing_setting', ['setting' => $setting])], 400);
-            }
-        }
-
-        $validator = $this->container->make(Factory::class);
-
-        $errors = $driver->validate($settingsRepository, $validator);
-
-        if (empty($errors)) {
-            return $this->response($errors, 400);
-        }
-
-        $mailer = new Swift_Mailer($driver->buildTransport($settingsRepository));
-
-        $message = $mailer->createMessage();
-
-        $message->setSubject($this->translator->trans('core.email.send_test.subject'));
-        $message->setSender(Arr::get($settings, 'mail_from'));
-        $message->setFrom(Arr::get($settings, 'mail_from'));
-        $message->setTo($actor->email);
-        $message->setBody($this->translator->trans('core.email.send_test.body', ['{username}' => $actor->username]));
-
-        $mailer->send($message);
-
-        return $this->response([]);
-    }
-
-    private function response($message, $status = 200)
-    {
-        return new JsonResponse([
-            'message' => $message
-        ], $status);
+        return new EmptyResponse();
     }
 }
