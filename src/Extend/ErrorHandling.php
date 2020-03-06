@@ -41,10 +41,10 @@ class ErrorHandling implements ExtenderInterface
      * Define the internal error type for a specific exception class.
      *
      * If the exception class is under your control, you should prefer having
-     * the exception implement our {@see \Flarum\Fondation\KnownError} interface
-     * and define the type there. This method should only be used for third-
-     * party exceptions, e.g. when integrating another package that already
-     * defines its own exception classes.
+     * the exception implement our {@see \Flarum\Foundation\KnownError}
+     * interface and define the type there. This method should only be used for
+     * third-party exceptions, e.g. when integrating another package that
+     * already defines its own exception classes.
      */
     public function type(string $exceptionClass, string $errorType)
     {
