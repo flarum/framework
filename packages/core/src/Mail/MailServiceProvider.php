@@ -64,7 +64,9 @@ class MailServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('mailer', function ($app) {
             $mailer = new Mailer(
-                $app['view'], $app['swift.mailer'], $app['events']
+                $app['view'],
+                $app['swift.mailer'],
+                $app['events']
             );
 
             if ($app->bound('queue')) {

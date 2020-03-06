@@ -35,7 +35,8 @@ class WithTokenTest extends TestCase
     {
         $response = $this->send(
             $this->request(
-                'POST', '/api/token',
+                'POST',
+                '/api/token',
                 [
                     'json' => [
                         'identification' => 'normal',
@@ -66,7 +67,8 @@ class WithTokenTest extends TestCase
     {
         $response = $this->send(
             $this->request(
-                'POST', '/api/token',
+                'POST',
+                '/api/token',
                 [
                     'json' => [
                         'identification' => 'normal',
