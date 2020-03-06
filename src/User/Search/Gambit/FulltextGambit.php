@@ -46,7 +46,9 @@ class FulltextGambit implements GambitInterface
     public function apply(AbstractSearch $search, $searchValue)
     {
         $search->getQuery()
-            ->whereIn('id',
-                $this->getUserSearchSubQuery($searchValue));
+            ->whereIn(
+                'id',
+                $this->getUserSearchSubQuery($searchValue)
+            );
     }
 }

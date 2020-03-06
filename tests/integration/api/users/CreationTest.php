@@ -48,7 +48,8 @@ class CreationTest extends TestCase
     {
         $response = $this->send(
             $this->request(
-                'POST', '/api/users',
+                'POST',
+                '/api/users',
                 [
                     'json' => ['data' => ['attributes' => []]],
                 ]
@@ -91,7 +92,8 @@ class CreationTest extends TestCase
     {
         $response = $this->send(
             $this->request(
-                'POST', '/api/users',
+                'POST',
+                '/api/users',
                 [
                     'json' => [
                         'data' => [
@@ -123,7 +125,8 @@ class CreationTest extends TestCase
     {
         $response = $this->send(
             $this->request(
-                'POST', '/api/users',
+                'POST',
+                '/api/users',
                 [
                     'json' => [
                         'data' => [
@@ -158,7 +161,8 @@ class CreationTest extends TestCase
 
         $response = $this->send(
             $this->request(
-                'POST', '/api/users',
+                'POST',
+                '/api/users',
                 [
                     'json' => [
                         'data' => [

@@ -69,7 +69,8 @@ class Middleware implements ExtenderInterface
             }
 
             foreach ($this->replaceMiddlewares as $originalMiddleware => $newMiddleware) {
-                $existingMiddleware = array_replace($existingMiddleware,
+                $existingMiddleware = array_replace(
+                    $existingMiddleware,
                     array_fill_keys(
                         array_keys($existingMiddleware, $originalMiddleware),
                         $newMiddleware
@@ -78,7 +79,8 @@ class Middleware implements ExtenderInterface
             }
 
             foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddleware) {
-                array_splice($existingMiddleware,
+                array_splice(
+                    $existingMiddleware,
                     array_search($originalMiddleware, $existingMiddleware),
                     0,
                     $newMiddleware
@@ -86,7 +88,8 @@ class Middleware implements ExtenderInterface
             }
 
             foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddleware) {
-                array_splice($existingMiddleware,
+                array_splice(
+                    $existingMiddleware,
                     array_search($originalMiddleware, $existingMiddleware) + 1,
                     0,
                     $newMiddleware

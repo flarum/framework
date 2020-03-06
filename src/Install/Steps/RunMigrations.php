@@ -49,7 +49,8 @@ class RunMigrations implements Step
     private function getMigrator()
     {
         $repository = new DatabaseMigrationRepository(
-            $this->database, 'migrations'
+            $this->database,
+            'migrations'
         );
         $files = new Filesystem;
 
