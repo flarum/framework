@@ -99,7 +99,7 @@ class ConfigureMentions
     {
         $post = CommentPost::find($tag->getAttribute('id'));
 
-        if ($post) {
+        if ($post && $post->user) {
             $tag->setAttribute('discussionid', (int) $post->discussion_id);
             $tag->setAttribute('number', (int) $post->number);
             $tag->setAttribute('displayname', $post->user->display_name);
