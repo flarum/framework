@@ -10,43 +10,27 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\Api\Controller\ShowMailSettingsController;
 use Flarum\Mail\DriverInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\api\Controller\ApiControllerTestCase;
-use Flarum\User\User;
+use Flarum\Tests\integration\AuthenticatedTestCase;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
 use Swift_NullTransport;
 use Swift_Transport;
 
-class MailTest extends ApiControllerTestCase
+class MailTest extends AuthenticatedTestCase
 {
     use RetrievesAuthorizedUsers;
-
-    protected $controller = ShowMailSettingsController::class;
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->prepareDatabase([
-            'users' => [
-                $this->adminUser(),
-            ],
-        ]);
-    }
 
     /**
      * @test
      */
     public function custom_driver_doesnt_exist_by_default()
     {
-        $this->actor = User::find(1);
-
-        $response = $this->callWith();
-
+        $response = $this->send(
+            $this->authenticatedRequest('GET', '/api/mail-settings')
+        );
 
         $drivers = json_decode($response->getBody(), true)['data']['attributes']['fields'];
 
@@ -63,9 +47,9 @@ class MailTest extends ApiControllerTestCase
                 ->add('custom', CustomDriver::class)
         );
 
-        $this->actor = User::find(1);
-
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->authenticatedRequest('GET', '/api/mail-settings')
+        );
 
         $drivers = json_decode($response->getBody(), true)['data']['attributes']['fields'];
 
@@ -82,9 +66,9 @@ class MailTest extends ApiControllerTestCase
                 ->add('smtp', CustomDriver::class)
         );
 
-        $this->actor = User::find(1);
-
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->authenticatedRequest('GET', '/api/mail-settings')
+        );
 
         $requiredFields = json_decode($response->getBody(), true)['data']['attributes']['fields']['smtp'];
 
