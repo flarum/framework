@@ -76,11 +76,10 @@ class DiscussionPolicy extends AbstractPolicy
     public function find(User $actor, Builder $query)
     {
         // Hide discussions which have tags that the user is not allowed to see.
-        $query->whereNotExists(function ($query) use ($actor) {
-            return $query->selectRaw('1')
+        $query->whereNotIn('discussions.id', function ($query) use ($actor) {
+            return $query->select('discussion_id')
                 ->from('discussion_tag')
-                ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'))
-                ->whereColumn('discussions.id', 'discussion_id');
+                ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'));
         });
 
         // Hide discussions with no tags if the user doesn't have that global
@@ -100,11 +99,10 @@ class DiscussionPolicy extends AbstractPolicy
         // If a discussion requires a certain permission in order for it to be
         // visible, then we can check if the user has been granted that
         // permission for any of the discussion's tags.
-        $query->whereExists(function ($query) use ($actor, $ability) {
-            return $query->selectRaw('1')
+        $query->whereIn('discussions.id', function ($query) use ($actor, $ability) {
+            return $query->select('discussion_id')
                 ->from('discussion_tag')
-                ->whereIn('tag_id', Tag::getIdsWhereCan($actor, 'discussion.'.$ability))
-                ->whereColumn('discussions.id', 'discussion_id');
+                ->whereIn('tag_id', Tag::getIdsWhereCan($actor, 'discussion.'.$ability));
         });
     }
 
