@@ -19,6 +19,9 @@
     "webpack-cli": "^3.1.2",
     "webpack-merge": "^4.1.4"
   },
+  "devDependencies": {
+    "prettier": "2.0.2"
+  },
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production"
