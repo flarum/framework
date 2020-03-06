@@ -45,11 +45,10 @@ class FilterDiscussionListByTags
             return;
         }
 
-        $query->whereNotExists(function ($query) {
-            return $query->selectRaw('1')
+        $query->whereNotIn('discussions.id', function ($query) {
+            return $query->select('discussion_id')
                 ->from('discussion_tag')
-                ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'))
-                ->whereColumn('discussions.id', 'discussion_id');
+                ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'));
         });
     }
 }
