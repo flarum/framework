@@ -3,13 +3,13 @@ import icon from '../../common/helpers/icon';
 import NotificationList from './NotificationList';
 
 export default class NotificationsDropdown extends Dropdown {
-    list = new NotificationList();
+    list = (<NotificationList />);
 
     static initProps(props) {
         props.className = props.className || 'NotificationsDropdown';
         props.buttonClassName = props.buttonClassName || 'Button Button--flat';
         props.menuClassName = props.menuClassName || 'Dropdown-menu--right';
-        props.label = props.label || app.translator.trans('core.forum.notifications.tooltip');
+        props.label = props.label || app.translator.transText('core.forum.notifications.tooltip');
         props.icon = props.icon || 'fas fa-bell';
 
         super.initProps(props);
@@ -40,7 +40,7 @@ export default class NotificationsDropdown extends Dropdown {
     getMenu() {
         return (
             <div className={'Dropdown-menu ' + this.props.menuClassName} onclick={this.menuClick.bind(this)}>
-                {this.showing ? this.list.render() : ''}
+                {this.showing && this.list}
             </div>
         );
     }
@@ -48,8 +48,6 @@ export default class NotificationsDropdown extends Dropdown {
     onclick() {
         if (app.drawer.isOpen()) {
             this.goToRoute();
-        } else {
-            this.list.load();
         }
     }
 
@@ -65,7 +63,7 @@ export default class NotificationsDropdown extends Dropdown {
         return app.session.user.newNotificationCount();
     }
 
-    menuClick(e) {
+    menuClick(e: MouseEvent) {
         // Don't close the notifications dropdown if the user is opening a link in a
         // new tab or window.
         if (e.shiftKey || e.metaKey || e.ctrlKey || e.which === 2) e.stopPropagation();

@@ -5,13 +5,13 @@ import * as _dayjs from 'dayjs';
 import classNames from 'classnames';
 
 interface m extends Mithril.Static {
-    prop: Stream.Static;
+    prop: typeof Stream;
 }
 
 declare global {
     const m: m;
     const dayjs: typeof _dayjs;
-    const classNames: classNames;
+    const classNames: typeof classNames;
 }
 
 export as namespace Mithril;
