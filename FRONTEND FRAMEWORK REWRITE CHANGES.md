@@ -16,6 +16,8 @@
 * Utils
     - Changed `computed` util to require multiple keys to be passed as an array
     - `SubtreeRetainer` now has an `update` method instead of `retain`, and its output is used in `onbeforeupdate` lifecycle hook
+    - `Evented` util is now a class instead of an object
+    - `formatNumber` now uses `Number.prototype.toLocaleString` with the current application locale, and supports passing an options object (eg. for currency formatting - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat/resolvedOptions#Description)
 
 #### Forum
 * Forum Application
