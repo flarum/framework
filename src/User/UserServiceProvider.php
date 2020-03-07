@@ -127,7 +127,6 @@ class UserServiceProvider extends AbstractServiceProvider
         $events->listen(EmailChangeRequested::class, EmailConfirmationMailer::class);
 
         $events->subscribe(UserMetadataUpdater::class);
-        $events->subscribe(UserPolicy::class);
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
 

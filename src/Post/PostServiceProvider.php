@@ -22,9 +22,6 @@ class PostServiceProvider extends AbstractServiceProvider
         CommentPost::setFormatter($this->app->make('flarum.formatter'));
 
         $this->registerPostTypes();
-
-        $events = $this->app->make('events');
-        $events->subscribe(PostPolicy::class);
     }
 
     public function registerPostTypes()

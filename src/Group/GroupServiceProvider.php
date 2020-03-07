@@ -13,12 +13,4 @@ use Flarum\Foundation\AbstractServiceProvider;
 
 class GroupServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
-    {
-        $events = $this->app->make('events');
-        $events->subscribe(GroupPolicy::class);
-    }
 }
