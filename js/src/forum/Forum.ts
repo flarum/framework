@@ -102,11 +102,15 @@ export default class Forum extends Application {
         super.setupRoutes();
 
         this.route.discussion = (discussion: Discussion, near?: number): string => {
-            const slug = discussion.slug();
-            return this.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
+            const slug = discussion?.slug();
+            const hasNear = near && near !== 1;
+            const params = {
                 id: discussion.id() + (slug.trim() ? '-' + slug : ''),
-                near: near && near !== 1 ? near : undefined,
-            });
+            };
+
+            if (hasNear) params['near'] = near;
+
+            return this.route(near && near !== 1 ? 'discussion.near' : 'discussion', params);
         };
 
         /**

@@ -542,7 +542,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
         if ($item.length) {
             const itemTop = $item.offset().top - this.getMarginTop();
             const itemBottom = $item.offset().top + $item.height();
-            const scrollTop = $(document).scrollTop();
+            const scrollTop = $container.scrollTop();
             const scrollBottom = scrollTop + $(window).height();
 
             // If the item is already in the viewport, we may not need to scroll.
