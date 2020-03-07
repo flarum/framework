@@ -17,24 +17,18 @@ export default class Post<T extends PostProp = PostProp> extends Component<T> {
     loading = false;
     controlsOpen = false;
 
-    subtree: SubtreeRetainer;
-
-    oninit(vnode) {
-        super.oninit(vnode);
-
-        /**
-         * Set up a subtree retainer so that the post will not be redrawn
-         * unless new data comes in.
-         */
-        this.subtree = new SubtreeRetainer(
-            () => this.props.post.freshness,
-            () => {
-                const user = this.props.post.user();
-                return user?.freshness;
-            },
-            () => this.controlsOpen
-        );
-    }
+    /**
+     * Set up a subtree retainer so that the post will not be redrawn
+     * unless new data comes in.
+     */
+    subtree = new SubtreeRetainer(
+        () => this.props.post.freshness,
+        () => {
+            const user = this.props.post.user();
+            return user?.freshness;
+        },
+        () => this.controlsOpen
+    );
 
     view() {
         const controls = PostControls.controls(this.props.post, this).toArray();
@@ -71,7 +65,6 @@ export default class Post<T extends PostProp = PostProp> extends Component<T> {
                         <ul>{listItems(this.footerItems().toArray())}</ul>
                     </footer>
                 </div>
-                );
             </article>
         );
     }
@@ -101,7 +94,7 @@ export default class Post<T extends PostProp = PostProp> extends Component<T> {
     /**
      * Get the post's content.
      */
-    content() {
+    content(): any[] {
         return [];
     }
 

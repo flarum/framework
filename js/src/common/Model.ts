@@ -47,7 +47,7 @@ export default class Model {
      * Get the model's ID.
      * @final
      */
-    id(): string | number {
+    id(): string {
         return this.data.id;
     }
 

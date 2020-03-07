@@ -8,6 +8,7 @@ import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
 import Evented from '../../common/utils/evented';
 import { DiscussionProp } from '../../common/concerns/ComponentProps';
+import { Attributes } from 'mithril';
 
 export interface PostStreamProps extends DiscussionProp {
     includedPosts: Post[];
@@ -40,10 +41,10 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
     loadPageTimeouts = {};
     pagesLoading = 0;
 
-    calculatePositionTimeout: number;
-    visibleStart: number;
-    visibleEnd: number;
-    viewingEnd: boolean;
+    calculatePositionTimeout: number = 0;
+    visibleStart: number = 0;
+    visibleEnd: number = 0;
+    viewingEnd: boolean = true;
 
     constructor(...args) {
         super(...args);
@@ -66,7 +67,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
      *     the last post and scroll the reply preview into view.
      * @param noAnimation
      */
-    goToNumber(number: number | 'reply', noAnimation?: boolean): Promise<void> {
+    goToNumber(number: string | number | 'reply', noAnimation?: boolean): Promise<void> {
         // If we want to go to the reply preview, then we will go to the end of the
         // discussion and then scroll to the very bottom of the page.
         if (number === 'reply') {
@@ -177,7 +178,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
     /**
      * Get the visible page of posts.
      */
-    posts(): Post[] {
+    posts(): (Post | null)[] {
         return this.discussion
             .postIds()
             .slice(this.visibleStart, this.visibleEnd)
@@ -190,11 +191,11 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
 
     view() {
         function fadeIn(vnode) {
-            if (!vnode.attrs.fadedIn)
+            if (!vnode.state.fadedIn)
                 $(vnode.dom)
                     .hide()
                     .fadeIn();
-            vnode.attrs.fadedIn = true;
+            vnode.state.fadedIn = true;
         }
 
         let lastTime;
@@ -207,12 +208,12 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
 
         const items = posts.map((post, i) => {
             let content;
-            const attrs = { 'data-index': this.visibleStart + i };
+            const attrs: Attributes = { 'data-index': this.visibleStart + i };
 
             if (post) {
                 const time = post.createdAt();
                 const PostComponent = app.postComponents[post.contentType()];
-                content = PostComponent ? PostComponent.component({ post }) : '';
+                content = PostComponent ? <PostComponent post={post} /> : '';
 
                 attrs.key = 'post' + post.id();
                 attrs.oncreate = fadeIn;
@@ -241,7 +242,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
             } else {
                 attrs.key = 'post' + postIds[this.visibleStart + i];
 
-                content = PostLoading.component();
+                content = <PostLoading />;
             }
 
             return (
@@ -277,9 +278,6 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
     oncreate(vnode) {
         super.oncreate(vnode);
 
-        // // This is wrapped in setTimeout due to the following Mithril issue:
-        // // https://github.com/lhorie/mithril.js/issues/637
-        // setTimeout(() => this.scrollListener.start());
         this.scrollListener.start();
     }
 
@@ -402,9 +400,9 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
      * Load and inject the specified range of posts into the stream, without
      * clearing it.
      */
-    loadRange(start: number, end?: number): Promise<void> {
-        const loadIds = [];
-        const loaded = [];
+    loadRange(start?: number, end?: number): Promise<Post[]> {
+        const loadIds: string[] = [];
+        const loaded: Post[] = [];
 
         this.discussion
             .postIds()
@@ -427,7 +425,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
      * If the post with the given number is already loaded, the promise will be
      * resolved immediately.
      */
-    loadNearNumber(number: number): Promise<void> {
+    loadNearNumber(number: string | number): Promise<void> {
         if (this.posts().some(post => post && Number(post.number()) === Number(number))) {
             return Promise.resolve();
         }
@@ -472,8 +470,8 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
         let startNumber;
         let endNumber;
 
-        this.$('.PostStream-item').each(function() {
-            const $item = $(this);
+        this.$('.PostStream-item').each((index, item: Element) => {
+            const $item = $(item);
             const top = $item.offset().top;
             const height = $item.outerHeight(true);
 
@@ -488,6 +486,8 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
                     }
                 } else return false;
             }
+
+            return true;
         });
 
         if (startNumber) {
@@ -506,7 +506,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
     /**
      * Scroll down to a certain post by number and 'flash' it.
      */
-    scrollToNumber(number: number, noAnimation?: boolean): Promise<void> {
+    scrollToNumber(number: string | number, noAnimation?: boolean): Promise<void> {
         const $item = this.$(`.PostStream-item[data-number="${number}"]`);
 
         return this.scrollToItem($item, noAnimation).then(() => this.flashItem($item));
@@ -549,14 +549,15 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
             // If we're scrolling to the bottom of an item, then we'll make sure the
             // bottom will line up with the top of the composer.
             if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-                const top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
+                // TODO const top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
+                const top = bottom ? itemBottom - $(window).height() : $item.is(':first-child') ? 0 : itemTop;
 
                 return new Promise<void>(resolve => {
                     if (noAnimation) {
                         $container.scrollTop(top);
                         resolve();
                     } else if (top !== scrollTop) {
-                        $container.animate({ scrollTop: top }, 'fast', 'linear', () => resolve());
+                        $container.animatedScrollTop(top, 'fast', resolve);
                     } else {
                         resolve();
                     }

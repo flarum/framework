@@ -9,7 +9,7 @@ export default class Translator {
      * A map of translation keys to their translated values.
      */
     translations: Translations = {};
-    locale = null;
+    locale?: string;
 
     addTranslations(translations) {
         Object.assign(this.translations, translations);
