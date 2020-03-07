@@ -1,4 +1,4 @@
-import {Vnode} from 'mithril';
+import { Vnode } from 'mithril';
 
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';

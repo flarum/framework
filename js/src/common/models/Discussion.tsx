@@ -78,7 +78,7 @@ export default class Discussion extends Model {
         const items = new ItemList();
 
         if (this.isHidden()) {
-            items.add('hidden', <Badge type="hidden" icon="fas fa-trash" label={app.translator.trans('core.lib.badge.hidden_tooltip')} />);
+            items.add('hidden', <Badge type="hidden" icon="fas fa-trash" label={app.translator.transText('core.lib.badge.hidden_tooltip')} />);
         }
 
         return items;
