@@ -11,6 +11,9 @@ namespace Flarum\Event;
 
 use Flarum\User\User;
 
+/**
+ * @deprecated
+ */
 class GetPermission
 {
     /**
