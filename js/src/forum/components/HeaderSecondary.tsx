@@ -1,3 +1,5 @@
+import {Vnode} from 'mithril';
+
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
 import LogInModal from './LogInModal';
@@ -29,9 +31,11 @@ export default class HeaderSecondary extends Component {
         items.add('search', Search.component(), 30);
 
         if (app.forum.attribute('showLanguageSelector') && Object.keys(app.data.locales).length > 1) {
-            const locales = [];
+            const locales: Vnode<any, any>[] = [];
 
             for (const locale in app.data.locales) {
+                if (!app.data.locales.hasOwnProperty(locale)) continue;
+
                 locales.push(
                     Button.component({
                         active: app.data.locale === locale,
@@ -60,8 +64,8 @@ export default class HeaderSecondary extends Component {
         }
 
         if (app.session.user) {
-            items.add('notifications', NotificationsDropdown.component(), 10);
-            items.add('session', SessionDropdown.component(), 0);
+            items.add('notifications', <NotificationsDropdown />, 10);
+            items.add('session', <SessionDropdown />, 0);
         } else {
             if (app.forum.attribute('allowSignUp')) {
                 items.add(

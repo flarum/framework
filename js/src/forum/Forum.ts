@@ -42,7 +42,7 @@ export default class Forum extends Application {
     history: History = new History();
 
     cache: {
-        notifications?: Notification[];
+        notifications?: Notification[][];
         discussionList?: DiscussionList;
         [key: string]: any;
     } = {};

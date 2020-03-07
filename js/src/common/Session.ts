@@ -8,7 +8,7 @@ export default class Session {
     /**
      * The current authenticated user.
      */
-    user?: User;
+    user: User;
 
     /**
      * The CSRF token.

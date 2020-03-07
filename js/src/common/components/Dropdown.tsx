@@ -31,7 +31,7 @@ export interface DropdownProps extends ComponentProps {
  * The children will be displayed as a list inside of the dropdown menu.
  */
 export default class Dropdown<T extends DropdownProps = DropdownProps> extends Component<T> {
-    showing: boolean;
+    showing: boolean = false;
 
     static initProps(props: DropdownProps) {
         props.className = props.className || '';

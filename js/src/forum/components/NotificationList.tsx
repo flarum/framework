@@ -44,7 +44,7 @@ export default class NotificationList extends Component {
                 <div className="NotificationList-content">
                     {pages.length
                         ? pages.map(notifications => {
-                              const groups = [];
+                              const groups: { discussion: Discussion; notifications: Notification[] }[] = [];
                               const discussions = {};
 
                               notifications.forEach(notification => {
@@ -71,7 +71,7 @@ export default class NotificationList extends Component {
                               });
 
                               return groups.map(group => {
-                                  const badges = group.discussion && group.discussion.badges().toArray();
+                                  const badges = group.discussion?.badges().toArray();
 
                                   return (
                                       <div className="NotificationGroup">
@@ -129,6 +129,8 @@ export default class NotificationList extends Component {
         };
 
         $scrollParent.on('scroll', this.scrollHandler);
+
+        this.load();
     }
 
     onremove(vnode) {
