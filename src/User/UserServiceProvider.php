@@ -9,9 +9,13 @@
 
 namespace Flarum\User;
 
+use Flarum\Discussion\DiscussionPolicy;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
+use Flarum\Event\ScopeModelVisibility;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Group\GroupPolicy;
+use Flarum\Post\PostPolicy;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
@@ -30,6 +34,15 @@ class UserServiceProvider extends AbstractServiceProvider
     {
         $this->registerGate();
         $this->registerAvatarsFilesystem();
+
+        $this->app->singleton('flarum.policies', function () {
+            return [
+                DiscussionPolicy::class,
+                GroupPolicy::class,
+                PostPolicy::class,
+                UserPolicy::class,
+            ];
+        });
     }
 
     protected function registerGate()
@@ -61,6 +74,26 @@ class UserServiceProvider extends AbstractServiceProvider
     public function boot()
     {
         $this->app->make('flarum.gate')->before(function (User $actor, $ability, $model = null) {
+            $evaluationCriteria = [
+                AbstractPolicy::$FORCE_DENY => false,
+                AbstractPolicy::$FORCE_ALLOW => true,
+                AbstractPolicy::$DENY => false,
+                AbstractPolicy::$ALLOW => true,
+            ];
+
+            $results = [];
+            foreach ($this->app->make('flarum.policies') as $policy) {
+                $results[] = $this->app->make($policy)->checkAbility($actor, $ability, $model);
+            }
+
+            foreach ($evaluationCriteria as $criteria => $decision) {
+                if (in_array($criteria, $results, true)) {
+                    return $decision;
+                }
+            }
+
+            // START OLD DEPRECATED SYSTEM
+
             // Fire an event so that core and extension policies can hook into
             // this permission query and explicitly grant or deny the
             // permission.
@@ -71,6 +104,8 @@ class UserServiceProvider extends AbstractServiceProvider
             if (! is_null($allowed)) {
                 return $allowed;
             }
+
+            // END OLD DEPRECATED SYSTEM
 
             // If no policy covered this permission query, we will only grant
             // the permission if the actor's groups have it. Otherwise, we will
@@ -95,6 +130,10 @@ class UserServiceProvider extends AbstractServiceProvider
         $events->subscribe(UserPolicy::class);
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
+
+        foreach ($this->app->make('flarum.policies') as $policy) {
+            $events->listen(ScopeModelVisibility::class, [$this->app->make($policy), 'scopeQueryListener']);
+        }
     }
 
     /**
