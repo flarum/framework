@@ -49,7 +49,8 @@ class RequireCsrfTokenTest extends TestCase
     {
         $auth = $this->send(
             $this->request(
-                'POST', '/login',
+                'POST',
+                '/login',
                 [
                     'json' => ['identification' => 'admin', 'password' => 'password'],
                 ]
@@ -58,7 +59,8 @@ class RequireCsrfTokenTest extends TestCase
 
         $response = $this->send(
             $this->request(
-                'POST', '/api/settings',
+                'POST',
+                '/api/settings',
                 [
                     'cookiesFrom' => $auth,
                     'json' => ['csrf_test' => 2],
@@ -92,7 +94,8 @@ class RequireCsrfTokenTest extends TestCase
 
         $auth = $this->send(
             $this->request(
-                'POST', '/login',
+                'POST',
+                '/login',
                 [
                     'cookiesFrom' => $initial,
                     'json' => ['identification' => 'admin', 'password' => 'password'],
@@ -104,7 +107,8 @@ class RequireCsrfTokenTest extends TestCase
 
         $response = $this->send(
             $this->request(
-                'POST', '/api/settings',
+                'POST',
+                '/api/settings',
                 [
                     'cookiesFrom' => $auth,
                     'json' => ['csrf_test' => 2],
@@ -135,7 +139,8 @@ class RequireCsrfTokenTest extends TestCase
 
         $auth = $this->send(
             $this->request(
-                'POST', '/login',
+                'POST',
+                '/login',
                 [
                     'cookiesFrom' => $initial,
                     'json' => ['identification' => 'admin', 'password' => 'password', 'csrfToken' => $token],
@@ -147,7 +152,8 @@ class RequireCsrfTokenTest extends TestCase
 
         $response = $this->send(
             $this->request(
-                'POST', '/api/settings',
+                'POST',
+                '/api/settings',
                 [
                     'cookiesFrom' => $auth,
                     'json' => ['csrf_test' => 2, 'csrfToken' => $token],
@@ -172,7 +178,8 @@ class RequireCsrfTokenTest extends TestCase
     {
         $response = $this->send(
             $this->request(
-                'POST', '/api/settings',
+                'POST',
+                '/api/settings',
                 [
                     'json' => ['csrf_test' => 2],
                 ]

@@ -25,7 +25,8 @@ class DiscussionServiceProvider extends AbstractServiceProvider
         $events->subscribe(DiscussionPolicy::class);
 
         $events->listen(
-            Renamed::class, DiscussionRenamedLogger::class
+            Renamed::class,
+            DiscussionRenamedLogger::class
         );
     }
 }
