@@ -1,4 +1,4 @@
-import 'flarum-webpack-config/shims';
+export * from './webpack-flarum-shims';
 
 import Forum from './src/forum/Forum';
 
