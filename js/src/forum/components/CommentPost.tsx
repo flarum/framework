@@ -6,6 +6,7 @@ import PostUser from './PostUser';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
+import { Vnode } from 'mithril';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -19,17 +20,18 @@ export default class CommentPost extends Post {
      */
     revealContent: boolean = false;
 
-    postUser: PostUser;
+    postUser: Vnode<{}, PostUser>;
 
     oninit(vnode) {
         super.oninit(vnode);
 
         // Create an instance of the component that displays the post's author so
         // that we can force the post to rerender when the user card is shown.
-        this.postUser = PostUser.component({ post: this.props.post });
+        this.postUser = <PostUser post={this.props.post} />;
 
         this.subtree.check(
-            () => this.postUser.cardVisible,
+            () => this.postUser.state?.cardVisible,
+            () => this.revealContent,
             () => this.isEditing()
         );
     }

@@ -107,7 +107,7 @@ export default class Store {
      * @param type The resource type.
      * @param id The resource ID.
      */
-    getById<T extends Model = Model>(type: string, id: number): T {
+    getById<T extends Model = Model>(type: string, id: number | string): T {
         return this.data[type] && (this.data[type][id] as T);
     }
 

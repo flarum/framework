@@ -87,7 +87,7 @@ export default class Discussion extends Model {
     /**
      * Get a list of all of the post IDs in this discussion.
      */
-    postIds(): number[] {
+    postIds(): string[] {
         const posts = this.data.relationships.posts;
 
         return posts ? posts.data.map(link => link.id) : [];

@@ -2,12 +2,15 @@ import Page from './Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
 import PostStream from './PostStream';
-// import PostStreamScrubber from './PostStreamScrubber';
+import PostStreamScrubber from './PostStreamScrubber';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
 import Discussion from '../../common/models/Discussion';
+import Post from '../../common/models/Post';
+
+import { Vnode } from 'mithril';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
@@ -24,7 +27,7 @@ export default class DiscussionPage extends Page {
      */
     near?: number;
 
-    stream: PostStream;
+    stream?: Vnode<{}, PostStream>;
 
     oninit(vnode) {
         super.oninit(vnode);
@@ -60,7 +63,7 @@ export default class DiscussionPage extends Page {
                 const near = m.route.param('near') || '1';
 
                 if (near !== String(this.near)) {
-                    // this.stream.goToNumber(near);
+                    this.stream?.state.goToNumber(near);
                 }
 
                 this.near = null;
@@ -104,7 +107,7 @@ export default class DiscussionPage extends Page {
                                   <nav className="DiscussionPage-nav">
                                       <ul>{listItems(this.sidebarItems().toArray())}</ul>
                                   </nav>
-                                  <div className="DiscussionPage-stream">{this.stream.render()}</div>
+                                  <div className="DiscussionPage-stream">{this.stream}</div>
                               </div>,
                           ]
                         : LoadingIndicator.component({ className: 'LoadingIndicator--block' })}
@@ -170,7 +173,7 @@ export default class DiscussionPage extends Page {
         // extensions. We need to distinguish the two so we don't end up displaying
         // the wrong posts. We do so by filtering out the posts that don't have
         // the 'discussion' relationship linked, then sorting and splicing.
-        let includedPosts = [];
+        let includedPosts: Post[] = [];
         if (discussion.payload && discussion.payload.included) {
             const discussionId = discussion.id();
 
@@ -189,12 +192,21 @@ export default class DiscussionPage extends Page {
 
         m.redraw();
 
+        const positionChanged = this.positionChanged.bind(this);
+
         // Set up the post stream for this discussion, along with the first page of
         // posts we want to display. Tell the stream to scroll down and highlight
         // the specific post that was routed to.
-        this.stream = new PostStream({ discussion, includedPosts });
-        this.stream.on('positionChanged', this.positionChanged.bind(this));
-        this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
+        this.stream = (
+            <PostStream
+                discussion={discussion}
+                includedPosts={includedPosts}
+                oncreate={function(this: PostStream) {
+                    this.on('positionChanged', positionChanged);
+                    this.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
+                }}
+            />
+        );
     }
 
     /**
@@ -247,14 +259,7 @@ export default class DiscussionPage extends Page {
             })
         );
 
-        // items.add(
-        //     'scrubber',
-        //     PostStreamScrubber.component({
-        //         stream: this.stream,
-        //         className: 'App-titleControl',
-        //     }),
-        //     -100
-        // );
+        items.add('scrubber', <PostStreamScrubber stream={this.stream} className="App-titleControl" />, -100);
 
         return items;
     }
