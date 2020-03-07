@@ -12,6 +12,7 @@ namespace Flarum\User;
 use Flarum\Event\GetPermission;
 use Flarum\Event\ScopeModelVisibility;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Builder;
 
 abstract class AbstractPolicy
 {
@@ -20,8 +21,88 @@ abstract class AbstractPolicy
      */
     protected $model;
 
+    public static $ALLOW = 'ALLOW';
+    public static $DENY = 'DENY';
+    public static $FORCE_ALLOW = 'FORCE_ALLOW';
+    public static $FORCE_DENY = 'FORCE_DENY';
+
+    protected function allow()
+    {
+        return static::$ALLOW;
+    }
+
+    protected function deny()
+    {
+        return static::$DENY;
+    }
+
+    protected function forceAllow()
+    {
+        return static::$FORCE_ALLOW;
+    }
+
+    protected function forceDeny()
+    {
+        return static::$FORCE_DENY;
+    }
+
     /**
-     * @param Dispatcher $events
+     * Check if a user has an ability on an instance of a model.
+     * Whatever method this calls should return one of:
+     * - $this->allow();
+     * - $this->deny();
+     * - $this->forceAllow();
+     * - $this->forceDeny();
+     * In evaluation, forceDeny > forceAllow > deny > allow.
+     *
+     * @param User $actor
+     * @param $ability
+     * @param mixed $instance
+     */
+    public function checkAbility(User $actor, $ability, $instance)
+    {
+        if (! $instance instanceof $this->model) {
+            return;
+        }
+
+        // If a specific method for this ability is defined,
+        // call that and return any non-null results
+        if (method_exists($this, $ability)) {
+            $result = call_user_func_array([$this, $ability], [$actor, $instance]);
+
+            if (! is_null($result)) {
+                return $result;
+            }
+        }
+
+        // If a "total access" method is defined, try that.
+        if (method_exists($this, 'can')) {
+            return call_user_func_array([$this, 'can'], [$actor, $ability, $instance]);
+        }
+    }
+
+    /**
+     * Filters a query down to objects that a user can view.
+     * Override this to filter down the query.
+     *
+     * @param User $user
+     * @param Builder $query
+     * @param string $ability
+     *
+     */
+    protected function scopeQuery(User $actor, Builder $query, string $ability)
+    {
+    }
+
+    public function scopeQueryListener(ScopeModelVisibility $event)
+    {
+        if ($event->query->getModel() instanceof $this->model) {
+            $this->scopeQuery($event->actor, $event->query, $event->ability);
+        }
+    }
+
+    /**
+     * @deprecated
      */
     public function subscribe(Dispatcher $events)
     {
@@ -30,8 +111,7 @@ abstract class AbstractPolicy
     }
 
     /**
-     * @param GetPermission $event
-     * @return bool|void
+     * @deprecated in favor of checkAbility
      */
     public function getPermission(GetPermission $event)
     {
@@ -53,7 +133,7 @@ abstract class AbstractPolicy
     }
 
     /**
-     * @param ScopeModelVisibility $event
+     * @deprecated
      */
     public function scopeModelVisibility(ScopeModelVisibility $event)
     {
