@@ -17,10 +17,9 @@ class Policy implements ExtenderInterface
     protected $addPolicies = [];
 
     /**
-     * Get the result of an API request to show a user.
+     * Add a custom policy
      *
-     * @param string $identifier Identifier for mail driver. E.g. 'smtp' for SmtpDriver
-     * @param string $driver ::class attribute of driver class, which must implement Flarum\Mail\DriverInterface
+     * @param string $policy ::class attribute of policy class, which must extend Flarum\User\AbstractPolicy
      */
     public function add($policy)
     {
