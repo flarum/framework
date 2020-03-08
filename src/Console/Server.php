@@ -39,11 +39,14 @@ class Server
             $console->add($command);
         }
 
-        $this->extend($console);
+        $this->extend($console); // deprecated
 
         exit($console->run());
     }
 
+    /**
+     * @deprecated
+     */
     private function extend(ConsoleApplication $console)
     {
         $app = Application::getInstance();
