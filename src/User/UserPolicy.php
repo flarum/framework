@@ -26,7 +26,7 @@ class UserPolicy extends AbstractPolicy
     public function can(User $actor, $ability)
     {
         if ($actor->hasPermission('user.'.$ability)) {
-            return true;
+            return $this->allow();
         }
     }
 

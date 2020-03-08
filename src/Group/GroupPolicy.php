@@ -27,7 +27,7 @@ class GroupPolicy extends AbstractPolicy
     public function can(User $actor, $ability)
     {
         if ($actor->hasPermission('group.'.$ability)) {
-            return true;
+            return $this->allow();
         }
     }
 }

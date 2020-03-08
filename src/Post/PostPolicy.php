@@ -54,7 +54,7 @@ class PostPolicy extends AbstractPolicy
     public function can(User $actor, $ability, Post $post)
     {
         if ($actor->can($ability.'Posts', $post->discussion)) {
-            return true;
+            return $this->allow();
         }
     }
 
@@ -126,7 +126,7 @@ class PostPolicy extends AbstractPolicy
             if ($allowEditing === '-1'
                 || ($allowEditing === 'reply' && $post->number >= $post->discussion->last_post_number)
                 || ($post->created_at->diffInMinutes(new Carbon) < $allowEditing)) {
-                return true;
+                return $this->allow();
             }
         }
     }

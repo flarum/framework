@@ -59,7 +59,7 @@ class DiscussionPolicy extends AbstractPolicy
     public function can(User $actor, $ability)
     {
         if ($actor->hasPermission('discussion.'.$ability)) {
-            return true;
+            return $this->allow();
         }
     }
 
@@ -127,7 +127,7 @@ class DiscussionPolicy extends AbstractPolicy
             if ($allowRenaming === '-1'
                 || ($allowRenaming === 'reply' && $discussion->participant_count <= 1)
                 || ($discussion->created_at->diffInMinutes() < $allowRenaming)) {
-                return true;
+                return $this->allow();
             }
         }
     }
