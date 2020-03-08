@@ -81,23 +81,14 @@ abstract class AbstractPolicy
         }
     }
 
-    /**
-     * Filters a query down to objects that a user can view.
-     * Override this to filter down the query.
-     *
-     * @param User $user
-     * @param Builder $query
-     * @param string $ability
-     *
-     */
-    protected function scopeQuery(User $actor, Builder $query, string $ability)
-    {
-    }
-
     public function scopeQueryListener(ScopeModelVisibility $event)
     {
         if ($event->query->getModel() instanceof $this->model) {
-            $this->scopeQuery($event->actor, $event->query, $event->ability);
+            if ($event->ability == 'view' && method_exists($this, 'scopeQuery')) {
+                call_user_func_array([$this, 'scopeQuery'], [$event->actor, $event->query]);
+            } elseif (method_exists($this, 'scopeQueryPerAbility')) {
+                call_user_func_array([$this, 'scopeQuery'], [$event->actor, $event->query, $event->ability]);
+            }
         }
     }
 

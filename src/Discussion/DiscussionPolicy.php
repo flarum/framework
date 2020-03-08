@@ -67,12 +67,8 @@ class DiscussionPolicy extends AbstractPolicy
      * @param User $actor
      * @param Builder $query
      */
-    public function scopeQuery(User $actor, Builder $query, $ability)
+    public function scopeQuery(User $actor, Builder $query)
     {
-        if ($ability != 'view') {
-            return;
-        }
-
         if ($actor->cannot('viewDiscussions')) {
             $query->whereRaw('FALSE');
 

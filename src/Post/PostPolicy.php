@@ -62,7 +62,7 @@ class PostPolicy extends AbstractPolicy
      * @param User $actor
      * @param Builder $query
      */
-    public function scopeQuery(User $actor, $query, $ability)
+    public function scopeQuery(User $actor, $query)
     {
         // Make sure the post's discussion is visible as well.
         $query->whereExists(function ($query) use ($actor) {

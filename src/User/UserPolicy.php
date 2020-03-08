@@ -34,7 +34,7 @@ class UserPolicy extends AbstractPolicy
      * @param User $actor
      * @param Builder $query
      */
-    public function scopeQuery(User $actor, Builder $query, $ability)
+    public function scopeQuery(User $actor, Builder $query)
     {
         if ($actor->cannot('viewUserList')) {
             if ($actor->isGuest()) {
