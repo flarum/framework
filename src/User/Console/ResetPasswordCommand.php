@@ -11,6 +11,8 @@ namespace Flarum\User\Console;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\User\UserRepository;
+use Flarum\User\UserValidator;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Question\Question;
 
@@ -20,13 +22,16 @@ class ResetPasswordCommand extends AbstractCommand
 
     protected $userRepository;
 
+    protected $userValidator;
+
     /**
      * @param UserRepository $userRepository
      */
-    public function __construct(QuestionHelper $questionHelper, UserRepository $userRepository)
+    public function __construct(QuestionHelper $questionHelper, UserRepository $userRepository, UserValidator $userValidator)
     {
         $this->questionHelper = $questionHelper;
         $this->userRepository = $userRepository;
+        $this->userValidator = $userValidator;
 
         parent::__construct();
     }
@@ -71,8 +76,12 @@ class ResetPasswordCommand extends AbstractCommand
         while (true) {
             $password = $this->secret('New password (required >= 8 characters):');
 
-            if (strlen($password) < 8) {
-                $this->validationError('Password must be at least 8 characters.');
+            try {
+                $this->userValidator->assertValid(compact('password'));
+            } catch (ValidationException $e) {
+                foreach ($e->errors()['password'] as $error) {
+                    $this->validationError($error);
+                }
                 continue;
             }
 
