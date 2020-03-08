@@ -9,10 +9,6 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Database\Console\GenerateMigrationCommand;
-use Flarum\Database\Console\MigrateCommand;
-use Flarum\Database\Console\ResetCommand;
-use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -115,12 +111,15 @@ class InstalledApp implements AppInterface
      */
     public function getConsoleCommands()
     {
-        return [
-            $this->container->make(GenerateMigrationCommand::class),
-            $this->container->make(InfoCommand::class, ['config' => $this->config]),
-            $this->container->make(MigrateCommand::class),
-            $this->container->make(ResetCommand::class),
-            $this->container->make(CacheClearCommand::class),
-        ];
+        $commands = [];
+
+        // The info command is a special case, as it requires a config parameter that's only available here.
+        $commands[] = $this->container->make(InfoCommand::class, ['config' => $this->config]);
+
+        foreach ($this->container->make('flarum.console.commands') as $command) {
+            $commands[] = $this->container->make($command);
+        }
+
+        return $commands;
     }
 }

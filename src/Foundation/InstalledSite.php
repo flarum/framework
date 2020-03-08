@@ -12,6 +12,7 @@ namespace Flarum\Foundation;
 use Flarum\Admin\AdminServiceProvider;
 use Flarum\Api\ApiServiceProvider;
 use Flarum\Bus\BusServiceProvider;
+use Flarum\Console\ConsoleServiceProvider;
 use Flarum\Database\DatabaseServiceProvider;
 use Flarum\Database\MigrationServiceProvider;
 use Flarum\Discussion\DiscussionServiceProvider;
@@ -113,6 +114,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(AdminServiceProvider::class);
         $laravel->register(ApiServiceProvider::class);
         $laravel->register(BusServiceProvider::class);
+        $laravel->register(ConsoleServiceProvider::class);
         $laravel->register(DatabaseServiceProvider::class);
         $laravel->register(DiscussionServiceProvider::class);
         $laravel->register(ExtensionServiceProvider::class);
