@@ -87,7 +87,7 @@ abstract class AbstractPolicy
             if ($event->ability == 'view' && method_exists($this, 'scopeQuery')) {
                 call_user_func_array([$this, 'scopeQuery'], [$event->actor, $event->query]);
             } elseif (method_exists($this, 'scopeQueryPerAbility')) {
-                call_user_func_array([$this, 'scopeQuery'], [$event->actor, $event->query, $event->ability]);
+                call_user_func_array([$this, 'scopeQueryPerAbility'], [$event->actor, $event->query, $event->ability]);
             }
         }
     }
