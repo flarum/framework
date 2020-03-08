@@ -26,7 +26,7 @@ class ConsoleTest extends ConsoleTestCase
             'command' => 'customTestCommand'
         ];
 
-        $this->assertEquals('Command "customTestCommand" is not defined.', trim($this->runCommand($input)));
+        $this->assertEquals('Command "customTestCommand" is not defined.', $this->runCommand($input));
     }
 
     /**
@@ -43,7 +43,7 @@ class ConsoleTest extends ConsoleTestCase
             'command' => 'customTestCommand'
         ];
 
-        $this->assertEquals('Custom Command.', trim($this->runCommand($input)));
+        $this->assertEquals('Custom Command.', $this->runCommand($input));
     }
 }
 

@@ -39,6 +39,6 @@ abstract class ConsoleTestCase extends TestCase
 
         $this->console()->run($input, $output);
 
-        return $output->fetch();
+        return trim($output->fetch());
     }
 }
