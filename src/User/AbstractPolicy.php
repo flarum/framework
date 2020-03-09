@@ -12,7 +12,6 @@ namespace Flarum\User;
 use Flarum\Event\GetPermission;
 use Flarum\Event\ScopeModelVisibility;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Eloquent\Builder;
 
 abstract class AbstractPolicy
 {
