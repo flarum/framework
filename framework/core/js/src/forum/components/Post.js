@@ -115,6 +115,10 @@ export default class Post extends Component {
       classes.push('Post--by-actor');
     }
 
+    if (app.current.discussion && app.current.discussion.attribute('startUserId') == this.props.post.user().id()) {
+      classes.push('Post--by-start-user')
+    }
+
     return classes;
   }
 
