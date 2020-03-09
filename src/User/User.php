@@ -57,6 +57,8 @@ class User extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
+    use Concerns\DeprecatedUserNotificationPreferences;
+    use Concerns\UserPreferences;
 
     /**
      * The attributes that should be mutated to dates.
@@ -81,17 +83,6 @@ class User extends AbstractModel
      * @var Session
      */
     protected $session;
-
-    /**
-     * An array of registered user preferences. Each preference is defined with
-     * a key, and its value is an array containing the following keys:.
-     *
-     * - transformer: a callback that confines the value of the preference
-     * - default: a default value if the preference isn't set
-     *
-     * @var array
-     */
-    protected static $preferences = [];
 
     /**
      * The hasher with which to hash passwords.
@@ -447,34 +438,6 @@ class User extends AbstractModel
     }
 
     /**
-     * Get the values of all registered preferences for this user, by
-     * transforming their stored preferences and merging them with the defaults.
-     *
-     * @param string $value
-     * @return array
-     */
-    public function getPreferencesAttribute($value)
-    {
-        $defaults = array_map(function ($value) {
-            return $value['default'];
-        }, static::$preferences);
-
-        $user = Arr::only((array) json_decode($value, true), array_keys(static::$preferences));
-
-        return array_merge($defaults, $user);
-    }
-
-    /**
-     * Encode an array of preferences for storage in the database.
-     *
-     * @param mixed $value
-     */
-    public function setPreferencesAttribute($value)
-    {
-        $this->attributes['preferences'] = json_encode($value);
-    }
-
-    /**
      * Check whether or not the user should receive an alert for a notification
      * type.
      *
@@ -496,42 +459,6 @@ class User extends AbstractModel
     public function shouldEmail($type)
     {
         return (bool) $this->getPreference(static::getNotificationPreferenceKey($type, 'email'));
-    }
-
-    /**
-     * Get the value of a preference for this user.
-     *
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
-     */
-    public function getPreference($key, $default = null)
-    {
-        return Arr::get($this->preferences, $key, $default);
-    }
-
-    /**
-     * Set the value of a preference for this user.
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return $this
-     */
-    public function setPreference($key, $value)
-    {
-        if (isset(static::$preferences[$key])) {
-            $preferences = $this->preferences;
-
-            if (! is_null($transformer = static::$preferences[$key]['transformer'])) {
-                $preferences[$key] = call_user_func($transformer, $value);
-            } else {
-                $preferences[$key] = $value;
-            }
-
-            $this->preferences = $preferences;
-        }
-
-        return $this;
     }
 
     /**
@@ -604,6 +531,11 @@ class User extends AbstractModel
     public function groups()
     {
         return $this->belongsToMany(Group::class);
+    }
+
+    public function notificationPreferences()
+    {
+        return $this->hasMany(NotificationPreference::class);
     }
 
     /**
@@ -721,31 +653,6 @@ class User extends AbstractModel
     public static function setHasher(Hasher $hasher)
     {
         static::$hasher = $hasher;
-    }
-
-    /**
-     * Register a preference with a transformer and a default value.
-     *
-     * @param string $key
-     * @param callable $transformer
-     * @param mixed $default
-     */
-    public static function addPreference($key, callable $transformer = null, $default = null)
-    {
-        static::$preferences[$key] = compact('transformer', 'default');
-    }
-
-    /**
-     * Get the key for a preference which flags whether or not the user will
-     * receive a notification for $type via $method.
-     *
-     * @param string $type
-     * @param string $method
-     * @return string
-     */
-    public static function getNotificationPreferenceKey($type, $method)
-    {
-        return 'notify_'.$type.'_'.$method;
     }
 
     /**
