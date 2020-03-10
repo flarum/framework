@@ -7,7 +7,7 @@ export default class SubtreeRetainer {
     }
 
     check(...callbacks: Function[]) {
-        this.callbacks.concat(...callbacks);
+        this.callbacks.push(...callbacks);
     }
 
     /**
