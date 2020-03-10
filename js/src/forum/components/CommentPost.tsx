@@ -127,7 +127,7 @@ export default class CommentPost extends Post {
         const post = this.props.post;
         const props = { post };
 
-        items.add('user', this.postUser, 100);
+        items.add('user', <PostUser post={this.props.post} />, 100);
         // items.add('meta', PostMeta.component(props));
 
         if (post.isEdited() && !post.isHidden()) {
