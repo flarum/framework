@@ -51,12 +51,15 @@ class ExtensionEnableAllCommand extends AbstractCommand
      */
     protected function fire()
     {
+        $enabled = $this->extensions->getEnabled();
         foreach ($this->extensions->getExtensions() as $extension) {
-            if ($this->input->getOption('only-bundled') && substr($extension->getId(), 0, 6) ===  'flarum') {
-                $this->info('Enabling: '.$extension->getId());
-                $this->extensions->enable($extension->getId());
+            if ($this->extensions->isEnabled($extension->getId())) {
+                $this->info('Extension: ' . $extension->getId() . ' is already enabled, ignoring');
+            } elseif ($this->input->getOption('only-bundled') && substr($extension->getId(), 0, 6) !==  'flarum') {
+                $this->info('Extension: ' . $extension->getId() . ' is not bundled, ignoring');
             } else {
-                $this->info('Extension: '.$extension->getId().' is not bundled, ignoring');
+                $this->info('Enabling: ' . $extension->getId());
+                $this->extensions->enable($extension->getId());
             }
         }
 
