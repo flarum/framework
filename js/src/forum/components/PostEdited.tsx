@@ -30,8 +30,6 @@ export default class PostEdited extends Component<PostProp> {
     oncreate(vnode) {
         super.oncreate(vnode);
 
-        console.log('set up tooltip');
-
         this.$().tooltip();
     }
 
