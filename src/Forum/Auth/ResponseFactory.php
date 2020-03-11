@@ -17,6 +17,9 @@ use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @deprecated
+ */
 class ResponseFactory
 {
     /**

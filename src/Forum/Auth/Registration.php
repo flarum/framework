@@ -9,6 +9,9 @@
 
 namespace Flarum\Forum\Auth;
 
+/**
+ * @deprecated in favor of Flarum\Forum\Auth\SsoResponse
+ */
 class Registration
 {
     /**
