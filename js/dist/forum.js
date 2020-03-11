@@ -20391,6 +20391,217 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
 
 /***/ }),
 
+/***/ "./src/forum/components/ChangeEmailModal.tsx":
+/*!***************************************************!*\
+  !*** ./src/forum/components/ChangeEmailModal.tsx ***!
+  \***************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ChangeEmailModal; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _common_components_Modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/components/Modal */ "./src/common/components/Modal.tsx");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+
+
+
+/**
+ * The `ChangeEmailModal` component shows a modal dialog which allows the user
+ * to change their email address.
+ */
+
+var ChangeEmailModal = /*#__PURE__*/function (_Modal) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(ChangeEmailModal, _Modal);
+
+  function ChangeEmailModal() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Modal.call.apply(_Modal, [this].concat(args)) || this;
+    _this.success = false;
+    _this.email = m.prop(app.session.user.email());
+    _this.password = m.prop('');
+    return _this;
+  }
+
+  var _proto = ChangeEmailModal.prototype;
+
+  _proto.className = function className() {
+    return 'ChangeEmailModal Modal--small';
+  };
+
+  _proto.title = function title() {
+    return app.translator.transText('core.forum.change_email.title');
+  };
+
+  _proto.content = function content() {
+    if (this.success) {
+      return m("div", {
+        className: "Modal-body"
+      }, m("div", {
+        className: "Form Form--centered"
+      }, m("p", {
+        className: "helpText"
+      }, app.translator.trans('core.forum.change_email.confirmation_message', {
+        email: m("strong", null, this.email())
+      })), m("div", {
+        className: "Form-group"
+      }, m(_common_components_Button__WEBPACK_IMPORTED_MODULE_2__["default"], {
+        className: "Button Button--primary Button--block",
+        onclick: this.hide.bind(this)
+      }, app.translator.trans('core.forum.change_email.dismiss_button')))));
+    }
+
+    return m("div", {
+      className: "Modal-body"
+    }, m("div", {
+      className: "Form Form--centered"
+    }, m("div", {
+      className: "Form-group"
+    }, m("input", {
+      type: "email",
+      name: "email",
+      className: "FormControl",
+      placeholder: app.session.user.email(),
+      bidi: this.email,
+      disabled: this.loading
+    })), m("div", {
+      className: "Form-group"
+    }, m("input", {
+      type: "password",
+      name: "password",
+      className: "FormControl",
+      placeholder: app.translator.transText('core.forum.change_email.confirm_password_placeholder'),
+      bidi: this.password,
+      disabled: this.loading
+    })), m("div", {
+      className: "Form-group"
+    }, _common_components_Button__WEBPACK_IMPORTED_MODULE_2__["default"].component({
+      className: 'Button Button--primary Button--block',
+      type: 'submit',
+      loading: this.loading,
+      children: app.translator.trans('core.forum.change_email.submit_button')
+    }))));
+  };
+
+  _proto.onsubmit = function onsubmit(e) {
+    var _this2 = this;
+
+    e.preventDefault(); // If the user hasn't actually entered a different email address, we don't
+    // need to do anything. Woot!
+
+    if (this.email() === app.session.user.email()) {
+      this.hide();
+      return;
+    }
+
+    this.loading = true;
+    app.session.user.save({
+      email: this.email()
+    }, {
+      errorHandler: this.onerror.bind(this),
+      meta: {
+        password: this.password()
+      }
+    }).then(function () {
+      return _this2.success = true;
+    }).catch(function () {}).then(this.loaded.bind(this));
+  };
+
+  _proto.onerror = function onerror(error) {
+    if (error.status === 401) {
+      error.alert.children = app.translator.trans('core.forum.change_email.incorrect_password_message');
+    }
+
+    _Modal.prototype.onerror.call(this, error);
+  };
+
+  return ChangeEmailModal;
+}(_common_components_Modal__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
+
+/***/ }),
+
+/***/ "./src/forum/components/ChangePasswordModal.tsx":
+/*!******************************************************!*\
+  !*** ./src/forum/components/ChangePasswordModal.tsx ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ChangePasswordModal; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _common_components_Modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/components/Modal */ "./src/common/components/Modal.tsx");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+
+
+
+/**
+ * The `ChangePasswordModal` component shows a modal dialog which allows the
+ * user to send themself a password reset email.
+ */
+
+var ChangePasswordModal = /*#__PURE__*/function (_Modal) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(ChangePasswordModal, _Modal);
+
+  function ChangePasswordModal() {
+    return _Modal.apply(this, arguments) || this;
+  }
+
+  var _proto = ChangePasswordModal.prototype;
+
+  _proto.className = function className() {
+    return 'ChangePasswordModal Modal--small';
+  };
+
+  _proto.title = function title() {
+    return app.translator.transText('core.forum.change_password.title');
+  };
+
+  _proto.content = function content() {
+    return m("div", {
+      className: "Modal-body"
+    }, m("div", {
+      className: "Form Form--centered"
+    }, m("p", {
+      className: "helpText"
+    }, app.translator.trans('core.forum.change_password.text')), m("div", {
+      className: "Form-group"
+    }, _common_components_Button__WEBPACK_IMPORTED_MODULE_2__["default"].component({
+      className: 'Button Button--primary Button--block',
+      type: 'submit',
+      loading: this.loading,
+      children: app.translator.trans('core.forum.change_password.send_button')
+    }))));
+  };
+
+  _proto.onsubmit = function onsubmit(e) {
+    e.preventDefault();
+    this.loading = true;
+    app.request({
+      method: 'POST',
+      url: app.forum.attribute('apiUrl') + '/forgot',
+      body: {
+        email: app.session.user.email()
+      }
+    }).then(this.hide.bind(this), this.loaded.bind(this));
+  };
+
+  return ChangePasswordModal;
+}(_common_components_Modal__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
+
+/***/ }),
+
 /***/ "./src/forum/components/CommentPost.tsx":
 /*!**********************************************!*\
   !*** ./src/forum/components/CommentPost.tsx ***!
@@ -24908,6 +25119,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _common_components_Switch__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/Switch */ "./src/common/components/Switch.tsx");
 /* harmony import */ var _UserPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./UserPage */ "./src/forum/components/UserPage.tsx");
 /* harmony import */ var _NotificationGrid__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./NotificationGrid */ "./src/forum/components/NotificationGrid.tsx");
+/* harmony import */ var _ChangePasswordModal__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ChangePasswordModal */ "./src/forum/components/ChangePasswordModal.tsx");
+/* harmony import */ var _ChangeEmailModal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ChangeEmailModal */ "./src/forum/components/ChangeEmailModal.tsx");
+
+
 
 
 
@@ -24973,14 +25188,14 @@ var SettingsPage = /*#__PURE__*/function (_UserPage) {
       children: app.translator.trans('core.forum.settings.change_password_button'),
       className: 'Button',
       onclick: function onclick() {
-        return app.modal.show(new ChangePasswordModal());
+        return app.modal.show(new _ChangePasswordModal__WEBPACK_IMPORTED_MODULE_8__["default"]());
       }
     }));
     items.add('changeEmail', _common_components_Button__WEBPACK_IMPORTED_MODULE_3__["default"].component({
       children: app.translator.trans('core.forum.settings.change_email_button'),
       className: 'Button',
       onclick: function onclick() {
-        return app.modal.show(new ChangeEmailModal());
+        return app.modal.show(new _ChangeEmailModal__WEBPACK_IMPORTED_MODULE_10__["default"]());
       }
     }));
     return items;
