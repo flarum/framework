@@ -303,6 +303,6 @@ export default abstract class Application {
     private showDebug(error: RequestError) {
         // this.alerts.dismiss(this.requestError.alert);
 
-        this.modal.show(new RequestErrorModal({ error }));
+        this.modal.show(RequestErrorModal, { error });
     }
 }

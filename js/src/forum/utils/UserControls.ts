@@ -118,6 +118,6 @@ export default {
      * Edit the user.
      */
     editAction(user: User) {
-        app.modal.show(new EditUserModal({ user }));
+        app.modal.show(EditUserModal, { user });
     },
 };

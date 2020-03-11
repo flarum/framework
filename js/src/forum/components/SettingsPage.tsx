@@ -71,7 +71,7 @@ export default class SettingsPage extends UserPage {
             Button.component({
                 children: app.translator.trans('core.forum.settings.change_password_button'),
                 className: 'Button',
-                onclick: () => app.modal.show(new ChangePasswordModal()),
+                onclick: () => app.modal.show(ChangePasswordModal),
             })
         );
 
@@ -80,7 +80,7 @@ export default class SettingsPage extends UserPage {
             Button.component({
                 children: app.translator.trans('core.forum.settings.change_email_button'),
                 className: 'Button',
-                onclick: () => app.modal.show(new ChangeEmailModal()),
+                onclick: () => app.modal.show(ChangeEmailModal),
             })
         );
 

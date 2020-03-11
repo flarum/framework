@@ -185,7 +185,7 @@ export default {
                 }
             }
 
-            app.modal.show(new LogInModal());
+            app.modal.show(LogInModal);
 
             reject();
         });
@@ -234,11 +234,9 @@ export default {
      * Rename the discussion.
      */
     renameAction(this: Discussion) {
-        return app.modal.show(
-            new RenameDiscussionModal({
-                currentTitle: this.title(),
-                discussion: this,
-            })
-        );
+        return app.modal.show(RenameDiscussionModal, {
+            currentTitle: this.title(),
+            discussion: this,
+        });
     },
 };

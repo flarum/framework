@@ -73,18 +73,19 @@ export default class HeaderSecondary extends Component {
                     Button.component({
                         children: app.translator.trans('core.forum.header.sign_up_link'),
                         className: 'Button Button--link',
-                        onclick: () => app.modal.show(new SignUpModal()),
+                        onclick: () => app.modal.show(SignUpModal),
                     }),
                     10
                 );
             }
+            ``;
 
             items.add(
                 'logIn',
                 Button.component({
                     children: app.translator.trans('core.forum.header.log_in_link'),
                     className: 'Button Button--link',
-                    onclick: () => app.modal.show(new LogInModal()),
+                    onclick: () => app.modal.show(LogInModal),
                 }),
                 0
             );
