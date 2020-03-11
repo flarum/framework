@@ -17541,6 +17541,8 @@ var ModalManager = /*#__PURE__*/function (_Component) {
           this.remove();
         });
         _this2.showing = false;
+
+        _this2.clear();
       }
     });
     this.onready();
@@ -17566,9 +17568,6 @@ var ModalManager = /*#__PURE__*/function (_Component) {
     this.hideTimeout = setTimeout(function () {
       return micromodal__WEBPACK_IMPORTED_MODULE_1__["default"].close('Modal');
     });
-    this.modal = null;
-    this.component = null;
-    this.modalProps = {};
   }
   /**
    * Clear content from the modal area.
@@ -17580,7 +17579,9 @@ var ModalManager = /*#__PURE__*/function (_Component) {
       this.component.onhide();
     }
 
-    this.component = null; // app.current.retain = false;
+    this.modal = null;
+    this.component = null;
+    this.modalProps = {}; // app.current.retain = false;
 
     m.redraw();
   }

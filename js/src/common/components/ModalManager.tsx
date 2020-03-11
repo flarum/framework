@@ -60,11 +60,13 @@ export default class ModalManager extends Component {
         MicroModal.show('Modal', {
             awaitCloseAnimation: true,
             onClose: () => {
-                $('.modal-backdrop').fadeOut(200, function() {
+                $('.modal-backdrop').fadeOut(200, function(this: Element) {
                     this.remove();
                 });
 
                 this.showing = false;
+
+                this.clear();
             },
         });
 
@@ -89,10 +91,6 @@ export default class ModalManager extends Component {
         // bit to give the `show` method the opportunity to prevent this from going
         // ahead.
         this.hideTimeout = setTimeout(() => MicroModal.close('Modal'));
-
-        this.modal = null;
-        this.component = null;
-        this.modalProps = {};
     }
 
     /**
@@ -103,7 +101,9 @@ export default class ModalManager extends Component {
             this.component.onhide();
         }
 
+        this.modal = null;
         this.component = null;
+        this.modalProps = {};
 
         // app.current.retain = false;
 
