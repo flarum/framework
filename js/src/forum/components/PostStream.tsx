@@ -309,7 +309,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
         }
 
         if (this.visibleEnd < this.count()) {
-            const $item = this.$(`.PostStream-item[data-index=${this.visibleEnd - 1}]`);
+            const $item = this.$(`.PostStream-item[data-index="${this.visibleEnd - 1}"]`);
 
             if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
                 this.loadNext();
