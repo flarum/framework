@@ -17463,7 +17463,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var micromodal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! micromodal */ "./node_modules/micromodal/dist/micromodal.es.js");
 /* harmony import */ var _Component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Component */ "./src/common/Component.ts");
-/* harmony import */ var _Modal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Modal */ "./src/common/components/Modal.tsx");
+/* harmony import */ var _extend__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../extend */ "./src/common/extend.ts");
+/* harmony import */ var _Modal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Modal */ "./src/common/components/Modal.tsx");
+
 
 
 
@@ -17518,15 +17520,18 @@ var ModalManager = /*#__PURE__*/function (_Component) {
     var _component$tag,
         _this2 = this;
 
-    if (!(component instanceof _Modal__WEBPACK_IMPORTED_MODULE_3__["default"]) && !(((_component$tag = component.tag) === null || _component$tag === void 0 ? void 0 : _component$tag.prototype) instanceof _Modal__WEBPACK_IMPORTED_MODULE_3__["default"])) {
+    if (!(component instanceof _Modal__WEBPACK_IMPORTED_MODULE_4__["default"]) && !(((_component$tag = component.tag) === null || _component$tag === void 0 ? void 0 : _component$tag.prototype) instanceof _Modal__WEBPACK_IMPORTED_MODULE_4__["default"])) {
       throw new Error('The ModalManager component can only show Modal components');
     }
 
     clearTimeout(this.hideTimeout);
     this.showing = true;
     this.modal = component.tag || component.constructor;
-    this.modalProps = component.props || component.attrs || {};
-    this.modalProps.oninit = this.onModalInit.bind(this); // if (app.current) app.current.retain = true;
+    this.modalProps = component.props || component.attrs || {}; // Store the vnode state in app.modal.component
+
+    Object(_extend__WEBPACK_IMPORTED_MODULE_3__["extend"])(this.modalProps, 'oninit', function (v, vnode) {
+      return _this2.component = vnode.state;
+    }); // if (app.current) app.current.retain = true;
 
     m.redraw();
 
@@ -17537,12 +17542,13 @@ var ModalManager = /*#__PURE__*/function (_Component) {
     micromodal__WEBPACK_IMPORTED_MODULE_1__["default"].show('Modal', {
       awaitCloseAnimation: true,
       onClose: function onClose() {
-        $('.modal-backdrop').fadeOut(200, function () {
-          this.remove();
+        var backdrop = $('.modal-backdrop');
+        backdrop.fadeOut(200, function () {
+          backdrop.remove();
+
+          _this2.clear();
         });
         _this2.showing = false;
-
-        _this2.clear();
       }
     });
     this.onready();
@@ -17594,14 +17600,6 @@ var ModalManager = /*#__PURE__*/function (_Component) {
     if (this.component) {
       this.component.onready();
     }
-  }
-  /**
-   * Set component in ModalManager to current vnode state - a Modal instance
-   */
-  ;
-
-  _proto.onModalInit = function onModalInit(vnode) {
-    this.component = vnode.state;
   };
 
   return ModalManager;
@@ -25135,7 +25133,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _UserPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./UserPage */ "./src/forum/components/UserPage.tsx");
 /* harmony import */ var _NotificationGrid__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./NotificationGrid */ "./src/forum/components/NotificationGrid.tsx");
 /* harmony import */ var _ChangePasswordModal__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ChangePasswordModal */ "./src/forum/components/ChangePasswordModal.tsx");
-/* harmony import */ var _ChangeEmailModal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ChangeEmailModal */ "./src/forum/components/ChangeEmailModal.tsx");
+/* harmony import */ var _ChangeEmailModal__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ChangeEmailModal */ "./src/forum/components/ChangeEmailModal.tsx");
 
 
 
@@ -25210,7 +25208,7 @@ var SettingsPage = /*#__PURE__*/function (_UserPage) {
       children: app.translator.trans('core.forum.settings.change_email_button'),
       className: 'Button',
       onclick: function onclick() {
-        return app.modal.show(new _ChangeEmailModal__WEBPACK_IMPORTED_MODULE_10__["default"]());
+        return app.modal.show(new _ChangeEmailModal__WEBPACK_IMPORTED_MODULE_9__["default"]());
       }
     }));
     return items;

@@ -1,6 +1,7 @@
 import MicroModal from 'micromodal';
 
 import Component, { ComponentProps } from '../Component';
+import { extend } from '../extend';
 import Modal from './Modal';
 
 /**
@@ -45,7 +46,8 @@ export default class ModalManager extends Component {
         this.modal = component.tag || component.constructor;
         this.modalProps = component.props || component.attrs || {};
 
-        this.modalProps.oninit = this.onModalInit.bind(this);
+        // Store the vnode state in app.modal.component
+        extend(this.modalProps, 'oninit', (v, vnode) => (this.component = vnode.state));
 
         // if (app.current) app.current.retain = true;
 
@@ -60,13 +62,15 @@ export default class ModalManager extends Component {
         MicroModal.show('Modal', {
             awaitCloseAnimation: true,
             onClose: () => {
-                $('.modal-backdrop').fadeOut(200, function(this: Element) {
-                    this.remove();
+                const backdrop = $('.modal-backdrop');
+
+                backdrop.fadeOut(200, () => {
+                    backdrop.remove();
+
+                    this.clear();
                 });
 
                 this.showing = false;
-
-                this.clear();
             },
         });
 
@@ -117,12 +121,5 @@ export default class ModalManager extends Component {
         if (this.component) {
             this.component.onready();
         }
-    }
-
-    /**
-     * Set component in ModalManager to current vnode state - a Modal instance
-     */
-    protected onModalInit(vnode) {
-        this.component = vnode.state;
     }
 }
