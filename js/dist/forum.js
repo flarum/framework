@@ -15481,7 +15481,7 @@ var Application = /*#__PURE__*/function () {
 
   _proto.showDebug = function showDebug(error) {
     // this.alerts.dismiss(this.requestError.alert);
-    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_19__["default"].component({
+    this.modal.show(new _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_19__["default"]({
       error: error
     }));
   };
@@ -16818,7 +16818,7 @@ var Button = /*#__PURE__*/function (_Component) {
       delete attrs.onclick;
     }
 
-    return m("button", attrs, this.getButtonContent(iconName, attrs.loading, children));
+    return m("button", attrs, this.getButtonContent(iconName, loading, children));
   }
   /**
    * Get the template for the button's content.
@@ -17468,12 +17468,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog
  * can be shown at once; loading a new component into the ModalManager will
  * overwrite the previous one.
  */
+
 var ModalManager = /*#__PURE__*/function (_Component) {
   Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(ModalManager, _Component);
 
@@ -17485,10 +17485,11 @@ var ModalManager = /*#__PURE__*/function (_Component) {
     }
 
     _this = _Component.call.apply(_Component, [this].concat(args)) || this;
-    _this.node = void 0;
     _this.showing = void 0;
     _this.hideTimeout = void 0;
-    _this.component = void 0;
+    _this.modal = null;
+    _this.modalProps = {};
+    _this.component = null;
     return _this;
   }
 
@@ -17506,7 +17507,7 @@ var ModalManager = /*#__PURE__*/function (_Component) {
       id: "Modal",
       onclick: this.onclick.bind(this),
       key: "modal"
-    }, this.node);
+    }, this.modal && m(this.modal, this.modalProps));
   }
   /**
    * Show a modal dialog.
@@ -17523,7 +17524,9 @@ var ModalManager = /*#__PURE__*/function (_Component) {
 
     clearTimeout(this.hideTimeout);
     this.showing = true;
-    this.node = component.tag ? component : component.render(); // if (app.current) app.current.retain = true;
+    this.modal = component.tag || component.constructor;
+    this.modalProps = component.props || component.attrs || {};
+    this.modalProps.oninit = this.onModalInit.bind(this); // if (app.current) app.current.retain = true;
 
     m.redraw();
 
@@ -17563,6 +17566,9 @@ var ModalManager = /*#__PURE__*/function (_Component) {
     this.hideTimeout = setTimeout(function () {
       return micromodal__WEBPACK_IMPORTED_MODULE_1__["default"].close('Modal');
     });
+    this.modal = null;
+    this.component = null;
+    this.modalProps = {};
   }
   /**
    * Clear content from the modal area.
@@ -17587,6 +17593,14 @@ var ModalManager = /*#__PURE__*/function (_Component) {
     if (this.component) {
       this.component.onready();
     }
+  }
+  /**
+   * Set component in ModalManager to current vnode state - a Modal instance
+   */
+  ;
+
+  _proto.onModalInit = function onModalInit(vnode) {
+    this.component = vnode.state;
   };
 
   return ModalManager;

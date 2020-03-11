@@ -1,8 +1,7 @@
 import MicroModal from 'micromodal';
 
-import Component from '../Component';
+import Component, { ComponentProps } from '../Component';
 import Modal from './Modal';
-import { Vnode } from 'mithril';
 
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog
@@ -10,11 +9,13 @@ import { Vnode } from 'mithril';
  * overwrite the previous one.
  */
 export default class ModalManager extends Component {
-    protected node: Vnode;
+    showing!: boolean;
+    hideTimeout!: number;
 
-    showing: boolean;
-    hideTimeout: number;
-    component?: Modal;
+    modal: typeof Modal | null = null;
+    modalProps: ComponentProps = {};
+
+    component: Modal | null = null;
 
     oncreate(vnode) {
         super.oncreate(vnode);
@@ -25,7 +26,7 @@ export default class ModalManager extends Component {
     view() {
         return (
             <div className="ModalManager modal" id="Modal" onclick={this.onclick.bind(this)} key="modal">
-                {this.node}
+                {this.modal && m(this.modal, this.modalProps)}
             </div>
         );
     }
@@ -33,7 +34,7 @@ export default class ModalManager extends Component {
     /**
      * Show a modal dialog.
      */
-    show(component) {
+    show(component: Modal) {
         if (!(component instanceof Modal) && !(component.tag?.prototype instanceof Modal)) {
             throw new Error('The ModalManager component can only show Modal components');
         }
@@ -41,7 +42,10 @@ export default class ModalManager extends Component {
         clearTimeout(this.hideTimeout);
 
         this.showing = true;
-        this.node = component.tag ? component : component.render();
+        this.modal = component.tag || component.constructor;
+        this.modalProps = component.props || component.attrs || {};
+
+        this.modalProps.oninit = this.onModalInit.bind(this);
 
         // if (app.current) app.current.retain = true;
 
@@ -85,6 +89,10 @@ export default class ModalManager extends Component {
         // bit to give the `show` method the opportunity to prevent this from going
         // ahead.
         this.hideTimeout = setTimeout(() => MicroModal.close('Modal'));
+
+        this.modal = null;
+        this.component = null;
+        this.modalProps = {};
     }
 
     /**
@@ -109,5 +117,12 @@ export default class ModalManager extends Component {
         if (this.component) {
             this.component.onready();
         }
+    }
+
+    /**
+     * Set component in ModalManager to current vnode state - a Modal instance
+     */
+    protected onModalInit(vnode) {
+        this.component = vnode.state;
     }
 }
