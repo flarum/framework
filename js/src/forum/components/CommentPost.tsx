@@ -1,7 +1,7 @@
 import Post from './Post';
 import PostUser from './PostUser';
-// import PostMeta from './PostMeta';
-// import PostEdited from './PostEdited';
+import PostMeta from './PostMeta';
+import PostEdited from './PostEdited';
 // import EditPostComposer from './EditPostComposer';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
@@ -119,19 +119,17 @@ export default class CommentPost extends Post {
 
     /**
      * Build an item list for the post's header.
-     *
-     * @return {ItemList}
      */
-    headerItems() {
+    headerItems(): ItemList {
         const items = new ItemList();
         const post = this.props.post;
         const props = { post };
 
         items.add('user', <PostUser post={this.props.post} />, 100);
-        // items.add('meta', PostMeta.component(props));
+        items.add('meta', <PostMeta {...props} />);
 
         if (post.isEdited() && !post.isHidden()) {
-            items.add('edited', PostEdited.component(props));
+            items.add('edited', <PostEdited {...props} />);
         }
 
         // If the post is hidden, add a button that allows toggling the visibility
