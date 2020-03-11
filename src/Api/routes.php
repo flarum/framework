@@ -313,4 +313,11 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'mailSettings.index',
         $route->toController(Controller\ShowMailSettingsController::class)
     );
+
+    // List available auth drivers and settings
+    $map->get(
+        '/auth/settings',
+        'authSettings.index',
+        $route->toController(Controller\ShowAuthSettingsController::class)
+    );
 };
