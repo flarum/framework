@@ -71,7 +71,7 @@ export default class ModalManager extends Component {
             },
         });
 
-        this.onready();
+        this.$().one('animationend', () => this.onready());
     }
 
     onclick(e) {
