@@ -21,5 +21,5 @@ interface ExternalAuthDriverInterface
      */
     public function trustEmails(): bool;
 
-    public function sso(Request $request): SsoResponse;
+    public function sso(Request $request, SsoResponse $ssoResponse);
 }

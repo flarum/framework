@@ -22,7 +22,7 @@ class Auth implements ExtenderInterface
      */
     public function addAuthDriver($identifier, $driver)
     {
-        $this->addAuthDrivers[] = $middleware;
+        $this->addAuthDrivers[$identifier] = $driver;
 
         return $this;
     }

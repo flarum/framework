@@ -51,7 +51,7 @@ class SsoController implements RequestHandlerInterface
     {
         $driverId = Arr::get($request->getQueryParams(), 'driver');
 
-        $drivers = $this->container->make('forum.auth.supported_drivers');
+        $drivers = $this->container->make('flarum.auth.supported_drivers');
 
         if (! array_key_exists($driverId, $drivers)) {
             throw new RouteNotFoundException;

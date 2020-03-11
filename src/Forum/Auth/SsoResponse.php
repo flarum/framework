@@ -84,7 +84,7 @@ class SsoResponse
     /**
      * @return mixed
      */
-    public function getPayload():
+    public function getPayload()
     {
         return $this->payload;
     }
