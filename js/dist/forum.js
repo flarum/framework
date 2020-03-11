@@ -15481,9 +15481,9 @@ var Application = /*#__PURE__*/function () {
 
   _proto.showDebug = function showDebug(error) {
     // this.alerts.dismiss(this.requestError.alert);
-    this.modal.show(new _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_19__["default"]({
+    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_19__["default"], {
       error: error
-    }));
+    });
   };
 
   return Application;
@@ -17375,12 +17375,6 @@ var Modal = /*#__PURE__*/function (_Component) {
     }, this.title())), this.alert && m("div", {
       className: "Modal-alert"
     }, this.alert), this.content())));
-  };
-
-  _proto.oncreate = function oncreate(vnode) {
-    _Component.prototype.oncreate.call(this, vnode);
-
-    app.modal.component = this;
   }
   /**
    * Determine whether or not the modal should be dismissible via an 'x' button.
@@ -17464,7 +17458,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var micromodal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! micromodal */ "./node_modules/micromodal/dist/micromodal.es.js");
 /* harmony import */ var _Component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Component */ "./src/common/Component.ts");
 /* harmony import */ var _extend__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../extend */ "./src/common/extend.ts");
-/* harmony import */ var _Modal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Modal */ "./src/common/components/Modal.tsx");
 
 
 
@@ -17475,7 +17468,6 @@ __webpack_require__.r(__webpack_exports__);
  * can be shown at once; loading a new component into the ModalManager will
  * overwrite the previous one.
  */
-
 var ModalManager = /*#__PURE__*/function (_Component) {
   Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(ModalManager, _Component);
 
@@ -17516,18 +17508,18 @@ var ModalManager = /*#__PURE__*/function (_Component) {
    */
   ;
 
-  _proto.show = function show(component) {
-    var _component$tag,
-        _this2 = this;
+  _proto.show = function show(component, props) {
+    var _this2 = this;
 
-    if (!(component instanceof _Modal__WEBPACK_IMPORTED_MODULE_4__["default"]) && !(((_component$tag = component.tag) === null || _component$tag === void 0 ? void 0 : _component$tag.prototype) instanceof _Modal__WEBPACK_IMPORTED_MODULE_4__["default"])) {
-      throw new Error('The ModalManager component can only show Modal components');
+    if (props === void 0) {
+      props = {};
     }
 
     clearTimeout(this.hideTimeout);
     this.showing = true;
-    this.modal = component.tag || component.constructor;
-    this.modalProps = component.props || component.attrs || {}; // Store the vnode state in app.modal.component
+    this.modal = component;
+    this.modalProps = props;
+    this.component = null; // Store the vnode state in app.modal.component
 
     Object(_extend__WEBPACK_IMPORTED_MODULE_3__["extend"])(this.modalProps, 'oninit', function (v, vnode) {
       return _this2.component = vnode.state;
@@ -17551,7 +17543,9 @@ var ModalManager = /*#__PURE__*/function (_Component) {
         _this2.showing = false;
       }
     });
-    this.onready();
+    this.$().one('animationend', function () {
+      return _this2.onready();
+    });
   };
 
   _proto.onclick = function onclick(e) {
@@ -21957,16 +21951,17 @@ var HeaderSecondary = /*#__PURE__*/function (_Component) {
           children: app.translator.trans('core.forum.header.sign_up_link'),
           className: 'Button Button--link',
           onclick: function onclick() {
-            return app.modal.show(new SignUpModal());
+            return app.modal.show(SignUpModal);
           }
         }), 10);
       }
 
+      "";
       items.add('logIn', _common_components_Button__WEBPACK_IMPORTED_MODULE_2__["default"].component({
         children: app.translator.trans('core.forum.header.log_in_link'),
         className: 'Button Button--link',
         onclick: function onclick() {
-          return app.modal.show(new _LogInModal__WEBPACK_IMPORTED_MODULE_3__["default"]());
+          return app.modal.show(_LogInModal__WEBPACK_IMPORTED_MODULE_3__["default"]);
         }
       }), 0);
     }
@@ -22270,7 +22265,7 @@ var LogInModal = /*#__PURE__*/function (_Modal) {
     var props = email.indexOf('@') !== -1 ? {
       email: email
     } : undefined;
-    app.modal.show(new ForgotPasswordModal(props));
+    app.modal.show(ForgotPasswordModal, props);
   }
   /**
    * Open the sign up modal, prefilling it with an email/username/password if
@@ -22285,7 +22280,7 @@ var LogInModal = /*#__PURE__*/function (_Modal) {
       password: this.password()
     };
     var identification = this.identification();
-    props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification; // app.modal.show(new SignUpModal(props));
+    props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification; // app.modal.show(SignUpModal, props);
   };
 
   _proto.oncreate = function oncreate(vnode) {
@@ -25201,14 +25196,14 @@ var SettingsPage = /*#__PURE__*/function (_UserPage) {
       children: app.translator.trans('core.forum.settings.change_password_button'),
       className: 'Button',
       onclick: function onclick() {
-        return app.modal.show(new _ChangePasswordModal__WEBPACK_IMPORTED_MODULE_8__["default"]());
+        return app.modal.show(_ChangePasswordModal__WEBPACK_IMPORTED_MODULE_8__["default"]);
       }
     }));
     items.add('changeEmail', _common_components_Button__WEBPACK_IMPORTED_MODULE_3__["default"].component({
       children: app.translator.trans('core.forum.settings.change_email_button'),
       className: 'Button',
       onclick: function onclick() {
-        return app.modal.show(new _ChangeEmailModal__WEBPACK_IMPORTED_MODULE_9__["default"]());
+        return app.modal.show(_ChangeEmailModal__WEBPACK_IMPORTED_MODULE_9__["default"]);
       }
     }));
     return items;
@@ -25932,7 +25927,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }
 
-      app.modal.show(new _components_LogInModal__WEBPACK_IMPORTED_MODULE_1__["default"]());
+      app.modal.show(_components_LogInModal__WEBPACK_IMPORTED_MODULE_1__["default"]);
       reject();
     });
   },
@@ -25990,10 +25985,10 @@ __webpack_require__.r(__webpack_exports__);
    * Rename the discussion.
    */
   renameAction: function renameAction() {
-    return app.modal.show(new RenameDiscussionModal({
+    return app.modal.show(RenameDiscussionModal, {
       currentTitle: this.title(),
       discussion: this
-    }));
+    });
   }
 });
 
@@ -26613,9 +26608,9 @@ __webpack_require__.r(__webpack_exports__);
    * Edit the user.
    */
   editAction: function editAction(user) {
-    app.modal.show(new EditUserModal({
+    app.modal.show(EditUserModal, {
       user: user
-    }));
+    });
   }
 });
 
