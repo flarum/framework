@@ -18,6 +18,8 @@
     - `SubtreeRetainer` now has an `update` method instead of `retain`, and its output is used in `onbeforeupdate` lifecycle hook
     - `Evented` util is now a class instead of an object
     - `formatNumber` now uses `Number.prototype.toLocaleString` with the current application locale, and supports passing an options object (eg. for currency formatting - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat/resolvedOptions#Description)
+* Modals
+    - `app.modal.show` now takes the Modal _class_ (not instance) and optional props (`app.modal.show(ForgotPasswordModal, props)`)
 
 #### Forum
 * Forum Application

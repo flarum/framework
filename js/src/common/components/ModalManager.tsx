@@ -13,7 +13,7 @@ export default class ModalManager extends Component {
     showing!: boolean;
     hideTimeout!: number;
 
-    modal: typeof Modal | null = null;
+    modal: (new () => Modal) | null = null;
     modalProps: ComponentProps = {};
 
     component: Modal | null = null;
@@ -35,16 +35,13 @@ export default class ModalManager extends Component {
     /**
      * Show a modal dialog.
      */
-    show(component: Modal) {
-        if (!(component instanceof Modal) && !(component.tag?.prototype instanceof Modal)) {
-            throw new Error('The ModalManager component can only show Modal components');
-        }
-
+    show(component: new () => Modal, props: ComponentProps = {}) {
         clearTimeout(this.hideTimeout);
 
         this.showing = true;
-        this.modal = component.tag || component.constructor;
-        this.modalProps = component.props || component.attrs || {};
+        this.modal = component;
+        this.modalProps = props;
+        this.component = null;
 
         // Store the vnode state in app.modal.component
         extend(this.modalProps, 'oninit', (v, vnode) => (this.component = vnode.state));
