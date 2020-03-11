@@ -5,6 +5,8 @@ import FieldSet from '../../common/components/FieldSet';
 import Switch from '../../common/components/Switch';
 import UserPage from './UserPage';
 import NotificationGrid from './NotificationGrid';
+import ChangePasswordModal from './ChangePasswordModal';
+import ChangeEmailModal from './ChangeEmailModal';
 
 export default class SettingsPage extends UserPage {
     oninit(vnode) {
