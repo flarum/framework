@@ -22923,7 +22923,6 @@ var PostEdited = /*#__PURE__*/function (_Component) {
   _proto.oncreate = function oncreate(vnode) {
     _Component.prototype.oncreate.call(this, vnode);
 
-    console.log('set up tooltip');
     this.$().tooltip();
   };
 
