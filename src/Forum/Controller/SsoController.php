@@ -98,6 +98,12 @@ class SsoController implements RequestHandlerInterface
                 }
             }
 
+            if (!$actor->isGuest() && in_array($driverId, $actor->linkedProviders())) {
+                // This user has already linked an account from this provider. We don't currently support multiple
+                // identifiers from a provider being linked to a user, so this should error.
+                return new HtmlResponse($this->translator->trans('core.forum.auth.sso.errors.provider_already_linked'));
+            }
+
             // SSO response isn't linked to a user, but a user with the provided email exists.
             if (!empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
                 if ($user->id === $actor->id || $actor->isGuest() && $this->settings->get('auth_driver_trust_emails_'.$driverId, false)) {
