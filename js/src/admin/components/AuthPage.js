@@ -30,7 +30,7 @@ export default class AuthPage extends Page {
     this.fields.forEach((key) => (this.values[key] = m.prop(settings[key])));
 
     for (const driver in this.drivers) {
-      this.driverFields.forEach(field => {
+      this.driverFields.forEach((field) => {
         const fieldName = this.driverFieldKey(field.name, driver);
 
         this.fields.push(fieldName);
@@ -44,6 +44,7 @@ export default class AuthPage extends Page {
     }
 
     this.loading = false;
+    m.redraw();
   }
 
   view() {
@@ -68,6 +69,7 @@ export default class AuthPage extends Page {
               {Switch.component({
                 state: this.values.enable_user_pass_auth(),
                 onchange: this.values.enable_user_pass_auth,
+                disabled: this.allSsoDisabled(),
                 children: app.translator.trans('core.admin.auth.enable_user_pass_auth_label'),
               })}
               {Switch.component({
@@ -128,7 +130,25 @@ export default class AuthPage extends Page {
 
     this.driverInputs[key].props.state = this.values[key]();
 
+    if (this.allSsoDisabled()) {
+      console.log(this.values);
+      this.values['enable_user_pass_auth'](true);
+      m.redraw();
+    }
+
     m.redraw();
+  }
+
+  allSsoDisabled() {
+    var allDisabled = true;
+    for (const driver in this.drivers) {
+      if (this.values[this.driverFieldKey('enabled', driver)]()) {
+        allDisabled = false;
+        break;
+      }
+    }
+
+    return allDisabled;
   }
 
   driverFieldsList() {
