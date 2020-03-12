@@ -74,14 +74,16 @@ export default class SettingsPage extends UserPage {
   accountItems() {
     const items = new ItemList();
 
-    items.add(
-      'changePassword',
-      Button.component({
-        children: app.translator.trans('core.forum.settings.change_password_button'),
-        className: 'Button',
-        onclick: () => app.modal.show(new ChangePasswordModal()),
-      })
-    );
+    if (app.forum.attribute('enableUserPassAuth')) {
+      items.add(
+        'changePassword',
+        Button.component({
+          children: app.translator.trans('core.forum.settings.change_password_button'),
+          className: 'Button',
+          onclick: () => app.modal.show(new ChangePasswordModal()),
+        })
+      );
+    }
 
     items.add(
       'changeEmail',
