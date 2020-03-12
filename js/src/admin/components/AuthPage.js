@@ -153,7 +153,7 @@ export default class AuthPage extends Page {
     items.add('trust_emails', {
       name: 'trust_emails',
       icon: 'fas fa-envelope',
-      label: app.translator.trans('core.admin.auth.driver_fields.enabled'),
+      label: app.translator.trans('core.admin.auth.driver_fields.trust_emails'),
     });
 
     return items;
