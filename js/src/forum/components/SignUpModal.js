@@ -125,6 +125,7 @@ export default class SignUpModal extends Modal {
         -10
       );
     }
+
     return items;
   }
 
