@@ -27,7 +27,7 @@ export default class SsoGrid extends Component {
 
     // For each of the Sso type-method combinations, create and store a
     // new checkbox component instance, which we will render in the view.
-    this.drivers.forEach(driver => {
+    this.drivers.forEach((driver) => {
       this.inputs[driver.name] = new Checkbox({
         state: this.driverLinked(driver.name),
         onchange: () => this.toggle(driver.name),
@@ -41,21 +41,17 @@ export default class SsoGrid extends Component {
         <thead>
           <tr>
             <td />
-            <th className="SsoGrid-groupToggle">
-              {app.translator.trans('core.forum.settings.sso.linked_header')}
-            </th>
+            <th className="SsoGrid-groupToggle">{app.translator.trans('core.forum.settings.sso.linked_header')}</th>
           </tr>
         </thead>
 
         <tbody>
-          {this.drivers.map(driver => (
+          {this.drivers.map((driver) => (
             <tr>
               <td className="SsoGrid-groupToggle">
                 {icon(driver.icon)} {driver.label}
               </td>
-              <td className="SsoGrid-checkbox">
-                {this.inputs[driver.name].render()}
-              </td>
+              <td className="SsoGrid-checkbox">{this.inputs[driver.name].render()}</td>
             </tr>
           ))}
         </tbody>
@@ -74,19 +70,20 @@ export default class SsoGrid extends Component {
    */
   toggle(driver) {
     const control = this.inputs[driver];
-    control.loading = true
+    control.loading = true;
 
     if (this.driverLinked(driver)) {
       m.redraw();
 
-      app.request({
-        method: 'DELETE',
-        url: app.forum.attribute('apiUrl') + '/auth/' + driver
-      })
+      app
+        .request({
+          method: 'DELETE',
+          url: app.forum.attribute('apiUrl') + '/auth/' + driver,
+        })
         .then(() => {
           control.props.state = false;
           control.loading = false;
-          app.session.user.data.attributes.ssoDrivers = app.session.user.data.attributes.ssoDrivers.filter(item => item != driver);
+          app.session.user.data.attributes.ssoDrivers = app.session.user.data.attributes.ssoDrivers.filter((item) => item != driver);
           m.redraw();
         })
         .catch(() => {
@@ -98,12 +95,15 @@ export default class SsoGrid extends Component {
       const height = 400;
       const $window = $(window);
 
-      window.open(app.forum.attribute('baseUrl') + '/auth/' + driver, 'logInPopup',
+      window.open(
+        app.forum.attribute('baseUrl') + '/auth/' + driver,
+        'logInPopup',
         `width=${width},` +
-        `height=${height},` +
-        `top=${$window.height() / 2 - height / 2},` +
-        `left=${$window.width() / 2 - width / 2},` +
-        'status=no,scrollbars=yes,resizable=no');
+          `height=${height},` +
+          `top=${$window.height() / 2 - height / 2},` +
+          `left=${$window.width() / 2 - width / 2},` +
+          'status=no,scrollbars=yes,resizable=no'
+      );
       control.loading = false;
       m.redraw();
     }

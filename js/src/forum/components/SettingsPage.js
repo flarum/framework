@@ -4,6 +4,7 @@ import Switch from '../../common/components/Switch';
 import Button from '../../common/components/Button';
 import FieldSet from '../../common/components/FieldSet';
 import NotificationGrid from './NotificationGrid';
+import SsoGrid from './SsoGrid';
 import ChangePasswordModal from './ChangePasswordModal';
 import ChangeEmailModal from './ChangeEmailModal';
 import listItems from '../../common/helpers/listItems';
@@ -44,6 +45,17 @@ export default class SettingsPage extends UserPage {
         children: this.accountItems().toArray(),
       })
     );
+
+    if (Object.keys(app.forum.data.attributes.ssoDrivers).length > 0) {
+      items.add(
+        'sso',
+        FieldSet.component({
+          label: app.translator.trans('core.forum.settings.sso_heading'),
+          className: 'Settings-sso',
+          children: this.ssoItems().toArray(),
+        })
+      );
+    }
 
     items.add(
       'notifications',
@@ -93,6 +105,14 @@ export default class SettingsPage extends UserPage {
         onclick: () => app.modal.show(new ChangeEmailModal()),
       })
     );
+
+    return items;
+  }
+
+  ssoItems() {
+    const items = new ItemList();
+
+    items.add('ssoGrid', SsoGrid.component());
 
     return items;
   }
