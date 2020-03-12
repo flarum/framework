@@ -63,9 +63,12 @@
   .off & {
     color: #d0021b;
   }
-  .disabled & {
+}
+.Checkbox.disabled {
     color: @muted-more-color !important;
-  }
+    .Checkbox-display {
+        opacity: 0.5;
+    }
 }
 .Checkbox--switch.loading {
   color: @muted-more-color !important;
