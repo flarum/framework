@@ -15,6 +15,7 @@ use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\Rememberer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\LoggedIn;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\LoginProvider;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
@@ -24,6 +25,7 @@ use Laminas\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class SsoController implements RequestHandlerInterface
 {
@@ -32,16 +34,20 @@ class SsoController implements RequestHandlerInterface
     protected $rememberer;
 
     protected $settings;
+    
+    protected $translator;
 
     public function __construct(
         Container $container,
         Rememberer $rememberer,
-        SettingsRepositoryInterface $settings
+        SettingsRepositoryInterface $settings,
+        TranslatorInterface $translator
     )
     {
         $this->container = $container;
         $this->rememberer = $rememberer;
         $this->settings = $settings;
+        $this->translator = $translator;
     }
 
     /**
@@ -49,6 +55,8 @@ class SsoController implements RequestHandlerInterface
      */
     public function handle(Request $request): ResponseInterface
     {
+        $actor = $request->getAttribute('actor');
+
         $driverId = Arr::get($request->getQueryParams(), 'driver');
 
         $drivers = $this->container->make('flarum.auth.supported_drivers');
@@ -73,23 +81,47 @@ class SsoController implements RequestHandlerInterface
             // This means the authentication was successful.
             $provided = $ssoResponse->getProvided();
 
+            // This SSO response is linked to an existing user.
             if ($user = LoginProvider::logIn($driverId, $ssoResponse->getIdentifier())) {
-                return $this->makeLoggedInResponse($user);
-            }
-
-            if (!empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
-                if ($this->settings->get('auth_driver_trust_emails'.$driverId, false)) {
-                    $user->loginProviders()->create(compact('provider', 'identifier'));
-
+                if ($user->id === $actor->id || $actor->isGuest()) {
+                    // The login occured with an existing linked provider for
+                    // this user, return logged in response.
                     return $this->makeLoggedInResponse($user);
-                } elseif ($request->getAttribute('actor')->isGuest()) {
-                    // TODO: Add Translation.
-                    return new HtmlResponse("A User with this email already exists. Please add this driver through your settings panel.");
+                } elseif ($user->isAdmin()) {
+                    // Looks like an admin was testing this SSO system, return
+                    // without logging in.
+                    return $this->makeResponse(['testSuccess' => true]);
+                } else {
+                    // Users without admin rights have no reason to be SSO-ing
+                    // into accounts of other users.
+                    throw new PermissionDeniedException;
                 }
             }
 
-            // No existing user found, creating new user.
+            // SSO response isn't linked to a user, but a user with the provided email exists.
+            if (!empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
+                if ($user->id === $actor->id || $actor->isGuest() && $this->settings->get('auth_driver_trust_emails_'.$driverId, false)) {
+                    // The current user is linking a new driver to their account.
+                    // Or, a new provider is being linked to the account of an existing user, who isnt logged in, because
+                    // the sso driver is marked as having trusted emails.
+                    return $this->linkProvider($user, $driverId, $ssoResponse->getIdentifier());
+                } elseif ($actor->isAdmin()) {
+                    // Looks like an admin was testing this SSO system, return
+                    // without logging in.
+                    return $this->makeResponse(['testSuccess' => true]);
+                } else {
+                    // Whoever is logging in shouldn't have access to this users account.
+                    return new HtmlResponse($this->translator->trans('core.forum.auth.sso.errors.email_already_claimed'));
+                }
+            }
 
+            if (! $actor->isGuest()) {
+                // An already logged in user is linking a new provider, where
+                // the email doesn't match the users email. This should still be linked.
+                return $this->linkProvider($user, $driverId, $ssoResponse->getIdentifier());
+            }
+
+            // No existing user found, creating new user.
             $token = RegistrationToken::generate($driverId, $ssoResponse->getIdentifier(), $provided, $ssoResponse->getPayload());
             $token->save();
 
@@ -116,12 +148,19 @@ class SsoController implements RequestHandlerInterface
 
     private function makeLoggedInResponse(User $user)
     {
-        $token = AccessToken::generate($user->id, $lifetime);
+        $token = AccessToken::generate($user->id, 3600);
         $token->save();
 
         event(new LoggedIn($user, $token));
         $response = $this->makeResponse(['loggedIn' => true]);
 
         return $this->rememberer->rememberUser($response, $user->id);
+    }
+
+    private function linkProvider(User $user, $provider, $identifier)
+    {
+        $user->loginProviders()->create(compact('provider', 'identifier'));
+
+        return $this->makeLoggedInResponse($user);
     }
 }
