@@ -30,7 +30,7 @@ export default class AuthPage extends Page {
     this.fields.forEach((key) => (this.values[key] = m.prop(settings[key])));
 
     for (const driver in this.drivers) {
-      for (const field of this.driverFields) {
+      this.driverFields.forEach(field => {
         const fieldName = this.driverFieldKey(field.name, driver);
 
         this.fields.push(fieldName);
@@ -40,7 +40,7 @@ export default class AuthPage extends Page {
           state: this.values[fieldName](),
           onchange: () => this.toggle(fieldName),
         });
-      }
+      });
     }
 
     this.loading = false;
