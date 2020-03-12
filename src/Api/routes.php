@@ -320,4 +320,11 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'authSettings.index',
         $route->toController(Controller\ShowAuthSettingsController::class)
     );
+
+    // Delete a login provider
+    $map->delete(
+        '/auth/{provider}',
+        'loginProvider.delete',
+        $route->toController(Controller\DeleteLoginProviderController::class)
+    );
 };
