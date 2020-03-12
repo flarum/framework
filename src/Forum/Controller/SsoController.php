@@ -57,9 +57,9 @@ class SsoController implements RequestHandlerInterface
             throw new RouteNotFoundException;
         }
 
-        // if (! $this->settings->get('auth_driver_enabled_'.$driverId, false)) {
-        //     throw new RouteNotFoundException;
-        // }
+        if (! $this->settings->get('auth_driver_enabled_'.$driverId, false)) {
+            throw new RouteNotFoundException;
+        }
 
         $driver = $this->container->make($drivers[$driverId]);
 
@@ -78,7 +78,7 @@ class SsoController implements RequestHandlerInterface
             }
 
             if (!empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
-                if ($driver->trustEmails()) {
+                if ($this->settings->get('auth_driver_trust_emails'.$driverId, false)) {
                     $user->loginProviders()->create(compact('provider', 'identifier'));
 
                     return $this->makeLoggedInResponse($user);
