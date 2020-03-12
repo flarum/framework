@@ -24,20 +24,17 @@ export default class LogInButtons extends Component {
     for (const driver in drivers) {
       const className = `Button LogInButton--${driver}`;
       const path = `/auth/${driver}`;
-      var style = "";
+      var style = '';
       style += drivers[driver].buttonColor ? `background-color: ${drivers[driver].buttonColor};` : '';
       style += drivers[driver].buttonTextColor ? `color: ${drivers[driver].buttonTextColor}` : '';
-      items.add(driver,
-        <LogInButton
-          className={className}
-          icon={drivers[driver].icon ? drivers[driver].icon : ''}
-          path={path}>
+      items.add(
+        driver,
+        <LogInButton className={className} icon={drivers[driver].icon ? drivers[driver].icon : ''} path={path}>
           {drivers[driver].buttonText ? drivers[driver].buttonText : driver}
         </LogInButton>
       );
     }
 
     return items;
-
   }
 }

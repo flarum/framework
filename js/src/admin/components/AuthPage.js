@@ -19,7 +19,7 @@ export default class AuthPage extends Page {
   refresh() {
     this.loading = true;
 
-    this.drivers = {};
+    this.drivers = app.data.ssoDrivers;
     this.driverFields = this.driverFieldsList().toArray();
     this.driverInputs = [];
 
@@ -29,31 +29,21 @@ export default class AuthPage extends Page {
     const settings = app.data.settings;
     this.fields.forEach((key) => (this.values[key] = m.prop(settings[key])));
 
-    app
-      .request({
-        method: 'GET',
-        url: app.forum.attribute('apiUrl') + '/auth/settings',
-      })
-      .then((response) => {
-        this.drivers = response['data']['attributes']['drivers'];
+    for (const driver in this.drivers) {
+      for (const field of this.driverFields) {
+        const fieldName = this.driverFieldKey(field.name, driver);
 
-        for (const driver in this.drivers) {
-          for (const field of this.driverFields) {
-            const fieldName = this.driverFieldKey(field.name, driver);
+        this.fields.push(fieldName);
+        this.values[fieldName] = m.prop(settings[fieldName]);
 
-            this.fields.push(fieldName);
-            this.values[fieldName] = m.prop(settings[fieldName]);
+        this.driverInputs[fieldName] = new Checkbox({
+          state: this.values[fieldName](),
+          onchange: () => this.toggle(fieldName),
+        });
+      }
+    }
 
-            this.driverInputs[fieldName] = new Checkbox({
-              state: this.values[fieldName](),
-              onchange: () => this.toggle(fieldName),
-            });
-          }
-
-          this.loading = false;
-          m.redraw();
-        }
-      });
+    this.loading = false;
   }
 
   view() {

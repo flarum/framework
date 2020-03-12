@@ -314,13 +314,6 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ShowMailSettingsController::class)
     );
 
-    // List available auth drivers and settings
-    $map->get(
-        '/auth/settings',
-        'authSettings.index',
-        $route->toController(Controller\ShowAuthSettingsController::class)
-    );
-
     // Delete a login provider
     $map->delete(
         '/auth/{provider}',

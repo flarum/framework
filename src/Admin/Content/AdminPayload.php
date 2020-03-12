@@ -14,12 +14,18 @@ use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
 use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
 {
+    /**
+     * @var Container;
+     */
+    protected $container;
+
     /**
      * @var SettingsRepositoryInterface
      */
@@ -36,13 +42,21 @@ class AdminPayload
     protected $db;
 
     /**
+     * @param Container $container
      * @param SettingsRepositoryInterface $settings
      * @param ExtensionManager $extensions
      * @param ConnectionInterface $db
      * @param Dispatcher $events
      */
-    public function __construct(SettingsRepositoryInterface $settings, ExtensionManager $extensions, ConnectionInterface $db, Dispatcher $events)
+    public function __construct(
+        Container $container,
+        SettingsRepositoryInterface $settings,
+        ExtensionManager $extensions,
+        ConnectionInterface $db,
+        Dispatcher $events
+    )
     {
+        $this->container = $container;
         $this->settings = $settings;
         $this->extensions = $extensions;
         $this->db = $db;
@@ -57,11 +71,17 @@ class AdminPayload
             new Deserializing($settings)
         );
 
+        $ssoDrivers = array_map(function ($driver) {
+            return $this->container->make($driver)->meta();
+        }, $this->container->make('flarum.auth.supported_drivers'));
+
+
         $document->payload['settings'] = $settings;
         $document->payload['permissions'] = Permission::map();
         $document->payload['extensions'] = $this->extensions->getExtensions()->toArray();
 
         $document->payload['phpVersion'] = PHP_VERSION;
         $document->payload['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
+        $document->payload['ssoDrivers'] = $ssoDrivers;
     }
 }
