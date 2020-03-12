@@ -677,6 +677,17 @@ class User extends AbstractModel
         return $this->hasMany(LoginProvider::class);
     }
 
+    public function linkedProviders()
+    {
+        $providers = array_map(function ($provider) {
+            return $provider->provider;
+        }, $this->loginProviders()->getModels());
+
+        return array_values(array_filter($providers, function ($provider) {
+            return $provider != '';
+        }));
+    }
+
     /**
      * @param string $ability
      * @param array|mixed $arguments
