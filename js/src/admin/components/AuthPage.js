@@ -1,8 +1,11 @@
 import Page from './Page';
+import Checkbox from '../../common/components/Checkbox';
 import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
 import Switch from '../../common/components/Switch';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
+import ItemList from '../../common/utils/ItemList';
+import icon from '../../common/helpers/icon';
 import saveSettings from '../utils/saveSettings';
 
 export default class AuthPage extends Page {
@@ -16,7 +19,10 @@ export default class AuthPage extends Page {
   refresh() {
     this.loading = true;
 
-    this.drivers = [];
+    this.drivers = {};
+    this.driverFields = this.driverFieldsList().toArray();
+    this.driverInputs = [];
+
     this.fields = ['allow_sign_up', 'enable_user_pass_auth'];
     this.values = {};
 
@@ -30,16 +36,23 @@ export default class AuthPage extends Page {
       })
       .then((response) => {
         this.drivers = response['data']['attributes']['drivers'];
+
         for (const driver in this.drivers) {
-          for (const field in this.drivers[driver]) {
-            const fieldName = 'auth_driver_' + field + '_' + driver;
+          for (const field of this.driverFields) {
+            const fieldName = this.driverFieldKey(field.name, driver);
+
             this.fields.push(fieldName);
             this.values[fieldName] = m.prop(settings[fieldName]);
-          }
-        }
 
-        this.loading = false;
-        m.redraw();
+            this.driverInputs[fieldName] = new Checkbox({
+              state: this.values[fieldName](),
+              onchange: () => this.toggle(fieldName),
+            });
+          }
+
+          this.loading = false;
+          m.redraw();
+        }
       });
   }
 
@@ -53,9 +66,6 @@ export default class AuthPage extends Page {
         </div>
       );
     }
-
-    const fields = this.drivers;
-    const fieldKeys = Object.keys(fields);
 
     return (
       <div className="AuthPage">
@@ -77,6 +87,40 @@ export default class AuthPage extends Page {
               })}
             </fieldset>
 
+            <fieldset class="AuthPage-sso">
+              <legend>{app.translator.trans('core.admin.auth.sso.heading')}</legend>
+              <div className="helpText">{app.translator.trans('core.admin.auth.sso.help_text')}</div>
+              {Object.keys(this.drivers).length > 0 ? (
+                <table className="SsoGrid">
+                  <thead>
+                    <tr>
+                      <td />
+                      {this.driverFields.map((field) => (
+                        <th className="SsoGrid-groupToggle">
+                          {icon(field.icon)} {field.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {Object.keys(this.drivers).map((driver) => (
+                      <tr>
+                        <td className="SsoGrid-groupToggle">
+                          {icon(this.drivers[driver].icon)} {this.drivers[driver].name || driver}
+                        </td>
+                        {this.driverFields.map((field) => (
+                          <td className="SsoGrid-checkbox">{this.driverInputs[this.driverFieldKey(field.name, driver)].render()}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="helpText">{app.translator.trans('core.admin.auth.no_sso_drivers_found')}</div>
+              )}
+            </fieldset>
+
             {Button.component({
               type: 'submit',
               className: 'Button Button--primary',
@@ -87,6 +131,36 @@ export default class AuthPage extends Page {
         </div>
       </div>
     );
+  }
+
+  toggle(key) {
+    this.values[key](!this.values[key]());
+
+    this.driverInputs[key].props.state = this.values[key]();
+
+    m.redraw();
+  }
+
+  driverFieldsList() {
+    const items = new ItemList();
+
+    items.add('enabled', {
+      name: 'enabled',
+      icon: 'fas fa-power-off',
+      label: app.translator.trans('core.admin.auth.driver_fields.enabled'),
+    });
+
+    items.add('trust_emails', {
+      name: 'trust_emails',
+      icon: 'fas fa-envelope',
+      label: app.translator.trans('core.admin.auth.driver_fields.enabled'),
+    });
+
+    return items;
+  }
+
+  driverFieldKey(field, driver) {
+    return 'auth_driver_' + field + '_' + driver;
   }
 
   changed() {

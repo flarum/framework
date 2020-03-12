@@ -11,7 +11,8 @@ namespace Flarum\Forum\Auth;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-interface ExternalAuthDriverInterface
+interface SsoDriverInterface
 {
+    public function meta(): array;
     public function sso(Request $request, SsoResponse $ssoResponse);
 }

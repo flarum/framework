@@ -57,9 +57,9 @@ class SsoController implements RequestHandlerInterface
             throw new RouteNotFoundException;
         }
 
-        if (! in_array($driverId, json_decode($this->settings->get('enabled_auth_drivers'), true))) {
-            throw new RouteNotFoundException;
-        }
+        // if (! $this->settings->get('auth_driver_enabled_'.$driverId, false)) {
+        //     throw new RouteNotFoundException;
+        // }
 
         $driver = $this->container->make($drivers[$driverId]);
 

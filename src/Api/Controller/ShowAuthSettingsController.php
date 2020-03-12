@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\AuthSettingsSerializer;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -31,17 +30,11 @@ class ShowAuthSettingsController extends AbstractShowController
     {
         $this->assertAdmin($request->getAttribute('actor'));
 
-        $driverIds = self::$container->make('flarum.auth.supported_drivers');
+        $drivers = self::$container->make('flarum.auth.supported_drivers');
 
-        $settings = self::$container->make(SettingsRepositoryInterface::class);
-
-        $drivers = [];
-        foreach ($driverIds as $driverId => $driver) {
-            $drivers[$driverId] = [
-                "enabled" => $settings->get('auth_driver_enabled_'.$driverId, false),
-                "trust_emails" => $settings->get('auth_driver_trust_emails_' . $driverId, false)
-            ];
-        }
+        $drivers = array_map(function ($driver) {
+            return self::$container->make($driver)->meta();
+        }, $drivers);
 
         return [
             'drivers' => $drivers,

@@ -21,7 +21,7 @@ class Auth implements ExtenderInterface
 
     /**
      * @param string $identifier URL-friendly, lowercase identifier (ex. 'github', 'saml', 'google', 'facebook', 'wechat')
-     * @param $driver Class attribute of driver that implements Flarum\Forum\Auth\ExternalAuthDriverInterface
+     * @param $driver Class attribute of driver that implements Flarum\Forum\Auth\SsoDriverInterface
      */
     public function addAuthDriver($identifier, $driver)
     {
