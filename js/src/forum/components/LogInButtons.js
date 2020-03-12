@@ -29,7 +29,7 @@ export default class LogInButtons extends Component {
       style += drivers[driver].buttonTextColor ? `color: ${drivers[driver].buttonTextColor}` : '';
       items.add(
         driver,
-        <LogInButton className={className} icon={drivers[driver].icon ? drivers[driver].icon : ''} path={path}>
+        <LogInButton className={className} icon={drivers[driver].icon ? drivers[driver].icon : ''} path={path} style={style}>
           {drivers[driver].buttonText ? drivers[driver].buttonText : driver}
         </LogInButton>
       );
