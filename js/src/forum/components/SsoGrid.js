@@ -27,7 +27,7 @@ export default class SsoGrid extends Component {
 
     // For each of the Sso type-method combinations, create and store a
     // new checkbox component instance, which we will render in the view.
-    this.providers.forEach(provider => {
+    this.providers.forEach((provider) => {
       this.inputs[provider.name] = new Checkbox({
         state: this.providerLinked(provider.name),
         disabled: this.disableUnlinking(provider.name),
@@ -47,14 +47,12 @@ export default class SsoGrid extends Component {
         </thead>
 
         <tbody>
-          {this.providers.map(provider => (
+          {this.providers.map((provider) => (
             <tr>
               <td className="SsoGrid-groupToggle">
                 {icon(provider.icon)} {provider.label}
               </td>
-              <td className="SsoGrid-checkbox">
-                {this.inputs[provider.name].render()}
-              </td>
+              <td className="SsoGrid-checkbox">{this.inputs[provider.name].render()}</td>
             </tr>
           ))}
         </tbody>
@@ -77,19 +75,20 @@ export default class SsoGrid extends Component {
    */
   toggle(provider) {
     const control = this.inputs[provider];
-    control.loading = true
+    control.loading = true;
 
     if (this.providerLinked(provider)) {
       m.redraw();
 
-      app.request({
-        method: 'DELETE',
-        url: app.forum.attribute('apiUrl') + '/auth/' + provider
-      })
+      app
+        .request({
+          method: 'DELETE',
+          url: app.forum.attribute('apiUrl') + '/auth/' + provider,
+        })
         .then(() => {
           control.props.state = false;
           control.loading = false;
-          app.session.user.data.attributes.ssoProviders = app.session.user.ssoProviders().filter(item => item != provider);
+          app.session.user.data.attributes.ssoProviders = app.session.user.ssoProviders().filter((item) => item != provider);
           for (const input in this.inputs) {
             this.inputs[input].props.disabled = this.disableUnlinking(input);
           }
@@ -104,7 +103,9 @@ export default class SsoGrid extends Component {
       const height = 400;
       const $window = $(window);
 
-      window.open(app.forum.attribute('baseUrl') + '/auth/' + provider, 'logInPopup',
+      window.open(
+        app.forum.attribute('baseUrl') + '/auth/' + provider,
+        'logInPopup',
         `width=${width},` +
           `height=${height},` +
           `top=${$window.height() / 2 - height / 2},` +

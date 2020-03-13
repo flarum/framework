@@ -19,18 +19,18 @@ export default class LogInButtons extends Component {
   items() {
     const items = new ItemList();
 
-    const drivers = app.forum.data.attributes.ssoDrivers;
+    const providers = app.forum.data.attributes.ssoProviders;
 
-    for (const driver in drivers) {
-      const className = `Button LogInButton--${driver}`;
-      const path = `/auth/${driver}`;
+    for (const provider in providers) {
+      const className = `Button LogInButton--${provider}`;
+      const path = `/auth/${provider}`;
       var style = '';
-      style += drivers[driver].buttonColor ? `background-color: ${drivers[driver].buttonColor};` : '';
-      style += drivers[driver].buttonTextColor ? `color: ${drivers[driver].buttonTextColor}` : '';
+      style += providers[provider].buttonColor ? `background-color: ${providers[provider].buttonColor};` : '';
+      style += providers[provider].buttonTextColor ? `color: ${providers[provider].buttonTextColor}` : '';
       items.add(
-        driver,
-        <LogInButton className={className} icon={drivers[driver].icon ? drivers[driver].icon : ''} path={path} style={style}>
-          {drivers[driver].buttonText ? drivers[driver].buttonText : driver}
+        provider,
+        <LogInButton className={className} icon={providers[provider].icon ? providers[provider].icon : ''} path={path} style={style}>
+          {providers[provider].buttonText ? providers[provider].buttonText : provider}
         </LogInButton>
       );
     }
