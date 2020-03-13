@@ -48,10 +48,11 @@ abstract class AuthenticatedTestCase extends TestCase
      *     interaction. All cookies returned from the server in that response
      *     (via the "Set-Cookie" header) will be copied to the cookie params of
      *     the new request.
-     * @param bool $useAdmin Should the request be sent with admin permissions?
+     * @param int $userId Which user should be emulated? User ID 1 will return a
+     * user with admin perms unless this has been modified in your test case.
      * @return ServerRequestInterface
      */
-    protected function authenticatedRequest(string $method, string $path, array $options = [], bool $useAdmin = true): ServerRequestInterface
+    protected function authenticatedRequest(string $method, string $path, array $options = [], int $userId = 1): ServerRequestInterface
     {
         $request = $this->request($method, $path, $options);
 
@@ -62,11 +63,9 @@ abstract class AuthenticatedTestCase extends TestCase
             ],
         ]);
 
-        if (! isset($this->key)) {
+        if (!isset($this->key)) {
             $this->key = $this->genKey();
         }
-
-        $userId = $useAdmin ? 1 : 2;
 
         return $request->withAddedHeader('Authorization', "Token {$this->key->key}; userId=$userId");
     }
