@@ -26,6 +26,7 @@ class AuthSsoTest extends AuthenticatedTestCase
     protected const TEST_SUCCESS_RESPONSE = '<script>window.close(); window.opener.app.authenticationComplete({"testSuccess":true});</script>';
     protected const ALREADY_CLAIMED_RESPONSE = 'core.forum.auth.sso.errors.email_already_claimed';
     protected const ALREADY_LINKED_RESPONSE = 'core.forum.auth.sso.errors.provider_already_linked';
+    protected const REGISTATION_DISABLED_RESPONSE = 'core.forum.auth.sso.errors.signups_disabled';
 
     protected function settings()
     {
@@ -45,6 +46,11 @@ class AuthSsoTest extends AuthenticatedTestCase
         $this->settings()->set('auth_driver_trust_emails_custom_sso', true);
     }
 
+    protected function disableSignups()
+    {
+        $this->settings()->set('allow_sign_up', false);
+    }
+
     protected function setUp() {
         parent::setUp();
         // Add so that we can use AuthenticatedTestCase (ie API Key Authentication) on forum routes.
@@ -57,6 +63,7 @@ class AuthSsoTest extends AuthenticatedTestCase
         $this->settings()->set('auth_driver_trust_emails_custom_sso', false);
         User::find(1)->ssoProviders()->delete();
         User::find(2)->ssoProviders()->delete();
+        $this->settings()->set('allow_sign_up', true);
 
         parent::tearDown();
     }
@@ -324,6 +331,24 @@ class AuthSsoTest extends AuthenticatedTestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(self::ALREADY_LINKED_RESPONSE, $response->getBody()->getContents());
+    }
+
+    /**
+     * @test
+     */
+    public function wont_register_if_signups_disabled()
+    {
+        $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
+
+        $this->enableProvider();
+        $this->disableSignups();
+
+        $response = $this->send(
+            $this->request('GET', '/auth/custom_sso')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertContains(self::REGISTATION_DISABLED_RESPONSE, $response->getBody()->getContents());
     }
 
     /**

@@ -128,6 +128,11 @@ class SsoController implements RequestHandlerInterface
             }
 
             // No existing user found, creating new user.
+
+            if (! $this->settings->get('allow_sign_up', true)) {
+                // Registration currently disabled.
+                return new HtmlResponse($this->translator->trans('core.forum.auth.sso.errors.signups_disabled'));
+            }
             $token = RegistrationToken::generate($provider, $ssoResponse->getIdentifier(), $provided, $ssoResponse->getPayload());
             $token->save();
 
