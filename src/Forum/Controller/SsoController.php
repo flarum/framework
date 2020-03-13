@@ -87,7 +87,7 @@ class SsoController implements RequestHandlerInterface
                     // The login occured with an existing linked provider for
                     // this user, return logged in response.
                     return $this->makeLoggedInResponse($user);
-                } elseif ($user->isAdmin()) {
+                } elseif ($actor->isAdmin()) {
                     // Looks like an admin was testing this SSO system, return
                     // without logging in.
                     return $this->makeResponse(['testSuccess' => true]);
