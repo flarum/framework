@@ -670,17 +670,25 @@ class User extends AbstractModel
     }
 
     /**
-     * Get the user's login providers.
+     * @deprecated in favor of $this->ssoProviders().
      */
     public function loginProviders()
     {
-        return $this->hasMany(LoginProvider::class);
+        return $this->ssoProviders();
+    }
+
+    /**
+     * Get the user's sso providers.
+     */
+    public function ssoProviders()
+    {
+        return $this->hasMany(SsoProvider::class);
     }
 
     /**
      * Get an array of login provider identifiers linked to the user.
      */
-    public function linkedProviders(): array
+    public function linkedSsoProviders(): array
     {
         $providers = array_map(function ($provider) {
             return $provider->provider;

@@ -13,12 +13,12 @@ use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\User\LoginProvider;
+use Flarum\User\SsoProvider;
 use Illuminate\Container\Container;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 
-class DeleteLoginProviderController extends AbstractDeleteController
+class DeleteSsoProviderController extends AbstractDeleteController
 {
     /**
      * @var Container
@@ -62,6 +62,6 @@ class DeleteLoginProviderController extends AbstractDeleteController
             throw new PermissionDeniedException;
         }
 
-        LoginProvider::where('login_providers.user_id', $actor->id)->where('provider', $provider)->delete();
+        SsoProvider::where('sso_providers.user_id', $actor->id)->where('provider', $provider)->delete();
     }
 }

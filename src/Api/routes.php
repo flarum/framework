@@ -314,10 +314,10 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ShowMailSettingsController::class)
     );
 
-    // Delete a login provider
+    // Delete a sso provider
     $map->delete(
         '/auth/{provider}',
-        'loginProvider.delete',
-        $route->toController(Controller\DeleteLoginProviderController::class)
+        'ssoProvider.delete',
+        $route->toController(Controller\DeleteSsoProviderController::class)
     );
 };

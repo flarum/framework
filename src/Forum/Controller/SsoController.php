@@ -16,7 +16,7 @@ use Flarum\Http\Rememberer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\LoggedIn;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\User\LoginProvider;
+use Flarum\User\SsoProvider;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use Illuminate\Container\Container;
@@ -82,7 +82,7 @@ class SsoController implements RequestHandlerInterface
             $provided = $ssoResponse->getProvided();
 
             // This SSO response is linked to an existing user.
-            if ($user = LoginProvider::logIn($driverId, $ssoResponse->getIdentifier())) {
+            if ($user = SsoProvider::logIn($driverId, $ssoResponse->getIdentifier())) {
                 if ($user->id === $actor->id || $actor->isGuest()) {
                     // The login occured with an existing linked provider for
                     // this user, return logged in response.
@@ -165,7 +165,7 @@ class SsoController implements RequestHandlerInterface
 
     private function linkProvider(User $user, $provider, $identifier)
     {
-        $user->loginProviders()->create(compact('provider', 'identifier'));
+        $user->ssoProviders()->create(compact('provider', 'identifier'));
 
         return $this->makeLoggedInResponse($user);
     }
