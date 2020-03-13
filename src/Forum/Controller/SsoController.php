@@ -98,7 +98,7 @@ class SsoController implements RequestHandlerInterface
                 }
             }
 
-            if (!$actor->isGuest() && in_array($driverId, $actor->linkedProviders())) {
+            if (!$actor->isGuest() && in_array($driverId, $actor->linkedSsoProviders())) {
                 // This user has already linked an account from this provider. We don't currently support multiple
                 // identifiers from a provider being linked to a user, so this should error.
                 return new HtmlResponse($this->translator->trans('core.forum.auth.sso.errors.provider_already_linked'));

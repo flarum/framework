@@ -677,7 +677,10 @@ class User extends AbstractModel
         return $this->hasMany(LoginProvider::class);
     }
 
-    public function linkedProviders()
+    /**
+     * Get an array of login provider identifiers linked to the user.
+     */
+    public function linkedProviders(): array
     {
         $providers = array_map(function ($provider) {
             return $provider->provider;
