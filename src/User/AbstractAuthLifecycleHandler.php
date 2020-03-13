@@ -43,7 +43,7 @@ class AbstractAuthLifecycleHandler
     public function whenUserEmailChangeRequestedHandler(Event\EmailChangeRequested $event)
     {
         if (method_exists($this, 'whenUserEmailChangeRequested')) {
-            call_user_func_array([$this, 'whenUserEmailChangeRequested'], [$event->user, $event->actor]);
+            call_user_func_array([$this, 'whenUserEmailChangeRequested'], [$event->user, $event->email]);
         }
     }
 
