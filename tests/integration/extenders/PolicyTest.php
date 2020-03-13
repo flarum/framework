@@ -73,7 +73,7 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, false)
+            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
         );
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -92,7 +92,7 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, false)
+            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -112,7 +112,7 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, false)
+            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
         );
 
         $this->assertEquals(403, $response->getStatusCode());
@@ -133,7 +133,7 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, false)
+            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -157,7 +157,7 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, false)
+            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
         );
 
         $this->assertEquals(403, $response->getStatusCode());
