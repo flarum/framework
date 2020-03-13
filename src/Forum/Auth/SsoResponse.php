@@ -104,8 +104,19 @@ class SsoResponse
     /**
      * @param string $email
      * @return $this
+     *
+     * @deprecated in favor of provideEmail(), as email trustiness is now determined in admin settings.
      */
     public function provideTrustedEmail(string $email): self
+    {
+        return $this->provide('email', $email);
+    }
+
+    /**
+     * @param string $email
+     * @return $this
+     */
+    public function provideEmail(string $email): self
     {
         return $this->provide('email', $email);
     }
