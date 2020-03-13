@@ -56,13 +56,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     );
 
     $map->get(
-        '/auth/{driver}',
+        '/auth/{provider}',
         'sso',
         $route->toController(Controller\SsoController::class)
     );
 
     $map->post(
-        '/auth/{driver}',
+        '/auth/{provider}',
         'sso',
         $route->toController(Controller\SsoController::class)
     );

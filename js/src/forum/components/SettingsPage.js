@@ -46,9 +46,8 @@ export default class SettingsPage extends UserPage {
       })
     );
 
-    if (Object.keys(app.forum.data.attributes.ssoDrivers).length > 0) {
-      items.add(
-        'sso',
+    if (Object.keys(app.forum.data.attributes.ssoProviders).length > 0) {
+      items.add('sso',
         FieldSet.component({
           label: app.translator.trans('core.forum.settings.sso_heading'),
           className: 'Settings-sso',

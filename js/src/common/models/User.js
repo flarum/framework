@@ -17,7 +17,7 @@ Object.assign(User.prototype, {
 
   avatarUrl: Model.attribute('avatarUrl'),
   preferences: Model.attribute('preferences'),
-  ssoDrivers: Model.attribute('ssoDrivers'),
+  ssoProviders: Model.attribute('ssoProviders'),
   groups: Model.hasMany('groups'),
 
   joinTime: Model.attribute('joinTime', Model.transformDate),

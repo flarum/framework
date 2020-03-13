@@ -4,7 +4,7 @@ import icon from '../../common/helpers/icon';
 import ItemList from '../../common/utils/ItemList';
 
 /**
- * The `SsoGrid` component displays a table of linked sso drivers,
+ * The `SsoGrid` component displays a table of linked sso providers,
  * allowing the user to link/unlink each one to their account.
  *
  */
@@ -15,7 +15,7 @@ export default class SsoGrid extends Component {
      *
      * @type {Array}
      */
-    this.drivers = this.ssoDrivers().toArray();
+    this.providers = this.ssoProviders().toArray();
 
     /**
      * A map of Sso type-method combinations to the checkbox instances
@@ -27,11 +27,11 @@ export default class SsoGrid extends Component {
 
     // For each of the Sso type-method combinations, create and store a
     // new checkbox component instance, which we will render in the view.
-    this.drivers.forEach((driver) => {
-      this.inputs[driver.name] = new Checkbox({
-        state: this.driverLinked(driver.name),
-        disabled: this.disableUnlinking(driver.name),
-        onchange: () => this.toggle(driver.name),
+    this.providers.forEach(provider => {
+      this.inputs[provider.name] = new Checkbox({
+        state: this.providerLinked(provider.name),
+        disabled: this.disableUnlinking(provider.name),
+        onchange: () => this.toggle(provider.name),
       });
     });
   }
@@ -47,12 +47,14 @@ export default class SsoGrid extends Component {
         </thead>
 
         <tbody>
-          {this.drivers.map((driver) => (
+          {this.providers.map(provider => (
             <tr>
               <td className="SsoGrid-groupToggle">
-                {icon(driver.icon)} {driver.label}
+                {icon(provider.icon)} {provider.label}
               </td>
-              <td className="SsoGrid-checkbox">{this.inputs[driver.name].render()}</td>
+              <td className="SsoGrid-checkbox">
+                {this.inputs[provider.name].render()}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -60,35 +62,34 @@ export default class SsoGrid extends Component {
     );
   }
 
-  driverLinked(driver) {
-    return app.session.user.data.attributes.ssoDrivers.includes(driver);
+  providerLinked(provider) {
+    return app.session.user.ssoProviders().includes(provider);
   }
 
-  disableUnlinking(driver) {
-    return this.driverLinked(driver) && !app.forum.attribute('enableUserPassAuth') && app.session.user.data.attributes.ssoDrivers.length == 1;
+  disableUnlinking(provider) {
+    return this.providerLinked(provider) && !app.forum.attribute('enableUserPassAuth') && app.session.user.ssoProviders().length == 1;
   }
 
   /**
-   * Toggle the linked/unlinked state of the given sso driver.
+   * Toggle the linked/unlinked state of the given sso provider.
    *
    * @param {Array} keys
    */
-  toggle(driver) {
-    const control = this.inputs[driver];
-    control.loading = true;
+  toggle(provider) {
+    const control = this.inputs[provider];
+    control.loading = true
 
-    if (this.driverLinked(driver)) {
+    if (this.providerLinked(provider)) {
       m.redraw();
 
-      app
-        .request({
-          method: 'DELETE',
-          url: app.forum.attribute('apiUrl') + '/auth/' + driver,
-        })
+      app.request({
+        method: 'DELETE',
+        url: app.forum.attribute('apiUrl') + '/auth/' + provider
+      })
         .then(() => {
           control.props.state = false;
           control.loading = false;
-          app.session.user.data.attributes.ssoDrivers = app.session.user.data.attributes.ssoDrivers.filter((item) => item != driver);
+          app.session.user.ssoProviders(app.session.user.ssoProviders.filter(item => item != provider));
           for (const input in this.inputs) {
             this.inputs[input].props.disabled = this.disableUnlinking(input);
           }
@@ -103,9 +104,7 @@ export default class SsoGrid extends Component {
       const height = 400;
       const $window = $(window);
 
-      window.open(
-        app.forum.attribute('baseUrl') + '/auth/' + driver,
-        'logInPopup',
+      window.open(app.forum.attribute('baseUrl') + '/auth/' + provider, 'logInPopup',
         `width=${width},` +
           `height=${height},` +
           `top=${$window.height() / 2 - height / 2},` +
@@ -118,26 +117,26 @@ export default class SsoGrid extends Component {
   }
 
   /**
-   * Build an item list for the drivers to display in the grid.
+   * Build an item list for the providers to display in the grid.
    *
-   * Each driver is an object which has the following properties:
+   * Each provider is an object which has the following properties:
    *
-   * - `name` The name of the driver.
+   * - `name` The name of the provider.
    * - `icon` The icon to display in the column header.
    * - `label` The label to display in the column header.
    *
    * @return {ItemList}
    */
-  ssoDrivers() {
+  ssoProviders() {
     const items = new ItemList();
 
-    const drivers = app.forum.data.attributes.ssoDrivers;
+    const providers = app.forum.data.attributes.ssoProviders;
 
-    for (const driver in drivers) {
-      items.add(driver, {
-        name: driver,
-        icon: drivers[driver].icon,
-        label: drivers[driver].name,
+    for (const provider in providers) {
+      items.add(provider, {
+        name: provider,
+        icon: providers[provider].icon,
+        label: providers[provider].name,
       });
     }
 

@@ -15,17 +15,17 @@ use Illuminate\Events\Dispatcher;
 
 class Auth implements ExtenderInterface
 {
-    protected $addAuthDrivers = [];
+    protected $ssoDrivers = [];
 
-    protected $addAuthLifecycleHandlers = [];
+    protected $authLifecycleHandlers = [];
 
     /**
-     * @param string $identifier URL-friendly, lowercase identifier (ex. 'github', 'saml', 'google', 'facebook', 'wechat')
+     * @param string $provider URL-friendly, lowercase identifier (ex. 'github', 'saml', 'google', 'facebook', 'wechat')
      * @param $driver Class attribute of driver that implements Flarum\Forum\Auth\SsoDriverInterface
      */
-    public function addAuthDriver($identifier, $driver)
+    public function ssoDriver($provider, $driver)
     {
-        $this->addAuthDrivers[$identifier] = $driver;
+        $this->ssoDrivers[$provider] = $driver;
 
         return $this;
     }
@@ -33,20 +33,20 @@ class Auth implements ExtenderInterface
     /**
      * @param $handler class attribute of Auth Lifecycle Handler that extends Flarum\User\AbstractAuthLifecycleHandler
      */
-    public function addAuthLifecycleHandler($handler)
+    public function authLifecycleHandler($handler)
     {
-        $this->addAuthLifecycleHandlers[] = $handler;
+        $this->authLifecycleHandlers[] = $handler;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend("flarum.auth.supported_drivers", function ($existingMiddleware) {
-            return array_merge($existingMiddleware, $this->addAuthDrivers);
+            return array_merge($existingMiddleware, $this->ssoDrivers);
         });
 
         $events = $container->make(Dispatcher::class);
 
-        foreach ($this->addAuthLifecycleHandlers as $handler) {
+        foreach ($this->authLifecycleHandlers as $handler) {
             $events->subscribe($container->make($handler));
         }
     }

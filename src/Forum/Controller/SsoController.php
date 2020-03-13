@@ -57,21 +57,21 @@ class SsoController implements RequestHandlerInterface
     {
         $actor = $request->getAttribute('actor');
 
-        $driverId = Arr::get($request->getQueryParams(), 'driver');
+        $provider = Arr::get($request->getQueryParams(), 'provider');
 
         $drivers = $this->container->make('flarum.auth.supported_drivers');
 
-        if (! array_key_exists($driverId, $drivers)) {
+        if (! array_key_exists($provider, $drivers)) {
             throw new RouteNotFoundException;
         }
 
-        if (! $this->settings->get('auth_driver_enabled_'.$driverId, false)) {
+        if (! $this->settings->get('auth_driver_enabled_'.$provider, false)) {
             throw new RouteNotFoundException;
         }
 
-        $driver = $this->container->make($drivers[$driverId]);
+        $driver = $this->container->make($drivers[$provider]);
 
-        $ssoResponse = $driver->sso($request, new SsoResponse($driverId));
+        $ssoResponse = $driver->sso($request, new SsoResponse($provider));
 
         if ($ssoResponse instanceof ResponseInterface) {
             // This could be anything from an error page to a redirect
@@ -82,7 +82,7 @@ class SsoController implements RequestHandlerInterface
             $provided = $ssoResponse->getProvided();
 
             // This SSO response is linked to an existing user.
-            if ($user = SsoProvider::logIn($driverId, $ssoResponse->getIdentifier())) {
+            if ($user = SsoProvider::logIn($provider, $ssoResponse->getIdentifier())) {
                 if ($user->id === $actor->id || $actor->isGuest()) {
                     // The login occured with an existing linked provider for
                     // this user, return logged in response.
@@ -98,7 +98,7 @@ class SsoController implements RequestHandlerInterface
                 }
             }
 
-            if (!$actor->isGuest() && in_array($driverId, $actor->ssoProviderNames())) {
+            if (!$actor->isGuest() && in_array($provider, $actor->ssoProviderNames())) {
                 // This user has already linked an account from this provider. We don't currently support multiple
                 // identifiers from a provider being linked to a user, so this should error.
                 return new HtmlResponse($this->translator->trans('core.forum.auth.sso.errors.provider_already_linked'));
@@ -106,11 +106,11 @@ class SsoController implements RequestHandlerInterface
 
             // SSO response isn't linked to a user, but a user with the provided email exists.
             if (!empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
-                if ($user->id === $actor->id || $actor->isGuest() && $this->settings->get('auth_driver_trust_emails_'.$driverId, false)) {
+                if ($user->id === $actor->id || $actor->isGuest() && $this->settings->get('auth_driver_trust_emails_'.$provider, false)) {
                     // The current user is linking a new driver to their account.
                     // Or, a new provider is being linked to the account of an existing user, who isnt logged in, because
                     // the sso driver is marked as having trusted emails.
-                    return $this->linkProvider($user, $driverId, $ssoResponse->getIdentifier());
+                    return $this->linkProvider($user, $provider, $ssoResponse->getIdentifier());
                 } elseif ($actor->isAdmin()) {
                     // Looks like an admin was testing this SSO system, return
                     // without logging in.
@@ -124,11 +124,11 @@ class SsoController implements RequestHandlerInterface
             if (! $actor->isGuest()) {
                 // An already logged in user is linking a new provider, where
                 // the email doesn't match the users email. This should still be linked.
-                return $this->linkProvider($user, $driverId, $ssoResponse->getIdentifier());
+                return $this->linkProvider($user, $provider, $ssoResponse->getIdentifier());
             }
 
             // No existing user found, creating new user.
-            $token = RegistrationToken::generate($driverId, $ssoResponse->getIdentifier(), $provided, $ssoResponse->getPayload());
+            $token = RegistrationToken::generate($provider, $ssoResponse->getIdentifier(), $provided, $ssoResponse->getPayload());
             $token->save();
 
             return $this->makeResponse(array_merge(
