@@ -26,7 +26,7 @@ class CurrentUserSerializer extends UserSerializer
             'unreadNotificationCount'  => (int) $user->getUnreadNotificationCount(),
             'newNotificationCount'     => (int) $user->getNewNotificationCount(),
             'preferences'              => (array) $user->preferences,
-            'ssoDrivers'               => (array) $user->linkedSsoProviders(),
+            'ssoDrivers'               => (array) $user->ssoProviderNames(),
         ];
 
         return $attributes;

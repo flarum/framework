@@ -688,7 +688,7 @@ class User extends AbstractModel
     /**
      * Get an array of login provider identifiers linked to the user.
      */
-    public function linkedSsoProviders(): array
+    public function ssoProviderNames(): array
     {
         $providers = array_map(function ($provider) {
             return $provider->provider;
