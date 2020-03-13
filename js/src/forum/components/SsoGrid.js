@@ -30,6 +30,7 @@ export default class SsoGrid extends Component {
     this.drivers.forEach((driver) => {
       this.inputs[driver.name] = new Checkbox({
         state: this.driverLinked(driver.name),
+        disabled: this.disableUnlinking(driver.name),
         onchange: () => this.toggle(driver.name),
       });
     });
@@ -63,6 +64,10 @@ export default class SsoGrid extends Component {
     return app.session.user.data.attributes.ssoDrivers.includes(driver);
   }
 
+  disableUnlinking(driver) {
+    return this.driverLinked(driver) && !app.forum.attribute('enableUserPassAuth') && app.session.user.data.attributes.ssoDrivers.length == 1;
+  }
+
   /**
    * Toggle the linked/unlinked state of the given sso driver.
    *
@@ -84,6 +89,9 @@ export default class SsoGrid extends Component {
           control.props.state = false;
           control.loading = false;
           app.session.user.data.attributes.ssoDrivers = app.session.user.data.attributes.ssoDrivers.filter((item) => item != driver);
+          for (const input in this.inputs) {
+            this.inputs[input].props.disabled = this.disableUnlinking(input);
+          }
           m.redraw();
         })
         .catch(() => {

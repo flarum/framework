@@ -10,7 +10,9 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\LoginProvider;
 use Illuminate\Container\Container;
 use Illuminate\Support\Arr;
@@ -18,10 +20,19 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteLoginProviderController extends AbstractDeleteController
 {
+    /**
+     * @var Container
+     */
     protected $container;
 
-    public function __construct(Container $container) {
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    public function __construct(Container $container, SettingsRepositoryInterface $settings) {
         $this->container = $container;
+        $this->settings = $settings;
     }
 
     /**
@@ -45,6 +56,10 @@ class DeleteLoginProviderController extends AbstractDeleteController
 
         if (! in_array($provider, $actor->linkedProviders())) {
             throw new RouteNotFoundException;
+        }
+
+        if (!$this->settings->get('enable_user_pass_auth', true) && count($actor->linkedProviders()) == 1) {
+            throw new PermissionDeniedException;
         }
 
         LoginProvider::where('login_providers.user_id', $actor->id)->where('provider', $provider)->delete();
