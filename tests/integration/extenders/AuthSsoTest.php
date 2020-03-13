@@ -27,6 +27,7 @@ class AuthSsoTest extends AuthenticatedTestCase
     protected const ALREADY_CLAIMED_RESPONSE = 'core.forum.auth.sso.errors.email_already_claimed';
     protected const ALREADY_LINKED_RESPONSE = 'core.forum.auth.sso.errors.provider_already_linked';
     protected const REGISTATION_DISABLED_RESPONSE = 'core.forum.auth.sso.errors.signups_disabled';
+    protected const REGISTERING_RESPONSE_FRAGMENT = '"registering":true';
 
     protected function settings()
     {
@@ -365,7 +366,7 @@ class AuthSsoTest extends AuthenticatedTestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertContains('"registering":true', $response->getBody()->getContents());
+        $this->assertContains(self::REGISTERING_RESPONSE_FRAGMENT, $response->getBody()->getContents());
     }
 }
 
