@@ -21,6 +21,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AuthSsoTest extends AuthenticatedTestCase
 {
+    protected $settings;
     protected const LOGGED_IN_RESPONSE = '<script>window.close(); window.opener.app.authenticationComplete({"loggedIn":true});</script>';
     protected const TEST_SUCCESS_RESPONSE = '<script>window.close(); window.opener.app.authenticationComplete({"testSuccess":true});</script>';
     protected const ALREADY_CLAIMED_RESPONSE = 'core.forum.auth.sso.errors.email_already_claimed';
@@ -28,7 +29,10 @@ class AuthSsoTest extends AuthenticatedTestCase
 
     protected function settings()
     {
-        return $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
+        if (is_null($this->settings)) {
+            $this->settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
+        }
+        return $this->settings;
     }
 
     protected function enableProvider()
