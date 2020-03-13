@@ -124,7 +124,7 @@ class SsoController implements RequestHandlerInterface
             if (! $actor->isGuest()) {
                 // An already logged in user is linking a new provider, where
                 // the email doesn't match the users email. This should still be linked.
-                return $this->linkProvider($user, $provider, $ssoResponse->getIdentifier());
+                return $this->linkProvider($actor, $provider, $ssoResponse->getIdentifier());
             }
 
             // No existing user found, creating new user.
