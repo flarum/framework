@@ -36,6 +36,8 @@ class Auth implements ExtenderInterface
     public function authLifecycleHandler($handler)
     {
         $this->authLifecycleHandlers[] = $handler;
+
+        return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
