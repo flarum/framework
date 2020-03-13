@@ -28,7 +28,7 @@ class SsoResponse
     /**
      * @var mixed
      */
-    protected $payload;
+    protected $payload = [];
 
     /**
      * @var string $provider
