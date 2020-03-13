@@ -89,7 +89,7 @@ export default class SsoGrid extends Component {
         .then(() => {
           control.props.state = false;
           control.loading = false;
-          app.session.user.ssoProviders(app.session.user.ssoProviders.filter(item => item != provider));
+          app.session.user.data.attributes.ssoProviders = app.session.user.ssoProviders().filter(item => item != provider);
           for (const input in this.inputs) {
             this.inputs[input].props.disabled = this.disableUnlinking(input);
           }

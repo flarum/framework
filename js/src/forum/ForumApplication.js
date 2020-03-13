@@ -154,7 +154,6 @@ export default class ForumApplication extends Application {
    * @public
    */
   authenticationComplete(payload) {
-    console.log(payload);
     if (payload.loggedIn || payload.testSuccess) {
       window.location.reload();
     } else {

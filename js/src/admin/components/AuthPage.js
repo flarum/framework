@@ -131,7 +131,6 @@ export default class AuthPage extends Page {
     this.driverInputs[key].props.state = this.values[key]();
 
     if (this.allSsoDisabled()) {
-      console.log(this.values);
       this.values['enable_user_pass_auth'](true);
       m.redraw();
     }
