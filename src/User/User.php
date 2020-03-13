@@ -692,7 +692,7 @@ class User extends AbstractModel
     {
         $providers = array_map(function ($provider) {
             return $provider->provider;
-        }, $this->loginProviders()->getModels());
+        }, $this->ssoProviders()->getModels());
 
         return array_values(array_filter($providers, function ($provider) {
             return $provider != '';
