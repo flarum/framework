@@ -51,7 +51,7 @@ class ChangeSettingCommand extends AbstractCommand
     protected function fire()
     {
         $setting = $this->input->getArgument('setting');
-        $this->info('Configuring setting: '.$setting);
+        $this->info('Configuring setting: ' . $setting);
 
         $newValue = $this->askForSettingValue();
         $this->settings->set($setting, $newValue);
@@ -62,12 +62,10 @@ class ChangeSettingCommand extends AbstractCommand
     protected function askForSettingValue()
     {
         while (true) {
-            $value = $this->ask('New Value:');
-
-            json_decode($value);
+            $value =  json_decode($this->ask('New Value:'), true);
 
             if (json_last_error() === JSON_ERROR_NONE) {
-                break;
+                return $value;
             } else {
                 $this->error('Value must be a valid json string.');
             }
