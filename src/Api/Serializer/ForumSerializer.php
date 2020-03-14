@@ -60,13 +60,13 @@ class ForumSerializer extends AbstractSerializer
      */
     protected function getDefaultAttributes($model)
     {
-        $ssoProviders = array_map(function ($provider) {
-            return $this->app->make($provider)->meta();
-        }, $this->app->make('flarum.auth.supported_drivers'));
-
-        $ssoProviders = array_filter($ssoProviders, function ($provider) {
+        $ssoProviders = array_filter($this->app->make('flarum.auth.supported_drivers'), function ($provider) {
             return $this->settings->get('auth_driver_enabled_'.$provider);
         }, ARRAY_FILTER_USE_KEY);
+
+        $ssoProviders = array_map(function ($provider) {
+            return $this->app->make($provider)->meta();
+        }, $ssoProviders);
 
         $attributes = [
             'title' => $this->settings->get('forum_title'),
