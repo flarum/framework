@@ -21860,16 +21860,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
 /* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
 /* harmony import */ var _LogInModal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./LogInModal */ "./src/forum/components/LogInModal.tsx");
-/* harmony import */ var _SessionDropdown__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SessionDropdown */ "./src/forum/components/SessionDropdown.tsx");
-/* harmony import */ var _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/SelectDropdown */ "./src/common/components/SelectDropdown.tsx");
-/* harmony import */ var _NotificationsDropdown__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./NotificationsDropdown */ "./src/forum/components/NotificationsDropdown.tsx");
-/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
-/* harmony import */ var _common_helpers_listItems__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/helpers/listItems */ "./src/common/helpers/listItems.tsx");
-/* harmony import */ var _Search__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Search */ "./src/forum/components/Search.tsx");
+/* harmony import */ var _SignUpModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SignUpModal */ "./src/forum/components/SignUpModal.tsx");
+/* harmony import */ var _SessionDropdown__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SessionDropdown */ "./src/forum/components/SessionDropdown.tsx");
+/* harmony import */ var _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/SelectDropdown */ "./src/common/components/SelectDropdown.tsx");
+/* harmony import */ var _NotificationsDropdown__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./NotificationsDropdown */ "./src/forum/components/NotificationsDropdown.tsx");
+/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
+/* harmony import */ var _common_helpers_listItems__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../common/helpers/listItems */ "./src/common/helpers/listItems.tsx");
+/* harmony import */ var _Search__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Search */ "./src/forum/components/Search.tsx");
 
 
 
- // import SignUpModal from './SignUpModal';
+
 
 
 
@@ -21895,7 +21896,7 @@ var HeaderSecondary = /*#__PURE__*/function (_Component) {
   _proto.view = function view() {
     return m("ul", {
       className: "Header-controls"
-    }, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_8__["default"])(this.items().toArray()));
+    }, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_9__["default"])(this.items().toArray()));
   }
   /**
    * Build an item list for the controls.
@@ -21903,8 +21904,8 @@ var HeaderSecondary = /*#__PURE__*/function (_Component) {
   ;
 
   _proto.items = function items() {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_7__["default"]();
-    items.add('search', _Search__WEBPACK_IMPORTED_MODULE_9__["default"].component(), 30);
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_8__["default"]();
+    items.add('search', _Search__WEBPACK_IMPORTED_MODULE_10__["default"].component(), 30);
 
     if (app.forum.attribute('showLanguageSelector') && Object.keys(app.data.locales).length > 1) {
       var locales = [];
@@ -21936,22 +21937,22 @@ var HeaderSecondary = /*#__PURE__*/function (_Component) {
         if (_ret === "continue") continue;
       }
 
-      items.add('locale', _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_5__["default"].component({
+      items.add('locale', _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_6__["default"].component({
         children: locales,
         buttonClassName: 'Button Button--link'
       }), 20);
     }
 
     if (app.session.user) {
-      items.add('notifications', m(_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_6__["default"], null), 10);
-      items.add('session', m(_SessionDropdown__WEBPACK_IMPORTED_MODULE_4__["default"], null), 0);
+      items.add('notifications', m(_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_7__["default"], null), 10);
+      items.add('session', m(_SessionDropdown__WEBPACK_IMPORTED_MODULE_5__["default"], null), 0);
     } else {
       if (app.forum.attribute('allowSignUp')) {
         items.add('signUp', _common_components_Button__WEBPACK_IMPORTED_MODULE_2__["default"].component({
           children: app.translator.trans('core.forum.header.sign_up_link'),
           className: 'Button Button--link',
           onclick: function onclick() {
-            return app.modal.show(SignUpModal);
+            return app.modal.show(_SignUpModal__WEBPACK_IMPORTED_MODULE_4__["default"]);
           }
         }), 10);
       }
@@ -22139,6 +22140,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
 /* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
 /* harmony import */ var _LogInButtons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./LogInButtons */ "./src/forum/components/LogInButtons.tsx");
+/* harmony import */ var _SignUpModal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SignUpModal */ "./src/forum/components/SignUpModal.tsx");
+
 
 
 
@@ -22280,7 +22283,8 @@ var LogInModal = /*#__PURE__*/function (_Modal) {
       password: this.password()
     };
     var identification = this.identification();
-    props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification; // app.modal.show(SignUpModal, props);
+    props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
+    app.modal.show(_SignUpModal__WEBPACK_IMPORTED_MODULE_5__["default"], props);
   };
 
   _proto.oncreate = function oncreate(vnode) {
@@ -25261,6 +25265,210 @@ var SettingsPage = /*#__PURE__*/function (_UserPage) {
 
   return SettingsPage;
 }(_UserPage__WEBPACK_IMPORTED_MODULE_6__["default"]);
+
+
+
+/***/ }),
+
+/***/ "./src/forum/components/SignUpModal.tsx":
+/*!**********************************************!*\
+  !*** ./src/forum/components/SignUpModal.tsx ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SignUpModal; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _common_components_Modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/components/Modal */ "./src/common/components/Modal.tsx");
+/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _LogInButtons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./LogInButtons */ "./src/forum/components/LogInButtons.tsx");
+/* harmony import */ var _LogInModal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./LogInModal */ "./src/forum/components/LogInModal.tsx");
+
+
+
+
+
+
+
+/**
+ * The `SignUpModal` component displays a modal dialog with a singup form.
+ */
+var SignUpModal = /*#__PURE__*/function (_Modal) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(SignUpModal, _Modal);
+
+  function SignUpModal() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Modal.call.apply(_Modal, [this].concat(args)) || this;
+    _this.username = void 0;
+    _this.email = void 0;
+    _this.password = void 0;
+    return _this;
+  }
+
+  var _proto = SignUpModal.prototype;
+
+  _proto.oninit = function oninit(vnode) {
+    _Modal.prototype.oninit.call(this, vnode);
+
+    this.username = m.prop(this.props.username || '');
+    this.email = m.prop(this.props.email || '');
+    this.password = m.prop(this.props.password || '');
+  };
+
+  _proto.className = function className() {
+    return 'Modal--small SignUpModal';
+  };
+
+  _proto.title = function title() {
+    return app.translator.transText('core.forum.sign_up.title');
+  };
+
+  _proto.content = function content() {
+    return [m("div", {
+      className: "Modal-body"
+    }, this.body()), m("div", {
+      className: "Modal-footer"
+    }, this.footer())];
+  };
+
+  _proto.isProvided = function isProvided(field) {
+    return this.props.provided && this.props.provided.indexOf(field) !== -1;
+  };
+
+  _proto.body = function body() {
+    return [this.props.token ? '' : m(_LogInButtons__WEBPACK_IMPORTED_MODULE_4__["default"], null), m("div", {
+      className: "Form Form--centered"
+    }, this.fields().toArray())];
+  };
+
+  _proto.fields = function fields() {
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__["default"]();
+    items.add('username', m("div", {
+      className: "Form-group"
+    }, m("input", {
+      className: "FormControl",
+      name: "username",
+      type: "text",
+      placeholder: app.translator.transText('core.forum.sign_up.username_placeholder'),
+      value: this.username(),
+      onchange: m.withAttr('value', this.username),
+      disabled: this.loading || this.isProvided('username')
+    })), 30);
+    items.add('email', m("div", {
+      className: "Form-group"
+    }, m("input", {
+      className: "FormControl",
+      name: "email",
+      type: "email",
+      placeholder: app.translator.transText('core.forum.sign_up.email_placeholder'),
+      value: this.email(),
+      onchange: m.withAttr('value', this.email),
+      disabled: this.loading || this.isProvided('email')
+    })), 20);
+
+    if (!this.props.token) {
+      items.add('password', m("div", {
+        className: "Form-group"
+      }, m("input", {
+        className: "FormControl",
+        name: "password",
+        type: "password",
+        placeholder: app.translator.transText('core.forum.sign_up.password_placeholder'),
+        value: this.password(),
+        onchange: m.withAttr('value', this.password),
+        disabled: this.loading
+      })), 10);
+    }
+
+    items.add('submit', m("div", {
+      className: "Form-group"
+    }, m(_common_components_Button__WEBPACK_IMPORTED_MODULE_3__["default"], {
+      className: "Button Button--primary Button--block",
+      type: "submit",
+      loading: this.loading
+    }, app.translator.trans('core.forum.sign_up.submit_button'))), -10);
+    return items;
+  };
+
+  _proto.footer = function footer() {
+    return [m("p", {
+      className: "SignUpModal-logIn"
+    }, app.translator.trans('core.forum.sign_up.log_in_text', {
+      a: m("a", {
+        onclick: this.logIn.bind(this)
+      })
+    }))];
+  }
+  /**
+   * Open the log in modal, prefilling it with an email/username/password if
+   * the user has entered one.
+   *
+   * @public
+   */
+  ;
+
+  _proto.logIn = function logIn() {
+    var props = {
+      identification: this.email() || this.username(),
+      password: this.password()
+    };
+    app.modal.show(_LogInModal__WEBPACK_IMPORTED_MODULE_5__["default"], props);
+  };
+
+  _proto.onready = function onready() {
+    if (this.props.username && !this.props.email) {
+      this.$('[name=email]').select();
+    } else {
+      this.$('[name=username]').select();
+    }
+  };
+
+  _proto.onsubmit = function onsubmit(e) {
+    e.preventDefault();
+    this.loading = true;
+    var data = this.submitData();
+    app.request({
+      url: app.forum.attribute('baseUrl') + '/register',
+      method: 'POST',
+      data: data,
+      errorHandler: this.onerror.bind(this)
+    }).then(function () {
+      return window.location.reload();
+    }, this.loaded.bind(this));
+  }
+  /**
+   * Get the data that should be submitted in the sign-up request.
+   *
+   * @return {Object}
+   * @public
+   */
+  ;
+
+  _proto.submitData = function submitData() {
+    var data = {
+      username: this.username(),
+      email: this.email()
+    };
+
+    if (this.props.token) {
+      data.token = this.props.token;
+    } else {
+      data.password = this.password();
+    }
+
+    return data;
+  };
+
+  return SignUpModal;
+}(_common_components_Modal__WEBPACK_IMPORTED_MODULE_1__["default"]);
 
 
 

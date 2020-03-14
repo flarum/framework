@@ -6,6 +6,7 @@ import ItemList from '../../common/utils/ItemList';
 import Button from '../../common/components/Button';
 
 import LogInButtons from './LogInButtons';
+import SignUpModal from './SignUpModal';
 
 export interface LogInModalProps extends ComponentProps {
     identification?: string;
@@ -20,17 +21,17 @@ export default class LogInModal extends Modal<LogInModalProps> {
     /**
      * The value of the identification input.
      */
-    identification: Stream<string>;
+    identification!: Stream<string>;
 
     /**
      * The value of the password input.
      */
-    password: Stream<string>;
+    password!: Stream<string>;
 
     /**
      * The value of the remember me input.
      */
-    remember: Stream<string>;
+    remember!: Stream<boolean>;
 
     oninit(vnode) {
         super.oninit(vnode);
@@ -158,7 +159,7 @@ export default class LogInModal extends Modal<LogInModalProps> {
         const identification = this.identification();
         props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
 
-        // app.modal.show(SignUpModal, props);
+        app.modal.show(SignUpModal, props);
     }
 
     oncreate(vnode) {
