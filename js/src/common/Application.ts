@@ -1,6 +1,5 @@
 import Mithril from 'mithril';
 
-import Bus from './Bus';
 import Translator from './Translator';
 import Session from './Session';
 import Store from './Store';
@@ -10,6 +9,8 @@ import extract from './utils/extract';
 import mapRoutes from './utils/mapRoutes';
 import Drawer from './utils/Drawer';
 import RequestError from './utils/RequestError';
+import ItemList from './utils/ItemList';
+import ScrollListener from './utils/ScrollListener';
 
 import Forum from './models/Forum';
 import Discussion from './models/Discussion';
@@ -23,6 +24,8 @@ import Button from './components/Button';
 import ModalManager from './components/ModalManager';
 import RequestErrorModal from './components/RequestErrorModal';
 
+import { flattenDeep } from 'lodash-es';
+
 export type ApplicationData = {
     apiDocument: any;
     locale: string;
@@ -35,22 +38,39 @@ export default abstract class Application {
     /**
      * The forum model for this application.
      */
-    forum: Forum;
+    public forum!: Forum;
 
-    data: ApplicationData;
+    /**
+     * A map of routes, keyed by a unique route name. Each route is an object
+     * containing the following properties:
+     *
+     * - `path` The path that the route is accessed at.
+     * - `component` The Mithril component to render when this route is active.
+     *
+     * @example
+     * app.routes.discussion = {path: '/d/:id', component: DiscussionPage.component()};
+     */
+    public routes: { [key: string]: { path: string; component: any; [key: string]: any } } = {};
 
-    translator = new Translator();
-    bus = new Bus();
+    /**
+     * An ordered list of initializers to bootstrap the application.
+     */
+    public initializers = new ItemList();
 
     /**
      * The app's session.
      */
-    session: Session;
+    public session!: Session;
+
+    /**
+     * The app's translator.
+     */
+    public translator = new Translator();
 
     /**
      * The app's data store.
      */
-    store = new Store({
+    public store = new Store({
         forums: Forum,
         users: User,
         discussions: Discussion,
@@ -59,37 +79,38 @@ export default abstract class Application {
         notifications: Notification,
     });
 
-    drawer = new Drawer();
-
-    modal: ModalManager;
-
     /**
      * A local cache that can be used to store data at the application level, so
      * that is persists between different routes.
      */
-    cache: { [key: string]: any } = {};
+    public cache: { [key: string]: any } = {};
 
-    routes = {};
-
-    title = '';
-    titleCount = 0;
+    /**
+     * Whether or not the app has been booted.
+     */
+    public booted: boolean = false;
 
     /**
      * An Alert that was shown as a result of an AJAX request error. If present,
      * it will be dismissed on the next successful request.
      */
-    private requestError: Alert = null;
+    private requestError: Alert | null = null;
 
-    mount(basePath = '') {
-        m.mount(document.getElementById('modal'), new ModalManager());
+    data!: ApplicationData;
 
-        // this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
+    title = '';
+    titleCount = 0;
 
-        m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
+    drawer = new Drawer();
+    modal!: ModalManager;
+
+    load(payload) {
+        this.data = payload;
+        this.translator.locale = payload.locale;
     }
 
-    boot(payload: any) {
-        this.data = payload;
+    boot() {
+        this.initializers.toArray().forEach(initializer => initializer(this));
 
         this.store.pushPayload({ data: this.data.resources });
 
@@ -97,26 +118,42 @@ export default abstract class Application {
 
         this.session = new Session(this.store.getById('users', this.data.session.userId), this.data.session.csrfToken);
 
-        this.locale();
-        this.plugins();
-        this.setupRoutes();
         this.mount();
 
-        this.bus.dispatch('app.booting');
+        this.booted = true;
     }
 
-    locale() {
-        this.translator.locale = this.data.locale;
+    bootExtensions(extensions) {
+        Object.keys(extensions).forEach(name => {
+            const extension = extensions[name];
 
-        this.bus.dispatch('app.locale');
+            const extenders = flattenDeep(extension.extend);
+
+            for (const extender of extenders) {
+                extender.extend(this, { name, exports: extension });
+            }
+        });
     }
 
-    plugins() {
-        this.bus.dispatch('app.plugins');
-    }
+    mount(basePath = '') {
+        m.mount(document.getElementById('modal'), new ModalManager());
 
-    setupRoutes() {
-        this.bus.dispatch('app.routes');
+        // this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
+
+        m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
+
+        // Add a class to the body which indicates that the page has been scrolled
+        // down.
+        new ScrollListener(top => {
+            const $app = $('#app');
+            const offset = $app.offset().top;
+
+            $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
+        }).start();
+
+        $(() => {
+            $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
+        });
     }
 
     /**
