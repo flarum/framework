@@ -23,7 +23,7 @@ export default class AuthPage extends Page {
     this.driverFields = this.driverFieldsList().toArray();
     this.driverInputs = [];
 
-    this.fields = ['allow_sign_up', 'enable_user_pass_auth'];
+    this.fields = ['allow_sign_up', 'enable_password_auth'];
     this.values = {};
 
     const settings = app.data.settings;
@@ -67,10 +67,10 @@ export default class AuthPage extends Page {
 
             <fieldset class="AuthPage-settings">
               {Switch.component({
-                state: this.values.enable_user_pass_auth(),
-                onchange: this.values.enable_user_pass_auth,
+                state: this.values.enable_password_auth(),
+                onchange: this.values.enable_password_auth,
                 disabled: this.allSsoDisabled(),
-                children: app.translator.trans('core.admin.auth.enable_user_pass_auth_label'),
+                children: app.translator.trans('core.admin.auth.enable_password_auth_label'),
               })}
               {Switch.component({
                 state: this.values.allow_sign_up(),
@@ -131,7 +131,7 @@ export default class AuthPage extends Page {
     this.driverInputs[key].props.state = this.values[key]();
 
     if (this.allSsoDisabled()) {
-      this.values['enable_user_pass_auth'](true);
+      this.values['enable_password_auth'](true);
       m.redraw();
     }
 

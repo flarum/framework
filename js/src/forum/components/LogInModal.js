@@ -59,7 +59,7 @@ export default class LogInModal extends Modal {
   fields() {
     const items = new ItemList();
 
-    if (app.forum.attribute('enableUserPassAuth')) {
+    if (app.forum.attribute('enablePasswordAuth')) {
       items.add(
         'identification',
         <div className="Form-group">

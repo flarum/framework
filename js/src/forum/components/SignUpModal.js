@@ -64,7 +64,7 @@ export default class SignUpModal extends Modal {
   fields() {
     const items = new ItemList();
 
-    if (app.forum.attribute('enableUserPassAuth') || this.props.token) {
+    if (app.forum.attribute('enablePasswordAuth') || this.props.token) {
       items.add(
         'username',
         <div className="Form-group">

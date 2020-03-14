@@ -82,9 +82,9 @@ class CreateTokenController implements RequestHandlerInterface
             throw new NotAuthenticatedException;
         }
 
-        // If username/password authentication disabled, throw an error
+        // If password authentication disabled, throw an error
         // if the user is not an admin.
-        if (!$this->settings->get('enable_user_pass_auth')) {
+        if (!$this->settings->get('enable_password_auth')) {
             $this->assertAdmin($user);
         }
 

@@ -65,7 +65,7 @@ export default class SsoGrid extends Component {
   }
 
   disableUnlinking(provider) {
-    return this.providerLinked(provider) && !app.forum.attribute('enableUserPassAuth') && app.session.user.ssoProviders().length == 1;
+    return this.providerLinked(provider) && !app.forum.attribute('enablePasswordAuth') && app.session.user.ssoProviders().length == 1;
   }
 
   /**

@@ -86,7 +86,7 @@ export default class SettingsPage extends UserPage {
   accountItems() {
     const items = new ItemList();
 
-    if (app.forum.attribute('enableUserPassAuth')) {
+    if (app.forum.attribute('enablePasswordAuth')) {
       items.add(
         'changePassword',
         Button.component({

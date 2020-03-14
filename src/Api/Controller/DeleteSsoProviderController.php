@@ -58,7 +58,7 @@ class DeleteSsoProviderController extends AbstractDeleteController
             throw new RouteNotFoundException;
         }
 
-        if (!$this->settings->get('enable_user_pass_auth', true) && count($actor->ssoProviderNames()) == 1) {
+        if (!$this->settings->get('enable_password_auth', true) && count($actor->ssoProviderNames()) == 1) {
             throw new PermissionDeniedException;
         }
 

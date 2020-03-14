@@ -10,7 +10,6 @@
 namespace Flarum\Foundation;
 
 use Flarum\Foundation\Console\InfoCommand;
-use Flarum\Forum\Console\EnableUserPassAuthCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;

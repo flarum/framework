@@ -85,7 +85,7 @@ class ForumSerializer extends AbstractSerializer
             'headerHtml' => $this->settings->get('custom_header'),
             'footerHtml' => $this->settings->get('custom_footer'),
             'allowSignUp' => (bool) $this->settings->get('allow_sign_up'),
-            'enableUserPassAuth' => (bool) $this->settings->get('enable_user_pass_auth', true),
+            'enablePasswordAuth' => (bool) $this->settings->get('enable_password_auth', true),
             'defaultRoute'  => $this->settings->get('default_route'),
             'canViewDiscussions' => $this->actor->can('viewDiscussions'),
             'canStartDiscussion' => $this->actor->can('startDiscussion'),

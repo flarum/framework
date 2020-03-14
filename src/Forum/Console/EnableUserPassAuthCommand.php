@@ -12,7 +12,7 @@ namespace Flarum\Forum\Console;
 use Flarum\Console\AbstractCommand;
 use Flarum\Settings\SettingsRepositoryInterface;
 
-class EnableUserPassAuthCommand extends AbstractCommand
+class EnablePasswordAuthCommand extends AbstractCommand
 {
     /**
      * @var SettingsRepositoryInterface
@@ -35,8 +35,8 @@ class EnableUserPassAuthCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->setName('auth:enableUserPassAuth')
-            ->setDescription('Enable the standard username/password authentication system.');
+            ->setName('auth:enablePasswordAuth')
+            ->setDescription('Enable the standard password authentication system.');
     }
 
     /**
@@ -46,7 +46,7 @@ class EnableUserPassAuthCommand extends AbstractCommand
     {
         $this->info('Reenabling...');
 
-        $this->settings->set('enable_user_pass_auth', true);
+        $this->settings->set('enable_password_auth', true);
 
         $this->info('DONE.');
     }
