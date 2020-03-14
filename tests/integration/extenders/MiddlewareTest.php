@@ -88,13 +88,14 @@ class MiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function can_insert_before_middleware() {
+    public function can_insert_before_middleware()
+    {
         $this->add_first_middleware();
         $this->extend(
             (new Extend\Middleware('forum'))->insertBefore(FirstTestMiddleware::class, SecondTestMiddleware::class)
         );
 
-        $response =  $this->send($this->request('GET', '/'));
+        $response = $this->send($this->request('GET', '/'));
         $headers = $response->getHeaders();
         $newMiddlewarePosition = array_search('X-Second-Test-Middleware', array_keys($headers));
         $originalMiddlewarePosition = array_search('X-First-Test-Middleware', array_keys($headers));
@@ -106,13 +107,14 @@ class MiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function can_insert_after_middleware() {
+    public function can_insert_after_middleware()
+    {
         $this->add_first_middleware();
         $this->extend(
             (new Extend\Middleware('forum'))->insertAfter(FirstTestMiddleware::class, SecondTestMiddleware::class)
         );
 
-        $response =  $this->send($this->request('GET', '/'));
+        $response = $this->send($this->request('GET', '/'));
         $headers = $response->getHeaders();
         $newMiddlewarePosition = array_search('X-Second-Test-Middleware', array_keys($headers));
         $originalMiddlewarePosition = array_search('X-First-Test-Middleware', array_keys($headers));
