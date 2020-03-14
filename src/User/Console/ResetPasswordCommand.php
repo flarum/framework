@@ -18,7 +18,6 @@ use Symfony\Component\Console\Question\Question;
 
 class ResetPasswordCommand extends AbstractCommand
 {
-    protected $questionHelper;
 
     protected $userRepository;
 
@@ -27,9 +26,8 @@ class ResetPasswordCommand extends AbstractCommand
     /**
      * @param UserRepository $userRepository
      */
-    public function __construct(QuestionHelper $questionHelper, UserRepository $userRepository, UserValidator $userValidator)
+    public function __construct(UserRepository $userRepository, UserValidator $userValidator)
     {
-        $this->questionHelper = $questionHelper;
         $this->userRepository = $userRepository;
         $this->userValidator = $userValidator;
 
