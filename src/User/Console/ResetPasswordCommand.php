@@ -65,7 +65,7 @@ class ResetPasswordCommand extends AbstractCommand
             if ($user) {
                 return $user;
             } else {
-                $this->validationError('User with this username or email does not exist.');
+                $this->error('User with this username or email does not exist.');
                 continue;
             }
         }
@@ -80,7 +80,7 @@ class ResetPasswordCommand extends AbstractCommand
                 $this->userValidator->assertValid(compact('password'));
             } catch (ValidationException $e) {
                 foreach ($e->errors()['password'] as $error) {
-                    $this->validationError($error);
+                    $this->error($error);
                 }
                 continue;
             }
@@ -88,33 +88,11 @@ class ResetPasswordCommand extends AbstractCommand
             $confirmation = $this->secret('New password (confirmation):');
 
             if ($password !== $confirmation) {
-                $this->validationError('The password did not match its confirmation.');
+                $this->error('The password did not match its confirmation.');
                 continue;
             }
 
             return $password;
         }
-    }
-
-    private function ask($question, $default = null)
-    {
-        $question = new Question("<question>$question</question> ", $default);
-
-        return $this->questionHelper->ask($this->input, $this->output, $question);
-    }
-
-    private function secret($question)
-    {
-        $question = new Question("<question>$question</question> ");
-
-        $question->setHidden(true)->setHiddenFallback(true);
-
-        return $this->questionHelper->ask($this->input, $this->output, $question);
-    }
-
-    private function validationError($message)
-    {
-        $this->output->writeln("<error>$message</error>");
-        $this->output->writeln('Please try again.');
     }
 }
