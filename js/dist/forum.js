@@ -15763,7 +15763,7 @@ var Model = /*#__PURE__*/function () {
   ;
 
   _proto.attribute = function attribute(_attribute) {
-    return this.data.attributes[_attribute];
+    return this.data.attributes && this.data.attributes[_attribute];
   }
   /**
    * Merge new data into this model locally.
@@ -15777,23 +15777,23 @@ var Model = /*#__PURE__*/function () {
     // Since most of the top-level items in a resource object are objects
     // (e.g. relationships, attributes), we'll need to check and perform the
     // merge at the second level if that's the case.
-    for (var key in data) {
-      if (typeof data[key] === 'object') {
-        this.data[key] = this.data[key] || {}; // For every item in a second-level object, we want to check if we've
+    for (var _key in data) {
+      if (typeof data[_key] === 'object') {
+        this.data[_key] = this.data[_key] || {}; // For every item in a second-level object, we want to check if we've
         // been handed a Model instance. If so, we will convert it to a
         // relationship data object.
 
-        for (var innerKey in data[key]) {
-          if (data[key][innerKey] instanceof Model) {
-            data[key][innerKey] = {
-              data: Model.getIdentifier(data[key][innerKey])
+        for (var innerKey in data[_key]) {
+          if (data[_key][innerKey] instanceof Model) {
+            data[_key][innerKey] = {
+              data: Model.getIdentifier(data[_key][innerKey])
             };
           }
 
-          this.data[key][innerKey] = data[key][innerKey];
+          this.data[_key][innerKey] = data[_key][innerKey];
         }
       } else {
-        this.data[key] = data[key];
+        this.data[_key] = data[_key];
       }
     } // Now that we've updated the data, we can say that the model is fresh.
     // This is an easy way to invalidate retained subtrees etc.
@@ -15833,8 +15833,7 @@ var Model = /*#__PURE__*/function () {
     var data = {
       type: this.data.type,
       id: this.data.id,
-      attributes: attributes,
-      relationships: undefined
+      attributes: attributes
     }; // If a 'relationships' key exists, extract it from the attributes hash and
     // set it on the top-level data object instead. We will be sending this data
     // object to the API for persistence.
@@ -15842,9 +15841,9 @@ var Model = /*#__PURE__*/function () {
     if (attributes.relationships) {
       data.relationships = {};
 
-      for (var key in attributes.relationships) {
-        var model = attributes.relationships[key];
-        data.relationships[key] = {
+      for (var _key2 in attributes.relationships) {
+        var model = attributes.relationships[_key2];
+        data.relationships[_key2] = {
           data: model instanceof Array ? model.map(Model.getIdentifier) : Model.getIdentifier(model)
         };
       }
