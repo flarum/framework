@@ -13,8 +13,6 @@ use Flarum\Console\AbstractCommand;
 use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Question\Question;
 
 class ResetPasswordCommand extends AbstractCommand
 {
