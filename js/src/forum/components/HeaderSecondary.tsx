@@ -3,7 +3,7 @@ import { Vnode } from 'mithril';
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
 import LogInModal from './LogInModal';
-// import SignUpModal from './SignUpModal';
+import SignUpModal from './SignUpModal';
 import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import NotificationsDropdown from './NotificationsDropdown';
