@@ -3,44 +3,24 @@ import History from './utils/History';
 
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
-
 import Page from './components/Page';
-import IndexPage from './components/IndexPage';
 import DiscussionList from './components/DiscussionList';
-import DiscussionPage from './components/DiscussionPage';
-import PostsUserPage from './components/PostsUserPage';
-import DiscussionsUserPage from './components/DiscussionsUserPage';
-import SettingsPage from './components/SettingsPage';
-
 import CommentPost from './components/CommentPost';
 
-import User from '../common/models/User';
-import Post from '../common/models/Post';
-import Discussion from '../common/models/Discussion';
 import Notification from '../common/models/Notification';
 
+import routes from './routes';
+
 export default class Forum extends Application {
-    routes = {
-        index: { path: '/all', component: IndexPage },
-
-        discussion: { path: '/d/:id', component: DiscussionPage },
-        'discussion.near': { path: '/d/:id/:near', component: DiscussionPage },
-
-        user: { path: '/u/:username', component: PostsUserPage },
-        'user.posts': { path: '/u/:username', component: PostsUserPage },
-        'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage },
-
-        settings: { path: '/settings', component: SettingsPage },
-
-        'index.filter': { path: '/:filter', component: IndexPage },
-    };
-
     /**
      * The app's history stack, which keeps track of which routes the user visits
      * so that they can easily navigate back to the previous route.
      */
     history: History = new History();
 
+    /**
+     * {@inheritdoc}
+     */
     cache: {
         notifications?: Notification[][];
         discussionList?: DiscussionList;
@@ -54,6 +34,12 @@ export default class Forum extends Application {
 
     previous: Page;
     current: Page;
+
+    constructor() {
+        super();
+
+        routes(this);
+    }
 
     mount() {
         // Get the configured default route and update that route's path to be '/'.
@@ -96,37 +82,5 @@ export default class Forum extends Application {
                 m.redraw();
             }
         });
-    }
-
-    setupRoutes() {
-        super.setupRoutes();
-
-        this.route.discussion = (discussion: Discussion, near?: number): string => {
-            const slug = discussion?.slug();
-            const hasNear = near && near !== 1;
-            const params = {
-                id: discussion.id() + (slug.trim() ? '-' + slug : ''),
-            };
-
-            if (hasNear) params['near'] = near;
-
-            return this.route(near && near !== 1 ? 'discussion.near' : 'discussion', params);
-        };
-
-        /**
-         * Generate a URL to a post.
-         */
-        this.route.post = (post: Post): string => {
-            return this.route.discussion(post.discussion(), post.number());
-        };
-
-        /**
-         * Generate a URL to a user.
-         */
-        this.route.user = (user: User): string => {
-            return this.route('user', {
-                username: user.username(),
-            });
-        };
     }
 }
