@@ -24,7 +24,7 @@ import Button from './components/Button';
 import ModalManager from './components/ModalManager';
 import RequestErrorModal from './components/RequestErrorModal';
 
-import { flattenDeep } from 'lodash-es';
+import flattenDeep from 'lodash/flattenDeep';
 
 export type ApplicationData = {
     apiDocument: any;

@@ -9,7 +9,7 @@
     "flarum-webpack-config": "^0.1.0-beta.10",
     "hc-sticky": "^2.2.3",
     "jump.js": "^1.0.2",
-    "lodash-es": "^4.17.15",
+    "lodash": "^4.17.15",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
     "micromodal": "^0.4.2",
     "mithril": "^2.0.4",
