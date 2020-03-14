@@ -9,7 +9,7 @@ export default class Store {
      * The local data store. A tree of resource types to IDs, such that
      * accessing data[type][id] will return the model for that type/ID.
      */
-    data: { [key: string]: { [key: number]: Model } } = {};
+    data: { [key: string]: Model[] } = {};
 
     /**
      * The model registry. A map of resource types to the model class that
@@ -49,7 +49,7 @@ export default class Store {
      * @return The model, or null if no model class has been
      *     registered for this resource type.
      */
-    pushObject(data): Model {
+    pushObject(data): Model | null {
         if (!this.models[data.type]) return null;
 
         const type = (this.data[data.type] = this.data[data.type] || {});
@@ -87,7 +87,7 @@ export default class Store {
             url += `/${id}`;
         }
 
-        return app
+        return <Promise<T[]>>app
             .request(
                 Object.assign(
                     {

@@ -6,11 +6,21 @@
  */
 import Store from './Store';
 
+export interface Identifier {
+    type: string;
+    id: string;
+}
+
+export interface Data extends Identifier {
+    attributes?: { [key: string]: any };
+    relationships?: { [key: string]: { data: Identifier | Identifier[] } };
+}
+
 export default class Model {
     /**
      * The resource object from the API.
      */
-    data: any;
+    data: Data;
 
     payload: any;
 
@@ -56,7 +66,7 @@ export default class Model {
      * @final
      */
     attribute(attribute: string): any {
-        return this.data.attributes[attribute];
+        return this.data.attributes && this.data.attributes[attribute];
     }
 
     /**
@@ -110,7 +120,7 @@ export default class Model {
      * @return {Promise}
      */
     save(attributes: any, options: any = {}): Promise<Model | Model[]> {
-        const data = {
+        const data: Data = {
             type: this.data.type,
             id: this.data.id,
             attributes,
@@ -223,7 +233,7 @@ export default class Model {
      * @param [transform] A function to transform the attribute value
      */
     static attribute(name: string, transform?: Function): () => any {
-        return function() {
+        return function(this: Model) {
             const value = this.data.attributes && this.data.attributes[name];
 
             return transform ? transform(value) : value;
@@ -239,7 +249,7 @@ export default class Model {
      *     has not been loaded; or the model if it has been loaded.
      */
     static hasOne(name: string): () => Model | boolean {
-        return function() {
+        return function(this: Model) {
             if (this.data.relationships) {
                 const relationship = this.data.relationships[name];
 
@@ -260,8 +270,8 @@ export default class Model {
      *     exists; an array if it does, containing models if they have been
      *     loaded, and undefined for those that have not.
      */
-    static hasMany(name: string): () => [] | boolean {
-        return function() {
+    static hasMany(name: string): () => any[] | false {
+        return function(this: Model) {
             if (this.data.relationships) {
                 const relationship = this.data.relationships[name];
 
@@ -277,14 +287,14 @@ export default class Model {
     /**
      * Transform the given value into a Date object.
      */
-    static transformDate(value: string): Date {
+    static transformDate(value: string): Date | null {
         return value ? new Date(value) : null;
     }
 
     /**
      * Get a resource identifier object for the given model.
      */
-    protected static getIdentifier(model: Model): { type: string; id: string } {
+    protected static getIdentifier(model: Model): Identifier {
         return {
             type: model.data.type,
             id: model.data.id,

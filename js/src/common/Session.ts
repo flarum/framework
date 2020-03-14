@@ -24,7 +24,7 @@ export default class Session {
     /**
      * Attempt to log in a user.
      */
-    login(body: { identification: string; password: string; remember?: string }, options = {}) {
+    login(body: { identification: string; password: string; remember?: boolean }, options = {}) {
         return app.request(
             Object.assign(
                 {
