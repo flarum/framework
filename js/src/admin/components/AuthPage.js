@@ -19,15 +19,17 @@ export default class AuthPage extends Page {
   refresh() {
     this.loading = true;
 
+    const settings = app.data.settings;
+
     this.drivers = app.data.ssoDrivers;
     this.driverFields = this.driverFieldsList().toArray();
     this.driverInputs = [];
 
     this.fields = ['allow_sign_up', 'enable_password_auth'];
-    this.values = {};
-
-    const settings = app.data.settings;
-    this.fields.forEach((key) => (this.values[key] = m.prop(settings[key])));
+    this.values = {
+      allow_sign_up: m.prop(settings.allow_sign_up == '1'),
+      enable_password_auth: m.prop(settings.enable_password_auth == '1'),
+    };
 
     for (const driver in this.drivers) {
       this.driverFields.forEach((field) => {
@@ -41,6 +43,12 @@ export default class AuthPage extends Page {
           onchange: () => this.toggle(fieldName),
         });
       });
+    }
+
+    if (this.allSsoDisabled() && !this.values['enable_password_auth']()) {
+      this.values['enable_password_auth'](true);
+      this.saveSettings();
+      m.redraw();
     }
 
     this.loading = false;
@@ -178,7 +186,10 @@ export default class AuthPage extends Page {
 
   onsubmit(e) {
     e.preventDefault();
+    this.saveSettings();
+  }
 
+  saveSettings() {
     if (this.saving) return;
 
     this.saving = true;

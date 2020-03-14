@@ -1,4 +1,3 @@
-
 import Component from '../../common/Component';
 import Checkbox from '../../common/components/Checkbox';
 import icon from '../../common/helpers/icon';
