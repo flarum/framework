@@ -114,7 +114,6 @@ export default class Model {
             type: this.data.type,
             id: this.data.id,
             attributes,
-            relationships: undefined,
         };
 
         // If a 'relationships' key exists, extract it from the attributes hash and
