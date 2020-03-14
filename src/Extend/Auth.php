@@ -17,8 +17,6 @@ class Auth implements ExtenderInterface
 {
     protected $ssoDrivers = [];
 
-    protected $authLifecycleHandlers = [];
-
     /**
      * @param string $provider URL-friendly, lowercase identifier (ex. 'github', 'saml', 'google', 'facebook', 'wechat')
      * @param $driver Class attribute of driver that implements Flarum\Forum\Auth\SsoDriverInterface
@@ -30,26 +28,10 @@ class Auth implements ExtenderInterface
         return $this;
     }
 
-    /**
-     * @param $handler class attribute of Auth Lifecycle Handler that extends Flarum\User\AbstractAuthLifecycleHandler
-     */
-    public function authLifecycleHandler($handler)
-    {
-        $this->authLifecycleHandlers[] = $handler;
-
-        return $this;
-    }
-
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend("flarum.auth.supported_drivers", function ($existingMiddleware) {
             return array_merge($existingMiddleware, $this->ssoDrivers);
         });
-
-        $events = $container->make(Dispatcher::class);
-
-        foreach ($this->authLifecycleHandlers as $handler) {
-            $events->subscribe($container->make($handler));
-        }
     }
 }
