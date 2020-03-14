@@ -10,7 +10,7 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
-use Flarum\Api\Controller\ShowUserController;
+use Flarum\Api\Controller\ListUsersController;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User as FlarumUser;
@@ -44,14 +44,16 @@ class User
     {
         $queryParams = $request->getQueryParams();
         $actor = $request->getAttribute('actor');
-        $userId = Arr::get($queryParams, 'username');
+        $username = Arr::get($queryParams, 'username');
 
         $params = [
-            'id' => $userId,
+            'filter' => [
+                'q' => "username:$username",
+            ],
         ];
 
         $apiDocument = $this->getApiDocument($actor, $params);
-        $user = $apiDocument->data->attributes;
+        $user = $apiDocument->data[0]->attributes;
 
         $document->title = $user->displayName;
         $document->canonicalUrl = $this->url->to('forum')->route('user', ['username' => $user->username]);
@@ -70,13 +72,19 @@ class User
      */
     protected function getApiDocument(FlarumUser $actor, array $params)
     {
-        $response = $this->api->send(ShowUserController::class, $actor, $params);
+        $response = $this->api->send(ListUsersController::class, $actor, $params);
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {
             throw new ModelNotFoundException;
         }
 
-        return json_decode($response->getBody());
+        $body = json_decode($response->getBody());
+
+        if (count($body->data) === 0) {
+            throw new ModelNotFoundException;
+        }
+
+        return $body;
     }
 }

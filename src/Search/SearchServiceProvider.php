@@ -21,6 +21,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\User\Search\Gambit\EmailGambit;
 use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextGambit;
 use Flarum\User\Search\Gambit\GroupGambit;
+use Flarum\User\Search\Gambit\UsernameGambit;
 use Flarum\User\Search\UserSearcher;
 use Illuminate\Contracts\Container\Container;
 
@@ -48,6 +49,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 $gambits->setFulltextGambit(UserFulltextGambit::class);
                 $gambits->add(EmailGambit::class);
                 $gambits->add(GroupGambit::class);
+                $gambits->add(UsernameGambit::class);
 
                 $app->make('events')->dispatch(
                     new ConfigureUserGambits($gambits)

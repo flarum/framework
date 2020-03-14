@@ -7,6 +7,7 @@ import SelectDropdown from '../../common/components/SelectDropdown';
 import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
 import listItems from '../../common/helpers/listItems';
+import Alert from '../../common/components/Alert';
 
 /**
  * The `UserPage` component shows a user's profile. It can be extended to show
@@ -91,14 +92,37 @@ export default class UserPage extends Page {
     app.preloadedApiDocument();
 
     app.store.all('users').some((user) => {
-      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username) && user.joinTime()) {
+      if (user.username().toLowerCase() === lowercaseUsername && user.joinTime()) {
         this.show(user);
         return true;
       }
     });
 
     if (!this.user) {
-      app.store.find('users', username).then(this.show.bind(this));
+      app
+        .request({
+          method: 'GET',
+          url: app.forum.attribute('apiUrl') + '/users',
+          data: {
+            filter: {
+              q: 'username:' + username,
+            },
+          },
+        })
+        .then((payload) => {
+          const users = app.store.pushPayload(payload);
+
+          if (users.length) {
+            this.show(users[0]);
+          } else {
+            app.alerts.show(
+              new Alert({
+                type: 'error',
+                children: app.translator.trans('core.lib.error.not_found_message'),
+              })
+            );
+          }
+        });
     }
   }
 
