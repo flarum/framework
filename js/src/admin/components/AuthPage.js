@@ -17,8 +17,6 @@ export default class AuthPage extends Page {
   }
 
   refresh() {
-    this.loading = true;
-
     const settings = app.data.settings;
 
     this.drivers = app.data.ssoDrivers;
@@ -51,7 +49,6 @@ export default class AuthPage extends Page {
       m.redraw();
     }
 
-    this.loading = false;
     m.redraw();
   }
 
