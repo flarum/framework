@@ -36,7 +36,7 @@ export default class AuthPage extends Page {
         this.fields.push(fieldName);
         this.values[fieldName] = m.prop(settings[fieldName]);
 
-        this.driverInputs[fieldName] = new Checkbox({
+        this.driverInputs[fieldName] = Checkbox.component({
           state: this.values[fieldName](),
           onchange: () => this.toggle(fieldName),
         });
@@ -106,8 +106,10 @@ export default class AuthPage extends Page {
                         <td className="SsoGrid-groupToggle">
                           {icon(this.drivers[driver].icon)} {this.drivers[driver].name || driver}
                         </td>
-                        {this.driverFields.map((field) => (
-                          <td className="SsoGrid-checkbox">{this.driverInputs[this.driverFieldKey(field.name, driver)].render()}</td>
+                        {this.driverFields.map(field => (
+                          <td className="SsoGrid-checkbox">
+                            {this.driverInputs[this.driverFieldKey(field.name, driver)]}
+                          </td>
                         ))}
                       </tr>
                     ))}
