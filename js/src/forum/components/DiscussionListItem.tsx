@@ -146,7 +146,7 @@ export default class DiscussionListItem<T extends DiscussionListItemProps = Disc
     active(): boolean {
         const idParam = m.route.param('id');
 
-        return idParam && idParam.split('-')[0] === this.props.discussion.id();
+        return !!idParam && idParam.split('-')[0] === this.props.discussion.id();
     }
 
     /**
