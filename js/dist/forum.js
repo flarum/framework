@@ -12825,7 +12825,13 @@ var Application = /*#__PURE__*/function () {
     if (!route) throw new Error("Route '" + name + "' does not exist");
     var url = route.path.replace(/:([^\/]+)/g, function (m, key) {
       return Object(_utils_extract__WEBPACK_IMPORTED_MODULE_5__["default"])(params, key);
-    });
+    }); // Remove falsy values in params to avoid
+    // having urls like '/?sort&q'
+
+    for (var _key in params) {
+      if (params.hasOwnProperty(_key) && !params[_key]) delete params[_key];
+    }
+
     var queryString = m.buildQueryString(params);
     var prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
     return prefix + url + (queryString ? '?' + queryString : '');
@@ -17195,6 +17201,22 @@ $.fn.animatedScrollTop = function (to, duration, callback) {
     callback: callback
   });
   return this;
+}; // add basic $().slideUp() function
+
+
+$.fn.slideUp = function (duration, easing, callback) {
+  if (duration === void 0) {
+    duration = $.fx.speeds._default;
+  }
+
+  this.css({
+    overflow: 'hidden',
+    height: this.height()
+  });
+  this.animate({
+    height: 0
+  }, duration, easing, callback);
+  return this;
 }; // required for compatibility with jquery plugins
 // ex: bootstrap plugins
 
@@ -18628,7 +18650,7 @@ var DiscussionListItem = /*#__PURE__*/function (_Component) {
 
   _proto.active = function active() {
     var idParam = m.route.param('id');
-    return idParam && idParam.split('-')[0] === this.props.discussion.id();
+    return !!idParam && idParam.split('-')[0] === this.props.discussion.id();
   }
   /**
    * Determine whether or not information about who started the discussion
@@ -19354,31 +19376,391 @@ var HeaderSecondary = /*#__PURE__*/function (_Component) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return IndexPage; });
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
-/* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
+/* harmony import */ var _common_extend__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/extend */ "./src/common/extend.ts");
+/* harmony import */ var _common_helpers_listItems__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/helpers/listItems */ "./src/common/helpers/listItems.tsx");
+/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _common_components_Dropdown__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/Dropdown */ "./src/common/components/Dropdown.tsx");
+/* harmony import */ var _common_components_LinkButton__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/LinkButton */ "./src/common/components/LinkButton.tsx");
+/* harmony import */ var _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/components/SelectDropdown */ "./src/common/components/SelectDropdown.tsx");
+/* harmony import */ var _DiscussionList__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DiscussionList */ "./src/forum/components/DiscussionList.tsx");
+/* harmony import */ var _DiscussionPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DiscussionPage */ "./src/forum/components/DiscussionPage.tsx");
+/* harmony import */ var _LogInModal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./LogInModal */ "./src/forum/components/LogInModal.tsx");
+/* harmony import */ var _Page__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Page */ "./src/forum/components/Page.tsx");
+/* harmony import */ var _WelcomeHero__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./WelcomeHero */ "./src/forum/components/WelcomeHero.tsx");
 
 
 
-var IndexPage = /*#__PURE__*/function (_Component) {
-  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(IndexPage, _Component);
+
+
+
+
+ // import DiscussionComposer from './DiscussionComposer';
+
+
+
+
+
+
+/**
+ * The `IndexPage` component displays the index page, including the welcome
+ * hero, the sidebar, and the discussion list.
+ */
+
+var IndexPage = /*#__PURE__*/function (_Page) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(IndexPage, _Page);
 
   function IndexPage() {
-    return _Component.apply(this, arguments) || this;
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Page.call.apply(_Page, [this].concat(args)) || this;
+    _this.lastDiscussion = void 0;
+    return _this;
   }
 
   var _proto = IndexPage.prototype;
 
-  _proto.oninit = function oninit() {
-    console.log('IndexPage#oninit');
+  _proto.oninit = function oninit(vnode) {
+    _Page.prototype.oninit.call(this, vnode); // If the user is returning from a discussion page, then take note of which
+    // discussion they have just visited. After the view is rendered, we will
+    // scroll down so that this discussion is in view.
+
+
+    if (app.previous instanceof _DiscussionPage__WEBPACK_IMPORTED_MODULE_9__["default"]) {
+      this.lastDiscussion = app.previous.discussion;
+    } // If the user is coming from the discussion list, then they have either
+    // just switched one of the parameters (filter, sort, search) or they
+    // probably want to refresh the results. We will clear the discussion list
+    // cache so that results are reloaded.
+
+
+    if (app.previous instanceof IndexPage) {
+      app.cache.discussionList = null;
+    }
+
+    var params = this.params();
+
+    if (app.cache.discussionList) {
+      // Compare the requested parameters (sort, search query) to the ones that
+      // are currently present in the cached discussion list. If they differ, we
+      // will clear the cache and set up a new discussion list component with
+      // the new parameters.
+      Object.keys(params).some(function (key) {
+        if (app.cache.discussionList.props.params[key] !== params[key]) {
+          app.cache.discussionList = null;
+          return true;
+        }
+      });
+    }
+
+    if (!app.cache.discussionList) {
+      app.cache.discussionList = new _DiscussionList__WEBPACK_IMPORTED_MODULE_8__["default"]({
+        params: params,
+        oninit: function oninit(vnode) {
+          return app.cache.discussionList = vnode.state;
+        }
+      });
+    }
+
+    app.history.push('index', app.translator.transText('core.forum.header.back_to_index_tooltip'));
+    this.bodyClass = 'App--index';
+  };
+
+  _proto.onremove = function onremove(vnode) {
+    _Page.prototype.onremove.call(this, vnode); // Save the scroll position so we can restore it when we return to the
+    // discussion list.
+
+
+    app.cache.scrollTop = $(window).scrollTop();
   };
 
   _proto.view = function view() {
+    if (!app.cache.discussionList) return;
+    var discussionList = m(_DiscussionList__WEBPACK_IMPORTED_MODULE_8__["default"], app.cache.discussionList.props);
     return m("div", {
-      class: "container"
-    }, m("h1", null, "hi"));
+      className: "IndexPage"
+    }, this.hero(), m("div", {
+      className: "container"
+    }, m("div", {
+      className: "sideNavContainer"
+    }, m("nav", {
+      className: "IndexPage-nav sideNav"
+    }, m("ul", null, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_2__["default"])(this.sidebarItems().toArray()))), m("div", {
+      className: "IndexPage-results sideNavOffset"
+    }, m("div", {
+      className: "IndexPage-toolbar"
+    }, m("ul", {
+      className: "IndexPage-toolbar-view"
+    }, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_2__["default"])(this.viewItems().toArray())), m("ul", {
+      className: "IndexPage-toolbar-action"
+    }, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_2__["default"])(this.actionItems().toArray()))), discussionList))));
+  };
+
+  _proto.oncreate = function oncreate(vnode) {
+    _Page.prototype.oncreate.call(this, vnode);
+
+    var $app = $('#app');
+    Object(_common_extend__WEBPACK_IMPORTED_MODULE_1__["extend"])(vnode.dom, 'onunload', function () {
+      return $app.css('min-height', '');
+    });
+    app.setTitle('');
+    app.setTitleCount(0); // Work out the difference between the height of this hero and that of the
+    // previous hero. Maintain the same scroll position relative to the bottom
+    // of the hero so that the sidebar doesn't jump around.
+
+    var oldHeroHeight = app.cache.heroHeight;
+    var heroHeight = app.cache.heroHeight = this.$('.Hero').outerHeight() || 0;
+    var scrollTop = app.cache.scrollTop;
+    $app.css('min-height', $(window).height() + heroHeight); // Scroll to the remembered position. We do this after a short delay so that
+    // it happens after the browser has done its own "back button" scrolling,
+    // which isn't right. https://github.com/flarum/core/issues/835
+
+    var scroll = function scroll() {
+      return $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
+    };
+
+    scroll();
+    setTimeout(scroll, 1); // If we've just returned from a discussion page, then the constructor will
+    // have set the `lastDiscussion` property. If this is the case, we want to
+    // scroll down to that discussion so that it's in view.
+
+    if (this.lastDiscussion) {
+      var $discussion = this.$(".DiscussionListItem[data-id=\"" + this.lastDiscussion.id() + "\"]");
+
+      if ($discussion.length) {
+        var indexTop = $('#header').outerHeight();
+        var indexBottom = $(window).height();
+        var discussionTop = $discussion.offset().top;
+        var discussionBottom = discussionTop + $discussion.outerHeight();
+
+        if (discussionTop < scrollTop + indexTop || discussionBottom > scrollTop + indexBottom) {
+          $(window).scrollTop(discussionTop - indexTop);
+        }
+      }
+    }
+  }
+  /**
+   * Get the component to display as the hero.
+   */
+  ;
+
+  _proto.hero = function hero() {
+    return m(_WelcomeHero__WEBPACK_IMPORTED_MODULE_12__["default"], null);
+  }
+  /**
+   * Build an item list for the sidebar of the index page. By default this is a
+   * "New Discussion" button, and then a DropdownSelect component containing a
+   * list of navigation items.
+   */
+  ;
+
+  _proto.sidebarItems = function sidebarItems() {
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
+    var canStartDiscussion = app.forum.attribute('canStartDiscussion') || !app.session.user;
+    items.add('newDiscussion', _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+      children: app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
+      icon: 'fas fa-edit',
+      className: 'Button Button--primary IndexPage-newDiscussion',
+      itemClassName: 'App-primaryControl',
+      onclick: this.newDiscussionAction.bind(this),
+      disabled: !canStartDiscussion
+    }));
+    items.add('nav', _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_7__["default"].component({
+      children: this.navItems().toArray(),
+      buttonClassName: 'Button',
+      className: 'App-titleControl'
+    }));
+    return items;
+  }
+  /**
+   * Build an item list for the navigation in the sidebar of the index page. By
+   * default this is just the 'All Discussions' link.
+   */
+  ;
+
+  _proto.navItems = function navItems() {
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
+    var params = this.stickyParams();
+    items.add('allDiscussions', _common_components_LinkButton__WEBPACK_IMPORTED_MODULE_6__["default"].component({
+      href: app.route('index', params),
+      children: app.translator.trans('core.forum.index.all_discussions_link'),
+      icon: 'far fa-comments'
+    }), 100);
+    return items;
+  }
+  /**
+   * Build an item list for the part of the toolbar which is concerned with how
+   * the results are displayed. By default this is just a select box to change
+   * the way discussions are sorted.
+   */
+  ;
+
+  _proto.viewItems = function viewItems() {
+    var _this2 = this;
+
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
+    var sortMap = app.cache.discussionList.sortMap();
+    var sortOptions = {};
+
+    for (var i in sortMap) {
+      sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
+    }
+
+    items.add('sort', _common_components_Dropdown__WEBPACK_IMPORTED_MODULE_5__["default"].component({
+      buttonClassName: 'Button',
+      label: sortOptions[this.params().sort] || Object.keys(sortMap).map(function (key) {
+        return sortOptions[key];
+      })[0],
+      children: Object.keys(sortOptions).map(function (value) {
+        var label = sortOptions[value];
+        var active = (_this2.params().sort || Object.keys(sortMap)[0]) === value;
+        return _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+          children: label,
+          icon: active ? 'fas fa-check' : true,
+          onclick: _this2.changeSort.bind(_this2, value),
+          active: active
+        });
+      })
+    }));
+    return items;
+  }
+  /**
+   * Build an item list for the part of the toolbar which is about taking action
+   * on the results. By default this is just a "mark all as read" button.
+   */
+  ;
+
+  _proto.actionItems = function actionItems() {
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
+    items.add('refresh', _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+      title: app.translator.trans('core.forum.index.refresh_tooltip'),
+      icon: 'fas fa-sync',
+      className: 'Button Button--icon',
+      onclick: function onclick() {
+        app.cache.discussionList.refresh();
+
+        if (app.session.user) {
+          app.store.find('users', app.session.user.id());
+          m.redraw();
+        }
+      }
+    }));
+
+    if (app.session.user) {
+      items.add('markAllAsRead', _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+        title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
+        icon: 'fas fa-check',
+        className: 'Button Button--icon',
+        onclick: this.markAllAsRead.bind(this)
+      }));
+    }
+
+    return items;
+  }
+  /**
+   * Return the current search query, if any. This is implemented to activate
+   * the search box in the header.
+   *
+   * @see Search
+   */
+  ;
+
+  _proto.searching = function searching() {
+    return this.params().q;
+  }
+  /**
+   * Redirect to the index page without a search filter. This is called when the
+   * 'x' is clicked in the search box in the header.
+   *
+   * @see Search
+   */
+  ;
+
+  _proto.clearSearch = function clearSearch() {
+    var params = this.params();
+    delete params.q;
+    m.route.set(app.route(this.props.routeName, params));
+  }
+  /**
+   * Redirect to the index page using the given sort parameter.
+   */
+  ;
+
+  _proto.changeSort = function changeSort(sort) {
+    var params = this.params();
+
+    if (sort === Object.keys(app.cache.discussionList.sortMap())[0]) {
+      delete params.sort;
+    } else {
+      params.sort = sort;
+    }
+
+    m.route(app.route(this.props.routeName, params));
+  }
+  /**
+   * Get URL parameters that stick between filter changes.
+   *
+   * @return {Object}
+   */
+  ;
+
+  _proto.stickyParams = function stickyParams() {
+    return {
+      sort: m.route.param('sort'),
+      q: m.route.param('q')
+    };
+  }
+  /**
+   * Get parameters to pass to the DiscussionList component.
+   *
+   * @return {Object}
+   */
+  ;
+
+  _proto.params = function params() {
+    var params = this.stickyParams();
+    params.filter = m.route.param('filter');
+    return params;
+  }
+  /**
+   * Open the composer for a new discussion or prompt the user to login.
+   *
+   * @return {Promise}
+   */
+  ;
+
+  _proto.newDiscussionAction = function newDiscussionAction() {
+    if (app.session.user) {
+      // const component = new DiscussionComposer({ user: app.session.user });
+      // app.composer.load(component);
+      // app.composer.show();
+      return Promise.resolve();
+    } else {
+      app.modal.show(_LogInModal__WEBPACK_IMPORTED_MODULE_10__["default"]);
+      return Promise.reject();
+    }
+  }
+  /**
+   * Mark all discussions as read.
+   */
+  ;
+
+  _proto.markAllAsRead = function markAllAsRead() {
+    var confirmation = confirm(app.translator.transText('core.forum.index.mark_all_as_read_confirmation'));
+
+    if (confirmation) {
+      app.session.user.save({
+        markedAllAsReadAt: new Date()
+      });
+    }
   };
 
   return IndexPage;
-}(_common_Component__WEBPACK_IMPORTED_MODULE_1__["default"]);
+}(_Page__WEBPACK_IMPORTED_MODULE_11__["default"]);
 
 
 
@@ -23283,6 +23665,86 @@ var UsersSearchSource = /*#__PURE__*/function (_SearchSource) {
 
 /***/ }),
 
+/***/ "./src/forum/components/WelcomeHero.tsx":
+/*!**********************************************!*\
+  !*** ./src/forum/components/WelcomeHero.tsx ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return WelcomeHero; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+
+
+
+/**
+ * The `WelcomeHero` component displays a hero that welcomes the user to the
+ * forum.
+ */
+
+var WelcomeHero = /*#__PURE__*/function (_Component) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(WelcomeHero, _Component);
+
+  function WelcomeHero() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Component.call.apply(_Component, [this].concat(args)) || this;
+    _this.hidden = !!localStorage.getItem('welcomeHidden');
+    return _this;
+  }
+
+  var _proto = WelcomeHero.prototype;
+
+  _proto.view = function view() {
+    var _this2 = this;
+
+    if (this.hidden) return m("div", null);
+
+    var slideUp = function slideUp() {
+      return _this2.$().slideUp(_this2.hide.bind(_this2));
+    };
+
+    return m("header", {
+      className: "Hero WelcomeHero"
+    }, m("div", {
+      class: "container"
+    }, m(_common_components_Button__WEBPACK_IMPORTED_MODULE_2__["default"], {
+      icon: "fas fa-times",
+      className: "Hero-close Button Button--icon Button--link",
+      onclick: slideUp
+    }), m("div", {
+      className: "containerNarrow"
+    }, m("h2", {
+      className: "Hero-title"
+    }, app.forum.attribute('welcomeTitle')), m("div", {
+      className: "Hero-subtitle"
+    }, m.trust(app.forum.attribute('welcomeMessage'))))));
+  }
+  /**
+   * Hide the welcome hero.
+   */
+  ;
+
+  _proto.hide = function hide() {
+    localStorage.setItem('welcomeHidden', 'true');
+    this.hidden = true;
+  };
+
+  return WelcomeHero;
+}(_common_Component__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
+
+/***/ }),
+
 /***/ "./src/forum/index.ts":
 /*!****************************!*\
   !*** ./src/forum/index.ts ***!
@@ -23370,11 +23832,10 @@ __webpack_require__.r(__webpack_exports__);
   app.route.discussion = function (discussion, near) {
     var slug = discussion === null || discussion === void 0 ? void 0 : discussion.slug();
     var hasNear = near && near !== 1;
-    var params = {
-      id: discussion.id() + (slug.trim() ? '-' + slug : '')
-    };
-    if (hasNear) params['near'] = near;
-    return app.route(hasNear ? 'discussion.near' : 'discussion', params);
+    return app.route(hasNear ? 'discussion.near' : 'discussion', {
+      id: discussion.id() + (slug.trim() ? '-' + slug : ''),
+      near: hasNear && near
+    });
   };
   /**
    * Generate a URL to a post.
