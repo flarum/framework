@@ -30,13 +30,11 @@ export default app => {
     app.route.discussion = (discussion: Discussion, near?: number): string => {
         const slug = discussion?.slug();
         const hasNear = near && near !== 1;
-        const params = {
+
+        return app.route(hasNear ? 'discussion.near' : 'discussion', {
             id: discussion.id() + (slug.trim() ? '-' + slug : ''),
-        };
-
-        if (hasNear) params['near'] = near;
-
-        return app.route(hasNear ? 'discussion.near' : 'discussion', params);
+            near: hasNear && near,
+        });
     };
 
     /**
