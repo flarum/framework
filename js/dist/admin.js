@@ -11855,6 +11855,22 @@ $.fn.animatedScrollTop = function (to, duration, callback) {
     callback: callback
   });
   return this;
+}; // add basic $().slideUp() function
+
+
+$.fn.slideUp = function (duration, easing, callback) {
+  if (duration === void 0) {
+    duration = $.fx.speeds._default;
+  }
+
+  this.css({
+    overflow: 'hidden',
+    height: this.height()
+  });
+  this.animate({
+    height: 0
+  }, duration, easing, callback);
+  return this;
 }; // required for compatibility with jquery plugins
 // ex: bootstrap plugins
 
