@@ -1,4 +1,4 @@
-import Mithril from 'mithril';
+import Mithril, { ClassComponent } from 'mithril';
 
 export type ComponentProps = {
     children?: Mithril.Children;
@@ -8,8 +8,8 @@ export type ComponentProps = {
     [key: string]: any;
 };
 
-export default class Component<T extends ComponentProps = any> {
-    element: HTMLElement;
+export default class Component<T extends ComponentProps = any> implements ClassComponent {
+    element!: HTMLElement;
 
     props: T;
 

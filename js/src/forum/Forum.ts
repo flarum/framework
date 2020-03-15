@@ -23,7 +23,7 @@ export default class Forum extends Application {
      */
     cache: {
         notifications?: Notification[][];
-        discussionList?: DiscussionList;
+        discussionList?: DiscussionList | null;
         [key: string]: any;
     } = {};
 
