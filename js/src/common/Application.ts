@@ -200,6 +200,13 @@ export default abstract class Application {
         if (!route) throw new Error(`Route '${name}' does not exist`);
 
         const url = route.path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
+
+        // Remove falsy values in params to avoid
+        // having urls like '/?sort&q'
+        for (const key in params) {
+            if (params.hasOwnProperty(key) && !params[key]) delete params[key];
+        }
+
         const queryString = m.buildQueryString(params);
         const prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
 
