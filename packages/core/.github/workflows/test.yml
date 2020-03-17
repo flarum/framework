@@ -49,7 +49,9 @@ jobs:
         run: sudo update-alternatives --set php $(which php${{ matrix.php }})
 
       - name: Create MySQL Database
-        run: mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+        run: |
+          sudo systemctl start mysql
+          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
 
       - name: Install Composer dependencies
         run: composer install
