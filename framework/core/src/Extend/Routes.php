@@ -16,9 +16,9 @@ use Illuminate\Contracts\Container\Container;
 
 class Routes implements ExtenderInterface
 {
-    protected $appName;
+    private $appName;
 
-    protected $routes = [];
+    private $routes = [];
 
     public function __construct($appName)
     {

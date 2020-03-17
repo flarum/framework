@@ -17,7 +17,7 @@ use Illuminate\Events\Dispatcher;
 
 class Formatter implements ExtenderInterface, LifecycleInterface
 {
-    protected $callback;
+    private $callback;
 
     public function configure($callback)
     {
