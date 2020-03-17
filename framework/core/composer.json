@@ -77,7 +77,7 @@
         "symfony/translation": "^3.3",
         "symfony/yaml": "^3.3",
         "tobscure/json-api": "^0.3.0",
-        "wikimedia/less.php": "^2.0"
+        "wikimedia/less.php": "^3.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.0",
