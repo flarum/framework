@@ -12,6 +12,7 @@ namespace Flarum\User;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Http\AccessTokenPolicy;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
@@ -93,6 +94,7 @@ class UserServiceProvider extends AbstractServiceProvider
 
         $events->subscribe(UserMetadataUpdater::class);
         $events->subscribe(UserPolicy::class);
+        $events->subscribe(AccessTokenPolicy::class);
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
     }

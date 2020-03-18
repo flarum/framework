@@ -14,6 +14,7 @@ import RequestError from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
 import { extend } from './extend';
 
+import AccessToken from './models/AccessToken';
 import Forum from './models/Forum';
 import User from './models/User';
 import Discussion from './models/Discussion';
@@ -81,6 +82,7 @@ export default class Application {
    * @public
    */
   store = new Store({
+    'access-tokens': AccessToken,
     forums: Forum,
     users: User,
     discussions: Discussion,
