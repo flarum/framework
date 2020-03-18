@@ -1,4 +1,4 @@
-import Mithril, { ClassComponent } from 'mithril';
+import Mithril, { ClassComponent, Vnode } from 'mithril';
 
 export type ComponentProps = {
     children?: Mithril.Children;
@@ -22,28 +22,28 @@ export default class Component<T extends ComponentProps = any> implements ClassC
     }
 
     oninit(vnode) {
-        this.setProps(vnode.attrs);
+        this.setProps(vnode);
     }
 
     oncreate(vnode) {
-        this.setProps(vnode.attrs);
+        this.setProps(vnode);
         this.element = vnode.dom;
     }
 
     onbeforeupdate(vnode) {
-        this.setProps(vnode.attrs);
+        this.setProps(vnode);
     }
 
     onupdate(vnode) {
-        this.setProps(vnode.attrs);
+        this.setProps(vnode);
     }
 
     onbeforeremove(vnode) {
-        this.setProps(vnode.attrs);
+        this.setProps(vnode);
     }
 
     onremove(vnode) {
-        this.setProps(vnode.attrs);
+        this.setProps(vnode);
     }
 
     /**
@@ -78,8 +78,12 @@ export default class Component<T extends ComponentProps = any> implements ClassC
 
     static initProps(props: ComponentProps = {}) {}
 
-    private setProps(props: T) {
+    private setProps(vnode: Vnode<T, this>) {
+        const props = vnode.attrs || {};
+
         (this.constructor as typeof Component).initProps(props);
+
+        if (!props.children) props.children = vnode.children;
 
         this.props = props;
     }
