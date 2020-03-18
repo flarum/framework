@@ -1988,6 +1988,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         y: a,
         w: s,
         d: i,
+        D: "date",
         h: r,
         m: e,
         s: n,
@@ -2019,7 +2020,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       var i = t.name;
       m[i] = t, r = i;
     }
-    return e || (l = r), r;
+    return !e && r && (l = r), r || !e && l;
   },
       g = function g(t, n, e) {
     if (y(t)) return t.clone();
@@ -11525,28 +11526,28 @@ var Component = /*#__PURE__*/function () {
   };
 
   _proto.oninit = function oninit(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   };
 
   _proto.oncreate = function oncreate(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
     this.element = vnode.dom;
   };
 
   _proto.onbeforeupdate = function onbeforeupdate(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   };
 
   _proto.onupdate = function onupdate(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   };
 
   _proto.onbeforeremove = function onbeforeremove(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   };
 
   _proto.onremove = function onremove(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   }
   /**
    * Returns a jQuery object for this component's element. If you pass in a
@@ -11578,34 +11579,7 @@ var Component = /*#__PURE__*/function () {
   });
 
   _proto.render = function render() {
-    var _this = this;
-
-    return m.fragment(Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, this.props, {
-      oninit: function oninit() {
-        return _this.oninit.apply(_this, arguments);
-      },
-      oncreate: function oncreate() {
-        return _this.oncreate.apply(_this, arguments);
-      },
-      onbeforeupdate: function onbeforeupdate() {
-        return _this.onbeforeupdate.apply(_this, arguments);
-      },
-      onupdate: function onupdate() {
-        var _this$onupdate;
-
-        return (_this$onupdate = _this.onupdate).bind.apply(_this$onupdate, arguments);
-      },
-      onbeforeremove: function onbeforeremove() {
-        var _this$onbeforeremove;
-
-        return (_this$onbeforeremove = _this.onbeforeremove).bind.apply(_this$onbeforeremove, arguments);
-      },
-      onremove: function onremove() {
-        var _this$onremove;
-
-        return (_this$onremove = _this.onremove).bind.apply(_this$onremove, arguments);
-      }
-    }), this.view());
+    return m(this.constructor, this.props);
   };
 
   Component.component = function component(props, children) {
@@ -11625,8 +11599,10 @@ var Component = /*#__PURE__*/function () {
     }
   };
 
-  _proto.setProps = function setProps(props) {
+  _proto.setProps = function setProps(vnode) {
+    var props = vnode.attrs || {};
     this.constructor.initProps(props);
+    if (!props.children) props.children = vnode.children;
     this.props = props;
   };
 
@@ -11729,18 +11705,10 @@ __webpack_require__.r(__webpack_exports__);
     if (!arguments[1]) arguments[1] = {};
 
     if (comp.prototype && comp.prototype instanceof _Component__WEBPACK_IMPORTED_MODULE_2__["default"]) {
-      var children = args.slice(1);
-
-      if (children.length === 1 && Array.isArray(children[0])) {
-        children = children[0];
-      }
-
-      if (children) {
-        Object.defineProperty(arguments[1], 'children', {
-          writable: true
-        });
-        arguments[1].children = (arguments[1].children || []).concat(children);
-      }
+      // allow writing to children attribute
+      Object.defineProperty(arguments[1], 'children', {
+        writable: true
+      });
     }
 
     var node = mo.apply(this, arguments);

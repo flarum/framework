@@ -2055,6 +2055,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         y: a,
         w: s,
         d: i,
+        D: "date",
         h: r,
         m: e,
         s: n,
@@ -2086,7 +2087,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       var i = t.name;
       m[i] = t, r = i;
     }
-    return e || (l = r), r;
+    return !e && r && (l = r), r || !e && l;
   },
       g = function g(t, n, e) {
     if (y(t)) return t.clone();
@@ -12658,6 +12659,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
 /* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lodash/flattenDeep */ "./node_modules/lodash/flattenDeep.js");
 /* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21___default = /*#__PURE__*/__webpack_require__.n(lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21__);
+/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
+
 
 
 
@@ -12704,6 +12707,7 @@ var Application = /*#__PURE__*/function () {
     this.titleCount = 0;
     this.drawer = new _utils_Drawer__WEBPACK_IMPORTED_MODULE_7__["default"]();
     this.modal = void 0;
+    this.alerts = void 0;
   }
 
   var _proto = Application.prototype;
@@ -12757,12 +12761,18 @@ var Application = /*#__PURE__*/function () {
   };
 
   _proto.mount = function mount(basePath) {
+    var _this3 = this;
+
     if (basePath === void 0) {
       basePath = '';
     }
 
-    m.mount(document.getElementById('modal'), new _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__["default"]()); // this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
-
+    m.mount(document.getElementById('modal'), this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__["default"]());
+    m.mount(document.getElementById('alerts'), this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_22__["default"]({
+      oninit: function oninit(vnode) {
+        return _this3.alerts = vnode.state;
+      }
+    }));
     m.route(document.getElementById('content'), basePath + '/', Object(_utils_mapRoutes__WEBPACK_IMPORTED_MODULE_6__["default"])(this.routes, basePath)); // Add a class to the body which indicates that the page has been scrolled
     // down.
 
@@ -12844,7 +12854,7 @@ var Application = /*#__PURE__*/function () {
   ;
 
   _proto.request = function request(originalOptions) {
-    var _this3 = this;
+    var _this4 = this;
 
     var options = Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, originalOptions); // Set some default options if they haven't been overridden. We want to
     // authenticate all requests with the session token. We also want all
@@ -12854,7 +12864,7 @@ var Application = /*#__PURE__*/function () {
 
     options.background = options.background || true;
     Object(_extend__WEBPACK_IMPORTED_MODULE_4__["extend"])(options, 'config', function (result, xhr) {
-      return xhr.setRequestHeader('X-CSRF-Token', _this3.session.csrfToken);
+      return xhr.setRequestHeader('X-CSRF-Token', _this4.session.csrfToken);
     }); // If the method is something like PATCH or DELETE, which not all servers
     // and clients support, then we'll send it as a POST request with the
     // intended method specified in the X-HTTP-Method-Override header.
@@ -12908,16 +12918,15 @@ var Application = /*#__PURE__*/function () {
       } catch (e) {
         throw new _utils_RequestError__WEBPACK_IMPORTED_MODULE_8__["default"](500, responseText, options, xhr);
       }
-    }; // TODO: ALERT MANAGER
-    // if (this.requestError) this.alerts.dismiss(this.requestError.alert);
-    // Now make the request. If it's a failure, inspect the error that was
-    // returned and show an alert containing its contents.
+    };
 
+    if (this.requestError) this.alerts.dismiss(this.requestError.alert); // Now make the request. If it's a failure, inspect the error that was
+    // returned and show an alert containing its contents.
 
     return m.request(options).then(function (res) {
       return res;
     }, function (error) {
-      _this3.requestError = error;
+      _this4.requestError = error;
       var children;
 
       switch (error.status) {
@@ -12931,20 +12940,20 @@ var Application = /*#__PURE__*/function () {
 
         case 401:
         case 403:
-          children = _this3.translator.trans('core.lib.error.permission_denied_message');
+          children = _this4.translator.trans('core.lib.error.permission_denied_message');
           break;
 
         case 404:
         case 410:
-          children = _this3.translator.trans('core.lib.error.not_found_message');
+          children = _this4.translator.trans('core.lib.error.not_found_message');
           break;
 
         case 429:
-          children = _this3.translator.trans('core.lib.error.rate_limit_exceeded_message');
+          children = _this4.translator.trans('core.lib.error.rate_limit_exceeded_message');
           break;
 
         default:
-          children = _this3.translator.trans('core.lib.error.generic_message');
+          children = _this4.translator.trans('core.lib.error.generic_message');
       }
 
       var isDebug = app.forum.attribute('debug');
@@ -12953,7 +12962,7 @@ var Application = /*#__PURE__*/function () {
         children: children,
         controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_18__["default"].component({
           className: 'Button Button--link',
-          onclick: _this3.showDebug.bind(_this3, error),
+          onclick: _this4.showDebug.bind(_this4, error),
           children: 'DEBUG' // TODO make translatable
 
         })]
@@ -12962,7 +12971,9 @@ var Application = /*#__PURE__*/function () {
       try {
         options.errorHandler(error);
       } catch (error) {
-        console.error(error); // this.alerts.show(error.alert);
+        console.error(error);
+
+        _this4.alerts.show(error.alert);
       }
 
       return Promise.reject(error);
@@ -12970,7 +12981,7 @@ var Application = /*#__PURE__*/function () {
   };
 
   _proto.showDebug = function showDebug(error) {
-    // this.alerts.dismiss(this.requestError.alert);
+    this.alerts.dismiss(this.requestError.alert);
     this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__["default"], {
       error: error
     });
@@ -13014,28 +13025,28 @@ var Component = /*#__PURE__*/function () {
   };
 
   _proto.oninit = function oninit(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   };
 
   _proto.oncreate = function oncreate(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
     this.element = vnode.dom;
   };
 
   _proto.onbeforeupdate = function onbeforeupdate(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   };
 
   _proto.onupdate = function onupdate(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   };
 
   _proto.onbeforeremove = function onbeforeremove(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   };
 
   _proto.onremove = function onremove(vnode) {
-    this.setProps(vnode.attrs);
+    this.setProps(vnode);
   }
   /**
    * Returns a jQuery object for this component's element. If you pass in a
@@ -13067,34 +13078,7 @@ var Component = /*#__PURE__*/function () {
   });
 
   _proto.render = function render() {
-    var _this = this;
-
-    return m.fragment(Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, this.props, {
-      oninit: function oninit() {
-        return _this.oninit.apply(_this, arguments);
-      },
-      oncreate: function oncreate() {
-        return _this.oncreate.apply(_this, arguments);
-      },
-      onbeforeupdate: function onbeforeupdate() {
-        return _this.onbeforeupdate.apply(_this, arguments);
-      },
-      onupdate: function onupdate() {
-        var _this$onupdate;
-
-        return (_this$onupdate = _this.onupdate).bind.apply(_this$onupdate, arguments);
-      },
-      onbeforeremove: function onbeforeremove() {
-        var _this$onbeforeremove;
-
-        return (_this$onbeforeremove = _this.onbeforeremove).bind.apply(_this$onbeforeremove, arguments);
-      },
-      onremove: function onremove() {
-        var _this$onremove;
-
-        return (_this$onremove = _this.onremove).bind.apply(_this$onremove, arguments);
-      }
-    }), this.view());
+    return m(this.constructor, this.props);
   };
 
   Component.component = function component(props, children) {
@@ -13114,8 +13098,10 @@ var Component = /*#__PURE__*/function () {
     }
   };
 
-  _proto.setProps = function setProps(props) {
+  _proto.setProps = function setProps(vnode) {
+    var props = vnode.attrs || {};
     this.constructor.initProps(props);
+    if (!props.children) props.children = vnode.children;
     this.props = props;
   };
 
@@ -14115,6 +14101,91 @@ var Alert = /*#__PURE__*/function (_Component) {
 
 /***/ }),
 
+/***/ "./src/common/components/AlertManager.tsx":
+/*!************************************************!*\
+  !*** ./src/common/components/AlertManager.tsx ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return AlertManager; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Component */ "./src/common/Component.ts");
+
+
+
+/**
+ * The `AlertManager` component provides an area in which `Alert` components can
+ * be shown and dismissed.
+ */
+var AlertManager = /*#__PURE__*/function (_Component) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(AlertManager, _Component);
+
+  function AlertManager() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Component.call.apply(_Component, [this].concat(args)) || this;
+    _this.components = [];
+    return _this;
+  }
+
+  var _proto = AlertManager.prototype;
+
+  _proto.view = function view() {
+    return m("div", {
+      className: "AlertManager"
+    }, this.components.map(function (vnode) {
+      return m("div", {
+        className: "AlertManager-alert"
+      }, vnode);
+    }));
+  }
+  /**
+   * Show an Alert in the alerts area.
+   */
+  ;
+
+  _proto.show = function show(vnode) {
+    vnode.attrs.ondismiss = this.dismiss.bind(this, vnode);
+    this.components.push(vnode);
+    m.redraw();
+  }
+  /**
+   * Dismiss an alert.
+   */
+  ;
+
+  _proto.dismiss = function dismiss(vnode) {
+    var index = this.components.indexOf(vnode);
+
+    if (index !== -1) {
+      this.components.splice(index, 1);
+      m.redraw();
+    }
+  }
+  /**
+   * Clear all alerts.
+   */
+  ;
+
+  _proto.clear = function clear() {
+    this.components = [];
+    m.redraw();
+  };
+
+  return AlertManager;
+}(_Component__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
+
+/***/ }),
+
 /***/ "./src/common/components/Badge.tsx":
 /*!*****************************************!*\
   !*** ./src/common/components/Badge.tsx ***!
@@ -14569,6 +14640,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return GroupBadge; });
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var _Badge__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Badge */ "./src/common/components/Badge.tsx");
+/* harmony import */ var _utils_extract__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/extract */ "./src/common/utils/extract.ts");
+
 
 
 
@@ -14582,14 +14655,15 @@ var GroupBadge = /*#__PURE__*/function (_Badge) {
   GroupBadge.initProps = function initProps(props) {
     _Badge.initProps.call(this, props);
 
-    if (props.group) {
-      props.icon = props.group.icon();
+    var group = Object(_utils_extract__WEBPACK_IMPORTED_MODULE_2__["default"])(props, 'group');
+
+    if (group) {
+      props.icon = group.icon();
       props.style = {
-        backgroundColor: props.group.color()
+        backgroundColor: group.color()
       };
-      props.label = typeof props.label === 'undefined' ? props.group.nameSingular() : props.label;
-      props.type = "group--" + props.group.id();
-      delete props.group;
+      props.label = typeof props.label === 'undefined' ? group.nameSingular() : props.label;
+      props.type = "group--" + group.id();
     }
   };
 
@@ -17075,18 +17149,10 @@ __webpack_require__.r(__webpack_exports__);
     if (!arguments[1]) arguments[1] = {};
 
     if (comp.prototype && comp.prototype instanceof _Component__WEBPACK_IMPORTED_MODULE_2__["default"]) {
-      var children = args.slice(1);
-
-      if (children.length === 1 && Array.isArray(children[0])) {
-        children = children[0];
-      }
-
-      if (children) {
-        Object.defineProperty(arguments[1], 'children', {
-          writable: true
-        });
-        arguments[1].children = (arguments[1].children || []).concat(children);
-      }
+      // allow writing to children attribute
+      Object.defineProperty(arguments[1], 'children', {
+        writable: true
+      });
     }
 
     var node = mo.apply(this, arguments);
@@ -19480,7 +19546,7 @@ var IndexPage = /*#__PURE__*/function (_Page) {
 
   _proto.view = function view() {
     if (!app.cache.discussionList) return;
-    var discussionList = m(_DiscussionList__WEBPACK_IMPORTED_MODULE_8__["default"], app.cache.discussionList.props);
+    var discussionList = app.cache.discussionList.render();
     return m("div", {
       className: "IndexPage"
     }, this.hero(), m("div", {
@@ -20135,6 +20201,9 @@ var NotificationGrid = /*#__PURE__*/function (_Component) {
           disabled: typeof preference === 'undefined',
           onchange: function onchange() {
             return _this2.toggle([key]);
+          },
+          oninit: function oninit(vnode) {
+            return _this2.inputs[key] = vnode.state;
           }
         });
       });
