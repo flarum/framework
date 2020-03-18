@@ -4,13 +4,12 @@ import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import userOnline from '../../common/helpers/userOnline';
 import listItems from '../../common/helpers/listItems';
-import { PostProps } from './Post';
-import LinkButton from '../../common/components/LinkButton';
+import { PostProp } from '../../common/concerns/ComponentProps';
 
 /**
  * The `PostUser` component shows the avatar and username of a post's author.
  */
-export default class PostUser extends Component<PostProps> {
+export default class PostUser extends Component<PostProp> {
     /**
      * Whether or not the user hover card is visible.
      */
