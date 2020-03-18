@@ -1,16 +1,17 @@
 import Badge from './Badge';
+import extract from '../utils/extract';
 
 export default class GroupBadge extends Badge {
     static initProps(props) {
         super.initProps(props);
 
-        if (props.group) {
-            props.icon = props.group.icon();
-            props.style = { backgroundColor: props.group.color() };
-            props.label = typeof props.label === 'undefined' ? props.group.nameSingular() : props.label;
-            props.type = `group--${props.group.id()}`;
+        const group = extract(props, 'group');
 
-            delete props.group;
+        if (group) {
+            props.icon = group.icon();
+            props.style = { backgroundColor: group.color() };
+            props.label = typeof props.label === 'undefined' ? group.nameSingular() : props.label;
+            props.type = `group--${group.id()}`;
         }
     }
 }
