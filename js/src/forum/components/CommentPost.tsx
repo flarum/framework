@@ -20,7 +20,7 @@ export default class CommentPost extends Post {
      */
     revealContent: boolean = false;
 
-    postUser: Vnode<{}, PostUser>;
+    postUser!: Vnode<{}, PostUser>;
 
     oninit(vnode) {
         super.oninit(vnode);

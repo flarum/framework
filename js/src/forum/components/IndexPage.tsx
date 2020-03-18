@@ -76,7 +76,7 @@ export default class IndexPage extends Page {
     view() {
         if (!app.cache.discussionList) return;
 
-        const discussionList = m(DiscussionList, app.cache.discussionList.props);
+        const discussionList = app.cache.discussionList.render();
 
         return (
             <div className="IndexPage">
