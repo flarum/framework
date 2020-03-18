@@ -20,7 +20,7 @@ class SessionAuthenticator
     public function logIn(Session $session, $token)
     {
         // Backwards compatibility with $userId as parameter
-        if (!($token instanceof AccessToken)) {
+        if (! ($token instanceof AccessToken)) {
             $token = AccessToken::generate($token);
         }
 
