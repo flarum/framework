@@ -25,6 +25,7 @@ import ModalManager from './components/ModalManager';
 import RequestErrorModal from './components/RequestErrorModal';
 
 import flattenDeep from 'lodash/flattenDeep';
+import AlertManager from './components/AlertManager';
 
 export type ApplicationData = {
     apiDocument: any;
@@ -102,7 +103,9 @@ export default abstract class Application {
     titleCount = 0;
 
     drawer = new Drawer();
+
     modal!: ModalManager;
+    alerts!: AlertManager;
 
     load(payload) {
         this.data = payload;
@@ -136,9 +139,9 @@ export default abstract class Application {
     }
 
     mount(basePath = '') {
-        m.mount(document.getElementById('modal'), new ModalManager());
+        m.mount(document.getElementById('modal'), (this.modal = new ModalManager()));
 
-        // this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
+        m.mount(document.getElementById('alerts'), (this.alerts = new AlertManager({ oninit: vnode => (this.alerts = vnode.state) })));
 
         m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
 
@@ -280,8 +283,7 @@ export default abstract class Application {
             }
         };
 
-        // TODO: ALERT MANAGER
-        // if (this.requestError) this.alerts.dismiss(this.requestError.alert);
+        if (this.requestError) this.alerts.dismiss(this.requestError.alert);
 
         // Now make the request. If it's a failure, inspect the error that was
         // returned and show an alert containing its contents.
@@ -336,7 +338,7 @@ export default abstract class Application {
                     options.errorHandler(error);
                 } catch (error) {
                     console.error(error);
-                    // this.alerts.show(error.alert);
+                    this.alerts.show(error.alert);
                 }
 
                 return Promise.reject(error);
@@ -345,7 +347,7 @@ export default abstract class Application {
     }
 
     private showDebug(error: RequestError) {
-        // this.alerts.dismiss(this.requestError.alert);
+        this.alerts.dismiss(this.requestError.alert);
 
         this.modal.show(RequestErrorModal, { error });
     }
