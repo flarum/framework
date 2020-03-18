@@ -15,7 +15,7 @@ export type NotificationItem = {
     name: string;
 
     /**
-     * The icon to display in the column header/notificatio grid row.
+     * The icon to display in the column header/notification grid row.
      */
     icon: string;
 
@@ -60,6 +60,7 @@ export default class NotificationGrid extends Component<NotificationGridProps> {
                     state: !!preference,
                     disabled: typeof preference === 'undefined',
                     onchange: () => this.toggle([key]),
+                    oninit: vnode => (this.inputs[key] = vnode.state),
                 });
             })
         );

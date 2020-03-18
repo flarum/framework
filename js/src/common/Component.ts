@@ -65,18 +65,7 @@ export default class Component<T extends ComponentProps = any> implements ClassC
     }
 
     render() {
-        return m.fragment(
-            {
-                ...this.props,
-                oninit: (...args) => this.oninit(...args),
-                oncreate: (...args) => this.oncreate(...args),
-                onbeforeupdate: (...args) => this.onbeforeupdate(...args),
-                onupdate: (...args) => this.onupdate.bind(...args),
-                onbeforeremove: (...args) => this.onbeforeremove.bind(...args),
-                onremove: (...args) => this.onremove.bind(...args),
-            },
-            this.view()
-        );
+        return m(this.constructor, this.props);
     }
 
     static component(props: ComponentProps | any = {}, children?: Mithril.Children) {
