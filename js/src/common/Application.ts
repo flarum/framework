@@ -95,7 +95,7 @@ export default abstract class Application {
      * An Alert that was shown as a result of an AJAX request error. If present,
      * it will be dismissed on the next successful request.
      */
-    private requestError: Alert | null = null;
+    private requestError: RequestError | null = null;
 
     data!: ApplicationData;
 
