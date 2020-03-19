@@ -253,7 +253,7 @@ export default class IndexPage extends Page {
         items.add(
             'refresh',
             Button.component({
-                title: app.translator.trans('core.forum.index.refresh_tooltip'),
+                title: app.translator.transText('core.forum.index.refresh_tooltip'),
                 icon: 'fas fa-sync',
                 className: 'Button Button--icon',
                 onclick: () => {
@@ -270,7 +270,7 @@ export default class IndexPage extends Page {
             items.add(
                 'markAllAsRead',
                 Button.component({
-                    title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
+                    title: app.translator.transText('core.forum.index.mark_all_as_read_tooltip'),
                     icon: 'fas fa-check',
                     className: 'Button Button--icon',
                     onclick: this.markAllAsRead.bind(this),

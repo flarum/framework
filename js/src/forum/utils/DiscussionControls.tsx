@@ -67,7 +67,7 @@ export default {
                           icon: 'fas fa-reply',
                           children: app.translator.trans('core.forum.discussion_controls.cannot_reply_button'),
                           className: 'disabled',
-                          title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text'),
+                          title: app.translator.transText('core.forum.discussion_controls.cannot_reply_text'),
                       })
             );
         }
