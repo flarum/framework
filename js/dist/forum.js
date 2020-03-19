@@ -19075,12 +19075,14 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
   ;
 
   _proto.positionChanged = function positionChanged(startNumber, endNumber) {
-    var discussion = this.discussion; // Construct a URL to this discussion with the updated position, then
+    var discussion = this.discussion;
+    if (!discussion) return; // Construct a URL to this discussion with the updated position, then
     // replace it into the window's history and our own history stack.
 
     var url = app.route.discussion(discussion, this.near = startNumber);
-    m.route.set(url, true);
-    window.history.replaceState(null, document.title, url);
+    m.route.set(url, true, {
+      replace: true
+    });
     app.history.push('discussion', discussion.title()); // If the user hasn't read past here before, then we'll update their read
     // state and redraw.
 
@@ -19703,7 +19705,7 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   _proto.actionItems = function actionItems() {
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
     items.add('refresh', _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
-      title: app.translator.trans('core.forum.index.refresh_tooltip'),
+      title: app.translator.transText('core.forum.index.refresh_tooltip'),
       icon: 'fas fa-sync',
       className: 'Button Button--icon',
       onclick: function onclick() {
@@ -19718,7 +19720,7 @@ var IndexPage = /*#__PURE__*/function (_Page) {
 
     if (app.session.user) {
       items.add('markAllAsRead', _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
-        title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
+        title: app.translator.transText('core.forum.index.mark_all_as_read_tooltip'),
         icon: 'fas fa-check',
         className: 'Button Button--icon',
         onclick: this.markAllAsRead.bind(this)
@@ -24005,7 +24007,7 @@ __webpack_require__.r(__webpack_exports__);
         icon: 'fas fa-reply',
         children: app.translator.trans('core.forum.discussion_controls.cannot_reply_button'),
         className: 'disabled',
-        title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text')
+        title: app.translator.transText('core.forum.discussion_controls.cannot_reply_text')
       }));
     }
 

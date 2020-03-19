@@ -272,12 +272,13 @@ export default class DiscussionPage extends Page {
     positionChanged(startNumber: number, endNumber: number) {
         const discussion = this.discussion;
 
+        if (!discussion) return;
+
         // Construct a URL to this discussion with the updated position, then
         // replace it into the window's history and our own history stack.
         const url = app.route.discussion(discussion, (this.near = startNumber));
 
-        m.route.set(url, true);
-        window.history.replaceState(null, document.title, url);
+        m.route.set(url, true, { replace: true });
 
         app.history.push('discussion', discussion.title());
 
