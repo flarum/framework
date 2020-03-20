@@ -63,7 +63,7 @@ class Floodgate
 
         return $isFlooding ??
             Post::where('user_id', $actor->id)
-                ->where('created_at', '>=', new DateTime('-' . $floodtime . ' seconds'))
+                ->where('created_at', '>=', new DateTime('-'.$floodtime.' seconds'))
                 ->exists();
     }
 }

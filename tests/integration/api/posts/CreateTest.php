@@ -101,6 +101,7 @@ class CreateTest extends TestCase
                 if ($arg == 'post_flood_interval') {
                     return '-1'; // -1 due to consecutive requests being instantaneous
                 }
+
                 return $settings->get($arg);
             });
         $this->app()->getContainer()->bind(SettingsRepositoryInterface::class, function () use ($mock) {
