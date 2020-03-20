@@ -159,21 +159,24 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         // Do we want a JSON request body?
         if (isset($options['json'])) {
             $request = $this->requestWithJsonBody(
-                $request, $options['json']
+                $request,
+                $options['json']
             );
         }
 
         // Authenticate as a given user
         if (isset($options['authenticatedAs'])) {
             $request = $this->requestAsUser(
-                $request, $options['authenticatedAs']
+                $request,
+                $options['authenticatedAs']
             );
         }
 
         // Let's copy the cookies from a previous response
         if (isset($options['cookiesFrom'])) {
             $request = $this->requestWithCookiesFrom(
-                $request, $options['cookiesFrom']
+                $request,
+                $options['cookiesFrom']
             );
         }
 
