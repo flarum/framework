@@ -53,8 +53,8 @@ $pipeline = $installation
         env('DB_HOST', 'localhost'),
         intval(env('DB_PORT', 3306)),
         env('DB_DATABASE', 'flarum_test'),
-        env('DB_USERNAME', 'root'),
-        env('DB_PASSWORD', ''),
+        env('DB_USERNAME', 'homestead'),
+        env('DB_PASSWORD', 'secret'),
         env('DB_PREFIX', '')
     ))
     ->adminUser(new AdminUser(

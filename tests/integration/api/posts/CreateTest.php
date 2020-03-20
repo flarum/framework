@@ -12,6 +12,11 @@ namespace Flarum\Tests\integration\api\posts;
 use Carbon\Carbon;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\Api\Controller\CreatePostController;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
+use Illuminate\Support\Arr;
+use Mockery;
 
 class CreateTest extends TestCase
 {
@@ -62,6 +67,56 @@ class CreateTest extends TestCase
             ])
         );
 
+        $this->assertEquals(201, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function cant_flood_posts()
+    {
+        $this->actor = User::find(2);
+
+        $body = [];
+        Arr::set($body, 'data.attributes', $this->data);
+        Arr::set($body, 'data.relationships.discussion.data.id', 1);
+
+        $response = $this->callWith($body);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = $this->callWith($body);
+        $this->assertEquals(429, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function can_flood_posts_interval_set_to_0()
+    {
+        /** @var SettingsRepositoryInterface $settings */
+        $settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
+        $mock = Mockery::mock(SettingsRepositoryInterface::class)->makePartial();
+        $mock->shouldReceive('get')
+            ->andReturnUsing(function ($arg) use ($settings) {
+                if ($arg == 'post_flood_interval') {
+                    return '-1'; // -1 due to consecutive requests being instantaneous
+                }
+                return $settings->get($arg);
+            });
+        $this->app()->getContainer()->bind(SettingsRepositoryInterface::class, function () use ($mock) {
+            return $mock;
+        });
+
+        $this->actor = User::find(2);
+
+        $body = [];
+        Arr::set($body, 'data.attributes', $this->data);
+        Arr::set($body, 'data.relationships.discussion.data.id', 1);
+
+        $response = $this->callWith($body);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = $this->callWith($body);
         $this->assertEquals(201, $response->getStatusCode());
     }
 }

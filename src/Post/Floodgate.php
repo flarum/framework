@@ -12,6 +12,7 @@ namespace Flarum\Post;
 use DateTime;
 use Flarum\Post\Event\CheckingForFlooding;
 use Flarum\Post\Exception\FloodingException;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -22,9 +23,15 @@ class Floodgate
      */
     protected $events;
 
-    public function __construct(Dispatcher $events)
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings)
     {
         $this->events = $events;
+        $this->settings = $settings;
     }
 
     /**
@@ -52,6 +59,8 @@ class Floodgate
             new CheckingForFlooding($actor)
         );
 
-        return $isFlooding ?? Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime('-10 seconds'))->exists();
+        $floodtime = $this->settings->get('post_flood_interval', 15);
+
+        return $isFlooding ?? Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime("-$floodtime seconds"))->exists();
     }
 }

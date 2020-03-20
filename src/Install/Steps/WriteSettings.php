@@ -73,6 +73,7 @@ class WriteSettings implements Step
             'theme_secondary_color' => '#4D698E',
             'welcome_message' => 'This is beta software and you should not use it in production.',
             'welcome_title' => 'Welcome to Flarum',
+            'post_flood_interval' => '15'
         ];
     }
 }
