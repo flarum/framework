@@ -17690,8 +17690,6 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
   }
   /**
    * Get the items in the edit avatar dropdown menu.
-   *
-   * @return {ItemList}
    */
   ;
 
@@ -17711,8 +17709,6 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
   }
   /**
    * Enable dragover style
-   *
-   * @param {Event} e
    */
   ;
 
@@ -17723,8 +17719,6 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
   }
   /**
    * Disable dragover style
-   *
-   * @param {Event} e
    */
   ;
 
@@ -17751,8 +17745,6 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
    * controls dropdown, because only one option would be viable: uploading.
    * Thus, when the avatar editor's dropdown toggle button is clicked, we prompt
    * the user to upload an avatar immediately.
-   *
-   * @param {Event} e
    */
   ;
 
@@ -17782,8 +17774,6 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
   }
   /**
    * Upload avatar
-   *
-   * @param {File} file
    */
   ;
 
@@ -17791,7 +17781,7 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
     if (this.loading) return;
     var user = this.props.user;
     var body = new FormData();
-    data.append('avatar', file);
+    body.append('avatar', file);
     this.loading = true;
     m.redraw();
     app.request({
@@ -17820,9 +17810,6 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
   /**
    * After a successful upload/removal, push the updated user data into the
    * store, and force a recomputation of the user's avatar color.
-   *
-   * @param {Object} response
-   * @protected
    */
   ;
 
@@ -17834,9 +17821,6 @@ var AvatarEditor = /*#__PURE__*/function (_Component) {
   }
   /**
    * If avatar upload/removal fails, stop loading.
-   *
-   * @param {Object} response
-   * @protected
    */
   ;
 
@@ -22064,7 +22048,7 @@ var PostStreamScrubber = /*#__PURE__*/function (_Component) {
   };
 
   _proto.onmousedown = function onmousedown(e) {
-    this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
+    this.mouseStart = window.TouchEvent && e instanceof TouchEvent ? e.touches[0].clientY : e.clientY;
     this.indexStart = this.index;
     this.dragging = true;
     this.stream.paused = true;
@@ -22072,12 +22056,13 @@ var PostStreamScrubber = /*#__PURE__*/function (_Component) {
   };
 
   _proto.onmousemove = function onmousemove(e) {
-    if (!this.dragging) return; // Work out how much the mouse has moved by - first in pixels, then
+    if (!this.dragging) return;
+    var y = window.TouchEvent && e instanceof TouchEvent ? e.touches[0].clientY : e.clientY; // Work out how much the mouse has moved by - first in pixels, then
     // convert it to a percentage of the scrollbar's height, and then
     // finally convert it into an index. Add this delta index onto
     // the index at which the drag was started, and then scroll there.
 
-    var deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
+    var deltaPixels = y - this.mouseStart;
     var deltaPercent = deltaPixels / this.$('.Scrubber-scrollbar').outerHeight() * 100;
     var deltaIndex = deltaPercent / this.percentPerPost().index || 0;
     var newIndex = Math.min(this.indexStart + deltaIndex, this.count() - 1);
