@@ -143,6 +143,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      *   - "json" should point to a JSON-serializable object that will be
      *     serialized and used as request body. The corresponding Content-Type
      *     header will be set automatically.
+     *   - "authenticatedAs" should identify an *existing* user by ID. This will
+     *     cause an access token to be created for this user, which will be used
+     *     to authenticate the request via the "Authorization" header.
      *   - "cookiesFrom" should hold a response object from a previous HTTP
      *     interaction. All cookies returned from the server in that response
      *     (via the "Set-Cookie" header) will be copied to the cookie params of
@@ -157,6 +160,13 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         if (isset($options['json'])) {
             $request = $this->requestWithJsonBody(
                 $request, $options['json']
+            );
+        }
+
+        // Authenticate as a given user
+        if (isset($options['authenticatedAs'])) {
+            $request = $this->requestAsUser(
+                $request, $options['authenticatedAs']
             );
         }
 
