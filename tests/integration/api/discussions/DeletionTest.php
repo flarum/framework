@@ -7,15 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\Controller;
+namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Api\Controller\DeleteDiscussionController;
-use Flarum\User\User;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
 
-class DeleteDiscussionControllerTest extends ApiControllerTestCase
+class DeletionTest extends TestCase
 {
-    protected $controller = DeleteDiscussionController::class;
+    use RetrievesAuthorizedUsers;
 
     public function setUp()
     {
@@ -46,22 +46,17 @@ class DeleteDiscussionControllerTest extends ApiControllerTestCase
      */
     public function admin_can_delete()
     {
-        $this->actor = User::find(1);
-
-        $response = $this->callWith([], ['id' => 1]);
+        $response = $this->send(
+            $this->request('DELETE', '/api/discussions/1', [
+                'authenticatedAs' => 1,
+                'json' => [],
+            ])
+        );
 
         $this->assertEquals(204, $response->getStatusCode());
-    }
 
-    /**
-     * @test
-     */
-    public function deleting_discussions_deletes_their_posts()
-    {
-        $this->actor = User::find(1);
-
-        $this->callWith([], ['id' => 1]);
-
+        // Ensure both the database and the corresponding post are deleted
+        $this->assertNull($this->database()->table('discussions')->find(1), 'Discussion exists in the DB');
         $this->assertNull($this->database()->table('posts')->find(1), 'Post exists in the DB');
     }
 }
