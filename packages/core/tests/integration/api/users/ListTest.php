@@ -33,9 +33,6 @@ class ListTest extends TestCase
             'group_user' => [
                 ['user_id' => 1, 'group_id' => 1],
             ],
-            'access_tokens' => [
-                ['token' => 'admintoken', 'user_id' => 1],
-            ],
         ]);
     }
 
@@ -76,8 +73,9 @@ class ListTest extends TestCase
     public function shows_index_for_admin()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users')
-                ->withHeader('Authorization', 'Token admintoken')
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])
         );
 
         $this->assertEquals(200, $response->getStatusCode());
