@@ -373,22 +373,24 @@ export default class PostStreamScrubber extends Component {
         );
     }
 
-    onmousedown(e) {
-        this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
+    onmousedown(e: MouseEvent) {
+        this.mouseStart = window.TouchEvent && e instanceof TouchEvent ? e.touches[0].clientY : e.clientY;
         this.indexStart = this.index;
         this.dragging = true;
         this.stream.paused = true;
         $('body').css('cursor', 'move');
     }
 
-    onmousemove(e) {
+    onmousemove(e: MouseEvent) {
         if (!this.dragging) return;
+
+        let y = window.TouchEvent && e instanceof TouchEvent ? e.touches[0].clientY : e.clientY;
 
         // Work out how much the mouse has moved by - first in pixels, then
         // convert it to a percentage of the scrollbar's height, and then
         // finally convert it into an index. Add this delta index onto
         // the index at which the drag was started, and then scroll there.
-        const deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
+        const deltaPixels = y - this.mouseStart;
         const deltaPercent = (deltaPixels / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
         const deltaIndex = deltaPercent / this.percentPerPost().index || 0;
         const newIndex = Math.min(this.indexStart + deltaIndex, this.count() - 1);
