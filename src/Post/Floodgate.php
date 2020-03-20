@@ -61,6 +61,9 @@ class Floodgate
 
         $floodtime = $this->settings->get('post_flood_interval', 15);
 
-        return $isFlooding ?? Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime("-$floodtime seconds"))->exists();
+        return $isFlooding ??
+            Post::where('user_id', $actor->id)
+                ->where('created_at', '>=', new DateTime('-' . $floodtime . ' seconds'))
+                ->exists();
     }
 }
