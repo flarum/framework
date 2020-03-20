@@ -35,9 +35,6 @@ class CreationTest extends TestCase
             'settings' => [
                 ['key' => 'mail_driver', 'value' => 'log'],
             ],
-            'access_tokens' => [
-                ['token' => 'admintoken', 'user_id' => 1],
-            ],
         ]);
     }
 
@@ -128,6 +125,7 @@ class CreationTest extends TestCase
                 'POST',
                 '/api/users',
                 [
+                    'authenticatedAs' => 1,
                     'json' => [
                         'data' => [
                             'attributes' => [
@@ -139,7 +137,7 @@ class CreationTest extends TestCase
                         ]
                     ],
                 ]
-            )->withHeader('Authorization', 'Token admintoken')
+            )
         );
 
         $this->assertEquals(201, $response->getStatusCode());
