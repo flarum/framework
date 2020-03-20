@@ -36,7 +36,7 @@ export default class AdvancedPage extends Page {
                 <div className="helpText">
                   {app.translator.trans('core.admin.advanced.post_flood_interval_text')}
                 </div>,
-                <input type="number" className="FormControl" value={this.values.post_flood_interval()} oninput={m.withAttr('value', this.values.post_flood_interval)}/>
+                <input type="number" min="0" className="FormControl" value={this.values.post_flood_interval()} oninput={m.withAttr('value', this.values.post_flood_interval)}/>
               ]
             })}
 
