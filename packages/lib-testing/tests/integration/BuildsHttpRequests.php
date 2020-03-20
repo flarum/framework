@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration;
 
 use Dflydev\FigCookies\SetCookie;
+use Flarum\Http\AccessToken;
 use Laminas\Diactoros\CallbackStream;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -28,6 +29,14 @@ trait BuildsHttpRequests
                     return json_encode($json);
                 })
             );
+    }
+
+    protected function requestAsUser(Request $req, int $userId): Request
+    {
+        $token = AccessToken::generate($userId);
+        $token->save();
+
+        return $req->withAddedHeader('Authorization', "Token {$token->token}");
     }
 
     protected function requestWithCookiesFrom(Request $req, Response $previous): Request
