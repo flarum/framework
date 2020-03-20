@@ -62,10 +62,8 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
 
     /**
      * Get the items in the edit avatar dropdown menu.
-     *
-     * @return {ItemList}
      */
-    controlItems() {
+    controlItems(): ItemList {
         const items = new ItemList();
 
         items.add(
@@ -91,10 +89,8 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
 
     /**
      * Enable dragover style
-     *
-     * @param {Event} e
      */
-    enableDragover(e) {
+    enableDragover(e: Event) {
         e.preventDefault();
         e.stopPropagation();
         this.isDraggedOver = true;
@@ -102,10 +98,8 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
 
     /**
      * Disable dragover style
-     *
-     * @param {Event} e
      */
-    disableDragover(e) {
+    disableDragover(e: Event) {
         e.preventDefault();
         e.stopPropagation();
         this.isDraggedOver = false;
@@ -116,7 +110,7 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
      *
      * @param {Event} e
      */
-    dropUpload(e) {
+    dropUpload(e: Event) {
         e.preventDefault();
         e.stopPropagation();
         this.isDraggedOver = false;
@@ -128,10 +122,8 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
      * controls dropdown, because only one option would be viable: uploading.
      * Thus, when the avatar editor's dropdown toggle button is clicked, we prompt
      * the user to upload an avatar immediately.
-     *
-     * @param {Event} e
      */
-    quickUpload(e) {
+    quickUpload(e: Event) {
         if (!this.props.user.avatarUrl()) {
             e.preventDefault();
             e.stopPropagation();
@@ -161,15 +153,13 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
 
     /**
      * Upload avatar
-     *
-     * @param {File} file
      */
-    upload(file) {
+    upload(file: File) {
         if (this.loading) return;
 
         const user = this.props.user;
         const body = new FormData();
-        data.append('avatar', file);
+        body.append('avatar', file);
 
         this.loading = true;
         m.redraw();
@@ -200,11 +190,8 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
     /**
      * After a successful upload/removal, push the updated user data into the
      * store, and force a recomputation of the user's avatar color.
-     *
-     * @param {Object} response
-     * @protected
      */
-    success(response) {
+    protected success(response: any) {
         app.store.pushPayload(response);
         delete this.props.user.avatarColor;
 
@@ -214,11 +201,8 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
 
     /**
      * If avatar upload/removal fails, stop loading.
-     *
-     * @param {Object} response
-     * @protected
      */
-    failure(response) {
+    protected failure(response: any) {
         this.loading = false;
         m.redraw();
     }
