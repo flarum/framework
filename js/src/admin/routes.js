@@ -4,6 +4,7 @@ import PermissionsPage from './components/PermissionsPage';
 import AppearancePage from './components/AppearancePage';
 import ExtensionsPage from './components/ExtensionsPage';
 import MailPage from './components/MailPage';
+import AdvancedPage from "./components/AdvancedPage";
 
 /**
  * The `routes` initializer defines the forum app's routes.
@@ -17,6 +18,7 @@ export default function(app) {
     'permissions': {path: '/permissions', component: PermissionsPage.component()},
     'appearance': {path: '/appearance', component: AppearancePage.component()},
     'extensions': {path: '/extensions', component: ExtensionsPage.component()},
-    'mail': {path: '/mail', component: MailPage.component()}
+    'mail': {path: '/mail', component: MailPage.component()},
+    'advanced': {path: '/advanced', component: AdvancedPage.component()}
   };
 }

@@ -73,6 +73,13 @@ export default class AdminNav extends Component {
       description: app.translator.trans('core.admin.nav.extensions_text')
     }));
 
+    items.add('advanced', AdminLinkButton.component({
+      href: app.route('advanced'),
+      icon: 'fas fa-cogs',
+      children: app.translator.trans('core.admin.nav.advanced_button'),
+      description: app.translator.trans('core.admin.nav.advanced_text')
+    }));
+
     return items;
   }
 }
