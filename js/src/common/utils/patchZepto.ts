@@ -3,7 +3,7 @@ import Tooltip from 'tooltip.js';
 
 // add $.fn.tooltip
 $.fn.tooltip = function(option) {
-    return this.each(function() {
+    return this.each(function(this: HTMLElement) {
         const $this = $(this);
         let data = $this.data('bs.tooltip');
         const options = (typeof option === 'object' && option) || {};
@@ -59,7 +59,7 @@ $.fn.hover = function(hover, leave) {
 };
 
 // add animated scroll
-$.fn.animatedScrollTop = function(to, duration = $.fx.speeds._default, callback) {
+$.fn.animateScrollTop = function(to, duration = $.fx.speeds._default, callback) {
     if (typeof to === 'number') to -= window.scrollY || window.pageYOffset;
 
     jump(to, {
@@ -94,7 +94,6 @@ $.fn.extend = $.extend.bind($);
  * Enable special events on Zepto
  * @license Original Copyright 2013 Enideo. Released under dual MIT and GPL licenses.
  */
-// @ts-ignore
 $.event.special = $.event.special || {};
 
 const bindBeforeSpecialEvents = $.fn.bind;

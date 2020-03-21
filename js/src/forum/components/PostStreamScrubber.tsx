@@ -5,6 +5,7 @@ import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import formatNumber from '../../common/utils/formatNumber';
 import PostStream from './PostStream';
 import { EventHandler } from '../../common/utils/Evented';
+
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to
  * navigate/scrub through a post stream.
@@ -176,7 +177,7 @@ export default class PostStreamScrubber extends Component {
      * Update the index/visible/description properties according to the window's
      * current scroll position.
      */
-    update(scrollTop?: number) {
+    update(scrollTop: number = 0) {
         const stream = this.stream;
 
         const marginTop = stream.getMarginTop();
@@ -195,7 +196,7 @@ export default class PostStreamScrubber extends Component {
         // Now loop through each of the items in the discussion. An 'item' is
         // either a single post or a 'gap' of one or more posts that haven't
         // been loaded yet.
-        $items.each(function() {
+        $items.each(function(this: HTMLElement) {
             const $this = $(this);
             const top = $this.offset().top;
             const height = $this.outerHeight(true);
@@ -228,6 +229,8 @@ export default class PostStreamScrubber extends Component {
             // scrollbar's current period to a formatted version of this time.
             const time = $this.data('time');
             if (time) period = time;
+
+            return true;
         });
 
         this.index = index;
@@ -269,7 +272,7 @@ export default class PostStreamScrubber extends Component {
 
         this.$('.Scrubber-handle')
             .css('cursor', 'move')
-            .on('mousedown touchstart', this.onmousedown.bind(this))
+            .on('mousedown touchstart', this.onmousedown.bind(this) as ZeptoEventHandler)
 
             // Exempt the scrollbar handle from the 'jump to' click event.
             .click(e => e.stopPropagation());
@@ -279,7 +282,7 @@ export default class PostStreamScrubber extends Component {
         // some event handlers. These handlers will move the scrollbar/stream-
         // content as appropriate.
         $(document)
-            .on('mousemove touchmove', (this.handlers.onmousemove = this.onmousemove.bind(this)))
+            .on('mousemove touchmove', (this.handlers.onmousemove = this.onmousemove.bind(this) as ZeptoEventHandler))
             .on('mouseup touchend', (this.handlers.onmouseup = this.onmouseup.bind(this)));
     }
 
@@ -310,7 +313,7 @@ export default class PostStreamScrubber extends Component {
         $scrubber.find('.Scrubber-description').text(this.description);
         $scrubber.toggleClass('disabled', this.disabled());
 
-        const heights = {};
+        const heights: { before?: number; handle?: number; after?: number } = {};
         heights.before = Math.max(0, percentPerPost.index * Math.min(index, count - visible));
         heights.handle = Math.min(100 - heights.before, percentPerPost.visible * visible);
         heights.after = 100 - heights.before - heights.handle;

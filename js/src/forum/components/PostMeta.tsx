@@ -13,7 +13,7 @@ export default class PostMeta extends Component<PostProp> {
 
         // When the dropdown menu is shown, select the contents of the permalink
         // input so that the user can quickly copy the URL.
-        const selectPermalink = function(this: Element) {
+        const selectPermalink = function(this: HTMLElement) {
             setTimeout(() =>
                 $(this)
                     .parent()

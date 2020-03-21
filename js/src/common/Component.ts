@@ -65,7 +65,7 @@ export default class Component<T extends ComponentProps = any> implements ClassC
     }
 
     render() {
-        return m(this.constructor, this.props);
+        return m(this.constructor as typeof Component, this.props);
     }
 
     static component(props: ComponentProps | any = {}, children?: Mithril.Children) {

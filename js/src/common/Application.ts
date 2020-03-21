@@ -139,11 +139,15 @@ export default abstract class Application {
     }
 
     mount(basePath = '') {
-        m.mount(document.getElementById('modal'), (this.modal = new ModalManager()));
+        const $modal = document.getElementById('modal');
+        const $alerts = document.getElementById('alerts');
+        const $content = document.getElementById('content');
 
-        m.mount(document.getElementById('alerts'), (this.alerts = new AlertManager({ oninit: vnode => (this.alerts = vnode.state) })));
+        if ($modal) m.mount($modal, (this.modal = new ModalManager()));
 
-        m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
+        if ($alerts) m.mount($alerts, (this.alerts = new AlertManager({ oninit: vnode => (this.alerts = vnode.state) })));
+
+        if ($content) m.route($content, basePath + '/', mapRoutes(this.routes, basePath));
 
         // Add a class to the body which indicates that the page has been scrolled
         // down.
@@ -210,7 +214,7 @@ export default abstract class Application {
             if (params.hasOwnProperty(key) && !params[key]) delete params[key];
         }
 
-        const queryString = m.buildQueryString(params);
+        const queryString = m.buildQueryString(params as Mithril.Params);
         const prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
 
         return prefix + url + (queryString ? '?' + queryString : '');
@@ -221,8 +225,8 @@ export default abstract class Application {
      *
      * @see https://mithril.js.org/request.html
      */
-    request(originalOptions: Mithril.RequestOptions | any): Promise<any> {
-        const options: Mithril.RequestOptions = Object.assign({}, originalOptions);
+    request(originalOptions: Mithril.RequestOptions<JSON> | any): Promise<any> {
+        const options: Mithril.RequestOptions<JSON> | any = Object.assign({}, originalOptions);
 
         // Set some default options if they haven't been overridden. We want to
         // authenticate all requests with the session token. We also want all
@@ -230,7 +234,7 @@ export default abstract class Application {
         // prevent redraws from occurring.
         options.background = options.background || true;
 
-        extend(options, 'config', (result, xhr: XMLHttpRequest) => xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken));
+        extend(options, 'config', (result, xhr: XMLHttpRequest) => xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken!));
 
         // If the method is something like PATCH or DELETE, which not all servers
         // and clients support, then we'll send it as a POST request with the
@@ -347,7 +351,7 @@ export default abstract class Application {
     }
 
     private showDebug(error: RequestError) {
-        this.alerts.dismiss(this.requestError.alert);
+        this.alerts.dismiss(this.requestError!.alert);
 
         this.modal.show(RequestErrorModal, { error });
     }
