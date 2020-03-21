@@ -7,10 +7,9 @@
 * Component
     - Use new Mithril lifecycle hooks (`component.config` is gone)
         - When implementing your own, you *must* call `super.<hook>(vnode)` to update `this.attrs`
-    - `component.render` is gone
-* Application
-    - New different methods
-    - `app.bus` for some event hooking
+    - `component.render` now doesn't use the current state instance
+        - this is because of how Mithril v2 works
+        - now calls mithril on the component class (not instance) and its props
 * Translator
     - Added `app.translator.transText`, automatically extracts text from `translator.trans` output
 * Utils
