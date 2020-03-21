@@ -32,7 +32,7 @@ export default class Search extends Component {
     /**
      * An array of SearchSources.
      */
-    sources: SearchSource[] = null;
+    sources?: SearchSource[];
 
     /**
      * The number of sources that are still loading results.
@@ -50,11 +50,11 @@ export default class Search extends Component {
      * around as new results load), but otherwise it will be numeric (the
      * sequential position within the list).
      */
-    index: string | number = 0;
+    index: number = 0;
 
-    navigator: KeyboardNavigatable;
+    navigator: KeyboardNavigatable = new KeyboardNavigatable();
 
-    searchTimeout: number;
+    searchTimeout?: number;
 
     view() {
         const currentSearch = this.getCurrentSearch();
@@ -124,13 +124,11 @@ export default class Search extends Component {
             .on('click', () => this.$('input').blur())
 
             // Whenever the mouse is hovered over a search result, highlight it.
-            .on('mouseenter', '> li:not(.Dropdown-header)', function() {
+            .on('mouseenter', '> li:not(.Dropdown-header)', function(this: HTMLElement) {
                 search.setIndex(search.selectableItems().index(this));
             });
 
         const $input = this.$('input');
-
-        this.navigator = new KeyboardNavigatable();
 
         this.navigator
             .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
@@ -150,7 +148,7 @@ export default class Search extends Component {
                 search.searchTimeout = setTimeout(() => {
                     if (search.searched.indexOf(query) !== -1) return;
 
-                    if (query.length >= 3) {
+                    if (query.length >= 3 && search.sources) {
                         search.sources.map(source => {
                             if (!source.search) return;
 
@@ -168,7 +166,7 @@ export default class Search extends Component {
                 }, 250);
             })
 
-            .on('focus', function() {
+            .on('focus', function(this: HTMLElement) {
                 $(this)
                     .one('mouseup', e => e.preventDefault())
                     .select();
@@ -177,10 +175,8 @@ export default class Search extends Component {
 
     /**
      * Get the active search in the app's current controller.
-     *
-     * @return {String}
      */
-    getCurrentSearch() {
+    getCurrentSearch(): string | false {
         return app.current && typeof app.current.searching === 'function' && app.current.searching();
     }
 
@@ -233,8 +229,6 @@ export default class Search extends Component {
 
     /**
      * Get all of the search result items that are selectable.
-     *
-     * @return {jQuery}
      */
     selectableItems() {
         return this.$('.Search-results > li:not(.Dropdown-header)');
@@ -242,20 +236,15 @@ export default class Search extends Component {
 
     /**
      * Get the position of the currently selected search result item.
-     *
-     * @return {Integer}
      */
-    getCurrentNumericIndex() {
+    getCurrentNumericIndex(): number {
         return this.selectableItems().index(this.getItem(this.index));
     }
 
     /**
      * Get the <li> in the search results with the given index (numeric or named).
-     *
-     * @param {String} index
-     * @return {DOMElement}
      */
-    getItem(index) {
+    getItem(index: number): ZeptoCollection {
         const $items = this.selectableItems();
         let $item = $items.filter(`[data-index="${index}"]`);
 
@@ -290,7 +279,7 @@ export default class Search extends Component {
             .eq(fixedIndex)
             .addClass('active');
 
-        this.index = $item.attr('data-index') || fixedIndex;
+        this.index = Number($item.attr('data-index') || fixedIndex);
 
         if (scrollToItem) {
             const dropdownScroll = $dropdown.scrollTop();
@@ -307,7 +296,7 @@ export default class Search extends Component {
             }
 
             if (typeof scrollTop !== 'undefined') {
-                $dropdown.animate({ scrollTop }, 100);
+                $dropdown.animateScrollTop(scrollTop, 100);
             }
         }
     }

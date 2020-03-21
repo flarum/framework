@@ -15,7 +15,7 @@ export default class Translator {
         Object.assign(this.translations, translations);
     }
 
-    trans(id: string, parameters = null) {
+    trans(id: string, parameters?: any): string | any[] {
         const translation = this.translations[id];
 
         if (translation) {
@@ -25,16 +25,14 @@ export default class Translator {
         return id;
     }
 
-    transText(id: string, parameters = null) {
+    transText(id: string, parameters?: any): string {
         return extractText(this.trans(id, parameters));
     }
 
-    transChoice(id: string, number: string | number, parameters: any) {
-        let translation = this.translations[id];
+    transChoice(id: string, number: number, parameters: any): string | any[] {
+        let translation: string = this.translations[id];
 
         if (translation) {
-            number = parseInt(number, 10);
-
             translation = this.pluralize(translation, number);
 
             return this.apply(translation, parameters || {});
@@ -77,7 +75,7 @@ export default class Translator {
         return hydrated.filter(part => part);
     }
 
-    pluralize(translation: string, number: number) {
+    pluralize(translation: string, number: number): string | undefined {
         const sPluralRegex = new RegExp(/^\w+\: +(.+)$/),
             cPluralRegex = new RegExp(
                 /^\s*((\{\s*(\-?\d+[\s*,\s*\-?\d+]*)\s*\})|([\[\]])\s*(-Inf|\-?\d+)\s*,\s*(\+?Inf|\-?\d+)\s*([\[\]]))\s?(.+?)$/
@@ -137,7 +135,7 @@ export default class Translator {
         return parseInt(number, 10);
     }
 
-    pluralPosition(number: number, locale: string) {
+    pluralPosition(number: number, locale: string): number {
         if ('pt_BR' === locale) {
             locale = 'xbr';
         }

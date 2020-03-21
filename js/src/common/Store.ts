@@ -75,7 +75,7 @@ export default class Store {
      * @param query
      * @param options
      */
-    find<T extends Model = Model>(type: string, id?: number | number[] | any, query = {}, options = {}): Promise<T[]> {
+    find<T extends Model = Model>(type: string, id?: number | number[] | any, query = {}, options = {}): Promise<T | T[]> {
         let params = query;
         let url = `${app.forum.attribute('apiUrl')}/${type}`;
 
@@ -87,7 +87,7 @@ export default class Store {
             url += `/${id}`;
         }
 
-        return <Promise<T[]>>app
+        return <Promise<T | T[]>>app
             .request(
                 Object.assign(
                     {

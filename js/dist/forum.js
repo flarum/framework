@@ -12767,13 +12767,16 @@ var Application = /*#__PURE__*/function () {
       basePath = '';
     }
 
-    m.mount(document.getElementById('modal'), this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__["default"]());
-    m.mount(document.getElementById('alerts'), this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_22__["default"]({
+    var $modal = document.getElementById('modal');
+    var $alerts = document.getElementById('alerts');
+    var $content = document.getElementById('content');
+    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__["default"]());
+    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_22__["default"]({
       oninit: function oninit(vnode) {
         return _this3.alerts = vnode.state;
       }
     }));
-    m.route(document.getElementById('content'), basePath + '/', Object(_utils_mapRoutes__WEBPACK_IMPORTED_MODULE_6__["default"])(this.routes, basePath)); // Add a class to the body which indicates that the page has been scrolled
+    if ($content) m.route($content, basePath + '/', Object(_utils_mapRoutes__WEBPACK_IMPORTED_MODULE_6__["default"])(this.routes, basePath)); // Add a class to the body which indicates that the page has been scrolled
     // down.
 
     new _utils_ScrollListener__WEBPACK_IMPORTED_MODULE_10__["default"](function (top) {
@@ -13128,8 +13131,6 @@ __webpack_require__.r(__webpack_exports__);
 /**
  * The `Model` class represents a local data resource. It provides methods to
  * persist changes via the API.
- *
- * @abstract
  */
 var Model = /*#__PURE__*/function () {
   /**
@@ -13151,16 +13152,12 @@ var Model = /*#__PURE__*/function () {
    */
 
   /**
-   * @param {Object} data A resource object from the API.
-   * @param {Store} store The data store that this model should be persisted to.
+   * @param data A resource object from the API.
+   * @param store The data store that this model should be persisted to.
    */
   function Model(data, store) {
     if (data === void 0) {
       data = {};
-    }
-
-    if (store === void 0) {
-      store = null;
     }
 
     this.data = void 0;
@@ -13197,7 +13194,6 @@ var Model = /*#__PURE__*/function () {
    * Merge new data into this model locally.
    *
    * @param data A resource object to merge into this model
-   * @public
    */
   ;
 
@@ -13232,7 +13228,7 @@ var Model = /*#__PURE__*/function () {
   /**
    * Merge new attributes into this model locally.
    *
-   * @param {Object} attributes The attributes to merge.
+   * @param attributes The attributes to merge.
    */
   ;
 
@@ -13247,7 +13243,6 @@ var Model = /*#__PURE__*/function () {
    * @param attributes The attributes to save. If a 'relationships' key
    *     exists, it will be extracted and relationships will also be saved.
    * @param [options]
-   * @return {Promise}
    */
   ;
 
@@ -13358,7 +13353,7 @@ var Model = /*#__PURE__*/function () {
   /**
    * Generate a function which returns the value of the given attribute.
    *
-   * @param {String} name
+   * @param name
    * @param [transform] A function to transform the attribute value
    */
   ;
@@ -13384,7 +13379,7 @@ var Model = /*#__PURE__*/function () {
       if (this.data.relationships) {
         var relationship = this.data.relationships[name];
 
-        if (relationship) {
+        if (relationship && !Array.isArray(relationship.data)) {
           return app.store.getById(relationship.data.type, relationship.data.id);
         }
       }
@@ -13407,7 +13402,7 @@ var Model = /*#__PURE__*/function () {
       if (this.data.relationships) {
         var relationship = this.data.relationships[name];
 
-        if (relationship) {
+        if (relationship && Array.isArray(relationship.data)) {
           return relationship.data.map(function (data) {
             return app.store.getById(data.type, data.id);
           });
@@ -13724,10 +13719,6 @@ var Translator = /*#__PURE__*/function () {
   };
 
   _proto.trans = function trans(id, parameters) {
-    if (parameters === void 0) {
-      parameters = null;
-    }
-
     var translation = this.translations[id];
 
     if (translation) {
@@ -13738,10 +13729,6 @@ var Translator = /*#__PURE__*/function () {
   };
 
   _proto.transText = function transText(id, parameters) {
-    if (parameters === void 0) {
-      parameters = null;
-    }
-
     return Object(_utils_extractText__WEBPACK_IMPORTED_MODULE_2__["default"])(this.trans(id, parameters));
   };
 
@@ -13749,7 +13736,6 @@ var Translator = /*#__PURE__*/function () {
     var translation = this.translations[id];
 
     if (translation) {
-      number = parseInt(number, 10);
       translation = this.pluralize(translation, number);
       return this.apply(translation, parameters || {});
     }
@@ -17256,7 +17242,7 @@ $.fn.hover = function (hover, leave) {
 }; // add animated scroll
 
 
-$.fn.animatedScrollTop = function (to, duration, callback) {
+$.fn.animateScrollTop = function (to, duration, callback) {
   if (duration === void 0) {
     duration = $.fx.speeds._default;
   }
@@ -17292,7 +17278,6 @@ $.fn.extend = $.extend.bind($);
  * Enable special events on Zepto
  * @license Original Copyright 2013 Enideo. Released under dual MIT and GPL licenses.
  */
-// @ts-ignore
 
 $.event.special = $.event.special || {};
 var bindBeforeSpecialEvents = $.fn.bind;
@@ -18815,8 +18800,8 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
     }
 
     _this = _Page.call.apply(_Page, [this].concat(args)) || this;
-    _this.discussion = void 0;
-    _this.near = void 0;
+    _this.discussion = null;
+    _this.near = null;
     _this.stream = void 0;
     _this.scrubber = void 0;
     _this.includedPosts = [];
@@ -18999,22 +18984,18 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
     var $list = $(vnode.dom); // When the mouse enters and leaves the discussions pane, we want to show
     // and hide the pane respectively. We also create a 10px 'hot edge' on the
     // left of the screen to activate the pane.
-
-    var pane = app.pane;
-    $list.hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
-
-    var hotEdge = function hotEdge(e) {
-      if (e.pageX < 10) pane.show();
-    };
-
-    $(document).on('mousemove', hotEdge);
-
-    vnode.dom.onunload = function () {
-      return $(document).off('mousemove', hotEdge);
-    }; // If the discussion we are viewing is listed in the discussion list, then
+    // TODO pane
+    // const pane = app.pane;
+    // $list.hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
+    //
+    // const hotEdge = e => {
+    //     if (e.pageX < 10) pane.show();
+    // };
+    // $(document).on('mousemove', hotEdge);
+    // vnode.dom.onunload = () => $(document).off('mousemove', hotEdge);
+    // If the discussion we are viewing is listed in the discussion list, then
     // we will make sure it is visible in the viewport – if it is not we will
     // scroll the list down to it.
-
 
     var $discussion = $list.find('.DiscussionListItem.active');
 
@@ -21633,7 +21614,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
             $container.scrollTop(top);
             resolve();
           } else if (top !== scrollTop) {
-            $container.animatedScrollTop(top, 'fast', resolve);
+            $container.animateScrollTop(top, 'fast', resolve);
           } else {
             resolve();
           }
@@ -21876,6 +21857,10 @@ var PostStreamScrubber = /*#__PURE__*/function (_Component) {
   ;
 
   _proto.update = function update(scrollTop) {
+    if (scrollTop === void 0) {
+      scrollTop = 0;
+    }
+
     var stream = this.stream;
     var marginTop = stream.getMarginTop();
     var viewportTop = scrollTop + marginTop;
@@ -21924,6 +21909,7 @@ var PostStreamScrubber = /*#__PURE__*/function (_Component) {
 
       var time = $this.data('time');
       if (time) period = time;
+      return true;
     });
     this.index = index;
     this.visible = visible;
@@ -22544,11 +22530,11 @@ var Search = /*#__PURE__*/function (_Component) {
     _this = _Component.call.apply(_Component, [this].concat(args)) || this;
     _this.value = m.prop('');
     _this.hasFocus = false;
-    _this.sources = null;
+    _this.sources = void 0;
     _this.loadingSources = 0;
     _this.searched = [];
     _this.index = 0;
-    _this.navigator = void 0;
+    _this.navigator = new _utils_KeyboardNavigatable__WEBPACK_IMPORTED_MODULE_4__["default"]();
     _this.searchTimeout = void 0;
     return _this;
   }
@@ -22619,7 +22605,6 @@ var Search = /*#__PURE__*/function (_Component) {
       search.setIndex(search.selectableItems().index(this));
     });
     var $input = this.$('input');
-    this.navigator = new _utils_KeyboardNavigatable__WEBPACK_IMPORTED_MODULE_4__["default"]();
     this.navigator.onUp(function () {
       return _this3.setIndex(_this3.getCurrentNumericIndex() - 1, true);
     }).onDown(function () {
@@ -22633,7 +22618,7 @@ var Search = /*#__PURE__*/function (_Component) {
       search.searchTimeout = setTimeout(function () {
         if (search.searched.indexOf(query) !== -1) return;
 
-        if (query.length >= 3) {
+        if (query.length >= 3 && search.sources) {
           search.sources.map(function (source) {
             if (!source.search) return;
             search.loadingSources++;
@@ -22655,8 +22640,6 @@ var Search = /*#__PURE__*/function (_Component) {
   }
   /**
    * Get the active search in the app's current controller.
-   *
-   * @return {String}
    */
   ;
 
@@ -22709,8 +22692,6 @@ var Search = /*#__PURE__*/function (_Component) {
   }
   /**
    * Get all of the search result items that are selectable.
-   *
-   * @return {jQuery}
    */
   ;
 
@@ -22719,8 +22700,6 @@ var Search = /*#__PURE__*/function (_Component) {
   }
   /**
    * Get the position of the currently selected search result item.
-   *
-   * @return {Integer}
    */
   ;
 
@@ -22729,9 +22708,6 @@ var Search = /*#__PURE__*/function (_Component) {
   }
   /**
    * Get the <li> in the search results with the given index (numeric or named).
-   *
-   * @param {String} index
-   * @return {DOMElement}
    */
   ;
 
@@ -22767,7 +22743,7 @@ var Search = /*#__PURE__*/function (_Component) {
     }
 
     var $item = $items.removeClass('active').eq(fixedIndex).addClass('active');
-    this.index = $item.attr('data-index') || fixedIndex;
+    this.index = Number($item.attr('data-index') || fixedIndex);
 
     if (scrollToItem) {
       var dropdownScroll = $dropdown.scrollTop();
@@ -22784,9 +22760,7 @@ var Search = /*#__PURE__*/function (_Component) {
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.animate({
-          scrollTop: scrollTop
-        }, 100);
+        $dropdown.animateScrollTop(scrollTop, 100);
       }
     }
   };
@@ -24215,9 +24189,9 @@ var History = /*#__PURE__*/function () {
   /**
    * Push an item to the top of the stack.
    *
-   * @param {String} name The name of the route.
-   * @param {String} title The title of the route.
-   * @param {String} [url] The URL of the route. The current URL will be used if
+   * @param name The name of the route.
+   * @param title The title of the route.
+   * @param [url] The URL of the route. The current URL will be used if
    *     not provided.
    */
   ;

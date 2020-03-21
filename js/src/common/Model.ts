@@ -1,9 +1,3 @@
-/**
- * The `Model` class represents a local data resource. It provides methods to
- * persist changes via the API.
- *
- * @abstract
- */
 import Store from './Store';
 
 export interface Identifier {
@@ -16,7 +10,11 @@ export interface Data extends Identifier {
     relationships?: { [key: string]: { data: Identifier | Identifier[] } };
 }
 
-export default class Model {
+/**
+ * The `Model` class represents a local data resource. It provides methods to
+ * persist changes via the API.
+ */
+export default abstract class Model {
     /**
      * The resource object from the API.
      */
@@ -39,13 +37,13 @@ export default class Model {
     /**
      * The data store that this resource should be persisted to.
      */
-    protected store: Store;
+    protected store?: Store;
 
     /**
-     * @param {Object} data A resource object from the API.
-     * @param {Store} store The data store that this model should be persisted to.
+     * @param data A resource object from the API.
+     * @param store The data store that this model should be persisted to.
      */
-    constructor(data = {}, store = null) {
+    constructor(data = <Data>{}, store?: Store) {
         this.data = data;
         this.store = store;
 
@@ -73,9 +71,8 @@ export default class Model {
      * Merge new data into this model locally.
      *
      * @param data A resource object to merge into this model
-     * @public
      */
-    pushData(data: {}) {
+    public pushData(data: {}) {
         // Since most of the top-level items in a resource object are objects
         // (e.g. relationships, attributes), we'll need to check and perform the
         // merge at the second level if that's the case.
@@ -105,7 +102,7 @@ export default class Model {
     /**
      * Merge new attributes into this model locally.
      *
-     * @param {Object} attributes The attributes to merge.
+     * @param attributes The attributes to merge.
      */
     pushAttributes(attributes: any) {
         this.pushData({ attributes });
@@ -117,7 +114,6 @@ export default class Model {
      * @param attributes The attributes to save. If a 'relationships' key
      *     exists, it will be extracted and relationships will also be saved.
      * @param [options]
-     * @return {Promise}
      */
     save(attributes: any, options: any = {}): Promise<Model | Model[]> {
         const data: Data = {
@@ -208,7 +204,7 @@ export default class Model {
             )
             .then(() => {
                 this.exists = false;
-                this.store.remove(this);
+                this.store!.remove(this);
             });
     }
 
@@ -229,7 +225,7 @@ export default class Model {
     /**
      * Generate a function which returns the value of the given attribute.
      *
-     * @param {String} name
+     * @param name
      * @param [transform] A function to transform the attribute value
      */
     static attribute(name: string, transform?: Function): () => any {
@@ -253,7 +249,7 @@ export default class Model {
             if (this.data.relationships) {
                 const relationship = this.data.relationships[name];
 
-                if (relationship) {
+                if (relationship && !Array.isArray(relationship.data)) {
                     return app.store.getById(relationship.data.type, relationship.data.id);
                 }
             }
@@ -275,7 +271,7 @@ export default class Model {
             if (this.data.relationships) {
                 const relationship = this.data.relationships[name];
 
-                if (relationship) {
+                if (relationship && Array.isArray(relationship.data)) {
                     return relationship.data.map(data => app.store.getById(data.type, data.id));
                 }
             }

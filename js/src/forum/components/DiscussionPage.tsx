@@ -18,12 +18,12 @@ export default class DiscussionPage extends Page {
     /**
      * The discussion that is being viewed.
      */
-    discussion?: Discussion;
+    discussion: Discussion | null = null;
 
     /**
      * The number of the first post that is currently visible in the viewport.
      */
-    near?: number;
+    near: number | null = null;
 
     stream!: PostStream;
     scrubber!: PostStreamScrubber;
@@ -155,7 +155,7 @@ export default class DiscussionPage extends Page {
             // component for the first time on page load, then any calls to m.redraw
             // will be ineffective and thus any configs (scroll code) will be run
             // before stuff is drawn to the page.
-            setTimeout(this.show.bind(this, preloadedDiscussion), 0);
+            setTimeout(this.show.bind(this, preloadedDiscussion as Discussion), 0);
         } else {
             const params = this.requestParams();
 
@@ -219,14 +219,16 @@ export default class DiscussionPage extends Page {
         // When the mouse enters and leaves the discussions pane, we want to show
         // and hide the pane respectively. We also create a 10px 'hot edge' on the
         // left of the screen to activate the pane.
-        const pane = app.pane;
-        $list.hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
 
-        const hotEdge = e => {
-            if (e.pageX < 10) pane.show();
-        };
-        $(document).on('mousemove', hotEdge);
-        vnode.dom.onunload = () => $(document).off('mousemove', hotEdge);
+        // TODO pane
+        // const pane = app.pane;
+        // $list.hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
+        //
+        // const hotEdge = e => {
+        //     if (e.pageX < 10) pane.show();
+        // };
+        // $(document).on('mousemove', hotEdge);
+        // vnode.dom.onunload = () => $(document).off('mousemove', hotEdge);
 
         // If the discussion we are viewing is listed in the discussion list, then
         // we will make sure it is visible in the viewport – if it is not we will

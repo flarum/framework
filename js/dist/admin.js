@@ -11812,7 +11812,7 @@ $.fn.hover = function (hover, leave) {
 }; // add animated scroll
 
 
-$.fn.animatedScrollTop = function (to, duration, callback) {
+$.fn.animateScrollTop = function (to, duration, callback) {
   if (duration === void 0) {
     duration = $.fx.speeds._default;
   }
@@ -11848,7 +11848,6 @@ $.fn.extend = $.extend.bind($);
  * Enable special events on Zepto
  * @license Original Copyright 2013 Enideo. Released under dual MIT and GPL licenses.
  */
-// @ts-ignore
 
 $.event.special = $.event.special || {};
 var bindBeforeSpecialEvents = $.fn.bind;

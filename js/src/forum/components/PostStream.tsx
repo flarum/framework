@@ -470,7 +470,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
         let startNumber;
         let endNumber;
 
-        this.$('.PostStream-item').each((index, item: Element) => {
+        this.$('.PostStream-item').each((index, item: HTMLElement) => {
             const $item = $(item);
             const top = $item.offset().top;
             const height = $item.outerHeight(true);
@@ -557,7 +557,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
                         $container.scrollTop(top);
                         resolve();
                     } else if (top !== scrollTop) {
-                        $container.animatedScrollTop(top, 'fast', resolve);
+                        $container.animateScrollTop(top, 'fast', resolve);
                     } else {
                         resolve();
                     }

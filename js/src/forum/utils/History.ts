@@ -1,7 +1,7 @@
 export interface StackItem {
     name: string;
-    title: string;
-    url?: string;
+    title?: string;
+    url: string;
 }
 
 /**
@@ -38,9 +38,9 @@ export default class History {
     /**
      * Push an item to the top of the stack.
      *
-     * @param {String} name The name of the route.
-     * @param {String} title The title of the route.
-     * @param {String} [url] The URL of the route. The current URL will be used if
+     * @param name The name of the route.
+     * @param title The title of the route.
+     * @param [url] The URL of the route. The current URL will be used if
      *     not provided.
      */
     push(name: string, title?: string, url: string = m.route.get()) {
