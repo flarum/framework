@@ -14,13 +14,18 @@ use Flarum\Forum\Auth\SsoDriverInterface;
 use Flarum\Forum\Auth\SsoResponse;
 use Flarum\Http\Middleware\AuthenticateWithHeader;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\integration\AuthenticatedTestCase;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\BuildsHttpRequests;
+use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class AuthSsoTest extends AuthenticatedTestCase
+class AuthSsoTest extends TestCase
 {
+    use RetrievesAuthorizedUsers;
+    use BuildsHttpRequests;
+
     protected $settings;
     protected const LOGGED_IN_RESPONSE = '<script>window.close(); window.opener.app.authenticationComplete({"loggedIn":true});</script>';
     protected const TEST_SUCCESS_RESPONSE = '<script>window.close(); window.opener.app.authenticationComplete({"testSuccess":true});</script>';
@@ -52,7 +57,8 @@ class AuthSsoTest extends AuthenticatedTestCase
         $this->settings()->set('allow_sign_up', false);
     }
 
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
         // Add so that we can use AuthenticatedTestCase (ie API Key Authentication) on forum routes.
         $this->extend((new Extend\Middleware('forum'))->add(AuthenticateWithHeader::class));
@@ -60,6 +66,7 @@ class AuthSsoTest extends AuthenticatedTestCase
 
     protected function tearDown()
     {
+        $this->prepDb();
         $this->settings()->set('auth_driver_enabled_custom_sso', false);
         $this->settings()->set('auth_driver_trust_emails_custom_sso', false);
         User::find(1)->ssoProviders()->delete();
@@ -67,6 +74,16 @@ class AuthSsoTest extends AuthenticatedTestCase
         $this->settings()->set('allow_sign_up', true);
 
         parent::tearDown();
+    }
+
+    protected function prepDb()
+    {
+        $this->prepareDatabase([
+            'users' => [
+                $this->adminUser(),
+                $this->normalUser(),
+            ],
+        ]);
     }
 
     /**
@@ -120,6 +137,8 @@ class AuthSsoTest extends AuthenticatedTestCase
         // Also tests that identifier doesnt necessarily need to be an email.
         $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
 
+        $this->prepDb();
+
         $this->enableProvider();
 
         $user = User::find(1);
@@ -127,7 +146,10 @@ class AuthSsoTest extends AuthenticatedTestCase
         $user->ssoProviders()->create(['provider' => 'custom_sso', 'identifier' => 'nonEmailIdentifier']);
 
         $response = $this->send(
-            $this->authenticatedRequest('GET', '/auth/custom_sso', [], 1)->withAttribute('nonEmailIdentifier', true)
+            $this->requestAsUser(
+                $this->request('GET', '/auth/custom_sso')->withAttribute('nonEmailIdentifier', true),
+                1
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -163,6 +185,8 @@ class AuthSsoTest extends AuthenticatedTestCase
     {
         $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
 
+        $this->prepDb();
+
         $this->enableProvider();
 
         $user = User::find(2);
@@ -170,7 +194,10 @@ class AuthSsoTest extends AuthenticatedTestCase
         $user->ssoProviders()->create(['provider' => 'custom_sso', 'identifier' => 'nonEmailIdentifier']);
 
         $response = $this->send(
-            $this->authenticatedRequest('GET', '/auth/custom_sso', [], 1)->withAttribute('nonEmailIdentifier', true)
+            $this->requestAsUser(
+                $this->request('GET', '/auth/custom_sso')->withAttribute('nonEmailIdentifier', true),
+                1
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -185,6 +212,8 @@ class AuthSsoTest extends AuthenticatedTestCase
     {
         $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
 
+        $this->prepDb();
+
         $this->enableProvider();
 
         $user = User::find(1);
@@ -192,7 +221,10 @@ class AuthSsoTest extends AuthenticatedTestCase
         $user->ssoProviders()->create(['provider' => 'custom_sso', 'identifier' => 'nonEmailIdentifier']);
 
         $response = $this->send(
-            $this->authenticatedRequest('GET', '/auth/custom_sso', [], 2)->withAttribute('nonEmailIdentifier', true)
+            $this->requestAsUser(
+                $this->request('GET', '/auth/custom_sso')->withAttribute('nonEmailIdentifier', true),
+                2
+            )
         );
 
         $this->assertEquals(403, $response->getStatusCode());
@@ -205,12 +237,17 @@ class AuthSsoTest extends AuthenticatedTestCase
     {
         $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
 
+        $this->prepDb();
+
         $this->enableProvider();
 
         $response = $this->send(
-            $this->authenticatedRequest('GET', '/auth/custom_sso', [], 1)
-                ->withAttribute('adminIdentifier', true)
-                ->withAttribute('provideEmail', 'admin')
+            $this->requestAsUser(
+                $this->request('GET', '/auth/custom_sso')
+                    ->withAttribute('adminIdentifier', true)
+                    ->withAttribute('provideEmail', 'admin'),
+                1
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -263,12 +300,17 @@ class AuthSsoTest extends AuthenticatedTestCase
     {
         $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
 
+        $this->prepDb();
+
         $this->enableProvider();
 
         $response = $this->send(
-            $this->authenticatedRequest('GET', '/auth/custom_sso', [], 2)
-                ->withAttribute('adminIdentifier', true)
-                ->withAttribute('provideEmail', 'admin')
+            $this->requestAsUser(
+                $this->request('GET', '/auth/custom_sso')
+                    ->withAttribute('adminIdentifier', true)
+                    ->withAttribute('provideEmail', 'admin'),
+                2
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -282,12 +324,17 @@ class AuthSsoTest extends AuthenticatedTestCase
     {
         $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
 
+        $this->prepDb();
+
         $this->enableProvider();
 
         $response = $this->send(
-            $this->authenticatedRequest('GET', '/auth/custom_sso', [], 1)
-                ->withAttribute('adminIdentifier', true)
-                ->withAttribute('provideEmail', 'normal')
+            $this->requestAsUser(
+                $this->request('GET', '/auth/custom_sso')
+                    ->withAttribute('adminIdentifier', true)
+                    ->withAttribute('provideEmail', 'normal'),
+                1
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -301,11 +348,16 @@ class AuthSsoTest extends AuthenticatedTestCase
     {
         $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
 
+        $this->prepDb();
+
         $this->enableProvider();
 
         $response = $this->send(
-            $this->authenticatedRequest('GET', '/auth/custom_sso', [], 1)
-                ->withAttribute('adminIdentifier', true)
+            $this->requestAsUser(
+                $this->request('GET', '/auth/custom_sso')
+                    ->withAttribute('adminIdentifier', true),
+                1
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -319,6 +371,8 @@ class AuthSsoTest extends AuthenticatedTestCase
     {
         $this->extend((new Extend\Auth)->ssoDriver('custom_sso', CustomSsoProvider::class));
 
+        $this->prepDb();
+
         $this->enableProvider();
 
         $user = User::find(1);
@@ -326,8 +380,11 @@ class AuthSsoTest extends AuthenticatedTestCase
         $user->ssoProviders()->create(['provider' => 'custom_sso', 'identifier' => 'nonEmailIdentifier']);
 
         $response = $this->send(
-            $this->authenticatedRequest('GET', '/auth/custom_sso', [], 1)
-                ->withAttribute('adminIdentifier', true)
+            $this->requestAsUser(
+                $this->request('GET', '/auth/custom_sso')
+                    ->withAttribute('adminIdentifier', true),
+                1
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
