@@ -42,4 +42,19 @@ trait AskQuestionTrait
 
         return $this->questionHelper()->ask($this->input, $this->output, $question);
     }
+
+    protected function confirm($question)
+    {
+        while (true) {
+            $confirmation = $this->ask($question . ' (y/N)');
+
+            if (strtolower($confirmation) === 'y') {
+                return true;
+            } elseif (strtolower($confirmation) === 'n') {
+                return false;
+            } else {
+                $this->error('Invalid Response');
+            }
+        }
+    }
 }
