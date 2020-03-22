@@ -6,7 +6,7 @@ import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
-import Evented from '../../common/utils/evented';
+import Evented from '../../common/utils/Evented';
 import { DiscussionProp } from '../../common/concerns/ComponentProps';
 import { Attributes } from 'mithril';
 

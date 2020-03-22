@@ -1,9 +1,4 @@
-import Forum from './Forum';
-
-const app = new Forum();
-
-// @ts-ignore
-window.app = app;
+import app from './app';
 
 export { app };
 
