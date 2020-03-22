@@ -10,12 +10,14 @@
 namespace Flarum\User\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Console\AskQuestionTrait;
 use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Validation\ValidationException;
 
 class ResetPasswordCommand extends AbstractCommand
 {
+    use AskQuestionTrait;
 
     protected $userRepository;
 
