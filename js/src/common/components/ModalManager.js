@@ -54,7 +54,6 @@ export default class ModalManager extends Component {
     m.redraw(true);
 
     this.$().modal({backdrop: this.component.isDismissible() ? true : 'static'}).modal('show');
-    this.onready();
   }
 
   /**
