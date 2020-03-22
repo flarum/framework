@@ -22,7 +22,7 @@ export default {
         const items = new ItemList();
 
         ['user', 'moderation', 'destructive'].forEach(section => {
-            const controls = this[section + 'Controls'](user, context).toArray();
+            const controls = this[section](user, context).toArray();
             if (controls.length) {
                 controls.forEach(item => items.add(item.itemName, item));
                 items.add(section + 'Separator', Separator.component());
@@ -35,14 +35,14 @@ export default {
     /**
      * Get controls for a user pertaining to the current user (e.g. poke, follow).
      */
-    userControls(): ItemList {
+    user(): ItemList {
         return new ItemList();
     },
 
     /**
      * Get controls for a user pertaining to moderation (e.g. suspend, edit).
      */
-    moderationControls(user: User): ItemList {
+    moderation(user: User): ItemList {
         const items = new ItemList();
 
         if (user.canEdit()) {
@@ -62,7 +62,7 @@ export default {
     /**
      * Get controls for a user which are destructive (e.g. delete).
      */
-    destructiveControls(user: User): ItemList {
+    destructive(user: User): ItemList {
         const items = new ItemList();
 
         if (user.id() !== '1' && user.canDelete()) {
