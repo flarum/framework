@@ -10,11 +10,14 @@
 namespace Flarum\Extension\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Console\AskQuestionTrait;
 use Flarum\Extension\ExtensionManager;
 use Symfony\Component\Console\Input\InputOption;
 
 class ExtensionEnableAllCommand extends AbstractCommand
 {
+    use AskQuestionTrait;
+
     /**
      * @var ExtensionManager
      */
@@ -39,6 +42,12 @@ class ExtensionEnableAllCommand extends AbstractCommand
             ->setName('extensions:enableAll')
             ->setDescription("Enable all extensions.")
             ->addOption(
+                'yes',
+                'y',
+                InputOption::VALUE_NONE,
+                'Assume "yes" as answer to all prompts and run non-interactively.',
+            )
+            ->addOption(
                 'only-bundled',
                 null,
                 InputOption::VALUE_NONE,
@@ -53,16 +62,21 @@ class ExtensionEnableAllCommand extends AbstractCommand
     {
         $enabled = $this->extensions->getEnabled();
         foreach ($this->extensions->getExtensions() as $extension) {
-            if ($this->extensions->isEnabled($extension->getId())) {
-                $this->info('Extension: ' . $extension->getId() . ' is already enabled, ignoring');
-            } elseif ($this->input->getOption('only-bundled') && substr($extension->getId(), 0, 6) !==  'flarum') {
-                $this->info('Extension: ' . $extension->getId() . ' is not bundled, ignoring');
+            $extensionName = $extension->getId();
+
+            if ($this->extensions->isEnabled($extensionName)) {
+                $this->info('Extension: ' . $extensionName . ' is already enabled, ignoring');
+            } elseif ($this->input->getOption('only-bundled') && substr($extensionName, 0, 6) !==  'flarum') {
+                $this->info('Extension: ' . $extensionName . ' is not bundled, ignoring');
             } else {
-                $this->info('Enabling: ' . $extension->getId());
-                $this->extensions->enable($extension->getId());
+                if ($this->input->getOption('yes') || $this->confirm("Enable $extensionName?")) {
+                    $this->info('Enabling: ' . $extensionName);
+
+                    $this->extensions->enable($extensionName);
+                } else {
+                    $this->info('Skipping...');
+                }
             }
         }
-
-        $this->info('DONE.');
     }
 }

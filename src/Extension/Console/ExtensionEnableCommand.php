@@ -10,11 +10,14 @@
 namespace Flarum\Extension\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Console\AskQuestionTrait;
 use Flarum\Extension\ExtensionManager;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class ExtensionEnableCommand extends AbstractCommand
 {
+    use AskQuestionTrait;
     /**
      * @var ExtensionManager
      */
@@ -38,6 +41,12 @@ class ExtensionEnableCommand extends AbstractCommand
         $this
             ->setName('extensions:enable')
             ->setDescription("Enable an extension")
+            ->addOption(
+                'yes',
+                'y',
+                InputOption::VALUE_NONE,
+                'Assume "yes" as answer to all prompts and run non-interactively.',
+            )
             ->addArgument(
                 'extension',
                 InputArgument::REQUIRED,
@@ -58,10 +67,12 @@ class ExtensionEnableCommand extends AbstractCommand
             return;
         }
 
-        $this->info('Enabling: ' . $extensionName);
+        if ($this->input->getOption('yes') || $this->confirm("Enable $extensionName?")) {
+            $this->info('Enabling: ' . $extensionName);
 
-        $this->extensions->enable($extensionName);
-
-        $this->info('DONE.');
+            $this->extensions->enable($extensionName);
+        } else {
+            $this->info('Skipping...');
+        }
     }
 }
