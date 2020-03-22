@@ -32,8 +32,8 @@ export default class Forum extends Application {
         // discussionRenamed: DiscussionRenamedPost
     };
 
-    previous: Page;
-    current: Page;
+    previous?: Page;
+    current?: Page;
 
     constructor() {
         super();
