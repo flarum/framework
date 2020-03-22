@@ -43,7 +43,7 @@ export default class Discussion extends Model {
      *
      * @param id The ID of the post to remove.
      */
-    removePost(id: number) {
+    removePost(id: string) {
         const relationships = this.data.relationships;
         const posts = relationships && relationships.posts;
 
@@ -88,7 +88,7 @@ export default class Discussion extends Model {
      * Get a list of all of the post IDs in this discussion.
      */
     postIds(): string[] {
-        const posts = this.data.relationships.posts;
+        const posts = this.data.relationships?.posts;
 
         return posts ? posts.data.map(link => link.id) : [];
     }

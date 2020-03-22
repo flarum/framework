@@ -16014,7 +16014,9 @@ var Discussion = /*#__PURE__*/function (_Model) {
   ;
 
   _proto.postIds = function postIds() {
-    var posts = this.data.relationships.posts;
+    var _this$data$relationsh;
+
+    var posts = (_this$data$relationsh = this.data.relationships) === null || _this$data$relationsh === void 0 ? void 0 : _this$data$relationsh.posts;
     return posts ? posts.data.map(function (link) {
       return link.id;
     }) : [];
@@ -23981,7 +23983,7 @@ __webpack_require__.r(__webpack_exports__);
    *     be displayed.
    * @protected
    */
-  moderation: function moderation(discussion) {
+  moderation: function moderation(discussion, context) {
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
 
     if (discussion.canRename()) {
@@ -24003,7 +24005,7 @@ __webpack_require__.r(__webpack_exports__);
    *     be displayed.
    * @protected
    */
-  destructive: function destructive(discussion) {
+  destructive: function destructive(discussion, context) {
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
 
     if (!discussion.isHidden()) {
@@ -24445,8 +24447,8 @@ __webpack_require__.r(__webpack_exports__);
   /**
    * Get a list of controls for a post.
    *
-   * @param {Post} post
-   * @param {*} context The parent component under which the controls menu will
+   * @param post
+   * @param context The parent component under which the controls menu will
    *     be displayed.
    * @public
    */
@@ -24455,7 +24457,7 @@ __webpack_require__.r(__webpack_exports__);
 
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__["default"]();
     ['user', 'moderation', 'destructive'].forEach(function (section) {
-      var controls = _this[section + 'Controls'](post, context).toArray();
+      var controls = _this[section](post, context).toArray();
 
       if (controls.length) {
         controls.forEach(function (item) {
@@ -24470,24 +24472,24 @@ __webpack_require__.r(__webpack_exports__);
   /**
    * Get controls for a post pertaining to the current user (e.g. report).
    *
-   * @param {Post} post
-   * @param {*} context The parent component under which the controls menu will
+   * @param post
+   * @param context The parent component under which the controls menu will
    *     be displayed.
    * @protected
    */
-  userControls: function userControls(post, context) {
+  user: function user(post, context) {
     return new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__["default"]();
   },
 
   /**
    * Get controls for a post pertaining to moderation (e.g. edit).
    *
-   * @param {Post} post
-   * @param {*} context The parent component under which the controls menu will
+   * @param post
+   * @param context The parent component under which the controls menu will
    *     be displayed.
    * @protected
    */
-  moderationControls: function moderationControls(post, context) {
+  moderation: function moderation(post, context) {
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__["default"]();
 
     if (post.contentType() === 'comment' && post.canEdit()) {
@@ -24505,12 +24507,12 @@ __webpack_require__.r(__webpack_exports__);
   /**
    * Get controls for a post that are destructive (e.g. delete).
    *
-   * @param {Post} post
-   * @param {*} context The parent component under which the controls menu will
+   * @param post
+   * @param context The parent component under which the controls menu will
    *     be displayed.
    * @protected
    */
-  destructiveControls: function destructiveControls(post, context) {
+  destructive: function destructive(post, context) {
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__["default"]();
 
     if (post.contentType() === 'comment' && !post.isHidden()) {
@@ -24658,7 +24660,7 @@ __webpack_require__.r(__webpack_exports__);
 
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
     ['user', 'moderation', 'destructive'].forEach(function (section) {
-      var controls = _this[section + 'Controls'](user, context).toArray();
+      var controls = _this[section](user, context).toArray();
 
       if (controls.length) {
         controls.forEach(function (item) {
@@ -24673,14 +24675,14 @@ __webpack_require__.r(__webpack_exports__);
   /**
    * Get controls for a user pertaining to the current user (e.g. poke, follow).
    */
-  userControls: function userControls() {
+  user: function user() {
     return new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
   },
 
   /**
    * Get controls for a user pertaining to moderation (e.g. suspend, edit).
    */
-  moderationControls: function moderationControls(user) {
+  moderation: function moderation(user) {
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
 
     if (user.canEdit()) {
@@ -24697,7 +24699,7 @@ __webpack_require__.r(__webpack_exports__);
   /**
    * Get controls for a user which are destructive (e.g. delete).
    */
-  destructiveControls: function destructiveControls(user) {
+  destructive: function destructive(user) {
     var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
 
     if (user.id() !== '1' && user.canDelete()) {

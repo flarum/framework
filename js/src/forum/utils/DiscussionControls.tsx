@@ -21,7 +21,7 @@ export default {
      *     be displayed
      * @public
      */
-    controls(discussion: Discussion, context): ItemList {
+    controls(discussion: Discussion, context: any): ItemList {
         const items = new ItemList();
 
         ['user', 'moderation', 'destructive'].forEach(section => {
@@ -83,7 +83,7 @@ export default {
      *     be displayed.
      * @protected
      */
-    moderation(discussion): ItemList {
+    moderation(discussion, context: any): ItemList {
         const items = new ItemList();
 
         if (discussion.canRename()) {
@@ -108,7 +108,7 @@ export default {
      *     be displayed.
      * @protected
      */
-    destructive(discussion: Discussion): ItemList {
+    destructive(discussion: Discussion, context: any): ItemList {
         const items = new ItemList();
 
         if (!discussion.isHidden()) {
