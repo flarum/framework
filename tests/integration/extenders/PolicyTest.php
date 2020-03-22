@@ -13,18 +13,27 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\User\AbstractPolicy;
 use Flarum\Extend;
-use Flarum\Tests\integration\AuthenticatedTestCase;
+use Flarum\Tests\integration\TestCase;
+use Flarum\Tests\integration\BuildsHttpRequests;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class PolicyTest extends AuthenticatedTestCase
+class PolicyTest extends TestCase
 {
+    use BuildsHttpRequests;
+    use RetrievesAuthorizedUsers;
+
     // Request body to hide discussions sent in tests.
     protected $hideQuery = ['json' => ['data' => ['attributes' => ['isHidden' => true]]]];
 
     private function prepDb()
     {
         $this->prepareDatabase([
+            'users' => [
+                $this->adminUser(),
+                $this->normalUser(),
+            ],
             'discussions' => [
                 ['id' => 1, 'title' => 'Hidden Discussion', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => null, 'comment_count' => 0, 'is_private' => 0, 'hidden_at' => Carbon::now()->toDateTimeString()],
                 ['id' => 2, 'title' => 'Unrelated Discussion', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => null, 'comment_count' => 0, 'is_private' => 0],
@@ -73,7 +82,9 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
+            $this->requestAsUser(
+                $this->request('PATCH', '/api/discussions/2', $this->hideQuery), 2
+            )
         );
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -92,7 +103,9 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
+            $this->requestAsUser(
+                $this->request('PATCH', '/api/discussions/2', $this->hideQuery), 2
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -112,7 +125,9 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
+            $this->requestAsUser(
+                $this->request('PATCH', '/api/discussions/2', $this->hideQuery), 2
+            )
         );
 
         $this->assertEquals(403, $response->getStatusCode());
@@ -133,7 +148,9 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
+            $this->requestAsUser(
+                $this->request('PATCH', '/api/discussions/2', $this->hideQuery), 2
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -157,7 +174,9 @@ class PolicyTest extends AuthenticatedTestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->authenticatedRequest('PATCH', '/api/discussions/2', $this->hideQuery, 2)
+            $this->requestAsUser(
+                $this->request('PATCH', '/api/discussions/2', $this->hideQuery), 2
+            )
         );
 
         $this->assertEquals(403, $response->getStatusCode());
