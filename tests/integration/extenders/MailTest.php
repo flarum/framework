@@ -44,7 +44,7 @@ class MailTest extends AuthenticatedTestCase
     {
         $this->extend(
             (new Extend\Mail())
-                ->add('custom', CustomDriver::class)
+                ->addDriver('custom', CustomDriver::class)
         );
 
         $response = $this->send(
@@ -63,7 +63,7 @@ class MailTest extends AuthenticatedTestCase
     {
         $this->extend(
             (new Extend\Mail())
-                ->add('smtp', CustomDriver::class)
+                ->addDriver('smtp', CustomDriver::class)
         );
 
         $response = $this->send(
