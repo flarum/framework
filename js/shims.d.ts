@@ -1,7 +1,7 @@
 export * from './webpack-flarum-shims';
 
-import Forum from './src/forum/Forum';
+import Application from './src/common/Application';
 
 declare global {
-    const app: Forum;
+    const app: Application;
 }
