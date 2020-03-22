@@ -84,7 +84,7 @@ class CreateTokenController implements RequestHandlerInterface
 
         // If password authentication disabled, throw an error
         // if the user is not an admin.
-        if (!$this->settings->get('enable_password_auth')) {
+        if (!$this->settings->get('enable_password_auth', true)) {
             $this->assertAdmin($user);
         }
 
