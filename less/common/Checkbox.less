@@ -3,7 +3,7 @@
   cursor: pointer;
   margin: 0;
 
-  & input[type=checkbox] {
+  & input[type="checkbox"] {
     display: none;
   }
 }
@@ -32,7 +32,7 @@
   .transition(background-color 0.2s);
 
   .on& {
-    background: #58A400;
+    background: #58a400;
   }
 
   &:before {
@@ -48,7 +48,7 @@
     }
   }
   &:before {
-    content: ' ';
+    content: " ";
     background: @body-bg;
     border-radius: 11px;
     box-shadow: 0 2px 4px @shadow-color;
@@ -58,17 +58,22 @@
   font-size: 14px;
 
   .on & {
-    color: #58A400;
+    color: #58a400;
   }
   .off & {
-    color: #D0021B;
+    color: #d0021b;
   }
   .disabled & {
     color: @muted-more-color !important;
   }
 }
-.Checkbox.loading {
-    .Checkbox-display {
-        opacity: 0.5;
-    }
+.Checkbox.loading.Checkbox--switch {
+  color: @muted-more-color !important;
+
+  &.on .Checkbox-display {
+    background: fade(#58a400, 0.5);
+  }
+  &.off .Checkbox-display {
+    background: fade(@control-bg, 0.5);
+  }
 }
