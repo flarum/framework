@@ -15608,7 +15608,12 @@ var ModalManager = /*#__PURE__*/function (_Component) {
 
     micromodal__WEBPACK_IMPORTED_MODULE_1__["default"].show('Modal', {
       awaitCloseAnimation: true,
+      awaitOpenAnimation: true,
+      onShow: function onShow() {
+        return $('body').addClass('modal-open');
+      },
       onClose: function onClose() {
+        $('body').removeClass('modal-open');
         var backdrop = $('.modal-backdrop');
         backdrop.fadeOut(200, function () {
           backdrop.remove();
