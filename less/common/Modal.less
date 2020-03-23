@@ -162,13 +162,17 @@
     bottom: 0;
     top: 0;
     overflow: auto;
+    will-change: transform;
+    animation: none !important;
+    display: block;
     .transition-transform(0.2s);
     .translate3d(0, 100vh, 0);
 
-    &.in {
-      -webkit-transform: none !important;
-              transform: none !important;
+    &[aria-hidden="false"] {
+      -webkit-transform: none;
+              transform: none;
     }
+
     &:before {
       content: " ";
       .header-background();
