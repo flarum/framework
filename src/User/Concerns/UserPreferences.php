@@ -22,7 +22,6 @@ trait UserPreferences
      *
      * @param string $value
      * @return array
-     * @deprecated 0.1.0-beta.13: `users.preferences` is no longer used.
      */
     public function getPreferencesAttribute($value)
     {
@@ -41,7 +40,6 @@ trait UserPreferences
      * @param string $key
      * @param mixed $default
      * @return mixed
-     * @deprecated 0.1.0-beta.13: `users.preferences` is no longer used.
      */
     public function getPreference($key, $default = null)
     {
@@ -53,8 +51,6 @@ trait UserPreferences
      *
      * @param string $key
      * @param mixed $value
-     * @return $this
-     * @deprecated 0.1.0-beta.13: `users.preferences` is no longer used.
      */
     public function setPreference($key, $value)
     {

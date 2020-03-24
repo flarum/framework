@@ -28,14 +28,30 @@ class NotificationPreference extends AbstractModel
         return $this->belongsTo(User::class);
     }
 
-    public static function addChannel(string $channel)
+    public static function addChannel(string $channel, array $defaults = [])
     {
-        static::$channels[] = $channel;
+        static::$channels[$channel] = $defaults;
     }
 
-    public static function setNotificationPreference(User $user, string $type, string $channel, bool $enabled = true)
+    public static function getNotificationPreferences(User $user, string $channel = null, string $type = null)
     {
-        if (in_array($channel, static::$channels)) {
+        $saved = $user->notificationPreferences()
+            ->when('type', function ($query, $type) {
+                $query->where('type', $type);
+            })
+            ->whereIn('channel', $channel ? [$channel] : array_keys(static::$channels))
+            ->get();
+
+        if ($channel && $type) {
+            return $saved->first();
+        }
+
+        return $saved;
+    }
+
+    public static function setNotificationPreference(User $user, string $channel, string $type, bool $enabled = true)
+    {
+        if (array_key_exists($channel, static::$channels)) {
             $attributes = [
                 'channel' => $channel,
                 'type' => $type

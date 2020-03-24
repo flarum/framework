@@ -9,8 +9,6 @@
 
 namespace Flarum\User\Concerns;
 
-use Illuminate\Support\Arr;
-
 trait DeprecatedUserNotificationPreferences
 {
 
@@ -31,7 +29,7 @@ trait DeprecatedUserNotificationPreferences
      * @param string $type
      * @param string $method
      * @return string
-     * @deprecated 0.1.0-beta.13: `users.preferences` is no longer used, use NotificationPreference::getPreferenceKey.
+     * @deprecated 0.1.0-beta.13: `users.preferences` is no longer used, use \Flarum\User\NotificationPreference.
      */
     public static function getNotificationPreferenceKey($type, $method)
     {
