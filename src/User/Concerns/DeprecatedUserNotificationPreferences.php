@@ -11,7 +11,6 @@ namespace Flarum\User\Concerns;
 
 trait DeprecatedUserNotificationPreferences
 {
-
     /**
      * Encode an array of preferences for storage in the database.
      *

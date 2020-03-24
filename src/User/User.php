@@ -35,7 +35,6 @@ use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Contracts\Session\Session;
-use Illuminate\Support\Arr;
 
 /**
  * @property int $id

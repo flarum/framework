@@ -1,18 +1,22 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend\NotificationChannel;
-use Flarum\Extend\UserPreferences;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Support\Arr;
 
 class NotificationChannelTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-
 
     public function setUp()
     {
@@ -20,7 +24,7 @@ class NotificationChannelTest extends TestCase
 
         $this->prepareDatabase([
             'users' => [
-               $this->normalUser()
+                $this->normalUser()
             ]
         ]);
     }
@@ -39,6 +43,5 @@ class NotificationChannelTest extends TestCase
 
         /** @var User $user */
         $user = User::find(2);
-
     }
 }
