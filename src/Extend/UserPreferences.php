@@ -10,7 +10,7 @@ class UserPreferences implements ExtenderInterface
 {
     public function extend(Container $container, Extension $extension = null)
     {
-        // TODO: Implement extend() method.
+        // There's nothing here as the logic is contained in the `add()` method directly.
     }
 
     public function add(string $key, callable $transformer = null, $default = null)
