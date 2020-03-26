@@ -477,7 +477,7 @@ class PostStream extends Component {
       const top = $item.offset().top;
       const height = $item.outerHeight(true);
 
-      if (top + height > scrollTop + 2) {
+      if (top + height > scrollTop) {
         if (!startNumber) {
           startNumber = endNumber = $item.data('number');
         }
