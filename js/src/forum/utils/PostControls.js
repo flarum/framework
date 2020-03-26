@@ -2,6 +2,7 @@ import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import ItemList from '../../common/utils/ItemList';
+import ConfirmModal from '../components/ConfirmModal';
 
 /**
  * The `PostControls` utility constructs a list of buttons for a post which
@@ -128,14 +129,22 @@ export default {
   },
 
   /**
-   * Hide a post.
-   *
-   * @return {Promise}
+   * Hide a post. (aka soft delete)
    */
   hideAction() {
-    this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
-
-    return this.save({ isHidden: true }).then(() => m.redraw());
+    const confirmModal = new ConfirmModal();
+    confirmModal.init(
+      app.translator.trans('core.forum.post_controls.hide_post_modal.title'),
+      app.translator.trans('core.forum.post_controls.hide_post_modal.message'),
+      app.translator.trans('core.forum.post_controls.hide_post_modal.positive'),
+      app.translator.trans('core.forum.post_controls.hide_post_modal.negative'),
+      () => {
+        this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
+  
+        return this.save({ isHidden: true }).then(() => m.redraw());
+      }
+    );
+    app.modal.show(confirmModal);
   },
 
   /**
@@ -151,35 +160,42 @@ export default {
 
   /**
    * Delete a post.
-   *
-   * @return {Promise}
    */
   deleteAction(context) {
-    if (context) context.loading = true;
+    const confirmModal = new ConfirmModal();
+    confirmModal.init(
+      app.translator.trans('core.forum.post_controls.delete_post_modal.title'),
+      app.translator.trans('core.forum.post_controls.delete_post_modal.message'),
+      app.translator.trans('core.forum.post_controls.delete_post_modal.positive'),
+      app.translator.trans('core.forum.post_controls.delete_post_modal.negative'),
+      () => {
+        if (context) context.loading = true;
 
-    return this.delete()
-      .then(() => {
-        const discussion = this.discussion();
+        return this.delete()
+          .then(() => {
+            const discussion = this.discussion();
 
-        discussion.removePost(this.id());
+            discussion.removePost(this.id());
 
-        // If this was the last post in the discussion, then we will assume that
-        // the whole discussion was deleted too.
-        if (!discussion.postIds().length) {
-          // If there is a discussion list in the cache, remove this discussion.
-          if (app.cache.discussionList) {
-            app.cache.discussionList.removeDiscussion(discussion);
-          }
+            // If this was the last post in the discussion, then we will assume that
+            // the whole discussion was deleted too.
+            if (!discussion.postIds().length) {
+              // If there is a discussion list in the cache, remove this discussion.
+              if (app.cache.discussionList) {
+                app.cache.discussionList.removeDiscussion(discussion);
+              }
 
-          if (app.viewingDiscussion(discussion)) {
-            app.history.back();
-          }
-        }
-      })
-      .catch(() => {})
-      .then(() => {
-        if (context) context.loading = false;
-        m.redraw();
-      });
+              if (app.viewingDiscussion(discussion)) {
+                app.history.back();
+              }
+            }
+          })
+          .catch(() => {})
+          .then(() => {
+            if (context) context.loading = false;
+            m.redraw();
+          });
+    });
+    app.modal.show(confirmModal);
   }
 };
