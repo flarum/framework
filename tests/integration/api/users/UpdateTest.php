@@ -7,18 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\Controller;
+namespace Flarum\Tests\integration\api\users;
 
-use Flarum\Api\Controller\UpdateUserController;
-use Flarum\User\User;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
 
-class UpdateUserControllerTest extends ApiControllerTestCase
+class UpdateTest extends TestCase
 {
-    protected $controller = UpdateUserController::class;
-
-    protected $data = [
-        'email' => 'newemail@machine.local',
-    ];
+    use RetrievesAuthorizedUsers;
 
     public function setUp()
     {
@@ -48,9 +44,12 @@ class UpdateUserControllerTest extends ApiControllerTestCase
      */
     public function users_can_see_their_private_information()
     {
-        $this->actor = User::find(2);
-
-        $response = $this->callWith([], ['id' => 2]);
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [],
+            ])
+        );
 
         // Test for successful response and that the email is included in the response
         $this->assertEquals(200, $response->getStatusCode());
@@ -62,9 +61,12 @@ class UpdateUserControllerTest extends ApiControllerTestCase
      */
     public function users_can_not_see_other_users_private_information()
     {
-        $this->actor = User::find(2);
-
-        $response = $this->callWith([], ['id' => 1]);
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/1', [
+                'authenticatedAs' => 2,
+                'json' => [],
+            ])
+        );
 
         // Make sure sensitive information is not made public
         $this->assertEquals(200, $response->getStatusCode());

@@ -7,21 +7,21 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\Controller;
+namespace Flarum\Tests\integration\api\groups;
 
-use Flarum\Api\Controller\ListGroupsController;
 use Flarum\Group\Group;
+use Flarum\Tests\integration\TestCase;
 
-class ListGroupsControllerTest extends ApiControllerTestCase
+class ListTest extends TestCase
 {
-    protected $controller = ListGroupsController::class;
-
     /**
      * @test
      */
     public function shows_index_for_guest()
     {
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
