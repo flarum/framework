@@ -22,6 +22,7 @@ interface BlueprintInterface
     /**
      * Get the user that sent the notification.
      *
+     * @deprecated Will be removed for beta.14
      * @return User|null
      */
     public function getFromUser();
@@ -29,6 +30,7 @@ interface BlueprintInterface
     /**
      * Get the model that is the subject of this activity.
      *
+     * @deprecated Will be removed for beta.14
      * @return AbstractModel|null
      */
     public function getSubject();
@@ -36,9 +38,18 @@ interface BlueprintInterface
     /**
      * Get the data to be stored in the notification.
      *
+     * @deprecated Will be removed for beta.14
      * @return array|null
      */
     public function getData();
+
+    /**
+     * Get the attributes that uniquely identify a notification, plus metadata.
+     * TODO: Uncomment this for beta.14.
+     *
+     * @return array
+     */
+    //public function getAttributes(): array;
 
     /**
      * Get the serialized type of this activity.
