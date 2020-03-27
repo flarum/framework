@@ -7,24 +7,18 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\Controller;
+namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Api\Controller\ShowDiscussionController;
-use Flarum\Discussion\Discussion;
 use Flarum\Event\ScopeModelVisibility;
-use Flarum\User\User;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
-class ShowDiscussionControllerTest extends ApiControllerTestCase
+class ShowTest extends TestCase
 {
-    protected $controller = ShowDiscussionController::class;
-
-    /**
-     * @var Discussion
-     */
-    protected $discussion;
+    use RetrievesAuthorizedUsers;
 
     public function setUp()
     {
@@ -63,9 +57,11 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function author_can_see_discussion()
     {
-        $this->actor = User::find(2);
-
-        $response = $this->callWith([], ['id' => 1]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1', [
+                'authenticatedAs' => 2,
+            ])
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -75,7 +71,9 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guest_cannot_see_empty_discussion()
     {
-        $response = $this->callWith([], ['id' => 1]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1')
+        );
 
         $this->assertEquals(404, $response->getStatusCode());
     }
@@ -85,7 +83,9 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guest_cannot_see_hidden_posts()
     {
-        $response = $this->callWith([], ['id' => 4]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/4')
+        );
 
         $json = json_decode($response->getBody()->getContents(), true);
 
@@ -97,9 +97,11 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function author_can_see_hidden_posts()
     {
-        $this->actor = User::find(2);
-
-        $response = $this->callWith([], ['id' => 4]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/4', [
+                'authenticatedAs' => 2,
+            ])
+        );
 
         $json = json_decode($response->getBody()->getContents(), true);
 
@@ -120,7 +122,9 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
             }
         });
 
-        $response = $this->callWith([], ['id' => 4]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/4')
+        );
 
         $json = json_decode($response->getBody()->getContents(), true);
 
@@ -132,7 +136,9 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guest_can_see_discussion()
     {
-        $response = $this->callWith([], ['id' => 2]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/2')
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -142,7 +148,9 @@ class ShowDiscussionControllerTest extends ApiControllerTestCase
      */
     public function guests_cannot_see_private_discussion()
     {
-        $response = $this->callWith([], ['id' => 3]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/3')
+        );
 
         $this->assertEquals(404, $response->getStatusCode());
     }
