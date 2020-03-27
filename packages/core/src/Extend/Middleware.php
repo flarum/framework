@@ -81,7 +81,7 @@ class Middleware implements ExtenderInterface
             foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddleware) {
                 array_splice(
                     $existingMiddleware,
-                    array_search($originalMiddleware, $existingMiddleware) + 1,
+                    array_search($originalMiddleware, $existingMiddleware),
                     0,
                     $newMiddleware
                 );
@@ -90,7 +90,7 @@ class Middleware implements ExtenderInterface
             foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddleware) {
                 array_splice(
                     $existingMiddleware,
-                    array_search($originalMiddleware, $existingMiddleware),
+                    array_search($originalMiddleware, $existingMiddleware) + 1,
                     0,
                     $newMiddleware
                 );
