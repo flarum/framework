@@ -258,7 +258,7 @@ class ExtensionManager
     /**
      * Get only enabled extensions.
      *
-     * @return array
+     * @return array|Extension[]
      */
     public function getEnabledExtensions()
     {
@@ -316,7 +316,9 @@ class ExtensionManager
      */
     public function isEnabled($extension)
     {
-        return in_array($extension, $this->getEnabledExtensions());
+        $enabled = $this->getEnabledExtensions();
+
+        return isset($enabled[$extension]);
     }
 
     /**
