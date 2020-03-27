@@ -14,7 +14,7 @@ use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Illuminate\Support\Arr;
 
-class CreationTest extends TestCase
+class CreateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
