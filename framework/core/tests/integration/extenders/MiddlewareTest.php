@@ -101,7 +101,7 @@ class MiddlewareTest extends TestCase
         $originalMiddlewarePosition = array_search('X-First-Test-Middleware', array_keys($headers));
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertLessThan($originalMiddlewarePosition, $newMiddlewarePosition);
+        $this->assertLessThan($newMiddlewarePosition, $originalMiddlewarePosition);
     }
 
     /**
@@ -120,7 +120,7 @@ class MiddlewareTest extends TestCase
         $originalMiddlewarePosition = array_search('X-First-Test-Middleware', array_keys($headers));
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertGreaterThan($originalMiddlewarePosition, $newMiddlewarePosition);
+        $this->assertGreaterThan($newMiddlewarePosition, $originalMiddlewarePosition);
     }
 }
 
