@@ -23,7 +23,7 @@ class Sending
     /**
      * The users that the notification will be sent to.
      *
-     * @var array
+     * @var array|int[]
      */
     public $users;
 
