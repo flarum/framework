@@ -475,7 +475,10 @@ class PostStream extends Component {
       const $item = $(this);
       const top = $item.offset().top;
       const height = $item.outerHeight(true);
-
+      
+      // jQuery offset() and outHeight() may return value in decimals.
+      // Instead of 5, may return 5.8. TO offset this, we add +2 to the
+      // value of scrollTop.
       if (top + height > scrollTop + 2) {
         if (!startNumber) {
           startNumber = endNumber = $item.data('number');
