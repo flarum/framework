@@ -11,7 +11,6 @@ namespace Flarum\Notification\Job;
 
 use Carbon\Carbon;
 use Flarum\Notification\Blueprint\BlueprintInterface;
-use Flarum\Notification\Event\Notifying;
 use Flarum\Notification\Event\Sending;
 use Flarum\Notification\Notification;
 use Flarum\Queue\AbstractJob;
@@ -51,7 +50,5 @@ class SendNotificationsJob extends AbstractJob
                 ];
             }, $this->recipients)
         );
-
-        event(new Notifying($this->blueprint, $recipients));
     }
 }
