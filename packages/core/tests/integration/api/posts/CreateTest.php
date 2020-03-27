@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 
-class CreationTest extends TestCase
+class CreateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
