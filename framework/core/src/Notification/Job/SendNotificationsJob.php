@@ -11,6 +11,7 @@ namespace Flarum\Notification\Job;
 
 use Carbon\Carbon;
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\BlueprintBC;
 use Flarum\Notification\Event\Sending;
 use Flarum\Notification\Notification;
 use Flarum\Queue\AbstractJob;
@@ -40,7 +41,7 @@ class SendNotificationsJob extends AbstractJob
 
         event(new Sending($this->blueprint, $this->recipients));
 
-        $attributes = $this->blueprint->getAttributes();
+        $attributes = BlueprintBC::getAttributes($this->blueprint);
 
         Notification::insert(
             array_map(function (User $user) use ($attributes, $now) {

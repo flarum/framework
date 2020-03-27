@@ -58,7 +58,7 @@ class NotificationSyncer
      */
     public function sync(Blueprint\BlueprintInterface $blueprint, array $users)
     {
-        $attributes = $blueprint->getAttributes();
+        $attributes = BlueprintBC::getAttributes($blueprint);
 
         // Find all existing notification records in the database matching this
         // blueprint. We will begin by assuming that they all need to be
@@ -121,7 +121,7 @@ class NotificationSyncer
      */
     public function delete(BlueprintInterface $blueprint)
     {
-        Notification::where($blueprint->getAttributes())->update(['is_deleted' => true]);
+        Notification::where(BlueprintBC::getAttributes($blueprint))->update(['is_deleted' => true]);
     }
 
     /**
@@ -132,7 +132,7 @@ class NotificationSyncer
      */
     public function restore(BlueprintInterface $blueprint)
     {
-        Notification::where($blueprint->getAttributes())->update(['is_deleted' => false]);
+        Notification::where(BlueprintBC::getAttributes($blueprint))->update(['is_deleted' => false]);
     }
 
     /**
