@@ -38,20 +38,12 @@ class NotificationSyncer
     protected static $sentTo = [];
 
     /**
-     * @var NotificationRepository
-     */
-    protected $notifications;
-
-    /**
      * @var Queue
      */
     protected $queue;
 
-    public function __construct(
-        NotificationRepository $notifications,
-        Queue $queue
-    ) {
-        $this->notifications = $notifications;
+    public function __construct(Queue $queue)
+    {
         $this->queue = $queue;
     }
 
