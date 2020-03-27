@@ -7,15 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\Controller;
+namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Api\Controller\ListDiscussionsController;
-use Flarum\User\User;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
 
-class ListDiscussionsControllerTest extends ApiControllerTestCase
+class ListTest extends TestCase
 {
-    protected $controller = ListDiscussionsController::class;
+    use RetrievesAuthorizedUsers;
 
     public function setUp()
     {
@@ -46,7 +46,9 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
      */
     public function shows_index_for_guest()
     {
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
@@ -59,14 +61,13 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
      */
     public function can_search_for_author()
     {
-        $user = User::find(2);
-
-        $response = $this->callWith([], [
-            'filter' => [
-                'q' => 'author:'.$user->username.' foo'
-            ],
-            'include' => 'mostRelevantPost'
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['q' => 'author:normal foo'],
+                    'include' => 'mostRelevantPost',
+                ])
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -86,10 +87,14 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
             ['id' => 3, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
         ]);
 
-        $response = $this->callWith([], [
-            'filter' => ['q' => 'lightsail'],
-            'include' => 'mostRelevantPost'
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['q' => 'lightsail'],
+                    'include' => 'mostRelevantPost',
+                ])
+        );
+
         $data = json_decode($response->getBody()->getContents(), true);
         $ids = array_map(function ($row) {
             return $row['id'];
@@ -114,10 +119,14 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
             ['id' => 3, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
         ]);
 
-        $response = $this->callWith([], [
-            'filter' => ['q' => 'lightsail+'],
-            'include' => 'mostRelevantPost'
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['q' => 'lightsail+'],
+                    'include' => 'mostRelevantPost',
+                ])
+        );
+
         $data = json_decode($response->getBody()->getContents(), true);
         $ids = array_map(function ($row) {
             return $row['id'];
@@ -132,17 +141,25 @@ class ListDiscussionsControllerTest extends ApiControllerTestCase
      */
     public function search_for_special_characters_gives_empty_result()
     {
-        $response = $this->callWith([], [
-            'filter' => ['q' => '*'],
-            'include' => 'mostRelevantPost'
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['q' => '*'],
+                    'include' => 'mostRelevantPost',
+                ])
+        );
+
         $data = json_decode($response->getBody()->getContents(), true);
         $this->assertEquals([], $data['data']);
 
-        $response = $this->callWith([], [
-            'filter' => ['q' => '@'],
-            'include' => 'mostRelevantPost'
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['q' => '@'],
+                    'include' => 'mostRelevantPost',
+                ])
+        );
+
         $data = json_decode($response->getBody()->getContents(), true);
         $this->assertEquals([], $data['data']);
     }
