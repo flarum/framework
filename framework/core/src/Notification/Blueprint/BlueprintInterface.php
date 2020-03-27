@@ -9,6 +9,9 @@
 
 namespace Flarum\Notification\Blueprint;
 
+use Flarum\Database\AbstractModel;
+use Flarum\User\User;
+
 /**
  * A notification BlueprintInterface, when instantiated, represents a notification about
  * something. The blueprint is used by the NotificationSyncer to commit the
@@ -19,23 +22,34 @@ interface BlueprintInterface
     /**
      * Get the user that sent the notification.
      *
-     * @return \Flarum\User\User|null
+     * @deprecated Will be removed for beta.14
+     * @return User|null
      */
     public function getFromUser();
 
     /**
      * Get the model that is the subject of this activity.
      *
-     * @return \Flarum\Database\AbstractModel|null
+     * @deprecated Will be removed for beta.14
+     * @return AbstractModel|null
      */
     public function getSubject();
 
     /**
      * Get the data to be stored in the notification.
      *
+     * @deprecated Will be removed for beta.14
      * @return array|null
      */
     public function getData();
+
+    /**
+     * Get the attributes that uniquely identify a notification, plus metadata.
+     * TODO: Uncomment this for beta.14.
+     *
+     * @return array
+     */
+    //public function getAttributes(): array;
 
     /**
      * Get the serialized type of this activity.
