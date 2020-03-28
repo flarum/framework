@@ -113,7 +113,7 @@ export default abstract class Application {
     }
 
     boot() {
-        this.initializers.toArray().forEach(initializer => initializer(this));
+        this.initializers.toArray().forEach((initializer) => initializer(this));
 
         this.store.pushPayload({ data: this.data.resources });
 
@@ -127,7 +127,7 @@ export default abstract class Application {
     }
 
     bootExtensions(extensions) {
-        Object.keys(extensions).forEach(name => {
+        Object.keys(extensions).forEach((name) => {
             const extension = extensions[name];
 
             const extenders = flattenDeep(extension.extend);
@@ -145,13 +145,13 @@ export default abstract class Application {
 
         if ($modal) m.mount($modal, (this.modal = new ModalManager()));
 
-        if ($alerts) m.mount($alerts, (this.alerts = new AlertManager({ oninit: vnode => (this.alerts = vnode.state) })));
+        if ($alerts) m.mount($alerts, (this.alerts = new AlertManager({ oninit: (vnode) => (this.alerts = vnode.state) })));
 
         if ($content) m.route($content, basePath + '/', mapRoutes(this.routes, basePath));
 
         // Add a class to the body which indicates that the page has been scrolled
         // down.
-        new ScrollListener(top => {
+        new ScrollListener((top) => {
             const $app = $('#app');
             const offset = $app.offset().top;
 
@@ -248,11 +248,11 @@ export default abstract class Application {
         // When we deserialize JSON data, if for some reason the server has provided
         // a dud response, we don't want the application to crash. We'll show an
         // error message to the user instead.
-        options.deserialize = options.deserialize || (responseText => responseText);
+        options.deserialize = options.deserialize || ((responseText) => responseText);
 
         options.errorHandler =
             options.errorHandler ||
-            (error => {
+            ((error) => {
                 throw error;
             });
 
@@ -260,7 +260,7 @@ export default abstract class Application {
         // response code and show an error message to the user if something's gone
         // awry.
         const original = options.extract;
-        options.extract = xhr => {
+        options.extract = (xhr) => {
             let responseText;
 
             if (original) {
@@ -292,8 +292,8 @@ export default abstract class Application {
         // Now make the request. If it's a failure, inspect the error that was
         // returned and show an alert containing its contents.
         return m.request(options).then(
-            res => res,
-            error => {
+            (res) => res,
+            (error) => {
                 this.requestError = error;
 
                 let children;
@@ -301,7 +301,7 @@ export default abstract class Application {
                 switch (error.status) {
                     case 422:
                         children = error.response.errors
-                            .map(error => [error.detail, m('br')])
+                            .map((error) => [error.detail, m('br')])
                             .reduce((a, b) => a.concat(b), [])
                             .slice(0, -1);
                         break;

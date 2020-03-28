@@ -119,7 +119,7 @@ export default class Store {
      * @param value The value of the model attribute.
      */
     getBy<T extends Model = Model>(type: string, key: string, value: any): T {
-        return this.all<T>(type).filter(model => model[key]() === value)[0];
+        return this.all<T>(type).filter((model) => model[key]() === value)[0];
     }
 
     /**
@@ -128,7 +128,7 @@ export default class Store {
     all<T extends Model = Model>(type: string): T[] {
         const records = this.data[type];
 
-        return records ? Object.keys(records).map(id => records[id]) : [];
+        return records ? Object.keys(records).map((id) => records[id]) : [];
     }
 
     /**

@@ -146,7 +146,7 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
             .appendTo('body')
             .hide()
             .click()
-            .on('change', e => {
+            .on('change', (e) => {
                 this.upload($(e.target)[0].files[0]);
             });
     }
@@ -167,7 +167,7 @@ export default class AvatarEditor extends Component<AvatarEditorProps> {
         app.request({
             method: 'POST',
             url: `${app.forum.attribute('apiUrl')}/users/${user.id()}/avatar`,
-            serialize: raw => raw,
+            serialize: (raw) => raw,
             body,
         }).then(this.success.bind(this), this.failure.bind(this));
     }

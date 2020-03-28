@@ -37,9 +37,7 @@ export default class PostEdited extends Component<PostProp> {
         super.onupdate(vnode);
 
         if (this.shouldUpdateTooltip) {
-            this.$()
-                .tooltip('destroy')
-                .tooltip();
+            this.$().tooltip('destroy').tooltip();
             this.shouldUpdateTooltip = false;
         }
     }

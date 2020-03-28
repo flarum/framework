@@ -52,7 +52,7 @@ export default class Translator {
         const hydrated: any[] = [];
         const open: any[][] = [hydrated];
 
-        parts.forEach(part => {
+        parts.forEach((part) => {
             const match = part.match(new RegExp('{([a-z0-9_]+)}|<(/?)([a-z0-9_]+)>', 'i'));
 
             if (match) {
@@ -72,7 +72,7 @@ export default class Translator {
             }
         });
 
-        return hydrated.filter(part => part);
+        return hydrated.filter((part) => part);
     }
 
     pluralize(translation: string, number: number): string | undefined {
@@ -84,7 +84,7 @@ export default class Translator {
             standardRules = [],
             explicitRules = [];
 
-        translation.split('|').forEach(part => {
+        translation.split('|').forEach((part) => {
             if (cPluralRegex.test(part)) {
                 const matches = part.match(cPluralRegex);
                 explicitRules[matches[0]] = matches[matches.length - 1];

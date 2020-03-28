@@ -26,7 +26,7 @@ export default class Evented {
      * @param args Arguments to pass to event handlers.
      */
     public trigger(event: string, ...args: any): this {
-        this.getHandlers(event).forEach(handler => handler.apply(this, args));
+        this.getHandlers(event).forEach((handler) => handler.apply(this, args));
 
         return this;
     }
@@ -51,7 +51,7 @@ export default class Evented {
      * @param handler The function to handle the event.
      */
     one(event: string, handler: EventHandler): this {
-        const wrapper = function(this: Evented) {
+        const wrapper = function (this: Evented) {
             handler.apply(this, Array.from(arguments));
 
             this.off(event, wrapper);

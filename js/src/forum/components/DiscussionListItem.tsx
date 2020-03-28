@@ -97,7 +97,7 @@ export default class DiscussionListItem<T extends DiscussionListItemProps = Disc
                             user: user,
                             ago: humanTime(discussion.createdAt()),
                         })}
-                        oncreate={vnode => $(vnode.dom).tooltip({ placement: 'right' })}
+                        oncreate={(vnode) => $(vnode.dom).tooltip({ placement: 'right' })}
                     >
                         {avatar(user, { title: '' })}
                     </LinkButton>

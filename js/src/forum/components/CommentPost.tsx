@@ -58,7 +58,7 @@ export default class CommentPost extends Post {
         // all of the <script> tags in the content and evaluate them. This is
         // necessary because TextFormatter outputs them for e.g. syntax highlighting.
         if (vnode.contentHtml !== contentHtml) {
-            this.$('.Post-body script').each(function() {
+            this.$('.Post-body script').each(function () {
                 eval.call(window, $(this).text());
             });
         }

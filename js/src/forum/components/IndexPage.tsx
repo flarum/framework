@@ -48,7 +48,7 @@ export default class IndexPage extends Page {
             // are currently present in the cached discussion list. If they differ, we
             // will clear the cache and set up a new discussion list component with
             // the new parameters.
-            Object.keys(params).some(key => {
+            Object.keys(params).some((key) => {
                 if (app.cache.discussionList!.props.params[key] !== params[key]) {
                     app.cache.discussionList = null;
                     return true;
@@ -57,7 +57,7 @@ export default class IndexPage extends Page {
         }
 
         if (!app.cache.discussionList) {
-            app.cache.discussionList = new DiscussionList({ params, oninit: vnode => (app.cache.discussionList = vnode.state) });
+            app.cache.discussionList = new DiscussionList({ params, oninit: (vnode) => (app.cache.discussionList = vnode.state) });
         }
 
         app.history.push('index', app.translator.transText('core.forum.header.back_to_index_tooltip'));
@@ -225,8 +225,8 @@ export default class IndexPage extends Page {
             'sort',
             Dropdown.component({
                 buttonClassName: 'Button',
-                label: sortOptions[this.params().sort] || Object.keys(sortMap).map(key => sortOptions[key])[0],
-                children: Object.keys(sortOptions).map(value => {
+                label: sortOptions[this.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
+                children: Object.keys(sortOptions).map((value) => {
                     const label = sortOptions[value];
                     const active = (this.params().sort || Object.keys(sortMap)[0]) === value;
 

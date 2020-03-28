@@ -18,11 +18,11 @@ export default class Post extends Model {
 
     editedAt = Model.attribute('editedAt', Model.transformDate) as () => Date;
     editedUser = Model.hasOne('editedUser') as () => User;
-    isEdited = computed('editedAt', editedAt => !!editedAt) as () => boolean;
+    isEdited = computed('editedAt', (editedAt) => !!editedAt) as () => boolean;
 
     hiddenAt = Model.attribute('hiddenAt', Model.transformDate) as () => Date;
     hiddenUser = Model.hasOne('hiddenUser') as () => User;
-    isHidden = computed('hiddenAt', hiddenAt => !!hiddenAt) as () => boolean;
+    isHidden = computed('hiddenAt', (hiddenAt) => !!hiddenAt) as () => boolean;
 
     canEdit = Model.attribute('canEdit') as () => boolean;
     canHide = Model.attribute('canHide') as () => boolean;

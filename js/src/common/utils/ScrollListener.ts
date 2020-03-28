@@ -4,7 +4,7 @@ const later =
     window.mozRequestAnimationFrame ||
     window.msRequestAnimationFrame ||
     window.oRequestAnimationFrame ||
-    (callback => window.setTimeout(callback, 1000 / 60));
+    ((callback) => window.setTimeout(callback, 1000 / 60));
 
 /**
  * The `ScrollListener` class sets up a listener that handles window scroll

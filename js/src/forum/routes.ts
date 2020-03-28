@@ -8,7 +8,7 @@ import Discussion from '../common/models/Discussion';
 import Post from '../common/models/Post';
 import User from '../common/models/User';
 
-export default app => {
+export default (app) => {
     app.routes = {
         index: { path: '/all', component: IndexPage },
 

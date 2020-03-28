@@ -21,7 +21,7 @@ export default class DiscussionsSearchSource extends SearchSource {
             include: 'mostRelevantPost',
         };
 
-        return app.store.find<Discussion>('discussions', params).then(results => (this.results[query] = results));
+        return app.store.find<Discussion>('discussions', params).then((results) => (this.results[query] = results));
     }
 
     view(query: string) {
@@ -38,7 +38,7 @@ export default class DiscussionsSearchSource extends SearchSource {
                     href: app.route('index', { q: query }),
                 })}
             </li>,
-            results.map(discussion => {
+            results.map((discussion) => {
                 const mostRelevantPost = discussion.mostRelevantPost();
 
                 return (

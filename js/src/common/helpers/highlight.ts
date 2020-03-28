@@ -28,9 +28,7 @@ export default function highlight(string: string, phrase: string | RegExp, lengt
 
     // Convert the string into HTML entities, then highlight all matches with
     // <mark> tags. Then we will return the result as a trusted HTML string.
-    highlighted = $('<div/>')
-        .text(highlighted)
-        .html();
+    highlighted = $('<div/>').text(highlighted).html();
 
     if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');
 

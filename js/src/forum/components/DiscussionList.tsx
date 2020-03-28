@@ -60,7 +60,7 @@ export default class DiscussionList<T extends DiscussionListProps = DiscussionLi
         return (
             <div className={'DiscussionList' + (this.props.params.q ? ' DiscussionList--searchResults' : '')}>
                 <ul className="DiscussionList-discussions">
-                    {this.discussions.map(discussion => {
+                    {this.discussions.map((discussion) => {
                         return (
                             <li key={discussion.id()} data-id={discussion.id()}>
                                 {DiscussionListItem.component({ discussion, params })}
@@ -121,7 +121,7 @@ export default class DiscussionList<T extends DiscussionListProps = DiscussionLi
         }
 
         return this.loadResults().then(
-            results => {
+            (results) => {
                 this.discussions = [];
                 this.parseResults(results);
             },

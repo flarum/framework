@@ -23,11 +23,11 @@ export default {
     controls(post: Post, context: any) {
         const items = new ItemList();
 
-        ['user', 'moderation', 'destructive'].forEach(section => {
+        ['user', 'moderation', 'destructive'].forEach((section) => {
             const controls = this[section](post, context).toArray();
 
             if (controls.length) {
-                controls.forEach(item => items.add(item.itemName, item));
+                controls.forEach((item) => items.add(item.itemName, item));
                 items.add(section + 'Separator', Separator.component());
             }
         });
@@ -128,7 +128,7 @@ export default {
      * Open the composer to edit a post.
      */
     editAction(this: Post) {
-        return new Promise<EditPostComposer>(resolve => {
+        return new Promise<EditPostComposer>((resolve) => {
             const component = new EditPostComposer({ post: this });
 
             app.composer.load(component);

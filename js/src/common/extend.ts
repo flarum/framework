@@ -59,7 +59,7 @@ export function extend(object, method, callback) {
 export function override(object, method, newMethod) {
     const original = object[method];
 
-    object[method] = function(...args) {
+    object[method] = function (...args) {
         // @ts-ignore
         return newMethod.apply(this, [original.bind(this)].concat(args));
     };

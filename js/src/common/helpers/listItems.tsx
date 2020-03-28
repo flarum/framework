@@ -28,7 +28,7 @@ export function withoutUnnecessarySeparators(items) {
 export default function listItems(items) {
     if (!(items instanceof Array)) items = [items];
 
-    return withoutUnnecessarySeparators(items).map(item => {
+    return withoutUnnecessarySeparators(items).map((item) => {
         const isListItem = item.tag?.isListItem;
         const active = item.tag?.isActive && item.tag.isActive(item.attrs);
         const className = item.attrs?.itemClassName || item.itemClassName;

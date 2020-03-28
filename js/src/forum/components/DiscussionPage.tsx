@@ -97,7 +97,7 @@ export default class DiscussionPage extends Page {
             <PostStream
                 discussion={discussion}
                 includedPosts={this.includedPosts}
-                oninit={vnode => {
+                oninit={(vnode) => {
                     this.stream = vnode.state;
                     this.scrubber.stream = vnode.state;
 
@@ -196,13 +196,13 @@ export default class DiscussionPage extends Page {
 
             this.includedPosts = discussion.payload.included
                 .filter(
-                    record =>
+                    (record) =>
                         record.type === 'posts' &&
                         record.relationships &&
                         record.relationships.discussion &&
                         record.relationships.discussion.data.id === discussionId
                 )
-                .map(record => app.store.getById('posts', record.id))
+                .map((record) => app.store.getById('posts', record.id))
                 .sort((a, b) => a.id() - b.id())
                 .slice(0, 20);
         }
@@ -262,7 +262,7 @@ export default class DiscussionPage extends Page {
             })
         );
 
-        items.add('scrubber', <PostStreamScrubber oninit={vnode => (this.scrubber = vnode.state)} className="App-titleControl" />, -100);
+        items.add('scrubber', <PostStreamScrubber oninit={(vnode) => (this.scrubber = vnode.state)} className="App-titleControl" />, -100);
 
         return items;
     }

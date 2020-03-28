@@ -105,7 +105,7 @@ export default class Search extends Component {
                     )}
                 </div>
                 <ul className="Dropdown-menu Search-results">
-                    {this.value() && this.hasFocus ? this.sources.map(source => source.view(this.value())) : ''}
+                    {this.value() && this.hasFocus ? this.sources.map((source) => source.view(this.value())) : ''}
                 </ul>
             </div>
         );
@@ -120,11 +120,11 @@ export default class Search extends Component {
         const search = this;
 
         this.$('.Search-results')
-            .on('mousedown', e => e.preventDefault())
+            .on('mousedown', (e) => e.preventDefault())
             .on('click', () => this.$('input').blur())
 
             // Whenever the mouse is hovered over a search result, highlight it.
-            .on('mouseenter', '> li:not(.Dropdown-header)', function(this: HTMLElement) {
+            .on('mouseenter', '> li:not(.Dropdown-header)', function (this: HTMLElement) {
                 search.setIndex(search.selectableItems().index(this));
             });
 
@@ -139,7 +139,7 @@ export default class Search extends Component {
 
         // Handle input key events on the search input, triggering results to load.
         $input
-            .on('input focus', function(this: HTMLInputElement) {
+            .on('input focus', function (this: HTMLInputElement) {
                 const query = this.value.toLowerCase();
 
                 if (!query) return;
@@ -149,7 +149,7 @@ export default class Search extends Component {
                     if (search.searched.indexOf(query) !== -1) return;
 
                     if (query.length >= 3 && search.sources) {
-                        search.sources.map(source => {
+                        search.sources.map((source) => {
                             if (!source.search) return;
 
                             search.loadingSources++;
@@ -166,9 +166,9 @@ export default class Search extends Component {
                 }, 250);
             })
 
-            .on('focus', function(this: HTMLElement) {
+            .on('focus', function (this: HTMLElement) {
                 $(this)
-                    .one('mouseup', e => e.preventDefault())
+                    .one('mouseup', (e) => e.preventDefault())
                     .select();
             });
     }
@@ -188,11 +188,7 @@ export default class Search extends Component {
         this.loadingSources = 0;
 
         if (this.value()) {
-            m.route.set(
-                this.getItem(this.index)
-                    .find('a')
-                    .attr('href')
-            );
+            m.route.set(this.getItem(this.index).find('a').attr('href'));
         } else {
             this.clear();
         }
@@ -274,10 +270,7 @@ export default class Search extends Component {
             fixedIndex = 0;
         }
 
-        const $item = $items
-            .removeClass('active')
-            .eq(fixedIndex)
-            .addClass('active');
+        const $item = $items.removeClass('active').eq(fixedIndex).addClass('active');
 
         this.index = Number($item.attr('data-index') || fixedIndex);
 
