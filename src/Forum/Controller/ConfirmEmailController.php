@@ -9,8 +9,8 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Foundation\Application;
 use Flarum\Http\SessionAuthenticator;
+use Flarum\Http\UrlGenerator;
 use Flarum\User\Command\ConfirmEmail;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
@@ -27,9 +27,9 @@ class ConfirmEmailController implements RequestHandlerInterface
     protected $bus;
 
     /**
-     * @var Application
+     * @var UrlGenerator
      */
-    protected $app;
+    protected $url;
 
     /**
      * @var SessionAuthenticator
@@ -38,13 +38,13 @@ class ConfirmEmailController implements RequestHandlerInterface
 
     /**
      * @param Dispatcher $bus
-     * @param Application $app
+     * @param UrlGenerator $url
      * @param SessionAuthenticator $authenticator
      */
-    public function __construct(Dispatcher $bus, Application $app, SessionAuthenticator $authenticator)
+    public function __construct(Dispatcher $bus, UrlGenerator $url, SessionAuthenticator $authenticator)
     {
         $this->bus = $bus;
-        $this->app = $app;
+        $this->url = $url;
         $this->authenticator = $authenticator;
     }
 
@@ -63,6 +63,6 @@ class ConfirmEmailController implements RequestHandlerInterface
         $session = $request->getAttribute('session');
         $this->authenticator->logIn($session, $user->id);
 
-        return new RedirectResponse($this->app->url());
+        return new RedirectResponse($this->url->to('forum')->base());
     }
 }
