@@ -51,9 +51,7 @@ export default class ModalManager extends Component {
         m.redraw();
 
         if (!$('.modal-backdrop').length) {
-            $('<div />')
-                .addClass('modal-backdrop')
-                .appendTo('body');
+            $('<div />').addClass('modal-backdrop').appendTo('body');
         }
 
         MicroModal.show('Modal', {

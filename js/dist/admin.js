@@ -993,7 +993,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*** IMPORTS FROM imports-loader ***/
         },
         scrollTop: function scrollTop(value) {
           if (!this.length) return;
-          var hasScrollTop = 'scrollTop' in this[0];
+          var hasScrollTop = ('scrollTop' in this[0]);
           if (value === undefined) return hasScrollTop ? this[0].scrollTop : this[0].pageYOffset;
           return this.each(hasScrollTop ? function () {
             this.scrollTop = value;
@@ -1003,7 +1003,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*** IMPORTS FROM imports-loader ***/
         },
         scrollLeft: function scrollLeft(value) {
           if (!this.length) return;
-          var hasScrollLeft = 'scrollLeft' in this[0];
+          var hasScrollLeft = ('scrollLeft' in this[0]);
           if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : this[0].pageXOffset;
           return this.each(hasScrollLeft ? function () {
             this.scrollLeft = value;
@@ -1147,7 +1147,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*** IMPORTS FROM imports-loader ***/
       },
           handlers = {},
           specialEvents = {},
-          focusinSupported = 'onfocusin' in window,
+          focusinSupported = ('onfocusin' in window),
           focus = {
         focus: 'focusin',
         blur: 'focusout'

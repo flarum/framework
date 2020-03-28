@@ -20,18 +20,18 @@ export default class Discussion extends Model {
     lastPostNumber = Model.attribute('lastPostNumber') as () => number;
 
     commentCount = Model.attribute('commentCount') as () => number;
-    replyCount = computed('commentCount', commentCount => Math.max(0, commentCount - 1)) as () => number;
+    replyCount = computed('commentCount', (commentCount) => Math.max(0, commentCount - 1)) as () => number;
     posts = Model.hasMany('posts') as () => Post[];
     mostRelevantPost = Model.hasOne('mostRelevantPost') as () => Post;
 
     lastReadAt = Model.attribute('lastReadAt', Model.transformDate) as () => Date;
     lastReadPostNumber = Model.attribute('lastReadPostNumber') as () => number;
-    isUnread = computed('unreadCount', unreadCount => !!unreadCount) as () => boolean;
-    isRead = computed('unreadCount', unreadCount => app.session.user && !unreadCount) as () => boolean;
+    isUnread = computed('unreadCount', (unreadCount) => !!unreadCount) as () => boolean;
+    isRead = computed('unreadCount', (unreadCount) => app.session.user && !unreadCount) as () => boolean;
 
     hiddenAt = Model.attribute('hiddenAt', Model.transformDate) as () => Date;
     hiddenUser = Model.hasOne('hiddenUser') as () => User;
-    isHidden = computed('hiddenAt', hiddenAt => !!hiddenAt) as () => boolean;
+    isHidden = computed('hiddenAt', (hiddenAt) => !!hiddenAt) as () => boolean;
 
     canReply = Model.attribute('canReply') as () => boolean;
     canRename = Model.attribute('canRename') as () => boolean;
@@ -90,6 +90,6 @@ export default class Discussion extends Model {
     postIds(): string[] {
         const posts = this.data.relationships?.posts;
 
-        return posts ? posts.data.map(link => link.id) : [];
+        return posts ? posts.data.map((link) => link.id) : [];
     }
 }

@@ -15,7 +15,7 @@ export default class AlertManager extends Component {
     view() {
         return (
             <div className="AlertManager">
-                {this.components.map(vnode => (
+                {this.components.map((vnode) => (
                     <div className="AlertManager-alert">{vnode}</div>
                 ))}
             </div>

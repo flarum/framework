@@ -83,6 +83,6 @@ export default class ItemList<T = any> {
                 }
                 return 1;
             })
-            .map(item => item.content);
+            .map((item) => item.content);
     }
 }

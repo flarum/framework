@@ -47,7 +47,7 @@ module.exports = (options = {}) => {
 
         // Set up entry points for each of the forum + admin apps, but only
         // if they exist.
-        entry: (function() {
+        entry: (function () {
             const entries = {};
 
             for (const app of ['forum', 'admin']) {
@@ -116,7 +116,7 @@ module.exports = (options = {}) => {
                 mithril: 'm',
             },
 
-            (function() {
+            (function () {
                 const externals = {};
 
                 if (options.useExtensions) {
@@ -130,7 +130,7 @@ module.exports = (options = {}) => {
             })(),
 
             // Support importing old-style core modules.
-            function(context, request, callback) {
+            function (context, request, callback) {
                 const matches = /^flarum\/(.+?)(?:\/(.+))?$/.exec(request);
 
                 if (matches) {

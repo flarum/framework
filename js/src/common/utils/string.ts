@@ -28,10 +28,7 @@ export function getPlainContent(string: string): string {
 
     dom.find(getPlainContent.removeSelectors.join(',')).remove();
 
-    return dom
-        .text()
-        .replace(/\s+/g, ' ')
-        .trim();
+    return dom.text().replace(/\s+/g, ' ').trim();
 }
 
 /**

@@ -21,10 +21,10 @@ export default {
     controls(user: User, context: any): ItemList {
         const items = new ItemList();
 
-        ['user', 'moderation', 'destructive'].forEach(section => {
+        ['user', 'moderation', 'destructive'].forEach((section) => {
             const controls = this[section](user, context).toArray();
             if (controls.length) {
-                controls.forEach(item => items.add(item.itemName, item));
+                controls.forEach((item) => items.add(item.itemName, item));
                 items.add(section + 'Separator', Separator.component());
             }
         });

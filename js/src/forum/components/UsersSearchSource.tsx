@@ -19,7 +19,7 @@ export default class UsersSearchSource extends SearchSource {
                 filter: { q: query },
                 page: { limit: 5 },
             })
-            .then(results => {
+            .then((results) => {
                 this.results[query] = results;
                 m.redraw();
             });
@@ -32,7 +32,7 @@ export default class UsersSearchSource extends SearchSource {
             .concat(
                 app.store
                     .all<User>('users')
-                    .filter(user => [user.username(), user.displayName()].some(value => value.toLowerCase().substr(0, query.length) === query))
+                    .filter((user) => [user.username(), user.displayName()].some((value) => value.toLowerCase().substr(0, query.length) === query))
             )
             .filter((e, i, arr) => arr.lastIndexOf(e) === i)
             .sort((a, b) => a.displayName().localeCompare(b.displayName()));
@@ -41,7 +41,7 @@ export default class UsersSearchSource extends SearchSource {
 
         return [
             <li className="Dropdown-header">{app.translator.trans('core.forum.search.users_heading')}</li>,
-            results.map(user => {
+            results.map((user) => {
                 const name = username(user);
 
                 if (!name.children) {

@@ -45,11 +45,11 @@ export default class NotificationList extends Component {
 
                 <div className="NotificationList-content">
                     {pages.length
-                        ? pages.map(notifications => {
+                        ? pages.map((notifications) => {
                               const groups: { discussion: Discussion; notifications: Notification[] }[] = [];
                               const discussions = {};
 
-                              notifications.forEach(notification => {
+                              notifications.forEach((notification) => {
                                   const subject = notification.subject();
 
                                   if (typeof subject === 'undefined') return;
@@ -72,7 +72,7 @@ export default class NotificationList extends Component {
                                   }
                               });
 
-                              return groups.map(group => {
+                              return groups.map((group) => {
                                   const badges = group.discussion?.badges().toArray();
 
                                   return (
@@ -91,7 +91,7 @@ export default class NotificationList extends Component {
                                           )}
 
                                           <ul className="NotificationGroup-content">
-                                              {group.notifications.map(notification => {
+                                              {group.notifications.map((notification) => {
                                                   const NotificationComponent = app.notificationComponents[notification.contentType()];
                                                   return NotificationComponent ? <li>{NotificationComponent.component({ notification })}</li> : '';
                                               })}
@@ -199,8 +199,8 @@ export default class NotificationList extends Component {
 
         app.session.user.pushAttributes({ unreadNotificationCount: 0 });
 
-        app.cache.notifications.forEach(notifications => {
-            notifications.forEach(notification => notification.pushAttributes({ isRead: true }));
+        app.cache.notifications.forEach((notifications) => {
+            notifications.forEach((notification) => notification.pushAttributes({ isRead: true }));
         });
 
         app.request({

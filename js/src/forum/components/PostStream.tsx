@@ -184,7 +184,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
         return this.discussion
             .postIds()
             .slice(this.visibleStart, this.visibleEnd)
-            .map(id => {
+            .map((id) => {
                 const post = app.store.getById<Post>('posts', id);
 
                 return post && post.discussion() && typeof post.canEdit() !== 'undefined' ? post : null;
@@ -193,10 +193,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
 
     view() {
         function fadeIn(vnode) {
-            if (!vnode.state.fadedIn)
-                $(vnode.dom)
-                    .hide()
-                    .fadeIn();
+            if (!vnode.state.fadedIn) $(vnode.dom).hide().fadeIn();
             vnode.state.fadedIn = true;
         }
 
@@ -409,7 +406,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
         this.discussion
             .postIds()
             .slice(start, end)
-            .forEach(id => {
+            .forEach((id) => {
                 const post = app.store.getById<Post>('posts', id);
 
                 if (post && post.discussion() && typeof post.canEdit() !== 'undefined') {
@@ -428,7 +425,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
      * resolved immediately.
      */
     loadNearNumber(number: string | number): Promise<void> {
-        if (this.posts().some(post => post && Number(post.number()) === Number(number))) {
+        if (this.posts().some((post) => post && Number(post.number()) === Number(number))) {
             return Promise.resolve();
         }
 
@@ -554,7 +551,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
                 // TODO const top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
                 const top = bottom ? itemBottom - $(window).height() : $item.is(':first-child') ? 0 : itemTop;
 
-                return new Promise<void>(resolve => {
+                return new Promise<void>((resolve) => {
                     if (noAnimation) {
                         $container.scrollTop(top);
                         resolve();

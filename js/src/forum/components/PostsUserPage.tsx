@@ -70,7 +70,7 @@ export default class PostsUserPage extends UserPage {
         return (
             <div className="PostsUserPage">
                 <ul className="PostsUserPage-list">
-                    {this.posts.map(post => (
+                    {this.posts.map((post) => (
                         <li>
                             <div className="PostsUserPage-discussion">
                                 {app.translator.trans('core.forum.user.in_discussion_text', {

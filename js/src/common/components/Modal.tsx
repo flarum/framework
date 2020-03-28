@@ -81,11 +81,7 @@ export default abstract class Modal<T extends ComponentProps = ComponentProps> e
      * Focus on the first input when the modal is ready to be used.
      */
     onready() {
-        this.$('form')
-            .find('input, select, textarea')
-            .first()
-            .focus()
-            .select();
+        this.$('form').find('input, select, textarea').first().focus().select();
     }
 
     onhide() {}

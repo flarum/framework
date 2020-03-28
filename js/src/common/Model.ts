@@ -164,7 +164,7 @@ export default abstract class Model {
                 // If everything went well, we'll make sure the store knows that this
                 // model exists now (if it didn't already), and we'll push the data that
                 // the API returned into the store.
-                payload => {
+                (payload) => {
                     this.store.data[payload.data.type] = this.store.data[payload.data.type] || {};
                     this.store.data[payload.data.type][payload.data.id] = this;
                     return this.store.pushPayload(payload);
@@ -172,7 +172,7 @@ export default abstract class Model {
 
                 // If something went wrong, though... good thing we backed up our model's
                 // old data! We'll revert to that and let others handle the error.
-                response => {
+                (response) => {
                     this.pushData(oldData);
                     m.redraw();
                     throw response;
@@ -229,7 +229,7 @@ export default abstract class Model {
      * @param [transform] A function to transform the attribute value
      */
     static attribute(name: string, transform?: Function): () => any {
-        return function(this: Model) {
+        return function (this: Model) {
             const value = this.data.attributes && this.data.attributes[name];
 
             return transform ? transform(value) : value;
@@ -245,7 +245,7 @@ export default abstract class Model {
      *     has not been loaded; or the model if it has been loaded.
      */
     static hasOne(name: string): () => Model | boolean {
-        return function(this: Model) {
+        return function (this: Model) {
             if (this.data.relationships) {
                 const relationship = this.data.relationships[name];
 
@@ -267,12 +267,12 @@ export default abstract class Model {
      *     loaded, and undefined for those that have not.
      */
     static hasMany(name: string): () => any[] | false {
-        return function(this: Model) {
+        return function (this: Model) {
             if (this.data.relationships) {
                 const relationship = this.data.relationships[name];
 
                 if (relationship && Array.isArray(relationship.data)) {
-                    return relationship.data.map(data => app.store.getById(data.type, data.id));
+                    return relationship.data.map((data) => app.store.getById(data.type, data.id));
                 }
             }
 

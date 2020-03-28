@@ -196,7 +196,7 @@ export default class PostStreamScrubber extends Component {
         // Now loop through each of the items in the discussion. An 'item' is
         // either a single post or a 'gap' of one or more posts that haven't
         // been loaded yet.
-        $items.each(function(this: HTMLElement) {
+        $items.each(function (this: HTMLElement) {
             const $this = $(this);
             const top = $this.offset().top;
             const height = $this.outerHeight(true);
@@ -268,14 +268,14 @@ export default class PostStreamScrubber extends Component {
             // Now we want to make the scrollbar handle draggable. Let's start by
             // preventing default browser events from messing things up.
             .css({ cursor: 'pointer', 'user-select': 'none' })
-            .on('dragstart mousedown touchstart', e => e.preventDefault());
+            .on('dragstart mousedown touchstart', (e) => e.preventDefault());
 
         this.$('.Scrubber-handle')
             .css('cursor', 'move')
             .on('mousedown touchstart', this.onmousedown.bind(this) as ZeptoEventHandler)
 
             // Exempt the scrollbar handle from the 'jump to' click event.
-            .click(e => e.stopPropagation());
+            .click((e) => e.stopPropagation());
 
         // When the mouse moves and when it is released, we pass the
         // information that we captured when the mouse was first pressed onto
@@ -293,9 +293,7 @@ export default class PostStreamScrubber extends Component {
 
         $(window).off('resize', this.handlers.onresize);
 
-        $(document)
-            .off('mousemove touchmove', this.handlers.onmousemove)
-            .off('mouseup touchend', this.handlers.onmouseup);
+        $(document).off('mousemove touchmove', this.handlers.onmousemove).off('mouseup touchend', this.handlers.onmouseup);
     }
 
     /**

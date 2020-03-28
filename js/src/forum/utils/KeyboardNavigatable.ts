@@ -26,7 +26,7 @@ export default class KeyboardNavigatable {
      * This will be triggered by the Up key.
      */
     onUp(callback: KeyboardEventCallback): this {
-        this.callbacks[38] = e => {
+        this.callbacks[38] = (e) => {
             e.preventDefault();
             callback(e);
         };
@@ -40,7 +40,7 @@ export default class KeyboardNavigatable {
      * This will be triggered by the Down key.
      */
     onDown(callback: KeyboardEventCallback): this {
-        this.callbacks[40] = e => {
+        this.callbacks[40] = (e) => {
             e.preventDefault();
             callback(e);
         };
@@ -54,7 +54,7 @@ export default class KeyboardNavigatable {
      * This will be triggered by the Return and Tab keys..
      */
     onSelect(callback: KeyboardEventCallback): this {
-        this.callbacks[9] = this.callbacks[13] = e => {
+        this.callbacks[9] = this.callbacks[13] = (e) => {
             e.preventDefault();
             callback(e);
         };
@@ -68,7 +68,7 @@ export default class KeyboardNavigatable {
      * This will be triggered by the Escape key.
      */
     onCancel(callback: Function): this {
-        this.callbacks[27] = e => {
+        this.callbacks[27] = (e) => {
             e.stopPropagation();
             e.preventDefault();
             callback(e);
@@ -83,7 +83,7 @@ export default class KeyboardNavigatable {
      * This will be triggered by the Backspace key.
      */
     onRemove(callback: Function): this {
-        this.callbacks[8] = e => {
+        this.callbacks[8] = (e) => {
             if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
                 callback(e);
                 e.preventDefault();

@@ -6,7 +6,7 @@ import Component from '../Component';
 export default () => {
     const mo = window['m'];
 
-    const _m = function(comp, ...args) {
+    const _m = function (comp, ...args) {
         if (!arguments[1]) arguments[1] = {};
 
         if (comp.prototype && comp.prototype instanceof Component) {
@@ -34,10 +34,10 @@ export default () => {
         return node;
     };
 
-    Object.keys(mo).forEach(key => (_m[key] = mo[key]));
+    Object.keys(mo).forEach((key) => (_m[key] = mo[key]));
 
     _m.withAttr = (key: string, cb: Function) =>
-        function() {
+        function () {
             cb(this.getAttribute(key) || this[key]);
         };
 

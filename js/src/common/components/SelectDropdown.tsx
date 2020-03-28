@@ -25,7 +25,7 @@ export default class SelectDropdown extends Dropdown<SelectDropdownProps> {
     }
 
     getButtonContent() {
-        const activeChild = this.props.children.filter(child => child.attrs.active)[0];
+        const activeChild = this.props.children.filter((child) => child.attrs.active)[0];
         let label = (activeChild && activeChild.attrs.children) || this.props.defaultLabel;
 
         if (label instanceof Array) label = label[0];
