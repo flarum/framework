@@ -11,7 +11,7 @@
  * @param element The element to anchor the scroll position to.
  * @param callback The callback to run that will change page content.
  */
-export default function anchorScroll(element: HTMLElement, callback: Function) {
+export default function anchorScroll(element: ZeptoCollection | HTMLElement, callback: Function) {
     const $window = $(window);
     const $el = $(element);
 

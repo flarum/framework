@@ -18072,7 +18072,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_HeaderPrimary__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/HeaderPrimary */ "./src/forum/components/HeaderPrimary.tsx");
 /* harmony import */ var _components_HeaderSecondary__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/HeaderSecondary */ "./src/forum/components/HeaderSecondary.tsx");
 /* harmony import */ var _components_CommentPost__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/CommentPost */ "./src/forum/components/CommentPost.tsx");
-/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./routes */ "./src/forum/routes.ts");
+/* harmony import */ var _components_DiscussionRenamedPost__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/DiscussionRenamedPost */ "./src/forum/components/DiscussionRenamedPost.tsx");
+/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./routes */ "./src/forum/routes.ts");
+
 
 
 
@@ -18100,18 +18102,20 @@ var Forum = /*#__PURE__*/function (_Application) {
     _this.history = new _utils_History__WEBPACK_IMPORTED_MODULE_3__["default"]();
     _this.cache = {};
     _this.postComponents = {
-      comment: _components_CommentPost__WEBPACK_IMPORTED_MODULE_6__["default"] // discussionRenamed: DiscussionRenamedPost
-
+      comment: _components_CommentPost__WEBPACK_IMPORTED_MODULE_6__["default"],
+      discussionRenamed: _components_DiscussionRenamedPost__WEBPACK_IMPORTED_MODULE_7__["default"]
     };
     _this.previous = void 0;
     _this.current = void 0;
-    Object(_routes__WEBPACK_IMPORTED_MODULE_7__["default"])(Object(_babel_runtime_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_0__["default"])(_this));
+    Object(_routes__WEBPACK_IMPORTED_MODULE_8__["default"])(Object(_babel_runtime_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_0__["default"])(_this));
     return _this;
   }
 
   var _proto = Forum.prototype;
 
   _proto.mount = function mount() {
+    var _this2 = this;
+
     // Get the configured default route and update that route's path to be '/'.
     // Push the homepage as the first route, so that the user will always be
     // able to click on the 'back' button to go home, regardless of which page
@@ -18141,10 +18145,13 @@ var Forum = /*#__PURE__*/function (_Application) {
     $('#home-link').click(function (e) {
       if (e.ctrlKey || e.metaKey || e.which === 2) return;
       e.preventDefault();
-      app.history.home(); // Reload the current user so that their unread notification count is refreshed.
 
-      if (app.session.user) {
-        app.store.find('users', app.session.user.id());
+      _this2.history.home(); // Reload the current user so that their unread notification count is refreshed.
+
+
+      if (_this2.session.user) {
+        _this2.store.find('users', _this2.session.user.id());
+
         m.redraw();
       }
     });
@@ -19665,6 +19672,65 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
 
 /***/ }),
 
+/***/ "./src/forum/components/DiscussionRenamedPost.tsx":
+/*!********************************************************!*\
+  !*** ./src/forum/components/DiscussionRenamedPost.tsx ***!
+  \********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return DiscussionRenamedPost; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _EventPost__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EventPost */ "./src/forum/components/EventPost.tsx");
+
+
+/**
+ * The `DiscussionRenamedPost` component displays a discussion event post
+ * indicating that the discussion has been renamed.
+ */
+
+var DiscussionRenamedPost = /*#__PURE__*/function (_EventPost) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(DiscussionRenamedPost, _EventPost);
+
+  function DiscussionRenamedPost() {
+    return _EventPost.apply(this, arguments) || this;
+  }
+
+  var _proto = DiscussionRenamedPost.prototype;
+
+  _proto.icon = function icon() {
+    return 'fas fa-pencil-alt';
+  };
+
+  _proto.description = function description(data) {
+    var renamed = app.translator.trans('core.forum.post_stream.discussion_renamed_text', data);
+    var oldName = app.translator.transText('core.forum.post_stream.discussion_renamed_old_tooltip', data);
+    return m("span", {
+      title: oldName
+    }, renamed);
+  };
+
+  _proto.descriptionData = function descriptionData() {
+    var post = this.props.post;
+    var oldTitle = post.content()[0];
+    var newTitle = post.content()[1];
+    return {
+      old: oldTitle,
+      new: m("strong", {
+        className: "DiscussionRenamedPost-new"
+      }, newTitle)
+    };
+  };
+
+  return DiscussionRenamedPost;
+}(_EventPost__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
+
+/***/ }),
+
 /***/ "./src/forum/components/DiscussionsSearchSource.tsx":
 /*!**********************************************************!*\
   !*** ./src/forum/components/DiscussionsSearchSource.tsx ***!
@@ -19808,6 +19874,97 @@ var DiscussionsUserPage = /*#__PURE__*/function (_UserPage) {
 
   return DiscussionsUserPage;
 }(_UserPage__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
+
+/***/ }),
+
+/***/ "./src/forum/components/EventPost.tsx":
+/*!********************************************!*\
+  !*** ./src/forum/components/EventPost.tsx ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return EventPost; });
+/* harmony import */ var _babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _Post__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Post */ "./src/forum/components/Post.tsx");
+/* harmony import */ var _common_utils_string__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/utils/string */ "./src/common/utils/string.ts");
+/* harmony import */ var _common_helpers_username__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/helpers/username */ "./src/common/helpers/username.tsx");
+/* harmony import */ var _common_helpers_icon__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/helpers/icon */ "./src/common/helpers/icon.tsx");
+
+
+
+
+
+
+
+/**
+ * The `EventPost` component displays a post which indicating a discussion
+ * event, like a discussion being renamed or stickied. Subclasses must implement
+ * the `icon` and `description` methods.
+ */
+var EventPost = /*#__PURE__*/function (_Post) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_1__["default"])(EventPost, _Post);
+
+  function EventPost() {
+    return _Post.apply(this, arguments) || this;
+  }
+
+  var _proto = EventPost.prototype;
+
+  _proto.attrs = function attrs() {
+    var attrs = _Post.prototype.attrs.call(this);
+
+    attrs.className = classNames(attrs.className, 'EventPost', Object(_common_utils_string__WEBPACK_IMPORTED_MODULE_3__["ucfirst"])(this.props.post.contentType()) + 'Post');
+    return attrs;
+  };
+
+  _proto.content = function content() {
+    var user = this.props.post.user();
+    var username = Object(_common_helpers_username__WEBPACK_IMPORTED_MODULE_4__["default"])(user);
+
+    var data = Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])(this.descriptionData(), {
+      user: user,
+      username: user ? m(m.route.Link, {
+        className: "EventPost-user",
+        href: app.route.user(user)
+      }, username) : username
+    });
+
+    return _Post.prototype.content.call(this).concat([Object(_common_helpers_icon__WEBPACK_IMPORTED_MODULE_5__["default"])(this.icon(), {
+      className: 'EventPost-icon'
+    }), m("div", {
+      class: "EventPost-info"
+    }, this.description(data))]);
+  }
+  /**
+   * Get the name of the event icon.
+   */
+  ;
+
+  /**
+   * Get the description text for the event.
+   *
+   * @return The description to render in the DOM
+   */
+  _proto.description = function description(data) {
+    return app.translator.transChoice(this.descriptionKey(), data.count, data);
+  }
+  /**
+   * Get the translation key for the description of the event.
+   */
+  ;
+
+  _proto.descriptionKey = function descriptionKey() {
+    return '';
+  };
+
+  return EventPost;
+}(_Post__WEBPACK_IMPORTED_MODULE_2__["default"]);
 
 
 
@@ -21648,13 +21805,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
 /* harmony import */ var _babel_runtime_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/esm/assertThisInitialized */ "./node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js");
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
-/* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
-/* harmony import */ var _common_utils_ScrollListener__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/utils/ScrollListener */ "./src/common/utils/ScrollListener.ts");
-/* harmony import */ var _LoadingPost__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./LoadingPost */ "./src/forum/components/LoadingPost.tsx");
-/* harmony import */ var _common_utils_anchorScroll__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/utils/anchorScroll */ "./src/common/utils/anchorScroll.ts");
-/* harmony import */ var _ReplyPlaceholder__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ReplyPlaceholder */ "./src/forum/components/ReplyPlaceholder.tsx");
-/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _common_utils_Evented__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../common/utils/Evented */ "./src/common/utils/Evented.ts");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../app */ "./src/forum/app.ts");
+/* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
+/* harmony import */ var _common_utils_ScrollListener__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/utils/ScrollListener */ "./src/common/utils/ScrollListener.ts");
+/* harmony import */ var _LoadingPost__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./LoadingPost */ "./src/forum/components/LoadingPost.tsx");
+/* harmony import */ var _common_utils_anchorScroll__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/utils/anchorScroll */ "./src/common/utils/anchorScroll.ts");
+/* harmony import */ var _ReplyPlaceholder__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ReplyPlaceholder */ "./src/forum/components/ReplyPlaceholder.tsx");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _common_utils_Evented__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../common/utils/Evented */ "./src/common/utils/Evented.ts");
+
 
 
 
@@ -21695,7 +21854,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
     _this = _Component.call.apply(_Component, [this].concat(args)) || this;
     _this.discussion = void 0;
     _this.paused = false;
-    _this.scrollListener = new _common_utils_ScrollListener__WEBPACK_IMPORTED_MODULE_4__["default"](_this.onscroll.bind(Object(_babel_runtime_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__["default"])(_this)));
+    _this.scrollListener = new _common_utils_ScrollListener__WEBPACK_IMPORTED_MODULE_5__["default"](_this.onscroll.bind(Object(_babel_runtime_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__["default"])(_this)));
     _this.loadPageTimeouts = {};
     _this.pagesLoading = 0;
     _this.calculatePositionTimeout = 0;
@@ -21763,7 +21922,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
     this.paused = true;
     return this.loadNearIndex(index).then(function () {
       m.redraw.sync();
-      Object(_common_utils_anchorScroll__WEBPACK_IMPORTED_MODULE_6__["default"])(_this3.$('.PostStream-item:' + (backwards ? 'last' : 'first')), function () {
+      Object(_common_utils_anchorScroll__WEBPACK_IMPORTED_MODULE_7__["default"])(_this3.$('.PostStream-item:' + (backwards ? 'last' : 'first')), function () {
         return m.redraw();
       });
       return _this3.scrollToIndex(index, noAnimation, backwards).then(_this3.unpause.bind(_this3));
@@ -21841,7 +22000,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
 
   _proto.posts = function posts() {
     return this.discussion.postIds().slice(this.visibleStart, this.visibleEnd).map(function (id) {
-      var post = app.store.getById('posts', id);
+      var post = _app__WEBPACK_IMPORTED_MODULE_3__["default"].store.getById('posts', id);
       return post && post.discussion() && typeof post.canEdit() !== 'undefined' ? post : null;
     });
   };
@@ -21867,7 +22026,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
 
       if (post) {
         var time = post.createdAt();
-        var PostComponent = app.postComponents[post.contentType()];
+        var PostComponent = _app__WEBPACK_IMPORTED_MODULE_3__["default"].postComponents[post.contentType()];
         content = PostComponent ? m(PostComponent, {
           post: post
         }) : '';
@@ -21885,15 +22044,15 @@ var PostStream = /*#__PURE__*/function (_Component) {
         if (dt > 1000 * 60 * 60 * 24 * 4) {
           content = [m("div", {
             className: "PostStream-timeGap"
-          }, m("span", null, app.translator.trans('core.forum.post_stream.time_lapsed_text', {
-            period: dayjs(time).from(dayjs(lastTime, true))
+          }, m("span", null, _app__WEBPACK_IMPORTED_MODULE_3__["default"].translator.trans('core.forum.post_stream.time_lapsed_text', {
+            period: dayjs(time).from(dayjs(lastTime), true)
           }))), content];
         }
 
         lastTime = time;
       } else {
         attrs.key = 'post' + postIds[_this4.visibleStart + i];
-        content = m(_LoadingPost__WEBPACK_IMPORTED_MODULE_5__["default"], null);
+        content = m(_LoadingPost__WEBPACK_IMPORTED_MODULE_6__["default"], null);
       }
 
       return m("div", Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({
@@ -21905,19 +22064,19 @@ var PostStream = /*#__PURE__*/function (_Component) {
       items.push(m("div", {
         className: "PostStream-loadMore",
         key: "loadMore"
-      }, m(_common_components_Button__WEBPACK_IMPORTED_MODULE_8__["default"], {
+      }, m(_common_components_Button__WEBPACK_IMPORTED_MODULE_9__["default"], {
         className: "Button",
         onclick: this.loadNext.bind(this)
-      }, app.translator.trans('core.forum.post_stream.load_more_button'))));
+      }, _app__WEBPACK_IMPORTED_MODULE_3__["default"].translator.trans('core.forum.post_stream.load_more_button'))));
     } // If we're viewing the end of the discussion, the user can reply, and
     // is not already doing so, then show a 'write a reply' placeholder.
 
 
-    if (this.viewingEnd && (!app.session.user || this.discussion.canReply())) {
+    if (this.viewingEnd && (!_app__WEBPACK_IMPORTED_MODULE_3__["default"].session.user || this.discussion.canReply())) {
       items.push(m("div", {
         className: "PostStream-item",
         key: "reply"
-      }, _ReplyPlaceholder__WEBPACK_IMPORTED_MODULE_7__["default"].component({
+      }, _ReplyPlaceholder__WEBPACK_IMPORTED_MODULE_8__["default"].component({
         discussion: this.discussion
       })));
     }
@@ -22032,7 +22191,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
     var redraw = function redraw() {
       if (start < _this5.visibleStart || end > _this5.visibleEnd) return;
       var anchorIndex = backwards ? _this5.visibleEnd - 1 : _this5.visibleStart;
-      Object(_common_utils_anchorScroll__WEBPACK_IMPORTED_MODULE_6__["default"])(".PostStream-item[data-index=\"" + anchorIndex + "\"]", function () {
+      Object(_common_utils_anchorScroll__WEBPACK_IMPORTED_MODULE_7__["default"])(".PostStream-item[data-index=\"" + anchorIndex + "\"]", function () {
         return m.redraw(true);
       });
 
@@ -22060,7 +22219,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
     var loadIds = [];
     var loaded = [];
     this.discussion.postIds().slice(start, end).forEach(function (id) {
-      var post = app.store.getById('posts', id);
+      var post = _app__WEBPACK_IMPORTED_MODULE_3__["default"].store.getById('posts', id);
 
       if (post && post.discussion() && typeof post.canEdit() !== 'undefined') {
         loaded.push(post);
@@ -22068,7 +22227,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
         loadIds.push(id);
       }
     });
-    return loadIds.length ? app.store.find('posts', loadIds) : Promise.resolve(loaded);
+    return loadIds.length ? _app__WEBPACK_IMPORTED_MODULE_3__["default"].store.find('posts', loadIds) : Promise.resolve(loaded);
   }
   /**
    * Clear the stream and load posts near a certain number. Returns a promise.
@@ -22085,7 +22244,7 @@ var PostStream = /*#__PURE__*/function (_Component) {
     }
 
     this.reset();
-    return app.store.find('posts', {
+    return _app__WEBPACK_IMPORTED_MODULE_3__["default"].store.find('posts', {
       filter: {
         discussion: this.discussion.id()
       },
@@ -22249,11 +22408,11 @@ var PostStream = /*#__PURE__*/function (_Component) {
   };
 
   return PostStream;
-}(_common_Component__WEBPACK_IMPORTED_MODULE_3__["default"]);
+}(_common_Component__WEBPACK_IMPORTED_MODULE_4__["default"]);
 
 PostStream.loadCount = 20;
 
-Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])(PostStream.prototype, _common_utils_Evented__WEBPACK_IMPORTED_MODULE_9__["default"].prototype);
+Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])(PostStream.prototype, _common_utils_Evented__WEBPACK_IMPORTED_MODULE_10__["default"].prototype);
 
 /* harmony default export */ __webpack_exports__["default"] = (PostStream);
 
@@ -22992,6 +23151,120 @@ var PostsUserPage = /*#__PURE__*/function (_UserPage) {
 
   return PostsUserPage;
 }(_UserPage__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
+
+/***/ }),
+
+/***/ "./src/forum/components/RenameDiscussionModal.tsx":
+/*!********************************************************!*\
+  !*** ./src/forum/components/RenameDiscussionModal.tsx ***!
+  \********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return RenameDiscussionModal; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../app */ "./src/forum/app.ts");
+/* harmony import */ var _common_components_Modal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/components/Modal */ "./src/common/components/Modal.tsx");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+
+
+
+
+
+/**
+ * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion
+ */
+var RenameDiscussionModal = /*#__PURE__*/function (_Modal) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(RenameDiscussionModal, _Modal);
+
+  function RenameDiscussionModal() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Modal.call.apply(_Modal, [this].concat(args)) || this;
+    _this.discussion = void 0;
+    _this.currentTitle = void 0;
+    _this.newTitle = void 0;
+    return _this;
+  }
+
+  var _proto = RenameDiscussionModal.prototype;
+
+  _proto.oninit = function oninit(vnode) {
+    _Modal.prototype.oninit.call(this, vnode);
+
+    this.discussion = this.props.discussion;
+    this.currentTitle = this.props.currentTitle;
+    this.newTitle = m.prop(this.currentTitle);
+  };
+
+  _proto.className = function className() {
+    return 'RenameDiscussionModal Modal--small';
+  };
+
+  _proto.title = function title() {
+    return _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.transText('core.forum.rename_discussion.title');
+  };
+
+  _proto.content = function content() {
+    return m("div", {
+      className: "Modal-body"
+    }, m("div", {
+      className: "Form Form--centered"
+    }, m("div", {
+      className: "Form-group"
+    }, m("input", {
+      className: "FormControl",
+      bidi: this.newTitle,
+      type: "text"
+    })), m("div", {
+      className: "Form-group"
+    }, _common_components_Button__WEBPACK_IMPORTED_MODULE_3__["default"].component({
+      className: 'Button Button--primary Button--block',
+      type: 'submit',
+      loading: this.loading,
+      children: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.forum.rename_discussion.submit_button')
+    }))));
+  };
+
+  _proto.onsubmit = function onsubmit(e) {
+    var _this2 = this;
+
+    e.preventDefault();
+    this.loading = true;
+    var title = this.newTitle;
+    var currentTitle = this.currentTitle; // If the title is different to what it was before, then save it. After the
+    // save has completed, update the post stream as there will be a new post
+    // indicating that the discussion was renamed.
+
+    if (title && title !== currentTitle) {
+      return this.discussion.save({
+        title: title
+      }).then(function () {
+        // if (app.viewingDiscussion(this.discussion)) {
+        _app__WEBPACK_IMPORTED_MODULE_1__["default"].current.stream.update(); // }
+
+        m.redraw();
+
+        _this2.hide();
+      }).catch(function () {
+        _this2.loading = false;
+        m.redraw();
+      });
+    } else {
+      this.hide();
+    }
+  };
+
+  return RenameDiscussionModal;
+}(_common_components_Modal__WEBPACK_IMPORTED_MODULE_2__["default"]);
 
 
 
@@ -24504,13 +24777,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_LogInModal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/LogInModal */ "./src/forum/components/LogInModal.tsx");
 /* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
 /* harmony import */ var _common_components_Separator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/components/Separator */ "./src/common/components/Separator.tsx");
-/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
-/* harmony import */ var _common_utils_extractText__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/utils/extractText */ "./src/common/utils/extractText.ts");
+/* harmony import */ var _components_RenameDiscussionModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/RenameDiscussionModal */ "./src/forum/components/RenameDiscussionModal.tsx");
+/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
+/* harmony import */ var _common_utils_extractText__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/utils/extractText */ "./src/common/utils/extractText.ts");
  // import ReplyComposer from '../components/ReplyComposer';
 
 
 
- // import RenameDiscussionModal from '../components/RenameDiscussionModal';
+
 
 
 
@@ -24531,7 +24805,7 @@ __webpack_require__.r(__webpack_exports__);
   controls: function controls(discussion, context) {
     var _this = this;
 
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__["default"]();
     ['user', 'moderation', 'destructive'].forEach(function (section) {
       var controls = _this[section](discussion, context).toArray();
 
@@ -24555,7 +24829,7 @@ __webpack_require__.r(__webpack_exports__);
    * @protected
    */
   user: function user(discussion, context) {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"](); // Only add a reply control if this is the discussion's controls dropdown
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__["default"](); // Only add a reply control if this is the discussion's controls dropdown
     // for the discussion page itself. We don't want it to show up for
     // discussions in the discussion list, etc.
 
@@ -24584,7 +24858,7 @@ __webpack_require__.r(__webpack_exports__);
    * @protected
    */
   moderation: function moderation(discussion, context) {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__["default"]();
 
     if (discussion.canRename()) {
       items.add('rename', _common_components_Button__WEBPACK_IMPORTED_MODULE_2__["default"].component({
@@ -24606,7 +24880,7 @@ __webpack_require__.r(__webpack_exports__);
    * @protected
    */
   destructive: function destructive(discussion, context) {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__["default"]();
 
     if (!discussion.isHidden()) {
       if (discussion.canHide()) {
@@ -24713,7 +24987,7 @@ __webpack_require__.r(__webpack_exports__);
   deleteAction: function deleteAction() {
     var _this3 = this;
 
-    if (confirm(Object(_common_utils_extractText__WEBPACK_IMPORTED_MODULE_5__["default"])(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
+    if (confirm(Object(_common_utils_extractText__WEBPACK_IMPORTED_MODULE_6__["default"])(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
       // If we're currently viewing the discussion that was deleted, go back
       // to the previous page.
       if (app.viewingDiscussion(this)) {
@@ -24734,7 +25008,7 @@ __webpack_require__.r(__webpack_exports__);
    * Rename the discussion.
    */
   renameAction: function renameAction() {
-    return app.modal.show(RenameDiscussionModal, {
+    return app.modal.show(_components_RenameDiscussionModal__WEBPACK_IMPORTED_MODULE_4__["default"], {
       currentTitle: this.title(),
       discussion: this
     });
