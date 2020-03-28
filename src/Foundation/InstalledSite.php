@@ -20,6 +20,7 @@ use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Forum\ForumServiceProvider;
 use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Group\GroupServiceProvider;
+use Flarum\Http\HttpServiceProvider;
 use Flarum\Locale\LocaleServiceProvider;
 use Flarum\Mail\MailServiceProvider;
 use Flarum\Notification\NotificationServiceProvider;
@@ -123,6 +124,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(FrontendServiceProvider::class);
         $laravel->register(GroupServiceProvider::class);
         $laravel->register(HashServiceProvider::class);
+        $laravel->register(HttpServiceProvider::class);
         $laravel->register(LocaleServiceProvider::class);
         $laravel->register(MailServiceProvider::class);
         $laravel->register(MigrationServiceProvider::class);
