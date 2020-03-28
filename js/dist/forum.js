@@ -22542,7 +22542,8 @@ var PostStreamScrubber = /*#__PURE__*/function (_Component) {
       className: "Scrubber-after"
     }), m("div", {
       className: "Scrubber-unread",
-      oncreate: styleUnread
+      oncreate: styleUnread,
+      onupdate: styleUnread
     }, app.translator.trans('core.forum.post_scrubber.unread_text', {
       count: unreadCount
     }))), m("a", {

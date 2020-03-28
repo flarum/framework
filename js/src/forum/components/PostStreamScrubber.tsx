@@ -105,7 +105,7 @@ export default class PostStreamScrubber extends Component {
                             </div>
                             <div className="Scrubber-after" />
 
-                            <div className="Scrubber-unread" oncreate={styleUnread}>
+                            <div className="Scrubber-unread" oncreate={styleUnread} onupdate={styleUnread}>
                                 {app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount })}
                             </div>
                         </div>
