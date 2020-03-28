@@ -9,7 +9,6 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
@@ -112,21 +111,14 @@ class InstalledApp implements AppInterface
      */
     public function getConsoleCommands()
     {
-        $commands = [];
+        return array_map(function ($command) {
+            $command = $this->container->make($command);
 
-        // The info command is a special case, as it requires a config parameter that's only available here.
-        $commands[] = $this->container->make(InfoCommand::class, ['config' => $this->config]);
-
-        foreach ($this->container->make('flarum.console.commands') as $command) {
-            $newCommand = $this->container->make($command);
-
-            if ($newCommand instanceof Command) {
-                $newCommand->setLaravel($this->container);
+            if ($command instanceof Command) {
+                $command->setLaravel($this->container);
             }
 
-            $commands[] = $newCommand;
-        }
-
-        return $commands;
+            return $command;
+        }, $this->container->make('flarum.console.commands'));
     }
 }
