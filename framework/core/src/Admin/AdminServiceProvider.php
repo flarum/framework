@@ -63,7 +63,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         $this->app->bind('flarum.admin.error_handler', function () {
             return new HttpMiddleware\HandleErrors(
                 $this->app->make(Registry::class),
-                $this->app['flarum']->inDebugMode() ? $this->app->make(WhoopsFormatter::class) : $this->app->make(ViewFormatter::class),
+                $this->app['flarum.config']->inDebugMode() ? $this->app->make(WhoopsFormatter::class) : $this->app->make(ViewFormatter::class),
                 $this->app->tagged(Reporter::class)
             );
         });
