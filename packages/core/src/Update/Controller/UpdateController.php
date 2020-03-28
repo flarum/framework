@@ -11,7 +11,7 @@ namespace Flarum\Update\Controller;
 
 use Exception;
 use Flarum\Database\Console\MigrateCommand;
-use Flarum\Foundation\Application;
+use Flarum\Foundation\Config;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\HtmlResponse;
@@ -26,18 +26,18 @@ class UpdateController implements RequestHandlerInterface
     protected $command;
 
     /**
-     * @var Application
+     * @var Config
      */
-    protected $app;
+    protected $config;
 
     /**
      * @param MigrateCommand $command
-     * @param Application $app
+     * @param Config $config
      */
-    public function __construct(MigrateCommand $command, Application $app)
+    public function __construct(MigrateCommand $command, Config $config)
     {
         $this->command = $command;
-        $this->app = $app;
+        $this->config = $config;
     }
 
     /**
@@ -48,7 +48,7 @@ class UpdateController implements RequestHandlerInterface
     {
         $input = $request->getParsedBody();
 
-        if (Arr::get($input, 'databasePassword') !== $this->app->config('database.password')) {
+        if (Arr::get($input, 'databasePassword') !== $this->config['database.password']) {
             return new HtmlResponse('Incorrect database password.', 500);
         }
 
