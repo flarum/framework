@@ -100,7 +100,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             'discussionRenamed' => BasicDiscussionSerializer::class
         ];
 
-        $this->app->make('events')->fire(
+        $this->app->make('events')->dispatch(
             new ConfigureNotificationTypes($blueprints, $serializers)
         );
 
@@ -121,7 +121,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
 
-        $this->app->make('events')->fire(
+        $this->app->make('events')->dispatch(
             new ConfigureApiRoutes($routes, $factory)
         );
     }
