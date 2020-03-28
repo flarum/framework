@@ -6,6 +6,7 @@ import HeaderSecondary from './components/HeaderSecondary';
 import Page from './components/Page';
 import DiscussionList from './components/DiscussionList';
 import CommentPost from './components/CommentPost';
+import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 
 import Notification from '../common/models/Notification';
 
@@ -29,7 +30,7 @@ export default class Forum extends Application {
 
     postComponents = {
         comment: CommentPost,
-        // discussionRenamed: DiscussionRenamedPost
+        discussionRenamed: DiscussionRenamedPost,
     };
 
     previous?: Page;
@@ -74,11 +75,11 @@ export default class Forum extends Application {
         $('#home-link').click((e: MouseEvent) => {
             if (e.ctrlKey || e.metaKey || e.which === 2) return;
             e.preventDefault();
-            app.history.home();
+            this.history.home();
 
             // Reload the current user so that their unread notification count is refreshed.
-            if (app.session.user) {
-                app.store.find('users', app.session.user.id());
+            if (this.session.user) {
+                this.store.find('users', this.session.user.id());
                 m.redraw();
             }
         });
