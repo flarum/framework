@@ -3,29 +3,20 @@ import Button from "../../common/components/Button";
 
 /**
  * A basic confirm modal.
+ * The special props are:
+ * * `translation` Translation path for some of the elements. It'll be used like this:
+ *   `${translation}.title`
+ * * `save` Callback called when pressing positive button.
  */
 export default class ConfirmModal extends Modal {
-  /**
-   * Initialize the modal.
-   * @param {String} title Modal title
-   * @param {String} message Message, shown above buttons
-   * @param {String} positiveButton Text to show on positive button
-   * @param {String} negativeButton Text to show on negative button
-   * @param {Function} callback Callback called when 
-   */
-  init(title, message, positiveButton, negativeButton, callback) {
-    super.init();
+  constructor(props, children) {
+    super(props, children);
 
-    this.titleProp = title;
-    this.message = message;
-    this.positiveButton = positiveButton;
-    this.negativeButton = negativeButton;
-    this.positiveCallback = callback;
     this.loading = false;
   }
 
   title() {
-    return this.titleProp;
+    return app.translator.trans(`${this.props.translation}.title`);
   }
 
   className() {
@@ -36,11 +27,11 @@ export default class ConfirmModal extends Modal {
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
-          <p>{this.message}</p>
+          <p>{app.translator.trans(`${this.props.translation}.message`)}</p>
           <div className="Form-group">
             {Button.component({
               className: 'Button Button--primary Button--block',
-              children: this.positiveButton,
+              children: app.translator.trans(`${this.props.translation}.positive`),
               type: 'submit',
               loading: this.loading
             })}
@@ -48,7 +39,7 @@ export default class ConfirmModal extends Modal {
           <div className="Form-group">
             {Button.component({
               className: 'Button Button--block',
-              children: this.negativeButton,
+              children: app.translator.trans(`${this.props.translation}.negative`),
               onclick: this.hide.bind(this),  
               disabled: this.loading // Disable negative button when loading
             })}
@@ -60,7 +51,7 @@ export default class ConfirmModal extends Modal {
 
   onsubmit(e) {
     this.loading = true;
-    this.positiveCallback().then((() => {
+    this.props.save().then((() => {
       this.loading = false;
       this.hide();
     }).bind(this));

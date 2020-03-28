@@ -6,6 +6,7 @@ import Separator from '../../common/components/Separator';
 import RenameDiscussionModal from '../components/RenameDiscussionModal';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
+import ConfirmModal from '../components/ConfirmModal';
 
 /**
  * The `DiscussionControls` utility constructs a list of buttons for a
@@ -181,13 +182,16 @@ export default {
 
   /**
    * Hide a discussion.
-   *
-   * @return {Promise}
    */
   hideAction() {
-    this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
-
-    return this.save({ isHidden: true });
+    app.modal.show(new ConfirmModal({
+      translation: "core.forum.discussion_controls.hide_discussion_modal",
+      save: () => {
+        this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
+    
+        return this.save({ isHidden: true });
+      }
+    }));
   },
 
   /**
@@ -203,25 +207,26 @@ export default {
 
   /**
    * Delete the discussion after confirming with the user.
-   *
-   * @return {Promise}
    */
   deleteAction() {
-    if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
-      // If we're currently viewing the discussion that was deleted, go back
-      // to the previous page.
-      if (app.viewingDiscussion(this)) {
-        app.history.back();
-      }
-
-      return this.delete().then(() => {
-        // If there is a discussion list in the cache, remove this discussion.
-        if (app.cache.discussionList) {
-          app.cache.discussionList.removeDiscussion(this);
-          m.redraw();
+    app.modal.show(new ConfirmModal({
+      translation: "core.forum.discussion_controls.hide_discussion_modal",
+      save: () => {
+        // If we're currently viewing the discussion that was deleted, go back
+        // to the previous page.
+        if (app.viewingDiscussion(this)) {
+          app.history.back();
         }
-      });
-    }
+
+        return this.delete().then(() => {
+          // If there is a discussion list in the cache, remove this discussion.
+          if (app.cache.discussionList) {
+            app.cache.discussionList.removeDiscussion(this);
+            m.redraw();
+          }
+        });
+      }
+    }));
   },
 
   /**
