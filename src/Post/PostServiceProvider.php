@@ -34,7 +34,7 @@ class PostServiceProvider extends AbstractServiceProvider
             DiscussionRenamedPost::class
         ];
 
-        $this->app->make('events')->fire(
+        $this->app->make('events')->dispatch(
             new ConfigurePostTypes($models)
         );
 

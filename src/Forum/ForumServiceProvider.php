@@ -187,7 +187,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
 
-        $this->app->make('events')->fire(
+        $this->app->make('events')->dispatch(
             new ConfigureForumRoutes($routes, $factory)
         );
     }
