@@ -1,3 +1,6 @@
+import app from '../app';
+import { Attributes } from 'mithril';
+
 import Component from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
@@ -8,7 +11,6 @@ import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
 import Evented from '../../common/utils/Evented';
 import { DiscussionProp } from '../../common/concerns/ComponentProps';
-import { Attributes } from 'mithril';
 
 export interface PostStreamProps extends DiscussionProp {
     includedPosts: Post[];
@@ -231,7 +233,7 @@ class PostStream<T extends PostStreamProps = PostStreamProps> extends Component<
                     content = [
                         <div className="PostStream-timeGap">
                             <span>
-                                {app.translator.trans('core.forum.post_stream.time_lapsed_text', { period: dayjs(time).from(dayjs(lastTime, true)) })}
+                                {app.translator.trans('core.forum.post_stream.time_lapsed_text', { period: dayjs(time).from(dayjs(lastTime), true) })}
                             </span>
                         </div>,
                         content,
