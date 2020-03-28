@@ -9,7 +9,6 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Foundation\Application;
 use Flarum\Http\Exception\TokenMismatchException;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
@@ -28,11 +27,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 class LogOutController implements RequestHandlerInterface
 {
     use AssertPermissionTrait;
-
-    /**
-     * @var Application
-     */
-    protected $app;
 
     /**
      * @var Dispatcher
@@ -60,7 +54,6 @@ class LogOutController implements RequestHandlerInterface
     protected $url;
 
     /**
-     * @param Application $app
      * @param Dispatcher $events
      * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
@@ -68,14 +61,12 @@ class LogOutController implements RequestHandlerInterface
      * @param UrlGenerator $url
      */
     public function __construct(
-        Application $app,
         Dispatcher $events,
         SessionAuthenticator $authenticator,
         Rememberer $rememberer,
         Factory $view,
         UrlGenerator $url
     ) {
-        $this->app = $app;
         $this->events = $events;
         $this->authenticator = $authenticator;
         $this->rememberer = $rememberer;
@@ -93,7 +84,7 @@ class LogOutController implements RequestHandlerInterface
         $session = $request->getAttribute('session');
         $actor = $request->getAttribute('actor');
 
-        $url = Arr::get($request->getQueryParams(), 'return', $this->app->url());
+        $url = Arr::get($request->getQueryParams(), 'return', $this->url->to('forum')->base());
 
         // If there is no user logged in, return to the index.
         if ($actor->isGuest()) {
