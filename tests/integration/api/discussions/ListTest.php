@@ -17,7 +17,7 @@ class ListTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
