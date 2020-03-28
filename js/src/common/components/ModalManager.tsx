@@ -59,6 +59,7 @@ export default class ModalManager extends Component {
         MicroModal.show('Modal', {
             awaitCloseAnimation: true,
             awaitOpenAnimation: true,
+            disableFocus: true,
             onShow: () => $('body').addClass('modal-open'),
             onClose: () => {
                 $('body').removeClass('modal-open');
