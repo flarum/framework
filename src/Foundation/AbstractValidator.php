@@ -21,6 +21,19 @@ abstract class AbstractValidator
     /**
      * @var array
      */
+    protected static $configuration = [];
+
+    public static function addConfiguration($validatorClass, $callable) {
+        if (!array_key_exists($validatorClass, static::$configuration)) {
+            static::$configuration[$validatorClass] = [];
+        }
+
+        static::$configuration[$validatorClass][] = $callable;
+    }
+
+    /**
+     * @var array
+     */
     protected $rules = [];
 
     /**
@@ -92,9 +105,16 @@ abstract class AbstractValidator
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());
 
+        /**
+         * @deprecated in beta 13, removed in beta 14.
+         */
         $this->events->dispatch(
             new Validating($this, $validator)
         );
+
+        foreach (Arr::get(static::$configuration, static::class, []) as $callable) {
+            $callable($validator);
+        }
 
         return $validator;
     }
