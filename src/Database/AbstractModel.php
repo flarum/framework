@@ -14,6 +14,7 @@ use Flarum\Event\ConfigureModelDefaultAttributes;
 use Flarum\Event\GetModelRelationship;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Arr;
 use LogicException;
 
 /**
@@ -64,6 +65,20 @@ abstract class AbstractModel extends Eloquent
                 $callback($model);
             }
         });
+    }
+
+    /**
+     * An array of custom relationships defined by extensions.
+     */
+    protected static $customRelations = [];
+
+    public static function addCustomRelation(string $from, string $name, $relation)
+    {
+        if (!array_key_exists($from, static::$customRelations)) {
+            static::$customRelations[$from] = [];
+        }
+
+        static::$customRelations[$from][$name] = $relation;
     }
 
     /**
@@ -139,6 +154,13 @@ abstract class AbstractModel extends Eloquent
      */
     protected function getCustomRelation($name)
     {
+        $relation = Arr::get(Arr::get(static::$customRelations, static::class, []), $name, null);
+
+        if (! is_null($relation)) {
+            return $relation($this);
+        }
+
+        // Deprecated, remove in beta 14
         return static::$dispatcher->until(
             new GetModelRelationship($this, $name)
         );

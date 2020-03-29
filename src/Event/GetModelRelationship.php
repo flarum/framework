@@ -12,6 +12,8 @@ namespace Flarum\Event;
 use Flarum\Database\AbstractModel;
 
 /**
+ * @deprecated beta 13, use the Model extender instead.
+ *
  * The `GetModelRelationship` event is called to retrieve Relation object for a
  * model. Listeners should return an Eloquent Relation object.
  */
