@@ -12,6 +12,9 @@ namespace Flarum\Formatter\Event;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Renderer;
 
+/**
+ * @deprecated beta 13, removed beta 14. Use the Formatter extender instead.
+ */
 class Rendering
 {
     /**

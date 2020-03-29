@@ -17,31 +17,56 @@ use Illuminate\Events\Dispatcher;
 
 class Formatter implements ExtenderInterface, LifecycleInterface
 {
-    private $callback;
+    private $configurationCallbacks = [];
+    private $parsingCallbacks = [];
+    private $renderingCallbacks = [];
 
     public function configure($callback)
     {
-        $this->callback = $callback;
+        $this->configurationCallbacks[] = $callback;
+
+        return $this;
+    }
+
+    public function parse($callback)
+    {
+        $this->parsingCallbacks[] = $callback;
+
+        return $this;
+    }
+
+    public function render($callback)
+    {
+        $this->renderingCallbacks[] = $callback;
 
         return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $events = $container->make(Dispatcher::class);
-
-        $events->listen(
-            Configuring::class,
-            function (Configuring $event) use ($container) {
-                if (is_string($this->callback)) {
-                    $callback = $container->make($this->callback);
-                } else {
-                    $callback = $this->callback;
-                }
-
-                $callback($event->configurator);
+        foreach ($this->configurationCallbacks as $callback) {
+            if (is_string($callback)) {
+                $callback = $container->make($callback);
             }
-        );
+
+            ActualFormatter::addConfigurationCallback($callback);
+        }
+
+        foreach ($this->parsingCallbacks as $callback) {
+            if (is_string($callback)) {
+                $callback = $container->make($callback);
+            }
+
+            ActualFormatter::addParsingCallback($callback);
+        }
+
+        foreach ($this->renderingCallbacks as $callback) {
+            if (is_string($callback)) {
+                $callback = $container->make($callback);
+            }
+
+            ActualFormatter::addRenderingCallback($callback);
+        }
     }
 
     public function onEnable(Container $container, Extension $extension)

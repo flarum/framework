@@ -20,6 +20,27 @@ use s9e\TextFormatter\Unparser;
 
 class Formatter
 {
+    protected static $configurationCallbacks = [];
+
+    protected static $parsingCallbacks = [];
+
+    protected static $renderingCallbacks = [];
+
+    public static function addConfigurationCallback($callback)
+    {
+        static::$configurationCallbacks[] = $callback;
+    }
+
+    public static function addParsingCallback($callback)
+    {
+        static::$parsingCallbacks[] = $callback;
+    }
+
+    public static function addRenderingCallback($callback)
+    {
+        static::$renderingCallbacks[] = $callback;
+    }
+
     /**
      * @var Repository
      */
@@ -58,7 +79,12 @@ class Formatter
     {
         $parser = $this->getParser($context);
 
+        // Deprecated in beta 13, remove in beta 14
         $this->events->dispatch(new Parsing($parser, $context, $text));
+
+        foreach (static::$parsingCallbacks as $callback) {
+            $callback($parser, $context, $text);
+        }
 
         return $parser->parse($text);
     }
@@ -75,7 +101,12 @@ class Formatter
     {
         $renderer = $this->getRenderer();
 
+        // Deprecated in beta 13, remove in beta 14
         $this->events->dispatch(new Rendering($renderer, $context, $xml, $request));
+
+        foreach (static::$renderingCallbacks as $callback) {
+            $callback($renderer, $context, $xml, $request);
+        }
 
         return $renderer->render($xml);
     }
@@ -122,7 +153,12 @@ class Formatter
         $configurator->Autolink;
         $configurator->tags->onDuplicate('replace');
 
+        // Deprecated in beta 13, remove in beta 14
         $this->events->dispatch(new Configuring($configurator));
+
+        foreach (static::$configurationCallbacks as $callback) {
+            $callback($configurator);
+        }
 
         $this->configureExternalLinks($configurator);
 

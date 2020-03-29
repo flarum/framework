@@ -11,6 +11,9 @@ namespace Flarum\Formatter\Event;
 
 use s9e\TextFormatter\Configurator;
 
+/**
+ * @deprecated beta 13, removed beta 14. Use the Formatter extender instead.
+ */
 class Configuring
 {
     /**
