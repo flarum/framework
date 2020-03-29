@@ -14,6 +14,7 @@ use Flarum\Group\Group;
 use Flarum\Group\Event\Created;
 use Flarum\Tests\integration\TestCase;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Translation\Translator;
 
 class EventTest extends TestCase
 {
@@ -56,22 +57,26 @@ class EventTest extends TestCase
      */
     public function custom_listener_works_with_invokable_class_and_can_inject_stuff()
     {
+        // Because it injects a translator, this also tests that stuff can be injected into this callback.
         $this->extend((new Extend\Event)->listen(Created::class, CustomListener::class));
 
         $group = $this->buildGroup();
 
-        $this->assertEquals($group->name_singular, 'modified group');
+        $this->assertEquals($group->name_singular, 'core.group.admin');
     }
 }
 
 class CustomListener
 {
-    public function __construct()
+    protected $translator;
+
+    public function __construct(Translator $translator)
     {
+        $this->translator = $translator;
     }
 
     public function __invoke(Created $event)
     {
-        $event->group->name_singular = 'modified group';
+        $event->group->name_singular = $this->translator->trans('core.group.admin');
     }
 }
