@@ -14,6 +14,7 @@ namespace Flarum\Event;
  */
 class ConfigurePostTypes
 {
+    private $models;
 
     public function __construct(array &$models)
     {
