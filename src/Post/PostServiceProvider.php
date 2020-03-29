@@ -34,6 +34,7 @@ class PostServiceProvider extends AbstractServiceProvider
             DiscussionRenamedPost::class
         ];
 
+        // Deprecated in beta 13, remove in beta 14.
         $this->app->make('events')->dispatch(
             new ConfigurePostTypes($models)
         );

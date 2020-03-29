@@ -9,17 +9,19 @@
 
 namespace Flarum\Event;
 
+/**
+ * @deprecated in beta 13, remove in beta 14. Use the Post extender instead.
+ */
 class ConfigurePostTypes
 {
-    private $models;
 
     public function __construct(array &$models)
     {
         $this->models = &$models;
     }
 
-    public function add($class)
+    public function add($model)
     {
-        $this->models[] = $class;
+        Post::setModel($model::$type, $model);
     }
 }
