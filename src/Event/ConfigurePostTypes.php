@@ -20,8 +20,8 @@ class ConfigurePostTypes
         $this->models = &$models;
     }
 
-    public function add($model)
+    public function add($class)
     {
-        Post::setModel($model::$type, $model);
+        $this->models[] = $class;
     }
 }
