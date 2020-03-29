@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\Discussion\Discussion;
+use Flarum\Group\Group;
 use Flarum\User\User;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
@@ -89,5 +90,27 @@ class ModelTest extends TestCase
 
         $this->assertNotEquals([], $user->customRelation()->get()->toArray());
         $this->assertContains(json_encode(__CLASS__), json_encode($user->customRelation()->get()));
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_does_not_exist_if_added_to_unrelated_model()
+    {
+        $this->extend((new Extend\Model(User::class))->relationship('customRelation', function (User $user) {
+            return $user->hasMany(Discussion::class, 'user_id');
+        }));
+
+        $this->prepDB();
+        $this->prepareDatabase([
+            'groups' => [
+                $this->adminGroup()
+            ]
+        ]);
+
+        $group = Group::find(1);
+
+        $this->expectException(\BadMethodCallException::class);
+        $group->customRelation();
     }
 }
