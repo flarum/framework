@@ -10,11 +10,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Event\ConfigurePostsQuery;
 use Flarum\Post\PostRepository;
-use Illuminate\Database\Eloquent\Builder;
+use Flarum\Post\Search\PostSearcher;
+use Flarum\Search\SearchCriteria;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
@@ -48,11 +47,17 @@ class ListPostsController extends AbstractListController
     protected $posts;
 
     /**
+     * @var PostSearcher
+     */
+    protected $searcher;
+
+    /**
      * @param \Flarum\Post\PostRepository $posts
      */
-    public function __construct(PostRepository $posts)
+    public function __construct(PostRepository $posts, PostSearcher $searcher)
     {
         $this->posts = $posts;
+        $this->searcher = $searcher;
     }
 
     /**
@@ -61,18 +66,23 @@ class ListPostsController extends AbstractListController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
-        $filter = $this->extractFilter($request);
-        $include = $this->extractInclude($request);
+        $query = Arr::get($this->extractFilter($request), 'q');
+        $sort = $this->extractSort($request);
+        $load = $this->extractInclude($request);
 
-        if ($postIds = Arr::get($filter, 'id')) {
+        if ($postIds = Arr::get($this->extractFilter($request), 'id')) {
             $postIds = explode(',', $postIds);
-        } else {
-            $postIds = $this->getPostIds($request);
+            return $this->posts->findByIds($postIds, $actor)->load($load);
         }
 
-        $posts = $this->posts->findByIds($postIds, $actor);
+        $criteria = new SearchCriteria($actor, $query, $sort);
 
-        return $posts->load($include);
+        $limit = $this->extractLimit($request);
+        $offset = $this->extractOffset($request);
+
+        $results = $this->searcher->search($criteria, $limit, $offset, $load);
+
+        return $results->getResults();
     }
 
     /**
@@ -99,56 +109,5 @@ class ListPostsController extends AbstractListController
         }
 
         return parent::extractOffset($request);
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     * @return array
-     * @throws InvalidParameterException
-     */
-    private function getPostIds(ServerRequestInterface $request)
-    {
-        $actor = $request->getAttribute('actor');
-        $filter = $this->extractFilter($request);
-        $sort = $this->extractSort($request);
-        $limit = $this->extractLimit($request);
-        $offset = $this->extractOffset($request);
-
-        $query = $this->posts->query()->whereVisibleTo($actor);
-
-        $this->applyFilters($query, $filter);
-
-        $query->skip($offset)->take($limit);
-
-        foreach ((array) $sort as $field => $order) {
-            $query->orderBy(Str::snake($field), $order);
-        }
-
-        return $query->pluck('id')->all();
-    }
-
-    /**
-     * @param Builder $query
-     * @param array $filter
-     */
-    private function applyFilters(Builder $query, array $filter)
-    {
-        if ($discussionId = Arr::get($filter, 'discussion')) {
-            $query->where('discussion_id', $discussionId);
-        }
-
-        if ($number = Arr::get($filter, 'number')) {
-            $query->where('number', $number);
-        }
-
-        if ($userId = Arr::get($filter, 'user')) {
-            $query->where('user_id', $userId);
-        }
-
-        if ($type = Arr::get($filter, 'type')) {
-            $query->where('type', $type);
-        }
-
-        event(new ConfigurePostsQuery($query, $filter));
     }
 }
