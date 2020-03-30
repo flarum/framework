@@ -11,6 +11,9 @@ namespace Flarum\Event;
 
 use Flarum\Search\GambitManager;
 
+/**
+ * @deprecated beta 13, removed in beta 14
+ */
 abstract class AbstractConfigureGambits
 {
     /**

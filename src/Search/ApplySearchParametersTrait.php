@@ -11,6 +11,9 @@ namespace Flarum\Search;
 
 use Illuminate\Support\Str;
 
+/**
+ * @deprecated beta 13 in favor of AbstractSearcher
+ */
 trait ApplySearchParametersTrait
 {
     /**
