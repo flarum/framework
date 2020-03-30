@@ -12,6 +12,8 @@ namespace Flarum\Event;
 use Flarum\Database\AbstractModel;
 
 /**
+ * @deprecated in beta 13, removed in beta 14
+ *
  * The `ConfigureModelDates` event is called to retrieve a list of fields for a model
  * that should be converted into date objects.
  */

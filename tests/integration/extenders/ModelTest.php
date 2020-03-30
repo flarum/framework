@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\User\User;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
@@ -112,5 +113,98 @@ class ModelTest extends TestCase
 
         $this->expectException(\BadMethodCallException::class);
         $group->customRelation();
+    }
+
+    /**
+     * @test
+     */
+    public function custom_default_attribute_doesnt_exist_if_not_set()
+    {
+        $group = new Group;
+
+        $this->assertNotEquals('Custom Default', $group->name_singular);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_default_attribute_works_if_set()
+    {
+        $this->extend((new Extend\Model(Group::class))->configureDefaultAttributes(function ($defaults) {
+            $defaults['name_singular'] = 'Custom Default';
+            return $defaults;
+        }));
+
+        $this->app();
+
+        $group = new Group;
+
+        $this->assertEquals('Custom Default', $group->name_singular);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_default_attribute_doesnt_work_if_set_on_unrelated_model()
+    {
+        $this->extend((new Extend\Model(Group::class))->configureDefaultAttributes(function ($defaults) {
+            $defaults['name_singular'] = 'Custom Default';
+            return $defaults;
+        }));
+
+        $this->app();
+
+        $user = new User;
+
+        $this->assertNotEquals('Custom Default', $user->name_singular);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_date_doesnt_exist_if_not_set()
+    {
+        $post = new Post;
+
+        $this->assertContains('hidden_at', $post->getDates());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_date_works_if_set()
+    {
+        $this->extend((new Extend\Model(Post::class))->configureDates(function ($dates) {
+            if (($key = array_search('hidden_at', $dates)) !== false) {
+                unset($dates[$key]);
+            }
+
+            return $dates;
+        }));
+
+        $this->app();
+
+        $post = new Post;
+
+        $this->assertNotContains('hidden_at', $post->getDates());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_date_doesnt_work_if_set_on_unrelated_model()
+    {
+        $this->extend((new Extend\Model(Post::class))->configureDates(function ($dates) {
+            if (($key = array_search('hidden_at', $dates)) !== false) {
+                unset($dates[$key]);
+            }
+            return $dates;
+        }));
+
+        $this->app();
+
+        $discussion = new Discussion;
+
+        $this->assertContains('hidden_at', $discussion->getDates());
     }
 }

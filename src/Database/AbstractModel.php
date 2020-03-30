@@ -72,6 +72,10 @@ abstract class AbstractModel extends Eloquent
      */
     protected static $customRelations = [];
 
+    protected static $dateCallbacks = [];
+
+    protected static $defaultAttributeCallbacks = [];
+
     public static function addCustomRelation(string $from, string $name, $relation)
     {
         if (!array_key_exists($from, static::$customRelations)) {
@@ -81,6 +85,24 @@ abstract class AbstractModel extends Eloquent
         static::$customRelations[$from][$name] = $relation;
     }
 
+    public static function addDateCallback(string $model, $callback)
+    {
+        if (!array_key_exists($model, static::$dateCallbacks)) {
+            static::$dateCallbacks[$model] = [];
+        }
+
+        static::$dateCallbacks[$model][] = $callback;
+    }
+
+    public static function addDefaultAttributeCallback(string $model, $callback)
+    {
+        if (!array_key_exists($model, static::$defaultAttributeCallbacks)) {
+            static::$defaultAttributeCallbacks[$model] = [];
+        }
+
+        static::$defaultAttributeCallbacks[$model][] = $callback;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -88,9 +110,14 @@ abstract class AbstractModel extends Eloquent
     {
         $defaults = [];
 
+        // Deprecated in beta 13, remove in beta 14.
         static::$dispatcher->dispatch(
             new ConfigureModelDefaultAttributes($this, $defaults)
         );
+
+        foreach (Arr::get(static::$defaultAttributeCallbacks, static::class, []) as $callback) {
+            $defaults = $callback($defaults);
+        }
 
         $this->attributes = $defaults;
 
@@ -114,6 +141,10 @@ abstract class AbstractModel extends Eloquent
             );
 
             $dates[$class] = $this->dates;
+        }
+
+        foreach (Arr::get(static::$dateCallbacks, static::class, []) as $callback) {
+            $dates[$class] = $callback($dates[$class]);
         }
 
         return $dates[$class];

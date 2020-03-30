@@ -11,6 +11,9 @@ namespace Flarum\Event;
 
 use Flarum\Database\AbstractModel;
 
+/**
+ * @deprecated in beta 13, removed in beta 14
+ */
 class ConfigureModelDefaultAttributes
 {
     /**
