@@ -121,8 +121,10 @@ export default class PostsUserPage extends UserPage {
   loadResults(offset) {
     return app.store.find('posts', {
       filter: {
-        user: this.user.id(),
-        type: 'comment',
+        q: [
+          'author:' + this.user.username(),
+          'type:comment'
+        ].join(',')
       },
       page: { offset, limit: this.loadLimit },
       sort: '-createdAt',
