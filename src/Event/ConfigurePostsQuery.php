@@ -11,6 +11,9 @@ namespace Flarum\Event;
 
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @deprecated, with functionality removed in beta 13. The event will be removed in Beta 14. This is a breaking change, and this event no longer works. Please use the Search extender instead.
+ */
 class ConfigurePostsQuery
 {
     /**
