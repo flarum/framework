@@ -100,22 +100,24 @@ export default class Post extends Component {
 
   /**
    * Get the post's classes.
-   * 
+   *
    * @param string classes
    * @returns {string[]}
    */
   classes(existing) {
     let classes = (existing || '').split(' ').concat(['Post']);
 
+    const user = this.props.post.user();
+
     if (this.loading) {
       classes.push('Post--loading');
     }
 
-    if (this.props.post.user() === app.session.user) {
+    if (user && user === app.session.user) {
       classes.push('Post--by-actor');
     }
 
-    if (app.current.discussion && app.current.discussion.attribute('startUserId') == this.props.post.user().id()) {
+    if (user && app.current.discussion && app.current.discussion.attribute('startUserId') == user.id()) {
       classes.push('Post--by-start-user')
     }
 
