@@ -9,9 +9,10 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Flarum\Extend\NotificationChannel;
+use Flarum\Extend\Notification;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\NotificationPreference;
 use Flarum\User\User;
 
 class NotificationChannelTest extends TestCase
@@ -31,17 +32,26 @@ class NotificationChannelTest extends TestCase
 
     private function add_channel()
     {
-        $this->extend(new NotificationChannel('test'));
+        $this->extend((new Notification)->addChannel('test'));
     }
 
     /**
      * @test
      */
-    public function can_add_notification_channel()
+    public function can_enable_notification_channel()
     {
         $this->add_channel();
 
         /** @var User $user */
         $user = User::find(2);
+
+        NotificationPreference::setNotificationPreference($user, 'test', 'newPost');
+
+        $this->assertTrue(
+            $user->notificationPreferences()
+                ->where('channel', 'test')
+                ->where('type', 'newPost')
+                ->get('enabled')
+        );
     }
 }

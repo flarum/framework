@@ -9,7 +9,7 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Flarum\Extend\UserPreferences;
+use Flarum\Extend\User as Extender;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
@@ -33,8 +33,8 @@ class UserPreferencesTest extends TestCase
     private function add_preference()
     {
         $this->extend(
-            (new UserPreferences())
-                ->add('test', 'boolval', false)
+            (new Extender())
+                ->addPreference('test', 'boolval', false)
         );
     }
 
