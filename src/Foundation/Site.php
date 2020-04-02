@@ -25,26 +25,34 @@ class Site
                 'Paths array requires keys base, public and storage'
             );
         }
+        
+        if (! isset($paths['config'])) {
+            $paths['config'] = $paths['base'] . "/config.php";
+        }
+        
+        if (! isset($paths['extend'])) {
+            $paths['extend'] = $paths['base'] . "/extend.php";
+        }
 
         date_default_timezone_set('UTC');
 
-        if (static::hasConfigFile($paths['base'])) {
+        if (static::hasConfigFile($paths['config'])) {
             return (
-                new InstalledSite($paths, static::loadConfig($paths['base']))
-            )->extendWith(static::loadExtenders($paths['base']));
+                new InstalledSite($paths, static::loadConfig($paths['config']))
+            )->extendWith(static::loadExtenders($paths['extend']));
         } else {
             return new UninstalledSite($paths);
         }
     }
 
-    private static function hasConfigFile($basePath)
+    private static function hasConfigFile($configPath)
     {
-        return file_exists("$basePath/config.php");
+        return file_exists($configPath);
     }
 
-    private static function loadConfig($basePath): array
+    private static function loadConfig($configPath): array
     {
-        $config = include "$basePath/config.php";
+        $config = include $configPath;
 
         if (! is_array($config)) {
             throw new RuntimeException('config.php should return an array');
@@ -53,9 +61,8 @@ class Site
         return $config;
     }
 
-    private static function loadExtenders($basePath): array
+    private static function loadExtenders($extenderFile): array
     {
-        $extenderFile = "$basePath/extend.php";
 
         if (! file_exists($extenderFile)) {
             return [];
