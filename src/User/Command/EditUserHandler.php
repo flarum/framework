@@ -80,6 +80,9 @@ class EditUserHandler
                     $validate['email'] = $attributes['email'];
                 }
             } else {
+                if ($attributes['email'] !== $user->email && $user->isAdmin()) {
+                    $this->assertAdmin($actor);
+                }
                 $this->assertPermission($canEdit);
                 $user->changeEmail($attributes['email']);
             }
@@ -90,6 +93,9 @@ class EditUserHandler
         }
 
         if (isset($attributes['password'])) {
+            if ($user->isAdmin()) {
+                $this->assertAdmin($actor);
+            }
             $this->assertPermission($canEdit);
             $user->changePassword($attributes['password']);
 
