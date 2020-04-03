@@ -36,7 +36,7 @@ class ConsoleTest extends ConsoleTestCase
     {
         $this->extend(
             (new Extend\Console())
-                ->add(CustomCommand::class)
+                ->command(CustomCommand::class)
         );
 
         $input = [

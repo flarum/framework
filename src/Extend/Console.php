@@ -21,7 +21,7 @@ class Console implements ExtenderInterface
      *
      * @param string $command ::class attribute of command class, which must extend Flarum\Console\AbstractCommand
      */
-    public function add($command)
+    public function command($command)
     {
         $this->addCommands[] = $command;
 
