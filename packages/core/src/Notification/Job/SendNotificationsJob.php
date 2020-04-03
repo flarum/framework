@@ -9,9 +9,7 @@
 
 namespace Flarum\Notification\Job;
 
-use Carbon\Carbon;
 use Flarum\Notification\Blueprint\BlueprintInterface;
-use Flarum\Notification\BlueprintBC;
 use Flarum\Notification\Event\Sending;
 use Flarum\Notification\Notification;
 use Flarum\Queue\AbstractJob;
@@ -37,19 +35,8 @@ class SendNotificationsJob extends AbstractJob
 
     public function handle()
     {
-        $now = Carbon::now('utc')->toDateTimeString();
-
         event(new Sending($this->blueprint, $this->recipients));
 
-        $attributes = BlueprintBC::getAttributes($this->blueprint);
-
-        Notification::insert(
-            array_map(function (User $user) use ($attributes, $now) {
-                return $attributes + [
-                    'user_id' => $user->id,
-                    'created_at' => $now
-                ];
-            }, $this->recipients)
-        );
+        Notification::notify($this->recipients, $this->blueprint);
     }
 }
