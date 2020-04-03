@@ -62,6 +62,6 @@ class CustomCommand extends AbstractCommand
      */
     protected function fire()
     {
-        $this->info("Custom Command.");
+        $this->info('Custom Command.');
     }
 }

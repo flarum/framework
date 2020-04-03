@@ -9,10 +9,10 @@
 
 namespace Flarum\Console;
 
-use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Database\Console\GenerateMigrationCommand;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
+use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\CacheClearCommand;
 
 class ConsoleServiceProvider extends AbstractServiceProvider
