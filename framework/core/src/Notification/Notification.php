@@ -12,6 +12,7 @@ namespace Flarum\Notification;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\ScopeModelVisibility;
+use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -141,10 +142,11 @@ class Notification extends AbstractModel
      * to the given user.
      *
      * @param Builder $query
+     * @return Builder
      */
     public function scopeWhereSubjectVisibleTo(Builder $query, User $actor)
     {
-        $query->where(function ($query) use ($actor) {
+        return $query->where(function ($query) use ($actor) {
             $classes = [];
 
             foreach (static::$subjectModels as $type => $class) {
@@ -174,10 +176,11 @@ class Notification extends AbstractModel
      *
      * @param Builder $query
      * @param object $model
+     * @return Builder
      */
     public function scopeWhereSubject(Builder $query, $model)
     {
-        $query->whereSubjectModel(get_class($model))
+        return $query->whereSubjectModel(get_class($model))
             ->where('subject_id', $model->id);
     }
 
@@ -187,6 +190,7 @@ class Notification extends AbstractModel
      *
      * @param Builder $query
      * @param string $class
+     * @return Builder
      */
     public function scopeWhereSubjectModel(Builder $query, string $class)
     {
@@ -194,7 +198,40 @@ class Notification extends AbstractModel
             return $modelClass === $class or is_subclass_of($class, $modelClass);
         });
 
-        $query->whereIn('type', array_keys($notificationTypes));
+        return $query->whereIn('type', array_keys($notificationTypes));
+    }
+
+    /**
+     * Scope the query to find all records matching the given blueprint.
+     *
+     * @param Builder $query
+     * @param BlueprintInterface $blueprint
+     * @return Builder
+     */
+    public function scopeMatchingBlueprint(Builder $query, BlueprintInterface $blueprint)
+    {
+        return $query->where(static::getBlueprintAttributes($blueprint));
+    }
+
+    /**
+     * Send notifications to the given recipients.
+     *
+     * @param User[] $recipients
+     * @param BlueprintInterface $blueprint
+     */
+    public static function notify(array $recipients, BlueprintInterface $blueprint)
+    {
+        $attributes = static::getBlueprintAttributes($blueprint);
+        $now = Carbon::now('utc')->toDateTimeString();
+
+        static::insert(
+            array_map(function (User $user) use ($attributes, $now) {
+                return $attributes + [
+                    'user_id' => $user->id,
+                    'created_at' => $now
+                ];
+            }, $recipients)
+        );
     }
 
     /**
@@ -218,5 +255,15 @@ class Notification extends AbstractModel
     public static function setSubjectModel($type, $subjectModel)
     {
         static::$subjectModels[$type] = $subjectModel;
+    }
+
+    private static function getBlueprintAttributes(BlueprintInterface $blueprint): array
+    {
+        return [
+            'type' => $blueprint::getType(),
+            'from_user_id' => ($fromUser = $blueprint->getFromUser()) ? $fromUser->id : null,
+            'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
+            'data' => ($data = $blueprint->getData()) ? json_encode($data) : null
+        ];
     }
 }
