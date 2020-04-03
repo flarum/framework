@@ -21,7 +21,8 @@ class CsrfTest extends TestCase
         'email' => 'test@machine.local',
     ];
 
-    protected function tearDown() {
+    protected function tearDown()
+    {
         $this->prepareDatabase([
             'users' => [],
         ]);
