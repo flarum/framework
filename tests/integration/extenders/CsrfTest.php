@@ -10,13 +10,16 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 
 class CsrfTest extends TestCase
 {
-    use RetrievesAuthorizedUsers;
+    protected $testUser = [
+        'username' => 'test',
+        'password' => 'too-obscure',
+        'email' => 'test@machine.local',
+    ];
 
     /**
      * @test
@@ -27,12 +30,7 @@ class CsrfTest extends TestCase
             $this->request('POST', '/api/users', [
                 'json' => [
                     'data' => [
-                        'attributes' => [
-                            'username' => 'test',
-                            'password' => 'too-obscure',
-                            'email' => 'test@machine.local',
-                            'isEmailConfirmed' => 1,
-                        ],
+                        'attributes' => $this->testUser
                     ]
                 ],
             ])
@@ -44,7 +42,7 @@ class CsrfTest extends TestCase
     /**
      * @test
      */
-    public function create_user_post_doesnt_csrf_token_if_whitelisted()
+    public function create_user_post_doesnt_need_csrf_token_if_whitelisted()
     {
         $this->extend(
             (new Extend\Csrf)
@@ -55,12 +53,7 @@ class CsrfTest extends TestCase
             $this->request('POST', '/api/users', [
                 'json' => [
                     'data' => [
-                        'attributes' => [
-                            'username' => 'test',
-                            'password' => 'too-obscure',
-                            'email' => 'test@machine.local',
-                            'isEmailConfirmed' => 1,
-                        ],
+                        'attributes' => $this->testUser
                     ]
                 ],
             ])
@@ -68,10 +61,10 @@ class CsrfTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $user = User::where('username', 'test')->firstOrFail();
+        $user = User::where('username', $this->testUser['username'])->firstOrFail();
 
         $this->assertEquals(0, $user->is_email_confirmed);
-        $this->assertEquals('test', $user->username);
-        $this->assertEquals('test@machine.local', $user->email);
+        $this->assertEquals($this->testUser['username'], $user->username);
+        $this->assertEquals($this->testUser['email'], $user->email);
     }
 }
