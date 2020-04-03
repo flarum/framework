@@ -121,7 +121,7 @@ class InstalledApp implements AppInterface
             $newCommand = $this->container->make($command);
 
             if ($newCommand instanceof Command) {
-                $newCommand->setLaravel($this);
+                $newCommand->setLaravel($this->container);
             }
 
             $commands[] = $newCommand;
