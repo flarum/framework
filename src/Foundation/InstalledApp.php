@@ -12,6 +12,7 @@ namespace Flarum\Foundation;
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\Middleware\OriginalMessages;
 use Laminas\Stratigility\MiddlewarePipe;
@@ -117,7 +118,13 @@ class InstalledApp implements AppInterface
         $commands[] = $this->container->make(InfoCommand::class, ['config' => $this->config]);
 
         foreach ($this->container->make('flarum.console.commands') as $command) {
-            $commands[] = $this->container->make($command);
+            $newCommand = $this->container->make($command);
+
+            if ($newCommand instanceof Command) {
+                $newCommand->setLaravel($this);
+            }
+
+            $commands[] = $newCommand;
         }
 
         return $commands;
