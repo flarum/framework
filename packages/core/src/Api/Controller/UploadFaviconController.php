@@ -9,15 +9,12 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use League\Flysystem\MountManager;
+use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -31,17 +28,18 @@ class UploadFaviconController extends ShowForumController
     protected $settings;
 
     /**
-     * @var Application
+     * @var FilesystemInterface
      */
-    protected $app;
+    protected $uploadDir;
 
     /**
      * @param SettingsRepositoryInterface $settings
+     * @param FilesystemInterface $uploadDir
      */
-    public function __construct(SettingsRepositoryInterface $settings, Application $app)
+    public function __construct(SettingsRepositoryInterface $settings, FilesystemInterface $uploadDir)
     {
         $this->settings = $settings;
-        $this->app = $app;
+        $this->uploadDir = $uploadDir;
     }
 
     /**
@@ -52,36 +50,28 @@ class UploadFaviconController extends ShowForumController
         $this->assertAdmin($request->getAttribute('actor'));
 
         $file = Arr::get($request->getUploadedFiles(), 'favicon');
-
-        $tmpFile = tempnam($this->app->storagePath().'/tmp', 'favicon');
-        $file->moveTo($tmpFile);
-
         $extension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 
-        if ($extension !== 'ico') {
+        if ($extension === 'ico') {
+            $image = $file->getStream();
+        } else {
             $manager = new ImageManager;
 
-            $encodedImage = $manager->make($tmpFile)->resize(64, 64, function ($constraint) {
+            $image = $manager->make($file->getStream())->resize(64, 64, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
             })->encode('png');
-            file_put_contents($tmpFile, $encodedImage);
 
             $extension = 'png';
         }
 
-        $mount = new MountManager([
-            'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
-            'target' => new Filesystem(new Local($this->app->publicPath().'/assets')),
-        ]);
-
-        if (($path = $this->settings->get('favicon_path')) && $mount->has($file = "target://$path")) {
-            $mount->delete($file);
+        if (($path = $this->settings->get('favicon_path')) && $this->uploadDir->has($path)) {
+            $this->uploadDir->delete($path);
         }
 
         $uploadName = 'favicon-'.Str::lower(Str::random(8)).'.'.$extension;
 
-        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
+        $this->uploadDir->write($uploadName, $image);
 
         $this->settings->set('favicon_path', $uploadName);
 

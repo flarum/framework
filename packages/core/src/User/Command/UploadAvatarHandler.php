@@ -9,7 +9,6 @@
 
 namespace Flarum\User\Command;
 
-use Flarum\Foundation\Application;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\AvatarUploader;
@@ -30,11 +29,6 @@ class UploadAvatarHandler
     protected $users;
 
     /**
-     * @var Application
-     */
-    protected $app;
-
-    /**
      * @var AvatarUploader
      */
     protected $uploader;
@@ -47,15 +41,13 @@ class UploadAvatarHandler
     /**
      * @param Dispatcher $events
      * @param UserRepository $users
-     * @param Application $app
      * @param AvatarUploader $uploader
      * @param AvatarValidator $validator
      */
-    public function __construct(Dispatcher $events, UserRepository $users, Application $app, AvatarUploader $uploader, AvatarValidator $validator)
+    public function __construct(Dispatcher $events, UserRepository $users, AvatarUploader $uploader, AvatarValidator $validator)
     {
         $this->events = $events;
         $this->users = $users;
-        $this->app = $app;
         $this->uploader = $uploader;
         $this->validator = $validator;
     }
@@ -76,26 +68,17 @@ class UploadAvatarHandler
             $this->assertCan($actor, 'edit', $user);
         }
 
-        $file = $command->file;
+        $this->validator->assertValid(['avatar' => $command->file]);
 
-        $tmpFile = tempnam($this->app->storagePath().'/tmp', 'avatar');
-        $file->moveTo($tmpFile);
+        $image = (new ImageManager)->make($command->file->getStream());
 
-        try {
-            $this->validator->assertValid(['avatar' => $file]);
+        $this->events->dispatch(
+            new AvatarSaving($user, $actor, $image)
+        );
 
-            $image = (new ImageManager)->make($tmpFile);
+        $this->uploader->upload($user, $image);
 
-            $this->events->dispatch(
-                new AvatarSaving($user, $actor, $image)
-            );
-
-            $this->uploader->upload($user, $image);
-
-            $user->save();
-        } finally {
-            @unlink($tmpFile);
-        }
+        $user->save();
 
         return $user;
     }
