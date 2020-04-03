@@ -12,7 +12,7 @@ namespace Flarum\Event;
 use Flarum\Forum\Controller\FrontendController;
 
 /**
- * @deprecated
+ * @deprecated Will be removed in Beta.14. Use Flarum\Extend\Routes or Flarum\Extend\Frontend instead.
  */
 class ConfigureForumRoutes extends AbstractConfigureRoutes
 {

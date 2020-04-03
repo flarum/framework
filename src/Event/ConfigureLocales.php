@@ -15,7 +15,7 @@ use Illuminate\Support\Arr;
 use RuntimeException;
 
 /**
- * @deprecated
+ * @deprecated Will be removed in Beta.14. Use Flarum\Extend\LanguagePack instead.
  */
 class ConfigureLocales
 {

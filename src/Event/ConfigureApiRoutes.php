@@ -10,7 +10,7 @@
 namespace Flarum\Event;
 
 /**
- * @deprecated
+ * @deprecated Will be removed in Beta.14. Use Flarum\Extend\Routes instead.
  */
 class ConfigureApiRoutes extends AbstractConfigureRoutes
 {
