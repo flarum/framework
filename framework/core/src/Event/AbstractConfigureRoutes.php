@@ -13,7 +13,7 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 
 /**
- * @deprecated
+ * @deprecated Will be removed in Beta.14.
  */
 abstract class AbstractConfigureRoutes
 {
