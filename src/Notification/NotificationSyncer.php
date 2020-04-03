@@ -58,12 +58,10 @@ class NotificationSyncer
      */
     public function sync(Blueprint\BlueprintInterface $blueprint, array $users)
     {
-        $attributes = BlueprintBC::getAttributes($blueprint);
-
         // Find all existing notification records in the database matching this
         // blueprint. We will begin by assuming that they all need to be
         // deleted in order to match the provided list of users.
-        $toDelete = Notification::where($attributes)->get();
+        $toDelete = Notification::matchingBlueprint($blueprint)->get();
         $toUndelete = [];
         $newRecipients = [];
 
@@ -121,7 +119,7 @@ class NotificationSyncer
      */
     public function delete(BlueprintInterface $blueprint)
     {
-        Notification::where(BlueprintBC::getAttributes($blueprint))->update(['is_deleted' => true]);
+        Notification::matchingBlueprint($blueprint)->update(['is_deleted' => true]);
     }
 
     /**
@@ -132,7 +130,7 @@ class NotificationSyncer
      */
     public function restore(BlueprintInterface $blueprint)
     {
-        Notification::where(BlueprintBC::getAttributes($blueprint))->update(['is_deleted' => false]);
+        Notification::matchingBlueprint($blueprint)->update(['is_deleted' => false]);
     }
 
     /**
