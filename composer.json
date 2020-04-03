@@ -56,7 +56,7 @@
         "illuminate/support": "5.7.*",
         "illuminate/validation": "5.7.*",
         "illuminate/view": "5.7.*",
-        "intervention/image": "^2.3.0",
+        "intervention/image": "^2.5.0",
         "laminas/laminas-diactoros": "^1.8.4",
         "laminas/laminas-httphandlerrunner": "^1.0",
         "laminas/laminas-stratigility": "^3.0",
