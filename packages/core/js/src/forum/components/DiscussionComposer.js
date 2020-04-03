@@ -92,7 +92,7 @@ export default class DiscussionComposer extends ComposerBody {
     app.store.createRecord('discussions').save(data).then(
       discussion => {
         app.composer.hide();
-        app.cache.discussionList.addDiscussion(discussion);
+        app.cache.discussionList.refresh();
         m.route(app.route.discussion(discussion));
       },
       this.loaded.bind(this)
