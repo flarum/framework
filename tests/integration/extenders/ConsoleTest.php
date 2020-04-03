@@ -9,11 +9,9 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-
 use Flarum\Console\AbstractCommand;
 use Flarum\Extend;
 use Flarum\Tests\integration\ConsoleTestCase;
-
 
 class ConsoleTest extends ConsoleTestCase
 {
