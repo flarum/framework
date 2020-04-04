@@ -29,6 +29,7 @@ class EventTest extends TestCase
 
         return $group;
     }
+
     /**
      * @test
      */
