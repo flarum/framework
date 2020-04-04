@@ -17,7 +17,7 @@ class Mail implements ExtenderInterface
     protected $drivers = [];
 
     /**
-     * Add a mail driver
+     * Add a mail driver.
      *
      * @param string $identifier Identifier for mail driver. E.g. 'smtp' for SmtpDriver
      * @param string $driver ::class attribute of driver class, which must implement Flarum\Mail\DriverInterface

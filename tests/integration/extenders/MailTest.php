@@ -75,7 +75,7 @@ class MailTest extends TestCase
 
         $drivers = json_decode($response->getBody(), true)['data']['attributes']['fields'];
 
-        $this->assertArrayHasKey("custom", $drivers);
+        $this->assertArrayHasKey('custom', $drivers);
     }
 
     /**
