@@ -470,6 +470,7 @@ class Discussion extends AbstractModel
 
         $content = trim(preg_replace('/\s+/', ' ', strip_tags($relevantPost->formatContent())));
         $excerpt = substr($content, 0, $length);
+
         return mb_strlen($content) > $length ? mb_substr($excerpt, 0, strrpos($excerpt, ' ')).'...' : $excerpt;
     }
 }
