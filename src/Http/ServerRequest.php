@@ -42,26 +42,26 @@ class ServerRequest extends BaseServerRequest
 
     public function withBypassFloodgate(bool $bypassFloodgate)
     {
-        return $this->withAttribute('bypassFloodgate', $bypassFloodgate)
+        return $this->withAttribute('bypassFloodgate', $bypassFloodgate);
     }
 
     public function getBypassCsrfToken()
     {
-        return $this->getAttribute('bypassCsrfToken')
+        return $this->getAttribute('bypassCsrfToken');
     }
 
     public function withBypassCsrfToken(bool $bypassCsrfToken)
     {
-        return $this->withAttribute('bypassCsrfToken', $bypassCsrfToken)
+        return $this->withAttribute('bypassCsrfToken', $bypassCsrfToken);
     }
 
     public function getLocale()
     {
-        return $this->getAttribute('bypassCsrfToken')
+        return $this->getAttribute('bypassCsrfToken');
     }
 
     public function withLocale(string $locale)
     {
-        return $this->withAttribute('locale', $locale)
+        return $this->withAttribute('locale', $locale);
     }
 }
