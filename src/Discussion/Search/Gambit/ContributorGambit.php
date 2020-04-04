@@ -42,7 +42,7 @@ class ContributorGambit extends AbstractRegexGambit
      */
     protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
-        if (! $search instanceof DiscussionSearch) {
+        if (!$search instanceof DiscussionSearch) {
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 
@@ -63,8 +63,10 @@ class ContributorGambit extends AbstractRegexGambit
 
         $query
             ->join(
-                new Expression('('.$subquery->toSql().') '.$grammar->wrapTable('posts_ft')),
-                'posts_ft.discussion_id', '=', 'discussions.id'
+                new Expression('(' . $subquery->toSql() . ') ' . $grammar->wrapTable('posts_ft')),
+                'posts_ft.discussion_id',
+                '=',
+                'discussions.id'
             )
             ->addBinding($subquery->getBindings(), 'join');
     }
