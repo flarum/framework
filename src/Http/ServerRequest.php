@@ -37,7 +37,7 @@ class ServerRequest extends BaseServerRequest
 
     public function getBypassFloodgate()
     {
-        return $this->getAttribute('bypassFloodgate')
+        return $this->getAttribute('bypassFloodgate');
     }
 
     public function withBypassFloodgate(bool $bypassFloodgate)
