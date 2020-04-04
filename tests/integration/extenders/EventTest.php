@@ -10,15 +10,16 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\Group\Group;
 use Flarum\Group\Event\Created;
+use Flarum\Group\Group;
 use Flarum\Tests\integration\TestCase;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator;
 
 class EventTest extends TestCase
 {
-    protected function buildGroup() {
+    protected function buildGroup()
+    {
         $events = $this->app()->getContainer()->make(Dispatcher::class);
 
         $group = Group::build('test group', 'test groups', '#000000', 'fas fa-crown');
