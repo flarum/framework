@@ -24,6 +24,7 @@ trait AskQuestionTrait
         if (is_null($this->questionHelper)) {
             $this->questionHelper = new QuestionHelper;
         }
+
         return $this->questionHelper;
     }
 
