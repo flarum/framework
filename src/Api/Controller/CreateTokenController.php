@@ -10,10 +10,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\AccessToken;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\UserRepository;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Illuminate\Support\Arr;

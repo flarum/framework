@@ -11,7 +11,6 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Events\Dispatcher;
 
 class Auth implements ExtenderInterface
 {

@@ -64,7 +64,7 @@ class SsoController implements RequestHandlerInterface
             throw new RouteNotFoundException;
         }
 
-        if (! $this->settings->get('auth_driver_enabled_' . $provider, false)) {
+        if (! $this->settings->get('auth_driver_enabled_'.$provider, false)) {
             throw new RouteNotFoundException;
         }
 
@@ -105,7 +105,7 @@ class SsoController implements RequestHandlerInterface
 
             // SSO response isn't linked to a user, but a user with the provided email exists.
             if (! empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
-                if ($user->id === $actor->id || $actor->isGuest() && $this->settings->get('auth_driver_trust_emails_' . $provider, false)) {
+                if ($user->id === $actor->id || $actor->isGuest() && $this->settings->get('auth_driver_trust_emails_'.$provider, false)) {
                     // The current user is linking a new driver to their account.
                     // Or, a new provider is being linked to the account of an existing user, who isnt logged in, because
                     // the sso driver is marked as having trusted emails.
