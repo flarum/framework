@@ -21,10 +21,8 @@ class Event implements ExtenderInterface
      * Add a listener to a domain event dispatched by flarum or a flarum extension.
      *
      * The listener can either be:
-     *  - a callback function
-     *  - a The class attribute of class with a public `handle` method, which accepts an instance of the event as a parameter
-     *  - An array where the first element is the class attribute of the listener class, and the second element is
-     *    a string with the name of the method that will handle the event. This method should accept an instance of the event as a parameter.
+     *  - a callback function or
+     *  - the class attribute of a class with a public `handle` method, which accepts an instance of the event as a parameter
      *
      * @param string $event
      * @param callable $listener

@@ -66,19 +66,6 @@ class EventTest extends TestCase
 
         $this->assertEquals($group->name_singular, 'core.group.admin');
     }
-
-    /**
-     * @test
-     */
-    public function custom_listener_works_with_class_with_custom_method_and_can_inject_stuff()
-    {
-        // Because it injects a translator, this also tests that stuff can be injected into this callback.
-        $this->extend((new Extend\Event)->listen(Created::class, [CustomListener::class, 'customHandle']));
-
-        $group = $this->buildGroup();
-
-        $this->assertEquals($group->name_singular, 'core.group.admin');
-    }
 }
 
 class CustomListener
@@ -91,11 +78,6 @@ class CustomListener
     }
 
     public function handle(Created $event)
-    {
-        $event->group->name_singular = $this->translator->trans('core.group.admin');
-    }
-
-    public function customHandle(Created $event)
     {
         $event->group->name_singular = $this->translator->trans('core.group.admin');
     }
