@@ -12,9 +12,9 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Mail\DriverInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Tests\integration\BuildsHttpRequests;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Flarum\Tests\integration\BuildsHttpRequests;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
 use Swift_NullTransport;
@@ -25,7 +25,8 @@ class MailTest extends TestCase
     use RetrievesAuthorizedUsers;
     use BuildsHttpRequests;
 
-    protected function prepDb() {
+    protected function prepDb()
+    {
         $this->prepareDatabase([
             'users' => [
                 $this->adminUser(),
@@ -43,13 +44,14 @@ class MailTest extends TestCase
 
         $response = $this->send(
             $this->requestAsUser(
-                $this->request('GET', '/api/mail-settings'), 1
+                $this->request('GET', '/api/mail-settings'),
+                1
             )
         );
 
         $drivers = json_decode($response->getBody(), true)['data']['attributes']['fields'];
 
-        $this->assertArrayNotHasKey("custom", $drivers);
+        $this->assertArrayNotHasKey('custom', $drivers);
     }
 
     /**
@@ -59,14 +61,15 @@ class MailTest extends TestCase
     {
         $this->extend(
             (new Extend\Mail())
-                ->addDriver('custom', CustomDriver::class)
+                ->driver('custom', CustomDriver::class)
         );
 
         $this->prepDb();
 
         $response = $this->send(
             $this->requestAsUser(
-                $this->request('GET', '/api/mail-settings'), 1
+                $this->request('GET', '/api/mail-settings'),
+                1
             )
         );
 
@@ -82,14 +85,15 @@ class MailTest extends TestCase
     {
         $this->extend(
             (new Extend\Mail())
-                ->addDriver('smtp', CustomDriver::class)
+                ->driver('smtp', CustomDriver::class)
         );
 
         $this->prepDb();
 
         $response = $this->send(
             $this->requestAsUser(
-                $this->request('GET', '/api/mail-settings'), 1
+                $this->request('GET', '/api/mail-settings'),
+                1
             )
         );
 
