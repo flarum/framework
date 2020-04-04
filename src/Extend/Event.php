@@ -18,7 +18,7 @@ class Event implements ExtenderInterface
     private $listeners = [];
 
     /**
-     * Add a listener to a domain event dispatched by flarum or an extension to flarum
+     * Add a listener to a domain event dispatched by flarum or a flarum extension.
      *
      * @param string $event
      * @param callable $listener
@@ -35,10 +35,6 @@ class Event implements ExtenderInterface
         $events = $container->make(Dispatcher::class);
 
         foreach ($this->listeners as $listener) {
-            if (is_string($listener[1])) {
-                $listener[1] = $container->make($listener[1]);
-            }
-
             $events->listen($listener[0], $listener[1]);
         }
     }
