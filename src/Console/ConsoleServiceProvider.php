@@ -12,8 +12,10 @@ namespace Flarum\Console;
 use Flarum\Database\Console\GenerateMigrationCommand;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
+use Flarum\User\Console\ResetPasswordCommand;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\CacheClearCommand;
+use Flarum\User\Console\SetPasswordCommand;
 
 class ConsoleServiceProvider extends AbstractServiceProvider
 {
@@ -28,6 +30,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 GenerateMigrationCommand::class,
                 MigrateCommand::class,
                 ResetCommand::class,
+                SetPasswordCommand::class,
             ];
         });
     }
