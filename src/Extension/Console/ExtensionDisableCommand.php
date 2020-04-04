@@ -68,7 +68,6 @@ class ExtensionDisableCommand extends AbstractCommand
             return;
         }
 
-
         if ($this->input->getOption('yes') || $this->confirm("Disable $extensionName?")) {
             $this->info('Disabling: '.$extensionName);
 
