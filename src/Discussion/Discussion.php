@@ -456,7 +456,7 @@ class Discussion extends AbstractModel
     }
 
     /**
-     * Generates a brief excerpt based off of the first post
+     * Generates a brief excerpt based off of the first post.
      *
      * @param int length (Defaults to 160)
      * @return string
