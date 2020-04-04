@@ -14,8 +14,8 @@ use Flarum\Forum\Auth\SsoDriverInterface;
 use Flarum\Forum\Auth\SsoResponse;
 use Flarum\Http\Middleware\AuthenticateWithHeader;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\BuildsHttpRequests;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 use Laminas\Diactoros\Response\RedirectResponse;
@@ -39,6 +39,7 @@ class AuthSsoTest extends TestCase
         if (is_null($this->settings)) {
             $this->settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
         }
+
         return $this->settings;
     }
 

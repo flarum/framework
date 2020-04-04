@@ -16,8 +16,8 @@ use Flarum\Http\Rememberer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\LoggedIn;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\User\SsoProvider;
 use Flarum\User\RegistrationToken;
+use Flarum\User\SsoProvider;
 use Flarum\User\User;
 use Illuminate\Container\Container;
 use Illuminate\Support\Arr;
@@ -34,7 +34,7 @@ class SsoController implements RequestHandlerInterface
     protected $rememberer;
 
     protected $settings;
-    
+
     protected $translator;
 
     public function __construct(
@@ -42,8 +42,7 @@ class SsoController implements RequestHandlerInterface
         Rememberer $rememberer,
         SettingsRepositoryInterface $settings,
         TranslatorInterface $translator
-    )
-    {
+    ) {
         $this->container = $container;
         $this->rememberer = $rememberer;
         $this->settings = $settings;
@@ -65,7 +64,7 @@ class SsoController implements RequestHandlerInterface
             throw new RouteNotFoundException;
         }
 
-        if (! $this->settings->get('auth_driver_enabled_'.$provider, false)) {
+        if (! $this->settings->get('auth_driver_enabled_' . $provider, false)) {
             throw new RouteNotFoundException;
         }
 
@@ -98,15 +97,15 @@ class SsoController implements RequestHandlerInterface
                 }
             }
 
-            if (!$actor->isGuest() && in_array($provider, $actor->ssoProviderNames())) {
+            if (! $actor->isGuest() && in_array($provider, $actor->ssoProviderNames())) {
                 // This user has already linked an account from this provider. We don't currently support multiple
                 // identifiers from a provider being linked to a user, so this should error.
                 return new HtmlResponse($this->translator->trans('core.forum.auth.sso.errors.provider_already_linked'));
             }
 
             // SSO response isn't linked to a user, but a user with the provided email exists.
-            if (!empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
-                if ($user->id === $actor->id || $actor->isGuest() && $this->settings->get('auth_driver_trust_emails_'.$provider, false)) {
+            if (! empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
+                if ($user->id === $actor->id || $actor->isGuest() && $this->settings->get('auth_driver_trust_emails_' . $provider, false)) {
                     // The current user is linking a new driver to their account.
                     // Or, a new provider is being linked to the account of an existing user, who isnt logged in, because
                     // the sso driver is marked as having trusted emails.

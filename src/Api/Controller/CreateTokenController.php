@@ -57,8 +57,7 @@ class CreateTokenController implements RequestHandlerInterface
         BusDispatcher $bus,
         EventDispatcher $events,
         SettingsRepositoryInterface $settings
-    )
-    {
+    ) {
         $this->users = $users;
         $this->bus = $bus;
         $this->events = $events;
@@ -84,7 +83,7 @@ class CreateTokenController implements RequestHandlerInterface
 
         // If password authentication disabled, throw an error
         // if the user is not an admin.
-        if (!$this->settings->get('enable_password_auth', true)) {
+        if (! $this->settings->get('enable_password_auth', true)) {
             $this->assertAdmin($user);
         }
 

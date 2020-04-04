@@ -14,5 +14,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 interface SsoDriverInterface
 {
     public function meta(): array;
+
     public function sso(Request $request, SsoResponse $ssoResponse);
 }

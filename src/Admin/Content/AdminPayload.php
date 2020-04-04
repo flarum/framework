@@ -54,8 +54,7 @@ class AdminPayload
         ExtensionManager $extensions,
         ConnectionInterface $db,
         Dispatcher $events
-    )
-    {
+    ) {
         $this->container = $container;
         $this->settings = $settings;
         $this->extensions = $extensions;
@@ -74,7 +73,6 @@ class AdminPayload
         $ssoDrivers = array_map(function ($driver) {
             return $this->container->make($driver)->meta();
         }, $this->container->make('flarum.auth.supported_drivers'));
-
 
         $document->payload['settings'] = $settings;
         $document->payload['permissions'] = Permission::map();

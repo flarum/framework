@@ -30,7 +30,8 @@ class DeleteSsoProviderController extends AbstractDeleteController
      */
     protected $settings;
 
-    public function __construct(Container $container, SettingsRepositoryInterface $settings) {
+    public function __construct(Container $container, SettingsRepositoryInterface $settings)
+    {
         $this->container = $container;
         $this->settings = $settings;
     }
@@ -44,7 +45,7 @@ class DeleteSsoProviderController extends AbstractDeleteController
 
         $drivers = $this->container->make('flarum.auth.supported_drivers');
 
-        if (!array_key_exists($provider, $drivers)) {
+        if (! array_key_exists($provider, $drivers)) {
             throw new RouteNotFoundException;
         }
 
@@ -58,7 +59,7 @@ class DeleteSsoProviderController extends AbstractDeleteController
             throw new RouteNotFoundException;
         }
 
-        if (!$this->settings->get('enable_password_auth', true) && count($actor->ssoProviderNames()) === 1) {
+        if (! $this->settings->get('enable_password_auth', true) && count($actor->ssoProviderNames()) === 1) {
             throw new PermissionDeniedException;
         }
 

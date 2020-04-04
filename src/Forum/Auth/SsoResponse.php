@@ -31,7 +31,7 @@ class SsoResponse
     protected $payload = [];
 
     /**
-     * @var string $provider
+     * @var string
      */
     public function __construct(string $provider)
     {

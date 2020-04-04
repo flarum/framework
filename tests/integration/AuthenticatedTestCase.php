@@ -63,7 +63,7 @@ abstract class AuthenticatedTestCase extends TestCase
             ],
         ]);
 
-        if (!isset($this->key)) {
+        if (! isset($this->key)) {
             $this->key = $this->genKey();
         }
 

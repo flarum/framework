@@ -30,7 +30,7 @@ class Auth implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend("flarum.auth.supported_drivers", function ($existingMiddleware) {
+        $container->extend('flarum.auth.supported_drivers', function ($existingMiddleware) {
             return array_merge($existingMiddleware, $this->ssoDrivers);
         });
     }

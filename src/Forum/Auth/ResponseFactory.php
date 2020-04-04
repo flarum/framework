@@ -10,8 +10,8 @@
 namespace Flarum\Forum\Auth;
 
 use Flarum\Http\Rememberer;
-use Flarum\User\SsoProvider;
 use Flarum\User\RegistrationToken;
+use Flarum\User\SsoProvider;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\HtmlResponse;
