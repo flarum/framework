@@ -15,7 +15,7 @@ use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Validation\ValidationException;
 
-class ResetPasswordCommand extends AbstractCommand
+class SetPasswordCommand extends AbstractCommand
 {
     use AskQuestionTrait;
 
@@ -40,8 +40,8 @@ class ResetPasswordCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->setName('password:reset')
-            ->setDescription('Reset a user\'s password');
+            ->setName('user:set_password')
+            ->setDescription('Set a user\'s password');
     }
 
     /**
