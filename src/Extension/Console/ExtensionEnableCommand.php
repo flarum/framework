@@ -40,7 +40,7 @@ class ExtensionEnableCommand extends AbstractCommand
     {
         $this
             ->setName('extensions:enable')
-            ->setDescription("Enable an extension")
+            ->setDescription('Enable an extension')
             ->addOption(
                 'yes',
                 'y',
@@ -61,14 +61,14 @@ class ExtensionEnableCommand extends AbstractCommand
     {
         $extensionName = $this->input->getArgument('extension');
 
-        if (!$this->extensions->getExtension($extensionName)) {
-            $this->info('Could not find extension ' . $extensionName);
+        if (! $this->extensions->getExtension($extensionName)) {
+            $this->info('Could not find extension '.$extensionName);
 
             return;
         }
 
         if ($this->input->getOption('yes') || $this->confirm("Enable $extensionName?")) {
-            $this->info('Enabling: ' . $extensionName);
+            $this->info('Enabling: '.$extensionName);
 
             $this->extensions->enable($extensionName);
         } else {

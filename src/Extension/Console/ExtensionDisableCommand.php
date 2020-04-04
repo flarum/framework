@@ -41,7 +41,7 @@ class ExtensionDisableCommand extends AbstractCommand
     {
         $this
             ->setName('extensions:disable')
-            ->setDescription("Disable an extension")
+            ->setDescription('Disable an extension')
             ->addOption(
                 'yes',
                 'y',
@@ -62,15 +62,15 @@ class ExtensionDisableCommand extends AbstractCommand
     {
         $extensionName = $this->input->getArgument('extension');
 
-        if (!$this->extensions->getExtension($extensionName)) {
-            $this->info('Could not find extension ' . $extensionName);
+        if (! $this->extensions->getExtension($extensionName)) {
+            $this->info('Could not find extension '.$extensionName);
 
             return;
         }
 
 
         if ($this->input->getOption('yes') || $this->confirm("Disable $extensionName?")) {
-            $this->info('Disabling: ' . $extensionName);
+            $this->info('Disabling: '.$extensionName);
 
             $this->extensions->disable($extensionName);
         } else {

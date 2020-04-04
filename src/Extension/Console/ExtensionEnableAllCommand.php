@@ -40,7 +40,7 @@ class ExtensionEnableAllCommand extends AbstractCommand
     {
         $this
             ->setName('extensions:enableAll')
-            ->setDescription("Enable all extensions.")
+            ->setDescription('Enable all extensions.')
             ->addOption(
                 'yes',
                 'y',
@@ -65,12 +65,12 @@ class ExtensionEnableAllCommand extends AbstractCommand
             $extensionName = $extension->getId();
 
             if ($this->extensions->isEnabled($extensionName)) {
-                $this->info('Extension: ' . $extensionName . ' is already enabled, ignoring');
-            } elseif ($this->input->getOption('only-bundled') && substr($extensionName, 0, 6) !==  'flarum') {
-                $this->info('Extension: ' . $extensionName . ' is not bundled, ignoring');
+                $this->info('Extension: '.$extensionName.' is already enabled, ignoring');
+            } elseif ($this->input->getOption('only-bundled') && substr($extensionName, 0, 6) !== 'flarum') {
+                $this->info('Extension: '.$extensionName.' is not bundled, ignoring');
             } else {
                 if ($this->input->getOption('yes') || $this->confirm("Enable $extensionName?")) {
-                    $this->info('Enabling: ' . $extensionName);
+                    $this->info('Enabling: '.$extensionName);
 
                     $this->extensions->enable($extensionName);
                 } else {

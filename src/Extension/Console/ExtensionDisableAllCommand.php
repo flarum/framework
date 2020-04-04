@@ -40,7 +40,7 @@ class ExtensionDisableAllCommand extends AbstractCommand
     {
         $this
             ->setName('extensions:disableAll')
-            ->setDescription("Disable all extensions.")
+            ->setDescription('Disable all extensions')
             ->addOption(
                 'yes',
                 'y',
@@ -63,11 +63,11 @@ class ExtensionDisableAllCommand extends AbstractCommand
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
             $extensionName = $extension->getId();
 
-            if ($this->input->getOption('keep-bundled') && substr($extensionName, 0, 6) ===  'flarum') {
-                $this->info('Extension: ' . $extensionName . ' is bundled, ignoring');
+            if ($this->input->getOption('keep-bundled') && substr($extensionName, 0, 6) === 'flarum') {
+                $this->info('Extension: '.$extensionName.' is bundled, ignoring');
             } else {
                 if ($this->input->getOption('yes') || $this->confirm("Disable $extensionName?")) {
-                    $this->info('Disabling: ' . $extensionName);
+                    $this->info('Disabling: '.$extensionName);
 
                     $this->extensions->disable($extensionName);
                 } else {
