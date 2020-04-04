@@ -10,9 +10,9 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\Post\Post;
 use Flarum\Post\AbstractEventPost;
 use Flarum\Post\MergeableInterface;
+use Flarum\Post\Post;
 use Flarum\Tests\integration\TestCase;
 
 class PostTest extends TestCase
