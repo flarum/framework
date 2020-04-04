@@ -10,15 +10,16 @@
 namespace Flarum\Search;
 
 use Flarum\User\User;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 abstract class AbstractSearcher
 {
     protected static $gambitManagers = [];
 
-    public static function gambitManager($searcher) {
-        if (!array_key_exists($searcher, static::$gambitManagers)) {
+    public static function gambitManager($searcher)
+    {
+        if (! array_key_exists($searcher, static::$gambitManagers)) {
             static::$gambitManagers[$searcher] = new GambitManager;
         }
 
@@ -86,7 +87,7 @@ abstract class AbstractSearcher
             foreach ($sort as $field => $order) {
                 if (is_array($order)) {
                     foreach ($order as $value) {
-                        $search->getQuery()->orderByRaw(Str::snake($field) . ' != ?', [$value]);
+                        $search->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
                     }
                 } else {
                     $search->getQuery()->orderBy(Str::snake($field), $order);

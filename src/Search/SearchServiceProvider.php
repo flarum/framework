@@ -57,7 +57,7 @@ class SearchServiceProvider extends AbstractServiceProvider
             new ConfigureUserGambits($tempGambits)
         );
 
-        if (!is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
+        if (! is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
             $gambits->setFullTextGambit($this->app->make($fullTextGambit));
         }
 
@@ -90,7 +90,7 @@ class SearchServiceProvider extends AbstractServiceProvider
             new ConfigureDiscussionGambits($tempGambits)
         );
 
-        if (!is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
+        if (! is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
             $gambits->setFullTextGambit($this->app->make($fullTextGambit));
         }
 

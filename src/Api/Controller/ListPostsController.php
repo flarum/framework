@@ -72,6 +72,7 @@ class ListPostsController extends AbstractListController
 
         if ($postIds = Arr::get($this->extractFilter($request), 'id')) {
             $postIds = explode(',', $postIds);
+
             return $this->posts->findByIds($postIds, $actor)->load($load);
         }
 

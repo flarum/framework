@@ -10,15 +10,15 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
-use Flarum\Extend;
 use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Extend;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchCriteria;
-use Flarum\User\User;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\User;
 
 class SearchTest extends TestCase
 {
@@ -47,6 +47,7 @@ class SearchTest extends TestCase
         $actor = User::find(1);
 
         $criteria = new SearchCriteria($actor, $query);
+
         return $this->app()->getContainer()->make(DiscussionSearcher::class)->search($criteria, $limit)->getResults();
 
     }
@@ -110,6 +111,7 @@ class NoResultFullTextGambit implements GambitInterface
 class NoResultFilterGambit extends AbstractRegexGambit
 {
     protected $pattern = 'noResult:(.+)';
+
     /**
      * {@inheritdoc}
      */
