@@ -49,7 +49,6 @@ class SearchTest extends TestCase
         $criteria = new SearchCriteria($actor, $query);
 
         return $this->app()->getContainer()->make(DiscussionSearcher::class)->search($criteria, $limit)->getResults();
-
     }
 
     /**

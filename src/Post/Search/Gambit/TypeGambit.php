@@ -12,7 +12,6 @@ namespace Flarum\Post\Search\Gambit;
 use Flarum\Post\Search\PostSearch;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
-use Flarum\User\UserRepository;
 use LogicException;
 
 class TypeGambit extends AbstractRegexGambit
