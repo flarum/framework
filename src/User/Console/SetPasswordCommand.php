@@ -23,9 +23,6 @@ class SetPasswordCommand extends AbstractCommand
 
     protected $userValidator;
 
-    /**
-     * @param UserRepository $userRepository
-     */
     public function __construct(UserRepository $userRepository, UserValidator $userValidator)
     {
         $this->userRepository = $userRepository;
