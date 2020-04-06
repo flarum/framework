@@ -108,15 +108,15 @@ class ExtensionEnableCommand extends AbstractCommand
 
         // Process user-specified extensions
         foreach ($this->input->getArgument('extensions') as $extension) {
-            if (!$this->extensions->getExtension($extension)) {
+            if (! $this->extensions->getExtension($extension)) {
                 $this->error("Extension: $extension is not installed.");
-            } elseif (!$extensionIds->contains($extension)) {
+            } elseif (! $extensionIds->contains($extension)) {
                 $extensionIds[] = $extension;
             }
         }
 
         $extensionIds = $extensionIds->filter(function ($extension) {
-            return !$this->extensions->isEnabled($extension) ?: $this->info("Extension: $extension is already enabled, ignoring") && false;
+            return ! $this->extensions->isEnabled($extension) ?: $this->info("Extension: $extension is already enabled, ignoring") && false;
         });
 
         return $extensionIds;
