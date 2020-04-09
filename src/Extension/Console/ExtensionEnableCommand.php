@@ -97,16 +97,13 @@ class ExtensionEnableCommand extends AbstractCommand
     {
         $extensionIds = [];
         if ($this->input->getOption('all')) {
-            // All Extensions
             $extensionIds = $this->allExtensions();
         } elseif ($this->input->getOption('include-bundled')) {
-            // Only bundled
             $extensionIds = $this->allExtensions()->filter(function ($extension) {
                 return substr($extension, 0, 6) === 'flarum' ?: $this->info("Extension: $extension is not bundled, ignoring") && false;
             });
         }
 
-        // Process user-specified extensions
         foreach ($this->input->getArgument('extensions') as $extension) {
             if (! $this->extensions->getExtension($extension)) {
                 $this->error("Extension: $extension is not installed.");

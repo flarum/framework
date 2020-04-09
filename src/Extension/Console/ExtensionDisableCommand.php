@@ -98,16 +98,13 @@ class ExtensionDisableCommand extends AbstractCommand
     {
         $extensionIds = [];
         if ($this->input->getOption('all')) {
-            // All Extensions
             $extensionIds = $this->allEnabledExtensions();
         } elseif ($this->input->getOption('all-except-bundled')) {
-            // All exc
             $extensionIds = array_filter($this->allEnabledExtensions(), function ($extension) {
                 return substr($extension, 0, 6) !== 'flarum' ?: $this->info("Extension: $extension is bundled, ignoring") && false;
             });
         }
 
-        // Process user-specified extensions
         foreach ($this->input->getArgument('extensions') as $extension) {
             if (! $this->extensions->getExtension($extension)) {
                 $this->error("Extension: $extension is not installed.");
