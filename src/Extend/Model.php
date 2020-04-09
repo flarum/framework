@@ -9,7 +9,6 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 

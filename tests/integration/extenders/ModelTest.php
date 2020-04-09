@@ -10,13 +10,13 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
-use Flarum\Extend;
 use Flarum\Discussion\Discussion;
+use Flarum\Extend;
 use Flarum\Group\Group;
 use Flarum\Post\Post;
-use Flarum\User\User;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\User;
 
 class ModelTest extends TestCase
 {
@@ -34,7 +34,7 @@ class ModelTest extends TestCase
 
     protected function tearDown()
     {
-        if (!is_null($discussion = Discussion::find(1))) {
+        if (! is_null($discussion = Discussion::find(1))) {
             $discussion->delete();
         }
 
@@ -132,6 +132,7 @@ class ModelTest extends TestCase
     {
         $this->extend((new Extend\Model(Group::class))->configureDefaultAttributes(function ($defaults) {
             $defaults['name_singular'] = 'Custom Default';
+
             return $defaults;
         }));
 
@@ -149,6 +150,7 @@ class ModelTest extends TestCase
     {
         $this->extend((new Extend\Model(Group::class))->configureDefaultAttributes(function ($defaults) {
             $defaults['name_singular'] = 'Custom Default';
+
             return $defaults;
         }));
 
@@ -198,6 +200,7 @@ class ModelTest extends TestCase
             if (($key = array_search('hidden_at', $dates)) !== false) {
                 unset($dates[$key]);
             }
+
             return $dates;
         }));
 

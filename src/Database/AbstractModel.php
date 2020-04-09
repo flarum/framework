@@ -78,7 +78,7 @@ abstract class AbstractModel extends Eloquent
 
     public static function addCustomRelation(string $from, string $name, $relation)
     {
-        if (!array_key_exists($from, static::$customRelations)) {
+        if (! array_key_exists($from, static::$customRelations)) {
             static::$customRelations[$from] = [];
         }
 
@@ -87,7 +87,7 @@ abstract class AbstractModel extends Eloquent
 
     public static function addDateCallback(string $model, $callback)
     {
-        if (!array_key_exists($model, static::$dateCallbacks)) {
+        if (! array_key_exists($model, static::$dateCallbacks)) {
             static::$dateCallbacks[$model] = [];
         }
 
@@ -96,7 +96,7 @@ abstract class AbstractModel extends Eloquent
 
     public static function addDefaultAttributeCallback(string $model, $callback)
     {
-        if (!array_key_exists($model, static::$defaultAttributeCallbacks)) {
+        if (! array_key_exists($model, static::$defaultAttributeCallbacks)) {
             static::$defaultAttributeCallbacks[$model] = [];
         }
 
