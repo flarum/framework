@@ -106,10 +106,8 @@ export default class AuthPage extends Page {
                         <td className="SsoGrid-groupToggle">
                           {icon(this.drivers[driver].icon)} {this.drivers[driver].name || driver}
                         </td>
-                        {this.driverFields.map(field => (
-                          <td className="SsoGrid-checkbox">
-                            {this.driverInputs[this.driverFieldKey(field.name, driver)]}
-                          </td>
+                        {this.driverFields.map((field) => (
+                          <td className="SsoGrid-checkbox">{this.driverInputs[this.driverFieldKey(field.name, driver)]}</td>
                         ))}
                       </tr>
                     ))}

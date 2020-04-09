@@ -27,7 +27,7 @@ export default class SsoGrid extends Component {
 
     // For each of the Sso type-method combinations, create and store a
     // new checkbox component instance, which we will render in the view.
-    this.providers.forEach(provider => {
+    this.providers.forEach((provider) => {
       this.inputs[provider.name] = Checkbox.component({
         state: this.providerLinked(provider.name),
         disabled: this.disableUnlinking(provider.name),
@@ -52,9 +52,7 @@ export default class SsoGrid extends Component {
               <td className="SsoGrid-groupToggle">
                 {icon(provider.icon)} {provider.label}
               </td>
-              <td className="SsoGrid-checkbox">
-                {this.inputs[provider.name]}
-              </td>
+              <td className="SsoGrid-checkbox">{this.inputs[provider.name]}</td>
             </tr>
           ))}
         </tbody>
