@@ -73,6 +73,10 @@ class ExtensionEnableCommand extends AbstractCommand
     {
         $extensions = $this->getExtensionsToEnable();
 
+        if (empty($extensions)) {
+            $this->info('No extensions to process.');
+        }
+
         foreach ($extensions as $extension) {
             if ($this->input->getOption('yes') || $this->confirm("Enable $extension?")) {
                 $this->info("Enabling: $extension");

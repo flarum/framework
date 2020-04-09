@@ -98,6 +98,10 @@ class ExtensionDisableCommand extends AbstractCommand
     {
         $extensionIds = [];
 
+        if (empty($extensions)) {
+            $this->info('No extensions to process.');
+        }
+
         foreach ($this->input->getArgument('extensions') as $extension) {
             if (!$this->extensions->getExtension($extension)) {
                 $this->error("Extension: $extension is not installed, ignoring.");
