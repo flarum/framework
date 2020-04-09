@@ -12,9 +12,6 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Formatter\Formatter;
 use Flarum\Tests\integration\TestCase;
-use s9e\TextFormatter\Configurator;
-use s9e\TextFormatter\Parser;
-use s9e\TextFormatter\Renderer;
 
 class FormatterTest extends TestCase
 {
@@ -22,6 +19,7 @@ class FormatterTest extends TestCase
     {
         return $this->app()->getContainer()->make(Formatter::class);
     }
+
     /**
      * @test
      */

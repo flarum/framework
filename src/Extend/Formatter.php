@@ -12,7 +12,6 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Formatter\Formatter as ActualFormatter;
 use Illuminate\Contracts\Container\Container;
-use s9e\TextFormatter\Configurator;
 
 class Formatter implements ExtenderInterface, LifecycleInterface
 {
