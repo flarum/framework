@@ -18,7 +18,6 @@ use Flarum\User\Event\AvatarSaving;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Intervention\Image\ImageManager;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UploadAvatarHandler
 {
@@ -65,6 +64,7 @@ class UploadAvatarHandler
      * @param UploadAvatar $command
      * @return \Flarum\User\User
      * @throws \Flarum\User\Exception\PermissionDeniedException
+     * @throws \Flarum\Foundation\ValidationException
      */
     public function handle(UploadAvatar $command)
     {
@@ -82,15 +82,6 @@ class UploadAvatarHandler
         $file->moveTo($tmpFile);
 
         try {
-            $file = new UploadedFile(
-                $tmpFile,
-                $file->getClientFilename(),
-                $file->getClientMediaType(),
-                $file->getSize(),
-                $file->getError(),
-                true
-            );
-
             $this->validator->assertValid(['avatar' => $file]);
 
             $image = (new ImageManager)->make($tmpFile);
