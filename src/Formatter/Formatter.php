@@ -20,25 +20,25 @@ use s9e\TextFormatter\Unparser;
 
 class Formatter
 {
-    protected static $configurationCallbacks = [];
+    protected $configurationCallbacks = [];
 
-    protected static $parsingCallbacks = [];
+    protected $parsingCallbacks = [];
 
-    protected static $renderingCallbacks = [];
+    protected $renderingCallbacks = [];
 
-    public static function addConfigurationCallback($callback)
+    public function addConfigurationCallback($callback)
     {
-        static::$configurationCallbacks[] = $callback;
+        $this->configurationCallbacks[] = $callback;
     }
 
-    public static function addParsingCallback($callback)
+    public function addParsingCallback($callback)
     {
-        static::$parsingCallbacks[] = $callback;
+        $this->parsingCallbacks[] = $callback;
     }
 
-    public static function addRenderingCallback($callback)
+    public function addRenderingCallback($callback)
     {
-        static::$renderingCallbacks[] = $callback;
+        $this->renderingCallbacks[] = $callback;
     }
 
     /**
@@ -82,7 +82,7 @@ class Formatter
         // Deprecated in beta 13, remove in beta 14
         $this->events->dispatch(new Parsing($parser, $context, $text));
 
-        foreach (static::$parsingCallbacks as $callback) {
+        foreach ($this->parsingCallbacks as $callback) {
             $callback($parser, $context, $text);
         }
 
@@ -104,7 +104,7 @@ class Formatter
         // Deprecated in beta 13, remove in beta 14
         $this->events->dispatch(new Rendering($renderer, $context, $xml, $request));
 
-        foreach (static::$renderingCallbacks as $callback) {
+        foreach ($this->renderingCallbacks as $callback) {
             $callback($renderer, $context, $xml, $request);
         }
 
@@ -156,7 +156,7 @@ class Formatter
         // Deprecated in beta 13, remove in beta 14
         $this->events->dispatch(new Configuring($configurator));
 
-        foreach (static::$configurationCallbacks as $callback) {
+        foreach ($this->configurationCallbacks as $callback) {
             $callback($configurator);
         }
 

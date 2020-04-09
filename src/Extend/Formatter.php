@@ -10,10 +10,9 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Formatter\Event\Configuring;
 use Flarum\Formatter\Formatter as ActualFormatter;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Events\Dispatcher;
+use s9e\TextFormatter\Configurator;
 
 class Formatter implements ExtenderInterface, LifecycleInterface
 {
@@ -44,29 +43,33 @@ class Formatter implements ExtenderInterface, LifecycleInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        foreach ($this->configurationCallbacks as $callback) {
-            if (is_string($callback)) {
-                $callback = $container->make($callback);
+        $container->extend('flarum.formatter', function ($formatter, $container) {
+            foreach ($this->configurationCallbacks as $callback) {
+                if (is_string($callback)) {
+                    $callback = $container->make($callback);
+                }
+
+                $formatter->addConfigurationCallback($callback);
             }
 
-            ActualFormatter::addConfigurationCallback($callback);
-        }
+            foreach ($this->parsingCallbacks as $callback) {
+                if (is_string($callback)) {
+                    $callback = $container->make($callback);
+                }
 
-        foreach ($this->parsingCallbacks as $callback) {
-            if (is_string($callback)) {
-                $callback = $container->make($callback);
+                $formatter->addParsingCallback($callback);
             }
 
-            ActualFormatter::addParsingCallback($callback);
-        }
+            foreach ($this->renderingCallbacks as $callback) {
+                if (is_string($callback)) {
+                    $callback = $container->make($callback);
+                }
 
-        foreach ($this->renderingCallbacks as $callback) {
-            if (is_string($callback)) {
-                $callback = $container->make($callback);
+                $formatter->addRenderingCallback($callback);
             }
 
-            ActualFormatter::addRenderingCallback($callback);
-        }
+            return $formatter;
+        });
     }
 
     public function onEnable(Container $container, Extension $extension)
