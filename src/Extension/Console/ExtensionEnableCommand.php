@@ -102,7 +102,7 @@ class ExtensionEnableCommand extends AbstractCommand
         $extensionIds = [];
 
         foreach ($this->input->getArgument('extensions') as $extension) {
-            if (!$this->extensions->getExtension($extension)) {
+            if (! $this->extensions->getExtension($extension)) {
                 $this->error("Extension: $extension is not installed, ignoring.");
             } elseif (! in_array($extension, $extensionIds)) {
                 $extensionIds[] = $extension;
@@ -113,10 +113,12 @@ class ExtensionEnableCommand extends AbstractCommand
             $extensionIds = $this->allExtensions();
         } elseif ($this->input->getOption('include-bundled')) {
             $extensionIds = array_merge($extensionIds, array_filter($this->allExtensions(), function ($extension) use ($extensionIds) {
-                if (substr($extension, 0, 6) !== 'flarum'&& ! in_array($extension, $extensionIds)) {
+                if (substr($extension, 0, 6) !== 'flarum' && ! in_array($extension, $extensionIds)) {
                     $this->info("Extension: $extension is not bundled and not explicitly specified, ignoring");
+
                     return false;
                 }
+
                 return true;
             }));
         }
@@ -124,8 +126,10 @@ class ExtensionEnableCommand extends AbstractCommand
         $extensionIds = array_filter($extensionIds, function ($extension) {
             if ($this->extensions->isEnabled($extension)) {
                 $this->info("Extension: $extension is already enabled, ignoring");
+
                 return false;
             }
+
             return true;
         });
 
