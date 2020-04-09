@@ -21,7 +21,6 @@ export default class AuthPage extends Page {
 
     this.drivers = app.data.ssoDrivers;
     this.driverFields = this.driverFieldsList().toArray();
-    this.driverInputs = [];
 
     this.fields = ['allow_sign_up', 'enable_password_auth'];
     this.values = {
@@ -35,18 +34,12 @@ export default class AuthPage extends Page {
 
         this.fields.push(fieldName);
         this.values[fieldName] = m.prop(settings[fieldName]);
-
-        this.driverInputs[fieldName] = Checkbox.component({
-          state: this.values[fieldName](),
-          onchange: () => this.toggle(fieldName),
-        });
       });
     }
 
     if (this.allSsoDisabled() && !this.values['enable_password_auth']()) {
       this.values['enable_password_auth'](true);
       this.saveSettings();
-      m.redraw();
     }
 
     m.redraw();
@@ -107,7 +100,12 @@ export default class AuthPage extends Page {
                           {icon(this.drivers[driver].icon)} {this.drivers[driver].name || driver}
                         </td>
                         {this.driverFields.map((field) => (
-                          <td className="SsoGrid-checkbox">{this.driverInputs[this.driverFieldKey(field.name, driver)]}</td>
+                          <td className="SsoGrid-checkbox">
+                            {Checkbox.component({
+                              state: this.values[this.driverFieldKey(field.name, driver)](),
+                              onchange: () => this.toggle(this.driverFieldKey(field.name, driver)),
+                            })}
+                          </td>
                         ))}
                       </tr>
                     ))}
@@ -133,11 +131,8 @@ export default class AuthPage extends Page {
   toggle(key) {
     this.values[key](!this.values[key]());
 
-    this.driverInputs[key].props.state = this.values[key]();
-
     if (this.allSsoDisabled()) {
       this.values['enable_password_auth'](true);
-      m.redraw();
     }
 
     m.redraw();
