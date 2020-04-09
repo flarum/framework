@@ -48,30 +48,16 @@ class Model implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $model = $container->make($this->modelClass);
+        $container->extend('flarum.model.customRelations', function ($existingRelations) {
+            return array_merge_recursive($existingRelations, [$this->modelClass => $this->relationships]);
+        });
 
-        foreach ($this->dateCallbacks as $callback) {
-            if (is_string($callback)) {
-                $callback = $container->make($callback);
-            }
+        $container->extend('flarum.model.dateCallbacks', function ($existingCallbacks) {
+            return array_merge_recursive($existingCallbacks, [$this->modelClass => $this->dateCallbacks]);
+        });
 
-            AbstractModel::addDateCallback($this->modelClass, $callback);
-        }
-
-        foreach ($this->defaultAttributeCallbacks as $callback) {
-            if (is_string($callback)) {
-                $callback = $container->make($callback);
-            }
-
-            AbstractModel::addDefaultAttributeCallback($this->modelClass, $callback);
-        }
-
-        foreach ($this->relationships as $name => $relationship) {
-            if (is_string($relationship)) {
-                $relationship = $container->make($relationship);
-            }
-
-            AbstractModel::addCustomRelation($this->modelClass, $name, $relationship);
-        }
+        $container->extend('flarum.model.defaultAttributeCallbacks', function ($existingCallbacks) {
+            return array_merge_recursive($existingCallbacks, [$this->modelClass => $this->defaultAttributeCallbacks]);
+        });
     }
 }

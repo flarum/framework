@@ -54,6 +54,18 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
         $this->app->alias(ConnectionInterface::class, 'db.connection');
         $this->app->alias(ConnectionInterface::class, 'flarum.db');
+
+        $this->app->singleton('flarum.model.customRelations', function () {
+            return [];
+        });
+
+        $this->app->singleton('flarum.model.dateCallbacks', function () {
+            return [];
+        });
+
+        $this->app->singleton('flarum.model.defaultAttributeCallbacks', function () {
+            return [];
+        });
     }
 
     /**
@@ -63,5 +75,35 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     {
         AbstractModel::setConnectionResolver($this->app->make(ConnectionResolverInterface::class));
         AbstractModel::setEventDispatcher($this->app->make('events'));
+
+        foreach ($this->app->make('flarum.model.customRelations') as $modelClass => $callbacks) {
+            foreach ($callbacks as  $name => $relation) {
+                if (is_string($relation)) {
+                    $relation = $this->app->make($relation);
+                }
+
+                AbstractModel::addCustomRelation($modelClass, $name, $relation);
+            }
+        }
+
+        foreach ($this->app->make('flarum.model.dateCallbacks') as $modelClass => $callbacks) {
+            foreach ($callbacks as $callback) {
+                if (is_string($callback)) {
+                    $callback = $this->app->make($callback);
+                }
+
+                AbstractModel::addDateCallback($modelClass, $callback);
+            }
+        }
+
+        foreach ($this->app->make('flarum.model.defaultAttributeCallbacks') as $modelClass => $callbacks) {
+            foreach ($callbacks as $callback) {
+                if (is_string($callback)) {
+                    $callback = $this->app->make($callback);
+                }
+
+                AbstractModel::addDefaultAttributeCallback($modelClass, $callback);
+            }
+        }
     }
 }
