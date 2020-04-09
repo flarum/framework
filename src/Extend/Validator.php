@@ -32,12 +32,14 @@ class Validator implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        foreach ($this->configurationCallbacks as $callback) {
-            if (is_string($callback)) {
-                $callback = $container->make($callback);
-            }
+        $container->resolving($this->validator, function ($validator, $container) {
+            foreach ($this->configurationCallbacks as $callback) {
+                if (is_string($callback)) {
+                    $callback = $container->make($callback);
+                }
 
-            AbstractValidator::addConfiguration($this->validator, $callback);
-        }
+                $validator->addConfiguration($callback);
+            }
+        });
     }
 }

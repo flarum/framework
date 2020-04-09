@@ -21,14 +21,11 @@ abstract class AbstractValidator
     /**
      * @var array
      */
-    protected static $configuration = [];
+    protected $configuration = [];
 
-    public static function addConfiguration($validatorClass, $callable) {
-        if (!array_key_exists($validatorClass, static::$configuration)) {
-            static::$configuration[$validatorClass] = [];
-        }
-
-        static::$configuration[$validatorClass][] = $callable;
+    public function addConfiguration($callable)
+    {
+        $this->configuration[] = $callable;
     }
 
     /**
@@ -112,7 +109,7 @@ abstract class AbstractValidator
             new Validating($this, $validator)
         );
 
-        foreach (Arr::get(static::$configuration, static::class, []) as $callable) {
+        foreach ($this->configuration as $callable) {
             $callable($validator);
         }
 
