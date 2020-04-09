@@ -41,11 +41,11 @@ class ExtensionDisableCommand extends AbstractCommand
     {
         $this
             ->setName('extensions:disable')
-            ->setDescription('Disable an extension')
+            ->setDescription('Disable extensions')
             ->addArgument(
                 'extensions',
                 InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
-                'The extensions to disable. You must provide this in extension-id format, that is: VENDOR_NAME-EXTENSION_NAME, based on the composer package, where "flarum-" or "flarum-ext-" is stripped from the extension name. For example, "flarum\tags" has an id of "flarum-tags", and "some-programmer/flarum-extension" has an id of "some-programmer-extension"'
+                'A space-separated list of Flarum Extension IDs to disable'
             )
             ->addOption(
                 'all',
