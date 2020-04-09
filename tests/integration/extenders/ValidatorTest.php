@@ -16,7 +16,7 @@ use Flarum\User\UserValidator;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
-class ModelTest extends TestCase
+class ValidatorTest extends TestCase
 {
     private function extendToRequireLongPassword()
     {
