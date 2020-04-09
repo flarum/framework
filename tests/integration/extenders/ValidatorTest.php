@@ -10,15 +10,16 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\User\UserValidator;
 use Flarum\Group\GroupValidator;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\UserValidator;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 class ModelTest extends TestCase
 {
-    private function extendToRequireLongPassword() {
+    private function extendToRequireLongPassword()
+    {
         $this->extend((new Extend\Validator(UserValidator::class))->configure(function ($validator) {
             $rules = $validator->getRules();
             $passwordRules = Arr::get($rules, 'password', []);
@@ -35,6 +36,7 @@ class ModelTest extends TestCase
             }
         }));
     }
+
     /**
      * @test
      */

@@ -10,7 +10,6 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Foundation\AbstractValidator;
 use Illuminate\Contracts\Container\Container;
 
 class Validator implements ExtenderInterface
