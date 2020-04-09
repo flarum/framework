@@ -97,24 +97,33 @@ class ExtensionDisableCommand extends AbstractCommand
     protected function getExtensionsToDisable()
     {
         $extensionIds = [];
-        if ($this->input->getOption('all')) {
-            $extensionIds = $this->allEnabledExtensions();
-        } elseif ($this->input->getOption('all-except-bundled')) {
-            $extensionIds = array_filter($this->allEnabledExtensions(), function ($extension) {
-                return substr($extension, 0, 6) !== 'flarum' ?: $this->info("Extension: $extension is bundled, ignoring") && false;
-            });
-        }
 
         foreach ($this->input->getArgument('extensions') as $extension) {
-            if (! $this->extensions->getExtension($extension)) {
-                $this->error("Extension: $extension is not installed.");
-            } elseif (! in_array($extension, $extensionIds)) {
+            if (!$this->extensions->getExtension($extension)) {
+                $this->error("Extension: $extension is not installed, ignoring.");
+            } elseif (!in_array($extension, $extensionIds)) {
                 $extensionIds[] = $extension;
             }
         }
 
+        if ($this->input->getOption('all')) {
+            $extensionIds = $this->allEnabledExtensions();
+        } elseif ($this->input->getOption('all-except-bundled')) {
+            $extensionIds = array_merge($extensionIds, array_filter($this->allEnabledExtensions(), function ($extension) use ($extensionIds) {
+                if (substr($extension, 0, 6) === 'flarum'  && ! in_array($extension, $extensionIds)) {
+                    $this->info("Extension: $extension is bundled and not explicitly specified, ignoring");
+                    return false;
+                }
+                return true;
+            }));
+        }
+
         $extensionIds = array_filter($extensionIds, function ($extension) {
-            return $this->extensions->isEnabled($extension) ?: $this->info("Extension: $extension is already disabled, ignoring") && false;
+            if (! $this->extensions->isEnabled($extension)) {
+                $this->info("Extension: $extension is already disabled, ignoring");
+                return false;
+            }
+            return true;
         });
 
         return $extensionIds;

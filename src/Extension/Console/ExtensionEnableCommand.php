@@ -90,30 +90,39 @@ class ExtensionEnableCommand extends AbstractCommand
     {
         return $this->extensions->getExtensions()->map(function ($extension) {
             return $extension->getId();
-        });
+        })->toArray();
     }
 
     protected function getExtensionsToEnable()
     {
         $extensionIds = [];
-        if ($this->input->getOption('all')) {
-            $extensionIds = $this->allExtensions();
-        } elseif ($this->input->getOption('include-bundled')) {
-            $extensionIds = $this->allExtensions()->filter(function ($extension) {
-                return substr($extension, 0, 6) === 'flarum' ?: $this->info("Extension: $extension is not bundled, ignoring") && false;
-            });
-        }
 
         foreach ($this->input->getArgument('extensions') as $extension) {
-            if (! $this->extensions->getExtension($extension)) {
-                $this->error("Extension: $extension is not installed.");
-            } elseif (! $extensionIds->contains($extension)) {
+            if (!$this->extensions->getExtension($extension)) {
+                $this->error("Extension: $extension is not installed, ignoring.");
+            } elseif (! in_array($extension, $extensionIds)) {
                 $extensionIds[] = $extension;
             }
         }
 
-        $extensionIds = $extensionIds->filter(function ($extension) {
-            return ! $this->extensions->isEnabled($extension) ?: $this->info("Extension: $extension is already enabled, ignoring") && false;
+        if ($this->input->getOption('all')) {
+            $extensionIds = $this->allExtensions();
+        } elseif ($this->input->getOption('include-bundled')) {
+            $extensionIds = array_merge($extensionIds, array_filter($this->allExtensions(), function ($extension) use ($extensionIds) {
+                if (substr($extension, 0, 6) !== 'flarum'&& ! in_array($extension, $extensionIds)) {
+                    $this->info("Extension: $extension is not bundled and not explicitly specified, ignoring");
+                    return false;
+                }
+                return true;
+            }));
+        }
+
+        $extensionIds = array_filter($extensionIds, function ($extension) {
+            if ($this->extensions->isEnabled($extension)) {
+                $this->info("Extension: $extension is already enabled, ignoring");
+                return false;
+            }
+            return true;
         });
 
         return $extensionIds;
