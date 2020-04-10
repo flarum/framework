@@ -54,18 +54,12 @@ class User implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        // Display name config
         $container->extend('flarum.user.display_name.supported_drivers', function ($existingDrivers) {
             return array_merge($existingDrivers, $this->displayNameDrivers);
         });
 
-        // Group processor config
-        foreach ($this->groupProcessors as $callback) {
-            if (is_string($callback)) {
-                $callback = $container->make($callback);
-            }
-
-            ActualUser::addGroupProcessor($callback);
-        }
+        $container->extend('flarum.user.groupProcessors', function ($existingRelations) {
+            return array_merge($existingRelations, $this->groupProcessors);
+        });
     }
 }
