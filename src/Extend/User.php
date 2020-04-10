@@ -10,7 +10,6 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\User\User as ActualUser;
 use Illuminate\Contracts\Container\Container;
 
 class User implements ExtenderInterface
