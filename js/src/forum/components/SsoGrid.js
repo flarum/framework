@@ -72,10 +72,9 @@ export default class SsoGrid extends Component {
    */
   toggler() {
     return (value, component, provider) => {
-      component.loading = true;
-      m.redraw();
-
       if (this.providerLinked(provider)) {
+        component.loading = true;
+
         app
           .request({
             method: 'DELETE',
@@ -105,7 +104,6 @@ export default class SsoGrid extends Component {
             `left=${$window.width() / 2 - width / 2},` +
             'status=no,scrollbars=yes,resizable=no'
         );
-        component.loading = false;
       }
     };
   }
