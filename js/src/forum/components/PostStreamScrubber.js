@@ -424,7 +424,7 @@ export default class PostStreamScrubber extends Component {
     // 1. Get the offset of the click from the top of the scrollbar, as a
     //    percentage of the scrollbar's height.
     const $scrollbar = this.$('.Scrubber-scrollbar');
-    const offsetPixels = (e.clientY || e.originalEvent.touches[0].clientY) - $scrollbar.offset().top + $('body').scrollTop();
+    const offsetPixels = (e.pageY || e.originalEvent.touches[0].pageY) - $scrollbar.offset().top + $('body').scrollTop();
     let offsetPercent = offsetPixels / $scrollbar.outerHeight() * 100;
 
     // 2. We want the handle of the scrollbar to end up centered on the click
