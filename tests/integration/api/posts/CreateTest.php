@@ -87,7 +87,6 @@ class CreateTest extends TestCase
             return $mock;
         });
 
-
         $response = $this->sendTestRequest();
         $this->assertEquals(201, $response->getStatusCode());
 
