@@ -10,12 +10,9 @@
 namespace Flarum\Tests\integration\api\posts;
 
 use Carbon\Carbon;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Flarum\Api\Controller\CreatePostController;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\User;
-use Illuminate\Support\Arr;
 use Mockery;
 use Psr\Http\Message\ResponseInterface;
 
@@ -98,7 +95,8 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    private function sendTestRequest() : ResponseInterface {
+    private function sendTestRequest(): ResponseInterface
+    {
         return $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 2,
