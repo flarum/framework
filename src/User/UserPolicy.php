@@ -27,9 +27,10 @@ class UserPolicy extends AbstractPolicy
     public function can(User $actor, $ability, User $model)
     {
         if (strpos($ability, 'user.edit') === 0) {
-            if ($model->isAdmin() && !$actor->isAdmin()) {
+            if ($model->isAdmin() && ! $actor->isAdmin()) {
                 return false;
             }
+
             return $actor->hasPermission($ability);
         }
         if ($actor->hasPermission('user.'.$ability)) {
