@@ -33,9 +33,6 @@ Object.assign(User.prototype, {
   canEditGroups: Model.attribute('canEditGroups'),
   canDelete: Model.attribute('canDelete'),
   canEdit: computed('canEditUsername', 'canEditCredentials', 'canEditGroups', function (canEditUsername, canEditCredentials, canEditGroups) {
-    console.log('Credentials: ' + canEditCredentials);
-    console.log('Groups: ' + canEditGroups);
-    console.log('Username: ' + canEditUsername);
     return (canEditCredentials || canEditGroups || canEditUsername);
   }),
 
