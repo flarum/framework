@@ -60,7 +60,6 @@ class EditUserHandler
 
         $user = $this->users->findOrFail($command->userId, $actor);
 
-        $canEdit = $actor->can('edit', $user);
         $isSelf = $actor->id === $user->id;
 
         $attributes = Arr::get($data, 'attributes', []);
@@ -68,24 +67,18 @@ class EditUserHandler
         $validate = [];
 
         if (isset($attributes['username'])) {
-            $this->assertPermission($canEdit);
+            $this->assertCan($actor, 'user.edit.username', $user);
             $user->rename($attributes['username']);
         }
 
-        if (isset($attributes['email'])) {
+        if (isset($attributes['email']) && $attributes['email'] !== $user->email) {
             if ($isSelf) {
                 $user->requestEmailChange($attributes['email']);
-
-                if ($attributes['email'] !== $user->email) {
-                    $validate['email'] = $attributes['email'];
-                }
             } else {
-                if ($attributes['email'] !== $user->email && $user->isAdmin()) {
-                    $this->assertAdmin($actor);
-                }
-                $this->assertPermission($canEdit);
+                $this->assertCan($actor, 'user.edit.credentials', $user);
                 $user->changeEmail($attributes['email']);
             }
+            $validate['email'] = $attributes['email'];
         }
 
         if ($actor->isAdmin() && ! empty($attributes['isEmailConfirmed'])) {
@@ -93,10 +86,7 @@ class EditUserHandler
         }
 
         if (isset($attributes['password'])) {
-            if ($user->isAdmin()) {
-                $this->assertAdmin($actor);
-            }
-            $this->assertPermission($canEdit);
+            $this->assertCan($actor, 'user.edit.credentials', $user);
             $user->changePassword($attributes['password']);
 
             $validate['password'] = $attributes['password'];
@@ -116,7 +106,7 @@ class EditUserHandler
         }
 
         if (isset($relationships['groups']['data']) && is_array($relationships['groups']['data'])) {
-            $this->assertPermission($canEdit);
+            $this->assertCan($actor, 'user.edit.groups', $user);
 
             $newGroupIds = [];
             foreach ($relationships['groups']['data'] as $group) {

@@ -46,20 +46,24 @@ export default class EditUserModal extends Modal {
   fields() {
     const items = new ItemList();
 
-    items.add(
-      'username',
-      <div className="Form-group">
+    if (app.session.user.canEditUsername()) {
+      items.add('username', <div className="Form-group">
         <label>{app.translator.trans('core.forum.edit_user.username_heading')}</label>
-        <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.username_label'))} bidi={this.username} />
-      </div>,
-      40
-    );
+        <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.username_label'))}
+             bidi={this.username} />
+      </div>, 40);
+    }
 
-    if (app.session.user !== this.props.user) {
-      items.add(
-        'email',
-        <div className="Form-group">
-          <label>{app.translator.trans('core.forum.edit_user.email_heading')}</label>
+    // The first part prevents silent account hijacking
+    if (app.session.user !== this.props.user && app.session.user.canEditCredentials()) {
+      items.add('email', <div className="Form-group">
+        <label>{app.translator.trans('core.forum.edit_user.email_heading')}</label>
+        <div>
+          <input className="FormControl"
+                 placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
+                 bidi={this.email}/>
+        </div>
+        {!this.isEmailConfirmed() ? (
           <div>
             <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))} bidi={this.email} />
           </div>
@@ -131,22 +135,35 @@ export default class EditUserModal extends Modal {
               </label>
             ))}
         </div>
-      </div>,
-      10
-    );
+      </div>, 20);
+    }
 
-    items.add(
-      'submit',
-      <div className="Form-group">
-        {Button.component({
-          className: 'Button Button--primary',
-          type: 'submit',
-          loading: this.loading,
-          children: app.translator.trans('core.forum.edit_user.submit_button'),
-        })}
-      </div>,
-      -10
-    );
+    if (app.session.user.canEditGroups()) {
+      items.add('groups', <div className="Form-group EditUserModal-groups">
+        <label>{app.translator.trans('core.forum.edit_user.groups_heading')}</label>
+        <div>
+          {Object.keys(this.groups)
+            .map(id => app.store.getById('groups', id))
+            .map(group => (
+              <label className="checkbox">
+                <input type="checkbox"
+                     bidi={this.groups[group.id()]}
+                     disabled={this.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID} />
+                {GroupBadge.component({group, label: ''})} {group.nameSingular()}
+              </label>
+            ))}
+        </div>
+      </div>, 10);
+    }
+
+    items.add('submit', <div className="Form-group">
+      {Button.component({
+        className: 'Button Button--primary',
+        type: 'submit',
+        loading: this.loading,
+        children: app.translator.trans('core.forum.edit_user.submit_button')
+      })}
+    </div>, -10);
 
     return items;
   }
