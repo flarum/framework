@@ -1,7 +1,7 @@
 import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
-// import EditUserModal from '../components/EditUserModal';
+import EditUserModal from '../components/EditUserModal';
 import UserPage from '../components/UserPage';
 import ItemList from '../../common/utils/ItemList';
 import User from '../../common/models/User';

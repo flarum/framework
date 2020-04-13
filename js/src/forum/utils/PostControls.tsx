@@ -1,5 +1,3 @@
-import { Vnode } from 'mithril';
-
 // import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
