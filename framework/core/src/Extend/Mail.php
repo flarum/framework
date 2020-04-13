@@ -14,7 +14,7 @@ use Illuminate\Contracts\Container\Container;
 
 class Mail implements ExtenderInterface
 {
-    protected $drivers = [];
+    private $drivers = [];
 
     /**
      * Add a mail driver.
