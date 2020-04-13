@@ -12,7 +12,6 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Mail\DriverInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\integration\BuildsHttpRequests;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Illuminate\Contracts\Validation\Factory;
@@ -23,14 +22,12 @@ use Swift_Transport;
 class MailTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-    use BuildsHttpRequests;
 
     protected function prepDb()
     {
         $this->prepareDatabase([
             'users' => [
                 $this->adminUser(),
-                $this->normalUser(),
             ],
         ]);
     }
@@ -38,20 +35,29 @@ class MailTest extends TestCase
     /**
      * @test
      */
-    public function custom_driver_doesnt_exist_by_default()
+    public function drivers_are_unchanged_by_default()
     {
         $this->prepDb();
 
         $response = $this->send(
-            $this->requestAsUser(
-                $this->request('GET', '/api/mail-settings'),
-                1
-            )
+            $this->request('GET', '/api/mail-settings', [
+                'authenticatedAs' => 1,
+            ])
         );
 
-        $drivers = json_decode($response->getBody(), true)['data']['attributes']['fields'];
+        $fields = json_decode($response->getBody(), true)['data']['attributes']['fields'];
 
-        $this->assertArrayNotHasKey('custom', $drivers);
+        // The custom driver does not exist
+        $this->assertArrayNotHasKey('custom', $fields);
+
+        // The SMTP driver has its normal fields
+        $this->assertEquals([
+            'mail_host' => '',
+            'mail_port' => '',
+            'mail_encryption' => '',
+            'mail_username' => '',
+            'mail_password' => '',
+        ], $fields['smtp']);
     }
 
     /**
@@ -60,22 +66,22 @@ class MailTest extends TestCase
     public function added_driver_appears_in_mail_settings()
     {
         $this->extend(
-            (new Extend\Mail())
+            (new Extend\Mail)
                 ->driver('custom', CustomDriver::class)
         );
 
         $this->prepDb();
 
         $response = $this->send(
-            $this->requestAsUser(
-                $this->request('GET', '/api/mail-settings'),
-                1
-            )
+            $this->request('GET', '/api/mail-settings', [
+                'authenticatedAs' => 1,
+            ])
         );
 
-        $drivers = json_decode($response->getBody(), true)['data']['attributes']['fields'];
+        $fields = json_decode($response->getBody(), true)['data']['attributes']['fields'];
 
-        $this->assertArrayHasKey('custom', $drivers);
+        $this->assertArrayHasKey('custom', $fields);
+        $this->assertEquals(['customSetting1' => ''], $fields['custom']);
     }
 
     /**
@@ -84,22 +90,21 @@ class MailTest extends TestCase
     public function adding_driver_with_duplicate_name_overrides_fields()
     {
         $this->extend(
-            (new Extend\Mail())
+            (new Extend\Mail)
                 ->driver('smtp', CustomDriver::class)
         );
 
         $this->prepDb();
 
         $response = $this->send(
-            $this->requestAsUser(
-                $this->request('GET', '/api/mail-settings'),
-                1
-            )
+            $this->request('GET', '/api/mail-settings', [
+                'authenticatedAs' => 1,
+            ])
         );
 
         $requiredFields = json_decode($response->getBody(), true)['data']['attributes']['fields']['smtp'];
 
-        $this->assertEquals($requiredFields, ['customSetting1' => '']);
+        $this->assertEquals(['customSetting1' => ''], $requiredFields);
     }
 }
 
@@ -122,6 +127,6 @@ class CustomDriver implements DriverInterface
 
     public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
     {
-        return new Swift_NullTransport();
+        return new Swift_NullTransport;
     }
 }
