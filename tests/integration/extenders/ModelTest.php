@@ -28,17 +28,9 @@ class ModelTest extends TestCase
             'users' => [
                 $this->adminUser(),
                 $this->normalUser(),
-            ]
+            ],
+            'discussions' => []
         ]);
-    }
-
-    protected function tearDown()
-    {
-        if (! is_null($discussion = Discussion::find(1))) {
-            $discussion->delete();
-        }
-
-        parent::tearDown();
     }
 
     /**
