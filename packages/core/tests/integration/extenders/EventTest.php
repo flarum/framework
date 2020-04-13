@@ -10,24 +10,38 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
+use Flarum\Group\Command\CreateGroup;
 use Flarum\Group\Event\Created;
-use Flarum\Group\Group;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\User\User;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Translation\Translator;
 
 class EventTest extends TestCase
 {
+    use RetrievesAuthorizedUsers;
+
     protected function buildGroup()
     {
-        $events = $this->app()->getContainer()->make(Dispatcher::class);
+        $this->prepareDatabase([
+            'groups' => [
+                $this->adminGroup(),
+            ],
+            'users' => [
+                $this->adminUser(),
+            ],
+        ]);
 
-        $group = Group::build('test group', 'test groups', '#000000', 'fas fa-crown');
-        $group->save();
-
-        $events->dispatch(new Created($group));
-
-        return $group;
+        $bus = $this->app()->getContainer()->make(Dispatcher::class);
+        return $bus->dispatch(
+            new CreateGroup(User::find(1), ['attributes' => [
+                'nameSingular' => 'test group',
+                'namePlural' => 'test groups',
+                'color' => '#000000',
+                'icon' => 'fas fa-crown',
+            ]])
+        );
     }
 
     /**
@@ -37,7 +51,7 @@ class EventTest extends TestCase
     {
         $group = $this->buildGroup();
 
-        $this->assertEquals($group->name_singular, 'test group');
+        $this->assertEquals('test group', $group->name_singular);
     }
 
     /**
@@ -51,7 +65,7 @@ class EventTest extends TestCase
 
         $group = $this->buildGroup();
 
-        $this->assertEquals($group->name_singular, 'modified group');
+        $this->assertEquals('modified group', $group->name_singular);
     }
 
     /**
@@ -64,7 +78,7 @@ class EventTest extends TestCase
 
         $group = $this->buildGroup();
 
-        $this->assertEquals($group->name_singular, 'core.group.admin');
+        $this->assertEquals('core.group.admin', $group->name_singular);
     }
 }
 
