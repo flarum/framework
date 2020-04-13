@@ -34,6 +34,7 @@ class EventTest extends TestCase
         ]);
 
         $bus = $this->app()->getContainer()->make(Dispatcher::class);
+
         return $bus->dispatch(
             new CreateGroup(User::find(1), ['attributes' => [
                 'nameSingular' => 'test group',
