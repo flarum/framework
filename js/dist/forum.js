@@ -20447,6 +20447,240 @@ var DiscussionsUserPage = /*#__PURE__*/function (_UserPage) {
 
 /***/ }),
 
+/***/ "./src/forum/components/EditUserModal.tsx":
+/*!************************************************!*\
+  !*** ./src/forum/components/EditUserModal.tsx ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return EditUserModal; });
+/* harmony import */ var _babel_runtime_helpers_esm_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/esm/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _common_components_Modal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/components/Modal */ "./src/common/components/Modal.tsx");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _common_components_GroupBadge__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/GroupBadge */ "./src/common/components/GroupBadge.ts");
+/* harmony import */ var _common_models_Group__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/models/Group */ "./src/common/models/Group.ts");
+/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
+
+
+
+
+function _createSuper(Derived) { return function () { var Super = Object(_babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__["default"])(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = Object(_babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return Object(_babel_runtime_helpers_esm_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_0__["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+
+
+
+
+
+
+/**
+ * The `EditUserModal` component displays a modal dialog with a login form.
+ */
+var EditUserModal = /*#__PURE__*/function (_Modal) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_2__["default"])(EditUserModal, _Modal);
+
+  var _super = _createSuper(EditUserModal);
+
+  function EditUserModal() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Modal.call.apply(_Modal, [this].concat(args)) || this;
+    _this.username = void 0;
+    _this.email = void 0;
+    _this.isEmailConfirmed = void 0;
+    _this.setPassword = void 0;
+    _this.password = void 0;
+    _this.groups = {};
+    return _this;
+  }
+
+  var _proto = EditUserModal.prototype;
+
+  _proto.oninit = function oninit(vnode) {
+    var _this2 = this;
+
+    _Modal.prototype.oninit.call(this, vnode);
+
+    var user = this.props.user;
+    this.username = m.prop(user.username() || '');
+    this.email = m.prop(user.email() || '');
+    this.isEmailConfirmed = m.prop(user.isEmailConfirmed() || false);
+    this.setPassword = m.prop(false);
+    this.password = m.prop(user.password() || '');
+    this.groups = {};
+    app.store.all('groups').filter(function (group) {
+      return [_common_models_Group__WEBPACK_IMPORTED_MODULE_6__["default"].GUEST_ID, _common_models_Group__WEBPACK_IMPORTED_MODULE_6__["default"].MEMBER_ID].indexOf(group.id()) === -1;
+    }).forEach(function (group) {
+      return _this2.groups[group.id()] = m.prop(user.groups().indexOf(group) !== -1);
+    });
+  };
+
+  _proto.className = function className() {
+    return 'EditUserModal Modal--small';
+  };
+
+  _proto.title = function title() {
+    return app.translator.transText('core.forum.edit_user.title');
+  };
+
+  _proto.content = function content() {
+    return m("div", {
+      className: "Modal-body"
+    }, m("div", {
+      className: "Form"
+    }, this.fields().toArray()));
+  };
+
+  _proto.fields = function fields() {
+    var _this3 = this;
+
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_7__["default"]();
+    items.add('username', m("div", {
+      className: "Form-group"
+    }, m("label", null, app.translator.transText('core.forum.edit_user.username_heading')), m("input", {
+      className: "FormControl",
+      placeholder: app.translator.transText('core.forum.edit_user.username_label'),
+      bidi: this.username
+    })), 40);
+
+    if (app.session.user !== this.props.user) {
+      items.add('email', m("div", {
+        className: "Form-group"
+      }, m("label", null, app.translator.trans('core.forum.edit_user.email_heading')), m("div", null, m("input", {
+        className: "FormControl",
+        placeholder: app.translator.transText('core.forum.edit_user.email_label'),
+        bidi: this.email
+      })), !this.isEmailConfirmed() && m("div", null, _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+        className: 'Button Button--block',
+        children: app.translator.trans('core.forum.edit_user.activate_button'),
+        loading: this.loading,
+        onclick: this.activate.bind(this)
+      }))), 30);
+      items.add('password', m("div", {
+        className: "Form-group"
+      }, m("label", null, app.translator.trans('core.forum.edit_user.password_heading')), m("div", null, m("label", {
+        className: "checkbox"
+      }, m("input", {
+        type: "checkbox",
+        onchange: function onchange(e) {
+          _this3.setPassword(e.target.checked);
+
+          m.redraw();
+          if (e.target.checked) _this3.$('[name=password]').select();
+        }
+      }), app.translator.trans('core.forum.edit_user.set_password_label')), this.setPassword() && m("input", {
+        className: "FormControl",
+        type: "password",
+        name: "password",
+        placeholder: app.translator.transText('core.forum.edit_user.password_label'),
+        bidi: this.password
+      }))), 20);
+    }
+
+    items.add('groups', m("div", {
+      className: "Form-group EditUserModal-groups"
+    }, m("label", null, app.translator.trans('core.forum.edit_user.groups_heading')), m("div", null, Object.keys(this.groups).map(function (id) {
+      return app.store.getById('groups', id);
+    }).map(function (group) {
+      return m("label", {
+        className: "checkbox"
+      }, m("input", {
+        type: "checkbox",
+        bidi: _this3.groups[group.id()],
+        disabled: _this3.props.user.id() === '1' && group.id() === _common_models_Group__WEBPACK_IMPORTED_MODULE_6__["default"].ADMINISTRATOR_ID
+      }), m(_common_components_GroupBadge__WEBPACK_IMPORTED_MODULE_5__["default"], {
+        group: group,
+        label: ''
+      }), " ", group.nameSingular());
+    }))), 10);
+    items.add('submit', m("div", {
+      className: "Form-group"
+    }, _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+      className: 'Button Button--primary',
+      type: 'submit',
+      loading: this.loading,
+      children: app.translator.trans('core.forum.edit_user.submit_button')
+    })), -10);
+    return items;
+  };
+
+  _proto.activate = function activate() {
+    var _this4 = this;
+
+    this.loading = true;
+    var data = {
+      username: this.username(),
+      isEmailConfirmed: true
+    };
+    return this.props.user.save(data, {
+      errorHandler: this.onerror.bind(this)
+    }).then(function () {
+      _this4.isEmailConfirmed(true);
+
+      _this4.loading = false;
+      m.redraw();
+    }).catch(function () {
+      _this4.loading = false;
+      m.redraw();
+    });
+  };
+
+  _proto.data = function data() {
+    var _this5 = this;
+
+    var groups = Object.keys(this.groups).filter(function (id) {
+      return _this5.groups[id]();
+    }).map(function (id) {
+      return app.store.getById('groups', id);
+    });
+    var data = {
+      username: this.username(),
+      relationships: {
+        groups: groups
+      }
+    };
+
+    if (app.session.user !== this.props.user) {
+      data.email = this.email();
+    }
+
+    if (this.setPassword()) {
+      data.password = this.password();
+    }
+
+    return data;
+  };
+
+  _proto.onsubmit = function onsubmit(e) {
+    var _this6 = this;
+
+    e.preventDefault();
+    this.loading = true;
+    this.props.user.save(this.data(), {
+      errorHandler: this.onerror.bind(this)
+    }).then(this.hide.bind(this)).catch(function () {
+      _this6.loading = false;
+      m.redraw();
+    });
+  };
+
+  return EditUserModal;
+}(_common_components_Modal__WEBPACK_IMPORTED_MODULE_3__["default"]);
+
+
+
+/***/ }),
+
 /***/ "./src/forum/components/EventPost.tsx":
 /*!********************************************!*\
   !*** ./src/forum/components/EventPost.tsx ***!
@@ -26396,11 +26630,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _common_components_Alert__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../common/components/Alert */ "./src/common/components/Alert.tsx");
 /* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
 /* harmony import */ var _common_components_Separator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/components/Separator */ "./src/common/components/Separator.tsx");
-/* harmony import */ var _components_UserPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/UserPage */ "./src/forum/components/UserPage.tsx");
-/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
+/* harmony import */ var _components_EditUserModal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/EditUserModal */ "./src/forum/components/EditUserModal.tsx");
+/* harmony import */ var _components_UserPage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/UserPage */ "./src/forum/components/UserPage.tsx");
+/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
 
 
- // import EditUserModal from '../components/EditUserModal';
+
 
 
 
@@ -26420,7 +26655,7 @@ __webpack_require__.r(__webpack_exports__);
   controls: function controls(user, context) {
     var _this = this;
 
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__["default"]();
     ['user', 'moderation', 'destructive'].forEach(function (section) {
       var controls = _this[section](user, context).toArray();
 
@@ -26438,14 +26673,14 @@ __webpack_require__.r(__webpack_exports__);
    * Get controls for a user pertaining to the current user (e.g. poke, follow).
    */
   user: function user() {
-    return new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    return new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__["default"]();
   },
 
   /**
    * Get controls for a user pertaining to moderation (e.g. suspend, edit).
    */
   moderation: function moderation(user) {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__["default"]();
 
     if (user.canEdit()) {
       items.add('edit', _common_components_Button__WEBPACK_IMPORTED_MODULE_1__["default"].component({
@@ -26462,7 +26697,7 @@ __webpack_require__.r(__webpack_exports__);
    * Get controls for a user which are destructive (e.g. delete).
    */
   destructive: function destructive(user) {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__["default"]();
 
     if (user.id() !== '1' && user.canDelete()) {
       items.add('delete', _common_components_Button__WEBPACK_IMPORTED_MODULE_1__["default"].component({
@@ -26488,7 +26723,7 @@ __webpack_require__.r(__webpack_exports__);
     user.delete().then(function () {
       _this2.showDeletionAlert(user, 'success');
 
-      if (app.current instanceof _components_UserPage__WEBPACK_IMPORTED_MODULE_3__["default"] && app.current.user === user) {
+      if (app.current instanceof _components_UserPage__WEBPACK_IMPORTED_MODULE_4__["default"] && app.current.user === user) {
         app.history.back();
       } else {
         window.location.reload();
@@ -26519,7 +26754,7 @@ __webpack_require__.r(__webpack_exports__);
    * Edit the user.
    */
   editAction: function editAction(user) {
-    app.modal.show(EditUserModal, {
+    app.modal.show(_components_EditUserModal__WEBPACK_IMPORTED_MODULE_3__["default"], {
       user: user
     });
   }
