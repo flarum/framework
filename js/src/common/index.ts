@@ -3,7 +3,7 @@ import 'expose-loader?moment!expose-loader?dayjs!dayjs';
 import 'expose-loader?m!mithril';
 import 'expose-loader?m.bidi!m.attrs.bidi';
 import 'expose-loader?Mousetrap!mousetrap';
-import 'expose-loader?classNames!classNames';
+import 'expose-loader?classNames!classnames';
 
 import 'zepto/src/selector';
 import 'zepto/src/data';
