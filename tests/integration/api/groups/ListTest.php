@@ -12,7 +12,6 @@ namespace Flarum\Tests\integration\api\groups;
 use Flarum\Group\Group;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Flarum\User\User;
 
 class ListTest extends TestCase
 {
