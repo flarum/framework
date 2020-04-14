@@ -18,8 +18,6 @@ class ListTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected $controller = ListGroupsController::class;
-
     public function setUp()
     {
         parent::setUp();
@@ -59,8 +57,11 @@ class ListTest extends TestCase
      */
     public function shows_index_for_admin()
     {
-        $this->actor = User::find(1);
-        $response = $this->callWith();
+        $response = $this->send(
+            $this->request('GET', '/api/groups', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
