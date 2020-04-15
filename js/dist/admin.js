@@ -1875,9 +1875,9 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*** IMPORTS FROM imports-loader ***/
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/source-map-loader/index.js!./node_modules/classNames/index.js":
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/source-map-loader/index.js!./node_modules/classnames/index.js":
 /*!*******************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--5!./node_modules/source-map-loader!./node_modules/classNames/index.js ***!
+  !*** ./node_modules/babel-loader/lib??ref--5!./node_modules/source-map-loader!./node_modules/classnames/index.js ***!
   \*******************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3839,14 +3839,14 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*global define:false */
 
 /***/ }),
 
-/***/ "./node_modules/expose-loader/index.js?classNames!./node_modules/classNames/index.js-exposed":
+/***/ "./node_modules/expose-loader/index.js?classNames!./node_modules/classnames/index.js-exposed":
 /*!******************************************************************************************!*\
-  !*** ./node_modules/expose-loader?classNames!./node_modules/classNames/index.js-exposed ***!
+  !*** ./node_modules/expose-loader?classNames!./node_modules/classnames/index.js-exposed ***!
   \******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["classNames"] = __webpack_require__(/*! -!./node_modules/babel-loader/lib??ref--5!./node_modules/source-map-loader!./index.js */ "./node_modules/babel-loader/lib/index.js?!./node_modules/source-map-loader/index.js!./node_modules/classNames/index.js");
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["classNames"] = __webpack_require__(/*! -!./node_modules/babel-loader/lib??ref--5!./node_modules/source-map-loader!./index.js */ "./node_modules/babel-loader/lib/index.js?!./node_modules/source-map-loader/index.js!./node_modules/classnames/index.js");
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
 
 /***/ }),
@@ -11632,8 +11632,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var expose_loader_m_bidi_m_attrs_bidi__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(expose_loader_m_bidi_m_attrs_bidi__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var expose_loader_Mousetrap_mousetrap__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! expose-loader?Mousetrap!mousetrap */ "./node_modules/expose-loader/index.js?Mousetrap!./node_modules/mousetrap/mousetrap.js-exposed");
 /* harmony import */ var expose_loader_Mousetrap_mousetrap__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(expose_loader_Mousetrap_mousetrap__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var expose_loader_classNames_classNames__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! expose-loader?classNames!classNames */ "./node_modules/expose-loader/index.js?classNames!./node_modules/classNames/index.js-exposed");
-/* harmony import */ var expose_loader_classNames_classNames__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(expose_loader_classNames_classNames__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var expose_loader_classNames_classnames__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! expose-loader?classNames!classnames */ "./node_modules/expose-loader/index.js?classNames!./node_modules/classnames/index.js-exposed");
+/* harmony import */ var expose_loader_classNames_classnames__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(expose_loader_classNames_classnames__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var zepto_src_selector__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! zepto/src/selector */ "./node_modules/zepto/src/selector.js");
 /* harmony import */ var zepto_src_selector__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(zepto_src_selector__WEBPACK_IMPORTED_MODULE_6__);
 /* harmony import */ var zepto_src_data__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! zepto/src/data */ "./node_modules/zepto/src/data.js");

@@ -2013,9 +2013,9 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*** IMPORTS FROM imports-loader ***/
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/source-map-loader/index.js!./node_modules/classNames/index.js":
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/source-map-loader/index.js!./node_modules/classnames/index.js":
 /*!*******************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--5!./node_modules/source-map-loader!./node_modules/classNames/index.js ***!
+  !*** ./node_modules/babel-loader/lib??ref--5!./node_modules/source-map-loader!./node_modules/classnames/index.js ***!
   \*******************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -4381,14 +4381,14 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*global define:false */
 
 /***/ }),
 
-/***/ "./node_modules/expose-loader/index.js?classNames!./node_modules/classNames/index.js-exposed":
+/***/ "./node_modules/expose-loader/index.js?classNames!./node_modules/classnames/index.js-exposed":
 /*!******************************************************************************************!*\
-  !*** ./node_modules/expose-loader?classNames!./node_modules/classNames/index.js-exposed ***!
+  !*** ./node_modules/expose-loader?classNames!./node_modules/classnames/index.js-exposed ***!
   \******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["classNames"] = __webpack_require__(/*! -!./node_modules/babel-loader/lib??ref--5!./node_modules/source-map-loader!./index.js */ "./node_modules/babel-loader/lib/index.js?!./node_modules/source-map-loader/index.js!./node_modules/classNames/index.js");
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["classNames"] = __webpack_require__(/*! -!./node_modules/babel-loader/lib??ref--5!./node_modules/source-map-loader!./index.js */ "./node_modules/babel-loader/lib/index.js?!./node_modules/source-map-loader/index.js!./node_modules/classnames/index.js");
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
 
 /***/ }),
@@ -14609,22 +14609,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_SplitDropdown__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./components/SplitDropdown */ "./src/common/components/SplitDropdown.tsx");
 /* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
 /* harmony import */ var _components_FieldSet__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./components/FieldSet */ "./src/common/components/FieldSet.tsx");
-/* harmony import */ var _components_Alert__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./components/Alert */ "./src/common/components/Alert.tsx");
-/* harmony import */ var _components_LinkButton__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./components/LinkButton */ "./src/common/components/LinkButton.tsx");
-/* harmony import */ var _components_Checkbox__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./components/Checkbox */ "./src/common/components/Checkbox.tsx");
-/* harmony import */ var _components_SelectDropdown__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./components/SelectDropdown */ "./src/common/components/SelectDropdown.tsx");
-/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
-/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _components_Modal__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./components/Modal */ "./src/common/components/Modal.tsx");
-/* harmony import */ var _components_GroupBadge__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! ./components/GroupBadge */ "./src/common/components/GroupBadge.ts");
-/* harmony import */ var _helpers_fullTime__WEBPACK_IMPORTED_MODULE_48__ = __webpack_require__(/*! ./helpers/fullTime */ "./src/common/helpers/fullTime.tsx");
-/* harmony import */ var _helpers_avatar__WEBPACK_IMPORTED_MODULE_49__ = __webpack_require__(/*! ./helpers/avatar */ "./src/common/helpers/avatar.tsx");
-/* harmony import */ var _helpers_icon__WEBPACK_IMPORTED_MODULE_50__ = __webpack_require__(/*! ./helpers/icon */ "./src/common/helpers/icon.tsx");
-/* harmony import */ var _helpers_humanTime__WEBPACK_IMPORTED_MODULE_51__ = __webpack_require__(/*! ./helpers/humanTime */ "./src/common/helpers/humanTime.tsx");
-/* harmony import */ var _helpers_highlight__WEBPACK_IMPORTED_MODULE_52__ = __webpack_require__(/*! ./helpers/highlight */ "./src/common/helpers/highlight.ts");
-/* harmony import */ var _helpers_username__WEBPACK_IMPORTED_MODULE_53__ = __webpack_require__(/*! ./helpers/username */ "./src/common/helpers/username.tsx");
-/* harmony import */ var _helpers_userOnline__WEBPACK_IMPORTED_MODULE_54__ = __webpack_require__(/*! ./helpers/userOnline */ "./src/common/helpers/userOnline.tsx");
-/* harmony import */ var _helpers_listItems__WEBPACK_IMPORTED_MODULE_55__ = __webpack_require__(/*! ./helpers/listItems */ "./src/common/helpers/listItems.tsx");
+/* harmony import */ var _components_Navigation__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./components/Navigation */ "./src/common/components/Navigation.tsx");
+/* harmony import */ var _components_Alert__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./components/Alert */ "./src/common/components/Alert.tsx");
+/* harmony import */ var _components_LinkButton__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./components/LinkButton */ "./src/common/components/LinkButton.tsx");
+/* harmony import */ var _components_Checkbox__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./components/Checkbox */ "./src/common/components/Checkbox.tsx");
+/* harmony import */ var _components_SelectDropdown__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./components/SelectDropdown */ "./src/common/components/SelectDropdown.tsx");
+/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
+/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _components_Modal__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! ./components/Modal */ "./src/common/components/Modal.tsx");
+/* harmony import */ var _components_GroupBadge__WEBPACK_IMPORTED_MODULE_48__ = __webpack_require__(/*! ./components/GroupBadge */ "./src/common/components/GroupBadge.ts");
+/* harmony import */ var _helpers_fullTime__WEBPACK_IMPORTED_MODULE_49__ = __webpack_require__(/*! ./helpers/fullTime */ "./src/common/helpers/fullTime.tsx");
+/* harmony import */ var _helpers_avatar__WEBPACK_IMPORTED_MODULE_50__ = __webpack_require__(/*! ./helpers/avatar */ "./src/common/helpers/avatar.tsx");
+/* harmony import */ var _helpers_icon__WEBPACK_IMPORTED_MODULE_51__ = __webpack_require__(/*! ./helpers/icon */ "./src/common/helpers/icon.tsx");
+/* harmony import */ var _helpers_humanTime__WEBPACK_IMPORTED_MODULE_52__ = __webpack_require__(/*! ./helpers/humanTime */ "./src/common/helpers/humanTime.tsx");
+/* harmony import */ var _helpers_highlight__WEBPACK_IMPORTED_MODULE_53__ = __webpack_require__(/*! ./helpers/highlight */ "./src/common/helpers/highlight.ts");
+/* harmony import */ var _helpers_username__WEBPACK_IMPORTED_MODULE_54__ = __webpack_require__(/*! ./helpers/username */ "./src/common/helpers/username.tsx");
+/* harmony import */ var _helpers_userOnline__WEBPACK_IMPORTED_MODULE_55__ = __webpack_require__(/*! ./helpers/userOnline */ "./src/common/helpers/userOnline.tsx");
+/* harmony import */ var _helpers_listItems__WEBPACK_IMPORTED_MODULE_56__ = __webpack_require__(/*! ./helpers/listItems */ "./src/common/helpers/listItems.tsx");
 
 
 
@@ -14666,7 +14667,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
  // import Select from './components/Select';
-// import Navigation from './components/Navigation';
+
 
 
 
@@ -14728,24 +14729,24 @@ __webpack_require__.r(__webpack_exports__);
   'components/RequestErrorModal': _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_38__["default"],
   'components/FieldSet': _components_FieldSet__WEBPACK_IMPORTED_MODULE_39__["default"],
   // 'components/Select': Select,
-  // 'components/Navigation': Navigation,
-  'components/Alert': _components_Alert__WEBPACK_IMPORTED_MODULE_40__["default"],
-  'components/LinkButton': _components_LinkButton__WEBPACK_IMPORTED_MODULE_41__["default"],
-  'components/Checkbox': _components_Checkbox__WEBPACK_IMPORTED_MODULE_42__["default"],
-  'components/SelectDropdown': _components_SelectDropdown__WEBPACK_IMPORTED_MODULE_43__["default"],
-  'components/ModalManager': _components_ModalManager__WEBPACK_IMPORTED_MODULE_44__["default"],
-  'components/Button': _components_Button__WEBPACK_IMPORTED_MODULE_45__["default"],
-  'components/Modal': _components_Modal__WEBPACK_IMPORTED_MODULE_46__["default"],
-  'components/GroupBadge': _components_GroupBadge__WEBPACK_IMPORTED_MODULE_47__["default"],
-  'helpers/fullTime': _helpers_fullTime__WEBPACK_IMPORTED_MODULE_48__["default"],
-  'helpers/avatar': _helpers_avatar__WEBPACK_IMPORTED_MODULE_49__["default"],
-  'helpers/icon': _helpers_icon__WEBPACK_IMPORTED_MODULE_50__["default"],
-  'helpers/humanTime': _helpers_humanTime__WEBPACK_IMPORTED_MODULE_51__["default"],
+  'components/Navigation': _components_Navigation__WEBPACK_IMPORTED_MODULE_40__["default"],
+  'components/Alert': _components_Alert__WEBPACK_IMPORTED_MODULE_41__["default"],
+  'components/LinkButton': _components_LinkButton__WEBPACK_IMPORTED_MODULE_42__["default"],
+  'components/Checkbox': _components_Checkbox__WEBPACK_IMPORTED_MODULE_43__["default"],
+  'components/SelectDropdown': _components_SelectDropdown__WEBPACK_IMPORTED_MODULE_44__["default"],
+  'components/ModalManager': _components_ModalManager__WEBPACK_IMPORTED_MODULE_45__["default"],
+  'components/Button': _components_Button__WEBPACK_IMPORTED_MODULE_46__["default"],
+  'components/Modal': _components_Modal__WEBPACK_IMPORTED_MODULE_47__["default"],
+  'components/GroupBadge': _components_GroupBadge__WEBPACK_IMPORTED_MODULE_48__["default"],
+  'helpers/fullTime': _helpers_fullTime__WEBPACK_IMPORTED_MODULE_49__["default"],
+  'helpers/avatar': _helpers_avatar__WEBPACK_IMPORTED_MODULE_50__["default"],
+  'helpers/icon': _helpers_icon__WEBPACK_IMPORTED_MODULE_51__["default"],
+  'helpers/humanTime': _helpers_humanTime__WEBPACK_IMPORTED_MODULE_52__["default"],
   // 'helpers/punctuateSeries': punctuateSeries,
-  'helpers/highlight': _helpers_highlight__WEBPACK_IMPORTED_MODULE_52__["default"],
-  'helpers/username': _helpers_username__WEBPACK_IMPORTED_MODULE_53__["default"],
-  'helpers/userOnline': _helpers_userOnline__WEBPACK_IMPORTED_MODULE_54__["default"],
-  'helpers/listItems': _helpers_listItems__WEBPACK_IMPORTED_MODULE_55__["default"]
+  'helpers/highlight': _helpers_highlight__WEBPACK_IMPORTED_MODULE_53__["default"],
+  'helpers/username': _helpers_username__WEBPACK_IMPORTED_MODULE_54__["default"],
+  'helpers/userOnline': _helpers_userOnline__WEBPACK_IMPORTED_MODULE_55__["default"],
+  'helpers/listItems': _helpers_listItems__WEBPACK_IMPORTED_MODULE_56__["default"]
 });
 
 /***/ }),
@@ -15987,6 +15988,138 @@ var ModalManager = /*#__PURE__*/function (_Component) {
 
 /***/ }),
 
+/***/ "./src/common/components/Navigation.tsx":
+/*!**********************************************!*\
+  !*** ./src/common/components/Navigation.tsx ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Navigation; });
+/* harmony import */ var _babel_runtime_helpers_esm_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/esm/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _Component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Component */ "./src/common/Component.ts");
+/* harmony import */ var _Button__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _LinkButton__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./LinkButton */ "./src/common/components/LinkButton.tsx");
+
+
+
+
+function _createSuper(Derived) { return function () { var Super = Object(_babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__["default"])(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = Object(_babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return Object(_babel_runtime_helpers_esm_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_0__["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+
+
+
+
+/**
+ * The `Navigation` component displays a set of navigation buttons. Typically
+ * this is just a back button which pops the app's History. If the user is on
+ * the root page and there is no history to pop, then in some instances it may
+ * show a button that toggles the app's drawer.
+ *
+ * If the app has a pane, it will also include a 'pin' button which toggles the
+ * pinned state of the pane.
+ */
+var Navigation = /*#__PURE__*/function (_Component) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_2__["default"])(Navigation, _Component);
+
+  var _super = _createSuper(Navigation);
+
+  function Navigation(options) {
+    var _this;
+
+    if (options === void 0) {
+      options = {};
+    }
+
+    _this = _Component.call(this) || this;
+    _this.className = void 0;
+    _this.drawer = void 0;
+    _this.className = options.className;
+    _this.drawer = !!options.drawer;
+    return _this;
+  }
+
+  var _proto = Navigation.prototype;
+
+  _proto.view = function view() {
+    var _app = app,
+        history = _app.history,
+        pane = _app.pane;
+    return m("div", {
+      className: 'Navigation ButtonGroup ' + (this.className || ''),
+      onmouseenter: pane && pane.show.bind(pane),
+      onmouseleave: pane && pane.onmouseleave.bind(pane)
+    }, history.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton());
+  }
+  /**
+   * Get the back button.
+   */
+  ;
+
+  _proto.getBackButton = function getBackButton() {
+    var _app2 = app,
+        history = _app2.history;
+    var previous = history.getPrevious() || {};
+    return m(_LinkButton__WEBPACK_IMPORTED_MODULE_5__["default"], {
+      className: "Button Navigation-back Button--icon",
+      href: history.backUrl(),
+      icon: "fas fa-chevron-left",
+      title: previous.title,
+      onclick: function onclick(e) {
+        if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
+        e.preventDefault();
+        history.back();
+      }
+    });
+  }
+  /**
+   * Get the pane pinned toggle button.
+   */
+  ;
+
+  _proto.getPaneButton = function getPaneButton() {
+    var _app3 = app,
+        pane = _app3.pane;
+    if (!pane || !pane.active) return '';
+    return m(_Button__WEBPACK_IMPORTED_MODULE_4__["default"], {
+      className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
+      onclick: pane.togglePinned.bind(pane),
+      icon: "fas fa-thumbtack"
+    });
+  }
+  /**
+   * Get the drawer toggle button.
+   */
+  ;
+
+  _proto.getDrawerButton = function getDrawerButton() {
+    if (!this.drawer) return '';
+    var _app4 = app,
+        drawer = _app4.drawer;
+    var user = app.session.user;
+    return m(_Button__WEBPACK_IMPORTED_MODULE_4__["default"], {
+      className: 'Button Button--icon Navigation-drawer' + (user && user.newNotificationCount() ? ' new' : ''),
+      onclick: function onclick(e) {
+        e.stopPropagation();
+        drawer.show();
+      },
+      icon: "fas fa-bars"
+    });
+  };
+
+  return Navigation;
+}(_Component__WEBPACK_IMPORTED_MODULE_3__["default"]);
+
+
+
+/***/ }),
+
 /***/ "./src/common/components/Placeholder.tsx":
 /*!***********************************************!*\
   !*** ./src/common/components/Placeholder.tsx ***!
@@ -16792,8 +16925,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var expose_loader_m_bidi_m_attrs_bidi__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(expose_loader_m_bidi_m_attrs_bidi__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var expose_loader_Mousetrap_mousetrap__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! expose-loader?Mousetrap!mousetrap */ "./node_modules/expose-loader/index.js?Mousetrap!./node_modules/mousetrap/mousetrap.js-exposed");
 /* harmony import */ var expose_loader_Mousetrap_mousetrap__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(expose_loader_Mousetrap_mousetrap__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var expose_loader_classNames_classNames__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! expose-loader?classNames!classNames */ "./node_modules/expose-loader/index.js?classNames!./node_modules/classNames/index.js-exposed");
-/* harmony import */ var expose_loader_classNames_classNames__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(expose_loader_classNames_classNames__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var expose_loader_classNames_classnames__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! expose-loader?classNames!classnames */ "./node_modules/expose-loader/index.js?classNames!./node_modules/classnames/index.js-exposed");
+/* harmony import */ var expose_loader_classNames_classnames__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(expose_loader_classNames_classnames__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var zepto_src_selector__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! zepto/src/selector */ "./node_modules/zepto/src/selector.js");
 /* harmony import */ var zepto_src_selector__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(zepto_src_selector__WEBPACK_IMPORTED_MODULE_6__);
 /* harmony import */ var zepto_src_data__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! zepto/src/data */ "./node_modules/zepto/src/data.js");
@@ -17419,8 +17552,6 @@ var Drawer = /*#__PURE__*/function () {
   }
   /**
    * Show the drawer.
-   *
-   * @public
    */
   ;
 
@@ -17431,7 +17562,7 @@ var Drawer = /*#__PURE__*/function () {
     this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').click(function () {
       return _this2.hide();
     });
-    setTimeout(function () {
+    requestAnimationFrame(function () {
       return _this2.$backdrop.addClass('in');
     });
   };
@@ -18507,11 +18638,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var _common_Application__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../common/Application */ "./src/common/Application.ts");
 /* harmony import */ var _utils_History__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/History */ "./src/forum/utils/History.ts");
-/* harmony import */ var _components_HeaderPrimary__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/HeaderPrimary */ "./src/forum/components/HeaderPrimary.tsx");
-/* harmony import */ var _components_HeaderSecondary__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/HeaderSecondary */ "./src/forum/components/HeaderSecondary.tsx");
-/* harmony import */ var _components_CommentPost__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/CommentPost */ "./src/forum/components/CommentPost.tsx");
-/* harmony import */ var _components_DiscussionRenamedPost__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/DiscussionRenamedPost */ "./src/forum/components/DiscussionRenamedPost.tsx");
-/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./routes */ "./src/forum/routes.ts");
+/* harmony import */ var _utils_Pane__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/Pane */ "./src/forum/utils/Pane.ts");
+/* harmony import */ var _common_components_Navigation__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../common/components/Navigation */ "./src/common/components/Navigation.tsx");
+/* harmony import */ var _components_HeaderPrimary__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/HeaderPrimary */ "./src/forum/components/HeaderPrimary.tsx");
+/* harmony import */ var _components_HeaderSecondary__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/HeaderSecondary */ "./src/forum/components/HeaderSecondary.tsx");
+/* harmony import */ var _components_CommentPost__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./components/CommentPost */ "./src/forum/components/CommentPost.tsx");
+/* harmony import */ var _components_DiscussionRenamedPost__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./components/DiscussionRenamedPost */ "./src/forum/components/DiscussionRenamedPost.tsx");
+/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./routes */ "./src/forum/routes.ts");
 
 
 
@@ -18520,6 +18653,8 @@ __webpack_require__.r(__webpack_exports__);
 function _createSuper(Derived) { return function () { var Super = Object(_babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__["default"])(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = Object(_babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_2__["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return Object(_babel_runtime_helpers_esm_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_1__["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+
 
 
 
@@ -18549,12 +18684,13 @@ var Forum = /*#__PURE__*/function (_Application) {
     _this.history = new _utils_History__WEBPACK_IMPORTED_MODULE_5__["default"]();
     _this.cache = {};
     _this.postComponents = {
-      comment: _components_CommentPost__WEBPACK_IMPORTED_MODULE_8__["default"],
-      discussionRenamed: _components_DiscussionRenamedPost__WEBPACK_IMPORTED_MODULE_9__["default"]
+      comment: _components_CommentPost__WEBPACK_IMPORTED_MODULE_10__["default"],
+      discussionRenamed: _components_DiscussionRenamedPost__WEBPACK_IMPORTED_MODULE_11__["default"]
     };
     _this.previous = void 0;
     _this.current = void 0;
-    Object(_routes__WEBPACK_IMPORTED_MODULE_10__["default"])(Object(_babel_runtime_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_0__["default"])(_this));
+    _this.pane = void 0;
+    Object(_routes__WEBPACK_IMPORTED_MODULE_12__["default"])(Object(_babel_runtime_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_0__["default"])(_this));
     return _this;
   }
 
@@ -18575,12 +18711,15 @@ var Forum = /*#__PURE__*/function (_Application) {
     }
 
     this.routes[defaultAction].path = '/';
-    this.history.push(defaultAction, this.translator.transText('core.forum.header.back_to_index_tooltip'), '/'); // m.mount(document.getElementById('app-navigation'), Navigation.component({className: 'App-backControl', drawer: true}));
-    // m.mount(document.getElementById('header-navigation'), Navigation.component());
-
-    m.mount(document.getElementById('header-primary'), new _components_HeaderPrimary__WEBPACK_IMPORTED_MODULE_6__["default"]());
-    m.mount(document.getElementById('header-secondary'), new _components_HeaderSecondary__WEBPACK_IMPORTED_MODULE_7__["default"]()); // this.pane = new Pane(document.getElementById('app'));
-    // this.composer = m.mount(document.getElementById('composer'), Composer.component());
+    this.history.push(defaultAction, this.translator.transText('core.forum.header.back_to_index_tooltip'), '/');
+    m.mount(document.getElementById('app-navigation'), new _common_components_Navigation__WEBPACK_IMPORTED_MODULE_7__["default"]({
+      className: 'App-backControl',
+      drawer: true
+    }));
+    m.mount(document.getElementById('header-navigation'), new _common_components_Navigation__WEBPACK_IMPORTED_MODULE_7__["default"]());
+    m.mount(document.getElementById('header-primary'), new _components_HeaderPrimary__WEBPACK_IMPORTED_MODULE_8__["default"]());
+    m.mount(document.getElementById('header-secondary'), new _components_HeaderSecondary__WEBPACK_IMPORTED_MODULE_9__["default"]());
+    this.pane = new _utils_Pane__WEBPACK_IMPORTED_MODULE_6__["default"](document.getElementById('app')); // this.composer = m.mount(document.getElementById('composer'), Composer.component());
 
     m.route.prefix = '';
 
@@ -22324,6 +22463,83 @@ var NotificationsDropdown = /*#__PURE__*/function (_Dropdown) {
 
 /***/ }),
 
+/***/ "./src/forum/components/NotificationsPage.tsx":
+/*!****************************************************!*\
+  !*** ./src/forum/components/NotificationsPage.tsx ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return NotificationsPage; });
+/* harmony import */ var _babel_runtime_helpers_esm_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/esm/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../app */ "./src/forum/app.ts");
+/* harmony import */ var _Page__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Page */ "./src/forum/components/Page.tsx");
+/* harmony import */ var _NotificationList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./NotificationList */ "./src/forum/components/NotificationList.tsx");
+
+
+
+
+function _createSuper(Derived) { return function () { var Super = Object(_babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__["default"])(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = Object(_babel_runtime_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_1__["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return Object(_babel_runtime_helpers_esm_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_0__["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+
+
+
+/**
+ * The `NotificationsPage` component shows the notifications list. It is only
+ * used on mobile devices where the notifications dropdown is within the drawer.
+ */
+
+var NotificationsPage = /*#__PURE__*/function (_Page) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_2__["default"])(NotificationsPage, _Page);
+
+  var _super = _createSuper(NotificationsPage);
+
+  function NotificationsPage() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Page.call.apply(_Page, [this].concat(args)) || this;
+    _this.list = m(_NotificationList__WEBPACK_IMPORTED_MODULE_5__["default"], null);
+    return _this;
+  }
+
+  var _proto = NotificationsPage.prototype;
+
+  _proto.oninit = function oninit(vnode) {
+    _Page.prototype.oninit.call(this, vnode);
+
+    _app__WEBPACK_IMPORTED_MODULE_3__["default"].history.push('notifications');
+    this.bodyClass = 'App--notifications';
+  };
+
+  _proto.oncreate = function oncreate(vnode) {
+    _Page.prototype.oncreate.call(this, vnode);
+
+    m.redraw();
+  };
+
+  _proto.view = function view() {
+    return m("div", {
+      className: "NotificationsPage"
+    }, this.list);
+  };
+
+  return NotificationsPage;
+}(_Page__WEBPACK_IMPORTED_MODULE_4__["default"]);
+
+
+
+/***/ }),
+
 /***/ "./src/forum/components/Page.tsx":
 /*!***************************************!*\
   !*** ./src/forum/components/Page.tsx ***!
@@ -25812,6 +26028,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_PostsUserPage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/PostsUserPage */ "./src/forum/components/PostsUserPage.tsx");
 /* harmony import */ var _components_DiscussionsUserPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/DiscussionsUserPage */ "./src/forum/components/DiscussionsUserPage.tsx");
 /* harmony import */ var _components_SettingsPage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/SettingsPage */ "./src/forum/components/SettingsPage.tsx");
+/* harmony import */ var _components_NotificationsPage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/NotificationsPage */ "./src/forum/components/NotificationsPage.tsx");
+
 
 
 
@@ -25846,6 +26064,10 @@ __webpack_require__.r(__webpack_exports__);
     settings: {
       path: '/settings',
       component: _components_SettingsPage__WEBPACK_IMPORTED_MODULE_4__["default"]
+    },
+    notifications: {
+      path: '/notifications',
+      component: _components_NotificationsPage__WEBPACK_IMPORTED_MODULE_5__["default"]
     },
     'index.filter': {
       path: '/:filter',
@@ -26412,6 +26634,124 @@ var KeyboardNavigatable = /*#__PURE__*/function () {
   };
 
   return KeyboardNavigatable;
+}();
+
+
+
+/***/ }),
+
+/***/ "./src/forum/utils/Pane.ts":
+/*!*********************************!*\
+  !*** ./src/forum/utils/Pane.ts ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Pane; });
+/**
+ * The `Pane` class manages the page's discussion list sidepane. The pane is a
+ * part of the content view (DiscussionPage component), but its visibility is
+ * determined by CSS classes applied to the outer page element. This class
+ * manages the application of those CSS classes.
+ */
+var Pane = /*#__PURE__*/function () {
+  /**
+   * The localStorage key to store the pane's pinned state with.
+   */
+
+  /**
+   * The page element.
+   */
+
+  /**
+   * Whether or not the pane is currently pinned.
+   */
+
+  /**
+   * Whether or not the pane is currently showing, or is hidden off the edge
+   * of the screen.
+   */
+  function Pane(element) {
+    this.pinnedKey = 'panePinned';
+    this.$element = void 0;
+    this.pinned = !!localStorage.getItem(this.pinnedKey);
+    this.showing = false;
+    this.active = false;
+    this.hideTimeout = void 0;
+    this.$element = $(element);
+    this.render();
+  }
+  /**
+   * Enable the pane.
+   */
+
+
+  var _proto = Pane.prototype;
+
+  _proto.enable = function enable() {
+    this.active = true;
+    this.render();
+  }
+  /**
+   * Disable the pane.
+   */
+  ;
+
+  _proto.disable = function disable() {
+    this.active = false;
+    this.showing = false;
+    this.render();
+  }
+  /**
+   * Show the pane.
+   */
+  ;
+
+  _proto.show = function show() {
+    clearTimeout(this.hideTimeout);
+    this.showing = true;
+    this.render();
+  }
+  /**
+   * Hide the pane.
+   */
+  ;
+
+  _proto.hide = function hide() {
+    this.showing = false;
+    this.render();
+  }
+  /**
+   * Begin a timeout to hide the pane, which can be cancelled by showing the
+   * pane.
+   */
+  ;
+
+  _proto.onmouseleave = function onmouseleave() {
+    this.hideTimeout = setTimeout(this.hide.bind(this), 250);
+  }
+  /**
+   * Toggle whether or not the pane is pinned.
+   */
+  ;
+
+  _proto.togglePinned = function togglePinned() {
+    this.pinned = !this.pinned;
+    localStorage.setItem(this.pinnedKey, this.pinned ? 'true' : 'false');
+    this.render();
+  }
+  /**
+   * Apply the appropriate CSS classes to the page element.
+   */
+  ;
+
+  _proto.render = function render() {
+    this.$element.toggleClass('panePinned', this.pinned).toggleClass('hasPane', this.active).toggleClass('paneShowing', this.showing);
+  };
+
+  return Pane;
 }();
 
 
