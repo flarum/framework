@@ -43,7 +43,7 @@ import SplitDropdown from './components/SplitDropdown';
 import RequestErrorModal from './components/RequestErrorModal';
 import FieldSet from './components/FieldSet';
 import Select from './components/Select';
-// import Navigation from './components/Navigation';
+import Navigation from './components/Navigation';
 import Alert from './components/Alert';
 import LinkButton from './components/LinkButton';
 import Checkbox from './components/Checkbox';
@@ -107,7 +107,7 @@ export default {
     'components/RequestErrorModal': RequestErrorModal,
     'components/FieldSet': FieldSet,
     'components/Select': Select,
-    // 'components/Navigation': Navigation,
+    'components/Navigation': Navigation,
     'components/Alert': Alert,
     'components/LinkButton': LinkButton,
     'components/Checkbox': Checkbox,
