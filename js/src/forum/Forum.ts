@@ -1,6 +1,7 @@
 import Application from '../common/Application';
 import History from './utils/History';
 
+import Navigation from '../common/components/Navigation';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import Page from './components/Page';
@@ -57,8 +58,8 @@ export default class Forum extends Application {
         this.routes[defaultAction].path = '/';
         this.history.push(defaultAction, this.translator.transText('core.forum.header.back_to_index_tooltip'), '/');
 
-        // m.mount(document.getElementById('app-navigation'), Navigation.component({className: 'App-backControl', drawer: true}));
-        // m.mount(document.getElementById('header-navigation'), Navigation.component());
+        m.mount(document.getElementById('app-navigation'), new Navigation({ className: 'App-backControl', drawer: true }));
+        m.mount(document.getElementById('header-navigation'), new Navigation());
         m.mount(document.getElementById('header-primary'), new HeaderPrimary());
         m.mount(document.getElementById('header-secondary'), new HeaderSecondary());
 
