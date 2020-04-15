@@ -35,10 +35,8 @@ export default class Drawer {
 
     /**
      * Show the drawer.
-     *
-     * @public
      */
-    show() {
+    public show() {
         $('#app').addClass('drawerOpen');
 
         this.$backdrop = $('<div/>')
@@ -46,6 +44,6 @@ export default class Drawer {
             .appendTo('body')
             .click(() => this.hide());
 
-        setTimeout(() => this.$backdrop.addClass('in'));
+        requestAnimationFrame(() => this.$backdrop!.addClass('in'));
     }
 }
