@@ -3,6 +3,7 @@ import DiscussionPage from './components/DiscussionPage';
 import PostsUserPage from './components/PostsUserPage';
 import DiscussionsUserPage from './components/DiscussionsUserPage';
 import SettingsPage from './components/SettingsPage';
+import NotificationsPage from './components/NotificationsPage';
 
 import Discussion from '../common/models/Discussion';
 import Post from '../common/models/Post';
@@ -20,6 +21,7 @@ export default (app) => {
         'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage },
 
         settings: { path: '/settings', component: SettingsPage },
+        notifications: { path: '/notifications', component: NotificationsPage },
 
         'index.filter': { path: '/:filter', component: IndexPage },
     };
