@@ -31,7 +31,7 @@ export default class NotificationsDropdown extends Dropdown {
         const unread = this.getUnreadCount();
 
         return [
-            icon(this.props.icon, { className: 'Button-icon' }),
+            icon(this.props.icon!, { className: 'Button-icon' }),
             unread ? <span className="NotificationsDropdown-unread">{unread}</span> : '',
             <span className="Button-label">{this.props.label}</span>,
         ];
