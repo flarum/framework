@@ -1,5 +1,6 @@
 import Application from '../common/Application';
 import History from './utils/History';
+import Pane from './utils/Pane';
 
 import Navigation from '../common/components/Navigation';
 import HeaderPrimary from './components/HeaderPrimary';
@@ -37,6 +38,8 @@ export default class Forum extends Application {
     previous?: Page;
     current?: Page;
 
+    pane!: Pane;
+
     constructor() {
         super();
 
@@ -63,7 +66,7 @@ export default class Forum extends Application {
         m.mount(document.getElementById('header-primary'), new HeaderPrimary());
         m.mount(document.getElementById('header-secondary'), new HeaderSecondary());
 
-        // this.pane = new Pane(document.getElementById('app'));
+        this.pane = new Pane(document.getElementById('app'));
         // this.composer = m.mount(document.getElementById('composer'), Composer.component());
 
         m.route.prefix = '';
