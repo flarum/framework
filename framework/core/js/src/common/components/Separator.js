@@ -5,7 +5,7 @@ import Component from '../Component';
  */
 class Separator extends Component {
   view() {
-    return <li className="Dropdown-separator"/>;
+    return <li className="Dropdown-separator" />;
   }
 }
 

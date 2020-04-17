@@ -37,15 +37,15 @@ export default class NotificationGrid extends Component {
 
     // For each of the notification type-method combinations, create and store a
     // new checkbox component instance, which we will render in the view.
-    this.types.forEach(type => {
-      this.methods.forEach(method => {
+    this.types.forEach((type) => {
+      this.methods.forEach((method) => {
         const key = this.preferenceKey(type.name, method.name);
         const preference = this.props.user.preferences()[key];
 
         this.inputs[key] = new Checkbox({
           state: !!preference,
           disabled: typeof preference === 'undefined',
-          onchange: () => this.toggle([key])
+          onchange: () => this.toggle([key]),
         });
       });
     });
@@ -56,8 +56,8 @@ export default class NotificationGrid extends Component {
       <table className="NotificationGrid">
         <thead>
           <tr>
-            <td/>
-            {this.methods.map(method => (
+            <td />
+            {this.methods.map((method) => (
               <th className="NotificationGrid-groupToggle" onclick={this.toggleMethod.bind(this, method.name)}>
                 {icon(method.icon)} {method.label}
               </th>
@@ -66,15 +66,13 @@ export default class NotificationGrid extends Component {
         </thead>
 
         <tbody>
-          {this.types.map(type => (
+          {this.types.map((type) => (
             <tr>
               <td className="NotificationGrid-groupToggle" onclick={this.toggleType.bind(this, type.name)}>
                 {icon(type.icon)} {type.label}
               </td>
-              {this.methods.map(method => (
-                <td className="NotificationGrid-checkbox">
-                  {this.inputs[this.preferenceKey(type.name, method.name)].render()}
-                </td>
+              {this.methods.map((method) => (
+                <td className="NotificationGrid-checkbox">{this.inputs[this.preferenceKey(type.name, method.name)].render()}</td>
               ))}
             </tr>
           ))}
@@ -86,13 +84,19 @@ export default class NotificationGrid extends Component {
   config(isInitialized) {
     if (isInitialized) return;
 
-    this.$('thead .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function(e) {
+    this.$('thead .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function (e) {
       const i = parseInt($(this).index(), 10) + 1;
-      $(this).parents('table').find('td:nth-child(' + i + ')').toggleClass('highlighted', e.type === 'mouseenter');
+      $(this)
+        .parents('table')
+        .find('td:nth-child(' + i + ')')
+        .toggleClass('highlighted', e.type === 'mouseenter');
     });
 
-    this.$('tbody .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function(e) {
-      $(this).parent().find('td').toggleClass('highlighted', e.type === 'mouseenter');
+    this.$('tbody .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function (e) {
+      $(this)
+        .parent()
+        .find('td')
+        .toggleClass('highlighted', e.type === 'mouseenter');
     });
   }
 
@@ -107,7 +111,7 @@ export default class NotificationGrid extends Component {
     const preferences = user.preferences();
     const enabled = !preferences[keys[0]];
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const control = this.inputs[key];
 
       control.loading = true;
@@ -116,8 +120,8 @@ export default class NotificationGrid extends Component {
 
     m.redraw();
 
-    user.save({preferences}).then(() => {
-      keys.forEach(key => this.inputs[key].loading = false);
+    user.save({ preferences }).then(() => {
+      keys.forEach((key) => (this.inputs[key].loading = false));
 
       m.redraw();
     });
@@ -129,9 +133,7 @@ export default class NotificationGrid extends Component {
    * @param {String} method
    */
   toggleMethod(method) {
-    const keys = this.types
-      .map(type => this.preferenceKey(type.name, method))
-      .filter(key => !this.inputs[key].props.disabled);
+    const keys = this.types.map((type) => this.preferenceKey(type.name, method)).filter((key) => !this.inputs[key].props.disabled);
 
     this.toggle(keys);
   }
@@ -142,9 +144,7 @@ export default class NotificationGrid extends Component {
    * @param {String} type
    */
   toggleType(type) {
-    const keys = this.methods
-      .map(method => this.preferenceKey(type, method.name))
-      .filter(key => !this.inputs[key].props.disabled);
+    const keys = this.methods.map((method) => this.preferenceKey(type, method.name)).filter((key) => !this.inputs[key].props.disabled);
 
     this.toggle(keys);
   }
@@ -207,7 +207,7 @@ export default class NotificationGrid extends Component {
     items.add('discussionRenamed', {
       name: 'discussionRenamed',
       icon: 'fas fa-pencil-alt',
-      label: app.translator.trans('core.forum.settings.notify_discussion_renamed_label')
+      label: app.translator.trans('core.forum.settings.notify_discussion_renamed_label'),
     });
 
     return items;

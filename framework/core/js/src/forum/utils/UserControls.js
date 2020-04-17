@@ -22,10 +22,10 @@ export default {
   controls(user, context) {
     const items = new ItemList();
 
-    ['user', 'moderation', 'destructive'].forEach(section => {
+    ['user', 'moderation', 'destructive'].forEach((section) => {
       const controls = this[section + 'Controls'](user, context).toArray();
       if (controls.length) {
-        controls.forEach(item => items.add(item.itemName, item));
+        controls.forEach((item) => items.add(item.itemName, item));
         items.add(section + 'Separator', Separator.component());
       }
     });
@@ -59,11 +59,14 @@ export default {
     const items = new ItemList();
 
     if (user.canEdit()) {
-      items.add('edit', Button.component({
-        icon: 'fas fa-pencil-alt',
-        children: app.translator.trans('core.forum.user_controls.edit_button'),
-        onclick: this.editAction.bind(this, user)
-      }));
+      items.add(
+        'edit',
+        Button.component({
+          icon: 'fas fa-pencil-alt',
+          children: app.translator.trans('core.forum.user_controls.edit_button'),
+          onclick: this.editAction.bind(this, user),
+        })
+      );
     }
 
     return items;
@@ -82,11 +85,14 @@ export default {
     const items = new ItemList();
 
     if (user.id() !== '1' && user.canDelete()) {
-      items.add('delete', Button.component({
-        icon: 'fas fa-times',
-        children: app.translator.trans('core.forum.user_controls.delete_button'),
-        onclick: this.deleteAction.bind(this, user)
-      }));
+      items.add(
+        'delete',
+        Button.component({
+          icon: 'fas fa-times',
+          children: app.translator.trans('core.forum.user_controls.delete_button'),
+          onclick: this.deleteAction.bind(this, user),
+        })
+      );
     }
 
     return items;
@@ -102,14 +108,17 @@ export default {
       return;
     }
 
-    user.delete().then(() => {
-      this.showDeletionAlert(user, 'success');
-      if (app.current instanceof UserPage && app.current.user === user) {
-        app.history.back();
-      } else {
-        window.location.reload();
-      }
-    }).catch(() => this.showDeletionAlert(user, 'error'));
+    user
+      .delete()
+      .then(() => {
+        this.showDeletionAlert(user, 'success');
+        if (app.current instanceof UserPage && app.current.user === user) {
+          app.history.back();
+        } else {
+          window.location.reload();
+        }
+      })
+      .catch(() => this.showDeletionAlert(user, 'error'));
   },
 
   /**
@@ -125,12 +134,12 @@ export default {
       error: 'core.forum.user_controls.delete_error_message',
     }[type];
 
-    app.alerts.show(new Alert({
-      type,
-      children: app.translator.trans(
-        message, { username, email }
-      )
-    }));
+    app.alerts.show(
+      new Alert({
+        type,
+        children: app.translator.trans(message, { username, email }),
+      })
+    );
   },
 
   /**
@@ -140,5 +149,5 @@ export default {
    */
   editAction(user) {
     app.modal.show(new EditUserModal({ user }));
-  }
+  },
 };

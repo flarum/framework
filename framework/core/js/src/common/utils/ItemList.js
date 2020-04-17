@@ -28,7 +28,7 @@ export default class ItemList {
    */
   isEmpty() {
     for (const i in this.items) {
-      if(this.items.hasOwnProperty(i)) {
+      if (this.items.hasOwnProperty(i)) {
         return false;
       }
     }
@@ -147,14 +147,15 @@ export default class ItemList {
       }
     }
 
-    return items.sort((a, b) => {
-      if (a.priority === b.priority) {
-        return a.key - b.key;
-      } else if (a.priority > b.priority) {
-        return -1;
-      }
-      return 1;
-    }).map(item => item.content);
+    return items
+      .sort((a, b) => {
+        if (a.priority === b.priority) {
+          return a.key - b.key;
+        } else if (a.priority > b.priority) {
+          return -1;
+        }
+        return 1;
+      })
+      .map((item) => item.content);
   }
 }
-

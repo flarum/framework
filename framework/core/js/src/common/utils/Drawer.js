@@ -7,7 +7,7 @@ export default class Drawer {
   constructor() {
     // Set up an event handler so that whenever the content area is tapped,
     // the drawer will close.
-    $('#content').click(e => {
+    $('#content').click((e) => {
       if (this.isOpen()) {
         e.preventDefault();
         this.hide();

@@ -15,7 +15,9 @@ export default class UploadImageButton extends Button {
 
       return (
         <div>
-          <p><img src={app.forum.attribute(this.props.name+'Url')} alt=""/></p>
+          <p>
+            <img src={app.forum.attribute(this.props.name + 'Url')} alt="" />
+          </p>
           <p>{super.view()}</p>
         </div>
       );
@@ -35,23 +37,26 @@ export default class UploadImageButton extends Button {
 
     const $input = $('<input type="file">');
 
-    $input.appendTo('body').hide().click().on('change', e => {
-      const data = new FormData();
-      data.append(this.props.name, $(e.target)[0].files[0]);
+    $input
+      .appendTo('body')
+      .hide()
+      .click()
+      .on('change', (e) => {
+        const data = new FormData();
+        data.append(this.props.name, $(e.target)[0].files[0]);
 
-      this.loading = true;
-      m.redraw();
+        this.loading = true;
+        m.redraw();
 
-      app.request({
-        method: 'POST',
-        url: this.resourceUrl(),
-        serialize: raw => raw,
-        data
-      }).then(
-        this.success.bind(this),
-        this.failure.bind(this)
-      );
-    });
+        app
+          .request({
+            method: 'POST',
+            url: this.resourceUrl(),
+            serialize: (raw) => raw,
+            data,
+          })
+          .then(this.success.bind(this), this.failure.bind(this));
+      });
   }
 
   /**
@@ -61,13 +66,12 @@ export default class UploadImageButton extends Button {
     this.loading = true;
     m.redraw();
 
-    app.request({
-      method: 'DELETE',
-      url: this.resourceUrl()
-    }).then(
-      this.success.bind(this),
-      this.failure.bind(this)
-    );
+    app
+      .request({
+        method: 'DELETE',
+        url: this.resourceUrl(),
+      })
+      .then(this.success.bind(this), this.failure.bind(this));
   }
 
   resourceUrl() {

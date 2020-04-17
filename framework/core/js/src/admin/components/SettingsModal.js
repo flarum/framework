@@ -18,9 +18,7 @@ export default class SettingsModal extends Modal {
         <div className="Form">
           {this.form()}
 
-          <div className="Form-group">
-            {this.submitButton()}
-          </div>
+          <div className="Form-group">{this.submitButton()}</div>
         </div>
       </div>
     );
@@ -28,11 +26,7 @@ export default class SettingsModal extends Modal {
 
   submitButton() {
     return (
-      <Button
-        type="submit"
-        className="Button Button--primary"
-        loading={this.loading}
-        disabled={!this.changed()}>
+      <Button type="submit" className="Button Button--primary" loading={this.loading} disabled={!this.changed()}>
         {app.translator.trans('core.admin.settings.submit_button')}
       </Button>
     );
@@ -47,7 +41,7 @@ export default class SettingsModal extends Modal {
   dirty() {
     const dirty = {};
 
-    Object.keys(this.settings).forEach(key => {
+    Object.keys(this.settings).forEach((key) => {
       const value = this.settings[key]();
 
       if (value !== app.data.settings[key]) {
@@ -67,10 +61,7 @@ export default class SettingsModal extends Modal {
 
     this.loading = true;
 
-    saveSettings(this.dirty()).then(
-      this.onsaved.bind(this),
-      this.loaded.bind(this)
-    );
+    saveSettings(this.dirty()).then(this.onsaved.bind(this), this.loaded.bind(this));
   }
 
   onsaved() {

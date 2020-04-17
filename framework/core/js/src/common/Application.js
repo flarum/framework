@@ -86,7 +86,7 @@ export default class Application {
     discussions: Discussion,
     posts: Post,
     groups: Group,
-    notifications: Notification
+    notifications: Notification,
   });
 
   /**
@@ -126,22 +126,19 @@ export default class Application {
   }
 
   boot() {
-    this.initializers.toArray().forEach(initializer => initializer(this));
+    this.initializers.toArray().forEach((initializer) => initializer(this));
 
-    this.store.pushPayload({data: this.data.resources});
+    this.store.pushPayload({ data: this.data.resources });
 
     this.forum = this.store.getById('forums', 1);
 
-    this.session = new Session(
-        this.store.getById('users', this.data.session.userId),
-        this.data.session.csrfToken
-    );
+    this.session = new Session(this.store.getById('users', this.data.session.userId), this.data.session.csrfToken);
 
     this.mount();
   }
 
   bootExtensions(extensions) {
-    Object.keys(extensions).forEach(name => {
+    Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
       const extenders = flattenDeep(extension.extend);
@@ -153,26 +150,20 @@ export default class Application {
   }
 
   mount(basePath = '') {
-    this.modal = m.mount(document.getElementById('modal'), <ModalManager/>);
-    this.alerts = m.mount(document.getElementById('alerts'), <AlertManager/>);
+    this.modal = m.mount(document.getElementById('modal'), <ModalManager />);
+    this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
 
     this.drawer = new Drawer();
 
-    m.route(
-      document.getElementById('content'),
-      basePath + '/',
-      mapRoutes(this.routes, basePath)
-    );
+    m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
 
     // Add a class to the body which indicates that the page has been scrolled
     // down.
-    new ScrollListener(top => {
+    new ScrollListener((top) => {
       const $app = $('#app');
       const offset = $app.offset().top;
 
-      $app
-        .toggleClass('affix', top >= offset)
-        .toggleClass('scrolled', top > offset);
+      $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
     }).start();
 
     $(() => {
@@ -220,9 +211,7 @@ export default class Application {
   }
 
   updateTitle() {
-    document.title = (this.titleCount ? `(${this.titleCount}) ` : '') +
-      (this.title ? this.title + ' - ' : '') +
-      this.forum.attribute('title');
+    document.title = (this.titleCount ? `(${this.titleCount}) ` : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
   }
 
   /**
@@ -256,17 +245,19 @@ export default class Application {
     // When we deserialize JSON data, if for some reason the server has provided
     // a dud response, we don't want the application to crash. We'll show an
     // error message to the user instead.
-    options.deserialize = options.deserialize || (responseText => responseText);
+    options.deserialize = options.deserialize || ((responseText) => responseText);
 
-    options.errorHandler = options.errorHandler || (error => {
-      throw error;
-    });
+    options.errorHandler =
+      options.errorHandler ||
+      ((error) => {
+        throw error;
+      });
 
     // When extracting the data from the response, we can check the server
     // response code and show an error message to the user if something's gone
     // awry.
     const original = options.extract;
-    options.extract = xhr => {
+    options.extract = (xhr) => {
       let responseText;
 
       if (original) {
@@ -299,55 +290,60 @@ export default class Application {
     // returned and show an alert containing its contents.
     const deferred = m.deferred();
 
-    m.request(options).then(response => deferred.resolve(response), error => {
-      this.requestError = error;
+    m.request(options).then(
+      (response) => deferred.resolve(response),
+      (error) => {
+        this.requestError = error;
 
-      let children;
+        let children;
 
-      switch (error.status) {
-        case 422:
-          children = error.response.errors
-            .map(error => [error.detail, <br/>])
-            .reduce((a, b) => a.concat(b), [])
-            .slice(0, -1);
-          break;
+        switch (error.status) {
+          case 422:
+            children = error.response.errors
+              .map((error) => [error.detail, <br />])
+              .reduce((a, b) => a.concat(b), [])
+              .slice(0, -1);
+            break;
 
-        case 401:
-        case 403:
-          children = app.translator.trans('core.lib.error.permission_denied_message');
-          break;
+          case 401:
+          case 403:
+            children = app.translator.trans('core.lib.error.permission_denied_message');
+            break;
 
-        case 404:
-        case 410:
-          children = app.translator.trans('core.lib.error.not_found_message');
-          break;
+          case 404:
+          case 410:
+            children = app.translator.trans('core.lib.error.not_found_message');
+            break;
 
-        case 429:
-          children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
-          break;
+          case 429:
+            children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+            break;
 
-        default:
-          children = app.translator.trans('core.lib.error.generic_message');
+          default:
+            children = app.translator.trans('core.lib.error.generic_message');
+        }
+
+        const isDebug = app.forum.attribute('debug');
+
+        error.alert = new Alert({
+          type: 'error',
+          children,
+          controls: isDebug && [
+            <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>
+              Debug
+            </Button>,
+          ],
+        });
+
+        try {
+          options.errorHandler(error);
+        } catch (error) {
+          this.alerts.show(error.alert);
+        }
+
+        deferred.reject(error);
       }
-
-      const isDebug = app.forum.attribute('debug');
-
-      error.alert = new Alert({
-        type: 'error',
-        children,
-        controls: isDebug && [
-          <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>Debug</Button>
-        ]
-      });
-
-      try {
-        options.errorHandler(error);
-      } catch (error) {
-        this.alerts.show(error.alert);
-      }
-
-      deferred.reject(error);
-    });
+    );
 
     return deferred.promise;
   }
@@ -359,7 +355,7 @@ export default class Application {
   showDebug(error) {
     this.alerts.dismiss(this.requestError.alert);
 
-    this.modal.show(new RequestErrorModal({error}));
+    this.modal.show(new RequestErrorModal({ error }));
   }
 
   /**

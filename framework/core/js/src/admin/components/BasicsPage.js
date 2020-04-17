@@ -20,12 +20,12 @@ export default class BasicsPage extends Page {
       'show_language_selector',
       'default_route',
       'welcome_title',
-      'welcome_message'
+      'welcome_message',
     ];
     this.values = {};
 
     const settings = app.data.settings;
-    this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
+    this.fields.forEach((key) => (this.values[key] = m.prop(settings[key])));
 
     this.localeOptions = {};
     const locales = app.data.locales;
@@ -33,7 +33,7 @@ export default class BasicsPage extends Page {
       this.localeOptions[i] = `${locales[i]} (${i})`;
     }
 
-    if (typeof this.values.show_language_selector() !== "number") this.values.show_language_selector(1);
+    if (typeof this.values.show_language_selector() !== 'number') this.values.show_language_selector(1);
   }
 
   view() {
@@ -43,67 +43,75 @@ export default class BasicsPage extends Page {
           <form onsubmit={this.onsubmit.bind(this)}>
             {FieldSet.component({
               label: app.translator.trans('core.admin.basics.forum_title_heading'),
-              children: [
-                <input className="FormControl" value={this.values.forum_title()} oninput={m.withAttr('value', this.values.forum_title)}/>
-              ]
+              children: [<input className="FormControl" value={this.values.forum_title()} oninput={m.withAttr('value', this.values.forum_title)} />],
             })}
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.basics.forum_description_heading'),
               children: [
-                <div className="helpText">
-                  {app.translator.trans('core.admin.basics.forum_description_text')}
-                </div>,
-                <textarea className="FormControl" value={this.values.forum_description()} oninput={m.withAttr('value', this.values.forum_description)}/>
-              ]
+                <div className="helpText">{app.translator.trans('core.admin.basics.forum_description_text')}</div>,
+                <textarea
+                  className="FormControl"
+                  value={this.values.forum_description()}
+                  oninput={m.withAttr('value', this.values.forum_description)}
+                />,
+              ],
             })}
 
             {Object.keys(this.localeOptions).length > 1
               ? FieldSet.component({
-                label: app.translator.trans('core.admin.basics.default_language_heading'),
-                children: [
-                  Select.component({
-                    options: this.localeOptions,
-                    value: this.values.default_locale(),
-                    onchange: this.values.default_locale
-                  }),
-                  Switch.component({
-                    state: this.values.show_language_selector(),
-                    onchange: this.values.show_language_selector,
-                    children: app.translator.trans('core.admin.basics.show_language_selector_label'),
-                  })
-                ]
-              })
+                  label: app.translator.trans('core.admin.basics.default_language_heading'),
+                  children: [
+                    Select.component({
+                      options: this.localeOptions,
+                      value: this.values.default_locale(),
+                      onchange: this.values.default_locale,
+                    }),
+                    Switch.component({
+                      state: this.values.show_language_selector(),
+                      onchange: this.values.show_language_selector,
+                      children: app.translator.trans('core.admin.basics.show_language_selector_label'),
+                    }),
+                  ],
+                })
               : ''}
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.basics.home_page_heading'),
               className: 'BasicsPage-homePage',
               children: [
-                <div className="helpText">
-                  {app.translator.trans('core.admin.basics.home_page_text')}
-                </div>,
-                this.homePageItems().toArray().map(({path, label}) =>
-                  <label className="checkbox">
-                    <input type="radio" name="homePage" value={path} checked={this.values.default_route() === path} onclick={m.withAttr('value', this.values.default_route)}/>
-                    {label}
-                  </label>
-                )
-              ]
+                <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>,
+                this.homePageItems()
+                  .toArray()
+                  .map(({ path, label }) => (
+                    <label className="checkbox">
+                      <input
+                        type="radio"
+                        name="homePage"
+                        value={path}
+                        checked={this.values.default_route() === path}
+                        onclick={m.withAttr('value', this.values.default_route)}
+                      />
+                      {label}
+                    </label>
+                  )),
+              ],
             })}
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.basics.welcome_banner_heading'),
               className: 'BasicsPage-welcomeBanner',
               children: [
-                <div className="helpText">
-                  {app.translator.trans('core.admin.basics.welcome_banner_text')}
-                </div>,
+                <div className="helpText">{app.translator.trans('core.admin.basics.welcome_banner_text')}</div>,
                 <div className="BasicsPage-welcomeBanner-input">
-                  <input className="FormControl" value={this.values.welcome_title()} oninput={m.withAttr('value', this.values.welcome_title)}/>
-                  <textarea className="FormControl" value={this.values.welcome_message()} oninput={m.withAttr('value', this.values.welcome_message)}/>
-                </div>
-              ]
+                  <input className="FormControl" value={this.values.welcome_title()} oninput={m.withAttr('value', this.values.welcome_title)} />
+                  <textarea
+                    className="FormControl"
+                    value={this.values.welcome_message()}
+                    oninput={m.withAttr('value', this.values.welcome_message)}
+                  />
+                </div>,
+              ],
             })}
 
             {Button.component({
@@ -111,7 +119,7 @@ export default class BasicsPage extends Page {
               className: 'Button Button--primary',
               children: app.translator.trans('core.admin.basics.submit_button'),
               loading: this.loading,
-              disabled: !this.changed()
+              disabled: !this.changed(),
             })}
           </form>
         </div>
@@ -120,7 +128,7 @@ export default class BasicsPage extends Page {
   }
 
   changed() {
-    return this.fields.some(key => this.values[key]() !== app.data.settings[key]);
+    return this.fields.some((key) => this.values[key]() !== app.data.settings[key]);
   }
 
   /**
@@ -135,7 +143,7 @@ export default class BasicsPage extends Page {
 
     items.add('allDiscussions', {
       path: '/all',
-      label: app.translator.trans('core.admin.basics.all_discussions_label')
+      label: app.translator.trans('core.admin.basics.all_discussions_label'),
     });
 
     return items;
@@ -151,11 +159,11 @@ export default class BasicsPage extends Page {
 
     const settings = {};
 
-    this.fields.forEach(key => settings[key] = this.values[key]());
+    this.fields.forEach((key) => (settings[key] = this.values[key]()));
 
     saveSettings(settings)
       .then(() => {
-        app.alerts.show(this.successAlert = new Alert({type: 'success', children: app.translator.trans('core.admin.basics.saved_message')}));
+        app.alerts.show((this.successAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') })));
       })
       .catch(() => {})
       .then(() => {

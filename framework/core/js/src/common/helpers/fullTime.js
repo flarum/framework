@@ -11,5 +11,9 @@ export default function fullTime(time) {
   const datetime = mo.format();
   const full = mo.format('LLLL');
 
-  return <time pubdate datetime={datetime}>{full}</time>;
+  return (
+    <time pubdate datetime={datetime}>
+      {full}
+    </time>
+  );
 }

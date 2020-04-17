@@ -6,7 +6,7 @@ Object.assign(Group.prototype, {
   nameSingular: Model.attribute('nameSingular'),
   namePlural: Model.attribute('namePlural'),
   color: Model.attribute('color'),
-  icon: Model.attribute('icon')
+  icon: Model.attribute('icon'),
 });
 
 Group.ADMINISTRATOR_ID = '1';

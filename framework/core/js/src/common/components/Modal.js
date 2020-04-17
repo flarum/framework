@@ -31,10 +31,12 @@ export default class Modal extends Component {
               {Button.component({
                 icon: 'fas fa-times',
                 onclick: this.hide.bind(this),
-                className: 'Button Button--icon Button--link'
+                className: 'Button Button--icon Button--link',
               })}
             </div>
-          ) : ''}
+          ) : (
+            ''
+          )}
 
           <form onsubmit={this.onsubmit.bind(this)}>
             <div className="Modal-header">
@@ -65,8 +67,7 @@ export default class Modal extends Component {
    * @return {String}
    * @abstract
    */
-  className() {
-  }
+  className() {}
 
   /**
    * Get the title of the modal dialog.
@@ -74,8 +75,7 @@ export default class Modal extends Component {
    * @return {String}
    * @abstract
    */
-  title() {
-  }
+  title() {}
 
   /**
    * Get the content of the modal.
@@ -83,16 +83,14 @@ export default class Modal extends Component {
    * @return {VirtualElement}
    * @abstract
    */
-  content() {
-  }
+  content() {}
 
   /**
    * Handle the modal form's submit event.
    *
    * @param {Event} e
    */
-  onsubmit() {
-  }
+  onsubmit() {}
 
   /**
    * Focus on the first input when the modal is ready to be used.
@@ -101,8 +99,7 @@ export default class Modal extends Component {
     this.$('form').find('input, select, textarea').first().focus().select();
   }
 
-  onhide() {
-  }
+  onhide() {}
 
   /**
    * Hide the modal.

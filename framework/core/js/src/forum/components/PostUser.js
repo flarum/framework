@@ -29,7 +29,9 @@ export default class PostUser extends Component {
     if (!user) {
       return (
         <div className="PostUser">
-          <h3>{avatar(user, {className: 'PostUser-avatar'})} {username(user)}</h3>
+          <h3>
+            {avatar(user, { className: 'PostUser-avatar' })} {username(user)}
+          </h3>
         </div>
       );
     }
@@ -40,7 +42,7 @@ export default class PostUser extends Component {
       card = UserCard.component({
         user,
         className: 'UserCard--popover',
-        controlsButtonClassName: 'Button Button--icon Button--flat'
+        controlsButtonClassName: 'Button Button--icon Button--flat',
       });
     }
 
@@ -48,14 +50,12 @@ export default class PostUser extends Component {
       <div className="PostUser">
         <h3>
           <a href={app.route.user(user)} config={m.route}>
-            {avatar(user, {className: 'PostUser-avatar'})}
+            {avatar(user, { className: 'PostUser-avatar' })}
             {userOnline(user)}
             {username(user)}
           </a>
         </h3>
-        <ul className="PostUser-badges badges">
-          {listItems(user.badges().toArray())}
-        </ul>
+        <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
         {card}
       </div>
     );
@@ -92,7 +92,8 @@ export default class PostUser extends Component {
    * Hide the user card.
    */
   hideCard() {
-    this.$('.UserCard').removeClass('in')
+    this.$('.UserCard')
+      .removeClass('in')
       .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
         this.cardVisible = false;
         m.redraw();

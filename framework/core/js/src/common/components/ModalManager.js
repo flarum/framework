@@ -13,11 +13,7 @@ export default class ModalManager extends Component {
   }
 
   view() {
-    return (
-      <div className="ModalManager modal fade">
-        {this.component && this.component.render()}
-      </div>
-    );
+    return <div className="ModalManager modal fade">{this.component && this.component.render()}</div>;
   }
 
   config(isInitialized, context) {
@@ -28,9 +24,7 @@ export default class ModalManager extends Component {
     // to be retained across route changes.
     context.retain = true;
 
-    this.$()
-      .on('hidden.bs.modal', this.clear.bind(this))
-      .on('shown.bs.modal', this.onready.bind(this));
+    this.$().on('hidden.bs.modal', this.clear.bind(this)).on('shown.bs.modal', this.onready.bind(this));
   }
 
   /**
@@ -54,10 +48,12 @@ export default class ModalManager extends Component {
     m.redraw(true);
 
     const dismissible = !!this.component.isDismissible();
-    this.$().modal({
-      backdrop: dismissible || 'static',
-      keyboard: dismissible
-    }).modal('show');
+    this.$()
+      .modal({
+        backdrop: dismissible || 'static',
+        keyboard: dismissible,
+      })
+      .modal('show');
   }
 
   /**

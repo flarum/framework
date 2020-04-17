@@ -15,23 +15,26 @@ export default function alertEmailConfirmation(app) {
   const resendButton = Button.component({
     className: 'Button Button--link',
     children: app.translator.trans('core.forum.user_email_confirmation.resend_button'),
-    onclick: function() {
+    onclick: function () {
       resendButton.props.loading = true;
       m.redraw();
 
-      app.request({
-        method: 'POST',
-        url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/send-confirmation',
-      }).then(() => {
-        resendButton.props.loading = false;
-        resendButton.props.children = [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
-        resendButton.props.disabled = true;
-        m.redraw();
-      }).catch(() => {
-        resendButton.props.loading = false;
-        m.redraw();
-      });
-    }
+      app
+        .request({
+          method: 'POST',
+          url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/send-confirmation',
+        })
+        .then(() => {
+          resendButton.props.loading = false;
+          resendButton.props.children = [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
+          resendButton.props.disabled = true;
+          m.redraw();
+        })
+        .catch(() => {
+          resendButton.props.loading = false;
+          m.redraw();
+        });
+    },
   });
 
   class ContainedAlert extends Alert {
@@ -48,8 +51,8 @@ export default function alertEmailConfirmation(app) {
     $('<div/>').insertBefore('#content')[0],
     ContainedAlert.component({
       dismissible: false,
-      children: app.translator.trans('core.forum.user_email_confirmation.alert_message', {email: <strong>{user.email()}</strong>}),
-      controls: [resendButton]
+      children: app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> }),
+      controls: [resendButton],
     })
   );
 }

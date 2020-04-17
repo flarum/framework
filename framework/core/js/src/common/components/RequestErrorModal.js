@@ -6,9 +6,7 @@ export default class RequestErrorModal extends Modal {
   }
 
   title() {
-    return this.props.error.xhr
-      ? this.props.error.xhr.status+' '+this.props.error.xhr.statusText
-      : '';
+    return this.props.error.xhr ? this.props.error.xhr.status + ' ' + this.props.error.xhr.statusText : '';
   }
 
   content() {
@@ -20,11 +18,15 @@ export default class RequestErrorModal extends Modal {
       responseText = this.props.error.responseText;
     }
 
-    return <div className="Modal-body">
-      <pre>
-        {this.props.error.options.method} {this.props.error.options.url}<br/><br/>
-        {responseText}
-      </pre>
-    </div>;
+    return (
+      <div className="Modal-body">
+        <pre>
+          {this.props.error.options.method} {this.props.error.options.url}
+          <br />
+          <br />
+          {responseText}
+        </pre>
+      </div>
+    );
   }
 }

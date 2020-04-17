@@ -15,5 +15,9 @@ export default function humanTime(time) {
   const full = mo.format('LLLL');
   const ago = humanTimeUtil(time);
 
-  return <time pubdate datetime={datetime} title={full} data-humantime>{ago}</time>;
+  return (
+    <time pubdate datetime={datetime} title={full} data-humantime>
+      {ago}
+    </time>
+  );
 }

@@ -22,7 +22,7 @@ export default class ForumApplication extends Application {
    * @type {Object}
    */
   notificationComponents = {
-    discussionRenamed: DiscussionRenamedNotification
+    discussionRenamed: DiscussionRenamedNotification,
   };
   /**
    * A map of post types to their components.
@@ -31,7 +31,7 @@ export default class ForumApplication extends Application {
    */
   postComponents = {
     comment: CommentPost,
-    discussionRenamed: DiscussionRenamedPost
+    discussionRenamed: DiscussionRenamedPost,
   };
 
   /**
@@ -87,7 +87,7 @@ export default class ForumApplication extends Application {
     this.routes[defaultAction].path = '/';
     this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
 
-    m.mount(document.getElementById('app-navigation'), Navigation.component({className: 'App-backControl', drawer: true}));
+    m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
     m.mount(document.getElementById('header-navigation'), Navigation.component());
     m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
     m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
@@ -102,7 +102,7 @@ export default class ForumApplication extends Application {
 
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
-    $('#home-link').click(e => {
+    $('#home-link').click((e) => {
       if (e.ctrlKey || e.metaKey || e.which === 2) return;
       e.preventDefault();
       app.history.home();
@@ -123,9 +123,11 @@ export default class ForumApplication extends Application {
    * @return {Boolean}
    */
   composingReplyTo(discussion) {
-    return this.composer.component instanceof ReplyComposer &&
+    return (
+      this.composer.component instanceof ReplyComposer &&
       this.composer.component.props.discussion === discussion &&
-      this.composer.position !== Composer.PositionEnum.HIDDEN;
+      this.composer.position !== Composer.PositionEnum.HIDDEN
+    );
   }
 
   /**
@@ -135,8 +137,7 @@ export default class ForumApplication extends Application {
    * @return {Boolean}
    */
   viewingDiscussion(discussion) {
-    return this.current instanceof DiscussionPage &&
-      this.current.discussion === discussion;
+    return this.current instanceof DiscussionPage && this.current.discussion === discussion;
   }
 
   /**

@@ -31,13 +31,8 @@ export default class Checkbox extends Component {
 
     return (
       <label className={className}>
-        <input type="checkbox"
-          checked={this.props.state}
-          disabled={this.props.disabled}
-          onchange={m.withAttr('checked', this.onchange.bind(this))}/>
-        <div className="Checkbox-display">
-          {this.getDisplay()}
-        </div>
+        <input type="checkbox" checked={this.props.state} disabled={this.props.disabled} onchange={m.withAttr('checked', this.onchange.bind(this))} />
+        <div className="Checkbox-display">{this.getDisplay()}</div>
         {this.props.children}
       </label>
     );
@@ -50,9 +45,7 @@ export default class Checkbox extends Component {
    * @protected
    */
   getDisplay() {
-    return this.loading
-      ? LoadingIndicator.component({size: 'tiny'})
-      : icon(this.props.state ? 'fas fa-check' : 'fas fa-times');
+    return this.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'fas fa-check' : 'fas fa-times');
   }
 
   /**

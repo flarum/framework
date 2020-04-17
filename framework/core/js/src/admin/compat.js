@@ -58,6 +58,6 @@ export default Object.assign(compat, {
   'components/AdminNav': AdminNav,
   'components/EditCustomCssModal': EditCustomCssModal,
   'components/EditGroupModal': EditGroupModal,
-  'routes': routes,
-  'AdminApplication': AdminApplication
+  routes: routes,
+  AdminApplication: AdminApplication,
 });

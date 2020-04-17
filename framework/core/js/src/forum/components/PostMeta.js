@@ -20,7 +20,7 @@ export default class PostMeta extends Component {
 
     // When the dropdown menu is shown, select the contents of the permalink
     // input so that the user can quickly copy the URL.
-    const selectPermalink = function() {
+    const selectPermalink = function () {
       setTimeout(() => $(this).parent().find('.PostMeta-permalink').select());
 
       m.redraw.strategy('none');
@@ -33,12 +33,15 @@ export default class PostMeta extends Component {
         </a>
 
         <div className="Dropdown-menu dropdown-menu">
-          <span className="PostMeta-number">{app.translator.trans('core.forum.post.number_tooltip', {number: post.number()})}</span>{' '}
-          <span className="PostMeta-time">{fullTime(time)}</span>{' '}
-          <span className="PostMeta-ip">{post.data.attributes.ipAddress}</span>
-          {touch
-            ? <a className="Button PostMeta-permalink" href={permalink}>{permalink}</a>
-            : <input className="FormControl PostMeta-permalink" value={permalink} onclick={e => e.stopPropagation()} />}
+          <span className="PostMeta-number">{app.translator.trans('core.forum.post.number_tooltip', { number: post.number() })}</span>{' '}
+          <span className="PostMeta-time">{fullTime(time)}</span> <span className="PostMeta-ip">{post.data.attributes.ipAddress}</span>
+          {touch ? (
+            <a className="Button PostMeta-permalink" href={permalink}>
+              {permalink}
+            </a>
+          ) : (
+            <input className="FormControl PostMeta-permalink" value={permalink} onclick={(e) => e.stopPropagation()} />
+          )}
         </div>
       </div>
     );
