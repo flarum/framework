@@ -70,8 +70,7 @@ export default class Component {
    *
    * @protected
    */
-  init() {
-  }
+  init() {}
 
   /**
    * Called when the component is destroyed, i.e. after a redraw where it is no
@@ -81,8 +80,7 @@ export default class Component {
    * @param {Object} e
    * @public
    */
-  onunload() {
-  }
+  onunload() {}
 
   /**
    * Get the renderable virtual DOM that represents the component's view.
@@ -99,7 +97,7 @@ export default class Component {
    * @public
    */
   render() {
-    const vdom = this.retain ? {subtree: 'retain'} : this.view();
+    const vdom = this.retain ? { subtree: 'retain' } : this.view();
 
     // Override the root element's config attribute with our own function, which
     // will set the component instance's element property to the root DOM
@@ -148,8 +146,7 @@ export default class Component {
    * @param {Object} vdom
    * @public
    */
-  config() {
-  }
+  config() {}
 
   /**
    * Get the virtual DOM that represents the component's view.
@@ -201,14 +198,14 @@ export default class Component {
       controller: this.bind(undefined, componentProps),
       view: view,
       props: componentProps,
-      component: this
+      component: this,
     };
 
     // If a `key` prop was set, then we'll assume that we want that to actually
     // show up as an attribute on the component object so that Mithril's key
     // algorithm can be applied.
     if (componentProps.key) {
-      output.attrs = {key: componentProps.key};
+      output.attrs = { key: componentProps.key };
     }
 
     return output;
@@ -220,6 +217,5 @@ export default class Component {
    * @param {Object} props
    * @public
    */
-  static initProps(props) {
-  }
+  static initProps(props) {}
 }

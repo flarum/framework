@@ -48,33 +48,27 @@ export default class DiscussionList extends Component {
       loading = Button.component({
         children: app.translator.trans('core.forum.discussion_list.load_more_button'),
         className: 'Button',
-        onclick: this.loadMore.bind(this)
+        onclick: this.loadMore.bind(this),
       });
     }
 
     if (this.discussions.length === 0 && !this.loading) {
       const text = app.translator.trans('core.forum.discussion_list.empty_text');
-      return (
-        <div className="DiscussionList">
-          {Placeholder.component({text})}
-        </div>
-      );
+      return <div className="DiscussionList">{Placeholder.component({ text })}</div>;
     }
 
     return (
-      <div className={'DiscussionList'+(this.props.params.q ? ' DiscussionList--searchResults' : '')}>
+      <div className={'DiscussionList' + (this.props.params.q ? ' DiscussionList--searchResults' : '')}>
         <ul className="DiscussionList-discussions">
-          {this.discussions.map(discussion => {
+          {this.discussions.map((discussion) => {
             return (
               <li key={discussion.id()} data-id={discussion.id()}>
-                {DiscussionListItem.component({discussion, params})}
+                {DiscussionListItem.component({ discussion, params })}
               </li>
             );
           })}
         </ul>
-        <div className="DiscussionList-loadMore">
-          {loading}
-        </div>
+        <div className="DiscussionList-loadMore">{loading}</div>
       </div>
     );
   }
@@ -87,7 +81,7 @@ export default class DiscussionList extends Component {
    * @api
    */
   requestParams() {
-    const params = {include: ['user', 'lastPostedUser'], filter: {}};
+    const params = { include: ['user', 'lastPostedUser'], filter: {} };
 
     params.sort = this.sortMap()[this.props.params.sort];
 
@@ -132,7 +126,7 @@ export default class DiscussionList extends Component {
     }
 
     return this.loadResults().then(
-      results => {
+      (results) => {
         this.discussions = [];
         this.parseResults(results);
       },
@@ -157,7 +151,7 @@ export default class DiscussionList extends Component {
     }
 
     const params = this.requestParams();
-    params.page = {offset};
+    params.page = { offset };
     params.include = params.include.join(',');
 
     return app.store.find('discussions', params);
@@ -171,8 +165,7 @@ export default class DiscussionList extends Component {
   loadMore() {
     this.loading = true;
 
-    this.loadResults(this.discussions.length)
-      .then(this.parseResults.bind(this));
+    this.loadResults(this.discussions.length).then(this.parseResults.bind(this));
   }
 
   /**

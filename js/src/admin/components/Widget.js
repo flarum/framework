@@ -11,11 +11,7 @@ import Component from '../../common/Component';
 
 export default class DashboardWidget extends Component {
   view() {
-    return (
-      <div className={"DashboardWidget "+this.className()}>
-        {this.content()}
-      </div>
-    );
+    return <div className={'DashboardWidget ' + this.className()}>{this.content()}</div>;
   }
 
   /**

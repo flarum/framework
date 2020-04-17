@@ -28,17 +28,16 @@ export default class EventPost extends Post {
     const username = usernameHelper(user);
     const data = Object.assign(this.descriptionData(), {
       user,
-      username: user
-        ? <a className="EventPost-user" href={app.route.user(user)} config={m.route}>{username}</a>
-        : username
+      username: user ? (
+        <a className="EventPost-user" href={app.route.user(user)} config={m.route}>
+          {username}
+        </a>
+      ) : (
+        username
+      ),
     });
 
-    return super.content().concat([
-      icon(this.icon(), {className: 'EventPost-icon'}),
-      <div class="EventPost-info">
-        {this.description(data)}
-      </div>
-    ]);
+    return super.content().concat([icon(this.icon(), { className: 'EventPost-icon' }), <div class="EventPost-info">{this.description(data)}</div>]);
   }
 
   /**

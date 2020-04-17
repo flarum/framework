@@ -134,6 +134,6 @@ export default Object.assign(compat, {
   'components/DiscussionListItem': DiscussionListItem,
   'components/LoadingPost': LoadingPost,
   'components/PostsUserPage': PostsUserPage,
-  'routes': routes,
-  'ForumApplication': ForumApplication
+  routes: routes,
+  ForumApplication: ForumApplication,
 });

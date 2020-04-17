@@ -19,10 +19,7 @@ export default class PostEdited extends Component {
   view() {
     const post = this.props.post;
     const editedUser = post.editedUser();
-    const editedInfo = extractText(app.translator.trans(
-      'core.forum.post.edited_tooltip',
-      {user: editedUser, ago: humanTime(post.editedAt())}
-    ));
+    const editedInfo = extractText(app.translator.trans('core.forum.post.edited_tooltip', { user: editedUser, ago: humanTime(post.editedAt()) }));
     if (editedInfo !== this.oldEditedInfo) {
       this.shouldUpdateTooltip = true;
       this.oldEditedInfo = editedInfo;

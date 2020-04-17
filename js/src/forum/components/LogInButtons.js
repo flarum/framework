@@ -6,11 +6,7 @@ import ItemList from '../../common/utils/ItemList';
  */
 export default class LogInButtons extends Component {
   view() {
-    return (
-      <div className="LogInButtons">
-        {this.items().toArray()}
-      </div>
-    );
+    return <div className="LogInButtons">{this.items().toArray()}</div>;
   }
 
   /**

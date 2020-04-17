@@ -36,10 +36,10 @@ class Composer extends Component {
 
   view() {
     const classes = {
-      'normal': this.position === Composer.PositionEnum.NORMAL,
-      'minimized': this.position === Composer.PositionEnum.MINIMIZED,
-      'fullScreen': this.position === Composer.PositionEnum.FULLSCREEN,
-      'active': this.active
+      normal: this.position === Composer.PositionEnum.NORMAL,
+      minimized: this.position === Composer.PositionEnum.MINIMIZED,
+      fullScreen: this.position === Composer.PositionEnum.FULLSCREEN,
+      active: this.active,
     };
     classes.visible = classes.normal || classes.minimized || classes.fullScreen;
 
@@ -52,7 +52,7 @@ class Composer extends Component {
 
     return (
       <div className={'Composer ' + classList(classes)}>
-        <div className="Composer-handle" config={this.configHandle.bind(this)}/>
+        <div className="Composer-handle" config={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
           {this.component ? this.component.render() : ''}
@@ -77,7 +77,7 @@ class Composer extends Component {
 
     // Whenever any of the inputs inside the composer are have focus, we want to
     // add a class to the composer to draw attention to it.
-    this.$().on('focus blur', ':input', e => {
+    this.$().on('focus blur', ':input', (e) => {
       this.active = e.type === 'focusin';
       m.redraw();
     });
@@ -94,18 +94,18 @@ class Composer extends Component {
 
     const handlers = {};
 
-    $(window).on('resize', handlers.onresize = this.updateHeight.bind(this)).resize();
+    $(window)
+      .on('resize', (handlers.onresize = this.updateHeight.bind(this)))
+      .resize();
 
     $(document)
-      .on('mousemove', handlers.onmousemove = this.onmousemove.bind(this))
-      .on('mouseup', handlers.onmouseup = this.onmouseup.bind(this));
+      .on('mousemove', (handlers.onmousemove = this.onmousemove.bind(this)))
+      .on('mouseup', (handlers.onmouseup = this.onmouseup.bind(this)));
 
     context.onunload = () => {
       $(window).off('resize', handlers.onresize);
 
-      $(document)
-        .off('mousemove', handlers.onmousemove)
-        .off('mouseup', handlers.onmouseup);
+      $(document).off('mousemove', handlers.onmousemove).off('mouseup', handlers.onmouseup);
     };
   }
 
@@ -121,9 +121,10 @@ class Composer extends Component {
 
     const composer = this;
 
-    $(element).css('cursor', 'row-resize')
-      .bind('dragstart mousedown', e => e.preventDefault())
-      .mousedown(function(e) {
+    $(element)
+      .css('cursor', 'row-resize')
+      .bind('dragstart mousedown', (e) => e.preventDefault())
+      .mousedown(function (e) {
         composer.mouseStart = e.clientY;
         composer.heightStart = composer.$().height();
         composer.handle = $(this);
@@ -191,15 +192,12 @@ class Composer extends Component {
    * scrolled right to the bottom.
    */
   updateBodyPadding() {
-    const visible = this.position !== Composer.PositionEnum.HIDDEN &&
-      this.position !== Composer.PositionEnum.MINIMIZED &&
-      this.$().css('position') !== 'absolute';
+    const visible =
+      this.position !== Composer.PositionEnum.HIDDEN && this.position !== Composer.PositionEnum.MINIMIZED && this.$().css('position') !== 'absolute';
 
-    const paddingBottom = visible
-      ? this.computedHeight() - parseInt($('#app').css('padding-bottom'), 10)
-      : 0;
+    const paddingBottom = visible ? this.computedHeight() - parseInt($('#app').css('padding-bottom'), 10) : 0;
 
-    $('#content').css({paddingBottom});
+    $('#content').css({ paddingBottom });
   }
 
   /**
@@ -289,12 +287,12 @@ class Composer extends Component {
     const newHeight = $composer.outerHeight();
 
     if (oldPosition === Composer.PositionEnum.HIDDEN) {
-      $composer.css({bottom: -newHeight, height: newHeight});
+      $composer.css({ bottom: -newHeight, height: newHeight });
     } else {
-      $composer.css({height: oldHeight});
+      $composer.css({ height: oldHeight });
     }
 
-    $composer.animate({bottom: 0, height: newHeight}, 'fast', () => this.component.focus());
+    $composer.animate({ bottom: 0, height: newHeight }, 'fast', () => this.component.focus());
 
     this.updateBodyPadding();
     $(window).scrollTop(scrollTop);
@@ -304,9 +302,7 @@ class Composer extends Component {
    * Show the Composer backdrop.
    */
   showBackdrop() {
-    this.$backdrop = $('<div/>')
-      .addClass('composer-backdrop')
-      .appendTo('body');
+    this.$backdrop = $('<div/>').addClass('composer-backdrop').appendTo('body');
   }
 
   /**
@@ -346,7 +342,7 @@ class Composer extends Component {
     // Animate the composer sliding down off the bottom edge of the viewport.
     // Only when the animation is completed, update the Composer state flag and
     // other elements on the page.
-    $composer.stop(true).animate({bottom: -$composer.height()}, 'fast', () => {
+    $composer.stop(true).animate({ bottom: -$composer.height() }, 'fast', () => {
       this.position = Composer.PositionEnum.HIDDEN;
       this.clear();
       m.redraw();
@@ -421,32 +417,44 @@ class Composer extends Component {
     const items = new ItemList();
 
     if (this.position === Composer.PositionEnum.FULLSCREEN) {
-      items.add('exitFullScreen', ComposerButton.component({
-        icon: 'fas fa-compress',
-        title: app.translator.trans('core.forum.composer.exit_full_screen_tooltip'),
-        onclick: this.exitFullScreen.bind(this)
-      }));
+      items.add(
+        'exitFullScreen',
+        ComposerButton.component({
+          icon: 'fas fa-compress',
+          title: app.translator.trans('core.forum.composer.exit_full_screen_tooltip'),
+          onclick: this.exitFullScreen.bind(this),
+        })
+      );
     } else {
       if (this.position !== Composer.PositionEnum.MINIMIZED) {
-        items.add('minimize', ComposerButton.component({
-          icon: 'fas fa-minus minimize',
-          title: app.translator.trans('core.forum.composer.minimize_tooltip'),
-          onclick: this.minimize.bind(this),
-          itemClassName: 'App-backControl'
-        }));
+        items.add(
+          'minimize',
+          ComposerButton.component({
+            icon: 'fas fa-minus minimize',
+            title: app.translator.trans('core.forum.composer.minimize_tooltip'),
+            onclick: this.minimize.bind(this),
+            itemClassName: 'App-backControl',
+          })
+        );
 
-        items.add('fullScreen', ComposerButton.component({
-          icon: 'fas fa-expand',
-          title: app.translator.trans('core.forum.composer.full_screen_tooltip'),
-          onclick: this.fullScreen.bind(this)
-        }));
+        items.add(
+          'fullScreen',
+          ComposerButton.component({
+            icon: 'fas fa-expand',
+            title: app.translator.trans('core.forum.composer.full_screen_tooltip'),
+            onclick: this.fullScreen.bind(this),
+          })
+        );
       }
 
-      items.add('close', ComposerButton.component({
-        icon: 'fas fa-times',
-        title: app.translator.trans('core.forum.composer.close_tooltip'),
-        onclick: this.close.bind(this)
-      }));
+      items.add(
+        'close',
+        ComposerButton.component({
+          icon: 'fas fa-times',
+          title: app.translator.trans('core.forum.composer.close_tooltip'),
+          onclick: this.close.bind(this),
+        })
+      );
     }
 
     return items;
@@ -524,7 +532,7 @@ Composer.PositionEnum = {
   HIDDEN: 'hidden',
   NORMAL: 'normal',
   MINIMIZED: 'minimized',
-  FULLSCREEN: 'fullScreen'
+  FULLSCREEN: 'fullScreen',
 };
 
 export default Composer;

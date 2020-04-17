@@ -47,7 +47,7 @@ export default class ComposerBody extends Component {
       placeholder: this.props.placeholder,
       onchange: this.content,
       onsubmit: this.onsubmit.bind(this),
-      value: this.content()
+      value: this.content(),
     });
   }
 
@@ -57,12 +57,12 @@ export default class ComposerBody extends Component {
 
     return (
       <div className={'ComposerBody ' + (this.props.className || '')}>
-        {avatar(this.props.user, {className: 'ComposerBody-avatar'})}
+        {avatar(this.props.user, { className: 'ComposerBody-avatar' })}
         <div className="ComposerBody-content">
           <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
           <div className="ComposerBody-editor">{this.editor.render()}</div>
         </div>
-        {LoadingIndicator.component({className: 'ComposerBody-loading' + (this.loading ? ' active' : '')})}
+        {LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })}
       </div>
     );
   }
@@ -100,8 +100,7 @@ export default class ComposerBody extends Component {
    *
    * @abstract
    */
-  onsubmit() {
-  }
+  onsubmit() {}
 
   /**
    * Stop loading.

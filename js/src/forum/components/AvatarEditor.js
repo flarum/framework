@@ -44,7 +44,8 @@ export default class AvatarEditor extends Component {
     return (
       <div className={'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '') + (this.isDraggedOver ? ' dragover' : '')}>
         {avatar(user)}
-        <a className={ user.avatarUrl() ? "Dropdown-toggle" : "Dropdown-toggle AvatarEditor--noAvatar" }
+        <a
+          className={user.avatarUrl() ? 'Dropdown-toggle' : 'Dropdown-toggle AvatarEditor--noAvatar'}
           title={app.translator.trans('core.forum.user.avatar_upload_tooltip')}
           data-toggle="dropdown"
           onclick={this.quickUpload.bind(this)}
@@ -52,12 +53,11 @@ export default class AvatarEditor extends Component {
           ondragenter={this.enableDragover.bind(this)}
           ondragleave={this.disableDragover.bind(this)}
           ondragend={this.disableDragover.bind(this)}
-          ondrop={this.dropUpload.bind(this)}>
-          {this.loading ? LoadingIndicator.component() : (user.avatarUrl() ? icon('fas fa-pencil-alt') : icon('fas fa-plus-circle'))}
+          ondrop={this.dropUpload.bind(this)}
+        >
+          {this.loading ? LoadingIndicator.component() : user.avatarUrl() ? icon('fas fa-pencil-alt') : icon('fas fa-plus-circle')}
         </a>
-        <ul className="Dropdown-menu Menu">
-          {listItems(this.controlItems().toArray())}
-        </ul>
+        <ul className="Dropdown-menu Menu">{listItems(this.controlItems().toArray())}</ul>
       </div>
     );
   }
@@ -70,19 +70,21 @@ export default class AvatarEditor extends Component {
   controlItems() {
     const items = new ItemList();
 
-    items.add('upload',
+    items.add(
+      'upload',
       Button.component({
         icon: 'fas fa-upload',
         children: app.translator.trans('core.forum.user.avatar_upload_button'),
-        onclick: this.openPicker.bind(this)
+        onclick: this.openPicker.bind(this),
       })
     );
 
-    items.add('remove',
+    items.add(
+      'remove',
       Button.component({
         icon: 'fas fa-times',
         children: app.translator.trans('core.forum.user.avatar_remove_button'),
-        onclick: this.remove.bind(this)
+        onclick: this.remove.bind(this),
       })
     );
 
@@ -150,9 +152,13 @@ export default class AvatarEditor extends Component {
     const user = this.props.user;
     const $input = $('<input type="file">');
 
-    $input.appendTo('body').hide().click().on('input', e => {
-      this.upload($(e.target)[0].files[0]);
-    });
+    $input
+      .appendTo('body')
+      .hide()
+      .click()
+      .on('input', (e) => {
+        this.upload($(e.target)[0].files[0]);
+      });
   }
 
   /**
@@ -170,15 +176,14 @@ export default class AvatarEditor extends Component {
     this.loading = true;
     m.redraw();
 
-    app.request({
-      method: 'POST',
-      url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
-      serialize: raw => raw,
-      data
-    }).then(
-      this.success.bind(this),
-      this.failure.bind(this)
-    );
+    app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
+        serialize: (raw) => raw,
+        data,
+      })
+      .then(this.success.bind(this), this.failure.bind(this));
   }
 
   /**
@@ -190,13 +195,12 @@ export default class AvatarEditor extends Component {
     this.loading = true;
     m.redraw();
 
-    app.request({
-      method: 'DELETE',
-      url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar'
-    }).then(
-      this.success.bind(this),
-      this.failure.bind(this)
-    );
+    app
+      .request({
+        method: 'DELETE',
+        url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
+      })
+      .then(this.success.bind(this), this.failure.bind(this));
   }
 
   /**

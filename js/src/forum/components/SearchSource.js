@@ -17,8 +17,7 @@ export default class SearchSource {
    * @param {String} query
    * @return {Promise}
    */
-  search() {
-  }
+  search() {}
 
   /**
    * Get an array of virtual <li>s that list the search results for the given
@@ -27,6 +26,5 @@ export default class SearchSource {
    * @param {String} query
    * @return {Object}
    */
-  view() {
-  }
+  view() {}
 }

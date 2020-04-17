@@ -33,4 +33,4 @@ export default function humanTime(time) {
   }
 
   return ago;
-};
+}

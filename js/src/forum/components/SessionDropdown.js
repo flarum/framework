@@ -29,10 +29,7 @@ export default class SessionDropdown extends Dropdown {
   getButtonContent() {
     const user = app.session.user;
 
-    return [
-      avatar(user), ' ',
-      <span className="Button-label">{username(user)}</span>
-    ];
+    return [avatar(user), ' ', <span className="Button-label">{username(user)}</span>];
   }
 
   /**
@@ -44,32 +41,35 @@ export default class SessionDropdown extends Dropdown {
     const items = new ItemList();
     const user = app.session.user;
 
-    items.add('profile',
+    items.add(
+      'profile',
       LinkButton.component({
         icon: 'fas fa-user',
         children: app.translator.trans('core.forum.header.profile_button'),
-        href: app.route.user(user)
+        href: app.route.user(user),
       }),
       100
     );
 
-    items.add('settings',
+    items.add(
+      'settings',
       LinkButton.component({
         icon: 'fas fa-cog',
         children: app.translator.trans('core.forum.header.settings_button'),
-        href: app.route('settings')
+        href: app.route('settings'),
       }),
       50
     );
 
     if (app.forum.attribute('adminUrl')) {
-      items.add('administration',
+      items.add(
+        'administration',
         LinkButton.component({
           icon: 'fas fa-wrench',
           children: app.translator.trans('core.forum.header.admin_button'),
           href: app.forum.attribute('adminUrl'),
           target: '_blank',
-          config: () => {}
+          config: () => {},
         }),
         0
       );
@@ -77,11 +77,12 @@ export default class SessionDropdown extends Dropdown {
 
     items.add('separator', Separator.component(), -90);
 
-    items.add('logOut',
+    items.add(
+      'logOut',
       Button.component({
         icon: 'fas fa-sign-out-alt',
         children: app.translator.trans('core.forum.header.log_out_button'),
-        onclick: app.session.logout.bind(app.session)
+        onclick: app.session.logout.bind(app.session),
       }),
       -100
     );

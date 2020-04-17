@@ -1,7 +1,7 @@
 import humanTimeUtil from './humanTime';
 
 function updateHumanTimes() {
-  $('[data-humantime]').each(function() {
+  $('[data-humantime]').each(function () {
     const $this = $(this);
     const ago = humanTimeUtil($this.attr('datetime'));
 

@@ -44,7 +44,7 @@ export default class SubtreeRetainer {
       }
     });
 
-    return needsRebuild ? false : {subtree: 'retain'};
+    return needsRebuild ? false : { subtree: 'retain' };
   }
 
   /**

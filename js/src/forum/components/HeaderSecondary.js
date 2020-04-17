@@ -15,11 +15,7 @@ import listItems from '../../common/helpers/listItems';
  */
 export default class HeaderSecondary extends Component {
   view() {
-    return (
-      <ul className="Header-controls">
-        {listItems(this.items().toArray())}
-      </ul>
-    );
+    return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
   }
 
   config(isInitialized, context) {
@@ -39,29 +35,35 @@ export default class HeaderSecondary extends Component {
 
     items.add('search', app.search.render(), 30);
 
-    if (app.forum.attribute("showLanguageSelector") && Object.keys(app.data.locales).length > 1) {
+    if (app.forum.attribute('showLanguageSelector') && Object.keys(app.data.locales).length > 1) {
       const locales = [];
 
       for (const locale in app.data.locales) {
-        locales.push(Button.component({
-          active: app.data.locale === locale,
-          children: app.data.locales[locale],
-          icon: app.data.locale === locale ? 'fas fa-check' : true,
-          onclick: () => {
-            if (app.session.user) {
-              app.session.user.savePreferences({locale}).then(() => window.location.reload());
-            } else {
-              document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
-              window.location.reload();
-            }
-          }
-        }));
+        locales.push(
+          Button.component({
+            active: app.data.locale === locale,
+            children: app.data.locales[locale],
+            icon: app.data.locale === locale ? 'fas fa-check' : true,
+            onclick: () => {
+              if (app.session.user) {
+                app.session.user.savePreferences({ locale }).then(() => window.location.reload());
+              } else {
+                document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
+                window.location.reload();
+              }
+            },
+          })
+        );
       }
 
-      items.add('locale', SelectDropdown.component({
-        children: locales,
-        buttonClassName: 'Button Button--link'
-      }), 20);
+      items.add(
+        'locale',
+        SelectDropdown.component({
+          children: locales,
+          buttonClassName: 'Button Button--link',
+        }),
+        20
+      );
     }
 
     if (app.session.user) {
@@ -69,21 +71,25 @@ export default class HeaderSecondary extends Component {
       items.add('session', SessionDropdown.component(), 0);
     } else {
       if (app.forum.attribute('allowSignUp')) {
-        items.add('signUp',
+        items.add(
+          'signUp',
           Button.component({
             children: app.translator.trans('core.forum.header.sign_up_link'),
             className: 'Button Button--link',
-            onclick: () => app.modal.show(new SignUpModal())
-          }), 10
+            onclick: () => app.modal.show(new SignUpModal()),
+          }),
+          10
         );
       }
 
-      items.add('logIn',
+      items.add(
+        'logIn',
         Button.component({
           children: app.translator.trans('core.forum.header.log_in_link'),
           className: 'Button Button--link',
-          onclick: () => app.modal.show(new LogInModal())
-        }), 0
+          onclick: () => app.modal.show(new LogInModal()),
+        }),
+        0
       );
     }
 

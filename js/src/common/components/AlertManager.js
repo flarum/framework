@@ -19,7 +19,9 @@ export default class AlertManager extends Component {
   view() {
     return (
       <div className="AlertManager">
-        {this.components.map(component => <div className="AlertManager-alert">{component}</div>)}
+        {this.components.map((component) => (
+          <div className="AlertManager-alert">{component}</div>
+        ))}
       </div>
     );
   }

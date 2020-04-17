@@ -35,22 +35,13 @@ export default class Alert extends Component {
     const dismissControl = [];
 
     if (dismissible || dismissible === undefined) {
-      dismissControl.push(
-        <Button
-          icon="fas fa-times"
-          className="Button Button--link Button--icon Alert-dismiss"
-          onclick={ondismiss}/>
-      );
+      dismissControl.push(<Button icon="fas fa-times" className="Button Button--link Button--icon Alert-dismiss" onclick={ondismiss} />);
     }
 
     return (
       <div {...attrs}>
-        <span className="Alert-body">
-          {children}
-        </span>
-        <ul className="Alert-controls">
-          {listItems(controls.concat(dismissControl))}
-        </ul>
+        <span className="Alert-body">{children}</span>
+        <ul className="Alert-controls">{listItems(controls.concat(dismissControl))}</ul>
       </div>
     );
   }

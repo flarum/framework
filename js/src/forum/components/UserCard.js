@@ -29,41 +29,35 @@ export default class UserCard extends Component {
     const badges = user.badges().toArray();
 
     return (
-      <div className={'UserCard ' + (this.props.className || '')}
-        style={color ? {backgroundColor: color} : ''}>
+      <div className={'UserCard ' + (this.props.className || '')} style={color ? { backgroundColor: color } : ''}>
         <div className="darkenBackground">
-
           <div className="container">
-            {controls.length ? Dropdown.component({
-              children: controls,
-              className: 'UserCard-controls App-primaryControl',
-              menuClassName: 'Dropdown-menu--right',
-              buttonClassName: this.props.controlsButtonClassName,
-              label: app.translator.trans('core.forum.user_controls.button'),
-              icon: 'fas fa-ellipsis-v'
-            }) : ''}
+            {controls.length
+              ? Dropdown.component({
+                  children: controls,
+                  className: 'UserCard-controls App-primaryControl',
+                  menuClassName: 'Dropdown-menu--right',
+                  buttonClassName: this.props.controlsButtonClassName,
+                  label: app.translator.trans('core.forum.user_controls.button'),
+                  icon: 'fas fa-ellipsis-v',
+                })
+              : ''}
 
             <div className="UserCard-profile">
               <h2 className="UserCard-identity">
-                {this.props.editable
-                  ? [AvatarEditor.component({user, className: 'UserCard-avatar'}), username(user)]
-                  : (
-                    <a href={app.route.user(user)} config={m.route}>
-                      <div className="UserCard-avatar">{avatar(user)}</div>
-                      {username(user)}
-                    </a>
-                  )}
+                {this.props.editable ? (
+                  [AvatarEditor.component({ user, className: 'UserCard-avatar' }), username(user)]
+                ) : (
+                  <a href={app.route.user(user)} config={m.route}>
+                    <div className="UserCard-avatar">{avatar(user)}</div>
+                    {username(user)}
+                  </a>
+                )}
               </h2>
 
-              {badges.length ? (
-                <ul className="UserCard-badges badges">
-                  {listItems(badges)}
-                </ul>
-              ) : ''}
+              {badges.length ? <ul className="UserCard-badges badges">{listItems(badges)}</ul> : ''}
 
-              <ul className="UserCard-info">
-                {listItems(this.infoItems().toArray())}
-              </ul>
+              <ul className="UserCard-info">{listItems(this.infoItems().toArray())}</ul>
             </div>
           </div>
         </div>
@@ -84,16 +78,17 @@ export default class UserCard extends Component {
     if (lastSeenAt) {
       const online = user.isOnline();
 
-      items.add('lastSeen', (
+      items.add(
+        'lastSeen',
         <span className={'UserCard-lastSeen' + (online ? ' online' : '')}>
           {online
             ? [icon('fas fa-circle'), ' ', app.translator.trans('core.forum.user.online_text')]
             : [icon('far fa-clock'), ' ', humanTime(lastSeenAt)]}
         </span>
-      ));
+      );
     }
 
-    items.add('joined', app.translator.trans('core.forum.user.joined_date_text', {ago: humanTime(user.joinTime())}));
+    items.add('joined', app.translator.trans('core.forum.user.joined_date_text', { ago: humanTime(user.joinTime()) }));
 
     return items;
   }

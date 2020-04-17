@@ -14,20 +14,26 @@ export default class UsersSearchResults {
   }
 
   search(query) {
-    return app.store.find('users', {
-      filter: {q: query},
-      page: {limit: 5}
-    }).then(results => {
-      this.results[query] = results;
-      m.redraw();
-    });
+    return app.store
+      .find('users', {
+        filter: { q: query },
+        page: { limit: 5 },
+      })
+      .then((results) => {
+        this.results[query] = results;
+        m.redraw();
+      });
   }
 
   view(query) {
     query = query.toLowerCase();
 
     const results = (this.results[query] || [])
-      .concat(app.store.all('users').filter(user => [user.username(), user.displayName()].some(value => value.toLowerCase().substr(0, query.length) === query)))
+      .concat(
+        app.store
+          .all('users')
+          .filter((user) => [user.username(), user.displayName()].some((value) => value.toLowerCase().substr(0, query.length) === query))
+      )
       .filter((e, i, arr) => arr.lastIndexOf(e) === i)
       .sort((a, b) => a.displayName().localeCompare(b.displayName()));
 
@@ -35,7 +41,7 @@ export default class UsersSearchResults {
 
     return [
       <li className="Dropdown-header">{app.translator.trans('core.forum.search.users_heading')}</li>,
-      results.map(user => {
+      results.map((user) => {
         const name = username(user);
         name.children[0] = highlight(name.children[0], query);
 
@@ -47,7 +53,7 @@ export default class UsersSearchResults {
             </a>
           </li>
         );
-      })
+      }),
     ];
   }
 }

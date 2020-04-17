@@ -9,7 +9,6 @@ export { app };
 
 // Export public API
 
-
 // Export compat API
 import compat from './compat';
 
