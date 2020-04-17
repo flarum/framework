@@ -20,11 +20,17 @@
     "webpack-merge": "^4.1.4"
   },
   "devDependencies": {
+    "husky": "^4.2.5",
     "prettier": "2.0.2"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production",
     "format": "prettier --write src"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run format"
+    }
   }
 }
