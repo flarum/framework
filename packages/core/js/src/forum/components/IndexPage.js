@@ -43,7 +43,7 @@ export default class IndexPage extends Page {
       // are currently present in the cached discussion list. If they differ, we
       // will clear the cache and set up a new discussion list component with
       // the new parameters.
-      Object.keys(params).some(key => {
+      Object.keys(params).some((key) => {
         if (app.cache.discussionList.props.params[key] !== params[key]) {
           app.cache.discussionList = null;
           return true;
@@ -52,7 +52,7 @@ export default class IndexPage extends Page {
     }
 
     if (!app.cache.discussionList) {
-      app.cache.discussionList = new DiscussionList({params});
+      app.cache.discussionList = new DiscussionList({ params });
     }
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
@@ -102,7 +102,7 @@ export default class IndexPage extends Page {
     // previous hero. Maintain the same scroll position relative to the bottom
     // of the hero so that the sidebar doesn't jump around.
     const oldHeroHeight = app.cache.heroHeight;
-    const heroHeight = app.cache.heroHeight = this.$('.Hero').outerHeight() || 0;
+    const heroHeight = (app.cache.heroHeight = this.$('.Hero').outerHeight() || 0);
     const scrollTop = app.cache.scrollTop;
 
     $('#app').css('min-height', $(window).height() + heroHeight);
@@ -153,22 +153,26 @@ export default class IndexPage extends Page {
     const items = new ItemList();
     const canStartDiscussion = app.forum.attribute('canStartDiscussion') || !app.session.user;
 
-    items.add('newDiscussion',
+    items.add(
+      'newDiscussion',
       Button.component({
-        children: app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
+        children: app.translator.trans(
+          canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'
+        ),
         icon: 'fas fa-edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
         onclick: this.newDiscussionAction.bind(this),
-        disabled: !canStartDiscussion
+        disabled: !canStartDiscussion,
       })
     );
 
-    items.add('nav',
+    items.add(
+      'nav',
       SelectDropdown.component({
         children: this.navItems(this).toArray(),
         buttonClassName: 'Button',
-        className: 'App-titleControl'
+        className: 'App-titleControl',
       })
     );
 
@@ -185,11 +189,12 @@ export default class IndexPage extends Page {
     const items = new ItemList();
     const params = this.stickyParams();
 
-    items.add('allDiscussions',
+    items.add(
+      'allDiscussions',
       LinkButton.component({
         href: app.route('index', params),
         children: app.translator.trans('core.forum.index.all_discussions_link'),
-        icon: 'far fa-comments'
+        icon: 'far fa-comments',
       }),
       100
     );
@@ -213,11 +218,12 @@ export default class IndexPage extends Page {
       sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
     }
 
-    items.add('sort',
+    items.add(
+      'sort',
       Dropdown.component({
         buttonClassName: 'Button',
-        label: sortOptions[this.params().sort] || Object.keys(sortMap).map(key => sortOptions[key])[0],
-        children: Object.keys(sortOptions).map(value => {
+        label: sortOptions[this.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
+        children: Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
           const active = (this.params().sort || Object.keys(sortMap)[0]) === value;
 
@@ -226,7 +232,7 @@ export default class IndexPage extends Page {
             icon: active ? 'fas fa-check' : true,
             onclick: this.changeSort.bind(this, value),
             active: active,
-          })
+          });
         }),
       })
     );
@@ -243,7 +249,8 @@ export default class IndexPage extends Page {
   actionItems() {
     const items = new ItemList();
 
-    items.add('refresh',
+    items.add(
+      'refresh',
       Button.component({
         title: app.translator.trans('core.forum.index.refresh_tooltip'),
         icon: 'fas fa-sync',
@@ -254,17 +261,18 @@ export default class IndexPage extends Page {
             app.store.find('users', app.session.user.id());
             m.redraw();
           }
-        }
+        },
       })
     );
 
     if (app.session.user) {
-      items.add('markAllAsRead',
+      items.add(
+        'markAllAsRead',
         Button.component({
           title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
           icon: 'fas fa-check',
           className: 'Button Button--icon',
-          onclick: this.markAllAsRead.bind(this)
+          onclick: this.markAllAsRead.bind(this),
         })
       );
     }
@@ -321,7 +329,7 @@ export default class IndexPage extends Page {
   stickyParams() {
     return {
       sort: m.route.param('sort'),
-      q: m.route.param('q')
+      q: m.route.param('q'),
     };
   }
 
@@ -371,7 +379,7 @@ export default class IndexPage extends Page {
     const confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));
 
     if (confirmation) {
-      app.session.user.save({markedAllAsReadAt: new Date()});
+      app.session.user.save({ markedAllAsReadAt: new Date() });
     }
   }
 }

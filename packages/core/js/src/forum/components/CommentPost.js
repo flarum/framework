@@ -33,7 +33,7 @@ export default class CommentPost extends Post {
 
     // Create an instance of the component that displays the post's author so
     // that we can force the post to rerender when the user card is shown.
-    this.postUser = new PostUser({post: this.props.post});
+    this.postUser = new PostUser({ post: this.props.post });
     this.subtree.check(
       () => this.postUser.cardVisible,
       () => this.isEditing()
@@ -44,14 +44,14 @@ export default class CommentPost extends Post {
     // Note: we avoid using JSX for the <ul> below because it results in some
     // weirdness in Mithril.js 0.1.x (see flarum/core#975). This workaround can
     // be reverted when we upgrade to Mithril 1.0.
-    return super.content().concat([
-      <header className="Post-header">{m('ul', listItems(this.headerItems().toArray()))}</header>,
-      <div className="Post-body">
-        {this.isEditing()
-          ? <div className="Post-preview" config={this.configPreview.bind(this)}/>
-          : m.trust(this.props.post.contentHtml())}
-      </div>
-    ]);
+    return super
+      .content()
+      .concat([
+        <header className="Post-header">{m('ul', listItems(this.headerItems().toArray()))}</header>,
+        <div className="Post-body">
+          {this.isEditing() ? <div className="Post-preview" config={this.configPreview.bind(this)} /> : m.trust(this.props.post.contentHtml())}
+        </div>,
+      ]);
   }
 
   config(isInitialized, context) {
@@ -63,7 +63,7 @@ export default class CommentPost extends Post {
     // all of the <script> tags in the content and evaluate them. This is
     // necessary because TextFormatter outputs them for e.g. syntax highlighting.
     if (context.contentHtml !== contentHtml) {
-      this.$('.Post-body script').each(function() {
+      this.$('.Post-body script').each(function () {
         eval.call(window, $(this).text());
       });
     }
@@ -72,21 +72,23 @@ export default class CommentPost extends Post {
   }
 
   isEditing() {
-    return app.composer.component instanceof EditPostComposer &&
-      app.composer.component.props.post === this.props.post;
+    return app.composer.component instanceof EditPostComposer && app.composer.component.props.post === this.props.post;
   }
 
   attrs() {
     const post = this.props.post;
     const attrs = super.attrs();
 
-    attrs.className = (attrs.className || '') + ' ' + classList({
-      'CommentPost': true,
-      'Post--hidden': post.isHidden(),
-      'Post--edited': post.isEdited(),
-      'revealContent': this.revealContent,
-      'editing': this.isEditing()
-    });
+    attrs.className =
+      (attrs.className || '') +
+      ' ' +
+      classList({
+        CommentPost: true,
+        'Post--hidden': post.isHidden(),
+        'Post--edited': post.isEdited(),
+        revealContent: this.revealContent,
+        editing: this.isEditing(),
+      });
 
     return attrs;
   }
@@ -127,7 +129,7 @@ export default class CommentPost extends Post {
   headerItems() {
     const items = new ItemList();
     const post = this.props.post;
-    const props = {post};
+    const props = { post };
 
     items.add('user', this.postUser.render(), 100);
     items.add('meta', PostMeta.component(props));
@@ -139,13 +141,14 @@ export default class CommentPost extends Post {
     // If the post is hidden, add a button that allows toggling the visibility
     // of the post's content.
     if (post.isHidden()) {
-      items.add('toggle', (
+      items.add(
+        'toggle',
         Button.component({
           className: 'Button Button--default Button--more',
           icon: 'fas fa-ellipsis-h',
-          onclick: this.toggleContent.bind(this)
+          onclick: this.toggleContent.bind(this),
         })
-      ));
+      );
     }
 
     return items;

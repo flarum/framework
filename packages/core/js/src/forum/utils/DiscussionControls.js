@@ -24,10 +24,10 @@ export default {
   controls(discussion, context) {
     const items = new ItemList();
 
-    ['user', 'moderation', 'destructive'].forEach(section => {
+    ['user', 'moderation', 'destructive'].forEach((section) => {
       const controls = this[section + 'Controls'](discussion, context).toArray();
       if (controls.length) {
-        controls.forEach(item => items.add(item.itemName, item));
+        controls.forEach((item) => items.add(item.itemName, item));
         items.add(section + 'Separator', Separator.component());
       }
     });
@@ -52,19 +52,22 @@ export default {
     // for the discussion page itself. We don't want it to show up for
     // discussions in the discussion list, etc.
     if (context instanceof DiscussionPage) {
-      items.add('reply',
+      items.add(
+        'reply',
         !app.session.user || discussion.canReply()
           ? Button.component({
-            icon: 'fas fa-reply',
-            children: app.translator.trans(app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'),
-            onclick: this.replyAction.bind(discussion, true, false)
-          })
+              icon: 'fas fa-reply',
+              children: app.translator.trans(
+                app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'
+              ),
+              onclick: this.replyAction.bind(discussion, true, false),
+            })
           : Button.component({
-            icon: 'fas fa-reply',
-            children: app.translator.trans('core.forum.discussion_controls.cannot_reply_button'),
-            className: 'disabled',
-            title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text')
-          })
+              icon: 'fas fa-reply',
+              children: app.translator.trans('core.forum.discussion_controls.cannot_reply_button'),
+              className: 'disabled',
+              title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text'),
+            })
       );
     }
 
@@ -84,11 +87,14 @@ export default {
     const items = new ItemList();
 
     if (discussion.canRename()) {
-      items.add('rename', Button.component({
-        icon: 'fas fa-pencil-alt',
-        children: app.translator.trans('core.forum.discussion_controls.rename_button'),
-        onclick: this.renameAction.bind(discussion)
-      }));
+      items.add(
+        'rename',
+        Button.component({
+          icon: 'fas fa-pencil-alt',
+          children: app.translator.trans('core.forum.discussion_controls.rename_button'),
+          onclick: this.renameAction.bind(discussion),
+        })
+      );
     }
 
     return items;
@@ -108,27 +114,36 @@ export default {
 
     if (!discussion.isHidden()) {
       if (discussion.canHide()) {
-        items.add('hide', Button.component({
-          icon: 'far fa-trash-alt',
-          children: app.translator.trans('core.forum.discussion_controls.delete_button'),
-          onclick: this.hideAction.bind(discussion)
-        }));
+        items.add(
+          'hide',
+          Button.component({
+            icon: 'far fa-trash-alt',
+            children: app.translator.trans('core.forum.discussion_controls.delete_button'),
+            onclick: this.hideAction.bind(discussion),
+          })
+        );
       }
     } else {
       if (discussion.canHide()) {
-        items.add('restore', Button.component({
-          icon: 'fas fa-reply',
-          children: app.translator.trans('core.forum.discussion_controls.restore_button'),
-          onclick: this.restoreAction.bind(discussion)
-        }));
+        items.add(
+          'restore',
+          Button.component({
+            icon: 'fas fa-reply',
+            children: app.translator.trans('core.forum.discussion_controls.restore_button'),
+            onclick: this.restoreAction.bind(discussion),
+          })
+        );
       }
 
       if (discussion.canDelete()) {
-        items.add('delete', Button.component({
-          icon: 'fas fa-times',
-          children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
-          onclick: this.deleteAction.bind(discussion)
-        }));
+        items.add(
+          'delete',
+          Button.component({
+            icon: 'fas fa-times',
+            children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
+            onclick: this.deleteAction.bind(discussion),
+          })
+        );
       }
     }
 
@@ -156,13 +171,13 @@ export default {
         if (!app.composingReplyTo(this) || forceRefresh) {
           component = new ReplyComposer({
             user: app.session.user,
-            discussion: this
+            discussion: this,
           });
           app.composer.load(component);
         }
         app.composer.show();
 
-        if (goToLast && app.viewingDiscussion(this) && ! app.composer.isFullScreen()) {
+        if (goToLast && app.viewingDiscussion(this) && !app.composer.isFullScreen()) {
           app.current.stream.goToNumber('reply');
         }
 
@@ -230,9 +245,11 @@ export default {
    * @return {Promise}
    */
   renameAction() {
-    return app.modal.show(new RenameDiscussionModal({
-      currentTitle: this.title(),
-      discussion: this
-    }));
-  }
+    return app.modal.show(
+      new RenameDiscussionModal({
+        currentTitle: this.title(),
+        discussion: this,
+      })
+    );
+  },
 };

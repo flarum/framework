@@ -3,11 +3,11 @@ import Component from '../Component';
 export default function patchMithril(global) {
   const mo = global.m;
 
-  const m = function(comp, ...args) {
+  const m = function (comp, ...args) {
     if (comp.prototype && comp.prototype instanceof Component) {
       let children = args.slice(1);
       if (children.length === 1 && Array.isArray(children[0])) {
-        children = children[0]
+        children = children[0];
       }
 
       return comp.component(args[0], children);
@@ -29,14 +29,14 @@ export default function patchMithril(global) {
     return node;
   };
 
-  Object.keys(mo).forEach(key => m[key] = mo[key]);
+  Object.keys(mo).forEach((key) => (m[key] = mo[key]));
 
   /**
    * Redraw only if not in the middle of a computation (e.g. a route change).
    *
    * @return {void}
    */
-  m.lazyRedraw = function() {
+  m.lazyRedraw = function () {
     m.startComputation();
     m.endComputation();
   };

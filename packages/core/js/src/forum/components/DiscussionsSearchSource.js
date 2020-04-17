@@ -18,12 +18,12 @@ export default class DiscussionsSearchSource {
     this.results[query] = [];
 
     const params = {
-      filter: {q: query},
-      page: {limit: 3},
-      include: 'mostRelevantPost'
+      filter: { q: query },
+      page: { limit: 3 },
+      include: 'mostRelevantPost',
     };
 
-    return app.store.find('discussions', params).then(results => this.results[query] = results);
+    return app.store.find('discussions', params).then((results) => (this.results[query] = results));
   }
 
   view(query) {
@@ -36,11 +36,11 @@ export default class DiscussionsSearchSource {
       <li>
         {LinkButton.component({
           icon: 'fas fa-search',
-          children: app.translator.trans('core.forum.search.all_discussions_button', {query}),
-          href: app.route('index', {q: query})
+          children: app.translator.trans('core.forum.search.all_discussions_button', { query }),
+          href: app.route('index', { q: query }),
         })}
       </li>,
-      results.map(discussion => {
+      results.map((discussion) => {
         const mostRelevantPost = discussion.mostRelevantPost();
 
         return (
@@ -51,7 +51,7 @@ export default class DiscussionsSearchSource {
             </a>
           </li>
         );
-      })
+      }),
     ];
   }
 }

@@ -62,9 +62,9 @@ import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
 
 export default {
-  'extend': extend,
-  'Session': Session,
-  'Store': Store,
+  extend: extend,
+  Session: Session,
+  Store: Store,
   'utils/evented': evented,
   'utils/liveHumanTimes': liveHumanTimes,
   'utils/ItemList': ItemList,
@@ -91,8 +91,8 @@ export default {
   'models/Discussion': Discussion,
   'models/Group': Group,
   'models/Forum': Forum,
-  'Component': Component,
-  'Translator': Translator,
+  Component: Component,
+  Translator: Translator,
   'components/AlertManager': AlertManager,
   'components/Switch': Switch,
   'components/Badge': Badge,
@@ -113,8 +113,8 @@ export default {
   'components/Button': Button,
   'components/Modal': Modal,
   'components/GroupBadge': GroupBadge,
-  'Model': Model,
-  'Application': Application,
+  Model: Model,
+  Application: Application,
   'helpers/fullTime': fullTime,
   'helpers/avatar': avatar,
   'helpers/icon': icon,
@@ -123,5 +123,5 @@ export default {
   'helpers/highlight': highlight,
   'helpers/username': username,
   'helpers/userOnline': userOnline,
-  'helpers/listItems': listItems
+  'helpers/listItems': listItems,
 };

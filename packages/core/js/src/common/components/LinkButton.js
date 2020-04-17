@@ -33,8 +33,6 @@ export default class LinkButton extends Button {
    * @return {Boolean}
    */
   static isActive(props) {
-    return typeof props.active !== 'undefined'
-      ? props.active
-      : m.route() === props.href;
+    return typeof props.active !== 'undefined' ? props.active : m.route() === props.href;
   }
 }

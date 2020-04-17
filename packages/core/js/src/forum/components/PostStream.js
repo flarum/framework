@@ -52,11 +52,17 @@ class PostStream extends Component {
     // discussion and then scroll to the very bottom of the page.
     if (number === 'reply') {
       return this.goToLast().then(() => {
-        $('html,body').stop(true).animate({
-          scrollTop: $(document).height() - $(window).height()
-        }, 'fast', () => {
-          this.flashItem(this.$('.PostStream-item:last-child'));
-        });
+        $('html,body')
+          .stop(true)
+          .animate(
+            {
+              scrollTop: $(document).height() - $(window).height(),
+            },
+            'fast',
+            () => {
+              this.flashItem(this.$('.PostStream-item:last-child'));
+            }
+          );
       });
     }
 
@@ -176,9 +182,10 @@ class PostStream extends Component {
    * @return {Post[]}
    */
   posts() {
-    return this.discussion.postIds()
+    return this.discussion
+      .postIds()
       .slice(this.visibleStart, this.visibleEnd)
-      .map(id => {
+      .map((id) => {
         const post = app.store.getById('posts', id);
 
         return post && post.discussion() && typeof post.canEdit() !== 'undefined' ? post : null;
@@ -201,12 +208,12 @@ class PostStream extends Component {
 
     const items = posts.map((post, i) => {
       let content;
-      const attrs = {'data-index': this.visibleStart + i};
+      const attrs = { 'data-index': this.visibleStart + i };
 
       if (post) {
         const time = post.createdAt();
         const PostComponent = app.postComponents[post.contentType()];
-        content = PostComponent ? PostComponent.component({post}) : '';
+        content = PostComponent ? PostComponent.component({ post }) : '';
 
         attrs.key = 'post' + post.id();
         attrs.config = fadeIn;
@@ -223,9 +230,9 @@ class PostStream extends Component {
         if (dt > 1000 * 60 * 60 * 24 * 4) {
           content = [
             <div className="PostStream-timeGap">
-              <span>{app.translator.trans('core.forum.post_stream.time_lapsed_text', {period: moment.duration(dt).humanize()})}</span>
+              <span>{app.translator.trans('core.forum.post_stream.time_lapsed_text', { period: moment.duration(dt).humanize() })}</span>
             </div>,
-            content
+            content,
           ];
         }
 
@@ -236,7 +243,11 @@ class PostStream extends Component {
         content = PostLoading.component();
       }
 
-      return <div className="PostStream-item" {...attrs}>{content}</div>;
+      return (
+        <div className="PostStream-item" {...attrs}>
+          {content}
+        </div>
+      );
     });
 
     if (!this.viewingEnd && posts[this.visibleEnd - this.visibleStart - 1]) {
@@ -254,16 +265,12 @@ class PostStream extends Component {
     if (this.viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
         <div className="PostStream-item" key="reply">
-          {ReplyPlaceholder.component({discussion: this.discussion})}
+          {ReplyPlaceholder.component({ discussion: this.discussion })}
         </div>
       );
     }
 
-    return (
-      <div className="PostStream">
-        {items}
-      </div>
-    );
+    return <div className="PostStream">{items}</div>;
   }
 
   config(isInitialized, context) {
@@ -320,7 +327,7 @@ class PostStream extends Component {
    */
   loadNext() {
     const start = this.visibleEnd;
-    const end = this.visibleEnd = this.sanitizeIndex(this.visibleEnd + this.constructor.loadCount);
+    const end = (this.visibleEnd = this.sanitizeIndex(this.visibleEnd + this.constructor.loadCount));
 
     // Unload the posts which are two pages back from the page we're currently
     // loading.
@@ -343,7 +350,7 @@ class PostStream extends Component {
    */
   loadPrevious() {
     const end = this.visibleStart;
-    const start = this.visibleStart = this.sanitizeIndex(this.visibleStart - this.constructor.loadCount);
+    const start = (this.visibleStart = this.sanitizeIndex(this.visibleStart - this.constructor.loadCount));
 
     // Unload the posts which are two pages back from the page we're currently
     // loading.
@@ -379,13 +386,16 @@ class PostStream extends Component {
     };
     redraw();
 
-    this.loadPageTimeouts[start] = setTimeout(() => {
-      this.loadRange(start, end).then(() => {
-        redraw();
-        this.pagesLoading--;
-      });
-      this.loadPageTimeouts[start] = null;
-    }, this.pagesLoading ? 1000 : 0);
+    this.loadPageTimeouts[start] = setTimeout(
+      () => {
+        this.loadRange(start, end).then(() => {
+          redraw();
+          this.pagesLoading--;
+        });
+        this.loadPageTimeouts[start] = null;
+      },
+      this.pagesLoading ? 1000 : 0
+    );
 
     this.pagesLoading++;
   }
@@ -402,19 +412,20 @@ class PostStream extends Component {
     const loadIds = [];
     const loaded = [];
 
-    this.discussion.postIds().slice(start, end).forEach(id => {
-      const post = app.store.getById('posts', id);
+    this.discussion
+      .postIds()
+      .slice(start, end)
+      .forEach((id) => {
+        const post = app.store.getById('posts', id);
 
-      if (post && post.discussion() && typeof post.canEdit() !== 'undefined') {
-        loaded.push(post);
-      } else {
-        loadIds.push(id);
-      }
-    });
+        if (post && post.discussion() && typeof post.canEdit() !== 'undefined') {
+          loaded.push(post);
+        } else {
+          loadIds.push(id);
+        }
+      });
 
-    return loadIds.length
-      ? app.store.find('posts', loadIds)
-      : m.deferred().resolve(loaded).promise;
+    return loadIds.length ? app.store.find('posts', loadIds) : m.deferred().resolve(loaded).promise;
   }
 
   /**
@@ -426,16 +437,18 @@ class PostStream extends Component {
    * @return {Promise}
    */
   loadNearNumber(number) {
-    if (this.posts().some(post => post && Number(post.number()) === Number(number))) {
+    if (this.posts().some((post) => post && Number(post.number()) === Number(number))) {
       return m.deferred().resolve().promise;
     }
 
     this.reset();
 
-    return app.store.find('posts', {
-      filter: {discussion: this.discussion.id()},
-      page: {near: number}
-    }).then(this.show.bind(this));
+    return app.store
+      .find('posts', {
+        filter: { discussion: this.discussion.id() },
+        page: { near: number },
+      })
+      .then(this.show.bind(this));
   }
 
   /**
@@ -471,7 +484,7 @@ class PostStream extends Component {
     let startNumber;
     let endNumber;
 
-    this.$('.PostStream-item').each(function() {
+    this.$('.PostStream-item').each(function () {
       const $item = $(this);
       const top = $item.offset().top;
       const height = $item.outerHeight(true);
@@ -556,14 +569,12 @@ class PostStream extends Component {
       // If we're scrolling to the bottom of an item, then we'll make sure the
       // bottom will line up with the top of the composer.
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        const top = bottom
-          ? itemBottom - $(window).height() + app.composer.computedHeight()
-          : ($item.is(':first-child') ? 0 : itemTop);
+        const top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
 
         if (noAnimation) {
           $container.scrollTop(top);
         } else if (top !== scrollTop) {
-          $container.animate({scrollTop: top}, 'fast');
+          $container.animate({ scrollTop: top }, 'fast');
         }
       }
     }

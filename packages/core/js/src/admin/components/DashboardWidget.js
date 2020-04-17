@@ -11,11 +11,7 @@ import Component from '../../common/Component';
 
 export default class Widget extends Component {
   view() {
-    return (
-      <div className={"Widget "+this.className()}>
-        {this.content()}
-      </div>
-    );
+    return <div className={'Widget ' + this.className()}>{this.content()}</div>;
   }
 
   /**

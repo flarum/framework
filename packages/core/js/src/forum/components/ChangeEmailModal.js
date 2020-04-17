@@ -44,7 +44,9 @@ export default class ChangeEmailModal extends Modal {
       return (
         <div className="Modal-body">
           <div className="Form Form--centered">
-            <p className="helpText">{app.translator.trans('core.forum.change_email.confirmation_message', {email: <strong>{this.email()}</strong>})}</p>
+            <p className="helpText">
+              {app.translator.trans('core.forum.change_email.confirmation_message', { email: <strong>{this.email()}</strong> })}
+            </p>
             <div className="Form-group">
               <Button className="Button Button--primary Button--block" onclick={this.hide.bind(this)}>
                 {app.translator.trans('core.forum.change_email.dismiss_button')}
@@ -59,23 +61,31 @@ export default class ChangeEmailModal extends Modal {
       <div className="Modal-body">
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input type="email" name="email" className="FormControl"
+            <input
+              type="email"
+              name="email"
+              className="FormControl"
               placeholder={app.session.user.email()}
               bidi={this.email}
-              disabled={this.loading}/>
+              disabled={this.loading}
+            />
           </div>
           <div className="Form-group">
-            <input type="password" name="password" className="FormControl"
+            <input
+              type="password"
+              name="password"
+              className="FormControl"
               placeholder={app.translator.trans('core.forum.change_email.confirm_password_placeholder')}
               bidi={this.password}
-              disabled={this.loading}/>
+              disabled={this.loading}
+            />
           </div>
           <div className="Form-group">
             {Button.component({
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.translator.trans('core.forum.change_email.submit_button')
+              children: app.translator.trans('core.forum.change_email.submit_button'),
             })}
           </div>
         </div>
@@ -97,11 +107,15 @@ export default class ChangeEmailModal extends Modal {
 
     this.loading = true;
 
-    app.session.user.save({email: this.email()}, {
-      errorHandler: this.onerror.bind(this),
-      meta: {password: this.password()}
-    })
-      .then(() => this.success = true)
+    app.session.user
+      .save(
+        { email: this.email() },
+        {
+          errorHandler: this.onerror.bind(this),
+          meta: { password: this.password() },
+        }
+      )
+      .then(() => (this.success = true))
       .catch(() => {})
       .then(this.loaded.bind(this));
   }

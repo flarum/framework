@@ -59,17 +59,22 @@ export default class ForgotPasswordModal extends Modal {
         <div className="Form Form--centered">
           <p className="helpText">{app.translator.trans('core.forum.forgot_password.text')}</p>
           <div className="Form-group">
-            <input className="FormControl" name="email" type="email" placeholder={extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'))}
+            <input
+              className="FormControl"
+              name="email"
+              type="email"
+              placeholder={extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'))}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
-              disabled={this.loading} />
+              disabled={this.loading}
+            />
           </div>
           <div className="Form-group">
             {Button.component({
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.translator.trans('core.forum.forgot_password.submit_button')
+              children: app.translator.trans('core.forum.forgot_password.submit_button'),
             })}
           </div>
         </div>
@@ -82,12 +87,13 @@ export default class ForgotPasswordModal extends Modal {
 
     this.loading = true;
 
-    app.request({
-      method: 'POST',
-      url: app.forum.attribute('apiUrl') + '/forgot',
-      data: {email: this.email()},
-      errorHandler: this.onerror.bind(this)
-    })
+    app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/forgot',
+        data: { email: this.email() },
+        errorHandler: this.onerror.bind(this),
+      })
       .then(() => {
         this.success = true;
         this.alert = null;

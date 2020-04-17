@@ -47,8 +47,8 @@ export default class DiscussionListItem extends Component {
       className: classList([
         'DiscussionListItem',
         this.active() ? 'active' : '',
-        this.props.discussion.isHidden() ? 'DiscussionListItem--hidden' : ''
-      ])
+        this.props.discussion.isHidden() ? 'DiscussionListItem--hidden' : '',
+      ]),
     };
   }
 
@@ -73,50 +73,56 @@ export default class DiscussionListItem extends Component {
       }
 
       const phrase = this.props.params.q;
-      this.highlightRegExp = new RegExp(phrase+'|'+phrase.trim().replace(/\s+/g, '|'), 'gi');
+      this.highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
     } else {
       jumpTo = Math.min(discussion.lastPostNumber(), (discussion.lastReadPostNumber() || 0) + 1);
     }
 
     return (
       <div {...attrs}>
-        {controls.length ? Dropdown.component({
-          icon: 'fas fa-ellipsis-v',
-          children: controls,
-          className: 'DiscussionListItem-controls',
-          buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right'
-        }) : ''}
+        {controls.length
+          ? Dropdown.component({
+              icon: 'fas fa-ellipsis-v',
+              children: controls,
+              className: 'DiscussionListItem-controls',
+              buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
+            })
+          : ''}
 
-        <a className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
-          onclick={this.markAsRead.bind(this)}>
+        <a
+          className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
+          onclick={this.markAsRead.bind(this)}
+        >
           {icon('fas fa-check')}
         </a>
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
-          <a href={user ? app.route.user(user) : '#'}
+          <a
+            href={user ? app.route.user(user) : '#'}
             className="DiscussionListItem-author"
-            title={extractText(app.translator.trans('core.forum.discussion_list.started_text', {user: user, ago: humanTime(discussion.createdAt())}))}
-            config={function(element) {
-              $(element).tooltip({placement: 'right'});
+            title={extractText(
+              app.translator.trans('core.forum.discussion_list.started_text', { user: user, ago: humanTime(discussion.createdAt()) })
+            )}
+            config={function (element) {
+              $(element).tooltip({ placement: 'right' });
               m.route.apply(this, arguments);
-            }}>
-            {avatar(user, {title: ''})}
+            }}
+          >
+            {avatar(user, { title: '' })}
           </a>
 
-          <ul className="DiscussionListItem-badges badges">
-            {listItems(discussion.badges().toArray())}
-          </ul>
+          <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>
 
-          <a href={app.route.discussion(discussion, jumpTo)}
-            config={m.route}
-            className="DiscussionListItem-main">
+          <a href={app.route.discussion(discussion, jumpTo)} config={m.route} className="DiscussionListItem-main">
             <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
             <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
           </a>
 
-          <span className="DiscussionListItem-count"
+          <span
+            className="DiscussionListItem-count"
             onclick={this.markAsRead.bind(this)}
-            title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}>
+            title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}
+          >
             {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'replyCount']())}
           </span>
         </div>
@@ -133,8 +139,7 @@ export default class DiscussionListItem extends Component {
     if ('ontouchstart' in window) {
       const slidableInstance = slidable(this.$().addClass('Slidable'));
 
-      this.$('.DiscussionListItem-controls')
-        .on('hidden.bs.dropdown', () => slidableInstance.reset());
+      this.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', () => slidableInstance.reset());
     }
   }
 
@@ -177,7 +182,7 @@ export default class DiscussionListItem extends Component {
     const discussion = this.props.discussion;
 
     if (discussion.isUnread()) {
-      discussion.save({lastReadPostNumber: discussion.lastPostNumber()});
+      discussion.save({ lastReadPostNumber: discussion.lastPostNumber() });
       m.redraw();
     }
   }
@@ -199,10 +204,11 @@ export default class DiscussionListItem extends Component {
         items.add('excerpt', excerpt, -100);
       }
     } else {
-      items.add('terminalPost',
+      items.add(
+        'terminalPost',
         TerminalPost.component({
           discussion: this.props.discussion,
-          lastPost: !this.showFirstPost()
+          lastPost: !this.showFirstPost(),
         })
       );
     }

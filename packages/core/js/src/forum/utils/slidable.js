@@ -36,11 +36,11 @@ export default function slidable(element) {
     // will set the transform property, but then we animate an unused property
     // (background-position-x) with jQuery.
     options.duration = options.duration || 'fast';
-    options.step = function(x) {
+    options.step = function (x) {
       $(this).css('transform', 'translate(' + x + 'px, 0)');
     };
 
-    $element.find('.Slidable-content').animate({'background-position-x': newPos}, options);
+    $element.find('.Slidable-content').animate({ 'background-position-x': newPos }, options);
   };
 
   /**
@@ -48,17 +48,18 @@ export default function slidable(element) {
    */
   const reset = () => {
     animatePos(0, {
-      complete: function() {
+      complete: function () {
         $element.removeClass('sliding');
         $underneathLeft.hide();
         $underneathRight.hide();
         isSliding = false;
-      }
+      },
     });
   };
 
-  $element.find('.Slidable-content')
-    .on('touchstart', function(e) {
+  $element
+    .find('.Slidable-content')
+    .on('touchstart', function (e) {
       // Update the references to the elements underneath the slider, provided
       // they're not disabled.
       $underneathLeft = $element.find('.Slidable-underneath--left:not(.disabled)');
@@ -71,7 +72,7 @@ export default function slidable(element) {
       pos = 0;
     })
 
-    .on('touchmove', function(e) {
+    .on('touchmove', function (e) {
       const newX = e.originalEvent.targetTouches[0].clientX;
       const newY = e.originalEvent.targetTouches[0].clientY;
 
@@ -118,13 +119,13 @@ export default function slidable(element) {
       }
     })
 
-    .on('touchend', function() {
+    .on('touchend', function () {
       // If the user releases the touch and the slider is past the threshold
       // position on either side, then we will activate the control for that
       // side. We will also animate the slider's position all the way to the
       // other side, or back to its original position, depending on whether or
       // not the side is 'elastic'.
-      const activate = $underneath => {
+      const activate = ($underneath) => {
         $underneath.click();
 
         if ($underneath.hasClass('Slidable-underneath--elastic')) {
@@ -146,5 +147,5 @@ export default function slidable(element) {
       isSliding = false;
     });
 
-  return {reset};
-};
+  return { reset };
+}

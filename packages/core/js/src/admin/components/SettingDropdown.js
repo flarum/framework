@@ -11,14 +11,14 @@ export default class SettingDropdown extends SelectDropdown {
     props.caretIcon = 'fas fa-caret-down';
     props.defaultLabel = 'Custom';
 
-    props.children = props.options.map(({value, label}) => {
+    props.children = props.options.map(({ value, label }) => {
       const active = app.data.settings[props.key] === value;
 
       return Button.component({
         children: label,
         icon: active ? 'fas fa-check' : true,
-        onclick: saveSettings.bind(this, {[props.key]: value}),
-        active
+        onclick: saveSettings.bind(this, { [props.key]: value }),
+        active,
       });
     });
   }

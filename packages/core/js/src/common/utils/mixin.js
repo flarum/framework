@@ -12,7 +12,7 @@
 export default function mixin(Parent, ...mixins) {
   class Mixed extends Parent {}
 
-  mixins.forEach(object => {
+  mixins.forEach((object) => {
     Object.assign(Mixed.prototype, object);
   });
 

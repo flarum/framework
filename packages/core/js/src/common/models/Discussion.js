@@ -19,18 +19,18 @@ Object.assign(Discussion.prototype, {
   lastPostNumber: Model.attribute('lastPostNumber'),
 
   commentCount: Model.attribute('commentCount'),
-  replyCount: computed('commentCount', commentCount => Math.max(0, commentCount - 1)),
+  replyCount: computed('commentCount', (commentCount) => Math.max(0, commentCount - 1)),
   posts: Model.hasMany('posts'),
   mostRelevantPost: Model.hasOne('mostRelevantPost'),
 
   lastReadAt: Model.attribute('lastReadAt', Model.transformDate),
   lastReadPostNumber: Model.attribute('lastReadPostNumber'),
-  isUnread: computed('unreadCount', unreadCount => !!unreadCount),
-  isRead: computed('unreadCount', unreadCount => app.session.user && !unreadCount),
+  isUnread: computed('unreadCount', (unreadCount) => !!unreadCount),
+  isRead: computed('unreadCount', (unreadCount) => app.session.user && !unreadCount),
 
   hiddenAt: Model.attribute('hiddenAt', Model.transformDate),
   hiddenUser: Model.hasOne('hiddenUser'),
-  isHidden: computed('hiddenAt', hiddenAt => !!hiddenAt),
+  isHidden: computed('hiddenAt', (hiddenAt) => !!hiddenAt),
 
   canReply: Model.attribute('canReply'),
   canRename: Model.attribute('canRename'),
@@ -84,7 +84,7 @@ Object.assign(Discussion.prototype, {
     const items = new ItemList();
 
     if (this.isHidden()) {
-      items.add('hidden', <Badge type="hidden" icon="fas fa-trash" label={app.translator.trans('core.lib.badge.hidden_tooltip')}/>);
+      items.add('hidden', <Badge type="hidden" icon="fas fa-trash" label={app.translator.trans('core.lib.badge.hidden_tooltip')} />);
     }
 
     return items;
@@ -99,6 +99,6 @@ Object.assign(Discussion.prototype, {
   postIds() {
     const posts = this.data.relationships.posts;
 
-    return posts ? posts.data.map(link => link.id) : [];
-  }
+    return posts ? posts.data.map((link) => link.id) : [];
+  },
 });

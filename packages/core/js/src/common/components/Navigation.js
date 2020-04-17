@@ -19,15 +19,15 @@ import LinkButton from './LinkButton';
  */
 export default class Navigation extends Component {
   view() {
-    const {history, pane} = app;
+    const { history, pane } = app;
 
     return (
-      <div className={'Navigation ButtonGroup ' + (this.props.className || '')}
+      <div
+        className={'Navigation ButtonGroup ' + (this.props.className || '')}
         onmouseenter={pane && pane.show.bind(pane)}
-        onmouseleave={pane && pane.onmouseleave.bind(pane)}>
-        {history.canGoBack()
-          ? [this.getBackButton(), this.getPaneButton()]
-          : this.getDrawerButton()}
+        onmouseleave={pane && pane.onmouseleave.bind(pane)}
+      >
+        {history.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton()}
       </div>
     );
   }
@@ -46,7 +46,7 @@ export default class Navigation extends Component {
    * @protected
    */
   getBackButton() {
-    const {history} = app;
+    const { history } = app;
     const previous = history.getPrevious() || {};
 
     return LinkButton.component({
@@ -55,11 +55,11 @@ export default class Navigation extends Component {
       icon: 'fas fa-chevron-left',
       title: previous.title,
       config: () => {},
-      onclick: e => {
+      onclick: (e) => {
         if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
         e.preventDefault();
         history.back();
-      }
+      },
     });
   }
 
@@ -70,14 +70,14 @@ export default class Navigation extends Component {
    * @protected
    */
   getPaneButton() {
-    const {pane} = app;
+    const { pane } = app;
 
     if (!pane || !pane.active) return '';
 
     return Button.component({
       className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
       onclick: pane.togglePinned.bind(pane),
-      icon: 'fas fa-thumbtack'
+      icon: 'fas fa-thumbtack',
     });
   }
 
@@ -90,17 +90,16 @@ export default class Navigation extends Component {
   getDrawerButton() {
     if (!this.props.drawer) return '';
 
-    const {drawer} = app;
+    const { drawer } = app;
     const user = app.session.user;
 
     return Button.component({
-      className: 'Button Button--icon Navigation-drawer' +
-        (user && user.newNotificationCount() ? ' new' : ''),
-      onclick: e => {
+      className: 'Button Button--icon Navigation-drawer' + (user && user.newNotificationCount() ? ' new' : ''),
+      onclick: (e) => {
         e.stopPropagation();
         drawer.show();
       },
-      icon: 'fas fa-bars'
+      icon: 'fas fa-bars',
     });
   }
 }
