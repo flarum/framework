@@ -6,8 +6,7 @@ import ItemList from '../utils/ItemList';
 import computed from '../utils/computed';
 import GroupBadge from '../components/GroupBadge';
 
-export default class User extends Model {
-}
+export default class User extends Model {}
 
 Object.assign(User.prototype, {
   username: Model.attribute('username'),
@@ -33,7 +32,7 @@ Object.assign(User.prototype, {
   canEditGroups: Model.attribute('canEditGroups'),
   canDelete: Model.attribute('canDelete'),
   canEdit: computed('canEditUsername', 'canEditCredentials', 'canEditGroups', function (canEditUsername, canEditCredentials, canEditGroups) {
-    return (canEditCredentials || canEditGroups || canEditUsername);
+    return canEditCredentials || canEditGroups || canEditUsername;
   }),
 
   avatarColor: null,
