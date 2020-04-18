@@ -1,6 +1,12 @@
 {
-  "private": true,
   "name": "@flarum/core",
+  "private": true,
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production",
+    "format": "prettier --write src \"*.{ts,js}\"",
+    "format-check": "prettier --check src \"*.{ts,js}\""
+  },
   "dependencies": {
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.6",
@@ -19,11 +25,6 @@
     "tooltip.js": "^1.3.3",
     "zepto": "^1.2.0"
   },
-  "scripts": {
-    "dev": "webpack --mode development --watch",
-    "build": "webpack --mode production",
-    "lint": "prettier --single-quote --trailing-comma es5 --print-width 150 --tab-width 4 --write src \"*.{ts,js}\""
-  },
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
@@ -41,6 +42,7 @@
     "babel-loader": "^8.0.6",
     "expose-loader": "^0.7.5",
     "friendly-errors-webpack-plugin": "^1.7.0",
+    "husky": "^4.2.5",
     "imports-loader": "^0.8.0",
     "prettier": "^2.0.2",
     "source-map-loader": "^0.2.4",
@@ -49,5 +51,10 @@
     "webpack-bundle-analyzer": "^3.6.1",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.2.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run format"
+    }
   }
 }
