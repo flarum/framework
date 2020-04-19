@@ -35,7 +35,7 @@ abstract class AbstractPolicy
      */
     public function getPermission(GetPermission $event)
     {
-        if (! $event->model instanceof $this->model) {
+        if (! $event->model instanceof $this->model && $event->model !== $this->model) {
             return;
         }
 
