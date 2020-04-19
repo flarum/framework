@@ -114,6 +114,8 @@ class ModelTest extends TestCase
     {
         $group = new Group;
 
+        $this->app();
+
         $this->assertNotEquals('Custom Default', $group->name_singular);
     }
 
@@ -156,9 +158,11 @@ class ModelTest extends TestCase
     /**
      * @test
      */
-    public function custom_date_doesnt_exist_if_not_set()
+    public function expected_date_attribute_exists_if_not_removed()
     {
         $post = new Post;
+
+        $this->app();
 
         $this->assertContains('hidden_at', $post->getDates());
     }
@@ -166,7 +170,7 @@ class ModelTest extends TestCase
     /**
      * @test
      */
-    public function custom_date_works_if_set()
+    public function date_type_attribute_can_be_removed_through_extender()
     {
         $this->extend((new Extend\Model(Post::class))->configureDates(function ($dates) {
             if (($key = array_search('hidden_at', $dates)) !== false) {
