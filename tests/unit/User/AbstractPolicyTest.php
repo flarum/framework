@@ -11,6 +11,7 @@ namespace Flarum\Tests\unit\User;
 
 use Flarum\Event\GetPermission;
 use Flarum\Tests\unit\TestCase;
+use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
 use Illuminate\Events\Dispatcher;
 use Mockery as m;
@@ -22,7 +23,7 @@ class AbstractPolicyTest extends TestCase
 
     public function setUp()
     {
-        $this->policy = m::mock(UserPolicy::class)->makePartial();
+        $this->policy = m::mock(CustomUserPolicy::class)->makePartial();
         $this->dispatcher = new Dispatcher();
         $this->dispatcher->subscribe($this->policy);
         User::setEventDispatcher($this->dispatcher);
@@ -44,5 +45,20 @@ class AbstractPolicyTest extends TestCase
         $allowed = $this->dispatcher->until(new GetPermission(new User(), 'create', User::class));
 
         $this->assertTrue($allowed);
+    }
+}
+
+class CustomUserPolicy extends AbstractPolicy
+{
+    protected $model = User::class;
+
+    public function create(User $actor)
+    {
+        return true;
+    }
+
+    public function edit(User $actor, User $user)
+    {
+        return true;
     }
 }
