@@ -16,6 +16,7 @@ use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use RuntimeException;
+use SplFileInfo;
 
 class LanguagePack implements ExtenderInterface, LifecycleInterface
 {
@@ -55,7 +56,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
 
         $container->resolving(
             LocaleManager::class,
-            function (LocaleManager $locales) use ($extension, $locale, $title, $container) {
+            function (LocaleManager $locales, Container $container) use ($extension, $locale, $title) {
                 $this->registerLocale($container, $locales, $extension, $locale, $title);
             }
         );
@@ -81,20 +82,40 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
             $locales->addCssFile($locale, $file);
         }
 
-        /** @var ExtensionManager $extensions */
-        $extensions = $container->make(ExtensionManager::class);
-
         foreach (new DirectoryIterator($directory) as $file) {
-            $slug = $file->getBasename(".{$file->getExtension()}");
-
-            if (
-                $file->isFile()
-                && in_array($file->getExtension(), ['yml', 'yaml'], true)
-                && (in_array($slug, self::CORE_LOCALE_FILES, true) || $extensions->isEnabled($slug))
-            ) {
+            if ($this->shouldLoad($file, $container)) {
                 $locales->addTranslations($locale, $file->getPathname());
             }
         }
+    }
+
+    private function shouldLoad(SplFileInfo $file, Container $container)
+    {
+        if (! $file->isFile()) {
+            return false;
+        }
+
+        // We are only interested in YAML files
+        if (! in_array($file->getExtension(), ['yml', 'yaml'], true)) {
+            return false;
+        }
+
+        // Some language packs include translations for many extensions
+        // from the ecosystems. For performance reasons, we should only
+        // load those that belong to core, or extensions that are enabled.
+        // To identify them, we compare the filename (without the YAML
+        // extension) with the list of known names and all extension IDs.
+        $slug = $file->getBasename(".{$file->getExtension()}");
+
+        if (in_array($slug, self::CORE_LOCALE_FILES, true)) {
+            return true;
+        }
+
+        /** @var ExtensionManager $extensions */
+        static $extensions;
+        $extensions = $extensions ?? $container->make(ExtensionManager::class);
+
+        return $extensions->isEnabled($slug);
     }
 
     public function onEnable(Container $container, Extension $extension)
