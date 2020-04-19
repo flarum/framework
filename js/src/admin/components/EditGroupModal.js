@@ -91,13 +91,17 @@ export default class EditGroupModal extends Modal {
       10
     );
 
-    items.add('hidden', <div className="Form-group">
-      {Switch.component({
-        state: !!Number(this.isHidden()),
-        children: app.translator.trans('core.admin.edit_group.hide_label'),
-        onchange: this.isHidden
-      })}
-    </div>, 10);
+    items.add(
+      'hidden',
+      <div className="Form-group">
+        {Switch.component({
+          state: !!Number(this.isHidden()),
+          children: app.translator.trans('core.admin.edit_group.hide_label'),
+          onchange: this.isHidden,
+        })}
+      </div>,
+      10
+    );
 
     items.add(
       'submit',
@@ -128,7 +132,7 @@ export default class EditGroupModal extends Modal {
       namePlural: this.namePlural(),
       color: this.color(),
       icon: this.icon(),
-      isHidden: this.isHidden()
+      isHidden: this.isHidden(),
     };
   }
 
