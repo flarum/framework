@@ -29,7 +29,7 @@ class SendTestMailController implements RequestHandlerInterface
 
     protected $translator;
 
-    public function __construct(Container $container, TranslatorInterface $translator, Mailer $mailer)
+    public function __construct(Container $container, Mailer $mailer, TranslatorInterface $translator)
     {
         $this->container = $container;
         $this->mailer = $mailer;
