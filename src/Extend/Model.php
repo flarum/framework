@@ -9,14 +9,16 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Arr;
 
 class Model implements ExtenderInterface
 {
     private $modelClass;
-    private $dateCallbacks = [];
-    private $defaultAttributeCallbacks = [];
+    private $dateAttributes = [];
+    private $defaults = [];
     private $relationships = [];
 
     /**
@@ -29,39 +31,26 @@ class Model implements ExtenderInterface
     }
 
     /**
-     * Modify which attributes of this model are treated as dates.
+     * Add an attribute to be treated as a date.
      *
-     * @param callable $callable
-     *
-     * The callable can be a closure or invokable class, and should accept:
-     * - \Flarum\User\User $user: the user in question.
-     * - array $dateAttributes: an array of attributes which are processed as dates.
-     *
-     * The callable should return:
-     * - array $dateAttributes: an array of attributes which are processed as dates.
+     * @param string $attribute
      */
-    public function configureDates(callable $callable)
+    public function dateAttribute(string $attribute)
     {
-        $this->dateCallbacks[] = $callable;
+        Arr::set(AbstractModel::$dateAttributes, $this->modelClass, array_merge(Arr::get(AbstractModel::$dateAttributes, $this->modelClass, []), [$attribute]));
 
         return $this;
     }
 
     /**
-     * Modify default attribute values for this model.
+     * Add a default value for a given attribute, which can be an explicit value, or a closure.
      *
-     * @param callable $callable
-     *
-     * The callable can be a closure or invokable class, and should accept:
-     * - \Flarum\User\User $user: the user in question.
-     * - array[string] $dateAttributes: an associative array of attributes => default values.
-     *
-     * The callable should return:
-     * - array[string] $dateAttributes: an associative array of attributes => default values.
+     * @param string $attribute
+     * @param mixed $value
      */
-    public function configureDefaultAttributes(callable $callable)
+    public function default(string $attribute, $value)
     {
-        $this->defaultAttributeCallbacks[] = $callable;
+        Arr::set(AbstractModel::$defaults, "$this->modelClass.$attribute", $value);
 
         return $this;
     }
@@ -82,23 +71,13 @@ class Model implements ExtenderInterface
      */
     public function relationship(string $name, callable $callable)
     {
-        $this->relationships[$name] = $callable;
+        Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", $callable);
 
         return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('flarum.model.customRelations', function ($existingRelations) {
-            return array_merge_recursive($existingRelations, [$this->modelClass => $this->relationships]);
-        });
-
-        $container->extend('flarum.model.dateCallbacks', function ($existingCallbacks) {
-            return array_merge_recursive($existingCallbacks, [$this->modelClass => $this->dateCallbacks]);
-        });
-
-        $container->extend('flarum.model.defaultAttributeCallbacks', function ($existingCallbacks) {
-            return array_merge_recursive($existingCallbacks, [$this->modelClass => $this->defaultAttributeCallbacks]);
-        });
+        // Nothing needed here.
     }
 }

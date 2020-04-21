@@ -124,11 +124,7 @@ class ModelTest extends TestCase
      */
     public function custom_default_attribute_works_if_set()
     {
-        $this->extend((new Extend\Model(Group::class))->configureDefaultAttributes(function ($defaults) {
-            $defaults['name_singular'] = 'Custom Default';
-
-            return $defaults;
-        }));
+        $this->extend((new Extend\Model(Group::class))->default('name_singular', 'Custom Default'));
 
         $this->app();
 
@@ -140,13 +136,28 @@ class ModelTest extends TestCase
     /**
      * @test
      */
+    public function custom_default_attribute_evaluated_at_runtime_if_callable()
+    {
+        $time = Carbon::now();
+        $this->extend((new Extend\Model(Group::class))->default('name_singular', function () {
+            return Carbon::now();
+        }));
+
+        $this->app();
+
+        sleep(2);
+
+        $group = new Group;
+
+        $this->assertGreaterThanOrEqual($time->diffInSeconds($group->name_singular), 2);
+    }
+
+    /**
+     * @test
+     */
     public function custom_default_attribute_doesnt_work_if_set_on_unrelated_model()
     {
-        $this->extend((new Extend\Model(Group::class))->configureDefaultAttributes(function ($defaults) {
-            $defaults['name_singular'] = 'Custom Default';
-
-            return $defaults;
-        }));
+        $this->extend((new Extend\Model(Group::class))->default('name_singular', 'Custom Default'));
 
         $this->app();
 
@@ -158,52 +169,40 @@ class ModelTest extends TestCase
     /**
      * @test
      */
-    public function expected_date_attribute_exists_if_not_removed()
+    public function custom_date_attribute_doesnt_exist_by_default()
     {
         $post = new Post;
 
         $this->app();
 
-        $this->assertContains('hidden_at', $post->getDates());
+        $this->assertNotContains('custom', $post->getDates());
     }
 
     /**
      * @test
      */
-    public function date_type_attribute_can_be_removed_through_extender()
+    public function custom_date_attribute_can_be_set()
     {
-        $this->extend((new Extend\Model(Post::class))->configureDates(function ($dates) {
-            if (($key = array_search('hidden_at', $dates)) !== false) {
-                unset($dates[$key]);
-            }
-
-            return $dates;
-        }));
+        $this->extend((new Extend\Model(Post::class))->dateAttribute('custom'));
 
         $this->app();
 
         $post = new Post;
 
-        $this->assertNotContains('hidden_at', $post->getDates());
+        $this->assertContains('custom', $post->getDates());
     }
 
     /**
      * @test
      */
-    public function custom_date_doesnt_work_if_set_on_unrelated_model()
+    public function custom_date_attribute_doesnt_work_if_set_on_unrelated_model()
     {
-        $this->extend((new Extend\Model(Post::class))->configureDates(function ($dates) {
-            if (($key = array_search('hidden_at', $dates)) !== false) {
-                unset($dates[$key]);
-            }
-
-            return $dates;
-        }));
+        $this->extend((new Extend\Model(Post::class))->dateAttribute('custom'));
 
         $this->app();
 
         $discussion = new Discussion;
 
-        $this->assertContains('hidden_at', $discussion->getDates());
+        $this->assertNotContains('custom', $discussion->getDates());
     }
 }

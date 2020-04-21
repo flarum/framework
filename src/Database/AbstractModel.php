@@ -47,6 +47,12 @@ abstract class AbstractModel extends Eloquent
      */
     protected $afterDeleteCallbacks = [];
 
+    public static $customRelations = [];
+
+    public static $dateAttributes = [];
+
+    public static $defaults = [];
+
     /**
      * {@inheritdoc}
      */
@@ -68,58 +74,20 @@ abstract class AbstractModel extends Eloquent
     }
 
     /**
-     * An array of custom relationships defined by extensions.
-     */
-    protected static $customRelations = [];
-
-    protected static $dateCallbacks = [];
-
-    protected static $defaultAttributeCallbacks = [];
-
-    public static function addCustomRelation(string $from, string $name, $relation)
-    {
-        if (! array_key_exists($from, static::$customRelations)) {
-            static::$customRelations[$from] = [];
-        }
-
-        static::$customRelations[$from][$name] = $relation;
-    }
-
-    public static function addDateCallback(string $model, $callback)
-    {
-        if (! array_key_exists($model, static::$dateCallbacks)) {
-            static::$dateCallbacks[$model] = [];
-        }
-
-        static::$dateCallbacks[$model][] = $callback;
-    }
-
-    public static function addDefaultAttributeCallback(string $model, $callback)
-    {
-        if (! array_key_exists($model, static::$defaultAttributeCallbacks)) {
-            static::$defaultAttributeCallbacks[$model] = [];
-        }
-
-        static::$defaultAttributeCallbacks[$model][] = $callback;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function __construct(array $attributes = [])
     {
-        $defaults = [];
+        $this->attributes = Arr::get(static::$defaults, static::class, []);
 
         // Deprecated in beta 13, remove in beta 14.
         static::$dispatcher->dispatch(
-            new ConfigureModelDefaultAttributes($this, $defaults)
+            new ConfigureModelDefaultAttributes($this, $this->attributes)
         );
 
-        foreach (Arr::get(static::$defaultAttributeCallbacks, static::class, []) as $callback) {
-            $defaults = $callback($defaults);
-        }
-
-        $this->attributes = $defaults;
+        $this->attributes = array_map(function ($item) {
+            return is_callable($item) ? $item() : $item;
+        }, $this->attributes);
 
         parent::__construct($attributes);
     }
@@ -131,23 +99,11 @@ abstract class AbstractModel extends Eloquent
      */
     public function getDates()
     {
-        static $dates = [];
+        static::$dispatcher->dispatch(
+            new ConfigureModelDates($this, $this->dates)
+        );
 
-        $class = get_class($this);
-
-        if (! isset($dates[$class])) {
-            static::$dispatcher->dispatch(
-                new ConfigureModelDates($this, $this->dates)
-            );
-
-            $dates[$class] = $this->dates;
-        }
-
-        foreach (Arr::get(static::$dateCallbacks, static::class, []) as $callback) {
-            $dates[$class] = $callback($dates[$class]);
-        }
-
-        return $dates[$class];
+        return array_merge($this->dates, Arr::get(static::$dateAttributes, static::class, []));
     }
 
     /**
@@ -185,7 +141,7 @@ abstract class AbstractModel extends Eloquent
      */
     protected function getCustomRelation($name)
     {
-        $relation = Arr::get(Arr::get(static::$customRelations, static::class, []), $name, null);
+        $relation = Arr::get(static::$customRelations, static::class.".$name", null);
 
         if (! is_null($relation)) {
             return $relation($this);
