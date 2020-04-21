@@ -73,12 +73,20 @@ class ExtensionManager
             // Load all packages installed by composer.
             $installed = json_decode($this->filesystem->get($this->app->vendorPath().'/composer/installed.json'), true);
 
+            // Composer 2.0 changes the structure of the installed.json manifest
+            $installed = $installed['packages'] ?? $installed;
+
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
                     continue;
                 }
+
+                $path = isset($package['install-path'])
+                    ? $this->getExtensionsDir().'/composer/'.$package['install-path']
+                    : $this->getExtensionsDir().'/'.Arr::get($package, 'name');
+
                 // Instantiates an Extension object using the package path and composer.json file.
-                $extension = new Extension($this->getExtensionsDir().'/'.Arr::get($package, 'name'), $package);
+                $extension = new Extension($path, $package);
 
                 // Per default all extensions are installed if they are registered in composer.
                 $extension->setInstalled(true);
