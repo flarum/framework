@@ -32,21 +32,22 @@ class User implements ExtenderInterface
 
 
     /**
-     * Add a callback to dynamically process a user's list of groups.
-     * This can be used to add or remove groups to a user.
+     * Dynamically process a user's list of groups when calculating permissions.
+     * This can be used to give a user permissions for groups they aren't actually in, based on context.
+     * It will not change the group badges displayed for the user.
+     *
+     * @param callable $callable
      *
      * The callable can be a closure or invokable class, and should accept:
-     * - \Flarum\User\User $user: the user in question
-     * - array $groupIds: an array of ids for the groups the user belongs to
+     * - \Flarum\User\User $user: the user in question.
+     * - array $groupIds: an array of ids for the groups the user belongs to.
      *
      * The callable should return:
-     * - array $groupIds: an array of ids for the groups the user belongs to
-     *
-     * @param callable $callback
+     * - array $groupIds: an array of ids for the groups the user belongs to.
      */
-    public function addGroupProcessor($callback)
+    public function addGroupProcessor(callable $callable)
     {
-        $this->groupProcessors[] = $callback;
+        $this->groupProcessors[] = $callable;
 
         return $this;
     }
