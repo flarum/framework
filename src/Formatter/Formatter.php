@@ -26,21 +26,6 @@ class Formatter
 
     protected $renderingCallbacks = [];
 
-    public function addConfigurationCallback($callback)
-    {
-        $this->configurationCallbacks[] = $callback;
-    }
-
-    public function addParsingCallback($callback)
-    {
-        $this->parsingCallbacks[] = $callback;
-    }
-
-    public function addRenderingCallback($callback)
-    {
-        $this->renderingCallbacks[] = $callback;
-    }
-
     /**
      * @var Repository
      */
@@ -66,6 +51,21 @@ class Formatter
         $this->cache = $cache;
         $this->events = $events;
         $this->cacheDir = $cacheDir;
+    }
+
+    public function addConfigurationCallback($callback)
+    {
+        $this->configurationCallbacks[] = $callback;
+    }
+
+    public function addParsingCallback($callback)
+    {
+        $this->parsingCallbacks[] = $callback;
+    }
+
+    public function addRenderingCallback($callback)
+    {
+        $this->renderingCallbacks[] = $callback;
     }
 
     /**
