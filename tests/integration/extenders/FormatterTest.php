@@ -74,8 +74,8 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_parsing_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->parse(function ($parser, $context, &$text) {
-            $text = 'ReplacedText<a>';
+        $this->extend((new Extend\Formatter)->parse(function ($parser, $context, $text) {
+            return 'ReplacedText<a>';
         }));
 
         $this->assertEquals('<t>ReplacedText&lt;a&gt;</t>', $this->getFormatter()->parse('Text<a>'));
@@ -104,8 +104,8 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_rendering_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->render(function ($renderer, $context, &$xml, $request) {
-            $xml = '<html>ReplacedText</html>';
+        $this->extend((new Extend\Formatter)->render(function ($renderer, $context, $xml, $request) {
+            return '<html>ReplacedText</html>';
         }));
 
         $this->assertEquals('ReplacedText', $this->getFormatter()->render('<html>Text</html>'));
@@ -132,16 +132,16 @@ class InvokableConfig
 
 class InvokableParsing
 {
-    public function __invoke($parser, $context, &$text)
+    public function __invoke($parser, $context, $text)
     {
-        $text = 'ReplacedText<a>';
+        return 'ReplacedText<a>';
     }
 }
 
 class InvokableRendering
 {
-    public function __invoke($renderer, $context, &$xml, $request)
+    public function __invoke($renderer, $context, $xml, $request)
     {
-        $xml = '<html>ReplacedText</html>';
+        return '<html>ReplacedText</html>';
     }
 }

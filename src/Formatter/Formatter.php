@@ -83,7 +83,7 @@ class Formatter
         $this->events->dispatch(new Parsing($parser, $context, $text));
 
         foreach ($this->parsingCallbacks as $callback) {
-            $callback($parser, $context, $text);
+            $text = $callback($parser, $context, $text);
         }
 
         return $parser->parse($text);
@@ -105,7 +105,7 @@ class Formatter
         $this->events->dispatch(new Rendering($renderer, $context, $xml, $request));
 
         foreach ($this->renderingCallbacks as $callback) {
-            $callback($renderer, $context, $xml, $request);
+            $xml = $callback($renderer, $context, $xml, $request);
         }
 
         return $renderer->render($xml);
