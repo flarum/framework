@@ -10,5 +10,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addColumns('groups', [
-    'is_hidden' => ['boolean', 'default' => 0]
+    'is_hidden' => ['boolean', 'default' => false]
 ]);
