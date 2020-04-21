@@ -17,11 +17,24 @@ class Validator implements ExtenderInterface
     private $configurationCallbacks = [];
     private $validator;
 
-    public function __construct($validator)
+    /**
+     * @param string $validatorClass: The ::class attribute of the validator you are modifying.
+     *                                The validator should inherit from \Flarum\Foundation\AbstractValidator.
+     */
+    public function __construct($validatorClass)
     {
-        $this->validator = $validator;
+        $this->validator = $validatorClass;
     }
 
+    /**
+     * Configure the validator. This is often used to adjust validation rules, but can be
+     * used to make other changes to the validator as well.
+     *
+     * @param callable $callable
+     *
+     * The callable can be a closure or invokable class, and should accept:
+     * - \Illuminate\Validation\Validator $validator: The validator object that is being modified.
+     */
     public function configure($callback)
     {
         $this->configurationCallbacks[] = $callback;
