@@ -10,12 +10,12 @@
 namespace Flarum\Console;
 
 use Flarum\Console\Event\Configuring;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\SiteInterface;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -33,7 +33,7 @@ class Server
     {
         $app = $this->site->bootApp();
 
-        $console = new ConsoleApplication('Flarum', Application::VERSION);
+        $console = new Application('Flarum', \Flarum\Foundation\Application::VERSION);
 
         foreach ($app->getConsoleCommands() as $command) {
             $console->add($command);
@@ -47,29 +47,28 @@ class Server
     /**
      * @deprecated
      */
-    private function extend(ConsoleApplication $console)
+    private function extend(Application $console)
     {
-        $app = Application::getInstance();
+        $container = \Illuminate\Container\Container::getInstance();
 
-        $this->handleErrors($app, $console);
+        $this->handleErrors($container, $console);
 
-        $events = $app->make(Dispatcher::class);
-
-        $events->dispatch(new Configuring($app, $console));
+        $events = $container->make(Dispatcher::class);
+        $events->dispatch(new Configuring($container, $console));
     }
 
-    private function handleErrors(Application $app, ConsoleApplication $console)
+    private function handleErrors(Container $container, Application $console)
     {
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) use ($app) {
+        $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) use ($container) {
             /** @var Registry $registry */
-            $registry = $app->make(Registry::class);
+            $registry = $container->make(Registry::class);
 
             $error = $registry->handle($event->getError());
 
             /** @var Reporter[] $reporters */
-            $reporters = $app->tagged(Reporter::class);
+            $reporters = $container->tagged(Reporter::class);
 
             if ($error->shouldBeReported()) {
                 foreach ($reporters as $reporter) {

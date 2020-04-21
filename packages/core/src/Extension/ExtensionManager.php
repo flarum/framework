@@ -31,6 +31,8 @@ class ExtensionManager
 
     protected $app;
 
+    protected $container;
+
     protected $migrator;
 
     /**
@@ -51,12 +53,14 @@ class ExtensionManager
     public function __construct(
         SettingsRepositoryInterface $config,
         Application $app,
+        Container $container,
         Migrator $migrator,
         Dispatcher $dispatcher,
         Filesystem $filesystem
     ) {
         $this->config = $config;
         $this->app = $app;
+        $this->container = $container;
         $this->migrator = $migrator;
         $this->dispatcher = $dispatcher;
         $this->filesystem = $filesystem;
@@ -138,7 +142,7 @@ class ExtensionManager
 
         $this->setEnabled($enabled);
 
-        $extension->enable($this->app);
+        $extension->enable($this->container);
 
         $this->dispatcher->dispatch(new Enabled($extension));
     }
@@ -164,7 +168,7 @@ class ExtensionManager
 
         $this->setEnabled($enabled);
 
-        $extension->disable($this->app);
+        $extension->disable($this->container);
 
         $this->dispatcher->dispatch(new Disabled($extension));
     }
@@ -235,7 +239,7 @@ class ExtensionManager
      */
     public function migrate(Extension $extension, $direction = 'up')
     {
-        $this->app->bind(Builder::class, function ($container) {
+        $this->container->bind(Builder::class, function ($container) {
             return $container->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
