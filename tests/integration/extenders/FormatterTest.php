@@ -17,7 +17,9 @@ class FormatterTest extends TestCase
 {
     protected function getFormatter()
     {
-        return $this->app()->getContainer()->make(Formatter::class);
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $formatter->flush();
+        return $formatter;
     }
 
     /**
@@ -26,7 +28,6 @@ class FormatterTest extends TestCase
     public function custom_formatter_config_doesnt_work_by_default()
     {
         $formatter = $this->getFormatter();
-        $formatter->flush();
 
         $this->assertEquals('<t>[B]something[/B]</t>', $formatter->parse('[B]something[/B]'));
     }
@@ -40,9 +41,7 @@ class FormatterTest extends TestCase
             $config->BBCodes->addFromRepository('B');
         }));
 
-        // Needed so that the config is refreshed, this is usually handled by lifecyclehooks.
         $formatter = $this->getFormatter();
-        $formatter->flush();
 
         $this->assertEquals('<b>something</b>', $formatter->render($formatter->parse('[B]something[/B]')));
     }
@@ -54,9 +53,7 @@ class FormatterTest extends TestCase
     {
         $this->extend((new Extend\Formatter)->configure(InvokableConfig::class));
 
-        // Needed so that the config is refreshed, this is usually handled by lifecyclehooks.
         $formatter = $this->getFormatter();
-        $formatter->flush();
 
         $this->assertEquals('<b>something</b>', $formatter->render($formatter->parse('[B]something[/B]')));
     }
