@@ -31,9 +31,14 @@ class Model implements ExtenderInterface
     /**
      * Modify which attributes of this model are treated as dates.
      *
-     * @param callable $callable: A callback, or class attribute of invokable class.
-     *                            It should take as input, and return, an array of
-     *                            attributes that should be treated as dates.
+     * @param callable $callable
+     *
+     * The callable can be a closure or invokable class, and should accept:
+     * - \Flarum\User\User $user: the user in question.
+     * - array $dateAttributes: an array of attributes which are processed as dates.
+     *
+     * The callable should return:
+     * - array $dateAttributes: an array of attributes which are processed as dates.
      */
     public function configureDates(callable $callable)
     {
@@ -45,9 +50,14 @@ class Model implements ExtenderInterface
     /**
      * Modify default attribute values for this model.
      *
-     * @param callable $callable: A callback, or class attribute of invokable class.
-     *                            It should take as input, and return, an
-     *                            associative array of attributes => default values.
+     * @param callable $callable
+     *
+     * The callable can be a closure or invokable class, and should accept:
+     * - \Flarum\User\User $user: the user in question.
+     * - array[string] $dateAttributes: an associative array of attributes => default values.
+     *
+     * The callable should return:
+     * - array[string] $dateAttributes: an associative array of attributes => default values.
      */
     public function configureDefaultAttributes(callable $callable)
     {
@@ -61,9 +71,14 @@ class Model implements ExtenderInterface
      *
      * @param string $name: the name of the relation. This doesn't have to match anything,
      *                      but has to be unique from other relation names for this model.
-     * @param callable $callable: A callable that takes as input an instance of this model, and
-     *                            returns a Laravel Relationship object. See relevant methods of
-     *                            models like \Flarum\User\User for examples of how relationships should be returned.
+     * @param callable $callable
+     *
+     * The callable can be a closure or invokable class, and should accept:
+     * - $instance: An instance of this model.
+     *
+     * The callable should return:
+     * - $relationship: A Laravel Relationship object. See relevant methods of models
+     *                  like \Flarum\User\User for examples of how relationships should be returned.
      */
     public function relationship(string $name, callable $callable)
     {
