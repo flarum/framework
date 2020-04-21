@@ -125,29 +125,27 @@ export default class MailPage extends Page {
             {FieldSet.component({
               children: [
                 Button.component({
-                    type: 'submit',
-                    className: 'Button Button--primary',
-                    children: app.translator.trans('core.admin.email.submit_button'),
-                    disabled: !this.changed()
-                  })
-              ]
+                  type: 'submit',
+                  className: 'Button Button--primary',
+                  children: app.translator.trans('core.admin.email.submit_button'),
+                  disabled: !this.changed(),
+                }),
+              ],
             })}
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.email.send_test_mail_heading'),
               className: 'MailPage-MailSettings',
               children: [
-                <div className="helpText">
-                    {app.translator.trans('core.admin.email.send_test_mail_text', {email: app.session.user.email()})}
-                </div>,
+                <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}</div>,
                 Button.component({
                   type: 'button',
                   className: 'Button Button--primary',
                   children: app.translator.trans('core.admin.email.send_test_mail_button'),
                   disabled: this.sendingTest() || this.changed(),
-                  onclick: () => this.sendTestEmail()
-                })
-              ]
+                  onclick: () => this.sendTestEmail(),
+                }),
+              ],
             })}
           </form>
         </div>
@@ -177,36 +175,44 @@ export default class MailPage extends Page {
     this.sendingTest = m.prop(true);
     const settings = {};
 
-    this.fields.forEach(key => settings[key] = this.values[key]());
+    this.fields.forEach((key) => (settings[key] = this.values[key]()));
 
-    app.request({
-      method: 'POST',
-      url: app.forum.attribute('apiUrl') + '/mail/test',
-      data: settings
-    }).then(response => {
-      this.sendingTest = m.prop(false);
-      app.alerts.show(new Alert({
-        type: 'success',
-        children: app.translator.trans('core.admin.email.send_test_mail_success')
-      }));
-    }).catch(error => {
-      this.sendingTest = m.prop(false)
-      const response = JSON.parse(error.responseText)['message'];
-      if (Array.isArray(response)) {
-        response.forEach(errorMessage => {
-          app.alerts.show(new Alert({
-            type: 'error',
-            children: errorMessage
-          }));
-        });
-      }
-      else {
-        app.alerts.show(new Alert({
-          type: 'error',
-          children: app.translator.trans('core.admin.email.send_test_mail_error')
-        }));
-      }
-    });
+    app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/mail/test',
+        data: settings,
+      })
+      .then((response) => {
+        this.sendingTest = m.prop(false);
+        app.alerts.show(
+          new Alert({
+            type: 'success',
+            children: app.translator.trans('core.admin.email.send_test_mail_success'),
+          })
+        );
+      })
+      .catch((error) => {
+        this.sendingTest = m.prop(false);
+        const response = JSON.parse(error.responseText)['message'];
+        if (Array.isArray(response)) {
+          response.forEach((errorMessage) => {
+            app.alerts.show(
+              new Alert({
+                type: 'error',
+                children: errorMessage,
+              })
+            );
+          });
+        } else {
+          app.alerts.show(
+            new Alert({
+              type: 'error',
+              children: app.translator.trans('core.admin.email.send_test_mail_error'),
+            })
+          );
+        }
+      });
   }
 
   onsubmit(e) {
