@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\groups;
 use Flarum\Group\Group;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
 {
@@ -48,7 +49,7 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals([1], $data['data']);
+        $this->assertEquals(["1"], Arr::pluck($data['data'], 'id'));
     }
 
     /**
@@ -65,7 +66,7 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals([1, 10], $data['data']);
+        $this->assertEquals(["1", "10"], Arr::pluck($data['data'], 'id'));
     }
 
     protected function hiddenGroup(): array
