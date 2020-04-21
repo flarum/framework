@@ -86,7 +86,7 @@ class MigrateCommand extends AbstractCommand
             }
         }
 
-        $this->container->make(SettingsRepositoryInterface::class)->set('version', $this->app->version());
+        $this->container->make(SettingsRepositoryInterface::class)->set('version', Application::VERSION);
 
         $this->info('Publishing assets...');
 

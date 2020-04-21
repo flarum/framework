@@ -85,7 +85,7 @@ class ForumSerializer extends AbstractSerializer
 
         if ($this->actor->can('administrate')) {
             $attributes['adminUrl'] = $this->url->to('admin')->base();
-            $attributes['version'] = $this->app->version();
+            $attributes['version'] = Application::VERSION;
         }
 
         return $attributes;
