@@ -48,7 +48,7 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals(Group::where('is_hidden', 0)->count(), count($data['data']));
+        $this->assertEquals([1], $data['data']);
     }
 
     /**
@@ -65,7 +65,7 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals(Group::count(), count($data['data']));
+        $this->assertEquals([1, 10], $data['data']);
     }
 
     protected function hiddenGroup(): array
