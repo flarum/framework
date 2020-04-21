@@ -73,6 +73,7 @@ core:
       color_label: => core.ref.color
       delete_button: Delete Group
       delete_confirmation: "Are you sure you want to delete this group? The group members will NOT be deleted."
+      hide_label: Hide on forum
       icon_label: => core.ref.icon
       icon_text: => core.ref.icon_text
       name_label: Name
@@ -165,6 +166,7 @@ core:
       sign_up_label: Sign up
       start_discussions_label: Start discussions
       view_discussions_label: View discussions
+      view_hidden_groups_label: View hidden group badges
       view_last_seen_at_label: Always view user last seen time
       view_post_ips_label: View post IP addresses
       view_user_list_label: View user list
