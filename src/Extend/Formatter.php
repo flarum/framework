@@ -19,6 +19,16 @@ class Formatter implements ExtenderInterface, LifecycleInterface
     private $parsingCallbacks = [];
     private $renderingCallbacks = [];
 
+    /**
+     * Configure the formatter. This can be used to add support for custom markdown/bbcode/etc tags,
+     * or otherwise change the formatter. Please see documentation for the s9e text formatter library for more
+     * information on how to use this.
+     *
+     * @param callable $callable
+     *
+     * The callable can be a closure or invokable class, and should accept:
+     * - \s9e\TextFormatter\Configurator $configurator
+     */
     public function configure($callback)
     {
         $this->configurationCallbacks[] = $callback;
@@ -26,6 +36,20 @@ class Formatter implements ExtenderInterface, LifecycleInterface
         return $this;
     }
 
+    /**
+     * Prepare the system for parsing. This can be used to modify the text that will be parsed, or to modify the parser.
+     * Please note that the text to be parsed must be returned, regardless of whether it's changed.
+     *
+     * @param callable $callable
+     *
+     * The callable can be a closure or invokable class, and should accept:
+     * - \s9e\TextFormatter\Parser $parser
+     * - mixed $context
+     * - string $text: The text to be parsed.
+     *
+     * The callable should return:
+     * - string $text: The text to be parsed.
+     */
     public function parse($callback)
     {
         $this->parsingCallbacks[] = $callback;
@@ -33,6 +57,21 @@ class Formatter implements ExtenderInterface, LifecycleInterface
         return $this;
     }
 
+    /**
+     * Prepare the system for rendering. This can be used to modify the xml that will be rendered, or to modify the renderer.
+     * Please note that the xml to be rendered must be returned, regardless of whether it's changed.
+     *
+     * @param callable $callable
+     *
+     * The callable can be a closure or invokable class, and should accept:
+     * - \s9e\TextFormatter\Rendered $renderer
+     * - mixed $context
+     * - string $xml: The xml to be rendered.
+     * - ServerRequestInterface $request
+     *
+     * The callable should return:
+     * - string $xml: The xml to be rendered.
+     */
     public function render($callback)
     {
         $this->renderingCallbacks[] = $callback;
