@@ -3,6 +3,7 @@ import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
 import ItemList from '../../common/utils/ItemList';
+import Switch from '../../common/components/Switch';
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
@@ -16,6 +17,7 @@ export default class EditGroupModal extends Modal {
     this.namePlural = m.prop(this.group.namePlural() || '');
     this.icon = m.prop(this.group.icon() || '');
     this.color = m.prop(this.group.color() || '');
+    this.isHidden = m.prop(this.group.isHidden() || false);
   }
 
   className() {
@@ -90,6 +92,18 @@ export default class EditGroupModal extends Modal {
     );
 
     items.add(
+      'hidden',
+      <div className="Form-group">
+        {Switch.component({
+          state: !!Number(this.isHidden()),
+          children: app.translator.trans('core.admin.edit_group.hide_label'),
+          onchange: this.isHidden,
+        })}
+      </div>,
+      10
+    );
+
+    items.add(
       'submit',
       <div className="Form-group">
         {Button.component({
@@ -118,6 +132,7 @@ export default class EditGroupModal extends Modal {
       namePlural: this.namePlural(),
       color: this.color(),
       icon: this.icon(),
+      isHidden: this.isHidden(),
     };
   }
 

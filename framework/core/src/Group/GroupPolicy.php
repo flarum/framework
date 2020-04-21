@@ -11,6 +11,7 @@ namespace Flarum\Group;
 
 use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class GroupPolicy extends AbstractPolicy
 {
@@ -28,6 +29,17 @@ class GroupPolicy extends AbstractPolicy
     {
         if ($actor->hasPermission('group.'.$ability)) {
             return true;
+        }
+    }
+
+    /**
+     * @param User $actor
+     * @param Builder $query
+     */
+    public function find(User $actor, Builder $query)
+    {
+        if ($actor->cannot('viewHiddenGroups')) {
+            $query->where('is_hidden', false);
         }
     }
 }
