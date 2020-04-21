@@ -45,6 +45,10 @@ class BasicUserSerializer extends AbstractSerializer
      */
     protected function groups($user)
     {
-        return $this->hasMany($user, GroupSerializer::class);
+        if ($this->getActor()->can('viewHiddenGroups')) {
+            return $this->hasMany($user, GroupSerializer::class);
+        }
+
+        return $this->hasMany($user, GroupSerializer::class, 'visibleGroups');
     }
 }

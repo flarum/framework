@@ -606,6 +606,11 @@ class User extends AbstractModel
         return $this->belongsToMany(Group::class);
     }
 
+    public function visibleGroups()
+    {
+        return $this->belongsToMany(Group::class)->where('is_hidden', false);
+    }
+
     /**
      * Define the relationship with the user's notifications.
      *
