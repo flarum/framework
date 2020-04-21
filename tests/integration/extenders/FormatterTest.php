@@ -19,6 +19,7 @@ class FormatterTest extends TestCase
     {
         $formatter = $this->app()->getContainer()->make(Formatter::class);
         $formatter->flush();
+
         return $formatter;
     }
 
