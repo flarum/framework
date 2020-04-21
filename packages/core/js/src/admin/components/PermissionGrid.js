@@ -113,6 +113,16 @@ export default class PermissionGrid extends Component {
     );
 
     items.add(
+      'viewHiddenGroups',
+      {
+        icon: 'fas fa-users',
+        label: app.translator.trans('core.admin.permissions.view_hidden_groups_label'),
+        permission: 'viewHiddenGroups',
+      },
+      100
+    );
+
+    items.add(
       'viewUserList',
       {
         icon: 'fas fa-users',

@@ -54,7 +54,8 @@ class CreateGroupHandler
             Arr::get($data, 'attributes.nameSingular'),
             Arr::get($data, 'attributes.namePlural'),
             Arr::get($data, 'attributes.color'),
-            Arr::get($data, 'attributes.icon')
+            Arr::get($data, 'attributes.icon'),
+            Arr::get($data, 'attributes.isHidden', false)
         );
 
         $this->events->dispatch(
