@@ -1,4 +1,4 @@
-name: Lint code
+name: Lint
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
   prettier:
     runs-on: ubuntu-latest
 
-    name: Lint JS code with Prettier
+    name: JS / Prettier
 
     steps:
       - uses: actions/checkout@master
