@@ -88,12 +88,11 @@ class Model implements ExtenderInterface
      * @param string $related: The ::class attribute of the model, which should extend \Flarum\Database\AbstractModel.
      * @param string $foreignKey: The foreign key attribute of the parent model.
      * @param string $ownerKey: The primary key attribute of the parent model.
-     * @param string $relation
      */
-    public function belongsTo(string $name, $related, $foreignKey = null, $ownerKey = null, $relation = null)
+    public function belongsTo(string $name, $related, $foreignKey = null, $ownerKey = null)
     {
-        return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $ownerKey, $relation) {
-            return $model->belongsTo($related, $foreignKey, $ownerKey, $relation);
+        return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $ownerKey, $name) {
+            return $model->belongsTo($related, $foreignKey, $ownerKey, $name);
         });
     }
 
@@ -111,13 +110,12 @@ class Model implements ExtenderInterface
      * @param string $relatedPivotKey: The associated key attribute of the relation.
      * @param string $parentKey: The key name of the parent model.
      * @param string $relatedKey: The key name of the related model.
-     * @param string $relation
      */
     public function belongsToMany(string $name, $related, $table = null, $foreignPivotKey = null, $relatedPivotKey = null,
-                                  $parentKey = null, $relatedKey = null, $relation = null)
+                                  $parentKey = null, $relatedKey = null)
     {
-        return $this->relationship($name, function (AbstractModel $model) use ($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relation) {
-            return $model->belongsToMany($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relation);
+        return $this->relationship($name, function (AbstractModel $model) use ($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name) {
+            return $model->belongsToMany($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name);
         });
     }
 
