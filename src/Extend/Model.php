@@ -111,8 +111,15 @@ class Model implements ExtenderInterface
      * @param string $parentKey: The key name of the parent model.
      * @param string $relatedKey: The key name of the related model.
      */
-    public function belongsToMany(string $name, $related, $table = null, $foreignPivotKey = null, $relatedPivotKey = null,
-                                  $parentKey = null, $relatedKey = null)
+    public function belongsToMany(
+        string $name,
+        $related,
+        $table = null,
+        $foreignPivotKey = null,
+        $relatedPivotKey = null,
+        $parentKey = null,
+        $relatedKey = null
+    )
     {
         return $this->relationship($name, function (AbstractModel $model) use ($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name) {
             return $model->belongsToMany($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name);
