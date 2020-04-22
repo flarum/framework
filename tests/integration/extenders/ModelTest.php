@@ -110,6 +110,48 @@ class ModelTest extends TestCase
     /**
      * @test
      */
+    public function custom_hasOne_relationship_exists_if_added()
+    {
+        $this->extend((new Extend\Model(User::class))->hasMany('customRelation', Discussion::class, 'user_id'));
+
+        $this->prepDB();
+
+        $user = User::find(1);
+
+        $this->assertEquals([], $user->customRelation()->get()->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_hasMany_relationship_exists_if_added()
+    {
+        $this->extend((new Extend\Model(User::class))->hasMany('customRelation', Discussion::class, 'user_id'));
+
+        $this->prepDB();
+
+        $user = User::find(1);
+
+        $this->assertEquals([], $user->customRelation()->get()->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_belongsTo_relationship_exists_if_added()
+    {
+        $this->extend((new Extend\Model(User::class))->belongsTo('customRelation', Discussion::class, 'user_id'));
+
+        $this->prepDB();
+
+        $user = User::find(1);
+
+        $this->assertEquals([], $user->customRelation()->get()->toArray());
+    }
+
+    /**
+     * @test
+     */
     public function custom_default_attribute_doesnt_exist_if_not_set()
     {
         $group = new Group;

@@ -58,8 +58,9 @@ class Model implements ExtenderInterface
     /**
      * Add a relationship from this model to another model.
      *
-     * @param string $name: the name of the relation. This doesn't have to match anything,
-     *                      but has to be unique from other relation names for this model.
+     * @param string $name: The name of the relation. This doesn't have to be anything in particular,
+     *                      but has to be unique from other relation names for this model, and should
+     *                      work as the name of a method.
      * @param callable $callable
      *
      * The callable can be a closure or invokable class, and should accept:
@@ -74,6 +75,88 @@ class Model implements ExtenderInterface
         Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", $callable);
 
         return $this;
+    }
+
+    /**
+     * Establish a simple belongsTo relationship from this model to another model.
+     * This represents an inverse one-to-one or inverse one-to-many relationship.
+     * For more complex relationships, use the ->relationship method.
+     *
+     * @param string $name: The name of the relation. This doesn't have to be anything in particular,
+     *                      but has to be unique from other relation names for this model, and should
+     *                      work as the name of a method.
+     * @param string $related: The ::class attribute of the model, which should extend \Flarum\Database\AbstractModel.
+     * @param string $foreignKey: The foreign key attribute of the parent model.
+     * @param string $ownerKey: The primary key attribute of the parent model.
+     * @param string $relation
+     */
+    public function belongsTo(string $name, $related, $foreignKey = null, $ownerKey = null, $relation = null)
+    {
+        return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $ownerKey, $relation) {
+            return $model->belongsTo($related, $foreignKey, $ownerKey, $relation);
+        });
+    }
+
+    /**
+     * Establish a simple belongsToMany relationship from this model to another model.
+     * This represents a many-to-many relationship.
+     * For more complex relationships, use the ->relationship method.
+     *
+     * @param string $name: The name of the relation. This doesn't have to be anything in particular,
+     *                      but has to be unique from other relation names for this model, and should
+     *                      work as the name of a method.
+     * @param string $related: The ::class attribute of the model, which should extend \Flarum\Database\AbstractModel.
+     * @param string $table: The intermediate table for this relation
+     * @param string $foreignPivotKey: The foreign key attribute of the parent model.
+     * @param string $relatedPivotKey: The associated key attribute of the relation.
+     * @param string $parentKey: The key name of the parent model.
+     * @param string $relatedKey: The key name of the related model.
+     * @param string $relation
+     */
+    public function belongsToMany(string $name, $related, $table = null, $foreignPivotKey = null, $relatedPivotKey = null,
+                                  $parentKey = null, $relatedKey = null, $relation = null)
+    {
+        return $this->relationship($name, function (AbstractModel $model) use ($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relation) {
+            return $model->belongsToMany($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relation);
+        });
+    }
+
+    /**
+     * Establish a simple hasOne relationship from this model to another model.
+     * This represents a one-to-one relationship.
+     * For more complex relationships, use the ->relationship method.
+     *
+     * @param string $name: The name of the relation. This doesn't have to be anything in particular,
+     *                      but has to be unique from other relation names for this model, and should
+     *                      work as the name of a method.
+     * @param string $related: The ::class attribute of the model, which should extend \Flarum\Database\AbstractModel.
+     * @param string $foreignKey: The foreign key attribute of the parent model.
+     * @param string $localKey: The primary key attribute of the parent model.
+     */
+    public function hasOne(string $name, $related, $foreignKey = null, $localKey = null)
+    {
+        return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $localKey) {
+            return $model->hasOne($related, $foreignKey, $localKey);
+        });
+    }
+
+    /**
+     * Establish a simple hasMany relationship from this model to another model.
+     * This represents a one-to-many relationship.
+     * For more complex relationships, use the ->relationship method.
+     *
+     * @param string $name: The name of the relation. This doesn't have to be anything in particular,
+     *                      but has to be unique from other relation names for this model, and should
+     *                      work as the name of a method.
+     * @param string $related: The ::class attribute of the model, which should extend \Flarum\Database\AbstractModel.
+     * @param string $foreignKey: The foreign key attribute of the parent model.
+     * @param string $localKey: The primary key attribute of the parent model.
+     */
+    public function hasMany(string $name, $related, $foreignKey = null, $localKey = null)
+    {
+        return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $localKey) {
+            return $model->hasMany($related, $foreignKey, $localKey);
+        });
     }
 
     public function extend(Container $container, Extension $extension = null)
