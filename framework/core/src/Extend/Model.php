@@ -35,7 +35,9 @@ class Model implements ExtenderInterface
      */
     public function dateAttribute(string $attribute)
     {
-        Arr::set(AbstractModel::$dateAttributes, $this->modelClass,
+        Arr::set(
+            AbstractModel::$dateAttributes,
+            $this->modelClass,
             array_merge(
                 Arr::get(AbstractModel::$dateAttributes, $this->modelClass, []),
                 [$attribute]
