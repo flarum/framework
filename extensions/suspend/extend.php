@@ -17,6 +17,7 @@ use Flarum\Suspend\Listener;
 use Flarum\Suspend\Notification\UserSuspendedBlueprint;
 use Flarum\Suspend\Notification\UserUnsuspendedBlueprint;
 use Flarum\User\Event\Saving;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
@@ -27,6 +28,9 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/less/admin.less'),
+
+    (new Extend\Model(User::class))
+        ->dateAttribute('suspendedUntil'),
 
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddUserSuspendAttributes::class);
