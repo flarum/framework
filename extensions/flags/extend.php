@@ -8,12 +8,14 @@
  */
 
 use Flarum\Api\Event\Serializing;
-use Flarum\Event\ConfigureModelDates;
 use Flarum\Extend;
 use Flarum\Flags\Api\Controller\CreateFlagController;
 use Flarum\Flags\Api\Controller\DeleteFlagsController;
 use Flarum\Flags\Api\Controller\ListFlagsController;
+use Flarum\Flags\Flag;
 use Flarum\Flags\Listener;
+use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
@@ -29,8 +31,13 @@ return [
         ->post('/flags', 'flags.create', CreateFlagController::class)
         ->delete('/posts/{id}/flags', 'flags.delete', DeleteFlagsController::class),
 
+    (new Extend\Model(User::class))
+        ->dateAttribute('read_flags_at'),
+
+    (new Extend\Model(Post::class))
+        ->hasMany('flags', Flag::class, 'post_id'),
+
     function (Dispatcher $events) {
-        $events->listen(ConfigureModelDates::class, Listener\AddFlagsApiDates::class);
         $events->listen(Serializing::class, Listener\AddFlagsApiAttributes::class);
 
         $events->subscribe(Listener\AddPostFlagsRelationship::class);
