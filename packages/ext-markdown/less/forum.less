@@ -5,10 +5,16 @@
  * LICENSE file that was distributed with this source code.
  */
 
-.PostMention, .UserMention {
-  .spoiler & {
-    background: #444;
-    color: transparent;
+span.spoiler {
+  background: #444;
+  color: transparent;
+  cursor: default;
+  * {
+    pointer-events: none;
     padding: 0;
+    color: transparent;
+  }
+  img {
+    visibility: hidden;
   }
 }
