@@ -78,7 +78,11 @@ abstract class AbstractModel extends Eloquent
      */
     public function __construct(array $attributes = [])
     {
-        $this->attributes = Arr::get(static::$defaults, static::class, []);
+        $this->attributes = [];
+
+        foreach (array_merge(array_reverse(class_parents($this)), [static::class]) as $class) {
+            $this->attributes = array_merge($this->attributes, Arr::get(static::$defaults, $class, []));
+        }
 
         // Deprecated in beta 13, remove in beta 14.
         static::$dispatcher->dispatch(
@@ -103,7 +107,13 @@ abstract class AbstractModel extends Eloquent
             new ConfigureModelDates($this, $this->dates)
         );
 
-        return array_merge($this->dates, Arr::get(static::$dateAttributes, static::class, []));
+        $dates = $this->dates;
+
+        foreach (array_merge(array_reverse(class_parents($this)), [static::class]) as $class) {
+            $dates = array_merge($dates, Arr::get(static::$dateAttributes, $class, []));
+        }
+
+        return $dates;
     }
 
     /**
@@ -141,10 +151,11 @@ abstract class AbstractModel extends Eloquent
      */
     protected function getCustomRelation($name)
     {
-        $relation = Arr::get(static::$customRelations, static::class.".$name", null);
-
-        if (! is_null($relation)) {
-            return $relation($this);
+        foreach (array_merge([static::class], class_parents($this)) as $class) {
+            $relation = Arr::get(static::$customRelations, $class.".$name", null);
+            if (! is_null($relation)) {
+                return $relation($this);
+            }
         }
 
         // Deprecated, remove in beta 14
