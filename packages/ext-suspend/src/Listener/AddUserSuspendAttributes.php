@@ -11,8 +11,6 @@ namespace Flarum\Suspend\Listener;
 
 use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\UserSerializer;
-use Flarum\Event\ConfigureModelDates;
-use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddUserSuspendAttributes
@@ -22,18 +20,7 @@ class AddUserSuspendAttributes
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureModelDates::class, [$this, 'addDates']);
         $events->listen(Serializing::class, [$this, 'addAttributes']);
-    }
-
-    /**
-     * @param ConfigureModelDates $event
-     */
-    public function addDates(ConfigureModelDates $event)
-    {
-        if ($event->isModel(User::class)) {
-            $event->dates[] = 'suspended_until';
-        }
     }
 
     /**
