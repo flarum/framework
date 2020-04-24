@@ -99,19 +99,13 @@ export default class UserPage extends Page {
     });
 
     if (!this.user) {
-      app
-        .request({
-          method: 'GET',
-          url: app.forum.attribute('apiUrl') + '/users',
-          data: {
-            filter: {
-              q: 'username:' + username,
-            },
+      app.store
+        .find('users', {
+          filter: {
+            q: 'username:' + username,
           },
         })
-        .then((payload) => {
-          const users = app.store.pushPayload(payload);
-
+        .then((users) => {
           if (users.length) {
             this.show(users[0]);
           } else {
