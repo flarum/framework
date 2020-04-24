@@ -15,7 +15,6 @@ use Illuminate\Contracts\View\Factory;
 
 class View implements ExtenderInterface
 {
-
     private $addNamespaces = [];
 
     /**
