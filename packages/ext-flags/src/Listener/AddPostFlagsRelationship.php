@@ -14,12 +14,9 @@ use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Event\GetModelRelationship;
 use Flarum\Flags\Api\Controller\CreateFlagController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
-use Flarum\Flags\Flag;
 use Flarum\Post\Event\Deleted;
-use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -30,22 +27,10 @@ class AddPostFlagsRelationship
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
         $events->listen(Deleted::class, [$this, 'postWasDeleted']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
         $events->listen(WillGetData::class, [$this, 'includeFlagsRelationship']);
         $events->listen(WillSerializeData::class, [$this, 'prepareApiData']);
-    }
-
-    /**
-     * @param GetModelRelationship $event
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany|null
-     */
-    public function getModelRelationship(GetModelRelationship $event)
-    {
-        if ($event->isRelationship(Post::class, 'flags')) {
-            return $event->model->hasMany(Flag::class, 'post_id');
-        }
     }
 
     /**
