@@ -36,19 +36,4 @@ class ViewTest extends TestCase
 
         $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('integration.test::test')->render()));
     }
-
-    /**
-     * @test
-     */
-    public function custom_view_namespace_can_be_replaced_by_extender()
-    {
-        $this->extend(
-            (new Extend\View)
-                ->addNamespace('integration.test', dirname(__FILE__, 2) . '/resources/views'),
-            (new Extend\View)
-                ->replaceNamespace('integration.test', dirname(__FILE__, 2) . '/resources/views2')
-        );
-
-        $this->assertEquals('<html><body>SPAM</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('integration.test::test')->render()));
-    }
 }

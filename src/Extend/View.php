@@ -32,30 +32,12 @@ class View implements ExtenderInterface
         return $this;
     }
 
-    /**
-     * Replace the namespace hints for the given namespace.
-     *
-     * @param  string  $namespace
-     * @param  string|array  $hints
-     * @return $this
-     */
-    public function replaceNamespace($namespace, $hints)
-    {
-        $this->replaceNamespaces[$namespace] = $hints;
-
-        return $this;
-    }
-
     public function extend(Container $container, Extension $extension = null)
     {
         $factory = $container->make(Factory::class);
 
         foreach ($this->addNamespaces as $namespace => $hints) {
             $factory->addNamespace($namespace, $hints);
-        }
-
-        foreach ($this->replaceNamespaces as $namespace => $hints) {
-            $factory->replaceNamespace($namespace, $hints);
         }
     }
 }
