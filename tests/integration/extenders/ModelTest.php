@@ -204,6 +204,7 @@ class ModelTest extends TestCase
             (new Extend\Model(Group::class))
                 ->default('counter', function () {
                     static $counter = 0;
+
                     return ++$counter;
                 })
         );
