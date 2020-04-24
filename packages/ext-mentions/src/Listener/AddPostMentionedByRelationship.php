@@ -13,9 +13,6 @@ use Flarum\Api\Controller;
 use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Event\GetModelRelationship;
-use Flarum\Post\Post;
-use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPostMentionedByRelationship
@@ -25,28 +22,8 @@ class AddPostMentionedByRelationship
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
         $events->listen(WillGetData::class, [$this, 'includeRelationships']);
-    }
-
-    /**
-     * @param GetModelRelationship $event
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany|null
-     */
-    public function getModelRelationship(GetModelRelationship $event)
-    {
-        if ($event->isRelationship(Post::class, 'mentionedBy')) {
-            return $event->model->belongsToMany(Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id', null, null, 'mentionedBy');
-        }
-
-        if ($event->isRelationship(Post::class, 'mentionsPosts')) {
-            return $event->model->belongsToMany(Post::class, 'post_mentions_post', 'post_id', 'mentions_post_id', null, null, 'mentionsPosts');
-        }
-
-        if ($event->isRelationship(Post::class, 'mentionsUsers')) {
-            return $event->model->belongsToMany(User::class, 'post_mentions_user', 'post_id', 'mentions_user_id', null, null, 'mentionsUsers');
-        }
     }
 
     /**
