@@ -22,6 +22,8 @@ use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
+use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 
@@ -32,6 +34,11 @@ return [
 
     (new Extend\Formatter)
         ->configure(ConfigureMentions::class),
+
+    (new Extend\Model(Post::class))
+        ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
+        ->belongsToMany('mentionsPosts', Post::class, 'post_mentions_post', 'post_id', 'mentions_post_id')
+        ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id'),
 
     function (Dispatcher $events, Factory $views) {
         $events->listen(WillSerializeData::class, Listener\FilterVisiblePosts::class);
