@@ -80,7 +80,7 @@ abstract class AbstractModel extends Eloquent
     {
         $this->attributes = [];
 
-        foreach (array_merge([static::class], array_reverse(class_parents($this))) as $class) {
+        foreach (array_merge(array_reverse(class_parents($this)), [static::class]) as $class) {
             $this->attributes = array_merge($this->attributes, Arr::get(static::$defaults, $class, []));
         }
 
