@@ -119,8 +119,7 @@ class Model implements ExtenderInterface
         $relatedPivotKey = null,
         $parentKey = null,
         $relatedKey = null
-    )
-    {
+    ) {
         return $this->relationship($name, function (AbstractModel $model) use ($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name) {
             return $model->belongsToMany($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name);
         });
