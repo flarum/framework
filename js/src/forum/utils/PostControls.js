@@ -2,6 +2,7 @@ import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import ItemList from '../../common/utils/ItemList';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `PostControls` utility constructs a list of buttons for a post which
@@ -145,6 +146,7 @@ export default {
    * @return {Promise}
    */
   hideAction() {
+    if (!confirm(extractText(app.translator.trans('core.forum.post_controls.hide_confirmation')))) return;
     this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
 
     return this.save({ isHidden: true }).then(() => m.redraw());
@@ -167,6 +169,7 @@ export default {
    * @return {Promise}
    */
   deleteAction(context) {
+    if (!confirm(extractText(app.translator.trans('core.forum.post_controls.delete_confirmation')))) return;
     if (context) context.loading = true;
 
     return this.delete()
