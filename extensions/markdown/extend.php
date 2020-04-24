@@ -18,6 +18,9 @@ return [
     (new Extend\Formatter)
         ->configure(function (Configurator $config) {
             $config->Litedown;
-            $config->tags['ispoiler']->template = '<span class="spoiler" data-s9e-livepreview-ignore-attrs="style" onclick="removeAttribute(\'style\'); removeAttribute(\'class\')" style="background:#444;color:transparent"><xsl:apply-templates/></span>';
+
+            // Overwrite the default inline spoiler so that it is compatible
+            // with more styling for children in an external stylesheet.
+            $config->tags['ispoiler']->template = '<span class="spoiler" data-s9e-livepreview-ignore-attrs="class" onclick="removeAttribute(\'class\')"><xsl:apply-templates/></span>';
         })
 ];
