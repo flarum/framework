@@ -14,11 +14,14 @@ use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Group\Group;
+use Flarum\Post\AbstractEventPost;
 use Flarum\Post\CommentPost;
+use Flarum\Post\DiscussionRenamedPost;
 use Flarum\Post\Post;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
+use s9e\TextFormatter\Configurator\TemplateNormalizations\Custom;
 
 class ModelTest extends TestCase
 {
@@ -32,6 +35,21 @@ class ModelTest extends TestCase
                 $this->normalUser(),
             ],
             'discussions' => []
+        ]);
+    }
+
+    protected function prepPostsHierarchy()
+    {
+        $this->prepareDatabase([
+            'users' => [
+                $this->normalUser(),
+            ],
+            'discussions' => [
+                ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
+            ],
+            'posts' => [
+                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
+            ],
         ]);
     }
 
@@ -153,14 +171,7 @@ class ModelTest extends TestCase
                 ->belongsTo('ancestor', Discussion::class, 'discussion_id')
         );
 
-        $this->prepareDatabase([
-            'discussions' => [
-                ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
-            ],
-            'posts' => [
-                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>can i haz relationz?</p></t>'],
-            ],
-        ]);
+        $this->prepPostsHierarchy();
 
         $post = CommentPost::find(1);
 
@@ -174,25 +185,15 @@ class ModelTest extends TestCase
     public function custom_relationship_prioritizes_child_classes_within_2_parent_classes()
     {
         $this->extend(
-            (new Extend\Model(AbstractModel::class))
-                ->belongsTo('ancestor', User::class, 'user_id'),
             (new Extend\Model(Post::class))
+                ->belongsTo('ancestor', User::class, 'user_id'),
+            (new Extend\Model(AbstractEventPost::class))
                 ->belongsTo('ancestor', Discussion::class, 'discussion_id')
         );
 
-        $this->prepareDatabase([
-            'users' => [
-                $this->normalUser(),
-            ],
-            'discussions' => [
-                ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
-            ],
-            'posts' => [
-                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>can i haz relationz?</p></t>'],
-            ],
-        ]);
+        $this->prepPostsHierarchy();
 
-        $post = CommentPost::find(1);
+        $post = DiscussionRenamedPost::find(1);
 
         $this->assertInstanceOf(Discussion::class, $post->ancestor);
         $this->assertEquals(1, $post->ancestor->id);
@@ -204,25 +205,15 @@ class ModelTest extends TestCase
     public function custom_relationship_prioritizes_child_classes_within_child_class_and_immediate_parent()
     {
         $this->extend(
-            (new Extend\Model(Post::class))
+            (new Extend\Model(AbstractEventPost::class))
                 ->belongsTo('ancestor', Discussion::class, 'discussion_id'),
-            (new Extend\Model(CommentPost::class))
+            (new Extend\Model(DiscussionRenamedPost::class))
                 ->belongsTo('ancestor', User::class, 'user_id')
         );
 
-        $this->prepareDatabase([
-            'users' => [
-                $this->normalUser(),
-            ],
-            'discussions' => [
-                ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
-            ],
-            'posts' => [
-                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>can i haz relationz?</p></t>'],
-            ],
-        ]);
 
-        $post = CommentPost::find(1);
+        $this->prepPostsHierarchy();
+        $post = DiscussionRenamedPost::find(1);
 
         $this->assertInstanceOf(User::class, $post->ancestor);
         $this->assertEquals(2, $post->ancestor->id);
@@ -328,21 +319,21 @@ class ModelTest extends TestCase
     public function custom_default_attribute_inheritance_prioritizes_child_class()
     {
         $this->extend(
-            (new Extend\Model(AbstractModel::class))
-                ->default('answer', 'dont do this'),
             (new Extend\Model(Post::class))
+                ->default('answer', 'dont do this'),
+            (new Extend\Model(AbstractEventPost::class))
                 ->default('answer', 42),
-            (new Extend\Model(CommentPost::class))
+            (new Extend\Model(DiscussionRenamedPost::class))
                 ->default('answer', 'ni!')
         );
 
         $this->app();
 
-        $post = new Post;
+        $post = new CustomPost;
 
         $this->assertEquals(42, $post->answer);
 
-        $commentPost = new CommentPost;
+        $commentPost = new DiscussionRenamedPost;
 
         $this->assertEquals('ni!', $commentPost->answer);
     }
@@ -426,4 +417,12 @@ class ModelTest extends TestCase
 
         $this->assertNotContains('custom', $discussion->getDates());
     }
+}
+
+class CustomPost extends AbstractEventPost
+{
+    /**
+     * {@inheritdoc}
+     */
+    public static $type = 'customPost';
 }
