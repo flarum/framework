@@ -16,17 +16,32 @@ use Illuminate\Contracts\View\Factory;
 class View implements ExtenderInterface
 {
     private $addNamespaces = [];
+    private $replaceNamespaces = [];
 
     /**
      * Register a new namespace of laravel views.
      *
-     * @param  string  $namespace: The name of the namespace
-     * @param  string|array  $hints: a path hint, or an array of path hints.
+     * @param  string  $namespace
+     * @param  string|array  $hints
      * @return $this
      */
     public function addNamespace($namespace, $hints)
     {
         $this->addNamespaces[$namespace] = $hints;
+
+        return $this;
+    }
+
+    /**
+     * Replace the namespace hints for the given namespace.
+     *
+     * @param  string  $namespace
+     * @param  string|array  $hints
+     * @return $this
+     */
+    public function replaceNamespace($namespace, $hints)
+    {
+        $this->replaceNamespaces[$namespace] = $hints;
 
         return $this;
     }
@@ -37,6 +52,10 @@ class View implements ExtenderInterface
 
         foreach ($this->addNamespaces as $namespace => $hints) {
             $factory->addNamespace($namespace, $hints);
+        }
+
+        foreach ($this->replaceNamespaces as $namespace => $hints) {
+            $factory->replaceNamespace($namespace, $hints);
         }
     }
 }
