@@ -8,12 +8,14 @@
  */
 
 use Flarum\Api\Event\Serializing;
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Extend;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Content;
 use Flarum\Tags\Listener;
+use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 
@@ -34,6 +36,9 @@ return [
         ->post('/tags/order', 'tags.order', Controller\OrderTagsController::class)
         ->patch('/tags/{id}', 'tags.update', Controller\UpdateTagController::class)
         ->delete('/tags/{id}', 'tags.delete', Controller\DeleteTagController::class),
+
+    (new Extend\Model(Discussion::class))
+        ->belongsToMany('tags', Tag::class, 'discussion_tag'),
 
     function (Dispatcher $events, Factory $view) {
         $events->subscribe(Listener\AddDiscussionTagsRelationship::class);
