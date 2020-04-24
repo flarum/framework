@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
+use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Group\Group;
@@ -170,6 +171,66 @@ class ModelTest extends TestCase
     /**
      * @test
      */
+    public function custom_relationship_prioritizes_child_classes_within_2_parent_classes()
+    {
+        $this->extend(
+            (new Extend\Model(AbstractModel::class))
+                ->belongsTo('ancestor', User::class, 'user_id'),
+            (new Extend\Model(Post::class))
+                ->belongsTo('ancestor', Discussion::class, 'discussion_id')
+        );
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->normalUser(),
+            ],
+            'discussions' => [
+                ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
+            ],
+            'posts' => [
+                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>can i haz relationz?</p></t>'],
+            ],
+        ]);
+
+        $post = CommentPost::find(1);
+
+        $this->assertInstanceOf(Discussion::class, $post->ancestor);
+        $this->assertEquals(1, $post->ancestor->id);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_prioritizes_child_classes_within_child_class_and_immediate_parent()
+    {
+        $this->extend(
+            (new Extend\Model(Post::class))
+                ->belongsTo('ancestor', Discussion::class, 'discussion_id'),
+            (new Extend\Model(CommentPost::class))
+                ->belongsTo('ancestor', User::class, 'user_id')
+        );
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->normalUser(),
+            ],
+            'discussions' => [
+                ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
+            ],
+            'posts' => [
+                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>can i haz relationz?</p></t>'],
+            ],
+        ]);
+
+        $post = CommentPost::find(1);
+
+        $this->assertInstanceOf(User::class, $post->ancestor);
+        $this->assertEquals(2, $post->ancestor->id);
+    }
+
+    /**
+     * @test
+     */
     public function custom_relationship_does_not_exist_if_added_to_unrelated_model()
     {
         $this->extend(
@@ -259,6 +320,31 @@ class ModelTest extends TestCase
         $post = new CommentPost;
 
         $this->assertEquals(42, $post->answer);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_default_attribute_inheritance_prioritizes_child_class()
+    {
+        $this->extend(
+            (new Extend\Model(AbstractModel::class))
+                ->default('answer', 'dont do this'),
+            (new Extend\Model(Post::class))
+                ->default('answer', 42),
+            (new Extend\Model(CommentPost::class))
+                ->default('answer', 'ni!')
+        );
+
+        $this->app();
+
+        $post = new Post;
+
+        $this->assertEquals(42, $post->answer);
+
+        $commentPost = new CommentPost;
+
+        $this->assertEquals('ni!', $commentPost->answer);
     }
 
     /**
