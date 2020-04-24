@@ -107,7 +107,13 @@ abstract class AbstractModel extends Eloquent
             new ConfigureModelDates($this, $this->dates)
         );
 
-        return array_merge($this->dates, Arr::get(static::$dateAttributes, static::class, []));
+        $dates = $this->dates;
+
+        foreach (array_merge(array_reverse(class_parents($this)), [static::class]) as $class) {
+            $dates = array_merge($dates, Arr::get(static::$dateAttributes, $class, []));
+        }
+
+        return $dates;
     }
 
     /**
