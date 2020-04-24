@@ -14,6 +14,7 @@ use Flarum\Event\ConfigureModelDefaultAttributes;
 use Flarum\Event\GetModelRelationship;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Arr;
 use LogicException;
 
 /**
@@ -46,6 +47,12 @@ abstract class AbstractModel extends Eloquent
      */
     protected $afterDeleteCallbacks = [];
 
+    public static $customRelations = [];
+
+    public static $dateAttributes = [];
+
+    public static $defaults = [];
+
     /**
      * {@inheritdoc}
      */
@@ -71,13 +78,16 @@ abstract class AbstractModel extends Eloquent
      */
     public function __construct(array $attributes = [])
     {
-        $defaults = [];
+        $this->attributes = Arr::get(static::$defaults, static::class, []);
 
+        // Deprecated in beta 13, remove in beta 14.
         static::$dispatcher->dispatch(
-            new ConfigureModelDefaultAttributes($this, $defaults)
+            new ConfigureModelDefaultAttributes($this, $this->attributes)
         );
 
-        $this->attributes = $defaults;
+        $this->attributes = array_map(function ($item) {
+            return is_callable($item) ? $item() : $item;
+        }, $this->attributes);
 
         parent::__construct($attributes);
     }
@@ -89,19 +99,11 @@ abstract class AbstractModel extends Eloquent
      */
     public function getDates()
     {
-        static $dates = [];
+        static::$dispatcher->dispatch(
+            new ConfigureModelDates($this, $this->dates)
+        );
 
-        $class = get_class($this);
-
-        if (! isset($dates[$class])) {
-            static::$dispatcher->dispatch(
-                new ConfigureModelDates($this, $this->dates)
-            );
-
-            $dates[$class] = $this->dates;
-        }
-
-        return $dates[$class];
+        return array_merge($this->dates, Arr::get(static::$dateAttributes, static::class, []));
     }
 
     /**
@@ -139,6 +141,13 @@ abstract class AbstractModel extends Eloquent
      */
     protected function getCustomRelation($name)
     {
+        $relation = Arr::get(static::$customRelations, static::class.".$name", null);
+
+        if (! is_null($relation)) {
+            return $relation($this);
+        }
+
+        // Deprecated, remove in beta 14
         return static::$dispatcher->until(
             new GetModelRelationship($this, $name)
         );
