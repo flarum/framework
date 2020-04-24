@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
-use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Group\Group;
@@ -21,7 +20,6 @@ use Flarum\Post\Post;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
-use s9e\TextFormatter\Configurator\TemplateNormalizations\Custom;
 
 class ModelTest extends TestCase
 {
@@ -210,7 +208,6 @@ class ModelTest extends TestCase
             (new Extend\Model(DiscussionRenamedPost::class))
                 ->belongsTo('ancestor', User::class, 'user_id')
         );
-
 
         $this->prepPostsHierarchy();
         $post = DiscussionRenamedPost::find(1);
