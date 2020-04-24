@@ -49,11 +49,65 @@ class ModelTest extends TestCase
     /**
      * @test
      */
+    public function custom_hasOne_relationship_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasMany('customRelation', Discussion::class, 'user_id')
+        );
+
+        $this->prepDB();
+
+        $user = User::find(1);
+
+        $this->assertEquals([], $user->customRelation()->get()->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_hasMany_relationship_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasMany('customRelation', Discussion::class, 'user_id')
+        );
+
+        $this->prepDB();
+
+        $user = User::find(1);
+
+        $this->assertEquals([], $user->customRelation()->get()->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_belongsTo_relationship_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->belongsTo('customRelation', Discussion::class, 'user_id')
+        );
+
+        $this->prepDB();
+
+        $user = User::find(1);
+
+        $this->assertEquals([], $user->customRelation()->get()->toArray());
+    }
+
+    /**
+     * @test
+     */
     public function custom_relationship_exists_if_added()
     {
-        $this->extend((new Extend\Model(User::class))->relationship('customRelation', function (User $user) {
-            return $user->hasMany(Discussion::class, 'user_id');
-        }));
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->relationship('customRelation', function (User $user) {
+                    return $user->hasMany(Discussion::class, 'user_id');
+                })
+        );
 
         $this->prepDB();
 
@@ -67,12 +121,14 @@ class ModelTest extends TestCase
      */
     public function custom_relationship_exists_and_can_return_instances_if_added()
     {
-        $this->extend((new Extend\Model(User::class))->relationship('customRelation', function (User $user) {
-            return $user->hasMany(Discussion::class, 'user_id');
-        }));
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->relationship('customRelation', function (User $user) {
+                    return $user->hasMany(Discussion::class, 'user_id');
+                })
+        );
 
         $this->prepDB();
-
         $this->prepareDatabase([
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1]
@@ -90,9 +146,12 @@ class ModelTest extends TestCase
      */
     public function custom_relationship_does_not_exist_if_added_to_unrelated_model()
     {
-        $this->extend((new Extend\Model(User::class))->relationship('customRelation', function (User $user) {
-            return $user->hasMany(Discussion::class, 'user_id');
-        }));
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->relationship('customRelation', function (User $user) {
+                    return $user->hasMany(Discussion::class, 'user_id');
+                })
+        );
 
         $this->prepDB();
         $this->prepareDatabase([
@@ -105,48 +164,6 @@ class ModelTest extends TestCase
 
         $this->expectException(\BadMethodCallException::class);
         $group->customRelation();
-    }
-
-    /**
-     * @test
-     */
-    public function custom_hasOne_relationship_exists_if_added()
-    {
-        $this->extend((new Extend\Model(User::class))->hasMany('customRelation', Discussion::class, 'user_id'));
-
-        $this->prepDB();
-
-        $user = User::find(1);
-
-        $this->assertEquals([], $user->customRelation()->get()->toArray());
-    }
-
-    /**
-     * @test
-     */
-    public function custom_hasMany_relationship_exists_if_added()
-    {
-        $this->extend((new Extend\Model(User::class))->hasMany('customRelation', Discussion::class, 'user_id'));
-
-        $this->prepDB();
-
-        $user = User::find(1);
-
-        $this->assertEquals([], $user->customRelation()->get()->toArray());
-    }
-
-    /**
-     * @test
-     */
-    public function custom_belongsTo_relationship_exists_if_added()
-    {
-        $this->extend((new Extend\Model(User::class))->belongsTo('customRelation', Discussion::class, 'user_id'));
-
-        $this->prepDB();
-
-        $user = User::find(1);
-
-        $this->assertEquals([], $user->customRelation()->get()->toArray());
     }
 
     /**
@@ -166,7 +183,10 @@ class ModelTest extends TestCase
      */
     public function custom_default_attribute_works_if_set()
     {
-        $this->extend((new Extend\Model(Group::class))->default('name_singular', 'Custom Default'));
+        $this->extend(
+            (new Extend\Model(Group::class))
+                ->default('name_singular', 'Custom Default')
+        );
 
         $this->app();
 
@@ -180,18 +200,21 @@ class ModelTest extends TestCase
      */
     public function custom_default_attribute_evaluated_at_runtime_if_callable()
     {
-        $time = Carbon::now();
-        $this->extend((new Extend\Model(Group::class))->default('name_singular', function () {
-            return Carbon::now();
-        }));
+        $this->extend(
+            (new Extend\Model(Group::class))
+                ->default('counter', function () {
+                    static $counter = 0;
+                    return ++$counter;
+                })
+        );
 
         $this->app();
 
-        sleep(2);
+        $group1 = new Group;
+        $group2 = new Group;
 
-        $group = new Group;
-
-        $this->assertGreaterThanOrEqual($time->diffInSeconds($group->name_singular), 2);
+        $this->assertEquals(1, $group1->counter);
+        $this->assertEquals(2, $group2->counter);
     }
 
     /**
@@ -199,7 +222,10 @@ class ModelTest extends TestCase
      */
     public function custom_default_attribute_doesnt_work_if_set_on_unrelated_model()
     {
-        $this->extend((new Extend\Model(Group::class))->default('name_singular', 'Custom Default'));
+        $this->extend(
+            (new Extend\Model(Group::class))
+                ->default('name_singular', 'Custom Default')
+        );
 
         $this->app();
 
@@ -225,7 +251,10 @@ class ModelTest extends TestCase
      */
     public function custom_date_attribute_can_be_set()
     {
-        $this->extend((new Extend\Model(Post::class))->dateAttribute('custom'));
+        $this->extend(
+            (new Extend\Model(Post::class))
+                ->dateAttribute('custom')
+        );
 
         $this->app();
 
@@ -239,7 +268,10 @@ class ModelTest extends TestCase
      */
     public function custom_date_attribute_doesnt_work_if_set_on_unrelated_model()
     {
-        $this->extend((new Extend\Model(Post::class))->dateAttribute('custom'));
+        $this->extend(
+            (new Extend\Model(Post::class))
+                ->dateAttribute('custom')
+        );
 
         $this->app();
 
