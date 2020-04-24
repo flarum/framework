@@ -13,7 +13,7 @@ use Flarum\Extension\Extension;
 use Flarum\Search\AbstractSearcher;
 use Illuminate\Contracts\Container\Container;
 
-class Search implements ExtenderInterface
+class FlarumSearch implements ExtenderInterface
 {
     private $fullTextGambit;
     private $gambits = [];

@@ -20,7 +20,7 @@ use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 
-class SearchTest extends TestCase
+class FlarumSearchTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -72,7 +72,7 @@ class SearchTest extends TestCase
      */
     public function custom_full_text_gambit_has_effect_if_added()
     {
-        $this->extend((new Extend\Search(DiscussionSearcher::class))->setFullTextGambit(NoResultFullTextGambit::class));
+        $this->extend((new Extend\FlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFullTextGambit::class));
 
         $this->prepDb();
 
@@ -84,7 +84,7 @@ class SearchTest extends TestCase
      */
     public function custom_filter_gambit_has_effect_if_not_added()
     {
-        $this->extend((new Extend\Search(DiscussionSearcher::class))->setFullTextGambit(NoResultFilterGambit::class));
+        $this->extend((new Extend\FlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFilterGambit::class));
 
         $this->prepDb();
 
