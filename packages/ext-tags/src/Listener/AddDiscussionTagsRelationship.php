@@ -13,10 +13,7 @@ use Flarum\Api\Controller;
 use Flarum\Api\Event\Serializing;
 use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Discussion\Discussion;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Event\GetModelRelationship;
-use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddDiscussionTagsRelationship
@@ -26,21 +23,9 @@ class AddDiscussionTagsRelationship
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
         $events->listen(WillGetData::class, [$this, 'includeTagsRelationship']);
         $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
-    }
-
-    /**
-     * @param GetModelRelationship $event
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany|null
-     */
-    public function getModelRelationship(GetModelRelationship $event)
-    {
-        if ($event->isRelationship(Discussion::class, 'tags')) {
-            return $event->model->belongsToMany(Tag::class, 'discussion_tag', null, null, null, null, 'tags');
-        }
     }
 
     /**
