@@ -53,7 +53,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->hasMany('customRelation', Discussion::class, 'user_id')
+                ->hasOne('customRelation', Discussion::class, 'user_id')
         );
 
         $this->prepDB();
