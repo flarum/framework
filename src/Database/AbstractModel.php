@@ -78,7 +78,11 @@ abstract class AbstractModel extends Eloquent
      */
     public function __construct(array $attributes = [])
     {
-        $this->attributes = Arr::get(static::$defaults, static::class, []);
+        $this->attributes = [];
+
+        foreach (array_merge([static::class], array_reverse(class_parents($this))) as $class) {
+            $this->attributes = array_merge($this->attributes, Arr::get(static::$defaults, $class, []));
+        }
 
         // Deprecated in beta 13, remove in beta 14.
         static::$dispatcher->dispatch(
