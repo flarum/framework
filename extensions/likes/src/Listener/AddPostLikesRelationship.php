@@ -15,9 +15,6 @@ use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Event\GetModelRelationship;
-use Flarum\Post\Post;
-use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPostLikesRelationship
@@ -27,21 +24,9 @@ class AddPostLikesRelationship
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiAttributes']);
         $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
         $events->listen(WillGetData::class, [$this, 'includeLikes']);
-    }
-
-    /**
-     * @param GetModelRelationship $event
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany|null
-     */
-    public function getModelRelationship(GetModelRelationship $event)
-    {
-        if ($event->isRelationship(Post::class, 'likes')) {
-            return $event->model->belongsToMany(User::class, 'post_likes', 'post_id', 'user_id', null, null, 'likes');
-        }
     }
 
     /**

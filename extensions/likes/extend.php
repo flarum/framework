@@ -14,6 +14,8 @@ use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Listener;
 use Flarum\Likes\Notification\PostLikedBlueprint;
+use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
@@ -23,6 +25,9 @@ return [
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
+
+    (new Extend\Model(Post::class))
+        ->belongsToMany('likes', User::class, 'post_likes', 'post_id', 'user_id'),
 
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddPostLikesRelationship::class);
