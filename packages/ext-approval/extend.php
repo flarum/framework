@@ -9,7 +9,9 @@
 
 use Flarum\Approval\Access;
 use Flarum\Approval\Listener;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend;
+use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
@@ -19,6 +21,14 @@ return [
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
+
+    // Discussions should be approved by default
+    (new Extend\Model(Discussion::class))
+        ->default('is_approved', true),
+
+    // Posts should be approved by default
+    (new Extend\Model(Post::class))
+        ->default('is_approved', true),
 
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddPostApprovalAttributes::class);
