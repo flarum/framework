@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Group\Group;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
@@ -144,6 +145,31 @@ class ModelTest extends TestCase
     /**
      * @test
      */
+    public function custom_relationship_is_inherited_to_child_classes()
+    {
+        $this->extend(
+            (new Extend\Model(Post::class))
+                ->belongsTo('ancestor', Discussion::class, 'discussion_id')
+        );
+
+        $this->prepareDatabase([
+            'discussions' => [
+                ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
+            ],
+            'posts' => [
+                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>can i haz relationz?</p></t>'],
+            ],
+        ]);
+
+        $post = CommentPost::find(1);
+
+        $this->assertInstanceOf(Discussion::class, $post->ancestor);
+        $this->assertEquals(1, $post->ancestor->id);
+    }
+
+    /**
+     * @test
+     */
     public function custom_relationship_does_not_exist_if_added_to_unrelated_model()
     {
         $this->extend(
@@ -221,6 +247,23 @@ class ModelTest extends TestCase
     /**
      * @test
      */
+    public function custom_default_attribute_is_inherited_to_child_classes()
+    {
+        $this->extend(
+            (new Extend\Model(Post::class))
+                ->default('answer', 42)
+        );
+
+        $this->app();
+
+        $post = new CommentPost;
+
+        $this->assertEquals(42, $post->answer);
+    }
+
+    /**
+     * @test
+     */
     public function custom_default_attribute_doesnt_work_if_set_on_unrelated_model()
     {
         $this->extend(
@@ -260,6 +303,23 @@ class ModelTest extends TestCase
         $this->app();
 
         $post = new Post;
+
+        $this->assertContains('custom', $post->getDates());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_date_attribute_is_inherited_to_child_classes()
+    {
+        $this->extend(
+            (new Extend\Model(Post::class))
+                ->dateAttribute('custom')
+        );
+
+        $this->app();
+
+        $post = new CommentPost;
 
         $this->assertContains('custom', $post->getDates());
     }
