@@ -19,11 +19,21 @@ class FlarumSearch implements ExtenderInterface
     private $gambits = [];
     private $searcher;
 
+    /**
+     * @param string $searcherClass: The ::class attribute of the Searcher you are modifying.
+     *                               This searcher must extend \Flarum\Search\AbstractSearcher.
+     */
     public function __construct($searcherClass)
     {
         $this->searcher = $searcherClass;
     }
 
+    /**
+     * Add a gambit to this searcher. Gambits are used to filter search queries.
+     *
+     * @param string $gambitClass: The ::class attribute of the gambit you are adding.
+     *                             This gambit must extend \Flarum\Search\AbstractRegexGambit
+     */
     public function addGambit($gambitClass)
     {
         $this->gambits[] = $gambitClass;
@@ -31,6 +41,12 @@ class FlarumSearch implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Set the full text gambit for this searcher. The full text gambit actually executes the search.
+     *
+     * @param string $gambitClass: The ::class attribute of the full test gambit you are adding.
+     *                             This gambit must implement \Flarum\Search\GambitInterface
+     */
     public function setFullTextGambit($gambitClass)
     {
         $this->fullTextGambit = $gambitClass;
