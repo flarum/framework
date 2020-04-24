@@ -151,10 +151,11 @@ abstract class AbstractModel extends Eloquent
      */
     protected function getCustomRelation($name)
     {
-        $relation = Arr::get(static::$customRelations, static::class.".$name", null);
-
-        if (! is_null($relation)) {
-            return $relation($this);
+        foreach (array_merge([static::class], class_parents($this)) as $class) {
+            $relation = Arr::get(static::$customRelations, $class.".$name", null);
+            if (! is_null($relation)) {
+                return $relation($this);
+            }
         }
 
         // Deprecated, remove in beta 14
