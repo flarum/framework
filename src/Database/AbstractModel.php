@@ -9,9 +9,6 @@
 
 namespace Flarum\Database;
 
-use Flarum\Event\ConfigureModelDates;
-use Flarum\Event\ConfigureModelDefaultAttributes;
-use Flarum\Event\GetModelRelationship;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
@@ -84,11 +81,6 @@ abstract class AbstractModel extends Eloquent
             $this->attributes = array_merge($this->attributes, Arr::get(static::$defaults, $class, []));
         }
 
-        // Deprecated in beta 13, remove in beta 14.
-        static::$dispatcher->dispatch(
-            new ConfigureModelDefaultAttributes($this, $this->attributes)
-        );
-
         $this->attributes = array_map(function ($item) {
             return is_callable($item) ? $item() : $item;
         }, $this->attributes);
@@ -103,10 +95,6 @@ abstract class AbstractModel extends Eloquent
      */
     public function getDates()
     {
-        static::$dispatcher->dispatch(
-            new ConfigureModelDates($this, $this->dates)
-        );
-
         $dates = $this->dates;
 
         foreach (array_merge(array_reverse(class_parents($this)), [static::class]) as $class) {
@@ -157,11 +145,6 @@ abstract class AbstractModel extends Eloquent
                 return $relation($this);
             }
         }
-
-        // Deprecated, remove in beta 14
-        return static::$dispatcher->until(
-            new GetModelRelationship($this, $name)
-        );
     }
 
     /**
