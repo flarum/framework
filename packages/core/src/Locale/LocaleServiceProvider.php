@@ -42,8 +42,6 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
             $locales->addLocale($this->getDefaultLocale(), 'Default');
 
-            event(new ConfigureLocales($locales));
-
             return $locales;
         });
 
