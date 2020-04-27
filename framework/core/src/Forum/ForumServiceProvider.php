@@ -9,7 +9,6 @@
 
 namespace Flarum\Forum;
 
-use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
@@ -186,10 +185,6 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
-
-        $this->app->make('events')->dispatch(
-            new ConfigureForumRoutes($routes, $factory)
-        );
     }
 
     /**

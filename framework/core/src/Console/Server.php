@@ -9,12 +9,10 @@
 
 namespace Flarum\Console;
 
-use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\SiteInterface;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Container\Container;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
@@ -39,32 +37,20 @@ class Server
             $console->add($command);
         }
 
-        $this->extend($console); // deprecated
+        $this->handleErrors($console);
 
         exit($console->run());
     }
 
-    /**
-     * @deprecated
-     */
-    private function extend(Application $console)
-    {
-        $container = \Illuminate\Container\Container::getInstance();
-
-        $this->handleErrors($container, $console);
-
-        $events = $container->make(Dispatcher::class);
-        $events->dispatch(new Configuring($container, $console));
-    }
-
-    private function handleErrors(Container $container, Application $console)
+    private function handleErrors(Application $console)
     {
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) use ($container) {
+        $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) {
+            $container = Container::getInstance();
+
             /** @var Registry $registry */
             $registry = $container->make(Registry::class);
-
             $error = $registry->handle($event->getError());
 
             /** @var Reporter[] $reporters */
