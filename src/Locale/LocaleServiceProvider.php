@@ -9,7 +9,6 @@
 
 namespace Flarum\Locale;
 
-use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Settings\SettingsRepositoryInterface;
