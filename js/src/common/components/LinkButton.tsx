@@ -1,24 +1,24 @@
 import Button, { ButtonProps } from './Button';
 
-interface LinkButtonProps extends ButtonProps {
+export interface LinkButtonProps extends ButtonProps {
+    /**
+     * Whether or not the page that this button links to is currently active.
+     */
     active?: boolean;
-    oncreate?: Function;
+
+    /**
+     * The URL to link to. If the current URL `m.route()` matches this,
+     * the `active` prop will automatically be set to true.
+     */
     href?: string;
+
+    oncreate?: Function;
 }
 
 /**
  * The `LinkButton` component defines a `Button` which links to a route.
- *
- * ### Props
- *
- * All of the props accepted by `Button`, plus:
- *
- * - `active` Whether or not the page that this button links to is currently
- *   active.
- * - `href` The URL to link to. If the current URL `m.route()` matches this,
- *   the `active` prop will automatically be set to true.
  */
-export default class LinkButton extends Button<LinkButtonProps> {
+export default class LinkButton<T extends LinkButtonProps> extends Button<LinkButtonProps> {
     static initProps(props: LinkButtonProps) {
         props.active = this.isActive(props);
     }
