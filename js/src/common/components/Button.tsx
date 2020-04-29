@@ -46,9 +46,9 @@ export interface ButtonProps extends ComponentProps {
  * Note that a Button has no default class names. This is because a Button can
  * be used to represent any generic clickable control, like a menu item.
  */
-export default class Button<T extends ButtonProps = ButtonProps> extends Component<ButtonProps> {
+export default class Button<T extends ButtonProps = ButtonProps> extends Component<T> {
     view() {
-        const attrs: ButtonProps = { ...this.props };
+        const attrs: T = { ...this.props };
 
         const children = extract(attrs, 'children');
 
@@ -58,7 +58,7 @@ export default class Button<T extends ButtonProps = ButtonProps> extends Compone
         // If a tooltip was provided for buttons without additional content, we also
         // use this tooltip as text for screen readers
         if (attrs.title && !children) {
-            attrs['aria-label'] = attrs.title;
+            attrs["aria-label"] = attrs.title;
         }
 
         // If nothing else is provided, we use the textual button content as tooltip

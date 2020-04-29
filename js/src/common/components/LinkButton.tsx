@@ -18,7 +18,7 @@ export interface LinkButtonProps extends ButtonProps {
 /**
  * The `LinkButton` component defines a `Button` which links to a route.
  */
-export default class LinkButton<T extends LinkButtonProps> extends Button<LinkButtonProps> {
+export default class LinkButton<T extends LinkButtonProps = LinkButtonProps> extends Button<T> {
     static initProps(props: LinkButtonProps) {
         props.active = this.isActive(props);
     }
