@@ -1,3 +1,5 @@
+import app from '../app';
+
 import SelectDropdown from '../../common/components/SelectDropdown';
 import Button from '../../common/components/Button';
 import saveSettings from '../utils/saveSettings';
