@@ -6,8 +6,11 @@ import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
 
 export type AdminData = ApplicationData & {
-    phpVersion: string;
     mysqlVersion: string;
+    phpVersion: string;
+    settings: {
+        [key: string]: string;
+    };
 };
 
 export default class Admin extends Application {
