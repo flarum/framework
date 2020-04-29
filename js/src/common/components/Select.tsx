@@ -5,7 +5,7 @@ export interface SelectProps extends ComponentProps {
     /**
      * Disabled state for the input.
      */
-    disabled: boolean;
+    disabled?: boolean;
 
     /**
      * A callback to run when the selected value is changed.
@@ -29,7 +29,7 @@ export interface SelectProps extends ComponentProps {
  * The `Select` component displays a <select> input, surrounded with some extra
  * elements for styling.
  */
-export default class Select<T extends SelectProps = SelectProps> extends Component<SelectProps> {
+export default class Select<T extends SelectProps = SelectProps> extends Component<T> {
     view() {
         return (
             <span className="Select">
@@ -51,7 +51,7 @@ export default class Select<T extends SelectProps = SelectProps> extends Compone
     /**
      * Run a callback when the state of the checkbox is changed.
      */
-    protected onchange() {
-        if (this.props.onchange) this.props.onchange(this);
+    protected onchange(value) {
+        if (this.props.onchange) this.props.onchange(value);
     }
 }
