@@ -1,3 +1,5 @@
+import app from '../app';
+
 export default function saveSettings(settings) {
     const oldSettings = JSON.parse(JSON.stringify(app.data.settings));
 
@@ -7,7 +9,7 @@ export default function saveSettings(settings) {
         .request({
             method: 'POST',
             url: app.forum.attribute('apiUrl') + '/settings',
-            data: settings,
+            body: settings,
         })
         .catch((error) => {
             app.data.settings = oldSettings;
