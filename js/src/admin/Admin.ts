@@ -1,9 +1,14 @@
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import routes from './routes';
-import Application from '../common/Application';
+import Application, {ApplicationData} from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
+
+export type AdminData = ApplicationData & {
+    phpVersion: string;
+    mysqlVersion: string;
+};
 
 export default class Admin extends Application {
     extensionSettings = {};
@@ -16,6 +21,8 @@ export default class Admin extends Application {
             window.location = this.backUrl();
         },
     };
+
+    data!: AdminData;
 
     constructor() {
         super();
