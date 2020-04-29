@@ -2,31 +2,33 @@ import Component from '../../common/Component';
 
 /**
  * The `Page` component
- *
- * @abstract
  */
-export default class Page extends Component {
-    init() {
+export default abstract class Page extends Component {
+    /**
+     * A class name to apply to the body while the route is active.
+     */
+    bodyClass: string = '';
+
+    oninit(vnode) {
+        super.oninit(vnode);
+
+        if (this.bodyClass) {
+            $('#app').addClass(this.bodyClass);
+        }
+    }
+
+    oncreate(vnode) {
+        super.oncreate(vnode);
+
         app.previous = app.current;
         app.current = this;
 
         app.modal.close();
-
-        /**
-         * A class name to apply to the body while the route is active.
-         *
-         * @type {String}
-         */
-        this.bodyClass = '';
     }
 
-    config(isInitialized, context) {
-        if (isInitialized) return;
+    onremove(vnode) {
+        super.onremove(vnode);
 
-        if (this.bodyClass) {
-            $('#app').addClass(this.bodyClass);
-
-            context.onunload = () => $('#app').removeClass(this.bodyClass);
-        }
+        $('#app').removeClass(this.bodyClass);
     }
 }
