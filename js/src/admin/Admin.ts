@@ -33,6 +33,7 @@ export default class Admin extends Application {
         m.mount(document.getElementById('header-secondary'), new HeaderSecondary());
         m.mount(document.getElementById('admin-navigation'), new AdminNav());
 
+        m.route.prefix = '#';
         super.mount();
 
         // If an extension has just been enabled, then we will run its settings
