@@ -20,7 +20,7 @@ export default class StatusWidget extends DashboardWidget {
         items.add(
             'tools',
             <Dropdown
-                label={app.translator.trans('core.admin.dashboard.tools_button')}
+                label={app.translator.transText('core.admin.dashboard.tools_button')}
                 icon="fas fa-cog"
                 buttonClassName="Button"
                 menuClassName="Dropdown-menu--right"
@@ -37,7 +37,7 @@ export default class StatusWidget extends DashboardWidget {
     }
 
     handleClearCache(e) {
-        app.modal.show(new LoadingModal());
+        app.modal.show(LoadingModal);
 
         app.request({
             method: 'DELETE',
