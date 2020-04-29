@@ -1,3 +1,5 @@
+import app from '../app';
+
 import DashboardWidget from './DashboardWidget';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
