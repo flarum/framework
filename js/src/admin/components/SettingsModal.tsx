@@ -1,12 +1,12 @@
+import app from '../app';
+
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import saveSettings from '../utils/saveSettings';
 
-export default class SettingsModal extends Modal {
-    init() {
-        this.settings = {};
-        this.loading = false;
-    }
+export default abstract class SettingsModal extends Modal {
+    settings: object = {};
+    loading: boolean = false;
 
     form() {
         return '';

@@ -1,9 +1,9 @@
-import Button from '../../common/components/Button';
+import app from '../app';
 
-export default class UploadImageButton extends Button {
-    init() {
-        this.loading = false;
-    }
+import Button, { ButtonProps } from '../../common/components/Button';
+
+export default class UploadImageButton<T extends ButtonProps = ButtonProps> extends Button<T> {
+    loading: boolean = false;
 
     view() {
         this.props.loading = this.loading;
@@ -35,7 +35,7 @@ export default class UploadImageButton extends Button {
     upload() {
         if (this.loading) return;
 
-        const $input = $('<input type="file">');
+        const $input = this.$('<input type="file">');
 
         $input
             .appendTo('body')
