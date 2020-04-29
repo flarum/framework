@@ -1,8 +1,8 @@
 import Component from '../../common/Component';
 
-export default class Widget extends Component {
+export default abstract class DashboardWidget extends Component {
     view() {
-        return <div className={'Widget ' + this.className()}>{this.content()}</div>;
+        return <div className={'DashboardWidget ' + this.className()}>{this.content()}</div>;
     }
 
     /**
@@ -19,7 +19,5 @@ export default class Widget extends Component {
      *
      * @return {VirtualElement}
      */
-    content() {
-        return [];
-    }
+    abstract content(): JSX.Element
 }
