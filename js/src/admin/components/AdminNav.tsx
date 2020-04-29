@@ -30,12 +30,15 @@ export default class AdminNav<T> extends Component<T> {
             })
         );
 
-        // items.add('basics', AdminLinkButton.component({
-        //   href: app.route('basics'),
-        //   icon: 'fas fa-pencil-alt',
-        //   children: app.translator.trans('core.admin.nav.basics_button'),
-        //   description: app.translator.trans('core.admin.nav.basics_text')
-        // }));
+        items.add(
+            'basics',
+            AdminLinkButton.component({
+                href: app.route('basics'),
+                icon: 'fas fa-pencil-alt',
+                children: app.translator.trans('core.admin.nav.basics_button'),
+                description: app.translator.trans('core.admin.nav.basics_text'),
+            })
+        );
 
         // items.add('mail', AdminLinkButton.component({
         //   href: app.route('mail'),
