@@ -58,7 +58,7 @@ export default class Button<T extends ButtonProps = ButtonProps> extends Compone
         // If a tooltip was provided for buttons without additional content, we also
         // use this tooltip as text for screen readers
         if (attrs.title && !children) {
-            attrs["aria-label"] = attrs.title;
+            attrs['aria-label'] = attrs.title;
         }
 
         // If nothing else is provided, we use the textual button content as tooltip
