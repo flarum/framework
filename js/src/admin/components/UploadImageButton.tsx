@@ -35,7 +35,7 @@ export default class UploadImageButton<T extends ButtonProps = ButtonProps> exte
     upload() {
         if (this.loading) return;
 
-        const $input = this.$('<input type="file">');
+        const $input = $('<input type="file">');
 
         $input
             .appendTo('body')
@@ -52,7 +52,7 @@ export default class UploadImageButton<T extends ButtonProps = ButtonProps> exte
                     method: 'POST',
                     url: this.resourceUrl(),
                     serialize: (raw) => raw,
-                    data,
+                    body: data,
                 }).then(this.success.bind(this), this.failure.bind(this));
             });
     }
