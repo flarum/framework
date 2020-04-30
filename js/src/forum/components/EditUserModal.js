@@ -61,7 +61,7 @@ export default class EditUserModal extends Modal {
       );
     }
 
-    if (app.session.user !== this.props.user && app.session.user.canEditCredentials()) {
+    if (app.session.user.canEditCredentials()) {
       items.add(
         'email',
         <div className="Form-group">
