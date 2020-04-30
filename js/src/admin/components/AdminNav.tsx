@@ -70,12 +70,15 @@ export default class AdminNav<T> extends Component<T> {
             })
         );
 
-        // items.add('extensions', AdminLinkButton.component({
-        //   href: app.route('extensions'),
-        //   icon: 'fas fa-puzzle-piece',
-        //   children: app.translator.trans('core.admin.nav.extensions_button'),
-        //   description: app.translator.trans('core.admin.nav.extensions_text')
-        // }));
+        items.add(
+            'extensions',
+            AdminLinkButton.component({
+                href: app.route('extensions'),
+                icon: 'fas fa-puzzle-piece',
+                children: app.translator.trans('core.admin.nav.extensions_button'),
+                description: app.translator.trans('core.admin.nav.extensions_text'),
+            })
+        );
 
         return items;
     }
