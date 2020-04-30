@@ -8,7 +8,7 @@ export default abstract class SettingsModal extends Modal {
     settings: object = {};
     loading: boolean = false;
 
-    form() {
+    form(): string | JSX.Element[] {
         return '';
     }
 
