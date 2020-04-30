@@ -50,12 +50,15 @@ export default class AdminNav<T> extends Component<T> {
             })
         );
 
-        // items.add('permissions', AdminLinkButton.component({
-        //   href: app.route('permissions'),
-        //   icon: 'fas fa-key',
-        //   children: app.translator.trans('core.admin.nav.permissions_button'),
-        //   description: app.translator.trans('core.admin.nav.permissions_text')
-        // }));
+        items.add(
+            'permissions',
+            AdminLinkButton.component({
+                href: app.route('permissions'),
+                icon: 'fas fa-key',
+                children: app.translator.trans('core.admin.nav.permissions_button'),
+                description: app.translator.trans('core.admin.nav.permissions_text'),
+            })
+        );
 
         // items.add('appearance', AdminLinkButton.component({
         //   href: app.route('appearance'),

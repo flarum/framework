@@ -152,8 +152,6 @@ export default class MailPage extends Page {
         const prop = this.values[name];
 
         if (prop == undefined) {
-            console.log(field)
-            console.log(this.values)
         }
 
         if (typeof field === 'string') {
