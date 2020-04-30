@@ -113,7 +113,7 @@ export default abstract class Application {
     }
 
     boot() {
-        //this.initializers.toArray().forEach((initializer) => initializer(this));
+        this.initializers.toArray().forEach((initializer) => initializer(this));
 
         this.store.pushPayload({ data: this.data.resources });
 
