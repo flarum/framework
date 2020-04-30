@@ -61,7 +61,6 @@ export default class EditUserModal extends Modal {
       );
     }
 
-    // The first part prevents silent account hijacking
     if (app.session.user !== this.props.user && app.session.user.canEditCredentials()) {
       items.add(
         'email',
