@@ -1,7 +1,7 @@
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import routes from './routes';
-import Application, {ApplicationData} from '../common/Application';
+import Application, { ApplicationData } from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
 
@@ -10,10 +10,10 @@ type Extension = {
     extra: object;
     icon: {
         name: string;
-    }
+    };
     id: number;
     version: string;
-}
+};
 
 export type AdminData = ApplicationData & {
     mysqlVersion: string;

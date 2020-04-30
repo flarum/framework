@@ -19,5 +19,5 @@ export default abstract class DashboardWidget extends Component {
      *
      * @return {VirtualElement}
      */
-    abstract content(): JSX.Element
+    abstract content(): JSX.Element;
 }
