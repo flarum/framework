@@ -4,7 +4,7 @@ interface AdminLinkButtonProps extends LinkButtonProps {
     description?: string;
 }
 
-export default class AdminLinkButton extends LinkButton<AdminLinkButtonProps> {
+export default class AdminLinkButton<T extends AdminLinkButtonProps = AdminLinkButtonProps> extends LinkButton<T> {
     getButtonContent() {
         const content = super.getButtonContent(this.props.icon, this.props.loading, this.props.children);
 
