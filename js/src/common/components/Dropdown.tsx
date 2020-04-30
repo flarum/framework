@@ -5,7 +5,7 @@ import listItems from '../helpers/listItems';
 export interface DropdownProps extends ComponentProps {
     buttonClassName?: string;
     menuClassName?: string;
-    label?: string;
+    label?: string | any[];
     icon?: string;
     caretIcon?: undefined | string;
 

@@ -65,7 +65,7 @@ export default abstract class Modal<T extends ComponentProps = ComponentProps> e
     /**
      * Get the title of the modal dialog.
      */
-    abstract title(): string;
+    abstract title();
 
     /**
      * Get the content of the modal.

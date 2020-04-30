@@ -8,6 +8,9 @@ import AdminNav from './components/AdminNav';
 export type AdminData = ApplicationData & {
     mysqlVersion: string;
     phpVersion: string;
+    permissions: {
+        [key: string]: string[];
+    };
     settings: {
         [key: string]: string;
     };
