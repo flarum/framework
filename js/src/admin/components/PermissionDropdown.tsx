@@ -1,6 +1,6 @@
 import app from '../app';
 
-import Dropdown, {DropdownProps} from '../../common/components/Dropdown';
+import Dropdown, { DropdownProps } from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import Group from '../../common/models/Group';
