@@ -3,6 +3,7 @@ import DashboardPage from './components/DashboardPage';
 import MailPage from './components/MailPage';
 import PermissionsPage from './components/PermissionsPage';
 import AppearancePage from './components/AppearancePage';
+import ExtensionsPage from './components/ExtensionsPage';
 
 export default (app) => {
     app.routes = {
@@ -11,5 +12,6 @@ export default (app) => {
         mail: { path: '/mail', component: MailPage },
         permissions: { path: '/permissions', component: PermissionsPage },
         appearance: { path: '/appearance', component: AppearancePage },
+        extensions: { path: '/extensions', component: ExtensionsPage },
     };
 };
