@@ -102,14 +102,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "compat", function() { return _src_forum__WEBPACK_IMPORTED_MODULE_1__["compat"]; });
 
-/*
- * This file is part of Flarum.
- *
- * (c) Toby Zerner <toby.zerner@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 
 
@@ -14661,8 +14653,8 @@ var Select = /*#__PURE__*/function (_Component) {
    */
   ;
 
-  _proto.onchange = function onchange() {
-    if (this.props.onchange) this.props.onchange(this);
+  _proto.onchange = function onchange(value) {
+    if (this.props.onchange) this.props.onchange(value);
   };
 
   return Select;
