@@ -9,7 +9,6 @@
 
 namespace Flarum\Foundation;
 
-use InvalidArgumentException;
 use RuntimeException;
 
 class Site
@@ -20,18 +19,14 @@ class Site
      */
     public static function fromPaths(array $paths)
     {
-        if (! isset($paths['base'], $paths['public'], $paths['storage'])) {
-            throw new InvalidArgumentException(
-                'Paths array requires keys base, public and storage'
-            );
-        }
+        $paths = new Paths($paths);
 
         date_default_timezone_set('UTC');
 
-        if (static::hasConfigFile($paths['base'])) {
+        if (static::hasConfigFile($paths->base)) {
             return (
-                new InstalledSite($paths, static::loadConfig($paths['base']))
-            )->extendWith(static::loadExtenders($paths['base']));
+                new InstalledSite($paths, static::loadConfig($paths->base))
+            )->extendWith(static::loadExtenders($paths->base));
         } else {
             return new UninstalledSite($paths);
         }

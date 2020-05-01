@@ -30,11 +30,11 @@ use Psr\Log\LoggerInterface;
 class UninstalledSite implements SiteInterface
 {
     /**
-     * @var array
+     * @var Paths
      */
     private $paths;
 
-    public function __construct(array $paths)
+    public function __construct(Paths $paths)
     {
         $this->paths = $paths;
     }
@@ -53,13 +53,10 @@ class UninstalledSite implements SiteInterface
 
     private function bootLaravel(): Application
     {
-        $laravel = new Application($this->paths['base'], $this->paths['public']);
+        $laravel = new Application($this->paths->base, $this->paths->public);
 
-        $laravel->useStoragePath($this->paths['storage']);
-
-        if (isset($this->paths['vendor'])) {
-            $laravel->useVendorPath($this->paths['vendor']);
-        }
+        $laravel->useStoragePath($this->paths->storage);
+        $laravel->useVendorPath($this->paths->vendor);
 
         $laravel->instance('env', 'production');
         $laravel->instance('flarum.config', []);
@@ -108,7 +105,7 @@ class UninstalledSite implements SiteInterface
         return new ConfigRepository([
             'session' => [
                 'lifetime' => 120,
-                'files' => $this->paths['storage'].'/sessions',
+                'files' => $this->paths->storage.'/sessions',
                 'cookie' => 'session'
             ],
             'view' => [
@@ -119,7 +116,7 @@ class UninstalledSite implements SiteInterface
 
     private function registerLogger(Application $app)
     {
-        $logPath = $this->paths['storage'].'/logs/flarum-installer.log';
+        $logPath = $this->paths->storage.'/logs/flarum-installer.log';
         $handler = new StreamHandler($logPath, Logger::DEBUG);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
