@@ -19,6 +19,11 @@ class UrlGenerator
     protected $routes = [];
 
     /**
+     * @var Application
+     */
+    protected $app;
+
+    /**
      * @param Application $app
      */
     public function __construct(Application $app)

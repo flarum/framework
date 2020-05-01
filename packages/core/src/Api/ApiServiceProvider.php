@@ -15,7 +15,6 @@ use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
@@ -56,13 +55,13 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('flarum.api.handler', function (Application $app) {
+        $this->app->singleton('flarum.api.handler', function () {
             $pipe = new MiddlewarePipe;
 
             $pipe->pipe(new HttpMiddleware\HandleErrors(
-                $app->make(Registry::class),
-                new JsonApiFormatter($app->inDebugMode()),
-                $app->tagged(Reporter::class)
+                $this->app->make(Registry::class),
+                new JsonApiFormatter($this->app['flarum']->inDebugMode()),
+                $this->app->tagged(Reporter::class)
             ));
 
             foreach ($this->app->make('flarum.api.middleware') as $middleware) {
