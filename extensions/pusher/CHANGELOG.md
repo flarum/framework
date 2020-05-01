@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-beta.13](https://github.com/flarum/pusher/compare/v0.1.0-beta.12...v0.1.0-beta.13)
+
+### Changed
+- Use different CDN for loading Pusher JS library (#20)
+- Updated JS dependencies
+
 ## [0.1.0-beta.9](https://github.com/flarum/pusher/compare/v0.1.0-beta.8.1...v0.1.0-beta.9)
 
 ### Changed
