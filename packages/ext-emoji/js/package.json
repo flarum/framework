@@ -7,7 +7,7 @@
     "textarea-caret": "^3.1.0",
     "twemoji": "^12.1.2",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.5"
+    "webpack-cli": "^3.3.11"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
