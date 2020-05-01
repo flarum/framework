@@ -15,8 +15,8 @@
     "moment": "^2.22.2",
     "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.1.2",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.1.4"
   },
   "devDependencies": {
