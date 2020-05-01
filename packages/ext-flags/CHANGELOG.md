@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-beta.13](https://github.com/flarum/flags/compare/v0.1.0-beta.12...v0.1.0-beta.13)
+
+### Changed
+- Updated JS dependencies
+- Stop using deprecated core events, use extenders instead
+
 ## [0.1.0-beta.12](https://github.com/flarum/flags/compare/v0.1.0-beta.10...v0.1.0-beta.12)
 
 ### Changed
