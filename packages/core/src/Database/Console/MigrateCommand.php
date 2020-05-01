@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Database\Migrator;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\ConnectionInterface;
@@ -26,18 +27,18 @@ class MigrateCommand extends AbstractCommand
     protected $container;
 
     /**
-     * @var Application
+     * @var Paths
      */
-    protected $app;
+    protected $paths;
 
     /**
      * @param Container $container
-     * @param Application $application
+     * @param Paths $paths
      */
-    public function __construct(Container $container, Application $application)
+    public function __construct(Container $container, Paths $paths)
     {
         $this->container = $container;
-        $this->app = $application;
+        $this->paths = $paths;
 
         parent::__construct();
     }
@@ -91,8 +92,8 @@ class MigrateCommand extends AbstractCommand
         $this->info('Publishing assets...');
 
         $this->container->make('files')->copyDirectory(
-            $this->app->vendorPath().'/components/font-awesome/webfonts',
-            $this->app->publicPath().'/assets/fonts'
+            $this->paths->vendor.'/components/font-awesome/webfonts',
+            $this->paths->public.'/assets/fonts'
         );
     }
 }

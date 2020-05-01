@@ -10,6 +10,7 @@
 namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Paths;
 use Illuminate\Filesystem\Filesystem;
 
 class MigrationServiceProvider extends AbstractServiceProvider
@@ -26,7 +27,7 @@ class MigrationServiceProvider extends AbstractServiceProvider
         $this->app->bind(MigrationCreator::class, function () {
             return new MigrationCreator(
                 $this->app->make(Filesystem::class),
-                $this->app->basePath()
+                $this->app->make(Paths::class)->base
             );
         });
     }
