@@ -54,19 +54,6 @@ class DiscussionRenamedBlueprint implements BlueprintInterface
     /**
      * {@inheritdoc}
      */
-    public function getAttributes(): array
-    {
-        return [
-            'type' => static::getType(),
-            'from_user_id' => $this->post->user ? $this->post->user->id : null,
-            'subject_id' => $this->post->discussion ? $this->post->discussion->id : null,
-            'data' => json_encode(['postNumber' => (int) $this->post->number]),
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public static function getType()
     {
         return 'discussionRenamed';
