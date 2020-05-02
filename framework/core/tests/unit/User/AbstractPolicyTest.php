@@ -21,7 +21,7 @@ class AbstractPolicyTest extends TestCase
     private $policy;
     private $dispatcher;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->policy = m::mock(CustomUserPolicy::class)->makePartial();
         $this->dispatcher = new Dispatcher();
