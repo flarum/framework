@@ -48,9 +48,8 @@ export interface ButtonProps extends ComponentProps {
  */
 export default class Button<T extends ButtonProps = ButtonProps> extends Component<T> {
     view() {
-        const attrs: T = { ...this.props };
-
-        const children = extract(attrs, 'children');
+        const attrs = (({ children, ...o }) => o)(this.props) as T;
+        const children = this.props.children;
 
         attrs.className = attrs.className || '';
         attrs.type = attrs.type || 'button';
@@ -63,7 +62,7 @@ export default class Button<T extends ButtonProps = ButtonProps> extends Compone
 
         // If nothing else is provided, we use the textual button content as tooltip
         if (!attrs.title && children) {
-            attrs.title = extractText(this.props.children);
+            attrs.title = extractText(children);
         }
 
         const iconName = extract(attrs, 'icon');
