@@ -19591,16 +19591,18 @@ var DiscussionListItem = /*#__PURE__*/function (_Component) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return DiscussionPage; });
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
-/* harmony import */ var _Page__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Page */ "./src/forum/components/Page.tsx");
-/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
-/* harmony import */ var _DiscussionHero__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DiscussionHero */ "./src/forum/components/DiscussionHero.tsx");
-/* harmony import */ var _PostStream__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PostStream */ "./src/forum/components/PostStream.tsx");
-/* harmony import */ var _PostStreamScrubber__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PostStreamScrubber */ "./src/forum/components/PostStreamScrubber.tsx");
-/* harmony import */ var _common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/LoadingIndicator */ "./src/common/components/LoadingIndicator.tsx");
-/* harmony import */ var _common_components_SplitDropdown__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/components/SplitDropdown */ "./src/common/components/SplitDropdown.tsx");
-/* harmony import */ var _common_helpers_listItems__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/helpers/listItems */ "./src/common/helpers/listItems.tsx");
-/* harmony import */ var _utils_DiscussionControls__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/DiscussionControls */ "./src/forum/utils/DiscussionControls.tsx");
-/* harmony import */ var _DiscussionList__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./DiscussionList */ "./src/forum/components/DiscussionList.tsx");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../app */ "./src/forum/app.ts");
+/* harmony import */ var _Page__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Page */ "./src/forum/components/Page.tsx");
+/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
+/* harmony import */ var _DiscussionHero__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DiscussionHero */ "./src/forum/components/DiscussionHero.tsx");
+/* harmony import */ var _PostStream__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PostStream */ "./src/forum/components/PostStream.tsx");
+/* harmony import */ var _PostStreamScrubber__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PostStreamScrubber */ "./src/forum/components/PostStreamScrubber.tsx");
+/* harmony import */ var _common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/components/LoadingIndicator */ "./src/common/components/LoadingIndicator.tsx");
+/* harmony import */ var _common_components_SplitDropdown__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/components/SplitDropdown */ "./src/common/components/SplitDropdown.tsx");
+/* harmony import */ var _common_helpers_listItems__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../common/helpers/listItems */ "./src/common/helpers/listItems.tsx");
+/* harmony import */ var _utils_DiscussionControls__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/DiscussionControls */ "./src/forum/utils/DiscussionControls.tsx");
+/* harmony import */ var _DiscussionList__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./DiscussionList */ "./src/forum/components/DiscussionList.tsx");
+
 
 
 
@@ -19647,12 +19649,12 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
     // then the pane would which would be slow and would cause problems with
     // event handlers.
 
-    if (app.cache.discussionList) {// TODO app pane
-      // app.pane.enable();
-      // app.pane.hide();
+    if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList) {
+      _app__WEBPACK_IMPORTED_MODULE_1__["default"].pane.enable();
+      _app__WEBPACK_IMPORTED_MODULE_1__["default"].pane.hide();
     }
 
-    app.history.push('discussion');
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].history.push('discussion');
     this.bodyClass = 'App--discussion';
   };
 
@@ -19679,14 +19681,13 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
     // discussion list pane. Also, if we're composing a reply to this
     // discussion, minimize the composer – unless it's empty, in which case
     // we'll just close it.
-    // TODO pane & composer
-    // app.pane.disable();
-    // if (app.composingReplyTo(this.discussion) && !app.composer.component.content()) {
+
+
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].pane.disable(); // if (app.composingReplyTo(this.discussion) && !app.composer.component.content()) {
     //     app.composer.hide();
     // } else {
     //     app.composer.minimize();
     // }
-
   };
 
   _proto.view = function view() {
@@ -19696,7 +19697,7 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
 
-    var postStream = m(_PostStream__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    var postStream = m(_PostStream__WEBPACK_IMPORTED_MODULE_5__["default"], {
       discussion: discussion,
       includedPosts: this.includedPosts,
       oninit: function oninit(vnode) {
@@ -19710,25 +19711,25 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
     });
     return m("div", {
       className: "DiscussionPage"
-    }, app.cache.discussionList ? m("div", {
+    }, _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList ? m("div", {
       className: "DiscussionPage-list",
       oncreate: this.oncreatePane.bind(this),
       onbeforeupdate: function onbeforeupdate() {
         return false;
       }
-    }, !$('.App-navigation').is(':visible') && m(_DiscussionList__WEBPACK_IMPORTED_MODULE_10__["default"], {
-      state: app.cache.discussionList
+    }, !$('.App-navigation').is(':visible') && m(_DiscussionList__WEBPACK_IMPORTED_MODULE_11__["default"], {
+      state: _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList
     })) : '', m("div", {
       className: "DiscussionPage-discussion"
-    }, discussion ? [_DiscussionHero__WEBPACK_IMPORTED_MODULE_3__["default"].component({
+    }, discussion ? [_DiscussionHero__WEBPACK_IMPORTED_MODULE_4__["default"].component({
       discussion: discussion
     }), m("div", {
       className: "container"
     }, m("nav", {
       className: "DiscussionPage-nav"
-    }, m("ul", null, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_8__["default"])(this.sidebarItems().toArray()))), m("div", {
+    }, m("ul", null, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_9__["default"])(this.sidebarItems().toArray()))), m("div", {
       className: "DiscussionPage-stream"
-    }, postStream))] : _common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_6__["default"].component({
+    }, postStream))] : _common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_7__["default"].component({
       className: 'LoadingIndicator--block'
     })));
   };
@@ -19737,7 +19738,7 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
     _Page.prototype.oncreate.call(this, vnode);
 
     if (this.discussion) {
-      app.setTitle(this.discussion.title());
+      _app__WEBPACK_IMPORTED_MODULE_1__["default"].setTitle(this.discussion.title());
     }
   }
   /**
@@ -19748,7 +19749,7 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
   _proto.refresh = function refresh() {
     this.near = Number(m.route.param('near') || 0);
     this.discussion = null;
-    var preloadedDiscussion = app.preloadedApiDocument();
+    var preloadedDiscussion = _app__WEBPACK_IMPORTED_MODULE_1__["default"].preloadedApiDocument();
 
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this
@@ -19758,7 +19759,7 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
       setTimeout(this.show.bind(this, preloadedDiscussion), 0);
     } else {
       var params = this.requestParams();
-      app.store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
+      _app__WEBPACK_IMPORTED_MODULE_1__["default"].store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
     }
 
     m.redraw();
@@ -19783,8 +19784,8 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
 
   _proto.show = function show(discussion) {
     this.discussion = discussion;
-    app.history.push('discussion', discussion.title());
-    app.setTitleCount(0); // When the API responds with a discussion, it will also include a number of
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].history.push('discussion', discussion.title());
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].setTitleCount(0); // When the API responds with a discussion, it will also include a number of
     // posts. Some of these posts are included because they are on the first
     // page of posts we want to display (determined by the `near` parameter) –
     // others may be included because due to other relationships introduced by
@@ -19797,7 +19798,7 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
       this.includedPosts = discussion.payload.included.filter(function (record) {
         return record.type === 'posts' && record.relationships && record.relationships.discussion && record.relationships.discussion.data.id === discussionId;
       }).map(function (record) {
-        return app.store.getById('posts', record.id);
+        return _app__WEBPACK_IMPORTED_MODULE_1__["default"].store.getById('posts', record.id);
       }).sort(function (a, b) {
         return a.id() - b.id();
       }).slice(0, 20);
@@ -19848,14 +19849,14 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
   _proto.sidebarItems = function sidebarItems() {
     var _this3 = this;
 
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_2__["default"]();
-    items.add('controls', _common_components_SplitDropdown__WEBPACK_IMPORTED_MODULE_7__["default"].component({
-      children: _utils_DiscussionControls__WEBPACK_IMPORTED_MODULE_9__["default"].controls(this.discussion, this).toArray(),
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
+    items.add('controls', _common_components_SplitDropdown__WEBPACK_IMPORTED_MODULE_8__["default"].component({
+      children: _utils_DiscussionControls__WEBPACK_IMPORTED_MODULE_10__["default"].controls(this.discussion, this).toArray(),
       icon: 'fas fa-ellipsis-v',
       className: 'App-primaryControl',
       buttonClassName: 'Button--primary'
     }));
-    items.add('scrubber', m(_PostStreamScrubber__WEBPACK_IMPORTED_MODULE_5__["default"], {
+    items.add('scrubber', m(_PostStreamScrubber__WEBPACK_IMPORTED_MODULE_6__["default"], {
       oninit: function oninit(vnode) {
         return _this3.scrubber = vnode.state;
       },
@@ -19874,14 +19875,14 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
     if (!discussion) return; // Construct a URL to this discussion with the updated position, then
     // replace it into the window's history and our own history stack.
 
-    var url = app.route.discussion(discussion, this.near = startNumber);
+    var url = _app__WEBPACK_IMPORTED_MODULE_1__["default"].route.discussion(discussion, this.near = startNumber);
     m.route.set(url, true, {
       replace: true
     });
-    app.history.push('discussion', discussion.title()); // If the user hasn't read past here before, then we'll update their read
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].history.push('discussion', discussion.title()); // If the user hasn't read past here before, then we'll update their read
     // state and redraw.
 
-    if (app.session.user && endNumber > (discussion.lastReadPostNumber() || 0)) {
+    if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].session.user && endNumber > (discussion.lastReadPostNumber() || 0)) {
       discussion.save({
         lastReadPostNumber: endNumber
       });
@@ -19890,7 +19891,7 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
   };
 
   return DiscussionPage;
-}(_Page__WEBPACK_IMPORTED_MODULE_1__["default"]);
+}(_Page__WEBPACK_IMPORTED_MODULE_2__["default"]);
 
 
 

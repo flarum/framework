@@ -14467,7 +14467,7 @@ var MailPage = /*#__PURE__*/function (_Page) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _common_components_Page__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../common/components/Page */ "./src/common/components/Page.ts");
+/* harmony import */ var _common_components_Page__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../common/components/Page */ "./src/common/components/Page.tsx");
 
 /* harmony default export */ __webpack_exports__["default"] = (_common_components_Page__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
@@ -18328,14 +18328,68 @@ var Navigation = /*#__PURE__*/function (_Component) {
 
 /***/ }),
 
-/***/ "./src/common/components/Page.ts":
-/*!***************************************!*\
-  !*** ./src/common/components/Page.ts ***!
-  \***************************************/
+/***/ "./src/common/components/Page.tsx":
+/*!****************************************!*\
+  !*** ./src/common/components/Page.tsx ***!
+  \****************************************/
 /*! exports provided: default */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-throw new Error("Module build failed (from ./node_modules/babel-loader/lib/index.js):\nError: ENOENT: no such file or directory, open 'E:\\sites\\flarum-new\\packages\\flarum-core\\js\\src\\common\\components\\Page.ts'");
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Page; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
+
+
+/**
+ * The `Page` component
+ */
+
+var Page = /*#__PURE__*/function (_Component) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(Page, _Component);
+
+  function Page() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Component.call.apply(_Component, [this].concat(args)) || this;
+    _this.bodyClass = '';
+    return _this;
+  }
+
+  var _proto = Page.prototype;
+
+  _proto.oninit = function oninit(vnode) {
+    _Component.prototype.oninit.call(this, vnode);
+
+    app.previous = app.current;
+    app.current = this;
+
+    if (this.bodyClass) {
+      $('#app').addClass(this.bodyClass);
+    }
+  };
+
+  _proto.oncreate = function oncreate(vnode) {
+    _Component.prototype.oncreate.call(this, vnode);
+
+    app.modal.close();
+  };
+
+  _proto.onremove = function onremove(vnode) {
+    _Component.prototype.onremove.call(this, vnode);
+
+    $('#app').removeClass(this.bodyClass);
+  };
+
+  return Page;
+}(_common_Component__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
 
 /***/ }),
 

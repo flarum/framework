@@ -1,3 +1,5 @@
+import app from '../app';
+
 import Page from './Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
@@ -42,9 +44,8 @@ export default class DiscussionPage extends Page {
         // then the pane would which would be slow and would cause problems with
         // event handlers.
         if (app.cache.discussionList) {
-            // TODO app pane
-            // app.pane.enable();
-            // app.pane.hide();
+            app.pane.enable();
+            app.pane.hide();
         }
 
         app.history.push('discussion');
@@ -78,8 +79,7 @@ export default class DiscussionPage extends Page {
         // discussion list pane. Also, if we're composing a reply to this
         // discussion, minimize the composer – unless it's empty, in which case
         // we'll just close it.
-        // TODO pane & composer
-        // app.pane.disable();
+        app.pane.disable();
 
         // if (app.composingReplyTo(this.discussion) && !app.composer.component.content()) {
         //     app.composer.hide();
