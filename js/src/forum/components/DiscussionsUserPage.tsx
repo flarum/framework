@@ -9,7 +9,7 @@ export default class DiscussionsUserPage extends UserPage {
     oninit(vnode) {
         super.oninit(vnode);
 
-        this.loadUser(m.route.param('username'));
+        this.loadUser(vnode.attrs.username);
     }
 
     content() {

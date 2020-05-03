@@ -13153,12 +13153,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _models_Group__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./models/Group */ "./src/common/models/Group.ts");
 /* harmony import */ var _models_Notification__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./models/Notification */ "./src/common/models/Notification.ts");
 /* harmony import */ var _components_Alert__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/Alert */ "./src/common/components/Alert.tsx");
-/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
-/* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
-/* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lodash/flattenDeep */ "./node_modules/lodash/flattenDeep.js");
-/* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21___default = /*#__PURE__*/__webpack_require__.n(lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21__);
-/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
+/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
+/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
+/* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
+/* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lodash/flattenDeep */ "./node_modules/lodash/flattenDeep.js");
+/* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22___default = /*#__PURE__*/__webpack_require__.n(lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22__);
 
 
 function _createForOfIteratorHelperLoose(o) { var i = 0; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } i = o[Symbol.iterator](); return i.next.bind(i); }
@@ -13214,6 +13214,8 @@ var Application = /*#__PURE__*/function () {
     this.drawer = new _utils_Drawer__WEBPACK_IMPORTED_MODULE_7__["default"]();
     this.modal = void 0;
     this.alerts = void 0;
+    this.current = void 0;
+    this.previous = void 0;
   }
 
   var _proto = Application.prototype;
@@ -13243,7 +13245,7 @@ var Application = /*#__PURE__*/function () {
 
     Object.keys(extensions).forEach(function (name) {
       var extension = extensions[name];
-      var extenders = lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21___default()(extension.extend);
+      var extenders = lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22___default()(extension.extend);
 
       for (var _iterator = _createForOfIteratorHelperLoose(extenders), _step; !(_step = _iterator()).done;) {
         var extender = _step.value;
@@ -13265,8 +13267,8 @@ var Application = /*#__PURE__*/function () {
     var $modal = document.getElementById('modal');
     var $alerts = document.getElementById('alerts');
     var $content = document.getElementById('content');
-    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__["default"]());
-    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_22__["default"]({
+    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_20__["default"]());
+    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_18__["default"]({
       oninit: function oninit(vnode) {
         return _this3.alerts = vnode.state;
       }
@@ -13458,7 +13460,7 @@ var Application = /*#__PURE__*/function () {
       error.alert = _components_Alert__WEBPACK_IMPORTED_MODULE_17__["default"].component({
         type: 'error',
         children: children,
-        controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_18__["default"].component({
+        controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_19__["default"].component({
           className: 'Button Button--link',
           onclick: _this4.showDebug.bind(_this4, error),
           children: 'DEBUG' // TODO make translatable
@@ -13480,7 +13482,7 @@ var Application = /*#__PURE__*/function () {
 
   _proto.showDebug = function showDebug(error) {
     this.alerts.dismiss(this.requestError.alert);
-    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__["default"], {
+    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_21__["default"], {
       error: error
     });
   };
@@ -15884,6 +15886,71 @@ var Navigation = /*#__PURE__*/function (_Component) {
 
 /***/ }),
 
+/***/ "./src/common/components/Page.tsx":
+/*!****************************************!*\
+  !*** ./src/common/components/Page.tsx ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Page; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
+
+
+/**
+ * The `Page` component
+ */
+
+var Page = /*#__PURE__*/function (_Component) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(Page, _Component);
+
+  function Page() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Component.call.apply(_Component, [this].concat(args)) || this;
+    _this.bodyClass = '';
+    return _this;
+  }
+
+  var _proto = Page.prototype;
+
+  _proto.oninit = function oninit(vnode) {
+    _Component.prototype.oninit.call(this, vnode);
+
+    app.previous = app.current;
+    app.current = this;
+
+    if (this.bodyClass) {
+      $('#app').addClass(this.bodyClass);
+    }
+  };
+
+  _proto.oncreate = function oncreate(vnode) {
+    _Component.prototype.oncreate.call(this, vnode);
+
+    app.modal.close();
+  };
+
+  _proto.onremove = function onremove(vnode) {
+    _Component.prototype.onremove.call(this, vnode);
+
+    $('#app').removeClass(this.bodyClass);
+  };
+
+  return Page;
+}(_common_Component__WEBPACK_IMPORTED_MODULE_1__["default"]);
+
+
+
+/***/ }),
+
 /***/ "./src/common/components/Placeholder.tsx":
 /*!***********************************************!*\
   !*** ./src/common/components/Placeholder.tsx ***!
@@ -17922,6 +17989,9 @@ function humanTime(time) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return mapRoutes; });
+/* harmony import */ var _babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
+
+
 /**
  * The `mapRoutes` utility converts a map of named application routes into a
  * format that can be understood by Mithril.
@@ -17935,20 +18005,20 @@ function mapRoutes(routes, basePath) {
 
   var map = {};
 
-  var _loop = function _loop(key) {
-    if (!routes.hasOwnProperty(key)) return "continue";
-    var route = routes[key];
+  var _loop = function _loop(name) {
+    if (!routes.hasOwnProperty(name)) return "continue";
+    var route = routes[name];
     map[basePath + route.path] = {
-      render: function render() {
-        return m(route.component, {
-          routeName: key
-        });
+      view: function view(vnode) {
+        return m(route.component, Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({
+          routeName: name
+        }, vnode.attrs));
       }
     };
   };
 
-  for (var key in routes) {
-    var _ret = _loop(key);
+  for (var name in routes) {
+    var _ret = _loop(name);
 
     if (_ret === "continue") continue;
   }
@@ -19187,6 +19257,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
 /* harmony import */ var _common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/components/LoadingIndicator */ "./src/common/components/LoadingIndicator.tsx");
 /* harmony import */ var _common_components_Placeholder__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/Placeholder */ "./src/common/components/Placeholder.tsx");
+/* harmony import */ var _states_DiscussionListState__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../states/DiscussionListState */ "./src/forum/states/DiscussionListState.ts");
+
 
 
 
@@ -19208,9 +19280,7 @@ var DiscussionList = /*#__PURE__*/function (_Component) {
     }
 
     _this = _Component.call.apply(_Component, [this].concat(args)) || this;
-    _this.loading = true;
-    _this.moreResults = false;
-    _this.discussions = [];
+    _this.state = void 0;
     return _this;
   }
 
@@ -19219,24 +19289,25 @@ var DiscussionList = /*#__PURE__*/function (_Component) {
   _proto.oninit = function oninit(vnode) {
     _Component.prototype.oninit.call(this, vnode);
 
-    this.refresh();
+    this.state = this.props.state || new _states_DiscussionListState__WEBPACK_IMPORTED_MODULE_6__["DiscussionListState"]();
   };
 
   _proto.view = function view() {
-    var params = this.props.params;
+    var state = this.state;
+    var params = state.params;
     var loading;
 
-    if (this.loading) {
+    if (state.loading) {
       loading = _common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_4__["default"].component();
-    } else if (this.moreResults) {
+    } else if (state.moreResults) {
       loading = _common_components_Button__WEBPACK_IMPORTED_MODULE_3__["default"].component({
         children: app.translator.trans('core.forum.discussion_list.load_more_button'),
         className: 'Button',
-        onclick: this.loadMore.bind(this)
+        onclick: state.loadMore.bind(this)
       });
     }
 
-    if (this.discussions.length === 0 && !this.loading) {
+    if (state.discussions.length === 0 && !state.loading) {
       var text = app.translator.trans('core.forum.discussion_list.empty_text');
       return m("div", {
         className: "DiscussionList"
@@ -19246,10 +19317,10 @@ var DiscussionList = /*#__PURE__*/function (_Component) {
     }
 
     return m("div", {
-      className: 'DiscussionList' + (this.props.params.q ? ' DiscussionList--searchResults' : '')
+      className: 'DiscussionList' + (state.params.q ? ' DiscussionList--searchResults' : '')
     }, m("ul", {
       className: "DiscussionList-discussions"
-    }, this.discussions.map(function (discussion) {
+    }, state.discussions.map(function (discussion) {
       return m("li", {
         key: discussion.id(),
         "data-id": discussion.id()
@@ -19260,135 +19331,6 @@ var DiscussionList = /*#__PURE__*/function (_Component) {
     })), m("div", {
       className: "DiscussionList-loadMore"
     }, loading));
-  }
-  /**
-   * Get the parameters that should be passed in the API request to get
-   * discussion results.
-   *
-   * @api
-   */
-  ;
-
-  _proto.requestParams = function requestParams() {
-    var params = {
-      include: ['user', 'lastPostedUser'],
-      filter: {}
-    };
-    params.sort = this.sortMap()[this.props.params.sort];
-
-    if (this.props.params.q) {
-      params.filter.q = this.props.params.q;
-      params.include.push('mostRelevantPost', 'mostRelevantPost.user');
-    }
-
-    return params;
-  }
-  /**
-   * Get a map of sort keys (which appear in the URL, and are used for
-   * translation) to the API sort value that they represent.
-   */
-  ;
-
-  _proto.sortMap = function sortMap() {
-    var map = {};
-
-    if (this.props.params.q) {
-      map.relevance = '';
-    }
-
-    map.latest = '-lastPostedAt';
-    map.top = '-commentCount';
-    map.newest = '-createdAt';
-    map.oldest = 'createdAt';
-    return map;
-  }
-  /**
-   * Clear and reload the discussion list.
-   */
-  ;
-
-  _proto.refresh = function refresh(clear) {
-    var _this2 = this;
-
-    if (clear === void 0) {
-      clear = true;
-    }
-
-    if (clear) {
-      this.loading = true;
-      this.discussions = [];
-    }
-
-    return this.loadResults().then(function (results) {
-      _this2.discussions = [];
-
-      _this2.parseResults(results);
-    }, function () {
-      _this2.loading = false;
-      m.redraw();
-    });
-  }
-  /**
-   * Load a new page of discussion results.
-   *
-   * @param offset The index to start the page at.
-   */
-  ;
-
-  _proto.loadResults = function loadResults(offset) {
-    var preloadedDiscussions = app.preloadedApiDocument();
-
-    if (preloadedDiscussions) {
-      return Promise.resolve(preloadedDiscussions);
-    }
-
-    var params = this.requestParams();
-    params.page = {
-      offset: offset
-    };
-    params.include = params.include.join(',');
-    return app.store.find('discussions', params);
-  }
-  /**
-   * Load the next page of discussion results.
-   */
-  ;
-
-  _proto.loadMore = function loadMore() {
-    this.loading = true;
-    this.loadResults(this.discussions.length).then(this.parseResults.bind(this));
-  }
-  /**
-   * Parse results and append them to the discussion list.
-   */
-  ;
-
-  _proto.parseResults = function parseResults(results) {
-    [].push.apply(this.discussions, results);
-    this.loading = false;
-    this.moreResults = !!results.payload.links.next;
-    m.redraw();
-    return results;
-  }
-  /**
-   * Remove a discussion from the list if it is present.
-   */
-  ;
-
-  _proto.removeDiscussion = function removeDiscussion(discussion) {
-    var index = this.discussions.indexOf(discussion);
-
-    if (index !== -1) {
-      this.discussions.splice(index, 1);
-    }
-  }
-  /**
-   * Add a discussion to the top of the list.
-   */
-  ;
-
-  _proto.addDiscussion = function addDiscussion(discussion) {
-    this.discussions.unshift(discussion);
   };
 
   return DiscussionList;
@@ -19658,6 +19600,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _common_components_SplitDropdown__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/components/SplitDropdown */ "./src/common/components/SplitDropdown.tsx");
 /* harmony import */ var _common_helpers_listItems__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/helpers/listItems */ "./src/common/helpers/listItems.tsx");
 /* harmony import */ var _utils_DiscussionControls__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/DiscussionControls */ "./src/forum/utils/DiscussionControls.tsx");
+/* harmony import */ var _DiscussionList__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./DiscussionList */ "./src/forum/components/DiscussionList.tsx");
 
 
 
@@ -19673,6 +19616,7 @@ __webpack_require__.r(__webpack_exports__);
  * The `DiscussionPage` component displays a whole discussion page, including
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
+
 var DiscussionPage = /*#__PURE__*/function (_Page) {
   Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(DiscussionPage, _Page);
 
@@ -19772,7 +19716,9 @@ var DiscussionPage = /*#__PURE__*/function (_Page) {
       onbeforeupdate: function onbeforeupdate() {
         return false;
       }
-    }, !$('.App-navigation').is(':visible') ? app.cache.discussionList.render() : '') : '', m("div", {
+    }, !$('.App-navigation').is(':visible') && m(_DiscussionList__WEBPACK_IMPORTED_MODULE_10__["default"], {
+      state: app.cache.discussionList
+    })) : '', m("div", {
       className: "DiscussionPage-discussion"
     }, discussion ? [_DiscussionHero__WEBPACK_IMPORTED_MODULE_3__["default"].component({
       discussion: discussion
@@ -20136,7 +20082,7 @@ var DiscussionsUserPage = /*#__PURE__*/function (_UserPage) {
   _proto.oninit = function oninit(vnode) {
     _UserPage.prototype.oninit.call(this, vnode);
 
-    this.loadUser(m.route.param('username'));
+    this.loadUser(vnode.attrs.username);
   };
 
   _proto.content = function content() {
@@ -20666,18 +20612,21 @@ var HeaderSecondary = /*#__PURE__*/function (_Component) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return IndexPage; });
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
-/* harmony import */ var _common_extend__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/extend */ "./src/common/extend.ts");
-/* harmony import */ var _common_helpers_listItems__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/helpers/listItems */ "./src/common/helpers/listItems.tsx");
-/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
-/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _common_components_Dropdown__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/Dropdown */ "./src/common/components/Dropdown.tsx");
-/* harmony import */ var _common_components_LinkButton__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/LinkButton */ "./src/common/components/LinkButton.tsx");
-/* harmony import */ var _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/components/SelectDropdown */ "./src/common/components/SelectDropdown.tsx");
-/* harmony import */ var _DiscussionList__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DiscussionList */ "./src/forum/components/DiscussionList.tsx");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../app */ "./src/forum/app.ts");
+/* harmony import */ var _common_extend__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/extend */ "./src/common/extend.ts");
+/* harmony import */ var _common_helpers_listItems__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/helpers/listItems */ "./src/common/helpers/listItems.tsx");
+/* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _common_components_Dropdown__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/Dropdown */ "./src/common/components/Dropdown.tsx");
+/* harmony import */ var _common_components_LinkButton__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/components/LinkButton */ "./src/common/components/LinkButton.tsx");
+/* harmony import */ var _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/components/SelectDropdown */ "./src/common/components/SelectDropdown.tsx");
 /* harmony import */ var _DiscussionPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DiscussionPage */ "./src/forum/components/DiscussionPage.tsx");
 /* harmony import */ var _LogInModal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./LogInModal */ "./src/forum/components/LogInModal.tsx");
 /* harmony import */ var _Page__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Page */ "./src/forum/components/Page.tsx");
 /* harmony import */ var _WelcomeHero__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./WelcomeHero */ "./src/forum/components/WelcomeHero.tsx");
+/* harmony import */ var _states_DiscussionListState__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../states/DiscussionListState */ "./src/forum/states/DiscussionListState.ts");
+/* harmony import */ var _DiscussionList__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./DiscussionList */ "./src/forum/components/DiscussionList.tsx");
+
 
 
 
@@ -20686,6 +20635,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
  // import DiscussionComposer from './DiscussionComposer';
+
 
 
 
@@ -20720,43 +20670,40 @@ var IndexPage = /*#__PURE__*/function (_Page) {
     // scroll down so that this discussion is in view.
 
 
-    if (app.previous instanceof _DiscussionPage__WEBPACK_IMPORTED_MODULE_9__["default"]) {
-      this.lastDiscussion = app.previous.discussion;
+    if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].previous instanceof _DiscussionPage__WEBPACK_IMPORTED_MODULE_9__["default"]) {
+      this.lastDiscussion = _app__WEBPACK_IMPORTED_MODULE_1__["default"].previous.discussion;
     } // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
 
 
-    if (app.previous instanceof IndexPage) {
-      app.cache.discussionList = null;
+    if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].previous instanceof IndexPage) {
+      _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList = null;
     }
 
     var params = this.params();
 
-    if (app.cache.discussionList) {
+    if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList) {
       // Compare the requested parameters (sort, search query) to the ones that
       // are currently present in the cached discussion list. If they differ, we
       // will clear the cache and set up a new discussion list component with
       // the new parameters.
       Object.keys(params).some(function (key) {
-        if (app.cache.discussionList.props.params[key] !== params[key]) {
-          app.cache.discussionList = null;
+        if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList.params[key] !== params[key]) {
+          _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList = null;
           return true;
         }
       });
     }
 
-    if (!app.cache.discussionList) {
-      app.cache.discussionList = new _DiscussionList__WEBPACK_IMPORTED_MODULE_8__["default"]({
-        params: params,
-        oninit: function oninit(vnode) {
-          return app.cache.discussionList = vnode.state;
-        }
+    if (!_app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList) {
+      _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList = new _states_DiscussionListState__WEBPACK_IMPORTED_MODULE_13__["DiscussionListState"]({
+        params: params
       });
     }
 
-    app.history.push('index', app.translator.transText('core.forum.header.back_to_index_tooltip'));
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].history.push('index', _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.transText('core.forum.header.back_to_index_tooltip'));
     this.bodyClass = 'App--index';
   };
 
@@ -20765,12 +20712,11 @@ var IndexPage = /*#__PURE__*/function (_Page) {
     // discussion list.
 
 
-    app.cache.scrollTop = $(window).scrollTop();
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.scrollTop = $(window).scrollTop();
   };
 
   _proto.view = function view() {
-    if (!app.cache.discussionList) return;
-    var discussionList = app.cache.discussionList.render();
+    if (!_app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList) return;
     return m("div", {
       className: "IndexPage"
     }, this.hero(), m("div", {
@@ -20779,32 +20725,34 @@ var IndexPage = /*#__PURE__*/function (_Page) {
       className: "sideNavContainer"
     }, m("nav", {
       className: "IndexPage-nav sideNav"
-    }, m("ul", null, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_2__["default"])(this.sidebarItems().toArray()))), m("div", {
+    }, m("ul", null, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_3__["default"])(this.sidebarItems().toArray()))), m("div", {
       className: "IndexPage-results sideNavOffset"
     }, m("div", {
       className: "IndexPage-toolbar"
     }, m("ul", {
       className: "IndexPage-toolbar-view"
-    }, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_2__["default"])(this.viewItems().toArray())), m("ul", {
+    }, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_3__["default"])(this.viewItems().toArray())), m("ul", {
       className: "IndexPage-toolbar-action"
-    }, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_2__["default"])(this.actionItems().toArray()))), discussionList))));
+    }, Object(_common_helpers_listItems__WEBPACK_IMPORTED_MODULE_3__["default"])(this.actionItems().toArray()))), m(_DiscussionList__WEBPACK_IMPORTED_MODULE_14__["default"], {
+      state: _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList
+    })))));
   };
 
   _proto.oncreate = function oncreate(vnode) {
     _Page.prototype.oncreate.call(this, vnode);
 
     var $app = $('#app');
-    Object(_common_extend__WEBPACK_IMPORTED_MODULE_1__["extend"])(vnode.dom, 'onunload', function () {
+    Object(_common_extend__WEBPACK_IMPORTED_MODULE_2__["extend"])(vnode.dom, 'onunload', function () {
       return $app.css('min-height', '');
     });
-    app.setTitle('');
-    app.setTitleCount(0); // Work out the difference between the height of this hero and that of the
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].setTitle('');
+    _app__WEBPACK_IMPORTED_MODULE_1__["default"].setTitleCount(0); // Work out the difference between the height of this hero and that of the
     // previous hero. Maintain the same scroll position relative to the bottom
     // of the hero so that the sidebar doesn't jump around.
 
-    var oldHeroHeight = app.cache.heroHeight;
-    var heroHeight = app.cache.heroHeight = this.$('.Hero').outerHeight() || 0;
-    var scrollTop = app.cache.scrollTop;
+    var oldHeroHeight = _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.heroHeight;
+    var heroHeight = _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.heroHeight = this.$('.Hero').outerHeight() || 0;
+    var scrollTop = _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.scrollTop;
     $app.css('min-height', $(window).height() + heroHeight); // Scroll to the remembered position. We do this after a short delay so that
     // it happens after the browser has done its own "back button" scrolling,
     // which isn't right. https://github.com/flarum/core/issues/835
@@ -20849,17 +20797,17 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   ;
 
   _proto.sidebarItems = function sidebarItems() {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
-    var canStartDiscussion = app.forum.attribute('canStartDiscussion') || !app.session.user;
-    items.add('newDiscussion', _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
-      children: app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    var canStartDiscussion = _app__WEBPACK_IMPORTED_MODULE_1__["default"].forum.attribute('canStartDiscussion') || !_app__WEBPACK_IMPORTED_MODULE_1__["default"].session.user;
+    items.add('newDiscussion', _common_components_Button__WEBPACK_IMPORTED_MODULE_5__["default"].component({
+      children: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
       icon: 'fas fa-edit',
       className: 'Button Button--primary IndexPage-newDiscussion',
       itemClassName: 'App-primaryControl',
       onclick: this.newDiscussionAction.bind(this),
       disabled: !canStartDiscussion
     }));
-    items.add('nav', _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_7__["default"].component({
+    items.add('nav', _common_components_SelectDropdown__WEBPACK_IMPORTED_MODULE_8__["default"].component({
       children: this.navItems().toArray(),
       buttonClassName: 'Button',
       className: 'App-titleControl'
@@ -20873,11 +20821,11 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   ;
 
   _proto.navItems = function navItems() {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
     var params = this.stickyParams();
-    items.add('allDiscussions', _common_components_LinkButton__WEBPACK_IMPORTED_MODULE_6__["default"].component({
-      href: app.route('index', params),
-      children: app.translator.trans('core.forum.index.all_discussions_link'),
+    items.add('allDiscussions', _common_components_LinkButton__WEBPACK_IMPORTED_MODULE_7__["default"].component({
+      href: _app__WEBPACK_IMPORTED_MODULE_1__["default"].route('index', params),
+      children: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.forum.index.all_discussions_link'),
       icon: 'far fa-comments'
     }), 100);
     return items;
@@ -20892,15 +20840,15 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   _proto.viewItems = function viewItems() {
     var _this2 = this;
 
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
-    var sortMap = app.cache.discussionList.sortMap();
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    var sortMap = _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList.sortMap();
     var sortOptions = {};
 
     for (var i in sortMap) {
-      sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
+      sortOptions[i] = _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.forum.index_sort.' + i + '_button');
     }
 
-    items.add('sort', _common_components_Dropdown__WEBPACK_IMPORTED_MODULE_5__["default"].component({
+    items.add('sort', _common_components_Dropdown__WEBPACK_IMPORTED_MODULE_6__["default"].component({
       buttonClassName: 'Button',
       label: sortOptions[this.params().sort] || Object.keys(sortMap).map(function (key) {
         return sortOptions[key];
@@ -20908,7 +20856,7 @@ var IndexPage = /*#__PURE__*/function (_Page) {
       children: Object.keys(sortOptions).map(function (value) {
         var label = sortOptions[value];
         var active = (_this2.params().sort || Object.keys(sortMap)[0]) === value;
-        return _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+        return _common_components_Button__WEBPACK_IMPORTED_MODULE_5__["default"].component({
           children: label,
           icon: active ? 'fas fa-check' : true,
           onclick: _this2.changeSort.bind(_this2, value),
@@ -20925,24 +20873,24 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   ;
 
   _proto.actionItems = function actionItems() {
-    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_3__["default"]();
-    items.add('refresh', _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
-      title: app.translator.transText('core.forum.index.refresh_tooltip'),
+    var items = new _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    items.add('refresh', _common_components_Button__WEBPACK_IMPORTED_MODULE_5__["default"].component({
+      title: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.transText('core.forum.index.refresh_tooltip'),
       icon: 'fas fa-sync',
       className: 'Button Button--icon',
       onclick: function onclick() {
-        app.cache.discussionList.refresh();
+        _app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList.refresh();
 
-        if (app.session.user) {
-          app.store.find('users', app.session.user.id());
+        if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].session.user) {
+          _app__WEBPACK_IMPORTED_MODULE_1__["default"].store.find('users', _app__WEBPACK_IMPORTED_MODULE_1__["default"].session.user.id());
           m.redraw();
         }
       }
     }));
 
-    if (app.session.user) {
-      items.add('markAllAsRead', _common_components_Button__WEBPACK_IMPORTED_MODULE_4__["default"].component({
-        title: app.translator.transText('core.forum.index.mark_all_as_read_tooltip'),
+    if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].session.user) {
+      items.add('markAllAsRead', _common_components_Button__WEBPACK_IMPORTED_MODULE_5__["default"].component({
+        title: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.transText('core.forum.index.mark_all_as_read_tooltip'),
         icon: 'fas fa-check',
         className: 'Button Button--icon',
         onclick: this.markAllAsRead.bind(this)
@@ -20973,7 +20921,11 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   _proto.clearSearch = function clearSearch() {
     var params = this.params();
     delete params.q;
-    m.route.set(app.route(this.props.routeName, params));
+    m.route.set(_app__WEBPACK_IMPORTED_MODULE_1__["default"].route(this.props.routeName, params), null, {
+      state: {
+        key: Date.now()
+      }
+    });
   }
   /**
    * Redirect to the index page using the given sort parameter.
@@ -20983,13 +20935,17 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   _proto.changeSort = function changeSort(sort) {
     var params = this.params();
 
-    if (sort === Object.keys(app.cache.discussionList.sortMap())[0]) {
+    if (sort === Object.keys(_app__WEBPACK_IMPORTED_MODULE_1__["default"].cache.discussionList.sortMap())[0]) {
       delete params.sort;
     } else {
       params.sort = sort;
     }
 
-    m.route.set(app.route(this.props.routeName, params));
+    m.route.set(_app__WEBPACK_IMPORTED_MODULE_1__["default"].route(this.props.routeName, params), null, {
+      state: {
+        key: Date.now()
+      }
+    });
   }
   /**
    * Get URL parameters that stick between filter changes.
@@ -21024,13 +20980,13 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   ;
 
   _proto.newDiscussionAction = function newDiscussionAction() {
-    if (app.session.user) {
+    if (_app__WEBPACK_IMPORTED_MODULE_1__["default"].session.user) {
       // const component = new DiscussionComposer({ user: app.session.user });
       // app.composer.load(component);
       // app.composer.show();
       return Promise.resolve();
     } else {
-      app.modal.show(_LogInModal__WEBPACK_IMPORTED_MODULE_10__["default"]);
+      _app__WEBPACK_IMPORTED_MODULE_1__["default"].modal.show(_LogInModal__WEBPACK_IMPORTED_MODULE_10__["default"]);
       return Promise.reject();
     }
   }
@@ -21040,10 +20996,10 @@ var IndexPage = /*#__PURE__*/function (_Page) {
   ;
 
   _proto.markAllAsRead = function markAllAsRead() {
-    var confirmation = confirm(app.translator.transText('core.forum.index.mark_all_as_read_confirmation'));
+    var confirmation = confirm(_app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.transText('core.forum.index.mark_all_as_read_confirmation'));
 
     if (confirmation) {
-      app.session.user.save({
+      _app__WEBPACK_IMPORTED_MODULE_1__["default"].session.user.save({
         markedAllAsReadAt: new Date()
       });
     }
@@ -21990,55 +21946,27 @@ var NotificationsPage = /*#__PURE__*/function (_Page) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Page; });
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
-/* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
+/* harmony import */ var _common_components_Page__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/components/Page */ "./src/common/components/Page.tsx");
 
 
-/**
- * The `Page` component
- */
 
-var Page = /*#__PURE__*/function (_Component) {
-  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(Page, _Component);
+var Page = /*#__PURE__*/function (_CommonPage) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(Page, _CommonPage);
 
   function Page() {
-    var _this;
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _Component.call.apply(_Component, [this].concat(args)) || this;
-    _this.bodyClass = '';
-    return _this;
+    return _CommonPage.apply(this, arguments) || this;
   }
 
   var _proto = Page.prototype;
 
-  _proto.oninit = function oninit(vnode) {
-    _Component.prototype.oninit.call(this, vnode);
-
-    if (this.bodyClass) {
-      $('#app').addClass(this.bodyClass);
-    }
-  };
-
   _proto.oncreate = function oncreate(vnode) {
-    _Component.prototype.oncreate.call(this, vnode);
+    _CommonPage.prototype.oncreate.call(this, vnode);
 
-    app.previous = app.current;
-    app.current = this;
     app.drawer.hide();
-    app.modal.close();
-  };
-
-  _proto.onremove = function onremove(vnode) {
-    _Component.prototype.onremove.call(this, vnode);
-
-    $('#app').removeClass(this.bodyClass);
   };
 
   return Page;
-}(_common_Component__WEBPACK_IMPORTED_MODULE_1__["default"]);
+}(_common_components_Page__WEBPACK_IMPORTED_MODULE_1__["default"]);
 
 
 
@@ -25338,6 +25266,185 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/forum/states/DiscussionListState.ts":
+/*!*************************************************!*\
+  !*** ./src/forum/states/DiscussionListState.ts ***!
+  \*************************************************/
+/*! exports provided: DiscussionListState */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DiscussionListState", function() { return DiscussionListState; });
+var DiscussionListState = /*#__PURE__*/function () {
+  /**
+   * Whether or not discussion results are loading.
+   */
+
+  /**
+   * Whether or not there are more results that can be loaded.
+   */
+
+  /**
+   * The discussions in the discussion list.
+   */
+
+  /**
+   * A map of parameters used to construct a refined parameter object
+   * to send along in the API request to get discussion results.
+   */
+  function DiscussionListState(_temp) {
+    var _ref = _temp === void 0 ? {} : _temp,
+        _ref$params = _ref.params,
+        params = _ref$params === void 0 ? {} : _ref$params;
+
+    this.loading = true;
+    this.moreResults = false;
+    this.discussions = [];
+    this.params = void 0;
+    this.params = params;
+    this.refresh();
+  }
+  /**
+   * Get the parameters that should be passed in the API request to get
+   * discussion results.
+   *
+   * @api
+   */
+
+
+  var _proto = DiscussionListState.prototype;
+
+  _proto.requestParams = function requestParams() {
+    var params = {
+      include: ['user', 'lastPostedUser'],
+      filter: {}
+    };
+    params.sort = this.sortMap()[this.params.sort];
+
+    if (this.params.q) {
+      params.filter.q = this.params.q;
+      params.include.push('mostRelevantPost', 'mostRelevantPost.user');
+    }
+
+    return params;
+  }
+  /**
+   * Get a map of sort keys (which appear in the URL, and are used for
+   * translation) to the API sort value that they represent.
+   */
+  ;
+
+  _proto.sortMap = function sortMap() {
+    var map = {};
+
+    if (this.params.q) {
+      map.relevance = '';
+    }
+
+    map.latest = '-lastPostedAt';
+    map.top = '-commentCount';
+    map.newest = '-createdAt';
+    map.oldest = 'createdAt';
+    return map;
+  }
+  /**
+   * Clear and reload the discussion list.
+   */
+  ;
+
+  _proto.refresh = function refresh(clear) {
+    var _this = this;
+
+    if (clear === void 0) {
+      clear = true;
+    }
+
+    if (clear) {
+      this.loading = true;
+      this.discussions = [];
+    }
+
+    return this.loadResults().then(function (results) {
+      _this.discussions = [];
+
+      _this.parseResults(results);
+    }, function () {
+      _this.loading = false;
+      m.redraw();
+    });
+  }
+  /**
+   * Load a new page of discussion results.
+   *
+   * @param offset The index to start the page at.
+   */
+  ;
+
+  _proto.loadResults = function loadResults(offset) {
+    var preloadedDiscussions = app.preloadedApiDocument();
+
+    if (preloadedDiscussions) {
+      return Promise.resolve(preloadedDiscussions);
+    }
+
+    var params = this.requestParams();
+    params.page = {
+      offset: offset
+    };
+    params.include = params.include.join(',');
+    return app.store.find('discussions', params);
+  }
+  /**
+   * Load the next page of discussion results.
+   */
+  ;
+
+  _proto.loadMore = function loadMore() {
+    this.loading = true;
+    this.loadResults(this.discussions.length).then(this.parseResults.bind(this));
+  }
+  /**
+   * Parse results and append them to the discussion list.
+   */
+  ;
+
+  _proto.parseResults = function parseResults(results) {
+    var _this$discussions;
+
+    (_this$discussions = this.discussions).push.apply(_this$discussions, results);
+
+    this.loading = false;
+    this.moreResults = !!results.payload.links.next;
+    m.redraw();
+    return results;
+  }
+  /**
+   * Remove a discussion from the list if it is present.
+   */
+  ;
+
+  _proto.removeDiscussion = function removeDiscussion(discussion) {
+    var index = this.discussions.indexOf(discussion);
+
+    if (index !== -1) {
+      this.discussions.splice(index, 1);
+    }
+  }
+  /**
+   * Add a discussion to the top of the list.
+   */
+  ;
+
+  _proto.addDiscussion = function addDiscussion(discussion) {
+    this.discussions.unshift(discussion);
+  };
+
+  return DiscussionListState;
+}();
+
+/***/ }),
+
 /***/ "./src/forum/utils/DiscussionControls.tsx":
 /*!************************************************!*\
   !*** ./src/forum/utils/DiscussionControls.tsx ***!
@@ -25716,7 +25823,11 @@ var History = /*#__PURE__*/function () {
 
   _proto.home = function home() {
     this.stack.splice(0);
-    m.route.set('/');
+    m.route.set('/', null, {
+      state: {
+        key: Date.now()
+      }
+    });
   };
 
   return History;

@@ -302,7 +302,7 @@ export default class IndexPage extends Page {
         const params = this.params();
         delete params.q;
 
-        m.route.set(app.route(this.props.routeName, params));
+        m.route.set(app.route(this.props.routeName, params), null, { state: { key: Date.now() } });
     }
 
     /**
@@ -317,7 +317,7 @@ export default class IndexPage extends Page {
             params.sort = sort;
         }
 
-        m.route.set(app.route(this.props.routeName, params));
+        m.route.set(app.route(this.props.routeName, params), null, { state: { key: Date.now() } });
     }
 
     /**

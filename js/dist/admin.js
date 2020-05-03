@@ -14467,58 +14467,9 @@ var MailPage = /*#__PURE__*/function (_Page) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Page; });
-/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
-/* harmony import */ var _common_Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Component */ "./src/common/Component.ts");
+/* harmony import */ var _common_components_Page__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../common/components/Page */ "./src/common/components/Page.ts");
 
-
-/**
- * The `Page` component
- */
-
-var Page = /*#__PURE__*/function (_Component) {
-  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(Page, _Component);
-
-  function Page() {
-    var _this;
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _Component.call.apply(_Component, [this].concat(args)) || this;
-    _this.bodyClass = '';
-    return _this;
-  }
-
-  var _proto = Page.prototype;
-
-  _proto.oninit = function oninit(vnode) {
-    _Component.prototype.oninit.call(this, vnode);
-
-    if (this.bodyClass) {
-      $('#app').addClass(this.bodyClass);
-    }
-  };
-
-  _proto.oncreate = function oncreate(vnode) {
-    _Component.prototype.oncreate.call(this, vnode);
-
-    app.previous = app.current;
-    app.current = this;
-    app.modal.close();
-  };
-
-  _proto.onremove = function onremove(vnode) {
-    _Component.prototype.onremove.call(this, vnode);
-
-    $('#app').removeClass(this.bodyClass);
-  };
-
-  return Page;
-}(_common_Component__WEBPACK_IMPORTED_MODULE_1__["default"]);
-
-
+/* harmony default export */ __webpack_exports__["default"] = (_common_components_Page__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 /***/ }),
 
@@ -15644,12 +15595,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _models_Group__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./models/Group */ "./src/common/models/Group.ts");
 /* harmony import */ var _models_Notification__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./models/Notification */ "./src/common/models/Notification.ts");
 /* harmony import */ var _components_Alert__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/Alert */ "./src/common/components/Alert.tsx");
-/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
-/* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
-/* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lodash/flattenDeep */ "./node_modules/lodash/flattenDeep.js");
-/* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21___default = /*#__PURE__*/__webpack_require__.n(lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21__);
-/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
+/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
+/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
+/* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
+/* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lodash/flattenDeep */ "./node_modules/lodash/flattenDeep.js");
+/* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22___default = /*#__PURE__*/__webpack_require__.n(lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22__);
 
 
 function _createForOfIteratorHelperLoose(o) { var i = 0; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } i = o[Symbol.iterator](); return i.next.bind(i); }
@@ -15705,6 +15656,8 @@ var Application = /*#__PURE__*/function () {
     this.drawer = new _utils_Drawer__WEBPACK_IMPORTED_MODULE_7__["default"]();
     this.modal = void 0;
     this.alerts = void 0;
+    this.current = void 0;
+    this.previous = void 0;
   }
 
   var _proto = Application.prototype;
@@ -15734,7 +15687,7 @@ var Application = /*#__PURE__*/function () {
 
     Object.keys(extensions).forEach(function (name) {
       var extension = extensions[name];
-      var extenders = lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_21___default()(extension.extend);
+      var extenders = lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22___default()(extension.extend);
 
       for (var _iterator = _createForOfIteratorHelperLoose(extenders), _step; !(_step = _iterator()).done;) {
         var extender = _step.value;
@@ -15756,8 +15709,8 @@ var Application = /*#__PURE__*/function () {
     var $modal = document.getElementById('modal');
     var $alerts = document.getElementById('alerts');
     var $content = document.getElementById('content');
-    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__["default"]());
-    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_22__["default"]({
+    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_20__["default"]());
+    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_18__["default"]({
       oninit: function oninit(vnode) {
         return _this3.alerts = vnode.state;
       }
@@ -15949,7 +15902,7 @@ var Application = /*#__PURE__*/function () {
       error.alert = _components_Alert__WEBPACK_IMPORTED_MODULE_17__["default"].component({
         type: 'error',
         children: children,
-        controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_18__["default"].component({
+        controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_19__["default"].component({
           className: 'Button Button--link',
           onclick: _this4.showDebug.bind(_this4, error),
           children: 'DEBUG' // TODO make translatable
@@ -15971,7 +15924,7 @@ var Application = /*#__PURE__*/function () {
 
   _proto.showDebug = function showDebug(error) {
     this.alerts.dismiss(this.requestError.alert);
-    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__["default"], {
+    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_21__["default"], {
       error: error
     });
   };
@@ -18375,6 +18328,17 @@ var Navigation = /*#__PURE__*/function (_Component) {
 
 /***/ }),
 
+/***/ "./src/common/components/Page.ts":
+/*!***************************************!*\
+  !*** ./src/common/components/Page.ts ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, exports) {
+
+throw new Error("Module build failed (from ./node_modules/babel-loader/lib/index.js):\nError: ENOENT: no such file or directory, open 'E:\\sites\\flarum-new\\packages\\flarum-core\\js\\src\\common\\components\\Page.ts'");
+
+/***/ }),
+
 /***/ "./src/common/components/Placeholder.tsx":
 /*!***********************************************!*\
   !*** ./src/common/components/Placeholder.tsx ***!
@@ -20413,6 +20377,9 @@ function humanTime(time) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return mapRoutes; });
+/* harmony import */ var _babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
+
+
 /**
  * The `mapRoutes` utility converts a map of named application routes into a
  * format that can be understood by Mithril.
@@ -20426,20 +20393,20 @@ function mapRoutes(routes, basePath) {
 
   var map = {};
 
-  var _loop = function _loop(key) {
-    if (!routes.hasOwnProperty(key)) return "continue";
-    var route = routes[key];
+  var _loop = function _loop(name) {
+    if (!routes.hasOwnProperty(name)) return "continue";
+    var route = routes[name];
     map[basePath + route.path] = {
-      render: function render() {
-        return m(route.component, {
-          routeName: key
-        });
+      view: function view(vnode) {
+        return m(route.component, Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({
+          routeName: name
+        }, vnode.attrs));
       }
     };
   };
 
-  for (var key in routes) {
-    var _ret = _loop(key);
+  for (var name in routes) {
+    var _ret = _loop(name);
 
     if (_ret === "continue") continue;
   }
