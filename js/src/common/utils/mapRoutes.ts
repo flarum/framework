@@ -9,14 +9,14 @@ import { RouteDefs } from 'mithril';
 export default function mapRoutes(routes: object, basePath: string = ''): RouteDefs {
     const map = {};
 
-    for (const key in routes) {
-        if (!routes.hasOwnProperty(key)) continue;
+    for (const name in routes) {
+        if (!routes.hasOwnProperty(name)) continue;
 
-        const route = routes[key];
+        const route = routes[name];
 
         map[basePath + route.path] = {
-            render() {
-                return m(route.component, { routeName: key });
+            view(vnode) {
+                return m(route.component, { routeName: name, ...vnode.attrs });
             },
         };
     }
