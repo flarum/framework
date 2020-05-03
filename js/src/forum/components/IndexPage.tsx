@@ -1,4 +1,5 @@
 import { Params } from 'mithril';
+import app from '../app';
 
 import { extend } from '../../common/extend';
 import listItems from '../../common/helpers/listItems';
@@ -10,11 +11,13 @@ import Dropdown from '../../common/components/Dropdown';
 import LinkButton from '../../common/components/LinkButton';
 import SelectDropdown from '../../common/components/SelectDropdown';
 // import DiscussionComposer from './DiscussionComposer';
-import DiscussionList from './DiscussionList';
 import DiscussionPage from './DiscussionPage';
 import LogInModal from './LogInModal';
 import Page from './Page';
 import WelcomeHero from './WelcomeHero';
+
+import { DiscussionListState } from '../states/DiscussionListState';
+import DiscussionList from './DiscussionList';
 
 /**
  * The `IndexPage` component displays the index page, including the welcome
@@ -49,7 +52,7 @@ export default class IndexPage extends Page {
             // will clear the cache and set up a new discussion list component with
             // the new parameters.
             Object.keys(params).some((key) => {
-                if (app.cache.discussionList!.props.params[key] !== params[key]) {
+                if (app.cache.discussionList!.params[key] !== params[key]) {
                     app.cache.discussionList = null;
                     return true;
                 }
@@ -57,7 +60,7 @@ export default class IndexPage extends Page {
         }
 
         if (!app.cache.discussionList) {
-            app.cache.discussionList = new DiscussionList({ params, oninit: (vnode) => (app.cache.discussionList = vnode.state) });
+            app.cache.discussionList = new DiscussionListState({ params });
         }
 
         app.history.push('index', app.translator.transText('core.forum.header.back_to_index_tooltip'));
@@ -76,8 +79,6 @@ export default class IndexPage extends Page {
     view() {
         if (!app.cache.discussionList) return;
 
-        const discussionList = app.cache.discussionList.render();
-
         return (
             <div className="IndexPage">
                 {this.hero()}
@@ -91,7 +92,7 @@ export default class IndexPage extends Page {
                                 <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
                                 <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
                             </div>
-                            {discussionList}
+                            <DiscussionList state={app.cache.discussionList} />
                         </div>
                     </div>
                 </div>
@@ -257,7 +258,7 @@ export default class IndexPage extends Page {
                 icon: 'fas fa-sync',
                 className: 'Button Button--icon',
                 onclick: () => {
-                    app.cache.discussionList.refresh();
+                    app.cache.discussionList!.refresh();
                     if (app.session.user) {
                         app.store.find('users', app.session.user.id());
                         m.redraw();

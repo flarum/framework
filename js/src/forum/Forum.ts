@@ -6,9 +6,10 @@ import Navigation from '../common/components/Navigation';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import Page from './components/Page';
-import DiscussionList from './components/DiscussionList';
 import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
+
+import { DiscussionListState } from './states/DiscussionListState';
 
 import Notification from '../common/models/Notification';
 
@@ -26,7 +27,7 @@ export default class Forum extends Application {
      */
     cache: {
         notifications?: Notification[][];
-        discussionList?: DiscussionList | null;
+        discussionList?: DiscussionListState | null;
         [key: string]: any;
     } = {};
 

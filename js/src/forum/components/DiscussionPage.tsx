@@ -9,6 +9,7 @@ import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
 import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
+import DiscussionList from './DiscussionList';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
@@ -111,7 +112,7 @@ export default class DiscussionPage extends Page {
             <div className="DiscussionPage">
                 {app.cache.discussionList ? (
                     <div className="DiscussionPage-list" oncreate={this.oncreatePane.bind(this)} onbeforeupdate={() => false}>
-                        {!$('.App-navigation').is(':visible') ? app.cache.discussionList.render() : ''}
+                        {!$('.App-navigation').is(':visible') && <DiscussionList state={app.cache.discussionList} />}
                     </div>
                 ) : (
                     ''
