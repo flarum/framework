@@ -59,6 +59,8 @@ export default class Admin extends Application {
         m.mount(document.getElementById('header-secondary'), new HeaderSecondary());
         m.mount(document.getElementById('admin-navigation'), new AdminNav());
 
+        if (!document.location.hash) document.location.hash = '#/';
+
         m.route.prefix = '#';
         super.mount();
 
