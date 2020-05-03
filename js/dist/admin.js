@@ -13301,14 +13301,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../app */ "./src/admin/app.ts");
 /* harmony import */ var _Page__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Page */ "./src/admin/components/Page.tsx");
-/* harmony import */ var _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/components/FieldSet */ "./src/common/components/FieldSet.tsx");
-/* harmony import */ var _common_components_Select__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/components/Select */ "./src/common/components/Select.tsx");
-/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _common_components_Alert__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/Alert */ "./src/common/components/Alert.tsx");
+/* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/components/FieldSet */ "./src/common/components/FieldSet.tsx");
+/* harmony import */ var _common_components_Select__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/Select */ "./src/common/components/Select.tsx");
+/* harmony import */ var _common_components_Switch__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/Switch */ "./src/common/components/Switch.tsx");
 /* harmony import */ var _utils_saveSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/saveSettings */ "./src/admin/utils/saveSettings.ts");
 /* harmony import */ var _common_utils_ItemList__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/utils/ItemList */ "./src/common/utils/ItemList.ts");
-/* harmony import */ var _common_components_Switch__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../common/components/Switch */ "./src/common/components/Switch.tsx");
-
 
 
 
@@ -13367,14 +13365,14 @@ var BasicsPage = /*#__PURE__*/function (_Page) {
       className: "container"
     }, m("form", {
       onsubmit: this.onsubmit.bind(this)
-    }, _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_3__["default"].component({
+    }, _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__["default"].component({
       label: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.admin.basics.forum_title_heading'),
       children: [m("input", {
         className: "FormControl",
         value: this.values.forum_title(),
         oninput: m.withAttr('value', this.values.forum_title)
       })]
-    }), _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_3__["default"].component({
+    }), _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__["default"].component({
       label: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.admin.basics.forum_description_heading'),
       children: [m("div", {
         className: "helpText"
@@ -13383,18 +13381,18 @@ var BasicsPage = /*#__PURE__*/function (_Page) {
         value: this.values.forum_description(),
         oninput: m.withAttr('value', this.values.forum_description)
       })]
-    }), Object.keys(this.localeOptions).length > 1 ? _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_3__["default"].component({
+    }), Object.keys(this.localeOptions).length > 1 ? _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__["default"].component({
       label: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.admin.basics.default_language_heading'),
-      children: [_common_components_Select__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+      children: [_common_components_Select__WEBPACK_IMPORTED_MODULE_5__["default"].component({
         options: this.localeOptions,
         value: this.values.default_locale(),
         onchange: this.values.default_locale
-      }), _common_components_Switch__WEBPACK_IMPORTED_MODULE_9__["default"].component({
+      }), _common_components_Switch__WEBPACK_IMPORTED_MODULE_6__["default"].component({
         state: this.values.show_language_selector(),
         onchange: this.values.show_language_selector,
         children: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.admin.basics.show_language_selector_label')
       })]
-    }) : '', _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_3__["default"].component({
+    }) : '', _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__["default"].component({
       label: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.admin.basics.home_page_heading'),
       className: 'BasicsPage-homePage',
       children: [m("div", {
@@ -13412,7 +13410,7 @@ var BasicsPage = /*#__PURE__*/function (_Page) {
           onclick: m.withAttr('value', _this3.values.default_route)
         }), label);
       })]
-    }), _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_3__["default"].component({
+    }), _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__["default"].component({
       label: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.admin.basics.welcome_banner_heading'),
       className: 'BasicsPage-welcomeBanner',
       children: [m("div", {
@@ -13428,7 +13426,7 @@ var BasicsPage = /*#__PURE__*/function (_Page) {
         value: this.values.welcome_message(),
         oninput: m.withAttr('value', this.values.welcome_message)
       }))]
-    }), _common_components_Button__WEBPACK_IMPORTED_MODULE_5__["default"].component({
+    }), _common_components_Button__WEBPACK_IMPORTED_MODULE_3__["default"].component({
       type: 'submit',
       className: 'Button Button--primary',
       children: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.admin.basics.submit_button'),
@@ -13474,10 +13472,10 @@ var BasicsPage = /*#__PURE__*/function (_Page) {
       return settings[key] = _this5.values[key]();
     });
     Object(_utils_saveSettings__WEBPACK_IMPORTED_MODULE_7__["default"])(settings).then(function () {
-      _app__WEBPACK_IMPORTED_MODULE_1__["default"].alerts.show(_this5.successAlert = _common_components_Alert__WEBPACK_IMPORTED_MODULE_6__["default"].component({
+      _this5.successAlert = _app__WEBPACK_IMPORTED_MODULE_1__["default"].alerts.show({
         type: 'success',
         children: _app__WEBPACK_IMPORTED_MODULE_1__["default"].translator.trans('core.admin.basics.saved_message')
-      }));
+      });
     }).catch(function () {}).then(function () {
       _this5.loading = false;
       m.redraw();
@@ -14252,11 +14250,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../app */ "./src/admin/app.ts");
 /* harmony import */ var _Page__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Page */ "./src/admin/components/Page.tsx");
-/* harmony import */ var _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/components/FieldSet */ "./src/common/components/FieldSet.tsx");
+/* harmony import */ var _common_components_Alert__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../common/components/Alert */ "./src/common/components/Alert.tsx");
 /* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _common_components_Alert__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/Alert */ "./src/common/components/Alert.tsx");
-/* harmony import */ var _common_components_Select__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/components/Select */ "./src/common/components/Select.tsx");
-/* harmony import */ var _common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/components/LoadingIndicator */ "./src/common/components/LoadingIndicator.tsx");
+/* harmony import */ var _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../common/components/FieldSet */ "./src/common/components/FieldSet.tsx");
+/* harmony import */ var _common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../common/components/LoadingIndicator */ "./src/common/components/LoadingIndicator.tsx");
+/* harmony import */ var _common_components_Select__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/components/Select */ "./src/common/components/Select.tsx");
 /* harmony import */ var _utils_saveSettings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/saveSettings */ "./src/admin/utils/saveSettings.ts");
 
 
@@ -14340,7 +14338,7 @@ var MailPage = /*#__PURE__*/function (_Page) {
         className: "MailPage"
       }, m("div", {
         className: "container"
-      }, m(_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_8__["default"], null)));
+      }, m(_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_7__["default"], null)));
     }
 
     var fields = this.driverFields[this.values.mail_driver()];
@@ -14353,7 +14351,7 @@ var MailPage = /*#__PURE__*/function (_Page) {
       onsubmit: this.onsubmit.bind(this)
     }, m("h2", null, _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.email.heading')), m("div", {
       className: "helpText"
-    }, _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.email.text')), _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+    }, _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.email.text')), _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_6__["default"].component({
       label: _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.email.addresses_heading'),
       className: 'MailPage-MailSettings',
       children: [m("div", {
@@ -14363,12 +14361,12 @@ var MailPage = /*#__PURE__*/function (_Page) {
         value: this.values.mail_from() || '',
         oninput: m.withAttr('value', this.values.mail_from)
       })))]
-    }), _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+    }), _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_6__["default"].component({
       label: _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.email.driver_heading'),
       className: 'MailPage-MailSettings',
       children: [m("div", {
         className: "MailPage-MailSettings-input"
-      }, m("label", null, _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.email.driver_label'), m(_common_components_Select__WEBPACK_IMPORTED_MODULE_7__["default"], {
+      }, m("label", null, _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.email.driver_label'), m(_common_components_Select__WEBPACK_IMPORTED_MODULE_8__["default"], {
         value: this.values.mail_driver(),
         options: Object.keys(this.driverFields).reduce(function (memo, val) {
           var _extends2;
@@ -14377,10 +14375,10 @@ var MailPage = /*#__PURE__*/function (_Page) {
         }, {}),
         onchange: this.values.mail_driver
       })))]
-    }), this.status.sending || _common_components_Alert__WEBPACK_IMPORTED_MODULE_6__["default"].component({
+    }), this.status.sending || _common_components_Alert__WEBPACK_IMPORTED_MODULE_4__["default"].component({
       children: _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.email.not_sending_message'),
       dismissible: false
-    }), fieldKeys.length > 0 && _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_4__["default"].component({
+    }), fieldKeys.length > 0 && _common_components_FieldSet__WEBPACK_IMPORTED_MODULE_6__["default"].component({
       label: _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans("core.admin.email." + this.values.mail_driver() + "_heading"),
       className: 'MailPage-MailSettings',
       children: [m("div", {
@@ -14412,7 +14410,7 @@ var MailPage = /*#__PURE__*/function (_Page) {
         oninput: m.withAttr('value', prop)
       });
     } else {
-      return m(_common_components_Select__WEBPACK_IMPORTED_MODULE_7__["default"], {
+      return m(_common_components_Select__WEBPACK_IMPORTED_MODULE_8__["default"], {
         value: prop(),
         options: field,
         onchange: prop
@@ -14440,10 +14438,10 @@ var MailPage = /*#__PURE__*/function (_Page) {
       return settings[key] = _this5.values[key]();
     });
     Object(_utils_saveSettings__WEBPACK_IMPORTED_MODULE_9__["default"])(settings).then(function () {
-      _app__WEBPACK_IMPORTED_MODULE_2__["default"].alerts.show(_this5.successAlert = _common_components_Alert__WEBPACK_IMPORTED_MODULE_6__["default"].component({
+      _this5.successAlert = _app__WEBPACK_IMPORTED_MODULE_2__["default"].alerts.show({
         type: 'success',
         children: _app__WEBPACK_IMPORTED_MODULE_2__["default"].translator.trans('core.admin.basics.saved_message')
-      }));
+      });
     }).catch(function () {}).then(function () {
       _this5.saving = false;
 
@@ -15594,11 +15592,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _models_Post__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./models/Post */ "./src/common/models/Post.ts");
 /* harmony import */ var _models_Group__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./models/Group */ "./src/common/models/Group.ts");
 /* harmony import */ var _models_Notification__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./models/Notification */ "./src/common/models/Notification.ts");
-/* harmony import */ var _components_Alert__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/Alert */ "./src/common/components/Alert.tsx");
-/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
-/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
-/* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
+/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
+/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
+/* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
+/* harmony import */ var _states_AlertState__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./states/AlertState */ "./src/common/states/AlertState.ts");
 /* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lodash/flattenDeep */ "./node_modules/lodash/flattenDeep.js");
 /* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22___default = /*#__PURE__*/__webpack_require__.n(lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22__);
 
@@ -15709,8 +15707,8 @@ var Application = /*#__PURE__*/function () {
     var $modal = document.getElementById('modal');
     var $alerts = document.getElementById('alerts');
     var $content = document.getElementById('content');
-    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_20__["default"]());
-    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_18__["default"]({
+    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__["default"]());
+    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_17__["default"]({
       oninit: function oninit(vnode) {
         return _this3.alerts = vnode.state;
       }
@@ -15899,10 +15897,10 @@ var Application = /*#__PURE__*/function () {
       }
 
       var isDebug = app.forum.attribute('debug');
-      error.alert = _components_Alert__WEBPACK_IMPORTED_MODULE_17__["default"].component({
+      error.alert = new _states_AlertState__WEBPACK_IMPORTED_MODULE_21__["default"]({
         type: 'error',
         children: children,
-        controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_19__["default"].component({
+        controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_18__["default"].component({
           className: 'Button Button--link',
           onclick: _this4.showDebug.bind(_this4, error),
           children: 'DEBUG' // TODO make translatable
@@ -15924,7 +15922,7 @@ var Application = /*#__PURE__*/function () {
 
   _proto.showDebug = function showDebug(error) {
     this.alerts.dismiss(this.requestError.alert);
-    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_21__["default"], {
+    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__["default"], {
       error: error
     });
   };
@@ -17143,14 +17141,6 @@ __webpack_require__.r(__webpack_exports__);
  * The `Alert` component represents an alert box, which contains a message,
  * some controls, and may be dismissible.
  *
- * The alert may have the following special props:
- *
- * - `type` The type of alert this is. Will be used to give the alert a class
- *   name of `Alert--{type}`.
- * - `controls` An array of controls to show in the alert.
- * - `dismissible` Whether or not the alert can be dismissed.
- * - `ondismiss` A callback to run when the alert is dismissed.
- *
  * All other props will be assigned as attributes on the alert element.
  */
 var Alert = /*#__PURE__*/function (_Component) {
@@ -17163,7 +17153,11 @@ var Alert = /*#__PURE__*/function (_Component) {
   var _proto = Alert.prototype;
 
   _proto.view = function view() {
-    var attrs = Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, this.props);
+    var _this$props$state;
+
+    var data = ((_this$props$state = this.props.state) === null || _this$props$state === void 0 ? void 0 : _this$props$state.data) || this.props;
+
+    var attrs = Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, data);
 
     var type = Object(_utils_extract__WEBPACK_IMPORTED_MODULE_5__["default"])(attrs, 'type');
     attrs.className = "Alert Alert--" + type + " " + (attrs.className || '');
@@ -17210,6 +17204,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return AlertManager; });
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var _Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Component */ "./src/common/Component.ts");
+/* harmony import */ var _states_AlertState__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../states/AlertState */ "./src/common/states/AlertState.ts");
+/* harmony import */ var _Alert__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Alert */ "./src/common/components/Alert.tsx");
+
 
 
 
@@ -17217,6 +17214,7 @@ __webpack_require__.r(__webpack_exports__);
  * The `AlertManager` component provides an area in which `Alert` components can
  * be shown and dismissed.
  */
+
 var AlertManager = /*#__PURE__*/function (_Component) {
   Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(AlertManager, _Component);
 
@@ -17228,19 +17226,24 @@ var AlertManager = /*#__PURE__*/function (_Component) {
     }
 
     _this = _Component.call.apply(_Component, [this].concat(args)) || this;
-    _this.components = [];
+    _this.states = [];
     return _this;
   }
 
   var _proto = AlertManager.prototype;
 
   _proto.view = function view() {
+    var _this2 = this;
+
     return m("div", {
       className: "AlertManager"
-    }, this.components.map(function (vnode) {
+    }, this.states.map(function (state) {
       return m("div", {
         className: "AlertManager-alert"
-      }, vnode);
+      }, m(_Alert__WEBPACK_IMPORTED_MODULE_3__["default"], {
+        state: state,
+        ondismiss: _this2.dismiss.bind(_this2)
+      }));
     }));
   }
   /**
@@ -17248,21 +17251,26 @@ var AlertManager = /*#__PURE__*/function (_Component) {
    */
   ;
 
-  _proto.show = function show(vnode) {
-    vnode.attrs.ondismiss = this.dismiss.bind(this, vnode);
-    this.components.push(vnode);
+  _proto.show = function show(state) {
+    if (!(state instanceof _states_AlertState__WEBPACK_IMPORTED_MODULE_2__["default"])) state = new _states_AlertState__WEBPACK_IMPORTED_MODULE_2__["default"](state);
+    this.states.push(state);
     m.redraw();
+    return state.key;
   }
   /**
    * Dismiss an alert.
    */
   ;
 
-  _proto.dismiss = function dismiss(vnode) {
-    var index = this.components.indexOf(vnode);
+  _proto.dismiss = function dismiss(keyOrState) {
+    if (!keyOrState) return;
+    var key = keyOrState instanceof _states_AlertState__WEBPACK_IMPORTED_MODULE_2__["default"] ? keyOrState.key : keyOrState;
+    var index = this.states.indexOf(this.states.filter(function (a) {
+      return a.key == key;
+    })[0]);
 
     if (index !== -1) {
-      this.components.splice(index, 1);
+      this.states.splice(index, 1);
       m.redraw();
     }
   }
@@ -17272,7 +17280,7 @@ var AlertManager = /*#__PURE__*/function (_Component) {
   ;
 
   _proto.clear = function clear() {
-    this.components = [];
+    this.states = [];
     m.redraw();
   };
 
@@ -19701,6 +19709,31 @@ var User = /*#__PURE__*/function (_Model) {
 
   return User;
 }(_Model__WEBPACK_IMPORTED_MODULE_2__["default"]);
+
+
+
+/***/ }),
+
+/***/ "./src/common/states/AlertState.ts":
+/*!*****************************************!*\
+  !*** ./src/common/states/AlertState.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return AlertState; });
+var AlertState = function AlertState(data, key) {
+  if (key === void 0) {
+    key = Date.now();
+  }
+
+  this.data = void 0;
+  this.key = void 0;
+  this.data = data;
+  this.key = key;
+};
 
 
 

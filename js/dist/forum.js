@@ -13152,11 +13152,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _models_Post__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./models/Post */ "./src/common/models/Post.ts");
 /* harmony import */ var _models_Group__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./models/Group */ "./src/common/models/Group.ts");
 /* harmony import */ var _models_Notification__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./models/Notification */ "./src/common/models/Notification.ts");
-/* harmony import */ var _components_Alert__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/Alert */ "./src/common/components/Alert.tsx");
-/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
-/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
-/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
-/* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
+/* harmony import */ var _components_AlertManager__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/AlertManager */ "./src/common/components/AlertManager.tsx");
+/* harmony import */ var _components_Button__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/Button */ "./src/common/components/Button.tsx");
+/* harmony import */ var _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/ModalManager */ "./src/common/components/ModalManager.tsx");
+/* harmony import */ var _components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/RequestErrorModal */ "./src/common/components/RequestErrorModal.tsx");
+/* harmony import */ var _states_AlertState__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./states/AlertState */ "./src/common/states/AlertState.ts");
 /* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lodash/flattenDeep */ "./node_modules/lodash/flattenDeep.js");
 /* harmony import */ var lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22___default = /*#__PURE__*/__webpack_require__.n(lodash_flattenDeep__WEBPACK_IMPORTED_MODULE_22__);
 
@@ -13267,8 +13267,8 @@ var Application = /*#__PURE__*/function () {
     var $modal = document.getElementById('modal');
     var $alerts = document.getElementById('alerts');
     var $content = document.getElementById('content');
-    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_20__["default"]());
-    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_18__["default"]({
+    if ($modal) m.mount($modal, this.modal = new _components_ModalManager__WEBPACK_IMPORTED_MODULE_19__["default"]());
+    if ($alerts) m.mount($alerts, this.alerts = new _components_AlertManager__WEBPACK_IMPORTED_MODULE_17__["default"]({
       oninit: function oninit(vnode) {
         return _this3.alerts = vnode.state;
       }
@@ -13457,10 +13457,10 @@ var Application = /*#__PURE__*/function () {
       }
 
       var isDebug = app.forum.attribute('debug');
-      error.alert = _components_Alert__WEBPACK_IMPORTED_MODULE_17__["default"].component({
+      error.alert = new _states_AlertState__WEBPACK_IMPORTED_MODULE_21__["default"]({
         type: 'error',
         children: children,
-        controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_19__["default"].component({
+        controls: isDebug && [_components_Button__WEBPACK_IMPORTED_MODULE_18__["default"].component({
           className: 'Button Button--link',
           onclick: _this4.showDebug.bind(_this4, error),
           children: 'DEBUG' // TODO make translatable
@@ -13482,7 +13482,7 @@ var Application = /*#__PURE__*/function () {
 
   _proto.showDebug = function showDebug(error) {
     this.alerts.dismiss(this.requestError.alert);
-    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_21__["default"], {
+    this.modal.show(_components_RequestErrorModal__WEBPACK_IMPORTED_MODULE_20__["default"], {
       error: error
     });
   };
@@ -14701,14 +14701,6 @@ __webpack_require__.r(__webpack_exports__);
  * The `Alert` component represents an alert box, which contains a message,
  * some controls, and may be dismissible.
  *
- * The alert may have the following special props:
- *
- * - `type` The type of alert this is. Will be used to give the alert a class
- *   name of `Alert--{type}`.
- * - `controls` An array of controls to show in the alert.
- * - `dismissible` Whether or not the alert can be dismissed.
- * - `ondismiss` A callback to run when the alert is dismissed.
- *
  * All other props will be assigned as attributes on the alert element.
  */
 var Alert = /*#__PURE__*/function (_Component) {
@@ -14721,7 +14713,11 @@ var Alert = /*#__PURE__*/function (_Component) {
   var _proto = Alert.prototype;
 
   _proto.view = function view() {
-    var attrs = Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, this.props);
+    var _this$props$state;
+
+    var data = ((_this$props$state = this.props.state) === null || _this$props$state === void 0 ? void 0 : _this$props$state.data) || this.props;
+
+    var attrs = Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, data);
 
     var type = Object(_utils_extract__WEBPACK_IMPORTED_MODULE_5__["default"])(attrs, 'type');
     attrs.className = "Alert Alert--" + type + " " + (attrs.className || '');
@@ -14768,6 +14764,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return AlertManager; });
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var _Component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Component */ "./src/common/Component.ts");
+/* harmony import */ var _states_AlertState__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../states/AlertState */ "./src/common/states/AlertState.ts");
+/* harmony import */ var _Alert__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Alert */ "./src/common/components/Alert.tsx");
+
 
 
 
@@ -14775,6 +14774,7 @@ __webpack_require__.r(__webpack_exports__);
  * The `AlertManager` component provides an area in which `Alert` components can
  * be shown and dismissed.
  */
+
 var AlertManager = /*#__PURE__*/function (_Component) {
   Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(AlertManager, _Component);
 
@@ -14786,19 +14786,24 @@ var AlertManager = /*#__PURE__*/function (_Component) {
     }
 
     _this = _Component.call.apply(_Component, [this].concat(args)) || this;
-    _this.components = [];
+    _this.states = [];
     return _this;
   }
 
   var _proto = AlertManager.prototype;
 
   _proto.view = function view() {
+    var _this2 = this;
+
     return m("div", {
       className: "AlertManager"
-    }, this.components.map(function (vnode) {
+    }, this.states.map(function (state) {
       return m("div", {
         className: "AlertManager-alert"
-      }, vnode);
+      }, m(_Alert__WEBPACK_IMPORTED_MODULE_3__["default"], {
+        state: state,
+        ondismiss: _this2.dismiss.bind(_this2)
+      }));
     }));
   }
   /**
@@ -14806,21 +14811,26 @@ var AlertManager = /*#__PURE__*/function (_Component) {
    */
   ;
 
-  _proto.show = function show(vnode) {
-    vnode.attrs.ondismiss = this.dismiss.bind(this, vnode);
-    this.components.push(vnode);
+  _proto.show = function show(state) {
+    if (!(state instanceof _states_AlertState__WEBPACK_IMPORTED_MODULE_2__["default"])) state = new _states_AlertState__WEBPACK_IMPORTED_MODULE_2__["default"](state);
+    this.states.push(state);
     m.redraw();
+    return state.key;
   }
   /**
    * Dismiss an alert.
    */
   ;
 
-  _proto.dismiss = function dismiss(vnode) {
-    var index = this.components.indexOf(vnode);
+  _proto.dismiss = function dismiss(keyOrState) {
+    if (!keyOrState) return;
+    var key = keyOrState instanceof _states_AlertState__WEBPACK_IMPORTED_MODULE_2__["default"] ? keyOrState.key : keyOrState;
+    var index = this.states.indexOf(this.states.filter(function (a) {
+      return a.key == key;
+    })[0]);
 
     if (index !== -1) {
-      this.components.splice(index, 1);
+      this.states.splice(index, 1);
       m.redraw();
     }
   }
@@ -14830,7 +14840,7 @@ var AlertManager = /*#__PURE__*/function (_Component) {
   ;
 
   _proto.clear = function clear() {
-    this.components = [];
+    this.states = [];
     m.redraw();
   };
 
@@ -17259,6 +17269,31 @@ var User = /*#__PURE__*/function (_Model) {
 
   return User;
 }(_Model__WEBPACK_IMPORTED_MODULE_2__["default"]);
+
+
+
+/***/ }),
+
+/***/ "./src/common/states/AlertState.ts":
+/*!*****************************************!*\
+  !*** ./src/common/states/AlertState.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return AlertState; });
+var AlertState = function AlertState(data, key) {
+  if (key === void 0) {
+    key = Date.now();
+  }
+
+  this.data = void 0;
+  this.key = void 0;
+  this.data = data;
+  this.key = key;
+};
 
 
 
@@ -26309,7 +26344,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _common_components_Alert__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../common/components/Alert */ "./src/common/components/Alert.tsx");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../app */ "./src/forum/app.ts");
 /* harmony import */ var _common_components_Button__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/components/Button */ "./src/common/components/Button.tsx");
 /* harmony import */ var _common_components_Separator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../common/components/Separator */ "./src/common/components/Separator.tsx");
 /* harmony import */ var _components_EditUserModal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/EditUserModal */ "./src/forum/components/EditUserModal.tsx");
@@ -26367,7 +26402,7 @@ __webpack_require__.r(__webpack_exports__);
     if (user.canEdit()) {
       items.add('edit', _common_components_Button__WEBPACK_IMPORTED_MODULE_1__["default"].component({
         icon: 'fas fa-pencil-alt',
-        children: app.translator.trans('core.forum.user_controls.edit_button'),
+        children: _app__WEBPACK_IMPORTED_MODULE_0__["default"].translator.trans('core.forum.user_controls.edit_button'),
         onclick: this.editAction.bind(this, user)
       }));
     }
@@ -26384,7 +26419,7 @@ __webpack_require__.r(__webpack_exports__);
     if (user.id() !== '1' && user.canDelete()) {
       items.add('delete', _common_components_Button__WEBPACK_IMPORTED_MODULE_1__["default"].component({
         icon: 'fas fa-times',
-        children: app.translator.trans('core.forum.user_controls.delete_button'),
+        children: _app__WEBPACK_IMPORTED_MODULE_0__["default"].translator.trans('core.forum.user_controls.delete_button'),
         onclick: this.deleteAction.bind(this, user)
       }));
     }
@@ -26398,15 +26433,15 @@ __webpack_require__.r(__webpack_exports__);
   deleteAction: function deleteAction(user) {
     var _this2 = this;
 
-    if (!confirm(app.translator.transText('core.forum.user_controls.delete_confirmation'))) {
+    if (!confirm(_app__WEBPACK_IMPORTED_MODULE_0__["default"].translator.transText('core.forum.user_controls.delete_confirmation'))) {
       return;
     }
 
     user.delete().then(function () {
       _this2.showDeletionAlert(user, 'success');
 
-      if (app.current instanceof _components_UserPage__WEBPACK_IMPORTED_MODULE_4__["default"] && app.current.user === user) {
-        app.history.back();
+      if (_app__WEBPACK_IMPORTED_MODULE_0__["default"].current instanceof _components_UserPage__WEBPACK_IMPORTED_MODULE_4__["default"] && _app__WEBPACK_IMPORTED_MODULE_0__["default"].current.user === user) {
+        _app__WEBPACK_IMPORTED_MODULE_0__["default"].history.back();
       } else {
         window.location.reload();
       }
@@ -26419,24 +26454,24 @@ __webpack_require__.r(__webpack_exports__);
    * Show deletion alert of user.
    */
   showDeletionAlert: function showDeletionAlert(user, type) {
-    var _user$data$attributes = user.data.attributes,
-        username = _user$data$attributes.username,
-        email = _user$data$attributes.email;
+    var _ref = user.data.attributes,
+        username = _ref.username,
+        email = _ref.email;
     var message = "core.forum.user_controls.delete_" + type + "_message";
-    app.alerts.show(_common_components_Alert__WEBPACK_IMPORTED_MODULE_0__["default"].component({
+    _app__WEBPACK_IMPORTED_MODULE_0__["default"].alerts.show({
       type: type,
-      children: app.translator.trans(message, {
+      children: _app__WEBPACK_IMPORTED_MODULE_0__["default"].translator.trans(message, {
         username: username,
         email: email
       })
-    }));
+    });
   },
 
   /**
    * Edit the user.
    */
   editAction: function editAction(user) {
-    app.modal.show(_components_EditUserModal__WEBPACK_IMPORTED_MODULE_3__["default"], {
+    _app__WEBPACK_IMPORTED_MODULE_0__["default"].modal.show(_components_EditUserModal__WEBPACK_IMPORTED_MODULE_3__["default"], {
       user: user
     });
   }

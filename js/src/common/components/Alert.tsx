@@ -1,34 +1,48 @@
+import * as Mithril from 'mithril';
+
 import Component, { ComponentProps } from '../Component';
 import Button from './Button';
 import listItems from '../helpers/listItems';
 import extract from '../utils/extract';
-import * as Mithril from 'mithril';
+import AlertState from '../states/AlertState';
 
-export interface AlertProps extends ComponentProps {
+export interface AlertData extends ComponentProps {
+    /**
+     * An array of controls to show in the alert.
+     */
     controls?: Mithril.ChildArray;
+
+    /**
+     * The type of alert this is. Will be used to give the alert a class
+     *   name of `Alert--{type}`.
+     */
     type?: string;
+
+    /**
+     * Whether or not the alert can be dismissed.
+     */
     dismissible?: boolean;
 
+    /**
+     * A callback to run when the alert is dismissed.
+     */
     ondismiss?: () => any;
+}
+
+export interface AlertProps extends AlertData {
+    state: AlertState;
 }
 
 /**
  * The `Alert` component represents an alert box, which contains a message,
  * some controls, and may be dismissible.
  *
- * The alert may have the following special props:
- *
- * - `type` The type of alert this is. Will be used to give the alert a class
- *   name of `Alert--{type}`.
- * - `controls` An array of controls to show in the alert.
- * - `dismissible` Whether or not the alert can be dismissed.
- * - `ondismiss` A callback to run when the alert is dismissed.
- *
  * All other props will be assigned as attributes on the alert element.
  */
 export default class Alert extends Component<AlertProps> {
     view() {
-        const attrs: AlertProps = Object.assign({}, this.props);
+        const data = this.props.state?.data || this.props;
+        const attrs: AlertData = Object.assign({}, data);
 
         const type: string = extract(attrs, 'type');
         attrs.className = `Alert Alert--${type} ${attrs.className || ''}`;
@@ -41,7 +55,7 @@ export default class Alert extends Component<AlertProps> {
         // the alert.
         const dismissible: boolean | undefined = extract(attrs, 'dismissible');
         const ondismiss: () => any = extract(attrs, 'ondismiss');
-        const dismissControl = [];
+        const dismissControl: JSX.Element[] = [];
 
         if (dismissible || dismissible === undefined) {
             dismissControl.push(<Button icon="fas fa-times" className="Button Button--link Button--icon Alert-dismiss" onclick={ondismiss} />);

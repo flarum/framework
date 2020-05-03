@@ -1,4 +1,5 @@
-import Alert from '../../common/components/Alert';
+import app from '../app';
+
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import EditUserModal from '../components/EditUserModal';
@@ -103,15 +104,13 @@ export default {
      * Show deletion alert of user.
      */
     showDeletionAlert(user: User, type: string) {
-        const { username, email } = user.data.attributes;
+        const { username, email } = user.data.attributes!;
         const message = `core.forum.user_controls.delete_${type}_message`;
 
-        app.alerts.show(
-            Alert.component({
-                type,
-                children: app.translator.trans(message, { username, email }),
-            })
-        );
+        app.alerts.show({
+            type,
+            children: app.translator.trans(message, { username, email }),
+        });
     },
 
     /**

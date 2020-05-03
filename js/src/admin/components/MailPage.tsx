@@ -1,12 +1,13 @@
 import app from '../app';
 
 import Page from './Page';
-import FieldSet from '../../common/components/FieldSet';
-import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
-import Select from '../../common/components/Select';
+import Button from '../../common/components/Button';
+import FieldSet from '../../common/components/FieldSet';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
+import Select from '../../common/components/Select';
 import saveSettings from '../utils/saveSettings';
+import AlertState from '../../common/states/AlertState';
 
 import Stream from 'mithril/stream';
 
@@ -21,7 +22,7 @@ export default class MailPage extends Page {
 
     status = { sending: false, errors: {} };
 
-    successAlert: Alert;
+    successAlert?: number;
 
     oninit(vnode) {
         super.oninit(vnode);
@@ -179,9 +180,7 @@ export default class MailPage extends Page {
 
         saveSettings(settings)
             .then(() => {
-                app.alerts.show(
-                    (this.successAlert = Alert.component({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') }))
-                );
+                this.successAlert = app.alerts.show({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') });
             })
             .catch(() => {})
             .then(() => {

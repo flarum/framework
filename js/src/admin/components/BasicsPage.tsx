@@ -1,13 +1,13 @@
 import app from '../app';
 
 import Page from './Page';
+import Button from '../../common/components/Button';
 import FieldSet from '../../common/components/FieldSet';
 import Select from '../../common/components/Select';
-import Button from '../../common/components/Button';
-import Alert from '../../common/components/Alert';
+import Switch from '../../common/components/Switch';
 import saveSettings from '../utils/saveSettings';
 import ItemList from '../../common/utils/ItemList';
-import Switch from '../../common/components/Switch';
+import AlertState from '../../common/states/AlertState';
 
 import Stream from 'mithril/stream';
 
@@ -27,7 +27,7 @@ export default class BasicsPage extends Page {
 
     localeOptions: object = {};
 
-    successAlert: Alert;
+    successAlert?: number;
 
     oninit(vnode) {
         super.oninit(vnode);
@@ -180,9 +180,7 @@ export default class BasicsPage extends Page {
 
         saveSettings(settings)
             .then(() => {
-                app.alerts.show(
-                    (this.successAlert = Alert.component({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') }))
-                );
+                this.successAlert = app.alerts.show({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') });
             })
             .catch(() => {})
             .then(() => {

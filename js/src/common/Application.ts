@@ -19,12 +19,13 @@ import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
 
-import Alert from './components/Alert';
 import AlertManager from './components/AlertManager';
 import Button from './components/Button';
 import ModalManager from './components/ModalManager';
 import Page from './components/Page';
 import RequestErrorModal from './components/RequestErrorModal';
+
+import AlertState from './states/AlertState';
 
 import flattenDeep from 'lodash/flattenDeep';
 
@@ -330,7 +331,7 @@ export default abstract class Application {
 
                 const isDebug = app.forum.attribute('debug');
 
-                error.alert = Alert.component({
+                error.alert = new AlertState({
                     type: 'error',
                     children,
                     controls: isDebug && [
