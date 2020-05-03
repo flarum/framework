@@ -20,12 +20,13 @@ import Group from './models/Group';
 import Notification from './models/Notification';
 
 import Alert from './components/Alert';
+import AlertManager from './components/AlertManager';
 import Button from './components/Button';
 import ModalManager from './components/ModalManager';
+import Page from './components/Page';
 import RequestErrorModal from './components/RequestErrorModal';
 
 import flattenDeep from 'lodash/flattenDeep';
-import AlertManager from './components/AlertManager';
 
 export type ApplicationData = {
     apiDocument: any;
@@ -106,6 +107,9 @@ export default abstract class Application {
 
     modal!: ModalManager;
     alerts!: AlertManager;
+
+    current?: Page;
+    previous?: Page;
 
     load(payload) {
         this.data = payload;
