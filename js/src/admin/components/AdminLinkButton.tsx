@@ -1,6 +1,6 @@
 import LinkButton, { LinkButtonProps } from '../../common/components/LinkButton';
 
-interface AdminLinkButtonProps extends LinkButtonProps {
+export interface AdminLinkButtonProps extends LinkButtonProps {
     description?: string;
 }
 
