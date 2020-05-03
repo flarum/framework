@@ -316,7 +316,7 @@ export default class IndexPage extends Page {
             params.sort = sort;
         }
 
-        m.route(app.route(this.props.routeName, params));
+        m.route.set(app.route(this.props.routeName, params));
     }
 
     /**

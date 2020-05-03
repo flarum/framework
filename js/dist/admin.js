@@ -175,6 +175,33 @@ function _inheritsLoose(subClass, superClass) {
 
 /***/ }),
 
+/***/ "./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":
+/*!*********************************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js ***!
+  \*********************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return _objectWithoutPropertiesLoose; });
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/imports-loader/index.js?this=>window!./node_modules/source-map-loader/index.js!./node_modules/zepto/dist/zepto.js":
 /*!**************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--5!./node_modules/imports-loader?this=>window!./node_modules/source-map-loader!./node_modules/zepto/dist/zepto.js ***!
@@ -1975,14 +2002,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-!function (t, n) {
-   true ? module.exports = n() : undefined;
+!function (t, e) {
+   true ? module.exports = e() : undefined;
 }(this, function () {
   "use strict";
 
   var t = "millisecond",
-      n = "second",
-      e = "minute",
+      e = "second",
+      n = "minute",
       r = "hour",
       i = "day",
       s = "week",
@@ -1991,25 +2018,25 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       a = "year",
       h = /^(\d{4})-?(\d{1,2})-?(\d{0,2})[^0-9]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?.?(\d{1,3})?$/,
       f = /\[([^\]]+)]|Y{2,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,
-      c = function c(t, n, e) {
+      c = function c(t, e, n) {
     var r = String(t);
-    return !r || r.length >= n ? t : "" + Array(n + 1 - r.length).join(e) + t;
+    return !r || r.length >= e ? t : "" + Array(e + 1 - r.length).join(n) + t;
   },
       d = {
     s: c,
     z: function z(t) {
-      var n = -t.utcOffset(),
-          e = Math.abs(n),
-          r = Math.floor(e / 60),
-          i = e % 60;
-      return (n <= 0 ? "+" : "-") + c(r, 2, "0") + ":" + c(i, 2, "0");
+      var e = -t.utcOffset(),
+          n = Math.abs(e),
+          r = Math.floor(n / 60),
+          i = n % 60;
+      return (e <= 0 ? "+" : "-") + c(r, 2, "0") + ":" + c(i, 2, "0");
     },
-    m: function m(t, n) {
-      var e = 12 * (n.year() - t.year()) + (n.month() - t.month()),
-          r = t.clone().add(e, u),
-          i = n - r < 0,
-          s = t.clone().add(e + (i ? -1 : 1), u);
-      return Number(-(e + (n - r) / (i ? r - s : s - r)) || 0);
+    m: function m(t, e) {
+      var n = 12 * (e.year() - t.year()) + (e.month() - t.month()),
+          r = t.clone().add(n, u),
+          i = e - r < 0,
+          s = t.clone().add(n + (i ? -1 : 1), u);
+      return Number(-(n + (e - r) / (i ? r - s : s - r)) || 0);
     },
     a: function a(t) {
       return t < 0 ? Math.ceil(t) || 0 : Math.floor(t);
@@ -2022,8 +2049,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         d: i,
         D: "date",
         h: r,
-        m: e,
-        s: n,
+        m: n,
+        s: e,
         ms: t,
         Q: o
       }[h] || String(h || "").toLowerCase().replace(/s$/, "");
@@ -2045,30 +2072,27 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
   var y = function y(t) {
     return t instanceof v;
   },
-      M = function M(t, n, e) {
+      M = function M(t, e, n) {
     var r;
     if (!t) return l;
-    if ("string" == typeof t) m[t] && (r = t), n && (m[t] = n, r = t);else {
+    if ("string" == typeof t) m[t] && (r = t), e && (m[t] = e, r = t);else {
       var i = t.name;
       m[i] = t, r = i;
     }
-    return !e && r && (l = r), r || !e && l;
+    return !n && r && (l = r), r || !n && l;
   },
-      g = function g(t, n, e) {
+      g = function g(t, e) {
     if (y(t)) return t.clone();
-    var r = n ? "string" == typeof n ? {
-      format: n,
-      pl: e
-    } : n : {};
-    return r.date = t, new v(r);
+    var n = "object" == typeof e ? e : {};
+    return n.date = t, n.args = arguments, new v(n);
   },
       D = d;
 
-  D.l = M, D.i = y, D.w = function (t, n) {
+  D.l = M, D.i = y, D.w = function (t, e) {
     return g(t, {
-      locale: n.$L,
-      utc: n.$u,
-      $offset: n.$offset
+      locale: e.$L,
+      utc: e.$u,
+      $offset: e.$offset
     });
   };
 
@@ -2080,18 +2104,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     var d = c.prototype;
     return d.parse = function (t) {
       this.$d = function (t) {
-        var n = t.date,
-            e = t.utc;
-        if (null === n) return new Date(NaN);
-        if (D.u(n)) return new Date();
-        if (n instanceof Date) return new Date(n);
+        var e = t.date,
+            n = t.utc;
+        if (null === e) return new Date(NaN);
+        if (D.u(e)) return new Date();
+        if (e instanceof Date) return new Date(e);
 
-        if ("string" == typeof n && !/Z$/i.test(n)) {
-          var r = n.match(h);
-          if (r) return e ? new Date(Date.UTC(r[1], r[2] - 1, r[3] || 1, r[4] || 0, r[5] || 0, r[6] || 0, r[7] || 0)) : new Date(r[1], r[2] - 1, r[3] || 1, r[4] || 0, r[5] || 0, r[6] || 0, r[7] || 0);
+        if ("string" == typeof e && !/Z$/i.test(e)) {
+          var r = e.match(h);
+          if (r) return n ? new Date(Date.UTC(r[1], r[2] - 1, r[3] || 1, r[4] || 0, r[5] || 0, r[6] || 0, r[7] || 0)) : new Date(r[1], r[2] - 1, r[3] || 1, r[4] || 0, r[5] || 0, r[6] || 0, r[7] || 0);
         }
 
-        return new Date(n);
+        return new Date(e);
       }(t), this.init();
     }, d.init = function () {
       var t = this.$d;
@@ -2100,15 +2124,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       return D;
     }, d.isValid = function () {
       return !("Invalid Date" === this.$d.toString());
-    }, d.isSame = function (t, n) {
-      var e = g(t);
-      return this.startOf(n) <= e && e <= this.endOf(n);
-    }, d.isAfter = function (t, n) {
-      return g(t) < this.startOf(n);
-    }, d.isBefore = function (t, n) {
-      return this.endOf(n) < g(t);
-    }, d.$g = function (t, n, e) {
-      return D.u(t) ? this[n] : this.set(e, t);
+    }, d.isSame = function (t, e) {
+      var n = g(t);
+      return this.startOf(e) <= n && n <= this.endOf(e);
+    }, d.isAfter = function (t, e) {
+      return g(t) < this.startOf(e);
+    }, d.isBefore = function (t, e) {
+      return this.endOf(e) < g(t);
+    }, d.$g = function (t, e, n) {
+      return D.u(t) ? this[e] : this.set(n, t);
     }, d.year = function (t) {
       return this.$g(t, "$y", a);
     }, d.month = function (t) {
@@ -2120,11 +2144,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     }, d.hour = function (t) {
       return this.$g(t, "$H", r);
     }, d.minute = function (t) {
-      return this.$g(t, "$m", e);
+      return this.$g(t, "$m", n);
     }, d.second = function (t) {
-      return this.$g(t, "$s", n);
-    }, d.millisecond = function (n) {
-      return this.$g(n, "$ms", t);
+      return this.$g(t, "$s", e);
+    }, d.millisecond = function (e) {
+      return this.$g(e, "$ms", t);
     }, d.unix = function () {
       return Math.floor(this.valueOf() / 1e3);
     }, d.valueOf = function () {
@@ -2133,12 +2157,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       var h = this,
           f = !!D.u(o) || o,
           c = D.p(t),
-          d = function d(t, n) {
-        var e = D.w(h.$u ? Date.UTC(h.$y, n, t) : new Date(h.$y, n, t), h);
-        return f ? e : e.endOf(i);
+          d = function d(t, e) {
+        var n = D.w(h.$u ? Date.UTC(h.$y, e, t) : new Date(h.$y, e, t), h);
+        return f ? n : n.endOf(i);
       },
-          $ = function $(t, n) {
-        return D.w(h.toDate()[t].apply(h.toDate(), (f ? [0, 0, 0, 0] : [23, 59, 59, 999]).slice(n)), h);
+          $ = function $(t, e) {
+        return D.w(h.toDate()[t].apply(h.toDate("s"), (f ? [0, 0, 0, 0] : [23, 59, 59, 999]).slice(e)), h);
       },
           l = this.$W,
           m = this.$M,
@@ -2164,10 +2188,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         case r:
           return $(M + "Minutes", 1);
 
-        case e:
+        case n:
           return $(M + "Seconds", 2);
 
-        case n:
+        case e:
           return $(M + "Milliseconds", 3);
 
         default:
@@ -2179,7 +2203,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       var h,
           f = D.p(s),
           c = "set" + (this.$u ? "UTC" : ""),
-          d = (h = {}, h[i] = c + "Date", h.date = c + "Date", h[u] = c + "Month", h[a] = c + "FullYear", h[r] = c + "Hours", h[e] = c + "Minutes", h[n] = c + "Seconds", h[t] = c + "Milliseconds", h)[f],
+          d = (h = {}, h[i] = c + "Date", h.date = c + "Date", h[u] = c + "Month", h[a] = c + "FullYear", h[r] = c + "Hours", h[n] = c + "Minutes", h[e] = c + "Seconds", h[t] = c + "Milliseconds", h)[f],
           $ = f === i ? this.$D + (o - this.$W) : o;
 
       if (f === u || f === a) {
@@ -2188,8 +2212,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       } else d && this.$d[d]($);
 
       return this.init(), this;
-    }, d.set = function (t, n) {
-      return this.clone().$set(t, n);
+    }, d.set = function (t, e) {
+      return this.clone().$set(t, e);
     }, d.get = function (t) {
       return this[D.p(t)]();
     }, d.add = function (t, o) {
@@ -2198,25 +2222,25 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
       t = Number(t);
 
       var c = D.p(o),
-          d = function d(n) {
-        var e = g(f);
-        return D.w(e.date(e.date() + Math.round(n * t)), f);
+          d = function d(e) {
+        var n = g(f);
+        return D.w(n.date(n.date() + Math.round(e * t)), f);
       };
 
       if (c === u) return this.set(u, this.$M + t);
       if (c === a) return this.set(a, this.$y + t);
       if (c === i) return d(1);
       if (c === s) return d(7);
-      var $ = (h = {}, h[e] = 6e4, h[r] = 36e5, h[n] = 1e3, h)[c] || 1,
+      var $ = (h = {}, h[n] = 6e4, h[r] = 36e5, h[e] = 1e3, h)[c] || 1,
           l = this.$d.getTime() + t * $;
       return D.w(l, this);
-    }, d.subtract = function (t, n) {
-      return this.add(-1 * t, n);
+    }, d.subtract = function (t, e) {
+      return this.add(-1 * t, e);
     }, d.format = function (t) {
-      var n = this;
+      var e = this;
       if (!this.isValid()) return "Invalid Date";
 
-      var e = t || "YYYY-MM-DDTHH:mm:ssZ",
+      var n = t || "YYYY-MM-DDTHH:mm:ssZ",
           r = D.z(this),
           i = this.$locale(),
           s = this.$H,
@@ -2225,14 +2249,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
           a = i.weekdays,
           h = i.months,
           c = function c(t, r, i, s) {
-        return t && (t[r] || t(n, e)) || i[r].substr(0, s);
+        return t && (t[r] || t(e, n)) || i[r].substr(0, s);
       },
           d = function d(t) {
         return D.s(s % 12 || 12, t, "0");
       },
-          $ = i.meridiem || function (t, n, e) {
+          $ = i.meridiem || function (t, e, n) {
         var r = t < 12 ? "AM" : "PM";
-        return e ? r.toLowerCase() : r;
+        return n ? r.toLowerCase() : r;
       },
           l = {
         YY: String(this.$y).slice(-2),
@@ -2240,7 +2264,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         M: o + 1,
         MM: D.s(o + 1, 2, "0"),
         MMM: c(i.monthsShort, o, h, 3),
-        MMMM: h[o] || h(this, e),
+        MMMM: h[o] || h(this, n),
         D: this.$D,
         DD: D.s(this.$D, 2, "0"),
         d: String(this.$W),
@@ -2261,8 +2285,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
         Z: r
       };
 
-      return e.replace(f, function (t, n) {
-        return n || l[t] || r.replace(":", "");
+      return n.replace(f, function (t, e) {
+        return e || l[t] || r.replace(":", "");
       });
     }, d.utcOffset = function () {
       return 15 * -Math.round(this.$d.getTimezoneOffset() / 15);
@@ -2273,16 +2297,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
           l = 6e4 * ($.utcOffset() - this.utcOffset()),
           m = this - $,
           y = D.m(this, $);
-      return y = (c = {}, c[a] = y / 12, c[u] = y, c[o] = y / 3, c[s] = (m - l) / 6048e5, c[i] = (m - l) / 864e5, c[r] = m / 36e5, c[e] = m / 6e4, c[n] = m / 1e3, c)[d] || m, f ? y : D.a(y);
+      return y = (c = {}, c[a] = y / 12, c[u] = y, c[o] = y / 3, c[s] = (m - l) / 6048e5, c[i] = (m - l) / 864e5, c[r] = m / 36e5, c[n] = m / 6e4, c[e] = m / 1e3, c)[d] || m, f ? y : D.a(y);
     }, d.daysInMonth = function () {
       return this.endOf(u).$D;
     }, d.$locale = function () {
       return m[this.$L];
-    }, d.locale = function (t, n) {
+    }, d.locale = function (t, e) {
       if (!t) return this.$L;
-      var e = this.clone(),
-          r = M(t, n, !0);
-      return r && (e.$L = r), e;
+      var n = this.clone(),
+          r = M(t, e, !0);
+      return r && (n.$L = r), n;
     }, d.clone = function () {
       return D.w(this.$d, this);
     }, d.toDate = function () {
@@ -2296,8 +2320,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
     }, c;
   }();
 
-  return g.prototype = v.prototype, g.extend = function (t, n) {
-    return t(n, v, g), g;
+  return g.prototype = v.prototype, g.extend = function (t, e) {
+    return t(e, v, g), g;
   }, g.locale = M, g.isDayjs = y, g.unix = function (t) {
     return g(1e3 * t);
   }, g.en = m[l], g.Ls = m, g;
@@ -3768,8 +3792,8 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*global define:false */
 
   return function (r, t, e) {
     r = r || {};
-    var n = t.prototype;
-    e.en.relativeTime = {
+    var n = t.prototype,
+        o = {
       future: "in %s",
       past: "%s ago",
       s: "a few seconds",
@@ -3784,9 +3808,10 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*global define:false */
       y: "a year",
       yy: "%d years"
     };
+    e.en.relativeTime = o;
 
-    var o = function o(t, n, _o, d) {
-      for (var i, u, a, s = _o.$locale().relativeTime, f = r.thresholds || [{
+    var d = function d(t, n, _d, i) {
+      for (var u, a, s, f = _d.$locale().relativeTime || o, l = r.thresholds || [{
         l: "s",
         r: 44,
         d: "second"
@@ -3824,36 +3849,36 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*global define:false */
       }, {
         l: "yy",
         d: "year"
-      }], l = f.length, h = 0; h < l; h += 1) {
-        var m = f[h];
-        m.d && (i = d ? e(t).diff(_o, m.d, !0) : _o.diff(t, m.d, !0));
-        var c = (r.rounding || Math.round)(Math.abs(i));
+      }], h = l.length, m = 0; m < h; m += 1) {
+        var c = l[m];
+        c.d && (u = i ? e(t).diff(_d, c.d, !0) : _d.diff(t, c.d, !0));
+        var y = (r.rounding || Math.round)(Math.abs(u));
 
-        if (a = i > 0, c <= m.r || !m.r) {
-          c <= 1 && h > 0 && (m = f[h - 1]);
-          var y = s[m.l];
-          u = "string" == typeof y ? y.replace("%d", c) : y(c, n, m.l, a);
+        if (s = u > 0, y <= c.r || !c.r) {
+          y <= 1 && m > 0 && (c = l[m - 1]);
+          var p = f[c.l];
+          a = "string" == typeof p ? p.replace("%d", y) : p(y, n, c.l, s);
           break;
         }
       }
 
-      return n ? u : (a ? s.future : s.past).replace("%s", u);
+      return n ? a : (s ? f.future : f.past).replace("%s", a);
     };
 
     n.to = function (r, t) {
-      return o(r, t, this, !0);
+      return d(r, t, this, !0);
     }, n.from = function (r, t) {
-      return o(r, t, this);
+      return d(r, t, this);
     };
 
-    var d = function d(r) {
+    var i = function i(r) {
       return r.$u ? e.utc() : e();
     };
 
     n.toNow = function (r) {
-      return this.to(d(this), r);
+      return this.to(i(this), r);
     }, n.fromNow = function (r) {
-      return this.from(d(this), r);
+      return this.from(i(this), r);
     };
   };
 });
@@ -14348,7 +14373,7 @@ var MailPage = /*#__PURE__*/function (_Page) {
         options: Object.keys(this.driverFields).reduce(function (memo, val) {
           var _extends2;
 
-          return Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, memo, (_extends2 = {}, _extends2[val] = val, _extends2));
+          return Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])(Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, memo), {}, (_extends2 = {}, _extends2[val] = val, _extends2));
         }, {}),
         onchange: this.values.mail_driver
       })))]
@@ -15629,7 +15654,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function _createForOfIteratorHelperLoose(o) { var i = 0; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } i = o[Symbol.iterator](); return i.next.bind(i); }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(n); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
@@ -17382,7 +17407,7 @@ var Badge = /*#__PURE__*/function (_Component) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Button; });
-/* harmony import */ var _babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
+/* harmony import */ var _babel_runtime_helpers_esm_objectWithoutPropertiesLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/objectWithoutPropertiesLoose */ "./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js");
 /* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var _Component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Component */ "./src/common/Component.ts");
 /* harmony import */ var _helpers_icon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../helpers/icon */ "./src/common/helpers/icon.tsx");
@@ -17414,9 +17439,14 @@ var Button = /*#__PURE__*/function (_Component) {
   var _proto = Button.prototype;
 
   _proto.view = function view() {
-    var attrs = Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, this.props);
+    var attrs = function (_ref) {
+      var children = _ref.children,
+          o = Object(_babel_runtime_helpers_esm_objectWithoutPropertiesLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(_ref, ["children"]);
 
-    var children = Object(_utils_extract__WEBPACK_IMPORTED_MODULE_4__["default"])(attrs, 'children');
+      return o;
+    }(this.props);
+
+    var children = this.props.children;
     attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button'; // If a tooltip was provided for buttons without additional content, we also
     // use this tooltip as text for screen readers
@@ -17427,7 +17457,7 @@ var Button = /*#__PURE__*/function (_Component) {
 
 
     if (!attrs.title && children) {
-      attrs.title = Object(_utils_extractText__WEBPACK_IMPORTED_MODULE_5__["default"])(this.props.children);
+      attrs.title = Object(_utils_extractText__WEBPACK_IMPORTED_MODULE_5__["default"])(children);
     }
 
     var iconName = Object(_utils_extract__WEBPACK_IMPORTED_MODULE_4__["default"])(attrs, 'icon');
@@ -17917,7 +17947,7 @@ var LoadingIndicator = /*#__PURE__*/function (_Component) {
         };
     }
 
-    new spin_js__WEBPACK_IMPORTED_MODULE_3__["Spinner"](Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, options, {}, sizeOptions)).spin(this.element);
+    new spin_js__WEBPACK_IMPORTED_MODULE_3__["Spinner"](Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])(Object(_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, options), sizeOptions)).spin(this.element);
   };
 
   return LoadingIndicator;
@@ -20396,15 +20426,22 @@ function mapRoutes(routes, basePath) {
 
   var map = {};
 
-  for (var key in routes) {
+  var _loop = function _loop(key) {
+    if (!routes.hasOwnProperty(key)) return "continue";
     var route = routes[key];
+    map[basePath + route.path] = {
+      render: function render() {
+        return m(route.component, {
+          routeName: key
+        });
+      }
+    };
+  };
 
-    if (route.component) {
-      if (!route.component.attrs) route.component.attrs = {};
-      route.component.attrs.routeName = key;
-    }
+  for (var key in routes) {
+    var _ret = _loop(key);
 
-    map[basePath + route.path] = route.component;
+    if (_ret === "continue") continue;
   }
 
   return map;

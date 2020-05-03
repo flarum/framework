@@ -10,14 +10,15 @@ export default function mapRoutes(routes: object, basePath: string = ''): RouteD
     const map = {};
 
     for (const key in routes) {
+        if (!routes.hasOwnProperty(key)) continue;
+
         const route = routes[key];
 
-        if (route.component) {
-            if (!route.component.attrs) route.component.attrs = {};
-            route.component.attrs.routeName = key;
-        }
-
-        map[basePath + route.path] = route.component;
+        map[basePath + route.path] = {
+            render() {
+                return m(route.component, { routeName: key });
+            },
+        };
     }
 
     return map;
