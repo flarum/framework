@@ -30,7 +30,7 @@ return [
         ->css(__DIR__.'/less/admin.less'),
 
     (new Extend\Model(User::class))
-        ->dateAttribute('suspendedUntil'),
+        ->dateAttribute('suspended_until'),
 
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddUserSuspendAttributes::class);
