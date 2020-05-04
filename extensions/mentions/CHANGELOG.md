@@ -7,7 +7,7 @@
 - Using new model extenders
 
 ### Fixed
-- Fix mentioning a post from a deleted user ()
+- Fix mentioning a post from a deleted user (#41)
 
 ## [0.1.0-beta.10](https://github.com/flarum/mentions/compare/v0.1.0-beta.9...v0.1.0-beta.10)
 
