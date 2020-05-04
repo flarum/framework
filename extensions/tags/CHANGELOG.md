@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-beta.13](https://github.com/flarum/tags/compare/v0.1.0-beta.12...v0.1.0-beta.13)
+
+### Added
+- Add title and description meta tags (#72)
+
+
+### Changed
+- Updated JS dependencies
+- Improved performance of subqueries (#75)
+- Allow menu items between listed tags and link to tags page (#70)
+- Using new model extender
+
 ## [0.1.0-beta.12](https://github.com/flarum/tags/compare/v0.1.0-beta.11...v0.1.0-beta.12)
 
 ### Fixed
