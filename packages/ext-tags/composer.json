@@ -9,7 +9,7 @@
         "source": "https://github.com/flarum/tags"
     },
     "require": {
-        "flarum/core": "^0.1.0-beta.12"
+        "flarum/core": "^0.1.0-beta.13"
     },
     "autoload": {
         "psr-4": {
