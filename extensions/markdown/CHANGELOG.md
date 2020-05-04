@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0-beta.13](https://github.com/flarum/lock/compare/v0.1.0-beta.12...v0.1.0-beta.13)
+
+### Changed
+- Updated JS dependencies
+
+### Fixed
+- Fixed not hiding other html entities than mentions (#14)
+
 ## [0.1.0-beta.12](https://github.com/flarum/markdown/compare/v0.1.0-beta.10...v0.1.0-beta.12)
 
 ### Fixed
