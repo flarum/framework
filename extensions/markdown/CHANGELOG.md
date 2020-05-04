@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0-beta.13](https://github.com/flarum/lock/compare/v0.1.0-beta.12...v0.1.0-beta.13)
+## [0.1.0-beta.13](https://github.com/flarum/markdown/compare/v0.1.0-beta.12...v0.1.0-beta.13)
 
 ### Changed
 - Updated JS dependencies
