@@ -24,7 +24,7 @@ export default class Search extends Component {
      *
      * @type {Function}
      */
-    this.value = m.prop('');
+    this.value = m.prop();
 
     /**
      * Whether or not the search input has focus.
