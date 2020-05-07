@@ -24,7 +24,7 @@ class FormatterServiceProvider extends AbstractServiceProvider
             return new Formatter(
                 new Repository($container->make('cache.filestore')),
                 $container->make('events'),
-                $this->app->storagePath().'/formatter'
+                $this->app['flarum']->storagePath().'/formatter'
             );
         });
 
