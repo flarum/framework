@@ -30,6 +30,7 @@ export default class Badge extends Component {
   config(isInitialized) {
     if (isInitialized) return;
 
-    if (this.props.label) this.$().tooltip({ container: 'body' });
+    if (this.props.label) this.$().tooltip();
   }
+
 }
