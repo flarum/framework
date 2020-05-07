@@ -51,7 +51,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
                 $this->getDefaultLocale(),
                 null,
                 $this->getCacheDir(),
-                $this->app->inDebugMode()
+                $this->app['flarum.debug']
             );
 
             $translator->setFallbackLocales(['en']);
@@ -73,6 +73,6 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
     private function getCacheDir(): string
     {
-        return $this->app->storagePath().'/locale';
+        return $this->app['flarum']->storagePath().'/locale';
     }
 }

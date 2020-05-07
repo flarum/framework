@@ -24,11 +24,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $assets = new Assets(
                     $name,
                     $this->app->make('filesystem')->disk('flarum-assets'),
-                    $this->app->storagePath()
+                    $this->app['flarum']->storagePath()
                 );
 
                 $assets->setLessImportDirs([
-                    $this->app->vendorPath().'/components/font-awesome/less' => ''
+                    $this->app['flarum']->vendorPath().'/components/font-awesome/less' => ''
                 ]);
 
                 $assets->css([$this, 'addBaseCss']);

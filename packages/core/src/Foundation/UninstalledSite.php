@@ -16,6 +16,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Settings\UninstalledSettingsRepository;
 use Flarum\User\SessionServiceProvider;
 use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
@@ -30,11 +31,11 @@ use Psr\Log\LoggerInterface;
 class UninstalledSite implements SiteInterface
 {
     /**
-     * @var array
+     * @var Paths
      */
     private $paths;
 
-    public function __construct(array $paths)
+    public function __construct(Paths $paths)
     {
         $this->paths = $paths;
     }
@@ -51,21 +52,17 @@ class UninstalledSite implements SiteInterface
         );
     }
 
-    private function bootLaravel(): Application
+    private function bootLaravel(): Container
     {
-        $laravel = new Application($this->paths['base'], $this->paths['public']);
+        $container = new \Illuminate\Container\Container;
+        $laravel = new Application($container, $this->paths);
 
-        $laravel->useStoragePath($this->paths['storage']);
+        $container->instance('env', 'production');
+        $container->instance('flarum.config', []);
+        $container->instance('flarum.debug', $laravel->inDebugMode());
+        $container->instance('config', $config = $this->getIlluminateConfig());
 
-        if (isset($this->paths['vendor'])) {
-            $laravel->useVendorPath($this->paths['vendor']);
-        }
-
-        $laravel->instance('env', 'production');
-        $laravel->instance('flarum.config', []);
-        $laravel->instance('config', $config = $this->getIlluminateConfig());
-
-        $this->registerLogger($laravel);
+        $this->registerLogger($container);
 
         $laravel->register(ErrorServiceProvider::class);
         $laravel->register(LocaleServiceProvider::class);
@@ -97,7 +94,7 @@ class UninstalledSite implements SiteInterface
 
         $laravel->boot();
 
-        return $laravel;
+        return $container;
     }
 
     /**
@@ -108,7 +105,7 @@ class UninstalledSite implements SiteInterface
         return new ConfigRepository([
             'session' => [
                 'lifetime' => 120,
-                'files' => $this->paths['storage'].'/sessions',
+                'files' => $this->paths->storage.'/sessions',
                 'cookie' => 'session'
             ],
             'view' => [
@@ -117,13 +114,13 @@ class UninstalledSite implements SiteInterface
         ]);
     }
 
-    private function registerLogger(Application $app)
+    private function registerLogger(Container $container)
     {
-        $logPath = $this->paths['storage'].'/logs/flarum-installer.log';
+        $logPath = $this->paths->storage.'/logs/flarum-installer.log';
         $handler = new StreamHandler($logPath, Logger::DEBUG);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
-        $app->instance('log', new Logger('Flarum Installer', [$handler]));
-        $app->alias('log', LoggerInterface::class);
+        $container->instance('log', new Logger('Flarum Installer', [$handler]));
+        $container->alias('log', LoggerInterface::class);
     }
 }
