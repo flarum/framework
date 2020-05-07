@@ -24,7 +24,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->app->singleton(Manager::class, function ($app) {
             $manager = new Manager($app);
 
-            $config = $app->config('database');
+            $config = $this->app['flarum']->config('database');
             $config['engine'] = 'InnoDB';
             $config['prefix_indexes'] = true;
 
