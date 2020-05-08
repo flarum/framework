@@ -3,47 +3,55 @@
 ## [0.1.0-beta.13](https://github.com/flarum/core/compare/v0.1.0-beta.12...v0.1.0-beta.13)
 
 ### Added
-- Middleware extender (#2017, #2063, #2084)
 - Console extender (#2057)
 - CSRF extender (#2095)
 - Event extender (#2097)
 - Mail extender (#2012)
 - Model extender (#2100)
-- Show discussion start user as html class on post
-- PHPUnit 8 compatibility.
+- Posts by users that started a discussion now have the CSS class `.Post--by-start-user`
+- PHPUnit 8 compatibility
 - Composer 2 compatibility
 - Permission groups can now be hidden (#2129)
 - Confirmation popup when hiding or deleting posts (#2135)
 
 ### Changed
-- Updated less.php dependency version to 3.0.
-- All notifications now processed through the queue (#1931)
+- Updated less.php dependency version to 3.0
 - Updated JS dependencies
+- All notifications and other emails now processed through the queue, if enabled (#978, #1928, #1931, #2096)
 - Simplified uploads, removing need to store intermediate files (#2117)
 - Improved date handling for dates older than 1 year (#2034)
 - Linting and automatic formatting for JS (#2099)
 - Translation files from Language Packs are only loaded for extensions that are enabled (#2020)
+- PHP extenders' properties are now `private` instead of `protected`, intentionally making it harder to extend these classes (#1958)
+- Preparation for upgrading Laravel components to 5.8 and then 6.0 (#2055, #2117)
+- Allowed permission checks based on model classes in addition to instances (#1977)
 
 ### Fixed
-- Users can no longer restore discussions hidden by others (#2037)
-- Issues of the Modal not showing or auto hiding (#2080)
-- Extensions page in admin showning columns incorrectly (#2111)
-- Non dismissable modals can be dismissed using the ESC key (#1917)
-- New post injected above unread sticky (#1868)
-- New discussions not visible to users when using Pusher (#2077)
-- Icons on admin permissions page (#2016, #2018)
-- Notification bubble contrast on mobile with colored header (#2109)
-- PostStreamScrubber click jumps back to first position (#1945)
-- Loading state of Switch toggle component is hard to see (#2039, #1491)
-- Allowing permission check to use class name based gate checks (#1977)
+- Users can no longer restore discussions hidden by admins (#2037)
+- Issues of the Modal not showing or auto hiding (#1504, #1813, #2080)
+- Columnar layout on admin extensions page was broken in Firefox (#2029, #2111)
+- Non-dismissible modals could still be dismissed using the ESC key (#1917)
+- New discussions were added to the discussion list above unread sticky posts (#1751, #1868)
+- New discussions not visible to users when using Pusher (#2076, #2077)
+- Permission icons were aligned unevenly in admin permissions list (#2016, #2018)
+- Notification bubble not inversed on mobile with colored header (#1983, #2109)
+- Post stream scrubber clicks jumped back to first post (#1945)
+- Loading state of Switch toggle component was hard to see (#2039, #1491)
+- `Flarum\Extend\Middleware`: The methods `insertBefore()` and `insertAfter()` did not work as described (#2063, #2084)
 
 ### Removed
+- Support for PHP 7.1 (#2014)
 - Zend compatibility bridge (#2010)
 - SES mail support (#2011)
-- Backward compatibility dropped for mail drivers
-- Support for PHP 7.1
-- Deprecated Flarum\Util\Str helper class
-- Deprecated ConfigureMiddleware event 
+- Backward compatibility layer for `Flarum\Mail\DriverInterface`, new methods from beta.12 are now required
+- `Flarum\Util\Str` helper class
+- `Flarum\Event\ConfigureMiddleware` event 
+
+### Deprecated
+- `Flarum\Event\AbstractConfigureRoutes` event class
+- `Flarum\Event\ConfigureApiRoutes` event class
+- `Flarum\Event\ConfigureForumRoutes` event class
+- `Flarum\Event\ConfigureLocales` event class
 
 ## [0.1.0-beta.12](https://github.com/flarum/core/compare/v0.1.0-beta.11.1...v0.1.0-beta.12)
 
