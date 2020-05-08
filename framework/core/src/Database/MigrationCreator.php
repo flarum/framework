@@ -36,7 +36,6 @@ class MigrationCreator
     {
         $this->files = $files;
         $this->paths = $paths;
-        //
     }
 
     /**
