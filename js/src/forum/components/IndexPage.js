@@ -34,25 +34,26 @@ export default class IndexPage extends Page {
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
     if (app.previous instanceof IndexPage) {
-      app.cache.discussionList.refresh(true, true);
+      app.cache.discussionList.clear();
     }
 
     const params = app.search.params();
 
-    if (app.cache.discussionList) {
+    if (app.cache.discussionList.hasDiscussions()) {
       // Compare the requested parameters (sort, search query) to the ones that
       // are currently present in the cached discussion list. If they differ, we
       // will clear the cache and set up a new discussion list component with
       // the new parameters.
       Object.keys(params).some((key) => {
         if (app.cache.discussionList.params[key] !== params[key]) {
-          app.cache.discussionList.refresh(true, true);
+          app.cache.discussionList.clear();
           return true;
         }
       });
     }
 
-    if (!app.cache.discussionList) {
+    // If we just cleared the discussion list, reset the params.
+    if (!app.cache.discussionList.hasDiscussions()) {
       app.cache.discussionList.setParams(params);
       app.cache.discussionList.refresh();
     }

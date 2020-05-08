@@ -8,13 +8,7 @@ export default class DiscussionListState {
 
     this.moreResults = false;
 
-    this.loading = true;
-
-    this.refresh();
-  }
-
-  setParams(params) {
-    this.params = params;
+    this.loading = false;
   }
 
   /**
@@ -56,16 +50,26 @@ export default class DiscussionListState {
   }
 
   /**
+   * Set the search parameters.
+   */
+  setParams(params) {
+    this.params = params;
+  }
+
+  /**
+   * Clear cached discussions.
+   */
+  clear() {
+    this.discussions = [];
+  }
+
+  /**
    * Clear and reload the discussion list.
    */
-  refresh(clear = true, clearParams = false) {
+  refresh(clear = true) {
     if (clear) {
       this.loading = true;
-      this.discussions = [];
-    }
-
-    if (clearParams) {
-      this.params = {};
+      this.clear();
     }
 
     return this.loadResults().then(
@@ -138,5 +142,12 @@ export default class DiscussionListState {
    */
   addDiscussion(discussion) {
     this.discussions.unshift(discussion);
+  }
+
+  /**
+   * Are there discussions stored in the discussion list state?
+   */
+  hasDiscussions() {
+    return this.discussions.length > 0;
   }
 }

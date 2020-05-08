@@ -38,7 +38,7 @@ export default class DiscussionPage extends Page {
     // page, then we don't want Mithril to redraw the whole page – if it did,
     // then the pane would which would be slow and would cause problems with
     // event handlers.
-    if (app.cache.discussionList) {
+    if (app.cache.discussionList.hasDiscussions()) {
       app.pane.enable();
       app.pane.hide();
 
@@ -91,7 +91,7 @@ export default class DiscussionPage extends Page {
 
     return (
       <div className="DiscussionPage">
-        {app.cache.discussionList ? (
+        {app.cache.discussionList.hasDiscussions() ? (
           <div className="DiscussionPage-list" config={this.configPane.bind(this)}>
             {!$('.App-navigation').is(':visible') && <DiscussionList state={app.cache.discussionList} />}
           </div>
