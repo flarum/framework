@@ -11,6 +11,7 @@ namespace Flarum\Locale;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
@@ -73,6 +74,6 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
     private function getCacheDir(): string
     {
-        return $this->app['flarum']->storagePath().'/locale';
+        return $this->app[Paths::class]->storage.'/locale';
     }
 }
