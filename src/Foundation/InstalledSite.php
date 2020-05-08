@@ -14,7 +14,6 @@ use Flarum\Api\ApiServiceProvider;
 use Flarum\Bus\BusServiceProvider;
 use Flarum\Console\ConsoleServiceProvider;
 use Flarum\Database\DatabaseServiceProvider;
-use Flarum\Database\MigrationServiceProvider;
 use Flarum\Discussion\DiscussionServiceProvider;
 use Flarum\Extension\ExtensionServiceProvider;
 use Flarum\Formatter\FormatterServiceProvider;
@@ -125,7 +124,6 @@ class InstalledSite implements SiteInterface
         $laravel->register(HttpServiceProvider::class);
         $laravel->register(LocaleServiceProvider::class);
         $laravel->register(MailServiceProvider::class);
-        $laravel->register(MigrationServiceProvider::class);
         $laravel->register(NotificationServiceProvider::class);
         $laravel->register(PostServiceProvider::class);
         $laravel->register(QueueServiceProvider::class);
