@@ -98,7 +98,7 @@ class Installation
             ]),
             new Prerequisite\WritablePaths([
                 $this->paths->base,
-                $this->getAssetPath(),
+                $this->getAssetPath().'/*',
                 $this->paths->storage,
             ])
         );
