@@ -1,12 +1,10 @@
 import Component from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
-import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import icon from '../../common/helpers/icon';
-import DiscussionsSearchSource from './DiscussionsSearchSource';
-import UsersSearchSource from './UsersSearchSource';
+import SearchState from '../state/SearchState';
 
 /**
  * The `Search` component displays a menu of as-you-type results from a variety
@@ -34,13 +32,6 @@ export default class Search extends Component {
     this.hasFocus = false;
 
     /**
-     * An array of SearchSources.
-     *
-     * @type {SearchSource[]}
-     */
-    this.sources = null;
-
-    /**
      * The number of sources that are still loading results.
      *
      * @type {Integer}
@@ -63,10 +54,13 @@ export default class Search extends Component {
      * @type {String|Integer}
      */
     this.index = 0;
+
+    this.state = this.props.state || new SearchState();
   }
 
   view() {
     const currentSearch = this.getCurrentSearch();
+    const state = this.state;
 
     // Initialize search input value in the view rather than the constructor so
     // that we have access to app.current.
@@ -74,14 +68,8 @@ export default class Search extends Component {
       this.value(currentSearch || '');
     }
 
-    // Initialize search sources in the view rather than the constructor so
-    // that we have access to app.forum.
-    if (!this.sources) {
-      this.sources = this.sourceItems().toArray();
-    }
-
     // Hide the search view if no sources were loaded
-    if (!this.sources.length) return <div></div>;
+    if (!state.sources.length) return <div></div>;
 
     return (
       <div
@@ -116,7 +104,7 @@ export default class Search extends Component {
           )}
         </div>
         <ul className="Dropdown-menu Search-results">
-          {this.value() && this.hasFocus ? this.sources.map((source) => source.view(this.value())) : ''}
+          {this.value() && this.hasFocus ? state.sources.map((source) => source.view(this.value())) : ''}
         </ul>
       </div>
     );
@@ -129,6 +117,7 @@ export default class Search extends Component {
     if (isInitialized) return;
 
     const search = this;
+    const state = this.state;
 
     this.$('.Search-results')
       .on('mousedown', (e) => e.preventDefault())
@@ -161,7 +150,7 @@ export default class Search extends Component {
           if (search.searched.indexOf(query) !== -1) return;
 
           if (query.length >= 3) {
-            search.sources.map((source) => {
+            state.sources.map((source) => {
               if (!source.search) return;
 
               search.loadingSources++;
@@ -221,20 +210,6 @@ export default class Search extends Component {
     } else {
       m.redraw();
     }
-  }
-
-  /**
-   * Build an item list of SearchSources.
-   *
-   * @return {ItemList}
-   */
-  sourceItems() {
-    const items = new ItemList();
-
-    if (app.forum.attribute('canViewDiscussions')) items.add('discussions', new DiscussionsSearchSource());
-    if (app.forum.attribute('canViewUserList')) items.add('users', new UsersSearchSource());
-
-    return items;
   }
 
   /**
