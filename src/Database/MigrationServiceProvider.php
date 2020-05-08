@@ -23,12 +23,5 @@ class MigrationServiceProvider extends AbstractServiceProvider
         $this->app->singleton(MigrationRepositoryInterface::class, function ($app) {
             return new DatabaseMigrationRepository($app['flarum.db'], 'migrations');
         });
-
-        $this->app->bind(MigrationCreator::class, function () {
-            return new MigrationCreator(
-                $this->app->make(Filesystem::class),
-                $this->app->make(Paths::class)->base
-            );
-        });
     }
 }
