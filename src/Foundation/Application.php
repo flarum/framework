@@ -163,6 +163,7 @@ class Application
      * Get the base path of the Laravel installation.
      *
      * @return string
+     * @deprecated Will be removed in Beta.15.
      */
     public function basePath()
     {
@@ -173,6 +174,7 @@ class Application
      * Get the path to the public / web directory.
      *
      * @return string
+     * @deprecated Will be removed in Beta.15.
      */
     public function publicPath()
     {
@@ -183,6 +185,7 @@ class Application
      * Get the path to the storage directory.
      *
      * @return string
+     * @deprecated Will be removed in Beta.15.
      */
     public function storagePath()
     {
@@ -193,6 +196,7 @@ class Application
      * Get the path to the vendor directory where dependencies are installed.
      *
      * @return string
+     * @deprecated Will be removed in Beta.15.
      */
     public function vendorPath()
     {
