@@ -86,8 +86,6 @@ class Application
         $this->registerBaseBindings();
         $this->registerBaseServiceProviders();
         $this->registerCoreContainerAliases();
-
-        $this->bindPathsInContainer();
     }
 
     /**
@@ -159,18 +157,6 @@ class Application
     protected function registerBaseServiceProviders()
     {
         $this->register(new EventServiceProvider($this->container));
-    }
-
-    /**
-     * Bind all of the application paths in the container.
-     *
-     * @return void
-     */
-    protected function bindPathsInContainer()
-    {
-        foreach (['base', 'public', 'storage', 'vendor'] as $path) {
-            $this->container->instance('path.'.$path, $this->paths->$path);
-        }
     }
 
     /**

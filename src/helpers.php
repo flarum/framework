@@ -7,6 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Flarum\Foundation\Paths;
 use Illuminate\Container\Container;
 
 if (! function_exists('app')) {
@@ -37,7 +38,7 @@ if (! function_exists('base_path')) {
      */
     function base_path($path = '')
     {
-        return app()->basePath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app(Paths::class)->base.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
@@ -51,7 +52,7 @@ if (! function_exists('public_path')) {
      */
     function public_path($path = '')
     {
-        return app()->publicPath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app(Paths::class)->public.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
@@ -65,7 +66,7 @@ if (! function_exists('storage_path')) {
      */
     function storage_path($path = '')
     {
-        return app('path.storage').($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app(Paths::class)->storage.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
