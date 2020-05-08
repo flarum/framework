@@ -7,6 +7,7 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
+import DiscussionList from './DiscussionList';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
@@ -92,7 +93,7 @@ export default class DiscussionPage extends Page {
       <div className="DiscussionPage">
         {app.cache.discussionList ? (
           <div className="DiscussionPage-list" config={this.configPane.bind(this)}>
-            {!$('.App-navigation').is(':visible') ? app.cache.discussionList.render() : ''}
+            {!$('.App-navigation').is(':visible') && <DiscussionList state={app.cache.discussionList} />}
           </div>
         ) : (
           ''

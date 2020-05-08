@@ -2,6 +2,7 @@ import { extend } from '../../common/extend';
 import Page from './Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
+import DiscussionListState from '../state/DiscussionListState';
 import DiscussionList from './DiscussionList';
 import WelcomeHero from './WelcomeHero';
 import DiscussionComposer from './DiscussionComposer';
@@ -45,7 +46,7 @@ export default class IndexPage extends Page {
       // will clear the cache and set up a new discussion list component with
       // the new parameters.
       Object.keys(params).some((key) => {
-        if (app.cache.discussionList.props.params[key] !== params[key]) {
+        if (app.cache.discussionList.params[key] !== params[key]) {
           app.cache.discussionList = null;
           return true;
         }
@@ -53,7 +54,7 @@ export default class IndexPage extends Page {
     }
 
     if (!app.cache.discussionList) {
-      app.cache.discussionList = new DiscussionList({ params });
+      app.cache.discussionList = new DiscussionListState({ params });
     }
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
@@ -81,7 +82,7 @@ export default class IndexPage extends Page {
                 <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
                 <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
               </div>
-              {app.cache.discussionList.render()}
+              {<DiscussionList state={app.cache.discussionList} />}
             </div>
           </div>
         </div>
