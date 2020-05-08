@@ -54,6 +54,10 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
         $this->app->alias(ConnectionInterface::class, 'db.connection');
         $this->app->alias(ConnectionInterface::class, 'flarum.db');
+
+        $this->app->singleton(MigrationRepositoryInterface::class, function ($app) {
+            return new DatabaseMigrationRepository($app['flarum.db'], 'migrations');
+        });
     }
 
     /**
