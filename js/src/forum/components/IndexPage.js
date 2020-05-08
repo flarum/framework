@@ -21,7 +21,6 @@ export default class IndexPage extends Page {
 
   init() {
     super.init();
-    console.log(app.cache.discussionList)
 
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
