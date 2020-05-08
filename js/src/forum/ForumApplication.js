@@ -15,6 +15,7 @@ import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
+import DiscussionListState from './state/DiscussionListState';
 
 export default class ForumApplication extends Application {
   /**
@@ -103,6 +104,8 @@ export default class ForumApplication extends Application {
 
     this.pane = new Pane(document.getElementById('app'));
     this.composer = m.mount(document.getElementById('composer'), Composer.component());
+    this.cache.discussionList = new DiscussionListState();
+    this.cache.discussionList.refresh();
 
     m.route.mode = 'pathname';
     super.mount(this.forum.attribute('basePath'));

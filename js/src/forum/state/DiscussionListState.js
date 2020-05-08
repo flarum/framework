@@ -13,6 +13,10 @@ export default class DiscussionListState {
     this.refresh();
   }
 
+  setParams(params) {
+    this.params = params;
+  }
+
   /**
    * Get the parameters that should be passed in the API request to get
    * discussion results.
@@ -54,10 +58,14 @@ export default class DiscussionListState {
   /**
    * Clear and reload the discussion list.
    */
-  refresh(clear = true) {
+  refresh(clear = true, clearParams = false) {
     if (clear) {
       this.loading = true;
       this.discussions = [];
+    }
+
+    if (clearParams) {
+      this.params = {};
     }
 
     return this.loadResults().then(
@@ -107,7 +115,7 @@ export default class DiscussionListState {
     this.discussions.push(...results);
 
     this.loading = false;
-    this.moreResults = !!results.payload.links.next;
+    this.moreResults = !!results.payload.links && !!results.payload.links.next;
 
     m.redraw();
 

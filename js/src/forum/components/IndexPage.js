@@ -2,7 +2,6 @@ import { extend } from '../../common/extend';
 import Page from './Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
-import DiscussionListState from '../state/DiscussionListState';
 import DiscussionList from './DiscussionList';
 import WelcomeHero from './WelcomeHero';
 import DiscussionComposer from './DiscussionComposer';
@@ -22,6 +21,7 @@ export default class IndexPage extends Page {
 
   init() {
     super.init();
+    console.log(app.cache.discussionList)
 
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
@@ -35,7 +35,7 @@ export default class IndexPage extends Page {
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
     if (app.previous instanceof IndexPage) {
-      app.cache.discussionList = null;
+      app.cache.discussionList.refresh(true, true);
     }
 
     const params = app.search.params();
@@ -47,14 +47,15 @@ export default class IndexPage extends Page {
       // the new parameters.
       Object.keys(params).some((key) => {
         if (app.cache.discussionList.params[key] !== params[key]) {
-          app.cache.discussionList = null;
+          app.cache.discussionList.refresh(true, true);
           return true;
         }
       });
     }
 
     if (!app.cache.discussionList) {
-      app.cache.discussionList = new DiscussionListState({ params });
+      app.cache.discussionList.setParams(params);
+      app.cache.discussionList.refresh();
     }
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
