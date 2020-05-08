@@ -181,10 +181,7 @@ export default {
         // If this was the last post in the discussion, then we will assume that
         // the whole discussion was deleted too.
         if (!discussion.postIds().length) {
-          // If there is a discussion list in the cache, remove this discussion.
-          if (app.cache.discussionList) {
-            app.cache.discussionList.removeDiscussion(discussion);
-          }
+          app.cache.discussionList.removeDiscussion(discussion);
 
           if (app.viewingDiscussion(discussion)) {
             app.history.back();
