@@ -72,12 +72,12 @@ class UninstalledSite implements SiteInterface
 
         $laravel->register(InstallServiceProvider::class);
 
-        $laravel->singleton(
+        $container->singleton(
             SettingsRepositoryInterface::class,
             UninstalledSettingsRepository::class
         );
 
-        $laravel->singleton('view', function ($app) {
+        $container->singleton('view', function ($app) {
             $engines = new EngineResolver();
             $engines->register('php', function () {
                 return new PhpEngine();
