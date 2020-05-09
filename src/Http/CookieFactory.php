@@ -9,6 +9,7 @@
 
 namespace Flarum\Http;
 
+use Dflydev\FigCookies\Modifier\SameSite;
 use Dflydev\FigCookies\SetCookie;
 use Flarum\Foundation\Application;
 use Illuminate\Support\Arr;
@@ -88,7 +89,8 @@ class CookieFactory
         return $cookie
             ->withPath($this->path)
             ->withSecure($this->secure)
-            ->withHttpOnly(true);
+            ->withHttpOnly(true)
+            ->withSameSite(SameSite::lax());
     }
 
     /**
