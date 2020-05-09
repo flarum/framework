@@ -73,6 +73,13 @@ export default class ForumApplication extends Application {
    */
   search = new GlobalSearchState();
 
+  /*
+   * @inheritdoc
+   */
+  cache = {
+    discussionList: new DiscussionListState()
+  }
+
   constructor() {
     super();
 
@@ -104,7 +111,6 @@ export default class ForumApplication extends Application {
 
     this.pane = new Pane(document.getElementById('app'));
     this.composer = m.mount(document.getElementById('composer'), Composer.component());
-    this.cache.discussionList = new DiscussionListState();
 
     m.route.mode = 'pathname';
     super.mount(this.forum.attribute('basePath'));
