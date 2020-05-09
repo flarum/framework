@@ -77,8 +77,8 @@ export default class ForumApplication extends Application {
    * @inheritdoc
    */
   cache = {
-    discussionList: new DiscussionListState()
-  }
+    discussionList: new DiscussionListState(),
+  };
 
   constructor() {
     super();
