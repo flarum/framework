@@ -45,7 +45,7 @@ class CookieFactory
     protected $secure;
 
     /**
-     * Same Site cookie value
+     * Same Site cookie value.
      *
      * @var string
      */
