@@ -45,6 +45,13 @@ class CookieFactory
     protected $secure;
 
     /**
+     * Same Site cookie value
+     *
+     * @var string
+     */
+    protected $samesite;
+
+    /**
      * @param Application $app
      */
     public function __construct(Application $app)
@@ -57,6 +64,7 @@ class CookieFactory
         $this->path = $app->config('cookie.path', Arr::get($url, 'path') ?: '/');
         $this->domain = $app->config('cookie.domain');
         $this->secure = $app->config('cookie.secure', Arr::get($url, 'scheme') === 'https');
+        $this->samesite = $app->config('cookie.samesite', 'lax');
     }
 
     /**
@@ -86,11 +94,19 @@ class CookieFactory
             $cookie = $cookie->withDomain($this->domain);
         }
 
+        // Explicitly set SameSite value, use sensible default if no value provided
+        if ($this->samesite === 'strict') {
+            $cookie = $cookie->withSameSite(SameSite::strict());
+        } elseif ($this->samesite === 'none') {
+            $cookie = $cookie->withSameSite(SameSite::none());
+        } else {
+            $cookie = $cookie->withSameSite(SameSite::lax());
+        }
+
         return $cookie
             ->withPath($this->path)
             ->withSecure($this->secure)
-            ->withHttpOnly(true)
-            ->withSameSite(SameSite::lax());
+            ->withHttpOnly(true);
     }
 
     /**
