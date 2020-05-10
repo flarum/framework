@@ -2,7 +2,6 @@ import Component from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
 import anchorScroll from '../../common/utils/anchorScroll';
-import evented from '../../common/utils/evented';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 
@@ -12,10 +11,9 @@ import Button from '../../common/components/Button';
  *
  * ### Props
  *
- * - `discussion`
- * - `includedPosts`
+ * - `state`
  */
-class PostStream extends Component {
+export default class PostStream extends Component {
   init() {
     this.state = this.props.state;
 
@@ -199,7 +197,7 @@ class PostStream extends Component {
     });
 
     if (startNumber) {
-      this.trigger('positionChanged', startNumber || 1, endNumber);
+      this.props.positionHandler(startNumber || 1, endNumber);
     }
   }
 
@@ -301,14 +299,3 @@ class PostStream extends Component {
     $item.addClass('flash').one('animationend webkitAnimationEnd', () => $item.removeClass('flash'));
   }
 }
-
-/**
- * The number of posts to load per page.
- *
- * @type {Integer}
- */
-PostStream.loadCount = 20;
-
-Object.assign(PostStream.prototype, evented);
-
-export default PostStream;
