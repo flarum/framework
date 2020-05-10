@@ -30,9 +30,22 @@ export default class DiscussionPage extends Page {
      *
      * @type {Integer}
      */
-    this.near = null;
+    this.near = m.route.param('near') || 0;
 
-    this.refresh();
+    const preloadedDiscussion = app.preloadedApiDocument();
+    if (preloadedDiscussion) {
+      // We must wrap this in a setTimeout because if we are mounting this
+      // component for the first time on page load, then any calls to m.redraw
+      // will be ineffective and thus any configs (scroll code) will be run
+      // before stuff is drawn to the page.
+      setTimeout(this.show.bind(this, preloadedDiscussion), 0);
+    } else {
+      const params = this.requestParams();
+
+      app.store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
+    }
+
+    m.lazyRedraw();
 
     // If the discussion list has been loaded, then we'll enable the pane (and
     // hide it by default). Also, if we've just come from another discussion
@@ -100,17 +113,21 @@ export default class DiscussionPage extends Page {
           ''
         )}
 
-        <div className="DiscussionPage-discussion">{discussion ? [
-          DiscussionHero.component({ discussion }),
-          <div className="container">
-            <nav className="DiscussionPage-nav">
-              <ul>{listItems(this.sidebarItems().toArray())}</ul>
-            </nav>
-            <div className="DiscussionPage-stream">
-              {PostStream.component({state: this.state, positionHandler: this.positionChanged.bind(this)})}
-            </div>
-          </div>,
-        ] : LoadingIndicator.component({ className: 'LoadingIndicator--block' })}</div>
+        <div className="DiscussionPage-discussion">
+          {discussion
+            ? [
+                DiscussionHero.component({ discussion }),
+                <div className="container">
+                  <nav className="DiscussionPage-nav">
+                    <ul>{listItems(this.sidebarItems().toArray())}</ul>
+                  </nav>
+                  <div className="DiscussionPage-stream">
+                    {PostStream.component({ state: this.stream, positionHandler: this.positionChanged.bind(this) })}
+                  </div>
+                </div>,
+              ]
+            : LoadingIndicator.component({ className: 'LoadingIndicator--block' })}
+        </div>
       </div>
     );
   }
@@ -121,29 +138,6 @@ export default class DiscussionPage extends Page {
     if (this.discussion) {
       app.setTitle(this.discussion.title());
     }
-  }
-
-  /**
-   * Clear and reload the discussion.
-   */
-  refresh() {
-    this.near = m.route.param('near') || 0;
-    this.discussion = null;
-
-    const preloadedDiscussion = app.preloadedApiDocument();
-    if (preloadedDiscussion) {
-      // We must wrap this in a setTimeout because if we are mounting this
-      // component for the first time on page load, then any calls to m.redraw
-      // will be ineffective and thus any configs (scroll code) will be run
-      // before stuff is drawn to the page.
-      setTimeout(this.show.bind(this, preloadedDiscussion), 0);
-    } else {
-      const params = this.requestParams();
-
-      app.store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
-    }
-
-    m.lazyRedraw();
   }
 
   /**
