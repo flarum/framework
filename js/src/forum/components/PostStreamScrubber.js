@@ -10,11 +10,12 @@ import formatNumber from '../../common/utils/formatNumber';
  *
  * ### Props
  *
- * - `stream`
+ * - `state`
  * - `className`
  */
 export default class PostStreamScrubber extends Component {
   init() {
+    this.state = this.props.state;
     this.handlers = {};
 
     /**
@@ -40,7 +41,7 @@ export default class PostStreamScrubber extends Component {
 
     // When the post stream begins loading posts at a certain index, we want our
     // scrubber scrollbar to jump to that position.
-    this.props.stream.on('unpaused', (this.handlers.streamWasUnpaused = this.streamWasUnpaused.bind(this)));
+    this.state.on('unpaused', (this.handlers.streamWasUnpaused = this.streamWasUnpaused.bind(this)));
 
     // Define a handler to update the state of the scrollbar to reflect the
     // current scroll position of the page.
@@ -56,7 +57,7 @@ export default class PostStreamScrubber extends Component {
   view() {
     const retain = this.subtree.retain();
     const count = this.count();
-    const unreadCount = this.props.stream.discussion.unreadCount();
+    const unreadCount = this.state.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.index, unreadCount) / count : 0;
 
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
@@ -121,7 +122,7 @@ export default class PostStreamScrubber extends Component {
    * Go to the first post in the discussion.
    */
   goToFirst() {
-    this.props.stream.goToFirst();
+    this.state.goToFirst();
     this.index = 0;
     this.renderScrollbar(true);
   }
@@ -130,7 +131,7 @@ export default class PostStreamScrubber extends Component {
    * Go to the last post in the discussion.
    */
   goToLast() {
-    this.props.stream.goToLast();
+    this.state.goToLast();
     this.index = this.count();
     this.renderScrollbar(true);
   }
@@ -141,7 +142,7 @@ export default class PostStreamScrubber extends Component {
    * @return {Integer}
    */
   count() {
-    return this.props.stream.count();
+    return this.state.count();
   }
 
   /**
@@ -169,9 +170,7 @@ export default class PostStreamScrubber extends Component {
    * @param {Integer} top
    */
   onscroll(top) {
-    const stream = this.props.stream;
-
-    if (stream.paused || !stream.$()) return;
+    if (this.state.paused || !$('.js-PostStream')) return;
 
     this.update(top);
     this.renderScrollbar();
@@ -184,9 +183,7 @@ export default class PostStreamScrubber extends Component {
    * @param {Integer} scrollTop
    */
   update(scrollTop) {
-    const stream = this.props.stream;
-
-    const marginTop = stream.getMarginTop();
+    const marginTop = $('#header').outerHeight() + parseInt($('.js-PostStream').css('margin-top'), 10);
     const viewportTop = scrollTop + marginTop;
     const viewportHeight = $(window).height() - marginTop;
 
@@ -194,7 +191,7 @@ export default class PostStreamScrubber extends Component {
     // properties to a 'default' state. These values reflect what would be
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
-    const $items = stream.$('> .PostStream-item[data-index]');
+    const $items = $('.js-PostStream > .PostStream-item[data-index]');
     let index = $items.first().data('index') || 0;
     let visible = 0;
     let period = '';
@@ -292,7 +289,7 @@ export default class PostStreamScrubber extends Component {
   ondestroy() {
     this.scrollListener.stop();
 
-    this.props.stream.off('unpaused', this.handlers.streamWasUnpaused);
+    this.state.off('unpaused', this.handlers.streamWasUnpaused);
 
     $(window).off('resize', this.handlers.onresize);
 
@@ -384,7 +381,7 @@ export default class PostStreamScrubber extends Component {
     this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
     this.indexStart = this.index;
     this.dragging = true;
-    this.props.stream.paused = true;
+    this.state.paused = true;
     $('body').css('cursor', 'move');
   }
 
@@ -417,7 +414,7 @@ export default class PostStreamScrubber extends Component {
     // If the index we've landed on is in a gap, then tell the stream-
     // content that we want to load those posts.
     const intIndex = Math.floor(this.index);
-    this.props.stream.goToIndex(intIndex);
+    this.state.goToIndex(intIndex);
     this.renderScrollbar(true);
   }
 
@@ -439,7 +436,7 @@ export default class PostStreamScrubber extends Component {
     //    content component to jump to that index.
     let offsetIndex = offsetPercent / this.percentPerPost().index;
     offsetIndex = Math.max(0, Math.min(this.count() - 1, offsetIndex));
-    this.props.stream.goToIndex(Math.floor(offsetIndex));
+    this.state.goToIndex(Math.floor(offsetIndex));
     this.index = offsetIndex;
     this.renderScrollbar(true);
 
