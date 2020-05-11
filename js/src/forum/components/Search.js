@@ -7,6 +7,7 @@ import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import icon from '../../common/helpers/icon';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
+import SearchState from '../states/SearchState';
 
 /**
  * The `Search` component displays a menu of as-you-type results from a variety
@@ -19,6 +20,8 @@ import UsersSearchSource from './UsersSearchSource';
  */
 export default class Search extends Component {
   init() {
+    this.state = this.props.state || new SearchState();
+
     /**
      * The value of the search input.
      *
@@ -63,7 +66,7 @@ export default class Search extends Component {
 
     // Initialize search input value in the view rather than the constructor so
     // that we have access to app.current.
-    if (typeof this.value() === 'undefined') {
+    if (!this.value()) {
       this.value(currentSearch || '');
     }
 
@@ -122,6 +125,7 @@ export default class Search extends Component {
     if (isInitialized) return;
 
     const search = this;
+    const state = this.state;
 
     this.$('.Search-results')
       .on('mousedown', (e) => e.preventDefault())
@@ -151,7 +155,7 @@ export default class Search extends Component {
 
         clearTimeout(search.searchTimeout);
         search.searchTimeout = setTimeout(() => {
-          if (app.cache.searched.indexOf(query) !== -1) return;
+          if (state.cachedSearches.indexOf(query) !== -1) return;
 
           if (query.length >= 3) {
             search.sources.map((source) => {
@@ -166,7 +170,7 @@ export default class Search extends Component {
             });
           }
 
-          app.cache.searched.push(query);
+          state.cachedSearches.push(query);
           m.redraw();
         }, 250);
       })
@@ -184,7 +188,7 @@ export default class Search extends Component {
    * @return {String}
    */
   getCurrentSearch() {
-    return app.current && typeof app.current.searching === 'function' && app.current.searching();
+    return this.state.searching();
   }
 
   /**
@@ -210,7 +214,7 @@ export default class Search extends Component {
     this.value('');
 
     if (this.getCurrentSearch()) {
-      app.current.clearSearch();
+      app.search.clearSearch();
     } else {
       m.redraw();
     }

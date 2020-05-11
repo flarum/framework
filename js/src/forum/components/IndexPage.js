@@ -36,7 +36,7 @@ export default class IndexPage extends Page {
       app.cache.discussionList = null;
     }
 
-    const params = this.params();
+    const params = app.search.params();
 
     if (app.cache.discussionList) {
       // Compare the requested parameters (sort, search query) to the ones that
@@ -187,7 +187,7 @@ export default class IndexPage extends Page {
    */
   navItems() {
     const items = new ItemList();
-    const params = this.stickyParams();
+    const params = app.search.stickyParams();
 
     items.add(
       'allDiscussions',
@@ -222,15 +222,15 @@ export default class IndexPage extends Page {
       'sort',
       Dropdown.component({
         buttonClassName: 'Button',
-        label: sortOptions[this.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
+        label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
         children: Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
-          const active = (this.params().sort || Object.keys(sortMap)[0]) === value;
+          const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
 
           return Button.component({
             children: label,
             icon: active ? 'fas fa-check' : true,
-            onclick: this.changeSort.bind(this, value),
+            onclick: app.search.changeSort.bind(app.search, value),
             active: active,
           });
         }),
@@ -278,72 +278,6 @@ export default class IndexPage extends Page {
     }
 
     return items;
-  }
-
-  /**
-   * Return the current search query, if any. This is implemented to activate
-   * the search box in the header.
-   *
-   * @see Search
-   * @return {String}
-   */
-  searching() {
-    return this.params().q;
-  }
-
-  /**
-   * Redirect to the index page without a search filter. This is called when the
-   * 'x' is clicked in the search box in the header.
-   *
-   * @see Search
-   */
-  clearSearch() {
-    const params = this.params();
-    delete params.q;
-
-    m.route(app.route(this.props.routeName, params));
-  }
-
-  /**
-   * Redirect to the index page using the given sort parameter.
-   *
-   * @param {String} sort
-   */
-  changeSort(sort) {
-    const params = this.params();
-
-    if (sort === Object.keys(app.cache.discussionList.sortMap())[0]) {
-      delete params.sort;
-    } else {
-      params.sort = sort;
-    }
-
-    m.route(app.route(this.props.routeName, params));
-  }
-
-  /**
-   * Get URL parameters that stick between filter changes.
-   *
-   * @return {Object}
-   */
-  stickyParams() {
-    return {
-      sort: m.route.param('sort'),
-      q: m.route.param('q'),
-    };
-  }
-
-  /**
-   * Get parameters to pass to the DiscussionList component.
-   *
-   * @return {Object}
-   */
-  params() {
-    const params = this.stickyParams();
-
-    params.filter = m.route.param('filter');
-
-    return params;
   }
 
   /**

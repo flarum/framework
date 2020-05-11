@@ -14,6 +14,7 @@ import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
+import SearchState from './states/SearchState';
 
 export default class ForumApplication extends Application {
   /**
@@ -63,6 +64,14 @@ export default class ForumApplication extends Application {
    */
   notifications = new NotificationListState(this);
 
+  /*
+   * An object which stores previously searched queries and provides convenient
+   * tools for retrieving and managing search values.
+   *
+   * @type {SearchState}
+   */
+  search = new SearchState();
+
   constructor() {
     super();
 
@@ -94,7 +103,6 @@ export default class ForumApplication extends Application {
 
     this.pane = new Pane(document.getElementById('app'));
     this.composer = m.mount(document.getElementById('composer'), Composer.component());
-    this.cache.searched = [];
 
     m.route.mode = 'pathname';
     super.mount(this.forum.attribute('basePath'));
