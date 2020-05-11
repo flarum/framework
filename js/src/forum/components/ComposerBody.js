@@ -43,7 +43,11 @@ export default class ComposerBody extends Component {
     });
     this.state.bodyPreventExit = this.preventExit.bind(this);
 
-    this.state.content(this.props.originalContent);
+    this.state.content(this.props.originalContent || '');
+
+    // BC Layer, remove in Beta 15.
+    this.content = this.state.fields.content;
+    this.editor = this.state;
   }
 
   view() {

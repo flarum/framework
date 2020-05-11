@@ -29,6 +29,7 @@ class ComposerState {
     // BC layer, remove in Beta 15.
     this.component = this;
     this.editor = this;
+    this.props = this.bodyProps;
   }
 
   /**
@@ -93,11 +94,12 @@ class ComposerState {
     this.bodyProps = {};
     this.bodyPreventExit = () => {};
     this.fields = {
-      content: m.prop(),
+      content: m.prop(''),
     };
 
     // This is saved for convenience. BC layer, remove in Beta 15.
     this.content = this.fields.content;
+    this.value = this.fields.content;
   }
 
   focus() {
