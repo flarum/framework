@@ -20,16 +20,6 @@ function minimizeComposerIfFullScreen(e) {
  * - `post`
  */
 export default class EditPostComposer extends ComposerBody {
-  init() {
-    super.init();
-
-    this.editor.props.preview = (e) => {
-      minimizeComposerIfFullScreen(e);
-
-      m.route(app.route.post(this.props.post));
-    };
-  }
-
   static initProps(props) {
     super.initProps(props);
 
@@ -64,15 +54,10 @@ export default class EditPostComposer extends ComposerBody {
     return items;
   }
 
-  /**
-   * Get the data to submit to the server when the post is saved.
-   *
-   * @return {Object}
-   */
-  data() {
-    return {
-      content: this.content(),
-    };
+  preview(e) {
+    minimizeComposerIfFullScreen(e);
+
+    m.route(app.route.post(this.props.post));
   }
 
   onsubmit() {

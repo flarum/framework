@@ -21,7 +21,8 @@ export default class DiscussionComposer extends ComposerBody {
      *
      * @type {Function}
      */
-    this.title = m.prop('');
+    this.state.fields.title = m.prop(this.state.fields.title ? this.state.fields.title() : '');
+    this.title = this.state.fields.title;
   }
 
   static initProps(props) {
@@ -66,14 +67,14 @@ export default class DiscussionComposer extends ComposerBody {
     if (e.which === 13) {
       // Return
       e.preventDefault();
-      this.editor.setSelectionRange(0, 0);
+      this.state.setSelectionRange(0, 0);
     }
 
     m.redraw.strategy('none');
   }
 
   preventExit() {
-    return (this.title() || this.content()) && this.props.confirmExit;
+    return (this.title() || this.state.content()) && this.props.confirmExit;
   }
 
   /**
@@ -82,10 +83,10 @@ export default class DiscussionComposer extends ComposerBody {
    * @return {Object}
    */
   data() {
-    return {
-      title: this.title(),
-      content: this.content(),
-    };
+    const data = super.data();
+    data.title = this.title();
+
+    return data;
   }
 
   onsubmit() {

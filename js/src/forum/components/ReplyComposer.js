@@ -20,16 +20,6 @@ function minimizeComposerIfFullScreen(e) {
  * - `discussion`
  */
 export default class ReplyComposer extends ComposerBody {
-  init() {
-    super.init();
-
-    this.editor.props.preview = (e) => {
-      minimizeComposerIfFullScreen(e);
-
-      m.route(app.route.discussion(this.props.discussion, 'reply'));
-    };
-  }
-
   static initProps(props) {
     super.initProps(props);
 
@@ -67,10 +57,16 @@ export default class ReplyComposer extends ComposerBody {
    * @return {Object}
    */
   data() {
-    return {
-      content: this.content(),
-      relationships: { discussion: this.props.discussion },
-    };
+    const data = super.data();
+    data.relationships = { discussion: this.props.discussion };
+
+    return data;
+  }
+
+  preview(e) {
+    minimizeComposerIfFullScreen(e);
+
+    m.route(app.route.discussion(this.props.discussion, 'reply'));
   }
 
   onsubmit() {

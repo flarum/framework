@@ -22,7 +22,15 @@ import ItemList from '../../common/utils/ItemList';
  * @abstract
  */
 export default class ComposerBody extends Component {
+  static initProps(props) {
+    super.initProps(props);
+
+    Object.assign(props, props.state.bodyProps);
+  }
+
   init() {
+    this.state = this.props.state;
+
     /**
      * Whether or not the component is loading.
      *
@@ -30,37 +38,31 @@ export default class ComposerBody extends Component {
      */
     this.loading = false;
 
-    /**
-     * The content of the text editor.
-     *
-     * @type {Function}
-     */
-    this.content = m.prop(this.props.originalContent);
-
-    /**
-     * The text editor component instance.
-     *
-     * @type {TextEditor}
-     */
-    this.editor = new TextEditor({
-      submitLabel: this.props.submitLabel,
-      placeholder: this.props.placeholder,
-      onchange: this.content,
-      onsubmit: this.onsubmit.bind(this),
-      value: this.content(),
+    this.state.on('focus', () => {
+      this.focus();
     });
+    this.state.bodyPreventExit = this.preventExit.bind(this);
+
+    this.state.content(this.props.originalContent);
   }
 
   view() {
-    // If the component is loading, we should disable the text editor.
-    this.editor.props.disabled = this.loading;
-
     return (
       <div className={'ComposerBody ' + (this.props.className || '')}>
         {avatar(this.props.user, { className: 'ComposerBody-avatar' })}
         <div className="ComposerBody-content">
           <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
-          <div className="ComposerBody-editor">{this.editor.render()}</div>
+          <div className="ComposerBody-editor">
+            {TextEditor.component({
+              submitLabel: this.props.submitLabel,
+              placeholder: this.props.placeholder,
+              disabled: this.loading | this.disabled,
+              preview: this.preview.bind(this),
+              onchange: this.state.content,
+              onsubmit: this.onsubmit.bind(this),
+              value: this.state.content(),
+            })}
+          </div>
         </div>
         {LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })}
       </div>
@@ -81,10 +83,15 @@ export default class ComposerBody extends Component {
    * @return {String}
    */
   preventExit() {
-    const content = this.content();
+    const content = this.state.content();
 
     return content && content !== this.props.originalContent && this.props.confirmExit;
   }
+
+  /**
+   * Handle preview for the text editor.
+   */
+  preview(e) {}
 
   /**
    * Build an item list for the composer's header.
@@ -93,6 +100,17 @@ export default class ComposerBody extends Component {
    */
   headerItems() {
     return new ItemList();
+  }
+
+  /**
+   * Get the data to submit to the server when the post is saved.
+   *
+   * @return {Object}
+   */
+  data() {
+    return {
+      content: this.state.content(),
+    };
   }
 
   /**

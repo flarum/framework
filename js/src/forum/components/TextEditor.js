@@ -26,7 +26,7 @@ export default class TextEditor extends Component {
 
   view() {
     return (
-      <div className="TextEditor">
+      <div className="TextEditor js-TextEditor">
         <textarea
           className="FormControl Composer-flexible"
           config={this.configTextarea.bind(this)}
@@ -104,64 +104,6 @@ export default class TextEditor extends Component {
    */
   toolbarItems() {
     return new ItemList();
-  }
-
-  /**
-   * Set the value of the text editor.
-   *
-   * @param {String} value
-   */
-  setValue(value) {
-    this.$('textarea').val(value).trigger('input');
-  }
-
-  /**
-   * Set the selected range of the textarea.
-   *
-   * @param {Integer} start
-   * @param {Integer} end
-   */
-  setSelectionRange(start, end) {
-    const $textarea = this.$('textarea');
-
-    if (!$textarea.length) return;
-
-    $textarea[0].setSelectionRange(start, end);
-    $textarea.focus();
-  }
-
-  /**
-   * Get the selected range of the textarea.
-   *
-   * @return {Array}
-   */
-  getSelectionRange() {
-    const $textarea = this.$('textarea');
-
-    if (!$textarea.length) return [0, 0];
-
-    return [$textarea[0].selectionStart, $textarea[0].selectionEnd];
-  }
-
-  /**
-   * Insert content into the textarea at the position of the cursor.
-   *
-   * @param {String} insert
-   */
-  insertAtCursor(insert) {
-    const textarea = this.$('textarea')[0];
-    const value = this.value();
-    const index = textarea ? textarea.selectionStart : value.length;
-
-    this.setValue(value.slice(0, index) + insert + value.slice(index));
-
-    // Move the textarea cursor to the end of the content we just inserted.
-    if (textarea) {
-      const pos = index + insert.length;
-      this.setSelectionRange(pos, pos);
-    }
-
-    textarea.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
   }
 
   /**

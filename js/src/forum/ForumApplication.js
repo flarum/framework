@@ -15,7 +15,9 @@ import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
-import DiscussionListState from './states/DiscussionListState';
+import DiscussionListState from './state/DiscussionListState';
+import ComposerState from './states/ComposerState';
+import subclassOf from '../common/utils/subclassOf';
 
 export default class ForumApplication extends Application {
   /**
@@ -73,6 +75,11 @@ export default class ForumApplication extends Application {
    */
   search = new GlobalSearchState();
 
+  /*
+   * An object which controls the state of the composer.
+   */
+  composer = new ComposerState();
+
   constructor() {
     super();
 
@@ -114,9 +121,9 @@ export default class ForumApplication extends Application {
     m.mount(document.getElementById('header-navigation'), Navigation.component());
     m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
     m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
+    m.mount(document.getElementById('composer'), Composer.component({ state: this.composer }));
 
     this.pane = new Pane(document.getElementById('app'));
-    this.composer = m.mount(document.getElementById('composer'), Composer.component());
 
     m.route.mode = 'pathname';
     super.mount(this.forum.attribute('basePath'));
@@ -147,9 +154,10 @@ export default class ForumApplication extends Application {
    */
   composingReplyTo(discussion) {
     return (
-      this.composer.component instanceof ReplyComposer &&
-      this.composer.component.props.discussion === discussion &&
-      this.composer.position !== Composer.PositionEnum.HIDDEN
+      this.composer.bodyClass &&
+      subclassOf(this.composer.bodyClass, ReplyComposer) &&
+      this.composer.bodyProps.discussion === discussion &&
+      this.composer.position !== ComposerState.PositionEnum.HIDDEN
     );
   }
 

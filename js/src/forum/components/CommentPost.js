@@ -9,6 +9,7 @@ import EditPostComposer from './EditPostComposer';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
+import subclassOf from '../../common/utils/subclassOf';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -77,7 +78,7 @@ export default class CommentPost extends Post {
   }
 
   isEditing() {
-    return app.composer.component instanceof EditPostComposer && app.composer.component.props.post === this.props.post;
+    return app.composer.bodyClass && subclassOf(app.composer.bodyClass, EditPostComposer) && app.composer.bodyProps.post === this.props.post;
   }
 
   attrs() {
@@ -105,7 +106,7 @@ export default class CommentPost extends Post {
     // body with a preview.
     let preview;
     const updatePreview = () => {
-      const content = app.composer.component.content();
+      const content = app.composer.content();
 
       if (preview === content) return;
 
