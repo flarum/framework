@@ -25,6 +25,10 @@ class ComposerState {
     this.active = false;
 
     this.clear();
+
+    // BC layer, remove in Beta 15.
+    this.component = this;
+    this.editor = this;
   }
 
   /**
@@ -91,7 +95,8 @@ class ComposerState {
     this.fields = {
       content: m.prop(),
     };
-    // This is saved for convenience
+
+    // This is saved for convenience. BC layer, remove in Beta 15.
     this.content = this.fields.content;
   }
 
