@@ -180,8 +180,7 @@ export default class ForumApplication extends Application {
     if (payload.loggedIn) {
       window.location.reload();
     } else {
-      const modal = new SignUpModal(payload);
-      this.modal.show(modal);
+      this.modal.show(SignUpModal, payload);
     }
   }
 }

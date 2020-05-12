@@ -23,6 +23,7 @@ import Group from './models/Group';
 import Notification from './models/Notification';
 import { flattenDeep } from 'lodash-es';
 import PageState from './states/PageState';
+import ModalState from './states/ModalState';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -139,6 +140,13 @@ export default class Application {
    */
   previous = new PageState(null);
 
+  /*
+   * An object that manages modal state.
+   *
+   * @type {ModalState}
+   */
+  modal = new ModalState();
+
   data;
 
   title = '';
@@ -174,7 +182,7 @@ export default class Application {
   }
 
   mount(basePath = '') {
-    this.modal = m.mount(document.getElementById('modal'), <ModalManager />);
+    m.mount(document.getElementById('modal'), <ModalManager state={this.modal} />);
     this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
 
     this.drawer = new Drawer();
@@ -396,7 +404,7 @@ export default class Application {
   showDebug(error, formattedError) {
     this.alerts.dismiss(this.requestError.alert);
 
-    this.modal.show(new RequestErrorModal({ error, formattedError }));
+    this.modal.show(RequestErrorModal, { error, formattedError });
   }
 
   /**

@@ -9,13 +9,25 @@ import Button from './Button';
  * @abstract
  */
 export default class Modal extends Component {
+  static initProps(props) {
+    super.initProps(props);
+
+    Object.assign(props, props.state.modalProps);
+  }
+
   init() {
+    this.state = this.props.state;
+
     /**
      * An alert component to show below the header.
      *
      * @type {Alert}
      */
     this.alert = null;
+
+    this.state.modalOnHide = this.onhide.bind(this);
+    this.state.modalOnReady = this.onready.bind(this);
+    this.state.modalDismissible = this.isDismissible.bind(this);
   }
 
   view() {

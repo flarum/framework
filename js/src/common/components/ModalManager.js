@@ -1,5 +1,4 @@
 import Component from '../Component';
-import Modal from './Modal';
 
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog
@@ -8,12 +7,25 @@ import Modal from './Modal';
  */
 export default class ModalManager extends Component {
   init() {
-    this.showing = false;
-    this.component = null;
+    this.state = this.props.state;
+
+    this.state.on('show', () => {
+      const dismissible = !!(this.state.modalDismissible ? this.state.modalDismissible() : true);
+      this.$()
+        .modal({
+          backdrop: dismissible || 'static',
+          keyboard: dismissible,
+        })
+        .modal('show');
+    });
+
+    this.state.on('hide', () => {
+      this.$().modal('hide');
+    });
   }
 
   view() {
-    return <div className="ModalManager modal fade">{this.component && this.component.render()}</div>;
+    return <div className="ModalManager modal fade">{this.state.modalClass ? this.state.modalClass.component({ state: this.state }) : ''}</div>;
   }
 
   config(isInitialized, context) {
@@ -24,7 +36,7 @@ export default class ModalManager extends Component {
     // to be retained across route changes.
     context.retain = true;
 
-    this.$().on('hidden.bs.modal', this.clear.bind(this)).on('shown.bs.modal', this.onready.bind(this));
+    this.$().on('hidden.bs.modal', this.state.clear.bind(this.state)).on('shown.bs.modal', this.state.onready.bind(this.state));
   }
 
   /**

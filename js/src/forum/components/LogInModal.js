@@ -142,7 +142,7 @@ export default class LogInModal extends Modal {
     const email = this.identification();
     const props = email.indexOf('@') !== -1 ? { email } : undefined;
 
-    app.modal.show(new ForgotPasswordModal(props));
+    app.modal.show(ForgotPasswordModal, props);
   }
 
   /**
@@ -156,7 +156,7 @@ export default class LogInModal extends Modal {
     const identification = this.identification();
     props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
 
-    app.modal.show(new SignUpModal(props));
+    app.modal.show(SignUpModal, props);
   }
 
   onready() {
