@@ -11,7 +11,7 @@ export default class MailPage extends Page {
     super.init();
 
     this.saving = false;
-    this.sendingTest = m.prop(false);
+    this.sendingTest = false;
     this.refresh();
   }
 
@@ -142,7 +142,7 @@ export default class MailPage extends Page {
                   type: 'button',
                   className: 'Button Button--primary',
                   children: app.translator.trans('core.admin.email.send_test_mail_button'),
-                  disabled: this.sendingTest() || this.changed(),
+                  disabled: this.sendingTest || this.changed(),
                   onclick: () => this.sendTestEmail(),
                 }),
               ],
@@ -170,9 +170,9 @@ export default class MailPage extends Page {
   }
 
   sendTestEmail() {
-    if (this.saving || this.sendingTest()) return;
+    if (this.saving || this.sendingTest) return;
 
-    this.sendingTest = m.prop(true);
+    this.sendingTest = true;
     const settings = {};
 
     this.fields.forEach((key) => (settings[key] = this.values[key]()));
@@ -184,7 +184,7 @@ export default class MailPage extends Page {
         data: settings,
       })
       .then((response) => {
-        this.sendingTest = m.prop(false);
+        this.sendingTest = false;
         app.alerts.show(
           new Alert({
             type: 'success',
@@ -193,7 +193,7 @@ export default class MailPage extends Page {
         );
       })
       .catch((error) => {
-        this.sendingTest = m.prop(false);
+        this.sendingTest = false;
         const response = JSON.parse(error.responseText)['message'];
         if (Array.isArray(response)) {
           response.forEach((errorMessage) => {
@@ -218,7 +218,7 @@ export default class MailPage extends Page {
   onsubmit(e) {
     e.preventDefault();
 
-    if (this.saving || this.sendingTest()) return;
+    if (this.saving || this.sendingTest) return;
 
     this.saving = true;
     app.alerts.dismiss(this.successAlert);
