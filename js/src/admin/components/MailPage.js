@@ -139,7 +139,6 @@ export default class MailPage extends Page {
               children: [
                 <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}</div>,
                 Button.component({
-                  type: 'button',
                   className: 'Button Button--primary',
                   children: app.translator.trans('core.admin.email.send_test_mail_button'),
                   disabled: this.sendingTest || this.changed(),
