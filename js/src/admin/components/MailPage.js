@@ -172,15 +172,11 @@ export default class MailPage extends Page {
     if (this.saving || this.sendingTest) return;
 
     this.sendingTest = true;
-    const settings = {};
-
-    this.fields.forEach((key) => (settings[key] = this.values[key]()));
 
     app
       .request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/mail/test',
-        data: settings,
       })
       .then((response) => {
         this.sendingTest = false;
