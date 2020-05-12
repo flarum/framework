@@ -14,12 +14,12 @@ use Flarum\Install\Installation;
 
 require __DIR__.'/../../vendor/autoload.php';
 
-$host = env('DB_HOST', 'localhost');
-$port = intval(env('DB_PORT', 3306));
-$name = env('DB_DATABASE', 'flarum_test');
-$user = env('DB_USERNAME', 'root');
-$pass = env('DB_PASSWORD', '');
-$pref = env('DB_PREFIX', '');
+$host = getenv('DB_HOST') ?: 'localhost';
+$port = intval(getenv('DB_PORT') ?: 3306);
+$name = getenv('DB_DATABASE') ?: 'flarum_test';
+$user = getenv('DB_USERNAME') ?: 'root';
+$pass = getenv('DB_PASSWORD') ?: '';
+$pref = getenv('DB_PREFIX') ?: '';
 
 echo "Connecting to database $name at $host:$port.\n";
 echo "Logging in as $user with password '$pass'.\n";
@@ -48,15 +48,9 @@ $pipeline = $installation
     ->configPath('config.php')
     ->debugMode(true)
     ->baseUrl(BaseUrl::fromString('http://localhost'))
-    ->databaseConfig(new DatabaseConfig(
-        'mysql',
-        env('DB_HOST', 'localhost'),
-        intval(env('DB_PORT', 3306)),
-        env('DB_DATABASE', 'flarum_test'),
-        env('DB_USERNAME', 'root'),
-        env('DB_PASSWORD', ''),
-        env('DB_PREFIX', '')
-    ))
+    ->databaseConfig(
+        new DatabaseConfig('mysql', $host, $port, $name, $user, $pass, $pref)
+    )
     ->adminUser(new AdminUser(
         'admin',
         'secret',
