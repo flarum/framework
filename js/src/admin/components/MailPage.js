@@ -189,24 +189,8 @@ export default class MailPage extends Page {
       })
       .catch((error) => {
         this.sendingTest = false;
-        const response = JSON.parse(error.responseText)['message'];
-        if (Array.isArray(response)) {
-          response.forEach((errorMessage) => {
-            app.alerts.show(
-              new Alert({
-                type: 'error',
-                children: errorMessage,
-              })
-            );
-          });
-        } else {
-          app.alerts.show(
-            new Alert({
-              type: 'error',
-              children: app.translator.trans('core.admin.email.send_test_mail_error'),
-            })
-          );
-        }
+        m.redraw();
+        throw error;
       });
   }
 
