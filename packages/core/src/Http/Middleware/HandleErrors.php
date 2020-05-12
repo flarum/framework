@@ -41,7 +41,7 @@ class HandleErrors implements Middleware
      */
     protected $reporters;
 
-    public function __construct(Registry $registry, HttpFormatter $formatter, array $reporters)
+    public function __construct(Registry $registry, HttpFormatter $formatter, iterable $reporters)
     {
         $this->registry = $registry;
         $this->formatter = $formatter;
