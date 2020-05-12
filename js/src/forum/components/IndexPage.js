@@ -11,6 +11,7 @@ import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LinkButton from '../../common/components/LinkButton';
 import SelectDropdown from '../../common/components/SelectDropdown';
+import subclassOf from '../../common/utils/subclassOf';
 
 /**
  * The `IndexPage` component displays the index page, including the welcome
@@ -25,15 +26,15 @@ export default class IndexPage extends Page {
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
     // scroll down so that this discussion is in view.
-    if (app.previous instanceof DiscussionPage) {
-      this.lastDiscussion = app.previous.discussion;
+    if (subclassOf(app.previous, DiscussionPage)) {
+      this.lastDiscussion = app.previousData.discussion;
     }
 
     // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
-    if (app.previous instanceof IndexPage) {
+    if (subclassOf(app.previous, IndexPage)) {
       app.discussions.clear();
     }
 

@@ -8,8 +8,11 @@ import Component from '../../common/Component';
 export default class Page extends Component {
   init() {
     app.previous = app.current;
-    app.current = this;
+    app.current = this.constructor;
+    app.currentData = {}; // Clear currentData. If any attributes should be stored there they will be inserted manually.
+    app.previousData = app.currentData;
 
+    app.drawer.hide();
     app.modal.close();
 
     /**

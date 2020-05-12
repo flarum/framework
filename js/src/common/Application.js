@@ -115,6 +115,9 @@ export default class Application {
    */
   requestError = null;
 
+  currentData = {};
+  previousData = {};
+
   data;
 
   title = '';

@@ -1,13 +1,10 @@
-import Page from './Page';
-import LinkButton from '../../common/components/LinkButton';
+import Page from '../../common/components/Page';
 import Button from '../../common/components/Button';
 import Dropdown from '../../common/components/Dropdown';
-import Separator from '../../common/components/Separator';
 import AddExtensionModal from './AddExtensionModal';
 import LoadingModal from './LoadingModal';
 import ItemList from '../../common/utils/ItemList';
 import icon from '../../common/helpers/icon';
-import listItems from '../../common/helpers/listItems';
 
 export default class ExtensionsPage extends Page {
   view() {

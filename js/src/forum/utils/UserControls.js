@@ -4,6 +4,7 @@ import Separator from '../../common/components/Separator';
 import EditUserModal from '../components/EditUserModal';
 import UserPage from '../components/UserPage';
 import ItemList from '../../common/utils/ItemList';
+import subclassOf from '../../common/utils/subclassOf';
 
 /**
  * The `UserControls` utility constructs a list of buttons for a user which
@@ -112,7 +113,7 @@ export default {
       .delete()
       .then(() => {
         this.showDeletionAlert(user, 'success');
-        if (app.current instanceof UserPage && app.current.user === user) {
+        if (subclassOf(app.current, UserPage) && app.currentData.user === user) {
           app.history.back();
         } else {
           window.location.reload();

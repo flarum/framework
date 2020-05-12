@@ -8,6 +8,7 @@ import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
 import DiscussionList from './DiscussionList';
+import subclassOf from '../../common/utils/subclassOf';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
@@ -42,7 +43,7 @@ export default class DiscussionPage extends Page {
       app.pane.enable();
       app.pane.hide();
 
-      if (app.previous instanceof DiscussionPage) {
+      if (subclassOf(app.previous, DiscussionPage)) {
         m.redraw.strategy('diff');
       }
     }
@@ -200,6 +201,11 @@ export default class DiscussionPage extends Page {
     this.stream = new PostStream({ discussion, includedPosts });
     this.stream.on('positionChanged', this.positionChanged.bind(this));
     this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
+
+    app.currentData = {
+      discussion: discussion,
+      stream: this.stream,
+    };
   }
 
   /**

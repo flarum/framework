@@ -1,33 +1,14 @@
-import Component from '../../common/Component';
+import Page from '../../common/components/Page';
 
 /**
- * The `Page` component
+ * The `ForumPage` component
  *
  * @abstract
  */
-export default class Page extends Component {
+export default class ForumPage extends Page {
   init() {
-    app.previous = app.current;
-    app.current = this;
+    super.init();
 
-    app.drawer.hide();
     app.modal.close();
-
-    /**
-     * A class name to apply to the body while the route is active.
-     *
-     * @type {String}
-     */
-    this.bodyClass = '';
-  }
-
-  config(isInitialized, context) {
-    if (isInitialized) return;
-
-    if (this.bodyClass) {
-      $('#app').addClass(this.bodyClass);
-
-      context.onunload = () => $('#app').removeClass(this.bodyClass);
-    }
   }
 }
