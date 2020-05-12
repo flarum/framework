@@ -15,12 +15,12 @@ export default class Modal extends Component {
      *
      * @type {Alert}
      */
-    this.alert = null;
+    this.alertProps = null;
   }
 
   view() {
-    if (this.alert) {
-      this.alert.props.dismissible = false;
+    if (this.alertProps) {
+      this.alertProps.dismissible = false;
     }
 
     return (
@@ -43,7 +43,7 @@ export default class Modal extends Component {
               <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
             </div>
 
-            {alert ? <div className="Modal-alert">{this.alert}</div> : ''}
+            {this.alertProps ? <div className="Modal-alert">{Alert.component(this.alertProps)}</div> : ''}
 
             {this.content()}
           </form>
@@ -123,7 +123,7 @@ export default class Modal extends Component {
    * @param {RequestError} error
    */
   onerror(error) {
-    this.alert = error.alert;
+    this.alertProps = error.alertProps;
 
     m.redraw();
 

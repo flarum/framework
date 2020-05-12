@@ -7,20 +7,16 @@ import Alert from './Alert';
  */
 export default class AlertManager extends Component {
   init() {
-    /**
-     * An array of Alert components which are currently showing.
-     *
-     * @type {Alert[]}
-     * @protected
-     */
-    this.components = [];
+    this.state = this.props.state;
   }
 
   view() {
     return (
       <div className="AlertManager">
-        {this.components.map((component) => (
-          <div className="AlertManager-alert">{component}</div>
+        {this.state.activeAlerts.map((alert) => (
+          <div className="AlertManager-alert">
+            <Alert state={alert} ondismiss={this.state.dismiss.bind(this.state, alert.key)} />
+          </div>
         ))}
       </div>
     );
@@ -31,47 +27,5 @@ export default class AlertManager extends Component {
     // part of the global UI that persists between routes), we will flag the DOM
     // to be retained across route changes.
     context.retain = true;
-  }
-
-  /**
-   * Show an Alert in the alerts area.
-   *
-   * @param {Alert} component
-   * @public
-   */
-  show(component) {
-    if (!(component instanceof Alert)) {
-      throw new Error('The AlertManager component can only show Alert components');
-    }
-
-    component.props.ondismiss = this.dismiss.bind(this, component);
-
-    this.components.push(component);
-    m.redraw();
-  }
-
-  /**
-   * Dismiss an alert.
-   *
-   * @param {Alert} component
-   * @public
-   */
-  dismiss(component) {
-    const index = this.components.indexOf(component);
-
-    if (index !== -1) {
-      this.components.splice(index, 1);
-      m.redraw();
-    }
-  }
-
-  /**
-   * Clear all alerts.
-   *
-   * @public
-   */
-  clear() {
-    this.components = [];
-    m.redraw();
   }
 }
