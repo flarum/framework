@@ -324,12 +324,15 @@ export default class Application {
         }
 
         const isDebug = app.forum.attribute('debug');
+        // contains a formatted errors if possible, response must be an JSON API array of errors
+        // the details property is decoded to transform escaped characters such as '\n'
+        const formattedError = error.response && Array.isArray(error.response.errors) && error.response.errors.map((e) => decodeURI(e.detail));
 
         error.alert = new Alert({
           type: 'error',
           children,
           controls: isDebug && [
-            <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>
+            <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
               Debug
             </Button>,
           ],
@@ -338,6 +341,17 @@ export default class Application {
         try {
           options.errorHandler(error);
         } catch (error) {
+          if (isDebug && error.xhr) {
+            const { method, url } = error.options;
+            const { status = '' } = error.xhr;
+
+            console.group(`${method} ${url} ${status}`);
+
+            console.error(...(formattedError || [error]));
+
+            console.groupEnd();
+          }
+
           this.alerts.show(error.alert);
         }
 
@@ -350,12 +364,13 @@ export default class Application {
 
   /**
    * @param {RequestError} error
+   * @param {string[]} [formattedError]
    * @private
    */
-  showDebug(error) {
+  showDebug(error, formattedError) {
     this.alerts.dismiss(this.requestError.alert);
 
-    this.modal.show(new RequestErrorModal({ error }));
+    this.modal.show(new RequestErrorModal({ error, formattedError }));
   }
 
   /**
