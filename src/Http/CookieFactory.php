@@ -64,7 +64,7 @@ class CookieFactory
         $this->path = $app->config('cookie.path', Arr::get($url, 'path') ?: '/');
         $this->domain = $app->config('cookie.domain');
         $this->secure = $app->config('cookie.secure', Arr::get($url, 'scheme') === 'https');
-        $this->samesite = $app->config('cookie.samesite', 'lax');
+        $this->samesite = $app->config('cookie.samesite');
     }
 
     /**
@@ -95,7 +95,7 @@ class CookieFactory
         }
 
         // Explicitly set SameSite value, use sensible default if no value provided
-        $cookie = $cookie->withSameSite(forward_static_call([SameSite, $this->samesite ?? 'lax']));
+        $cookie = $cookie->withSameSite(SameSite::{$this->samesite ?? 'lax'}());
 
         return $cookie
             ->withPath($this->path)
