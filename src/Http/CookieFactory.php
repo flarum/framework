@@ -95,13 +95,7 @@ class CookieFactory
         }
 
         // Explicitly set SameSite value, use sensible default if no value provided
-        if ($this->samesite === 'strict') {
-            $cookie = $cookie->withSameSite(SameSite::strict());
-        } elseif ($this->samesite === 'none') {
-            $cookie = $cookie->withSameSite(SameSite::none());
-        } else {
-            $cookie = $cookie->withSameSite(SameSite::lax());
-        }
+        $cookie = $cookie->withSameSite(forward_static_call([SameSite, $this->samesite ?? 'lax']));
 
         return $cookie
             ->withPath($this->path)
