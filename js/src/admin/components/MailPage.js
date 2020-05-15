@@ -91,13 +91,14 @@ export default class MailPage extends Page {
               </div>
             </FieldSet>
 
-            {this.status.sending ? '' :
-              Alert.component({
-                children: app.translator.trans('core.admin.email.not_sending_message'),
-                dismissible: false,
-              })}
+            {this.status.sending
+              ? ''
+              : Alert.component({
+                  children: app.translator.trans('core.admin.email.not_sending_message'),
+                  dismissible: false,
+                })}
 
-            {fieldKeys.length > 0 ?
+            {fieldKeys.length > 0 ? (
               <FieldSet label={app.translator.trans(`core.admin.email.${this.values.mail_driver()}_heading`)} className="MailPage-MailSettings">
                 <div className="MailPage-MailSettings-input">
                   {fieldKeys.map((field) => [
@@ -108,7 +109,10 @@ export default class MailPage extends Page {
                     this.status.errors[field] && <p className="ValidationError">{this.status.errors[field]}</p>,
                   ])}
                 </div>
-              </FieldSet> : ''}
+              </FieldSet>
+            ) : (
+              ''
+            )}
 
             <FieldSet>
               {Button.component({
@@ -120,8 +124,10 @@ export default class MailPage extends Page {
             </FieldSet>
 
             <FieldSet label={app.translator.trans('core.admin.email.send_test_mail_heading')} className="MailPage-MailSettings">
-              <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}</div>,
-                {Button.component({
+              <div className="helpText">
+                {app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}
+              </div>
+              {Button.component({
                 className: 'Button Button--primary',
                 children: app.translator.trans('core.admin.email.send_test_mail_button'),
                 disabled: this.sendingTest || this.changed(),
@@ -192,7 +198,7 @@ export default class MailPage extends Page {
       .then(() => {
         app.alerts.show((this.successAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') })));
       })
-      .catch(() => { })
+      .catch(() => {})
       .then(() => {
         this.saving = false;
         this.refresh();
