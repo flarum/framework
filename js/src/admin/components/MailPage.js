@@ -69,83 +69,65 @@ export default class MailPage extends Page {
             <h2>{app.translator.trans('core.admin.email.heading')}</h2>
             <div className="helpText">{app.translator.trans('core.admin.email.text')}</div>
 
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.email.addresses_heading'),
-              className: 'MailPage-MailSettings',
-              children: [
-                <div className="MailPage-MailSettings-input">
-                  <label>
-                    {app.translator.trans('core.admin.email.from_label')}
-                    <input className="FormControl" value={this.values.mail_from() || ''} oninput={m.withAttr('value', this.values.mail_from)} />
-                  </label>
-                </div>,
-              ],
-            })}
+            <FieldSet label={app.translator.trans('core.admin.email.addresses_heading')} className="MailPage-MailSettings">
+              <div className="MailPage-MailSettings-input">
+                <label>
+                  {app.translator.trans('core.admin.email.from_label')}
+                  <input className="FormControl" value={this.values.mail_from() || ''} oninput={m.withAttr('value', this.values.mail_from)} />
+                </label>
+              </div>
+            </FieldSet>
 
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.email.driver_heading'),
-              className: 'MailPage-MailSettings',
-              children: [
-                <div className="MailPage-MailSettings-input">
-                  <label>
-                    {app.translator.trans('core.admin.email.driver_label')}
-                    <Select
-                      value={this.values.mail_driver()}
-                      options={Object.keys(this.driverFields).reduce((memo, val) => ({ ...memo, [val]: val }), {})}
-                      onchange={this.values.mail_driver}
-                    />
-                  </label>
-                </div>,
-              ],
-            })}
+            <FieldSet label={app.translator.trans('core.admin.email.driver_heading')} className="MailPage-MailSettings">
+              <div className="MailPage-MailSettings-input">
+                <label>
+                  {app.translator.trans('core.admin.email.driver_label')}
+                  <Select
+                    value={this.values.mail_driver()}
+                    options={Object.keys(this.driverFields).reduce((memo, val) => ({ ...memo, [val]: val }), {})}
+                    onchange={this.values.mail_driver}
+                  />
+                </label>
+              </div>
+            </FieldSet>
 
-            {this.status.sending ||
+            {this.status.sending ? '' :
               Alert.component({
                 children: app.translator.trans('core.admin.email.not_sending_message'),
                 dismissible: false,
               })}
 
-            {fieldKeys.length > 0 &&
-              FieldSet.component({
-                label: app.translator.trans(`core.admin.email.${this.values.mail_driver()}_heading`),
-                className: 'MailPage-MailSettings',
-                children: [
-                  <div className="MailPage-MailSettings-input">
-                    {fieldKeys.map((field) => [
-                      <label>
-                        {app.translator.trans(`core.admin.email.${field}_label`)}
-                        {this.renderField(field)}
-                      </label>,
-                      this.status.errors[field] && <p className="ValidationError">{this.status.errors[field]}</p>,
-                    ])}
-                  </div>,
-                ],
+            {fieldKeys.length > 0 ?
+              <FieldSet label={app.translator.trans(`core.admin.email.${this.values.mail_driver()}_heading`)} className="MailPage-MailSettings">
+                <div className="MailPage-MailSettings-input">
+                  {fieldKeys.map((field) => [
+                    <label>
+                      {app.translator.trans(`core.admin.email.${field}_label`)}
+                      {this.renderField(field)}
+                    </label>,
+                    this.status.errors[field] && <p className="ValidationError">{this.status.errors[field]}</p>,
+                  ])}
+                </div>
+              </FieldSet> : ''}
+
+            <FieldSet>
+              {Button.component({
+                type: 'submit',
+                className: 'Button Button--primary',
+                children: app.translator.trans('core.admin.email.submit_button'),
+                disabled: !this.changed(),
               })}
+            </FieldSet>
 
-            {FieldSet.component({
-              children: [
-                Button.component({
-                  type: 'submit',
-                  className: 'Button Button--primary',
-                  children: app.translator.trans('core.admin.email.submit_button'),
-                  disabled: !this.changed(),
-                }),
-              ],
-            })}
-
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.email.send_test_mail_heading'),
-              className: 'MailPage-MailSettings',
-              children: [
-                <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}</div>,
-                Button.component({
-                  className: 'Button Button--primary',
-                  children: app.translator.trans('core.admin.email.send_test_mail_button'),
-                  disabled: this.sendingTest || this.changed(),
-                  onclick: () => this.sendTestEmail(),
-                }),
-              ],
-            })}
+            <FieldSet label={app.translator.trans('core.admin.email.send_test_mail_heading')} className="MailPage-MailSettings">
+              <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}</div>,
+                {Button.component({
+                className: 'Button Button--primary',
+                children: app.translator.trans('core.admin.email.send_test_mail_button'),
+                disabled: this.sendingTest || this.changed(),
+                onclick: () => this.sendTestEmail(),
+              })}
+            </FieldSet>
           </form>
         </div>
       </div>
@@ -210,7 +192,7 @@ export default class MailPage extends Page {
       .then(() => {
         app.alerts.show((this.successAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') })));
       })
-      .catch(() => {})
+      .catch(() => { })
       .then(() => {
         this.saving = false;
         this.refresh();
