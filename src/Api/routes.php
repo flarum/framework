@@ -309,7 +309,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
 
     // List available mail drivers, available fields and validation status
     $map->get(
-        '/mail/settings',
+        '/mail-settings',
         'mailSettings.index',
         $route->toController(Controller\ShowMailSettingsController::class)
     );

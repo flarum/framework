@@ -17,7 +17,7 @@ class MailSettingsSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      */
-    protected $type = 'mail/settings';
+    protected $type = 'mail-settings';
 
     /**
      * {@inheritdoc}
