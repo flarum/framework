@@ -32,5 +32,4 @@ export default class Badge extends Component {
 
     if (this.props.label) this.$().tooltip();
   }
-
 }
