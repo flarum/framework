@@ -8,7 +8,7 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(attrs, key = Date.now()) {
+  show(attrs, key = AlertManagerState.genAlertId()) {
     const state = new AlertState(attrs);
 
     this.activeAlerts[key] = state;
@@ -35,5 +35,9 @@ export default class AlertManagerState {
   clear() {
     this.activeAlerts = {};
     m.redraw();
+  }
+
+  static genAlertId() {
+    return Math.floor(Math.random() * 100000000); // Generate a big random integer to avoid collisions.
   }
 }
