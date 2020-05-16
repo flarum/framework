@@ -384,7 +384,7 @@ export default class Application {
             console.groupEnd();
           }
 
-          this.alerts.show(error.alertProps);
+          error.alertKey = this.alerts.show(error.alertProps);
         }
 
         deferred.reject(error);
