@@ -18,12 +18,6 @@ import extract from '../utils/extract';
  * All other props will be assigned as attributes on the alert element.
  */
 export default class Alert extends Component {
-  static initProps(props) {
-    super.initProps(props);
-
-    if (props.state) Object.assign(props, props.state.props);
-  }
-
   view() {
     const attrs = Object.assign({}, this.props);
 

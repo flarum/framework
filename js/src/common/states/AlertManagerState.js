@@ -2,43 +2,38 @@ import AlertState from './AlertState';
 
 export default class AlertManagerState {
   constructor() {
-    this.activeAlerts = [];
+    this.activeAlerts = {};
   }
 
   /**
    * Show an Alert in the alerts area.
    */
-  show(propsOrState) {
-    const state = propsOrState instanceof AlertState ? propsOrState : new AlertState(propsOrState);
+  show(attrs, key = Date.now()) {
+    const state = new AlertState(attrs);
 
-    this.activeAlerts.push(state);
+    this.activeAlerts[key] = state;
     m.redraw();
 
-    return state.key;
+    return key;
   }
 
   /**
    * Dismiss an alert.
    */
-  dismiss(keyOrState) {
-    if (!keyOrState) return;
+  dismiss(key) {
+    if (!key || !(key in this.activeAlerts)) return;
 
-    const key = keyOrState instanceof AlertState ? keyOrState.key : keyOrState;
-
-    let index = this.activeAlerts.indexOf(this.activeAlerts.filter((a) => a.key == key)[0]);
-
-    if (index !== -1) {
-      this.activeAlerts.splice(index, 1);
-      m.redraw();
-    }
+    delete this.activeAlerts[key];
+    m.redraw();
   }
+
   /**
    * Clear all alerts.
    *
    * @public
    */
   clear() {
-    this.activeAlerts = [];
+    this.activeAlerts = {};
     m.redraw();
   }
 }
