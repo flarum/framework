@@ -24,8 +24,6 @@ class ModalState {
     this.modalClass = modalClass;
     this.modalProps = modalProps;
 
-    if (app.current) app.current.retain = true;
-
     m.redraw(true);
 
     this.trigger('show');
@@ -69,10 +67,6 @@ class ModalState {
     this.modalOnReady = () => {};
 
     this.showing = false;
-
-    if (app.current) {
-      app.current.retain = false;
-    }
 
     m.lazyRedraw();
   }
