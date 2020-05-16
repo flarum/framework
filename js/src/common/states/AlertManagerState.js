@@ -1,3 +1,4 @@
+import Alert from '../components/Alert';
 import AlertState from './AlertState';
 
 export default class AlertManagerState {
@@ -8,8 +9,8 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(attrs, key = AlertManagerState.genAlertId()) {
-    const state = new AlertState(attrs);
+  show(attrs, alertClass = Alert, key = AlertManagerState.genAlertId()) {
+    const state = new AlertState(attrs, alertClass);
 
     this.activeAlerts[key] = state;
     m.redraw();

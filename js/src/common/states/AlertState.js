@@ -1,5 +1,8 @@
+import Alert from '../components/Alert';
+
 export default class AlertState {
-  constructor(attrs = {}) {
+  constructor(attrs = {}, alertClass = Alert) {
     this.attrs = attrs;
+    this.alertClass = alertClass;
   }
 }
