@@ -2,7 +2,7 @@ import evented from '../utils/evented';
 
 import Modal from '../components/Modal';
 
-class ModalState {
+class ModalManagerState {
   constructor() {
     this.clear();
   }
@@ -83,6 +83,6 @@ class ModalState {
   }
 }
 
-Object.assign(ModalState.prototype, evented);
+Object.assign(ModalManagerState.prototype, evented);
 
-export default ModalState;
+export default ModalManagerState;

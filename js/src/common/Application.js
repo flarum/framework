@@ -23,7 +23,7 @@ import Group from './models/Group';
 import Notification from './models/Notification';
 import { flattenDeep } from 'lodash-es';
 import PageState from './states/PageState';
-import ModalState from './states/ModalState';
+import ModalManagerState from './states/ModalManagerState';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -143,9 +143,9 @@ export default class Application {
   /*
    * An object that manages modal state.
    *
-   * @type {ModalState}
+   * @type {ModalManagerState}
    */
-  modal = new ModalState();
+  modal = new ModalManagerState();
 
   data;
 
