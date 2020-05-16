@@ -104,7 +104,7 @@ export default class ForgotPasswordModal extends Modal {
 
   onerror(error) {
     if (error.status === 404) {
-      error.alertProps.children = app.translator.trans('core.forum.forgot_password.not_found_message');
+      error.alertAttrs.children = app.translator.trans('core.forum.forgot_password.not_found_message');
     }
 
     super.onerror(error);
