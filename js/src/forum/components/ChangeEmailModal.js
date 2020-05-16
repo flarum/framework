@@ -121,7 +121,7 @@ export default class ChangeEmailModal extends Modal {
   }
 
   onerror(error) {
-    if (error.status === 403) {
+    if (error.status === 401) {
       error.alertProps.children = app.translator.trans('core.forum.change_email.incorrect_password_message');
     }
 
