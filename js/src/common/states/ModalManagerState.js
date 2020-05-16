@@ -55,6 +55,8 @@ class ModalManagerState {
    */
   clear() {
     if (this.modalClass) {
+      // Preconfigure so that close triggers properly.
+      this.showing = true;
       this.close();
     }
 
