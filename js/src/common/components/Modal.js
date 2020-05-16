@@ -25,9 +25,12 @@ export default class Modal extends Component {
      */
     this.alert = null;
 
-    this.state.modalOnHide = this.onhide.bind(this);
     this.state.modalOnReady = this.onready.bind(this);
     this.state.modalDismissible = this.isDismissible.bind(this);
+
+    this.state.on('hide', () => {
+      this.onhide();
+    });
   }
 
   view() {

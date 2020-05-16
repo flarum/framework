@@ -55,14 +55,12 @@ class ModalManagerState {
    */
   clear() {
     if (this.modalClass) {
-      this.modalOnHide();
+      this.close();
     }
 
     this.modalClass = null;
 
     this.modalProps = {};
-
-    this.modalOnHide = () => {};
 
     this.modalOnReady = () => {};
 
