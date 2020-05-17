@@ -10,7 +10,6 @@
 namespace Flarum\Api\Middleware;
 
 use Flarum\Post\Exception\FloodingException;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
