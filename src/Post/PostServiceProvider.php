@@ -36,7 +36,7 @@ class PostServiceProvider extends AbstractServiceProvider
             ];
 
             return $floodgates;
-        })
+        });
     }
 
     /**

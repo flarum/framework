@@ -63,7 +63,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 }
 
                 return $element;
-            } $app->make('flarum.api.floodgates'));
+            }, $app->make('flarum.api.floodgates'));
 
             return new Middleware\Floodgate($floodCheckers);
         });
