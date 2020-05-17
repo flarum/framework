@@ -27,13 +27,20 @@ class CreateTest extends TestCase
             'posts' => [],
             'users' => [
                 $this->adminUser(),
+                $this->normalUser(),
             ],
             'groups' => [
                 $this->adminGroup(),
+                $this->memberGroup(),
             ],
             'group_user' => [
                 ['user_id' => 1, 'group_id' => 1],
+                ['user_id' => 2, 'group_id' => 3],
             ],
+            'group_permission' => [
+                ['permission' => 'viewDiscussions', 'group_id' => 3],
+                ['permission' => 'startDiscussion', 'group_id' => 3],
+            ]
         ]);
     }
 
@@ -136,5 +143,41 @@ class CreateTest extends TestCase
 
         $this->assertEquals('test - too-obscure', $discussion->title);
         $this->assertEquals('test - too-obscure', Arr::get($data, 'data.attributes.title'));
+    }
+
+    /**
+     * @test
+     */
+    public function discussion_creation_limited_by_floodgate()
+    {
+        $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'title' => 'test - too-obscure',
+                            'content' => 'predetermined content for automated testing - too-obscure',
+                        ],
+                    ]
+                ],
+            ])
+        );
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'title' => 'test - too-obscure',
+                            'content' => 'Second predetermined content for automated testing - too-obscure',
+                        ],
+                    ]
+                ],
+            ])
+        );
+
+        $this->assertEquals(429, $response->getStatusCode());
     }
 }
