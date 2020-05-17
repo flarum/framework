@@ -42,7 +42,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
-        $this->app->singleton('flarum.api.floodCheckers', function () {
+        $this->app->singleton('flarum.api.floodgates', function () {
             return [
                 [
                     'paths' => ['*'],
@@ -63,7 +63,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 }
 
                 return $element;
-            } $app->make('flarum.api.floodCheckers'));
+            } $app->make('flarum.api.floodgates'));
 
             return new Middleware\Floodgate($floodCheckers);
         });

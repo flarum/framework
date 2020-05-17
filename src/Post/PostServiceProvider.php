@@ -20,8 +20,8 @@ class PostServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->extend('flarum.api.floodCheckers', function ($checkers) {
-            $checkers['createPostFloodgate'] = [
+        $this->app->extend('flarum.api.floodgates', function ($floodgates) {
+            $floodgates['createPostFloodgate'] = [
                 'paths' => ['/api/posts', '/api/discussions'],
                 'methods' => ['POST'],
                 'callback' => function ($actor, $request) {
@@ -35,7 +35,7 @@ class PostServiceProvider extends AbstractServiceProvider
                 }
             ];
 
-            return $checkers;
+            return $floodgates;
         })
     }
 
