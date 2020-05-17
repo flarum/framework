@@ -216,40 +216,4 @@ class CreateTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
     }
-
-    /**
-     * @test
-     */
-    public function floodgate_doesnt_apply_to_admin()
-    {
-        $this->send(
-            $this->request('POST', '/api/discussions', [
-                'authenticatedAs' => 1,
-                'json' => [
-                    'data' => [
-                        'attributes' => [
-                            'title' => 'test - too-obscure',
-                            'content' => 'predetermined content for automated testing - too-obscure',
-                        ],
-                    ]
-                ],
-            ])
-        );
-
-        $response = $this->send(
-            $this->request('POST', '/api/discussions', [
-                'authenticatedAs' => 1,
-                'json' => [
-                    'data' => [
-                        'attributes' => [
-                            'title' => 'test - too-obscure',
-                            'content' => 'Second predetermined content for automated testing - too-obscure',
-                        ],
-                    ]
-                ],
-            ])
-        );
-
-        $this->assertEquals(201, $response->getStatusCode());
-    }
 }
