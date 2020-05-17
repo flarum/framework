@@ -63,4 +63,21 @@ class FloodgateTest extends TestCase
 
         $this->assertEquals(429, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function false_overrides_true_for_evaluating_floodgates()
+    {
+        $this->extend((new Extend\Floodgate)->set('blockListDiscussions', ['/api/discussions'], ['GET'], function ($actor, $request) {
+            return true;
+        }));
+        $this->extend((new Extend\Floodgate)->set('blockListDiscussions', ['/api/discussions'], ['GET'], function ($actor, $request) {
+            return false;
+        }));
+
+        $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }
