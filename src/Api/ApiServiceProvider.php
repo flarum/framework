@@ -42,6 +42,32 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
+        $this->app->singleton('flarum.api.floodCheckers', function () {
+            return [
+                [
+                    'paths' => ['*'],
+                    'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+                    'callback' => function ($actor, $request) {
+                        if ($request->getAttribute('bypassFloodgate')) {
+                            return false;
+                        }
+                    }
+                ]
+            ];
+        });
+
+        $this->app->bind(Middleware\Floodgate::class, function ($app) {
+            $floodCheckers = array_map(function ($element) use ($app) {
+                if (is_string($element['callback'])) {
+                    $element['callback'] = $app->make($element['callback']);
+                }
+
+                return $element;
+            } $app->make('flarum.api.floodCheckers'));
+
+            return new Middleware\Floodgate($floodCheckers);
+        });
+
         $this->app->singleton('flarum.api.middleware', function () {
             return [
                 'flarum.api.error_handler',
@@ -53,7 +79,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\AuthenticateWithHeader::class,
                 HttpMiddleware\SetLocale::class,
                 'flarum.api.route_resolver',
-                HttpMiddleware\CheckCsrfToken::class
+                HttpMiddleware\CheckCsrfToken::class,
+                Middleware\Floodgate::class
             ];
         });
 
