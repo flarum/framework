@@ -9,11 +9,36 @@
 
 namespace Flarum\Post;
 
+use DateTime;
 use Flarum\Event\ConfigurePostTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 
 class PostServiceProvider extends AbstractServiceProvider
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function register()
+    {
+        $this->app->extend('flarum.api.floodCheckers', function ($checkers) {
+            $checkers['createPostFloodgate'] = [
+                'paths' => ['/api/posts', '/api/discussions'],
+                'methods' => ['POST'],
+                'callback' => function ($actor, $request) {
+                    if ($actor->can('postWithoutThrottle')) {
+                        return false;
+                    }
+
+                    if (Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime('-10 seconds'))->exists()) {
+                        return true;
+                    }
+                }
+            ];
+
+            return $checkers;
+        })
+    }
+
     /**
      * {@inheritdoc}
      */
