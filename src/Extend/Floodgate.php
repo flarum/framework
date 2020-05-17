@@ -44,7 +44,6 @@ class Floodgate implements ExtenderInterface
         return $this;
     }
 
-
     /**
      * Remove a flood gate checker registered with this name.
      *
