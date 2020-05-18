@@ -27,6 +27,29 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected $app;
 
+    // Used to run non-static setUp only once.
+    protected $initialized = false;
+
+    protected function setUp()
+    {
+        if (!$this->initialized) {
+            // Clear some essential tables. If it's used in more than 1 test classes, it should be here.
+            $this->prepareDatabase([
+                'users' => [],
+                'groups' => [],
+                'group_user' => [],
+                'group_permission' => [],
+                'discussions' => [],
+                'posts' => [],
+                'settings' => [],
+            ]);
+            // Unset app so that extenders can be resolved
+            $this->app = null;
+        }
+
+        $this->initialized = true;
+    }
+
     /**
      * @return \Flarum\Foundation\InstalledApp
      */
@@ -75,17 +98,17 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return $this->server;
     }
 
-    protected $database;
+    protected static $database;
 
     protected function database(): ConnectionInterface
     {
-        if (is_null($this->database)) {
-            $this->database = $this->app()->getContainer()->make(
+        if (is_null(static::$database)) {
+            static::$database = $this->app()->getContainer()->make(
                 ConnectionInterface::class
             );
         }
 
-        return $this->database;
+        return static::$database;
     }
 
     protected function prepareDatabase(array $tableData)

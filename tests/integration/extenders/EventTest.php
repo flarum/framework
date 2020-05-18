@@ -31,6 +31,9 @@ class EventTest extends TestCase
             'users' => [
                 $this->adminUser(),
             ],
+            'group_user' => [
+                ['user_id' => 1, 'group_id' => 1],
+            ],
         ]);
 
         $bus = $this->app()->getContainer()->make(Dispatcher::class);
