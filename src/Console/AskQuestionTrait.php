@@ -47,7 +47,7 @@ trait AskQuestionTrait
     protected function confirm($question)
     {
         while (true) {
-            $confirmation = $this->ask($question.' (y/N)');
+            $confirmation = $this->ask($question.' (y/n)');
 
             if (strtolower($confirmation) === 'y') {
                 return true;
