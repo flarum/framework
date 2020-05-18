@@ -32,7 +32,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        if (!$this->initialized) {
+        if (! $this->initialized) {
             // Clear some essential tables. If it's used in more than 1 test classes, it should be here.
             $this->prepareDatabase([
                 'users' => [],
