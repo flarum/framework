@@ -25,7 +25,6 @@ class WithApiKeyTest extends TestCase
 
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ],
         ]);

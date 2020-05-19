@@ -29,14 +29,7 @@ class DeletionTest extends TestCase
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>'],
             ],
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->adminGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
             ],
         ]);
     }

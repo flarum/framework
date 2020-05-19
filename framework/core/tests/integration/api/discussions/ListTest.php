@@ -30,13 +30,6 @@ class ListTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->memberGroup(),
-                $this->guestGroup(),
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 2],
             ]
         ]);
     }
