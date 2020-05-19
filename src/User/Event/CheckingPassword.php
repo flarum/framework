@@ -11,6 +11,9 @@ namespace Flarum\User\Event;
 
 use Flarum\User\User;
 
+/**
+ * @deprecated beta 14, remove in beta 15. Use User extender instead.
+ */
 class CheckingPassword
 {
     /**
