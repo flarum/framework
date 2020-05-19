@@ -22,15 +22,6 @@ class ThrottleApiTest extends TestCase
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->memberGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 2, 'group_id' => 3],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 3],
             ]
         ]);
     }

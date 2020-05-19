@@ -21,7 +21,6 @@ class SettingsTest extends TestCase
     {
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser()
             ],
             'settings' => [

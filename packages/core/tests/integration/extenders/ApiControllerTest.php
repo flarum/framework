@@ -35,12 +35,7 @@ class ApiControllerTest extends TestCase
     {
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser()
-            ],
-            'groups' => [
-                $this->adminGroup(),
-                $this->memberGroup()
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],

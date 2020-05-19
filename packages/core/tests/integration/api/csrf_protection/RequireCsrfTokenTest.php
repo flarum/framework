@@ -21,18 +21,6 @@ class RequireCsrfTokenTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
-                $this->adminUser(),
-            ],
-            'groups' => [
-                $this->adminGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 3],
-            ],
             'api_keys' => [
                 ['user_id' => 1, 'key' => 'superadmin'],
             ],
