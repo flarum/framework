@@ -29,7 +29,6 @@ class ListTest extends TestCase
                 $this->adminGroup(),
                 $this->guestGroup(),
             ],
-            'group_permission' => [],
             'group_user' => [
                 ['user_id' => 1, 'group_id' => 1],
             ],

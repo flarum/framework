@@ -23,8 +23,6 @@ class CreateTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [],
-            'posts' => [],
             'users' => [
                 $this->adminUser(),
                 $this->normalUser(),

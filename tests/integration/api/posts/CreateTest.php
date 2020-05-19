@@ -25,7 +25,6 @@ class CreateTest extends TestCase
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2],
             ],
-            'posts' => [],
             'users' => [
                 $this->normalUser(),
             ],
