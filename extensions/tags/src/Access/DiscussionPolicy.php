@@ -11,10 +11,12 @@ namespace Flarum\Tags\Access;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Event\ScopeModelVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 
 class DiscussionPolicy extends AbstractPolicy
@@ -25,15 +27,22 @@ class DiscussionPolicy extends AbstractPolicy
     protected $model = Discussion::class;
 
     /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
      * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
+     * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepositoryInterface $settings)
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings)
     {
+        $this->events = $events;
         $this->settings = $settings;
     }
 
@@ -75,11 +84,19 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function find(User $actor, Builder $query)
     {
-        // Hide discussions which have tags that the user is not allowed to see.
-        $query->whereNotIn('discussions.id', function ($query) use ($actor) {
-            return $query->select('discussion_id')
-                ->from('discussion_tag')
-                ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'));
+        // Hide discussions which have tags that the user is not allowed to see, unless an extension overrides this.
+        $query->where(function ($query) use ($actor) {
+            $query
+                ->whereNotIn('discussions.id', function ($query) use ($actor) {
+                    return $query->select('discussion_id')
+                        ->from('discussion_tag')
+                        ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'));
+                })
+                ->orWhere(function ($query) use ($actor) {
+                    $this->events->dispatch(
+                        new ScopeModelVisibility($query, $actor, 'viewDiscussionsInRestrictedTags')
+                    );
+                });
         });
 
         // Hide discussions with no tags if the user doesn't have that global
@@ -119,7 +136,8 @@ class DiscussionPolicy extends AbstractPolicy
         if ($discussion->user_id == $actor->id && $actor->can('reply', $discussion)) {
             $allowEditTags = $this->settings->get('allow_tag_change');
 
-            if ($allowEditTags === '-1'
+            if (
+                $allowEditTags === '-1'
                 || ($allowEditTags === 'reply' && $discussion->participant_count <= 1)
                 || (is_numeric($allowEditTags) && $discussion->created_at->diffInMinutes(new Carbon) < $allowEditTags)
             ) {
