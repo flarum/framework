@@ -32,7 +32,6 @@ class ModelTest extends TestCase
                 $this->adminUser(),
                 $this->normalUser(),
             ],
-            'discussions' => []
         ]);
     }
 

@@ -28,10 +28,6 @@ class WithApiKeyTest extends TestCase
                 $this->adminUser(),
                 $this->normalUser(),
             ],
-            'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 3]
-            ],
-            'api_keys' => [],
         ]);
     }
 
