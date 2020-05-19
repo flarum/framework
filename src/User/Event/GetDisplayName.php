@@ -11,6 +11,9 @@ namespace Flarum\User\Event;
 
 use Flarum\User\User;
 
+/**
+ * @deprecated beta 14, removed beta 15.
+ */
 class GetDisplayName
 {
     /**

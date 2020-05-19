@@ -12,12 +12,16 @@ namespace Flarum\User;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\DisplayName\DriverInterface;
+use Flarum\User\DisplayName\UsernameDriver;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Support\Arr;
 use League\Flysystem\FilesystemInterface;
 use RuntimeException;
 
@@ -30,6 +34,30 @@ class UserServiceProvider extends AbstractServiceProvider
     {
         $this->registerGate();
         $this->registerAvatarsFilesystem();
+        $this->registerDisplayNameDrivers();
+    }
+
+    protected function registerDisplayNameDrivers()
+    {
+        $this->app->singleton('flarum.user.display_name.supported_drivers', function () {
+            return [
+                'username' => UsernameDriver::class,
+            ];
+        });
+
+        $this->app->singleton('flarum.user.display_name.driver', function () {
+            $drivers = $this->app->make('flarum.user.display_name.supported_drivers');
+            $settings = $this->app->make(SettingsRepositoryInterface::class);
+            $driverName = $settings->get('display_name_driver', '');
+
+            $driverClass = Arr::get($drivers, $driverName);
+
+            return $driverClass
+                ? $this->app->make($driverClass)
+                : $this->app->make(UsernameDriver::class);
+        });
+
+        $this->app->alias('flarum.user.display_name.driver', DriverInterface::class);
     }
 
     protected function registerGate()
@@ -84,6 +112,7 @@ class UserServiceProvider extends AbstractServiceProvider
 
         User::setHasher($this->app->make('hash'));
         User::setGate($this->app->make('flarum.gate'));
+        User::setDisplayNameDriver($this->app->make('flarum.user.display_name.driver'));
 
         $events = $this->app->make('events');
 
