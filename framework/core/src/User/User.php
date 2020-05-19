@@ -23,6 +23,7 @@ use Flarum\Http\AccessToken;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
+use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\CheckingPassword;
@@ -92,6 +93,13 @@ class User extends AbstractModel
      * @var array
      */
     protected static $preferences = [];
+
+    /**
+     * A driver for getting display names.
+     *
+     * @var DriverInterface
+     */
+    protected static $displayNameDriver;
 
     /**
      * The hasher with which to hash passwords.
@@ -170,6 +178,16 @@ class User extends AbstractModel
     public static function setGate($gate)
     {
         static::$gate = $gate;
+    }
+
+    /**
+     * Set the display name driver.
+     *
+     * @param DriverInterface $driver
+     */
+    public static function setDisplayNameDriver(DriverInterface $driver)
+    {
+        static::$displayNameDriver = $driver;
     }
 
     /**
@@ -309,7 +327,8 @@ class User extends AbstractModel
      */
     public function getDisplayNameAttribute()
     {
-        return static::$dispatcher->until(new GetDisplayName($this)) ?: $this->username;
+        // Event is deprecated in beta 14, remove in beta 15.
+        return static::$dispatcher->until(new GetDisplayName($this)) ?: static::$displayNameDriver->displayName($this);
     }
 
     /**
