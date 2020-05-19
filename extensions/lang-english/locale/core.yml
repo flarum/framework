@@ -40,6 +40,8 @@ core:
     basics:
       all_discussions_label: => core.ref.all_discussions
       default_language_heading: Default Language
+      display_name_heading: User Display Name
+      display_name_text: Select the driver that should be used for users' display names. By default, the username is shown.
       forum_description_heading: Forum Description
       forum_description_text: Enter a short sentence or two that describes your community. This will appear in the meta tag and show up in search engines.
       forum_title_heading: Forum Title
