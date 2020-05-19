@@ -32,7 +32,6 @@ class PolicyTest extends TestCase
     {
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ],
             'discussions' => [

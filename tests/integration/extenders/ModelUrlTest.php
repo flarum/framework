@@ -26,7 +26,6 @@ class ModelUrlTest extends TestCase
         $userClass = User::class;
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ],
             'settings' => [

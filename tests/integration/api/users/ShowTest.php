@@ -22,17 +22,7 @@ class ShowTest extends TestCase
 
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->adminGroup()
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
-            ],
-            'settings' => [
-                ['key' => 'mail_driver', 'value' => 'log'],
             ],
         ]);
     }

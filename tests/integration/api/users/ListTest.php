@@ -9,31 +9,12 @@
 
 namespace Flarum\Tests\integration\api\users;
 
-use Flarum\Group\Permission;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 
 class ListTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->prepareDatabase([
-            'users' => [
-                $this->adminUser(),
-            ],
-            'groups' => [
-                $this->adminGroup(),
-                $this->guestGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
-            ],
-        ]);
-    }
 
     /**
      * @test
