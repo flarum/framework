@@ -10,9 +10,9 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\User\DisplayName\DriverInterface;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
 
 class UserTest extends TestCase
