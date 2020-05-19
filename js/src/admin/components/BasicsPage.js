@@ -36,9 +36,9 @@ export default class BasicsPage extends Page {
 
     this.displayNameOptions = {};
     const displayNameDrivers = app.data.displayNameDrivers;
-    for (const i in displayNameDrivers) {
-      this.displayNameOptions[displayNameDrivers[i]] = `${displayNameDrivers[i]} (${i})`;
-    }
+    displayNameDrivers.forEach(function (identifier) {
+      this.displayNameOptions[identifier] = identifier;
+    }, this);
 
     if (!this.values.display_name_driver() && displayNameDrivers.includes('username')) this.values.display_name_driver('username');
 
