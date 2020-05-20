@@ -15,7 +15,6 @@ import AddExtensionModal from './components/AddExtensionModal';
 import ExtensionsPage from './components/ExtensionsPage';
 import AdminLinkButton from './components/AdminLinkButton';
 import PermissionGrid from './components/PermissionGrid';
-import Widget from './components/Widget';
 import MailPage from './components/MailPage';
 import UploadImageButton from './components/UploadImageButton';
 import LoadingModal from './components/LoadingModal';
@@ -46,7 +45,6 @@ export default Object.assign(compat, {
   'components/ExtensionsPage': ExtensionsPage,
   'components/AdminLinkButton': AdminLinkButton,
   'components/PermissionGrid': PermissionGrid,
-  'components/Widget': Widget,
   'components/MailPage': MailPage,
   'components/UploadImageButton': UploadImageButton,
   'components/LoadingModal': LoadingModal,
