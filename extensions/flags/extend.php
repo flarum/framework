@@ -14,6 +14,7 @@ use Flarum\Flags\Api\Controller\DeleteFlagsController;
 use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Flags\Flag;
 use Flarum\Flags\Listener;
+use Flarum\Forum\Content\AssertRegistered;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -21,7 +22,8 @@ use Illuminate\Contracts\Events\Dispatcher;
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/less/forum.less'),
+        ->css(__DIR__.'/less/forum.less')
+        ->route('/flags', 'flags', AssertRegistered::class),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
