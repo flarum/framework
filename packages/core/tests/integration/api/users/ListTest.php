@@ -33,12 +33,11 @@ class ListTest extends TestCase
      */
     public function shows_index_for_guest_when_they_have_permission()
     {
-        Permission::unguarded(function () {
-            Permission::create([
-                'permission' => 'viewUserList',
-                'group_id' => 2,
-            ]);
-        });
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'viewUserList', 'group_id' => 2],
+            ],
+        ]);
 
         $response = $this->send(
             $this->request('GET', '/api/users')
