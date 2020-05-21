@@ -43,6 +43,8 @@ class ApiControllerTest extends TestCase
                 ['id' => 3, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
             ],
         ]);
+
+        $this->app();
     }
 
     /**
@@ -326,6 +328,8 @@ class ApiControllerTest extends TestCase
                 'authenticatedAs' => 1,
             ])
         );
+
+        echo $response->getBody();
 
         $payload = json_decode($response->getBody(), true);
 
