@@ -39,6 +39,8 @@ class ModelVisibilityTest extends TestCase
                 $this->normalUser(),
             ]
         ]);
+
+        $this->app();
     }
 
     /**

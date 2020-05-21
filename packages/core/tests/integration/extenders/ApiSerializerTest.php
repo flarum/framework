@@ -42,6 +42,8 @@ class ApiSerializerTest extends TestCase
                 ['id' => 1, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
             ],
         ]);
+
+        $this->app();
     }
 
     /**
