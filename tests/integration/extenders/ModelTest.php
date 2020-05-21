@@ -32,6 +32,8 @@ class ModelTest extends TestCase
                 $this->normalUser(),
             ],
         ]);
+
+        $this->app();
     }
 
     protected function prepPostsHierarchy()
@@ -47,6 +49,8 @@ class ModelTest extends TestCase
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
             ],
         ]);
+
+        $this->app();
     }
 
     /**
@@ -161,12 +165,12 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->prepDB();
         $this->prepareDatabase([
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1]
             ]
         ]);
+        $this->prepDB();
 
         $user = User::find(1);
 
@@ -198,6 +202,7 @@ class ModelTest extends TestCase
     public function custom_relationship_prioritizes_child_classes_within_2_parent_classes()
     {
         $this->extend(
+            # FIXME: Second has no effect
             (new Extend\Model(Post::class))
                 ->belongsTo('ancestor', User::class, 'user_id'),
             (new Extend\Model(AbstractEventPost::class))

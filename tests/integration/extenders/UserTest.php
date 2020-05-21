@@ -30,6 +30,8 @@ class UserTest extends TestCase
                 ['key' => 'display_name_driver', 'value' => 'custom'],
             ]
         ]);
+
+        $this->app();
     }
 
     protected function registerTestPreference()
