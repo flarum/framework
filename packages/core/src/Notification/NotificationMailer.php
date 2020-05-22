@@ -9,9 +9,11 @@
 
 namespace Flarum\Notification;
 
+use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class NotificationMailer
 {
@@ -21,11 +23,25 @@ class NotificationMailer
     protected $mailer;
 
     /**
-     * @param Mailer $mailer
+     * @var TranslatorInterface
      */
-    public function __construct(Mailer $mailer)
+    protected $translator;
+
+    /**
+     * @var UrlGenerator
+     */
+    protected $url;
+
+    /**
+     * @param Mailer $mailer
+     * @param TranslatorInterface $translator
+     * @param UrlGenerator $url
+     */
+    public function __construct(Mailer $mailer, TranslatorInterface $translator, UrlGenerator $url)
     {
         $this->mailer = $mailer;
+        $this->translator = $translator;
+        $this->url = $url;
     }
 
     /**
@@ -34,9 +50,11 @@ class NotificationMailer
      */
     public function send(MailableInterface $blueprint, User $user)
     {
+        $translator = $this->translator;
+        $url = $this->url;
         $this->mailer->send(
             $blueprint->getEmailView(),
-            compact('blueprint', 'user'),
+            compact('blueprint', 'user', 'translator', 'url'),
             function (Message $message) use ($blueprint, $user) {
                 $message->to($user->email, $user->username)
                         ->subject($blueprint->getEmailSubject());
