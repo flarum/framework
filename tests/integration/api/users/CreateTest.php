@@ -154,7 +154,7 @@ class CreateTest extends TestCase
     public function disabling_sign_up_prevents_user_creation()
     {
         /** @var SettingsRepositoryInterface $settings */
-        $settings = app(SettingsRepositoryInterface::class);
+        $settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
         $settings->set('allow_sign_up', false);
 
         $response = $this->send(

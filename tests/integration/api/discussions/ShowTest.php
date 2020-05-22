@@ -114,7 +114,7 @@ class ShowTest extends TestCase
     public function when_allowed_guests_can_see_hidden_posts()
     {
         /** @var Dispatcher $events */
-        $events = app(Dispatcher::class);
+        $events = $this->app()->getContainer()->make(Dispatcher::class);
 
         $events->listen(ScopeModelVisibility::class, function (ScopeModelVisibility $event) {
             if ($event->ability === 'hidePosts') {
