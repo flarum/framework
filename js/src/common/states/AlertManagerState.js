@@ -1,6 +1,3 @@
-import Alert from '../components/Alert';
-import AlertState from './AlertState';
-
 export default class AlertManagerState {
   constructor() {
     this.activeAlerts = {};
@@ -9,10 +6,9 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(attrs, alertClass = Alert, key = AlertManagerState.genAlertId()) {
-    const state = new AlertState(attrs, alertClass);
+  show(state) {
 
-    this.activeAlerts[key] = state;
+    this.activeAlerts[state.key] = state;
     m.redraw();
 
     return key;
@@ -36,9 +32,5 @@ export default class AlertManagerState {
   clear() {
     this.activeAlerts = {};
     m.redraw();
-  }
-
-  static genAlertId() {
-    return Math.floor(Math.random() * 100000000); // Generate a big random integer to avoid collisions.
   }
 }
