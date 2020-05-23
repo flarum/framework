@@ -105,11 +105,13 @@ export default class ReplyComposer extends ComposerBody {
               app.alerts.dismiss(alertKey);
             },
           });
-          alertKey = app.alerts.show(new AlertState({
-            type: 'success',
-            children: app.translator.trans('core.forum.composer_reply.posted_message'),
-            controls: [viewButton],
-          }));
+          alertKey = app.alerts.show(
+            new AlertState({
+              type: 'success',
+              children: app.translator.trans('core.forum.composer_reply.posted_message'),
+              controls: [viewButton],
+            })
+          );
         }
 
         app.composer.hide();

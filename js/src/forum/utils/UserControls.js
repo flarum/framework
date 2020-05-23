@@ -135,10 +135,12 @@ export default {
       error: 'core.forum.user_controls.delete_error_message',
     }[type];
 
-    app.alerts.show(new AlertState({
-      type,
-      children: app.translator.trans(message, { username, email }),
-    }));
+    app.alerts.show(
+      new AlertState({
+        type,
+        children: app.translator.trans(message, { username, email }),
+      })
+    );
   },
 
   /**

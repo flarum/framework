@@ -10,7 +10,7 @@ export default class AlertManagerState {
     this.activeAlerts[state.key] = state;
     m.redraw();
 
-    return key;
+    return state.key;
   }
 
   /**
