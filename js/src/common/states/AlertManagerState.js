@@ -7,7 +7,6 @@ export default class AlertManagerState {
    * Show an Alert in the alerts area.
    */
   show(state) {
-
     this.activeAlerts[state.key] = state;
     m.redraw();
 
