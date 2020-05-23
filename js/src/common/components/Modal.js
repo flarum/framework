@@ -12,7 +12,7 @@ export default class Modal extends Component {
   static initProps(props) {
     super.initProps(props);
 
-    Object.assign(props, props.state.modalProps);
+    Object.assign(props, props.state.modal.getAttrs());
   }
 
   init() {

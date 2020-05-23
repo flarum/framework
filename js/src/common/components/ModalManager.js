@@ -25,7 +25,7 @@ export default class ModalManager extends Component {
   }
 
   view() {
-    return <div className="ModalManager modal fade">{this.state.modalClass ? this.state.modalClass.component({ state: this.state }) : ''}</div>;
+    return <div className="ModalManager modal fade">{this.state.modal ? this.state.modal.getClass().component({ state: this.state }) : ''}</div>;
   }
 
   config(isInitialized, context) {

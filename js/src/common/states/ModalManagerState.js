@@ -1,6 +1,7 @@
 import evented from '../utils/evented';
 
 import Modal from '../components/Modal';
+import ModalState from './ModalState';
 
 class ModalManagerState {
   constructor() {
@@ -13,16 +14,17 @@ class ModalManagerState {
    * @param {Modal} component
    * @public
    */
-  show(modalClass, modalProps) {
-    if (!(modalClass.prototype instanceof Modal)) {
+  show(modalClass, attrs) {
+    const modal = new ModalState(modalClass, attrs);
+
+    if (!(modal.getClass().prototype instanceof Modal)) {
       throw new Error('The ModalManager component can only show Modals');
     }
 
     clearTimeout(this.hideTimeout);
 
     this.showing = true;
-    this.modalClass = modalClass;
-    this.modalProps = modalProps;
+    this.modal = modal;
 
     m.redraw(true);
 
@@ -54,15 +56,13 @@ class ModalManagerState {
    * @protected
    */
   clear() {
-    if (this.modalClass) {
+    if (this.modal) {
       // Preconfigure so that close triggers properly.
       this.showing = true;
       this.close();
     }
 
-    this.modalClass = null;
-
-    this.modalProps = {};
+    this.modal = null;
 
     this.modalOnReady = () => {};
 
@@ -77,7 +77,7 @@ class ModalManagerState {
    * @protected
    */
   onready() {
-    if (this.modalClass && this.modalOnReady) {
+    if (this.modal && this.modalOnReady) {
       this.modalOnReady();
     }
   }
