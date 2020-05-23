@@ -178,7 +178,7 @@ export default {
         app.composer.show();
 
         if (goToLast && app.viewingDiscussion(this) && !app.composer.isFullScreen()) {
-          app.currentData.stream.goToNumber('reply');
+          app.current.getData().stream.goToNumber('reply');
         }
 
         deferred.resolve(component);

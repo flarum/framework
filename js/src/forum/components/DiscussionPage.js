@@ -43,7 +43,7 @@ export default class DiscussionPage extends Page {
       app.pane.enable();
       app.pane.hide();
 
-      if (subclassOf(app.previous, DiscussionPage)) {
+      if (app.previous && app.previous.subclassOf(DiscussionPage)) {
         m.redraw.strategy('diff');
       }
     }
@@ -202,10 +202,10 @@ export default class DiscussionPage extends Page {
     this.stream.on('positionChanged', this.positionChanged.bind(this));
     this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
 
-    app.currentData = {
+    app.current.setData({
       discussion: discussion,
       stream: this.stream,
-    };
+    });
   }
 
   /**

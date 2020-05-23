@@ -113,7 +113,7 @@ export default {
       .delete()
       .then(() => {
         this.showDeletionAlert(user, 'success');
-        if (subclassOf(app.current, UserPage) && app.currentData.user === user) {
+        if (app.current.subclassOf(UserPage) && app.current.getData().user === user) {
           app.history.back();
         } else {
           window.location.reload();

@@ -1,4 +1,5 @@
 import Component from '../../common/Component';
+import PageState from '../../forum/states/PageState';
 
 /**
  * The `Page` component
@@ -8,9 +9,8 @@ import Component from '../../common/Component';
 export default class Page extends Component {
   init() {
     app.previous = app.current;
-    app.current = this.constructor;
-    app.currentData = {}; // Clear currentData. If any attributes should be stored there they will be inserted manually.
-    app.previousData = app.currentData;
+
+    app.current = new PageState(this.constructor, {});
 
     app.drawer.hide();
     app.modal.close();

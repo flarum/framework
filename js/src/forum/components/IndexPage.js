@@ -26,15 +26,15 @@ export default class IndexPage extends Page {
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
     // scroll down so that this discussion is in view.
-    if (subclassOf(app.previous, DiscussionPage)) {
-      this.lastDiscussion = app.previousData.discussion;
+    if (app.previous && app.previous.subclassOf(DiscussionPage)) {
+      this.lastDiscussion = app.previous.getData().discussion;
     }
 
     // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
-    if (subclassOf(app.previous, IndexPage)) {
+    if (app.previous && app.previous.subclassOf(IndexPage)) {
       app.discussions.clear();
     }
 

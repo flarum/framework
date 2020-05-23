@@ -71,7 +71,7 @@ export default class UserPage extends Page {
   show(user) {
     this.user = user;
 
-    app.currentData = { user };
+    app.current.setData({ user });
 
     app.setTitle(user.displayName());
 
