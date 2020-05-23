@@ -17,10 +17,14 @@ import SearchState from '../states/SearchState';
  * a `searching` method that returns a truthy value. If this is the case, an 'x'
  * button will be shown next to the search field, and clicking it will call the
  * `clearSearch` method on the controller.
+ *
+ * PROPS:
+ *
+ * - state: AlertState instance.
  */
 export default class Search extends Component {
   init() {
-    this.state = this.props.state || new SearchState();
+    this.state = this.props.state;
 
     /**
      * The value of the search input.
