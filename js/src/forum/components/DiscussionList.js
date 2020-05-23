@@ -21,10 +21,10 @@ export default class DiscussionList extends Component {
   view() {
     const state = this.state;
 
-    const params = state.params;
+    const params = state.getParams();
     let loading;
 
-    if (state.loading) {
+    if (state.isLoading()) {
       loading = LoadingIndicator.component();
     } else if (state.moreResults) {
       loading = Button.component({
@@ -34,7 +34,7 @@ export default class DiscussionList extends Component {
       });
     }
 
-    if (state.discussions.length === 0 && !state.loading) {
+    if (state.hasDiscussions() && !state.isLoading()) {
       const text = app.translator.trans('core.forum.discussion_list.empty_text');
       return <div className="DiscussionList">{Placeholder.component({ text })}</div>;
     }

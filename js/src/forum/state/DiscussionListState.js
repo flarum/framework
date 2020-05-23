@@ -1,5 +1,3 @@
-import Discussion from '../../common/models/Discussion';
-
 export default class DiscussionListState {
   constructor({ params = {} } = {}) {
     this.params = params;
@@ -54,6 +52,13 @@ export default class DiscussionListState {
    */
   setParams(params) {
     this.params = params;
+  }
+
+  /**
+   * Get the search parameters.
+   */
+  getParams() {
+    return this.params;
   }
 
   /**
@@ -149,5 +154,12 @@ export default class DiscussionListState {
    */
   hasDiscussions() {
     return this.discussions.length > 0;
+  }
+
+  /**
+   * Are discussions currently being loaded?
+   */
+  isLoading() {
+    return this.loading;
   }
 }

@@ -45,7 +45,7 @@ export default class IndexPage extends Page {
       // will clear the cache and set up a new discussion list component with
       // the new parameters.
       Object.keys(params).some((key) => {
-        if (app.cache.discussionList.params[key] !== params[key]) {
+        if (app.cache.discussionList.getParams()[key] !== params[key]) {
           app.cache.discussionList.clear();
           return true;
         }
