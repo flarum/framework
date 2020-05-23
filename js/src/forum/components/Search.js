@@ -94,7 +94,7 @@ export default class Search extends Component {
           {this.loadingSources ? (
             LoadingIndicator.component({ size: 'tiny', className: 'Button Button--icon Button--link' })
           ) : currentSearch ? (
-            <button className="Search-clear Button Button--icon Button--link" onclick={this.state.clear.bind(this.state)}>
+            <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>
               {icon('fas fa-times-circle')}
             </button>
           ) : (
@@ -133,7 +133,7 @@ export default class Search extends Component {
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
       .onSelect(this.selectResult.bind(this))
-      .onCancel(this.state.clear.bind(this.state))
+      .onCancel(this.clear.bind(this))
       .bindTo($input);
 
     // Handle input key events on the search input, triggering results to load.
@@ -235,6 +235,19 @@ export default class Search extends Component {
     }
 
     return $item;
+  }
+
+  /**
+   * Clear the search input and the current controller's active search.
+   */
+  clear() {
+    this.state.setValue('');
+
+    if (this.state.getCurrentSearch()) {
+      this.state.clearCurrentSearch();
+    } else {
+      m.redraw();
+    }
   }
 
   /**
