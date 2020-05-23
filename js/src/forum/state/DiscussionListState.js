@@ -52,6 +52,8 @@ export default class DiscussionListState {
    */
   setParams(params) {
     this.params = params;
+
+    this.refresh();
   }
 
   /**
