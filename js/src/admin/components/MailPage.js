@@ -122,16 +122,14 @@ export default class MailPage extends Page {
                 ],
               })}
 
-            {FieldSet.component({
-              children: [
-                Button.component({
-                  type: 'submit',
-                  className: 'Button Button--primary',
-                  children: app.translator.trans('core.admin.email.submit_button'),
-                  disabled: !this.changed(),
-                }),
-              ],
-            })}
+            <FieldSet>
+              {Button.component({
+                type: 'submit',
+                className: 'Button Button--primary',
+                children: app.translator.trans('core.admin.email.submit_button'),
+                disabled: !this.changed(),
+              })}
+            </FieldSet>
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.email.send_test_mail_heading'),
