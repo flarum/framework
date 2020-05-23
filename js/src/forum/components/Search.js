@@ -12,10 +12,10 @@ import UsersSearchSource from './UsersSearchSource';
  * The `Search` component displays a menu of as-you-type results from a variety
  * of sources.
  *
- * The search box will be 'activated' if the app's current controller implements
- * a `searching` method that returns a truthy value. If this is the case, an 'x'
+ * The search box will be 'activated' if the app's seach state's
+ * getCurrentSearch() value is a truthy value. If this is the case, an 'x'
  * button will be shown next to the search field, and clicking it will call the
- * `clearSearch` method on the controller.
+ * `clearCurrentSearch` method.
  *
  * PROPS:
  *
@@ -24,13 +24,6 @@ import UsersSearchSource from './UsersSearchSource';
 export default class Search extends Component {
   init() {
     this.state = this.props.state;
-
-    /**
-     * The value of the search input.
-     *
-     * @type {Function}
-     */
-    this.value = m.prop(this.state.getCurrentSearch() || '');
 
     /**
      * Whether or not the search input has focus.
@@ -81,7 +74,7 @@ export default class Search extends Component {
         className={
           'Search ' +
           classList({
-            open: this.value() && this.hasFocus,
+            open: this.state.getValue() && this.hasFocus,
             focused: this.hasFocus,
             active: !!currentSearch,
             loading: !!this.loadingSources,
@@ -93,15 +86,15 @@ export default class Search extends Component {
             className="FormControl"
             type="search"
             placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
-            value={this.value()}
-            oninput={m.withAttr('value', this.value)}
+            value={this.state.getValue()}
+            oninput={m.withAttr('value', this.state.setValue.bind(this.state))}
             onfocus={() => (this.hasFocus = true)}
             onblur={() => (this.hasFocus = false)}
           />
           {this.loadingSources ? (
             LoadingIndicator.component({ size: 'tiny', className: 'Button Button--icon Button--link' })
           ) : currentSearch ? (
-            <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>
+            <button className="Search-clear Button Button--icon Button--link" onclick={this.state.clear.bind(this.state)}>
               {icon('fas fa-times-circle')}
             </button>
           ) : (
@@ -109,7 +102,7 @@ export default class Search extends Component {
           )}
         </div>
         <ul className="Dropdown-menu Search-results">
-          {this.value() && this.hasFocus ? this.sources.map((source) => source.view(this.value())) : ''}
+          {this.state.getValue() && this.hasFocus ? this.sources.map((source) => source.view(this.state.getValue())) : ''}
         </ul>
       </div>
     );
@@ -140,7 +133,7 @@ export default class Search extends Component {
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
       .onSelect(this.selectResult.bind(this))
-      .onCancel(this.clear.bind(this))
+      .onCancel(this.state.clear.bind(this.state))
       .bindTo($input);
 
     // Handle input key events on the search input, triggering results to load.
@@ -186,26 +179,13 @@ export default class Search extends Component {
     clearTimeout(this.searchTimeout);
     this.loadingSources = 0;
 
-    if (this.value()) {
+    if (this.state.getValue()) {
       m.route(this.getItem(this.index).find('a').attr('href'));
     } else {
-      this.clear();
+      this.state.clear();
     }
 
     this.$('input').blur();
-  }
-
-  /**
-   * Clear the search input and the current controller's active search.
-   */
-  clear() {
-    this.value('');
-
-    if (this.state.getCurrentSearch()) {
-      app.search.clearSearch();
-    } else {
-      m.redraw();
-    }
   }
 
   /**
