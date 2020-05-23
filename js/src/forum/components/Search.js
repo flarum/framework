@@ -31,7 +31,7 @@ export default class Search extends Component {
      *
      * @type {Function}
      */
-    this.value = m.prop('');
+    this.value = m.prop(this.getCurrentSearch() || '');
 
     /**
      * Whether or not the search input has focus.
@@ -67,12 +67,6 @@ export default class Search extends Component {
 
   view() {
     const currentSearch = this.getCurrentSearch();
-
-    // Initialize search input value in the view rather than the constructor so
-    // that we have access to app.current.
-    if (!this.value()) {
-      this.value(currentSearch || '');
-    }
 
     // Initialize search sources in the view rather than the constructor so
     // that we have access to app.forum.
