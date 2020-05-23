@@ -99,13 +99,13 @@ export default class MailPage extends Page {
               ],
             })}
 
-            {this.status.sending ||
+            {!this.status.sending &&
               Alert.component({
                 children: app.translator.trans('core.admin.email.not_sending_message'),
                 dismissible: false,
               })}
 
-            {fieldKeys.length > 0 &&
+            {!!fieldKeys.length &&
               FieldSet.component({
                 label: app.translator.trans(`core.admin.email.${this.values.mail_driver()}_heading`),
                 className: 'MailPage-MailSettings',
