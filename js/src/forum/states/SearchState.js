@@ -7,7 +7,7 @@ export default class SearchState {
 
   getValue() {
     if (this.value === undefined) {
-      this.value = this.getCurrentSearch() || "";
+      this.value = this.getCurrentSearch() || '';
     }
 
     return this.value;
