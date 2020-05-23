@@ -42,8 +42,7 @@ export default class IndexPage extends Page {
     if (app.cache.discussionList.hasDiscussions()) {
       // Compare the requested parameters (sort, search query) to the ones that
       // are currently present in the cached discussion list. If they differ, we
-      // will clear the cache and set up a new discussion list component with
-      // the new parameters.
+      // will clear the cache update the parameters.
       Object.keys(params).some((key) => {
         if (app.cache.discussionList.getParams()[key] !== params[key]) {
           app.cache.discussionList.clear();
