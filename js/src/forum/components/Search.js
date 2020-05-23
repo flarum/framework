@@ -153,7 +153,7 @@ export default class Search extends Component {
 
         clearTimeout(search.searchTimeout);
         search.searchTimeout = setTimeout(() => {
-          if (state.cachedSearches.indexOf(query) !== -1) return;
+          if (state.isCached(query)) return;
 
           if (query.length >= 3) {
             search.sources.map((source) => {
@@ -168,7 +168,7 @@ export default class Search extends Component {
             });
           }
 
-          state.cachedSearches.push(query);
+          state.cache(query);
           m.redraw();
         }, 250);
       })
