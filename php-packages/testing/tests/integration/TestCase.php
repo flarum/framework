@@ -56,9 +56,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected $extenders = [];
 
-    protected function extend(ExtenderInterface $extender)
+    protected function extend(ExtenderInterface ...$extenders)
     {
-        $this->extenders[] = $extender;
+        $this->extenders = array_merge($this->extenders, $extenders);
     }
 
     /**
