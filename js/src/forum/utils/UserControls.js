@@ -4,6 +4,7 @@ import Separator from '../../common/components/Separator';
 import EditUserModal from '../components/EditUserModal';
 import UserPage from '../components/UserPage';
 import ItemList from '../../common/utils/ItemList';
+import AlertState from '../../common/states/AlertState';
 
 /**
  * The `UserControls` utility constructs a list of buttons for a user which
@@ -134,10 +135,10 @@ export default {
       error: 'core.forum.user_controls.delete_error_message',
     }[type];
 
-    app.alerts.show({
+    app.alerts.show(new AlertState({
       type,
       children: app.translator.trans(message, { username, email }),
-    });
+    }));
   },
 
   /**

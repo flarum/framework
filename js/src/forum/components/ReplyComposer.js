@@ -3,6 +3,7 @@ import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import icon from '../../common/helpers/icon';
 import extractText from '../../common/utils/extractText';
+import AlertState from '../../common/states/AlertState';
 
 function minimizeComposerIfFullScreen(e) {
   if (app.composer.isFullScreen()) {
@@ -104,11 +105,11 @@ export default class ReplyComposer extends ComposerBody {
               app.alerts.dismiss(alertKey);
             },
           });
-          alertKey = app.alerts.show({
+          alertKey = app.alerts.show(new AlertState({
             type: 'success',
             children: app.translator.trans('core.forum.composer_reply.posted_message'),
             controls: [viewButton],
-          });
+          }));
         }
 
         app.composer.hide();

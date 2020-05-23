@@ -1,9 +1,9 @@
 import Alert from '../components/Alert';
 
 export default class AlertState {
-  constructor(alertClass = Alert, attrs = {}, alertKey = AlertState.genAlertId()) {
-    this.alertClass = alertClass;
+  constructor(attrs = {}, alertClass = Alert, alertKey = AlertState.genAlertId()) {
     this.attrs = attrs;
+    this.alertClass = alertClass;
     this.alertKey = alertKey;
   }
 

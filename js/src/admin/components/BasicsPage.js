@@ -2,7 +2,7 @@ import Page from '../../common/components/Page';
 import FieldSet from '../../common/components/FieldSet';
 import Select from '../../common/components/Select';
 import Button from '../../common/components/Button';
-import Alert from '../../common/components/Alert';
+import AlertState from '../../common/states/AlertState';
 import saveSettings from '../utils/saveSettings';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
@@ -186,7 +186,7 @@ export default class BasicsPage extends Page {
 
     saveSettings(settings)
       .then(() => {
-        this.successAlertKey = app.alerts.show({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') });
+        this.successAlertKey = app.alerts.show(new AlertState({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') }));
       })
       .catch(() => {})
       .then(() => {
