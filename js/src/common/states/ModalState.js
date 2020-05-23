@@ -9,6 +9,6 @@ export default class ModalState {
   }
 
   getClass() {
-    return this.getClass;
+    return this.modalClass;
   }
 }
