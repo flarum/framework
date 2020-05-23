@@ -124,7 +124,9 @@ export default class MailPage extends Page {
             </FieldSet>
 
             <FieldSet label={app.translator.trans('core.admin.email.send_test_mail_heading')} className="MailPage-MailSettings">
-              <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}</div>
+              <div className="helpText">
+                {app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}
+              </div>
               {Button.component({
                 className: 'Button Button--primary',
                 children: app.translator.trans('core.admin.email.send_test_mail_button'),
