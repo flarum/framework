@@ -37,7 +37,7 @@ export default class SearchState {
    * @see Search
    * @return {String}
    */
-  searching() {
+  getCurrentSearch() {
     return this.params().q;
   }
 

@@ -7,7 +7,6 @@ import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import icon from '../../common/helpers/icon';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
-import SearchState from '../states/SearchState';
 
 /**
  * The `Search` component displays a menu of as-you-type results from a variety
@@ -31,7 +30,7 @@ export default class Search extends Component {
      *
      * @type {Function}
      */
-    this.value = m.prop(this.getCurrentSearch() || '');
+    this.value = m.prop(this.state.getCurrentSearch() || '');
 
     /**
      * Whether or not the search input has focus.
@@ -66,7 +65,7 @@ export default class Search extends Component {
   }
 
   view() {
-    const currentSearch = this.getCurrentSearch();
+    const currentSearch = this.state.getCurrentSearch();
 
     // Initialize search sources in the view rather than the constructor so
     // that we have access to app.forum.
@@ -181,15 +180,6 @@ export default class Search extends Component {
   }
 
   /**
-   * Get the active search in the app's current controller.
-   *
-   * @return {String}
-   */
-  getCurrentSearch() {
-    return this.state.searching();
-  }
-
-  /**
    * Navigate to the currently selected search result and close the list.
    */
   selectResult() {
@@ -211,7 +201,7 @@ export default class Search extends Component {
   clear() {
     this.value('');
 
-    if (this.getCurrentSearch()) {
+    if (this.state.getCurrentSearch()) {
       app.search.clearSearch();
     } else {
       m.redraw();
