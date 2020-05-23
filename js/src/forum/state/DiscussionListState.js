@@ -66,6 +66,7 @@ export default class DiscussionListState {
    */
   clear() {
     this.discussions = [];
+    m.redraw();
   }
 
   /**
@@ -74,7 +75,7 @@ export default class DiscussionListState {
   refresh(clear = true) {
     if (clear) {
       this.loading = true;
-      this.clear();
+      this.discussions = [];
     }
 
     return this.loadResults().then(
@@ -140,6 +141,8 @@ export default class DiscussionListState {
     if (index !== -1) {
       this.discussions.splice(index, 1);
     }
+
+    m.redraw();
   }
 
   /**
