@@ -150,6 +150,7 @@ export default class DiscussionListState {
    */
   addDiscussion(discussion) {
     this.discussions.unshift(discussion);
+    m.redraw();
   }
 
   /**
