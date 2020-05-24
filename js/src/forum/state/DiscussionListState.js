@@ -72,7 +72,7 @@ export default class DiscussionListState {
     }
 
     if (params) {
-      this.params = params
+      this.params = params;
     }
 
     return this.loadResults().then(
