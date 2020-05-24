@@ -44,6 +44,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.api.middleware', function () {
             return [
+                'flarum.api.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
@@ -55,14 +56,16 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('flarum.api.handler', function () {
-            $pipe = new MiddlewarePipe;
-
-            $pipe->pipe(new HttpMiddleware\HandleErrors(
+        $this->app->bind('flarum.api.error_handler', function () {
+            return new HttpMiddleware\HandleErrors(
                 $this->app->make(Registry::class),
                 new JsonApiFormatter($this->app['flarum']->inDebugMode()),
                 $this->app->tagged(Reporter::class)
-            ));
+            );
+        });
+
+        $this->app->singleton('flarum.api.handler', function () {
+            $pipe = new MiddlewarePipe;
 
             foreach ($this->app->make('flarum.api.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
