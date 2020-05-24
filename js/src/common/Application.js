@@ -211,11 +211,7 @@ export default class Application {
   }
 
   updateTitle() {
-    if (m.route() == '/') {
-      document.title = this.forum.attribute('title');
-    } else {
-      document.title = (this.titleCount ? `(${this.titleCount}) ` : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
-    }
+    document.title = (this.titleCount ? `(${this.titleCount}) ` : '') + (this.title && m.route() !== '/' ? this.title + ' - ' : '') + this.forum.attribute('title');
   }
 
   /**
