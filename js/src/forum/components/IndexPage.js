@@ -52,7 +52,7 @@ export default class IndexPage extends Page {
     }
 
     if (!app.cache.discussionList.hasDiscussions()) {
-      app.cache.discussionList.setParams(params);
+      app.cache.discussionList.refresh(true, params);
     }
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));

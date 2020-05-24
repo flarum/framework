@@ -48,15 +48,6 @@ export default class DiscussionListState {
   }
 
   /**
-   * Set the search parameters.
-   */
-  setParams(params) {
-    this.params = params;
-
-    this.refresh();
-  }
-
-  /**
    * Get the search parameters.
    */
   getParams() {
@@ -74,10 +65,14 @@ export default class DiscussionListState {
   /**
    * Clear and reload the discussion list.
    */
-  refresh(clear = true) {
+  refresh(clear = true, params) {
     if (clear) {
       this.loading = true;
       this.discussions = [];
+    }
+
+    if (params) {
+      this.params = params
     }
 
     return this.loadResults().then(
