@@ -165,14 +165,6 @@ class User extends AbstractModel
     }
 
     /**
-     * @return Gate
-     */
-    public static function getGate()
-    {
-        return static::$gate;
-    }
-
-    /**
      * @param Gate $gate
      */
     public static function setGate($gate)
@@ -708,7 +700,7 @@ class User extends AbstractModel
      */
     public function can($ability, $arguments = [])
     {
-        return static::$gate->forUser($this)->allows($ability, $arguments);
+        return static::$gate->allows($this, $ability, $arguments);
     }
 
     /**
