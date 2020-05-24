@@ -24,10 +24,10 @@ class DiscussionSerializer extends BasicDiscussionSerializer
             'createdAt'         => $this->formatDate($discussion->created_at),
             'lastPostedAt'      => $this->formatDate($discussion->last_posted_at),
             'lastPostNumber'    => (int) $discussion->last_post_number,
-            'canReply'          => $this->user->can('reply', $discussion),
-            'canRename'         => $this->user->can('rename', $discussion),
-            'canDelete'         => $this->user->can('delete', $discussion),
-            'canHide'           => $this->user->can('hide', $discussion)
+            'canReply'          => $this->actor->can('reply', $discussion),
+            'canRename'         => $this->actor->can('rename', $discussion),
+            'canDelete'         => $this->actor->can('delete', $discussion),
+            'canHide'           => $this->actor->can('hide', $discussion)
         ];
 
         if ($discussion->hidden_at) {

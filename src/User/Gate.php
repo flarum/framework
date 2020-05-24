@@ -17,7 +17,7 @@ class Gate
     /**
      * @var Dispatcher
      */
-    protected static $events;
+    protected $events;
 
     /**
      * @param Dispatcher $events

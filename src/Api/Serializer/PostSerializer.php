@@ -22,13 +22,13 @@ class PostSerializer extends BasicPostSerializer
 
         unset($attributes['content']);
 
-        $canEdit = $this->user->can('edit', $post);
+        $canEdit = $this->actor->can('edit', $post);
 
         if ($post instanceof CommentPost) {
             if ($canEdit) {
                 $attributes['content'] = $post->content;
             }
-            if ($this->user->can('viewIps', $post)) {
+            if ($this->actor->can('viewIps', $post)) {
                 $attributes['ipAddress'] = $post->ip_address;
             }
         } else {
@@ -46,8 +46,8 @@ class PostSerializer extends BasicPostSerializer
 
         $attributes += [
             'canEdit'   => $canEdit,
-            'canDelete' => $this->user->can('delete', $post),
-            'canHide'   => $this->user->can('hide', $post)
+            'canDelete' => $this->actor->can('delete', $post),
+            'canHide'   => $this->actor->can('hide', $post)
         ];
 
         return $attributes;

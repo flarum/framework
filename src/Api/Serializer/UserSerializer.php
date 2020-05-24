@@ -19,14 +19,14 @@ class UserSerializer extends BasicUserSerializer
     {
         $attributes = parent::getDefaultAttributes($user);
 
-        $canEdit = $this->user->can('edit', $user);
+        $canEdit = $this->actor->can('edit', $user);
 
         $attributes += [
             'joinTime'         => $this->formatDate($user->joined_at),
             'discussionCount'  => (int) $user->discussion_count,
             'commentCount'     => (int) $user->comment_count,
             'canEdit'          => $canEdit,
-            'canDelete'        => $this->user->can('delete', $user),
+            'canDelete'        => $this->actor->can('delete', $user),
         ];
 
         if ($user->getPreference('discloseOnline') || $this->actor->can('viewLastSeenAt', $user)) {
