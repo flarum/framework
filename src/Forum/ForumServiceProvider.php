@@ -58,6 +58,7 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.forum.middleware', function () {
             return [
+                'flarum.forum.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\CollectGarbage::class,
                 HttpMiddleware\StartSession::class,
@@ -69,15 +70,16 @@ class ForumServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('flarum.forum.handler', function () {
-            $pipe = new MiddlewarePipe;
-
-            // All requests should first be piped through our global error handler
-            $pipe->pipe(new HttpMiddleware\HandleErrors(
+        $this->app->bind('flarum.forum.error_handler', function () {
+            return new HttpMiddleware\HandleErrors(
                 $this->app->make(Registry::class),
                 $this->app['flarum']->inDebugMode() ? $this->app->make(WhoopsFormatter::class) : $this->app->make(ViewFormatter::class),
                 $this->app->tagged(Reporter::class)
-            ));
+            );
+        });
+
+        $this->app->singleton('flarum.forum.handler', function () {
+            $pipe = new MiddlewarePipe;
 
             foreach ($this->app->make('flarum.forum.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));

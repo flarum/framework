@@ -49,6 +49,7 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.admin.middleware', function () {
             return [
+                'flarum.admin.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
@@ -59,15 +60,16 @@ class AdminServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('flarum.admin.handler', function () {
-            $pipe = new MiddlewarePipe;
-
-            // All requests should first be piped through our global error handler
-            $pipe->pipe(new HttpMiddleware\HandleErrors(
+        $this->app->bind('flarum.admin.error_handler', function () {
+            return new HttpMiddleware\HandleErrors(
                 $this->app->make(Registry::class),
                 $this->app['flarum']->inDebugMode() ? $this->app->make(WhoopsFormatter::class) : $this->app->make(ViewFormatter::class),
                 $this->app->tagged(Reporter::class)
-            ));
+            );
+        });
+
+        $this->app->singleton('flarum.admin.handler', function () {
+            $pipe = new MiddlewarePipe;
 
             foreach ($this->app->make('flarum.admin.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
