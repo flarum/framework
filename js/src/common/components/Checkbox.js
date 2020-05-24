@@ -10,23 +10,16 @@ import icon from '../helpers/icon';
  * - `state` Whether or not the checkbox is checked.
  * - `className` The class name for the root element.
  * - `disabled` Whether or not the checkbox is disabled.
+ * - `loading` Whether or not the checkbox is loading.
  * - `onchange` A callback to run when the checkbox is checked/unchecked.
  * - `children` A text label to display next to the checkbox.
  */
 export default class Checkbox extends Component {
-  init() {
-    /**
-     * Whether or not the checkbox's value is in the process of being saved.
-     *
-     * @type {Boolean}
-     * @public
-     */
-    this.loading = false;
-  }
+  init() {}
 
   view() {
     let className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
-    if (this.loading) className += ' loading';
+    if (this.props.loading) className += ' loading';
     if (this.props.disabled) className += ' disabled';
 
     return (
@@ -45,7 +38,7 @@ export default class Checkbox extends Component {
    * @protected
    */
   getDisplay() {
-    return this.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'fas fa-check' : 'fas fa-times');
+    return this.props.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'fas fa-check' : 'fas fa-times');
   }
 
   /**

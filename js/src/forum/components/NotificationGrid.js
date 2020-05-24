@@ -21,12 +21,11 @@ export default class NotificationGrid extends Component {
     this.methods = this.notificationMethods().toArray();
 
     /**
-     * A map of notification type-method combinations to the checkbox instances
-     * that represent them.
+     * A map of which notification checkboxes are loading.
      *
      * @type {Object}
      */
-    this.inputs = {};
+    this.loadingState = {};
 
     /**
      * Information about the available notification types.
@@ -34,24 +33,10 @@ export default class NotificationGrid extends Component {
      * @type {Array}
      */
     this.types = this.notificationTypes().toArray();
-
-    // For each of the notification type-method combinations, create and store a
-    // new checkbox component instance, which we will render in the view.
-    this.types.forEach((type) => {
-      this.methods.forEach((method) => {
-        const key = this.preferenceKey(type.name, method.name);
-        const preference = this.props.user.preferences()[key];
-
-        this.inputs[key] = new Checkbox({
-          state: !!preference,
-          disabled: typeof preference === 'undefined',
-          onchange: () => this.toggle([key]),
-        });
-      });
-    });
   }
 
   view() {
+    console.log('hi');
     return (
       <table className="NotificationGrid">
         <thead>
@@ -72,7 +57,14 @@ export default class NotificationGrid extends Component {
                 {icon(type.icon)} {type.label}
               </td>
               {this.methods.map((method) => (
-                <td className="NotificationGrid-checkbox">{this.inputs[this.preferenceKey(type.name, method.name)].render()}</td>
+                <td className="NotificationGrid-checkbox">
+                  {Checkbox.component({
+                    state: !!this.props.user.preferences()[this.preferenceKey(type.name, method.name)],
+                    loading: this.loadingState[this.preferenceKey(type.name, method.name)],
+                    disabled: !(this.preferenceKey(type.name, method.name) in this.props.user.preferences()),
+                    onchange: () => this.toggle([this.preferenceKey(type.name, method.name)]),
+                  })}
+                </td>
               ))}
             </tr>
           ))}
@@ -112,16 +104,14 @@ export default class NotificationGrid extends Component {
     const enabled = !preferences[keys[0]];
 
     keys.forEach((key) => {
-      const control = this.inputs[key];
-
-      control.loading = true;
-      preferences[key] = control.props.state = enabled;
+      this.loadingState[key] = true;
+      preferences[key] = enabled;
     });
 
     m.redraw();
 
     user.save({ preferences }).then(() => {
-      keys.forEach((key) => (this.inputs[key].loading = false));
+      keys.forEach((key) => (this.loadingState[key] = false));
 
       m.redraw();
     });
@@ -133,7 +123,7 @@ export default class NotificationGrid extends Component {
    * @param {String} method
    */
   toggleMethod(method) {
-    const keys = this.types.map((type) => this.preferenceKey(type.name, method)).filter((key) => !this.inputs[key].props.disabled);
+    const keys = this.types.map((type) => this.preferenceKey(type.name, method)).filter((key) => key in this.props.user.preferences());
 
     this.toggle(keys);
   }
@@ -144,7 +134,7 @@ export default class NotificationGrid extends Component {
    * @param {String} type
    */
   toggleType(type) {
-    const keys = this.methods.map((method) => this.preferenceKey(type, method.name)).filter((key) => !this.inputs[key].props.disabled);
+    const keys = this.methods.map((method) => this.preferenceKey(type, method.name)).filter((key) => key in this.props.user.preferences());
 
     this.toggle(keys);
   }
