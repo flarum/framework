@@ -33,11 +33,7 @@ export default class CommentPost extends Post {
 
     // Create an instance of the component that displays the post's author so
     // that we can force the post to rerender when the user card is shown.
-    this.postUser = new PostUser({ post: this.props.post });
-    this.subtree.check(
-      () => this.postUser.cardVisible,
-      () => this.isEditing()
-    );
+    this.subtree.check(() => this.isEditing());
   }
 
   content() {
@@ -131,7 +127,7 @@ export default class CommentPost extends Post {
     const post = this.props.post;
     const props = { post };
 
-    items.add('user', this.postUser.render(), 100);
+    items.add('user', PostUser.component({ post: this.props.post }), 100);
     items.add('meta', PostMeta.component(props));
 
     if (post.isEdited() && !post.isHidden()) {
