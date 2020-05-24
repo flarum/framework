@@ -36,7 +36,6 @@ export default class NotificationGrid extends Component {
   }
 
   view() {
-    console.log('hi');
     return (
       <table className="NotificationGrid">
         <thead>
