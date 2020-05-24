@@ -14,6 +14,7 @@ import routes from './routes';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
+import NotificationListState from './states/NotificationListState';
 
 export default class ForumApplication extends Application {
   /**
@@ -62,6 +63,13 @@ export default class ForumApplication extends Application {
    * @type {History}
    */
   history = new History();
+
+  /**
+   * An object which controls the state of the user's notifications.
+   *
+   * @type {NotificationListState}
+   */
+  notifications = new NotificationListState();
 
   constructor() {
     super();

@@ -10,23 +10,11 @@ import Discussion from '../../common/models/Discussion';
  */
 export default class NotificationList extends Component {
   init() {
-    /**
-     * Whether or not the notifications are loading.
-     *
-     * @type {Boolean}
-     */
-    this.loading = false;
-
-    /**
-     * Whether or not there are more results that can be loaded.
-     *
-     * @type {Boolean}
-     */
-    this.moreResults = false;
+    this.state = this.props.state;
   }
 
   view() {
-    const pages = app.cache.notifications || [];
+    const pages = this.state.getNotificationPages();
 
     return (
       <div className="NotificationList">
@@ -36,7 +24,7 @@ export default class NotificationList extends Component {
               className: 'Button Button--icon Button--link',
               icon: 'fas fa-check',
               title: app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip'),
-              onclick: this.markAllAsRead.bind(this),
+              onclick: this.state.markAllAsRead.bind(this.state),
             })}
           </div>
 
@@ -97,7 +85,7 @@ export default class NotificationList extends Component {
                 });
               })
             : ''}
-          {this.loading ? (
+          {this.state.isLoading() ? (
             <LoadingIndicator className="LoadingIndicator--block" />
           ) : pages.length ? (
             ''
@@ -121,8 +109,8 @@ export default class NotificationList extends Component {
       const contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
       const contentHeight = $notifications[0].scrollHeight;
 
-      if (this.moreResults && !this.loading && scrollTop + viewportHeight >= contentTop + contentHeight) {
-        this.loadMore();
+      if (this.state.hasMoreResults() && !this.state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
+        this.state.loadMore();
       }
     };
 
@@ -131,78 +119,5 @@ export default class NotificationList extends Component {
     context.onunload = () => {
       $scrollParent.off('scroll', scrollHandler);
     };
-  }
-
-  /**
-   * Load notifications into the application's cache if they haven't already
-   * been loaded.
-   */
-  load() {
-    if (app.session.user.newNotificationCount()) {
-      delete app.cache.notifications;
-    }
-
-    if (app.cache.notifications) {
-      return;
-    }
-
-    app.session.user.pushAttributes({ newNotificationCount: 0 });
-
-    this.loadMore();
-  }
-
-  /**
-   * Load the next page of notification results.
-   *
-   * @public
-   */
-  loadMore() {
-    this.loading = true;
-    m.redraw();
-
-    const params = app.cache.notifications ? { page: { offset: app.cache.notifications.length * 10 } } : null;
-
-    return app.store
-      .find('notifications', params)
-      .then(this.parseResults.bind(this))
-      .catch(() => {})
-      .then(() => {
-        this.loading = false;
-        m.redraw();
-      });
-  }
-
-  /**
-   * Parse results and append them to the notification list.
-   *
-   * @param {Notification[]} results
-   * @return {Notification[]}
-   */
-  parseResults(results) {
-    app.cache.notifications = app.cache.notifications || [];
-
-    if (results.length) app.cache.notifications.push(results);
-
-    this.moreResults = !!results.payload.links.next;
-
-    return results;
-  }
-
-  /**
-   * Mark all of the notifications as read.
-   */
-  markAllAsRead() {
-    if (!app.cache.notifications) return;
-
-    app.session.user.pushAttributes({ unreadNotificationCount: 0 });
-
-    app.cache.notifications.forEach((notifications) => {
-      notifications.forEach((notification) => notification.pushAttributes({ isRead: true }));
-    });
-
-    app.request({
-      url: app.forum.attribute('apiUrl') + '/notifications/read',
-      method: 'POST',
-    });
   }
 }

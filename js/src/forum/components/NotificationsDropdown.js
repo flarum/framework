@@ -15,8 +15,6 @@ export default class NotificationsDropdown extends Dropdown {
 
   init() {
     super.init();
-
-    this.list = new NotificationList();
   }
 
   getButton() {
@@ -44,7 +42,7 @@ export default class NotificationsDropdown extends Dropdown {
   getMenu() {
     return (
       <div className={'Dropdown-menu ' + this.props.menuClassName} onclick={this.menuClick.bind(this)}>
-        {this.showing ? this.list.render() : ''}
+        {this.showing ? NotificationList.component({ state: this.props.state }) : ''}
       </div>
     );
   }
@@ -53,7 +51,7 @@ export default class NotificationsDropdown extends Dropdown {
     if (app.drawer.isOpen()) {
       this.goToRoute();
     } else {
-      this.list.load();
+      this.props.state.load();
     }
   }
 
