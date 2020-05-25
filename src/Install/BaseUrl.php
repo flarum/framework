@@ -71,8 +71,10 @@ final class BaseUrl
             $path = substr($parseUrl['path'], 0, strrpos($parseUrl['path'], '/'));
         }
 
+        $port = isset($parseUrl['port']) ? ':'.$parseUrl['port'] : '';
+
         return rtrim(
-            sprintf('%s://%s%s', $parseUrl['scheme'], $parseUrl['host'], $path),
+            sprintf('%s://%s%s%s', $parseUrl['scheme'], $parseUrl['host'], $port, $path),
             '/'
         );
     }
