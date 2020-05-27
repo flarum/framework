@@ -182,10 +182,17 @@ export default class Search extends Component {
     if (this.state.getValue()) {
       m.route(this.getItem(this.index).find('a').attr('href'));
     } else {
-      this.state.clear();
+      this.clear();
     }
 
     this.$('input').blur();
+  }
+
+  /**
+   * Clear the search
+   */
+  clear() {
+    this.clear();
   }
 
   /**
@@ -235,19 +242,6 @@ export default class Search extends Component {
     }
 
     return $item;
-  }
-
-  /**
-   * Clear the search input and the current controller's active search.
-   */
-  clear() {
-    this.state.setValue('');
-
-    if (this.state.getCurrentSearch()) {
-      this.state.clearCurrentSearch();
-    } else {
-      m.redraw();
-    }
   }
 
   /**

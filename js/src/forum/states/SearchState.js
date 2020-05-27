@@ -71,6 +71,19 @@ export default class SearchState {
   }
 
   /**
+   * Clear the search input and the current controller's active search.
+   */
+  clear() {
+    this.setValue('');
+
+    if (this.getCurrentSearch()) {
+      this.clearCurrentSearch();
+    } else {
+      m.redraw();
+    }
+  }
+
+  /**
    * Redirect to the index page without a search filter. This is called when the
    * 'x' is clicked in the search box in the header.
    *
