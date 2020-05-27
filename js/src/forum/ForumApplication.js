@@ -76,12 +76,14 @@ export default class ForumApplication extends Application {
   /*
    * @inheritdoc
    */
-  discussionList = new DiscussionListState();
+  discussionList;
 
   constructor() {
     super();
 
     routes(this);
+
+    this.discussionList = new DiscussionListState({ forumApp: this });
 
     // Deprecated, remove in beta 15. BC layer.
     this.cache.discussionList = this.discussionList;

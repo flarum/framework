@@ -1,6 +1,8 @@
 export default class DiscussionListState {
-  constructor({ params = {} } = {}) {
+  constructor({ params = {}, forumApp = app } = {}) {
     this.params = params;
+
+    this.app = forumApp;
 
     this.discussions = [];
 
@@ -94,7 +96,7 @@ export default class DiscussionListState {
    * @param offset The index to start the page at.
    */
   loadResults(offset) {
-    const preloadedDiscussions = app.preloadedApiDocument();
+    const preloadedDiscussions = this.app.preloadedApiDocument();
 
     if (preloadedDiscussions) {
       return Promise.resolve(preloadedDiscussions);
@@ -104,7 +106,7 @@ export default class DiscussionListState {
     params.page = { offset };
     params.include = params.include.join(',');
 
-    return app.store.find('discussions', params);
+    return this.app.store.find('discussions', params);
   }
 
   /**
