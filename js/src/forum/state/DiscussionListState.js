@@ -69,7 +69,7 @@ export default class DiscussionListState {
     this.loading = true;
 
     if (clear) {
-      this.discussions = [];
+      this.clear();
     }
 
     if (params) {
