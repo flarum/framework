@@ -48,7 +48,7 @@ class PathsTest extends TestCase
             'storage' => '/var/www/flarum/storage',
         ]);
 
-        $this->assertEquals('/var/www/flarum'.DIRECTORY_SEPARATOR.'vendor', $paths->vendor);
+        $this->assertEquals('/var/www/flarum/vendor', $paths->vendor);
     }
 
     /** @test */

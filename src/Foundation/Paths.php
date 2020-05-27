@@ -34,7 +34,7 @@ class Paths
         }, $paths);
 
         // Assume a standard Composer directory structure unless specified
-        $this->paths['vendor'] = $this->vendor ?? $this->base.DIRECTORY_SEPARATOR.'vendor';
+        $this->paths['vendor'] = $this->vendor ?? $this->base.'/vendor';
     }
 
     public function __get($name): ?string
