@@ -66,8 +66,9 @@ export default class DiscussionListState {
    * Clear and reload the discussion list.
    */
   refresh(clear = true, params) {
+    this.loading = true;
+
     if (clear) {
-      this.loading = true;
       this.discussions = [];
     }
 
