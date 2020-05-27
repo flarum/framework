@@ -34,7 +34,7 @@ export default class DiscussionList extends Component {
       });
     }
 
-    if (state.hasDiscussions() && !state.isLoading()) {
+    if (!state.hasDiscussions() && !state.isLoading()) {
       const text = app.translator.trans('core.forum.discussion_list.empty_text');
       return <div className="DiscussionList">{Placeholder.component({ text })}</div>;
     }
