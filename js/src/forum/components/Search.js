@@ -192,7 +192,7 @@ export default class Search extends Component {
    * Clear the search
    */
   clear() {
-    this.clear();
+    this.state.clear();
   }
 
   /**
