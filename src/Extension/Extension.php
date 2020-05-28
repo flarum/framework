@@ -222,9 +222,10 @@ class Extension implements Arrayable
     }
 
     /**
-     * Get the list of flarum extensions that this extension depends on
+     * Get the list of flarum extensions that this extension depends on.
      */
-    public function getFlarumExtensionDependencies() {
+    public function getFlarumExtensionDependencies()
+    {
         return Arr::get($this->composerJson, 'extra.flarum-extension.dependencies.extensions', []);
     }
 

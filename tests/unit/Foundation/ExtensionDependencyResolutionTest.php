@@ -28,7 +28,6 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->circular2 = new FakeExtension('circular2', ['circular1']);
     }
 
-
     /** @test */
     public function works_with_empty_set()
     {
