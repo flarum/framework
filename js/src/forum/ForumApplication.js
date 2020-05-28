@@ -69,7 +69,7 @@ export default class ForumApplication extends Application {
    *
    * @type {NotificationListState}
    */
-  notifications = new NotificationListState();
+  notifications = new NotificationListState(this);
 
   constructor() {
     super();
