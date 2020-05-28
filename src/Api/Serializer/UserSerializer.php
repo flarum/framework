@@ -9,23 +9,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\User\Gate;
-
 class UserSerializer extends BasicUserSerializer
 {
-    /**
-     * @var \Flarum\User\Gate
-     */
-    protected $gate;
-
-    /**
-     * @param Gate $gate
-     */
-    public function __construct(Gate $gate)
-    {
-        $this->gate = $gate;
-    }
-
     /**
      * @param \Flarum\User\User $user
      * @return array
@@ -34,16 +19,14 @@ class UserSerializer extends BasicUserSerializer
     {
         $attributes = parent::getDefaultAttributes($user);
 
-        $gate = $this->gate->forUser($this->actor);
-
-        $canEdit = $gate->allows('edit', $user);
+        $canEdit = $this->actor->can('edit', $user);
 
         $attributes += [
             'joinTime'         => $this->formatDate($user->joined_at),
             'discussionCount'  => (int) $user->discussion_count,
             'commentCount'     => (int) $user->comment_count,
             'canEdit'          => $canEdit,
-            'canDelete'        => $gate->allows('delete', $user),
+            'canDelete'        => $this->actor->can('delete', $user),
         ];
 
         if ($user->getPreference('discloseOnline') || $this->actor->can('viewLastSeenAt', $user)) {
