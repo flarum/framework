@@ -325,7 +325,9 @@ class ExtensionManager
      */
     public function extend(Container $app)
     {
-        foreach ($this->getEnabledExtensions() as $extension) {
+        $enabled = static::resolveExtensionOrder($this->getEnabledExtensions());
+
+        foreach ($enabled['valid'] as $extension) {
             $extension->extend($app);
         }
     }
