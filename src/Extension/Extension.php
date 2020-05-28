@@ -221,6 +221,13 @@ class Extension implements Arrayable
         return $icon;
     }
 
+    /**
+     * Get the list of flarum extensions that this extension depends on
+     */
+    public function getFlarumExtensionDependencies() {
+        return $this->composerJsonAttribute('extra.flarum-extension.dependencies.extensions');
+    }
+
     public function enable(Container $container)
     {
         foreach ($this->getLifecycleExtenders() as $extender) {
@@ -363,12 +370,13 @@ class Extension implements Arrayable
     public function toArray()
     {
         return (array) array_merge([
-            'id'            => $this->getId(),
-            'version'       => $this->getVersion(),
-            'path'          => $this->path,
-            'icon'          => $this->getIcon(),
-            'hasAssets'     => $this->hasAssets(),
-            'hasMigrations' => $this->hasMigrations(),
+            'id'                    => $this->getId(),
+            'version'               => $this->getVersion(),
+            'path'                  => $this->path,
+            'icon'                  => $this->getIcon(),
+            'hasAssets'             => $this->hasAssets(),
+            'hasMigrations'         => $this->hasMigrations(),
+            'extensionDependencies' => $this->getFlarumExtensionDependencies(),
         ], $this->composerJson);
     }
 }
