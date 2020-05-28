@@ -8,6 +8,10 @@ class ModalManagerState {
     this.clear();
   }
 
+  getModal() {
+    return this.modal;
+  }
+
   /**
    * Show a modal dialog.
    *
@@ -67,6 +71,8 @@ class ModalManagerState {
     this.modalOnReady = () => {};
 
     this.showing = false;
+
+    this.modalDismissible = null; // Overriden in init methods of
 
     m.lazyRedraw();
   }
