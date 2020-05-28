@@ -1,5 +1,7 @@
 export default class NotificationListState {
-  constructor() {
+  constructor(app) {
+    this.app = app;
+
     this.notificationPages = [];
 
     /**
@@ -34,7 +36,7 @@ export default class NotificationListState {
    * been loaded.
    */
   load() {
-    if (app.session.user.newNotificationCount()) {
+    if (this.app.session.user.newNotificationCount()) {
       this.notificationPages = [];
     }
 
@@ -42,7 +44,7 @@ export default class NotificationListState {
       return;
     }
 
-    app.session.user.pushAttributes({ newNotificationCount: 0 });
+    this.app.session.user.pushAttributes({ newNotificationCount: 0 });
 
     this.loadMore();
   }
@@ -58,7 +60,7 @@ export default class NotificationListState {
 
     const params = this.notificationPages.length > 0 ? { page: { offset: this.notificationPages.length * 10 } } : null;
 
-    return app.store
+    return this.app.store
       .find('notifications', params)
       .then(this.parseResults.bind(this))
       .catch(() => {})
@@ -88,14 +90,14 @@ export default class NotificationListState {
   markAllAsRead() {
     if (this.notificationPages.length === 0) return;
 
-    app.session.user.pushAttributes({ unreadNotificationCount: 0 });
+    this.app.session.user.pushAttributes({ unreadNotificationCount: 0 });
 
     this.notificationPages.forEach((notifications) => {
       notifications.forEach((notification) => notification.pushAttributes({ isRead: true }));
     });
 
-    app.request({
-      url: app.forum.attribute('apiUrl') + '/notifications/read',
+    this.app.request({
+      url: this.app.forum.attribute('apiUrl') + '/notifications/read',
       method: 'POST',
     });
   }
