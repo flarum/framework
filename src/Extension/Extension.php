@@ -225,7 +225,7 @@ class Extension implements Arrayable
      * Get the list of flarum extensions that this extension depends on
      */
     public function getFlarumExtensionDependencies() {
-        return $this->composerJsonAttribute('extra.flarum-extension.dependencies.extensions');
+        return Arr::get($this->composerJson, 'extra.flarum-extension.dependencies.extensions', []);
     }
 
     public function enable(Container $container)
