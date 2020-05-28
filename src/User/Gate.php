@@ -44,7 +44,7 @@ class Gate
             new GetPermission($actor, $ability, $arguments)
         );
 
-        if (!is_null($allowed)) {
+        if (! is_null($allowed)) {
             return $allowed;
         }
 

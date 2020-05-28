@@ -21,7 +21,6 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Support\Arr;
 use League\Flysystem\FilesystemInterface;
-use RuntimeException;
 
 class UserServiceProvider extends AbstractServiceProvider
 {
