@@ -3,14 +3,18 @@ export default class AlertManagerState {
     this.activeAlerts = {};
   }
 
+  getActiveAlerts() {
+    return this.activeAlerts;
+  }
+
   /**
    * Show an Alert in the alerts area.
    */
-  show(state) {
-    this.activeAlerts[state.key] = state;
+  show(alert) {
+    this.activeAlerts[alert.getKey()] = state;
     m.redraw();
 
-    return state.key;
+    return alert.getKey();
   }
 
   /**

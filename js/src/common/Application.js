@@ -317,7 +317,7 @@ export default class Application {
       }
     };
 
-    if (this.requestError) this.alerts.dismiss(this.requestError.alert.key);
+    if (this.requestError) this.alerts.dismiss(this.requestError.alert.getKey());
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
@@ -401,7 +401,7 @@ export default class Application {
    * @private
    */
   showDebug(error, formattedError) {
-    this.alerts.dismiss(this.requestError.alert.key);
+    this.alerts.dismiss(this.requestError.alert.getKey());
 
     this.modal.show(new RequestErrorModal({ error, formattedError }));
   }
