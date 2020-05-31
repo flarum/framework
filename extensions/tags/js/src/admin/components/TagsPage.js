@@ -1,4 +1,4 @@
-import sortable from 'html5sortable/dist/html5sortable.es.js';
+import sortable from 'sortablejs';
 
 import Page from 'flarum/components/Page';
 import Button from 'flarum/components/Button';
@@ -21,7 +21,7 @@ function tagItem(tag) {
         })}
       </div>
       {!tag.isChild() && tag.position() !== null ? (
-        <ol className="TagListItem-children">
+        <ol className="TagListItem-children TagList">
           {sortTags(app.store.all('tags'))
             .filter(child => child.parent() === tag)
             .map(tagItem)}
@@ -80,18 +80,24 @@ export default class TagsPage extends Page {
   }
 
   config() {
-    sortable(this.$('ol, ul'), {
-      acceptFrom: 'ol,ul'
-    }).forEach(this.onSortUpdate.bind(this));
+      this.$('.TagList').get().map(e => {
+          sortable.create(e, {
+              group: 'tags',
+              animation: 150,
+              swapThreshold: 0.65,
+	            dragClass: 'sortable-dragging',
+              ghostClass: 'sortable-placeholder',
+              onSort: (e) => this.onSortUpdate(e)
+          })
+      });
   }
 
-  onSortUpdate(el) {
-    el.addEventListener('sortupdate', (e) => {
+  onSortUpdate(e) {
       // If we've moved a tag from 'primary' to 'secondary', then we'll update
       // its attributes in our local store so that when we redraw the change
       // will be made.
-      if (e.detail.origin.container instanceof HTMLOListElement && e.detail.destination.container instanceof HTMLUListElement) {
-        app.store.getById('tags', e.detail.item.getAttribute('data-id')).pushData({
+      if (e.from instanceof HTMLOListElement && e.to instanceof HTMLUListElement) {
+        app.store.getById('tags', e.item.getAttribute('data-id')).pushData({
           attributes: {
             position: null,
             isChild: false
@@ -148,6 +154,5 @@ export default class TagsPage extends Page {
       // we force a full reconstruction of the DOM.
       m.redraw.strategy('all');
       m.redraw();
-    });
   }
 }
