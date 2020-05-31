@@ -180,7 +180,7 @@ export default class MailPage extends Page {
       .then((response) => {
         this.sendingTest = false;
         app.alerts.show(
-          (this.testEmailSuccessAlert = new Alert( {type: 'success', children: app.translator.trans('core.admin.email.send_test_mail_success') }))
+          (this.testEmailSuccessAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.email.send_test_mail_success') }))
         );
       })
       .catch((error) => {
