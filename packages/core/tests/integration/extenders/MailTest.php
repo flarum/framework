@@ -40,7 +40,7 @@ class MailTest extends TestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->request('GET', '/api/mail-settings', [
+            $this->request('GET', '/api/mail/settings', [
                 'authenticatedAs' => 1,
             ])
         );
@@ -73,7 +73,7 @@ class MailTest extends TestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->request('GET', '/api/mail-settings', [
+            $this->request('GET', '/api/mail/settings', [
                 'authenticatedAs' => 1,
             ])
         );
@@ -97,7 +97,7 @@ class MailTest extends TestCase
         $this->prepDb();
 
         $response = $this->send(
-            $this->request('GET', '/api/mail-settings', [
+            $this->request('GET', '/api/mail/settings', [
                 'authenticatedAs' => 1,
             ])
         );
