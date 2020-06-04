@@ -113,7 +113,7 @@ class ExtensionEnableCommand extends AbstractCommand
             $extensionIds = $this->allExtensions();
         } elseif ($this->input->getOption('include-bundled')) {
             $extensionIds = array_merge($extensionIds, array_filter($this->allExtensions(), function ($extension) use ($extensionIds) {
-                if (substr($extension, 0, 6) !== 'flarum' && ! in_array($extension, $extensionIds)) {
+                if (substr($extension, 0, 7) !== 'flarum-' && ! in_array($extension, $extensionIds)) {
                     $this->info("Extension: $extension is not bundled and not explicitly specified, ignoring");
 
                     return false;
