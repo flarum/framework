@@ -9,6 +9,7 @@
 
 namespace Flarum\Http;
 
+use Dflydev\FigCookies\Modifier\SameSite;
 use Dflydev\FigCookies\SetCookie;
 use Flarum\Foundation\Application;
 use Illuminate\Support\Arr;
@@ -44,6 +45,13 @@ class CookieFactory
     protected $secure;
 
     /**
+     * Same Site cookie value.
+     *
+     * @var string
+     */
+    protected $samesite;
+
+    /**
      * @param Application $app
      */
     public function __construct(Application $app)
@@ -56,6 +64,7 @@ class CookieFactory
         $this->path = $app->config('cookie.path', Arr::get($url, 'path') ?: '/');
         $this->domain = $app->config('cookie.domain');
         $this->secure = $app->config('cookie.secure', Arr::get($url, 'scheme') === 'https');
+        $this->samesite = $app->config('cookie.samesite');
     }
 
     /**
@@ -84,6 +93,9 @@ class CookieFactory
         if ($this->domain != null) {
             $cookie = $cookie->withDomain($this->domain);
         }
+
+        // Explicitly set SameSite value, use sensible default if no value provided
+        $cookie = $cookie->withSameSite(SameSite::{$this->samesite ?? 'lax'}());
 
         return $cookie
             ->withPath($this->path)
