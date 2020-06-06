@@ -39,19 +39,19 @@ export default class IndexPage extends Page {
 
     const params = app.search.params();
 
+    // Compare the requested parameters (sort, search query) to the ones that
+    // are currently present in the cached discussion list. If they differ, we
+    // will clear the cache and update the parameters.
+    let clear = false;
     if (app.cache.discussionList.hasDiscussions()) {
-      // Compare the requested parameters (sort, search query) to the ones that
-      // are currently present in the cached discussion list. If they differ, we
-      // will clear the cache update the parameters.
-      Object.keys(params).some((key) => {
+      clear = Object.keys(params).some((key) => {
         if (app.cache.discussionList.getParams()[key] !== params[key]) {
-          app.cache.discussionList.clear();
           return true;
         }
       });
     }
 
-    if (!app.cache.discussionList.hasDiscussions()) {
+    if (!app.cache.discussionList.hasDiscussions() || clear) {
       app.cache.discussionList.refresh(true, params);
     }
 
