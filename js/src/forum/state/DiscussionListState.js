@@ -1,5 +1,7 @@
+import DiscussionList from '../components/DiscussionList';
+
 export default class DiscussionListState {
-  constructor({ params = {}, forumApp = app } = {}) {
+  constructor({ params = {}, forumApp = app, componentClass = DiscussionList } = {}) {
     this.params = params;
 
     this.app = forumApp;
@@ -9,6 +11,12 @@ export default class DiscussionListState {
     this.moreResults = false;
 
     this.loading = false;
+
+    this.componentClass = componentClass;
+  }
+
+  getComponentClass() {
+    return this.componentClass;
   }
 
   /**
