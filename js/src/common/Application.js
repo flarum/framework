@@ -21,6 +21,7 @@ import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
 import { flattenDeep } from 'lodash-es';
+import PageState from '../forum/states/PageState';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -114,6 +115,12 @@ export default class Application {
    * @private
    */
   requestError = null;
+
+  /**
+   * Initialize app current and app previous to null objects
+   */
+  current = new PageState(null);
+  previous = new PageState(null);
 
   data;
 
