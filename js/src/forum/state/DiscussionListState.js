@@ -75,7 +75,7 @@ export default class DiscussionListState {
   /**
    * Clear and reload the discussion list.
    */
-  refresh(clear = true, params) {
+  refresh(params, { clear = true } = {}) {
     this.loading = true;
 
     if (clear) {
