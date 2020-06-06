@@ -125,13 +125,12 @@ export default class CommentPost extends Post {
   headerItems() {
     const items = new ItemList();
     const post = this.props.post;
-    const props = { post };
 
-    items.add('user', PostUser.component({ post: this.props.post }), 100);
-    items.add('meta', PostMeta.component(props));
+    items.add('user', PostUser.component({ post }), 100);
+    items.add('meta', PostMeta.component({ post }));
 
     if (post.isEdited() && !post.isHidden()) {
-      items.add('edited', PostEdited.component(props));
+      items.add('edited', PostEdited.component({ post }));
     }
 
     // If the post is hidden, add a button that allows toggling the visibility
