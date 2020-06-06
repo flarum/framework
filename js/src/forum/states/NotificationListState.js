@@ -4,18 +4,8 @@ export default class NotificationListState {
 
     this.notificationPages = [];
 
-    /**
-     * Whether or not the notifications are loading.
-     *
-     * @type {Boolean}
-     */
     this.loading = false;
 
-    /**
-     * Whether or not there are more results that can be loaded.
-     *
-     * @type {Boolean}
-     */
     this.moreResults = false;
   }
 
