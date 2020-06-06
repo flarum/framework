@@ -31,8 +31,6 @@ export default class CommentPost extends Post {
      */
     this.revealContent = false;
 
-    // Create an instance of the component that displays the post's author so
-    // that we can force the post to rerender when the user card is shown.
     this.subtree.check(() => this.isEditing());
   }
 
