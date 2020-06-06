@@ -1,5 +1,5 @@
 import Component from '../../common/Component';
-import PageState from '../../forum/states/PageState';
+import PageState from '../states/PageState';
 
 /**
  * The `Page` component

@@ -1,11 +1,11 @@
-import Page from './Page';
+import ForumPage from './ForumPage';
 import NotificationList from './NotificationList';
 
 /**
  * The `NotificationsPage` component shows the notifications list. It is only
  * used on mobile devices where the notifications dropdown is within the drawer.
  */
-export default class NotificationsPage extends Page {
+export default class NotificationsPage extends ForumPage {
   init() {
     super.init();
 

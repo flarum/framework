@@ -1,4 +1,4 @@
-import Page from './Page';
+import ForumPage from './ForumPage';
 import ItemList from '../../common/utils/ItemList';
 import affixSidebar from '../utils/affixSidebar';
 import UserCard from './UserCard';
@@ -15,7 +15,7 @@ import listItems from '../../common/helpers/listItems';
  *
  * @abstract
  */
-export default class UserPage extends Page {
+export default class UserPage extends ForumPage {
   init() {
     super.init();
 

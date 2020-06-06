@@ -1,7 +1,7 @@
-import Page from '../../common/components/Page';
+import AdminPage from './AdminPage';
 import StatusWidget from './StatusWidget';
 
-export default class DashboardPage extends Page {
+export default class DashboardPage extends AdminPage {
   view() {
     return (
       <div className="DashboardPage">

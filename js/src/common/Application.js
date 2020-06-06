@@ -21,7 +21,7 @@ import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
 import { flattenDeep } from 'lodash-es';
-import PageState from '../forum/states/PageState';
+import PageState from './states/PageState';
 
 /**
  * The `App` class provides a container for an application, as well as various

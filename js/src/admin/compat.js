@@ -17,6 +17,7 @@ import PermissionGrid from './components/PermissionGrid';
 import MailPage from './components/MailPage';
 import UploadImageButton from './components/UploadImageButton';
 import LoadingModal from './components/LoadingModal';
+import AdminPage from './components/AdminPage';
 import DashboardPage from './components/DashboardPage';
 import BasicsPage from './components/BasicsPage';
 import EditCustomHeaderModal from './components/EditCustomHeaderModal';
@@ -40,6 +41,7 @@ export default Object.assign(compat, {
   'components/SettingsModal': SettingsModal,
   'components/DashboardWidget': DashboardWidget,
   'components/AddExtensionModal': AddExtensionModal,
+  'components/AdminPage': AdminPage,
   'components/ExtensionsPage': ExtensionsPage,
   'components/AdminLinkButton': AdminLinkButton,
   'components/PermissionGrid': PermissionGrid,

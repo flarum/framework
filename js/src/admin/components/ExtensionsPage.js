@@ -1,4 +1,4 @@
-import Page from '../../common/components/Page';
+import AdminPage from './AdminPage';
 import Button from '../../common/components/Button';
 import Dropdown from '../../common/components/Dropdown';
 import AddExtensionModal from './AddExtensionModal';
@@ -6,7 +6,7 @@ import LoadingModal from './LoadingModal';
 import ItemList from '../../common/utils/ItemList';
 import icon from '../../common/helpers/icon';
 
-export default class ExtensionsPage extends Page {
+export default class ExtensionsPage extends AdminPage {
   view() {
     return (
       <div className="ExtensionsPage">

@@ -1,11 +1,11 @@
-import Page from '../../common/components/Page';
+import AdminPage from './AdminPage';
 import GroupBadge from '../../common/components/GroupBadge';
 import EditGroupModal from './EditGroupModal';
 import Group from '../../common/models/Group';
 import icon from '../../common/helpers/icon';
 import PermissionGrid from './PermissionGrid';
 
-export default class PermissionsPage extends Page {
+export default class PermissionsPage extends AdminPage {
   view() {
     return (
       <div className="PermissionsPage">
