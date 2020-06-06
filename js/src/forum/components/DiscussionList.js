@@ -40,7 +40,7 @@ export default class DiscussionList extends Component {
     }
 
     return (
-      <div className={'DiscussionList' + (state.params.q ? ' DiscussionList--searchResults' : '')}>
+      <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
         <ul className="DiscussionList-discussions">
           {state.discussions.map((discussion) => {
             return (

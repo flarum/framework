@@ -15,10 +15,6 @@ export default class DiscussionListState {
     this.componentClass = componentClass;
   }
 
-  getComponentClass() {
-    return this.componentClass;
-  }
-
   /**
    * Get the parameters that should be passed in the API request to get
    * discussion results.
@@ -162,6 +158,13 @@ export default class DiscussionListState {
   }
 
   /**
+   * Get the class of the component to be used for this state's discussion list.
+   */
+  getComponentClass() {
+    return this.componentClass;
+  }
+
+  /**
    * Are there discussions stored in the discussion list state?
    */
   hasDiscussions() {
@@ -173,5 +176,12 @@ export default class DiscussionListState {
    */
   isLoading() {
     return this.loading;
+  }
+
+  /**
+   * In the last request, has the user searched for a discussion?
+   */
+  isSearchResults() {
+    return !!this.params.q;
   }
 }
