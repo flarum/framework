@@ -11,7 +11,6 @@ import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LinkButton from '../../common/components/LinkButton';
 import SelectDropdown from '../../common/components/SelectDropdown';
-import subclassOf from '../../common/utils/subclassOf';
 
 /**
  * The `IndexPage` component displays the index page, including the welcome

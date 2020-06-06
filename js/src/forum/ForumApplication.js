@@ -16,7 +16,6 @@ import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './state/DiscussionListState';
-import subclassOf from '../common/utils/subclassOf';
 
 export default class ForumApplication extends Application {
   /**
@@ -161,7 +160,7 @@ export default class ForumApplication extends Application {
    * @return {Boolean}
    */
   viewingDiscussion(discussion) {
-    return subclassOf(this.current, DiscussionPage) && this.currentData.discussion === discussion;
+    return this.current.subclassOf(DiscussionPage) && this.currentData.discussion === discussion;
   }
 
   /**

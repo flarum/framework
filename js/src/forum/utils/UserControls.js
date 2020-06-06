@@ -4,7 +4,6 @@ import Separator from '../../common/components/Separator';
 import EditUserModal from '../components/EditUserModal';
 import UserPage from '../components/UserPage';
 import ItemList from '../../common/utils/ItemList';
-import subclassOf from '../../common/utils/subclassOf';
 
 /**
  * The `UserControls` utility constructs a list of buttons for a user which
