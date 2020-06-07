@@ -1,5 +1,6 @@
 import evented from '../../common/utils/evented';
 import subclassOf from '../../common/utils/subclassOf';
+import Composer from '../instances/Composer';
 
 class ComposerState {
   constructor() {
@@ -30,11 +31,14 @@ class ComposerState {
     // BC layer, remove in Beta 15.
     this.component = this;
     this.editor = this;
-    this.props = this.bodyProps;
   }
 
   bodySubclassOf(B) {
-    return subclassOf(this.bodyClass, B);
+    return subclassOf(this.body.getClass(), B);
+  }
+
+  getBody() {
+    return this.body;
   }
 
   /**
@@ -57,7 +61,7 @@ class ComposerState {
    * @return {Boolean} Whether or not the exit was cancelled.
    */
   preventExit() {
-    if (this.bodyClass) {
+    if (this.body.initialized()) {
       const preventExit = this.bodyPreventExit();
 
       if (preventExit) {
@@ -69,10 +73,10 @@ class ComposerState {
   /**
    * Load a content component into the composer.
    *
-   * @param {Component} component
+   * @param {Composer} composer
    * @public
    */
-  load(bodyClass, props) {
+  load(body) {
     if (this.preventExit()) return;
 
     // If we load a similar component into the composer, then Mithril will be
@@ -80,13 +84,12 @@ class ComposerState {
     // old composer will remain. To prevent this from happening, we clear the
     // component and force a redraw, so that the new component will be working
     // on a blank slate.
-    if (this.bodyClass) {
+    if (this.body.initialized()) {
       this.clear();
       m.redraw(true);
     }
 
-    this.bodyClass = bodyClass;
-    this.bodyProps = props;
+    this.body = body;
   }
 
   /**
@@ -95,9 +98,7 @@ class ComposerState {
    * @public
    */
   clear() {
-    this.bodyClass = null;
-    this.bodyProps = {};
-    this.bodyPreventExit = () => {};
+    this.body = new Composer(null);
     this.fields = {
       content: m.prop(''),
     };

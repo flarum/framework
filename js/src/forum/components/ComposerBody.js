@@ -25,7 +25,7 @@ export default class ComposerBody extends Component {
   static initProps(props) {
     super.initProps(props);
 
-    Object.assign(props, props.state.bodyProps);
+    Object.assign(props, props.state.getBody().getAttrs());
   }
 
   init() {

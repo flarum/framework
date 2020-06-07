@@ -154,7 +154,7 @@ export default class ForumApplication extends Application {
   composingReplyTo(discussion) {
     return (
       this.composer.bodySubclassOf(ReplyComposer) &&
-      this.composer.bodyProps.discussion === discussion &&
+      this.composer.getBody().getAttrs().discussion === discussion &&
       this.composer.position !== ComposerState.PositionEnum.HIDDEN
     );
   }

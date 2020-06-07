@@ -54,7 +54,7 @@ export default class Composer extends Component {
         <div className="Composer-handle" config={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
-          {this.state.bodyClass ? this.state.bodyClass.component({ state: this.state, disabled: classes.minimized }) : ''}
+          {this.state.getBody().initialized() ? this.state.getBody().getClass().component({ state: this.state, disabled: classes.minimized }) : ''}
         </div>
       </div>
     );

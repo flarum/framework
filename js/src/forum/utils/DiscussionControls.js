@@ -4,6 +4,7 @@ import LogInModal from '../components/LogInModal';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import RenameDiscussionModal from '../components/RenameDiscussionModal';
+import Composer from '../instances/Composer';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
 
@@ -168,10 +169,12 @@ export default {
     if (app.session.user) {
       if (this.canReply()) {
         if (!app.composingReplyTo(this) || forceRefresh) {
-          app.composer.load(ReplyComposer, {
-            user: app.session.user,
-            discussion: this,
-          });
+          app.composer.load(
+            new Composer(ReplyComposer, {
+              user: app.session.user,
+              discussion: this,
+            })
+          );
         }
         app.composer.show();
 

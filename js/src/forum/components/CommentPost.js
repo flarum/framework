@@ -77,7 +77,7 @@ export default class CommentPost extends Post {
   }
 
   isEditing() {
-    return app.composer.bodySubclassOf(EditPostComposer) && app.composer.bodyProps.post === this.props.post;
+    return app.composer.bodySubclassOf(EditPostComposer) && app.composer.getBody().getAttrs().post === this.props.post;
   }
 
   attrs() {

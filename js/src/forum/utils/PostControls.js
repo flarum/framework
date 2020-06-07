@@ -1,6 +1,7 @@
 import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
+import Composer from '../instances/Composer';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
 
@@ -130,7 +131,7 @@ export default {
   editAction() {
     const deferred = m.deferred();
 
-    app.composer.load(EditPostComposer, { post: this });
+    app.composer.load(new Composer(EditPostComposer, { post: this }));
     app.composer.show();
 
     deferred.resolve(app.composer);
