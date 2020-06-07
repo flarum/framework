@@ -58,7 +58,8 @@ export default class ReplyComposer extends ComposerBody {
    */
   data() {
     const data = super.data();
-    data.relationships = { discussion: this.props.discussion };
+    data.relationships = data.relationships ? data.relationships : {};
+    data.relationships.discussion = this.props.discussion;
 
     return data;
   }
