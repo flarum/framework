@@ -50,6 +50,7 @@ class GroupGambit extends AbstractRegexGambit
         $ids = Group::whereIn('name_singular', $groupIdentifiers)
             ->orWhereIn('name_plural', $groupIdentifiers)
             ->orWhereIn('id', $groupIdentifiers)
+            ->whereVisibleTo($search->getActor())
             ->join('group_user', 'groups.id', 'group_user.group_id')
             ->pluck('group_user.user_id')
             ->all();
