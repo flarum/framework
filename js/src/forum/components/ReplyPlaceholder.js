@@ -15,7 +15,7 @@ import DiscussionControls from '../utils/DiscussionControls';
  */
 export default class ReplyPlaceholder extends Component {
   view() {
-    if (app.composingReplyTo(this.props.discussion)) {
+    if (app.composer.composingReplyTo(this.props.discussion)) {
       return (
         <article className="Post CommentPost editing">
           <header className="Post-header">

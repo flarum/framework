@@ -1,6 +1,5 @@
 import History from './utils/History';
 import Pane from './utils/Pane';
-import ReplyComposer from './components/ReplyComposer';
 import DiscussionPage from './components/DiscussionPage';
 import SignUpModal from './components/SignUpModal';
 import HeaderPrimary from './components/HeaderPrimary';
@@ -142,21 +141,6 @@ export default class ForumApplication extends Application {
         m.redraw();
       }
     });
-  }
-
-  /**
-   * Check whether or not the user is currently composing a reply to a
-   * discussion.
-   *
-   * @param {Discussion} discussion
-   * @return {Boolean}
-   */
-  composingReplyTo(discussion) {
-    return (
-      this.composer.bodySubclassOf(ReplyComposer) &&
-      this.composer.getBody().getAttrs().discussion === discussion &&
-      this.composer.position !== ComposerState.PositionEnum.HIDDEN
-    );
   }
 
   /**

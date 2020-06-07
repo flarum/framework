@@ -1,6 +1,7 @@
 import evented from '../../common/utils/evented';
 import subclassOf from '../../common/utils/subclassOf';
 import Composer from '../instances/Composer';
+import ReplyComposer from '../components/ReplyComposer';
 
 class ComposerState {
   constructor() {
@@ -52,6 +53,19 @@ class ComposerState {
    */
   isFullScreen() {
     return this.position === ComposerState.PositionEnum.FULLSCREEN || $('.js-Composer').css('position') === 'absolute';
+  }
+
+  /**
+   * Check whether or not the user is currently composing a reply to a
+   * discussion.
+   *
+   * @param {Discussion} discussion
+   * @return {Boolean}
+   */
+  composingReplyTo(discussion) {
+    return (
+      this.bodySubclassOf(ReplyComposer) && this.body.getAttrs().discussion === discussion && this.position !== ComposerState.PositionEnum.HIDDEN
+    );
   }
 
   /**
