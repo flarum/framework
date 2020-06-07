@@ -1,4 +1,5 @@
 import evented from '../../common/utils/evented';
+import subclassOf from '../../common/utils/subclassOf';
 
 class ComposerState {
   constructor() {
@@ -30,6 +31,10 @@ class ComposerState {
     this.component = this;
     this.editor = this;
     this.props = this.bodyProps;
+  }
+
+  bodySubclassOf(B) {
+    return subclassOf(this.bodyClass, B);
   }
 
   /**
