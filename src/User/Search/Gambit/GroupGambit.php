@@ -47,7 +47,7 @@ class GroupGambit extends AbstractRegexGambit
 
         $groupIdentifiers = $this->extractGroupIdentifiers($matches);
 
-        $ids = Group::whereIn('name_singular', $groupIdentifiers)
+        $userIds = Group::whereIn('name_singular', $groupIdentifiers)
             ->orWhereIn('name_plural', $groupIdentifiers)
             ->orWhereIn('id', $groupIdentifiers)
             ->whereVisibleTo($search->getActor())
@@ -55,7 +55,7 @@ class GroupGambit extends AbstractRegexGambit
             ->pluck('group_user.user_id')
             ->all();
 
-        $search->getQuery()->whereIn('id', $ids, 'and', $negate);
+        $search->getQuery()->whereIn('id', $userIds, 'and', $negate);
     }
 
     /**
