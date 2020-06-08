@@ -47,11 +47,17 @@ class GroupGambit extends AbstractRegexGambit
 
         $groupIdentifiers = $this->extractGroupIdentifiers($matches);
 
-        $userIds = Group::whereIn('name_singular', $groupIdentifiers)
-            ->orWhereIn('name_plural', $groupIdentifiers)
-            ->orWhereIn('id', $groupIdentifiers)
-            ->whereVisibleTo($search->getActor())
-            ->join('group_user', 'groups.id', 'group_user.group_id')
+        $groupQuery = Group::whereVisibleTo($search->getActor());
+
+        foreach ($groupIdentifiers as $identifier) {
+            if (is_numeric($identifier)) {
+                $groupQuery->orWhere('id', $identifier);
+            } else {
+                $groupQuery->orWhere('name_singular', $identifier)->orWhere('name_plural', $identifier);
+            }
+        }
+
+        $userIds = $groupQuery->join('group_user', 'groups.id', 'group_user.group_id')
             ->pluck('group_user.user_id')
             ->all();
 
