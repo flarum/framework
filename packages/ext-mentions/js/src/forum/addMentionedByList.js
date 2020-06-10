@@ -15,12 +15,6 @@ export default function addMentionedByList() {
     const replies = post.mentionedBy();
 
     if (replies && replies.length) {
-      // If there is only one reply, and it's adjacent to this post, we don't
-      // really need to show the list.
-      if (replies.length === 1 && replies[0].number() === post.number() + 1) {
-        return;
-      }
-
       const hidePreview = () => {
         this.$('.Post-mentionedBy-preview')
           .removeClass('in')
