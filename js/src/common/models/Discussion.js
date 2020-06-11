@@ -68,7 +68,7 @@ Object.assign(Discussion.prototype, {
     const user = app.session.user;
 
     if (user && user.markedAllAsReadAt() < this.lastPostedAt()) {
-      return Math.max(0, this.lastPostNumber() - (this.lastReadPostNumber() || 0));
+      return Math.min(Math.max(0, this.lastPostNumber() - (this.lastReadPostNumber() || 0)), this.commentCount());
     }
 
     return 0;
