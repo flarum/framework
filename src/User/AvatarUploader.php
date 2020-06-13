@@ -44,7 +44,7 @@ class AvatarUploader
 
     /**
      * Handle the removal of the old avatar file after a successful user save
-     * We don't place this in remove() because otherwise we would call changeAvatarPath 2 times when uploading
+     * We don't place this in remove() because otherwise we would call changeAvatarPath 2 times when uploading.
      * @param User $user
      */
     protected function removeFileAfterSave(User $user)
