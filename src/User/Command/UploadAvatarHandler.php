@@ -80,6 +80,8 @@ class UploadAvatarHandler
 
         $user->save();
 
+        $this->dispatchEventsFor($user, $actor);
+
         return $user;
     }
 }
