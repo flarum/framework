@@ -180,7 +180,7 @@ class Document implements Renderable
      */
     protected function makeTitle(): string
     {
-        $onHomePage = rtrim($this->request->getAttribute('originalUri')->getPath(), '/') === '';
+        $onHomePage = rtrim($this->request->getUri()->getPath(), '/') === '';
 
         return ($this->title && ! $onHomePage ? $this->title.' - ' : '').Arr::get($this->forumApiDocument, 'data.attributes.title');
     }
