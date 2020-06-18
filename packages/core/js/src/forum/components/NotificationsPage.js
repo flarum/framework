@@ -11,13 +11,16 @@ export default class NotificationsPage extends Page {
 
     app.history.push('notifications');
 
-    this.list = new NotificationList();
-    this.list.load();
+    app.notifications.load();
 
     this.bodyClass = 'App--notifications';
   }
 
   view() {
-    return <div className="NotificationsPage">{this.list.render()}</div>;
+    return (
+      <div className="NotificationsPage">
+        <NotificationList state={app.notifications}></NotificationList>
+      </div>
+    );
   }
 }
