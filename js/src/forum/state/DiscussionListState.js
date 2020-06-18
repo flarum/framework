@@ -79,10 +79,12 @@ export default class DiscussionListState {
   /**
    * Clear and reload the discussion list.
    */
-  refresh() {
+  refresh({ clear = true } = {}) {
     this.loading = true;
 
-    this.clear();
+    if (clear) {
+      this.clear();
+    }
 
     return this.loadResults().then(
       (results) => {
