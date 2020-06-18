@@ -36,6 +36,8 @@ export default class NotificationGrid extends Component {
   }
 
   view() {
+    const preferences = this.props.user.preferences();
+
     return (
       <table className="NotificationGrid">
         <thead>
@@ -61,9 +63,9 @@ export default class NotificationGrid extends Component {
                 return (
                   <td className="NotificationGrid-checkbox">
                     {Checkbox.component({
-                      state: !!this.props.user.preferences()[key],
+                      state: !!preferences[key],
                       loading: this.loading[key],
-                      disabled: !(key in this.props.user.preferences()),
+                      disabled: !(key in preferences),
                       onchange: () => this.toggle([key]),
                     })}
                   </td>
