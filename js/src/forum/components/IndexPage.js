@@ -2,7 +2,6 @@ import { extend } from '../../common/extend';
 import Page from './Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
-import icon from '../../common/helpers/icon';
 import DiscussionList from './DiscussionList';
 import WelcomeHero from './WelcomeHero';
 import DiscussionComposer from './DiscussionComposer';
@@ -18,6 +17,8 @@ import SelectDropdown from '../../common/components/SelectDropdown';
  * hero, the sidebar, and the discussion list.
  */
 export default class IndexPage extends Page {
+  static hasSearchResults = true;
+
   init() {
     super.init();
 
@@ -177,6 +178,10 @@ export default class IndexPage extends Page {
     );
 
     return items;
+  }
+
+  params() {
+    return app.search.params();
   }
 
   /**
