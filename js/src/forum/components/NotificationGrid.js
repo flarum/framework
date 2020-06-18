@@ -25,7 +25,7 @@ export default class NotificationGrid extends Component {
      *
      * @type {Object}
      */
-    this.loadingState = {};
+    this.loading = {};
 
     /**
      * Information about the available notification types.
@@ -62,7 +62,7 @@ export default class NotificationGrid extends Component {
                   <td className="NotificationGrid-checkbox">
                     {Checkbox.component({
                       state: !!this.props.user.preferences()[key],
-                      loading: this.loadingState[key],
+                      loading: this.loading[key],
                       disabled: !(key in this.props.user.preferences()),
                       onchange: () => this.toggle([key]),
                     })}
@@ -107,14 +107,14 @@ export default class NotificationGrid extends Component {
     const enabled = !preferences[keys[0]];
 
     keys.forEach((key) => {
-      this.loadingState[key] = true;
+      this.loading[key] = true;
       preferences[key] = enabled;
     });
 
     m.redraw();
 
     user.save({ preferences }).then(() => {
-      keys.forEach((key) => (this.loadingState[key] = false));
+      keys.forEach((key) => (this.loading[key] = false));
 
       m.redraw();
     });
