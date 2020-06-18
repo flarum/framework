@@ -45,7 +45,9 @@ export default class ComposerBody extends Component {
 
     this.state.content(this.props.originalContent || '');
 
-    // BC Layer, remove in Beta 15.
+    /**
+     * @deprecated BC layer, remove in Beta 15.
+     */
     this.content = this.state.fields.content;
     this.editor = this.state;
   }
