@@ -55,16 +55,18 @@ export default class NotificationGrid extends Component {
               <td className="NotificationGrid-groupToggle" onclick={this.toggleType.bind(this, type.name)}>
                 {icon(type.icon)} {type.label}
               </td>
-              {this.methods.map((method) => (
-                <td className="NotificationGrid-checkbox">
+              {this.methods.map((method) => {
+                const key = this.preferenceKey(type.name, method.name);
+
+                return <td className="NotificationGrid-checkbox">
                   {Checkbox.component({
-                    state: !!this.props.user.preferences()[this.preferenceKey(type.name, method.name)],
-                    loading: this.loadingState[this.preferenceKey(type.name, method.name)],
-                    disabled: !(this.preferenceKey(type.name, method.name) in this.props.user.preferences()),
-                    onchange: () => this.toggle([this.preferenceKey(type.name, method.name)]),
+                    state: !!this.props.user.preferences()[key],
+                    loading: this.loadingState[key],
+                    disabled: !(key in this.props.user.preferences()),
+                    onchange: () => this.toggle([key]),
                   })}
-                </td>
-              ))}
+                </td>;
+              })}
             </tr>
           ))}
         </tbody>
