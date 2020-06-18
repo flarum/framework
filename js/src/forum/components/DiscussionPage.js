@@ -50,6 +50,7 @@ export default class DiscussionPage extends Page {
     app.history.push('discussion');
 
     this.bodyClass = 'App--discussion';
+    this.discussionListClass = DiscussionList;
   }
 
   onunload(e) {

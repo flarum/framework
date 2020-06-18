@@ -80,9 +80,7 @@ export default class IndexPage extends Page {
                 <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
                 <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
               </div>
-              {app.discussions.getComponentClass().component({
-                state: app.discussions,
-              })}
+              <DiscussionList state={app.discussions} />
             </div>
           </div>
         </div>

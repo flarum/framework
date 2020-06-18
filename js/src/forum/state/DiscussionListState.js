@@ -1,7 +1,5 @@
-import DiscussionList from '../components/DiscussionList';
-
 export default class DiscussionListState {
-  constructor({ params = {}, forumApp = app, componentClass = DiscussionList } = {}) {
+  constructor({ params = {}, forumApp = app } = {}) {
     this.params = params;
 
     this.app = forumApp;
@@ -11,8 +9,6 @@ export default class DiscussionListState {
     this.moreResults = false;
 
     this.loading = false;
-
-    this.componentClass = componentClass;
   }
 
   /**
@@ -155,13 +151,6 @@ export default class DiscussionListState {
   addDiscussion(discussion) {
     this.discussions.unshift(discussion);
     m.redraw();
-  }
-
-  /**
-   * Get the class of the component to be used for this state's discussion list.
-   */
-  getComponentClass() {
-    return this.componentClass;
   }
 
   /**
