@@ -109,6 +109,8 @@ export default class SettingsPage extends UserPage {
   }
 
   /**
+   * @deprecated beta 14, remove in beta 15.
+   *
    * Generate a callback that will save a value to the given preference.
    *
    * @param {String} key
@@ -116,11 +118,11 @@ export default class SettingsPage extends UserPage {
    */
   preferenceSaver(key) {
     return (value, component) => {
-      if (component) component.loading = true;
+      if (component) component.props.loading = true;
       m.redraw();
 
       this.user.savePreferences({ [key]: value }).then(() => {
-        if (component) component.loading = false;
+        if (component) component.props.loading = false;
         m.redraw();
       });
     };
@@ -139,10 +141,15 @@ export default class SettingsPage extends UserPage {
       Switch.component({
         children: app.translator.trans('core.forum.settings.privacy_disclose_online_label'),
         state: this.user.preferences().discloseOnline,
-        onchange: (value, component) => {
-          this.user.pushAttributes({ lastSeenAt: null });
-          this.preferenceSaver('discloseOnline')(value, component);
+        onchange: (value) => {
+          this.discloseOnlineLoading = true;
+
+          this.user.savePreferences({ discloseOnline: value }).then(() => {
+            this.discloseOnlineLoading = false;
+            m.redraw();
+          });
         },
+        loading: this.discloseOnlineLoading,
       })
     );
 
