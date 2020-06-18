@@ -180,4 +180,11 @@ export default class DiscussionListState {
   isSearchResults() {
     return !!this.params.q;
   }
+
+  /**
+   * Have the search results come up empty?
+   */
+  empty() {
+    return !this.hasDiscussions() && !this.isLoading();
+  }
 }
