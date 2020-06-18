@@ -211,8 +211,10 @@ export default class Application {
   }
 
   updateTitle() {
-    document.title =
-      (this.titleCount ? `(${this.titleCount}) ` : '') + (this.title && m.route() !== '/' ? this.title + ' - ' : '') + this.forum.attribute('title');
+    const count = this.titleCount ? `(${this.titleCount}) ` : '';
+    const pageTitleWithSeparator = this.title && m.route() !== '/' ? this.title + ' - ' : '';
+    const title = this.forum.attribute('title');
+    document.title = count + pageTitleWithSeparator + title;
   }
 
   /**
