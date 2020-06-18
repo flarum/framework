@@ -229,7 +229,7 @@ export default {
         app.history.back();
       }
 
-      return this.delete().then(() => app.cache.discussionList.removeDiscussion(this));
+      return this.delete().then(() => app.discussions.removeDiscussion(this));
     }
   },
 

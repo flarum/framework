@@ -78,10 +78,12 @@ export default class ForumApplication extends Application {
 
     routes(this);
 
-    this.discussionList = new DiscussionListState({ forumApp: this });
+    this.discussions = new DiscussionListState({ forumApp: this });
 
-    // Deprecated, remove in beta 15. BC layer.
-    this.cache.discussionList = this.discussionList;
+    /**
+     * @deprecated beta 14, remove in beta 15.
+     */
+    this.cache.discussionList = this.discussions;
   }
 
   /**
