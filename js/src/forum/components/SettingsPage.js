@@ -109,6 +109,8 @@ export default class SettingsPage extends UserPage {
   }
 
   /**
+   * @deprecated beta 14, remove in beta 15.
+   *
    * Generate a callback that will save a value to the given preference.
    *
    * @param {String} key
@@ -140,9 +142,15 @@ export default class SettingsPage extends UserPage {
         children: app.translator.trans('core.forum.settings.privacy_disclose_online_label'),
         state: this.user.preferences().discloseOnline,
         onchange: (value, component) => {
-          this.user.pushAttributes({ lastSeenAt: null });
-          this.preferenceSaver('discloseOnline')(value, component);
+          this.discloseOnlineLoading = true;
+          m.redraw();
+
+          this.user.savePreferences({ discloseOnline: value }).then(() => {
+            this.discloseOnlineLoading = false;
+            m.redraw();
+          });
         },
+        loading: this.discloseOnlineLoading,
       })
     );
 
