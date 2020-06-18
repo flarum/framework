@@ -44,11 +44,7 @@ export default class IndexPage extends Page {
     // will clear the cache and update the parameters.
     let clear = false;
     if (app.discussions.hasDiscussions()) {
-      clear = Object.keys(params).some((key) => {
-        if (app.discussions.getParams()[key] !== params[key]) {
-          return true;
-        }
-      });
+      clear = Object.keys(params).some((key) => app.discussions.getParams()[key] !== params[key]);
     }
 
     if (!app.discussions.hasDiscussions() || clear) {
