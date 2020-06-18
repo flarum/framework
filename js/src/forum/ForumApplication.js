@@ -73,11 +73,6 @@ export default class ForumApplication extends Application {
    */
   search = new GlobalSearchState();
 
-  /*
-   * @inheritdoc
-   */
-  discussionList;
-
   constructor() {
     super();
 
