@@ -69,7 +69,7 @@ export default class DiscussionListState {
    * old ones, update params and refresh the discussion list from the database.
    */
   refreshParams(newParams) {
-    if (!this.hasDiscussions() || Object.keys(newParams).some((key) => this.getParams()[key] !== params[key])) {
+    if (!this.hasDiscussions() || Object.keys(newParams).some((key) => this.getParams()[key] !== newParams[key])) {
       this.params = newParams;
 
       this.refresh();
