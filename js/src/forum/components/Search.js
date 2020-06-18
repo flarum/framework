@@ -14,8 +14,7 @@ import UsersSearchSource from './UsersSearchSource';
  *
  * The search box will be 'activated' if the app's seach state's
  * getInitialSearch() value is a truthy value. If this is the case, an 'x'
- * button will be shown next to the search field, and clicking it will call the
- * `clearCurrentSearch` method.
+ * button will be shown next to the search field, and clicking it will clear the search.
  *
  * PROPS:
  *

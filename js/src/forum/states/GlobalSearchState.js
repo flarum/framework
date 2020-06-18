@@ -74,7 +74,7 @@ export default class GlobalSearchState extends SearchState {
     super.clear();
 
     if (this.getInitialSearch()) {
-      this.clearCurrentSearch();
+      this.clearInitialSearch();
     } else {
       m.redraw();
     }
@@ -86,7 +86,7 @@ export default class GlobalSearchState extends SearchState {
    *
    * @see Search
    */
-  clearCurrentSearch() {
+  clearInitialSearch() {
     const params = this.params();
     delete params.q;
 
