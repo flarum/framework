@@ -72,8 +72,6 @@ export default class ForumApplication extends Application {
    */
   search = new GlobalSearchState();
 
-  searchResults = false;
-
   constructor() {
     super();
 
