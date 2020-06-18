@@ -12,7 +12,7 @@ export default class SearchState {
   }
 
   /**
-   * Clear the search input and the current controller's active search.
+   * Clear the search value.
    */
   clear() {
     this.setValue('');

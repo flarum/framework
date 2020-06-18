@@ -15,6 +15,19 @@ export default class GlobalSearchState extends SearchState {
   }
 
   /**
+   * Clear the search input and the current controller's active search.
+   */
+  clear() {
+    super.clear();
+
+    if (this.getInitialSearch()) {
+      this.clearInitialSearch();
+    } else {
+      m.redraw();
+    }
+  }
+
+  /**
    * Get URL parameters that stick between filter changes.
    *
    * @return {Object}
@@ -40,17 +53,6 @@ export default class GlobalSearchState extends SearchState {
   }
 
   /**
-   * Return the current search query, if any. This is implemented to activate
-   * the search box in the header.
-   *
-   * @see Search
-   * @return {String}
-   */
-  getInitialSearch() {
-    return app.current.constructor.hasSearchResults && this.params().q;
-  }
-
-  /**
    * Redirect to the index page using the given sort parameter.
    *
    * @param {String} sort
@@ -68,16 +70,14 @@ export default class GlobalSearchState extends SearchState {
   }
 
   /**
-   * Clear the search input and the current controller's active search.
+   * Return the current search query, if any. This is implemented to activate
+   * the search box in the header.
+   *
+   * @see Search
+   * @return {String}
    */
-  clear() {
-    super.clear();
-
-    if (this.getInitialSearch()) {
-      this.clearInitialSearch();
-    } else {
-      m.redraw();
-    }
+  getInitialSearch() {
+    return app.current.constructor.hasSearchResults && this.params().q;
   }
 
   /**
