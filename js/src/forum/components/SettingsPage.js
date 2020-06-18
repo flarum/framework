@@ -141,9 +141,8 @@ export default class SettingsPage extends UserPage {
       Switch.component({
         children: app.translator.trans('core.forum.settings.privacy_disclose_online_label'),
         state: this.user.preferences().discloseOnline,
-        onchange: (value, component) => {
+        onchange: (value) => {
           this.discloseOnlineLoading = true;
-          m.redraw();
 
           this.user.savePreferences({ discloseOnline: value }).then(() => {
             this.discloseOnlineLoading = false;
