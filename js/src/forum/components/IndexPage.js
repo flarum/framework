@@ -180,10 +180,6 @@ export default class IndexPage extends Page {
     return items;
   }
 
-  params() {
-    return app.search.params();
-  }
-
   /**
    * Build an item list for the navigation in the sidebar of the index page. By
    * default this is just the 'All Discussions' link.
