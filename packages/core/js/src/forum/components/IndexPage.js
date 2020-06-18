@@ -34,27 +34,10 @@ export default class IndexPage extends Page {
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
     if (app.previous instanceof IndexPage) {
-      app.cache.discussionList = null;
+      app.discussions.clear();
     }
 
-    const params = app.search.params();
-
-    if (app.cache.discussionList) {
-      // Compare the requested parameters (sort, search query) to the ones that
-      // are currently present in the cached discussion list. If they differ, we
-      // will clear the cache and set up a new discussion list component with
-      // the new parameters.
-      Object.keys(params).some((key) => {
-        if (app.cache.discussionList.props.params[key] !== params[key]) {
-          app.cache.discussionList = null;
-          return true;
-        }
-      });
-    }
-
-    if (!app.cache.discussionList) {
-      app.cache.discussionList = new DiscussionList({ params });
-    }
+    app.discussions.refreshParams(app.search.params());
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
@@ -81,7 +64,7 @@ export default class IndexPage extends Page {
                 <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
                 <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
               </div>
-              {app.cache.discussionList.render()}
+              <DiscussionList state={app.discussions} />
             </div>
           </div>
         </div>
@@ -212,7 +195,7 @@ export default class IndexPage extends Page {
    */
   viewItems() {
     const items = new ItemList();
-    const sortMap = app.cache.discussionList.sortMap();
+    const sortMap = app.discussions.sortMap();
 
     const sortOptions = {};
     for (const i in sortMap) {
@@ -257,7 +240,7 @@ export default class IndexPage extends Page {
         icon: 'fas fa-sync',
         className: 'Button Button--icon',
         onclick: () => {
-          app.cache.discussionList.refresh();
+          app.discussions.refresh();
           if (app.session.user) {
             app.store.find('users', app.session.user.id());
             m.redraw();

@@ -15,6 +15,7 @@ import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
+import DiscussionListState from './state/DiscussionListState';
 
 export default class ForumApplication extends Application {
   /**
@@ -76,6 +77,19 @@ export default class ForumApplication extends Application {
     super();
 
     routes(this);
+
+    /**
+     * An object which controls the state of the cached discussion list, which
+     * is used in the index page and the slideout pane.
+     *
+     * @type {DiscussionListState}
+     */
+    this.discussions = new DiscussionListState({ forumApp: this });
+
+    /**
+     * @deprecated beta 14, remove in beta 15.
+     */
+    this.cache.discussionList = this.discussions;
   }
 
   /**
