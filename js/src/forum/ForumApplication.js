@@ -14,7 +14,7 @@ import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
-import HeaderSearchState from './states/HeaderSearchState';
+import GlobalSearchState from './states/GlobalSearchState';
 
 export default class ForumApplication extends Application {
   /**
@@ -68,9 +68,9 @@ export default class ForumApplication extends Application {
    * An object which stores previously searched queries and provides convenient
    * tools for retrieving and managing search values.
    *
-   * @type {HeaderSearchState}
+   * @type {GlobalSearchState}
    */
-  search = new HeaderSearchState();
+  search = new GlobalSearchState();
 
   searchResults = false;
 

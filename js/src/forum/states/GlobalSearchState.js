@@ -1,6 +1,6 @@
 import SearchState from './SearchState';
 
-export default class HeaderSearchState extends SearchState {
+export default class GlobalSearchState extends SearchState {
   constructor(cachedSearches = [], searchRoute = 'index') {
     super(cachedSearches);
     this.searchRoute = searchRoute;
