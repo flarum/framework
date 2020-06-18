@@ -15,8 +15,6 @@ import icon from '../helpers/icon';
  * - `children` A text label to display next to the checkbox.
  */
 export default class Checkbox extends Component {
-  init() {}
-
   view() {
     let className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
     if (this.props.loading) className += ' loading';
