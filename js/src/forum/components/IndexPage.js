@@ -37,19 +37,7 @@ export default class IndexPage extends Page {
       app.discussions.clear();
     }
 
-    const params = app.search.params();
-
-    // Compare the requested parameters (sort, search query) to the ones that
-    // are currently present in the cached discussion list. If they differ, we
-    // will clear the cache and update the parameters.
-    let clear = false;
-    if (app.discussions.hasDiscussions()) {
-      clear = Object.keys(params).some((key) => app.discussions.getParams()[key] !== params[key]);
-    }
-
-    if (!app.discussions.hasDiscussions() || clear) {
-      app.discussions.refresh(params);
-    }
+    app.discussions.refreshParams(app.search.params());
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 

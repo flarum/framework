@@ -65,22 +65,27 @@ export default class DiscussionListState {
   }
 
   /**
+   * If there are no cached discussions or the new params differ from the
+   * old ones, update params and refresh the discussion list from the database.
+   */
+  refreshParams(newParams) {
+    if (!this.hasDiscussions() || Object.keys(newParams).some((key) => this.getParams()[key] !== params[key])) {
+      this.params = newParams;
+
+      this.refresh();
+    }
+  }
+
+  /**
    * Clear and reload the discussion list.
    */
-  refresh(params, { clear = true } = {}) {
+  refresh() {
     this.loading = true;
 
-    if (clear) {
-      this.clear();
-    }
-
-    if (params) {
-      this.params = params;
-    }
+    this.clear();
 
     return this.loadResults().then(
       (results) => {
-        this.discussions = [];
         this.parseResults(results);
       },
       () => {
