@@ -36,7 +36,7 @@ export default class DiscussionPage extends Page {
     // If the discussion list has been loaded, then we'll enable the pane (and
     // hide it by default). Also, if we've just come from another discussion
     // page, then we don't want Mithril to redraw the whole page – if it did,
-    // then the pane would which would be slow and would cause problems with
+    // then the pane would redraw which would be slow and would cause problems with
     // event handlers.
     if (app.discussions.hasDiscussions()) {
       app.pane.enable();
