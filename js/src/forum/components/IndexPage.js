@@ -17,7 +17,7 @@ import SelectDropdown from '../../common/components/SelectDropdown';
  * hero, the sidebar, and the discussion list.
  */
 export default class IndexPage extends Page {
-  static hasSearchResults = true;
+  static providesInitialSearch = true;
 
   init() {
     super.init();
