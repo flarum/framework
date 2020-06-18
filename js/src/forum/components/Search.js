@@ -13,7 +13,7 @@ import UsersSearchSource from './UsersSearchSource';
  * of sources.
  *
  * The search box will be 'activated' if the app's seach state's
- * getCurrentSearch() value is a truthy value. If this is the case, an 'x'
+ * getInitialSearch() value is a truthy value. If this is the case, an 'x'
  * button will be shown next to the search field, and clicking it will call the
  * `clearCurrentSearch` method.
  *
@@ -58,7 +58,7 @@ export default class Search extends Component {
   }
 
   view() {
-    const currentSearch = this.state.getCurrentSearch();
+    const currentSearch = this.state.getInitialSearch();
 
     // Initialize search sources in the view rather than the constructor so
     // that we have access to app.forum.

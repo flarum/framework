@@ -8,7 +8,7 @@ export default class HeaderSearchState extends SearchState {
 
   getValue() {
     if (this.value === undefined) {
-      this.value = this.getCurrentSearch() || '';
+      this.value = this.getInitialSearch() || '';
     }
 
     return super.getValue();
@@ -46,7 +46,7 @@ export default class HeaderSearchState extends SearchState {
    * @see Search
    * @return {String}
    */
-  getCurrentSearch() {
+  getInitialSearch() {
     return app.current.constructor.hasSearchResults && this.params().q;
   }
 
@@ -73,7 +73,7 @@ export default class HeaderSearchState extends SearchState {
   clear() {
     super.clear();
 
-    if (this.getCurrentSearch()) {
+    if (this.getInitialSearch()) {
       this.clearCurrentSearch();
     } else {
       m.redraw();
