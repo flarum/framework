@@ -60,7 +60,7 @@ export default class GlobalSearchState extends SearchState {
   changeSort(sort) {
     const params = this.params();
 
-    if (sort === Object.keys(app.cache.discussionList.sortMap())[0]) {
+    if (sort === Object.keys(app.discussions.sortMap())[0]) {
       delete params.sort;
     } else {
       params.sort = sort;

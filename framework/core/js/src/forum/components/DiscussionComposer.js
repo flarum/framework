@@ -98,7 +98,7 @@ export default class DiscussionComposer extends ComposerBody {
       .save(data)
       .then((discussion) => {
         app.composer.hide();
-        app.cache.discussionList.refresh();
+        app.discussions.refresh();
         m.route(app.route.discussion(discussion));
       }, this.loaded.bind(this));
   }

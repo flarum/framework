@@ -229,13 +229,7 @@ export default {
         app.history.back();
       }
 
-      return this.delete().then(() => {
-        // If there is a discussion list in the cache, remove this discussion.
-        if (app.cache.discussionList) {
-          app.cache.discussionList.removeDiscussion(this);
-          m.redraw();
-        }
-      });
+      return this.delete().then(() => app.discussions.removeDiscussion(this));
     }
   },
 

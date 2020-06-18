@@ -7,6 +7,7 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
+import DiscussionList from './DiscussionList';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
@@ -35,9 +36,9 @@ export default class DiscussionPage extends Page {
     // If the discussion list has been loaded, then we'll enable the pane (and
     // hide it by default). Also, if we've just come from another discussion
     // page, then we don't want Mithril to redraw the whole page – if it did,
-    // then the pane would which would be slow and would cause problems with
+    // then the pane would redraw which would be slow and would cause problems with
     // event handlers.
-    if (app.cache.discussionList) {
+    if (app.discussions.hasDiscussions()) {
       app.pane.enable();
       app.pane.hide();
 
@@ -49,6 +50,7 @@ export default class DiscussionPage extends Page {
     app.history.push('discussion');
 
     this.bodyClass = 'App--discussion';
+    this.discussionListClass = DiscussionList;
   }
 
   onunload(e) {
@@ -90,9 +92,9 @@ export default class DiscussionPage extends Page {
 
     return (
       <div className="DiscussionPage">
-        {app.cache.discussionList ? (
+        {app.discussions.hasDiscussions() ? (
           <div className="DiscussionPage-list" config={this.configPane.bind(this)}>
-            {!$('.App-navigation').is(':visible') ? app.cache.discussionList.render() : ''}
+            {!$('.App-navigation').is(':visible') && <DiscussionList state={app.discussions} />}
           </div>
         ) : (
           ''
