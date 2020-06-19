@@ -71,6 +71,8 @@ export default class UserPage extends ForumPage {
   show(user) {
     this.user = user;
 
+    app.current.set('user', user);
+
     app.setTitle(user.displayName());
 
     m.redraw();
