@@ -5,7 +5,6 @@ import Alert from '../../common/components/Alert';
 import Select from '../../common/components/Select';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import saveSettings from '../utils/saveSettings';
-import AlertState from '../../common/states/AlertState';
 
 export default class MailPage extends Page {
   init() {
@@ -180,9 +179,10 @@ export default class MailPage extends Page {
       })
       .then((response) => {
         this.sendingTest = false;
-        app.alerts.show(
-          (this.testEmailSuccessAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.email.send_test_mail_success') }))
-        );
+        this.testEmailSuccessAlert = app.alerts.show({
+          type: 'success',
+          children: app.translator.trans('core.admin.email.send_test_mail_success'),
+        });
       })
       .catch((error) => {
         this.sendingTest = false;
@@ -197,7 +197,7 @@ export default class MailPage extends Page {
     if (this.saving || this.sendingTest) return;
 
     this.saving = true;
-    app.alerts.dismiss(this.successAlertKey);
+    app.alerts.dismiss(this.successAlerts);
 
     const settings = {};
 
@@ -205,9 +205,10 @@ export default class MailPage extends Page {
 
     saveSettings(settings)
       .then(() => {
-        this.successAlertKey = app.alerts.show(
-          new AlertState({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') })
-        );
+        this.successAlerts = app.alerts.show({
+          type: 'success',
+          children: app.translator.trans('core.admin.basics.saved_message'),
+        });
       })
       .catch(() => {})
       .then(() => {
