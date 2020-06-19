@@ -9,12 +9,14 @@
 
 namespace Flarum\Install;
 
+use Flarum\Foundation\Paths;
+
 class Installation
 {
-    private $basePath;
-    private $publicPath;
-    private $storagePath;
-    private $vendorPath;
+    /**
+     * @var Paths
+     */
+    private $paths;
 
     private $configPath;
     private $debug = false;
@@ -34,12 +36,9 @@ class Installation
     /** @var \Illuminate\Database\ConnectionInterface */
     private $db;
 
-    public function __construct($basePath, $publicPath, $storagePath, $vendorPath)
+    public function __construct(Paths $paths)
     {
-        $this->basePath = $basePath;
-        $this->publicPath = $publicPath;
-        $this->storagePath = $storagePath;
-        $this->vendorPath = $vendorPath;
+        $this->paths = $paths;
     }
 
     public function configPath($path)
@@ -98,9 +97,9 @@ class Installation
                 'tokenizer',
             ]),
             new Prerequisite\WritablePaths([
-                $this->basePath,
-                $this->getAssetPath(),
-                $this->storagePath,
+                $this->paths->base,
+                $this->getAssetPath().'/*',
+                $this->paths->storage,
             ])
         );
     }
@@ -140,11 +139,11 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\PublishAssets($this->vendorPath, $this->getAssetPath());
+            return new Steps\PublishAssets($this->paths->vendor, $this->getAssetPath());
         });
 
         $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->db, $this->vendorPath, $this->getAssetPath());
+            return new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath());
         });
 
         return $pipeline;
@@ -152,12 +151,12 @@ class Installation
 
     private function getConfigPath()
     {
-        return $this->basePath.'/'.($this->configPath ?? 'config.php');
+        return $this->paths->base.'/'.($this->configPath ?? 'config.php');
     }
 
     private function getAssetPath()
     {
-        return "$this->publicPath/assets";
+        return $this->paths->public.'/assets';
     }
 
     private function getMigrationPath()
