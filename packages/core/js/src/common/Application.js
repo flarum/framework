@@ -21,6 +21,7 @@ import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
 import { flattenDeep } from 'lodash-es';
+import PageState from './states/PageState';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -114,6 +115,28 @@ export default class Application {
    * @private
    */
   requestError = null;
+
+  /**
+   * The page the app is currently on.
+   *
+   * This object holds information about the type of page we are currently
+   * visiting, and sometimes additional arbitrary page state that may be
+   * relevant to lower-level components.
+   *
+   * @type {PageState}
+   */
+  current = new PageState(null);
+
+  /**
+   * The page the app was on before the current page.
+   *
+   * Once the application navigates to another page, the object previously
+   * assigned to this.current will be moved to this.previous, while this.current
+   * is re-initialized.
+   *
+   * @type {PageState}
+   */
+  previous = new PageState(null);
 
   data;
 

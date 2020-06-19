@@ -1,4 +1,4 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
 import PostStream from './PostStream';
@@ -42,7 +42,7 @@ export default class DiscussionPage extends Page {
       app.pane.enable();
       app.pane.hide();
 
-      if (app.previous instanceof DiscussionPage) {
+      if (app.previous.matches(DiscussionPage)) {
         m.redraw.strategy('diff');
       }
     }
@@ -200,6 +200,9 @@ export default class DiscussionPage extends Page {
     this.stream = new PostStream({ discussion, includedPosts });
     this.stream.on('positionChanged', this.positionChanged.bind(this));
     this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
+
+    app.current.set('discussion', discussion);
+    app.current.set('stream', this.stream);
   }
 
   /**

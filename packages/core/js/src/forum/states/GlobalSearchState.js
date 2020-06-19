@@ -77,7 +77,7 @@ export default class GlobalSearchState extends SearchState {
    * @return {String}
    */
   getInitialSearch() {
-    return app.current.constructor.providesInitialSearch && this.params().q;
+    return app.current.type.providesInitialSearch && this.params().q;
   }
 
   /**

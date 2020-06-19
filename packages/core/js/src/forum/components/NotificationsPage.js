@@ -1,4 +1,4 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import NotificationList from './NotificationList';
 
 /**

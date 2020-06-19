@@ -43,8 +43,6 @@ export default class ModalManager extends Component {
     this.showing = true;
     this.component = component;
 
-    if (app.current) app.current.retain = true;
-
     m.redraw(true);
 
     const dismissible = !!this.component.isDismissible();

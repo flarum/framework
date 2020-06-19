@@ -1,5 +1,5 @@
 import { extend } from '../../common/extend';
-import Page from './Page';
+import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import DiscussionList from './DiscussionList';
@@ -25,15 +25,15 @@ export default class IndexPage extends Page {
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
     // scroll down so that this discussion is in view.
-    if (app.previous instanceof DiscussionPage) {
-      this.lastDiscussion = app.previous.discussion;
+    if (app.previous.matches(DiscussionPage)) {
+      this.lastDiscussion = app.previous.get('discussion');
     }
 
     // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
-    if (app.previous instanceof IndexPage) {
+    if (app.previous.matches(IndexPage)) {
       app.discussions.clear();
     }
 

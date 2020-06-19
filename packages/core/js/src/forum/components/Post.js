@@ -116,6 +116,7 @@ export default class Post extends Component {
     let classes = (existing || '').split(' ').concat(['Post']);
 
     const user = this.props.post.user();
+    const discussion = this.props.post.discussion();
 
     if (this.loading) {
       classes.push('Post--loading');
@@ -125,7 +126,7 @@ export default class Post extends Component {
       classes.push('Post--by-actor');
     }
 
-    if (user && app.current.discussion && app.current.discussion.attribute('startUserId') == user.id()) {
+    if (user && user === discussion.user()) {
       classes.push('Post--by-start-user');
     }
 
