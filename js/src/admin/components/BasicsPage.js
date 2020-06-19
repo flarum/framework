@@ -1,4 +1,4 @@
-import AdminPage from './AdminPage';
+import Page from './Page';
 import FieldSet from '../../common/components/FieldSet';
 import Select from '../../common/components/Select';
 import Button from '../../common/components/Button';
@@ -7,7 +7,7 @@ import saveSettings from '../utils/saveSettings';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 
-export default class BasicsPage extends AdminPage {
+export default class BasicsPage extends Page {
   init() {
     super.init();
 

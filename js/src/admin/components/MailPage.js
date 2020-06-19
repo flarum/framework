@@ -1,4 +1,4 @@
-import AdminPage from './AdminPage';
+import Page from './Page';
 import FieldSet from '../../common/components/FieldSet';
 import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
@@ -6,7 +6,7 @@ import Select from '../../common/components/Select';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import saveSettings from '../utils/saveSettings';
 
-export default class MailPage extends AdminPage {
+export default class MailPage extends Page {
   init() {
     super.init();
 

@@ -1,4 +1,4 @@
-import AdminPage from './AdminPage';
+import Page from './Page';
 import Button from '../../common/components/Button';
 import Switch from '../../common/components/Switch';
 import EditCustomCssModal from './EditCustomCssModal';
@@ -7,7 +7,7 @@ import EditCustomFooterModal from './EditCustomFooterModal';
 import UploadImageButton from './UploadImageButton';
 import saveSettings from '../utils/saveSettings';
 
-export default class AppearancePage extends AdminPage {
+export default class AppearancePage extends Page {
   init() {
     super.init();
 

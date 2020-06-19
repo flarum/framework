@@ -30,7 +30,7 @@ import Forum from './models/Forum';
 import Component from './Component';
 import Translator from './Translator';
 import AlertManager from './components/AlertManager';
-import Page from './components/Page';
+import BasePage from './components/BasePage';
 import Switch from './components/Switch';
 import Badge from './components/Badge';
 import LoadingIndicator from './components/LoadingIndicator';
@@ -95,7 +95,7 @@ export default {
   Component: Component,
   Translator: Translator,
   'components/AlertManager': AlertManager,
-  'components/Page': Page,
+  'components/BasePage': BasePage,
   'components/Switch': Switch,
   'components/Badge': Badge,
   'components/LoadingIndicator': LoadingIndicator,

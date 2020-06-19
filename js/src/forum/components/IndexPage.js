@@ -1,5 +1,5 @@
 import { extend } from '../../common/extend';
-import ForumPage from './ForumPage';
+import Page from './Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import DiscussionList from './DiscussionList';
@@ -16,7 +16,7 @@ import SelectDropdown from '../../common/components/SelectDropdown';
  * The `IndexPage` component displays the index page, including the welcome
  * hero, the sidebar, and the discussion list.
  */
-export default class IndexPage extends ForumPage {
+export default class IndexPage extends Page {
   static providesInitialSearch = true;
 
   init() {

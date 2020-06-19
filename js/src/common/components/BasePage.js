@@ -1,4 +1,4 @@
-import Component from '../../common/Component';
+import Component from '../Component';
 import PageState from '../states/PageState';
 
 /**
@@ -6,7 +6,7 @@ import PageState from '../states/PageState';
  *
  * @abstract
  */
-export default class Page extends Component {
+export default class BasePage extends Component {
   init() {
     app.previous = app.current;
     app.current = new PageState(this.constructor);

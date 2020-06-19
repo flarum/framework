@@ -1,7 +1,7 @@
-import AdminPage from './AdminPage';
+import Page from './Page';
 import StatusWidget from './StatusWidget';
 
-export default class DashboardPage extends AdminPage {
+export default class DashboardPage extends Page {
   view() {
     return (
       <div className="DashboardPage">
