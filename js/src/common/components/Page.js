@@ -9,8 +9,7 @@ import PageState from '../states/PageState';
 export default class Page extends Component {
   init() {
     app.previous = app.current;
-
-    app.current = new PageState(this.constructor, {});
+    app.current = new PageState(this.constructor);
 
     app.drawer.hide();
     app.modal.close();
