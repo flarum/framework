@@ -1,4 +1,4 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import FieldSet from '../../common/components/FieldSet';
 import Select from '../../common/components/Select';
 import Button from '../../common/components/Button';
