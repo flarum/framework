@@ -25,7 +25,7 @@ export default class IndexPage extends ForumPage {
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
     // scroll down so that this discussion is in view.
-    if (app.previous.subclassOf(DiscussionPage)) {
+    if (app.previous.matches(DiscussionPage)) {
       this.lastDiscussion = app.previous.getData().discussion;
     }
 
@@ -33,7 +33,7 @@ export default class IndexPage extends ForumPage {
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
-    if (app.previous.subclassOf(IndexPage)) {
+    if (app.previous.matches(IndexPage)) {
       app.discussions.clear();
     }
 

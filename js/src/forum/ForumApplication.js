@@ -160,7 +160,7 @@ export default class ForumApplication extends Application {
    * @return {Boolean}
    */
   viewingDiscussion(discussion) {
-    return this.current.subclassOf(DiscussionPage) && this.currentData.discussion === discussion;
+    return this.current.matches(DiscussionPage, { discussion });
   }
 
   /**

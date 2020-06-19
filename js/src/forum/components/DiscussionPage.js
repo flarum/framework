@@ -42,7 +42,7 @@ export default class DiscussionPage extends ForumPage {
       app.pane.enable();
       app.pane.hide();
 
-      if (app.previous.subclassOf(DiscussionPage)) {
+      if (app.previous.matches(DiscussionPage)) {
         m.redraw.strategy('diff');
       }
     }
