@@ -7,6 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Flarum\Foundation\Paths;
 use Flarum\Install\AdminUser;
 use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
@@ -38,10 +39,12 @@ echo "\nOff we go...\n";
  */
 
 $installation = new Installation(
-    __DIR__.'/tmp',
-    __DIR__.'/tmp/public',
-    __DIR__.'/tmp/storage',
-    __DIR__.'/../../vendor'
+    new Paths([
+        'base' => __DIR__.'/tmp',
+        'public' => __DIR__.'/tmp/public',
+        'storage' => __DIR__.'/tmp/storage',
+        'vendor' => __DIR__.'/../../vendor',
+    ])
 );
 
 $pipeline = $installation
