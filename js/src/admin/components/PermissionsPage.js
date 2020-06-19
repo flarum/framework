@@ -1,4 +1,4 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import GroupBadge from '../../common/components/GroupBadge';
 import EditGroupModal from './EditGroupModal';
 import Group from '../../common/models/Group';

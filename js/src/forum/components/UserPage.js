@@ -1,4 +1,4 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import affixSidebar from '../utils/affixSidebar';
 import UserCard from './UserCard';
