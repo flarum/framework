@@ -89,10 +89,12 @@ class ComposerState {
   /**
    * Load a content component into the composer.
    *
-   * @param {Composer} composer
+   * @param {ComposerBody} bodyClass
    * @public
    */
-  load(body) {
+  load(bodyClass, bodyAttrs) {
+    const body = new Composer(bodyClass, bodyAttrs);
+
     if (this.preventExit()) return;
 
     // If we load a similar component into the composer, then Mithril will be

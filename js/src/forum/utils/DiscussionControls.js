@@ -169,12 +169,10 @@ export default {
     if (app.session.user) {
       if (this.canReply()) {
         if (!app.composer.composingReplyTo(this) || forceRefresh) {
-          app.composer.load(
-            new Composer(ReplyComposer, {
-              user: app.session.user,
-              discussion: this,
-            })
-          );
+          app.composer.load(ReplyComposer, {
+            user: app.session.user,
+            discussion: this,
+          });
         }
         app.composer.show();
 

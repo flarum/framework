@@ -131,7 +131,7 @@ export default {
   editAction() {
     const deferred = m.deferred();
 
-    app.composer.load(new Composer(EditPostComposer, { post: this }));
+    app.composer.load(EditPostComposer, { post: this });
     app.composer.show();
 
     deferred.resolve(app.composer);
