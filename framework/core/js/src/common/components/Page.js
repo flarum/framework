@@ -1,4 +1,5 @@
-import Component from '../../common/Component';
+import Component from '../Component';
+import PageState from '../states/PageState';
 
 /**
  * The `Page` component
@@ -8,8 +9,9 @@ import Component from '../../common/Component';
 export default class Page extends Component {
   init() {
     app.previous = app.current;
-    app.current = this;
+    app.current = new PageState(this.constructor);
 
+    app.drawer.hide();
     app.modal.close();
 
     /**
