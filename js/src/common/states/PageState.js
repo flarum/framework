@@ -23,11 +23,11 @@ export default class PageState {
     return Object.keys(data).every((key) => this.data[key] === data[key]);
   }
 
-  getData() {
-    return this.data;
+  get(key) {
+    return this.data[key];
   }
 
-  setData(data) {
-    this.data = data;
+  set(key, value) {
+    this.data[key] = value;
   }
 }

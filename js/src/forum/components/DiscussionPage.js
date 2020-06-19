@@ -201,10 +201,8 @@ export default class DiscussionPage extends ForumPage {
     this.stream.on('positionChanged', this.positionChanged.bind(this));
     this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
 
-    app.current.setData({
-      discussion: discussion,
-      stream: this.stream,
-    });
+    app.current.set('discussion', discussion);
+    app.current.set('stream', this.stream);
   }
 
   /**

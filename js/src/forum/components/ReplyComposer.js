@@ -89,10 +89,8 @@ export default class ReplyComposer extends ComposerBody {
         // If we're currently viewing the discussion which this reply was made
         // in, then we can update the post stream and scroll to the post.
         if (app.viewingDiscussion(discussion)) {
-          app.current
-            .getData()
-            .stream.update()
-            .then(() => app.current.getData().stream.goToNumber(post.number()));
+          const stream = app.current.get('stream');
+          stream.update().then(() => stream.goToNumber(post.number()));
         } else {
           // Otherwise, we'll create an alert message to inform the user that
           // their reply has been posted, containing a button which will

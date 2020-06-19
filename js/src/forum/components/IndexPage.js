@@ -26,7 +26,7 @@ export default class IndexPage extends ForumPage {
     // discussion they have just visited. After the view is rendered, we will
     // scroll down so that this discussion is in view.
     if (app.previous.matches(DiscussionPage)) {
-      this.lastDiscussion = app.previous.getData().discussion;
+      this.lastDiscussion = app.previous.get('discussion');
     }
 
     // If the user is coming from the discussion list, then they have either
