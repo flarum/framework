@@ -31,6 +31,8 @@ return [
         ->css(__DIR__.'/less/forum.less')
         ->route('/following', 'following'),
 
+    new Extend\Locales(__DIR__.'/locale'),
+
     function (Dispatcher $events, Factory $views) {
         $events->listen(Serializing::class, Listener\AddDiscussionSubscriptionAttribute::class);
         $events->listen(Saving::class, Listener\SaveSubscriptionToDatabase::class);
