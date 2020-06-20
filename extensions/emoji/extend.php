@@ -26,5 +26,7 @@ return [
             $config->Emoticons->add(':\'(', '😢');
             $config->Emoticons->add(':O', '😮');
             $config->Emoticons->add('>:(', '😡');
-        })
+        }),
+
+    new Extend\Locales(__DIR__.'/locale'),
 ];
