@@ -40,6 +40,8 @@ return [
     (new Extend\Model(Discussion::class))
         ->belongsToMany('tags', Tag::class, 'discussion_tag'),
 
+    new Extend\Locales(__DIR__.'/locale'),
+
     function (Dispatcher $events, Factory $view) {
         $events->subscribe(Listener\AddDiscussionTagsRelationship::class);
 
