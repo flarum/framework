@@ -39,6 +39,8 @@ return [
     (new Extend\Model(Post::class))
         ->hasMany('flags', Flag::class, 'post_id'),
 
+    new Extend\Locales(__DIR__.'/locale'),
+
     function (Dispatcher $events) {
         $events->listen(Serializing::class, Listener\AddFlagsApiAttributes::class);
 
