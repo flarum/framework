@@ -17,4 +17,6 @@ return [
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/less/admin.less')
         ->content(Listener\AddStatisticsData::class),
+
+    new Extend\Locales(__DIR__ . '/locale'),
 ];
