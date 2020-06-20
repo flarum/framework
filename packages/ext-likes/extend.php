@@ -29,6 +29,8 @@ return [
     (new Extend\Model(Post::class))
         ->belongsToMany('likes', User::class, 'post_likes', 'post_id', 'user_id'),
 
+    new Extend\Locales(__DIR__ . '/locale'),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddPostLikesRelationship::class);
         $events->subscribe(Listener\SaveLikesToDatabase::class);
