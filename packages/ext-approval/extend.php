@@ -30,6 +30,8 @@ return [
     (new Extend\Model(Post::class))
         ->default('is_approved', true),
 
+    new Extend\Locales(__DIR__.'/locale'),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddPostApprovalAttributes::class);
         $events->subscribe(Listener\ApproveContent::class);
