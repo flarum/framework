@@ -28,6 +28,8 @@ return [
     (new Extend\Routes('api'))
         ->post('/pusher/auth', 'pusher.auth', AuthController::class),
 
+    new Extend\Locales(__DIR__.'/locale'),
+
     function (Dispatcher $events, Container $container) {
         $container->bind(Pusher::class, function ($app) {
             $settings = $app->make(SettingsRepositoryInterface::class);
