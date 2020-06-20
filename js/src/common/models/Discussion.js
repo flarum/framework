@@ -68,7 +68,10 @@ Object.assign(Discussion.prototype, {
     const user = app.session.user;
 
     if (user && user.markedAllAsReadAt() < this.lastPostedAt()) {
-      return Math.min(Math.max(0, this.lastPostNumber() - (this.lastReadPostNumber() || 0)), this.commentCount());
+      const unreadCount = Math.max(0, this.lastPostNumber() - (this.lastReadPostNumber() || 0));
+      // If posts have been deleted, it's possible that the unread count could exceed the
+      // actual post count. As such, we take the min of the two to ensure this isn't an issue.
+      return Math.min(unreadCount, this.commentCount());
     }
 
     return 0;
