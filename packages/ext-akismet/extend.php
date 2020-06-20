@@ -24,6 +24,8 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
+    new Extend\Locales(__DIR__.'/locale'),
+
     function (Dispatcher $events, Container $container) {
         $container->bind(Akismet::class, function ($app) {
             $settings = $app->make(SettingsRepositoryInterface::class);
