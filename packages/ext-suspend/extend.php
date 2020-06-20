@@ -32,6 +32,8 @@ return [
     (new Extend\Model(User::class))
         ->dateAttribute('suspended_until'),
 
+    new Extend\Locales(__DIR__ . '/locale'),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddUserSuspendAttributes::class);
         $events->subscribe(Listener\RevokeAccessFromSuspendedUsers::class);
