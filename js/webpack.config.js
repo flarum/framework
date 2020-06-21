@@ -8,5 +8,14 @@ module.exports = merge(config(), {
   },
   plugins: [
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
-  ]
+  ],
+
+  // temporary TS configuration
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.json'],
+  },
 });
+
+module.exports['module'].rules[0].test = /\.(tsx?|js)$/;
+module.exports['module'].rules[0].use.options.presets.push('@babel/preset-typescript');
+module.exports['module'].rules[0].use.options.plugins.push('@babel/plugin-syntax-dynamic-import');
