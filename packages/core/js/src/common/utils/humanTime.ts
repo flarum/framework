@@ -1,11 +1,8 @@
 /**
  * The `humanTime` utility converts a date to a localized, human-readable time-
  * ago string.
- *
- * @param {Date} time
- * @return {String}
  */
-export default function humanTime(time) {
+export default function humanTime(time: Date): string {
   let d = dayjs(time);
   const now = dayjs();
 
@@ -18,7 +15,7 @@ export default function humanTime(time) {
 
   const day = 864e5;
   const diff = d.diff(dayjs());
-  let ago = null;
+  let ago: string;
 
   // If this date was more than a month ago, we'll show the name of the month
   // in the string. If it wasn't this year, we'll show the year as well.
