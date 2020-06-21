@@ -1,5 +1,9 @@
 class Item {
-  constructor(content, priority) {
+  content: any;
+  priority: number;
+  key?: number;
+
+  constructor(content: any, priority?: number) {
     this.content = content;
     this.priority = priority;
   }
@@ -10,23 +14,15 @@ class Item {
  * by priority.
  */
 export default class ItemList {
-  constructor() {
-    /**
-     * The items in the list.
-     *
-     * @type {Object}
-     * @public
-     */
-    this.items = {};
-  }
+  /**
+   * The items in the list
+   */
+  items: { [key: string]: Item } = {};
 
   /**
    * Check whether the list is empty.
-   *
-   * @returns {boolean}
-   * @public
    */
-  isEmpty() {
+  isEmpty(): boolean {
     for (const i in this.items) {
       if (this.items.hasOwnProperty(i)) {
         return false;
@@ -38,36 +34,27 @@ export default class ItemList {
 
   /**
    * Check whether an item is present in the list.
-   *
-   * @param key
-   * @returns {boolean}
    */
-  has(key) {
+  has(key: string): boolean {
     return !!this.items[key];
   }
 
   /**
    * Get the content of an item.
-   *
-   * @param {String} key
-   * @return {*}
-   * @public
    */
-  get(key) {
+  get(key: string): any {
     return this.items[key].content;
   }
 
   /**
    * Add an item to the list.
    *
-   * @param {String} key A unique key for the item.
-   * @param {*} content The item's content.
-   * @param {Integer} [priority] The priority of the item. Items with a higher
+   * @param key A unique key for the item.
+   * @param content The item's content.
+   * @param [priority] The priority of the item. Items with a higher
    *     priority will be positioned before items with a lower priority.
-   * @return {ItemList}
-   * @public
    */
-  add(key, content, priority = 0) {
+  add(key: string, content: any, priority: number = 0): this {
     this.items[key] = new Item(content, priority);
 
     return this;
@@ -75,14 +62,8 @@ export default class ItemList {
 
   /**
    * Replace an item in the list, only if it is already present.
-   *
-   * @param {String} key
-   * @param {*} [content]
-   * @param {Integer} [priority]
-   * @return {ItemList}
-   * @public
    */
-  replace(key, content = null, priority = null) {
+  replace(key: string, content: any = null, priority: number = null): this {
     if (this.items[key]) {
       if (content !== null) {
         this.items[key].content = content;
@@ -98,12 +79,8 @@ export default class ItemList {
 
   /**
    * Remove an item from the list.
-   *
-   * @param {String} key
-   * @return {ItemList}
-   * @public
    */
-  remove(key) {
+  remove(key: string): this {
     delete this.items[key];
 
     return this;
@@ -111,12 +88,8 @@ export default class ItemList {
 
   /**
    * Merge another list's items into this one.
-   *
-   * @param {ItemList} items
-   * @return {ItemList}
-   * @public
    */
-  merge(items) {
+  merge(items: this): this {
     for (const i in items.items) {
       if (items.items.hasOwnProperty(i) && items.items[i] instanceof Item) {
         this.items[i] = items.items[i];
@@ -130,12 +103,9 @@ export default class ItemList {
    * Convert the list into an array of item content arranged by priority. Each
    * item's content will be assigned an `itemName` property equal to the item's
    * unique key.
-   *
-   * @return {Array}
-   * @public
    */
-  toArray() {
-    const items = [];
+  toArray(): any[] {
+    const items: Item[] = [];
 
     for (const i in this.items) {
       if (this.items.hasOwnProperty(i) && this.items[i] instanceof Item) {
