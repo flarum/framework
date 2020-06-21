@@ -4,11 +4,8 @@
  * @example
  * abbreviateNumber(1234);
  * // "1.2K"
- *
- * @param {Integer} number
- * @return {String}
  */
-export default function abbreviateNumber(number) {
+export default function abbreviateNumber(number: number): string {
   // TODO: translation
   if (number >= 1000000) {
     return Math.floor(number / 1000000) + app.translator.trans('core.lib.number_suffix.mega_text');
