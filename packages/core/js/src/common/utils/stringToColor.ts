@@ -1,4 +1,6 @@
-function hsvToRgb(h, s, v) {
+type RGB = { r: number; g: number; b: number };
+
+function hsvToRgb(h: number, s: number, v: number): RGB {
   let r;
   let g;
   let b;
@@ -51,11 +53,8 @@ function hsvToRgb(h, s, v) {
 
 /**
  * Convert the given string to a unique color.
- *
- * @param {String} string
- * @return {String}
  */
-export default function stringToColor(string) {
+export default function stringToColor(string: string): string {
   let num = 0;
 
   // Convert the username into a number based on the ASCII value of each
