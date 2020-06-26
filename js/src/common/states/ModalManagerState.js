@@ -1,7 +1,6 @@
 import evented from '../utils/evented';
 
 import Modal from '../components/Modal';
-import ModalState from './ModalState';
 
 class ModalManagerState {
   constructor() {
@@ -18,10 +17,10 @@ class ModalManagerState {
    * @param {Modal} component
    * @public
    */
-  show(modalClass, attrs) {
-    const modal = new ModalState(modalClass, attrs);
+  show(type, attrs) {
+    const modal = { type, attrs };
 
-    if (!(modal.getClass().prototype instanceof Modal)) {
+    if (!(type.prototype instanceof Modal)) {
       throw new Error('The ModalManager component can only show Modals');
     }
 
