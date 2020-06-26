@@ -310,8 +310,8 @@ export default class TagDiscussionModal extends Modal {
     if (discussion) {
       discussion.save({relationships: {tags}})
         .then(() => {
-          if (app.current instanceof DiscussionPage) {
-            app.current.stream.update();
+          if (app.current.matches(DiscussionPage)) {
+            app.current.get('stream').update();
           }
           m.redraw();
         });

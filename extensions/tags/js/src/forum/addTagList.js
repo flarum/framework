@@ -17,11 +17,11 @@ export default function() {
       href: app.route('tags')
     }), -10);
 
-    if (app.current instanceof TagsPage) return;
+    if (app.current.matches(TagsPage)) return;
 
     items.add('separator', Separator.component(), -12);
 
-    const params = this.stickyParams();
+    const params = app.search.stickyParams();
     const tags = app.store.all('tags');
     const currentTag = this.currentTag();
 

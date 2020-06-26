@@ -7,7 +7,7 @@ import tagsLabel from '../common/helpers/tagsLabel';
 
 export default function() {
   extend(IndexPage.prototype, 'newDiscussionAction', function(promise) {
-    const tag = app.store.getBy('tags', 'slug', this.params().tags);
+    const tag = app.store.getBy('tags', 'slug', app.search.params().tags);
 
     if (tag) {
       const parent = tag.parent();
