@@ -9,12 +9,6 @@ import Button from './Button';
  * @abstract
  */
 export default class Modal extends Component {
-  static initProps(props) {
-    super.initProps(props);
-
-    Object.assign(props, props.state.modal.getAttrs());
-  }
-
   init() {
     this.state = this.props.state;
 
