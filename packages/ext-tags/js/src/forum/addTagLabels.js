@@ -1,6 +1,5 @@
 import { extend } from 'flarum/extend';
 import DiscussionListItem from 'flarum/components/DiscussionListItem';
-import DiscussionPage from 'flarum/components/DiscussionPage';
 import DiscussionHero from 'flarum/components/DiscussionHero';
 
 import tagsLabel from '../common/helpers/tagsLabel';
@@ -14,11 +13,6 @@ export default function() {
     if (tags && tags.length) {
       items.add('tags', tagsLabel(tags), 10);
     }
-  });
-
-  // Include a discussion's tags when fetching it.
-  extend(DiscussionPage.prototype, 'params', function(params) {
-    params.include.push('tags');
   });
 
   // Restyle a discussion's hero to use its first tag's color.
