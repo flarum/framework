@@ -1,12 +1,13 @@
 import { extend, override } from 'flarum/extend';
 import IndexPage from 'flarum/components/IndexPage';
-import DiscussionList from 'flarum/components/DiscussionList';
+import DiscussionListState from 'flarum/states/DiscussionListState';
+import GlobalSearchState from 'flarum/states/GlobalSearchState';
 
 import TagHero from './components/TagHero';
 
 export default function() {
   IndexPage.prototype.currentTag = function() {
-    const slug = this.params().tags;
+    const slug = app.search.params().tags;
 
     if (slug) return app.store.getBy('tags', 'slug', slug);
   };
@@ -46,25 +47,24 @@ export default function() {
       if (color) {
         items.get('newDiscussion').props.style = {backgroundColor: color};
       }
-    
+
       items.get('newDiscussion').props.disabled = !canStartDiscussion;
       items.get('newDiscussion').props.children = app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button');
-    
     }
   });
 
-  // Add a parameter for the IndexPage to pass on to the DiscussionList that
-  // will let us filter discussions by tag.
-  extend(IndexPage.prototype, 'params', function(params) {
+  // Add a parameter for the global search state to pass on to the
+  // DiscussionListState that will let us filter discussions by tag.
+  extend(GlobalSearchState.prototype, 'params', function(params) {
     params.tags = m.route.param('tags');
   });
 
   // Translate that parameter into a gambit appended to the search query.
-  extend(DiscussionList.prototype, 'requestParams', function(params) {
+  extend(DiscussionListState.prototype, 'requestParams', function(params) {
     params.include.push('tags');
 
-    if (this.props.params.tags) {
-      params.filter.q = (params.filter.q || '') + ' tag:' + this.props.params.tags;
+    if (this.params.tags) {
+      params.filter.q = (params.filter.q || '') + ' tag:' + this.params.tags;
     }
   });
 }
