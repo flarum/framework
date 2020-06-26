@@ -1,10 +1,10 @@
 import { extend } from 'flarum/extend';
-import DiscussionList from 'flarum/components/DiscussionList';
+import DiscussionListState from 'flarum/states/DiscussionListState';
 import DiscussionListItem from 'flarum/components/DiscussionListItem';
 import { truncate } from 'flarum/utils/string';
 
 export default function addStickyControl() {
-  extend(DiscussionList.prototype, 'requestParams', function(params) {
+  extend(DiscussionListState.prototype, 'requestParams', function(params) {
     params.include.push('firstPost');
   });
 
