@@ -35,7 +35,7 @@ app.initializers.add('flarum-pusher', () => {
 
     app.pusher.then(channels => {
       channels.main.bind('newPost', data => {
-        const params = this.props.params;
+        const params = app.discussions.getParams();
 
         if (!params.q && !params.sort && !params.filter) {
           if (params.tags) {
@@ -46,10 +46,10 @@ app.initializers.add('flarum-pusher', () => {
 
           const id = String(data.discussionId);
 
-          if ((!app.current.discussion || id !== app.current.discussion.id()) && app.pushedUpdates.indexOf(id) === -1) {
+          if ((!app.current.get('discussion') || id !== app.current.get('discussion').id()) && app.pushedUpdates.indexOf(id) === -1) {
             app.pushedUpdates.push(id);
 
-            if (app.current instanceof IndexPage) {
+            if (app.current.matches(IndexPage)) {
               app.setTitleCount(app.pushedUpdates.length);
             }
 
@@ -98,7 +98,7 @@ app.initializers.add('flarum-pusher', () => {
       app.pushedUpdates.splice(index, 1);
     }
 
-    if (app.current instanceof IndexPage) {
+    if (app.current.matches(IndexPage)) {
       app.setTitleCount(app.pushedUpdates.length);
     }
 
@@ -142,7 +142,7 @@ app.initializers.add('flarum-pusher', () => {
           unreadNotificationCount: app.session.user.unreadNotificationCount() + 1,
           newNotificationCount: app.session.user.newNotificationCount() + 1
         });
-        delete app.cache.notifications;
+        app.notifications.clear();
         m.redraw();
       });
     }
