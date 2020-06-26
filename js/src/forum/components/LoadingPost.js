@@ -10,14 +10,14 @@ export default class LoadingPost extends Component {
     return (
       <div className="Post CommentPost LoadingPost">
         <header className="Post-header">
-          {avatar(null, {className: 'PostUser-avatar'})}
-          <div className="fakeText"/>
+          {avatar(null, { className: 'PostUser-avatar' })}
+          <div className="fakeText" />
         </header>
 
         <div className="Post-body">
-          <div className="fakeText"/>
-          <div className="fakeText"/>
-          <div className="fakeText"/>
+          <div className="fakeText" />
+          <div className="fakeText" />
+          <div className="fakeText" />
         </div>
       </div>
     );

@@ -21,7 +21,7 @@
 export function extend(object, method, callback) {
   const original = object[method];
 
-  object[method] = function(...args) {
+  object[method] = function (...args) {
     const value = original ? original.apply(this, args) : undefined;
 
     callback.apply(this, [value].concat(args));
@@ -57,7 +57,7 @@ export function extend(object, method, callback) {
 export function override(object, method, newMethod) {
   const original = object[method];
 
-  object[method] = function(...args) {
+  object[method] = function (...args) {
     return newMethod.apply(this, [original.bind(this)].concat(args));
   };
 

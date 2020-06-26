@@ -26,11 +26,11 @@ export default function humanTime(time) {
     if (m.year() === moment().year()) {
       ago = m.format('D MMM');
     } else {
-      ago = m.format('MMM \'YY');
+      ago = m.format('ll');
     }
   } else {
     ago = m.fromNow();
   }
 
   return ago;
-};
+}

@@ -12,19 +12,17 @@ import UsersSearchSource from './UsersSearchSource';
  * The `Search` component displays a menu of as-you-type results from a variety
  * of sources.
  *
- * The search box will be 'activated' if the app's current controller implements
- * a `searching` method that returns a truthy value. If this is the case, an 'x'
- * button will be shown next to the search field, and clicking it will call the
- * `clearSearch` method on the controller.
+ * The search box will be 'activated' if the app's seach state's
+ * getInitialSearch() value is a truthy value. If this is the case, an 'x'
+ * button will be shown next to the search field, and clicking it will clear the search.
+ *
+ * PROPS:
+ *
+ * - state: AlertState instance.
  */
 export default class Search extends Component {
   init() {
-    /**
-     * The value of the search input.
-     *
-     * @type {Function}
-     */
-    this.value = m.prop('');
+    this.state = this.props.state;
 
     /**
      * Whether or not the search input has focus.
@@ -48,13 +46,6 @@ export default class Search extends Component {
     this.loadingSources = 0;
 
     /**
-     * A list of queries that have been searched for.
-     *
-     * @type {Array}
-     */
-    this.searched = [];
-
-    /**
      * The index of the currently-selected <li> in the results list. This can be
      * a unique string (to account for the fact that an item's position may jump
      * around as new results load), but otherwise it will be numeric (the
@@ -66,13 +57,7 @@ export default class Search extends Component {
   }
 
   view() {
-    const currentSearch = this.getCurrentSearch();
-
-    // Initialize search input value in the view rather than the constructor so
-    // that we have access to app.current.
-    if (typeof this.value() === 'undefined') {
-      this.value(currentSearch || '');
-    }
+    const currentSearch = this.state.getInitialSearch();
 
     // Initialize search sources in the view rather than the constructor so
     // that we have access to app.forum.
@@ -84,30 +69,39 @@ export default class Search extends Component {
     if (!this.sources.length) return <div></div>;
 
     return (
-      <div className={'Search ' + classList({
-        open: this.value() && this.hasFocus,
-        focused: this.hasFocus,
-        active: !!currentSearch,
-        loading: !!this.loadingSources
-      })}>
+      <div
+        className={
+          'Search ' +
+          classList({
+            open: this.state.getValue() && this.hasFocus,
+            focused: this.hasFocus,
+            active: !!currentSearch,
+            loading: !!this.loadingSources,
+          })
+        }
+      >
         <div className="Search-input">
-          <input className="FormControl"
+          <input
+            className="FormControl"
             type="search"
             placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
-            value={this.value()}
-            oninput={m.withAttr('value', this.value)}
-            onfocus={() => this.hasFocus = true}
-            onblur={() => this.hasFocus = false}/>
-          {this.loadingSources
-            ? LoadingIndicator.component({size: 'tiny', className: 'Button Button--icon Button--link'})
-            : currentSearch
-              ? <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>{icon('fas fa-times-circle')}</button>
-              : ''}
+            value={this.state.getValue()}
+            oninput={m.withAttr('value', this.state.setValue.bind(this.state))}
+            onfocus={() => (this.hasFocus = true)}
+            onblur={() => (this.hasFocus = false)}
+          />
+          {this.loadingSources ? (
+            LoadingIndicator.component({ size: 'tiny', className: 'Button Button--icon Button--link' })
+          ) : currentSearch ? (
+            <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>
+              {icon('fas fa-times-circle')}
+            </button>
+          ) : (
+            ''
+          )}
         </div>
         <ul className="Dropdown-menu Search-results">
-          {this.value() && this.hasFocus
-            ? this.sources.map(source => source.view(this.value()))
-            : ''}
+          {this.state.getValue() && this.hasFocus ? this.sources.map((source) => source.view(this.state.getValue())) : ''}
         </ul>
       </div>
     );
@@ -120,16 +114,15 @@ export default class Search extends Component {
     if (isInitialized) return;
 
     const search = this;
+    const state = this.state;
 
     this.$('.Search-results')
-      .on('mousedown', e => e.preventDefault())
+      .on('mousedown', (e) => e.preventDefault())
       .on('click', () => this.$('input').blur())
 
       // Whenever the mouse is hovered over a search result, highlight it.
-      .on('mouseenter', '> li:not(.Dropdown-header)', function() {
-        search.setIndex(
-          search.selectableItems().index(this)
-        );
+      .on('mouseenter', '> li:not(.Dropdown-header)', function () {
+        search.setIndex(search.selectableItems().index(this));
       });
 
     const $input = this.$('input');
@@ -144,17 +137,17 @@ export default class Search extends Component {
 
     // Handle input key events on the search input, triggering results to load.
     $input
-      .on('input focus', function() {
+      .on('input focus', function () {
         const query = this.value.toLowerCase();
 
         if (!query) return;
 
         clearTimeout(search.searchTimeout);
         search.searchTimeout = setTimeout(() => {
-          if (search.searched.indexOf(query) !== -1) return;
+          if (state.isCached(query)) return;
 
           if (query.length >= 3) {
-            search.sources.map(source => {
+            search.sources.map((source) => {
               if (!source.search) return;
 
               search.loadingSources++;
@@ -166,23 +159,16 @@ export default class Search extends Component {
             });
           }
 
-          search.searched.push(query);
+          state.cache(query);
           m.redraw();
         }, 250);
       })
 
-      .on('focus', function() {
-        $(this).one('mouseup', e => e.preventDefault()).select();
+      .on('focus', function () {
+        $(this)
+          .one('mouseup', (e) => e.preventDefault())
+          .select();
       });
-  }
-
-  /**
-   * Get the active search in the app's current controller.
-   *
-   * @return {String}
-   */
-  getCurrentSearch() {
-    return app.current && typeof app.current.searching === 'function' && app.current.searching();
   }
 
   /**
@@ -192,7 +178,7 @@ export default class Search extends Component {
     clearTimeout(this.searchTimeout);
     this.loadingSources = 0;
 
-    if (this.value()) {
+    if (this.state.getValue()) {
       m.route(this.getItem(this.index).find('a').attr('href'));
     } else {
       this.clear();
@@ -202,16 +188,10 @@ export default class Search extends Component {
   }
 
   /**
-   * Clear the search input and the current controller's active search.
+   * Clear the search
    */
   clear() {
-    this.value('');
-
-    if (this.getCurrentSearch()) {
-      app.current.clearSearch();
-    } else {
-      m.redraw();
-    }
+    this.state.clear();
   }
 
   /**
@@ -243,9 +223,7 @@ export default class Search extends Component {
    * @return {Integer}
    */
   getCurrentNumericIndex() {
-    return this.selectableItems().index(
-      this.getItem(this.index)
-    );
+    return this.selectableItems().index(this.getItem(this.index));
   }
 
   /**
@@ -303,7 +281,7 @@ export default class Search extends Component {
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.stop(true).animate({scrollTop}, 100);
+        $dropdown.stop(true).animate({ scrollTop }, 100);
       }
     }
   }

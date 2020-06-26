@@ -2,6 +2,7 @@ import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import ItemList from '../../common/utils/ItemList';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `PostControls` utility constructs a list of buttons for a post which
@@ -20,10 +21,10 @@ export default {
   controls(post, context) {
     const items = new ItemList();
 
-    ['user', 'moderation', 'destructive'].forEach(section => {
+    ['user', 'moderation', 'destructive'].forEach((section) => {
       const controls = this[section + 'Controls'](post, context).toArray();
       if (controls.length) {
-        controls.forEach(item => items.add(item.itemName, item));
+        controls.forEach((item) => items.add(item.itemName, item));
         items.add(section + 'Separator', Separator.component());
       }
     });
@@ -58,11 +59,14 @@ export default {
 
     if (post.contentType() === 'comment' && post.canEdit()) {
       if (!post.isHidden()) {
-        items.add('edit', Button.component({
-          icon: 'fas fa-pencil-alt',
-          children: app.translator.trans('core.forum.post_controls.edit_button'),
-          onclick: this.editAction.bind(post)
-        }));
+        items.add(
+          'edit',
+          Button.component({
+            icon: 'fas fa-pencil-alt',
+            children: app.translator.trans('core.forum.post_controls.edit_button'),
+            onclick: this.editAction.bind(post),
+          })
+        );
       }
     }
 
@@ -83,26 +87,35 @@ export default {
 
     if (post.contentType() === 'comment' && !post.isHidden()) {
       if (post.canHide()) {
-        items.add('hide', Button.component({
-          icon: 'far fa-trash-alt',
-          children: app.translator.trans('core.forum.post_controls.delete_button'),
-          onclick: this.hideAction.bind(post)
-        }));
+        items.add(
+          'hide',
+          Button.component({
+            icon: 'far fa-trash-alt',
+            children: app.translator.trans('core.forum.post_controls.delete_button'),
+            onclick: this.hideAction.bind(post),
+          })
+        );
       }
     } else {
       if (post.contentType() === 'comment' && post.canHide()) {
-        items.add('restore', Button.component({
-          icon: 'fas fa-reply',
-          children: app.translator.trans('core.forum.post_controls.restore_button'),
-          onclick: this.restoreAction.bind(post)
-        }));
+        items.add(
+          'restore',
+          Button.component({
+            icon: 'fas fa-reply',
+            children: app.translator.trans('core.forum.post_controls.restore_button'),
+            onclick: this.restoreAction.bind(post),
+          })
+        );
       }
       if (post.canDelete()) {
-        items.add('delete', Button.component({
-          icon: 'fas fa-times',
-          children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
-          onclick: this.deleteAction.bind(post, context)
-        }));
+        items.add(
+          'delete',
+          Button.component({
+            icon: 'fas fa-times',
+            children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
+            onclick: this.deleteAction.bind(post, context),
+          })
+        );
       }
     }
 
@@ -133,6 +146,7 @@ export default {
    * @return {Promise}
    */
   hideAction() {
+    if (!confirm(extractText(app.translator.trans('core.forum.post_controls.hide_confirmation')))) return;
     this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
 
     return this.save({ isHidden: true }).then(() => m.redraw());
@@ -155,6 +169,7 @@ export default {
    * @return {Promise}
    */
   deleteAction(context) {
+    if (!confirm(extractText(app.translator.trans('core.forum.post_controls.delete_confirmation')))) return;
     if (context) context.loading = true;
 
     return this.delete()
@@ -166,10 +181,7 @@ export default {
         // If this was the last post in the discussion, then we will assume that
         // the whole discussion was deleted too.
         if (!discussion.postIds().length) {
-          // If there is a discussion list in the cache, remove this discussion.
-          if (app.cache.discussionList) {
-            app.cache.discussionList.removeDiscussion(discussion);
-          }
+          app.discussions.removeDiscussion(discussion);
 
           if (app.viewingDiscussion(discussion)) {
             app.history.back();
@@ -181,5 +193,5 @@ export default {
         if (context) context.loading = false;
         m.redraw();
       });
-  }
+  },
 };

@@ -19,7 +19,7 @@ class DatabaseSettingsRepositoryTest extends TestCase
     private $connection;
     private $repository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = m::mock(ConnectionInterface::class);
         $this->repository = new DatabaseSettingsRepository($this->connection);

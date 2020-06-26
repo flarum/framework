@@ -1,18 +1,16 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import StatusWidget from './StatusWidget';
 
 export default class DashboardPage extends Page {
   view() {
     return (
       <div className="DashboardPage">
-        <div className="container">
-          {this.availableWidgets()}
-        </div>
+        <div className="container">{this.availableWidgets()}</div>
       </div>
     );
   }
 
   availableWidgets() {
-    return [<StatusWidget/>];
+    return [<StatusWidget />];
   }
 }

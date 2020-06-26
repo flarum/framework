@@ -44,7 +44,7 @@ export default class PostsUserPage extends UserPage {
   }
 
   content() {
-    if (this.posts.length === 0 && ! this.loading) {
+    if (this.posts.length === 0 && !this.loading) {
       return (
         <div className="PostsUserPage">
           <Placeholder text={app.translator.trans('core.forum.user.posts_empty_text')} />
@@ -62,7 +62,7 @@ export default class PostsUserPage extends UserPage {
           {Button.component({
             children: app.translator.trans('core.forum.user.posts_load_more_button'),
             className: 'Button',
-            onclick: this.loadMore.bind(this)
+            onclick: this.loadMore.bind(this),
           })}
         </div>
       );
@@ -71,18 +71,22 @@ export default class PostsUserPage extends UserPage {
     return (
       <div className="PostsUserPage">
         <ul className="PostsUserPage-list">
-          {this.posts.map(post => (
+          {this.posts.map((post) => (
             <li>
               <div className="PostsUserPage-discussion">
-                {app.translator.trans('core.forum.user.in_discussion_text', {discussion: <a href={app.route.post(post)} config={m.route}>{post.discussion().title()}</a>})}
+                {app.translator.trans('core.forum.user.in_discussion_text', {
+                  discussion: (
+                    <a href={app.route.post(post)} config={m.route}>
+                      {post.discussion().title()}
+                    </a>
+                  ),
+                })}
               </div>
-              {CommentPost.component({post})}
+              {CommentPost.component({ post })}
             </li>
           ))}
         </ul>
-        <div className="PostsUserPage-loadMore">
-          {footer}
-        </div>
+        <div className="PostsUserPage-loadMore">{footer}</div>
       </div>
     );
   }
@@ -122,10 +126,10 @@ export default class PostsUserPage extends UserPage {
     return app.store.find('posts', {
       filter: {
         user: this.user.id(),
-        type: 'comment'
+        type: 'comment',
       },
-      page: {offset, limit: this.loadLimit},
-      sort: '-createdAt'
+      page: { offset, limit: this.loadLimit },
+      sort: '-createdAt',
     });
   }
 

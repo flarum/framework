@@ -24,12 +24,10 @@ export default class SplitDropdown extends Dropdown {
 
     return [
       Button.component(buttonProps),
-      <button
-        className={'Dropdown-toggle Button Button--icon ' + this.props.buttonClassName}
-        data-toggle="dropdown">
-        {icon(this.props.icon, {className: 'Button-icon'})}
-        {icon('fas fa-caret-down', {className: 'Button-caret'})}
-      </button>
+      <button className={'Dropdown-toggle Button Button--icon ' + this.props.buttonClassName} data-toggle="dropdown">
+        {icon(this.props.icon, { className: 'Button-icon' })}
+        {icon('fas fa-caret-down', { className: 'Button-caret' })}
+      </button>,
     ];
   }
 

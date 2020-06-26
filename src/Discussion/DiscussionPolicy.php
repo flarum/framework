@@ -12,7 +12,6 @@ namespace Flarum\Discussion;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AbstractPolicy;
-use Flarum\User\Gate;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,24 +29,17 @@ class DiscussionPolicy extends AbstractPolicy
     protected $settings;
 
     /**
-     * @var Gate
-     */
-    protected $gate;
-
-    /**
      * @var Dispatcher
      */
     protected $events;
 
     /**
      * @param SettingsRepositoryInterface $settings
-     * @param Gate $gate
      * @param Dispatcher $events
      */
-    public function __construct(SettingsRepositoryInterface $settings, Gate $gate, Dispatcher $events)
+    public function __construct(SettingsRepositoryInterface $settings, Dispatcher $events)
     {
         $this->settings = $settings;
-        $this->gate = $gate;
         $this->events = $events;
     }
 
@@ -139,7 +131,11 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function hide(User $actor, Discussion $discussion)
     {
-        if ($discussion->user_id == $actor->id && $discussion->participant_count <= 1 && $actor->can('reply', $discussion)) {
+        if ($discussion->user_id == $actor->id
+            && $discussion->participant_count <= 1
+            && (! $discussion->hidden_at || $discussion->hidden_user_id == $actor->id)
+            && $actor->can('reply', $discussion)
+        ) {
             return true;
         }
     }

@@ -24,7 +24,7 @@ export default class ChangePasswordModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.translator.trans('core.forum.change_password.send_button')
+              children: app.translator.trans('core.forum.change_password.send_button'),
             })}
           </div>
         </div>
@@ -37,13 +37,12 @@ export default class ChangePasswordModal extends Modal {
 
     this.loading = true;
 
-    app.request({
-      method: 'POST',
-      url: app.forum.attribute('apiUrl') + '/forgot',
-      data: {email: app.session.user.email()}
-    }).then(
-      this.hide.bind(this),
-      this.loaded.bind(this)
-    );
+    app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/forgot',
+        data: { email: app.session.user.email() },
+      })
+      .then(this.hide.bind(this), this.loaded.bind(this));
   }
 }

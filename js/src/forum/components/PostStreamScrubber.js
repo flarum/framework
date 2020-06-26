@@ -40,7 +40,7 @@ export default class PostStreamScrubber extends Component {
 
     // When the post stream begins loading posts at a certain index, we want our
     // scrubber scrollbar to jump to that position.
-    this.props.stream.on('unpaused', this.handlers.streamWasUnpaused = this.streamWasUnpaused.bind(this));
+    this.props.stream.on('unpaused', (this.handlers.streamWasUnpaused = this.streamWasUnpaused.bind(this)));
 
     // Define a handler to update the state of the scrollbar to reflect the
     // current scroll position of the page.
@@ -61,14 +61,14 @@ export default class PostStreamScrubber extends Component {
 
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
       index: <span className="Scrubber-index">{retain || formatNumber(Math.min(Math.ceil(this.index + this.visible), count))}</span>,
-      count: <span className="Scrubber-count">{formatNumber(count)}</span>
+      count: <span className="Scrubber-count">{formatNumber(count)}</span>,
     });
 
     function styleUnread(element, isInitialized, context) {
       const $element = $(element);
       const newStyle = {
-        top: (100 - unreadPercent * 100) + '%',
-        height: (unreadPercent * 100) + '%'
+        top: 100 - unreadPercent * 100 + '%',
+        height: unreadPercent * 100 + '%',
       };
 
       if (context.oldStyle) {
@@ -93,18 +93,18 @@ export default class PostStreamScrubber extends Component {
             </a>
 
             <div className="Scrubber-scrollbar">
-              <div className="Scrubber-before"/>
+              <div className="Scrubber-before" />
               <div className="Scrubber-handle">
-                <div className="Scrubber-bar"/>
+                <div className="Scrubber-bar" />
                 <div className="Scrubber-info">
                   <strong>{viewing}</strong>
                   <span className="Scrubber-description">{retain || this.description}</span>
                 </div>
               </div>
-              <div className="Scrubber-after"/>
+              <div className="Scrubber-after" />
 
               <div className="Scrubber-unread" config={styleUnread}>
-                {app.translator.trans('core.forum.post_scrubber.unread_text', {count: unreadCount})}
+                {app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount })}
               </div>
             </div>
 
@@ -202,7 +202,7 @@ export default class PostStreamScrubber extends Component {
     // Now loop through each of the items in the discussion. An 'item' is
     // either a single post or a 'gap' of one or more posts that haven't
     // been loaded yet.
-    $items.each(function() {
+    $items.each(function () {
       const $this = $(this);
       const top = $this.offset().top;
       const height = $this.outerHeight(true);
@@ -251,7 +251,9 @@ export default class PostStreamScrubber extends Component {
 
     // Whenever the window is resized, adjust the height of the scrollbar
     // so that it fills the height of the sidebar.
-    $(window).on('resize', this.handlers.onresize = this.onresize.bind(this)).resize();
+    $(window)
+      .on('resize', (this.handlers.onresize = this.onresize.bind(this)))
+      .resize();
 
     // When any part of the whole scrollbar is clicked, we want to jump to
     // that position.
@@ -261,7 +263,7 @@ export default class PostStreamScrubber extends Component {
       // Now we want to make the scrollbar handle draggable. Let's start by
       // preventing default browser events from messing things up.
       .css({ cursor: 'pointer', 'user-select': 'none' })
-      .bind('dragstart mousedown touchstart', e => e.preventDefault());
+      .bind('dragstart mousedown touchstart', (e) => e.preventDefault());
 
     // When the mouse is pressed on the scrollbar handle, we capture some
     // information about its current position. We will store this
@@ -276,15 +278,15 @@ export default class PostStreamScrubber extends Component {
       .bind('mousedown touchstart', this.onmousedown.bind(this))
 
       // Exempt the scrollbar handle from the 'jump to' click event.
-      .click(e => e.stopPropagation());
+      .click((e) => e.stopPropagation());
 
     // When the mouse moves and when it is released, we pass the
     // information that we captured when the mouse was first pressed onto
     // some event handlers. These handlers will move the scrollbar/stream-
     // content as appropriate.
     $(document)
-      .on('mousemove touchmove', this.handlers.onmousemove = this.onmousemove.bind(this))
-      .on('mouseup touchend', this.handlers.onmouseup = this.onmouseup.bind(this));
+      .on('mousemove touchmove', (this.handlers.onmousemove = this.onmousemove.bind(this)))
+      .on('mouseup touchend', (this.handlers.onmouseup = this.onmouseup.bind(this)));
   }
 
   ondestroy() {
@@ -292,12 +294,9 @@ export default class PostStreamScrubber extends Component {
 
     this.props.stream.off('unpaused', this.handlers.streamWasUnpaused);
 
-    $(window)
-      .off('resize', this.handlers.onresize);
+    $(window).off('resize', this.handlers.onresize);
 
-    $(document)
-      .off('mousemove touchmove', this.handlers.onmousemove)
-      .off('mouseup touchend', this.handlers.onmouseup);
+    $(document).off('mousemove touchmove', this.handlers.onmousemove).off('mouseup touchend', this.handlers.onmouseup);
   }
 
   /**
@@ -325,7 +324,7 @@ export default class PostStreamScrubber extends Component {
     const func = animate ? 'animate' : 'css';
     for (const part in heights) {
       const $part = $scrubber.find(`.Scrubber-${part}`);
-      $part.stop(true, true)[func]({height: heights[part] + '%'}, 'fast');
+      $part.stop(true, true)[func]({ height: heights[part] + '%' }, 'fast');
 
       // jQuery likes to put overflow:hidden, but because the scrollbar handle
       // has a negative margin-left, we need to override.
@@ -353,13 +352,13 @@ export default class PostStreamScrubber extends Component {
     // minimum percentage per visible post. If this is greater than the actual
     // percentage per post, then we need to adjust the 'before' percentage to
     // account for it.
-    const minPercentVisible = 50 / this.$('.Scrubber-scrollbar').outerHeight() * 100;
+    const minPercentVisible = (50 / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
     const percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
     const percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
 
     return {
       index: percentPerPost,
-      visible: percentPerVisiblePost
+      visible: percentPerVisiblePost,
     };
   }
 
@@ -371,10 +370,14 @@ export default class PostStreamScrubber extends Component {
     const scrubber = this.$();
     const scrollbar = this.$('.Scrubber-scrollbar');
 
-    scrollbar.css('max-height', $(window).height() -
-      scrubber.offset().top + $(window).scrollTop() -
-      parseInt($('#app').css('padding-bottom'), 10) -
-      (scrubber.outerHeight() - scrollbar.outerHeight()));
+    scrollbar.css(
+      'max-height',
+      $(window).height() -
+        scrubber.offset().top +
+        $(window).scrollTop() -
+        parseInt($('#app').css('padding-bottom'), 10) -
+        (scrubber.outerHeight() - scrollbar.outerHeight())
+    );
   }
 
   onmousedown(e) {
@@ -393,8 +396,8 @@ export default class PostStreamScrubber extends Component {
     // finally convert it into an index. Add this delta index onto
     // the index at which the drag was started, and then scroll there.
     const deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
-    const deltaPercent = deltaPixels / this.$('.Scrubber-scrollbar').outerHeight() * 100;
-    const deltaIndex = (deltaPercent / this.percentPerPost().index) || 0;
+    const deltaPercent = (deltaPixels / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
+    const deltaIndex = deltaPercent / this.percentPerPost().index || 0;
     const newIndex = Math.min(this.indexStart + deltaIndex, this.count() - 1);
 
     this.index = Math.max(0, newIndex);
@@ -424,8 +427,8 @@ export default class PostStreamScrubber extends Component {
     // 1. Get the offset of the click from the top of the scrollbar, as a
     //    percentage of the scrollbar's height.
     const $scrollbar = this.$('.Scrubber-scrollbar');
-    const offsetPixels = (e.clientY || e.originalEvent.touches[0].clientY) - $scrollbar.offset().top + $('body').scrollTop();
-    let offsetPercent = offsetPixels / $scrollbar.outerHeight() * 100;
+    const offsetPixels = (e.pageY || e.originalEvent.touches[0].pageY) - $scrollbar.offset().top + $('body').scrollTop();
+    let offsetPercent = (offsetPixels / $scrollbar.outerHeight()) * 100;
 
     // 2. We want the handle of the scrollbar to end up centered on the click
     //    position. Thus, we calculate the height of the handle in percent and

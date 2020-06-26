@@ -13,6 +13,7 @@ use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Contracts\Queue\Queue;
@@ -70,7 +71,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         // Override the Laravel native Listener, so that we can ignore the environment
         // option and force the binary to flarum.
         $this->app->singleton(QueueListener::class, function ($app) {
-            return new Listener($app->basePath());
+            return new Listener($app[Paths::class]->base);
         });
 
         // Bind a simple cache manager that returns the cache store.

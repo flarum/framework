@@ -23,7 +23,7 @@ use Illuminate\Contracts\Container\Container;
  */
 class Compat implements ExtenderInterface
 {
-    protected $callback;
+    private $callback;
 
     public function __construct($callback)
     {

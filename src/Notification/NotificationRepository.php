@@ -11,7 +11,6 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\User\User;
-use Illuminate\Database\Query\Expression;
 
 class NotificationRepository
 {
@@ -36,11 +35,8 @@ class NotificationRepository
             ->skip($offset)
             ->take($limit);
 
-        return Notification::select('notifications.*')
-            ->selectRaw('p.unread_count')
-            // Expression is necessary until Laravel 5.8.
-            // See https://github.com/laravel/framework/pull/28400
-            ->joinSub($primaries, 'p', 'notifications.id', '=', new Expression('p.id'))
+        return Notification::select('notifications.*', 'p.unread_count')
+            ->joinSub($primaries, 'p', 'notifications.id', '=', 'p.id')
             ->latest()
             ->get();
     }

@@ -24,7 +24,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->app->singleton(Manager::class, function ($app) {
             $manager = new Manager($app);
 
-            $config = $app->config('database');
+            $config = $this->app['flarum']->config('database');
             $config['engine'] = 'InnoDB';
             $config['prefix_indexes'] = true;
 
@@ -54,6 +54,10 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
         $this->app->alias(ConnectionInterface::class, 'db.connection');
         $this->app->alias(ConnectionInterface::class, 'flarum.db');
+
+        $this->app->singleton(MigrationRepositoryInterface::class, function ($app) {
+            return new DatabaseMigrationRepository($app['flarum.db'], 'migrations');
+        });
     }
 
     /**

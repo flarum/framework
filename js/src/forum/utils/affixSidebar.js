@@ -16,9 +16,7 @@ export default function affixSidebar(element, isInitialized, context) {
     const $affixElement = $sidebar.find('> ul');
 
     $(window).off('.affix');
-    $affixElement
-      .removeClass('affix affix-top affix-bottom')
-      .removeData('bs.affix');
+    $affixElement.removeClass('affix affix-top affix-bottom').removeData('bs.affix');
 
     // Don't affix the sidebar if it is taller than the viewport (otherwise
     // there would be no way to scroll through its content).
@@ -27,8 +25,8 @@ export default function affixSidebar(element, isInitialized, context) {
     $affixElement.affix({
       offset: {
         top: () => $sidebar.offset().top - $header.outerHeight(true) - parseInt($sidebar.css('margin-top'), 10),
-        bottom: () => this.bottom = $footer.outerHeight(true)
-      }
+        bottom: () => (this.bottom = $footer.outerHeight(true)),
+      },
     });
   };
 
@@ -37,5 +35,5 @@ export default function affixSidebar(element, isInitialized, context) {
 
   context.onunload = () => {
     $(window).off('resize', onresize);
-  }
+  };
 }

@@ -7,6 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Flarum\Foundation\Paths;
 use Illuminate\Container\Container;
 
 if (! function_exists('app')) {
@@ -27,29 +28,17 @@ if (! function_exists('app')) {
     }
 }
 
-if (! function_exists('app_path')) {
-    /**
-     * Get the path to the application folder.
-     *
-     * @param  string  $path
-     * @return string
-     */
-    function app_path($path = '')
-    {
-        return app('path').($path ? DIRECTORY_SEPARATOR.$path : $path);
-    }
-}
-
 if (! function_exists('base_path')) {
     /**
      * Get the path to the base of the install.
      *
      * @param  string  $path
      * @return string
+     * @deprecated Will be removed in Beta.15.
      */
     function base_path($path = '')
     {
-        return app()->basePath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app(Paths::class)->base.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
@@ -59,10 +48,11 @@ if (! function_exists('public_path')) {
      *
      * @param  string  $path
      * @return string
+     * @deprecated Will be removed in Beta.15.
      */
     function public_path($path = '')
     {
-        return app()->publicPath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app(Paths::class)->public.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
@@ -72,10 +62,11 @@ if (! function_exists('storage_path')) {
      *
      * @param  string  $path
      * @return string
+     * @deprecated Will be removed in Beta.15.
      */
     function storage_path($path = '')
     {
-        return app('path.storage').($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app(Paths::class)->storage.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }
 
@@ -90,6 +81,6 @@ if (! function_exists('event')) {
      */
     function event($event, $payload = [], $halt = false)
     {
-        return app('events')->fire($event, $payload, $halt);
+        return app('events')->dispatch($event, $payload, $halt);
     }
 }

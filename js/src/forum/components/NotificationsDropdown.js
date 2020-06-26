@@ -15,8 +15,6 @@ export default class NotificationsDropdown extends Dropdown {
 
   init() {
     super.init();
-
-    this.list = new NotificationList();
   }
 
   getButton() {
@@ -25,7 +23,7 @@ export default class NotificationsDropdown extends Dropdown {
 
     vdom.attrs.title = this.props.label;
 
-    vdom.attrs.className += (newNotifications ? ' new' : '');
+    vdom.attrs.className += newNotifications ? ' new' : '';
     vdom.attrs.onclick = this.onclick.bind(this);
 
     return vdom;
@@ -35,16 +33,16 @@ export default class NotificationsDropdown extends Dropdown {
     const unread = this.getUnreadCount();
 
     return [
-      icon(this.props.icon, {className: 'Button-icon'}),
+      icon(this.props.icon, { className: 'Button-icon' }),
       unread ? <span className="NotificationsDropdown-unread">{unread}</span> : '',
-      <span className="Button-label">{this.props.label}</span>
+      <span className="Button-label">{this.props.label}</span>,
     ];
   }
 
   getMenu() {
     return (
       <div className={'Dropdown-menu ' + this.props.menuClassName} onclick={this.menuClick.bind(this)}>
-        {this.showing ? this.list.render() : ''}
+        {this.showing ? NotificationList.component({ state: this.props.state }) : ''}
       </div>
     );
   }
@@ -53,7 +51,7 @@ export default class NotificationsDropdown extends Dropdown {
     if (app.drawer.isOpen()) {
       this.goToRoute();
     } else {
-      this.list.load();
+      this.props.state.load();
     }
   }
 

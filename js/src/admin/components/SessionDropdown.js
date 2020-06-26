@@ -26,10 +26,7 @@ export default class SessionDropdown extends Dropdown {
   getButtonContent() {
     const user = app.session.user;
 
-    return [
-      avatar(user), ' ',
-      <span className="Button-label">{username(user)}</span>
-    ];
+    return [avatar(user), ' ', <span className="Button-label">{username(user)}</span>];
   }
 
   /**
@@ -40,11 +37,12 @@ export default class SessionDropdown extends Dropdown {
   items() {
     const items = new ItemList();
 
-    items.add('logOut',
+    items.add(
+      'logOut',
       Button.component({
         icon: 'fas fa-sign-out-alt',
         children: app.translator.trans('core.admin.header.log_out_button'),
-        onclick: app.session.logout.bind(app.session)
+        onclick: app.session.logout.bind(app.session),
       }),
       -100
     );

@@ -32,7 +32,7 @@ Object.assign(User.prototype, {
   canDelete: Model.attribute('canDelete'),
 
   avatarColor: null,
-  color: computed('username', 'avatarUrl', 'avatarColor', function(username, avatarUrl, avatarColor) {
+  color: computed('username', 'avatarUrl', 'avatarColor', function (username, avatarUrl, avatarColor) {
     // If we've already calculated and cached the dominant color of the user's
     // avatar, then we can return that in RGB format. If we haven't, we'll want
     // to calculate it. Unless the user doesn't have an avatar, in which case
@@ -67,8 +67,8 @@ Object.assign(User.prototype, {
     const groups = this.groups();
 
     if (groups) {
-      groups.forEach(group => {
-        items.add('group' + group.id(), GroupBadge.component({group}));
+      groups.forEach((group) => {
+        items.add('group' + group.id(), GroupBadge.component({ group }));
       });
     }
 
@@ -85,7 +85,7 @@ Object.assign(User.prototype, {
     const image = new Image();
     const user = this;
 
-    image.onload = function() {
+    image.onload = function () {
       const colorThief = new ColorThief();
       user.avatarColor = colorThief.getColor(this);
       user.freshness = new Date();
@@ -106,6 +106,6 @@ Object.assign(User.prototype, {
 
     Object.assign(preferences, newPreferences);
 
-    return this.save({preferences});
-  }
+    return this.save({ preferences });
+  },
 });

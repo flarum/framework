@@ -14,12 +14,12 @@ use Illuminate\Contracts\Container\Container;
 
 class Middleware implements ExtenderInterface
 {
-    protected $addMiddlewares = [];
-    protected $removeMiddlewares = [];
-    protected $replaceMiddlewares = [];
-    protected $insertBeforeMiddlewares = [];
-    protected $insertAfterMiddlewares = [];
-    protected $frontend;
+    private $addMiddlewares = [];
+    private $removeMiddlewares = [];
+    private $replaceMiddlewares = [];
+    private $insertBeforeMiddlewares = [];
+    private $insertAfterMiddlewares = [];
+    private $frontend;
 
     public function __construct(string $frontend)
     {
@@ -49,14 +49,14 @@ class Middleware implements ExtenderInterface
 
     public function insertBefore($originalMiddleware, $newMiddleware)
     {
-        $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
+        $this->insertBeforeMiddlewares[$originalMiddleware] = $newMiddleware;
 
         return $this;
     }
 
     public function insertAfter($originalMiddleware, $newMiddleware)
     {
-        $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
+        $this->insertAfterMiddlewares[$originalMiddleware] = $newMiddleware;
 
         return $this;
     }

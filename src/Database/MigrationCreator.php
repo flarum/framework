@@ -9,7 +9,7 @@
 
 namespace Flarum\Database;
 
-use Flarum\Extension\Extension;
+use Flarum\Foundation\Paths;
 use Illuminate\Filesystem\Filesystem;
 
 class MigrationCreator
@@ -22,27 +22,27 @@ class MigrationCreator
     protected $files;
 
     /**
-     * @var string
+     * @var Paths
      */
-    protected $publicPath;
+    protected $paths;
 
     /**
      * Create a new migrator instance.
      *
      * @param Filesystem $files
-     * @param string $publicPath
+     * @param Paths $paths
      */
-    public function __construct(Filesystem $files, $publicPath)
+    public function __construct(Filesystem $files, Paths $paths)
     {
         $this->files = $files;
-        $this->publicPath = $publicPath;
+        $this->paths = $paths;
     }
 
     /**
      * Create a new migration for the given extension.
      *
      * @param string $name
-     * @param Extension $extension
+     * @param string $extension
      * @param string $table
      * @param bool $create
      * @return string
@@ -105,9 +105,11 @@ class MigrationCreator
      */
     protected function getMigrationPath($extension)
     {
-        $parent = $extension ? public_path('extensions/'.$extension) : __DIR__.'/../..';
-
-        return $parent.'/migrations';
+        if ($extension) {
+            return $this->paths->vendor.'/'.$extension.'/migrations';
+        } else {
+            return __DIR__.'/../../migrations';
+        }
     }
 
     /**

@@ -1,4 +1,4 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import FieldSet from '../../common/components/FieldSet';
 import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
@@ -11,6 +11,7 @@ export default class MailPage extends Page {
     super.init();
 
     this.saving = false;
+    this.sendingTest = false;
     this.refresh();
   }
 
@@ -20,29 +21,31 @@ export default class MailPage extends Page {
     this.driverFields = {};
     this.fields = ['mail_driver', 'mail_from'];
     this.values = {};
-    this.status = {sending: false, errors: {}};
+    this.status = { sending: false, errors: {} };
 
     const settings = app.data.settings;
-    this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
+    this.fields.forEach((key) => (this.values[key] = m.prop(settings[key])));
 
-    app.request({
-      method: 'GET',
-      url: app.forum.attribute('apiUrl') + '/mail-settings'
-    }).then(response => {
-      this.driverFields = response['data']['attributes']['fields'];
-      this.status.sending = response['data']['attributes']['sending'];
-      this.status.errors = response['data']['attributes']['errors'];
+    app
+      .request({
+        method: 'GET',
+        url: app.forum.attribute('apiUrl') + '/mail/settings',
+      })
+      .then((response) => {
+        this.driverFields = response['data']['attributes']['fields'];
+        this.status.sending = response['data']['attributes']['sending'];
+        this.status.errors = response['data']['attributes']['errors'];
 
-      for (const driver in this.driverFields) {
-        for (const field in this.driverFields[driver]) {
-          this.fields.push(field);
-          this.values[field] = m.prop(settings[field]);
+        for (const driver in this.driverFields) {
+          for (const field in this.driverFields[driver]) {
+            this.fields.push(field);
+            this.values[field] = m.prop(settings[field]);
+          }
         }
-      }
 
-      this.loading = false;
-      m.redraw();
-    });
+        this.loading = false;
+        m.redraw();
+      });
   }
 
   view() {
@@ -64,9 +67,7 @@ export default class MailPage extends Page {
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             <h2>{app.translator.trans('core.admin.email.heading')}</h2>
-            <div className="helpText">
-              {app.translator.trans('core.admin.email.text')}
-            </div>
+            <div className="helpText">{app.translator.trans('core.admin.email.text')}</div>
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.email.addresses_heading'),
@@ -77,8 +78,8 @@ export default class MailPage extends Page {
                     {app.translator.trans('core.admin.email.from_label')}
                     <input className="FormControl" value={this.values.mail_from() || ''} oninput={m.withAttr('value', this.values.mail_from)} />
                   </label>
-                </div>
-              ]
+                </div>,
+              ],
             })}
 
             {FieldSet.component({
@@ -88,38 +89,60 @@ export default class MailPage extends Page {
                 <div className="MailPage-MailSettings-input">
                   <label>
                     {app.translator.trans('core.admin.email.driver_label')}
-                    <Select value={this.values.mail_driver()} options={Object.keys(this.driverFields).reduce((memo, val) => ({...memo, [val]: val}), {})} onchange={this.values.mail_driver} />
+                    <Select
+                      value={this.values.mail_driver()}
+                      options={Object.keys(this.driverFields).reduce((memo, val) => ({ ...memo, [val]: val }), {})}
+                      onchange={this.values.mail_driver}
+                    />
                   </label>
-                </div>
-              ]
+                </div>,
+              ],
             })}
 
-            {this.status.sending || Alert.component({
-              children: app.translator.trans('core.admin.email.not_sending_message'),
-              dismissible: false,
-            })}
+            {this.status.sending ||
+              Alert.component({
+                children: app.translator.trans('core.admin.email.not_sending_message'),
+                dismissible: false,
+              })}
 
-            {fieldKeys.length > 0 && FieldSet.component({
-              label: app.translator.trans(`core.admin.email.${this.values.mail_driver()}_heading`),
+            {fieldKeys.length > 0 &&
+              FieldSet.component({
+                label: app.translator.trans(`core.admin.email.${this.values.mail_driver()}_heading`),
+                className: 'MailPage-MailSettings',
+                children: [
+                  <div className="MailPage-MailSettings-input">
+                    {fieldKeys.map((field) => [
+                      <label>
+                        {app.translator.trans(`core.admin.email.${field}_label`)}
+                        {this.renderField(field)}
+                      </label>,
+                      this.status.errors[field] && <p className="ValidationError">{this.status.errors[field]}</p>,
+                    ])}
+                  </div>,
+                ],
+              })}
+
+            <FieldSet>
+              {Button.component({
+                type: 'submit',
+                className: 'Button Button--primary',
+                children: app.translator.trans('core.admin.email.submit_button'),
+                disabled: !this.changed(),
+              })}
+            </FieldSet>
+
+            {FieldSet.component({
+              label: app.translator.trans('core.admin.email.send_test_mail_heading'),
               className: 'MailPage-MailSettings',
               children: [
-                <div className="MailPage-MailSettings-input">
-                  {fieldKeys.map(field => [
-                    <label>
-                      {app.translator.trans(`core.admin.email.${field}_label`)}
-                      {this.renderField(field)}
-                    </label>,
-                    this.status.errors[field] && <p className='ValidationError'>{this.status.errors[field]}</p>,
-                  ])}
-                </div>
-              ]
-            })}
-
-            {Button.component({
-              type: 'submit',
-              className: 'Button Button--primary',
-              children: app.translator.trans('core.admin.email.submit_button'),
-              disabled: !this.changed()
+                <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}</div>,
+                Button.component({
+                  className: 'Button Button--primary',
+                  children: app.translator.trans('core.admin.email.send_test_mail_button'),
+                  disabled: this.sendingTest || this.changed(),
+                  onclick: () => this.sendTestEmail(),
+                }),
+              ],
             })}
           </form>
         </div>
@@ -140,24 +163,48 @@ export default class MailPage extends Page {
   }
 
   changed() {
-    return this.fields.some(key => this.values[key]() !== app.data.settings[key]);
+    return this.fields.some((key) => this.values[key]() !== app.data.settings[key]);
+  }
+
+  sendTestEmail() {
+    if (this.saving || this.sendingTest) return;
+
+    this.sendingTest = true;
+    app.alerts.dismiss(this.testEmailSuccessAlert);
+
+    app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/mail/test',
+      })
+      .then((response) => {
+        this.sendingTest = false;
+        app.alerts.show(
+          (this.testEmailSuccessAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.email.send_test_mail_success') }))
+        );
+      })
+      .catch((error) => {
+        this.sendingTest = false;
+        m.redraw();
+        throw error;
+      });
   }
 
   onsubmit(e) {
     e.preventDefault();
 
-    if (this.saving) return;
+    if (this.saving || this.sendingTest) return;
 
     this.saving = true;
     app.alerts.dismiss(this.successAlert);
 
     const settings = {};
 
-    this.fields.forEach(key => settings[key] = this.values[key]());
+    this.fields.forEach((key) => (settings[key] = this.values[key]()));
 
     saveSettings(settings)
       .then(() => {
-        app.alerts.show(this.successAlert = new Alert({type: 'success', children: app.translator.trans('core.admin.basics.saved_message')}));
+        app.alerts.show((this.successAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') })));
       })
       .catch(() => {})
       .then(() => {

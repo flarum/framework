@@ -1,8 +1,7 @@
 import { extend } from '../../common/extend';
-import Page from './Page';
+import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
-import icon from '../../common/helpers/icon';
 import DiscussionList from './DiscussionList';
 import WelcomeHero from './WelcomeHero';
 import DiscussionComposer from './DiscussionComposer';
@@ -18,42 +17,27 @@ import SelectDropdown from '../../common/components/SelectDropdown';
  * hero, the sidebar, and the discussion list.
  */
 export default class IndexPage extends Page {
+  static providesInitialSearch = true;
+
   init() {
     super.init();
 
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
     // scroll down so that this discussion is in view.
-    if (app.previous instanceof DiscussionPage) {
-      this.lastDiscussion = app.previous.discussion;
+    if (app.previous.matches(DiscussionPage)) {
+      this.lastDiscussion = app.previous.get('discussion');
     }
 
     // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
-    if (app.previous instanceof IndexPage) {
-      app.cache.discussionList = null;
+    if (app.previous.matches(IndexPage)) {
+      app.discussions.clear();
     }
 
-    const params = this.params();
-
-    if (app.cache.discussionList) {
-      // Compare the requested parameters (sort, search query) to the ones that
-      // are currently present in the cached discussion list. If they differ, we
-      // will clear the cache and set up a new discussion list component with
-      // the new parameters.
-      Object.keys(params).some(key => {
-        if (app.cache.discussionList.props.params[key] !== params[key]) {
-          app.cache.discussionList = null;
-          return true;
-        }
-      });
-    }
-
-    if (!app.cache.discussionList) {
-      app.cache.discussionList = new DiscussionList({params});
-    }
+    app.discussions.refreshParams(app.search.params());
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
@@ -80,7 +64,7 @@ export default class IndexPage extends Page {
                 <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
                 <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
               </div>
-              {app.cache.discussionList.render()}
+              <DiscussionList state={app.discussions} />
             </div>
           </div>
         </div>
@@ -102,7 +86,7 @@ export default class IndexPage extends Page {
     // previous hero. Maintain the same scroll position relative to the bottom
     // of the hero so that the sidebar doesn't jump around.
     const oldHeroHeight = app.cache.heroHeight;
-    const heroHeight = app.cache.heroHeight = this.$('.Hero').outerHeight() || 0;
+    const heroHeight = (app.cache.heroHeight = this.$('.Hero').outerHeight() || 0);
     const scrollTop = app.cache.scrollTop;
 
     $('#app').css('min-height', $(window).height() + heroHeight);
@@ -153,22 +137,26 @@ export default class IndexPage extends Page {
     const items = new ItemList();
     const canStartDiscussion = app.forum.attribute('canStartDiscussion') || !app.session.user;
 
-    items.add('newDiscussion',
+    items.add(
+      'newDiscussion',
       Button.component({
-        children: app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
+        children: app.translator.trans(
+          canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'
+        ),
         icon: 'fas fa-edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
         onclick: this.newDiscussionAction.bind(this),
-        disabled: !canStartDiscussion
+        disabled: !canStartDiscussion,
       })
     );
 
-    items.add('nav',
+    items.add(
+      'nav',
       SelectDropdown.component({
         children: this.navItems(this).toArray(),
         buttonClassName: 'Button',
-        className: 'App-titleControl'
+        className: 'App-titleControl',
       })
     );
 
@@ -183,13 +171,14 @@ export default class IndexPage extends Page {
    */
   navItems() {
     const items = new ItemList();
-    const params = this.stickyParams();
+    const params = app.search.stickyParams();
 
-    items.add('allDiscussions',
+    items.add(
+      'allDiscussions',
       LinkButton.component({
         href: app.route('index', params),
         children: app.translator.trans('core.forum.index.all_discussions_link'),
-        icon: 'far fa-comments'
+        icon: 'far fa-comments',
       }),
       100
     );
@@ -206,27 +195,28 @@ export default class IndexPage extends Page {
    */
   viewItems() {
     const items = new ItemList();
-    const sortMap = app.cache.discussionList.sortMap();
+    const sortMap = app.discussions.sortMap();
 
     const sortOptions = {};
     for (const i in sortMap) {
       sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
     }
 
-    items.add('sort',
+    items.add(
+      'sort',
       Dropdown.component({
         buttonClassName: 'Button',
-        label: sortOptions[this.params().sort] || Object.keys(sortMap).map(key => sortOptions[key])[0],
-        children: Object.keys(sortOptions).map(value => {
+        label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
+        children: Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
-          const active = (this.params().sort || Object.keys(sortMap)[0]) === value;
+          const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
 
           return Button.component({
             children: label,
             icon: active ? 'fas fa-check' : true,
-            onclick: this.changeSort.bind(this, value),
+            onclick: app.search.changeSort.bind(app.search, value),
             active: active,
-          })
+          });
         }),
       })
     );
@@ -243,99 +233,35 @@ export default class IndexPage extends Page {
   actionItems() {
     const items = new ItemList();
 
-    items.add('refresh',
+    items.add(
+      'refresh',
       Button.component({
         title: app.translator.trans('core.forum.index.refresh_tooltip'),
         icon: 'fas fa-sync',
         className: 'Button Button--icon',
         onclick: () => {
-          app.cache.discussionList.refresh();
+          app.discussions.refresh();
           if (app.session.user) {
             app.store.find('users', app.session.user.id());
             m.redraw();
           }
-        }
+        },
       })
     );
 
     if (app.session.user) {
-      items.add('markAllAsRead',
+      items.add(
+        'markAllAsRead',
         Button.component({
           title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
           icon: 'fas fa-check',
           className: 'Button Button--icon',
-          onclick: this.markAllAsRead.bind(this)
+          onclick: this.markAllAsRead.bind(this),
         })
       );
     }
 
     return items;
-  }
-
-  /**
-   * Return the current search query, if any. This is implemented to activate
-   * the search box in the header.
-   *
-   * @see Search
-   * @return {String}
-   */
-  searching() {
-    return this.params().q;
-  }
-
-  /**
-   * Redirect to the index page without a search filter. This is called when the
-   * 'x' is clicked in the search box in the header.
-   *
-   * @see Search
-   */
-  clearSearch() {
-    const params = this.params();
-    delete params.q;
-
-    m.route(app.route(this.props.routeName, params));
-  }
-
-  /**
-   * Redirect to the index page using the given sort parameter.
-   *
-   * @param {String} sort
-   */
-  changeSort(sort) {
-    const params = this.params();
-
-    if (sort === Object.keys(app.cache.discussionList.sortMap())[0]) {
-      delete params.sort;
-    } else {
-      params.sort = sort;
-    }
-
-    m.route(app.route(this.props.routeName, params));
-  }
-
-  /**
-   * Get URL parameters that stick between filter changes.
-   *
-   * @return {Object}
-   */
-  stickyParams() {
-    return {
-      sort: m.route.param('sort'),
-      q: m.route.param('q')
-    };
-  }
-
-  /**
-   * Get parameters to pass to the DiscussionList component.
-   *
-   * @return {Object}
-   */
-  params() {
-    const params = this.stickyParams();
-
-    params.filter = m.route.param('filter');
-
-    return params;
   }
 
   /**
@@ -371,7 +297,7 @@ export default class IndexPage extends Page {
     const confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));
 
     if (confirmation) {
-      app.session.user.save({markedAllAsReadAt: new Date()});
+      app.session.user.save({ markedAllAsReadAt: new Date() });
     }
   }
 }

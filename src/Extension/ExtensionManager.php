@@ -15,7 +15,7 @@ use Flarum\Extension\Event\Disabling;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
-use Flarum\Foundation\Application;
+use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -29,7 +29,12 @@ class ExtensionManager
 {
     protected $config;
 
-    protected $app;
+    /**
+     * @var Paths
+     */
+    protected $paths;
+
+    protected $container;
 
     protected $migrator;
 
@@ -50,13 +55,15 @@ class ExtensionManager
 
     public function __construct(
         SettingsRepositoryInterface $config,
-        Application $app,
+        Paths $paths,
+        Container $container,
         Migrator $migrator,
         Dispatcher $dispatcher,
         Filesystem $filesystem
     ) {
         $this->config = $config;
-        $this->app = $app;
+        $this->paths = $paths;
+        $this->container = $container;
         $this->migrator = $migrator;
         $this->dispatcher = $dispatcher;
         $this->filesystem = $filesystem;
@@ -67,18 +74,26 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->app->vendorPath().'/composer/installed.json')) {
+        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get($this->app->vendorPath().'/composer/installed.json'), true);
+            $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
+
+            // Composer 2.0 changes the structure of the installed.json manifest
+            $installed = $installed['packages'] ?? $installed;
 
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
                     continue;
                 }
+
+                $path = isset($package['install-path'])
+                    ? $this->paths->vendor.'/composer/'.$package['install-path']
+                    : $this->paths->vendor.'/'.Arr::get($package, 'name');
+
                 // Instantiates an Extension object using the package path and composer.json file.
-                $extension = new Extension($this->getExtensionsDir().'/'.Arr::get($package, 'name'), $package);
+                $extension = new Extension($path, $package);
 
                 // Per default all extensions are installed if they are registered in composer.
                 $extension->setInstalled(true);
@@ -130,7 +145,7 @@ class ExtensionManager
 
         $this->setEnabled($enabled);
 
-        $extension->enable($this->app);
+        $extension->enable($this->container);
 
         $this->dispatcher->dispatch(new Enabled($extension));
     }
@@ -156,7 +171,7 @@ class ExtensionManager
 
         $this->setEnabled($enabled);
 
-        $extension->disable($this->app);
+        $extension->disable($this->container);
 
         $this->dispatcher->dispatch(new Disabled($extension));
     }
@@ -191,7 +206,7 @@ class ExtensionManager
         if ($extension->hasAssets()) {
             $this->filesystem->copyDirectory(
                 $extension->getPath().'/assets',
-                $this->app->publicPath().'/assets/extensions/'.$extension->getId()
+                $this->paths->public.'/assets/extensions/'.$extension->getId()
             );
         }
     }
@@ -203,7 +218,7 @@ class ExtensionManager
      */
     protected function unpublishAssets(Extension $extension)
     {
-        $this->filesystem->deleteDirectory($this->app->publicPath().'/assets/extensions/'.$extension->getId());
+        $this->filesystem->deleteDirectory($this->paths->public.'/assets/extensions/'.$extension->getId());
     }
 
     /**
@@ -215,7 +230,7 @@ class ExtensionManager
      */
     public function getAsset(Extension $extension, $path)
     {
-        return $this->app->publicPath().'/assets/extensions/'.$extension->getId().$path;
+        return $this->paths->public.'/assets/extensions/'.$extension->getId().$path;
     }
 
     /**
@@ -227,7 +242,7 @@ class ExtensionManager
      */
     public function migrate(Extension $extension, $direction = 'up')
     {
-        $this->app->bind(Builder::class, function ($container) {
+        $this->container->bind(Builder::class, function ($container) {
             return $container->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
@@ -258,7 +273,7 @@ class ExtensionManager
     /**
      * Get only enabled extensions.
      *
-     * @return array
+     * @return array|Extension[]
      */
     public function getEnabledExtensions()
     {
@@ -316,16 +331,8 @@ class ExtensionManager
      */
     public function isEnabled($extension)
     {
-        return in_array($extension, $this->getEnabled());
-    }
+        $enabled = $this->getEnabledExtensions();
 
-    /**
-     * The extensions path.
-     *
-     * @return string
-     */
-    protected function getExtensionsDir()
-    {
-        return $this->app->vendorPath();
+        return isset($enabled[$extension]);
     }
 }

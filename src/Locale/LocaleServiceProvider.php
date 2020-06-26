@@ -9,9 +9,9 @@
 
 namespace Flarum\Locale;
 
-use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
@@ -42,8 +42,6 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
             $locales->addLocale($this->getDefaultLocale(), 'Default');
 
-            event(new ConfigureLocales($locales));
-
             return $locales;
         });
 
@@ -54,7 +52,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
                 $this->getDefaultLocale(),
                 null,
                 $this->getCacheDir(),
-                $this->app->inDebugMode()
+                $this->app['flarum.debug']
             );
 
             $translator->setFallbackLocales(['en']);
@@ -76,6 +74,6 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
     private function getCacheDir(): string
     {
-        return $this->app->storagePath().'/locale';
+        return $this->app[Paths::class]->storage.'/locale';
     }
 }

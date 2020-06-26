@@ -64,10 +64,10 @@ class ForumSerializer extends AbstractSerializer
             'title' => $this->settings->get('forum_title'),
             'description' => $this->settings->get('forum_description'),
             'showLanguageSelector' => (bool) $this->settings->get('show_language_selector', true),
-            'baseUrl' => $url = $this->app->url(),
+            'baseUrl' => $url = $this->url->to('forum')->base(),
             'basePath' => parse_url($url, PHP_URL_PATH) ?: '',
             'debug' => $this->app->inDebugMode(),
-            'apiUrl' => $this->app->url('api'),
+            'apiUrl' => $this->url->to('api')->base(),
             'welcomeTitle' => $this->settings->get('welcome_title'),
             'welcomeMessage' => $this->settings->get('welcome_message'),
             'themePrimaryColor' => $this->settings->get('theme_primary_color'),
@@ -84,8 +84,8 @@ class ForumSerializer extends AbstractSerializer
         ];
 
         if ($this->actor->can('administrate')) {
-            $attributes['adminUrl'] = $this->app->url('admin');
-            $attributes['version'] = $this->app->version();
+            $attributes['adminUrl'] = $this->url->to('admin')->base();
+            $attributes['version'] = Application::VERSION;
         }
 
         return $attributes;

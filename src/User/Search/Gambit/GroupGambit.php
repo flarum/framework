@@ -9,6 +9,7 @@
 
 namespace Flarum\User\Search\Gambit;
 
+use Flarum\Group\Group;
 use Flarum\Group\GroupRepository;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
@@ -44,18 +45,23 @@ class GroupGambit extends AbstractRegexGambit
             throw new LogicException('This gambit can only be applied on a UserSearch');
         }
 
-        $groupNames = $this->extractGroupNames($matches);
+        $groupIdentifiers = $this->extractGroupIdentifiers($matches);
 
-        // TODO: Use a JOIN instead (and don't forget to remove the findByName() method again)
-        $ids = [];
-        foreach ($groupNames as $name) {
-            $group = $this->groups->findByName($name);
-            if ($group && count($group->users)) {
-                $ids = array_merge($ids, $group->users->pluck('id')->all());
+        $groupQuery = Group::whereVisibleTo($search->getActor());
+
+        foreach ($groupIdentifiers as $identifier) {
+            if (is_numeric($identifier)) {
+                $groupQuery->orWhere('id', $identifier);
+            } else {
+                $groupQuery->orWhere('name_singular', $identifier)->orWhere('name_plural', $identifier);
             }
         }
 
-        $search->getQuery()->whereIn('id', $ids, 'and', $negate);
+        $userIds = $groupQuery->join('group_user', 'groups.id', 'group_user.group_id')
+            ->pluck('group_user.user_id')
+            ->all();
+
+        $search->getQuery()->whereIn('id', $userIds, 'and', $negate);
     }
 
     /**
@@ -64,7 +70,7 @@ class GroupGambit extends AbstractRegexGambit
      * @param array $matches
      * @return array
      */
-    protected function extractGroupNames(array $matches)
+    protected function extractGroupIdentifiers(array $matches)
     {
         return explode(',', trim($matches[1], '"'));
     }

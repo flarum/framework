@@ -67,7 +67,7 @@ export default class Translator {
     const hydrated = [];
     const open = [hydrated];
 
-    translation.forEach(part => {
+    translation.forEach((part) => {
       const match = part.match(new RegExp('{([a-z0-9_]+)}|<(/?)([a-z0-9_]+)>', 'i'));
 
       if (match) {
@@ -77,7 +77,7 @@ export default class Translator {
           if (match[2]) {
             open.shift();
           } else {
-            let tag = input[match[3]] || {tag: match[3], children: []};
+            let tag = input[match[3]] || { tag: match[3], children: [] };
             open[0].push(tag);
             open.unshift(tag.children || tag);
           }
@@ -87,7 +87,7 @@ export default class Translator {
       }
     });
 
-    return hydrated.filter(part => part);
+    return hydrated.filter((part) => part);
   }
 
   pluralize(translation, number) {
@@ -97,7 +97,7 @@ export default class Translator {
       standardRules = [],
       explicitRules = [];
 
-    translation.split('|').forEach(part => {
+    translation.split('|').forEach((part) => {
       if (cPluralRegex.test(part)) {
         const matches = part.match(cPluralRegex);
         explicitRules[matches[0]] = matches[matches.length - 1];
@@ -122,11 +122,13 @@ export default class Translator {
             }
           }
         } else {
-          var leftNumber  = this.convertNumber(matches[4]);
+          var leftNumber = this.convertNumber(matches[4]);
           var rightNumber = this.convertNumber(matches[5]);
 
-          if (('[' === matches[3] ? number >= leftNumber : number > leftNumber) &&
-            (']' === matches[6] ? number <= rightNumber : number < rightNumber)) {
+          if (
+            ('[' === matches[3] ? number >= leftNumber : number > leftNumber) &&
+            (']' === matches[6] ? number <= rightNumber : number < rightNumber)
+          ) {
             return explicitRules[e];
           }
         }
@@ -223,7 +225,7 @@ export default class Translator {
       case 'tr':
       case 'ur':
       case 'zu':
-        return (number == 1) ? 0 : 1;
+        return number == 1 ? 0 : 1;
 
       case 'am':
       case 'bh':
@@ -237,7 +239,7 @@ export default class Translator {
       case 'xbr':
       case 'ti':
       case 'wa':
-        return ((number === 0) || (number == 1)) ? 0 : 1;
+        return number === 0 || number == 1 ? 0 : 1;
 
       case 'be':
       case 'bs':
@@ -245,41 +247,41 @@ export default class Translator {
       case 'ru':
       case 'sr':
       case 'uk':
-        return ((number % 10 == 1) && (number % 100 != 11)) ? 0 : (((number % 10 >= 2) && (number % 10 <= 4) && ((number % 100 < 10) || (number % 100 >= 20))) ? 1 : 2);
+        return number % 10 == 1 && number % 100 != 11 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
 
       case 'cs':
       case 'sk':
-        return (number == 1) ? 0 : (((number >= 2) && (number <= 4)) ? 1 : 2);
+        return number == 1 ? 0 : number >= 2 && number <= 4 ? 1 : 2;
 
       case 'ga':
-        return (number == 1) ? 0 : ((number == 2) ? 1 : 2);
+        return number == 1 ? 0 : number == 2 ? 1 : 2;
 
       case 'lt':
-        return ((number % 10 == 1) && (number % 100 != 11)) ? 0 : (((number % 10 >= 2) && ((number % 100 < 10) || (number % 100 >= 20))) ? 1 : 2);
+        return number % 10 == 1 && number % 100 != 11 ? 0 : number % 10 >= 2 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
 
       case 'sl':
-        return (number % 100 == 1) ? 0 : ((number % 100 == 2) ? 1 : (((number % 100 == 3) || (number % 100 == 4)) ? 2 : 3));
+        return number % 100 == 1 ? 0 : number % 100 == 2 ? 1 : number % 100 == 3 || number % 100 == 4 ? 2 : 3;
 
       case 'mk':
-        return (number % 10 == 1) ? 0 : 1;
+        return number % 10 == 1 ? 0 : 1;
 
       case 'mt':
-        return (number == 1) ? 0 : (((number === 0) || ((number % 100 > 1) && (number % 100 < 11))) ? 1 : (((number % 100 > 10) && (number % 100 < 20)) ? 2 : 3));
+        return number == 1 ? 0 : number === 0 || (number % 100 > 1 && number % 100 < 11) ? 1 : number % 100 > 10 && number % 100 < 20 ? 2 : 3;
 
       case 'lv':
-        return (number === 0) ? 0 : (((number % 10 == 1) && (number % 100 != 11)) ? 1 : 2);
+        return number === 0 ? 0 : number % 10 == 1 && number % 100 != 11 ? 1 : 2;
 
       case 'pl':
-        return (number == 1) ? 0 : (((number % 10 >= 2) && (number % 10 <= 4) && ((number % 100 < 12) || (number % 100 > 14))) ? 1 : 2);
+        return number == 1 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 12 || number % 100 > 14) ? 1 : 2;
 
       case 'cy':
-        return (number == 1) ? 0 : ((number == 2) ? 1 : (((number == 8) || (number == 11)) ? 2 : 3));
+        return number == 1 ? 0 : number == 2 ? 1 : number == 8 || number == 11 ? 2 : 3;
 
       case 'ro':
-        return (number == 1) ? 0 : (((number === 0) || ((number % 100 > 0) && (number % 100 < 20))) ? 1 : 2);
+        return number == 1 ? 0 : number === 0 || (number % 100 > 0 && number % 100 < 20) ? 1 : 2;
 
       case 'ar':
-        return (number === 0) ? 0 : ((number == 1) ? 1 : ((number == 2) ? 2 : (((number >= 3) && (number <= 10)) ? 3 : (((number >= 11) && (number <= 99)) ? 4 : 5))));
+        return number === 0 ? 0 : number == 1 ? 1 : number == 2 ? 2 : number >= 3 && number <= 10 ? 3 : number >= 11 && number <= 99 ? 4 : 5;
 
       default:
         return 0;

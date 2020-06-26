@@ -23,7 +23,6 @@ import PostEdited from './components/PostEdited';
 import PostStream from './components/PostStream';
 import ChangePasswordModal from './components/ChangePasswordModal';
 import IndexPage from './components/IndexPage';
-import Page from './components/Page';
 import DiscussionRenamedNotification from './components/DiscussionRenamedNotification';
 import DiscussionsSearchSource from './components/DiscussionsSearchSource';
 import HeaderSecondary from './components/HeaderSecondary';
@@ -92,7 +91,6 @@ export default Object.assign(compat, {
   'components/PostStream': PostStream,
   'components/ChangePasswordModal': ChangePasswordModal,
   'components/IndexPage': IndexPage,
-  'components/Page': Page,
   'components/DiscussionRenamedNotification': DiscussionRenamedNotification,
   'components/DiscussionsSearchSource': DiscussionsSearchSource,
   'components/HeaderSecondary': HeaderSecondary,
@@ -134,6 +132,6 @@ export default Object.assign(compat, {
   'components/DiscussionListItem': DiscussionListItem,
   'components/LoadingPost': LoadingPost,
   'components/PostsUserPage': PostsUserPage,
-  'routes': routes,
-  'ForumApplication': ForumApplication
+  routes: routes,
+  ForumApplication: ForumApplication,
 });

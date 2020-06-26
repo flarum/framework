@@ -8,26 +8,25 @@ import GroupBadge from '../../common/components/GroupBadge';
 function badgeForId(id) {
   const group = app.store.getById('groups', id);
 
-  return group ? GroupBadge.component({group, label: null}) : '';
+  return group ? GroupBadge.component({ group, label: null }) : '';
 }
 
 function filterByRequiredPermissions(groupIds, permission) {
-  app.getRequiredPermissions(permission)
-    .forEach(required => {
-      const restrictToGroupIds = app.data.permissions[required] || [];
+  app.getRequiredPermissions(permission).forEach((required) => {
+    const restrictToGroupIds = app.data.permissions[required] || [];
 
-      if (restrictToGroupIds.indexOf(Group.GUEST_ID) !== -1) {
-        // do nothing
-      } else if (restrictToGroupIds.indexOf(Group.MEMBER_ID) !== -1) {
-        groupIds = groupIds.filter(id => id !== Group.GUEST_ID);
-      } else if (groupIds.indexOf(Group.MEMBER_ID) !== -1) {
-        groupIds = restrictToGroupIds;
-      } else {
-        groupIds = restrictToGroupIds.filter(id => groupIds.indexOf(id) !== -1);
-      }
+    if (restrictToGroupIds.indexOf(Group.GUEST_ID) !== -1) {
+      // do nothing
+    } else if (restrictToGroupIds.indexOf(Group.MEMBER_ID) !== -1) {
+      groupIds = groupIds.filter((id) => id !== Group.GUEST_ID);
+    } else if (groupIds.indexOf(Group.MEMBER_ID) !== -1) {
+      groupIds = restrictToGroupIds;
+    } else {
+      groupIds = restrictToGroupIds.filter((id) => groupIds.indexOf(id) !== -1);
+    }
 
-      groupIds = filterByRequiredPermissions(groupIds, required);
-    });
+    groupIds = filterByRequiredPermissions(groupIds, required);
+  });
 
   return groupIds;
 }
@@ -52,34 +51,31 @@ export default class PermissionDropdown extends Dropdown {
     const adminGroup = app.store.getById('groups', Group.ADMINISTRATOR_ID);
 
     if (everyone) {
-      this.props.label = Badge.component({icon: 'fas fa-globe'});
+      this.props.label = Badge.component({ icon: 'fas fa-globe' });
     } else if (members) {
-      this.props.label = Badge.component({icon: 'fas fa-user'});
+      this.props.label = Badge.component({ icon: 'fas fa-user' });
     } else {
-      this.props.label = [
-        badgeForId(Group.ADMINISTRATOR_ID),
-        groupIds.map(badgeForId)
-      ];
+      this.props.label = [badgeForId(Group.ADMINISTRATOR_ID), groupIds.map(badgeForId)];
     }
 
     if (this.showing) {
       if (this.props.allowGuest) {
         this.props.children.push(
           Button.component({
-            children: [Badge.component({icon: 'fas fa-globe'}), ' ', app.translator.trans('core.admin.permissions_controls.everyone_button')],
+            children: [Badge.component({ icon: 'fas fa-globe' }), ' ', app.translator.trans('core.admin.permissions_controls.everyone_button')],
             icon: everyone ? 'fas fa-check' : true,
             onclick: () => this.save([Group.GUEST_ID]),
-            disabled: this.isGroupDisabled(Group.GUEST_ID)
+            disabled: this.isGroupDisabled(Group.GUEST_ID),
           })
         );
       }
 
       this.props.children.push(
         Button.component({
-          children: [Badge.component({icon: 'fas fa-user'}), ' ', app.translator.trans('core.admin.permissions_controls.members_button')],
+          children: [Badge.component({ icon: 'fas fa-user' }), ' ', app.translator.trans('core.admin.permissions_controls.members_button')],
           icon: members ? 'fas fa-check' : true,
           onclick: () => this.save([Group.MEMBER_ID]),
-          disabled: this.isGroupDisabled(Group.MEMBER_ID)
+          disabled: this.isGroupDisabled(Group.MEMBER_ID),
         }),
 
         Separator.component(),
@@ -88,26 +84,29 @@ export default class PermissionDropdown extends Dropdown {
           children: [badgeForId(adminGroup.id()), ' ', adminGroup.namePlural()],
           icon: !everyone && !members ? 'fas fa-check' : true,
           disabled: !everyone && !members,
-          onclick: e => {
+          onclick: (e) => {
             if (e.shiftKey) e.stopPropagation();
             this.save([]);
-          }
+          },
         })
       );
 
       [].push.apply(
         this.props.children,
-        app.store.all('groups')
-          .filter(group => [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
-          .map(group => Button.component({
-            children: [badgeForId(group.id()), ' ', group.namePlural()],
-            icon: groupIds.indexOf(group.id()) !== -1 ? 'fas fa-check' : true,
-            onclick: (e) => {
-              if (e.shiftKey) e.stopPropagation();
-              this.toggle(group.id());
-            },
-            disabled: this.isGroupDisabled(group.id()) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID)
-          }))
+        app.store
+          .all('groups')
+          .filter((group) => [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
+          .map((group) =>
+            Button.component({
+              children: [badgeForId(group.id()), ' ', group.namePlural()],
+              icon: groupIds.indexOf(group.id()) !== -1 ? 'fas fa-check' : true,
+              onclick: (e) => {
+                if (e.shiftKey) e.stopPropagation();
+                this.toggle(group.id());
+              },
+              disabled: this.isGroupDisabled(group.id()) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID),
+            })
+          )
       );
     }
 
@@ -122,7 +121,7 @@ export default class PermissionDropdown extends Dropdown {
     app.request({
       method: 'POST',
       url: app.forum.attribute('apiUrl') + '/permission',
-      data: {permission, groupIds}
+      data: { permission, groupIds },
     });
   }
 
@@ -137,7 +136,7 @@ export default class PermissionDropdown extends Dropdown {
       groupIds.splice(index, 1);
     } else {
       groupIds.push(groupId);
-      groupIds = groupIds.filter(id => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(id) === -1);
+      groupIds = groupIds.filter((id) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(id) === -1);
     }
 
     this.save(groupIds);

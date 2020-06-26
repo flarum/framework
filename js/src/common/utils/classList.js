@@ -13,7 +13,7 @@ export default function classList(classes) {
   let classNames;
 
   if (classes instanceof Array) {
-    classNames = classes.filter(name => name);
+    classNames = classes.filter((name) => name);
   } else {
     classNames = [];
 

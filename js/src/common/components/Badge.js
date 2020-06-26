@@ -24,16 +24,12 @@ export default class Badge extends Component {
     attrs.className = 'Badge ' + (type ? 'Badge--' + type : '') + ' ' + (attrs.className || '');
     attrs.title = extract(attrs, 'label') || '';
 
-    return (
-      <span {...attrs}>
-        {iconName ? icon(iconName, {className: 'Badge-icon'}) : m.trust('&nbsp;')}
-      </span>
-    );
+    return <span {...attrs}>{iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;')}</span>;
   }
 
   config(isInitialized) {
     if (isInitialized) return;
 
-    if (this.props.label) this.$().tooltip({container: 'body'});
+    if (this.props.label) this.$().tooltip();
   }
 }

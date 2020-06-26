@@ -7,9 +7,7 @@
  * @return {String}
  */
 export function truncate(string, length, start = 0) {
-  return (start > 0 ? '...' : '') +
-    string.substring(start, start + length) +
-    (string.length > start + length ? '...' : '');
+  return (start > 0 ? '...' : '') + string.substring(start, start + length) + (string.length > start + length ? '...' : '');
 }
 
 /**
@@ -24,7 +22,8 @@ export function truncate(string, length, start = 0) {
  * @return {String}
  */
 export function slug(string) {
-  return string.toLowerCase()
+  return string
+    .toLowerCase()
     .replace(/[^a-z0-9]/gi, '-')
     .replace(/-+/g, '-')
     .replace(/-$|^-/g, '');
@@ -38,9 +37,7 @@ export function slug(string) {
  * @return {String}
  */
 export function getPlainContent(string) {
-  const html = string
-    .replace(/(<\/p>|<br>)/g, '$1 &nbsp;')
-    .replace(/<img\b[^>]*>/ig, ' ');
+  const html = string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;').replace(/<img\b[^>]*>/gi, ' ');
 
   const dom = $('<div/>').html(html);
 

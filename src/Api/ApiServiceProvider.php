@@ -13,10 +13,8 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
-use Flarum\Event\ConfigureApiRoutes;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
@@ -46,6 +44,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.api.middleware', function () {
             return [
+                'flarum.api.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
@@ -57,14 +56,16 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('flarum.api.handler', function (Application $app) {
-            $pipe = new MiddlewarePipe;
+        $this->app->bind('flarum.api.error_handler', function () {
+            return new HttpMiddleware\HandleErrors(
+                $this->app->make(Registry::class),
+                new JsonApiFormatter($this->app['flarum']->inDebugMode()),
+                $this->app->tagged(Reporter::class)
+            );
+        });
 
-            $pipe->pipe(new HttpMiddleware\HandleErrors(
-                $app->make(Registry::class),
-                new JsonApiFormatter($app->inDebugMode()),
-                $app->tagged(Reporter::class)
-            ));
+        $this->app->singleton('flarum.api.handler', function () {
+            $pipe = new MiddlewarePipe;
 
             foreach ($this->app->make('flarum.api.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
@@ -100,7 +101,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             'discussionRenamed' => BasicDiscussionSerializer::class
         ];
 
-        $this->app->make('events')->fire(
+        $this->app->make('events')->dispatch(
             new ConfigureNotificationTypes($blueprints, $serializers)
         );
 
@@ -120,9 +121,5 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
-
-        $this->app->make('events')->fire(
-            new ConfigureApiRoutes($routes, $factory)
-        );
     }
 }

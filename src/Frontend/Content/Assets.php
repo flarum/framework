@@ -12,10 +12,12 @@ namespace Flarum\Frontend\Content;
 use Flarum\Foundation\Application;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Document;
+use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Assets
 {
+    protected $container;
     protected $app;
 
     /**
@@ -23,14 +25,15 @@ class Assets
      */
     protected $assets;
 
-    public function __construct(Application $app)
+    public function __construct(Container $container, Application $app)
     {
+        $this->container = $container;
         $this->app = $app;
     }
 
     public function forFrontend(string $name)
     {
-        $this->assets = $this->app->make('flarum.assets.'.$name);
+        $this->assets = $this->container->make('flarum.assets.'.$name);
 
         return $this;
     }

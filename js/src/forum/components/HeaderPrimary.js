@@ -8,11 +8,7 @@ import listItems from '../../common/helpers/listItems';
  */
 export default class HeaderPrimary extends Component {
   view() {
-    return (
-      <ul className="Header-controls">
-        {listItems(this.items().toArray())}
-      </ul>
-    );
+    return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
   }
 
   config(isInitialized, context) {

@@ -1,21 +1,8 @@
-/*
- * This file is part of Flarum.
- *
- * (c) Toby Zerner <toby.zerner@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 import Component from '../../common/Component';
 
-export default class Widget extends Component {
+export default class DashboardWidget extends Component {
   view() {
-    return (
-      <div className={"Widget "+this.className()}>
-        {this.content()}
-      </div>
-    );
+    return <div className={'DashboardWidget Widget ' + this.className()}>{this.content()}</div>;
   }
 
   /**

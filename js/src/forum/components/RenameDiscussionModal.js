@@ -33,12 +33,12 @@ export default class RenameDiscussionModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.translator.trans('core.forum.rename_discussion.submit_button')
+              children: app.translator.trans('core.forum.rename_discussion.submit_button'),
             })}
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   onsubmit(e) {
@@ -53,16 +53,19 @@ export default class RenameDiscussionModal extends Modal {
     // save has completed, update the post stream as there will be a new post
     // indicating that the discussion was renamed.
     if (title && title !== currentTitle) {
-      return this.discussion.save({title}).then(() => {
-        if (app.viewingDiscussion(this.discussion)) {
-          app.current.stream.update();
-        }
-        m.redraw();
-        this.hide();
-      }).catch(() => {
-        this.loading = false;
-        m.redraw();
-      });
+      return this.discussion
+        .save({ title })
+        .then(() => {
+          if (app.viewingDiscussion(this.discussion)) {
+            app.current.get('stream').update();
+          }
+          m.redraw();
+          this.hide();
+        })
+        .catch(() => {
+          this.loading = false;
+          m.redraw();
+        });
     } else {
       this.hide();
     }

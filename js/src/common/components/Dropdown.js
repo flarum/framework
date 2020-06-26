@@ -64,19 +64,13 @@ export default class Dropdown extends Component {
 
       $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
-      $menu.toggleClass(
-        'Dropdown-menu--top',
-        $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height()
-      );
+      $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
 
       if ($menu.offset().top < 0) {
         $menu.removeClass('Dropdown-menu--top');
       }
 
-      $menu.toggleClass(
-        'Dropdown-menu--right',
-        isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width()
-      );
+      $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
     });
 
     this.$().on('hidden.bs.dropdown', () => {
@@ -98,10 +92,7 @@ export default class Dropdown extends Component {
    */
   getButton() {
     return (
-      <button
-        className={'Dropdown-toggle ' + this.props.buttonClassName}
-        data-toggle="dropdown"
-        onclick={this.props.onclick}>
+      <button className={'Dropdown-toggle ' + this.props.buttonClassName} data-toggle="dropdown" onclick={this.props.onclick}>
         {this.getButtonContent()}
       </button>
     );
@@ -115,17 +106,13 @@ export default class Dropdown extends Component {
    */
   getButtonContent() {
     return [
-      this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}) : '',
+      this.props.icon ? icon(this.props.icon, { className: 'Button-icon' }) : '',
       <span className="Button-label">{this.props.label}</span>,
-      this.props.caretIcon ? icon(this.props.caretIcon, {className: 'Button-caret'}) : ''
+      this.props.caretIcon ? icon(this.props.caretIcon, { className: 'Button-caret' }) : '',
     ];
   }
 
   getMenu(items) {
-    return (
-      <ul className={'Dropdown-menu dropdown-menu ' + this.props.menuClassName}>
-        {items}
-      </ul>
-    );
+    return <ul className={'Dropdown-menu dropdown-menu ' + this.props.menuClassName}>{items}</ul>;
   }
 }

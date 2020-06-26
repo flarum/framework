@@ -6,7 +6,6 @@ import EditCustomFooterModal from './components/EditCustomFooterModal';
 import SessionDropdown from './components/SessionDropdown';
 import HeaderPrimary from './components/HeaderPrimary';
 import AppearancePage from './components/AppearancePage';
-import Page from './components/Page';
 import StatusWidget from './components/StatusWidget';
 import HeaderSecondary from './components/HeaderSecondary';
 import SettingsModal from './components/SettingsModal';
@@ -15,7 +14,6 @@ import AddExtensionModal from './components/AddExtensionModal';
 import ExtensionsPage from './components/ExtensionsPage';
 import AdminLinkButton from './components/AdminLinkButton';
 import PermissionGrid from './components/PermissionGrid';
-import Widget from './components/Widget';
 import MailPage from './components/MailPage';
 import UploadImageButton from './components/UploadImageButton';
 import LoadingModal from './components/LoadingModal';
@@ -37,7 +35,6 @@ export default Object.assign(compat, {
   'components/SessionDropdown': SessionDropdown,
   'components/HeaderPrimary': HeaderPrimary,
   'components/AppearancePage': AppearancePage,
-  'components/Page': Page,
   'components/StatusWidget': StatusWidget,
   'components/HeaderSecondary': HeaderSecondary,
   'components/SettingsModal': SettingsModal,
@@ -46,7 +43,6 @@ export default Object.assign(compat, {
   'components/ExtensionsPage': ExtensionsPage,
   'components/AdminLinkButton': AdminLinkButton,
   'components/PermissionGrid': PermissionGrid,
-  'components/Widget': Widget,
   'components/MailPage': MailPage,
   'components/UploadImageButton': UploadImageButton,
   'components/LoadingModal': LoadingModal,
@@ -58,6 +54,6 @@ export default Object.assign(compat, {
   'components/AdminNav': AdminNav,
   'components/EditCustomCssModal': EditCustomCssModal,
   'components/EditGroupModal': EditGroupModal,
-  'routes': routes,
-  'AdminApplication': AdminApplication
+  routes: routes,
+  AdminApplication: AdminApplication,
 });

@@ -31,11 +31,16 @@ export default class Session {
    * @public
    */
   login(data, options = {}) {
-    return app.request(Object.assign({
-      method: 'POST',
-      url: app.forum.attribute('baseUrl') + '/login',
-      data
-    }, options));
+    return app.request(
+      Object.assign(
+        {
+          method: 'POST',
+          url: app.forum.attribute('baseUrl') + '/login',
+          data,
+        },
+        options
+      )
+    );
   }
 
   /**

@@ -34,9 +34,7 @@ export default class Store {
   pushPayload(payload) {
     if (payload.included) payload.included.map(this.pushObject.bind(this));
 
-    const result = payload.data instanceof Array
-      ? payload.data.map(this.pushObject.bind(this))
-      : this.pushObject(payload.data);
+    const result = payload.data instanceof Array ? payload.data.map(this.pushObject.bind(this)) : this.pushObject(payload.data);
 
     // Attach the original payload to the model that we give back. This is
     // useful to consumers as it allows them to access meta information
@@ -58,7 +56,7 @@ export default class Store {
   pushObject(data) {
     if (!this.models[data.type]) return null;
 
-    const type = this.data[data.type] = this.data[data.type] || {};
+    const type = (this.data[data.type] = this.data[data.type] || {});
 
     if (type[data.id]) {
       type[data.id].pushData(data);
@@ -95,11 +93,18 @@ export default class Store {
       url += '/' + id;
     }
 
-    return app.request(Object.assign({
-      method: 'GET',
-      url,
-      data
-    }, options)).then(this.pushPayload.bind(this));
+    return app
+      .request(
+        Object.assign(
+          {
+            method: 'GET',
+            url,
+            data,
+          },
+          options
+        )
+      )
+      .then(this.pushPayload.bind(this));
   }
 
   /**
@@ -124,7 +129,7 @@ export default class Store {
    * @public
    */
   getBy(type, key, value) {
-    return this.all(type).filter(model => model[key]() === value)[0];
+    return this.all(type).filter((model) => model[key]() === value)[0];
   }
 
   /**
@@ -137,7 +142,7 @@ export default class Store {
   all(type) {
     const records = this.data[type];
 
-    return records ? Object.keys(records).map(id => records[id]) : [];
+    return records ? Object.keys(records).map((id) => records[id]) : [];
   }
 
   /**
@@ -160,6 +165,6 @@ export default class Store {
   createRecord(type, data = {}) {
     data.type = data.type || type;
 
-    return new (this.models[type])(data, this);
+    return new this.models[type](data, this);
   }
 }

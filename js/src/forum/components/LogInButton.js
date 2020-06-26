@@ -6,23 +6,26 @@ import Button from '../../common/components/Button';
  *
  * ### Props
  *
-* - `path`
+ * - `path`
  */
 export default class LogInButton extends Button {
   static initProps(props) {
     props.className = (props.className || '') + ' LogInButton';
 
-    props.onclick = function() {
+    props.onclick = function () {
       const width = 580;
       const height = 400;
       const $window = $(window);
 
-      window.open(app.forum.attribute('baseUrl') + props.path, 'logInPopup',
+      window.open(
+        app.forum.attribute('baseUrl') + props.path,
+        'logInPopup',
         `width=${width},` +
-        `height=${height},` +
-        `top=${$window.height() / 2 - height / 2},` +
-        `left=${$window.width() / 2 - width / 2},` +
-        'status=no,scrollbars=yes,resizable=no');
+          `height=${height},` +
+          `top=${$window.height() / 2 - height / 2},` +
+          `left=${$window.width() / 2 - width / 2},` +
+          'status=no,scrollbars=yes,resizable=no'
+      );
     };
 
     super.initProps(props);

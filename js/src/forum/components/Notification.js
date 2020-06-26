@@ -20,31 +20,32 @@ export default class Notification extends Component {
     const href = this.href();
 
     return (
-      <a className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
+      <a
+        className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
         href={href}
-        config={function(element, isInitialized) {
+        config={function (element, isInitialized) {
           if (href.indexOf('://') === -1) m.route.apply(this, arguments);
 
           if (!isInitialized) $(element).click(this.markAsRead.bind(this));
-        }}>
-        {!notification.isRead() && Button.component({
-          className: 'Notification-action Button Button--icon Button--link',
-          icon: 'fas fa-check',
-          title: app.translator.trans('core.forum.notifications.mark_as_read_tooltip'),
-          onclick: e => {
-            e.preventDefault();
-            e.stopPropagation();
+        }}
+      >
+        {!notification.isRead() &&
+          Button.component({
+            className: 'Notification-action Button Button--icon Button--link',
+            icon: 'fas fa-check',
+            title: app.translator.trans('core.forum.notifications.mark_as_read_tooltip'),
+            onclick: (e) => {
+              e.preventDefault();
+              e.stopPropagation();
 
-            this.markAsRead();
-          }
-        })}
+              this.markAsRead();
+            },
+          })}
         {avatar(notification.fromUser())}
-        {icon(this.icon(), {className: 'Notification-icon'})}
+        {icon(this.icon(), { className: 'Notification-icon' })}
         <span className="Notification-content">{this.content()}</span>
         {humanTime(notification.createdAt())}
-        <div className="Notification-excerpt">
-          {this.excerpt()}
-        </div>
+        <div className="Notification-excerpt">{this.excerpt()}</div>
       </a>
     );
   }
@@ -55,8 +56,7 @@ export default class Notification extends Component {
    * @return {String}
    * @abstract
    */
-  icon() {
-  }
+  icon() {}
 
   /**
    * Get the URL that the notification should link to.
@@ -64,8 +64,7 @@ export default class Notification extends Component {
    * @return {String}
    * @abstract
    */
-  href() {
-  }
+  href() {}
 
   /**
    * Get the content of the notification.
@@ -73,8 +72,7 @@ export default class Notification extends Component {
    * @return {VirtualElement}
    * @abstract
    */
-  content() {
-  }
+  content() {}
 
   /**
    * Get the excerpt of the notification.
@@ -82,8 +80,7 @@ export default class Notification extends Component {
    * @return {VirtualElement}
    * @abstract
    */
-  excerpt() {
-  }
+  excerpt() {}
 
   /**
    * Mark the notification as read.
@@ -91,8 +88,8 @@ export default class Notification extends Component {
   markAsRead() {
     if (this.props.notification.isRead()) return;
 
-    app.session.user.pushAttributes({unreadNotificationCount: app.session.user.unreadNotificationCount() - 1});
+    app.session.user.pushAttributes({ unreadNotificationCount: app.session.user.unreadNotificationCount() - 1 });
 
-    this.props.notification.save({isRead: true});
+    this.props.notification.save({ isRead: true });
   }
 }

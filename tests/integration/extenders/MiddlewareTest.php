@@ -84,6 +84,44 @@ class MiddlewareTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayNotHasKey('X-First-Test-Middleware', $response->getHeaders());
     }
+
+    /**
+     * @test
+     */
+    public function can_insert_before_middleware()
+    {
+        $this->add_first_middleware();
+        $this->extend(
+            (new Extend\Middleware('forum'))->insertBefore(FirstTestMiddleware::class, SecondTestMiddleware::class)
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+        $headers = $response->getHeaders();
+        $newMiddlewarePosition = array_search('X-Second-Test-Middleware', array_keys($headers));
+        $originalMiddlewarePosition = array_search('X-First-Test-Middleware', array_keys($headers));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertLessThan($newMiddlewarePosition, $originalMiddlewarePosition);
+    }
+
+    /**
+     * @test
+     */
+    public function can_insert_after_middleware()
+    {
+        $this->add_first_middleware();
+        $this->extend(
+            (new Extend\Middleware('forum'))->insertAfter(FirstTestMiddleware::class, SecondTestMiddleware::class)
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+        $headers = $response->getHeaders();
+        $newMiddlewarePosition = array_search('X-Second-Test-Middleware', array_keys($headers));
+        $originalMiddlewarePosition = array_search('X-First-Test-Middleware', array_keys($headers));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertGreaterThan($newMiddlewarePosition, $originalMiddlewarePosition);
+    }
 }
 
 class FirstTestMiddleware implements MiddlewareInterface

@@ -21,8 +21,7 @@ export default class PostPreview extends Component {
       <a className="PostPreview" href={app.route.post(post)} config={m.route} onclick={this.props.onclick}>
         <span className="PostPreview-content">
           {avatar(user)}
-          {username(user)}{' '}
-          <span className="PostPreview-excerpt">{excerpt}</span>
+          {username(user)} <span className="PostPreview-excerpt">{excerpt}</span>
         </span>
       </a>
     );

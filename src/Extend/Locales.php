@@ -16,7 +16,7 @@ use Illuminate\Contracts\Container\Container;
 
 class Locales implements ExtenderInterface, LifecycleInterface
 {
-    protected $directory;
+    private $directory;
 
     public function __construct($directory)
     {
