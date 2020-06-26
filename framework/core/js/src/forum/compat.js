@@ -9,6 +9,10 @@ import DiscussionControls from './utils/DiscussionControls';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import UserControls from './utils/UserControls';
 import Pane from './utils/Pane';
+import DiscussionListState from './state/DiscussionListState';
+import GlobalSearchState from './states/GlobalSearchState';
+import NotificationListState from './states/NotificationListState';
+import SearchState from './states/SearchState';
 import DiscussionPage from './components/DiscussionPage';
 import LogInModal from './components/LogInModal';
 import ComposerBody from './components/ComposerBody';
@@ -77,6 +81,10 @@ export default Object.assign(compat, {
   'utils/alertEmailConfirmation': alertEmailConfirmation,
   'utils/UserControls': UserControls,
   'utils/Pane': Pane,
+  'states/DiscussionListState': DiscussionListState,
+  'states/GlobalSearchState': GlobalSearchState,
+  'states/NotificationListState': NotificationListState,
+  'states/SearchState': SearchState,
   'components/DiscussionPage': DiscussionPage,
   'components/LogInModal': LogInModal,
   'components/ComposerBody': ComposerBody,
