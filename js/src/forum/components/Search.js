@@ -12,13 +12,13 @@ import UsersSearchSource from './UsersSearchSource';
  * The `Search` component displays a menu of as-you-type results from a variety
  * of sources.
  *
- * The search box will be 'activated' if the app's seach state's
+ * The search box will be 'activated' if the app's search state's
  * getInitialSearch() value is a truthy value. If this is the case, an 'x'
  * button will be shown next to the search field, and clicking it will clear the search.
  *
  * PROPS:
  *
- * - state: AlertState instance.
+ * - state: SearchState instance.
  */
 export default class Search extends Component {
   init() {
