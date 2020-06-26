@@ -9,8 +9,6 @@ import Placeholder from '../../common/components/Placeholder';
  *
  * ### Props
  *
- * - `params` A map of parameters used to construct a refined parameter object
- *   to send along in the API request to get discussion results.
  * - `state` A DiscussionListState object that represents the discussion lists's state.
  */
 export default class DiscussionList extends Component {
