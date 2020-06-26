@@ -9,7 +9,7 @@ import DiscussionControls from './utils/DiscussionControls';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import UserControls from './utils/UserControls';
 import Pane from './utils/Pane';
-import DiscussionListState from './state/DiscussionListState';
+import DiscussionListState from './states/DiscussionListState';
 import GlobalSearchState from './states/GlobalSearchState';
 import NotificationListState from './states/NotificationListState';
 import SearchState from './states/SearchState';

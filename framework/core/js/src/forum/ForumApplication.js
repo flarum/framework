@@ -15,7 +15,7 @@ import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
-import DiscussionListState from './state/DiscussionListState';
+import DiscussionListState from './states/DiscussionListState';
 
 export default class ForumApplication extends Application {
   /**
