@@ -11,9 +11,9 @@ import Button from './Button';
 export default class Modal extends Component {
   init() {
     /**
-     * An alert component to show below the header.
+     * Attributes for an alert component to show below the header.
      *
-     * @type {Alert}
+     * @type {object}
      */
     this.alertAttrs = null;
   }

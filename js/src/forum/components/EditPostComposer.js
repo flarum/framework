@@ -1,5 +1,4 @@
 import ComposerBody from './ComposerBody';
-import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import icon from '../../common/helpers/icon';
 

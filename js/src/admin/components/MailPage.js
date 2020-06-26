@@ -197,7 +197,7 @@ export default class MailPage extends Page {
     if (this.saving || this.sendingTest) return;
 
     this.saving = true;
-    app.alerts.dismiss(this.successAlerts);
+    app.alerts.dismiss(this.successAlert);
 
     const settings = {};
 
@@ -205,7 +205,7 @@ export default class MailPage extends Page {
 
     saveSettings(settings)
       .then(() => {
-        this.successAlerts = app.alerts.show({
+        this.successAlert = app.alerts.show({
           type: 'success',
           children: app.translator.trans('core.admin.basics.saved_message'),
         });
