@@ -1,5 +1,3 @@
-import AlertState from '../states/AlertState';
-
 export default class AlertManagerState {
   constructor() {
     this.activeAlerts = {};
@@ -13,9 +11,8 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(attrs, alertClass) {
-    const alert = new AlertState(attrs, alertClass);
-    this.activeAlerts[++this.alertId] = alert;
+  show(attrs, type) {
+    this.activeAlerts[++this.alertId] = { type, attrs };
     m.redraw();
 
     return this.alertId;
