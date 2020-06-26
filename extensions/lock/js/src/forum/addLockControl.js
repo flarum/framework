@@ -16,8 +16,8 @@ export default function addLockControl() {
 
   DiscussionControls.lockAction = function() {
     this.save({isLocked: !this.isLocked()}).then(() => {
-      if (app.current instanceof DiscussionPage) {
-        app.current.stream.update();
+      if (app.current.matches(DiscussionPage)) {
+        app.current.get('stream').update();
       }
 
       m.redraw();
