@@ -123,7 +123,7 @@ export default class Modal extends Component {
    * @param {RequestError} error
    */
   onerror(error) {
-    this.alertAttrs = error.alertAttrs;
+    this.alertAttrs = error.alert;
 
     m.redraw();
 
