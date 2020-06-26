@@ -10,21 +10,25 @@ import Button from './Button';
  */
 export default class Modal extends Component {
   init() {
-    this.state = this.props.state;
-
     /**
      * An alert component to show below the header.
      *
      * @type {Alert}
      */
     this.alert = null;
+  }
 
-    this.state.modalOnReady = this.onready.bind(this);
-    this.state.modalDismissible = this.isDismissible.bind(this);
+  config(isInitialized, context) {
+    console.log('[Modal] config');
+    if (isInitialized) return;
 
-    this.state.on('hide', () => {
-      this.onhide();
-    });
+    console.log('[Modal] config initialize');
+    this.props.onshow(() => this.onready());
+
+    context.onunload = () => {
+      console.log('[Modal] onunload');
+      this.props.onhide();
+    };
   }
 
   view() {
@@ -35,7 +39,7 @@ export default class Modal extends Component {
     return (
       <div className={'Modal modal-dialog ' + this.className()}>
         <div className="Modal-content">
-          {this.isDismissible() ? (
+          {this.constructor.isDismissible() ? (
             <div className="Modal-close App-backControl">
               {Button.component({
                 icon: 'fas fa-times',
@@ -66,7 +70,7 @@ export default class Modal extends Component {
    *
    * @return {Boolean}
    */
-  isDismissible() {
+  static isDismissible() {
     return true;
   }
 
@@ -114,7 +118,7 @@ export default class Modal extends Component {
    * Hide the modal.
    */
   hide() {
-    app.modal.close();
+    this.props.onhide();
   }
 
   /**
