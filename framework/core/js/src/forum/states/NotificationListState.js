@@ -9,6 +9,10 @@ export default class NotificationListState {
     this.moreResults = false;
   }
 
+  clear() {
+    this.notificationPages = [];
+  }
+
   getNotificationPages() {
     return this.notificationPages;
   }
