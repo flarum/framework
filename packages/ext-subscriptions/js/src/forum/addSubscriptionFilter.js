@@ -6,7 +6,7 @@ import DiscussionListState from 'flarum/states/DiscussionListState';
 export default function addSubscriptionFilter() {
   extend(IndexPage.prototype, 'navItems', function(items) {
     if (app.session.user) {
-      const params = this.stickyParams();
+      const params = app.search.stickyParams();
 
       params.filter = 'following';
 
