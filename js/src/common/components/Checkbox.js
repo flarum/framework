@@ -16,6 +16,7 @@ import icon from '../helpers/icon';
  */
 export default class Checkbox extends Component {
   view() {
+    if (this.props.state === '0') this.props.state = false;
     let className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
     if (this.props.loading) className += ' loading';
     if (this.props.disabled) className += ' disabled';
