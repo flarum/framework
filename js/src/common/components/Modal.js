@@ -24,14 +24,11 @@ export default class Modal extends Component {
   }
 
   config(isInitialized, context) {
-    console.log('[Modal] config');
     if (isInitialized) return;
 
-    console.log('[Modal] config initialize');
     this.props.onshow(() => this.onready());
 
     context.onunload = () => {
-      console.log('[Modal] onunload');
       this.props.onhide();
     };
   }

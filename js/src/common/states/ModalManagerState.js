@@ -11,10 +11,8 @@ export default class ModalManagerState {
    * @public
    */
   show(type, attrs) {
-    console.log('[ModalManagerState] show');
-
     if (!(type.prototype instanceof Modal)) {
-      throw new Error('The ModalManager component can only show Modals');
+      throw new Error('The ModalManager can only show Modals');
     }
 
     clearTimeout(this.closeTimeout);
@@ -30,7 +28,6 @@ export default class ModalManagerState {
    * @public
    */
   close() {
-    console.log('[ModalManagerState] close');
     if (!this.modal) return;
 
     // Don't hide the modal immediately, because if the consumer happens to call
