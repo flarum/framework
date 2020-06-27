@@ -36,7 +36,7 @@ class UserPolicy extends AbstractPolicy
      */
     public function find(User $actor, Builder $query)
     {
-        if ($actor->cannot('viewUserList')) {
+        if ($actor->cannot('viewForum')) {
             if ($actor->isGuest()) {
                 $query->whereRaw('FALSE');
             } else {
