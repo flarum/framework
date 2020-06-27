@@ -35,7 +35,7 @@ export default class ModalManager extends Component {
   }
 
   animateShow(readyCallback) {
-    const dismissible = !!this.state.modal.type.isDismissible();
+    const dismissible = !!this.state.modal.type.isDismissible;
 
     this.$()
       .one('shown.bs.modal', readyCallback)

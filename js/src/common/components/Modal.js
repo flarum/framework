@@ -9,6 +9,11 @@ import Button from './Button';
  * @abstract
  */
 export default class Modal extends Component {
+  /**
+   * Determine whether or not the modal should be dismissible via an 'x' button.
+   */
+  static isDismissible = true;
+
   init() {
     /**
      * An alert component to show below the header.
@@ -39,7 +44,7 @@ export default class Modal extends Component {
     return (
       <div className={'Modal modal-dialog ' + this.className()}>
         <div className="Modal-content">
-          {this.constructor.isDismissible() ? (
+          {this.constructor.isDismissible ? (
             <div className="Modal-close App-backControl">
               {Button.component({
                 icon: 'fas fa-times',
@@ -63,15 +68,6 @@ export default class Modal extends Component {
         </div>
       </div>
     );
-  }
-
-  /**
-   * Determine whether or not the modal should be dismissible via an 'x' button.
-   *
-   * @return {Boolean}
-   */
-  static isDismissible() {
-    return true;
   }
 
   /**
