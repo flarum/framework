@@ -34,7 +34,7 @@ class UpdateTest extends TestCase
                 ['user_id' => 2, 'group_id' => 3],
             ],
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 3],
+                ['permission' => 'searchUsers', 'group_id' => 3],
             ]
         ]);
     }

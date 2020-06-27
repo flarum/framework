@@ -31,7 +31,7 @@ class RequireCsrfTokenTest extends TestCase
                 ['user_id' => 1, 'group_id' => 1],
             ],
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 3],
+                ['permission' => 'searchUsers', 'group_id' => 3],
             ],
             'api_keys' => [
                 ['user_id' => 1, 'key' => 'superadmin'],

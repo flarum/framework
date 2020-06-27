@@ -203,7 +203,7 @@ export default class Search extends Component {
     const items = new ItemList();
 
     if (app.forum.attribute('canViewForum')) items.add('discussions', new DiscussionsSearchSource());
-    if (app.forum.attribute('canViewUserList')) items.add('users', new UsersSearchSource());
+    if (app.forum.attribute('canSearchUsers')) items.add('users', new UsersSearchSource());
 
     return items;
   }

@@ -70,7 +70,7 @@ class ListUsersController extends AbstractListController
     {
         $actor = $request->getAttribute('actor');
 
-        $this->assertCan($actor, 'viewUserList');
+        $this->assertCan($actor, 'searchUsers');
 
         $query = Arr::get($this->extractFilter($request), 'q');
         $sort = $this->extractSort($request);

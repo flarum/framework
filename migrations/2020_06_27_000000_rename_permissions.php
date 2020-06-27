@@ -14,11 +14,13 @@ return [
         $db = $schema->getConnection();
 
         $db->table('group_permission')->where('permission', 'viewDiscussions')->update(['permission' => 'viewForum']);
+        $db->table('group_permission')->where('permission', 'viewUserList')->update(['permission' => 'searchUsers']);
     },
 
     'down' => function (Builder $schema) {
         $db = $schema->getConnection();
 
         $db->table('group_permission')->where('permission', 'viewForum')->update(['permission' => 'viewDiscussions']);
+        $db->table('group_permission')->where('permission', 'searchUsers')->update(['permission' => 'viewUserList']);
     }
 ];

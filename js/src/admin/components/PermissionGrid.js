@@ -123,11 +123,11 @@ export default class PermissionGrid extends Component {
     );
 
     items.add(
-      'viewUserList',
+      'searchUsers',
       {
         icon: 'fas fa-users',
-        label: app.translator.trans('core.admin.permissions.view_user_list_label'),
-        permission: 'viewUserList',
+        label: app.translator.trans('core.admin.permissions.search_users_label'),
+        permission: 'searchUsers',
         allowGuest: true,
       },
       100

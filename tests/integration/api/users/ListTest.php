@@ -55,7 +55,7 @@ class ListTest extends TestCase
     {
         Permission::unguarded(function () {
             Permission::create([
-                'permission' => 'viewUserList',
+                'permission' => 'searchUsers',
                 'group_id' => 2,
             ]);
         });

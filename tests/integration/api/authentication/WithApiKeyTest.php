@@ -53,7 +53,7 @@ class WithApiKeyTest extends TestCase
         );
 
         $data = json_decode($response->getBody(), true);
-        $this->assertFalse($data['data']['attributes']['canViewUserList']);
+        $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
     /**
@@ -69,7 +69,7 @@ class WithApiKeyTest extends TestCase
         );
 
         $data = json_decode($response->getBody(), true);
-        $this->assertTrue($data['data']['attributes']['canViewUserList']);
+        $this->assertTrue($data['data']['attributes']['canSearchUsers']);
         $this->assertArrayHasKey('adminUrl', $data['data']['attributes']);
 
         $key->refresh();
@@ -90,7 +90,7 @@ class WithApiKeyTest extends TestCase
         );
 
         $data = json_decode($response->getBody(), true);
-        $this->assertTrue($data['data']['attributes']['canViewUserList']);
+        $this->assertTrue($data['data']['attributes']['canSearchUsers']);
         $this->assertArrayNotHasKey('adminUrl', $data['data']['attributes']);
 
         $key->refresh();
@@ -111,7 +111,7 @@ class WithApiKeyTest extends TestCase
         );
 
         $data = json_decode($response->getBody(), true);
-        $this->assertTrue($data['data']['attributes']['canViewUserList']);
+        $this->assertTrue($data['data']['attributes']['canSearchUsers']);
         $this->assertArrayNotHasKey('adminUrl', $data['data']['attributes']);
 
         $key->refresh();
