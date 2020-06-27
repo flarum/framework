@@ -69,7 +69,7 @@ class UpdateTest extends TestCase
         );
 
         // Make sure sensitive information is not made public
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
         $this->assertNotContains('admin@machine.local', (string) $response->getBody());
     }
 }
