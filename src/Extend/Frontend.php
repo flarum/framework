@@ -186,19 +186,23 @@ class Frontend implements ExtenderInterface, LifecycleInterface
 
     public function onEnable(Container $container, Extension $extension)
     {
-        $recompile = new RecompileFrontendAssets(
-            $container->make('flarum.assets.'.$this->frontend),
-            $container->make(LocaleManager::class)
-        );
-        $recompile->flush();
+        if (!empty($this->js) || !empty($this->css)) {
+            $recompile = new RecompileFrontendAssets(
+                $container->make('flarum.assets.' . $this->frontend),
+                $container->make(LocaleManager::class)
+            );
+            $recompile->flush();
+        }
     }
 
     public function onDisable(Container $container, Extension $extension)
     {
-        $recompile = new RecompileFrontendAssets(
-            $container->make('flarum.assets.'.$this->frontend),
-            $container->make(LocaleManager::class)
-        );
-        $recompile->flush();
+        if (!empty($this->js) || !empty($this->css)) {
+            $recompile = new RecompileFrontendAssets(
+                $container->make('flarum.assets.' . $this->frontend),
+                $container->make(LocaleManager::class)
+            );
+            $recompile->flush();
+        }
     }
 }
