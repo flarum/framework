@@ -298,6 +298,7 @@ core:
       cannot_start_discussion_button: Can't Start Discussion
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
+      meta_title_text: => core.ref.all_discussions
       refresh_tooltip: Refresh
       start_discussion_button: => core.ref.start_a_discussion
 
