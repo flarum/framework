@@ -9,6 +9,7 @@
 
 namespace Flarum\Tags\Command;
 
+use Flarum\Tags\Event\Creating;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagValidator;
 use Flarum\User\AssertPermissionTrait;
@@ -64,6 +65,8 @@ class CreateTagHandler
                 $tag->position = $position === null ? 0 : $position + 1;
             }
         }
+
+        event(new Creating($tag, $actor, $data));
 
         $this->validator->assertValid($tag->getAttributes());
 
