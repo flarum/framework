@@ -16,6 +16,9 @@ import icon from '../helpers/icon';
  */
 export default class Checkbox extends Component {
   view() {
+    // Sometimes, false is stored in the DB as '0'. This is a temporary
+    // conversion layer until a more robust settings encoding is introduced
+    if (this.props.state === '0') this.props.state = false;
     let className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
     if (this.props.loading) className += ' loading';
     if (this.props.disabled) className += ' disabled';
