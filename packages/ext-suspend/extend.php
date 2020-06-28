@@ -9,6 +9,7 @@
 
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Event\ConfigureNotificationTypes;
+use Flarum\Event\ConfigureUserGambits;
 use Flarum\Extend;
 use Flarum\Suspend\Access;
 use Flarum\Suspend\Event\Suspended;
@@ -16,6 +17,7 @@ use Flarum\Suspend\Event\Unsuspended;
 use Flarum\Suspend\Listener;
 use Flarum\Suspend\Notification\UserSuspendedBlueprint;
 use Flarum\Suspend\Notification\UserUnsuspendedBlueprint;
+use Flarum\Suspend\Search\Gambit\SuspendedGambit;
 use Flarum\User\Event\Saving;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -48,5 +50,9 @@ return [
         $events->listen(Unsuspended::class, Listener\SendNotificationWhenUserIsUnsuspended::class);
 
         $events->subscribe(Access\UserPolicy::class);
+
+        $events->listen(ConfigureUserGambits::class, function (ConfigureUserGambits $event) {
+            $event->gambits->add(SuspendedGambit::class);
+        });
     }
 ];
