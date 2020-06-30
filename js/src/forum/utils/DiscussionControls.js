@@ -188,7 +188,7 @@ export default {
     } else {
       deferred.reject();
 
-      app.modal.show(new LogInModal());
+      app.modal.show(LogInModal);
     }
 
     return deferred.promise;
@@ -239,11 +239,9 @@ export default {
    * @return {Promise}
    */
   renameAction() {
-    return app.modal.show(
-      new RenameDiscussionModal({
-        currentTitle: this.title(),
-        discussion: this,
-      })
-    );
+    return app.modal.show(RenameDiscussionModal, {
+      currentTitle: this.title(),
+      discussion: this,
+    });
   },
 };
