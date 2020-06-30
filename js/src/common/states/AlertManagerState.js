@@ -22,7 +22,7 @@ export default class AlertManagerState {
       throw new Error('The AlertManager can only show Alerts. Whichever extension triggered this alert should be updated to comply with beta 14.');
     }
     // End Change Compliance Warning, Remove in Beta 15
-    this.activeAlerts[++this.alertId] = { componentClass, attrs };
+    this.activeAlerts[++this.alertId] = { attrs, componentClass };
     m.redraw();
 
     return this.alertId;
