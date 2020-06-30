@@ -1,4 +1,4 @@
-import Alert from "../components/Alert";
+import Alert from '../components/Alert';
 
 export default class AlertManagerState {
   constructor() {
@@ -13,7 +13,7 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(attrs, componentClass=Alert) {
+  show(attrs, componentClass = Alert) {
     // Breaking Change Compliance Warning, Remove in Beta 15.
     // This is applied to the first argument (attrs) because previously, the alert was passed as the first argument.
     if (attrs === Alert || attrs instanceof Alert) {
