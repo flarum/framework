@@ -1,3 +1,5 @@
+import Alert from "../components/Alert";
+
 export default class AlertManagerState {
   constructor() {
     this.activeAlerts = {};
@@ -11,7 +13,15 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(attrs, componentClass) {
+  show(attrs, componentClass=Alert) {
+    // Breaking Change Compliance Warning, Remove in Beta 15
+    if (!(componentClass === Alert || componentClass.prototype instanceof Alert)) {
+      throw new Error('The AlertManager can only show Alerts');
+    }
+    if (componentClass.init) {
+      throw new Error('The type parameter must be an alert class, not an alert instance');
+    }
+    // End Change Compliance Warning, Remove in Beta 15
     this.activeAlerts[++this.alertId] = { componentClass, attrs };
     m.redraw();
 
