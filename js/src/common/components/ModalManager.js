@@ -15,7 +15,7 @@ export default class ModalManager extends Component {
 
     return (
       <div className="ModalManager modal fade">
-        {modal ? modal.type.component({ ...modal.attrs, onshow: this.animateShow.bind(this), onhide: this.animateHide.bind(this) }) : ''}
+        {modal ? modal.componentClass.component({ ...modal.attrs, onshow: this.animateShow.bind(this), onhide: this.animateHide.bind(this) }) : ''}
       </div>
     );
   }
@@ -35,7 +35,7 @@ export default class ModalManager extends Component {
   }
 
   animateShow(readyCallback) {
-    const dismissible = !!this.state.modal.type.isDismissible;
+    const dismissible = !!this.state.modal.componentClass.isDismissible;
 
     this.$()
       .one('shown.bs.modal', readyCallback)
