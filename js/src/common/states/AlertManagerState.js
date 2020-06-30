@@ -11,8 +11,8 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(attrs, type) {
-    this.activeAlerts[++this.alertId] = { type, attrs };
+  show(attrs, componentClass) {
+    this.activeAlerts[++this.alertId] = { componentClass, attrs };
     m.redraw();
 
     return this.alertId;

@@ -15,7 +15,7 @@ export default class AlertManager extends Component {
       <div className="AlertManager">
         {Object.entries(this.state.getActiveAlerts()).map(([key, alert]) => (
           <div className="AlertManager-alert">
-            {(alert.type || Alert).component({ ...alert.attrs, ondismiss: this.state.dismiss.bind(this.state, key) })}
+            {(alert.componentClass || Alert).component({ ...alert.attrs, ondismiss: this.state.dismiss.bind(this.state, key) })}
           </div>
         ))}
       </div>
