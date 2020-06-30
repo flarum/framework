@@ -11,16 +11,16 @@ import Button from './Button';
 export default class Modal extends Component {
   init() {
     /**
-     * An alert component to show below the header.
+     * Attributes for an alert component to show below the header.
      *
-     * @type {Alert}
+     * @type {object}
      */
-    this.alert = null;
+    this.alertAttrs = null;
   }
 
   view() {
-    if (this.alert) {
-      this.alert.props.dismissible = false;
+    if (this.alertAttrs) {
+      this.alertAttrs.dismissible = false;
     }
 
     return (
@@ -43,7 +43,7 @@ export default class Modal extends Component {
               <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
             </div>
 
-            {alert ? <div className="Modal-alert">{this.alert}</div> : ''}
+            {this.alertAttrs ? <div className="Modal-alert">{Alert.component(this.alertAttrs)}</div> : ''}
 
             {this.content()}
           </form>
@@ -123,7 +123,7 @@ export default class Modal extends Component {
    * @param {RequestError} error
    */
   onerror(error) {
-    this.alert = error.alert;
+    this.alertAttrs = error.alert;
 
     m.redraw();
 
