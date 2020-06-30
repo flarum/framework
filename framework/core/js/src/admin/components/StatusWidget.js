@@ -46,7 +46,7 @@ export default class StatusWidget extends DashboardWidget {
   }
 
   handleClearCache(e) {
-    app.modal.show(new LoadingModal());
+    app.modal.show(LoadingModal);
 
     app
       .request({

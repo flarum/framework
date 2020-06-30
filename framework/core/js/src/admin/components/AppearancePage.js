@@ -82,7 +82,7 @@ export default class AppearancePage extends Page {
             {Button.component({
               className: 'Button',
               children: app.translator.trans('core.admin.appearance.edit_header_button'),
-              onclick: () => app.modal.show(new EditCustomHeaderModal()),
+              onclick: () => app.modal.show(EditCustomHeaderModal),
             })}
           </fieldset>
 
@@ -92,7 +92,7 @@ export default class AppearancePage extends Page {
             {Button.component({
               className: 'Button',
               children: app.translator.trans('core.admin.appearance.edit_footer_button'),
-              onclick: () => app.modal.show(new EditCustomFooterModal()),
+              onclick: () => app.modal.show(EditCustomFooterModal),
             })}
           </fieldset>
 
@@ -102,7 +102,7 @@ export default class AppearancePage extends Page {
             {Button.component({
               className: 'Button',
               children: app.translator.trans('core.admin.appearance.edit_css_button'),
-              onclick: () => app.modal.show(new EditCustomCssModal()),
+              onclick: () => app.modal.show(EditCustomCssModal),
             })}
           </fieldset>
         </div>

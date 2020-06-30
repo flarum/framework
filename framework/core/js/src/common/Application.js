@@ -22,6 +22,7 @@ import Group from './models/Group';
 import Notification from './models/Notification';
 import { flattenDeep } from 'lodash-es';
 import PageState from './states/PageState';
+import ModalManagerState from './states/ModalManagerState';
 import AlertManagerState from './states/AlertManagerState';
 
 /**
@@ -140,7 +141,16 @@ export default class Application {
   previous = new PageState(null);
 
   /*
+   * An object that manages modal state.
+   *
+   * @type {ModalManagerState}
+   */
+  modal = new ModalManagerState();
+
+  /**
    * An object that manages the state of active alerts.
+   *
+   * @type {AlertManagerState}
    */
   alerts = new AlertManagerState();
 
@@ -179,7 +189,7 @@ export default class Application {
   }
 
   mount(basePath = '') {
-    this.modal = m.mount(document.getElementById('modal'), <ModalManager />);
+    m.mount(document.getElementById('modal'), <ModalManager state={this.modal} />);
     m.mount(document.getElementById('alerts'), <AlertManager state={this.alerts} />);
 
     this.drawer = new Drawer();
@@ -402,7 +412,7 @@ export default class Application {
   showDebug(error, formattedError) {
     this.alerts.dismiss(this.requestErrorAlert);
 
-    this.modal.show(new RequestErrorModal({ error, formattedError }));
+    this.modal.show(RequestErrorModal, { error, formattedError });
   }
 
   /**

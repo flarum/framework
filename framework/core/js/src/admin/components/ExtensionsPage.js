@@ -16,7 +16,7 @@ export default class ExtensionsPage extends Page {
               children: app.translator.trans('core.admin.extensions.add_button'),
               icon: 'fas fa-plus',
               className: 'Button Button--primary',
-              onclick: () => app.modal.show(new AddExtensionModal()),
+              onclick: () => app.modal.show(AddExtensionModal),
             })}
           </div>
         </div>
@@ -94,7 +94,7 @@ export default class ExtensionsPage extends Page {
               })
               .then(() => window.location.reload());
 
-            app.modal.show(new LoadingModal());
+            app.modal.show(LoadingModal);
           },
         })
       );
@@ -123,6 +123,6 @@ export default class ExtensionsPage extends Page {
         window.location.reload();
       });
 
-    app.modal.show(new LoadingModal());
+    app.modal.show(LoadingModal);
   }
 }
