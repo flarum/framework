@@ -282,7 +282,7 @@ export default class IndexPage extends Page {
     } else {
       deferred.reject();
 
-      app.modal.show(new LogInModal());
+      app.modal.show(LogInModal);
     }
 
     return deferred.promise;

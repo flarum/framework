@@ -145,6 +145,6 @@ export default {
    * @param {User} user
    */
   editAction(user) {
-    app.modal.show(new EditUserModal({ user }));
+    app.modal.show(EditUserModal, { user });
   },
 };

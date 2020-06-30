@@ -15,7 +15,7 @@ export default class PermissionsPage extends Page {
               .all('groups')
               .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
               .map((group) => (
-                <button className="Button Group" onclick={() => app.modal.show(new EditGroupModal({ group }))}>
+                <button className="Button Group" onclick={() => app.modal.show(EditGroupModal, { group })}>
                   {GroupBadge.component({
                     group,
                     className: 'Group-icon',
@@ -24,7 +24,7 @@ export default class PermissionsPage extends Page {
                   <span className="Group-name">{group.namePlural()}</span>
                 </button>
               ))}
-            <button className="Button Group Group--add" onclick={() => app.modal.show(new EditGroupModal())}>
+            <button className="Button Group Group--add" onclick={() => app.modal.show(EditGroupModal)}>
               {icon('fas fa-plus', { className: 'Group-icon' })}
               <span className="Group-name">{app.translator.trans('core.admin.permissions.new_group_button')}</span>
             </button>

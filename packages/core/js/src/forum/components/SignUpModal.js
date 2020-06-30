@@ -145,7 +145,7 @@ export default class SignUpModal extends Modal {
       password: this.password(),
     };
 
-    app.modal.show(new LogInModal(props));
+    app.modal.show(LogInModal, props);
   }
 
   onready() {
