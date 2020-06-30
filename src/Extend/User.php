@@ -24,7 +24,7 @@ class User implements ExtenderInterface
      */
     public function displayNameDriver(string $identifier, $driver)
     {
-        $this->drivers[$identifier] = $driver;
+        $this->displayNameDrivers[$identifier] = $driver;
 
         return $this;
     }
@@ -32,7 +32,7 @@ class User implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend('flarum.user.display_name.supported_drivers', function ($existingDrivers) {
-            return array_merge($existingDrivers, $this->drivers);
+            return array_merge($existingDrivers, $this->displayNameDrivers);
         });
     }
 }

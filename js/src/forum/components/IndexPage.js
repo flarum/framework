@@ -79,7 +79,7 @@ export default class IndexPage extends Page {
 
     extend(context, 'onunload', () => $('#app').css('min-height', ''));
 
-    app.setTitle('');
+    app.setTitle(app.translator.trans('core.forum.index.meta_title_text'));
     app.setTitleCount(0);
 
     // Work out the difference between the height of this hero and that of the

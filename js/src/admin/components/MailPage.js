@@ -179,9 +179,10 @@ export default class MailPage extends Page {
       })
       .then((response) => {
         this.sendingTest = false;
-        app.alerts.show(
-          (this.testEmailSuccessAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.email.send_test_mail_success') }))
-        );
+        this.testEmailSuccessAlert = app.alerts.show({
+          type: 'success',
+          children: app.translator.trans('core.admin.email.send_test_mail_success'),
+        });
       })
       .catch((error) => {
         this.sendingTest = false;
@@ -204,7 +205,10 @@ export default class MailPage extends Page {
 
     saveSettings(settings)
       .then(() => {
-        app.alerts.show((this.successAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') })));
+        this.successAlert = app.alerts.show({
+          type: 'success',
+          children: app.translator.trans('core.admin.basics.saved_message'),
+        });
       })
       .catch(() => {})
       .then(() => {
