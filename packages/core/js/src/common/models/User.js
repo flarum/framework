@@ -54,7 +54,7 @@ Object.assign(User.prototype, {
    * @public
    */
   isOnline() {
-    return this.lastSeenAt() > moment().subtract(5, 'minutes').toDate();
+    return dayjs().subtract(5, 'minutes').isBefore(this.lastSeenAt());
   },
 
   /**
