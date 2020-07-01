@@ -9,10 +9,10 @@ import humanTimeUtil from '../utils/humanTime';
  * @return {Object}
  */
 export default function humanTime(time) {
-  const mo = dayjs(time);
+  const d = dayjs(time);
 
-  const datetime = mo.format();
-  const full = mo.format('LLLL');
+  const datetime = d.format();
+  const full = d.format('LLLL');
   const ago = humanTimeUtil(time);
 
   return (

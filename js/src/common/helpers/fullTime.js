@@ -6,10 +6,10 @@
  * @return {Object}
  */
 export default function fullTime(time) {
-  const mo = dayjs(time);
+  const d = dayjs(time);
 
-  const datetime = mo.format();
-  const full = mo.format('LLLL');
+  const datetime = d.format();
+  const full = d.format('LLLL');
 
   return (
     <time pubdate datetime={datetime}>
