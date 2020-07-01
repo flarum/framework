@@ -25,6 +25,12 @@ export default function addComposerAutocomplete() {
     let typed;
     let searchTimeout;
 
+    // We store users returned from an API here to preserve order in which they are returned
+    // This prevents the user list jumping around while users are returned.
+    // We also use a hashset for user IDs to provide O(1) lookup for the users already in the list.
+    const returnedUsers = Array.from(app.store.all('users'));
+    const returnedUserIds = new Set(returnedUsers.map(u => u.id()));
+
     const applySuggestion = function(replacement) {
       const insert = replacement + ' ';
 
@@ -112,7 +118,7 @@ export default function addComposerAutocomplete() {
             // If the user has started to type a username, then suggest users
             // matching that username.
             if (typed) {
-              app.store.all('users').forEach(user => {
+              returnedUsers.forEach(user => {
                 if (!userMatches(user)) return;
 
                 suggestions.push(
@@ -140,7 +146,7 @@ export default function addComposerAutocomplete() {
                   const user = post.user();
                   suggestions.push(
                     makeSuggestion(user, '@' + user.username() + '#' + post.id(), [
-                      app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', {number: post.number()}), ' — ',
+                      app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', { number: post.number() }), ' — ',
                       truncate(post.contentPlain(), 200)
                     ], 'MentionsDropdown-post')
                   );
@@ -179,11 +185,19 @@ export default function addComposerAutocomplete() {
           dropdown.$().scrollTop(0);
 
           clearTimeout(searchTimeout);
-          if (typed) {
+          // Don't send API calls searching for users until at least 2 characters have been typed.
+          // This focuses the mention results on users and posts in the discussion.
+          if (typed.length > 1) {
             searchTimeout = setTimeout(function() {
               const typedLower = typed.toLowerCase();
               if (searched.indexOf(typedLower) === -1) {
-                app.store.find('users', {filter: {q: typed}, page: {limit: 5}}).then(() => {
+                app.store.find('users', { filter: { q: typed }, page: { limit: 5 } }).then(results => {
+                  results.forEach(u => {
+                    if (!returnedUserIds.has(u.id())) {
+                      returnedUserIds.add(u.id());
+                      returnedUsers.push(u);
+                    }
+                  })
                   if (dropdown.active) buildSuggestions();
                 });
                 searched.push(typedLower);
