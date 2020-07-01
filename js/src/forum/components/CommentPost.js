@@ -135,18 +135,22 @@ export default class CommentPost extends Post {
     const items = new ItemList();
     const post = this.props.post;
 
-    items.add('user', PostUser.component({
-      post,
-      cardVisible: this.cardVisible,
-      oncardshow: () => {
-        this.cardVisible = true;
-        m.redraw();
-      },
-      oncardhide: () => {
-        this.cardVisible = false;
-        m.redraw();
-      },
-    }), 100);
+    items.add(
+      'user',
+      PostUser.component({
+        post,
+        cardVisible: this.cardVisible,
+        oncardshow: () => {
+          this.cardVisible = true;
+          m.redraw();
+        },
+        oncardhide: () => {
+          this.cardVisible = false;
+          m.redraw();
+        },
+      }),
+      100
+    );
     items.add('meta', PostMeta.component({ post }));
 
     if (post.isEdited() && !post.isHidden()) {
