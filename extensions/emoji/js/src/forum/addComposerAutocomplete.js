@@ -87,7 +87,7 @@ export default function addComposerAutocomplete() {
                 onmouseenter={function() {
                   dropdown.setIndex($(this).parent().index() - 1);
                 }}>
-                  <img alt={emoji} class="emoji" draggable="false" src={'//cdn.jsdelivr.net/gh/twitter/twemoji@12/assets/72x72/' + code + '.png'}/>
+                  <img alt={emoji} class="emoji" draggable="false" src={'//cdn.jsdelivr.net/gh/twitter/twemoji@13/assets/72x72/' + code + '.png'}/>
                   {name}
               </button>
             );
