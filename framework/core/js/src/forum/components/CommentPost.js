@@ -31,7 +31,18 @@ export default class CommentPost extends Post {
      */
     this.revealContent = false;
 
-    this.subtree.check(() => this.isEditing());
+    /**
+     * Whether or not the user hover card inside of PostUser is visible.
+     * The property must be managed in CommentPost to be able to use it in the subtree check
+     *
+     * @type {Boolean}
+     */
+    this.cardVisible = false;
+
+    this.subtree.check(
+      () => this.cardVisible,
+      () => this.isEditing()
+    );
   }
 
   content() {
@@ -124,7 +135,22 @@ export default class CommentPost extends Post {
     const items = new ItemList();
     const post = this.props.post;
 
-    items.add('user', PostUser.component({ post }), 100);
+    items.add(
+      'user',
+      PostUser.component({
+        post,
+        cardVisible: this.cardVisible,
+        oncardshow: () => {
+          this.cardVisible = true;
+          m.redraw();
+        },
+        oncardhide: () => {
+          this.cardVisible = false;
+          m.redraw();
+        },
+      }),
+      100
+    );
     items.add('meta', PostMeta.component({ post }));
 
     if (post.isEdited() && !post.isHidden()) {
