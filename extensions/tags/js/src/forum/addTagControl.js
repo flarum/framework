@@ -11,7 +11,7 @@ export default function() {
       items.add('tags', Button.component({
         children: app.translator.trans('flarum-tags.forum.discussion_controls.edit_tags_button'),
         icon: 'fas fa-tag',
-        onclick: () => app.modal.show(new TagDiscussionModal({discussion}))
+        onclick: () => app.modal.show(TagDiscussionModal, {discussion})
       }));
     }
   });
