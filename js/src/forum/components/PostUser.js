@@ -29,7 +29,7 @@ export default class PostUser extends Component {
 
     let card = '';
 
-    if (!post.isHidden()) {
+    if (!post.isHidden() && this.props.cardVisible) {
       card = UserCard.component({
         user,
         className: 'UserCard--popover',
@@ -72,6 +72,8 @@ export default class PostUser extends Component {
    * Show the user card.
    */
   showCard() {
+    this.props.oncardshow();
+
     setTimeout(() => this.$('.UserCard').addClass('in'));
   }
 
@@ -79,6 +81,10 @@ export default class PostUser extends Component {
    * Hide the user card.
    */
   hideCard() {
-    this.$('.UserCard').removeClass('in');
+    this.$('.UserCard')
+      .removeClass('in')
+      .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
+        this.props.oncardhide();
+      });
   }
 }
