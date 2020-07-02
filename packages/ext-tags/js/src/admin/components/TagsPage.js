@@ -17,7 +17,7 @@ function tagItem(tag) {
         {Button.component({
           className: 'Button Button--link',
           icon: 'fas fa-pencil-alt',
-          onclick: () => app.modal.show(new EditTagModal({tag}))
+          onclick: () => app.modal.show(EditTagModal, {tag})
         })}
       </div>
       {!tag.isChild() && tag.position() !== null ? (
@@ -44,12 +44,12 @@ export default class TagsPage extends Page {
               className: 'Button Button--primary',
               icon: 'fas fa-plus',
               children: app.translator.trans('flarum-tags.admin.tags.create_tag_button'),
-              onclick: () => app.modal.show(new EditTagModal())
+              onclick: () => app.modal.show(EditTagModal)
             })}
             {Button.component({
               className: 'Button',
               children: app.translator.trans('flarum-tags.admin.tags.settings_button'),
-              onclick: () => app.modal.show(new TagSettingsModal())
+              onclick: () => app.modal.show(TagSettingsModal)
             })}
           </div>
         </div>
