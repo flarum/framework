@@ -37,7 +37,7 @@ export default function() {
         names.push(
           <a href="#" onclick={e => {
             e.preventDefault();
-            app.modal.show(new PostLikesModal({post}));
+            app.modal.show(PostLikesModal, {post});
           }}>
             {app.translator.transChoice('flarum-likes.forum.post.others_link', count, {count})}
           </a>
