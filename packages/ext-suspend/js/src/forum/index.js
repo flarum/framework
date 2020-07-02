@@ -22,7 +22,7 @@ app.initializers.add('flarum-suspend', () => {
       items.add('suspend', Button.component({
         children: app.translator.trans('flarum-suspend.forum.user_controls.suspend_button'),
         icon: 'fas fa-ban',
-        onclick: () => app.modal.show(new SuspendUserModal({user}))
+        onclick: () => app.modal.show(SuspendUserModal, {user})
       }));
     }
   });
