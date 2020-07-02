@@ -16,19 +16,17 @@ export default class DiscussionsUserPage extends UserPage {
   show(user) {
     super.show(user);
 
-    this.state = new DiscussionListState({
+    this.state = new DiscussionListState(
+      {
         q: 'author:' + user.username(),
         sort: 'newest',
-    }, app);
+      }
+    );
 
     this.state.refresh();
   }
 
   content() {
-    return (
-      <div className="DiscussionsUserPage">
-        {DiscussionList.component({ state: this.state })}
-      </div>
-    );
+    return <div className="DiscussionsUserPage">{DiscussionList.component({ state: this.state })}</div>;
   }
 }
