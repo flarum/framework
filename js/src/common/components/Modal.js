@@ -9,24 +9,39 @@ import Button from './Button';
  * @abstract
  */
 export default class Modal extends Component {
+  /**
+   * Determine whether or not the modal should be dismissible via an 'x' button.
+   */
+  static isDismissible = true;
+
   init() {
     /**
-     * An alert component to show below the header.
+     * Attributes for an alert component to show below the header.
      *
-     * @type {Alert}
+     * @type {object}
      */
-    this.alert = null;
+    this.alertAttrs = null;
+  }
+
+  config(isInitialized, context) {
+    if (isInitialized) return;
+
+    this.props.onshow(() => this.onready());
+
+    context.onunload = () => {
+      this.props.onhide();
+    };
   }
 
   view() {
-    if (this.alert) {
-      this.alert.props.dismissible = false;
+    if (this.alertAttrs) {
+      this.alertAttrs.dismissible = false;
     }
 
     return (
       <div className={'Modal modal-dialog ' + this.className()}>
         <div className="Modal-content">
-          {this.isDismissible() ? (
+          {this.constructor.isDismissible ? (
             <div className="Modal-close App-backControl">
               {Button.component({
                 icon: 'fas fa-times',
@@ -43,22 +58,13 @@ export default class Modal extends Component {
               <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
             </div>
 
-            {alert ? <div className="Modal-alert">{this.alert}</div> : ''}
+            {this.alertAttrs ? <div className="Modal-alert">{Alert.component(this.alertAttrs)}</div> : ''}
 
             {this.content()}
           </form>
         </div>
       </div>
     );
-  }
-
-  /**
-   * Determine whether or not the modal should be dismissible via an 'x' button.
-   *
-   * @return {Boolean}
-   */
-  isDismissible() {
-    return true;
   }
 
   /**
@@ -105,7 +111,7 @@ export default class Modal extends Component {
    * Hide the modal.
    */
   hide() {
-    app.modal.close();
+    this.props.onhide();
   }
 
   /**
@@ -123,7 +129,7 @@ export default class Modal extends Component {
    * @param {RequestError} error
    */
   onerror(error) {
-    this.alert = error.alert;
+    this.alertAttrs = error.alert;
 
     m.redraw();
 

@@ -15,7 +15,7 @@ import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
-import DiscussionListState from './state/DiscussionListState';
+import DiscussionListState from './states/DiscussionListState';
 
 export default class ForumApplication extends Application {
   /**
@@ -84,7 +84,7 @@ export default class ForumApplication extends Application {
      *
      * @type {DiscussionListState}
      */
-    this.discussions = new DiscussionListState({ forumApp: this });
+    this.discussions = new DiscussionListState({}, this);
 
     /**
      * @deprecated beta 14, remove in beta 15.
@@ -180,8 +180,7 @@ export default class ForumApplication extends Application {
     if (payload.loggedIn) {
       window.location.reload();
     } else {
-      const modal = new SignUpModal(payload);
-      this.modal.show(modal);
+      this.modal.show(SignUpModal, payload);
     }
   }
 }

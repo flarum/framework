@@ -1,5 +1,4 @@
 import ComposerBody from './ComposerBody';
-import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import icon from '../../common/helpers/icon';
 
@@ -101,13 +100,11 @@ export default class EditPostComposer extends ComposerBody {
             app.alerts.dismiss(alert);
           },
         });
-        app.alerts.show(
-          (alert = new Alert({
-            type: 'success',
-            children: app.translator.trans('core.forum.composer_edit.edited_message'),
-            controls: [viewButton],
-          }))
-        );
+        alert = app.alerts.show({
+          type: 'success',
+          children: app.translator.trans('core.forum.composer_edit.edited_message'),
+          controls: [viewButton],
+        });
       }
 
       app.composer.hide();

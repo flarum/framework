@@ -13,8 +13,8 @@ export default class AppearancePage extends Page {
 
     this.primaryColor = m.prop(app.data.settings.theme_primary_color);
     this.secondaryColor = m.prop(app.data.settings.theme_secondary_color);
-    this.darkMode = m.prop(app.data.settings.theme_dark_mode === '1');
-    this.coloredHeader = m.prop(app.data.settings.theme_colored_header === '1');
+    this.darkMode = m.prop(app.data.settings.theme_dark_mode);
+    this.coloredHeader = m.prop(app.data.settings.theme_colored_header);
   }
 
   view() {
@@ -82,7 +82,7 @@ export default class AppearancePage extends Page {
             {Button.component({
               className: 'Button',
               children: app.translator.trans('core.admin.appearance.edit_header_button'),
-              onclick: () => app.modal.show(new EditCustomHeaderModal()),
+              onclick: () => app.modal.show(EditCustomHeaderModal),
             })}
           </fieldset>
 
@@ -92,7 +92,7 @@ export default class AppearancePage extends Page {
             {Button.component({
               className: 'Button',
               children: app.translator.trans('core.admin.appearance.edit_footer_button'),
-              onclick: () => app.modal.show(new EditCustomFooterModal()),
+              onclick: () => app.modal.show(EditCustomFooterModal),
             })}
           </fieldset>
 
@@ -102,7 +102,7 @@ export default class AppearancePage extends Page {
             {Button.component({
               className: 'Button',
               children: app.translator.trans('core.admin.appearance.edit_css_button'),
-              onclick: () => app.modal.show(new EditCustomCssModal()),
+              onclick: () => app.modal.show(EditCustomCssModal),
             })}
           </fieldset>
         </div>

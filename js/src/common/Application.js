@@ -1,5 +1,4 @@
 import ItemList from './utils/ItemList';
-import Alert from './components/Alert';
 import Button from './components/Button';
 import ModalManager from './components/ModalManager';
 import AlertManager from './components/AlertManager';
@@ -12,6 +11,7 @@ import Drawer from './utils/Drawer';
 import mapRoutes from './utils/mapRoutes';
 import RequestError from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
+import liveHumanTimes from './utils/liveHumanTimes';
 import { extend } from './extend';
 
 import Forum from './models/Forum';
@@ -22,6 +22,8 @@ import Group from './models/Group';
 import Notification from './models/Notification';
 import { flattenDeep } from 'lodash-es';
 import PageState from './states/PageState';
+import ModalManagerState from './states/ModalManagerState';
+import AlertManagerState from './states/AlertManagerState';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -108,13 +110,13 @@ export default class Application {
   booted = false;
 
   /**
-   * An Alert that was shown as a result of an AJAX request error. If present,
-   * it will be dismissed on the next successful request.
+   * The key for an Alert that was shown as a result of an AJAX request error.
+   * If present, it will be dismissed on the next successful request.
    *
-   * @type {null|Alert}
+   * @type {int}
    * @private
    */
-  requestError = null;
+  requestErrorAlert = null;
 
   /**
    * The page the app is currently on.
@@ -137,6 +139,20 @@ export default class Application {
    * @type {PageState}
    */
   previous = new PageState(null);
+
+  /*
+   * An object that manages modal state.
+   *
+   * @type {ModalManagerState}
+   */
+  modal = new ModalManagerState();
+
+  /**
+   * An object that manages the state of active alerts.
+   *
+   * @type {AlertManagerState}
+   */
+  alerts = new AlertManagerState();
 
   data;
 
@@ -173,8 +189,8 @@ export default class Application {
   }
 
   mount(basePath = '') {
-    this.modal = m.mount(document.getElementById('modal'), <ModalManager />);
-    this.alerts = m.mount(document.getElementById('alerts'), <AlertManager />);
+    m.mount(document.getElementById('modal'), <ModalManager state={this.modal} />);
+    m.mount(document.getElementById('alerts'), <AlertManager state={this.alerts} />);
 
     this.drawer = new Drawer();
 
@@ -192,6 +208,8 @@ export default class Application {
     $(() => {
       $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
     });
+
+    liveHumanTimes();
   }
 
   /**
@@ -234,7 +252,10 @@ export default class Application {
   }
 
   updateTitle() {
-    document.title = (this.titleCount ? `(${this.titleCount}) ` : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
+    const count = this.titleCount ? `(${this.titleCount}) ` : '';
+    const pageTitleWithSeparator = this.title && m.route() !== '/' ? this.title + ' - ' : '';
+    const title = this.forum.attribute('title');
+    document.title = count + pageTitleWithSeparator + title;
   }
 
   /**
@@ -307,7 +328,7 @@ export default class Application {
       }
     };
 
-    if (this.requestError) this.alerts.dismiss(this.requestError.alert);
+    if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
@@ -316,8 +337,6 @@ export default class Application {
     m.request(options).then(
       (response) => deferred.resolve(response),
       (error) => {
-        this.requestError = error;
-
         let children;
 
         switch (error.status) {
@@ -351,7 +370,7 @@ export default class Application {
         // the details property is decoded to transform escaped characters such as '\n'
         const formattedError = error.response && Array.isArray(error.response.errors) && error.response.errors.map((e) => decodeURI(e.detail));
 
-        error.alert = new Alert({
+        error.alert = {
           type: 'error',
           children,
           controls: isDebug && [
@@ -359,7 +378,7 @@ export default class Application {
               Debug
             </Button>,
           ],
-        });
+        };
 
         try {
           options.errorHandler(error);
@@ -375,7 +394,7 @@ export default class Application {
             console.groupEnd();
           }
 
-          this.alerts.show(error.alert);
+          this.requestErrorAlert = this.alerts.show(error.alert);
         }
 
         deferred.reject(error);
@@ -391,9 +410,9 @@ export default class Application {
    * @private
    */
   showDebug(error, formattedError) {
-    this.alerts.dismiss(this.requestError.alert);
+    this.alerts.dismiss(this.requestErrorAlert);
 
-    this.modal.show(new RequestErrorModal({ error, formattedError }));
+    this.modal.show(RequestErrorModal, { error, formattedError });
   }
 
   /**
