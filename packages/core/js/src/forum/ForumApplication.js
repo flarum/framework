@@ -84,7 +84,7 @@ export default class ForumApplication extends Application {
      *
      * @type {DiscussionListState}
      */
-    this.discussions = new DiscussionListState({ forumApp: this });
+    this.discussions = new DiscussionListState({}, this);
 
     /**
      * @deprecated beta 14, remove in beta 15.
