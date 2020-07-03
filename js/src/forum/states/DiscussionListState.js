@@ -1,8 +1,8 @@
 export default class DiscussionListState {
-  constructor({ params = {}, forumApp = app } = {}) {
+  constructor(params = {}, app = window.app) {
     this.params = params;
 
-    this.app = forumApp;
+    this.app = app;
 
     this.discussions = [];
 
