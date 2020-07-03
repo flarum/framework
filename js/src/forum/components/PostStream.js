@@ -44,9 +44,7 @@ export default class PostStream extends Component {
 
     let lastTime;
 
-    this.state.visibleEnd = this.state.sanitizeIndex(this.state.visibleEnd);
     const viewingEnd = this.state.viewingEnd();
-
     const posts = this.state.posts();
     const postIds = this.state.discussion.postIds();
 

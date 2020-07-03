@@ -108,7 +108,7 @@ class PostStreamState {
    */
   show(posts) {
     this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
-    this.visibleEnd = this.visibleStart + posts.length;
+    this.visibleEnd = this.sanitizeIndex(this.visibleStart + posts.length);
   }
 
   /**
