@@ -10,11 +10,13 @@ import formatNumber from '../../common/utils/formatNumber';
  *
  * ### Props
  *
+ * - `discussion`
  * - `state`
  * - `className`
  */
 export default class PostStreamScrubber extends Component {
   init() {
+    this.discussion = this.props.discusssion;
     this.state = this.props.state;
     this.handlers = {};
 
@@ -57,7 +59,7 @@ export default class PostStreamScrubber extends Component {
   view() {
     const retain = this.subtree.retain();
     const count = this.count();
-    const unreadCount = this.state.discussion.unreadCount();
+    const unreadCount = this.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.index, unreadCount) / count : 0;
 
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {

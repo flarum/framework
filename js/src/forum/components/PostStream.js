@@ -11,10 +11,12 @@ import Button from '../../common/components/Button';
  *
  * ### Props
  *
+ * - `discussion`
  * - `state`
  */
 export default class PostStream extends Component {
   init() {
+    this.discussion = this.props.discussion;
     this.state = this.props.state;
 
     this.scrollListener = new ScrollListener(this.onscroll.bind(this));
@@ -46,7 +48,7 @@ export default class PostStream extends Component {
 
     const viewingEnd = this.state.viewingEnd();
     const posts = this.state.posts();
-    const postIds = this.state.discussion.postIds();
+    const postIds = this.discussion.postIds();
 
     const items = posts.map((post, i) => {
       let content;
@@ -104,10 +106,10 @@ export default class PostStream extends Component {
 
     // If we're viewing the end of the discussion, the user can reply, and
     // is not already doing so, then show a 'write a reply' placeholder.
-    if (viewingEnd && (!app.session.user || this.state.discussion.canReply())) {
+    if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
         <div className="PostStream-item" key="reply">
-          {ReplyPlaceholder.component({ discussion: this.state.discussion })}
+          {ReplyPlaceholder.component({ discussion: this.discussion })}
         </div>
       );
     }
