@@ -149,6 +149,15 @@ class PostStreamState {
   }
 
   /**
+   * Are we currently viewing the end of the discussion?
+   *
+   * @return {boolean}
+   */
+  viewingEnd() {
+    return this.visibleEnd === this.count();
+  }
+
+  /**
    * Make sure that the given index is not outside of the possible range of
    * indexes in the discussion.
    *
@@ -166,7 +175,7 @@ class PostStreamState {
    * @public
    */
   update() {
-    if (!this.viewingEnd) return m.deferred().resolve().promise;
+    if (!this.viewingEnd()) return m.deferred().resolve().promise;
 
     this.visibleEnd = this.count();
 

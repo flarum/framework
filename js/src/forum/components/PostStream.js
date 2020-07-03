@@ -45,7 +45,7 @@ export default class PostStream extends Component {
     let lastTime;
 
     this.state.visibleEnd = this.state.sanitizeIndex(this.state.visibleEnd);
-    this.state.viewingEnd = this.state.visibleEnd === this.state.count();
+    const viewingEnd = this.state.viewingEnd();
 
     const posts = this.state.posts();
     const postIds = this.state.discussion.postIds();
@@ -94,7 +94,7 @@ export default class PostStream extends Component {
       );
     });
 
-    if (!this.state.viewingEnd && posts[this.state.visibleEnd - this.state.visibleStart - 1]) {
+    if (!viewingEnd && posts[this.state.visibleEnd - this.state.visibleStart - 1]) {
       items.push(
         <div className="PostStream-loadMore" key="loadMore">
           <Button className="Button" onclick={this.state.loadNext.bind(this)}>
@@ -106,7 +106,7 @@ export default class PostStream extends Component {
 
     // If we're viewing the end of the discussion, the user can reply, and
     // is not already doing so, then show a 'write a reply' placeholder.
-    if (this.state.viewingEnd && (!app.session.user || this.state.discussion.canReply())) {
+    if (viewingEnd && (!app.session.user || this.state.discussion.canReply())) {
       items.push(
         <div className="PostStream-item" key="reply">
           {ReplyPlaceholder.component({ discussion: this.state.discussion })}
