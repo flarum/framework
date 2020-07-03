@@ -32,20 +32,7 @@ export default class DiscussionPage extends Page {
      */
     this.near = m.route.param('near') || 0;
 
-    const preloadedDiscussion = app.preloadedApiDocument();
-    if (preloadedDiscussion) {
-      // We must wrap this in a setTimeout because if we are mounting this
-      // component for the first time on page load, then any calls to m.redraw
-      // will be ineffective and thus any configs (scroll code) will be run
-      // before stuff is drawn to the page.
-      setTimeout(this.show.bind(this, preloadedDiscussion), 0);
-    } else {
-      const params = this.requestParams();
-
-      app.store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
-    }
-
-    m.lazyRedraw();
+    this.load();
 
     // If the discussion list has been loaded, then we'll enable the pane (and
     // hide it by default). Also, if we've just come from another discussion
@@ -138,6 +125,26 @@ export default class DiscussionPage extends Page {
     if (this.discussion) {
       app.setTitle(this.discussion.title());
     }
+  }
+
+  /**
+   * Load the discussion from the API or use the preloaded one.
+   */
+  load() {
+    const preloadedDiscussion = app.preloadedApiDocument();
+    if (preloadedDiscussion) {
+      // We must wrap this in a setTimeout because if we are mounting this
+      // component for the first time on page load, then any calls to m.redraw
+      // will be ineffective and thus any configs (scroll code) will be run
+      // before stuff is drawn to the page.
+      setTimeout(this.show.bind(this, preloadedDiscussion), 0);
+    } else {
+      const params = this.requestParams();
+
+      app.store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
+    }
+
+    m.lazyRedraw();
   }
 
   /**
