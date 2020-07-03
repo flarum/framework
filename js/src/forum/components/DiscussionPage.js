@@ -198,7 +198,6 @@ export default class DiscussionPage extends Page {
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
     this.stream = new PostStreamState(discussion, includedPosts);
-    this.stream.on('positionChanged', this.positionChanged.bind(this));
     this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
 
     app.current.set('discussion', discussion);
