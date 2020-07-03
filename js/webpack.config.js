@@ -5,9 +5,6 @@ module.exports = merge(config(), {
   output: {
     library: 'flarum.core'
   },
-  plugins: [
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
-  ],
 
   // temporary TS configuration
   resolve: {
