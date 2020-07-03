@@ -1,7 +1,6 @@
 import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
-import Composer from '../instances/Composer';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
 
