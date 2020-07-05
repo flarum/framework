@@ -23,9 +23,6 @@ export default class PostStream extends Component {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
-    this.state.on('unpaused', () => {
-      this.scrollListener.update();
-    });
     this.state.on('scrollToLast', () => {
       this.scrollToLast();
     });

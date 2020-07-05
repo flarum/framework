@@ -75,7 +75,7 @@ class PostStreamState {
         this.trigger('scrollToNumber', number, noAnimation);
       })
       .then(() => {
-        this.unpause();
+        this.paused = false;
       });
   }
 
@@ -100,7 +100,7 @@ class PostStreamState {
         this.trigger('scrollToIndex', index, noAnimation, backwards);
       })
       .then(() => {
-        this.unpause();
+        this.paused = false;
       });
   }
 
@@ -273,7 +273,7 @@ class PostStreamState {
       const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
       anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw(true));
 
-      this.unpause();
+      this.paused = false;
     };
     redraw();
 
@@ -368,7 +368,6 @@ class PostStreamState {
    */
   unpause() {
     this.paused = false;
-    this.trigger('unpaused');
   }
 }
 
