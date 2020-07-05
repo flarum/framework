@@ -58,7 +58,7 @@ class PostStreamState {
     // discussion and then scroll to the very bottom of the page.
     if (number === 'reply') {
       return this.goToLast().then(() => {
-        this.trigger('scrollToLast');
+        this.trigger('scrollToIndex', this.count());
       });
     }
 

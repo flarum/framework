@@ -23,9 +23,6 @@ export default class PostStream extends Component {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
-    this.state.on('scrollToLast', () => {
-      this.scrollToLast();
-    });
     this.state.on('scrollToNumber', (number, noAnimation) => {
       this.scrollToNumber(number, noAnimation);
     });
@@ -274,20 +271,6 @@ export default class PostStream extends Component {
     const $item = this.$(`.PostStream-item[data-number=${number}]`);
 
     return this.scrollToItem($item, noAnimation).done(this.flashItem.bind(this, $item));
-  }
-
-  scrollToLast() {
-    $('html,body')
-      .stop(true)
-      .animate(
-        {
-          scrollTop: $(document).height() - $(window).height(),
-        },
-        'fast',
-        () => {
-          this.flashItem(this.$('.PostStream-item:last-child'));
-        }
-      );
   }
 
   /**
