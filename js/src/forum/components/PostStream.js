@@ -164,6 +164,61 @@ export default class PostStream extends Component {
     // viewport) to 100ms.
     clearTimeout(this.calculatePositionTimeout);
     this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this), 100);
+
+    // Before looping through all of the posts, we reset the scrollbar
+    // properties to a 'default' state. These values reflect what would be
+    // seen if the browser were scrolled right up to the top of the page,
+    // and the viewport had a height of 0.
+    const $items = $('.js-PostStream > .PostStream-item[data-index]');
+    let index = $items.first().data('index') || 0;
+    let visible = 0;
+    let period = '';
+
+    // Now loop through each of the items in the discussion. An 'item' is
+    // either a single post or a 'gap' of one or more posts that haven't
+    // been loaded yet.
+    $items.each(function () {
+      const $this = $(this);
+      const top = $this.offset().top;
+      const height = $this.outerHeight(true);
+
+      // If this item is above the top of the viewport, skip to the next
+      // one. If it's below the bottom of the viewport, break out of the
+      // loop.
+      if (top + height < viewportTop) {
+        return true;
+      }
+      if (top > viewportTop + viewportHeight) {
+        return false;
+      }
+
+      // Work out how many pixels of this item are visible inside the viewport.
+      // Then add the proportion of this item's total height to the index.
+      const visibleTop = Math.max(0, viewportTop - top);
+      const visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
+      const visiblePost = visibleBottom - visibleTop;
+
+      if (top <= viewportTop) {
+        index = parseFloat($this.data('index')) + visibleTop / height;
+      }
+
+      if (visiblePost > 0) {
+        visible += visiblePost / height;
+      }
+
+      // If this item has a time associated with it, then set the
+      // scrollbar's current period to a formatted version of this time.
+      const time = $this.data('time');
+      if (time) period = time;
+    });
+
+    const indexChanged = Math.floor(this.state.index) != Math.floor(index);
+    this.state.index = index;
+    this.state.visible = visible;
+    this.state.description = period ? dayjs(period).format('MMMM YYYY') : '';
+    if (indexChanged) {
+      m.redraw();
+    }
   }
 
   /**

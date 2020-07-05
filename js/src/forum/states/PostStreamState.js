@@ -21,6 +21,27 @@ class PostStreamState {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
+    /**
+     * The index of the post that is currently at the top of the viewport.
+     *
+     * @type {Number}
+     */
+    this.index = 0;
+
+    /**
+     * The number of posts that are currently visible in the viewport.
+     *
+     * @type {Number}
+     */
+    this.visible = 1;
+
+    /**
+     * The description to render on the scrubber.
+     *
+     * @type {String}
+     */
+    this.description = '';
+
     this.show(includedPosts);
   }
 
@@ -146,6 +167,16 @@ class PostStreamState {
    */
   count() {
     return this.discussion.postIds().length;
+  }
+
+  /**
+   * Check whether or not the scrubber should be disabled, i.e. if all of the
+   * posts are visible in the viewport.
+   *
+   * @return {Boolean}
+   */
+  allVisible() {
+    return this.visible >= this.count();
   }
 
   /**
