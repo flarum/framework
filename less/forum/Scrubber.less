@@ -21,6 +21,14 @@
 }
 .Scrubber-before, .Scrubber-after {
   border-left: 1px solid @control-bg;
+  transition: height 0.15s ease-out;
+}
+.Scrubber-before, .Scrubber-after {
+  border-left: 1px solid @control-bg;
+  transition: height 0.15s ease-out;
+}
+.dragging .Scrubber-before, .dragging .Scrubber-after {
+  transition: none;
 }
 .Scrubber-unread {
   position: absolute;

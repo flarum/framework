@@ -50,8 +50,13 @@ export default class PostStreamScrubber extends Component {
     const handleHeight = Math.min(100 - beforeHeight, percentPerPost.visible * visible);
     const afterHeight = 100 - beforeHeight - handleHeight;
 
+    const classNames = ['PostStreamScrubber', 'Dropdown'];
+    if (this.state.allVisible) classNames.push('disabled');
+    if (this.dragging) classNames.push('dragging');
+    if (this.props.className) classNames.push(this.props.className);
+
     return (
-      <div className={'PostStreamScrubber Dropdown ' + (this.state.allVisible() ? 'disabled ' : '') + (this.props.className || '')}>
+      <div className={classNames.join(' ')}>
         <button className="Button Dropdown-toggle" data-toggle="dropdown">
           {viewing} {icon('fas fa-sort')}
         </button>
