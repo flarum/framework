@@ -20,16 +20,6 @@ export default class PostStream extends Component {
     this.state = this.props.state;
 
     this.scrollListener = new ScrollListener(this.onscroll.bind(this));
-    this.loadPageTimeouts = {};
-    this.pagesLoading = 0;
-
-    this.state.on('scrollToNumber', (number, noAnimation) => {
-      this.scrollToNumber(number, noAnimation);
-    });
-    this.state.on('scrollToIndex', (index, noAnimation, backwards) => {
-      anchorScroll(this.$('.PostStream-item:' + (backwards ? 'last' : 'first')), () => m.redraw(true));
-      this.scrollToIndex(index, noAnimation, backwards);
-    });
   }
 
   view() {
@@ -112,8 +102,29 @@ export default class PostStream extends Component {
   }
 
   config(isInitialized, context) {
-    if (isInitialized) return;
+    if (this.state.needsScroll) {
+      let scrollPromise;
+      this.state.needsScroll = false;
+      const locationType = this.state.locationType;
+      if (this[locationType] != this.state[locationType]) {
+        if (locationType == 'number') {
+          scrollPromise = this.scrollToNumber(this.state.number, this.state.noAnimationScroll);
+        } else if (locationType == 'index') {
+          const index = this.state.sanitizeIndex(Math.floor(this.state.index));
+          const backwards = index == this.state.count() - 1;
+          anchorScroll(this.$('.PostStream-item:' + (backwards ? 'last' : 'first')), () => m.redraw(true));
+          scrollPromise = this.scrollToIndex(index, this.state.noAnimationScroll, backwards);
+        }
+        this[locationType] = this.state[locationType];
+        scrollPromise.then(() => {
+          this.state.unpause();
+          m.redraw();
+          this.calculatePosition();
+        });
+      }
+    }
 
+    if (isInitialized) return;
     // This is wrapped in setTimeout due to the following Mithril issue:
     // https://github.com/lhorie/mithril.js/issues/637
     setTimeout(() => this.scrollListener.start());
@@ -132,7 +143,6 @@ export default class PostStream extends Component {
    */
   onscroll(top) {
     if (this.state.paused) return;
-
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;

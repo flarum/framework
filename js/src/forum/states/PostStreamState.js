@@ -1,4 +1,3 @@
-import evented from '../../common/utils/evented';
 import anchorScroll from '../../common/utils/anchorScroll';
 
 class PostStreamState {
@@ -21,12 +20,9 @@ class PostStreamState {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
-    /**
-     * The index of the post that is currently at the top of the viewport.
-     *
-     * @type {Number}
-     */
+    this.locationType = null;
     this.index = 0;
+    this.number = 1;
 
     /**
      * The number of posts that are currently visible in the viewport.
@@ -66,15 +62,14 @@ class PostStreamState {
 
     m.redraw(true);
 
-    return promise
-      .then(() => {
-        m.redraw(true);
+    this.locationType = 'number';
+    this.number = number;
+    this.needsScroll = true;
+    this.noAnimationScroll = noAnimation;
 
-        this.trigger('scrollToNumber', number, noAnimation);
-      })
-      .then(() => {
-        this.paused = false;
-      });
+    m.redraw();
+
+    return promise;
   }
 
   /**
@@ -86,20 +81,21 @@ class PostStreamState {
    * @param {Boolean} noAnimation
    * @return {Promise}
    */
-  goToIndex(index, backwards, noAnimation) {
+  goToIndex(index, noAnimation) {
     this.paused = true;
 
     const promise = this.loadNearIndex(index);
 
     m.redraw(true);
 
-    return promise
-      .then(() => {
-        this.trigger('scrollToIndex', index, noAnimation, backwards);
-      })
-      .then(() => {
-        this.paused = false;
-      });
+    this.locationType = 'index';
+    this.index = index;
+    this.needsScroll = true;
+    this.noAnimationScroll = noAnimation;
+
+    m.redraw();
+
+    return promise;
   }
 
   /**
@@ -117,7 +113,7 @@ class PostStreamState {
    * @return {Promise}
    */
   goToLast() {
-    return this.goToIndex(this.count() - 1, true);
+    return this.goToIndex(this.count() - 1);
   }
 
   /**
@@ -375,7 +371,5 @@ class PostStreamState {
  * @type {Integer}
  */
 PostStreamState.loadCount = 20;
-
-Object.assign(PostStreamState.prototype, evented);
 
 export default PostStreamState;
