@@ -61,8 +61,6 @@ class PostStreamState {
 
     const promise = this.loadNearNumber(number);
 
-    m.redraw(true);
-
     this.locationType = 'number';
     this.number = number;
     this.needsScroll = true;
@@ -88,8 +86,7 @@ class PostStreamState {
 
     const promise = this.loadNearIndex(index);
 
-    m.redraw(true);
-
+    console.log('promiseGenerated');
     this.locationType = 'index';
     this.index = index;
     this.needsScroll = true;
@@ -115,6 +112,7 @@ class PostStreamState {
    * @return {Promise}
    */
   goToLast() {
+    m.redraw(true);
     return this.goToIndex(this.count() - 1);
   }
 
