@@ -81,7 +81,7 @@ export default class PostStream extends Component {
     if (!viewingEnd && posts[this.state.visibleEnd - this.state.visibleStart - 1]) {
       items.push(
         <div className="PostStream-loadMore" key="loadMore">
-          <Button className="Button" onclick={this.state.loadNext.bind(this)}>
+          <Button className="Button" onclick={this.state.loadNext}>
             {app.translator.trans('core.forum.post_stream.load_more_button')}
           </Button>
         </div>
@@ -112,7 +112,6 @@ export default class PostStream extends Component {
         } else if (locationType == 'index') {
           const index = this.state.sanitizeIndex(Math.floor(this.state.index));
           const backwards = index == this.state.count() - 1;
-          anchorScroll(this.$('.PostStream-item:' + (backwards ? 'last' : 'first')), () => m.redraw(true));
           this.scrollToIndex(index, this.state.noAnimationScroll, backwards);
         }
         this[locationType] = this.state[locationType];
@@ -342,7 +341,6 @@ export default class PostStream extends Component {
 
     return $container.promise().then(() => {
       this.state.unpause();
-      m.redraw();
       this.calculatePosition();
       this.updateScrubber();
     });
