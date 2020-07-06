@@ -261,7 +261,6 @@ export default class PostStreamScrubber extends Component {
     let offsetIndex = offsetPercent / this.percentPerPost().index;
     offsetIndex = Math.max(0, Math.min(this.state.count() - 1, offsetIndex));
     this.state.goToIndex(Math.floor(offsetIndex));
-    this.state.index = offsetIndex;
 
     this.$().removeClass('open');
   }
