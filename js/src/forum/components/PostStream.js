@@ -104,24 +104,18 @@ export default class PostStream extends Component {
   config(isInitialized, context) {
     console.log('redrawing');
     if (this.state.needsScroll) {
-      let scrollPromise;
       this.state.needsScroll = false;
       const locationType = this.state.locationType;
       if (this[locationType] != this.state[locationType]) {
         if (locationType == 'number') {
-          scrollPromise = this.scrollToNumber(this.state.number, this.state.noAnimationScroll);
+          this.scrollToNumber(this.state.number, this.state.noAnimationScroll);
         } else if (locationType == 'index') {
           const index = this.state.sanitizeIndex(Math.floor(this.state.index));
           const backwards = index == this.state.count() - 1;
           anchorScroll(this.$('.PostStream-item:' + (backwards ? 'last' : 'first')), () => m.redraw(true));
-          scrollPromise = this.scrollToIndex(index, this.state.noAnimationScroll, backwards);
+          this.scrollToIndex(index, this.state.noAnimationScroll, backwards);
         }
         this[locationType] = this.state[locationType];
-        scrollPromise.then(() => {
-          this.state.unpause();
-          m.redraw();
-          this.calculatePosition();
-        });
       }
     }
 
@@ -333,7 +327,11 @@ export default class PostStream extends Component {
       }
     }
 
-    return $container.promise();
+    return $container.promise().then(() => {
+      this.state.unpause();
+      m.redraw();
+      this.calculatePosition();
+    });
   }
 
   /**
