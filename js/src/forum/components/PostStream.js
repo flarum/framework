@@ -137,7 +137,9 @@ export default class PostStream extends Component {
    * @param {Integer} top
    */
   onscroll(top = window.pageYOffset) {
+    console.log('scrolling');
     if (this.state.paused) return;
+    console.log('scrolling and unpaused');
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;
