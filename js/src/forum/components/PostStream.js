@@ -136,7 +136,7 @@ export default class PostStream extends Component {
    *
    * @param {Integer} top
    */
-  onscroll(top) {
+  onscroll(top = window.pageYOffset) {
     if (this.state.paused) return;
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
@@ -163,6 +163,14 @@ export default class PostStream extends Component {
     // viewport) to 100ms.
     clearTimeout(this.calculatePositionTimeout);
     this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this), 100);
+
+    this.updateScrubber(top);
+  }
+
+  updateScrubber(top = window.pageYOffset) {
+    const marginTop = this.getMarginTop();
+    const viewportHeight = $(window).height() - marginTop;
+    const viewportTop = top + marginTop;
 
     // Before looping through all of the posts, we reset the scrollbar
     // properties to a 'default' state. These values reflect what would be
