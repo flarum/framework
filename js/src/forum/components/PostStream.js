@@ -281,6 +281,7 @@ export default class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToNumber(number, noAnimation) {
+    console.log('scrollToNumber');
     const $item = this.$(`.PostStream-item[data-number=${number}]`);
 
     return this.scrollToItem($item, noAnimation).done(this.flashItem.bind(this, $item));
@@ -296,6 +297,7 @@ export default class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToIndex(index, noAnimation, bottom) {
+    console.log('scrollToIndex');
     const $item = this.$(`.PostStream-item[data-index=${index}]`);
 
     return this.scrollToItem($item, noAnimation, true, bottom);
@@ -313,6 +315,7 @@ export default class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToItem($item, noAnimation, force, bottom) {
+    console.log('scrollToItem');
     const $container = $('html, body').stop(true);
 
     if ($item.length) {
