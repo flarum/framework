@@ -102,6 +102,7 @@ export default class PostStream extends Component {
   }
 
   config(isInitialized, context) {
+    console.log('redrawing');
     if (this.state.needsScroll) {
       let scrollPromise;
       this.state.needsScroll = false;
