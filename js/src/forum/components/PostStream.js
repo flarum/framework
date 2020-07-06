@@ -108,7 +108,7 @@ export default class PostStream extends Component {
       );
     }
 
-    return <div className="PostStream js-PostStream">{items}</div>;
+    return <div className="PostStream">{items}</div>;
   }
 
   config(isInitialized, context) {
@@ -163,7 +163,7 @@ export default class PostStream extends Component {
     // properties to a 'default' state. These values reflect what would be
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
-    const $items = $('.js-PostStream > .PostStream-item[data-index]');
+    const $items = this.$('.PostStream-item[data-index]');
     let index = $items.first().data('index') || 0;
     let visible = 0;
     let period = '';
