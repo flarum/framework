@@ -57,9 +57,7 @@ class PostStreamState {
     // If we want to go to the reply preview, then we will go to the end of the
     // discussion and then scroll to the very bottom of the page.
     if (number === 'reply') {
-      return this.goToLast().then(() => {
-        this.trigger('scrollToIndex', this.count());
-      });
+      return this.goToLast();
     }
 
     this.paused = true;
