@@ -204,7 +204,7 @@ class PostStreamState {
 
     this.visibleEnd = this.count();
 
-    return this.loadRange(this.visibleStart, this.visibleEnd).then(() => m.redraw());
+    return this.loadRange(this.visibleStart, this.visibleEnd);
   }
 
   /**
@@ -264,7 +264,6 @@ class PostStreamState {
    */
   loadPage(start, end, backwards) {
     console.log('loadPage');
-    const redraw = () => {};
 
     this.loadPageTimeouts[start] = setTimeout(
       () => {
@@ -332,7 +331,8 @@ class PostStreamState {
         filter: { discussion: this.discussion.id() },
         page: { near: number },
       })
-      .then(this.show.bind(this));
+      .then(this.show.bind(this))
+      .then(() => m.redraw());
   }
 
   /**
@@ -354,7 +354,9 @@ class PostStreamState {
 
     this.reset(start, end);
 
-    return this.loadRange(start, end).then(this.show.bind(this));
+    return this.loadRange(start, end)
+      .then(this.show.bind(this))
+      .then(() => m.redraw());
   }
 
   /**
