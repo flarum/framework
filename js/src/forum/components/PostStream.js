@@ -339,6 +339,7 @@ export default class PostStream extends Component {
       this.state.unpause();
       m.redraw();
       this.calculatePosition();
+      this.updateScrubber();
     });
   }
 
