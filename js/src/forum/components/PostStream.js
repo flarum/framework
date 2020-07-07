@@ -208,16 +208,15 @@ export default class PostStream extends Component {
       const coversQuarterOfViewport = (height - visibleTop) / viewportHeight > 0.25;
       if (index === undefined && (threeQuartersVisible || coversQuarterOfViewport)) {
         index = parseFloat($this.data('index')) + visibleTop / height;
+        // If this item has a time associated with it, then set the
+        // scrollbar's current period to a formatted version of this time.
+        const time = $this.data('time');
+        if (time) period = time;
       }
 
       if (visiblePost > 0) {
         visible += visiblePost / height;
       }
-
-      // If this item has a time associated with it, then set the
-      // scrollbar's current period to a formatted version of this time.
-      const time = $this.data('time');
-      if (time) period = time;
     });
 
     const indexChanged = Math.floor(this.state.index) != Math.floor(index);
