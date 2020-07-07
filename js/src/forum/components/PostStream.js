@@ -365,7 +365,8 @@ export default class PostStream extends Component {
     return $container.promise().then(() => {
       this.state.loadPromise
         .then(() => {
-          anchorScroll(`.PostStream-item[data-index=${$item.data('index')}]`, () => m.redraw(true));
+          m.redraw(true);
+          $(window).scrollTop($(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop());
         })
         .then(() => {
           this.calculatePosition();
