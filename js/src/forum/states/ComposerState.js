@@ -36,10 +36,6 @@ class ComposerState {
     this.editor = this;
   }
 
-  bodySubclassOf(B) {
-    return subclassOf(this.body.getClass(), B);
-  }
-
   getBody() {
     return this.body;
   }
@@ -58,6 +54,23 @@ class ComposerState {
   }
 
   /**
+   * Determine whether the body matches the given component class and data.
+   *
+   * @param {object} type The component class to check against. Subclasses are
+   *                      accepted as well.
+   * @param {object} data
+   * @return {boolean}
+   */
+  bodyMatches(type, data = {}) {
+    // Fail early when the page is of a different type
+    if (!subclassOf(this.body.getClass(), type)) return false;
+
+    // Now that the type is known to be correct, we loop through the provided
+    // data to see whether it matches the data in the attributes for the body.
+    return Object.keys(data).every((key) => this.body.getAttrs()[key] === data[key]);
+  }
+
+  /**
    * Check whether or not the user is currently composing a reply to a
    * discussion.
    *
@@ -65,9 +78,7 @@ class ComposerState {
    * @return {Boolean}
    */
   composingReplyTo(discussion) {
-    return (
-      this.bodySubclassOf(ReplyComposer) && this.body.getAttrs().discussion === discussion && this.position !== ComposerState.PositionEnum.HIDDEN
-    );
+    return this.bodyMatches(ReplyComposer, { discussion }) && this.position !== ComposerState.PositionEnum.HIDDEN;
   }
 
   /**
