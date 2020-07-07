@@ -136,9 +136,7 @@ export default class PostStream extends Component {
    * @param {Integer} top
    */
   onscroll(top = window.pageYOffset) {
-    console.log('scrolling');
     if (this.state.paused) return;
-    console.log('scrolling and unpaused');
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;
@@ -178,7 +176,7 @@ export default class PostStream extends Component {
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
     const $items = this.$('.PostStream-item[data-index]');
-    let index = $items.first().data('index') || 0;
+    let index = null;
     let visible = 0;
     let period = '';
 
@@ -206,7 +204,9 @@ export default class PostStream extends Component {
       const visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
       const visiblePost = visibleBottom - visibleTop;
 
-      if (top <= viewportTop) {
+      const threeQuartersVisible = visibleTop / height < 0.75;
+      const coversQuarterOfViewport = (height - visibleTop) / viewportHeight > 0.25;
+      if (index === null && (threeQuartersVisible || coversQuarterOfViewport)) {
         index = parseFloat($this.data('index')) + visibleTop / height;
       }
 
@@ -219,6 +219,8 @@ export default class PostStream extends Component {
       const time = $this.data('time');
       if (time) period = time;
     });
+
+    console.log(index);
 
     const indexChanged = Math.floor(this.state.index) != Math.floor(index);
     this.state.index = index;
@@ -340,12 +342,15 @@ export default class PostStream extends Component {
     }
 
     return $container.promise().then(() => {
-      this.state.loadPromise.then(() => {
-        anchorScroll(`.PostStream-item[data-index=${$item.data('index')}]`, () => m.redraw(true));
-      });
-      this.state.unpause();
-      this.calculatePosition();
-      this.updateScrubber();
+      this.state.loadPromise
+        .then(() => {
+          anchorScroll(`.PostStream-item[data-index=${$item.data('index')}]`, () => m.redraw(true));
+        })
+        .then(() => {
+          this.calculatePosition();
+          if (this.state.locationType == 'number') this.updateScrubber();
+        })
+        .then(() => this.state.unpause());
     });
   }
 

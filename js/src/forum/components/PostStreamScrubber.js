@@ -25,7 +25,7 @@ export default class PostStreamScrubber extends Component {
     const unreadPercent = count ? Math.min(count - this.state.index, unreadCount) / count : 0;
 
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
-      index: <span className="Scrubber-index">{formatNumber(this.state.sanitizeIndex(index + this.state.visible))}</span>,
+      index: <span className="Scrubber-index">{formatNumber(this.state.sanitizeIndex(index + 1))}</span>,
       count: <span className="Scrubber-count">{formatNumber(count)}</span>,
     });
 
