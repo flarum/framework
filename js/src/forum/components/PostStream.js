@@ -290,7 +290,7 @@ export default class PostStream extends Component {
     console.log('scrollToNumber');
     const $item = this.$(`.PostStream-item[data-number=${number}]`);
 
-    return this.scrollToItem($item, noAnimation).done(this.flashItem.bind(this, $item));
+    return this.scrollToItem($item, noAnimation).then(this.flashItem.bind(this, $item));
   }
 
   /**
@@ -306,7 +306,7 @@ export default class PostStream extends Component {
     console.log('scrollToIndex');
     const $item = this.$(`.PostStream-item[data-index=${index}]`);
 
-    return this.scrollToItem($item, noAnimation, true, bottom).done(() => {
+    return this.scrollToItem($item, noAnimation, true, bottom).then(() => {
       if (index == this.state.count() - 1) {
         this.flashItem(this.$('.PostStream-item:last-child'));
       }
@@ -348,18 +348,18 @@ export default class PostStream extends Component {
       }
     }
 
-    return $container.promise().then(() => {
+    return Promise.all([
+      $container.promise(),
       this.state.loadPromise
-        .then(() => {
-          m.redraw(true);
-          $(window).scrollTop($(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop());
-        })
-        .then(() => {
-          this.calculatePosition();
-          if (this.state.locationType == 'number') this.updateScrubber();
-        })
-        .then(() => this.state.unpause());
-    });
+    ]).then(() => {
+        m.redraw(true);
+        return $(window).scrollTop($(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop());
+      })
+      .then(() => {
+        //if (this.state.locationType == 'number') this.updateScrubber();
+        return this.calculatePosition();
+      })
+      .then(() => this.state.unpause());
   }
 
   /**

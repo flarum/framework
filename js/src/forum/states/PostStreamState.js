@@ -20,8 +20,10 @@ class PostStreamState {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
+    this.show(includedPosts);
+
     this.locationType = null;
-    this.index = 0;
+    this.index = (this.visibleEnd - this.visibleStart) / 2;
     this.number = 1;
 
     /**
@@ -37,8 +39,6 @@ class PostStreamState {
      * @type {String}
      */
     this.description = '';
-
-    this.show(includedPosts);
   }
 
   /**
@@ -270,6 +270,7 @@ class PostStreamState {
       () => {
         this.loadRange(start, end).then(() => {
           if (start >= this.visibleStart && end <= this.visibleEnd) {
+            console.log('anchoring!');
             const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
             anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw(true));
           }
