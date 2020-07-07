@@ -81,7 +81,7 @@ export default class PostStream extends Component {
     if (!viewingEnd && posts[this.state.visibleEnd - this.state.visibleStart - 1]) {
       items.push(
         <div className="PostStream-loadMore" key="loadMore">
-          <Button className="Button" onclick={this.state.loadNext}>
+          <Button className="Button" onclick={this.state.loadNext.bind(this.state)}>
             {app.translator.trans('core.forum.post_stream.load_more_button')}
           </Button>
         </div>
