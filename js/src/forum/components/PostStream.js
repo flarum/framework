@@ -161,7 +161,7 @@ export default class PostStream extends Component {
     // Throttle calculation of our position (start/end numbers of posts in the
     // viewport) to 100ms.
     clearTimeout(this.calculatePositionTimeout);
-    this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this), 100);
+    this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this, top), 100);
 
     this.updateScrubber(top);
   }
@@ -176,7 +176,7 @@ export default class PostStream extends Component {
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
     const $items = this.$('.PostStream-item[data-index]');
-    let index = null;
+    let index;
     let visible = 0;
     let period = '';
 
@@ -206,7 +206,7 @@ export default class PostStream extends Component {
 
       const threeQuartersVisible = visibleTop / height < 0.75;
       const coversQuarterOfViewport = (height - visibleTop) / viewportHeight > 0.25;
-      if (index === null && (threeQuartersVisible || coversQuarterOfViewport)) {
+      if (index === undefined && (threeQuartersVisible || coversQuarterOfViewport)) {
         index = parseFloat($this.data('index')) + visibleTop / height;
       }
 
@@ -219,8 +219,6 @@ export default class PostStream extends Component {
       const time = $this.data('time');
       if (time) period = time;
     });
-
-    console.log(index);
 
     const indexChanged = Math.floor(this.state.index) != Math.floor(index);
     this.state.index = index;
@@ -235,11 +233,13 @@ export default class PostStream extends Component {
    * Work out which posts (by number) are currently visible in the viewport, and
    * fire an event with the information.
    */
-  calculatePosition() {
+  calculatePosition(top = window.pageYOffset) {
     const marginTop = this.getMarginTop();
     const $window = $(window);
     const viewportHeight = $window.height() - marginTop;
     const scrollTop = $window.scrollTop() + marginTop;
+    const viewportTop = top + marginTop;
+
     let startNumber;
     let endNumber;
 
@@ -247,12 +247,15 @@ export default class PostStream extends Component {
       const $item = $(this);
       const top = $item.offset().top;
       const height = $item.outerHeight(true);
+      const visibleTop = Math.max(0, viewportTop - top);
+
+      const threeQuartersVisible = visibleTop / height < 0.75;
+      const coversQuarterOfViewport = (height - visibleTop) / viewportHeight > 0.25;
+      if (startNumber === undefined && (threeQuartersVisible || coversQuarterOfViewport)) {
+        startNumber = $item.data('number');
+      }
 
       if (top + height > scrollTop) {
-        if (!startNumber) {
-          startNumber = endNumber = $item.data('number');
-        }
-
         if (top + height < scrollTop + viewportHeight) {
           if ($item.data('number')) {
             endNumber = $item.data('number');
@@ -262,7 +265,7 @@ export default class PostStream extends Component {
     });
 
     if (startNumber) {
-      this.props.positionHandler(startNumber || 1, endNumber);
+      this.props.positionHandler(startNumber || 1, endNumber, startNumber);
     }
   }
 
