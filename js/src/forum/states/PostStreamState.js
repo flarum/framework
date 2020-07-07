@@ -57,18 +57,17 @@ class PostStreamState {
       return this.goToLast();
     }
 
+    this.loadPromise = this.loadNearNumber(number);
+
     this.paused = true;
-
-    const promise = this.loadNearNumber(number);
-
-    this.locationType = 'number';
-    this.number = number;
     this.needsScroll = true;
     this.noAnimationScroll = noAnimation;
+    this.locationType = 'number';
+    this.number = number;
 
     m.redraw();
 
-    return promise;
+    return this.loadPromise;
   }
 
   /**
@@ -84,17 +83,17 @@ class PostStreamState {
     console.log('goToIndex', index);
     this.paused = true;
 
-    const promise = this.loadNearIndex(index);
+    this.loadPromise = this.loadNearIndex(index);
 
-    console.log('promiseGenerated');
-    this.locationType = 'index';
-    this.index = index;
+    this.paused = true;
     this.needsScroll = true;
     this.noAnimationScroll = noAnimation;
+    this.locationType = 'index';
+    this.index = index;
 
     m.redraw();
 
-    return promise;
+    return this.loadPromise;
   }
 
   /**
@@ -112,7 +111,6 @@ class PostStreamState {
    * @return {Promise}
    */
   goToLast() {
-    m.redraw(true);
     return this.goToIndex(this.count() - 1);
   }
 
@@ -190,7 +188,7 @@ class PostStreamState {
    * @protected
    */
   sanitizeIndex(index) {
-    return Math.max(0, Math.min(this.count(), index));
+    return Math.max(0, Math.min(this.count(), Math.floor(index)));
   }
 
   /**
@@ -331,8 +329,7 @@ class PostStreamState {
         filter: { discussion: this.discussion.id() },
         page: { near: number },
       })
-      .then(this.show.bind(this))
-      .then(() => anchorScroll($(`.PostStream-item[data-number="${number}"]`), () => m.redraw(true)));
+      .then(this.show.bind(this));
   }
 
   /**
@@ -354,9 +351,7 @@ class PostStreamState {
 
     this.reset(start, end);
 
-    return this.loadRange(start, end)
-      .then(this.show.bind(this))
-      .then(() => anchorScroll($(`.PostStream-item[data-index="${index}"]`), () => m.redraw(true)));
+    return this.loadRange(start, end).then(this.show.bind(this));
   }
 
   /**

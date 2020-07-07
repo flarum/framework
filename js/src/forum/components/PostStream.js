@@ -110,7 +110,7 @@ export default class PostStream extends Component {
         if (locationType == 'number') {
           this.scrollToNumber(this.state.number, this.state.noAnimationScroll);
         } else if (locationType == 'index') {
-          const index = this.state.sanitizeIndex(Math.floor(this.state.index));
+          const index = this.state.sanitizeIndex(this.state.index);
           const backwards = index == this.state.count() - 1;
           this.scrollToIndex(index, this.state.noAnimationScroll, backwards);
         }
