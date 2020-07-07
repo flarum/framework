@@ -102,7 +102,7 @@ export default class PostStream extends Component {
   }
 
   config(isInitialized, context) {
-    console.log('redrawing');
+    console.log('redrawing', this.state.visibleStart, this.state.visibleEnd);
     if (this.state.needsScroll) {
       this.state.needsScroll = false;
       const locationType = this.state.locationType;
@@ -279,20 +279,6 @@ export default class PostStream extends Component {
     return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
   }
 
-  scrollToLast() {
-    return $('html,body')
-      .stop(true)
-      .animate(
-        {
-          scrollTop: $(document).height() - $(window).height(),
-        },
-        'fast',
-        () => {
-          this.flashItem(this.$('.PostStream-item:last-child'));
-        }
-      );
-  }
-
   /**
    * Scroll down to a certain post by number and 'flash' it.
    *
@@ -322,7 +308,7 @@ export default class PostStream extends Component {
 
     return this.scrollToItem($item, noAnimation, true, bottom).done(() => {
       if (index == this.state.count() - 1) {
-        return this.scrollToLast();
+        this.flashItem(this.$('.PostStream-item:last-child'));
       }
     });
   }
