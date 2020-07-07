@@ -279,6 +279,20 @@ export default class PostStream extends Component {
     return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
   }
 
+  scrollToLast() {
+    return $('html,body')
+      .stop(true)
+      .animate(
+        {
+          scrollTop: $(document).height() - $(window).height(),
+        },
+        'fast',
+        () => {
+          this.flashItem(this.$('.PostStream-item:last-child'));
+        }
+      );
+  }
+
   /**
    * Scroll down to a certain post by number and 'flash' it.
    *
@@ -306,7 +320,11 @@ export default class PostStream extends Component {
     console.log('scrollToIndex');
     const $item = this.$(`.PostStream-item[data-index=${index}]`);
 
-    return this.scrollToItem($item, noAnimation, true, bottom);
+    return this.scrollToItem($item, noAnimation, true, bottom).done(() => {
+      if (index == this.state.count() - 1) {
+        return this.scrollToLast();
+      }
+    });
   }
 
   /**
