@@ -3,6 +3,7 @@ import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
+import anchorScroll from '../../common/utils/anchorScroll';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -339,6 +340,9 @@ export default class PostStream extends Component {
     }
 
     return $container.promise().then(() => {
+      this.state.loadPromise.then(() => {
+        anchorScroll($item[0], () => m.redraw(true));
+      });
       this.state.unpause();
       this.calculatePosition();
       this.updateScrubber();
