@@ -20,10 +20,8 @@ class PostStreamState {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
-    this.show(includedPosts);
-
     this.locationType = null;
-    this.index = (this.visibleEnd - this.visibleStart) / 2;
+    this.index = 0;
     this.number = 1;
 
     /**
@@ -39,6 +37,8 @@ class PostStreamState {
      * @type {String}
      */
     this.description = '';
+
+    this.show(includedPosts);
   }
 
   /**
@@ -125,6 +125,7 @@ class PostStreamState {
   show(posts) {
     this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
     this.visibleEnd = this.sanitizeIndex(this.visibleStart + posts.length);
+    this.index = (this.visibleEnd - this.visibleStart) / 2;
   }
 
   /**
@@ -137,6 +138,7 @@ class PostStreamState {
   reset(start, end) {
     this.visibleStart = start || 0;
     this.visibleEnd = this.sanitizeIndex(end || this.constructor.loadCount);
+    this.index = (this.visibleEnd - this.visibleStart) / 2;
   }
 
   /**
