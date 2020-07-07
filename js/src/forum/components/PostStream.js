@@ -1,7 +1,6 @@
 import Component from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
-import anchorScroll from '../../common/utils/anchorScroll';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 
