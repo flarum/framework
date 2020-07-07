@@ -65,9 +65,12 @@ class PostStreamState {
     this.locationType = 'number';
     this.number = number;
 
-    m.redraw();
-
-    return this.loadPromise;
+    // In this case, the redraw is only called after the response has been loaded
+    // because we need to know the indeces of the post range before we can
+    // start scrolling to items. Calling redraw early causes issues.
+    // Since this is only used for external navigation to the post stream, the delay
+    // before the stream is moved is not an issue.
+    return this.loadPromise.then(() => m.redraw());
   }
 
   /**
