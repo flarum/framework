@@ -332,7 +332,7 @@ class PostStreamState {
         page: { near: number },
       })
       .then(this.show.bind(this))
-      .then(() => m.redraw());
+      .then(() => anchorScroll($(`.PostStream-item[data-number="${number}"]`), () => m.redraw(true)));
   }
 
   /**
@@ -356,7 +356,7 @@ class PostStreamState {
 
     return this.loadRange(start, end)
       .then(this.show.bind(this))
-      .then(() => m.redraw());
+      .then(() => anchorScroll($(`.PostStream-item[data-index="${index}"]`), () => m.redraw(true)));
   }
 
   /**
