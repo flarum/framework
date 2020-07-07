@@ -125,7 +125,8 @@ class PostStreamState {
   show(posts) {
     this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
     this.visibleEnd = this.sanitizeIndex(this.visibleStart + posts.length);
-    this.index = (this.visibleEnd - this.visibleStart) / 2;
+    this.index = (this.visibleEnd + this.visibleStart) / 2;
+    this.description = posts.length ? dayjs(posts[Math.floor(posts.length / 2)].createdAt()).format('MMMM YYYY') : '';
   }
 
   /**
@@ -138,7 +139,6 @@ class PostStreamState {
   reset(start, end) {
     this.visibleStart = start || 0;
     this.visibleEnd = this.sanitizeIndex(end || this.constructor.loadCount);
-    this.index = (this.visibleEnd - this.visibleStart) / 2;
   }
 
   /**
