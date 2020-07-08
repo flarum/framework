@@ -3,7 +3,6 @@ import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
-import anchorScroll from '../../common/utils/anchorScroll';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -219,13 +218,9 @@ export default class PostStream extends Component {
       }
     });
 
-    const indexChanged = Math.floor(this.state.index) != Math.floor(index);
     this.state.index = index;
-    this.state.visible = visible;
+    this.state.visible(visible);
     this.state.description = period ? dayjs(period).format('MMMM YYYY') : '';
-    if (indexChanged) {
-      m.redraw();
-    }
   }
 
   /**

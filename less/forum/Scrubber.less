@@ -21,13 +21,13 @@
 }
 .Scrubber-before, .Scrubber-after {
   border-left: 1px solid @control-bg;
-  transition: height 0.15s ease-out;
+  transition: height 0.15s linear;
 }
-.Scrubber-before, .Scrubber-after {
+.Scrubber-handle {
   border-left: 1px solid @control-bg;
-  transition: height 0.15s ease-out;
+  transition: height 0.25s ease-in;
 }
-.dragging .Scrubber-before, .dragging .Scrubber-after {
+.dragging .Scrubber-before, .dragging .Scrubber-after, .dragging .Scrubber-handle {
   transition: none;
 }
 .Scrubber-unread {

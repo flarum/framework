@@ -1,6 +1,7 @@
 import Component from '../../common/Component';
 import icon from '../../common/helpers/icon';
 import formatNumber from '../../common/utils/formatNumber';
+import ScrollListener from '../../common/utils/ScrollListener';
 
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to
@@ -15,12 +16,14 @@ export default class PostStreamScrubber extends Component {
   init() {
     this.state = this.props.state;
     this.handlers = {};
+
+    this.scrollListener = new ScrollListener(this.updateScrubberValues.bind(this));
   }
 
   view() {
     const index = this.state.index;
     const count = this.state.count();
-    const visible = this.state.visible || 1;
+    const visible = this.state.visible() || 1;
     const unreadCount = this.state.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.state.index, unreadCount) / count : 0;
 
@@ -104,7 +107,7 @@ export default class PostStreamScrubber extends Component {
    */
   percentPerPost() {
     const count = this.state.count() || 1;
-    const visible = this.state.visible || 1;
+    const visible = this.state.visible() || 1;
 
     // To stop the handle of the scrollbar from getting too small when there
     // are many posts, we define a minimum percentage height for the handle
@@ -179,9 +182,12 @@ export default class PostStreamScrubber extends Component {
     $(document)
       .on('mousemove touchmove', (this.handlers.onmousemove = this.onmousemove.bind(this)))
       .on('mouseup touchend', (this.handlers.onmouseup = this.onmouseup.bind(this)));
+
+    setTimeout(() => this.scrollListener.start());
   }
 
   ondestroy() {
+    this.scrollListener.stop();
     $(window).off('resize', this.handlers.onresize);
 
     $(document).off('mousemove touchmove', this.handlers.onmousemove).off('mouseup touchend', this.handlers.onmouseup);
@@ -208,6 +214,7 @@ export default class PostStreamScrubber extends Component {
     this.indexStart = this.state.index;
     this.dragging = true;
     $('body').css('cursor', 'move');
+    this.$().toggleClass('dragging', this.dragging);
   }
 
   onmousemove(e) {
@@ -223,10 +230,11 @@ export default class PostStreamScrubber extends Component {
     const newIndex = Math.min(this.indexStart + deltaIndex, this.state.count() - 1);
 
     this.state.index = Math.max(0, newIndex);
-    m.redraw();
+    this.updateScrubberValues();
   }
 
   onmouseup() {
+    this.$().toggleClass('dragging', this.dragging);
     if (!this.dragging) return;
 
     this.mouseStart = 0;
@@ -263,5 +271,26 @@ export default class PostStreamScrubber extends Component {
     this.state.goToIndex(Math.floor(offsetIndex));
 
     this.$().removeClass('open');
+  }
+
+  updateScrubberValues() {
+    console.log(this.dragging);
+    const index = this.state.index;
+    const count = this.state.count();
+    const visible = this.state.visible() || 1;
+    const percentPerPost = this.percentPerPost();
+
+    this.$(`.Scrubber-index`).html(formatNumber(this.state.sanitizeIndex(index + 1)));
+
+    const heights = {};
+    heights.before = Math.max(0, percentPerPost.index * Math.min(index, count - visible));
+    heights.handle = Math.min(100 - heights.before, percentPerPost.visible * visible);
+    heights.after = 100 - heights.before - heights.handle;
+
+    for (const part in heights) {
+      this.$(`.Scrubber-${part}`).css('height', heights[part] + '%');
+    }
+
+    this.$().toggleClass('disabled', this.state.allVisible());
   }
 }
