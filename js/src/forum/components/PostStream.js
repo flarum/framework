@@ -342,15 +342,15 @@ export default class PostStream extends Component {
       }
     }
 
-    return Promise.all([$container.promise(), this.state.loadPromise])
-      .then(() => {
-        m.redraw(true);
-        return $(window).scrollTop($(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop());
-      })
-      .then(() => {
-        return this.calculatePosition();
-      })
-      .then(() => this.state.unpause());
+    return Promise.all([$container.promise(), this.state.loadPromise]).then(() => {
+      const index = $item.data('index');
+      this.updateScrubber();
+      m.redraw(true);
+      const scroll = index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
+      $(window).scrollTop(scroll);
+      this.calculatePosition();
+      this.state.unpause();
+    });
   }
 
   /**
