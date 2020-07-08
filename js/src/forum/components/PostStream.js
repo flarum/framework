@@ -220,7 +220,7 @@ export default class PostStream extends Component {
 
     this.state.index = index;
     this.state.visible(visible);
-    this.state.description = period ? dayjs(period).format('MMMM YYYY') : '';
+    if (period) this.state.description = dayjs(period).format('MMMM YYYY');
   }
 
   /**
@@ -344,12 +344,13 @@ export default class PostStream extends Component {
 
     return Promise.all([$container.promise(), this.state.loadPromise]).then(() => {
       const index = $item.data('index');
-      this.updateScrubber();
       m.redraw(true);
       const scroll = index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
       $(window).scrollTop(scroll);
       this.calculatePosition();
+      this.updateScrubber();
       this.state.unpause();
+      m.redraw();
     });
   }
 

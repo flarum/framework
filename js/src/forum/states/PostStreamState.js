@@ -125,7 +125,6 @@ class PostStreamState {
   show(posts) {
     this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
     this.visibleEnd = this.sanitizeIndex(this.visibleStart + posts.length);
-    this.description = posts.length ? dayjs(posts[Math.floor(posts.length / 2)].createdAt()).format('MMMM YYYY') : '';
   }
 
   /**
