@@ -206,7 +206,7 @@ export default class PostStream extends Component {
       const threeQuartersVisible = visibleTop / height < 0.75;
       const coversQuarterOfViewport = (height - visibleTop) / viewportHeight > 0.25;
       if (index === undefined && (threeQuartersVisible || coversQuarterOfViewport)) {
-        index = parseFloat($this.data('index')) + visibleTop / height;
+        index = parseFloat($this.data('index')) + (visibleTop / height) * (1 / 0.75);
         // If this item has a time associated with it, then set the
         // scrollbar's current period to a formatted version of this time.
         const time = $this.data('time');
@@ -343,12 +343,12 @@ export default class PostStream extends Component {
     }
 
     return Promise.all([$container.promise(), this.state.loadPromise]).then(() => {
-      const index = $item.data('index');
+      this.state.index = $item.data('index');
+      this.updateScrubber();
       m.redraw(true);
-      const scroll = index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
+      const scroll = this.state.index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
       $(window).scrollTop(scroll);
       this.calculatePosition();
-      this.updateScrubber();
       this.state.paused = false;
       m.redraw();
     });

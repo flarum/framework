@@ -234,6 +234,7 @@ class PostStreamState {
    */
   loadPage(start, end, backwards) {
     console.log('loadPage');
+    m.redraw();
 
     this.loadPageTimeouts[start] = setTimeout(
       () => {

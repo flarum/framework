@@ -17,20 +17,20 @@ export default class PostStreamScrubber extends Component {
     this.state = this.props.state;
     this.handlers = {};
 
-    this.scrollListener = new ScrollListener(this.updateScrubberValues.bind(this));
+    this.scrollListener = new ScrollListener(this.updateScrubberValues.bind(this, { fromScroll: true, forceHeightChange: true }));
   }
 
   view() {
-    const index = this.state.index;
     const count = this.state.count();
-    const visible = this.state.visible() || 1;
-    const unreadCount = this.state.discussion.unreadCount();
-    const unreadPercent = count ? Math.min(count - this.state.index, unreadCount) / count : 0;
 
+    // Index is left blank for performance reasons, it is filled in in updateScubberValues
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
-      index: <span className="Scrubber-index">{formatNumber(this.state.sanitizeIndex(index + 1))}</span>,
+      index: <span className="Scrubber-index"></span>,
       count: <span className="Scrubber-count">{formatNumber(count)}</span>,
     });
+
+    const unreadCount = this.state.discussion.unreadCount();
+    const unreadPercent = count ? Math.min(count - this.state.index, unreadCount) / count : 0;
 
     function styleUnread(element, isInitialized, context) {
       const $element = $(element);
@@ -47,15 +47,7 @@ export default class PostStreamScrubber extends Component {
 
       context.oldStyle = newStyle;
     }
-
-    const percentPerPost = this.percentPerPost();
-    const beforeHeight = Math.max(0, percentPerPost.index * Math.min(index, count - visible));
-    const handleHeight = Math.min(100 - beforeHeight, percentPerPost.visible * visible);
-    const afterHeight = 100 - beforeHeight - handleHeight;
-
     const classNames = ['PostStreamScrubber', 'Dropdown'];
-    if (this.state.disabled()) classNames.push('disabled');
-    if (this.dragging) classNames.push('dragging');
     if (this.props.className) classNames.push(this.props.className);
 
     return (
@@ -71,15 +63,15 @@ export default class PostStreamScrubber extends Component {
             </a>
 
             <div className="Scrubber-scrollbar">
-              <div className="Scrubber-before" style={{ height: beforeHeight + '%' }} />
-              <div className="Scrubber-handle" style={{ height: handleHeight + '%' }}>
+              <div className="Scrubber-before" />
+              <div className="Scrubber-handle">
                 <div className="Scrubber-bar" />
                 <div className="Scrubber-info">
                   <strong>{viewing}</strong>
                   <span className="Scrubber-description">{this.state.description}</span>
                 </div>
               </div>
-              <div className="Scrubber-after" style={{ height: afterHeight + '%' }} />
+              <div className="Scrubber-after" />
 
               <div className="Scrubber-unread" config={styleUnread}>
                 {app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount })}
@@ -130,6 +122,7 @@ export default class PostStreamScrubber extends Component {
    */
   goToFirst() {
     this.state.goToFirst();
+    this.updateScrubberValues({ animate: true, forceHeightChange: true });
   }
 
   /**
@@ -137,10 +130,12 @@ export default class PostStreamScrubber extends Component {
    */
   goToLast() {
     this.state.goToLast();
+    this.updateScrubberValues({ animate: true, forceHeightChange: true });
   }
 
   config(isInitialized, context) {
     if (isInitialized) return;
+    this.state.loadPromise.then(() => this.updateScrubberValues({ animate: true }));
 
     context.onunload = this.ondestroy.bind(this);
 
@@ -248,6 +243,7 @@ export default class PostStreamScrubber extends Component {
     // content that we want to load those posts.
     const intIndex = Math.floor(this.state.index);
     this.state.goToIndex(intIndex);
+    this.updateScrubberValues({ animate: true, forceHeightChange: true });
   }
 
   onclick(e) {
@@ -269,28 +265,53 @@ export default class PostStreamScrubber extends Component {
     let offsetIndex = offsetPercent / this.percentPerPost().index;
     offsetIndex = Math.max(0, Math.min(this.state.count() - 1, offsetIndex));
     this.state.goToIndex(Math.floor(offsetIndex));
+    this.updateScrubberValues({ animate: true, forceHeightChange: true });
 
     this.$().removeClass('open');
   }
 
-  updateScrubberValues() {
-    console.log(this.dragging);
+  /**
+   * Update the scrollbar's position to reflect the current values of the
+   * index/visible properties.
+   *
+   * @param {Boolean} animate
+   */
+  updateScrubberValues(options = {}) {
     const index = this.state.index;
     const count = this.state.count();
     const visible = this.state.visible() || 1;
     const percentPerPost = this.percentPerPost();
 
-    this.$(`.Scrubber-index`).html(formatNumber(this.state.sanitizeIndex(index + 1)));
+    const $scrubber = this.$();
+    $scrubber.find(`.Scrubber-index`).html(formatNumber(this.state.sanitizeIndex(index + 1)));
 
     const heights = {};
     heights.before = Math.max(0, percentPerPost.index * Math.min(index, count - visible));
     heights.handle = Math.min(100 - heights.before, percentPerPost.visible * visible);
     heights.after = 100 - heights.before - heights.handle;
 
-    for (const part in heights) {
-      this.$(`.Scrubber-${part}`).css('height', heights[part] + '%');
+    console.log(heights.after);
+
+    if (!(options.fromScroll && this.state.paused) && (!this.adjustingHeight || options.forceHeightChange)) {
+      const func = options.animate ? 'animate' : 'css';
+      this.adjustingHeight = true;
+      const animationPromises = [];
+      for (const part in heights) {
+        const $part = $scrubber.find(`.Scrubber-${part}`);
+        animationPromises.push(
+          $part
+            .stop(true, true)
+            [func]({ height: heights[part] + '%' }, 'fast')
+            .promise()
+        );
+
+        // jQuery likes to put overflow:hidden, but because the scrollbar handle
+        // has a negative margin-left, we need to override.
+        if (func === 'animate') $part.css('overflow', 'visible');
+      }
+      Promise.all(animationPromises).then(() => (this.adjustingHeight = false));
     }
 
-    this.$().toggleClass('disabled', this.state.disabled());
+    $scrubber.toggleClass('disabled', this.state.disabled());
   }
 }
