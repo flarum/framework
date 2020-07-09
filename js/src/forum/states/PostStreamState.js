@@ -42,6 +42,38 @@ class PostStreamState {
   }
 
   /**
+   * Update the stream so that it loads and includes the latest posts in the
+   * discussion, if the end is being viewed.
+   *
+   * @public
+   */
+  update() {
+    if (!this.viewingEnd()) return m.deferred().resolve().promise;
+
+    this.visibleEnd = this.count();
+
+    return this.loadRange(this.visibleStart, this.visibleEnd);
+  }
+
+  /**
+   * Load and scroll up to the first post in the discussion.
+   *
+   * @return {Promise}
+   */
+  goToFirst() {
+    return this.goToIndex(0);
+  }
+
+  /**
+   * Load and scroll down to the last post in the discussion.
+   *
+   * @return {Promise}
+   */
+  goToLast() {
+    return this.goToIndex(this.count() - 1);
+  }
+
+  /**
    * Load and scroll to a post with a certain number.
    *
    * @param {Integer|String} number The post number to go to. If 'reply', go to
@@ -100,112 +132,49 @@ class PostStreamState {
   }
 
   /**
-   * Load and scroll up to the first post in the discussion.
+   * Clear the stream and load posts near a certain number. Returns a promise.
+   * If the post with the given number is already loaded, the promise will be
+   * resolved immediately.
    *
+   * @param {Integer} number
    * @return {Promise}
    */
-  goToFirst() {
-    return this.goToIndex(0);
+  loadNearNumber(number) {
+    console.log('loadNearNumber', number);
+    if (this.posts().some((post) => post && Number(post.number()) === Number(number))) {
+      return m.deferred().resolve().promise;
+    }
+
+    this.reset();
+
+    return app.store
+      .find('posts', {
+        filter: { discussion: this.discussion.id() },
+        page: { near: number },
+      })
+      .then(this.show.bind(this));
   }
 
   /**
-   * Load and scroll down to the last post in the discussion.
-   *
-   * @return {Promise}
-   */
-  goToLast() {
-    return this.goToIndex(this.count() - 1);
-  }
-
-  /**
-   * Set up the stream with the given array of posts.
-   *
-   * @param {Post[]} posts
-   */
-  show(posts) {
-    this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
-    this.visibleEnd = this.sanitizeIndex(this.visibleStart + posts.length);
-  }
-
-  /**
-   * Reset the stream so that a specific range of posts is displayed. If a range
-   * is not specified, the first page of posts will be displayed.
-   *
-   * @param {Integer} [start]
-   * @param {Integer} [end]
-   */
-  reset(start, end) {
-    this.visibleStart = start || 0;
-    this.visibleEnd = this.sanitizeIndex(end || this.constructor.loadCount);
-  }
-
-  /**
-   * Get the visible page of posts.
-   *
-   * @return {Post[]}
-   */
-  posts() {
-    return this.discussion
-      .postIds()
-      .slice(this.visibleStart, this.visibleEnd)
-      .map((id) => {
-        const post = app.store.getById('posts', id);
-
-        return post && post.discussion() && typeof post.canEdit() !== 'undefined' ? post : null;
-      });
-  }
-
-  /**
-   * Get the total number of posts in the discussion.
-   *
-   * @return {Integer}
-   */
-  count() {
-    return this.discussion.postIds().length;
-  }
-
-  /**
-   * Check whether or not the scrubber should be disabled, i.e. if all of the
-   * posts are visible in the viewport.
-   *
-   * @return {Boolean}
-   */
-  allVisible() {
-    return this.visible() >= this.count();
-  }
-
-  /**
-   * Are we currently viewing the end of the discussion?
-   *
-   * @return {boolean}
-   */
-  viewingEnd() {
-    return this.visibleEnd === this.count();
-  }
-
-  /**
-   * Make sure that the given index is not outside of the possible range of
-   * indexes in the discussion.
+   * Clear the stream and load posts near a certain index. A page of posts
+   * surrounding the given index will be loaded. Returns a promise. If the given
+   * index is already loaded, the promise will be resolved immediately.
    *
    * @param {Integer} index
-   * @protected
+   * @return {Promise}
    */
-  sanitizeIndex(index) {
-    return Math.max(0, Math.min(this.count(), Math.floor(index)));
-  }
+  loadNearIndex(index) {
+    console.log('loadNearIndex', index);
+    if (index >= this.visibleStart && index <= this.visibleEnd) {
+      return m.deferred().resolve().promise;
+    }
 
-  /**
-   * Update the stream so that it loads and includes the latest posts in the
-   * discussion, if the end is being viewed.
-   *
-   * @public
-   */
-  update() {
-    if (!this.viewingEnd()) return m.deferred().resolve().promise;
+    const start = this.sanitizeIndex(index - this.constructor.loadCount / 2);
+    const end = start + this.constructor.loadCount;
 
-    this.visibleEnd = this.count();
+    this.reset(start, end);
 
-    return this.loadRange(this.visibleStart, this.visibleEnd);
+    return this.loadRange(start, end).then(this.show.bind(this));
   }
 
   /**
@@ -313,56 +282,79 @@ class PostStreamState {
   }
 
   /**
-   * Clear the stream and load posts near a certain number. Returns a promise.
-   * If the post with the given number is already loaded, the promise will be
-   * resolved immediately.
+   * Set up the stream with the given array of posts.
    *
-   * @param {Integer} number
-   * @return {Promise}
+   * @param {Post[]} posts
    */
-  loadNearNumber(number) {
-    console.log('loadNearNumber', number);
-    if (this.posts().some((post) => post && Number(post.number()) === Number(number))) {
-      return m.deferred().resolve().promise;
-    }
-
-    this.reset();
-
-    return app.store
-      .find('posts', {
-        filter: { discussion: this.discussion.id() },
-        page: { near: number },
-      })
-      .then(this.show.bind(this));
+  show(posts) {
+    this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
+    this.visibleEnd = this.sanitizeIndex(this.visibleStart + posts.length);
   }
 
   /**
-   * Clear the stream and load posts near a certain index. A page of posts
-   * surrounding the given index will be loaded. Returns a promise. If the given
-   * index is already loaded, the promise will be resolved immediately.
+   * Reset the stream so that a specific range of posts is displayed. If a range
+   * is not specified, the first page of posts will be displayed.
+   *
+   * @param {Integer} [start]
+   * @param {Integer} [end]
+   */
+  reset(start, end) {
+    this.visibleStart = start || 0;
+    this.visibleEnd = this.sanitizeIndex(end || this.constructor.loadCount);
+  }
+
+  /**
+   * Get the visible page of posts.
+   *
+   * @return {Post[]}
+   */
+  posts() {
+    return this.discussion
+      .postIds()
+      .slice(this.visibleStart, this.visibleEnd)
+      .map((id) => {
+        const post = app.store.getById('posts', id);
+
+        return post && post.discussion() && typeof post.canEdit() !== 'undefined' ? post : null;
+      });
+  }
+
+  /**
+   * Get the total number of posts in the discussion.
+   *
+   * @return {Integer}
+   */
+  count() {
+    return this.discussion.postIds().length;
+  }
+
+  /**
+   * Check whether or not the scrubber should be disabled, i.e. if all of the
+   * posts are visible in the viewport.
+   *
+   * @return {Boolean}
+   */
+  disabled() {
+    return this.visible() >= this.count();
+  }
+
+  /**
+   * Are we currently viewing the end of the discussion?
+   *
+   * @return {boolean}
+   */
+  viewingEnd() {
+    return this.visibleEnd === this.count();
+  }
+
+  /**
+   * Make sure that the given index is not outside of the possible range of
+   * indexes in the discussion.
    *
    * @param {Integer} index
-   * @return {Promise}
    */
-  loadNearIndex(index) {
-    console.log('loadNearIndex', index);
-    if (index >= this.visibleStart && index <= this.visibleEnd) {
-      return m.deferred().resolve().promise;
-    }
-
-    const start = this.sanitizeIndex(index - this.constructor.loadCount / 2);
-    const end = start + this.constructor.loadCount;
-
-    this.reset(start, end);
-
-    return this.loadRange(start, end).then(this.show.bind(this));
-  }
-
-  /**
-   * Resume the stream's ability to auto-load posts on scroll.
-   */
-  unpause() {
-    this.paused = false;
+  sanitizeIndex(index) {
+    return Math.max(0, Math.min(this.count(), Math.floor(index)));
   }
 }
 

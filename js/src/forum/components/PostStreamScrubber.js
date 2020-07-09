@@ -54,7 +54,7 @@ export default class PostStreamScrubber extends Component {
     const afterHeight = 100 - beforeHeight - handleHeight;
 
     const classNames = ['PostStreamScrubber', 'Dropdown'];
-    if (this.state.allVisible()) classNames.push('disabled');
+    if (this.state.disabled()) classNames.push('disabled');
     if (this.dragging) classNames.push('dragging');
     if (this.props.className) classNames.push(this.props.className);
 
@@ -291,6 +291,6 @@ export default class PostStreamScrubber extends Component {
       this.$(`.Scrubber-${part}`).css('height', heights[part] + '%');
     }
 
-    this.$().toggleClass('disabled', this.state.allVisible());
+    this.$().toggleClass('disabled', this.state.disabled());
   }
 }

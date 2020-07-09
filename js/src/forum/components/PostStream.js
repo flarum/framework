@@ -349,7 +349,7 @@ export default class PostStream extends Component {
       $(window).scrollTop(scroll);
       this.calculatePosition();
       this.updateScrubber();
-      this.state.unpause();
+      this.state.paused = false;
       m.redraw();
     });
   }
