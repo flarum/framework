@@ -175,7 +175,7 @@ export default class PostStream extends Component {
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
     const $items = this.$('.PostStream-item[data-index]');
-    let index;
+    let index = $items.first().data('index') || 0;
     let visible = 0;
     let period = '';
 
@@ -203,14 +203,8 @@ export default class PostStream extends Component {
       const visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
       const visiblePost = visibleBottom - visibleTop;
 
-      const threeQuartersVisible = visibleTop / height < 0.75;
-      const coversQuarterOfViewport = (height - visibleTop) / viewportHeight > 0.25;
-      if (index === undefined && (threeQuartersVisible || coversQuarterOfViewport)) {
-        index = parseFloat($this.data('index')) + (visibleTop / height) * (1 / 0.75);
-        // If this item has a time associated with it, then set the
-        // scrollbar's current period to a formatted version of this time.
-        const time = $this.data('time');
-        if (time) period = time;
+      if (top <= viewportTop) {
+        index = parseFloat($this.data('index')) + visibleTop / height;
       }
 
       if (visiblePost > 0) {
@@ -218,7 +212,7 @@ export default class PostStream extends Component {
       }
     });
 
-    this.state.index = index;
+    this.state.index = index + 1;
     this.state.visible(visible);
     if (period) this.state.description = dayjs(period).format('MMMM YYYY');
   }

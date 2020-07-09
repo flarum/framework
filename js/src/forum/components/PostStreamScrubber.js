@@ -277,20 +277,23 @@ export default class PostStreamScrubber extends Component {
    * @param {Boolean} animate
    */
   updateScrubberValues(options = {}) {
+    if (!options.fromScroll) console.log("hello")
     const index = this.state.index;
     const count = this.state.count();
     const visible = this.state.visible() || 1;
     const percentPerPost = this.percentPerPost();
 
     const $scrubber = this.$();
-    $scrubber.find(`.Scrubber-index`).html(formatNumber(this.state.sanitizeIndex(index + 1)));
+    $scrubber.find(`.Scrubber-index`).text(formatNumber(this.state.sanitizeIndex(index + 1)));
+    $scrubber.find(`.Scrubber-description`).text(this.state.description);
+    $scrubber.toggleClass('disabled', this.state.disabled());
 
     const heights = {};
     heights.before = Math.max(0, percentPerPost.index * Math.min(index, count - visible));
     heights.handle = Math.min(100 - heights.before, percentPerPost.visible * visible);
     heights.after = 100 - heights.before - heights.handle;
 
-    console.log(heights.after);
+    console.log(heights.before + heights.after);
 
     if (!(options.fromScroll && this.state.paused) && (!this.adjustingHeight || options.forceHeightChange)) {
       const func = options.animate ? 'animate' : 'css';
@@ -311,7 +314,5 @@ export default class PostStreamScrubber extends Component {
       }
       Promise.all(animationPromises).then(() => (this.adjustingHeight = false));
     }
-
-    $scrubber.toggleClass('disabled', this.state.disabled());
   }
 }
