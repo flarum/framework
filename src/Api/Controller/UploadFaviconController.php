@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
@@ -20,8 +19,6 @@ use Tobscure\JsonApi\Document;
 
 class UploadFaviconController extends ShowForumController
 {
-    use AssertPermissionTrait;
-
     /**
      * @var SettingsRepositoryInterface
      */
@@ -47,7 +44,7 @@ class UploadFaviconController extends ShowForumController
      */
     public function data(ServerRequestInterface $request, Document $document)
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $request->getAttribute('actor')->assertAdmin();
 
         $file = Arr::get($request->getUploadedFiles(), 'favicon');
         $extension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);

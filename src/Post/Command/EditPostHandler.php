@@ -14,14 +14,12 @@ use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\PostRepository;
 use Flarum\Post\PostValidator;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class EditPostHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var \Flarum\Post\PostRepository
@@ -61,13 +59,13 @@ class EditPostHandler
             $attributes = Arr::get($data, 'attributes', []);
 
             if (isset($attributes['content'])) {
-                $this->assertCan($actor, 'edit', $post);
+                $actor->assertCan('edit', $post);
 
                 $post->revise($attributes['content'], $actor);
             }
 
             if (isset($attributes['isHidden'])) {
-                $this->assertCan($actor, 'hide', $post);
+                $actor->assertCan('hide', $post);
 
                 if ($attributes['isHidden']) {
                     $post->hide($actor);

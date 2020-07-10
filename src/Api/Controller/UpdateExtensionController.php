@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -19,8 +18,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class UpdateExtensionController implements RequestHandlerInterface
 {
-    use AssertPermissionTrait;
-
     /**
      * @var ExtensionManager
      */
@@ -39,7 +36,7 @@ class UpdateExtensionController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $request->getAttribute('actor')->assertAdmin();
 
         $enabled = Arr::get($request->getParsedBody(), 'enabled');
         $name = Arr::get($request->getQueryParams(), 'name');

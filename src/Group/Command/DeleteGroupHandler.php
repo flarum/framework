@@ -12,14 +12,12 @@ namespace Flarum\Group\Command;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Group\Event\Deleting;
 use Flarum\Group\GroupRepository;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteGroupHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var GroupRepository
@@ -46,7 +44,7 @@ class DeleteGroupHandler
 
         $group = $this->groups->findOrFail($command->groupId, $actor);
 
-        $this->assertCan($actor, 'delete', $group);
+        $actor->assertCan('delete', $group);
 
         $this->events->dispatch(
             new Deleting($group, $actor, $command->data)
