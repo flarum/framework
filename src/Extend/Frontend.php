@@ -80,7 +80,7 @@ class Frontend implements ExtenderInterface, LifecycleInterface
             return;
         }
 
-        $abstract = 'flarum.assets.'.$this->frontend;
+        $abstract = 'flarum.assets.' . $this->frontend;
 
         $container->resolving($abstract, function (Assets $assets) use ($moduleName) {
             if ($this->js) {
@@ -104,7 +104,7 @@ class Frontend implements ExtenderInterface, LifecycleInterface
             }
         });
 
-        if (! $container->bound($abstract)) {
+        if (!$container->bound($abstract)) {
             $container->bind($abstract, function (Container $container) {
                 return $container->make('flarum.assets.factory')($this->frontend);
             });
@@ -114,12 +114,8 @@ class Frontend implements ExtenderInterface, LifecycleInterface
 
             $events->listen(
                 ClearingCache::class,
-                function () use ($container, $abstract) {
-                    $recompile = new RecompileFrontendAssets(
-                        $container->make($abstract),
-                        $container->make(LocaleManager::class)
-                    );
-                    $recompile->flush();
+                function () use ($container) {
+                    $this->recompile($container);
                 }
             );
 
@@ -186,23 +182,24 @@ class Frontend implements ExtenderInterface, LifecycleInterface
 
     public function onEnable(Container $container, Extension $extension)
     {
-        if (! empty($this->js) || ! empty($this->css)) {
-            $recompile = new RecompileFrontendAssets(
-                $container->make('flarum.assets.'.$this->frontend),
-                $container->make(LocaleManager::class)
-            );
-            $recompile->flush();
+        if (!empty($this->js) || !empty($this->css)) {
+            $this->recompile($container);
         }
     }
 
     public function onDisable(Container $container, Extension $extension)
     {
-        if (! empty($this->js) || ! empty($this->css)) {
-            $recompile = new RecompileFrontendAssets(
-                $container->make('flarum.assets.'.$this->frontend),
-                $container->make(LocaleManager::class)
-            );
-            $recompile->flush();
+        if (!empty($this->js) || !empty($this->css)) {
+            $this->recompile($container);
         }
+    }
+
+    private function recompile($container)
+    {
+        $recompile = new RecompileFrontendAssets(
+            $container->make('flarum.assets.' . $this->frontend),
+            $container->make(LocaleManager::class)
+        );
+        $recompile->flush();
     }
 }
