@@ -162,10 +162,6 @@ class ComposerState {
     }
   }
 
-  getBody() {
-    return this.body;
-  }
-
   /**
    * Determine whether the body matches the given component class and data.
    *

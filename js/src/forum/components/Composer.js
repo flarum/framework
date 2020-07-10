@@ -25,9 +25,9 @@ export default class Composer extends Component {
     };
     classes.visible = classes.normal || classes.minimized || classes.fullScreen;
 
+    const body = this.state.body;
     const showIfMinimized = this.state.position === ComposerState.Position.MINIMIZED ? this.state.show.bind(this.state) : undefined;
 
-    const body = this.state.getBody();
     return (
       <div className={'Composer ' + classList(classes)}>
         <div className="Composer-handle" config={this.configHandle.bind(this)} />
