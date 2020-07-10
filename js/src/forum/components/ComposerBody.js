@@ -38,9 +38,6 @@ export default class ComposerBody extends Component {
      */
     this.loading = false;
 
-    this.state.on('focus', () => {
-      this.focus();
-    });
     this.state.bodyPreventExit = this.preventExit.bind(this);
 
     this.state.content(this.props.originalContent || '');
@@ -74,13 +71,6 @@ export default class ComposerBody extends Component {
         {LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })}
       </div>
     );
-  }
-
-  /**
-   * Draw focus to the text editor.
-   */
-  focus() {
-    this.$(':input:enabled:visible:first').focus();
   }
 
   /**

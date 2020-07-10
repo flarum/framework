@@ -50,8 +50,18 @@ class ComposerState {
    * @public
    */
   isFullScreen() {
+    return this.position === ComposerState.PositionEnum.FULLSCREEN || this.onMobile();
+  }
+
+  /**
+   * Determine whether we are on mobile.
+   *
+   * @return {Boolean}
+   * @public
+   */
+  onMobile() {
     // 767 is the mobile screen cutoff defined in the less variables file
-    return this.position === ComposerState.PositionEnum.FULLSCREEN || window.innerWidth <= 767;
+    return window.innerWidth <= 767;
   }
 
   /**
@@ -142,25 +152,16 @@ class ComposerState {
     this.value = this.fields.content;
   }
 
-  focus() {
-    this.trigger('focus');
-  }
-
   /**
    * Show the composer.
    *
    * @public
    */
   show() {
-    if (this.position === ComposerState.PositionEnum.NORMAL || this.position === ComposerState.PositionEnum.FULLSCREEN) {
-      return;
-    }
+    if (this.position === ComposerState.PositionEnum.NORMAL || this.position === ComposerState.PositionEnum.FULLSCREEN) return;
 
-    this.trigger('show');
-
-    if (this.isFullScreen()) {
-      this.focus();
-    }
+    this.position = ComposerState.PositionEnum.NORMAL;
+    m.redraw();
   }
 
   /**
@@ -169,18 +170,9 @@ class ComposerState {
    * @public
    */
   hide() {
-    const $composer = $('.js-Composer');
-
-    // Animate the composer sliding down off the bottom edge of the viewport.
-    // Only when the animation is completed, update the Composer state flag and
-    // other elements on the page.
-    $composer.stop(true).animate({ bottom: -$composer.height() }, 'fast', () => {
-      this.position = ComposerState.PositionEnum.HIDDEN;
-      this.clear();
-      m.redraw();
-
-      this.trigger('hide');
-    });
+    this.position = ComposerState.PositionEnum.HIDDEN;
+    this.clear();
+    m.redraw();
   }
 
   /**
@@ -203,7 +195,8 @@ class ComposerState {
   minimize() {
     if (this.position === ComposerState.PositionEnum.HIDDEN) return;
 
-    this.trigger('minimize');
+    this.position = ComposerState.PositionEnum.MINIMIZED;
+    m.redraw();
   }
 
   /**
@@ -213,12 +206,10 @@ class ComposerState {
    * @public
    */
   fullScreen() {
-    if (this.position !== ComposerState.PositionEnum.HIDDEN) {
-      this.position = ComposerState.PositionEnum.FULLSCREEN;
-      m.redraw();
-      this.trigger('updateHeight');
-      this.focus();
-    }
+    if (this.position === ComposerState.PositionEnum.HIDDEN) return;
+
+    this.position = ComposerState.PositionEnum.FULLSCREEN;
+    m.redraw();
   }
 
   /**
@@ -230,8 +221,6 @@ class ComposerState {
     if (this.position === ComposerState.PositionEnum.FULLSCREEN) {
       this.position = ComposerState.PositionEnum.NORMAL;
       m.redraw();
-      this.trigger('updateHeight');
-      this.focus();
     }
   }
 
@@ -337,7 +326,5 @@ ComposerState.PositionEnum = {
   MINIMIZED: 'minimized',
   FULLSCREEN: 'fullScreen',
 };
-
-Object.assign(ComposerState.prototype, evented);
 
 export default ComposerState;

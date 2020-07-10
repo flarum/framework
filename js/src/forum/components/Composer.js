@@ -13,29 +13,7 @@ import ComposerState from '../states/ComposerState';
 export default class Composer extends Component {
   init() {
     this.state = this.props.state;
-
-    this.state.on('show', () => {
-      this.animateToPosition(ComposerState.PositionEnum.NORMAL);
-
-      if (this.state.isFullScreen()) {
-        this.$().css('top', $(window).scrollTop());
-        this.showBackdrop();
-      }
-    });
-    this.state.on('hide', () => {
-      this.$().hide();
-      this.hideBackdrop();
-      this.updateBodyPadding();
-    });
-    this.state.on('minimize', () => {
-      this.animateToPosition(ComposerState.PositionEnum.MINIMIZED);
-
-      this.$().css('top', 'auto');
-      this.hideBackdrop();
-    });
-    this.state.on('updateHeight', () => {
-      this.updateHeight();
-    });
+    this.prevPosition = this.state.position;
   }
 
   view() {
@@ -50,7 +28,7 @@ export default class Composer extends Component {
     const showIfMinimized = this.state.position === ComposerState.PositionEnum.MINIMIZED ? this.state.show.bind(this.state) : undefined;
 
     return (
-      <div className={'Composer js-Composer ' + classList(classes)}>
+      <div className={'Composer ' + classList(classes)}>
         <div className="Composer-handle" config={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
@@ -64,6 +42,48 @@ export default class Composer extends Component {
     // Set the height of the Composer element and its contents on each redraw,
     // so that they do not lose it if their DOM elements are recreated.
     this.updateHeight();
+
+    if (this.prevPosition !== this.state.position) {
+      // Execute if exitFullScreen() is called
+      if (this.state.position !== ComposerState.PositionEnum.FULLSCREEN && this.prevPosition === ComposerState.PositionEnum.FULLSCREEN) {
+        this.focus();
+      }
+      // Execute if hide() is called
+      else if (this.state.position === ComposerState.PositionEnum.HIDDEN) {
+        // Animate the composer sliding down off the bottom edge of the viewport.
+        // Only when the animation is completed, update the Composer state flag and
+        // other elements on the page.
+        this.$()
+          .stop(true)
+          .animate({ bottom: -this.$().height() }, 'fast', () => {
+            this.$().hide();
+            this.hideBackdrop();
+            this.updateBodyPadding();
+          });
+      }
+      // Execute if minimize() is called
+      else if (this.state.position === ComposerState.PositionEnum.MINIMIZED) {
+        this.animateToPosition(ComposerState.PositionEnum.MINIMIZED);
+
+        this.$().css('top', 'auto');
+        this.hideBackdrop();
+      }
+      // Execute if fullscreen() is called
+      else if (this.state.position === ComposerState.PositionEnum.FULLSCREEN) {
+        this.focus();
+      }
+      // Execute when show() is called
+      else if (this.state.position === ComposerState.PositionEnum.NORMAL) {
+        this.animateToPosition(ComposerState.PositionEnum.NORMAL).then(() => this.focus());
+
+        if (this.state.onMobile()) {
+          this.$().css('top', $(window).scrollTop());
+          this.showBackdrop();
+        }
+      }
+
+      this.prevPosition = this.state.position;
+    }
 
     if (isInitialized) return;
 
@@ -129,6 +149,13 @@ export default class Composer extends Component {
         composer.handle = $(this);
         $('body').css('cursor', 'row-resize');
       });
+  }
+
+  /**
+   * Draw focus to the text editor.
+   */
+  focus() {
+    this.$('input:enabled:visible:first,textarea:enabled:visible:first').focus();
   }
 
   /**
@@ -240,12 +267,9 @@ export default class Composer extends Component {
     // Before we redraw the composer to its new state, we need to save the
     // current height of the composer, as well as the page's scroll position, so
     // that we can smoothly transition from the old to the new state.
-    const oldPosition = this.state.position;
     const $composer = this.$().stop(true);
     const oldHeight = $composer.outerHeight();
     const scrollTop = $(window).scrollTop();
-
-    this.state.position = position;
 
     m.redraw(true);
 
@@ -257,16 +281,17 @@ export default class Composer extends Component {
 
     const newHeight = $composer.outerHeight();
 
-    if (oldPosition === ComposerState.PositionEnum.HIDDEN) {
+    if (this.prevPosition === ComposerState.PositionEnum.HIDDEN) {
       $composer.css({ bottom: -newHeight, height: newHeight });
     } else {
       $composer.css({ height: oldHeight });
     }
 
-    $composer.animate({ bottom: 0, height: newHeight }, 'fast', () => this.state.focus());
+    const animation = $composer.animate({ bottom: 0, height: newHeight }, 'fast').promise();
 
     this.updateBodyPadding();
     $(window).scrollTop(scrollTop);
+    return animation;
   }
 
   /**
