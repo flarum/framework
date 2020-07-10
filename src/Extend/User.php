@@ -30,7 +30,6 @@ class User implements ExtenderInterface
         return $this;
     }
 
-
     /**
      * Dynamically process a user's list of groups when calculating permissions.
      * This can be used to give a user permissions for groups they aren't actually in, based on context.
