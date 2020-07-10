@@ -32,7 +32,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->registerAvatarsFilesystem();
         $this->registerDisplayNameDrivers();
 
-        $this->app->singleton('flarum.user.groupProcessors', function () {
+        $this->app->singleton('flarum.user.group_processors', function () {
             return [];
         });
     }
@@ -76,7 +76,7 @@ class UserServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        foreach ($this->app->make('flarum.user.groupProcessors') as $callback) {
+        foreach ($this->app->make('flarum.user.group_processors') as $callback) {
             if (is_string($callback)) {
                 $callback = $this->app->make($callback);
             }

@@ -57,7 +57,7 @@ class User implements ExtenderInterface
             return array_merge($existingDrivers, $this->displayNameDrivers);
         });
 
-        $container->extend('flarum.user.groupProcessors', function ($existingRelations) {
+        $container->extend('flarum.user.group_processors', function ($existingRelations) {
             return array_merge($existingRelations, $this->groupProcessors);
         });
     }
