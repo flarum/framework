@@ -31,6 +31,7 @@ export default class Composer extends Component {
   }
 
   view() {
+    const body = this.state.body;
     const classes = {
       normal: this.state.position === ComposerState.Position.NORMAL,
       minimized: this.state.position === ComposerState.Position.MINIMIZED,
@@ -39,7 +40,7 @@ export default class Composer extends Component {
       visible: this.state.isVisible(),
     };
 
-    const body = this.state.body;
+    // Set up a handler so that clicks on the content will show the composer.
     const showIfMinimized = this.state.position === ComposerState.Position.MINIMIZED ? this.state.show.bind(this.state) : undefined;
 
     return (
