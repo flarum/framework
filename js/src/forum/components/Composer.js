@@ -41,10 +41,6 @@ export default class Composer extends Component {
   }
 
   config(isInitialized, context) {
-    // Set the height of the Composer element and its contents on each redraw,
-    // so that they do not lose it if their DOM elements are recreated.
-    this.updateHeight();
-
     if (this.prevPosition !== this.state.position) {
       // Execute if exitFullScreen() is called
       if (this.state.position !== ComposerState.PositionEnum.FULLSCREEN && this.prevPosition === ComposerState.PositionEnum.FULLSCREEN) {
@@ -65,7 +61,7 @@ export default class Composer extends Component {
       }
       // Execute if minimize() is called
       else if (this.state.position === ComposerState.PositionEnum.MINIMIZED) {
-        this.animateToPosition(ComposerState.PositionEnum.MINIMIZED);
+        this.animatePositionChange();
 
         this.$().css('top', 'auto');
         this.hideBackdrop();
@@ -76,7 +72,7 @@ export default class Composer extends Component {
       }
       // Execute when show() is called
       else if (this.state.position === ComposerState.PositionEnum.NORMAL) {
-        this.animateToPosition(ComposerState.PositionEnum.NORMAL).then(() => this.focus());
+        this.animatePositionChange().then(() => this.focus());
 
         if (this.state.onMobile()) {
           this.$().css('top', $(window).scrollTop());
@@ -85,6 +81,10 @@ export default class Composer extends Component {
       }
 
       this.prevPosition = this.state.position;
+    } else {
+      // Set the height of the Composer element and its contents on each redraw,
+      // so that they do not lose it if their DOM elements are recreated.
+      this.updateHeight();
     }
 
     if (isInitialized) return;
@@ -265,15 +265,13 @@ export default class Composer extends Component {
    *
    * @param {ComposerState.PositionEnum} position
    */
-  animateToPosition(position) {
+  animatePositionChange() {
     // Before we redraw the composer to its new state, we need to save the
     // current height of the composer, as well as the page's scroll position, so
     // that we can smoothly transition from the old to the new state.
     const $composer = this.$().stop(true);
     const oldHeight = $composer.outerHeight();
     const scrollTop = $(window).scrollTop();
-
-    m.redraw(true);
 
     // Now that we've redrawn and the composer's DOM has been updated, we want
     // to update the composer's height. Once we've done that, we'll capture the
