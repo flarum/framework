@@ -36,7 +36,7 @@ class ViewNamespace implements ExtenderInterface
         $factory = $container->make(Factory::class);
 
         foreach ($this->adds as $namespace => $hints) {
-            $factory->add($namespace, $hints);
+            $factory->addNamespace($namespace, $hints);
         }
     }
 }
