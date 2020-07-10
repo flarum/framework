@@ -87,52 +87,6 @@ export default class PostStreamScrubber extends Component {
     );
   }
 
-  /**
-   * Get the percentage of the height of the scrubber that should be allocated
-   * to each post.
-   *
-   * @return {Object}
-   * @property {Number} index The percent per post for posts on either side of
-   *     the visible part of the scrubber.
-   * @property {Number} visible The percent per post for the visible part of the
-   *     scrubber.
-   */
-  percentPerPost() {
-    const count = this.state.count() || 1;
-    const visible = this.state.visible() || 1;
-
-    // To stop the handle of the scrollbar from getting too small when there
-    // are many posts, we define a minimum percentage height for the handle
-    // calculated from a 50 pixel limit. From this, we can calculate the
-    // minimum percentage per visible post. If this is greater than the actual
-    // percentage per post, then we need to adjust the 'before' percentage to
-    // account for it.
-    const minPercentVisible = (50 / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
-    const percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
-    const percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
-
-    return {
-      index: percentPerPost,
-      visible: percentPerVisiblePost,
-    };
-  }
-
-  /**
-   * Go to the first post in the discussion.
-   */
-  goToFirst() {
-    this.state.goToFirst();
-    this.updateScrubberValues({ animate: true, forceHeightChange: true });
-  }
-
-  /**
-   * Go to the last post in the discussion.
-   */
-  goToLast() {
-    this.state.goToLast();
-    this.updateScrubberValues({ animate: true, forceHeightChange: true });
-  }
-
   config(isInitialized, context) {
     this.state.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
     if (isInitialized) return;
@@ -181,6 +135,67 @@ export default class PostStreamScrubber extends Component {
     setTimeout(() => this.scrollListener.start());
   }
 
+  /**
+   * Update the scrollbar's position to reflect the current values of the
+   * index/visible properties.
+   *
+   * @param {Boolean} animate
+   */
+  updateScrubberValues(options = {}) {
+    const index = this.state.index;
+    const count = this.state.count();
+    const visible = this.state.visible() || 1;
+    const percentPerPost = this.percentPerPost();
+
+    const $scrubber = this.$();
+    $scrubber.find(`.Scrubber-index`).text(formatNumber(this.state.sanitizeIndex(Math.max(1, index))));
+    $scrubber.find(`.Scrubber-description`).text(this.state.description);
+    $scrubber.toggleClass('disabled', this.state.disabled());
+
+    const heights = {};
+    heights.before = Math.max(0, percentPerPost.index * Math.min(index - 1, count - visible));
+    heights.handle = Math.min(100 - heights.before, percentPerPost.visible * visible);
+    heights.after = 100 - heights.before - heights.handle;
+
+    // If the state is paused, don't change height on scroll, as the viewport is being scrolled by the JS
+    // If a height change animation is already in progress, don't adjust height unless overriden
+    if ((options.fromScroll && this.state.paused) || (this.adjustingHeight && !options.forceHeightChange)) return;
+
+    const func = options.animate ? 'animate' : 'css';
+    this.adjustingHeight = true;
+    const animationPromises = [];
+    for (const part in heights) {
+      const $part = $scrubber.find(`.Scrubber-${part}`);
+      animationPromises.push(
+        $part
+          .stop(true, true)
+          [func]({ height: heights[part] + '%' }, 'fast')
+          .promise()
+      );
+
+      // jQuery likes to put overflow:hidden, but because the scrollbar handle
+      // has a negative margin-left, we need to override.
+      if (func === 'animate') $part.css('overflow', 'visible');
+    }
+    Promise.all(animationPromises).then(() => (this.adjustingHeight = false));
+  }
+
+  /**
+   * Go to the first post in the discussion.
+   */
+  goToFirst() {
+    this.state.goToFirst();
+    this.updateScrubberValues({ animate: true, forceHeightChange: true });
+  }
+
+  /**
+   * Go to the last post in the discussion.
+   */
+  goToLast() {
+    this.state.goToLast();
+    this.updateScrubberValues({ animate: true, forceHeightChange: true });
+  }
+
   ondestroy() {
     this.scrollListener.stop();
     $(window).off('resize', this.handlers.onresize);
@@ -205,6 +220,7 @@ export default class PostStreamScrubber extends Component {
   }
 
   onmousedown(e) {
+    e.redraw = false;
     this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
     this.indexStart = this.state.index;
     this.dragging = true;
@@ -243,7 +259,6 @@ export default class PostStreamScrubber extends Component {
     // content that we want to load those posts.
     const intIndex = Math.floor(this.state.index);
     this.state.goToIndex(intIndex);
-    this.updateScrubberValues({ animate: true, forceHeightChange: true });
   }
 
   onclick(e) {
@@ -271,47 +286,32 @@ export default class PostStreamScrubber extends Component {
   }
 
   /**
-   * Update the scrollbar's position to reflect the current values of the
-   * index/visible properties.
+   * Get the percentage of the height of the scrubber that should be allocated
+   * to each post.
    *
-   * @param {Boolean} animate
+   * @return {Object}
+   * @property {Number} index The percent per post for posts on either side of
+   *     the visible part of the scrubber.
+   * @property {Number} visible The percent per post for the visible part of the
+   *     scrubber.
    */
-  updateScrubberValues(options = {}) {
-    const index = this.state.index;
-    const count = this.state.count();
+  percentPerPost() {
+    const count = this.state.count() || 1;
     const visible = this.state.visible() || 1;
-    const percentPerPost = this.percentPerPost();
 
-    const $scrubber = this.$();
-    $scrubber.find(`.Scrubber-index`).text(formatNumber(this.state.sanitizeIndex(index)));
-    $scrubber.find(`.Scrubber-description`).text(this.state.description);
-    $scrubber.toggleClass('disabled', this.state.disabled());
+    // To stop the handle of the scrollbar from getting too small when there
+    // are many posts, we define a minimum percentage height for the handle
+    // calculated from a 50 pixel limit. From this, we can calculate the
+    // minimum percentage per visible post. If this is greater than the actual
+    // percentage per post, then we need to adjust the 'before' percentage to
+    // account for it.
+    const minPercentVisible = (50 / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
+    const percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
+    const percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
 
-    const heights = {};
-    heights.before = Math.max(0, percentPerPost.index * Math.min(index - 1, count - visible));
-    heights.handle = Math.min(100 - heights.before, percentPerPost.visible * visible);
-    heights.after = 100 - heights.before - heights.handle;
-
-    console.log("scrolling?");
-    if (!(options.fromScroll && this.state.paused) && (!this.adjustingHeight || options.forceHeightChange)) {
-      const func = options.animate ? 'animate' : 'css';
-      this.adjustingHeight = true;
-      const animationPromises = [];
-      console.log("scrolling", heights.before, index)
-      for (const part in heights) {
-        const $part = $scrubber.find(`.Scrubber-${part}`);
-        animationPromises.push(
-          $part
-            .stop(true, true)
-            [func]({ height: heights[part] + '%' }, 'fast')
-            .promise()
-        );
-
-        // jQuery likes to put overflow:hidden, but because the scrollbar handle
-        // has a negative margin-left, we need to override.
-        if (func === 'animate') $part.css('overflow', 'visible');
-      }
-      Promise.all(animationPromises).then(() => (this.adjustingHeight = false));
-    }
+    return {
+      index: percentPerPost,
+      visible: percentPerVisiblePost,
+    };
   }
 }

@@ -82,7 +82,6 @@ class PostStreamState {
    * @return {Promise}
    */
   goToNumber(number, noAnimation) {
-    console.log('goToNumber', number);
     // If we want to go to the reply preview, then we will go to the end of the
     // discussion and then scroll to the very bottom of the page.
     if (number === 'reply') {
@@ -115,7 +114,6 @@ class PostStreamState {
    * @return {Promise}
    */
   goToIndex(index, noAnimation) {
-    console.log('goToIndex', index);
     this.paused = true;
 
     this.loadPromise = this.loadNearIndex(index);
@@ -140,7 +138,6 @@ class PostStreamState {
    * @return {Promise}
    */
   loadNearNumber(number) {
-    console.log('loadNearNumber', number);
     if (this.posts().some((post) => post && Number(post.number()) === Number(number))) {
       return m.deferred().resolve().promise;
     }
@@ -164,9 +161,7 @@ class PostStreamState {
    * @return {Promise}
    */
   loadNearIndex(index) {
-    console.log('loadNearIndex', index);
     if (index >= this.visibleStart && index <= this.visibleEnd) {
-      console.log("doing the thing")
       return m.deferred().resolve().promise;
     }
 
@@ -182,7 +177,6 @@ class PostStreamState {
    * Load the next page of posts.
    */
   loadNext() {
-    console.log('loadNext');
     const start = this.visibleEnd;
     const end = (this.visibleEnd = this.sanitizeIndex(this.visibleEnd + this.constructor.loadCount));
 
@@ -206,7 +200,6 @@ class PostStreamState {
    * Load the previous page of posts.
    */
   loadPrevious() {
-    console.log('loadPrevious');
     const end = this.visibleStart;
     const start = (this.visibleStart = this.sanitizeIndex(this.visibleStart - this.constructor.loadCount));
 
@@ -234,14 +227,12 @@ class PostStreamState {
    * @param {Boolean} backwards
    */
   loadPage(start, end, backwards) {
-    console.log('loadPage');
     m.redraw();
 
     this.loadPageTimeouts[start] = setTimeout(
       () => {
         this.loadRange(start, end).then(() => {
           if (start >= this.visibleStart && end <= this.visibleEnd) {
-            console.log('anchoring!');
             const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
             anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw(true));
           }

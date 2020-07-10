@@ -101,7 +101,6 @@ export default class PostStream extends Component {
   }
 
   config(isInitialized, context) {
-    console.log('redrawing', this.state.visibleStart, this.state.visibleEnd);
     if (this.state.needsScroll) {
       this.state.needsScroll = false;
       const locationType = this.state.locationType;
@@ -261,16 +260,6 @@ export default class PostStream extends Component {
   }
 
   /**
-   * Get the distance from the top of the viewport to the point at which we
-   * would consider a post to be the first one visible.
-   *
-   * @return {Integer}
-   */
-  getMarginTop() {
-    return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
-  }
-
-  /**
    * Scroll down to a certain post by number and 'flash' it.
    *
    * @param {Integer} number
@@ -278,7 +267,6 @@ export default class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToNumber(number, noAnimation) {
-    console.log('scrollToNumber');
     const $item = this.$(`.PostStream-item[data-number=${number}]`);
 
     return this.scrollToItem($item, noAnimation).then(this.flashItem.bind(this, $item));
@@ -294,7 +282,6 @@ export default class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToIndex(index, noAnimation, bottom) {
-    console.log('scrollToIndex');
     const $item = this.$(`.PostStream-item[data-index=${index}]`);
 
     return this.scrollToItem($item, noAnimation, true, bottom).then(() => {
@@ -316,7 +303,6 @@ export default class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToItem($item, noAnimation, force, bottom) {
-    console.log('scrollToItem');
     const $container = $('html, body').stop(true);
 
     if ($item.length) {
@@ -340,7 +326,6 @@ export default class PostStream extends Component {
     }
 
     return Promise.all([$container.promise(), this.state.loadPromise]).then(() => {
-      console.log("loaded and scrolled");
       this.updateScrubber();
       this.state.index = $item.data('index');
       m.redraw(true);
@@ -358,5 +343,15 @@ export default class PostStream extends Component {
    */
   flashItem($item) {
     $item.addClass('flash').one('animationend webkitAnimationEnd', () => $item.removeClass('flash'));
+  }
+
+  /**
+   * Get the distance from the top of the viewport to the point at which we
+   * would consider a post to be the first one visible.
+   *
+   * @return {Integer}
+   */
+  getMarginTop() {
+    return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
   }
 }
