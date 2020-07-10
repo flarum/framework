@@ -51,6 +51,12 @@ export default class ReplyComposer extends ComposerBody {
     return items;
   }
 
+  preview(e) {
+    minimizeComposerIfFullScreen(e);
+
+    m.route(app.route.discussion(this.props.discussion, 'reply'));
+  }
+
   /**
    * Get the data to submit to the server when the reply is saved.
    *
@@ -61,12 +67,6 @@ export default class ReplyComposer extends ComposerBody {
       content: this.state.content(),
       relationships: { discussion: this.props.discussion },
     };
-  }
-
-  preview(e) {
-    minimizeComposerIfFullScreen(e);
-
-    m.route(app.route.discussion(this.props.discussion, 'reply'));
   }
 
   onsubmit() {
