@@ -236,25 +236,6 @@ class ComposerState {
   }
 
   /**
-   * Initialize default Composer height.
-   */
-  initializeHeight() {
-    this.height = localStorage.getItem('composerHeight');
-
-    if (!this.height) {
-      this.height = this.defaultHeight();
-    }
-  }
-
-  /**
-   * Default height of the Composer in case none is saved.
-   * @returns {Integer}
-   */
-  defaultHeight() {
-    return $('js-Composer').height();
-  }
-
-  /**
    * Minimum height of the Composer.
    * @returns {Integer}
    */
@@ -289,17 +270,6 @@ class ComposerState {
     // Otherwise, if it's normal or hidden, then we use the intended height.
     // We don't let the composer get too small or too big, though.
     return Math.max(this.minimumHeight(), Math.min(this.height, this.maximumHeight()));
-  }
-
-  /**
-   * Save a new Composer height and update the DOM.
-   * @param {Integer} height
-   */
-  changeHeight(height) {
-    this.height = height;
-    this.trigger('updateHeight');
-
-    localStorage.setItem('composerHeight', this.height);
   }
 
   /**

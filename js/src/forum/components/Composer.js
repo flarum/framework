@@ -71,7 +71,7 @@ export default class Composer extends Component {
     // routes, we will flag the DOM to be retained across route changes.
     context.retain = true;
 
-    this.state.initializeHeight();
+    this.initializeHeight();
     this.$().hide().css('bottom', -this.state.computedHeight());
 
     // Whenever any of the inputs inside the composer are have focus, we want to
@@ -144,7 +144,7 @@ export default class Composer extends Component {
     // height so that it fills the height of the composer, and update the
     // body's padding.
     const deltaPixels = this.mouseStart - e.clientY;
-    this.state.changeHeight(this.heightStart + deltaPixels);
+    this.changeHeight(this.heightStart + deltaPixels);
 
     // Update the body's padding-bottom so that no content on the page will ever
     // get permanently hidden behind the composer. If the user is already
@@ -163,6 +163,36 @@ export default class Composer extends Component {
 
     this.handle = null;
     $('body').css('cursor', '');
+  }
+
+  /**
+   * Default height of the Composer in case none is saved.
+   * @returns {Integer}
+   */
+  defaultHeight() {
+    return this.$().height();
+  }
+
+  /**
+   * Initialize default Composer height.
+   */
+  initializeHeight() {
+    this.state.height = localStorage.getItem('composerHeight');
+
+    if (!this.state.height) {
+      this.state.height = this.defaultHeight();
+    }
+  }
+
+  /**
+   * Save a new Composer height and update the DOM.
+   * @param {Integer} height
+   */
+  changeHeight(height) {
+    this.state.height = height;
+    this.updateHeight();
+
+    localStorage.setItem('composerHeight', this.state.height);
   }
 
   /**
