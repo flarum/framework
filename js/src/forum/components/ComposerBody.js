@@ -12,6 +12,7 @@ import ItemList from '../../common/utils/ItemList';
  *
  * ### Props
  *
+ * - `composer`
  * - `originalContent`
  * - `submitLabel`
  * - `placeholder`
@@ -23,7 +24,7 @@ import ItemList from '../../common/utils/ItemList';
  */
 export default class ComposerBody extends Component {
   init() {
-    this.state = this.props.state;
+    this.composer = this.props.composer;
 
     /**
      * Whether or not the component is loading.
@@ -32,15 +33,15 @@ export default class ComposerBody extends Component {
      */
     this.loading = false;
 
-    this.state.bodyPreventExit = this.preventExit.bind(this);
+    this.composer.bodyPreventExit = this.preventExit.bind(this);
 
-    this.state.content(this.props.originalContent || '');
+    this.composer.content(this.props.originalContent || '');
 
     /**
      * @deprecated BC layer, remove in Beta 15.
      */
-    this.content = this.state.fields.content;
-    this.editor = this.state;
+    this.content = this.composer.fields.content;
+    this.editor = this.composer;
   }
 
   view() {
@@ -54,11 +55,11 @@ export default class ComposerBody extends Component {
               submitLabel: this.props.submitLabel,
               placeholder: this.props.placeholder,
               disabled: this.loading || this.props.disabled,
-              state: this.state,
+              composer: this.composer,
               preview: this.preview.bind(this),
-              onchange: this.state.content,
+              onchange: this.composer.content,
               onsubmit: this.onsubmit.bind(this),
-              value: this.state.content(),
+              value: this.composer.content(),
             })}
           </div>
         </div>
@@ -74,7 +75,7 @@ export default class ComposerBody extends Component {
    * @return {String}
    */
   preventExit() {
-    const content = this.state.content();
+    const content = this.composer.content();
 
     return content && content !== this.props.originalContent && this.props.confirmExit;
   }

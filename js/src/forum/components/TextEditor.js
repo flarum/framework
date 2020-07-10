@@ -9,10 +9,12 @@ import Button from '../../common/components/Button';
  *
  * ### Props
  *
+ * - `composer`
  * - `submitLabel`
  * - `value`
  * - `placeholder`
  * - `disabled`
+ * - `preview`
  */
 export default class TextEditor extends Component {
   init() {
@@ -21,7 +23,6 @@ export default class TextEditor extends Component {
      *
      * @type {String}
      */
-    this.state = this.props.state;
     this.value = this.props.value || '';
   }
 
@@ -62,7 +63,7 @@ export default class TextEditor extends Component {
     $(element).bind('keydown', 'meta+return', handler);
     $(element).bind('keydown', 'ctrl+return', handler);
 
-    this.state.$texteditor = $(element);
+    this.props.composer.$texteditor = $(element);
   }
 
   /**

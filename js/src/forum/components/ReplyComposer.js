@@ -64,7 +64,7 @@ export default class ReplyComposer extends ComposerBody {
    */
   data() {
     return {
-      content: this.state.content(),
+      content: this.composer.content(),
       relationships: { discussion: this.props.discussion },
     };
   }
@@ -106,7 +106,7 @@ export default class ReplyComposer extends ComposerBody {
           });
         }
 
-        this.state.hide();
+        this.composer.hide();
       }, this.loaded.bind(this));
   }
 }

@@ -67,7 +67,7 @@ export default class EditPostComposer extends ComposerBody {
    */
   data() {
     return {
-      content: this.state.content(),
+      content: this.composer.content(),
     };
   }
 
@@ -103,7 +103,7 @@ export default class EditPostComposer extends ComposerBody {
         });
       }
 
-      this.state.hide();
+      this.composer.hide();
     }, this.loaded.bind(this));
   }
 }
