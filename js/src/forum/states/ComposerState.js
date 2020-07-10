@@ -19,13 +19,6 @@ class ComposerState {
     this.height = null;
 
     /**
-     * Whether or not the composer currently has focus.
-     *
-     * @type {Boolean}
-     */
-    this.active = false;
-
-    /**
      * The dynamic component being shown inside the composer.
      *
      * @type {Object}

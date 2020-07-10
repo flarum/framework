@@ -19,6 +19,13 @@ export default class Composer extends Component {
      */
     this.state = this.props.state;
 
+    /**
+     * Whether or not the composer currently has focus.
+     *
+     * @type {Boolean}
+     */
+    this.active = false;
+
     // Store the initial position so that we can trigger animations correctly.
     this.prevPosition = this.state.position;
   }
@@ -28,7 +35,7 @@ export default class Composer extends Component {
       normal: this.state.position === ComposerState.Position.NORMAL,
       minimized: this.state.position === ComposerState.Position.MINIMIZED,
       fullScreen: this.state.position === ComposerState.Position.FULLSCREEN,
-      active: this.state.active,
+      active: this.active,
       visible: this.state.isVisible(),
     };
 
@@ -105,7 +112,7 @@ export default class Composer extends Component {
     // Whenever any of the inputs inside the composer are have focus, we want to
     // add a class to the composer to draw attention to it.
     this.$().on('focus blur', ':input', (e) => {
-      this.state.active = e.type === 'focusin';
+      this.active = e.type === 'focusin';
       m.redraw();
     });
 
