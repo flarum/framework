@@ -12,7 +12,14 @@ import ComposerState from '../states/ComposerState';
  */
 export default class Composer extends Component {
   init() {
+    /**
+     * The composer's "state".
+     *
+     * @type {ComposerState}
+     */
     this.state = this.props.state;
+
+    // Store the initial position so that we can trigger animations correctly.
     this.prevPosition = this.state.position;
   }
 
