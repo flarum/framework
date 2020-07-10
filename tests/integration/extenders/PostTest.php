@@ -30,7 +30,7 @@ class PostTest extends TestCase
      */
     public function custom_post_type_exists_if_added()
     {
-        $this->extend((new Extend\Post)->type(CustomPost::class));
+        $this->extend((new Extend\Post)->type(PostTestCustomPost::class));
 
         // Needed for extenders to be booted
         $this->app();
@@ -39,7 +39,7 @@ class PostTest extends TestCase
     }
 }
 
-class CustomPost extends AbstractEventPost implements MergeableInterface
+class PostTestCustomPost extends AbstractEventPost implements MergeableInterface
 {
     /**
      * {@inheritdoc}
