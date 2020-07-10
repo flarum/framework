@@ -21,7 +21,7 @@ class ViewTest extends TestCase
     public function custom_view_namespace_does_not_exist_by_default()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('integration.test::test')->render()));
+        $this->app()->getContainer()->make(Factory::class)->make('integration.test::test');
     }
 
     /**
