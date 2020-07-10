@@ -154,13 +154,6 @@ export default class Composer extends Component {
   }
 
   /**
-   * Draw focus to the text editor.
-   */
-  focus() {
-    this.$(':input:not(button):enabled:visible:first').focus();
-  }
-
-  /**
    * Resize the composer according to mouse movement.
    *
    * @param {Event} e
@@ -195,11 +188,10 @@ export default class Composer extends Component {
   }
 
   /**
-   * Default height of the Composer in case none is saved.
-   * @returns {Integer}
+   * Draw focus to the text editor.
    */
-  defaultHeight() {
-    return this.$().height();
+  focus() {
+    this.$(':input:not(button):enabled:visible:first').focus();
   }
 
   /**
@@ -242,6 +234,14 @@ export default class Composer extends Component {
 
       $flexible.height(this.$().outerHeight() - headerHeight - paddingBottom - footerHeight);
     }
+  }
+
+  /**
+   * Default height of the Composer in case none is saved.
+   * @returns {Integer}
+   */
+  defaultHeight() {
+    return this.$().height();
   }
 
   /**

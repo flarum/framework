@@ -34,78 +34,6 @@ class ComposerState {
     this.editor = this;
   }
 
-  getBody() {
-    return this.body;
-  }
-
-  /**
-   * Determine whether or not the Composer is covering the screen.
-   *
-   * This will be true if the Composer is in full-screen mode on desktop,
-   * or if we are on a mobile device, where we always consider the composer as full-screen..
-   *
-   * @return {Boolean}
-   * @public
-   */
-  isFullScreen() {
-    return this.position === ComposerState.PositionEnum.FULLSCREEN || this.onMobile();
-  }
-
-  /**
-   * Determine whether we are on mobile.
-   *
-   * @return {Boolean}
-   * @public
-   */
-  onMobile() {
-    // 767 is the mobile screen cutoff defined in the less variables file
-    return window.innerWidth <= 767;
-  }
-
-  /**
-   * Determine whether the body matches the given component class and data.
-   *
-   * @param {object} type The component class to check against. Subclasses are
-   *                      accepted as well.
-   * @param {object} data
-   * @return {boolean}
-   */
-  bodyMatches(type, data = {}) {
-    // Fail early when the page is of a different type
-    if (!subclassOf(this.body.componentClass, type)) return false;
-
-    // Now that the type is known to be correct, we loop through the provided
-    // data to see whether it matches the data in the attributes for the body.
-    return Object.keys(data).every((key) => this.body.attrs[key] === data[key]);
-  }
-
-  /**
-   * Check whether or not the user is currently composing a reply to a
-   * discussion.
-   *
-   * @param {Discussion} discussion
-   * @return {Boolean}
-   */
-  composingReplyTo(discussion) {
-    return this.bodyMatches(ReplyComposer, { discussion }) && this.position !== ComposerState.PositionEnum.HIDDEN;
-  }
-
-  /**
-   * Confirm with the user that they want to close the composer and lose their
-   * content.
-   *
-   * @return {Boolean} Whether or not the exit was cancelled.
-   */
-  preventExit() {
-    if (this.body.componentClass) {
-      const preventExit = this.bodyPreventExit();
-
-      if (preventExit) {
-        return !confirm(preventExit);
-      }
-    }
-  }
-
   /**
    * Load a content component into the composer.
    *
@@ -132,8 +60,6 @@ class ComposerState {
 
   /**
    * Clear the composer's content component.
-   *
-   * @public
    */
   clear() {
     this.body = { attrs: {} };
@@ -219,6 +145,78 @@ class ComposerState {
     if (this.position === ComposerState.PositionEnum.FULLSCREEN) {
       this.position = ComposerState.PositionEnum.NORMAL;
       m.redraw();
+    }
+  }
+
+  getBody() {
+    return this.body;
+  }
+
+  /**
+   * Determine whether the body matches the given component class and data.
+   *
+   * @param {object} type The component class to check against. Subclasses are
+   *                      accepted as well.
+   * @param {object} data
+   * @return {boolean}
+   */
+  bodyMatches(type, data = {}) {
+    // Fail early when the page is of a different type
+    if (!subclassOf(this.body.componentClass, type)) return false;
+
+    // Now that the type is known to be correct, we loop through the provided
+    // data to see whether it matches the data in the attributes for the body.
+    return Object.keys(data).every((key) => this.body.attrs[key] === data[key]);
+  }
+
+  /**
+   * Determine whether or not the Composer is covering the screen.
+   *
+   * This will be true if the Composer is in full-screen mode on desktop,
+   * or if we are on a mobile device, where we always consider the composer as full-screen..
+   *
+   * @return {Boolean}
+   * @public
+   */
+  isFullScreen() {
+    return this.position === ComposerState.PositionEnum.FULLSCREEN || this.onMobile();
+  }
+
+  /**
+   * Determine whether we are on mobile.
+   *
+   * @return {Boolean}
+   * @public
+   */
+  onMobile() {
+    // 767 is the mobile screen cutoff defined in the less variables file
+    return window.innerWidth <= 767;
+  }
+
+  /**
+   * Check whether or not the user is currently composing a reply to a
+   * discussion.
+   *
+   * @param {Discussion} discussion
+   * @return {Boolean}
+   */
+  composingReplyTo(discussion) {
+    return this.bodyMatches(ReplyComposer, { discussion }) && this.position !== ComposerState.PositionEnum.HIDDEN;
+  }
+
+  /**
+   * Confirm with the user that they want to close the composer and lose their
+   * content.
+   *
+   * @return {Boolean} Whether or not the exit was cancelled.
+   */
+  preventExit() {
+    if (this.body.componentClass) {
+      const preventExit = this.bodyPreventExit();
+
+      if (preventExit) {
+        return !confirm(preventExit);
+      }
     }
   }
 
