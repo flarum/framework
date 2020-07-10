@@ -5,10 +5,7 @@
  * @example
  * formatNumber(1234);
  * // 1,234
- *
- * @param {Number} number
- * @return {String}
  */
-export default function formatNumber(number) {
+export default function formatNumber(number: number): string {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
