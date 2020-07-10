@@ -25,6 +25,20 @@ class ComposerState {
      */
     this.active = false;
 
+    /**
+     * The dynamic component being shown inside the composer.
+     *
+     * @type {Object}
+     */
+    this.body = { attrs: {} };
+
+    /**
+     * The DOM node containing a text editor within the composer, if any.
+     *
+     * @type {jQuery|null}
+     */
+    this.$texteditor = null;
+
     this.clear();
 
     /**
@@ -63,11 +77,11 @@ class ComposerState {
    */
   clear() {
     this.body = { attrs: {} };
+    this.$texteditor = null;
+
     this.fields = {
       content: m.prop(''),
     };
-
-    this.$texteditor = null;
 
     /**
      * @deprecated BC layer, remove in Beta 15.
