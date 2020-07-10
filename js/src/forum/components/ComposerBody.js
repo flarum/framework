@@ -94,17 +94,6 @@ export default class ComposerBody extends Component {
   }
 
   /**
-   * Get the data to submit to the server when the post is saved.
-   *
-   * @return {Object}
-   */
-  data() {
-    return {
-      content: this.state.content(),
-    };
-  }
-
-  /**
    * Handle the submit event of the text editor.
    *
    * @abstract

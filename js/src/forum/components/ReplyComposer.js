@@ -57,11 +57,10 @@ export default class ReplyComposer extends ComposerBody {
    * @return {Object}
    */
   data() {
-    const data = super.data();
-    data.relationships = data.relationships ? data.relationships : {};
-    data.relationships.discussion = this.props.discussion;
-
-    return data;
+    return {
+      content: this.state.content(),
+      relationships: { discussion: this.props.discussion },
+    };
   }
 
   preview(e) {

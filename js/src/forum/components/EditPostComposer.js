@@ -60,6 +60,17 @@ export default class EditPostComposer extends ComposerBody {
     m.route(app.route.post(this.props.post));
   }
 
+  /**
+   * Get the data to submit to the server when the post is saved.
+   *
+   * @return {Object}
+   */
+  data() {
+    return {
+      content: this.state.content(),
+    };
+  }
+
   onsubmit() {
     const discussion = this.props.post.discussion();
 

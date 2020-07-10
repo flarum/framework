@@ -83,10 +83,10 @@ export default class DiscussionComposer extends ComposerBody {
    * @return {Object}
    */
   data() {
-    const data = super.data();
-    data.title = this.title();
-
-    return data;
+    return {
+      content: this.state.content(),
+      title: this.title(),
+    };
   }
 
   onsubmit() {
