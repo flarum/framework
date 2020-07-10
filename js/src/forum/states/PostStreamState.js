@@ -29,7 +29,7 @@ class PostStreamState {
      *
      * @type {Number}
      */
-    this.visible = m.prop(1);
+    this.visible = 1;
 
     /**
      * The description to render on the scrubber.
@@ -328,7 +328,7 @@ class PostStreamState {
    * @return {Boolean}
    */
   disabled() {
-    return this.visible() >= this.count();
+    return this.visible >= this.count();
   }
 
   /**

@@ -144,7 +144,7 @@ export default class PostStreamScrubber extends Component {
   updateScrubberValues(options = {}) {
     const index = this.state.index;
     const count = this.state.count();
-    const visible = this.state.visible() || 1;
+    const visible = this.state.visible || 1;
     const percentPerPost = this.percentPerPost();
 
     const $scrubber = this.$();
@@ -297,7 +297,7 @@ export default class PostStreamScrubber extends Component {
    */
   percentPerPost() {
     const count = this.state.count() || 1;
-    const visible = this.state.visible() || 1;
+    const visible = this.state.visible || 1;
 
     // To stop the handle of the scrollbar from getting too small when there
     // are many posts, we define a minimum percentage height for the handle

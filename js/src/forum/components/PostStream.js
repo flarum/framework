@@ -215,7 +215,7 @@ export default class PostStream extends Component {
     });
 
     this.state.index = index + 1;
-    this.state.visible(visible);
+    this.state.visible = visible;
     if (period) this.state.description = dayjs(period).format('MMMM YYYY');
   }
 
