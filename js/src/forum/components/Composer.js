@@ -27,14 +27,13 @@ export default class Composer extends Component {
 
     const showIfMinimized = this.state.position === ComposerState.PositionEnum.MINIMIZED ? this.state.show.bind(this.state) : undefined;
 
+    const body = this.state.getBody();
     return (
       <div className={'Composer ' + classList(classes)}>
         <div className="Composer-handle" config={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
-          {this.state.getBody().componentClass
-            ? this.state.getBody().componentClass.component({ state: this.state, disabled: classes.minimized })
-            : ''}
+          {body.componentClass ? body.componentClass.component({ ...body.attrs, state: this.state, disabled: classes.minimized }) : ''}
         </div>
       </div>
     );

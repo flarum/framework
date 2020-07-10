@@ -22,12 +22,6 @@ import ItemList from '../../common/utils/ItemList';
  * @abstract
  */
 export default class ComposerBody extends Component {
-  static initProps(props) {
-    super.initProps(props);
-
-    Object.assign(props, props.state.getBody().attrs);
-  }
-
   init() {
     this.state = this.props.state;
 
@@ -59,7 +53,7 @@ export default class ComposerBody extends Component {
             {TextEditor.component({
               submitLabel: this.props.submitLabel,
               placeholder: this.props.placeholder,
-              disabled: this.loading,
+              disabled: this.loading || this.props.disabled,
               state: this.state,
               preview: this.preview.bind(this),
               onchange: this.state.content,
