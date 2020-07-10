@@ -265,16 +265,10 @@ export default class Composer extends Component {
    * @param {ComposerState.PositionEnum} position
    */
   animatePositionChange() {
-    // Before we redraw the composer to its new state, we need to save the
-    // current height of the composer, as well as the page's scroll position, so
-    // that we can smoothly transition from the old to the new state.
     const $composer = this.$().stop(true);
     const oldHeight = $composer.outerHeight();
     const scrollTop = $(window).scrollTop();
 
-    // Now that we've redrawn and the composer's DOM has been updated, we want
-    // to update the composer's height. Once we've done that, we'll capture the
-    // real value to use as the end point for our animation later on.
     $composer.show();
     this.updateHeight();
 
