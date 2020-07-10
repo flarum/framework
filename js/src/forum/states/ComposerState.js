@@ -43,14 +43,15 @@ class ComposerState {
   /**
    * Determine whether or not the Composer is covering the screen.
    *
-   * This will be true if the Composer is in full-screen mode on desktop, or
-   * if the Composer is positioned absolutely as on mobile devices.
+   * This will be true if the Composer is in full-screen mode on desktop,
+   * or if we are on a mobile device, where we always consider the composer as full-screen..
    *
    * @return {Boolean}
    * @public
    */
   isFullScreen() {
-    return this.position === ComposerState.PositionEnum.FULLSCREEN || $('.js-Composer').css('position') === 'absolute';
+    // 767 is the mobile screen cutoff defined in the less variables file
+    return this.position === ComposerState.PositionEnum.FULLSCREEN || window.innerWidth <= 767;
   }
 
   /**
