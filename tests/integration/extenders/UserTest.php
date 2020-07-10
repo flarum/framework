@@ -24,9 +24,10 @@ class UserTest extends TestCase
         $this->prepareDatabase([
             'users' => [
                 $this->adminUser(),
-            ], 'settings' => [
-                ['key' => 'display_name_driver', 'value' => 'custom'],
                 $this->normalUser(),
+            ],
+            'settings' => [
+                ['key' => 'display_name_driver', 'value' => 'custom'],
             ],
         ]);
     }
