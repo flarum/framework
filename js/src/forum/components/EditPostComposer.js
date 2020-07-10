@@ -103,7 +103,7 @@ export default class EditPostComposer extends ComposerBody {
         });
       }
 
-      app.composer.hide();
+      this.state.hide();
     }, this.loaded.bind(this));
   }
 }

@@ -106,7 +106,7 @@ export default class ReplyComposer extends ComposerBody {
           });
         }
 
-        app.composer.hide();
+        this.state.hide();
       }, this.loaded.bind(this));
   }
 }
