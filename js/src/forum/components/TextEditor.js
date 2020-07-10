@@ -21,12 +21,13 @@ export default class TextEditor extends Component {
      *
      * @type {String}
      */
+    this.state = this.props.state;
     this.value = m.prop(this.props.value || '');
   }
 
   view() {
     return (
-      <div className="TextEditor js-TextEditor">
+      <div className="TextEditor">
         <textarea
           className="FormControl Composer-flexible"
           config={this.configTextarea.bind(this)}
@@ -60,6 +61,8 @@ export default class TextEditor extends Component {
 
     $(element).bind('keydown', 'meta+return', handler);
     $(element).bind('keydown', 'ctrl+return', handler);
+
+    this.state.$texteditor = $(element);
   }
 
   /**

@@ -132,6 +132,8 @@ class ComposerState {
       content: m.prop(''),
     };
 
+    this.$texteditor = null;
+
     /**
      * @deprecated BC layer, remove in Beta 15.
      */
@@ -305,7 +307,7 @@ class ComposerState {
    * @param {String} value
    */
   setValue(value) {
-    $('.js-TextEditor textarea').val(value).trigger('input');
+    this.$texteditor.val(value).trigger('input');
   }
 
   /**
@@ -315,7 +317,7 @@ class ComposerState {
    * @param {Integer} end
    */
   setSelectionRange(start, end) {
-    const $textarea = $('.js-TextEditor textarea');
+    const $textarea = this.$texteditor;
 
     if (!$textarea.length) return;
 
@@ -329,7 +331,7 @@ class ComposerState {
    * @return {Array}
    */
   getSelectionRange() {
-    const $textarea = $('.js-TextEditor textarea');
+    const $textarea = this.$texteditor;
 
     if (!$textarea.length) return [0, 0];
 
@@ -342,7 +344,7 @@ class ComposerState {
    * @param {String} insert
    */
   insertAtCursor(insert) {
-    const textarea = $('.js-TextEditor textarea')[0];
+    const textarea = this.$texteditor[0];
     const value = this.fields.content();
     const index = textarea ? textarea.selectionStart : value.length;
 

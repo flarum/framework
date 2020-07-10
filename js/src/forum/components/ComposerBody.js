@@ -63,6 +63,7 @@ export default class ComposerBody extends Component {
               submitLabel: this.props.submitLabel,
               placeholder: this.props.placeholder,
               disabled: this.loading || this.disabled,
+              state: this.state,
               preview: this.preview.bind(this),
               onchange: this.state.content,
               onsubmit: this.onsubmit.bind(this),
