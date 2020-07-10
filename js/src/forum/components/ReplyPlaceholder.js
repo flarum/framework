@@ -53,7 +53,7 @@ export default class ReplyPlaceholder extends Component {
     const updateInterval = setInterval(() => {
       // Since we're polling, the composer may have been closed in the meantime,
       // so we bail in that case.
-      if (!app.composer.getBody().initialized()) return;
+      if (!app.composer.getBody().componentClass) return;
 
       const content = app.composer.content();
 

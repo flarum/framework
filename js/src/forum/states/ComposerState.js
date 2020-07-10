@@ -1,6 +1,4 @@
-import evented from '../../common/utils/evented';
 import subclassOf from '../../common/utils/subclassOf';
-import Composer from '../instances/Composer';
 import ReplyComposer from '../components/ReplyComposer';
 
 class ComposerState {
@@ -74,11 +72,11 @@ class ComposerState {
    */
   bodyMatches(type, data = {}) {
     // Fail early when the page is of a different type
-    if (!subclassOf(this.body.getClass(), type)) return false;
+    if (!subclassOf(this.body.componentClass, type)) return false;
 
     // Now that the type is known to be correct, we loop through the provided
     // data to see whether it matches the data in the attributes for the body.
-    return Object.keys(data).every((key) => this.body.getAttrs()[key] === data[key]);
+    return Object.keys(data).every((key) => this.body.attrs[key] === data[key]);
   }
 
   /**
@@ -99,7 +97,7 @@ class ComposerState {
    * @return {Boolean} Whether or not the exit was cancelled.
    */
   preventExit() {
-    if (this.body.initialized()) {
+    if (this.body.componentClass) {
       const preventExit = this.bodyPreventExit();
 
       if (preventExit) {
@@ -111,11 +109,11 @@ class ComposerState {
   /**
    * Load a content component into the composer.
    *
-   * @param {ComposerBody} bodyClass
+   * @param {ComposerBody} componentClass
    * @public
    */
-  load(bodyClass, bodyAttrs) {
-    const body = new Composer(bodyClass, bodyAttrs);
+  load(componentClass, attrs) {
+    const body = { componentClass, attrs };
 
     if (this.preventExit()) return;
 
@@ -124,7 +122,7 @@ class ComposerState {
     // old composer will remain. To prevent this from happening, we clear the
     // component and force a redraw, so that the new component will be working
     // on a blank slate.
-    if (this.body.initialized()) {
+    if (this.body.componentClass) {
       this.clear();
       m.redraw(true);
     }
@@ -138,7 +136,7 @@ class ComposerState {
    * @public
    */
   clear() {
-    this.body = new Composer(null);
+    this.body = { attrs: {} };
     this.fields = {
       content: m.prop(''),
     };
