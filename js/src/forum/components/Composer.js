@@ -18,14 +18,14 @@ export default class Composer extends Component {
 
   view() {
     const classes = {
-      normal: this.state.position === ComposerState.PositionEnum.NORMAL,
-      minimized: this.state.position === ComposerState.PositionEnum.MINIMIZED,
-      fullScreen: this.state.position === ComposerState.PositionEnum.FULLSCREEN,
+      normal: this.state.position === ComposerState.Position.NORMAL,
+      minimized: this.state.position === ComposerState.Position.MINIMIZED,
+      fullScreen: this.state.position === ComposerState.Position.FULLSCREEN,
       active: this.state.active,
     };
     classes.visible = classes.normal || classes.minimized || classes.fullScreen;
 
-    const showIfMinimized = this.state.position === ComposerState.PositionEnum.MINIMIZED ? this.state.show.bind(this.state) : undefined;
+    const showIfMinimized = this.state.position === ComposerState.Position.MINIMIZED ? this.state.show.bind(this.state) : undefined;
 
     const body = this.state.getBody();
     return (
@@ -42,11 +42,11 @@ export default class Composer extends Component {
   config(isInitialized, context) {
     if (this.prevPosition !== this.state.position) {
       // Execute if exitFullScreen() is called
-      if (this.state.position !== ComposerState.PositionEnum.FULLSCREEN && this.prevPosition === ComposerState.PositionEnum.FULLSCREEN) {
+      if (this.state.position !== ComposerState.Position.FULLSCREEN && this.prevPosition === ComposerState.Position.FULLSCREEN) {
         this.focus();
       }
       // Execute if hide() is called
-      else if (this.state.position === ComposerState.PositionEnum.HIDDEN) {
+      else if (this.state.position === ComposerState.Position.HIDDEN) {
         // Animate the composer sliding down off the bottom edge of the viewport.
         // Only when the animation is completed, update the Composer state flag and
         // other elements on the page.
@@ -59,18 +59,18 @@ export default class Composer extends Component {
           });
       }
       // Execute if minimize() is called
-      else if (this.state.position === ComposerState.PositionEnum.MINIMIZED) {
+      else if (this.state.position === ComposerState.Position.MINIMIZED) {
         this.animatePositionChange();
 
         this.$().css('top', 'auto');
         this.hideBackdrop();
       }
       // Execute if fullscreen() is called
-      else if (this.state.position === ComposerState.PositionEnum.FULLSCREEN) {
+      else if (this.state.position === ComposerState.Position.FULLSCREEN) {
         this.focus();
       }
       // Execute when show() is called
-      else if (this.state.position === ComposerState.PositionEnum.NORMAL) {
+      else if (this.state.position === ComposerState.Position.NORMAL) {
         this.animatePositionChange().then(() => this.focus());
 
         if (this.state.onMobile()) {
@@ -250,8 +250,8 @@ export default class Composer extends Component {
    */
   updateBodyPadding() {
     const visible =
-      this.state.position !== ComposerState.PositionEnum.HIDDEN &&
-      this.state.position !== ComposerState.PositionEnum.MINIMIZED &&
+      this.state.position !== ComposerState.Position.HIDDEN &&
+      this.state.position !== ComposerState.Position.MINIMIZED &&
       this.$().css('position') !== 'absolute';
 
     const paddingBottom = visible ? this.state.computedHeight() - parseInt($('#app').css('padding-bottom'), 10) : 0;
@@ -262,7 +262,7 @@ export default class Composer extends Component {
   /**
    * Animate the Composer into the given position.
    *
-   * @param {ComposerState.PositionEnum} position
+   * @param {ComposerState.Position} position
    */
   animatePositionChange() {
     const $composer = this.$().stop(true);
@@ -274,7 +274,7 @@ export default class Composer extends Component {
 
     const newHeight = $composer.outerHeight();
 
-    if (this.prevPosition === ComposerState.PositionEnum.HIDDEN) {
+    if (this.prevPosition === ComposerState.Position.HIDDEN) {
       $composer.css({ bottom: -newHeight, height: newHeight });
     } else {
       $composer.css({ height: oldHeight });
@@ -309,7 +309,7 @@ export default class Composer extends Component {
   controlItems() {
     const items = new ItemList();
 
-    if (this.state.position === ComposerState.PositionEnum.FULLSCREEN) {
+    if (this.state.position === ComposerState.Position.FULLSCREEN) {
       items.add(
         'exitFullScreen',
         ComposerButton.component({
@@ -319,7 +319,7 @@ export default class Composer extends Component {
         })
       );
     } else {
-      if (this.state.position !== ComposerState.PositionEnum.MINIMIZED) {
+      if (this.state.position !== ComposerState.Position.MINIMIZED) {
         items.add(
           'minimize',
           ComposerButton.component({

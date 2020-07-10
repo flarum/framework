@@ -6,9 +6,9 @@ class ComposerState {
     /**
      * The composer's current position.
      *
-     * @type {ComposerState.PositionEnum}
+     * @type {ComposerState.Position}
      */
-    this.position = ComposerState.PositionEnum.HIDDEN;
+    this.position = ComposerState.Position.HIDDEN;
 
     /**
      * The composer's intended height, which can be modified by the user
@@ -82,9 +82,9 @@ class ComposerState {
    * @public
    */
   show() {
-    if (this.position === ComposerState.PositionEnum.NORMAL || this.position === ComposerState.PositionEnum.FULLSCREEN) return;
+    if (this.position === ComposerState.Position.NORMAL || this.position === ComposerState.Position.FULLSCREEN) return;
 
-    this.position = ComposerState.PositionEnum.NORMAL;
+    this.position = ComposerState.Position.NORMAL;
     m.redraw();
   }
 
@@ -94,7 +94,7 @@ class ComposerState {
    * @public
    */
   hide() {
-    this.position = ComposerState.PositionEnum.HIDDEN;
+    this.position = ComposerState.Position.HIDDEN;
     this.clear();
     m.redraw();
   }
@@ -117,9 +117,9 @@ class ComposerState {
    * @public
    */
   minimize() {
-    if (this.position === ComposerState.PositionEnum.HIDDEN) return;
+    if (this.position === ComposerState.Position.HIDDEN) return;
 
-    this.position = ComposerState.PositionEnum.MINIMIZED;
+    this.position = ComposerState.Position.MINIMIZED;
     m.redraw();
   }
 
@@ -130,9 +130,9 @@ class ComposerState {
    * @public
    */
   fullScreen() {
-    if (this.position === ComposerState.PositionEnum.HIDDEN) return;
+    if (this.position === ComposerState.Position.HIDDEN) return;
 
-    this.position = ComposerState.PositionEnum.FULLSCREEN;
+    this.position = ComposerState.Position.FULLSCREEN;
     m.redraw();
   }
 
@@ -142,8 +142,8 @@ class ComposerState {
    * @public
    */
   exitFullScreen() {
-    if (this.position === ComposerState.PositionEnum.FULLSCREEN) {
-      this.position = ComposerState.PositionEnum.NORMAL;
+    if (this.position === ComposerState.Position.FULLSCREEN) {
+      this.position = ComposerState.Position.NORMAL;
       m.redraw();
     }
   }
@@ -179,7 +179,7 @@ class ComposerState {
    * @public
    */
   isFullScreen() {
-    return this.position === ComposerState.PositionEnum.FULLSCREEN || this.onMobile();
+    return this.position === ComposerState.Position.FULLSCREEN || this.onMobile();
   }
 
   /**
@@ -201,7 +201,7 @@ class ComposerState {
    * @return {Boolean}
    */
   composingReplyTo(discussion) {
-    return this.bodyMatches(ReplyComposer, { discussion }) && this.position !== ComposerState.PositionEnum.HIDDEN;
+    return this.bodyMatches(ReplyComposer, { discussion }) && this.position !== ComposerState.Position.HIDDEN;
   }
 
   /**
@@ -246,9 +246,9 @@ class ComposerState {
     // If the composer is minimized, then we don't want to set a height; we'll
     // let the CSS decide how high it is. If it's fullscreen, then we need to
     // make it as high as the window.
-    if (this.position === ComposerState.PositionEnum.MINIMIZED) {
+    if (this.position === ComposerState.Position.MINIMIZED) {
       return '';
-    } else if (this.position === ComposerState.PositionEnum.FULLSCREEN) {
+    } else if (this.position === ComposerState.Position.FULLSCREEN) {
       return $(window).height();
     }
 
@@ -316,7 +316,7 @@ class ComposerState {
   }
 }
 
-ComposerState.PositionEnum = {
+ComposerState.Position = {
   HIDDEN: 'hidden',
   NORMAL: 'normal',
   MINIMIZED: 'minimized',
