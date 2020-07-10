@@ -164,7 +164,7 @@ class ComposerState {
    * @return {boolean}
    */
   bodyMatches(type, data = {}) {
-    // Fail early when the page is of a different type
+    // Fail early when the body is of a different type
     if (!subclassOf(this.body.componentClass, type)) return false;
 
     // Now that the type is known to be correct, we loop through the provided
