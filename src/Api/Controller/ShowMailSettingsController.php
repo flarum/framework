@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\MailSettingsSerializer;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
