@@ -250,13 +250,13 @@ export default class Composer extends Component {
 
     switch (this.state.position) {
       case ComposerState.Position.HIDDEN:
-        return this.slideDown();
+        return this.hide();
       case ComposerState.Position.MINIMIZED:
         return this.minimize();
       case ComposerState.Position.FULLSCREEN:
         return this.focus();
       case ComposerState.Position.NORMAL:
-        return this.slideUp();
+        return this.show();
     }
   }
 
@@ -301,11 +301,27 @@ export default class Composer extends Component {
   }
 
   /**
+   * Animate the composer sliding up from the bottom to take its normal height.
+   *
+   * @private
+   */
+  show() {
+    this.animateHeightChange().then(() => this.focus());
+
+    if (this.state.onMobile()) {
+      this.$().css('top', $(window).scrollTop());
+      this.showBackdrop();
+    }
+  }
+
+  /**
    * Animate the composer sliding down off the bottom edge of the viewport.
    *
    * Only when the animation is completed, update other elements on the page.
+   *
+   * @private
    */
-  slideDown() {
+  hide() {
     this.$()
       .stop(true)
       .animate({ bottom: -this.$().height() }, 'fast', () => {
@@ -317,24 +333,14 @@ export default class Composer extends Component {
 
   /**
    * Shrink the composer until only its title is visible.
+   *
+   * @private
    */
   minimize() {
     this.animateHeightChange();
 
     this.$().css('top', 'auto');
     this.hideBackdrop();
-  }
-
-  /**
-   * Animate the composer sliding up from the bottom to take its normal height.
-   */
-  slideUp() {
-    this.animateHeightChange().then(() => this.focus());
-
-    if (this.state.onMobile()) {
-      this.$().css('top', $(window).scrollTop());
-      this.showBackdrop();
-    }
   }
 
   /**
