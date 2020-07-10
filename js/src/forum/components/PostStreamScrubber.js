@@ -134,8 +134,8 @@ export default class PostStreamScrubber extends Component {
   }
 
   config(isInitialized, context) {
+    this.state.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
     if (isInitialized) return;
-    this.state.loadPromise.then(() => this.updateScrubberValues({ animate: true }));
 
     context.onunload = this.ondestroy.bind(this);
 
@@ -277,28 +277,27 @@ export default class PostStreamScrubber extends Component {
    * @param {Boolean} animate
    */
   updateScrubberValues(options = {}) {
-    if (!options.fromScroll) console.log("hello")
     const index = this.state.index;
     const count = this.state.count();
     const visible = this.state.visible() || 1;
     const percentPerPost = this.percentPerPost();
 
     const $scrubber = this.$();
-    $scrubber.find(`.Scrubber-index`).text(formatNumber(this.state.sanitizeIndex(index + 1)));
+    $scrubber.find(`.Scrubber-index`).text(formatNumber(this.state.sanitizeIndex(index)));
     $scrubber.find(`.Scrubber-description`).text(this.state.description);
     $scrubber.toggleClass('disabled', this.state.disabled());
 
     const heights = {};
-    heights.before = Math.max(0, percentPerPost.index * Math.min(index, count - visible));
+    heights.before = Math.max(0, percentPerPost.index * Math.min(index - 1, count - visible));
     heights.handle = Math.min(100 - heights.before, percentPerPost.visible * visible);
     heights.after = 100 - heights.before - heights.handle;
 
-    console.log(heights.before + heights.after);
-
+    console.log("scrolling?");
     if (!(options.fromScroll && this.state.paused) && (!this.adjustingHeight || options.forceHeightChange)) {
       const func = options.animate ? 'animate' : 'css';
       this.adjustingHeight = true;
       const animationPromises = [];
+      console.log("scrolling", heights.before, index)
       for (const part in heights) {
         const $part = $scrubber.find(`.Scrubber-${part}`);
         animationPromises.push(

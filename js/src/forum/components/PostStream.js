@@ -105,16 +105,14 @@ export default class PostStream extends Component {
     if (this.state.needsScroll) {
       this.state.needsScroll = false;
       const locationType = this.state.locationType;
-      if (this[locationType] != this.state[locationType]) {
-        if (locationType == 'number') {
-          this.scrollToNumber(this.state.number, this.state.noAnimationScroll);
-        } else if (locationType == 'index') {
-          const index = this.state.sanitizeIndex(this.state.index);
-          const backwards = index == this.state.count() - 1;
-          this.scrollToIndex(index, this.state.noAnimationScroll, backwards);
-        }
-        this[locationType] = this.state[locationType];
+      if (locationType == 'number') {
+        this.scrollToNumber(this.state.number, this.state.noAnimationScroll);
+      } else if (locationType == 'index') {
+        const index = this.state.sanitizeIndex(this.state.index);
+        const backwards = index == this.state.count() - 1;
+        this.scrollToIndex(index, this.state.noAnimationScroll, backwards);
       }
+      this[locationType] = this.state[locationType];
     }
 
     if (isInitialized) return;
@@ -210,6 +208,11 @@ export default class PostStream extends Component {
       if (visiblePost > 0) {
         visible += visiblePost / height;
       }
+
+      // If this item has a time associated with it, then set the
+      // scrollbar's current period to a formatted version of this time.
+      const time = $this.data('time');
+      if (time) period = time;
     });
 
     this.state.index = index + 1;
@@ -337,14 +340,14 @@ export default class PostStream extends Component {
     }
 
     return Promise.all([$container.promise(), this.state.loadPromise]).then(() => {
-      this.state.index = $item.data('index');
+      console.log("loaded and scrolled");
       this.updateScrubber();
+      this.state.index = $item.data('index');
       m.redraw(true);
       const scroll = this.state.index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
       $(window).scrollTop(scroll);
       this.calculatePosition();
       this.state.paused = false;
-      m.redraw();
     });
   }
 

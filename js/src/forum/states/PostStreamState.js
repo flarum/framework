@@ -166,6 +166,7 @@ class PostStreamState {
   loadNearIndex(index) {
     console.log('loadNearIndex', index);
     if (index >= this.visibleStart && index <= this.visibleEnd) {
+      console.log("doing the thing")
       return m.deferred().resolve().promise;
     }
 
