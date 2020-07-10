@@ -22,8 +22,8 @@ export default class Composer extends Component {
       minimized: this.state.position === ComposerState.Position.MINIMIZED,
       fullScreen: this.state.position === ComposerState.Position.FULLSCREEN,
       active: this.state.active,
+      visible: this.state.isVisible(),
     };
-    classes.visible = classes.normal || classes.minimized || classes.fullScreen;
 
     const body = this.state.body;
     const showIfMinimized = this.state.position === ComposerState.Position.MINIMIZED ? this.state.show.bind(this.state) : undefined;

@@ -64,7 +64,7 @@ class ComposerState {
     // old composer will remain. To prevent this from happening, we clear the
     // component and force a redraw, so that the new component will be working
     // on a blank slate.
-    if (this.body.componentClass) {
+    if (this.isVisible()) {
       this.clear();
       m.redraw(true);
     }
@@ -76,6 +76,7 @@ class ComposerState {
    * Clear the composer's content component.
    */
   clear() {
+    this.position = ComposerState.Position.HIDDEN;
     this.body = { attrs: {} };
     this.$texteditor = null;
 
@@ -108,7 +109,6 @@ class ComposerState {
    * @public
    */
   hide() {
-    this.position = ComposerState.Position.HIDDEN;
     this.clear();
     m.redraw();
   }
@@ -131,7 +131,7 @@ class ComposerState {
    * @public
    */
   minimize() {
-    if (this.position === ComposerState.Position.HIDDEN) return;
+    if (!this.isVisible()) return;
 
     this.position = ComposerState.Position.MINIMIZED;
     m.redraw();
@@ -144,7 +144,7 @@ class ComposerState {
    * @public
    */
   fullScreen() {
-    if (this.position === ComposerState.Position.HIDDEN) return;
+    if (!this.isVisible()) return;
 
     this.position = ComposerState.Position.FULLSCREEN;
     m.redraw();
@@ -156,10 +156,10 @@ class ComposerState {
    * @public
    */
   exitFullScreen() {
-    if (this.position === ComposerState.Position.FULLSCREEN) {
-      this.position = ComposerState.Position.NORMAL;
-      m.redraw();
-    }
+    if (this.position !== ComposerState.Position.FULLSCREEN) return;
+
+    this.position = ComposerState.Position.NORMAL;
+    m.redraw();
   }
 
   /**
@@ -177,6 +177,18 @@ class ComposerState {
     // Now that the type is known to be correct, we loop through the provided
     // data to see whether it matches the data in the attributes for the body.
     return Object.keys(data).every((key) => this.body.attrs[key] === data[key]);
+  }
+
+  /**
+   * Determine whether or not the Composer is visible.
+   *
+   * True when the composer is displayed on the screen and has a body component.
+   * It could be open in "normal" or full-screen mode, or even minimized.
+   *
+   * @returns {boolean}
+   */
+  isVisible() {
+    return this.position !== ComposerState.Position.HIDDEN;
   }
 
   /**
@@ -211,7 +223,7 @@ class ComposerState {
    * @return {Boolean}
    */
   composingReplyTo(discussion) {
-    return this.bodyMatches(ReplyComposer, { discussion }) && this.position !== ComposerState.Position.HIDDEN;
+    return this.isVisible() && this.bodyMatches(ReplyComposer, { discussion });
   }
 
   /**
@@ -221,12 +233,12 @@ class ComposerState {
    * @return {Boolean} Whether or not the exit was cancelled.
    */
   preventExit() {
-    if (this.body.componentClass) {
-      const preventExit = this.bodyPreventExit();
+    if (!this.isVisible()) return;
 
-      if (preventExit) {
-        return !confirm(preventExit);
-      }
+    const preventExit = this.bodyPreventExit();
+
+    if (preventExit) {
+      return !confirm(preventExit);
     }
   }
 
