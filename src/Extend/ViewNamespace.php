@@ -13,10 +13,9 @@ use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
 
-class View implements ExtenderInterface
+class ViewNamespace implements ExtenderInterface
 {
-    private $addNamespaces = [];
-    private $replaceNamespaces = [];
+    private $adds = [];
 
     /**
      * Register a new namespace of laravel views.
@@ -25,9 +24,9 @@ class View implements ExtenderInterface
      * @param  string|array  $hints
      * @return $this
      */
-    public function addNamespace($namespace, $hints)
+    public function add($namespace, $hints)
     {
-        $this->addNamespaces[$namespace] = $hints;
+        $this->adds[$namespace] = $hints;
 
         return $this;
     }
@@ -36,8 +35,8 @@ class View implements ExtenderInterface
     {
         $factory = $container->make(Factory::class);
 
-        foreach ($this->addNamespaces as $namespace => $hints) {
-            $factory->addNamespace($namespace, $hints);
+        foreach ($this->adds as $namespace => $hints) {
+            $factory->add($namespace, $hints);
         }
     }
 }
