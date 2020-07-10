@@ -77,7 +77,7 @@ class UserTest extends TestCase
      */
     public function processor_can_restrict_user_groups()
     {
-        $this->extend((new Extend\User)->addGroupProcessor(function (User $user, array $groupIds) {
+        $this->extend((new Extend\User)->permissionGroups(function (User $user, array $groupIds) {
             return array_filter($groupIds, function ($id) {
                 return $id != 3;
             });

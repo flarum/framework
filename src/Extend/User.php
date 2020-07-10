@@ -44,7 +44,7 @@ class User implements ExtenderInterface
      * The callable should return:
      * - array $groupIds: an array of ids for the groups the user belongs to.
      */
-    public function addGroupProcessor(callable $callable)
+    public function permissionGroups(callable $callable)
     {
         $this->groupProcessors[] = $callable;
 
