@@ -22,7 +22,7 @@ export default class TextEditor extends Component {
      * @type {String}
      */
     this.state = this.props.state;
-    this.value = m.prop(this.props.value || '');
+    this.value = this.props.value || '';
   }
 
   view() {
@@ -34,7 +34,7 @@ export default class TextEditor extends Component {
           oninput={m.withAttr('value', this.oninput.bind(this))}
           placeholder={this.props.placeholder || ''}
           disabled={!!this.props.disabled}
-          value={this.value()}
+          value={this.value}
         />
 
         <ul className="TextEditor-controls Composer-footer">
@@ -115,9 +115,9 @@ export default class TextEditor extends Component {
    * @param {String} value
    */
   oninput(value) {
-    this.value(value);
+    this.value = value;
 
-    this.props.onchange(this.value());
+    this.props.onchange(this.value);
 
     m.redraw.strategy('none');
   }
@@ -126,6 +126,6 @@ export default class TextEditor extends Component {
    * Handle the submit button being clicked.
    */
   onsubmit() {
-    this.props.onsubmit(this.value());
+    this.props.onsubmit(this.value);
   }
 }
