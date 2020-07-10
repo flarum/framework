@@ -55,50 +55,14 @@ export default class Composer extends Component {
   }
 
   config(isInitialized, context) {
-    if (this.prevPosition !== this.state.position) {
-      // Execute if exitFullScreen() is called
-      if (this.state.position !== ComposerState.Position.FULLSCREEN && this.prevPosition === ComposerState.Position.FULLSCREEN) {
-        this.focus();
-      }
-      // Execute if hide() is called
-      else if (this.state.position === ComposerState.Position.HIDDEN) {
-        // Animate the composer sliding down off the bottom edge of the viewport.
-        // Only when the animation is completed, update the Composer state flag and
-        // other elements on the page.
-        this.$()
-          .stop(true)
-          .animate({ bottom: -this.$().height() }, 'fast', () => {
-            this.$().hide();
-            this.hideBackdrop();
-            this.updateBodyPadding();
-          });
-      }
-      // Execute if minimize() is called
-      else if (this.state.position === ComposerState.Position.MINIMIZED) {
-        this.animatePositionChange();
-
-        this.$().css('top', 'auto');
-        this.hideBackdrop();
-      }
-      // Execute if fullscreen() is called
-      else if (this.state.position === ComposerState.Position.FULLSCREEN) {
-        this.focus();
-      }
-      // Execute when show() is called
-      else if (this.state.position === ComposerState.Position.NORMAL) {
-        this.animatePositionChange().then(() => this.focus());
-
-        if (this.state.onMobile()) {
-          this.$().css('top', $(window).scrollTop());
-          this.showBackdrop();
-        }
-      }
-
-      this.prevPosition = this.state.position;
-    } else {
+    if (this.state.position === this.prevPosition) {
       // Set the height of the Composer element and its contents on each redraw,
       // so that they do not lose it if their DOM elements are recreated.
       this.updateHeight();
+    } else {
+      this.animatePositionChange();
+
+      this.prevPosition = this.state.position;
     }
 
     if (isInitialized) return;
@@ -275,11 +239,31 @@ export default class Composer extends Component {
   }
 
   /**
-   * Animate the Composer into the given position.
-   *
-   * @param {ComposerState.Position} position
+   * Trigger the right animation depending on the desired new position.
    */
   animatePositionChange() {
+    // When exiting full-screen mode: focus content
+    if (this.prevPosition === ComposerState.Position.FULLSCREEN) {
+      this.focus();
+      return;
+    }
+
+    switch (this.state.position) {
+      case ComposerState.Position.HIDDEN:
+        return this.slideDown();
+      case ComposerState.Position.MINIMIZED:
+        return this.minimize();
+      case ComposerState.Position.FULLSCREEN:
+        return this.focus();
+      case ComposerState.Position.NORMAL:
+        return this.slideUp();
+    }
+  }
+
+  /**
+   * Animate the Composer into the new position by changing the height.
+   */
+  animateHeightChange() {
     const $composer = this.$().stop(true);
     const oldHeight = $composer.outerHeight();
     const scrollTop = $(window).scrollTop();
@@ -314,6 +298,43 @@ export default class Composer extends Component {
    */
   hideBackdrop() {
     if (this.$backdrop) this.$backdrop.remove();
+  }
+
+  /**
+   * Animate the composer sliding down off the bottom edge of the viewport.
+   *
+   * Only when the animation is completed, update other elements on the page.
+   */
+  slideDown() {
+    this.$()
+      .stop(true)
+      .animate({ bottom: -this.$().height() }, 'fast', () => {
+        this.$().hide();
+        this.hideBackdrop();
+        this.updateBodyPadding();
+      });
+  }
+
+  /**
+   * Shrink the composer until only its title is visible.
+   */
+  minimize() {
+    this.animateHeightChange();
+
+    this.$().css('top', 'auto');
+    this.hideBackdrop();
+  }
+
+  /**
+   * Animate the composer sliding up from the bottom to take its normal height.
+   */
+  slideUp() {
+    this.animateHeightChange().then(() => this.focus());
+
+    if (this.state.onMobile()) {
+      this.$().css('top', $(window).scrollTop());
+      this.showBackdrop();
+    }
   }
 
   /**
