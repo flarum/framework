@@ -157,7 +157,7 @@ export default class Composer extends Component {
    * Draw focus to the text editor.
    */
   focus() {
-    this.$('input:enabled:visible:first,textarea:enabled:visible:first').focus();
+    this.$(':input:not(button):enabled:visible:first').focus();
   }
 
   /**
