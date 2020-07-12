@@ -315,20 +315,20 @@ export default class Composer extends Component {
   }
 
   /**
-   * Animate the composer sliding down off the bottom edge of the viewport.
-   *
-   * Only when the animation is completed, update other elements on the page.
+   * Animate closing the composer.
    *
    * @private
    */
   hide() {
-    this.$()
-      .stop(true)
-      .animate({ bottom: -this.$().height() }, 'fast', () => {
-        this.$().hide();
-        this.hideBackdrop();
-        this.updateBodyPadding();
-      });
+    const $composer = this.$();
+
+    // Animate the composer sliding down off the bottom edge of the viewport.
+    // Only when the animation is completed, update other elements on the page.
+    $composer.stop(true).animate({ bottom: -$composer.height() }, 'fast', () => {
+      $composer.hide();
+      this.hideBackdrop();
+      this.updateBodyPadding();
+    });
   }
 
   /**
