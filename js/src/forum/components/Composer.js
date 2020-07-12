@@ -173,28 +173,6 @@ export default class Composer extends Component {
   }
 
   /**
-   * Initialize default Composer height.
-   */
-  initializeHeight() {
-    this.state.height = localStorage.getItem('composerHeight');
-
-    if (!this.state.height) {
-      this.state.height = this.defaultHeight();
-    }
-  }
-
-  /**
-   * Save a new Composer height and update the DOM.
-   * @param {Integer} height
-   */
-  changeHeight(height) {
-    this.state.height = height;
-    this.updateHeight();
-
-    localStorage.setItem('composerHeight', this.state.height);
-  }
-
-  /**
    * Update the DOM to reflect the composer's current height. This involves
    * setting the height of the composer's root element, and adjusting the height
    * of any flexible elements inside the composer's body.
@@ -212,14 +190,6 @@ export default class Composer extends Component {
 
       $flexible.height(this.$().outerHeight() - headerHeight - paddingBottom - footerHeight);
     }
-  }
-
-  /**
-   * Default height of the Composer in case none is saved.
-   * @returns {Integer}
-   */
-  defaultHeight() {
-    return this.$().height();
   }
 
   /**
@@ -393,5 +363,35 @@ export default class Composer extends Component {
     }
 
     return items;
+  }
+
+  /**
+   * Initialize default Composer height.
+   */
+  initializeHeight() {
+    this.state.height = localStorage.getItem('composerHeight');
+
+    if (!this.state.height) {
+      this.state.height = this.defaultHeight();
+    }
+  }
+
+  /**
+   * Default height of the Composer in case none is saved.
+   * @returns {Integer}
+   */
+  defaultHeight() {
+    return this.$().height();
+  }
+
+  /**
+   * Save a new Composer height and update the DOM.
+   * @param {Integer} height
+   */
+  changeHeight(height) {
+    this.state.height = height;
+    this.updateHeight();
+
+    localStorage.setItem('composerHeight', this.state.height);
   }
 }
