@@ -16,14 +16,14 @@ export default class DiscussionComposer extends ComposerBody {
   init() {
     super.init();
 
+    this.composer.fields.title = this.composer.fields.title || m.prop('');
+
     /**
      * The value of the title input.
      *
      * @type {String}
      */
     this.title = this.composer.fields.title;
-
-    this.composer.fields.title = m.prop(this.composer.fields.title ? this.composer.fields.title() : '');
   }
 
   static initProps(props) {
