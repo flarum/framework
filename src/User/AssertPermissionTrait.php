@@ -13,7 +13,7 @@ use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
 
 /**
- * @deprecated Please use direct methods of the User class instead. E.g. $actor->assertCan($ability);
+ * @deprecated beta 14, remove beta 15. Please use direct methods of the User class instead. E.g. $actor->assertCan($ability);
  */
 trait AssertPermissionTrait
 {
