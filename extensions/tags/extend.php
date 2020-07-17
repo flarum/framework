@@ -42,6 +42,9 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\View)
+        ->namespace('tags', __DIR__.'/views'),
+
     function (Dispatcher $events, Factory $view) {
         $events->subscribe(Listener\AddDiscussionTagsRelationship::class);
 
@@ -58,7 +61,5 @@ return [
         $events->subscribe(Access\DiscussionPolicy::class);
         $events->subscribe(Access\TagPolicy::class);
         $events->subscribe(Access\FlagPolicy::class);
-
-        $view->addNamespace('tags', __DIR__.'/views');
     },
 ];
