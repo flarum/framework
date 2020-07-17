@@ -32,6 +32,15 @@ class ComposerState {
      */
     this.$texteditor = null;
 
+    /**
+     * A callback to be executed before the composer is closed.
+     *
+     * This can be used to prevent e.g. losing unsaved content.
+     *
+     * @type {Function|null}
+     */
+    this.bodyPreventExit = null;
+
     this.clear();
 
     /**
@@ -72,6 +81,7 @@ class ComposerState {
     this.position = ComposerState.Position.HIDDEN;
     this.body = { attrs: {} };
     this.$texteditor = null;
+    this.bodyPreventExit = null;
 
     this.fields = {
       content: m.prop(''),
