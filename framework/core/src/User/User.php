@@ -84,6 +84,12 @@ class User extends AbstractModel
     protected $session;
 
     /**
+     * An array of callables, through each of which the user's list of groups is passed
+     * before being returned.
+     */
+    protected static $groupProcessors = [];
+
+    /**
      * An array of registered user preferences. Each preference is defined with
      * a key, and its value is an array containing the following keys:.
      *
@@ -660,7 +666,12 @@ class User extends AbstractModel
             $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->pluck('id')->all());
         }
 
+        // Deprecated, remove in beta 14.
         event(new PrepareUserGroups($this, $groupIds));
+
+        foreach (static::$groupProcessors as $processor) {
+            $groupIds = $processor($this, $groupIds);
+        }
 
         return Permission::whereIn('group_id', $groupIds);
     }
@@ -749,6 +760,17 @@ class User extends AbstractModel
     public static function addPreference($key, callable $transformer = null, $default = null)
     {
         static::$preferences[$key] = compact('transformer', 'default');
+    }
+
+    /**
+     * Register a callback that processes a user's list of groups.
+     *
+     * @param callable $callback
+     * @return array $groupIds
+     */
+    public static function addGroupProcessor($callback)
+    {
+        static::$groupProcessors[] = $callback;
     }
 
     /**
