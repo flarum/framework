@@ -42,10 +42,10 @@ class ViewNamespace implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $factory = $container->make(Factory::class);
-
-        foreach ($this->adds as $namespace => $hints) {
-            $factory->addNamespace($namespace, $hints);
-        }
+        $container->resolving(Factory::class, function (Factory $view) {
+            foreach ($this->adds as $namespace => $hints) {
+                $view->addNamespace($namespace, $hints);
+            }
+        });
     }
 }
