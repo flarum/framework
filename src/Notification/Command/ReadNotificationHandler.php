@@ -11,12 +11,9 @@ namespace Flarum\Notification\Command;
 
 use Carbon\Carbon;
 use Flarum\Notification\Notification;
-use Flarum\User\AssertPermissionTrait;
 
 class ReadNotificationHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @param ReadNotification $command
      * @return \Flarum\Notification\Notification
@@ -26,7 +23,7 @@ class ReadNotificationHandler
     {
         $actor = $command->actor;
 
-        $this->assertRegistered($actor);
+        $actor->assertRegistered();
 
         $notification = Notification::where('user_id', $actor->id)->findOrFail($command->notificationId);
 

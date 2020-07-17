@@ -10,7 +10,6 @@
 namespace Flarum\User\Command;
 
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\AvatarUploader;
 use Flarum\User\AvatarValidator;
 use Flarum\User\Event\AvatarSaving;
@@ -21,7 +20,6 @@ use Intervention\Image\ImageManager;
 class UploadAvatarHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var \Flarum\User\UserRepository
@@ -65,7 +63,7 @@ class UploadAvatarHandler
         $user = $this->users->findOrFail($command->userId);
 
         if ($actor->id !== $user->id) {
-            $this->assertCan($actor, 'edit', $user);
+            $actor->assertCan('edit', $user);
         }
 
         $this->validator->assertValid(['avatar' => $command->file]);

@@ -13,14 +13,12 @@ use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Group\Event\Saving;
 use Flarum\Group\Group;
 use Flarum\Group\GroupValidator;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class CreateGroupHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var \Flarum\Group\GroupValidator
@@ -47,8 +45,8 @@ class CreateGroupHandler
         $actor = $command->actor;
         $data = $command->data;
 
-        $this->assertRegistered($actor);
-        $this->assertCan($actor, 'createGroup');
+        $actor->assertRegistered();
+        $actor->assertCan('createGroup');
 
         $group = Group::build(
             Arr::get($data, 'attributes.nameSingular'),
