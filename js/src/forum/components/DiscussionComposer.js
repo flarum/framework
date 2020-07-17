@@ -85,8 +85,8 @@ export default class DiscussionComposer extends ComposerBody {
    */
   data() {
     return {
-      content: this.composer.content(),
       title: this.title(),
+      content: this.composer.content(),
     };
   }
 
