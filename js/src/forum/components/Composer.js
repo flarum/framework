@@ -86,7 +86,7 @@ export default class Composer extends Component {
 
     // Don't let the user leave the page without first giving the composer's
     // component a chance to scream at the user to make sure they don't
-    // unintentionally lose any contnet.
+    // unintentionally lose any content.
     window.onbeforeunload = () => {
       return (this.state.bodyPreventExit && this.state.bodyPreventExit()) || undefined;
     };
