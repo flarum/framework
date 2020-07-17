@@ -84,14 +84,17 @@ export default class Composer extends Component {
     // When the escape key is pressed on any inputs, close the composer.
     this.$().on('keydown', ':input', 'esc', () => this.close());
 
+    const handlers = {};
+
     // Don't let the user leave the page without first giving the composer's
     // component a chance to scream at the user to make sure they don't
     // unintentionally lose any content.
-    window.onbeforeunload = () => {
-      return (this.state.bodyPreventExit && this.state.bodyPreventExit()) || undefined;
-    };
-
-    const handlers = {};
+    $(window).on(
+      'beforeunload',
+      (handlers.onbeforeunload = () => {
+        return (this.state.bodyPreventExit && this.state.bodyPreventExit()) || undefined;
+      })
+    );
 
     $(window)
       .on('resize', (handlers.onresize = this.updateHeight.bind(this)))
@@ -102,7 +105,7 @@ export default class Composer extends Component {
       .on('mouseup', (handlers.onmouseup = this.onmouseup.bind(this)));
 
     context.onunload = () => {
-      $(window).off('resize', handlers.onresize);
+      $(window).off('resize', handlers.onresize).off('beforeunload', handlers.onbeforeunload);
 
       $(document).off('mousemove', handlers.onmousemove).off('mouseup', handlers.onmouseup);
     };
