@@ -123,9 +123,9 @@ class ComposerState {
    * @public
    */
   close() {
-    if (!this.preventExit()) {
-      this.hide();
-    }
+    if (this.preventExit()) return;
+
+    this.hide();
   }
 
   /**
