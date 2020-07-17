@@ -24,7 +24,9 @@ class UserTest extends TestCase
         $this->prepareDatabase([
             'users' => [
                 $this->adminUser(),
-            ], 'settings' => [
+                $this->normalUser(),
+            ],
+            'settings' => [
                 ['key' => 'display_name_driver', 'value' => 'custom'],
             ],
         ]);
@@ -57,6 +59,34 @@ class UserTest extends TestCase
         $user = User::find(1);
 
         $this->assertEquals('admin@machine.local$$$suffix', $user->displayName);
+    }
+
+    /**
+     * @test
+     */
+    public function user_has_permissions_for_expected_groups_if_no_processors_added()
+    {
+        $this->prepDb();
+        $user = User::find(2);
+
+        $this->assertContains('viewUserList', $user->getPermissions());
+    }
+
+    /**
+     * @test
+     */
+    public function processor_can_restrict_user_groups()
+    {
+        $this->extend((new Extend\User)->permissionGroups(function (User $user, array $groupIds) {
+            return array_filter($groupIds, function ($id) {
+                return $id != 3;
+            });
+        }));
+
+        $this->prepDb();
+        $user = User::find(2);
+
+        $this->assertNotContains('viewUserList', $user->getPermissions());
     }
 }
 
