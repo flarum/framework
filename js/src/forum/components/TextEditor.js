@@ -1,5 +1,6 @@
 import Component from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
+import SuperTextarea from '../../common/utils/SuperTextarea';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 
@@ -49,7 +50,7 @@ export default class TextEditor extends Component {
   /**
    * Configure the textarea element.
    *
-   * @param {DOMElement} element
+   * @param {HTMLTextAreaElement} element
    * @param {Boolean} isInitialized
    */
   configTextarea(element, isInitialized) {
@@ -63,7 +64,7 @@ export default class TextEditor extends Component {
     $(element).bind('keydown', 'meta+return', handler);
     $(element).bind('keydown', 'ctrl+return', handler);
 
-    this.props.composer.$texteditor = $(element);
+    this.props.composer.editor = new SuperTextarea(element);
   }
 
   /**

@@ -26,11 +26,11 @@ class ComposerState {
     this.body = { attrs: {} };
 
     /**
-     * The DOM node containing a text editor within the composer, if any.
+     * A reference to the text editor that allows text manipulation.
      *
-     * @type {jQuery|null}
+     * @type {SuperTextArea|null}
      */
-    this.$texteditor = null;
+    this.editor = null;
 
     this.clear();
 
@@ -38,7 +38,6 @@ class ComposerState {
      * @deprecated BC layer, remove in Beta 15.
      */
     this.component = this;
-    this.editor = this;
   }
 
   /**
@@ -71,7 +70,7 @@ class ComposerState {
   clear() {
     this.position = ComposerState.Position.HIDDEN;
     this.body = { attrs: {} };
-    this.$texteditor = null;
+    this.editor = null;
     this.onExit = null;
 
     this.fields = {
@@ -284,64 +283,6 @@ class ComposerState {
     // Otherwise, if it's normal or hidden, then we use the intended height.
     // We don't let the composer get too small or too big, though.
     return Math.max(this.minimumHeight(), Math.min(this.height, this.maximumHeight()));
-  }
-
-  /**
-   * Set the value of the text editor.
-   *
-   * @param {String} value
-   */
-  setValue(value) {
-    this.$texteditor.val(value).trigger('input');
-  }
-
-  /**
-   * Set the selected range of the textarea.
-   *
-   * @param {Integer} start
-   * @param {Integer} end
-   */
-  setSelectionRange(start, end) {
-    const $textarea = this.$texteditor;
-
-    if (!$textarea.length) return;
-
-    $textarea[0].setSelectionRange(start, end);
-    $textarea.focus();
-  }
-
-  /**
-   * Get the selected range of the textarea.
-   *
-   * @return {Array}
-   */
-  getSelectionRange() {
-    const $textarea = this.$texteditor;
-
-    if (!$textarea.length) return [0, 0];
-
-    return [$textarea[0].selectionStart, $textarea[0].selectionEnd];
-  }
-
-  /**
-   * Insert content into the textarea at the position of the cursor.
-   *
-   * @param {String} insert
-   */
-  insertAtCursor(insert) {
-    const textarea = this.$texteditor[0];
-    const value = this.fields.content();
-    const index = textarea ? textarea.selectionStart : value.length;
-
-    this.setValue(value.slice(0, index) + insert + value.slice(index));
-
-    // Move the textarea cursor to the end of the content we just inserted.
-    if (textarea) {
-      const pos = index + insert.length;
-      this.setSelectionRange(pos, pos);
-    }
-
-    textarea.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
   }
 }
 
