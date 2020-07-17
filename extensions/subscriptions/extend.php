@@ -33,6 +33,9 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\View)
+        ->namespace('flarum-subscriptions', __DIR__.'/views'),
+
     function (Dispatcher $events, Factory $views) {
         $events->listen(Serializing::class, Listener\AddDiscussionSubscriptionAttribute::class);
         $events->listen(Saving::class, Listener\SaveSubscriptionToDatabase::class);
@@ -54,7 +57,5 @@ return [
             $event->add('followAfterReply', 'boolval', false);
         });
         $events->listen(Posted::class, Listener\FollowAfterReply::class);
-
-        $views->addNamespace('flarum-subscriptions', __DIR__.'/views');
     }
 ];
