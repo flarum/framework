@@ -42,6 +42,9 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\View)
+        ->namespace('flarum-mentions', __DIR__.'/views'),
+
     function (Dispatcher $events, Factory $views) {
         $events->listen(WillSerializeData::class, Listener\FilterVisiblePosts::class);
         $events->subscribe(Listener\AddPostMentionedByRelationship::class);
@@ -63,7 +66,5 @@ return [
 
         $events->listen(Rendering::class, Listener\FormatPostMentions::class);
         $events->listen(Rendering::class, Listener\FormatUserMentions::class);
-
-        $views->addNamespace('flarum-mentions', __DIR__.'/views');
     },
 ];
