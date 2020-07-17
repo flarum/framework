@@ -13,9 +13,9 @@ use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
 
-class ViewNamespace implements ExtenderInterface
+class View implements ExtenderInterface
 {
-    private $adds = [];
+    private $namespaces = [];
 
     /**
      * Register a new namespace of Laravel views.
@@ -33,9 +33,9 @@ class ViewNamespace implements ExtenderInterface
      *                               where view files are stored, relative to the extend.php file.
      * @return $this
      */
-    public function add($namespace, $hints)
+    public function namespace($namespace, $hints)
     {
-        $this->adds[$namespace] = $hints;
+        $this->namespaces[$namespace] = $hints;
 
         return $this;
     }
@@ -43,7 +43,7 @@ class ViewNamespace implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         $container->resolving(Factory::class, function (Factory $view) {
-            foreach ($this->adds as $namespace => $hints) {
+            foreach ($this->namespaces as $namespace => $hints) {
                 $view->addNamespace($namespace, $hints);
             }
         });

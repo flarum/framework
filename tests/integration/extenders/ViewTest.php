@@ -13,7 +13,7 @@ use Flarum\Extend;
 use Flarum\Tests\integration\TestCase;
 use Illuminate\Contracts\View\Factory;
 
-class ViewNamespaceTest extends TestCase
+class ViewTest extends TestCase
 {
     /**
      * @test
@@ -30,8 +30,8 @@ class ViewNamespaceTest extends TestCase
     public function custom_view_namespace_can_be_added_by_extender()
     {
         $this->extend(
-            (new Extend\ViewNamespace)
-                ->add('integration.test', dirname(__FILE__, 3).'/fixtures/views')
+            (new Extend\View)
+                ->namespace('integration.test', dirname(__FILE__, 3).'/fixtures/views')
         );
 
         $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('integration.test::test')->render()));
