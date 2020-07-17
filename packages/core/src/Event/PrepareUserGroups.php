@@ -12,7 +12,7 @@ namespace Flarum\Event;
 use Flarum\User\User;
 
 /**
- * @deprecated beta 13, remove in beta 14. Use the User extender instead.
+ * @deprecated beta 14, remove in beta 15. Use the User extender instead.
  * The `PrepareUserGroups` event.
  */
 class PrepareUserGroups
