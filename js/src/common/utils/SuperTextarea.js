@@ -25,14 +25,12 @@ export default class SuperTextarea {
   }
 
   /**
-   * Set the selected range of the textarea.
+   * Focus the textarea and place the cursor at the given index.
    *
-   * @param {Integer} start
-   * @param {Integer} end
+   * @param {number} position
    */
-  setSelectionRange(start, end) {
-    this.el.setSelectionRange(start, end);
-    this.$.focus();
+  moveCursorTo(position) {
+    this.setSelectionRange(position, position);
   }
 
   /**
@@ -56,9 +54,20 @@ export default class SuperTextarea {
     this.setValue(value.slice(0, index) + insert + value.slice(index));
 
     // Move the textarea cursor to the end of the content we just inserted.
-    const pos = index + insert.length;
-    this.setSelectionRange(pos, pos);
+    this.moveCursorTo(index + insert.length);
 
     this.el.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
+  }
+
+  /**
+   * Set the selected range of the textarea.
+   *
+   * @param {number} start
+   * @param {number} end
+   * @private
+   */
+  setSelectionRange(start, end) {
+    this.el.setSelectionRange(start, end);
+    this.$.focus();
   }
 }

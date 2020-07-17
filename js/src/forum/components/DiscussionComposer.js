@@ -68,7 +68,7 @@ export default class DiscussionComposer extends ComposerBody {
     if (e.which === 13) {
       // Return
       e.preventDefault();
-      this.composer.editor.setSelectionRange(0, 0);
+      this.composer.editor.moveCursorTo(0);
     }
 
     m.redraw.strategy('none');
