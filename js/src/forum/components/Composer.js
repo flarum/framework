@@ -86,16 +86,6 @@ export default class Composer extends Component {
 
     const handlers = {};
 
-    // Don't let the user leave the page without first giving the composer's
-    // component a chance to scream at the user to make sure they don't
-    // unintentionally lose any content.
-    $(window).on(
-      'beforeunload',
-      (handlers.onbeforeunload = () => {
-        return (this.state.bodyPreventExit && this.state.bodyPreventExit()) || undefined;
-      })
-    );
-
     $(window)
       .on('resize', (handlers.onresize = this.updateHeight.bind(this)))
       .resize();
@@ -105,7 +95,7 @@ export default class Composer extends Component {
       .on('mouseup', (handlers.onmouseup = this.onmouseup.bind(this)));
 
     context.onunload = () => {
-      $(window).off('resize', handlers.onresize).off('beforeunload', handlers.onbeforeunload);
+      $(window).off('resize', handlers.onresize);
 
       $(document).off('mousemove', handlers.onmousemove).off('mouseup', handlers.onmouseup);
     };

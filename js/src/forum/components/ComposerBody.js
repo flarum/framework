@@ -1,5 +1,6 @@
 import Component from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
+import ConfirmDocumentUnload from '../../common/components/ConfirmDocumentUnload';
 import TextEditor from './TextEditor';
 import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
@@ -33,7 +34,7 @@ export default class ComposerBody extends Component {
      */
     this.loading = false;
 
-    this.composer.bodyPreventExit = this.preventExit.bind(this);
+    this.composer.preventClosingWhen(() => this.preventExit(), this.props.confirmExit);
 
     this.composer.content(this.props.originalContent || '');
 
@@ -46,25 +47,27 @@ export default class ComposerBody extends Component {
 
   view() {
     return (
-      <div className={'ComposerBody ' + (this.props.className || '')}>
-        {avatar(this.props.user, { className: 'ComposerBody-avatar' })}
-        <div className="ComposerBody-content">
-          <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
-          <div className="ComposerBody-editor">
-            {TextEditor.component({
-              submitLabel: this.props.submitLabel,
-              placeholder: this.props.placeholder,
-              disabled: this.loading || this.props.disabled,
-              composer: this.composer,
-              preview: this.preview.bind(this),
-              onchange: this.composer.content,
-              onsubmit: this.onsubmit.bind(this),
-              value: this.composer.content(),
-            })}
+      <ConfirmDocumentUnload when={this.preventExit.bind(this)}>
+        <div className={'ComposerBody ' + (this.props.className || '')}>
+          {avatar(this.props.user, { className: 'ComposerBody-avatar' })}
+          <div className="ComposerBody-content">
+            <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
+            <div className="ComposerBody-editor">
+              {TextEditor.component({
+                submitLabel: this.props.submitLabel,
+                placeholder: this.props.placeholder,
+                disabled: this.loading || this.props.disabled,
+                composer: this.composer,
+                preview: this.preview.bind(this),
+                onchange: this.composer.content,
+                onsubmit: this.onsubmit.bind(this),
+                value: this.composer.content(),
+              })}
+            </div>
           </div>
+          {LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })}
         </div>
-        {LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })}
-      </div>
+      </ConfirmDocumentUnload>
     );
   }
 
@@ -77,7 +80,7 @@ export default class ComposerBody extends Component {
   preventExit() {
     const content = this.composer.content();
 
-    return content && content !== this.props.originalContent && this.props.confirmExit;
+    return content && content !== this.props.originalContent;
   }
 
   /**

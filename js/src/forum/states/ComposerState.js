@@ -32,15 +32,6 @@ class ComposerState {
      */
     this.$texteditor = null;
 
-    /**
-     * A callback to be executed before the composer is closed.
-     *
-     * This can be used to prevent e.g. losing unsaved content.
-     *
-     * @type {Function|null}
-     */
-    this.bodyPreventExit = null;
-
     this.clear();
 
     /**
@@ -81,7 +72,7 @@ class ComposerState {
     this.position = ComposerState.Position.HIDDEN;
     this.body = { attrs: {} };
     this.$texteditor = null;
-    this.bodyPreventExit = null;
+    this.onExit = null;
 
     this.fields = {
       content: m.prop(''),
@@ -237,12 +228,25 @@ class ComposerState {
    */
   preventExit() {
     if (!this.isVisible()) return;
+    if (!this.onExit) return;
 
-    const preventExit = this.bodyPreventExit();
-
-    if (preventExit) {
-      return !confirm(preventExit);
+    if (this.onExit.callback()) {
+      return !confirm(this.onExit.message);
     }
+  }
+
+  /**
+   * Configure when / what to ask the user before closing the composer.
+   *
+   * The provided callback will be used to determine whether asking for
+   * confirmation is necessary. If the callback returns true at the time of
+   * closing, the provided text will be shown in a standard confirmation dialog.
+   *
+   * @param {Function} callback
+   * @param {String} message
+   */
+  preventClosingWhen(callback, message) {
+    this.onExit = { callback, message };
   }
 
   /**
