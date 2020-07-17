@@ -74,7 +74,7 @@ export default class DiscussionComposer extends ComposerBody {
     m.redraw.strategy('none');
   }
 
-  preventExit() {
+  hasChanges() {
     return this.title() || this.composer.fields.content();
   }
 

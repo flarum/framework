@@ -38,7 +38,7 @@ export default class ComposerBody extends Component {
     // circumstances, if the body supports / requires it and has a corresponding
     // confirmation question to ask.
     if (this.props.confirmExit) {
-      this.composer.preventClosingWhen(() => this.preventExit(), this.props.confirmExit);
+      this.composer.preventClosingWhen(() => this.hasChanges(), this.props.confirmExit);
     }
 
     this.composer.fields.content(this.props.originalContent || '');
@@ -52,7 +52,7 @@ export default class ComposerBody extends Component {
 
   view() {
     return (
-      <ConfirmDocumentUnload when={this.preventExit.bind(this)}>
+      <ConfirmDocumentUnload when={this.hasChanges.bind(this)}>
         <div className={'ComposerBody ' + (this.props.className || '')}>
           {avatar(this.props.user, { className: 'ComposerBody-avatar' })}
           <div className="ComposerBody-content">
@@ -77,12 +77,11 @@ export default class ComposerBody extends Component {
   }
 
   /**
-   * Check if there is any unsaved data – if there is, return a confirmation
-   * message to prompt the user with.
+   * Check if there is any unsaved data.
    *
    * @return {String}
    */
-  preventExit() {
+  hasChanges() {
     const content = this.composer.fields.content();
 
     return content && content !== this.props.originalContent;
