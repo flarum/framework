@@ -21,7 +21,7 @@ export default class DiscussionComposer extends ComposerBody {
     /**
      * The value of the title input.
      *
-     * @type {String}
+     * @type {Function}
      */
     this.title = this.composer.fields.title;
   }
