@@ -14,7 +14,6 @@ use Flarum\Group\Event\Saving;
 use Flarum\Group\Group;
 use Flarum\Group\GroupRepository;
 use Flarum\Group\GroupValidator;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
@@ -22,7 +21,6 @@ use Illuminate\Support\Arr;
 class EditGroupHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var \Flarum\Group\GroupRepository
@@ -58,7 +56,7 @@ class EditGroupHandler
 
         $group = $this->groups->findOrFail($command->groupId, $actor);
 
-        $this->assertCan($actor, 'edit', $group);
+        $actor->assertCan('edit', $group);
 
         $attributes = Arr::get($data, 'attributes', []);
 

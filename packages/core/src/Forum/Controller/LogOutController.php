@@ -13,7 +13,6 @@ use Flarum\Http\Exception\TokenMismatchException;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Event\LoggedOut;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
@@ -26,8 +25,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LogOutController implements RequestHandlerInterface
 {
-    use AssertPermissionTrait;
-
     /**
      * @var Dispatcher
      */

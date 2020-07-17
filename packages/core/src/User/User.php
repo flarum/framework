@@ -34,6 +34,8 @@ use Flarum\User\Event\GetDisplayName;
 use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
+use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Arr;
@@ -581,6 +583,60 @@ class User extends AbstractModel
     public function isGuest()
     {
         return false;
+    }
+
+    /**
+     * Ensure the current user is allowed to do something.
+     *
+     * If the condition is not met, an exception will be thrown that signals the
+     * lack of permissions. This is about *authorization*, i.e. retrying such a
+     * request / operation without a change in permissions (or using another
+     * user account) is pointless.
+     *
+     * @param bool $condition
+     * @throws PermissionDeniedException
+     */
+    public function assertPermission($condition)
+    {
+        if (! $condition) {
+            throw new PermissionDeniedException;
+        }
+    }
+
+    /**
+     * Ensure the given actor is authenticated.
+     *
+     * This will throw an exception for guest users, signaling that
+     * *authorization* failed. Thus, they could retry the operation after
+     * logging in (or using other means of authentication).
+     *
+     * @throws NotAuthenticatedException
+     */
+    public function assertRegistered()
+    {
+        if ($this->isGuest()) {
+            throw new NotAuthenticatedException;
+        }
+    }
+
+    /**
+     * @param string $ability
+     * @param mixed $arguments
+     * @throws PermissionDeniedException
+     */
+    public function assertCan($ability, $arguments = [])
+    {
+        $this->assertPermission(
+            $this->can($ability, $arguments)
+        );
+    }
+
+    /**
+     * @throws PermissionDeniedException
+     */
+    public function assertAdmin()
+    {
+        $this->assertCan($this, 'administrate');
     }
 
     /**

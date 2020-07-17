@@ -10,7 +10,6 @@
 namespace Flarum\User\Command;
 
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\Saving;
 use Flarum\User\User;
@@ -23,7 +22,6 @@ use Illuminate\Validation\ValidationException;
 class EditUserHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var \Flarum\User\UserRepository
@@ -68,7 +66,7 @@ class EditUserHandler
         $validate = [];
 
         if (isset($attributes['username'])) {
-            $this->assertPermission($canEdit);
+            $actor->assertPermission($canEdit);
             $user->rename($attributes['username']);
         }
 
@@ -80,7 +78,7 @@ class EditUserHandler
                     $validate['email'] = $attributes['email'];
                 }
             } else {
-                $this->assertPermission($canEdit);
+                $actor->assertPermission($canEdit);
                 $user->changeEmail($attributes['email']);
             }
         }
@@ -90,19 +88,19 @@ class EditUserHandler
         }
 
         if (isset($attributes['password'])) {
-            $this->assertPermission($canEdit);
+            $actor->assertPermission($canEdit);
             $user->changePassword($attributes['password']);
 
             $validate['password'] = $attributes['password'];
         }
 
         if (! empty($attributes['markedAllAsReadAt'])) {
-            $this->assertPermission($isSelf);
+            $actor->assertPermission($isSelf);
             $user->markAllAsRead();
         }
 
         if (! empty($attributes['preferences'])) {
-            $this->assertPermission($isSelf);
+            $actor->assertPermission($isSelf);
 
             foreach ($attributes['preferences'] as $k => $v) {
                 $user->setPreference($k, $v);
@@ -110,7 +108,7 @@ class EditUserHandler
         }
 
         if (isset($relationships['groups']['data']) && is_array($relationships['groups']['data'])) {
-            $this->assertPermission($canEdit);
+            $actor->assertPermission($canEdit);
 
             $newGroupIds = [];
             foreach ($relationships['groups']['data'] as $group) {
