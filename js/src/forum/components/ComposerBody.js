@@ -34,7 +34,12 @@ export default class ComposerBody extends Component {
      */
     this.loading = false;
 
-    this.composer.preventClosingWhen(() => this.preventExit(), this.props.confirmExit);
+    // Let the composer state know to ask for confirmation under certain
+    // circumstances, if the body supports / requires it and has a corresponding
+    // confirmation question to ask.
+    if (this.props.confirmExit) {
+      this.composer.preventClosingWhen(() => this.preventExit(), this.props.confirmExit);
+    }
 
     this.composer.content(this.props.originalContent || '');
 
