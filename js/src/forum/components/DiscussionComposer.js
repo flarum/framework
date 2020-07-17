@@ -75,7 +75,7 @@ export default class DiscussionComposer extends ComposerBody {
   }
 
   preventExit() {
-    return this.title() || this.composer.content();
+    return this.title() || this.composer.fields.content();
   }
 
   /**
@@ -86,7 +86,7 @@ export default class DiscussionComposer extends ComposerBody {
   data() {
     return {
       title: this.title(),
-      content: this.composer.content(),
+      content: this.composer.fields.content(),
     };
   }
 

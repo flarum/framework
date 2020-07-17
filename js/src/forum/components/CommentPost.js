@@ -105,7 +105,7 @@ export default class CommentPost extends Post {
     // body with a preview.
     let preview;
     const updatePreview = () => {
-      const content = app.composer.content();
+      const content = app.composer.fields.content();
 
       if (preview === content) return;
 

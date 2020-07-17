@@ -41,7 +41,7 @@ export default class ComposerBody extends Component {
       this.composer.preventClosingWhen(() => this.preventExit(), this.props.confirmExit);
     }
 
-    this.composer.content(this.props.originalContent || '');
+    this.composer.fields.content(this.props.originalContent || '');
 
     /**
      * @deprecated BC layer, remove in Beta 15.
@@ -64,9 +64,9 @@ export default class ComposerBody extends Component {
                 disabled: this.loading || this.props.disabled,
                 composer: this.composer,
                 preview: this.preview.bind(this),
-                onchange: this.composer.content,
+                onchange: this.composer.fields.content,
                 onsubmit: this.onsubmit.bind(this),
-                value: this.composer.content(),
+                value: this.composer.fields.content(),
               })}
             </div>
           </div>
@@ -83,7 +83,7 @@ export default class ComposerBody extends Component {
    * @return {String}
    */
   preventExit() {
-    const content = this.composer.content();
+    const content = this.composer.fields.content();
 
     return content && content !== this.props.originalContent;
   }

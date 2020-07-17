@@ -67,7 +67,7 @@ export default class EditPostComposer extends ComposerBody {
    */
   data() {
     return {
-      content: this.composer.content(),
+      content: this.composer.fields.content(),
     };
   }
 

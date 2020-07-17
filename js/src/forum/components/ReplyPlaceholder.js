@@ -55,7 +55,7 @@ export default class ReplyPlaceholder extends Component {
       // so we bail in that case.
       if (!app.composer.isVisible()) return;
 
-      const content = app.composer.content();
+      const content = app.composer.fields.content();
 
       if (preview === content) return;
 

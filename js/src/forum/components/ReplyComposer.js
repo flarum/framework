@@ -64,7 +64,7 @@ export default class ReplyComposer extends ComposerBody {
    */
   data() {
     return {
-      content: this.composer.content(),
+      content: this.composer.fields.content(),
       relationships: { discussion: this.props.discussion },
     };
   }
