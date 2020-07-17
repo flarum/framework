@@ -9,8 +9,6 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Extension\Event\Disabled;
-use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\Assets;
@@ -23,7 +21,7 @@ use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
 
-class Frontend implements ExtenderInterface
+class Frontend implements ExtenderInterface, LifecycleInterface
 {
     private $frontend;
 
@@ -115,13 +113,9 @@ class Frontend implements ExtenderInterface
             $events = $container->make('events');
 
             $events->listen(
-                [Enabled::class, Disabled::class, ClearingCache::class],
-                function () use ($container, $abstract) {
-                    $recompile = new RecompileFrontendAssets(
-                        $container->make($abstract),
-                        $container->make(LocaleManager::class)
-                    );
-                    $recompile->flush();
+                ClearingCache::class,
+                function () use ($container) {
+                    $this->recompile($container);
                 }
             );
 
@@ -184,5 +178,28 @@ class Frontend implements ExtenderInterface
     private function getModuleName(?Extension $extension): string
     {
         return $extension ? $extension->getId() : 'site-custom';
+    }
+
+    public function onEnable(Container $container, Extension $extension)
+    {
+        if (! empty($this->js) || ! empty($this->css)) {
+            $this->recompile($container);
+        }
+    }
+
+    public function onDisable(Container $container, Extension $extension)
+    {
+        if (! empty($this->js) || ! empty($this->css)) {
+            $this->recompile($container);
+        }
+    }
+
+    private function recompile($container)
+    {
+        $recompile = new RecompileFrontendAssets(
+            $container->make('flarum.assets.'.$this->frontend),
+            $container->make(LocaleManager::class)
+        );
+        $recompile->flush();
     }
 }
