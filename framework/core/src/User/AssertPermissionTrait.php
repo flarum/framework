@@ -12,6 +12,9 @@ namespace Flarum\User;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
 
+/**
+ * @deprecated beta 14, remove beta 15. Please use direct methods of the User class instead. E.g. $actor->assertCan($ability);
+ */
 trait AssertPermissionTrait
 {
     /**
@@ -44,9 +47,7 @@ trait AssertPermissionTrait
      */
     protected function assertRegistered(User $actor)
     {
-        if ($actor->isGuest()) {
-            throw new NotAuthenticatedException;
-        }
+        $actor->assertRegistered();
     }
 
     /**
@@ -57,9 +58,7 @@ trait AssertPermissionTrait
      */
     protected function assertCan(User $actor, $ability, $arguments = [])
     {
-        $this->assertPermission(
-            $actor->can($ability, $arguments)
-        );
+        $actor->assertCan($ability, $arguments);
     }
 
     /**
@@ -68,6 +67,6 @@ trait AssertPermissionTrait
      */
     protected function assertAdmin(User $actor)
     {
-        $this->assertCan($actor, 'administrate');
+        $actor->assertCan('administrate');
     }
 }

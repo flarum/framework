@@ -10,12 +10,9 @@
 namespace Flarum\Notification\Command;
 
 use Flarum\Notification\NotificationRepository;
-use Flarum\User\AssertPermissionTrait;
 
 class ReadAllNotificationsHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var NotificationRepository
      */
@@ -37,7 +34,7 @@ class ReadAllNotificationsHandler
     {
         $actor = $command->actor;
 
-        $this->assertRegistered($actor);
+        $actor->assertRegistered();
 
         $this->notifications->markAllAsRead($actor);
     }

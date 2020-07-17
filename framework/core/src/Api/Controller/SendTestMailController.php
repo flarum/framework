@@ -9,7 +9,6 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
@@ -21,8 +20,6 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class SendTestMailController implements RequestHandlerInterface
 {
-    use AssertPermissionTrait;
-
     protected $container;
 
     protected $mailer;
@@ -39,7 +36,7 @@ class SendTestMailController implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = $request->getAttribute('actor');
-        $this->assertAdmin($actor);
+        $actor->assertAdmin();
 
         $body = $this->translator->trans('core.email.send_test.body', ['{username}' => $actor->username]);
 

@@ -16,14 +16,12 @@ use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\PostValidator;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class PostReplyHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var DiscussionRepository
@@ -77,7 +75,7 @@ class PostReplyHandler
         // If this is the first post in the discussion, it's technically not a
         // "reply", so we won't check for that permission.
         if ($discussion->post_number_index > 0) {
-            $this->assertCan($actor, 'reply', $discussion);
+            $actor->assertCan('reply', $discussion);
         }
 
         // Create a new Post entity, persist it, and dispatch domain events.

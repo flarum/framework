@@ -10,15 +10,12 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Laminas\Diactoros\Response\EmptyResponse;
 use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteLogoController extends AbstractDeleteController
 {
-    use AssertPermissionTrait;
-
     /**
      * @var SettingsRepositoryInterface
      */
@@ -44,7 +41,7 @@ class DeleteLogoController extends AbstractDeleteController
      */
     protected function delete(ServerRequestInterface $request)
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $request->getAttribute('actor')->assertAdmin();
 
         $path = $this->settings->get('logo_path');
 

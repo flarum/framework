@@ -11,7 +11,6 @@ namespace Flarum\User\Command;
 
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\AvatarUploader;
 use Flarum\User\Event\RegisteringFromProvider;
 use Flarum\User\Event\Saving;
@@ -28,7 +27,6 @@ use Intervention\Image\ImageManager;
 class RegisterUserHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var SettingsRepositoryInterface
@@ -72,7 +70,7 @@ class RegisterUserHandler
         $data = $command->data;
 
         if (! $this->settings->get('allow_sign_up')) {
-            $this->assertAdmin($actor);
+            $actor->assertAdmin();
         }
 
         $password = Arr::get($data, 'attributes.password');
