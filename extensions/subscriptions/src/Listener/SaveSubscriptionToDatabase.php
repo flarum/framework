@@ -10,12 +10,9 @@
 namespace Flarum\Subscriptions\Listener;
 
 use Flarum\Discussion\Event\Saving;
-use Flarum\User\AssertPermissionTrait;
 
 class SaveSubscriptionToDatabase
 {
-    use AssertPermissionTrait;
-
     public function handle(Saving $event)
     {
         $discussion = $event->discussion;
@@ -25,7 +22,7 @@ class SaveSubscriptionToDatabase
             $actor = $event->actor;
             $subscription = $data['attributes']['subscription'];
 
-            $this->assertRegistered($actor);
+            $actor->assertRegistered();
 
             $state = $discussion->stateFor($actor);
 

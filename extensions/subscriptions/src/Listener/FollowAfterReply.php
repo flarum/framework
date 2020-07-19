@@ -10,18 +10,15 @@
 namespace Flarum\Subscriptions\Listener;
 
 use Flarum\Post\Event\Posted;
-use Flarum\User\AssertPermissionTrait;
 
 class FollowAfterReply
 {
-    use AssertPermissionTrait;
-
     public function handle(Posted $event)
     {
         $actor = $event->actor;
 
         if ($actor && $actor->exists && $actor->getPreference('followAfterReply')) {
-            $this->assertRegistered($actor);
+            $actor->assertRegistered();
 
             $state = $event->post->discussion->stateFor($actor);
 
