@@ -12,12 +12,9 @@ namespace Flarum\Tags\Command;
 use Flarum\Tags\Event\TagWillBeSaved;
 use Flarum\Tags\TagRepository;
 use Flarum\Tags\TagValidator;
-use Flarum\User\AssertPermissionTrait;
 
 class EditTagHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var TagRepository
      */
@@ -50,7 +47,7 @@ class EditTagHandler
 
         $tag = $this->tags->findOrFail($command->tagId, $actor);
 
-        $this->assertCan($actor, 'edit', $tag);
+        $actor->assertCan('edit', $tag);
 
         $attributes = array_get($data, 'attributes', []);
 

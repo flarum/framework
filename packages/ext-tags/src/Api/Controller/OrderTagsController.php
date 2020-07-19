@@ -10,7 +10,6 @@
 namespace Flarum\Tags\Api\Controller;
 
 use Flarum\Tags\Tag;
-use Flarum\User\AssertPermissionTrait;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,14 +17,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class OrderTagsController implements RequestHandlerInterface
 {
-    use AssertPermissionTrait;
-
     /**
      * {@inheritdoc}
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $request->getAttribute('actor')->assertAdmin();
 
         $order = array_get($request->getParsedBody(), 'order');
 
