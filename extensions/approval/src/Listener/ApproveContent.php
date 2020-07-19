@@ -33,7 +33,7 @@ class ApproveContent
         $post = $event->post;
 
         if (isset($attributes['isApproved'])) {
-            $event->actor->can('approve', $post);
+            $event->actor->assertCan('approve', $post);
 
             $isApproved = (bool) $attributes['isApproved'];
         } elseif (! empty($attributes['isHidden']) && $event->actor->can('approve', $post)) {
