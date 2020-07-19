@@ -11,13 +11,10 @@ namespace Flarum\Approval\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Post\Event\Saving;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ApproveContent
 {
-    use AssertPermissionTrait;
-
     /**
      * @param Dispatcher $events
      */
@@ -36,7 +33,7 @@ class ApproveContent
         $post = $event->post;
 
         if (isset($attributes['isApproved'])) {
-            $this->assertCan($event->actor, 'approve', $post);
+            $event->actor->can('approve', $post);
 
             $isApproved = (bool) $attributes['isApproved'];
         } elseif (! empty($attributes['isHidden']) && $event->actor->can('approve', $post)) {
