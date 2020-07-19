@@ -12,12 +12,9 @@ namespace Flarum\Tags\Command;
 use Flarum\Tags\Event\Creating;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagValidator;
-use Flarum\User\AssertPermissionTrait;
 
 class CreateTagHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var TagValidator
      */
@@ -40,7 +37,7 @@ class CreateTagHandler
         $actor = $command->actor;
         $data = $command->data;
 
-        $this->assertCan($actor, 'createTag');
+        $actor->assertCan('createTag');
 
         $tag = Tag::build(
             array_get($data, 'attributes.name'),
