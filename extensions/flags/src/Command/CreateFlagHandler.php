@@ -14,15 +14,12 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Post\CommentPost;
 use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Symfony\Component\Translation\TranslatorInterface;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class CreateFlagHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var PostRepository
      */
@@ -67,7 +64,7 @@ class CreateFlagHandler
             throw new InvalidParameterException;
         }
 
-        $this->assertCan($actor, 'flag', $post);
+        $actor->assertCan('flag', $post);
 
         if ($actor->id === $post->user_id && ! $this->settings->get('flarum-flags.can_flag_own')) {
             throw new PermissionDeniedException();
