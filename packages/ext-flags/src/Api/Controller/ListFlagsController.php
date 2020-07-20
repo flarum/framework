@@ -12,14 +12,11 @@ namespace Flarum\Flags\Api\Controller;
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Flag;
-use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ListFlagsController extends AbstractListController
 {
-    use AssertPermissionTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -42,7 +39,7 @@ class ListFlagsController extends AbstractListController
     {
         $actor = $request->getAttribute('actor');
 
-        $this->assertRegistered($actor);
+        $actor->assertRegistered();
 
         $actor->read_flags_at = time();
         $actor->save();

@@ -12,13 +12,10 @@ namespace Flarum\Flags\Command;
 use Flarum\Flags\Event\FlagsWillBeDeleted;
 use Flarum\Flags\Flag;
 use Flarum\Post\PostRepository;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteFlagsHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var PostRepository
      */
@@ -49,7 +46,7 @@ class DeleteFlagsHandler
 
         $post = $this->posts->findOrFail($command->postId, $actor);
 
-        $this->assertCan($actor, 'viewFlags', $post->discussion);
+        $actor->assertCan('viewFlags', $post->discussion);
 
         $this->events->dispatch(new FlagsWillBeDeleted($post, $actor, $command->data));
 
