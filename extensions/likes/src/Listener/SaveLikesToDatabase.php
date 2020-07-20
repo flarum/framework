@@ -13,13 +13,10 @@ use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Saving;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveLikesToDatabase
 {
-    use AssertPermissionTrait;
-
     /**
      * @param Dispatcher $events
      */
@@ -41,7 +38,7 @@ class SaveLikesToDatabase
             $actor = $event->actor;
             $liked = (bool) $data['attributes']['isLiked'];
 
-            $this->assertCan($actor, 'like', $post);
+            $actor->assertCan('like', $post);
 
             $currentlyLiked = $post->likes()->where('user_id', $actor->id)->exists();
 
