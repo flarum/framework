@@ -12,13 +12,10 @@ namespace Flarum\Sticky\Listener;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Sticky\Event\DiscussionWasStickied;
 use Flarum\Sticky\Event\DiscussionWasUnstickied;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveStickyToDatabase
 {
-    use AssertPermissionTrait;
-
     /**
      * @param Dispatcher $events
      */
@@ -37,7 +34,7 @@ class SaveStickyToDatabase
             $discussion = $event->discussion;
             $actor = $event->actor;
 
-            $this->assertCan($actor, 'sticky', $discussion);
+            $actor->assertCan('sticky', $discussion);
 
             if ((bool) $discussion->is_sticky === $isSticky) {
                 return;
