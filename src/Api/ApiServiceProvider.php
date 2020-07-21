@@ -66,7 +66,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->app->bind('flarum.api.proxy_middleware', function() {
+        $this->app->bind('flarum.api.proxy_middleware', function () {
             $config = $this->app->get('flarum.config');
 
             return new HttpMiddleware\ProxyAddress(
