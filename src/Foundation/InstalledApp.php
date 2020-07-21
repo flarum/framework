@@ -11,9 +11,11 @@ namespace Flarum\Foundation;
 
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
+use Flarum\Http\Middleware\ProxyAddress;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Arr;
 use Laminas\Stratigility\Middleware\OriginalMessages;
 use Laminas\Stratigility\MiddlewarePipe;
 use Middlewares\BasePath;
@@ -57,6 +59,11 @@ class InstalledApp implements AppInterface
         $pipe = new MiddlewarePipe;
 
         $pipe->pipe(new BasePath($this->basePath()));
+        $pipe->pipe(new ProxyAddress(
+                Arr::get($this->config, 'reverse_proxy.enabled', false),
+                Arr::get($this->config, 'reverse_proxy.allowed', ['127.0.0.1'])
+            )
+        );
         $pipe->pipe(new OriginalMessages);
         $pipe->pipe(
             new BasePathRouter([
