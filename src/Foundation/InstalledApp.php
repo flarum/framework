@@ -11,11 +11,9 @@ namespace Flarum\Foundation;
 
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
-use Flarum\Http\Middleware\ProxyAddress;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Support\Arr;
 use Laminas\Stratigility\Middleware\OriginalMessages;
 use Laminas\Stratigility\MiddlewarePipe;
 use Middlewares\BasePath;

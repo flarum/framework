@@ -87,7 +87,6 @@ class ForumServiceProvider extends AbstractServiceProvider
             );
         });
 
-
         $this->app->singleton('flarum.forum.handler', function () {
             $pipe = new MiddlewarePipe;
 
