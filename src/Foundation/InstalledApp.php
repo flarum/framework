@@ -59,12 +59,6 @@ class InstalledApp implements AppInterface
         $pipe = new MiddlewarePipe;
 
         $pipe->pipe(new BasePath($this->basePath()));
-        $pipe->pipe(
-            new ProxyAddress(
-                Arr::get($this->config, 'reverse_proxy.enabled', false),
-                Arr::get($this->config, 'reverse_proxy.allowed', ['127.0.0.1'])
-            )
-        );
         $pipe->pipe(new OriginalMessages);
         $pipe->pipe(
             new BasePathRouter([

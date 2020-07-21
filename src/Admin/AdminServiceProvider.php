@@ -25,6 +25,7 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
+use Illuminate\Support\Arr;
 use Laminas\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
@@ -48,6 +49,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.admin.middleware', function () {
             return [
                 'flarum.admin.error_handler',
+                'flarum.admin.proxy_middleware',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
@@ -63,6 +65,15 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $this->app->make(Registry::class),
                 $this->app['flarum']->inDebugMode() ? $this->app->make(WhoopsFormatter::class) : $this->app->make(ViewFormatter::class),
                 $this->app->tagged(Reporter::class)
+            );
+        });
+
+        $this->app->bind('flarum.admin.proxy_middleware', function() {
+            $config = $this->app->get('flarum.config');
+
+            return new HttpMiddleware\ProxyAddress(
+                Arr::get($config, 'reverse_proxy.enabled', false),
+                Arr::get($config, 'reverse_proxy.allowed', ['127.0.0.1'])
             );
         });
 
