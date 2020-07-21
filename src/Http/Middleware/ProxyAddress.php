@@ -52,7 +52,7 @@ class ProxyAddress implements Middleware
             }
         }
 
-        $request->withAttribute('ipAddress', $ipAddress);
+        $request = $request->withAttribute('ipAddress', $ipAddress);
 
         return $handler->handle($request);
     }
