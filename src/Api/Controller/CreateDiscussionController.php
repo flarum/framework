@@ -62,7 +62,7 @@ class CreateDiscussionController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
-        $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
+        $ipAddress = $request->getAttribute('ipAddress');
 
         if (! $request->getAttribute('bypassFloodgate')) {
             $this->floodgate->assertNotFlooding($actor);
