@@ -19,7 +19,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class ProxyAddress implements Middleware
 {
     /**
-     * @var boolean
+     * @var bool
      */
     protected $enabled;
 
@@ -52,7 +52,7 @@ class ProxyAddress implements Middleware
             }
         }
 
-        $request->withAttribute("ipAddress", $ipAddress);
+        $request->withAttribute('ipAddress', $ipAddress);
 
         return $handler->handle($request);
     }
