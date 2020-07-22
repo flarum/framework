@@ -58,6 +58,7 @@ class ProxyAddress implements Middleware
                 // standard header for proxies, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
                 $ipAddress = Arr::get($request->getServerParams(), 'X_FORWARDED_FOR', $ipAddress);
                 $ipAddress = Arr::get($request->getServerParams(), 'HTTP_CLIENT_IP', $ipAddress);
+                $ipAddress = Arr::get($request->getServerParams(), 'X_PROXYUSER_IP', $ipAddress);
             } else {
                 throw new ProxyNotAllowedException("The used proxy isn't allowed to connect!");
             }
