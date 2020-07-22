@@ -61,7 +61,7 @@ class ProxyAddress implements Middleware
                 $ipAddress = Arr::get($serverParams, 'HTTP_CLIENT_IP', $ipAddress);
                 $ipAddress = Arr::get($serverParams, 'X_PROXYUSER_IP', $ipAddress);
             } else {
-                throw new ProxyNotAllowedException("The used proxy isn't allowed to connect!");
+                throw new ProxyNotAllowedException();
             }
         }
 
