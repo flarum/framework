@@ -38,10 +38,12 @@ class ProxyAddress implements Middleware
         $this->allowedAddresses = $allowedAddresses;
     }
 
-    private function wildcardMatch(string $ipAddress): bool {
+    private function wildcardMatch(string $ipAddress): bool
+    {
         foreach ($this->allowedAddresses as $allowedAddress) {
-            if (fnmatch($allowedAddress, $ipAddress))
+            if (fnmatch($allowedAddress, $ipAddress)) {
                 return true;
+            }
         }
 
         return false;
