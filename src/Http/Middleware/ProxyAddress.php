@@ -38,12 +38,21 @@ class ProxyAddress implements Middleware
         $this->allowedAddresses = $allowedAddresses;
     }
 
+    private function wildcardMatch(string $ipAddress): bool {
+        foreach ($this->allowedAddresses as $allowedAddress) {
+            if (fnmatch($allowedAddress, $ipAddress))
+                return true;
+        }
+
+        return false;
+    }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 
         if ($this->enabled) {
-            if (in_array($ipAddress, $this->allowedAddresses)) {
+            if ($this->wildcardMatch($ipAddress)) {
                 // standard header for proxies, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
                 $ipAddress = Arr::get($request->getServerParams(), 'X_FORWARDED_FOR', $ipAddress);
                 $ipAddress = Arr::get($request->getServerParams(), 'HTTP_CLIENT_IP', $ipAddress);
