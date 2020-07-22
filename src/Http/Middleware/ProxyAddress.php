@@ -51,14 +51,15 @@ class ProxyAddress implements Middleware
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
+        $serverParams = $request->getServerParams();
+        $ipAddress = Arr::get($serverParams, 'REMOTE_ADDR', '127.0.0.1');
 
         if ($this->enabled) {
             if ($this->wildcardMatch($ipAddress)) {
                 // standard header for proxies, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
-                $ipAddress = Arr::get($request->getServerParams(), 'X_FORWARDED_FOR', $ipAddress);
-                $ipAddress = Arr::get($request->getServerParams(), 'HTTP_CLIENT_IP', $ipAddress);
-                $ipAddress = Arr::get($request->getServerParams(), 'X_PROXYUSER_IP', $ipAddress);
+                $ipAddress = Arr::get($serverParams, 'X_FORWARDED_FOR', $ipAddress);
+                $ipAddress = Arr::get($serverParams, 'HTTP_CLIENT_IP', $ipAddress);
+                $ipAddress = Arr::get($serverParams, 'X_PROXYUSER_IP', $ipAddress);
             } else {
                 throw new ProxyNotAllowedException("The used proxy isn't allowed to connect!");
             }
