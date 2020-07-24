@@ -17,6 +17,16 @@ class Translator extends BaseTranslator implements TranslatorContract
 {
     const REFERENCE_REGEX = '/^=>\s*([a-z0-9_\-\.]+)$/i';
 
+    public function get($key, array $replace = [], $locale = null)
+    {
+        return $this->trans($key, $replace, null, $locale);
+    }
+
+    public function choice($key, $number, array $replace = [], $locale = null)
+    {
+        return $this->transChoice($key, $number, $replace, nil, $locale);
+    }
+
     /**
      * {@inheritdoc}
      */
