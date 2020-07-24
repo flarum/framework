@@ -192,7 +192,7 @@ export default class Composer extends Component {
    */
   updateBodyPadding() {
     const visible =
-      this.state.position !== ComposerState.Position.HIDDEN && this.state.position !== ComposerState.Position.MINIMIZED && app.screen() !== 'mobile';
+      this.state.position !== ComposerState.Position.HIDDEN && this.state.position !== ComposerState.Position.MINIMIZED && app.screen() !== 'phone';
 
     const paddingBottom = visible ? this.state.computedHeight() - parseInt($('#app').css('padding-bottom'), 10) : 0;
 
@@ -269,7 +269,7 @@ export default class Composer extends Component {
   show() {
     this.animateHeightChange().then(() => this.focus());
 
-    if (app.screen() === 'mobile') {
+    if (app.screen() === 'phone') {
       this.$().css('top', $(window).scrollTop());
       this.showBackdrop();
     }

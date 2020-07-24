@@ -194,7 +194,7 @@ class ComposerState {
    * @public
    */
   isFullScreen() {
-    return this.position === ComposerState.Position.FULLSCREEN || app.screen() === 'mobile';
+    return this.position === ComposerState.Position.FULLSCREEN || app.screen() === 'phone';
   }
 
   /**
