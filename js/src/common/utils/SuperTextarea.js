@@ -45,18 +45,54 @@ export default class SuperTextarea {
   /**
    * Insert content into the textarea at the position of the cursor.
    *
-   * @param {String} insert
+   * @param {String} text
    */
-  insertAtCursor(insert) {
-    const value = this.el.value;
-    const index = this.el.selectionStart;
-
-    this.setValue(value.slice(0, index) + insert + value.slice(index));
-
-    // Move the textarea cursor to the end of the content we just inserted.
-    this.moveCursorTo(index + insert.length);
+  insertAtCursor(text) {
+    this.insertAt(this.el.selectionStart, text);
 
     this.el.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
+  }
+
+  /**
+   * Insert content into the textarea at the given position.
+   *
+   * @param {number} pos
+   * @param {String} text
+   */
+  insertAt(pos, text) {
+    this.insertBetween(pos, pos, text);
+  }
+
+  /**
+   * Insert content into the textarea between the given positions.
+   *
+   * If the start and end positions are different, any text between them will be
+   * overwritten.
+   *
+   * @param start
+   * @param end
+   * @param text
+   */
+  insertBetween(start, end, text) {
+    const value = this.el.value;
+
+    const before = value.slice(0, start);
+    const after = value.slice(end);
+
+    this.setValue(`${before}${text}${after}`);
+
+    // Move the textarea cursor to the end of the content we just inserted.
+    this.moveCursorTo(start + text.length);
+  }
+
+  /**
+   * Replace existing content from the start to the current cursor position.
+   *
+   * @param start
+   * @param text
+   */
+  replaceBeforeCursor(start, text) {
+    this.insertBetween(start, this.el.selectionStart, text);
   }
 
   /**
