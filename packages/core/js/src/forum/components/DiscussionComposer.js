@@ -16,12 +16,14 @@ export default class DiscussionComposer extends ComposerBody {
   init() {
     super.init();
 
+    this.composer.fields.title = this.composer.fields.title || m.prop('');
+
     /**
      * The value of the title input.
      *
      * @type {Function}
      */
-    this.title = m.prop('');
+    this.title = this.composer.fields.title;
   }
 
   static initProps(props) {
@@ -66,14 +68,14 @@ export default class DiscussionComposer extends ComposerBody {
     if (e.which === 13) {
       // Return
       e.preventDefault();
-      this.editor.setSelectionRange(0, 0);
+      this.composer.editor.moveCursorTo(0);
     }
 
     m.redraw.strategy('none');
   }
 
-  preventExit() {
-    return (this.title() || this.content()) && this.props.confirmExit;
+  hasChanges() {
+    return this.title() || this.composer.fields.content();
   }
 
   /**
@@ -84,7 +86,7 @@ export default class DiscussionComposer extends ComposerBody {
   data() {
     return {
       title: this.title(),
-      content: this.content(),
+      content: this.composer.fields.content(),
     };
   }
 
@@ -97,7 +99,7 @@ export default class DiscussionComposer extends ComposerBody {
       .createRecord('discussions')
       .save(data)
       .then((discussion) => {
-        app.composer.hide();
+        this.composer.hide();
         app.discussions.refresh();
         m.route(app.route.discussion(discussion));
       }, this.loaded.bind(this));
