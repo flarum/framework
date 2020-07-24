@@ -29,7 +29,6 @@ use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Support\Arr;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -58,7 +57,6 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.forum.middleware', function () {
             return [
                 'flarum.forum.error_handler',
-                'flarum.forum.proxy_middleware',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\CollectGarbage::class,
                 HttpMiddleware\StartSession::class,
@@ -75,15 +73,6 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $this->app->make(Registry::class),
                 $this->app['flarum']->inDebugMode() ? $this->app->make(WhoopsFormatter::class) : $this->app->make(ViewFormatter::class),
                 $this->app->tagged(Reporter::class)
-            );
-        });
-
-        $this->app->bind('flarum.forum.proxy_middleware', function () {
-            $config = $this->app->make('flarum.config');
-
-            return new HttpMiddleware\ProxyAddress(
-                Arr::get($config, 'reverse_proxy.enabled', false),
-                Arr::get($config, 'reverse_proxy.allowed', ['127.0.0.1'])
             );
         });
 
