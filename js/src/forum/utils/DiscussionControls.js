@@ -167,13 +167,11 @@ export default {
 
     if (app.session.user) {
       if (this.canReply()) {
-        let component = app.composer.component;
-        if (!app.composingReplyTo(this) || forceRefresh) {
-          component = new ReplyComposer({
+        if (!app.composer.composingReplyTo(this) || forceRefresh) {
+          app.composer.load(ReplyComposer, {
             user: app.session.user,
             discussion: this,
           });
-          app.composer.load(component);
         }
         app.composer.show();
 
@@ -181,7 +179,7 @@ export default {
           app.current.get('stream').goToNumber('reply');
         }
 
-        deferred.resolve(component);
+        deferred.resolve(app.composer);
       } else {
         deferred.reject();
       }

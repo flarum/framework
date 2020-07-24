@@ -15,7 +15,7 @@ import DiscussionControls from '../utils/DiscussionControls';
  */
 export default class ReplyPlaceholder extends Component {
   view() {
-    if (app.composingReplyTo(this.props.discussion)) {
+    if (app.composer.composingReplyTo(this.props.discussion)) {
       return (
         <article className="Post CommentPost editing">
           <header className="Post-header">
@@ -53,9 +53,9 @@ export default class ReplyPlaceholder extends Component {
     const updateInterval = setInterval(() => {
       // Since we're polling, the composer may have been closed in the meantime,
       // so we bail in that case.
-      if (!app.composer.component) return;
+      if (!app.composer.isVisible()) return;
 
-      const content = app.composer.component.content();
+      const content = app.composer.fields.content();
 
       if (preview === content) return;
 

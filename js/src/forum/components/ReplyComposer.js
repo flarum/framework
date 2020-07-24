@@ -20,16 +20,6 @@ function minimizeComposerIfFullScreen(e) {
  * - `discussion`
  */
 export default class ReplyComposer extends ComposerBody {
-  init() {
-    super.init();
-
-    this.editor.props.preview = (e) => {
-      minimizeComposerIfFullScreen(e);
-
-      m.route(app.route.discussion(this.props.discussion, 'reply'));
-    };
-  }
-
   static initProps(props) {
     super.initProps(props);
 
@@ -62,13 +52,22 @@ export default class ReplyComposer extends ComposerBody {
   }
 
   /**
+   * Jump to the preview when triggered by the text editor.
+   */
+  jumpToPreview(e) {
+    minimizeComposerIfFullScreen(e);
+
+    m.route(app.route.discussion(this.props.discussion, 'reply'));
+  }
+
+  /**
    * Get the data to submit to the server when the reply is saved.
    *
    * @return {Object}
    */
   data() {
     return {
-      content: this.content(),
+      content: this.composer.fields.content(),
       relationships: { discussion: this.props.discussion },
     };
   }
@@ -110,7 +109,7 @@ export default class ReplyComposer extends ComposerBody {
           });
         }
 
-        app.composer.hide();
+        this.composer.hide();
       }, this.loaded.bind(this));
   }
 }
