@@ -1,4 +1,4 @@
-{!! array_get($forum, 'headerHtml') !!}
+{!! \Illuminate\Support\Arr::get($forum, 'headerHtml') !!}
 
 <div id="app" class="App">
 
@@ -10,11 +10,11 @@
             <div id="header-navigation" class="Header-navigation"></div>
             <div class="container">
                 <h1 class="Header-title">
-                    <a href="{{ array_get($forum, 'baseUrl') }}" id="home-link">
-                        @if ($logo = array_get($forum, 'logoUrl'))
-                            <img src="{{ $logo }}" alt="{{ array_get($forum, 'title') }}" class="Header-logo">
+                    <a href="{{ \Illuminate\Support\Arr::get($forum, 'baseUrl') }}" id="home-link">
+                        @if ($logo = \Illuminate\Support\Arr::get($forum, 'logoUrl'))
+                            <img src="{{ $logo }}" alt="{{ \Illuminate\Support\Arr::get($forum, 'title') }}" class="Header-logo">
                         @else
-                            {{ array_get($forum, 'title') }}
+                            {{ \Illuminate\Support\Arr::get($forum, 'title') }}
                         @endif
                     </a>
                 </h1>
@@ -39,4 +39,4 @@
 
 </div>
 
-{!! array_get($forum, 'footerHtml') !!}
+{!! \Illuminate\Support\Arr::get($forum, 'footerHtml') !!}

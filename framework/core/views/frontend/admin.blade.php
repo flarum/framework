@@ -8,9 +8,9 @@
             <div id="header-navigation" class="Header-navigation"></div>
             <div class="container">
                 <h1 class="Header-title">
-                    <a href="{{ array_get($forum, 'baseUrl') }}">
-                        <?php $title = array_get($forum, 'title'); ?>
-                        @if ($logo = array_get($forum, 'logoUrl'))
+                    <a href="{{ \Illuminate\Support\Arr::get($forum, 'baseUrl') }}">
+                        <?php $title = \Illuminate\Support\Arr::get($forum, 'title'); ?>
+                        @if ($logo = \Illuminate\Support\Arr::get($forum, 'logoUrl'))
                             <img src="{{ $logo }}" alt="{{ $title }}" class="Header-logo">
                         @else
                             {{ $title }}
