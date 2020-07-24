@@ -2,7 +2,6 @@ import getCaretCoordinates from 'textarea-caret';
 import emojiMap from 'simple-emoji-map';
 
 import { extend } from 'flarum/extend';
-import ComposerBody from 'flarum/components/ComposerBody';
 import TextEditor from 'flarum/components/TextEditor';
 import TextEditorButton from 'flarum/components/TextEditorButton';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
@@ -13,26 +12,17 @@ import AutocompleteDropdown from './components/AutocompleteDropdown';
 export default function addComposerAutocomplete() {
   const emojiKeys = Object.keys(emojiMap);
 
-  extend(ComposerBody.prototype, 'config', function(original, isInitialized) {
+  extend(TextEditor.prototype, 'config', function(original, isInitialized) {
     if (isInitialized) return;
 
-    const composer = this;
     const $container = $('<div class="ComposerBody-emojiDropdownContainer"></div>');
     const dropdown = new AutocompleteDropdown({items: []});
     const $textarea = this.$('textarea').wrap('<div class="ComposerBody-emojiWrapper"></div>');
     let emojiStart;
     let typed;
 
-    const applySuggestion = function(replacement) {
-      const insert = replacement + ' ';
-
-      // When calling setValue(), emojiStart will be set back to 0 so we need to compute this beforehand
-      const index = emojiStart - 1 + insert.length;
-
-      const content = composer.content();
-      composer.editor.setValue(content.substring(0, emojiStart - 1) + insert + content.substr($textarea[0].selectionStart));
-
-      composer.editor.setSelectionRange(index, index);
+    const applySuggestion = (replacement) => {
+      this.props.composer.editor.replaceBeforeCursor(emojiStart - 1, replacement + ' ');
 
       dropdown.hide();
     };
@@ -168,7 +158,7 @@ export default function addComposerAutocomplete() {
 
   extend(TextEditor.prototype, 'toolbarItems', function(items) {
     items.add('emoji', (
-      <TextEditorButton onclick={() => this.insertAtCursor(':')} icon="far fa-smile">
+      <TextEditorButton onclick={() => this.props.composer.editor.insertAtCursor(':')} icon="far fa-smile">
         {app.translator.trans('flarum-emoji.forum.composer.emoji_tooltip')}
       </TextEditorButton>
     ));
