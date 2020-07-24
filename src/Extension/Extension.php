@@ -15,6 +15,7 @@ use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
@@ -51,6 +52,13 @@ class Extension implements Arrayable
         'jpg' => 'image/jpeg',
     ];
 
+    protected static function nameToId($name)
+    {
+        list($vendor, $package) = explode('/', $name);
+        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
+        return "$vendor-$package";
+    }
+
     /**
      * Unique Id of the extension.
      *
@@ -73,6 +81,13 @@ class Extension implements Arrayable
      * @var array
      */
     protected $composerJson;
+
+    /**
+     * An array of extension ids for extension dependencies
+     *
+     * @var string[]
+     */
+    protected $dependencies;
 
     /**
      * Whether the extension is installed.
@@ -104,9 +119,7 @@ class Extension implements Arrayable
      */
     protected function assignId()
     {
-        list($vendor, $package) = explode('/', $this->name);
-        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
-        $this->id = "$vendor-$package";
+        $this->id = static::nameToId($this->name);
     }
 
     public function extend(Container $app)
@@ -183,6 +196,22 @@ class Extension implements Arrayable
     }
 
     /**
+     * Get the list of flarum extensions that this extension depends on
+     *
+     * @param array $lockJson: The json manifest of all installed php extensions
+     */
+    public function calculateDependencies($lockJson)
+    {
+        $this->extensionDependencies = (new Collection(Arr::get($this->composerJson, 'require', [])))
+            ->keys()
+            ->filter(function ($key) use ($lockJson) {
+                return array_key_exists($key, $lockJson);
+            })->map(function ($key) {
+                return static::nameToId($key);
+            })->toArray();
+    }
+
+    /**
      * @return string
      */
     public function getVersion()
@@ -204,11 +233,11 @@ class Extension implements Arrayable
             return $icon;
         }
 
-        $file = $this->path.'/'.$file;
+        $file = $this->path . '/' . $file;
 
         if (file_exists($file)) {
             $extension = pathinfo($file, PATHINFO_EXTENSION);
-            if (! array_key_exists($extension, self::LOGO_MIMETYPES)) {
+            if (!array_key_exists($extension, self::LOGO_MIMETYPES)) {
                 throw new \RuntimeException('Invalid image type');
             }
 
@@ -219,14 +248,6 @@ class Extension implements Arrayable
         }
 
         return $icon;
-    }
-
-    /**
-     * Get the list of flarum extensions that this extension depends on.
-     */
-    public function getFlarumExtensionDependencies()
-    {
-        return Arr::get($this->composerJson, 'extra.flarum-extension.dependencies.extensions', []);
     }
 
     public function enable(Container $container)
@@ -265,13 +286,13 @@ class Extension implements Arrayable
     {
         $extenderFile = $this->getExtenderFile();
 
-        if (! $extenderFile) {
+        if (!$extenderFile) {
             return [];
         }
 
         $extenders = require $extenderFile;
 
-        if (! is_array($extenders)) {
+        if (!is_array($extenders)) {
             $extenders = [$extenders];
         }
 
@@ -318,17 +339,17 @@ class Extension implements Arrayable
      */
     public function hasAssets()
     {
-        return realpath($this->path.'/assets/') !== false;
+        return realpath($this->path . '/assets/') !== false;
     }
 
     public function copyAssetsTo(FilesystemInterface $target)
     {
-        if (! $this->hasAssets()) {
+        if (!$this->hasAssets()) {
             return;
         }
 
         $mount = new MountManager([
-            'source' => $source = new Filesystem(new Local($this->getPath().'/assets')),
+            'source' => $source = new Filesystem(new Local($this->getPath() . '/assets')),
             'target' => $target,
         ]);
 
@@ -347,19 +368,19 @@ class Extension implements Arrayable
      */
     public function hasMigrations()
     {
-        return realpath($this->path.'/migrations/') !== false;
+        return realpath($this->path . '/migrations/') !== false;
     }
 
     public function migrate(Migrator $migrator, $direction = 'up')
     {
-        if (! $this->hasMigrations()) {
+        if (!$this->hasMigrations()) {
             return;
         }
 
         if ($direction == 'up') {
-            return $migrator->run($this->getPath().'/migrations', $this);
+            return $migrator->run($this->getPath() . '/migrations', $this);
         } else {
-            return $migrator->reset($this->getPath().'/migrations', $this);
+            return $migrator->reset($this->getPath() . '/migrations', $this);
         }
     }
 
@@ -377,7 +398,7 @@ class Extension implements Arrayable
             'icon'                  => $this->getIcon(),
             'hasAssets'             => $this->hasAssets(),
             'hasMigrations'         => $this->hasMigrations(),
-            'extensionDependencies' => $this->getFlarumExtensionDependencies(),
+            'extensionDependencies' => $this->extensionDependencies,
         ], $this->composerJson);
     }
 }

@@ -84,10 +84,19 @@ class ExtensionManager
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
 
+            // We calculate and store an associative copy of the json manifest
+            // to avoid an O(n * m) complexity when finding extension dependencies.
+            // Additionally, by only including flarum extensions, we know that
+            // anything present in this associative copy is a flarum extension, removing
+            // the need to check for it's type.
+            $associativeInstalled = [];
+
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
                     continue;
                 }
+
+                $associativeInstalled[Arr::get($package, 'name')] = $package;
 
                 $path = isset($package['install-path'])
                     ? $this->paths->vendor.'/composer/'.$package['install-path']
@@ -102,6 +111,11 @@ class ExtensionManager
 
                 $extensions->put($extension->getId(), $extension);
             }
+
+            foreach ($extensions as $extension) {
+                $extension->calculateDependencies($associativeInstalled);
+            }
+
             $this->extensions = $extensions->sortBy(function ($extension, $name) {
                 return $extension->composerJsonAttribute('extra.flarum-extension.title');
             });
@@ -136,7 +150,7 @@ class ExtensionManager
 
         $missingDependencies = [];
         $enabled = $this->getEnabled();
-        foreach ($extension->getFlarumExtensionDependencies() as $dependency) {
+        foreach ($extension->extensionDependencies as $dependency) {
             if (! in_array($dependency, $enabled)) {
                 $missingDependencies[] = $dependency;
             }
@@ -181,7 +195,7 @@ class ExtensionManager
         $dependentExtensions = [];
 
         foreach ($this->getEnabledExtensions() as $possibleDependent) {
-            foreach ($possibleDependent->getFlarumExtensionDependencies() as $dependency) {
+            foreach ($possibleDependent->extensionDependencies as $dependency) {
                 if ($dependency === $extension->getId()) {
                     $dependentExtensions[] = $dependency;
                     // No need to cycle through the rest of this extension's dependencies.
@@ -393,9 +407,9 @@ class ExtensionManager
 
         foreach ($extensionList as $extension) {
             $extensionIdMapping[$extension->getId()] = $extension;
-            $extensionGraph[$extension->getId()] = $extension->getFlarumExtensionDependencies();
+            $extensionGraph[$extension->getId()] = $extension->extensionDependencies;
 
-            foreach ($extension->getFlarumExtensionDependencies() as $dependency) {
+            foreach ($extension->extensionDependencies as $dependency) {
                 $inDegreeCount[$dependency] = array_key_exists($dependency, $inDegreeCount) ? $inDegreeCount[$dependency] + 1 : 1;
             }
         }
