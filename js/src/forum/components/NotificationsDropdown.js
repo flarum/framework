@@ -13,10 +13,6 @@ export default class NotificationsDropdown extends Dropdown {
     super.initProps(props);
   }
 
-  init() {
-    super.init();
-  }
-
   getButton() {
     const newNotifications = this.getNewCount();
     const vdom = super.getButton();
