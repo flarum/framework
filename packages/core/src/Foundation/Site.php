@@ -9,6 +9,7 @@
 
 namespace Flarum\Foundation;
 
+use Illuminate\Support\Arr;
 use RuntimeException;
 
 class Site
@@ -62,6 +63,6 @@ class Site
             return [];
         }
 
-        return array_flatten($extenders);
+        return Arr::flatten($extenders);
     }
 }
