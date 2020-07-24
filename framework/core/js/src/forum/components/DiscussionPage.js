@@ -79,7 +79,7 @@ export default class DiscussionPage extends Page {
     // we'll just close it.
     app.pane.disable();
 
-    if (app.composingReplyTo(this.discussion) && !app.composer.component.content()) {
+    if (app.composer.composingReplyTo(this.discussion) && !app.composer.fields.content()) {
       app.composer.hide();
     } else {
       app.composer.minimize();

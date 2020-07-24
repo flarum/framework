@@ -273,12 +273,10 @@ export default class IndexPage extends Page {
     const deferred = m.deferred();
 
     if (app.session.user) {
-      const component = new DiscussionComposer({ user: app.session.user });
-
-      app.composer.load(component);
+      app.composer.load(DiscussionComposer, { user: app.session.user });
       app.composer.show();
 
-      deferred.resolve(component);
+      deferred.resolve(app.composer);
     } else {
       deferred.reject();
 

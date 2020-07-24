@@ -20,16 +20,6 @@ function minimizeComposerIfFullScreen(e) {
  * - `post`
  */
 export default class EditPostComposer extends ComposerBody {
-  init() {
-    super.init();
-
-    this.editor.props.preview = (e) => {
-      minimizeComposerIfFullScreen(e);
-
-      m.route(app.route.post(this.props.post));
-    };
-  }
-
   static initProps(props) {
     super.initProps(props);
 
@@ -65,13 +55,22 @@ export default class EditPostComposer extends ComposerBody {
   }
 
   /**
+   * Jump to the preview when triggered by the text editor.
+   */
+  jumpToPreview(e) {
+    minimizeComposerIfFullScreen(e);
+
+    m.route(app.route.post(this.props.post));
+  }
+
+  /**
    * Get the data to submit to the server when the post is saved.
    *
    * @return {Object}
    */
   data() {
     return {
-      content: this.content(),
+      content: this.composer.fields.content(),
     };
   }
 
@@ -86,7 +85,7 @@ export default class EditPostComposer extends ComposerBody {
       // If we're currently viewing the discussion which this edit was made
       // in, then we can scroll to the post.
       if (app.viewingDiscussion(discussion)) {
-        app.current.stream.goToNumber(post.number());
+        app.current.get('stream').goToNumber(post.number());
       } else {
         // Otherwise, we'll create an alert message to inform the user that
         // their edit has been made, containing a button which will
@@ -107,7 +106,7 @@ export default class EditPostComposer extends ComposerBody {
         });
       }
 
-      app.composer.hide();
+      this.composer.hide();
     }, this.loaded.bind(this));
   }
 }

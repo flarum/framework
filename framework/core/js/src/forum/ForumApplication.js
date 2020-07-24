@@ -1,6 +1,5 @@
 import History from './utils/History';
 import Pane from './utils/Pane';
-import ReplyComposer from './components/ReplyComposer';
 import DiscussionPage from './components/DiscussionPage';
 import SignUpModal from './components/SignUpModal';
 import HeaderPrimary from './components/HeaderPrimary';
@@ -16,6 +15,7 @@ import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
+import ComposerState from './states/ComposerState';
 
 export default class ForumApplication extends Application {
   /**
@@ -73,6 +73,11 @@ export default class ForumApplication extends Application {
    */
   search = new GlobalSearchState();
 
+  /*
+   * An object which controls the state of the composer.
+   */
+  composer = new ComposerState();
+
   constructor() {
     super();
 
@@ -114,9 +119,9 @@ export default class ForumApplication extends Application {
     m.mount(document.getElementById('header-navigation'), Navigation.component());
     m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
     m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
+    m.mount(document.getElementById('composer'), Composer.component({ state: this.composer }));
 
     this.pane = new Pane(document.getElementById('app'));
-    this.composer = m.mount(document.getElementById('composer'), Composer.component());
 
     m.route.mode = 'pathname';
     super.mount(this.forum.attribute('basePath'));
@@ -136,21 +141,6 @@ export default class ForumApplication extends Application {
         m.redraw();
       }
     });
-  }
-
-  /**
-   * Check whether or not the user is currently composing a reply to a
-   * discussion.
-   *
-   * @param {Discussion} discussion
-   * @return {Boolean}
-   */
-  composingReplyTo(discussion) {
-    return (
-      this.composer.component instanceof ReplyComposer &&
-      this.composer.component.props.discussion === discussion &&
-      this.composer.position !== Composer.PositionEnum.HIDDEN
-    );
   }
 
   /**

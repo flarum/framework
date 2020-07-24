@@ -231,6 +231,16 @@ export default class Application {
   }
 
   /**
+   * Determine the current screen mode, based on our media queries.
+   *
+   * @returns {String} - one of "phone", "tablet", "desktop" or "desktop-hd"
+   */
+  screen() {
+    const styles = getComputedStyle(document.documentElement);
+    return styles.getPropertyValue('--flarum-screen');
+  }
+
+  /**
    * Set the <title> of the page.
    *
    * @param {String} title
