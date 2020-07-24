@@ -56,6 +56,7 @@ class Extension implements Arrayable
     {
         list($vendor, $package) = explode('/', $name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
+
         return "$vendor-$package";
     }
 
@@ -83,7 +84,7 @@ class Extension implements Arrayable
     protected $composerJson;
 
     /**
-     * An array of extension ids for extension dependencies
+     * An array of extension ids for extension dependencies.
      *
      * @var string[]
      */
@@ -196,7 +197,7 @@ class Extension implements Arrayable
     }
 
     /**
-     * Get the list of flarum extensions that this extension depends on
+     * Get the list of flarum extensions that this extension depends on.
      *
      * @param array $lockJson: The json manifest of all installed php extensions
      */
@@ -233,11 +234,11 @@ class Extension implements Arrayable
             return $icon;
         }
 
-        $file = $this->path . '/' . $file;
+        $file = $this->path.'/'.$file;
 
         if (file_exists($file)) {
             $extension = pathinfo($file, PATHINFO_EXTENSION);
-            if (!array_key_exists($extension, self::LOGO_MIMETYPES)) {
+            if (! array_key_exists($extension, self::LOGO_MIMETYPES)) {
                 throw new \RuntimeException('Invalid image type');
             }
 
@@ -286,13 +287,13 @@ class Extension implements Arrayable
     {
         $extenderFile = $this->getExtenderFile();
 
-        if (!$extenderFile) {
+        if (! $extenderFile) {
             return [];
         }
 
         $extenders = require $extenderFile;
 
-        if (!is_array($extenders)) {
+        if (! is_array($extenders)) {
             $extenders = [$extenders];
         }
 
@@ -339,17 +340,17 @@ class Extension implements Arrayable
      */
     public function hasAssets()
     {
-        return realpath($this->path . '/assets/') !== false;
+        return realpath($this->path.'/assets/') !== false;
     }
 
     public function copyAssetsTo(FilesystemInterface $target)
     {
-        if (!$this->hasAssets()) {
+        if (! $this->hasAssets()) {
             return;
         }
 
         $mount = new MountManager([
-            'source' => $source = new Filesystem(new Local($this->getPath() . '/assets')),
+            'source' => $source = new Filesystem(new Local($this->getPath().'/assets')),
             'target' => $target,
         ]);
 
@@ -368,19 +369,19 @@ class Extension implements Arrayable
      */
     public function hasMigrations()
     {
-        return realpath($this->path . '/migrations/') !== false;
+        return realpath($this->path.'/migrations/') !== false;
     }
 
     public function migrate(Migrator $migrator, $direction = 'up')
     {
-        if (!$this->hasMigrations()) {
+        if (! $this->hasMigrations()) {
             return;
         }
 
         if ($direction == 'up') {
-            return $migrator->run($this->getPath() . '/migrations', $this);
+            return $migrator->run($this->getPath().'/migrations', $this);
         } else {
-            return $migrator->reset($this->getPath() . '/migrations', $this);
+            return $migrator->reset($this->getPath().'/migrations', $this);
         }
     }
 
