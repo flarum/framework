@@ -22,7 +22,6 @@ use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
-use Illuminate\Support\Arr;
 use Laminas\Stratigility\MiddlewarePipe;
 
 class ApiServiceProvider extends AbstractServiceProvider
@@ -46,7 +45,6 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.api.middleware', function () {
             return [
                 'flarum.api.error_handler',
-                'flarum.api.proxy_middleware',
                 HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
@@ -63,15 +61,6 @@ class ApiServiceProvider extends AbstractServiceProvider
                 $this->app->make(Registry::class),
                 new JsonApiFormatter($this->app['flarum']->inDebugMode()),
                 $this->app->tagged(Reporter::class)
-            );
-        });
-
-        $this->app->bind('flarum.api.proxy_middleware', function () {
-            $config = $this->app->make('flarum.config');
-
-            return new HttpMiddleware\ProxyAddress(
-                Arr::get($config, 'reverse_proxy.enabled', false),
-                Arr::get($config, 'reverse_proxy.allowed', ['127.0.0.1'])
             );
         });
 
