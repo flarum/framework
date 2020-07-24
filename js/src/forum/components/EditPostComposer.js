@@ -85,7 +85,7 @@ export default class EditPostComposer extends ComposerBody {
       // If we're currently viewing the discussion which this edit was made
       // in, then we can scroll to the post.
       if (app.viewingDiscussion(discussion)) {
-        app.current.stream.goToNumber(post.number());
+        app.current.get('stream').goToNumber(post.number());
       } else {
         // Otherwise, we'll create an alert message to inform the user that
         // their edit has been made, containing a button which will
