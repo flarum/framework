@@ -86,21 +86,16 @@ class ExtensionDependencyResolutionTest extends TestCase
 class FakeExtension
 {
     protected $id;
-    protected $dependencies;
+    public $extensionDependencies;
 
-    public function __construct($id, $dependencies)
+    public function __construct($id, $extensionDependencies)
     {
         $this->id = $id;
-        $this->dependencies = $dependencies;
+        $this->extensionDependencies = $extensionDependencies;
     }
 
     public function getId()
     {
         return $this->id;
-    }
-
-    public function getFlarumExtensionDependencies()
-    {
-        return $this->dependencies;
     }
 }
