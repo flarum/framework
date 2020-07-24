@@ -15,10 +15,10 @@ use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class Index
 {
@@ -43,13 +43,18 @@ class Index
     protected $url;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * @param Client $api
      * @param Factory $view
      * @param SettingsRepositoryInterface $settings
      * @param UrlGenerator $url
-     * @param Translator $translator
+     * @param TranslatorInterface $translator
      */
-    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings, UrlGenerator $url, Translator $translator)
+    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->api = $api;
         $this->view = $view;
