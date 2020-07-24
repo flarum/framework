@@ -54,7 +54,10 @@ export default class EditPostComposer extends ComposerBody {
     return items;
   }
 
-  preview(e) {
+  /**
+   * Jump to the preview when triggered by the text editor.
+   */
+  jumpToPreview(e) {
     minimizeComposerIfFullScreen(e);
 
     m.route(app.route.post(this.props.post));

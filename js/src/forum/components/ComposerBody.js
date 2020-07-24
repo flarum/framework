@@ -63,7 +63,7 @@ export default class ComposerBody extends Component {
                 placeholder: this.props.placeholder,
                 disabled: this.loading || this.props.disabled,
                 composer: this.composer,
-                preview: this.preview.bind(this),
+                preview: this.jumpToPreview && this.jumpToPreview.bind(this),
                 onchange: this.composer.fields.content,
                 onsubmit: this.onsubmit.bind(this),
                 value: this.composer.fields.content(),
@@ -86,11 +86,6 @@ export default class ComposerBody extends Component {
 
     return content && content !== this.props.originalContent;
   }
-
-  /**
-   * Handle preview for the text editor.
-   */
-  preview(e) {}
 
   /**
    * Build an item list for the composer's header.

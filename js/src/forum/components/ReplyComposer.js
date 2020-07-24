@@ -51,7 +51,10 @@ export default class ReplyComposer extends ComposerBody {
     return items;
   }
 
-  preview(e) {
+  /**
+   * Jump to the preview when triggered by the text editor.
+   */
+  jumpToPreview(e) {
     minimizeComposerIfFullScreen(e);
 
     m.route(app.route.discussion(this.props.discussion, 'reply'));
