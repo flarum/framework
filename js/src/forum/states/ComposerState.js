@@ -194,18 +194,7 @@ class ComposerState {
    * @public
    */
   isFullScreen() {
-    return this.position === ComposerState.Position.FULLSCREEN || this.onMobile();
-  }
-
-  /**
-   * Determine whether we are on mobile.
-   *
-   * @return {Boolean}
-   * @public
-   */
-  onMobile() {
-    // 767 is the mobile screen cutoff defined in the less variables file
-    return window.innerWidth <= 767;
+    return this.position === ComposerState.Position.FULLSCREEN || app.screen() === 'mobile';
   }
 
   /**
