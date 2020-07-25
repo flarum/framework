@@ -15,6 +15,7 @@ use Flarum\Post\CommentPost;
 use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Exception\PermissionDeniedException;
+use Illuminate\Support\Arr;
 use Symfony\Component\Translation\TranslatorInterface;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
@@ -57,7 +58,7 @@ class CreateFlagHandler
         $actor = $command->actor;
         $data = $command->data;
 
-        $postId = array_get($data, 'relationships.post.data.id');
+        $postId = Arr::get($data, 'relationships.post.data.id');
         $post = $this->posts->findOrFail($postId, $actor);
 
         if (! ($post instanceof CommentPost)) {
@@ -70,7 +71,7 @@ class CreateFlagHandler
             throw new PermissionDeniedException();
         }
 
-        if (array_get($data, 'attributes.reason') === null && array_get($data, 'attributes.reasonDetail') === '') {
+        if (Arr::get($data, 'attributes.reason') === null && Arr::get($data, 'attributes.reasonDetail') === '') {
             throw new ValidationException([
                 'message' => $this->translator->trans('flarum-flags.forum.flag_post.reason_missing_message')
             ]);
@@ -86,8 +87,8 @@ class CreateFlagHandler
         $flag->post_id = $post->id;
         $flag->user_id = $actor->id;
         $flag->type = 'user';
-        $flag->reason = array_get($data, 'attributes.reason');
-        $flag->reason_detail = array_get($data, 'attributes.reasonDetail');
+        $flag->reason = Arr::get($data, 'attributes.reason');
+        $flag->reason_detail = Arr::get($data, 'attributes.reasonDetail');
         $flag->created_at = time();
 
         $flag->save();
