@@ -11,6 +11,7 @@ namespace Flarum\Tags\Listener;
 
 use Flarum\Event\ConfigurePostsQuery;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class FilterPostsQueryByTag
 {
@@ -27,7 +28,7 @@ class FilterPostsQueryByTag
      */
     public function filterQuery(ConfigurePostsQuery $event)
     {
-        if ($tagId = array_get($event->filter, 'tag')) {
+        if ($tagId = Arr::get($event->filter, 'tag')) {
             $event->query
                 ->join('discussion_tag', 'discussion_tag.discussion_id', '=', 'posts.discussion_id')
                 ->where('discussion_tag.tag_id', $tagId);
