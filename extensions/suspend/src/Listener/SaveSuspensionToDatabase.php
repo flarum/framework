@@ -15,6 +15,7 @@ use Flarum\Suspend\Event\Unsuspended;
 use Flarum\Suspend\SuspendValidator;
 use Flarum\User\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class SaveSuspensionToDatabase
 {
@@ -42,7 +43,7 @@ class SaveSuspensionToDatabase
 
     public function handle(Saving $event)
     {
-        $attributes = array_get($event->data, 'attributes', []);
+        $attributes = Arr::get($event->data, 'attributes', []);
 
         if (array_key_exists('suspendedUntil', $attributes)) {
             $this->validator->assertValid($attributes);
