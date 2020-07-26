@@ -10,6 +10,7 @@
 namespace Flarum\Pusher\Api\Controller;
 
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -41,7 +42,7 @@ class AuthController implements RequestHandlerInterface
         $userChannel = 'private-user'.$request->getAttribute('actor')->id;
         $body = $request->getParsedBody();
 
-        if (array_get($body, 'channel_name') === $userChannel) {
+        if (Arr::get($body, 'channel_name') === $userChannel) {
             $pusher = new Pusher(
                 $this->settings->get('flarum-pusher.app_key'),
                 $this->settings->get('flarum-pusher.app_secret'),
@@ -49,7 +50,7 @@ class AuthController implements RequestHandlerInterface
                 ['cluster' => $this->settings->get('flarum-pusher.app_cluster')]
             );
 
-            $payload = json_decode($pusher->socket_auth($userChannel, array_get($body, 'socket_id')), true);
+            $payload = json_decode($pusher->socket_auth($userChannel, Arr::get($body, 'socket_id')), true);
 
             return new JsonResponse($payload);
         }
