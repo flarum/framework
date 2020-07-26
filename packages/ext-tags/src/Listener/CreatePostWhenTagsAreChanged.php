@@ -13,6 +13,7 @@ use Flarum\Event\ConfigurePostTypes;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Post\DiscussionTaggedPost;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 
 class CreatePostWhenTagsAreChanged
 {
@@ -41,7 +42,7 @@ class CreatePostWhenTagsAreChanged
         $post = DiscussionTaggedPost::reply(
             $event->discussion->id,
             $event->actor->id,
-            array_pluck($event->oldTags, 'id'),
+            Arr::pluck($event->oldTags, 'id'),
             $event->discussion->tags()->pluck('id')->all()
         );
 

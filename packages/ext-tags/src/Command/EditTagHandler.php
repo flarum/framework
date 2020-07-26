@@ -12,6 +12,7 @@ namespace Flarum\Tags\Command;
 use Flarum\Tags\Event\TagWillBeSaved;
 use Flarum\Tags\TagRepository;
 use Flarum\Tags\TagValidator;
+use Illuminate\Support\Arr;
 
 class EditTagHandler
 {
@@ -49,7 +50,7 @@ class EditTagHandler
 
         $actor->assertCan('edit', $tag);
 
-        $attributes = array_get($data, 'attributes', []);
+        $attributes = Arr::get($data, 'attributes', []);
 
         if (isset($attributes['name'])) {
             $tag->name = $attributes['name'];
