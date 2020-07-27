@@ -25,7 +25,6 @@ use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\View\Factory;
 
 return [
     (new Extend\Frontend('forum'))
@@ -45,7 +44,7 @@ return [
     (new Extend\View)
         ->namespace('flarum-mentions', __DIR__.'/views'),
 
-    function (Dispatcher $events, Factory $views) {
+    function (Dispatcher $events) {
         $events->listen(WillSerializeData::class, Listener\FilterVisiblePosts::class);
         $events->subscribe(Listener\AddPostMentionedByRelationship::class);
 
