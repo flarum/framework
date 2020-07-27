@@ -13,6 +13,7 @@ use Flarum\Foundation\Application;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Document;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Assets
@@ -48,7 +49,7 @@ class Assets
         ];
 
         if ($this->app->inDebugMode()) {
-            $this->commit(array_flatten($compilers));
+            $this->commit(Arr::flatten($compilers));
         }
 
         $document->js = array_merge($document->js, $this->getUrls($compilers['js']));

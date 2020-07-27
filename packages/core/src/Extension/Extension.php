@@ -267,7 +267,7 @@ class Extension implements Arrayable
             $extenders = [$extenders];
         }
 
-        return array_flatten($extenders);
+        return Arr::flatten($extenders);
     }
 
     /**
