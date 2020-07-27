@@ -23,7 +23,6 @@ use Flarum\Subscriptions\Gambit\SubscriptionGambit;
 use Flarum\Subscriptions\Listener;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\View\Factory;
 
 return [
     (new Extend\Frontend('forum'))
@@ -36,7 +35,7 @@ return [
     (new Extend\View)
         ->namespace('flarum-subscriptions', __DIR__.'/views'),
 
-    function (Dispatcher $events, Factory $views) {
+    function (Dispatcher $events) {
         $events->listen(Serializing::class, Listener\AddDiscussionSubscriptionAttribute::class);
         $events->listen(Saving::class, Listener\SaveSubscriptionToDatabase::class);
 
