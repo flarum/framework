@@ -11,6 +11,7 @@ namespace Flarum\Http;
 
 use FastRoute\DataGenerator;
 use FastRoute\RouteParser;
+use Illuminate\Support\Arr;
 
 class RouteCollection
 {
@@ -88,26 +89,25 @@ class RouteCollection
     public function getPath($name, array $parameters = [])
     {
         if (isset($this->reverse[$name])) {
-            $curr_max_count = 0;
-            $parts = $this->reverse[$name][0];
+            $maxMatches = 0;
+            $matchingParts = $this->reverse[$name][0];
 
             // For a given route name, we want to choose the option that best matches the given parameters.
             // Each routing option is an array of parts. Each part is either a constant string
             // (which we don't care about here), or an array where the first element is the parameter name
             // and the second element is a regex into which the parameter value is inserted, if the parameter matches.
-            foreach ($this->reverse[$name] as $parts_option) {
-                for ($i = 0; $i < count($parts_option); $i++) {
-                    $part = $parts_option[$i];
-                    if (is_array($part) && in_array($part[0], array_keys($parameters)) && $i > $curr_max_count) {
-                        $curr_max_count = $i;
-                        $parts = $parts_option;
+            foreach ($this->reverse[$name] as $parts) {
+                foreach ($parts as $i => $part) {
+                    if (is_array($part) && Arr::exists($parameters, $part[0]) && $i > $maxMatches) {
+                        $maxMatches = $i;
+                        $matchingParts = $parts;
                     }
                 }
             }
 
-            array_walk($parts, [$this, 'fixPathPart'], $parameters);
+            array_walk($matchingParts, [$this, 'fixPathPart'], $parameters);
 
-            return '/'.ltrim(implode('', $parts), '/');
+            return '/'.ltrim(implode('', $matchingParts), '/');
         }
 
         throw new \RuntimeException("Route $name not found");
