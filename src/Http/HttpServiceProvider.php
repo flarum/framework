@@ -16,6 +16,10 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
 use Illuminate\Support\Arr;
+use Flarum\Foundation\ErrorHandling\Registry;
+use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\ErrorHandling\FrontendFormatter;
+use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 
 class HttpServiceProvider extends AbstractServiceProvider
 {
@@ -58,8 +62,27 @@ class HttpServiceProvider extends AbstractServiceProvider
 
             return $compiledDrivers;
         });
+
         $this->container->bind(SlugManager::class, function () {
             return new SlugManager($this->container->make('flarum.http.selectedSlugDrivers'));
+        });
+
+        $this->container->singleton('flarum.http.frontend_exceptions', function () {
+            return [
+                NotAuthenticatedException::class, // 401
+                PermissionDeniedException::class, // 403
+                ModelNotFoundException::class, // 404
+                RouteNotFoundException::class, // 404
+            ];
+        });
+
+        $this->container->singleton('flarum.http.frontend_handler', function () {
+            return new Middleware\HandleErrors(
+                $this->container->make(Registry::class),
+                $this->container['flarum']->inDebugMode() ? $this->container->make(WhoopsFormatter::class) : $this->container->make(FrontendFormatter::class),
+                $this->container->tagged(Reporter::class),
+                $this->container->make('flarum.http.frontend_exceptions')
+            );
         });
     }
 

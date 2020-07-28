@@ -69,6 +69,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 'flarum.forum.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\ShareErrorsFromSession::class,
+                'flarum.http.frontend_handler',
                 HttpMiddleware\FlarumPromotionHeader::class,
             ];
         });
