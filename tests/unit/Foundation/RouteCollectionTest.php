@@ -9,10 +9,8 @@
 
 namespace Flarum\Tests\unit\Foundation;
 
-use Flarum\Foundation\Paths;
 use Flarum\Http\RouteCollection;
 use Flarum\Tests\unit\TestCase;
-use InvalidArgumentException;
 use RuntimeException;
 
 class RouteCollectionTest extends TestCase
@@ -27,7 +25,6 @@ class RouteCollectionTest extends TestCase
         $collection->getPath('nonexistent');
     }
 
-
     /** @test */
     public function it_properly_processes_a_simple_route_with_no_parameters()
     {
@@ -37,7 +34,6 @@ class RouteCollectionTest extends TestCase
 
         $this->assertEquals('/custom/route', $collection->getPath('custom'));
     }
-
 
     /** @test */
     public function it_properly_processes_a_route_with_all_parameters_required()
@@ -53,7 +49,6 @@ class RouteCollectionTest extends TestCase
         ]));
     }
 
-
     /** @test */
     public function it_works_if_optional_parameters_are_missing()
     {
@@ -65,7 +60,6 @@ class RouteCollectionTest extends TestCase
             'route' => 'something'
         ]));
     }
-
 
     /** @test */
     public function it_works_with_optional_parameters()
