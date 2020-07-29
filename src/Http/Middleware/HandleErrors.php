@@ -76,10 +76,9 @@ class HandleErrors implements Middleware
                     }
                 }
 
-                if (!$handled) {
+                if (! $handled) {
                     throw $e;
                 }
-
             }
             $error = $this->registry->handle($e);
 

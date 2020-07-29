@@ -10,9 +10,9 @@
 namespace Flarum\Foundation\ErrorHandling;
 
 use Flarum\Frontend\Controller;
-use Flarum\Http\Content\PermissionDenied;
 use Flarum\Http\Content\NotAuthenticated;
 use Flarum\Http\Content\NotFound;
+use Flarum\Http\Content\PermissionDenied;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -56,15 +56,13 @@ class FrontendFormatter implements HttpFormatter
 
     public function format(HandledError $error, Request $request): Response
     {
-        $frontend = $this->container->make("flarum.frontend.forum");
+        $frontend = $this->container->make('flarum.frontend.forum');
 
         if ($error->getStatusCode() === 401) {
             $frontend->content(new NotAuthenticated);
-        }
-        elseif ($error->getStatusCode() === 403) {
+        } elseif ($error->getStatusCode() === 403) {
             $frontend->content(new PermissionDenied);
-        }
-        elseif ($error->getStatusCode() === 404) {
+        } elseif ($error->getStatusCode() === 404) {
             $frontend->content(new NotFound);
         }
 
