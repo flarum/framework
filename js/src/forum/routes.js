@@ -4,6 +4,7 @@ import PostsUserPage from './components/PostsUserPage';
 import DiscussionsUserPage from './components/DiscussionsUserPage';
 import SettingsPage from './components/SettingsPage';
 import NotificationsPage from './components/NotificationsPage';
+import ErrorPage from './components/ErrorPage';
 import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 
 /**
@@ -24,6 +25,8 @@ export default function (app) {
 
     settings: { path: '/settings', component: SettingsPage },
     notifications: { path: '/notifications', component: NotificationsPage },
+  
+    error: { path: '/:error', component: ErrorPage },
   };
 
   /**
