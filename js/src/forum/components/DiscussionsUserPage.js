@@ -22,6 +22,8 @@ export default class DiscussionsUserPage extends UserPage {
     });
 
     this.state.refresh();
+
+    app.current.set('discussions', this.state);
   }
 
   content() {

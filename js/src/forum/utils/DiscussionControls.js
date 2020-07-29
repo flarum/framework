@@ -6,6 +6,7 @@ import Separator from '../../common/components/Separator';
 import RenameDiscussionModal from '../components/RenameDiscussionModal';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
+import DiscussionsUserPage from '../components/DiscussionsUserPage';
 
 /**
  * The `DiscussionControls` utility constructs a list of buttons for a
@@ -227,7 +228,13 @@ export default {
         app.history.back();
       }
 
-      return this.delete().then(() => app.discussions.removeDiscussion(this));
+      return this.delete().then(() => {
+        app.discussions.removeDiscussion(this);
+
+        if (app.current.matches(DiscussionsUserPage)) {
+          app.current.get('discussions').removeDiscussion(this);
+        }
+      });
     }
   },
 
