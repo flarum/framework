@@ -28,7 +28,7 @@ export default class DiscussionPage extends Page {
     /**
      * The number of the first post that is currently visible in the viewport.
      *
-     * @type {Integer}
+     * @type {number}
      */
     this.near = m.route.param('near') || 0;
 
