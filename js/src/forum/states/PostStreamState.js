@@ -88,9 +88,10 @@ class PostStreamState {
       return this.goToLast();
     }
 
+    this.paused = true;
+
     this.loadPromise = this.loadNearNumber(number);
 
-    this.paused = true;
     this.needsScroll = true;
     this.noAnimationScroll = noAnimation;
     this.locationType = 'number';
@@ -116,7 +117,6 @@ class PostStreamState {
 
     this.loadPromise = this.loadNearIndex(index);
 
-    this.paused = true;
     this.needsScroll = true;
     this.noAnimationScroll = noAnimation;
     this.locationType = 'index';
