@@ -70,7 +70,7 @@ class PostStreamState {
    * @return {Promise}
    */
   goToLast() {
-    return this.goToIndex(this.count() - 1);
+    return this.goToIndex(this.count() - 1, true);
   }
 
   /**
