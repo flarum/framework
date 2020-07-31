@@ -148,8 +148,8 @@ export default class PostStreamScrubber extends Component {
     const percentPerPost = this.percentPerPost();
 
     const $scrubber = this.$();
-    $scrubber.find(`.Scrubber-index`).text(formatNumber(this.state.sanitizeIndex(Math.max(1, index))));
-    $scrubber.find(`.Scrubber-description`).text(this.state.description);
+    $scrubber.find('.Scrubber-index').text(formatNumber(this.state.sanitizeIndex(Math.max(1, index))));
+    $scrubber.find('.Scrubber-description').text(this.state.description);
     $scrubber.toggleClass('disabled', this.state.disabled());
 
     const heights = {};
