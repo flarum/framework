@@ -9,19 +9,19 @@ import ScrollListener from '../../common/utils/ScrollListener';
  *
  * ### Props
  *
- * - `state`
+ * - `stream`
  * - `className`
  */
 export default class PostStreamScrubber extends Component {
   init() {
-    this.state = this.props.state;
+    this.stream = this.props.stream;
     this.handlers = {};
 
     this.scrollListener = new ScrollListener(this.updateScrubberValues.bind(this, { fromScroll: true, forceHeightChange: true }));
   }
 
   view() {
-    const count = this.state.count();
+    const count = this.stream.count();
 
     // Index is left blank for performance reasons, it is filled in in updateScubberValues
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
@@ -29,8 +29,8 @@ export default class PostStreamScrubber extends Component {
       count: <span className="Scrubber-count">{formatNumber(count)}</span>,
     });
 
-    const unreadCount = this.state.discussion.unreadCount();
-    const unreadPercent = count ? Math.min(count - this.state.index, unreadCount) / count : 0;
+    const unreadCount = this.stream.discussion.unreadCount();
+    const unreadPercent = count ? Math.min(count - this.stream.index, unreadCount) / count : 0;
 
     function styleUnread(element, isInitialized, context) {
       const $element = $(element);
@@ -68,7 +68,7 @@ export default class PostStreamScrubber extends Component {
                 <div className="Scrubber-bar" />
                 <div className="Scrubber-info">
                   <strong>{viewing}</strong>
-                  <span className="Scrubber-description">{this.state.description}</span>
+                  <span className="Scrubber-description">{this.stream.description}</span>
                 </div>
               </div>
               <div className="Scrubber-after" />
@@ -88,7 +88,7 @@ export default class PostStreamScrubber extends Component {
   }
 
   config(isInitialized, context) {
-    this.state.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
+    this.stream.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
     if (isInitialized) return;
 
     context.onunload = this.ondestroy.bind(this);
@@ -142,24 +142,24 @@ export default class PostStreamScrubber extends Component {
    * @param {Boolean} animate
    */
   updateScrubberValues(options = {}) {
-    const index = this.state.index;
-    const count = this.state.count();
-    const visible = this.state.visible || 1;
+    const index = this.stream.index;
+    const count = this.stream.count();
+    const visible = this.stream.visible || 1;
     const percentPerPost = this.percentPerPost();
 
     const $scrubber = this.$();
-    $scrubber.find('.Scrubber-index').text(formatNumber(this.state.sanitizeIndex(Math.max(1, index))));
-    $scrubber.find('.Scrubber-description').text(this.state.description);
-    $scrubber.toggleClass('disabled', this.state.disabled());
+    $scrubber.find('.Scrubber-index').text(formatNumber(this.stream.sanitizeIndex(Math.max(1, index))));
+    $scrubber.find('.Scrubber-description').text(this.stream.description);
+    $scrubber.toggleClass('disabled', this.stream.disabled());
 
     const heights = {};
     heights.before = Math.max(0, percentPerPost.index * Math.min(index - 1, count - visible));
     heights.handle = Math.min(100 - heights.before, percentPerPost.visible * visible);
     heights.after = 100 - heights.before - heights.handle;
 
-    // If the state is paused, don't change height on scroll, as the viewport is being scrolled by the JS
+    // If the stream is paused, don't change height on scroll, as the viewport is being scrolled by the JS
     // If a height change animation is already in progress, don't adjust height unless overriden
-    if ((options.fromScroll && this.state.paused) || (this.adjustingHeight && !options.forceHeightChange)) return;
+    if ((options.fromScroll && this.stream.paused) || (this.adjustingHeight && !options.forceHeightChange)) return;
 
     const func = options.animate ? 'animate' : 'css';
     this.adjustingHeight = true;
@@ -184,7 +184,7 @@ export default class PostStreamScrubber extends Component {
    * Go to the first post in the discussion.
    */
   goToFirst() {
-    this.state.goToFirst();
+    this.stream.goToFirst();
     this.updateScrubberValues({ animate: true, forceHeightChange: true });
   }
 
@@ -192,7 +192,7 @@ export default class PostStreamScrubber extends Component {
    * Go to the last post in the discussion.
    */
   goToLast() {
-    this.state.goToLast();
+    this.stream.goToLast();
     this.updateScrubberValues({ animate: true, forceHeightChange: true });
   }
 
@@ -222,7 +222,7 @@ export default class PostStreamScrubber extends Component {
   onmousedown(e) {
     e.redraw = false;
     this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
-    this.indexStart = this.state.index;
+    this.indexStart = this.stream.index;
     this.dragging = true;
     $('body').css('cursor', 'move');
     this.$().toggleClass('dragging', this.dragging);
@@ -238,9 +238,9 @@ export default class PostStreamScrubber extends Component {
     const deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
     const deltaPercent = (deltaPixels / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
     const deltaIndex = deltaPercent / this.percentPerPost().index || 0;
-    const newIndex = Math.min(this.indexStart + deltaIndex, this.state.count() - 1);
+    const newIndex = Math.min(this.indexStart + deltaIndex, this.stream.count() - 1);
 
-    this.state.index = Math.max(0, newIndex);
+    this.stream.index = Math.max(0, newIndex);
     this.updateScrubberValues();
   }
 
@@ -257,8 +257,8 @@ export default class PostStreamScrubber extends Component {
 
     // If the index we've landed on is in a gap, then tell the stream-
     // content that we want to load those posts.
-    const intIndex = Math.floor(this.state.index);
-    this.state.goToIndex(intIndex);
+    const intIndex = Math.floor(this.stream.index);
+    this.stream.goToIndex(intIndex);
   }
 
   onclick(e) {
@@ -278,8 +278,8 @@ export default class PostStreamScrubber extends Component {
     // 3. Now we can convert the percentage into an index, and tell the stream-
     //    content component to jump to that index.
     let offsetIndex = offsetPercent / this.percentPerPost().index;
-    offsetIndex = Math.max(0, Math.min(this.state.count() - 1, offsetIndex));
-    this.state.goToIndex(Math.floor(offsetIndex));
+    offsetIndex = Math.max(0, Math.min(this.stream.count() - 1, offsetIndex));
+    this.stream.goToIndex(Math.floor(offsetIndex));
     this.updateScrubberValues({ animate: true, forceHeightChange: true });
 
     this.$().removeClass('open');
@@ -296,8 +296,8 @@ export default class PostStreamScrubber extends Component {
    *     scrubber.
    */
   percentPerPost() {
-    const count = this.state.count() || 1;
-    const visible = this.state.visible || 1;
+    const count = this.stream.count() || 1;
+    const visible = this.stream.visible || 1;
 
     // To stop the handle of the scrollbar from getting too small when there
     // are many posts, we define a minimum percentage height for the handle

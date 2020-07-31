@@ -11,12 +11,13 @@ import Button from '../../common/components/Button';
  * ### Props
  *
  * - `discussion`
- * - `state`
+ * - `stream`
+ * - `onPositionChange`
  */
 export default class PostStream extends Component {
   init() {
     this.discussion = this.props.discussion;
-    this.state = this.props.state;
+    this.stream = this.props.stream;
 
     this.scrollListener = new ScrollListener(this.onscroll.bind(this));
   }
@@ -29,13 +30,13 @@ export default class PostStream extends Component {
 
     let lastTime;
 
-    const viewingEnd = this.state.viewingEnd();
-    const posts = this.state.posts();
+    const viewingEnd = this.stream.viewingEnd();
+    const posts = this.stream.posts();
     const postIds = this.discussion.postIds();
 
     const items = posts.map((post, i) => {
       let content;
-      const attrs = { 'data-index': this.state.visibleStart + i };
+      const attrs = { 'data-index': this.stream.visibleStart + i };
 
       if (post) {
         const time = post.createdAt();
@@ -65,7 +66,7 @@ export default class PostStream extends Component {
 
         lastTime = time;
       } else {
-        attrs.key = 'post' + postIds[this.state.visibleStart + i];
+        attrs.key = 'post' + postIds[this.stream.visibleStart + i];
 
         content = PostLoading.component();
       }
@@ -77,10 +78,10 @@ export default class PostStream extends Component {
       );
     });
 
-    if (!viewingEnd && posts[this.state.visibleEnd - this.state.visibleStart - 1]) {
+    if (!viewingEnd && posts[this.stream.visibleEnd - this.stream.visibleStart - 1]) {
       items.push(
         <div className="PostStream-loadMore" key="loadMore">
-          <Button className="Button" onclick={this.state.loadNext.bind(this.state)}>
+          <Button className="Button" onclick={this.stream.loadNext.bind(this.stream)}>
             {app.translator.trans('core.forum.post_stream.load_more_button')}
           </Button>
         </div>
@@ -101,17 +102,17 @@ export default class PostStream extends Component {
   }
 
   config(isInitialized, context) {
-    if (this.state.needsScroll) {
-      this.state.needsScroll = false;
-      const locationType = this.state.locationType;
+    if (this.stream.needsScroll) {
+      this.stream.needsScroll = false;
+      const locationType = this.stream.locationType;
       if (locationType == 'number') {
-        this.scrollToNumber(this.state.number, this.state.noAnimationScroll);
+        this.scrollToNumber(this.stream.number, this.stream.noAnimationScroll);
       } else if (locationType == 'index') {
-        const index = this.state.sanitizeIndex(this.state.index);
-        const backwards = index == this.state.count() - 1;
-        this.scrollToIndex(index, this.state.noAnimationScroll, backwards);
+        const index = this.stream.sanitizeIndex(this.stream.index);
+        const backwards = index == this.stream.count() - 1;
+        this.scrollToIndex(index, this.stream.noAnimationScroll, backwards);
       }
-      this[locationType] = this.state[locationType];
+      this[locationType] = this.stream[locationType];
     }
 
     if (isInitialized) return;
@@ -132,25 +133,25 @@ export default class PostStream extends Component {
    * @param {Integer} top
    */
   onscroll(top = window.pageYOffset) {
-    if (this.state.paused) return;
+    if (this.stream.paused) return;
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;
     const loadAheadDistance = 300;
 
-    if (this.state.visibleStart > 0) {
-      const $item = this.$('.PostStream-item[data-index=' + this.state.visibleStart + ']');
+    if (this.stream.visibleStart > 0) {
+      const $item = this.$('.PostStream-item[data-index=' + this.stream.visibleStart + ']');
 
       if ($item.length && $item.offset().top > viewportTop - loadAheadDistance) {
-        this.state.loadPrevious();
+        this.stream.loadPrevious();
       }
     }
 
-    if (this.state.visibleEnd < this.state.count()) {
-      const $item = this.$('.PostStream-item[data-index=' + (this.state.visibleEnd - 1) + ']');
+    if (this.stream.visibleEnd < this.stream.count()) {
+      const $item = this.$('.PostStream-item[data-index=' + (this.stream.visibleEnd - 1) + ']');
 
       if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
-        this.state.loadNext();
+        this.stream.loadNext();
       }
     }
 
@@ -214,9 +215,9 @@ export default class PostStream extends Component {
       if (time) period = time;
     });
 
-    this.state.index = index + 1;
-    this.state.visible = visible;
-    if (period) this.state.description = dayjs(period).format('MMMM YYYY');
+    this.stream.index = index + 1;
+    this.stream.visible = visible;
+    if (period) this.stream.description = dayjs(period).format('MMMM YYYY');
   }
 
   /**
@@ -255,7 +256,7 @@ export default class PostStream extends Component {
     });
 
     if (startNumber) {
-      this.props.positionHandler(startNumber || 1, endNumber, startNumber);
+      this.props.onPositionChange(startNumber || 1, endNumber, startNumber);
     }
   }
 
@@ -285,7 +286,7 @@ export default class PostStream extends Component {
     const $item = this.$(`.PostStream-item[data-index=${index}]`);
 
     return this.scrollToItem($item, noAnimation, true, bottom).then(() => {
-      if (index == this.state.count() - 1) {
+      if (index == this.stream.count() - 1) {
         this.flashItem(this.$('.PostStream-item:last-child'));
       }
     });
@@ -325,14 +326,14 @@ export default class PostStream extends Component {
       }
     }
 
-    return Promise.all([$container.promise(), this.state.loadPromise]).then(() => {
+    return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
       this.updateScrubber();
       const index = $item.data('index');
       m.redraw(true);
       const scroll = index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
       $(window).scrollTop(scroll);
       this.calculatePosition();
-      this.state.paused = false;
+      this.stream.paused = false;
     });
   }
 

@@ -109,7 +109,7 @@ export default class DiscussionPage extends Page {
                     <ul>{listItems(this.sidebarItems().toArray())}</ul>
                   </nav>
                   <div className="DiscussionPage-stream">
-                    {PostStream.component({ discussion, state: this.stream, positionHandler: this.positionChanged.bind(this) })}
+                    {PostStream.component({ discussion, stream: this.stream, onPositionChange: this.positionChanged.bind(this) })}
                   </div>
                 </div>,
               ]
@@ -268,7 +268,7 @@ export default class DiscussionPage extends Page {
       'scrubber',
       PostStreamScrubber.component({
         discussion: this.discussion,
-        state: this.stream,
+        stream: this.stream,
         className: 'App-titleControl',
       }),
       -100
