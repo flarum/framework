@@ -81,7 +81,7 @@ class PostStreamState {
    * @param {Boolean} noAnimation
    * @return {Promise}
    */
-  goToNumber(number, noAnimation) {
+  goToNumber(number, noAnimation = false) {
     // If we want to go to the reply preview, then we will go to the end of the
     // discussion and then scroll to the very bottom of the page.
     if (number === 'reply') {
@@ -111,7 +111,7 @@ class PostStreamState {
    * @param {Boolean} noAnimation
    * @return {Promise}
    */
-  goToIndex(index, noAnimation) {
+  goToIndex(index, noAnimation = false) {
     this.paused = true;
 
     this.loadPromise = this.loadNearIndex(index);
