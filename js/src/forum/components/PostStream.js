@@ -102,20 +102,17 @@ export default class PostStream extends Component {
   }
 
   config(isInitialized, context) {
-    if (this.stream.needsScroll) {
-      this.stream.needsScroll = false;
-      const locationType = this.stream.locationType;
-      if (locationType == 'number') {
-        this.scrollToNumber(this.stream.number, this.stream.noAnimationScroll);
-      } else if (locationType == 'index') {
-        const index = this.stream.sanitizeIndex(this.stream.index);
-        const backwards = index == this.stream.count() - 1;
-        this.scrollToIndex(index, this.stream.noAnimationScroll, backwards);
+    this.stream.scrollEffect((type, position, animate) => {
+      if (type === 'number') {
+        this.scrollToNumber(position, animate);
+      } else if (type === 'index') {
+        const backwards = position === this.stream.count() - 1;
+        this.scrollToIndex(position, animate, backwards);
       }
-      this[locationType] = this.stream[locationType];
-    }
+    });
 
     if (isInitialized) return;
+
     // This is wrapped in setTimeout due to the following Mithril issue:
     // https://github.com/lhorie/mithril.js/issues/637
     setTimeout(() => this.scrollListener.start());
@@ -274,28 +271,28 @@ export default class PostStream extends Component {
    * Scroll down to a certain post by number and 'flash' it.
    *
    * @param {Integer} number
-   * @param {Boolean} noAnimation
+   * @param {Boolean} animate
    * @return {jQuery.Deferred}
    */
-  scrollToNumber(number, noAnimation) {
+  scrollToNumber(number, animate) {
     const $item = this.$(`.PostStream-item[data-number=${number}]`);
 
-    return this.scrollToItem($item, noAnimation).then(this.flashItem.bind(this, $item));
+    return this.scrollToItem($item, animate).then(this.flashItem.bind(this, $item));
   }
 
   /**
    * Scroll down to a certain post by index.
    *
    * @param {Integer} index
-   * @param {Boolean} noAnimation
+   * @param {Boolean} animate
    * @param {Boolean} bottom Whether or not to scroll to the bottom of the post
    *     at the given index, instead of the top of it.
    * @return {jQuery.Deferred}
    */
-  scrollToIndex(index, noAnimation, bottom) {
+  scrollToIndex(index, animate, bottom) {
     const $item = this.$(`.PostStream-item[data-index=${index}]`);
 
-    return this.scrollToItem($item, noAnimation, true, bottom).then(() => {
+    return this.scrollToItem($item, animate, true, bottom).then(() => {
       if (index == this.stream.count() - 1) {
         this.flashItem(this.$('.PostStream-item:last-child'));
       }
@@ -306,14 +303,14 @@ export default class PostStream extends Component {
    * Scroll down to the given post.
    *
    * @param {jQuery} $item
-   * @param {Boolean} noAnimation
+   * @param {Boolean} animate
    * @param {Boolean} force Whether or not to force scrolling to the item, even
    *     if it is already in the viewport.
    * @param {Boolean} bottom Whether or not to scroll to the bottom of the post
    *     at the given index, instead of the top of it.
    * @return {jQuery.Deferred}
    */
-  scrollToItem($item, noAnimation, force, bottom) {
+  scrollToItem($item, animate, force, bottom) {
     const $container = $('html, body').stop(true);
 
     if ($item.length) {
@@ -328,7 +325,7 @@ export default class PostStream extends Component {
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
         const top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
 
-        if (noAnimation) {
+        if (!animate) {
           $container.scrollTop(top);
         } else if (top !== scrollTop) {
           $container.animate({ scrollTop: top }, 'fast');

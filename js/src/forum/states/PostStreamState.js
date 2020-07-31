@@ -128,6 +128,28 @@ class PostStreamState {
   }
 
   /**
+   * Execute a callback when necessary because the scroll position changed.
+   *
+   * The callback will be called with three arguments:
+   *  - the "type" of position to jump to ("number" or "index")
+   *  - the corresponding position
+   *  - whether scrolling should be animated
+   *
+   * @param callback
+   */
+  scrollEffect(callback) {
+    if (!this.needsScroll) return;
+
+    if (this.locationType === 'number') {
+      callback('number', this.number, !this.noAnimationScroll);
+    } else {
+      callback('index', this.sanitizeIndex(this.index), !this.noAnimationScroll);
+    }
+
+    this.needsScroll = false;
+  }
+
+  /**
    * Clear the stream and load posts near a certain number. Returns a promise.
    * If the post with the given number is already loaded, the promise will be
    * resolved immediately.
