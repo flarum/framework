@@ -76,7 +76,7 @@ class PostStreamState {
   /**
    * Load and scroll to a post with a certain number.
    *
-   * @param {Integer|String} number The post number to go to. If 'reply', go to
+   * @param {number|String} number The post number to go to. If 'reply', go to
    *     the last post and scroll the reply preview into view.
    * @param {Boolean} noAnimation
    * @return {Promise}
@@ -97,7 +97,7 @@ class PostStreamState {
     this.number = number;
 
     // In this case, the redraw is only called after the response has been loaded
-    // because we need to know the indeces of the post range before we can
+    // because we need to know the indices of the post range before we can
     // start scrolling to items. Calling redraw early causes issues.
     // Since this is only used for external navigation to the post stream, the delay
     // before the stream is moved is not an issue.
@@ -107,9 +107,7 @@ class PostStreamState {
   /**
    * Load and scroll to a certain index within the discussion.
    *
-   * @param {Integer} index
-   * @param {Boolean} backwards Whether or not to load backwards from the given
-   *     index.
+   * @param {number} index
    * @param {Boolean} noAnimation
    * @return {Promise}
    */
@@ -134,7 +132,7 @@ class PostStreamState {
    * If the post with the given number is already loaded, the promise will be
    * resolved immediately.
    *
-   * @param {Integer} number
+   * @param {number} number
    * @return {Promise}
    */
   loadNearNumber(number) {
@@ -157,7 +155,7 @@ class PostStreamState {
    * surrounding the given index will be loaded. Returns a promise. If the given
    * index is already loaded, the promise will be resolved immediately.
    *
-   * @param {Integer} index
+   * @param {number} index
    * @return {Promise}
    */
   loadNearIndex(index) {
@@ -222,8 +220,8 @@ class PostStreamState {
   /**
    * Load a page of posts into the stream and redraw.
    *
-   * @param {Integer} start
-   * @param {Integer} end
+   * @param {number} start
+   * @param {number} end
    * @param {Boolean} backwards
    */
   loadPage(start, end, backwards) {
@@ -250,8 +248,8 @@ class PostStreamState {
    * Load and inject the specified range of posts into the stream, without
    * clearing it.
    *
-   * @param {Integer} start
-   * @param {Integer} end
+   * @param {number} start
+   * @param {number} end
    * @return {Promise}
    */
   loadRange(start, end) {
@@ -288,8 +286,8 @@ class PostStreamState {
    * Reset the stream so that a specific range of posts is displayed. If a range
    * is not specified, the first page of posts will be displayed.
    *
-   * @param {Integer} [start]
-   * @param {Integer} [end]
+   * @param {number} [start]
+   * @param {number} [end]
    */
   reset(start, end) {
     this.visibleStart = start || 0;
@@ -315,7 +313,7 @@ class PostStreamState {
   /**
    * Get the total number of posts in the discussion.
    *
-   * @return {Integer}
+   * @return {number}
    */
   count() {
     return this.discussion.postIds().length;
@@ -344,7 +342,7 @@ class PostStreamState {
    * Make sure that the given index is not outside of the possible range of
    * indexes in the discussion.
    *
-   * @param {Integer} index
+   * @param {number} index
    */
   sanitizeIndex(index) {
     return Math.max(0, Math.min(this.count(), Math.floor(index)));
@@ -354,7 +352,7 @@ class PostStreamState {
 /**
  * The number of posts to load per page.
  *
- * @type {Integer}
+ * @type {number}
  */
 PostStreamState.loadCount = 20;
 
