@@ -109,7 +109,12 @@ export default class DiscussionPage extends Page {
                     <ul>{listItems(this.sidebarItems().toArray())}</ul>
                   </nav>
                   <div className="DiscussionPage-stream">
-                    {PostStream.component({ discussion, stream: this.stream, onPositionChange: this.positionChanged.bind(this) })}
+                    {PostStream.component({
+                      discussion,
+                      stream: this.stream,
+                      targetPost: this.stream.targetPost,
+                      onPositionChange: this.positionChanged.bind(this),
+                    })}
                   </div>
                 </div>,
               ]

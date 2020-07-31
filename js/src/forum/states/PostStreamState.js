@@ -20,7 +20,6 @@ class PostStreamState {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
-    this.locationType = null;
     this.index = 0;
     this.number = 1;
 
@@ -92,9 +91,8 @@ class PostStreamState {
 
     this.loadPromise = this.loadNearNumber(number);
 
-    this.needsScroll = true;
+    this.targetPost = { number };
     this.noAnimationScroll = noAnimation;
-    this.locationType = 'number';
     this.number = number;
 
     // In this case, the redraw is only called after the response has been loaded
@@ -117,36 +115,13 @@ class PostStreamState {
 
     this.loadPromise = this.loadNearIndex(index);
 
-    this.needsScroll = true;
+    this.targetPost = { index };
     this.noAnimationScroll = noAnimation;
-    this.locationType = 'index';
     this.index = index;
 
     m.redraw();
 
     return this.loadPromise;
-  }
-
-  /**
-   * Execute a callback when necessary because the scroll position changed.
-   *
-   * The callback will be called with three arguments:
-   *  - the "type" of position to jump to ("number" or "index")
-   *  - the corresponding position
-   *  - whether scrolling should be animated
-   *
-   * @param callback
-   */
-  scrollEffect(callback) {
-    if (!this.needsScroll) return;
-
-    if (this.locationType === 'number') {
-      callback('number', this.number, !this.noAnimationScroll);
-    } else {
-      callback('index', this.sanitizeIndex(this.index), !this.noAnimationScroll);
-    }
-
-    this.needsScroll = false;
   }
 
   /**

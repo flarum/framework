@@ -12,6 +12,7 @@ import Button from '../../common/components/Button';
  *
  * - `discussion`
  * - `stream`
+ * - `targetPost`
  * - `onPositionChange`
  */
 export default class PostStream extends Component {
@@ -102,14 +103,7 @@ export default class PostStream extends Component {
   }
 
   config(isInitialized, context) {
-    this.stream.scrollEffect((type, position, animate) => {
-      if (type === 'number') {
-        this.scrollToNumber(position, animate);
-      } else if (type === 'index') {
-        const backwards = position === this.stream.count() - 1;
-        this.scrollToIndex(position, animate, backwards);
-      }
-    });
+    this.triggerScroll();
 
     if (isInitialized) return;
 
@@ -121,6 +115,30 @@ export default class PostStream extends Component {
       this.scrollListener.stop();
       clearTimeout(this.calculatePositionTimeout);
     };
+  }
+
+  /**
+   * Start scrolling, if appropriate, to a newly-targeted post.
+   */
+  triggerScroll() {
+    if (!this.props.targetPost) return;
+
+    const oldTarget = this.prevTarget;
+    const newTarget = this.props.targetPost;
+
+    if (oldTarget) {
+      if ('number' in oldTarget && oldTarget.number === newTarget.number) return;
+      if ('index' in oldTarget && oldTarget.index === newTarget.index) return;
+    }
+
+    if ('number' in newTarget) {
+      this.scrollToNumber(newTarget.number, this.stream.noAnimationScroll);
+    } else if ('index' in newTarget) {
+      const backwards = newTarget.index === this.stream.count() - 1;
+      this.scrollToIndex(newTarget.index, this.stream.noAnimationScroll, backwards);
+    }
+
+    this.prevTarget = newTarget;
   }
 
   /**
