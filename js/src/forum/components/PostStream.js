@@ -261,6 +261,16 @@ export default class PostStream extends Component {
   }
 
   /**
+   * Get the distance from the top of the viewport to the point at which we
+   * would consider a post to be the first one visible.
+   *
+   * @return {Integer}
+   */
+  getMarginTop() {
+    return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
+  }
+
+  /**
    * Scroll down to a certain post by number and 'flash' it.
    *
    * @param {Integer} number
@@ -344,15 +354,5 @@ export default class PostStream extends Component {
    */
   flashItem($item) {
     $item.addClass('flash').one('animationend webkitAnimationEnd', () => $item.removeClass('flash'));
-  }
-
-  /**
-   * Get the distance from the top of the viewport to the point at which we
-   * would consider a post to be the first one visible.
-   *
-   * @return {Integer}
-   */
-  getMarginTop() {
-    return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
   }
 }
