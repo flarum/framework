@@ -15,7 +15,18 @@ import Button from '../../common/components/Button';
  */
 export default class PostStream extends Component {
   init() {
+    /**
+     * The discussion to display the post stream for.
+     *
+     * @type {Discussion}
+     */
     this.discussion = this.props.discussion;
+
+    /**
+     * The shared state of the post stream.
+     *
+     * @type {PostStreamState}
+     */
     this.stream = this.props.stream;
   }
 

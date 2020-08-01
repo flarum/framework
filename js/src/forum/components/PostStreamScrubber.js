@@ -100,6 +100,20 @@ export default class PostStreamScrubber extends Component {
   }
 
   /**
+   * Go to the first post in the discussion.
+   */
+  goToFirst() {
+    this.navigateTo(0);
+  }
+
+  /**
+   * Go to the last post in the discussion.
+   */
+  goToLast() {
+    this.navigateTo(this.props.count - 1);
+  }
+
+  /**
    * Check whether or not the scrubber should be disabled, i.e. if all of the
    * posts are visible in the viewport.
    *
@@ -211,20 +225,38 @@ export default class PostStreamScrubber extends Component {
   }
 
   /**
-   * Go to the first post in the discussion.
+   * Get the percentage of the height of the scrubber that should be allocated
+   * to each post.
+   *
+   * @return {Object}
+   * @property {Number} index The percent per post for posts on either side of
+   *     the visible part of the scrubber.
+   * @property {Number} visible The percent per post for the visible part of the
+   *     scrubber.
    */
-  goToFirst() {
-    this.navigateTo(0);
-  }
+  percentPerPost() {
+    const count = this.props.count || 1;
+    const visible = this.props.visible || 1;
 
-  /**
-   * Go to the last post in the discussion.
-   */
-  goToLast() {
-    this.navigateTo(this.props.count - 1);
+    // To stop the handle of the scrollbar from getting too small when there
+    // are many posts, we define a minimum percentage height for the handle
+    // calculated from a 50 pixel limit. From this, we can calculate the
+    // minimum percentage per visible post. If this is greater than the actual
+    // percentage per post, then we need to adjust the 'before' percentage to
+    // account for it.
+    const minPercentVisible = (50 / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
+    const percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
+    const percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
+
+    return {
+      index: percentPerPost,
+      visible: percentPerVisiblePost,
+    };
   }
 
   onresize() {
+    this.scrollListener.update();
+
     // Adjust the height of the scrollbar so that it fills the height of
     // the sidebar and doesn't overlap the footer.
     const scrubber = this.$();
@@ -284,11 +316,6 @@ export default class PostStreamScrubber extends Component {
     this.dragIndex = null;
   }
 
-  navigateTo(index) {
-    this.props.onNavigate(Math.floor(index));
-    this.renderScrollbar({ animate: true });
-  }
-
   onclick(e) {
     // Calculate the index which we want to jump to based on the click position.
 
@@ -314,32 +341,13 @@ export default class PostStreamScrubber extends Component {
   }
 
   /**
-   * Get the percentage of the height of the scrubber that should be allocated
-   * to each post.
+   * Trigger post stream navigation, but also animate the scrollbar according
+   * to the expected result.
    *
-   * @return {Object}
-   * @property {Number} index The percent per post for posts on either side of
-   *     the visible part of the scrubber.
-   * @property {Number} visible The percent per post for the visible part of the
-   *     scrubber.
+   * @param {number} index
    */
-  percentPerPost() {
-    const count = this.props.count || 1;
-    const visible = this.props.visible || 1;
-
-    // To stop the handle of the scrollbar from getting too small when there
-    // are many posts, we define a minimum percentage height for the handle
-    // calculated from a 50 pixel limit. From this, we can calculate the
-    // minimum percentage per visible post. If this is greater than the actual
-    // percentage per post, then we need to adjust the 'before' percentage to
-    // account for it.
-    const minPercentVisible = (50 / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
-    const percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
-    const percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
-
-    return {
-      index: percentPerPost,
-      visible: percentPerVisiblePost,
-    };
+  navigateTo(index) {
+    this.props.onNavigate(Math.floor(index));
+    this.renderScrollbar({ animate: true });
   }
 }
