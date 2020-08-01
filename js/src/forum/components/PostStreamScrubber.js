@@ -1,7 +1,8 @@
 import Component from '../../common/Component';
 import icon from '../../common/helpers/icon';
-import formatNumber from '../../common/utils/formatNumber';
 import ScrollListener from '../../common/utils/ScrollListener';
+import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
+import formatNumber from '../../common/utils/formatNumber';
 
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to
@@ -11,26 +12,39 @@ import ScrollListener from '../../common/utils/ScrollListener';
  *
  * - `stream`
  * - `className`
+ * - `onNavigate`
+ * - `count`
+ * - `paused`
+ * - `index`
+ * - `visible`
+ * - `description`
  */
 export default class PostStreamScrubber extends Component {
   init() {
     this.stream = this.props.stream;
     this.handlers = {};
 
-    this.scrollListener = new ScrollListener(this.updateScrubberValues.bind(this, { fromScroll: true, forceHeightChange: true }));
+    // Define a handler to update the state of the scrollbar to reflect the
+    // current scroll position of the page.
+    this.scrollListener = new ScrollListener(this.renderScrollbar.bind(this, { fromScroll: true, forceHeightChange: true }));
+
+    // Create a subtree retainer that will always cache the subtree after the
+    // initial draw. We render parts of the scrubber using this because we
+    // modify their DOM directly, and do not want Mithril messing around with
+    // our changes.
+    this.subtree = new SubtreeRetainer(() => true);
   }
 
   view() {
-    const count = this.stream.count();
+    const retain = this.subtree.retain();
+    const { count, index, visible } = this.props;
+    const unreadCount = this.stream.discussion.unreadCount();
+    const unreadPercent = count ? Math.min(count - this.props.index, unreadCount) / count : 0;
 
-    // Index is left blank for performance reasons, it is filled in in updateScubberValues
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
-      index: <span className="Scrubber-index"></span>,
+      index: <span className="Scrubber-index">{retain || formatNumber(Math.min(Math.ceil(index + visible), count))}</span>,
       count: <span className="Scrubber-count">{formatNumber(count)}</span>,
     });
-
-    const unreadCount = this.stream.discussion.unreadCount();
-    const unreadPercent = count ? Math.min(count - this.stream.index, unreadCount) / count : 0;
 
     function styleUnread(element, isInitialized, context) {
       const $element = $(element);
@@ -47,11 +61,9 @@ export default class PostStreamScrubber extends Component {
 
       context.oldStyle = newStyle;
     }
-    const classNames = ['PostStreamScrubber', 'Dropdown'];
-    if (this.props.className) classNames.push(this.props.className);
 
     return (
-      <div className={classNames.join(' ')}>
+      <div className={'PostStreamScrubber Dropdown ' + (this.disabled() ? 'disabled ' : '') + (this.props.className || '')}>
         <button className="Button Dropdown-toggle" data-toggle="dropdown">
           {viewing} {icon('fas fa-sort')}
         </button>
@@ -68,7 +80,7 @@ export default class PostStreamScrubber extends Component {
                 <div className="Scrubber-bar" />
                 <div className="Scrubber-info">
                   <strong>{viewing}</strong>
-                  <span className="Scrubber-description">{this.stream.description}</span>
+                  <span className="Scrubber-description">{retain || this.props.description}</span>
                 </div>
               </div>
               <div className="Scrubber-after" />
@@ -87,11 +99,22 @@ export default class PostStreamScrubber extends Component {
     );
   }
 
+  /**
+   * Check whether or not the scrubber should be disabled, i.e. if all of the
+   * posts are visible in the viewport.
+   *
+   * @return {Boolean}
+   */
+  disabled() {
+    return this.props.visible >= this.props.count;
+  }
+
   config(isInitialized, context) {
-    this.stream.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
     if (isInitialized) return;
 
     context.onunload = this.ondestroy.bind(this);
+
+    this.scrollListener.start();
 
     // Whenever the window is resized, adjust the height of the scrollbar
     // so that it fills the height of the sidebar.
@@ -116,6 +139,7 @@ export default class PostStreamScrubber extends Component {
     this.dragging = false;
     this.mouseStart = 0;
     this.indexStart = 0;
+    this.dragIndex = null;
 
     this.$('.Scrubber-handle')
       .css('cursor', 'move')
@@ -131,8 +155,14 @@ export default class PostStreamScrubber extends Component {
     $(document)
       .on('mousemove touchmove', (this.handlers.onmousemove = this.onmousemove.bind(this)))
       .on('mouseup touchend', (this.handlers.onmouseup = this.onmouseup.bind(this)));
+  }
 
-    setTimeout(() => this.scrollListener.start());
+  ondestroy() {
+    this.scrollListener.stop();
+
+    $(window).off('resize', this.handlers.onresize);
+
+    $(document).off('mousemove touchmove', this.handlers.onmousemove).off('mouseup touchend', this.handlers.onmouseup);
   }
 
   /**
@@ -141,16 +171,16 @@ export default class PostStreamScrubber extends Component {
    *
    * @param {Boolean} animate
    */
-  updateScrubberValues(options = {}) {
-    const index = this.stream.index;
-    const count = this.stream.count();
-    const visible = this.stream.visible || 1;
+  renderScrollbar(options = {}) {
+    const { count, visible, description, paused } = this.props;
     const percentPerPost = this.percentPerPost();
 
+    const index = this.dragIndex || this.props.index;
+
     const $scrubber = this.$();
-    $scrubber.find('.Scrubber-index').text(formatNumber(this.stream.sanitizeIndex(Math.max(1, index))));
-    $scrubber.find('.Scrubber-description').text(this.stream.description);
-    $scrubber.toggleClass('disabled', this.stream.disabled());
+    $scrubber.find('.Scrubber-index').text(formatNumber(Math.min(Math.ceil(index + visible), count)));
+    $scrubber.find('.Scrubber-description').text(description);
+    $scrubber.toggleClass('disabled', this.disabled());
 
     const heights = {};
     heights.before = Math.max(0, percentPerPost.index * Math.min(index - 1, count - visible));
@@ -158,8 +188,8 @@ export default class PostStreamScrubber extends Component {
     heights.after = 100 - heights.before - heights.handle;
 
     // If the stream is paused, don't change height on scroll, as the viewport is being scrolled by the JS
-    // If a height change animation is already in progress, don't adjust height unless overriden
-    if ((options.fromScroll && this.stream.paused) || (this.adjustingHeight && !options.forceHeightChange)) return;
+    // If a height change animation is already in progress, don't adjust height unless overridden
+    if ((options.fromScroll && paused) || (this.adjustingHeight && !options.forceHeightChange)) return;
 
     const func = options.animate ? 'animate' : 'css';
     this.adjustingHeight = true;
@@ -184,23 +214,14 @@ export default class PostStreamScrubber extends Component {
    * Go to the first post in the discussion.
    */
   goToFirst() {
-    this.stream.goToFirst();
-    this.updateScrubberValues({ animate: true, forceHeightChange: true });
+    this.navigateTo(0);
   }
 
   /**
    * Go to the last post in the discussion.
    */
   goToLast() {
-    this.stream.goToLast();
-    this.updateScrubberValues({ animate: true, forceHeightChange: true });
-  }
-
-  ondestroy() {
-    this.scrollListener.stop();
-    $(window).off('resize', this.handlers.onresize);
-
-    $(document).off('mousemove touchmove', this.handlers.onmousemove).off('mouseup touchend', this.handlers.onmouseup);
+    this.navigateTo(this.props.count - 1);
   }
 
   onresize() {
@@ -222,8 +243,9 @@ export default class PostStreamScrubber extends Component {
   onmousedown(e) {
     e.redraw = false;
     this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
-    this.indexStart = this.stream.index;
+    this.indexStart = this.props.index;
     this.dragging = true;
+    this.dragIndex = null;
     $('body').css('cursor', 'move');
     this.$().toggleClass('dragging', this.dragging);
   }
@@ -238,10 +260,10 @@ export default class PostStreamScrubber extends Component {
     const deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
     const deltaPercent = (deltaPixels / this.$('.Scrubber-scrollbar').outerHeight()) * 100;
     const deltaIndex = deltaPercent / this.percentPerPost().index || 0;
-    const newIndex = Math.min(this.indexStart + deltaIndex, this.stream.count() - 1);
+    const newIndex = Math.min(this.indexStart + deltaIndex, this.props.count - 1);
 
-    this.stream.index = Math.max(0, newIndex);
-    this.updateScrubberValues();
+    this.dragIndex = Math.max(0, newIndex);
+    this.renderScrollbar();
   }
 
   onmouseup() {
@@ -257,8 +279,14 @@ export default class PostStreamScrubber extends Component {
 
     // If the index we've landed on is in a gap, then tell the stream-
     // content that we want to load those posts.
-    const intIndex = Math.floor(this.stream.index);
-    this.stream.goToIndex(intIndex);
+    this.navigateTo(this.dragIndex);
+
+    this.dragIndex = null;
+  }
+
+  navigateTo(index) {
+    this.props.onNavigate(Math.floor(index));
+    this.renderScrollbar({ animate: true });
   }
 
   onclick(e) {
@@ -278,9 +306,9 @@ export default class PostStreamScrubber extends Component {
     // 3. Now we can convert the percentage into an index, and tell the stream-
     //    content component to jump to that index.
     let offsetIndex = offsetPercent / this.percentPerPost().index;
-    offsetIndex = Math.max(0, Math.min(this.stream.count() - 1, offsetIndex));
-    this.stream.goToIndex(Math.floor(offsetIndex));
-    this.updateScrubberValues({ animate: true, forceHeightChange: true });
+    offsetIndex = Math.max(0, Math.min(this.props.count - 1, offsetIndex));
+
+    this.navigateTo(offsetIndex);
 
     this.$().removeClass('open');
   }
@@ -296,8 +324,8 @@ export default class PostStreamScrubber extends Component {
    *     scrubber.
    */
   percentPerPost() {
-    const count = this.stream.count() || 1;
-    const visible = this.stream.visible || 1;
+    const count = this.props.count || 1;
+    const visible = this.props.visible || 1;
 
     // To stop the handle of the scrollbar from getting too small when there
     // are many posts, we define a minimum percentage height for the handle

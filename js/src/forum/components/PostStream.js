@@ -1,5 +1,4 @@
 import Component from '../../common/Component';
-import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
@@ -13,14 +12,11 @@ import Button from '../../common/components/Button';
  * - `discussion`
  * - `stream`
  * - `targetPost`
- * - `onPositionChange`
  */
 export default class PostStream extends Component {
   init() {
     this.discussion = this.props.discussion;
     this.stream = this.props.stream;
-
-    this.scrollListener = new ScrollListener(this.onscroll.bind(this));
   }
 
   view() {
@@ -103,24 +99,7 @@ export default class PostStream extends Component {
   }
 
   config(isInitialized, context) {
-    this.triggerScroll();
-
-    if (isInitialized) return;
-
-    // This is wrapped in setTimeout due to the following Mithril issue:
-    // https://github.com/lhorie/mithril.js/issues/637
-    setTimeout(() => this.scrollListener.start());
-
-    context.onunload = () => {
-      this.scrollListener.stop();
-      clearTimeout(this.calculatePositionTimeout);
-    };
-  }
-
-  /**
-   * Start scrolling, if appropriate, to a newly-targeted post.
-   */
-  triggerScroll() {
+    // Start scrolling, if appropriate, to a newly-targeted post.
     if (!this.props.targetPost) return;
 
     const oldTarget = this.prevTarget;
@@ -139,140 +118,6 @@ export default class PostStream extends Component {
     }
 
     this.prevTarget = newTarget;
-  }
-
-  /**
-   * When the window is scrolled, check if either extreme of the post stream is
-   * in the viewport, and if so, trigger loading the next/previous page.
-   *
-   * @param {Integer} top
-   */
-  onscroll(top = window.pageYOffset) {
-    if (this.stream.paused) return;
-    const marginTop = this.getMarginTop();
-    const viewportHeight = $(window).height() - marginTop;
-    const viewportTop = top + marginTop;
-    const loadAheadDistance = 300;
-
-    if (this.stream.visibleStart > 0) {
-      const $item = this.$('.PostStream-item[data-index=' + this.stream.visibleStart + ']');
-
-      if ($item.length && $item.offset().top > viewportTop - loadAheadDistance) {
-        this.stream.loadPrevious();
-      }
-    }
-
-    if (this.stream.visibleEnd < this.stream.count()) {
-      const $item = this.$('.PostStream-item[data-index=' + (this.stream.visibleEnd - 1) + ']');
-
-      if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
-        this.stream.loadNext();
-      }
-    }
-
-    // Throttle calculation of our position (start/end numbers of posts in the
-    // viewport) to 100ms.
-    clearTimeout(this.calculatePositionTimeout);
-    this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this, top), 100);
-
-    this.updateScrubber(top);
-  }
-
-  updateScrubber(top = window.pageYOffset) {
-    const marginTop = this.getMarginTop();
-    const viewportHeight = $(window).height() - marginTop;
-    const viewportTop = top + marginTop;
-
-    // Before looping through all of the posts, we reset the scrollbar
-    // properties to a 'default' state. These values reflect what would be
-    // seen if the browser were scrolled right up to the top of the page,
-    // and the viewport had a height of 0.
-    const $items = this.$('.PostStream-item[data-index]');
-    let index = $items.first().data('index') || 0;
-    let visible = 0;
-    let period = '';
-
-    // Now loop through each of the items in the discussion. An 'item' is
-    // either a single post or a 'gap' of one or more posts that haven't
-    // been loaded yet.
-    $items.each(function () {
-      const $this = $(this);
-      const top = $this.offset().top;
-      const height = $this.outerHeight(true);
-
-      // If this item is above the top of the viewport, skip to the next
-      // one. If it's below the bottom of the viewport, break out of the
-      // loop.
-      if (top + height < viewportTop) {
-        return true;
-      }
-      if (top > viewportTop + viewportHeight) {
-        return false;
-      }
-
-      // Work out how many pixels of this item are visible inside the viewport.
-      // Then add the proportion of this item's total height to the index.
-      const visibleTop = Math.max(0, viewportTop - top);
-      const visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
-      const visiblePost = visibleBottom - visibleTop;
-
-      if (top <= viewportTop) {
-        index = parseFloat($this.data('index')) + visibleTop / height;
-      }
-
-      if (visiblePost > 0) {
-        visible += visiblePost / height;
-      }
-
-      // If this item has a time associated with it, then set the
-      // scrollbar's current period to a formatted version of this time.
-      const time = $this.data('time');
-      if (time) period = time;
-    });
-
-    this.stream.index = index + 1;
-    this.stream.visible = visible;
-    if (period) this.stream.description = dayjs(period).format('MMMM YYYY');
-  }
-
-  /**
-   * Work out which posts (by number) are currently visible in the viewport, and
-   * fire an event with the information.
-   */
-  calculatePosition(top = window.pageYOffset) {
-    const marginTop = this.getMarginTop();
-    const $window = $(window);
-    const viewportHeight = $window.height() - marginTop;
-    const scrollTop = $window.scrollTop() + marginTop;
-    const viewportTop = top + marginTop;
-
-    let startNumber;
-    let endNumber;
-
-    this.$('.PostStream-item').each(function () {
-      const $item = $(this);
-      const top = $item.offset().top;
-      const height = $item.outerHeight(true);
-      const visibleTop = Math.max(0, viewportTop - top);
-
-      const threeQuartersVisible = visibleTop / height < 0.75;
-      const coversQuarterOfViewport = (height - visibleTop) / viewportHeight > 0.25;
-      if (startNumber === undefined && (threeQuartersVisible || coversQuarterOfViewport)) {
-        startNumber = $item.data('number');
-      }
-
-      if (top + height > scrollTop) {
-        if (top + height < scrollTop + viewportHeight) {
-          if ($item.data('number')) {
-            endNumber = $item.data('number');
-          }
-        } else return false;
-      }
-    });
-
-    if (startNumber) {
-      this.props.onPositionChange(startNumber || 1, endNumber, startNumber);
-    }
   }
 
   /**
@@ -351,15 +196,7 @@ export default class PostStream extends Component {
       }
     }
 
-    return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
-      this.updateScrubber();
-      const index = $item.data('index');
-      m.redraw(true);
-      const scroll = index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
-      $(window).scrollTop(scroll);
-      this.calculatePosition();
-      this.stream.paused = false;
-    });
+    return $container.promise();
   }
 
   /**
