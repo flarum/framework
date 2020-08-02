@@ -20,23 +20,6 @@ class PostStreamState {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
-    this.index = 0;
-    this.number = 1;
-
-    /**
-     * The number of posts that are currently visible in the viewport.
-     *
-     * @type {Number}
-     */
-    this.visible = 1;
-
-    /**
-     * The description to render on the scrubber.
-     *
-     * @type {String}
-     */
-    this.description = '';
-
     this.show(includedPosts);
   }
 
@@ -89,18 +72,15 @@ class PostStreamState {
 
     this.paused = true;
 
-    this.loadPromise = this.loadNearNumber(number);
-
     this.targetPost = { number };
     this.noAnimationScroll = noAnimation;
-    this.number = number;
 
     // In this case, the redraw is only called after the response has been loaded
     // because we need to know the indices of the post range before we can
     // start scrolling to items. Calling redraw early causes issues.
     // Since this is only used for external navigation to the post stream, the delay
     // before the stream is moved is not an issue.
-    return this.loadPromise.then(() => {
+    return this.loadNearNumber(number).then(() => {
       this.paused = false;
       m.redraw();
     });
@@ -116,7 +96,7 @@ class PostStreamState {
   goToIndex(index, noAnimation = false) {
     this.paused = true;
 
-    this.loadPromise = this.loadNearIndex(index);
+    const promise = this.loadNearIndex(index);
 
     this.targetPost = { index };
     this.noAnimationScroll = noAnimation;
@@ -124,7 +104,7 @@ class PostStreamState {
 
     m.redraw();
 
-    return this.loadPromise.then(() => (this.paused = false));
+    return promise.then(() => (this.paused = false));
   }
 
   /**
@@ -317,16 +297,6 @@ class PostStreamState {
    */
   count() {
     return this.discussion.postIds().length;
-  }
-
-  /**
-   * Check whether or not the scrubber should be disabled, i.e. if all of the
-   * posts are visible in the viewport.
-   *
-   * @return {Boolean}
-   */
-  disabled() {
-    return this.visible >= this.count();
   }
 
   /**
