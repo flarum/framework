@@ -204,7 +204,7 @@ class PostStreamState {
    * @param {number} end
    * @param {Boolean} backwards
    */
-  loadPage(start, end, backwards) {
+  loadPage(start, end, backwards = false) {
     m.redraw();
 
     this.loadPageTimeouts[start] = setTimeout(
