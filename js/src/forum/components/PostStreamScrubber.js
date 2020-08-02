@@ -10,7 +10,7 @@ import formatNumber from '../../common/utils/formatNumber';
  *
  * ### Props
  *
- * - `stream`
+ * - `discussion`
  * - `className`
  * - `onNavigate`
  * - `count`
@@ -21,7 +21,6 @@ import formatNumber from '../../common/utils/formatNumber';
  */
 export default class PostStreamScrubber extends Component {
   init() {
-    this.stream = this.props.stream;
     this.handlers = {};
 
     // Define a handler to update the state of the scrollbar to reflect the
@@ -38,7 +37,7 @@ export default class PostStreamScrubber extends Component {
   view() {
     const retain = this.subtree.retain();
     const { count, index, visible } = this.props;
-    const unreadCount = this.stream.discussion.unreadCount();
+    const unreadCount = this.props.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.props.index, unreadCount) / count : 0;
 
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
