@@ -10,8 +10,8 @@ import { Spinner } from 'spin.js';
  * All other props will be assigned as attributes on the element.
  */
 export default class LoadingIndicator extends Component {
-  view() {
-    const attrs = Object.assign({}, this.props);
+  view(vnode) {
+    const attrs = Object.assign({}, vnode.attrs);
 
     attrs.className = 'LoadingIndicator ' + (attrs.className || '');
     delete attrs.size;
@@ -19,12 +19,12 @@ export default class LoadingIndicator extends Component {
     return <div {...attrs}>{m.trust('&nbsp;')}</div>;
   }
 
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     const options = { zIndex: 'auto', color: this.$().css('color') };
 
-    switch (this.props.size) {
+    switch (vnode.size) {
       case 'large':
         Object.assign(options, { lines: 10, length: 8, width: 4, radius: 8 });
         break;
