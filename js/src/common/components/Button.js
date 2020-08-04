@@ -21,23 +21,21 @@ import LoadingIndicator from './LoadingIndicator';
  * be used to represent any generic clickable control, like a menu item.
  */
 export default class Button extends Component {
-  view() {
-    const attrs = Object.assign({}, this.props);
-
-    delete attrs.children;
+  view(vnode) {
+    const attrs = Object.assign({}, vnode.attrs);
 
     attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button';
 
     // If a tooltip was provided for buttons without additional content, we also
     // use this tooltip as text for screen readers
-    if (attrs.title && !this.props.children) {
+    if (attrs.title && !vnode.children) {
       attrs['aria-label'] = attrs.title;
     }
 
     // If nothing else is provided, we use the textual button content as tooltip
-    if (!attrs.title && this.props.children) {
-      attrs.title = extractText(this.props.children);
+    if (!attrs.title && vnode.children) {
+      attrs.title = extractText(vnode.children);
     }
 
     const iconName = extract(attrs, 'icon');
@@ -49,7 +47,7 @@ export default class Button extends Component {
       delete attrs.onclick;
     }
 
-    return <button {...attrs}>{this.getButtonContent()}</button>;
+    return <button {...attrs}>{this.getButtonContent(attrs, vnode.children)}</button>;
   }
 
   /**
@@ -58,13 +56,13 @@ export default class Button extends Component {
    * @return {*}
    * @protected
    */
-  getButtonContent() {
-    const iconName = this.props.icon;
+  getButtonContent(attrs, children) {
+    const iconName = attrs.icon;
 
     return [
       iconName && iconName !== true ? icon(iconName, { className: 'Button-icon' }) : '',
-      this.props.children ? <span className="Button-label">{this.props.children}</span> : '',
-      this.props.loading ? LoadingIndicator.component({ size: 'tiny', className: 'LoadingIndicator--inline' }) : '',
+      children ? <span className="Button-label">{children}</span> : '',
+      attrs.loading ? <LoadingIndicator size="tiny" className="LoadingIndicator--inline" /> : '',
     ];
   }
 }
