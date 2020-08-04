@@ -4,16 +4,9 @@ export default function patchMithril(global) {
   const mo = global.m;
 
   const m = function (comp, ...args) {
-    if (comp.prototype && comp.prototype instanceof Component) {
-      let children = args.slice(1);
-      if (children.length === 1 && Array.isArray(children[0])) {
-        children = children[0];
-      }
-
-      return comp.component(args[0], children);
-    }
-
     const node = mo.apply(this, arguments);
+
+    if (!node.attrs) node.attrs = {};
 
     if (node.attrs.bidi) {
       m.bidi(node, node.attrs.bidi);
@@ -21,7 +14,7 @@ export default function patchMithril(global) {
 
     if (node.attrs.route) {
       node.attrs.href = node.attrs.route;
-      node.attrs.config = m.route;
+      node.attrs.tag = m.route.Link;
 
       delete node.attrs.route;
     }
@@ -30,16 +23,6 @@ export default function patchMithril(global) {
   };
 
   Object.keys(mo).forEach((key) => (m[key] = mo[key]));
-
-  /**
-   * Redraw only if not in the middle of a computation (e.g. a route change).
-   *
-   * @return {void}
-   */
-  m.lazyRedraw = function () {
-    m.startComputation();
-    m.endComputation();
-  };
 
   global.m = m;
 }
