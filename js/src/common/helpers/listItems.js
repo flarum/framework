@@ -30,21 +30,29 @@ export default function listItems(items) {
   if (!(items instanceof Array)) items = [items];
 
   return withoutUnnecessarySeparators(items).map((item) => {
-    const isListItem = item.component && item.component.isListItem;
-    const active = item.component && item.component.isActive && item.component.isActive(item.props);
-    const className = item.props ? item.props.itemClassName : item.itemClassName;
+    const isListItem = item.tag && item.tag.isListItem;
+    const active = item.tag && item.tag.isActive && item.tag.isActive(item.attrs);
+    const className = (item.attrs && item.attrs.itemClassName) || item.itemClassName;
 
     if (isListItem) {
       item.attrs = item.attrs || {};
       item.attrs.key = item.attrs.key || item.itemName;
+      item.key = item.attrs.key;
     }
 
-    return isListItem ? (
+    const node = isListItem ? (
       item
     ) : (
-      <li className={classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : ''])} key={item.itemName}>
+      <li
+        className={classList(className, item.itemName && `item-${item.itemName}`, active && 'active')}
+        key={(item.attrs && item.attrs.key) || item.itemName}
+      >
         {item}
       </li>
     );
+
+    node.state = node.state || {};
+
+    return node;
   });
 }
