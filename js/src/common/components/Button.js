@@ -47,7 +47,7 @@ export default class Button extends Component {
       delete attrs.onclick;
     }
 
-    return <button {...attrs}>{this.getButtonContent(attrs, vnode.children)}</button>;
+    return <button {...attrs}>{this.getButtonContent(vnode.attrs, vnode.children)}</button>;
   }
 
   /**
