@@ -189,12 +189,13 @@ export default class Application {
   }
 
   mount(basePath = '') {
-    m.mount(document.getElementById('modal'), <ModalManager state={this.modal} />);
-    m.mount(document.getElementById('alerts'), <AlertManager state={this.alerts} />);
+    // TODO stuff
+    // m.mount(document.getElementById('modal'), <ModalManager state={this.modal} />);
+    // m.mount(document.getElementById('alerts'), <AlertManager state={this.alerts} />);
 
-    this.drawer = new Drawer();
+    // this.drawer = new Drawer();
 
-    m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
+    // m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
 
     // Add a class to the body which indicates that the page has been scrolled
     // down.

@@ -63,7 +63,7 @@ export default class ForumApplication extends Application {
    *
    * @type {NotificationListState}
    */
-  notifications = new NotificationListState(this);
+  // notifications = new NotificationListState(this);
 
   /*
    * An object which stores previously searched queries and provides convenient
@@ -71,12 +71,12 @@ export default class ForumApplication extends Application {
    *
    * @type {GlobalSearchState}
    */
-  search = new GlobalSearchState();
+  // search = new GlobalSearchState();
 
   /*
    * An object which controls the state of the composer.
    */
-  composer = new ComposerState();
+  // composer = new ComposerState();
 
   constructor() {
     super();
@@ -105,28 +105,29 @@ export default class ForumApplication extends Application {
     // Push the homepage as the first route, so that the user will always be
     // able to click on the 'back' button to go home, regardless of which page
     // they started on.
-    const defaultRoute = this.forum.attribute('defaultRoute');
-    let defaultAction = 'index';
+    // TODO routes
+    // const defaultRoute = this.forum.attribute('defaultRoute');
+    // let defaultAction = 'index';
 
-    for (const i in this.routes) {
-      if (this.routes[i].path === defaultRoute) defaultAction = i;
-    }
+    // for (const i in this.routes) {
+    //   if (this.routes[i].path === defaultRoute) defaultAction = i;
+    // }
 
-    this.routes[defaultAction].path = '/';
-    this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
+    // this.routes[defaultAction].path = '/';
+    // this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
 
-    m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
-    m.mount(document.getElementById('header-navigation'), Navigation.component());
-    m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
-    m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
-    m.mount(document.getElementById('composer'), Composer.component({ state: this.composer }));
+    // m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
+    // m.mount(document.getElementById('header-navigation'), Navigation.component());
+    m.mount(document.getElementById('header-primary'), HeaderPrimary);
+    m.mount(document.getElementById('header-secondary'), HeaderSecondary);
+    // m.mount(document.getElementById('composer'), Composer.component({ state: this.composer }));
 
-    this.pane = new Pane(document.getElementById('app'));
+    // this.pane = new Pane(document.getElementById('app'));
 
-    m.route.mode = 'pathname';
+    m.route.prefix = '';
     super.mount(this.forum.attribute('basePath'));
 
-    alertEmailConfirmation(this);
+    // alertEmailConfirmation(this);
 
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
