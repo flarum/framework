@@ -6,7 +6,7 @@ import listItems from '../helpers/listItems';
  * The `Dropdown` component displays a button which, when clicked, shows a
  * dropdown menu beneath it.
  *
- * ### Props
+ * ### Attrs
  *
  * - `buttonClassName` A class name to apply to the dropdown toggle button.
  * - `menuClassName` A class name to apply to the dropdown menu.
@@ -19,33 +19,25 @@ import listItems from '../helpers/listItems';
  * The children will be displayed as a list inside of the dropdown menu.
  */
 export default class Dropdown extends Component {
-  static initProps(props) {
-    super.initProps(props);
-
-    props.className = props.className || '';
-    props.buttonClassName = props.buttonClassName || '';
-    props.menuClassName = props.menuClassName || '';
-    props.label = props.label || '';
-    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fas fa-caret-down';
-  }
-
-  init() {
+  oninit(vnode) {
     this.showing = false;
   }
 
-  view() {
-    const items = this.props.children ? listItems(this.props.children) : [];
+  view(vnode) {
+    const items = vnode.children ? listItems(vnode.children) : [];
+
+    this.initAttrs(vnode.attrs);
 
     return (
-      <div className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
-        {this.getButton()}
-        {this.getMenu(items)}
+      <div className={'ButtonGroup Dropdown dropdown ' + vnode.attrs.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
+        {this.getButton(vnode.attrs, vnode.children)}
+        {this.getMenu(vnode.attrs.menuClassName, items)}
       </div>
     );
   }
 
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     // When opening the dropdown menu, work out if the menu goes beyond the
     // bottom of the viewport. If it does, we will apply class to make it show
@@ -53,8 +45,8 @@ export default class Dropdown extends Component {
     this.$().on('shown.bs.dropdown', () => {
       this.showing = true;
 
-      if (this.props.onshow) {
-        this.props.onshow();
+      if (vnode.attrs.onshow) {
+        vnode.attrs.onshow();
       }
 
       m.redraw();
@@ -76,12 +68,20 @@ export default class Dropdown extends Component {
     this.$().on('hidden.bs.dropdown', () => {
       this.showing = false;
 
-      if (this.props.onhide) {
-        this.props.onhide();
+      if (vnode.attrs.onhide) {
+        vnode.attrs.onhide();
       }
 
       m.redraw();
     });
+  }
+
+  initAttrs(attrs) {
+    attrs.className = attrs.className || '';
+    attrs.buttonClassName = attrs.buttonClassName || '';
+    attrs.menuClassName = attrs.menuClassName || '';
+    attrs.label = attrs.label || '';
+    attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-caret-down';
   }
 
   /**
@@ -90,10 +90,10 @@ export default class Dropdown extends Component {
    * @return {*}
    * @protected
    */
-  getButton() {
+  getButton(attrs, children) {
     return (
-      <button className={'Dropdown-toggle ' + this.props.buttonClassName} data-toggle="dropdown" onclick={this.props.onclick}>
-        {this.getButtonContent()}
+      <button className={'Dropdown-toggle ' + attrs.buttonClassName} data-toggle="dropdown" onclick={attrs.onclick}>
+        {this.getButtonContent(attrs, children)}
       </button>
     );
   }
@@ -104,15 +104,15 @@ export default class Dropdown extends Component {
    * @return {*}
    * @protected
    */
-  getButtonContent() {
+  getButtonContent(attrs, children) {
     return [
-      this.props.icon ? icon(this.props.icon, { className: 'Button-icon' }) : '',
-      <span className="Button-label">{this.props.label}</span>,
-      this.props.caretIcon ? icon(this.props.caretIcon, { className: 'Button-caret' }) : '',
+      attrs.icon ? icon(attrs.icon, { className: 'Button-icon' }) : '',
+      <span className="Button-label">{attrs.label}</span>,
+      attrs.caretIcon ? icon(attrs.caretIcon, { className: 'Button-caret' }) : '',
     ];
   }
 
-  getMenu(items) {
-    return <ul className={'Dropdown-menu dropdown-menu ' + this.props.menuClassName}>{items}</ul>;
+  getMenu(menuClassName, items) {
+    return <ul className={'Dropdown-menu dropdown-menu ' + menuClassName}>{items}</ul>;
   }
 }
