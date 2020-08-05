@@ -6,26 +6,26 @@ import icon from '../helpers/icon';
  * button's label is set as the label of the first child which has a truthy
  * `active` prop.
  *
- * ### Props
+ * ### Attrs
  *
  * - `caretIcon`
  * - `defaultLabel`
  */
 export default class SelectDropdown extends Dropdown {
-  static initProps(props) {
-    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fas fa-sort';
+  initAttrs(attrs) {
+    attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-sort';
 
-    super.initProps(props);
+    super.initAttrs(attrs);
 
-    props.className += ' Dropdown--select';
+    attrs.className += ' Dropdown--select';
   }
 
-  getButtonContent() {
-    const activeChild = this.props.children.filter((child) => child.props.active)[0];
-    let label = (activeChild && activeChild.props.children) || this.props.defaultLabel;
+  getButtonContent(attrs, children) {
+    const activeChild = children.filter((child) => child.attrs.active)[0];
+    let label = (activeChild && activeChild.children) || attrs.defaultLabel;
 
     if (label instanceof Array) label = label[0];
 
-    return [<span className="Button-label">{label}</span>, icon(this.props.caretIcon, { className: 'Button-caret' })];
+    return [<span className="Button-label">{label}</span>, icon(attrs.caretIcon, { className: 'Button-caret' })];
   }
 }
