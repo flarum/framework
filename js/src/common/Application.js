@@ -189,8 +189,8 @@ export default class Application {
   }
 
   mount(basePath = '') {
-    // TODO stuff
-    // m.mount(document.getElementById('modal'), <ModalManager state={this.modal} />);
+    // An object with a callable view property is used in order to pass arguments to the component; see https://mithril.js.org/mount.html
+    m.mount(document.getElementById('modal'), { view: () => ModalManager.component({ state: this.modal }) });
     // m.mount(document.getElementById('alerts'), <AlertManager state={this.alerts} />);
 
     // this.drawer = new Drawer();
