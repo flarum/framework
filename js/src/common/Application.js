@@ -343,10 +343,8 @@ export default class Application {
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
-    const deferred = m.deferred();
-
-    m.request(options).then(
-      (response) => deferred.resolve(response),
+    return m.request(options).then(
+      (response) => response,
       (error) => {
         let children;
 
@@ -408,11 +406,9 @@ export default class Application {
           this.requestErrorAlert = this.alerts.show(error.alert);
         }
 
-        deferred.reject(error);
+        return Promise.reject(error);
       }
     );
-
-    return deferred.promise;
   }
 
   /**
