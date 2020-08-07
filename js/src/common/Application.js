@@ -346,11 +346,11 @@ export default class Application {
     return m.request(options).then(
       (response) => response,
       (error) => {
-        let children;
+        let content;
 
         switch (error.status) {
           case 422:
-            children = error.response.errors
+            content = error.response.errors
               .map((error) => [error.detail, <br />])
               .reduce((a, b) => a.concat(b), [])
               .slice(0, -1);
@@ -358,20 +358,20 @@ export default class Application {
 
           case 401:
           case 403:
-            children = app.translator.trans('core.lib.error.permission_denied_message');
+            content = app.translator.trans('core.lib.error.permission_denied_message');
             break;
 
           case 404:
           case 410:
-            children = app.translator.trans('core.lib.error.not_found_message');
+            content = app.translator.trans('core.lib.error.not_found_message');
             break;
 
           case 429:
-            children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+            content = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
             break;
 
           default:
-            children = app.translator.trans('core.lib.error.generic_message');
+            content = app.translator.trans('core.lib.error.generic_message');
         }
 
         const isDebug = app.forum.attribute('debug');
@@ -381,7 +381,7 @@ export default class Application {
 
         error.alert = {
           type: 'error',
-          children,
+          content,
           controls: isDebug && [
             <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
               Debug
