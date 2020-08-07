@@ -15,6 +15,7 @@
     "lodash-es": "^4.17.14",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
     "mithril": "^2.0.4",
+    "mithril-stream": "^2.0.0",
     "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
     "webpack": "^4.43.0",
