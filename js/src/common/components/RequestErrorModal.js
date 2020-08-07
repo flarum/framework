@@ -6,11 +6,11 @@ export default class RequestErrorModal extends Modal {
   }
 
   title() {
-    return this.props.error.xhr ? `${this.props.error.xhr.status} ${this.props.error.xhr.statusText}` : '';
+    return this.attrs.error.xhr ? `${this.attrs.error.xhr.status} ${this.attrs.error.xhr.statusText}` : '';
   }
 
   content() {
-    const { error, formattedError } = this.props;
+    const { error, formattedError } = this.attrs;
 
     let responseText;
 
@@ -31,7 +31,7 @@ export default class RequestErrorModal extends Modal {
     return (
       <div className="Modal-body">
         <pre>
-          {this.props.error.options.method} {this.props.error.options.url}
+          {this.attrs.error.options.method} {this.attrs.error.options.url}
           <br />
           <br />
           {responseText}
