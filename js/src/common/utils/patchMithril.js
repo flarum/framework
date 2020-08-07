@@ -1,20 +1,20 @@
-import Component from '../Component';
+import Stream from 'mithril/stream';
 
 export default function patchMithril(global) {
-  const mo = global.m;
+  const defaultMithril = global.m;
 
-  const m = function (comp, ...args) {
-    const node = mo.apply(this, arguments);
+  const modifiedMithril = function (comp, ...args) {
+    const node = defaultMithril.apply(this, arguments);
 
     if (!node.attrs) node.attrs = {};
 
     if (node.attrs.bidi) {
-      m.bidi(node, node.attrs.bidi);
+      modifiedMithril.bidi(node, node.attrs.bidi);
     }
 
     if (node.attrs.route) {
       node.attrs.href = node.attrs.route;
-      node.attrs.tag = m.route.Link;
+      node.attrs.tag = modifiedMithril.route.Link;
 
       delete node.attrs.route;
     }
@@ -22,7 +22,9 @@ export default function patchMithril(global) {
     return node;
   };
 
-  Object.keys(mo).forEach((key) => (m[key] = mo[key]));
+  Object.keys(defaultMithril).forEach((key) => (modifiedMithril[key] = defaultMithril[key]));
 
-  global.m = m;
+  modifiedMithril.stream = Stream;
+
+  global.m = modifiedMithril;
 }

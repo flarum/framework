@@ -1,4 +1,3 @@
-import Stream from 'mithril-stream';
 import Modal from '../../common/components/Modal';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import SignUpModal from './SignUpModal';
@@ -24,21 +23,21 @@ export default class LogInModal extends Modal {
      *
      * @type {Function}
      */
-    this.identification = Stream(this.attrs.identification || '');
+    this.identification = m.stream(this.attrs.identification || '');
 
     /**
      * The value of the password input.
      *
      * @type {Function}
      */
-    this.password = Stream(this.attrs.password || '');
+    this.password = m.stream(this.attrs.password || '');
 
     /**
      * The value of the remember me input.
      *
      * @type {Function}
      */
-    this.remember = Stream(!!this.attrs.remember);
+    this.remember = m.stream(!!this.attrs.remember);
   }
 
   className() {

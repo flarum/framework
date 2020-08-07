@@ -1,4 +1,3 @@
-import Stream from 'mithril-stream';
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import extractText from '../../common/utils/extractText';
@@ -20,7 +19,7 @@ export default class ForgotPasswordModal extends Modal {
      *
      * @type {Function}
      */
-    this.email = Stream(this.attrs.email || '');
+    this.email = m.stream(this.attrs.email || '');
 
     /**
      * Whether or not the password reset email was sent successfully.
