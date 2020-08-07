@@ -1,3 +1,4 @@
+import Stream from 'mithril-stream';
 import Modal from '../../common/components/Modal';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import SignUpModal from './SignUpModal';
@@ -15,29 +16,27 @@ import ItemList from '../../common/utils/ItemList';
  * - `password`
  */
 export default class LogInModal extends Modal {
-  init() {
-    super.init();
-
+  oninit(vnode) {
     /**
      * The value of the identification input.
      *
      * @type {Function}
      */
-    this.identification = m.prop(this.props.identification || '');
+    this.identification = Stream(vnode.attrs.identification || '');
 
     /**
      * The value of the password input.
      *
      * @type {Function}
      */
-    this.password = m.prop(this.props.password || '');
+    this.password = Stream(vnode.attrs.password || '');
 
     /**
      * The value of the remember me input.
      *
      * @type {Function}
      */
-    this.remember = m.prop(!!this.props.remember);
+    this.remember = Stream(!!vnode.attrs.remember);
   }
 
   className() {
@@ -105,12 +104,14 @@ export default class LogInModal extends Modal {
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component({
-          className: 'Button Button--primary Button--block',
-          type: 'submit',
-          loading: this.loading,
-          children: app.translator.trans('core.forum.log_in.submit_button'),
-        })}
+        {Button.component(
+          {
+            className: 'Button Button--primary Button--block',
+            type: 'submit',
+            loading: this.loading,
+          },
+          app.translator.trans('core.forum.log_in.submit_button')
+        )}
       </div>,
       -10
     );
