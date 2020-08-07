@@ -1,5 +1,5 @@
+import Stream from 'mithril-stream';
 import Modal from '../../common/components/Modal';
-import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import extractText from '../../common/utils/extractText';
 
@@ -12,15 +12,13 @@ import extractText from '../../common/utils/extractText';
  * - `email`
  */
 export default class ForgotPasswordModal extends Modal {
-  init() {
-    super.init();
-
+  oninit(attrs) {
     /**
      * The value of the email input.
      *
      * @type {Function}
      */
-    this.email = m.prop(this.props.email || '');
+    this.email = Stream(attrs.email || '');
 
     /**
      * Whether or not the password reset email was sent successfully.
@@ -65,17 +63,19 @@ export default class ForgotPasswordModal extends Modal {
               type="email"
               placeholder={extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'))}
               value={this.email()}
-              onchange={m.withAttr('value', this.email)}
+              bidi={this.email}
               disabled={this.loading}
             />
           </div>
           <div className="Form-group">
-            {Button.component({
-              className: 'Button Button--primary Button--block',
-              type: 'submit',
-              loading: this.loading,
-              children: app.translator.trans('core.forum.forgot_password.submit_button'),
-            })}
+            {Button.component(
+              {
+                className: 'Button Button--primary Button--block',
+                type: 'submit',
+                loading: this.loading,
+              },
+              app.translator.trans('core.forum.forgot_password.submit_button')
+            )}
           </div>
         </div>
       </div>
