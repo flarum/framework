@@ -24,9 +24,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
   abstract view(vnode: Mithril.Vnode<T, this>): Mithril.Children;
 
   oninit(vnode: Mithril.Vnode<T, this>) {
-    this.initAttrs(vnode.attrs);
-
-    this.attrs = vnode.attrs;
+    this.setAttrs(vnode.attrs);
   }
 
   oncreate(vnode: Mithril.VnodeDOM<T, this>) {
@@ -34,9 +32,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
   }
 
   onbeforeupdate(vnode: Mithril.VnodeDOM<T, this>) {
-    this.initAttrs(vnode.attrs);
-
-    this.attrs = vnode.attrs;
+    this.setAttrs(vnode.attrs);
   }
 
   /**
@@ -65,6 +61,18 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
     const componentProps = Object.assign({}, attrs);
 
     return m(this as any, componentProps, children);
+  }
+
+  private setAttrs(attrs: T) {
+    this.initAttrs(attrs);
+
+    if (attrs && 'children' in attrs) {
+      throw new Error(
+        'The "children" attribute of attrs should never be used. Either pass children in as the vnode children or rename the attribute'
+      );
+    }
+
+    this.attrs = attrs;
   }
 
   protected initAttrs(attrs: T): T {
