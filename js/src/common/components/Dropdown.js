@@ -19,19 +19,27 @@ import listItems from '../helpers/listItems';
  * The children will be displayed as a list inside of the dropdown menu.
  */
 export default class Dropdown extends Component {
+  initAttrs(attrs) {
+    attrs.className = attrs.className || '';
+    attrs.buttonClassName = attrs.buttonClassName || '';
+    attrs.menuClassName = attrs.menuClassName || '';
+    attrs.label = attrs.label || '';
+    attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-caret-down';
+  }
+
   oninit(vnode) {
+    super.oninit(vnode);
+
     this.showing = false;
   }
 
   view(vnode) {
     const items = vnode.children ? listItems(vnode.children) : [];
 
-    this.initAttrs(vnode.attrs);
-
     return (
-      <div className={'ButtonGroup Dropdown dropdown ' + vnode.attrs.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
-        {this.getButton(vnode.attrs, vnode.children)}
-        {this.getMenu(vnode.attrs.menuClassName, items)}
+      <div className={'ButtonGroup Dropdown dropdown ' + this.attrs.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
+        {this.getButton(vnode.children)}
+        {this.getMenu(items)}
       </div>
     );
   }
@@ -45,8 +53,8 @@ export default class Dropdown extends Component {
     this.$().on('shown.bs.dropdown', () => {
       this.showing = true;
 
-      if (vnode.attrs.onshow) {
-        vnode.attrs.onshow();
+      if (this.attrs.onshow) {
+        this.attrs.onshow();
       }
 
       m.redraw();
@@ -68,20 +76,12 @@ export default class Dropdown extends Component {
     this.$().on('hidden.bs.dropdown', () => {
       this.showing = false;
 
-      if (vnode.attrs.onhide) {
-        vnode.attrs.onhide();
+      if (this.attrs.onhide) {
+        this.attrs.onhide();
       }
 
       m.redraw();
     });
-  }
-
-  initAttrs(attrs) {
-    attrs.className = attrs.className || '';
-    attrs.buttonClassName = attrs.buttonClassName || '';
-    attrs.menuClassName = attrs.menuClassName || '';
-    attrs.label = attrs.label || '';
-    attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-caret-down';
   }
 
   /**
@@ -90,10 +90,10 @@ export default class Dropdown extends Component {
    * @return {*}
    * @protected
    */
-  getButton(attrs, children) {
+  getButton(children) {
     return (
-      <button className={'Dropdown-toggle ' + attrs.buttonClassName} data-toggle="dropdown" onclick={attrs.onclick}>
-        {this.getButtonContent(attrs, children)}
+      <button className={'Dropdown-toggle ' + this.attrs.buttonClassName} data-toggle="dropdown" onclick={this.attrs.onclick}>
+        {this.getButtonContent(children)}
       </button>
     );
   }
@@ -104,15 +104,15 @@ export default class Dropdown extends Component {
    * @return {*}
    * @protected
    */
-  getButtonContent(attrs, children) {
+  getButtonContent(children) {
     return [
-      attrs.icon ? icon(attrs.icon, { className: 'Button-icon' }) : '',
-      <span className="Button-label">{attrs.label}</span>,
-      attrs.caretIcon ? icon(attrs.caretIcon, { className: 'Button-caret' }) : '',
+      this.attrs.icon ? icon(this.attrs.icon, { className: 'Button-icon' }) : '',
+      <span className="Button-label">{this.attrs.label}</span>,
+      this.attrs.caretIcon ? icon(this.attrs.caretIcon, { className: 'Button-caret' }) : '',
     ];
   }
 
-  getMenu(menuClassName, items) {
-    return <ul className={'Dropdown-menu dropdown-menu ' + menuClassName}>{items}</ul>;
+  getMenu(items) {
+    return <ul className={'Dropdown-menu dropdown-menu ' + this.attrs.menuClassName}>{items}</ul>;
   }
 }

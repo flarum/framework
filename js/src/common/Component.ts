@@ -1,4 +1,10 @@
-import { ClassComponent, VnodeDOM } from 'mithril';
+import * as Mithril from 'mithril';
+
+export type ComponentAttrs = {
+  className?: string;
+
+  [key: string]: any;
+};
 
 /**
  * The `Component` class defines a user interface 'building block'. A component
@@ -10,13 +16,27 @@ import { ClassComponent, VnodeDOM } from 'mithril';
  *
  * @see https://mithril.js.org/components.html
  */
-export default abstract class Component implements ClassComponent {
+export default abstract class Component<T extends ComponentAttrs = any> implements Mithril.ClassComponent<T> {
   element!: Element;
 
-  abstract view();
+  attrs: T;
 
-  oncreate(vnode: VnodeDOM) {
+  abstract view(vnode: Mithril.Vnode<T, this>): Mithril.Children;
+
+  oninit(vnode: Mithril.Vnode<T, this>) {
+    this.initAttrs(vnode.attrs);
+
+    this.attrs = vnode.attrs;
+  }
+
+  oncreate(vnode: Mithril.VnodeDOM<T, this>) {
     this.element = vnode.dom;
+  }
+
+  onbeforeupdate(vnode: Mithril.VnodeDOM<T, this>) {
+    this.initAttrs(vnode.attrs);
+
+    this.attrs = vnode.attrs;
   }
 
   /**
@@ -45,5 +65,9 @@ export default abstract class Component implements ClassComponent {
     const componentProps = Object.assign({}, attrs);
 
     return m(this as any, componentProps, children);
+  }
+
+  protected initAttrs(attrs: T): T {
+    return attrs;
   }
 }

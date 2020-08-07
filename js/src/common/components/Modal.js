@@ -14,17 +14,17 @@ export default class Modal extends Component {
    */
   static isDismissible = true;
 
-  oninit() {
-    /**
-     * Attributes for an alert component to show below the header.
-     *
-     * @type {object}
-     */
-    this.alertAttrs = null;
-  }
+  /**
+   * Attributes for an alert component to show below the header.
+   *
+   * @type {object}
+   */
+  alertAttrs = null;
 
   oncreate(vnode) {
-    vnode.attrs.onshow(() => this.onready(vnode.attrs));
+    super.oncreate(vnode);
+
+    this.attrs.onshow(() => this.onready());
   }
 
   view(vnode) {
@@ -39,7 +39,7 @@ export default class Modal extends Component {
             <div className="Modal-close App-backControl">
               {Button.component({
                 icon: 'fas fa-times',
-                onclick: this.hide.bind(this, vnode.attrs),
+                onclick: this.hide.bind(this),
                 className: 'Button Button--icon Button--link',
               })}
             </div>
@@ -54,7 +54,7 @@ export default class Modal extends Component {
 
             {this.alertAttrs ? <div className="Modal-alert">{Alert.component(this.alertAttrs)}</div> : ''}
 
-            {this.content(vnode.attrs)}
+            {this.content(this.attrs)}
           </form>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default class Modal extends Component {
    * @return {VirtualElement}
    * @abstract
    */
-  content(attrs) {}
+  content() {}
 
   /**
    * Handle the modal form's submit event.
@@ -95,15 +95,15 @@ export default class Modal extends Component {
   /**
    * Focus on the first input when the modal is ready to be used.
    */
-  onready(attrs) {
+  onready() {
     this.$('form').find('input, select, textarea').first().focus().select();
   }
 
   /**
    * Hide the modal.
    */
-  hide(attrs) {
-    attrs.onhide();
+  hide() {
+    this.attrs.onhide();
   }
 
   /**

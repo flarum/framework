@@ -12,13 +12,15 @@ import extractText from '../../common/utils/extractText';
  * - `email`
  */
 export default class ForgotPasswordModal extends Modal {
-  oninit(attrs) {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     /**
      * The value of the email input.
      *
      * @type {Function}
      */
-    this.email = Stream(attrs.email || '');
+    this.email = Stream(this.attrs.email || '');
 
     /**
      * Whether or not the password reset email was sent successfully.
@@ -91,7 +93,7 @@ export default class ForgotPasswordModal extends Modal {
       .request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/forgot',
-        data: { email: this.email() },
+        body: { email: this.email() },
         errorHandler: this.onerror.bind(this),
       })
       .then(() => {

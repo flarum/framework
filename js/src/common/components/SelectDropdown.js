@@ -20,12 +20,12 @@ export default class SelectDropdown extends Dropdown {
     attrs.className += ' Dropdown--select';
   }
 
-  getButtonContent(attrs, children) {
+  getButtonContent(children) {
     const activeChild = children.filter((child) => child.attrs.active)[0];
-    let label = (activeChild && activeChild.children) || attrs.defaultLabel;
+    let label = (activeChild && activeChild.children) || this.attrs.defaultLabel;
 
     if (label instanceof Array) label = label[0];
 
-    return [<span className="Button-label">{label}</span>, icon(attrs.caretIcon, { className: 'Button-caret' })];
+    return [<span className="Button-label">{label}</span>, icon(this.attrs.caretIcon, { className: 'Button-caret' })];
   }
 }

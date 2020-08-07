@@ -22,7 +22,7 @@ import LoadingIndicator from './LoadingIndicator';
  */
 export default class Button extends Component {
   view(vnode) {
-    const attrs = Object.assign({}, vnode.attrs);
+    const attrs = Object.assign({}, this.attrs);
 
     attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button';
@@ -47,7 +47,7 @@ export default class Button extends Component {
       delete attrs.onclick;
     }
 
-    return <button {...attrs}>{this.getButtonContent(vnode.attrs, vnode.children)}</button>;
+    return <button {...attrs}>{this.getButtonContent(vnode.children)}</button>;
   }
 
   /**
@@ -56,13 +56,13 @@ export default class Button extends Component {
    * @return {*}
    * @protected
    */
-  getButtonContent(attrs, children) {
-    const iconName = attrs.icon;
+  getButtonContent(children) {
+    const iconName = this.attrs.icon;
 
     return [
       iconName && iconName !== true ? icon(iconName, { className: 'Button-icon' }) : '',
       children ? <span className="Button-label">{children}</span> : '',
-      attrs.loading ? <LoadingIndicator size="tiny" className="LoadingIndicator--inline" /> : '',
+      this.attrs.loading ? <LoadingIndicator size="tiny" className="LoadingIndicator--inline" /> : '',
     ];
   }
 }

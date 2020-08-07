@@ -7,11 +7,11 @@ import icon from '../helpers/icon';
  * is displayed as its own button prior to the toggle button.
  */
 export default class SplitDropdown extends Dropdown {
-  static initProps(props) {
-    super.initProps(props);
+  initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    props.className += ' Dropdown--split';
-    props.menuClassName += ' Dropdown-menu--right';
+    attrs.className += ' Dropdown--split';
+    attrs.menuClassName += ' Dropdown-menu--right';
   }
 
   getButton() {

@@ -18,26 +18,28 @@ import ItemList from '../../common/utils/ItemList';
  */
 export default class SignUpModal extends Modal {
   oninit(vnode) {
+    super.oninit(vnode);
+
     /**
      * The value of the username input.
      *
      * @type {Function}
      */
-    this.username = Stream(vnode.attrs.username || '');
+    this.username = Stream(this.attrs.username || '');
 
     /**
      * The value of the email input.
      *
      * @type {Function}
      */
-    this.email = Stream(vnode.attrs.email || '');
+    this.email = Stream(this.attrs.email || '');
 
     /**
      * The value of the password input.
      *
      * @type {Function}
      */
-    this.password = Stream(vnode.attrs.password || '');
+    this.password = Stream(this.attrs.password || '');
   }
 
   className() {
@@ -48,19 +50,19 @@ export default class SignUpModal extends Modal {
     return app.translator.trans('core.forum.sign_up.title');
   }
 
-  content(attrs) {
-    return [<div className="Modal-body">{this.body(attrs)}</div>, <div className="Modal-footer">{this.footer()}</div>];
+  content() {
+    return [<div className="Modal-body">{this.body()}</div>, <div className="Modal-footer">{this.footer()}</div>];
   }
 
-  isProvided(field, attrs) {
-    return attrs.provided && attrs.provided.indexOf(field) !== -1;
+  isProvided(field) {
+    return this.attrs.provided && this.attrs.provided.indexOf(field) !== -1;
   }
 
-  body(attrs) {
-    return [attrs.token ? '' : <LogInButtons />, <div className="Form Form--centered">{this.fields(attrs).toArray()}</div>];
+  body() {
+    return [this.attrs.token ? '' : <LogInButtons />, <div className="Form Form--centered">{this.fields().toArray()}</div>];
   }
 
-  fields(attrs) {
+  fields() {
     const items = new ItemList();
 
     items.add(
@@ -73,7 +75,7 @@ export default class SignUpModal extends Modal {
           placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
           value={this.username()}
           bidi={this.username}
-          disabled={this.loading || this.isProvided('username', attrs)}
+          disabled={this.loading || this.isProvided('username', this.attrs)}
         />
       </div>,
       30
@@ -89,13 +91,13 @@ export default class SignUpModal extends Modal {
           placeholder={extractText(app.translator.trans('core.forum.sign_up.email_placeholder'))}
           value={this.email()}
           bidi={this.email}
-          disabled={this.loading || this.isProvided('email', attrs)}
+          disabled={this.loading || this.isProvided('email', this.attrs)}
         />
       </div>,
       20
     );
 
-    if (!attrs.token) {
+    if (!this.attrs.token) {
       items.add(
         'password',
         <div className="Form-group">
@@ -147,8 +149,8 @@ export default class SignUpModal extends Modal {
     app.modal.show(LogInModal, props);
   }
 
-  onready(attrs) {
-    if (attrs.username && !attrs.email) {
+  onready() {
+    if (this.attrs.username && !this.attrs.email) {
       this.$('[name=email]').select();
     } else {
       this.$('[name=username]').select();
@@ -160,7 +162,7 @@ export default class SignUpModal extends Modal {
 
     this.loading = true;
 
-    const body = this.submitData(attrs);
+    const body = this.submitData();
 
     app
       .request({
@@ -178,14 +180,14 @@ export default class SignUpModal extends Modal {
    * @return {Object}
    * @protected
    */
-  submitData(attrs) {
+  submitData() {
     const data = {
       username: this.username(),
       email: this.email(),
     };
 
-    if (attrs.token) {
-      data.token = attrs.token;
+    if (this.attrs.token) {
+      data.token = this.attrs.token;
     } else {
       data.password = this.password();
     }
