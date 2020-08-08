@@ -14,7 +14,7 @@ export default function patchMithril(global) {
 
     if (node.attrs.route) {
       node.attrs.href = node.attrs.route;
-      node.attrs.tag = modifiedMithril.route.Link;
+      node.tag = defaultMithril.route.Link;
 
       delete node.attrs.route;
     }
