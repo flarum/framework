@@ -13,15 +13,17 @@ import Button from './Button';
  *   the `active` prop will automatically be set to true.
  */
 export default class LinkButton extends Button {
-  static initProps(props) {
-    props.active = this.isActive(props);
-    props.config = props.config || m.route;
+  initAttrs(attrs) {
+    super.initAttrs(attrs);
+
+    attrs.active = this.constructor.isActive(attrs);
   }
 
-  view() {
-    const vdom = super.view();
+  view(vnode) {
+    const vdom = super.view(vnode);
 
-    vdom.tag = 'a';
+    vdom.tag = m.route.Link;
+    vdom.attrs.active = String(vdom.attrs.active);
 
     return vdom;
   }
@@ -32,7 +34,7 @@ export default class LinkButton extends Button {
    * @param {Object} props
    * @return {Boolean}
    */
-  static isActive(props) {
-    return typeof props.active !== 'undefined' ? props.active : m.route() === props.href;
+  static isActive(attrs) {
+    return typeof attrs.active !== 'undefined' ? attrs.active : m.route.get() === attrs.href;
   }
 }
