@@ -19,8 +19,8 @@ import SelectDropdown from '../../common/components/SelectDropdown';
 export default class IndexPage extends Page {
   static providesInitialSearch = true;
 
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
@@ -64,7 +64,7 @@ export default class IndexPage extends Page {
                 <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
                 <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
               </div>
-              <DiscussionList state={app.discussions} />
+              {<DiscussionList state={app.discussions} />}
             </div>
           </div>
         </div>
@@ -139,25 +139,27 @@ export default class IndexPage extends Page {
 
     items.add(
       'newDiscussion',
-      Button.component({
-        children: app.translator.trans(
-          canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'
-        ),
-        icon: 'fas fa-edit',
-        className: 'Button Button--primary IndexPage-newDiscussion',
-        itemClassName: 'App-primaryControl',
-        onclick: this.newDiscussionAction.bind(this),
-        disabled: !canStartDiscussion,
-      })
+      Button.component(
+        {
+          icon: 'fas fa-edit',
+          className: 'Button Button--primary IndexPage-newDiscussion',
+          itemClassName: 'App-primaryControl',
+          onclick: this.newDiscussionAction.bind(this),
+          disabled: !canStartDiscussion,
+        },
+        app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button')
+      )
     );
 
     items.add(
       'nav',
-      SelectDropdown.component({
-        children: this.navItems(this).toArray(),
-        buttonClassName: 'Button',
-        className: 'App-titleControl',
-      })
+      SelectDropdown.component(
+        {
+          buttonClassName: 'Button',
+          className: 'App-titleControl',
+        },
+        this.navItems(this).toArray()
+      )
     );
 
     return items;
@@ -175,11 +177,13 @@ export default class IndexPage extends Page {
 
     items.add(
       'allDiscussions',
-      LinkButton.component({
-        href: app.route('index', params),
-        children: app.translator.trans('core.forum.index.all_discussions_link'),
-        icon: 'far fa-comments',
-      }),
+      LinkButton.component(
+        {
+          href: app.route('index', params),
+          icon: 'far fa-comments',
+        },
+        app.translator.trans('core.forum.index.all_discussions_link')
+      ),
       100
     );
 
@@ -204,21 +208,25 @@ export default class IndexPage extends Page {
 
     items.add(
       'sort',
-      Dropdown.component({
-        buttonClassName: 'Button',
-        label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
-        children: Object.keys(sortOptions).map((value) => {
+      Dropdown.component(
+        {
+          buttonClassName: 'Button',
+          label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
+        },
+        Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
           const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
 
-          return Button.component({
-            children: label,
-            icon: active ? 'fas fa-check' : true,
-            onclick: app.search.changeSort.bind(app.search, value),
-            active: active,
-          });
-        }),
-      })
+          return Button.component(
+            {
+              icon: active ? 'fas fa-check' : true,
+              onclick: app.search.changeSort.bind(app.search, value),
+              active: active,
+            },
+            label
+          );
+        })
+      )
     );
 
     return items;
