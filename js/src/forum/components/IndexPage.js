@@ -278,20 +278,16 @@ export default class IndexPage extends Page {
    * @return {Promise}
    */
   newDiscussionAction() {
-    const deferred = m.deferred();
-
     if (app.session.user) {
       app.composer.load(DiscussionComposer, { user: app.session.user });
       app.composer.show();
 
-      deferred.resolve(app.composer);
+      return Promise.resolve(app.composer);
     } else {
-      deferred.reject();
-
       app.modal.show(LogInModal);
-    }
 
-    return deferred.promise;
+      return Promise.reject();
+    }
   }
 
   /**
