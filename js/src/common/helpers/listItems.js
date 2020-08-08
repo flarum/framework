@@ -9,8 +9,6 @@ function withoutUnnecessarySeparators(items) {
   const newItems = [];
   let prevItem;
 
-  console.log(items);
-
   items.forEach((item, i) => {
     if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
       prevItem = item;
