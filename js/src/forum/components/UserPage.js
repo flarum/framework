@@ -16,8 +16,8 @@ import listItems from '../../common/helpers/listItems';
  * @abstract
  */
 export default class UserPage extends Page {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     /**
      * The user this page is for.
@@ -34,12 +34,12 @@ export default class UserPage extends Page {
       <div className="UserPage">
         {this.user
           ? [
-              UserCard.component({
-                user: this.user,
-                className: 'Hero UserHero',
-                editable: this.user.canEdit() || this.user === app.session.user,
-                controlsButtonClassName: 'Button',
-              }),
+              <UserCard
+                user={this.user}
+                className="Hero UserHero"
+                editable={this.user.canEdit() || this.user === app.session.user}
+                controlsButtonClassName="Button"
+              />,
               <div className="container">
                 <div className="sideNavContainer">
                   <nav className="sideNav UserPage-nav" config={affixSidebar}>
@@ -49,7 +49,7 @@ export default class UserPage extends Page {
                 </div>
               </div>,
             ]
-          : [LoadingIndicator.component({ className: 'LoadingIndicator--block' })]}
+          : [<LoadingIndicator className="LoadingIndicator--block" />]}
       </div>
     );
   }
@@ -114,11 +114,9 @@ export default class UserPage extends Page {
 
     items.add(
       'nav',
-      SelectDropdown.component({
-        children: this.navItems().toArray(),
-        className: 'App-titleControl',
-        buttonClassName: 'Button',
-      })
+      <SelectDropdown className="App-titleControl" buttonClassName="Button">
+        {this.navItems().toArray()}
+      </SelectDropdown>
     );
 
     return items;
@@ -135,33 +133,27 @@ export default class UserPage extends Page {
 
     items.add(
       'posts',
-      LinkButton.component({
-        href: app.route('user.posts', { username: user.username() }),
-        children: [app.translator.trans('core.forum.user.posts_link'), <span className="Button-badge">{user.commentCount()}</span>],
-        icon: 'far fa-comment',
-      }),
+      <LinkButton href={app.route('user.posts', { username: user.username() })} icon="far fa-comment">
+        {app.translator.trans('core.forum.user.posts_link')} <span className="Button-badge">{user.commentCount()}</span>
+      </LinkButton>,
       100
     );
 
     items.add(
       'discussions',
-      LinkButton.component({
-        href: app.route('user.discussions', { username: user.username() }),
-        children: [app.translator.trans('core.forum.user.discussions_link'), <span className="Button-badge">{user.discussionCount()}</span>],
-        icon: 'fas fa-bars',
-      }),
+      <LinkButton href={app.route('user.discussions', { username: user.username() })} icon="fas fa-bars">
+        {app.translator.trans('core.forum.user.discussions_link')} <span className="Button-badge">{user.discussionCount()}</span>
+      </LinkButton>,
       90
     );
 
     if (app.session.user === user) {
-      items.add('separator', Separator.component(), -90);
+      items.add('separator', <Separator />, -90);
       items.add(
         'settings',
-        LinkButton.component({
-          href: app.route('settings'),
-          children: app.translator.trans('core.forum.user.settings_link'),
-          icon: 'fas fa-cog',
-        }),
+        <LinkButton href={app.route('settings')} icon="fas fa-cog">
+          {app.translator.trans('core.forum.user.settings_link')}
+        </LinkButton>,
         -100
       );
     }
