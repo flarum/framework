@@ -193,7 +193,7 @@ export default class Application {
     m.mount(document.getElementById('modal'), { view: () => ModalManager.component({ state: this.modal }) });
     // m.mount(document.getElementById('alerts'), <AlertManager state={this.alerts} />);
 
-    // this.drawer = new Drawer();
+    this.drawer = new Drawer();
 
     m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
 
