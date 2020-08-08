@@ -1,6 +1,8 @@
 import Component from '../Component';
 import LoadingIndicator from './LoadingIndicator';
 import icon from '../helpers/icon';
+import classList from '../utils/classList';
+import withAttr from '../utils/withAttr';
 
 /**
  * The `Checkbox` component defines a checkbox input.
@@ -15,19 +17,24 @@ import icon from '../helpers/icon';
  * - `children` A text label to display next to the checkbox.
  */
 export default class Checkbox extends Component {
-  view() {
+  view(vnode) {
     // Sometimes, false is stored in the DB as '0'. This is a temporary
     // conversion layer until a more robust settings encoding is introduced
-    if (this.props.state === '0') this.props.state = false;
-    let className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
-    if (this.props.loading) className += ' loading';
-    if (this.props.disabled) className += ' disabled';
+    if (this.attrs.state === '0') this.attrs.state = false;
+
+    const className = classList([
+      'Checkbox',
+      this.attrs.state ? 'on' : 'off',
+      this.attrs.className,
+      this.attrs.loading && 'loading',
+      this.attrs.disabled && 'disabled',
+    ]);
 
     return (
       <label className={className}>
-        <input type="checkbox" checked={this.props.state} disabled={this.props.disabled} onchange={m.withAttr('checked', this.onchange.bind(this))} />
+        <input type="checkbox" checked={this.attrs.state} disabled={this.attrs.disabled} onchange={withAttr('checked', this.onchange.bind(this))} />
         <div className="Checkbox-display">{this.getDisplay()}</div>
-        {this.props.children}
+        {vnode.children}
       </label>
     );
   }
@@ -39,7 +46,7 @@ export default class Checkbox extends Component {
    * @protected
    */
   getDisplay() {
-    return this.props.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'fas fa-check' : 'fas fa-times');
+    return this.attrs.loading ? <LoadingIndicator size="tiny" /> : icon(this.attrs.state ? 'fas fa-check' : 'fas fa-times');
   }
 
   /**
@@ -49,6 +56,6 @@ export default class Checkbox extends Component {
    * @protected
    */
   onchange(checked) {
-    if (this.props.onchange) this.props.onchange(checked, this);
+    if (this.attrs.onchange) this.attrs.onchange(checked, this);
   }
 }
