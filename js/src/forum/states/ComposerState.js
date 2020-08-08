@@ -74,7 +74,7 @@ class ComposerState {
     this.onExit = null;
 
     this.fields = {
-      content: m.prop(''),
+      content: m.stream(''),
     };
 
     /**
