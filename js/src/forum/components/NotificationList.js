@@ -9,12 +9,9 @@ import Discussion from '../../common/models/Discussion';
  * notifications, grouped by discussion.
  */
 export default class NotificationList extends Component {
-  init() {
-    this.state = this.props.state;
-  }
-
   view() {
-    const pages = this.state.getNotificationPages();
+    const state = this.attrs.state;
+    const pages = state.getNotificationPages();
 
     return (
       <div className="NotificationList">
@@ -24,7 +21,7 @@ export default class NotificationList extends Component {
               className: 'Button Button--icon Button--link',
               icon: 'fas fa-check',
               title: app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip'),
-              onclick: this.state.markAllAsRead.bind(this.state),
+              onclick: state.markAllAsRead.bind(state),
             })}
           </div>
 
@@ -85,7 +82,7 @@ export default class NotificationList extends Component {
                 });
               })
             : ''}
-          {this.state.isLoading() ? (
+          {state.isLoading() ? (
             <LoadingIndicator className="LoadingIndicator--block" />
           ) : pages.length ? (
             ''
@@ -97,8 +94,10 @@ export default class NotificationList extends Component {
     );
   }
 
-  config(isInitialized, context) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    const state = this.attrs.state;
 
     const $notifications = this.$('.NotificationList-content');
     const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
@@ -109,8 +108,8 @@ export default class NotificationList extends Component {
       const contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
       const contentHeight = $notifications[0].scrollHeight;
 
-      if (this.state.hasMoreResults() && !this.state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
-        this.state.loadMore();
+      if (state.hasMoreResults() && !state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
+        state.loadMore();
       }
     };
 
