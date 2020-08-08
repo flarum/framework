@@ -7,7 +7,9 @@ import PageState from '../states/PageState';
  * @abstract
  */
 export default class Page extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     app.previous = app.current;
     app.current = new PageState(this.constructor);
 
@@ -22,13 +24,17 @@ export default class Page extends Component {
     this.bodyClass = '';
   }
 
-  config(isInitialized, context) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     if (this.bodyClass) {
       $('#app').addClass(this.bodyClass);
+    }
+  }
 
-      context.onunload = () => $('#app').removeClass(this.bodyClass);
+  onremove() {
+    if (this.bodyClass) {
+      $('#app').removeClass(this.bodyClass);
     }
   }
 }
