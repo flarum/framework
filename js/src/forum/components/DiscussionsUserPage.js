@@ -7,8 +7,8 @@ import DiscussionListState from '../states/DiscussionListState';
  * page.
  */
 export default class DiscussionsUserPage extends UserPage {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     this.loadUser(m.route.param('username'));
   }
