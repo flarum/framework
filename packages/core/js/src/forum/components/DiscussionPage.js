@@ -8,6 +8,7 @@ import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
 import DiscussionList from './DiscussionList';
+import PostStreamState from '../states/PostStreamState';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
@@ -27,11 +28,11 @@ export default class DiscussionPage extends Page {
     /**
      * The number of the first post that is currently visible in the viewport.
      *
-     * @type {Integer}
+     * @type {number}
      */
-    this.near = null;
+    this.near = m.route.param('near') || 0;
 
-    this.refresh();
+    this.load();
 
     // If the discussion list has been loaded, then we'll enable the pane (and
     // hide it by default). Also, if we've just come from another discussion
@@ -107,7 +108,14 @@ export default class DiscussionPage extends Page {
                   <nav className="DiscussionPage-nav">
                     <ul>{listItems(this.sidebarItems().toArray())}</ul>
                   </nav>
-                  <div className="DiscussionPage-stream">{this.stream.render()}</div>
+                  <div className="DiscussionPage-stream">
+                    {PostStream.component({
+                      discussion,
+                      stream: this.stream,
+                      targetPost: this.stream.targetPost,
+                      onPositionChange: this.positionChanged.bind(this),
+                    })}
+                  </div>
                 </div>,
               ]
             : LoadingIndicator.component({ className: 'LoadingIndicator--block' })}
@@ -125,12 +133,9 @@ export default class DiscussionPage extends Page {
   }
 
   /**
-   * Clear and reload the discussion.
+   * Load the discussion from the API or use the preloaded one.
    */
-  refresh() {
-    this.near = m.route.param('near') || 0;
-    this.discussion = null;
-
+  load() {
     const preloadedDiscussion = app.preloadedApiDocument();
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this
@@ -197,8 +202,7 @@ export default class DiscussionPage extends Page {
     // Set up the post stream for this discussion, along with the first page of
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
-    this.stream = new PostStream({ discussion, includedPosts });
-    this.stream.on('positionChanged', this.positionChanged.bind(this));
+    this.stream = new PostStreamState(discussion, includedPosts);
     this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
 
     app.current.set('discussion', discussion);
