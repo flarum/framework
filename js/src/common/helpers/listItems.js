@@ -44,7 +44,7 @@ export default function listItems(items) {
       item
     ) : (
       <li
-        className={classList(className, item.itemName && `item-${item.itemName}`, active && 'active')}
+        className={classList([className, item.itemName && `item-${item.itemName}`, active && 'active'])}
         key={(item.attrs && item.attrs.key) || item.itemName}
       >
         {item}
