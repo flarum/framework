@@ -12,18 +12,18 @@ import NotificationsPage from './components/NotificationsPage';
  */
 export default function (app) {
   app.routes = {
-    index: { path: '/all', component: IndexPage.component() },
-    'index.filter': { path: '/:filter', component: IndexPage.component() },
+    index: { path: '/all', component: IndexPage },
+    'index.filter': { path: '/:filter', component: IndexPage },
 
-    discussion: { path: '/d/:id', component: DiscussionPage.component() },
-    'discussion.near': { path: '/d/:id/:near', component: DiscussionPage.component() },
+    discussion: { path: '/d/:id', component: DiscussionPage },
+    'discussion.near': { path: '/d/:id/:near', component: DiscussionPage },
 
-    user: { path: '/u/:username', component: PostsUserPage.component() },
-    'user.posts': { path: '/u/:username', component: PostsUserPage.component() },
-    'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage.component() },
+    user: { path: '/u/:username', component: PostsUserPage },
+    'user.posts': { path: '/u/:username', component: PostsUserPage },
+    'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage },
 
-    settings: { path: '/settings', component: SettingsPage.component() },
-    notifications: { path: '/notifications', component: NotificationsPage.component() },
+    settings: { path: '/settings', component: SettingsPage },
+    notifications: { path: '/notifications', component: NotificationsPage },
   };
 
   /**
