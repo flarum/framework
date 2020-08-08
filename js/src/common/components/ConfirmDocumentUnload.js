@@ -17,21 +17,23 @@ import Component from '../Component';
  *
  */
 export default class ConfirmDocumentUnload extends Component {
-  config(isInitialized, context) {
-    if (isInitialized) return;
-
-    const handler = () => this.props.when() || undefined;
-
-    $(window).on('beforeunload', handler);
-
-    context.onunload = () => {
-      $(window).off('beforeunload', handler);
-    };
+  handler() {
+    return this.attrs.when() || undefined;
   }
 
-  view() {
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    $(window).on('beforeunload', this.handler);
+  }
+
+  onremove(vnode) {
+    $(window).off('beforeunload', this.handler);
+  }
+
+  view(vnode) {
     // To avoid having to render another wrapping <div> here, we assume that
     // this component is only wrapped around a single element / component.
-    return this.props.children[0];
+    return vnode.children[0];
   }
 }
