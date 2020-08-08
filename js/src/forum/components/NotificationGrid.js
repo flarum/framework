@@ -12,7 +12,9 @@ import ItemList from '../../common/utils/ItemList';
  * - `user`
  */
 export default class NotificationGrid extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     /**
      * Information about the available notification methods.
      *
@@ -36,7 +38,7 @@ export default class NotificationGrid extends Component {
   }
 
   view() {
-    const preferences = this.props.user.preferences();
+    const preferences = this.attrs.user.preferences();
 
     return (
       <table className="NotificationGrid">
@@ -62,12 +64,12 @@ export default class NotificationGrid extends Component {
 
                 return (
                   <td className="NotificationGrid-checkbox">
-                    {Checkbox.component({
-                      state: !!preferences[key],
-                      loading: this.loading[key],
-                      disabled: !(key in preferences),
-                      onchange: () => this.toggle([key]),
-                    })}
+                    <Checkbox
+                      state={!!preferences[key]}
+                      loading={this.loading[key]}
+                      disabled={!(key in preferences)}
+                      onchange={this.toggle.bind(this, [key])}
+                    />
                   </td>
                 );
               })}
@@ -104,7 +106,7 @@ export default class NotificationGrid extends Component {
    * @param {Array} keys
    */
   toggle(keys) {
-    const user = this.props.user;
+    const user = this.attrs.user;
     const preferences = user.preferences();
     const enabled = !preferences[keys[0]];
 
@@ -128,7 +130,7 @@ export default class NotificationGrid extends Component {
    * @param {String} method
    */
   toggleMethod(method) {
-    const keys = this.types.map((type) => this.preferenceKey(type.name, method)).filter((key) => key in this.props.user.preferences());
+    const keys = this.types.map((type) => this.preferenceKey(type.name, method)).filter((key) => key in this.attrs.user.preferences());
 
     this.toggle(keys);
   }
@@ -139,7 +141,7 @@ export default class NotificationGrid extends Component {
    * @param {String} type
    */
   toggleType(type) {
-    const keys = this.methods.map((method) => this.preferenceKey(type, method.name)).filter((key) => key in this.props.user.preferences());
+    const keys = this.methods.map((method) => this.preferenceKey(type, method.name)).filter((key) => key in this.attrs.user.preferences());
 
     this.toggle(keys);
   }
