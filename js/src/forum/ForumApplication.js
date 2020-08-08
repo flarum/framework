@@ -63,7 +63,7 @@ export default class ForumApplication extends Application {
    *
    * @type {NotificationListState}
    */
-  // notifications = new NotificationListState(this);
+  notifications = new NotificationListState(this);
 
   /*
    * An object which stores previously searched queries and provides convenient
