@@ -14,7 +14,7 @@
  * // view
  * this.subtree.retain() || 'expensive expression'
  *
- * @see https://lhorie.github.io/mithril/mithril.html#persisting-dom-elements-across-route-changes
+ * @see https://mithril.js.org/lifecycle-methods.html#onbeforeupdate
  */
 export default class SubtreeRetainer {
   /**
@@ -32,7 +32,7 @@ export default class SubtreeRetainer {
    * @return {Object|false}
    * @public
    */
-  retain() {
+  needsRebuild() {
     let needsRebuild = false;
 
     this.callbacks.forEach((callback, i) => {
@@ -44,7 +44,7 @@ export default class SubtreeRetainer {
       }
     });
 
-    return needsRebuild ? false : { subtree: 'retain' };
+    return needsRebuild;
   }
 
   /**
