@@ -68,7 +68,9 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
 
     if (attrs && 'children' in attrs) {
       throw new Error(
-        'The "children" attribute of attrs should never be used. Either pass children in as the vnode children or rename the attribute'
+        `[${
+          (this.constructor as any).name
+        }] The "children" attribute of attrs should never be used. Either pass children in as the vnode children or rename the attribute`
       );
     }
 
