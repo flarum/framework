@@ -11,13 +11,15 @@ import ComposerState from '../states/ComposerState';
  * `show`, `hide`, `close`, `minimize`, `fullScreen`, and `exitFullScreen`.
  */
 export default class Composer extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     /**
      * The composer's "state".
      *
      * @type {ComposerState}
      */
-    this.state = this.props.state;
+    this.state = this.attrs.state;
 
     /**
      * Whether or not the composer currently has focus.
@@ -54,7 +56,7 @@ export default class Composer extends Component {
     );
   }
 
-  config(isInitialized, context) {
+  onupdate() {
     if (this.state.position === this.prevPosition) {
       // Set the height of the Composer element and its contents on each redraw,
       // so that they do not lose it if their DOM elements are recreated.
@@ -64,12 +66,10 @@ export default class Composer extends Component {
 
       this.prevPosition = this.state.position;
     }
+  }
 
-    if (isInitialized) return;
-
-    // Since this component is a part of the global UI that persists between
-    // routes, we will flag the DOM to be retained across route changes.
-    context.retain = true;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     this.initializeHeight();
     this.$().hide().css('bottom', -this.state.computedHeight());
@@ -93,12 +93,12 @@ export default class Composer extends Component {
     $(document)
       .on('mousemove', (handlers.onmousemove = this.onmousemove.bind(this)))
       .on('mouseup', (handlers.onmouseup = this.onmouseup.bind(this)));
+  }
 
-    context.onunload = () => {
-      $(window).off('resize', handlers.onresize);
+  onremove() {
+    $(window).off('resize', handlers.onresize);
 
-      $(document).off('mousemove', handlers.onmousemove).off('mouseup', handlers.onmouseup);
-    };
+    $(document).off('mousemove', handlers.onmousemove).off('mouseup', handlers.onmouseup);
   }
 
   /**
