@@ -52,7 +52,7 @@ export default class NotificationsDropdown extends Dropdown {
   }
 
   goToRoute() {
-    m.route(app.route('notifications'));
+    m.route.set(app.route('notifications'));
   }
 
   getUnreadCount() {
