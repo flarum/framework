@@ -1,5 +1,6 @@
 import Component from '../Component';
 import icon from '../helpers/icon';
+import classList from '../utils/classList';
 import extract from '../utils/extract';
 import extractText from '../utils/extractText';
 import LoadingIndicator from './LoadingIndicator';
@@ -24,7 +25,6 @@ export default class Button extends Component {
   view(vnode) {
     const attrs = Object.assign({}, this.attrs);
 
-    attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button';
 
     // If a tooltip was provided for buttons without additional content, we also
@@ -39,13 +39,13 @@ export default class Button extends Component {
     }
 
     const iconName = extract(attrs, 'icon');
-    if (iconName) attrs.className += ' hasIcon';
 
     const loading = extract(attrs, 'loading');
     if (attrs.disabled || loading) {
-      attrs.className += ' disabled' + (loading ? ' loading' : '');
       delete attrs.onclick;
     }
+
+    attrs.className = classList([attrs.className, iconName && 'hasIcon', attrs.disabled && 'disabled', loading && 'loading']);
 
     return <button {...attrs}>{this.getButtonContent(vnode.children)}</button>;
   }
