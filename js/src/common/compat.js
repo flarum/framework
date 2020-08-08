@@ -22,6 +22,7 @@ import classList from './utils/classList';
 import extractText from './utils/extractText';
 import formatNumber from './utils/formatNumber';
 import mapRoutes from './utils/mapRoutes';
+import withAttr from './utils/withAttr';
 import Notification from './models/Notification';
 import User from './models/User';
 import Post from './models/Post';
@@ -88,6 +89,7 @@ export default {
   'utils/extractText': extractText,
   'utils/formatNumber': formatNumber,
   'utils/mapRoutes': mapRoutes,
+  'utils/withAttr': withAttr,
   'models/Notification': Notification,
   'models/User': User,
   'models/Post': Post,
