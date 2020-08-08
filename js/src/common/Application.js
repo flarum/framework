@@ -195,7 +195,7 @@ export default class Application {
 
     // this.drawer = new Drawer();
 
-    // m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
+    m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
 
     // Add a class to the body which indicates that the page has been scrolled
     // down.
@@ -432,9 +432,19 @@ export default class Application {
    * @public
    */
   route(name, params = {}) {
-    const url = this.routes[name].path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
-    const queryString = m.route.buildQueryString(params);
-    const prefix = m.route.mode === 'pathname' ? app.forum.attribute('basePath') : '';
+    const route = this.routes[name];
+
+    if (!route) throw new Error(`Route '${name}' does not exist`);
+
+    const url = route.path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
+
+    // Remove falsy values in params to avoid having urls like '/?sort&q'
+    for (const key in params) {
+      if (params.hasOwnProperty(key) && !params[key]) delete params[key];
+    }
+
+    const queryString = m.buildQueryString(params);
+    const prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
 
     return prefix + url + (queryString ? '?' + queryString : '');
   }
