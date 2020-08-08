@@ -71,7 +71,7 @@ export default class ForumApplication extends Application {
    *
    * @type {GlobalSearchState}
    */
-  // search = new GlobalSearchState();
+  search = new GlobalSearchState();
 
   /*
    * An object which controls the state of the composer.
@@ -105,16 +105,15 @@ export default class ForumApplication extends Application {
     // Push the homepage as the first route, so that the user will always be
     // able to click on the 'back' button to go home, regardless of which page
     // they started on.
-    // TODO routes
-    // const defaultRoute = this.forum.attribute('defaultRoute');
-    // let defaultAction = 'index';
+    const defaultRoute = this.forum.attribute('defaultRoute');
+    let defaultAction = 'index';
 
-    // for (const i in this.routes) {
-    //   if (this.routes[i].path === defaultRoute) defaultAction = i;
-    // }
+    for (const i in this.routes) {
+      if (this.routes[i].path === defaultRoute) defaultAction = i;
+    }
 
-    // this.routes[defaultAction].path = '/';
-    // this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
+    this.routes[defaultAction].path = '/';
+    this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
 
     // m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
     // m.mount(document.getElementById('header-navigation'), Navigation.component());
