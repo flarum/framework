@@ -115,8 +115,8 @@ export default class ForumApplication extends Application {
     this.routes[defaultAction].path = '/';
     this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
 
-    // m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
-    // m.mount(document.getElementById('header-navigation'), Navigation.component());
+    m.mount(document.getElementById('app-navigation'), { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
+    m.mount(document.getElementById('header-navigation'), Navigation);
     m.mount(document.getElementById('header-primary'), HeaderPrimary);
     m.mount(document.getElementById('header-secondary'), HeaderSecondary);
     // m.mount(document.getElementById('composer'), Composer.component({ state: this.composer }));
