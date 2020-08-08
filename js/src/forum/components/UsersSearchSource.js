@@ -43,6 +43,12 @@ export default class UsersSearchResults {
       <li className="Dropdown-header">{app.translator.trans('core.forum.search.users_heading')}</li>,
       results.map((user) => {
         const name = username(user);
+
+        if (!name.children) {
+          name.children = [name.text];
+          delete name.text;
+        }
+
         name.children[0] = highlight(name.children[0], query);
 
         return (
