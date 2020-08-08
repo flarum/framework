@@ -16,13 +16,14 @@ import UsersSearchSource from './UsersSearchSource';
  * getInitialSearch() value is a truthy value. If this is the case, an 'x'
  * button will be shown next to the search field, and clicking it will clear the search.
  *
- * PROPS:
+ * ATTRS:
  *
  * - state: SearchState instance.
  */
 export default class Search extends Component {
-  init() {
-    this.state = this.props.state;
+  oninit(vnode) {
+    super.oninit(vnode);
+    this.state = this.attrs.state;
 
     /**
      * Whether or not the search input has focus.
@@ -86,7 +87,7 @@ export default class Search extends Component {
             type="search"
             placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
             value={this.state.getValue()}
-            oninput={m.withAttr('value', this.state.setValue.bind(this.state))}
+            oninput={(e) => this.state.setValue(e.target.value)}
             onfocus={() => (this.hasFocus = true)}
             onblur={() => (this.hasFocus = false)}
           />
@@ -107,11 +108,13 @@ export default class Search extends Component {
     );
   }
 
-  config(isInitialized) {
+  onupdate() {
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
+  }
 
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     const search = this;
     const state = this.state;
@@ -179,7 +182,7 @@ export default class Search extends Component {
     this.loadingSources = 0;
 
     if (this.state.getValue()) {
-      m.route(this.getItem(this.index).find('a').attr('href'));
+      m.route.set(this.getItem(this.index).find('a').attr('href'));
     } else {
       this.clear();
     }
