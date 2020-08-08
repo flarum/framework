@@ -13,7 +13,6 @@ import NotificationsPage from './components/NotificationsPage';
 export default function (app) {
   app.routes = {
     index: { path: '/all', component: IndexPage },
-    'index.filter': { path: '/:filter', component: IndexPage },
 
     discussion: { path: '/d/:id', component: DiscussionPage },
     'discussion.near': { path: '/d/:id/:near', component: DiscussionPage },
@@ -24,6 +23,8 @@ export default function (app) {
 
     settings: { path: '/settings', component: SettingsPage },
     notifications: { path: '/notifications', component: NotificationsPage },
+
+    'index.filter': { path: '/:filter', component: IndexPage },
   };
 
   /**
