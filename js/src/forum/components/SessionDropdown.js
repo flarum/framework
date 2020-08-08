@@ -5,25 +5,24 @@ import LinkButton from '../../common/components/LinkButton';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import Separator from '../../common/components/Separator';
-import Group from '../../common/models/Group';
 
 /**
  * The `SessionDropdown` component shows a button with the current user's
  * avatar/name, with a dropdown of session controls.
  */
 export default class SessionDropdown extends Dropdown {
-  static initProps(props) {
-    super.initProps(props);
+  initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    props.className = 'SessionDropdown';
-    props.buttonClassName = 'Button Button--user Button--flat';
-    props.menuClassName = 'Dropdown-menu--right';
+    attrs.className = 'SessionDropdown';
+    attrs.buttonClassName = 'Button Button--user Button--flat';
+    attrs.menuClassName = 'Dropdown-menu--right';
   }
 
-  view() {
-    this.props.children = this.items().toArray();
+  view(vnode) {
+    vnode.children = this.items().toArray();
 
-    return super.view();
+    return super.view(vnode);
   }
 
   getButtonContent() {
@@ -43,34 +42,40 @@ export default class SessionDropdown extends Dropdown {
 
     items.add(
       'profile',
-      LinkButton.component({
-        icon: 'fas fa-user',
-        children: app.translator.trans('core.forum.header.profile_button'),
-        href: app.route.user(user),
-      }),
+      LinkButton.component(
+        {
+          icon: 'fas fa-user',
+          href: app.route.user(user),
+        },
+        app.translator.trans('core.forum.header.profile_button')
+      ),
       100
     );
 
     items.add(
       'settings',
-      LinkButton.component({
-        icon: 'fas fa-cog',
-        children: app.translator.trans('core.forum.header.settings_button'),
-        href: app.route('settings'),
-      }),
+      LinkButton.component(
+        {
+          icon: 'fas fa-cog',
+          href: app.route('settings'),
+        },
+        app.translator.trans('core.forum.header.settings_button')
+      ),
       50
     );
 
     if (app.forum.attribute('adminUrl')) {
       items.add(
         'administration',
-        LinkButton.component({
-          icon: 'fas fa-wrench',
-          children: app.translator.trans('core.forum.header.admin_button'),
-          href: app.forum.attribute('adminUrl'),
-          target: '_blank',
-          config: () => {},
-        }),
+        LinkButton.component(
+          {
+            icon: 'fas fa-wrench',
+            href: app.forum.attribute('adminUrl'),
+            target: '_blank',
+            config: () => {},
+          },
+          app.translator.trans('core.forum.header.admin_button')
+        ),
         0
       );
     }
@@ -79,11 +84,13 @@ export default class SessionDropdown extends Dropdown {
 
     items.add(
       'logOut',
-      Button.component({
-        icon: 'fas fa-sign-out-alt',
-        children: app.translator.trans('core.forum.header.log_out_button'),
-        onclick: app.session.logout.bind(app.session),
-      }),
+      Button.component(
+        {
+          icon: 'fas fa-sign-out-alt',
+          onclick: app.session.logout.bind(app.session),
+        },
+        app.translator.trans('core.forum.header.log_out_button')
+      ),
       -100
     );
 

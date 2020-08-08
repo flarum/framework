@@ -66,7 +66,7 @@ export default class HeaderSecondary extends Component {
 
     if (app.session.user) {
       items.add('notifications', NotificationsDropdown.component({ state: app.notifications }), 10);
-      // items.add('session', SessionDropdown.component(), 0);
+      items.add('session', SessionDropdown.component(), 0);
     } else {
       if (app.forum.attribute('allowSignUp')) {
         items.add(
