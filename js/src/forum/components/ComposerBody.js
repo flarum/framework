@@ -24,8 +24,10 @@ import ItemList from '../../common/utils/ItemList';
  * @abstract
  */
 export default class ComposerBody extends Component {
-  init() {
-    this.composer = this.props.composer;
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    this.composer = this.attrs.composer;
 
     /**
      * Whether or not the component is loading.
@@ -37,11 +39,11 @@ export default class ComposerBody extends Component {
     // Let the composer state know to ask for confirmation under certain
     // circumstances, if the body supports / requires it and has a corresponding
     // confirmation question to ask.
-    if (this.props.confirmExit) {
-      this.composer.preventClosingWhen(() => this.hasChanges(), this.props.confirmExit);
+    if (this.attrs.confirmExit) {
+      this.composer.preventClosingWhen(() => this.hasChanges(), this.attrs.confirmExit);
     }
 
-    this.composer.fields.content(this.props.originalContent || '');
+    this.composer.fields.content(this.attrs.originalContent || '');
 
     /**
      * @deprecated BC layer, remove in Beta 15.
@@ -53,15 +55,15 @@ export default class ComposerBody extends Component {
   view() {
     return (
       <ConfirmDocumentUnload when={this.hasChanges.bind(this)}>
-        <div className={'ComposerBody ' + (this.props.className || '')}>
-          {avatar(this.props.user, { className: 'ComposerBody-avatar' })}
+        <div className={'ComposerBody ' + (this.attrs.className || '')}>
+          {avatar(this.attrs.user, { className: 'ComposerBody-avatar' })}
           <div className="ComposerBody-content">
             <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
             <div className="ComposerBody-editor">
               {TextEditor.component({
-                submitLabel: this.props.submitLabel,
-                placeholder: this.props.placeholder,
-                disabled: this.loading || this.props.disabled,
+                submitLabel: this.attrs.submitLabel,
+                placeholder: this.attrs.placeholder,
+                disabled: this.loading || this.attrs.disabled,
                 composer: this.composer,
                 preview: this.jumpToPreview && this.jumpToPreview.bind(this),
                 onchange: this.composer.fields.content,
@@ -84,7 +86,7 @@ export default class ComposerBody extends Component {
   hasChanges() {
     const content = this.composer.fields.content();
 
-    return content && content !== this.props.originalContent;
+    return content && content !== this.attrs.originalContent;
   }
 
   /**
