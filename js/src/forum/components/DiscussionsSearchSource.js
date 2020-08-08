@@ -34,11 +34,13 @@ export default class DiscussionsSearchSource {
     return [
       <li className="Dropdown-header">{app.translator.trans('core.forum.search.discussions_heading')}</li>,
       <li>
-        {LinkButton.component({
-          icon: 'fas fa-search',
-          children: app.translator.trans('core.forum.search.all_discussions_button', { query }),
-          href: app.route('index', { q: query }),
-        })}
+        {LinkButton.component(
+          {
+            icon: 'fas fa-search',
+            href: app.route('index', { q: query }),
+          },
+          app.translator.trans('core.forum.search.all_discussions_button', { query })
+        )}
       </li>,
       results.map((discussion) => {
         const mostRelevantPost = discussion.mostRelevantPost();
