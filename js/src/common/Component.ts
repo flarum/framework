@@ -63,7 +63,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
     return m(this as any, componentProps, children);
   }
 
-  private setAttrs(attrs: T) {
+  private setAttrs(attrs: T = {} as T) {
     this.initAttrs(attrs);
 
     if (attrs && 'children' in attrs) {
