@@ -66,7 +66,7 @@ export default class GlobalSearchState extends SearchState {
       params.sort = sort;
     }
 
-    m.route(app.route(this.searchRoute, params));
+    m.route.set(app.route(this.searchRoute, params), null, { state: { key: Date.now() } });
   }
 
   /**
@@ -77,7 +77,7 @@ export default class GlobalSearchState extends SearchState {
    * @return {String}
    */
   getInitialSearch() {
-    return app.current.type.providesInitialSearch && this.params().q;
+    return app.current.type && app.current.type.providesInitialSearch && this.params().q;
   }
 
   /**
@@ -90,6 +90,6 @@ export default class GlobalSearchState extends SearchState {
     const params = this.params();
     delete params.q;
 
-    m.route(app.route(this.searchRoute, params));
+    m.route.set(app.route(this.searchRoute, params), null, { state: { key: Date.now() } });
   }
 }
