@@ -7,16 +7,26 @@ import extractText from '../../common/utils/extractText';
  * enter the title of their discussion. It also overrides the `submit` and
  * `willExit` actions to account for the title.
  *
- * ### Props
+ * ### Attrs
  *
- * - All of the props for ComposerBody
+ * - All of the attrs for ComposerBody
  * - `titlePlaceholder`
  */
 export default class DiscussionComposer extends ComposerBody {
-  init() {
-    super.init();
+  initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    this.composer.fields.title = this.composer.fields.title || m.prop('');
+    attrs.placeholder = attrs.placeholder || extractText(app.translator.trans('core.forum.composer_discussion.body_placeholder'));
+    attrs.submitLabel = attrs.submitLabel || app.translator.trans('core.forum.composer_discussion.submit_button');
+    attrs.confirmExit = attrs.confirmExit || extractText(app.translator.trans('core.forum.composer_discussion.discard_confirmation'));
+    attrs.titlePlaceholder = attrs.titlePlaceholder || extractText(app.translator.trans('core.forum.composer_discussion.title_placeholder'));
+    attrs.className = 'ComposerBody--discussion';
+  }
+
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    this.composer.fields.title = this.composer.fields.title || m.stream('');
 
     /**
      * The value of the title input.
@@ -24,16 +34,6 @@ export default class DiscussionComposer extends ComposerBody {
      * @type {Function}
      */
     this.title = this.composer.fields.title;
-  }
-
-  static initProps(props) {
-    super.initProps(props);
-
-    props.placeholder = props.placeholder || extractText(app.translator.trans('core.forum.composer_discussion.body_placeholder'));
-    props.submitLabel = props.submitLabel || app.translator.trans('core.forum.composer_discussion.submit_button');
-    props.confirmExit = props.confirmExit || extractText(app.translator.trans('core.forum.composer_discussion.discard_confirmation'));
-    props.titlePlaceholder = props.titlePlaceholder || extractText(app.translator.trans('core.forum.composer_discussion.title_placeholder'));
-    props.className = 'ComposerBody--discussion';
   }
 
   headerItems() {
@@ -47,9 +47,9 @@ export default class DiscussionComposer extends ComposerBody {
         <input
           className="FormControl"
           value={this.title()}
-          oninput={m.withAttr('value', this.title)}
-          placeholder={this.props.titlePlaceholder}
-          disabled={!!this.props.disabled}
+          bidi={this.title}
+          placeholder={this.attrs.titlePlaceholder}
+          disabled={!!this.attrs.disabled}
           onkeydown={this.onkeydown.bind(this)}
         />
       </h3>
@@ -71,7 +71,7 @@ export default class DiscussionComposer extends ComposerBody {
       this.composer.editor.moveCursorTo(0);
     }
 
-    m.redraw.strategy('none');
+    e.redraw = false;
   }
 
   hasChanges() {
@@ -101,7 +101,7 @@ export default class DiscussionComposer extends ComposerBody {
       .then((discussion) => {
         this.composer.hide();
         app.discussions.refresh();
-        m.route(app.route.discussion(discussion));
+        m.route.set(app.route.discussion(discussion));
       }, this.loaded.bind(this));
   }
 }
