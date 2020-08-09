@@ -114,6 +114,6 @@ export default class History {
   home() {
     this.stack.splice(0);
 
-    m.route.set('/');
+    m.route.set('/', null, { state: { key: Date.now() } });
   }
 }
