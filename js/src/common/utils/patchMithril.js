@@ -26,7 +26,7 @@ export default function patchMithril(global) {
       if (!vnode.attrs.options) vnode.attrs.options = { state: { key: Date.now() } };
 
       return defaultLinkView(vnode);
-    }
+    },
   };
 
   const modifiedMithril = function (comp, ...args) {
