@@ -121,7 +121,7 @@ export default class ForumApplication extends Application {
     m.mount(document.getElementById('header-secondary'), HeaderSecondary);
     m.mount(document.getElementById('composer'), { view: () => Composer.component({ state: this.composer }) });
 
-    // this.pane = new Pane(document.getElementById('app'));
+    this.pane = new Pane(document.getElementById('app'));
 
     m.route.prefix = '';
     super.mount(this.forum.attribute('basePath'));
