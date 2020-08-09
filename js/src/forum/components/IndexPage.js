@@ -72,12 +72,8 @@ export default class IndexPage extends Page {
     );
   }
 
-  config(isInitialized, context) {
-    super.config(...arguments);
-
-    if (isInitialized) return;
-
-    extend(context, 'onunload', () => $('#app').css('min-height', ''));
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     app.setTitle(app.translator.trans('core.forum.index.meta_title_text'));
     app.setTitleCount(0);
@@ -115,6 +111,12 @@ export default class IndexPage extends Page {
         }
       }
     }
+  }
+
+  onremove(vnode) {
+    super.onremove(vnode);
+
+    $('#app').css('min-height', '');
   }
 
   /**
