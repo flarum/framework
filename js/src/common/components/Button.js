@@ -45,7 +45,7 @@ export default class Button extends Component {
       delete attrs.onclick;
     }
 
-    attrs.className = classList([attrs.className, iconName && 'hasIcon', attrs.disabled && 'disabled', loading && 'loading']);
+    attrs.className = classList([attrs.className, iconName && 'hasIcon', (attrs.disabled || loading) && 'disabled', loading && 'loading']);
 
     return <button {...attrs}>{this.getButtonContent(vnode.children)}</button>;
   }
