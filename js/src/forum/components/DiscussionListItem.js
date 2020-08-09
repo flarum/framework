@@ -98,14 +98,13 @@ export default class DiscussionListItem extends Component {
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
           <a
-            href={user ? app.route.user(user) : '#'}
+            route={user ? app.route.user(user) : '#'}
             className="DiscussionListItem-author"
             title={extractText(
               app.translator.trans('core.forum.discussion_list.started_text', { user: user, ago: humanTime(discussion.createdAt()) })
             )}
-            config={function (element) {
-              $(element).tooltip({ placement: 'right' });
-              m.route.apply(this, arguments);
+            oncreate={function (vnode) {
+              $(vnode.dom).tooltip({ placement: 'right' });
             }}
           >
             {avatar(user, { title: '' })}
@@ -113,7 +112,7 @@ export default class DiscussionListItem extends Component {
 
           <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>
 
-          <a href={app.route.discussion(discussion, jumpTo)} config={m.route} className="DiscussionListItem-main">
+          <a route={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
             <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
             <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
           </a>
