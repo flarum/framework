@@ -112,7 +112,7 @@ export default class DiscussionListItem extends Component {
 
           <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>
 
-          <a route={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
+          <a route={app.route.discussion(discussion, jumpTo)} options={true} className="DiscussionListItem-main">
             <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
             <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
           </a>
