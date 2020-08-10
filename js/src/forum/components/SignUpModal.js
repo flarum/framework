@@ -8,7 +8,7 @@ import ItemList from '../../common/utils/ItemList';
 /**
  * The `SignUpModal` component displays a modal dialog with a singup form.
  *
- * ### Props
+ * ### Attrs
  *
  * - `username`
  * - `email`
@@ -140,12 +140,12 @@ export default class SignUpModal extends Modal {
    * @public
    */
   logIn() {
-    const props = {
+    const attrs = {
       identification: this.email() || this.username(),
       password: this.password(),
     };
 
-    app.modal.show(LogInModal, props);
+    app.modal.show(LogInModal, attrs);
   }
 
   onready() {
