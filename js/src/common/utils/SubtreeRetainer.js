@@ -6,10 +6,10 @@
  * @example
  * // constructor
  * this.subtree = new SubtreeRetainer(
- *   () => this.props.post.freshness,
+ *   () => this.attrs.post.freshness,
  *   () => this.showing
  * );
- * this.subtree.check(() => this.props.user.freshness);
+ * this.subtree.check(() => this.attrs.user.freshness);
  *
  * // view
  * this.subtree.retain() || 'expensive expression'
