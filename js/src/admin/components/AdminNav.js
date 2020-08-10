@@ -31,62 +31,74 @@ export default class AdminNav extends Component {
 
     items.add(
       'dashboard',
-      AdminLinkButton.component({
-        href: app.route('dashboard'),
-        icon: 'far fa-chart-bar',
-        children: app.translator.trans('core.admin.nav.dashboard_button'),
-        description: app.translator.trans('core.admin.nav.dashboard_text'),
-      })
+      AdminLinkButton.component(
+        {
+          href: app.route('dashboard'),
+          icon: 'far fa-chart-bar',
+          description: app.translator.trans('core.admin.nav.dashboard_text'),
+        },
+        app.translator.trans('core.admin.nav.dashboard_button')
+      )
     );
 
     items.add(
       'basics',
-      AdminLinkButton.component({
-        href: app.route('basics'),
-        icon: 'fas fa-pencil-alt',
-        children: app.translator.trans('core.admin.nav.basics_button'),
-        description: app.translator.trans('core.admin.nav.basics_text'),
-      })
+      AdminLinkButton.component(
+        {
+          href: app.route('basics'),
+          icon: 'fas fa-pencil-alt',
+          description: app.translator.trans('core.admin.nav.basics_text'),
+        },
+        app.translator.trans('core.admin.nav.basics_button')
+      )
     );
 
     items.add(
       'mail',
-      AdminLinkButton.component({
-        href: app.route('mail'),
-        icon: 'fas fa-envelope',
-        children: app.translator.trans('core.admin.nav.email_button'),
-        description: app.translator.trans('core.admin.nav.email_text'),
-      })
+      AdminLinkButton.component(
+        {
+          href: app.route('mail'),
+          icon: 'fas fa-envelope',
+          description: app.translator.trans('core.admin.nav.email_text'),
+        },
+        app.translator.trans('core.admin.nav.email_button')
+      )
     );
 
     items.add(
       'permissions',
-      AdminLinkButton.component({
-        href: app.route('permissions'),
-        icon: 'fas fa-key',
-        children: app.translator.trans('core.admin.nav.permissions_button'),
-        description: app.translator.trans('core.admin.nav.permissions_text'),
-      })
+      AdminLinkButton.component(
+        {
+          href: app.route('permissions'),
+          icon: 'fas fa-key',
+          description: app.translator.trans('core.admin.nav.permissions_text'),
+        },
+        app.translator.trans('core.admin.nav.permissions_button')
+      )
     );
 
     items.add(
       'appearance',
-      AdminLinkButton.component({
-        href: app.route('appearance'),
-        icon: 'fas fa-paint-brush',
-        children: app.translator.trans('core.admin.nav.appearance_button'),
-        description: app.translator.trans('core.admin.nav.appearance_text'),
-      })
+      AdminLinkButton.component(
+        {
+          href: app.route('appearance'),
+          icon: 'fas fa-paint-brush',
+          description: app.translator.trans('core.admin.nav.appearance_text'),
+        },
+        app.translator.trans('core.admin.nav.appearance_button')
+      )
     );
 
     items.add(
       'extensions',
-      AdminLinkButton.component({
-        href: app.route('extensions'),
-        icon: 'fas fa-puzzle-piece',
-        children: app.translator.trans('core.admin.nav.extensions_button'),
-        description: app.translator.trans('core.admin.nav.extensions_text'),
-      })
+      AdminLinkButton.component(
+        {
+          href: app.route('extensions'),
+          icon: 'fas fa-puzzle-piece',
+          description: app.translator.trans('core.admin.nav.extensions_text'),
+        },
+        app.translator.trans('core.admin.nav.extensions_button')
+      )
     );
 
     return items;
