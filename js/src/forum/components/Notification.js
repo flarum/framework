@@ -19,10 +19,13 @@ export default class Notification extends Component {
     const notification = this.attrs.notification;
     const href = this.href();
 
+    const linkAttrs = {};
+    linkAttrs[href.indexOf('://') === -1 ? 'route' : 'href'] = href;
+
     return (
       <a
         className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
-        route={href}
+        {...linkAttrs}
         onclick={this.markAsRead.bind(this)}
       >
         {!notification.isRead() &&
