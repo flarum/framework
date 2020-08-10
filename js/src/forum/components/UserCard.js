@@ -50,7 +50,7 @@ export default class UserCard extends Component {
                 {this.attrs.editable ? (
                   [AvatarEditor.component({ user, className: 'UserCard-avatar' }), username(user)]
                 ) : (
-                  <a href={app.route.user(user)} config={m.route}>
+                  <a route={app.route.user(user)}>
                     <div className="UserCard-avatar">{avatar(user)}</div>
                     {username(user)}
                   </a>
