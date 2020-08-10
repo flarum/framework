@@ -1,10 +1,11 @@
 import DiscussionList from './DiscussionList';
+import Component from '../../common/Component';
 
 const hotEdge = (e) => {
   if (e.pageX < 10) app.pane.show();
 };
 
-export default class DiscussionListPane {
+export default class DiscussionListPane extends Component {
   view() {
     if (!app.discussions.hasDiscussions()) {
       return;
