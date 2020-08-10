@@ -6,18 +6,20 @@ import extractText from '../../common/utils/extractText';
  * The `PostEdited` component displays information about when and by whom a post
  * was edited.
  *
- * ### Props
+ * ### Attrs
  *
  * - `post`
  */
 export default class PostEdited extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.shouldUpdateTooltip = false;
     this.oldEditedInfo = null;
   }
 
   view() {
-    const post = this.props.post;
+    const post = this.attrs.post;
     const editedUser = post.editedUser();
     const editedInfo = extractText(app.translator.trans('core.forum.post.edited_tooltip', { user: editedUser, ago: humanTime(post.editedAt()) }));
     if (editedInfo !== this.oldEditedInfo) {
@@ -32,7 +34,7 @@ export default class PostEdited extends Component {
     );
   }
 
-  config(isInitialized) {
+  onupdate(vnode) {
     if (this.shouldUpdateTooltip) {
       this.$().tooltip('destroy').tooltip();
       this.shouldUpdateTooltip = false;
