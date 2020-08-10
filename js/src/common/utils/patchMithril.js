@@ -7,18 +7,14 @@ export default function patchMithril(global) {
    * Due to mithril 2.0, setting a route will not re-call oninit if the component handling the route has not changed.
    * We, however, want to keep this behavior since it's more intuitive to users (clicking home should refresh home).
    * Mithril allows us to provide an options parameter to m.route.set, which, if has the state.key parameter changed,
-   * will force a re-oninit. See:
-   *
-   * - https://github.com/MithrilJS/mithril.js/blob/ff3e12e5d398f653b2d0ea182a1fc963473d47f6/api/router.js#L217
-   * - https://mithril.js.org/route.html#mrouteset
-   * - https://mithril.js.org/keys.html
+   * will force a re-oninit. See https://mithril.js.org/route.html#key-parameter.
    *
    * However, manually implementing this on every button and component is both tedious, and will make further changes in
    * functionality difficult to implement at scale, so we patch it here. The original behavior can be replicated by passing
    * an empty object as the "options" attr to a link component.
    *
    * Please note that any code that manually calls m.route.set will need to provide something like this to the
-   * options parameter itself. Patching m.route.set would be more convenient, but would too severely restrict flexibility
+   * options parameter itself. Patching m.route.set would be more convenient, but would too severely restrict flexibility.
    */
   const defaultLinkView = defaultMithril.route.Link.view;
   const modifiedLink = {
