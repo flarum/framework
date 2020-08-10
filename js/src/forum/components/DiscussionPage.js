@@ -95,14 +95,6 @@ export default class DiscussionPage extends Page {
     );
   }
 
-  oncreate(vnode) {
-    super.oncreate(vnode);
-
-    if (this.discussion) {
-      app.setTitle(this.discussion.title());
-    }
-  }
-
   onupdate(vnode) {
     if (m.route.get() !== this.prevRoute) {
       this.prevRoute = m.route.get();
@@ -167,6 +159,7 @@ export default class DiscussionPage extends Page {
     this.discussion = discussion;
 
     app.history.push('discussion', discussion.title());
+    app.setTitle(this.discussion.title());
     app.setTitleCount(0);
 
     // When the API responds with a discussion, it will also include a number of
