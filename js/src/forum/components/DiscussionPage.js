@@ -49,7 +49,7 @@ export default class DiscussionPage extends Page {
     this.bodyClass = 'App--discussion';
   }
 
-  onunload(e) {
+  onremove(vnode) {
     // If we have routed to the same discussion as we were viewing previously,
     // cancel the unloading of this controller and instead prompt the post
     // stream to jump to the new 'near' param.
@@ -57,7 +57,7 @@ export default class DiscussionPage extends Page {
       const idParam = m.route.param('id');
 
       if (idParam && idParam.split('-')[0] === this.discussion.id()) {
-        e.preventDefault();
+        //e.preventDefault();
 
         const near = m.route.param('near') || '1';
 
