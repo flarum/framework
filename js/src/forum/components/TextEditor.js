@@ -30,16 +30,16 @@ export default class TextEditor extends Component {
   }
 
   view() {
-    const configTextArea = () => {
+    const configTextArea = (vnode) => {
       const handler = () => {
         this.onsubmit();
         m.redraw();
       };
 
-      $(element).bind('keydown', 'meta+return', handler);
-      $(element).bind('keydown', 'ctrl+return', handler);
+      $(vnode.dom).bind('keydown', 'meta+return', handler);
+      $(vnode.dom).bind('keydown', 'ctrl+return', handler);
 
-      this.attrs.composer.editor = new SuperTextarea(element);
+      this.attrs.composer.editor = new SuperTextarea(vnode.dom);
     };
 
     return (
