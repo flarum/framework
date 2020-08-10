@@ -1,11 +1,15 @@
 /*global s9e*/
 
-export default class ReplyPlaceholderPreview {
+import Component from "../../common/Component";
+
+export default class ReplyPlaceholderPreview extends Component {
   view() {
     return <div className="Post-body" />;
   }
 
   oncreate(vnode) {
+    super.oncreate(vnode);
+
     // Every 50ms, if the composer content has changed, then update the post's
     // body with a preview.
     let preview;
