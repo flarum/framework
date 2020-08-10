@@ -9,7 +9,7 @@ import ItemList from '../../common/utils/ItemList';
 /**
  * The `LogInModal` component displays a modal dialog with a login form.
  *
- * ### Props
+ * ### Attrs
  *
  * - `identification`
  * - `password`
@@ -142,9 +142,9 @@ export default class LogInModal extends Modal {
    */
   forgotPassword() {
     const email = this.identification();
-    const props = email.indexOf('@') !== -1 ? { email } : undefined;
+    const attrs = email.indexOf('@') !== -1 ? { email } : undefined;
 
-    app.modal.show(ForgotPasswordModal, props);
+    app.modal.show(ForgotPasswordModal, attrs);
   }
 
   /**
@@ -154,11 +154,11 @@ export default class LogInModal extends Modal {
    * @public
    */
   signUp() {
-    const props = { password: this.password() };
+    const attrs = { password: this.password() };
     const identification = this.identification();
-    props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
+    attrs[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
 
-    app.modal.show(SignUpModal, props);
+    app.modal.show(SignUpModal, attrs);
   }
 
   onready() {
