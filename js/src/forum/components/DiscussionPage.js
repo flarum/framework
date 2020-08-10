@@ -47,29 +47,11 @@ export default class DiscussionPage extends Page {
     app.history.push('discussion');
 
     this.bodyClass = 'App--discussion';
+
+    this.prevRoute = m.route.get();
   }
 
   onremove(vnode) {
-    // If we have routed to the same discussion as we were viewing previously,
-    // cancel the unloading of this controller and instead prompt the post
-    // stream to jump to the new 'near' param.
-    if (this.discussion) {
-      const idParam = m.route.param('id');
-
-      if (idParam && idParam.split('-')[0] === this.discussion.id()) {
-        //e.preventDefault();
-
-        const near = m.route.param('near') || '1';
-
-        if (near !== String(this.near)) {
-          this.stream.goToNumber(near);
-        }
-
-        this.near = null;
-        return;
-      }
-    }
-
     // If we are indeed navigating away from this discussion, then disable the
     // discussion list pane. Also, if we're composing a reply to this
     // discussion, minimize the composer – unless it's empty, in which case
@@ -118,6 +100,29 @@ export default class DiscussionPage extends Page {
 
     if (this.discussion) {
       app.setTitle(this.discussion.title());
+    }
+  }
+
+  onupdate(vnode) {
+    if (m.route.get() !== this.prevRoute) {
+      this.prevRoute = m.route.get();
+
+      // If we have routed to the same discussion as we were viewing previously,
+      // cancel the unloading of this controller and instead prompt the post
+      // stream to jump to the new 'near' param.
+      if (this.discussion) {
+        const idParam = m.route.param('id');
+
+        if (idParam && idParam.split('-')[0] === this.discussion.id()) {
+          const near = m.route.param('near') || '1';
+
+          if (near !== String(this.near)) {
+            this.stream.goToNumber(near);
+          }
+
+          this.near = near;
+        }
+      }
     }
   }
 
@@ -245,6 +250,7 @@ export default class DiscussionPage extends Page {
     // replace it into the window's history and our own history stack.
     const url = app.route.discussion(discussion, (this.near = startNumber));
 
+    this.prevRoute = url;
     m.route.set(url);
     window.history.replaceState(null, document.title, url);
 
