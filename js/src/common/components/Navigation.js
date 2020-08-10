@@ -47,7 +47,6 @@ export default class Navigation extends Component {
       href: history.backUrl(),
       icon: 'fas fa-chevron-left',
       title: previous.title,
-      config: () => {},
       onclick: (e) => {
         if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
         e.preventDefault();
