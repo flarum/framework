@@ -88,26 +88,6 @@ export default class SettingsPage extends UserPage {
   }
 
   /**
-   * @deprecated beta 14, remove in beta 15.
-   *
-   * Generate a callback that will save a value to the given preference.
-   *
-   * @param {String} key
-   * @return {Function}
-   */
-  preferenceSaver(key) {
-    return (value, component) => {
-      if (component) component.props.loading = true;
-      m.redraw();
-
-      this.user.savePreferences({ [key]: value }).then(() => {
-        if (component) component.props.loading = false;
-        m.redraw();
-      });
-    };
-  }
-
-  /**
    * Build an item list for the user's privacy settings.
    *
    * @return {ItemList}
