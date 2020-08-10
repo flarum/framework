@@ -1,13 +1,13 @@
 import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
+import DiscussionListPane from './DiscussionListPane';
 import PostStream from './PostStream';
 import PostStreamScrubber from './PostStreamScrubber';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
-import DiscussionList from './DiscussionList';
 import PostStreamState from '../states/PostStreamState';
 
 /**
@@ -15,8 +15,8 @@ import PostStreamState from '../states/PostStreamState';
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
 export default class DiscussionPage extends Page {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     /**
      * The discussion that is being viewed.
@@ -42,10 +42,6 @@ export default class DiscussionPage extends Page {
     if (app.discussions.hasDiscussions()) {
       app.pane.enable();
       app.pane.hide();
-
-      if (app.previous.matches(DiscussionPage)) {
-        m.redraw.strategy('diff');
-      }
     }
 
     app.history.push('discussion');
@@ -92,14 +88,7 @@ export default class DiscussionPage extends Page {
 
     return (
       <div className="DiscussionPage">
-        {app.discussions.hasDiscussions() ? (
-          <div className="DiscussionPage-list" config={this.configPane.bind(this)}>
-            {!$('.App-navigation').is(':visible') && <DiscussionList state={app.discussions} />}
-          </div>
-        ) : (
-          ''
-        )}
-
+        <DiscussionListPane />
         <div className="DiscussionPage-discussion">
           {discussion
             ? [
@@ -124,8 +113,8 @@ export default class DiscussionPage extends Page {
     );
   }
 
-  config(...args) {
-    super.config(...args);
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     if (this.discussion) {
       app.setTitle(this.discussion.title());
@@ -149,7 +138,7 @@ export default class DiscussionPage extends Page {
       app.store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
     }
 
-    m.lazyRedraw();
+    m.redraw();
   }
 
   /**
@@ -210,48 +199,6 @@ export default class DiscussionPage extends Page {
   }
 
   /**
-   * Configure the discussion list pane.
-   *
-   * @param {DOMElement} element
-   * @param {Boolean} isInitialized
-   * @param {Object} context
-   */
-  configPane(element, isInitialized, context) {
-    if (isInitialized) return;
-
-    context.retain = true;
-
-    const $list = $(element);
-
-    // When the mouse enters and leaves the discussions pane, we want to show
-    // and hide the pane respectively. We also create a 10px 'hot edge' on the
-    // left of the screen to activate the pane.
-    const pane = app.pane;
-    $list.hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
-
-    const hotEdge = (e) => {
-      if (e.pageX < 10) pane.show();
-    };
-    $(document).on('mousemove', hotEdge);
-    context.onunload = () => $(document).off('mousemove', hotEdge);
-
-    // If the discussion we are viewing is listed in the discussion list, then
-    // we will make sure it is visible in the viewport – if it is not we will
-    // scroll the list down to it.
-    const $discussion = $list.find('.DiscussionListItem.active');
-    if ($discussion.length) {
-      const listTop = $list.offset().top;
-      const listBottom = listTop + $list.outerHeight();
-      const discussionTop = $discussion.offset().top;
-      const discussionBottom = discussionTop + $discussion.outerHeight();
-
-      if (discussionTop < listTop || discussionBottom > listBottom) {
-        $list.scrollTop($list.scrollTop() - listTop + discussionTop);
-      }
-    }
-  }
-
-  /**
    * Build an item list for the contents of the sidebar.
    *
    * @return {ItemList}
@@ -261,17 +208,20 @@ export default class DiscussionPage extends Page {
 
     items.add(
       'controls',
-      SplitDropdown.component({
-        children: DiscussionControls.controls(this.discussion, this).toArray(),
-        icon: 'fas fa-ellipsis-v',
-        className: 'App-primaryControl',
-        buttonClassName: 'Button--primary',
-      })
+      SplitDropdown.component(
+        {
+          icon: 'fas fa-ellipsis-v',
+          className: 'App-primaryControl',
+          buttonClassName: 'Button--primary',
+        },
+        DiscussionControls.controls(this.discussion, this).toArray()
+      )
     );
 
     items.add(
       'scrubber',
       PostStreamScrubber.component({
+        discussion: this.discussion,
         stream: this.stream,
         className: 'App-titleControl',
       }),
@@ -295,7 +245,7 @@ export default class DiscussionPage extends Page {
     // replace it into the window's history and our own history stack.
     const url = app.route.discussion(discussion, (this.near = startNumber));
 
-    m.route(url, true);
+    m.route.set(url);
     window.history.replaceState(null, document.title, url);
 
     app.history.push('discussion', discussion.title());
