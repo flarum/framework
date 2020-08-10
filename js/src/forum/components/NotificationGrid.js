@@ -80,8 +80,8 @@ export default class NotificationGrid extends Component {
     );
   }
 
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     this.$('thead .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function (e) {
       const i = parseInt($(this).index(), 10) + 1;
