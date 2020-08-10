@@ -1,5 +1,3 @@
-/*global s9e, hljs*/
-
 import Post from './Post';
 import classList from '../../common/utils/classList';
 import PostUser from './PostUser';
@@ -9,19 +7,20 @@ import EditPostComposer from './EditPostComposer';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
+import CommentPostPreview from './CommentPostPreview';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
  * includes a number of item lists (controls, header, and footer) surrounding
  * the post's HTML content.
  *
- * ### Props
+ * ### Attrs
  *
  * - `post`
  */
 export default class CommentPost extends Post {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     /**
      * If the post has been hidden, then this flag determines whether or not its
@@ -46,43 +45,38 @@ export default class CommentPost extends Post {
   }
 
   content() {
-    // Note: we avoid using JSX for the <ul> below because it results in some
-    // weirdness in Mithril.js 0.1.x (see flarum/core#975). This workaround can
-    // be reverted when we upgrade to Mithril 1.0.
-    return super
-      .content()
-      .concat([
-        <header className="Post-header">{m('ul', listItems(this.headerItems().toArray()))}</header>,
-        <div className="Post-body">
-          {this.isEditing() ? <div className="Post-preview" config={this.configPreview.bind(this)} /> : m.trust(this.props.post.contentHtml())}
-        </div>,
-      ]);
+    return super.content().concat([
+      <header className="Post-header">
+        <ul>{listItems(this.headerItems().toArray())}</ul>
+      </header>,
+      <div className="Post-body">{this.isEditing() ? <CommentPostPreview /> : m.trust(this.attrs.post.contentHtml())}</div>,
+    ]);
   }
 
-  config(isInitialized, context) {
-    super.config(...arguments);
+  onupdate(vnode) {
+    super.onupdate(vnode);
 
-    const contentHtml = this.isEditing() ? '' : this.props.post.contentHtml();
+    const contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
 
     // If the post content has changed since the last render, we'll run through
     // all of the <script> tags in the content and evaluate them. This is
     // necessary because TextFormatter outputs them for e.g. syntax highlighting.
-    if (context.contentHtml !== contentHtml) {
+    if (vnode.dom.contentHtml !== contentHtml) {
       this.$('.Post-body script').each(function () {
         eval.call(window, $(this).text());
       });
     }
 
-    context.contentHtml = contentHtml;
+    vnode.dom.contentHtml = contentHtml;
   }
 
   isEditing() {
-    return app.composer.bodyMatches(EditPostComposer, { post: this.props.post });
+    return app.composer.bodyMatches(EditPostComposer, { post: this.attrs.post });
   }
 
-  attrs() {
-    const post = this.props.post;
-    const attrs = super.attrs();
+  elementAttrs() {
+    const post = this.attrs.post;
+    const attrs = super.elementAttrs();
 
     attrs.className =
       (attrs.className || '') +
@@ -96,27 +90,6 @@ export default class CommentPost extends Post {
       });
 
     return attrs;
-  }
-
-  configPreview(element, isInitialized, context) {
-    if (isInitialized) return;
-
-    // Every 50ms, if the composer content has changed, then update the post's
-    // body with a preview.
-    let preview;
-    const updatePreview = () => {
-      const content = app.composer.fields.content();
-
-      if (preview === content) return;
-
-      preview = content;
-
-      s9e.TextFormatter.preview(preview || '', element);
-    };
-    updatePreview();
-
-    const updateInterval = setInterval(updatePreview, 50);
-    context.onunload = () => clearInterval(updateInterval);
   }
 
   /**
@@ -133,7 +106,7 @@ export default class CommentPost extends Post {
    */
   headerItems() {
     const items = new ItemList();
-    const post = this.props.post;
+    const post = this.attrs.post;
 
     items.add(
       'user',
