@@ -58,7 +58,7 @@ class ComposerState {
     // on a blank slate.
     if (this.isVisible()) {
       this.clear();
-      m.redraw(true);
+      m.redraw.sync();
     }
 
     this.body = body;
