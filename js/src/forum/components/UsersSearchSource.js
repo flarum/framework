@@ -53,7 +53,7 @@ export default class UsersSearchResults {
 
         return (
           <li className="UserSearchResult" data-index={'users' + user.id()}>
-            <a href={app.route.user(user)} config={m.route}>
+            <a route={app.route.user(user)}>
               {avatar(user)}
               {name}
             </a>
