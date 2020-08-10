@@ -72,7 +72,6 @@ export default class SessionDropdown extends Dropdown {
             icon: 'fas fa-wrench',
             href: app.forum.attribute('adminUrl'),
             target: '_blank',
-            config: () => {},
           },
           app.translator.trans('core.forum.header.admin_button')
         ),
