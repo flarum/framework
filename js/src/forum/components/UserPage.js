@@ -1,12 +1,12 @@
 import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
-import affixSidebar from '../utils/affixSidebar';
 import UserCard from './UserCard';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
 import listItems from '../../common/helpers/listItems';
+import UserPageSidebar from './AffixedSidebar';
 
 /**
  * The `UserPage` component shows a user's profile. It can be extended to show
@@ -42,9 +42,11 @@ export default class UserPage extends Page {
               />,
               <div className="container">
                 <div className="sideNavContainer">
-                  <nav className="sideNav UserPage-nav" config={affixSidebar}>
-                    <ul>{listItems(this.sidebarItems().toArray())}</ul>
-                  </nav>
+                  <UserPageSidebar>
+                    <nav className="sideNav UserPage-nav">
+                      <ul>{listItems(this.sidebarItems().toArray())}</ul>
+                    </nav>
+                  </UserPageSidebar>
                   <div className="sideNavOffset UserPage-content">{this.content()}</div>
                 </div>
               </div>,

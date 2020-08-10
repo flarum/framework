@@ -1,11 +1,8 @@
-import Component from "../../common/Component";
+import Component from '../../common/Component';
 
-export default class UserPageSidebar extends Component {
+export default class AffixedSidebar extends Component {
   view(vnode) {
-    return (
-      <nav className="sideNav UserPage-nav">
-        <ul>{vnode.children}</ul>
-      </nav>)
+    return vnode.children[0];
   }
 
   onresize(vnode) {
@@ -27,7 +24,7 @@ export default class UserPageSidebar extends Component {
         bottom: () => (this.bottom = $footer.outerHeight(true)),
       },
     });
-  };
+  }
 
   oncreate(vnode) {
     super.oncreate(vnode);
