@@ -8,7 +8,7 @@ import Button from '../../common/components/Button';
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
  * a discussion. Posts that have not loaded will be displayed as placeholders.
  *
- * ### Props
+ * ### Attrs
  *
  * - `discussion`
  * - `stream`
@@ -16,9 +16,11 @@ import Button from '../../common/components/Button';
  * - `onPositionChange`
  */
 export default class PostStream extends Component {
-  init() {
-    this.discussion = this.props.discussion;
-    this.stream = this.props.stream;
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    this.discussion = this.attrs.discussion;
+    this.stream = this.attrs.stream;
 
     this.scrollListener = new ScrollListener(this.onscroll.bind(this));
   }
@@ -96,29 +98,33 @@ export default class PostStream extends Component {
     return <div className="PostStream">{items}</div>;
   }
 
-  config(isInitialized, context) {
+  onupdate(vnode) {
     this.triggerScroll();
+  }
 
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.triggerScroll();
 
     // This is wrapped in setTimeout due to the following Mithril issue:
     // https://github.com/lhorie/mithril.js/issues/637
     setTimeout(() => this.scrollListener.start());
+  }
 
-    context.onunload = () => {
-      this.scrollListener.stop();
-      clearTimeout(this.calculatePositionTimeout);
-    };
+  onremove(vnode) {
+    this.scrollListener.stop();
+    clearTimeout(this.calculatePositionTimeout);
   }
 
   /**
    * Start scrolling, if appropriate, to a newly-targeted post.
    */
   triggerScroll() {
-    if (!this.props.targetPost) return;
+    if (!this.attrs.targetPost) return;
 
     const oldTarget = this.prevTarget;
-    const newTarget = this.props.targetPost;
+    const newTarget = this.attrs.targetPost;
 
     if (oldTarget) {
       if ('number' in oldTarget && oldTarget.number === newTarget.number) return;
@@ -265,7 +271,7 @@ export default class PostStream extends Component {
     });
 
     if (startNumber) {
-      this.props.onPositionChange(startNumber || 1, endNumber, startNumber);
+      this.attrs.onPositionChange(startNumber || 1, endNumber, startNumber);
     }
   }
 
