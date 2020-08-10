@@ -121,7 +121,7 @@ export default class ForumApplication extends Application {
     m.route.prefix = '';
     super.mount(this.forum.attribute('basePath'));
 
-    // alertEmailConfirmation(this);
+    alertEmailConfirmation(this);
 
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
