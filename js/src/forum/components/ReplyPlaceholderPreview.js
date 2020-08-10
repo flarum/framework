@@ -1,6 +1,6 @@
 /*global s9e*/
 
-import Component from "../../common/Component";
+import Component from '../../common/Component';
 
 export default class ReplyPlaceholderPreview extends Component {
   view() {
