@@ -41,6 +41,12 @@ export default function patchMithril(global) {
       node.attrs.href = node.attrs.route;
       node.tag = modifiedLink;
 
+      // For some reason, m.route.Link does not like vnode.text, so if present, we
+      // need to convert it to text vnodes and store it in children.
+      if (node.text) {
+        node.children = { tag: '#', children: node.text };
+      }
+
       delete node.attrs.route;
     }
 
