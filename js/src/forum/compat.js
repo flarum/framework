@@ -3,7 +3,6 @@ import compat from '../common/compat';
 import PostControls from './utils/PostControls';
 import KeyboardNavigatable from './utils/KeyboardNavigatable';
 import slidable from './utils/slidable';
-import affixSidebar from './utils/affixSidebar';
 import History from './utils/History';
 import DiscussionControls from './utils/DiscussionControls';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
@@ -77,7 +76,6 @@ export default Object.assign(compat, {
   'utils/PostControls': PostControls,
   'utils/KeyboardNavigatable': KeyboardNavigatable,
   'utils/slidable': slidable,
-  'utils/affixSidebar': affixSidebar,
   'utils/History': History,
   'utils/DiscussionControls': DiscussionControls,
   'utils/alertEmailConfirmation': alertEmailConfirmation,
