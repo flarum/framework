@@ -30,11 +30,23 @@ export default class TextEditor extends Component {
   }
 
   view() {
+    const configTextArea = () => {
+      const handler = () => {
+        this.onsubmit();
+        m.redraw();
+      };
+
+      $(element).bind('keydown', 'meta+return', handler);
+      $(element).bind('keydown', 'ctrl+return', handler);
+
+      this.attrs.composer.editor = new SuperTextarea(element);
+    };
+
     return (
       <div className="TextEditor">
         <textarea
           className="FormControl Composer-flexible"
-          config={this.configTextarea.bind(this)}
+          oncreate={configTextArea.bind(this)}
           oninput={(e) => {
             this.oninput(e.target.value, e);
           }}
@@ -49,26 +61,6 @@ export default class TextEditor extends Component {
         </ul>
       </div>
     );
-  }
-
-  /**
-   * Configure the textarea element.
-   *
-   * @param {HTMLTextAreaElement} element
-   * @param {Boolean} isInitialized
-   */
-  configTextarea(element, isInitialized) {
-    if (isInitialized) return;
-
-    const handler = () => {
-      this.onsubmit();
-      m.redraw();
-    };
-
-    $(element).bind('keydown', 'meta+return', handler);
-    $(element).bind('keydown', 'ctrl+return', handler);
-
-    this.attrs.composer.editor = new SuperTextarea(element);
   }
 
   /**
@@ -100,7 +92,7 @@ export default class TextEditor extends Component {
           className: 'Button Button--icon',
           onclick: this.attrs.preview,
           title: app.translator.trans('core.forum.composer.preview_tooltip'),
-          config: (elm) => $(elm).tooltip(),
+          oncreate: (vnode) => $(vnode.dom).tooltip(),
         })
       );
     }
