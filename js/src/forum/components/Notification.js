@@ -22,12 +22,8 @@ export default class Notification extends Component {
     return (
       <a
         className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
-        href={href}
-        config={function (element, isInitialized) {
-          if (href.indexOf('://') === -1) m.route.apply(this, arguments);
-
-          if (!isInitialized) $(element).click(this.markAsRead.bind(this));
-        }}
+        route={href}
+        onclick={this.markAsRead.bind(this)}
       >
         {!notification.isRead() &&
           Button.component({

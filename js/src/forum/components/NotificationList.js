@@ -63,7 +63,7 @@ export default class NotificationList extends Component {
                   return (
                     <div className="NotificationGroup">
                       {group.discussion ? (
-                        <a className="NotificationGroup-header" href={app.route.discussion(group.discussion)} config={m.route}>
+                        <a className="NotificationGroup-header" route={app.route.discussion(group.discussion)}>
                           {badges && badges.length ? <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul> : ''}
                           {group.discussion.title()}
                         </a>
@@ -97,26 +97,31 @@ export default class NotificationList extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
+    const $notifications = this.$('.NotificationList-content');
+    const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+    $scrollParent.on('scroll', this.scrollHandler.bind(this));
+  }
+
+  onremove() {
+    const $notifications = this.$('.NotificationList-content');
+    const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+
+    $scrollParent.off('scroll', this.scrollHandler.bind(this));
+  }
+
+  scrollHandler() {
     const state = this.attrs.state;
+    const scrollTop = $scrollParent.scrollTop();
+    const viewportHeight = $scrollParent.height();
 
     const $notifications = this.$('.NotificationList-content');
     const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
 
-    const scrollHandler = () => {
-      const scrollTop = $scrollParent.scrollTop();
-      const viewportHeight = $scrollParent.height();
-      const contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
-      const contentHeight = $notifications[0].scrollHeight;
+    const contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
+    const contentHeight = $notifications[0].scrollHeight;
 
-      if (state.hasMoreResults() && !state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
-        state.loadMore();
-      }
-    };
-
-    $scrollParent.on('scroll', scrollHandler);
-
-    context.onunload = () => {
-      $scrollParent.off('scroll', scrollHandler);
-    };
+    if (state.hasMoreResults() && !state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
+      state.loadMore();
+    }
   }
 }
