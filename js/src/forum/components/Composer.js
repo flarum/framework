@@ -47,7 +47,7 @@ export default class Composer extends Component {
 
     return (
       <div className={'Composer ' + classList(classes)}>
-        <div className="Composer-handle" config={this.configHandle.bind(this)} />
+        <div className="Composer-handle" oncreate={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
           {body.componentClass ? body.componentClass.component({ ...body.attrs, composer: this.state, disabled: classes.minimized }) : ''}
@@ -104,16 +104,11 @@ export default class Composer extends Component {
   /**
    * Add the necessary event handlers to the composer's handle so that it can
    * be used to resize the composer.
-   *
-   * @param {DOMElement} element
-   * @param {Boolean} isInitialized
    */
-  configHandle(element, isInitialized) {
-    if (isInitialized) return;
-
+  configHandle(vnode) {
     const composer = this;
 
-    $(element)
+    $(vnode.dom)
       .css('cursor', 'row-resize')
       .bind('dragstart mousedown', (e) => e.preventDefault())
       .mousedown(function (e) {
