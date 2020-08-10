@@ -90,11 +90,6 @@ export default class ForumApplication extends Application {
      * @type {DiscussionListState}
      */
     this.discussions = new DiscussionListState({}, this);
-
-    /**
-     * @deprecated beta 14, remove in beta 15.
-     */
-    this.cache.discussionList = this.discussions;
   }
 
   /**

@@ -33,11 +33,6 @@ class ComposerState {
     this.editor = null;
 
     this.clear();
-
-    /**
-     * @deprecated BC layer, remove in Beta 15.
-     */
-    this.component = this;
   }
 
   /**
@@ -76,12 +71,6 @@ class ComposerState {
     this.fields = {
       content: m.stream(''),
     };
-
-    /**
-     * @deprecated BC layer, remove in Beta 15.
-     */
-    this.content = this.fields.content;
-    this.value = this.fields.content;
   }
 
   /**
