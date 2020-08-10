@@ -61,11 +61,13 @@ export default {
       if (!post.isHidden()) {
         items.add(
           'edit',
-          Button.component({
-            icon: 'fas fa-pencil-alt',
-            children: app.translator.trans('core.forum.post_controls.edit_button'),
-            onclick: this.editAction.bind(post),
-          })
+          Button.component(
+            {
+              icon: 'fas fa-pencil-alt',
+              onclick: this.editAction.bind(post),
+            },
+            app.translator.trans('core.forum.post_controls.edit_button')
+          )
         );
       }
     }
@@ -89,32 +91,38 @@ export default {
       if (post.canHide()) {
         items.add(
           'hide',
-          Button.component({
-            icon: 'far fa-trash-alt',
-            children: app.translator.trans('core.forum.post_controls.delete_button'),
-            onclick: this.hideAction.bind(post),
-          })
+          Button.component(
+            {
+              icon: 'far fa-trash-alt',
+              onclick: this.hideAction.bind(post),
+            },
+            app.translator.trans('core.forum.post_controls.delete_button')
+          )
         );
       }
     } else {
       if (post.contentType() === 'comment' && post.canHide()) {
         items.add(
           'restore',
-          Button.component({
-            icon: 'fas fa-reply',
-            children: app.translator.trans('core.forum.post_controls.restore_button'),
-            onclick: this.restoreAction.bind(post),
-          })
+          Button.component(
+            {
+              icon: 'fas fa-reply',
+              onclick: this.restoreAction.bind(post),
+            },
+            app.translator.trans('core.forum.post_controls.restore_button')
+          )
         );
       }
       if (post.canDelete()) {
         items.add(
           'delete',
-          Button.component({
-            icon: 'fas fa-times',
-            children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
-            onclick: this.deleteAction.bind(post, context),
-          })
+          Button.component(
+            {
+              icon: 'fas fa-times',
+              onclick: this.deleteAction.bind(post, context),
+            },
+            app.translator.trans('core.forum.post_controls.delete_forever_button')
+          )
         );
       }
     }
@@ -128,14 +136,10 @@ export default {
    * @return {Promise}
    */
   editAction() {
-    const deferred = m.deferred();
-
     app.composer.load(EditPostComposer, { post: this });
     app.composer.show();
 
-    deferred.resolve(app.composer);
-
-    return deferred.promise;
+    return Promise.resolve(app.composer);
   },
 
   /**
