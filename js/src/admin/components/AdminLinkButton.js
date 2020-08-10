@@ -10,10 +10,10 @@
 import LinkButton from '../../common/components/LinkButton';
 
 export default class AdminLinkButton extends LinkButton {
-  getButtonContent() {
-    const content = super.getButtonContent();
+  getButtonContent(children) {
+    const content = super.getButtonContent(children);
 
-    content.push(<div className="AdminLinkButton-description">{this.props.description}</div>);
+    content.push(<div className="AdminLinkButton-description">{this.attrs.description}</div>);
 
     return content;
   }
