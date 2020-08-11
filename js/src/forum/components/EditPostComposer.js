@@ -39,7 +39,7 @@ export default class EditPostComposer extends ComposerBody {
       'title',
       <h3>
         {icon('fas fa-pencil-alt')}{' '}
-        <a route={app.route.discussion(post.discussion(), post.number())} onclick={minimizeComposerIfFullScreen} options={true}>
+        <a route={app.route.discussion(post.discussion(), post.number())} onclick={minimizeComposerIfFullScreen}>
           {app.translator.trans('core.forum.composer_edit.post_link', { number: post.number(), discussion: post.discussion().title() })}
         </a>
       </h3>

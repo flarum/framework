@@ -36,7 +36,7 @@ export default class ReplyComposer extends ComposerBody {
       'title',
       <h3>
         {icon('fas fa-reply')}{' '}
-        <a route={app.route.discussion(discussion)} onclick={minimizeComposerIfFullScreen} options={true}>
+        <a route={app.route.discussion(discussion)} onclick={minimizeComposerIfFullScreen}>
           {discussion.title()}
         </a>
       </h3>
