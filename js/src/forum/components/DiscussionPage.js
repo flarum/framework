@@ -95,7 +95,9 @@ export default class DiscussionPage extends Page {
     );
   }
 
-  onupdate(vnode) {
+  onbeforeupdate(vnode) {
+    super.onbeforeupdate(vnode);
+
     if (m.route.get() !== this.prevRoute) {
       this.prevRoute = m.route.get();
 
@@ -113,6 +115,8 @@ export default class DiscussionPage extends Page {
           }
 
           this.near = near;
+        } else {
+          this.oninit(vnode);
         }
       }
     }
