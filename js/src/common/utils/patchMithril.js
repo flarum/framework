@@ -16,14 +16,6 @@ export default function patchMithril(global) {
    * Please note that any code that manually calls m.route.set will need to provide something like this to the
    * options parameter itself. Patching m.route.set would be more convenient, but would too severely restrict flexibility.
    */
-  const defaultLinkView = defaultMithril.route.Link.view;
-  const modifiedLink = {
-    view: function (vnode) {
-      if (!vnode.attrs.options) vnode.attrs.options = { state: { key: Date.now() } };
-
-      return defaultLinkView(vnode);
-    },
-  };
 
   const modifiedMithril = function (comp, ...args) {
     const node = defaultMithril.apply(this, arguments);
@@ -39,7 +31,7 @@ export default function patchMithril(global) {
     // supports linking to other pages in the SPA without refreshing the document.
     if (node.attrs.route) {
       node.attrs.href = node.attrs.route;
-      node.tag = modifiedLink;
+      node.tag = modifiedMithril.route.Link;
 
       // For some reason, m.route.Link does not like vnode.text, so if present, we
       // need to convert it to text vnodes and store it in children.
@@ -54,8 +46,6 @@ export default function patchMithril(global) {
   };
 
   Object.keys(defaultMithril).forEach((key) => (modifiedMithril[key] = defaultMithril[key]));
-
-  modifiedMithril.route.Link = modifiedLink;
 
   modifiedMithril.stream = Stream;
 
