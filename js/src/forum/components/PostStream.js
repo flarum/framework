@@ -69,7 +69,7 @@ export default class PostStream extends Component {
       }
 
       return (
-        <div className="PostStream-item" {...attrs}>
+        <div className="PostStream-item fade-in" {...attrs}>
           {content}
         </div>
       );
@@ -368,6 +368,10 @@ export default class PostStream extends Component {
    * @param {jQuery} $item
    */
   flashItem($item) {
-    $item.addClass('flash').one('animationend webkitAnimationEnd', () => $item.removeClass('flash'));
+    $item.addClass('flash').on('animationend webkitAnimationEnd', () => {
+      if (event.animationName === 'fadeIn') {
+        $item.removeClass('flash');
+      }
+    });
   }
 }
