@@ -5,6 +5,15 @@ import DiscussionsUserPage from './components/DiscussionsUserPage';
 import SettingsPage from './components/SettingsPage';
 import NotificationsPage from './components/NotificationsPage';
 
+const match = (component) => ({
+  onmatch: () => {
+    component.onroutematch();
+
+    return component;
+  },
+  render: (vnode) => vnode,
+});
+
 /**
  * The `routes` initializer defines the forum app's routes.
  *
@@ -12,7 +21,7 @@ import NotificationsPage from './components/NotificationsPage';
  */
 export default function (app) {
   app.routes = {
-    index: { path: '/all', component: IndexPage },
+    index: { path: '/all', component: match(IndexPage) },
 
     discussion: { path: '/d/:id', component: DiscussionPage },
     'discussion.near': { path: '/d/:id/:near', component: DiscussionPage },
@@ -24,7 +33,7 @@ export default function (app) {
     settings: { path: '/settings', component: SettingsPage },
     notifications: { path: '/notifications', component: NotificationsPage },
 
-    'index.filter': { path: '/:filter', component: IndexPage },
+    'index.filter': { path: '/:filter', component: match(IndexPage) },
   };
 
   /**
