@@ -244,7 +244,7 @@ export default class DiscussionPage extends Page {
     const url = app.route.discussion(discussion, (this.near = startNumber));
 
     this.prevRoute = url;
-    m.route.set(url);
+    m.route.set(url, null, { replace: true });
     window.history.replaceState(null, document.title, url);
 
     app.history.push('discussion', discussion.title());
