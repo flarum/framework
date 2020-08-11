@@ -1,21 +1,38 @@
 import Stream from 'mithril/stream';
+import extract from './extract';
 
 export default function patchMithril(global) {
   const defaultMithril = global.m;
 
   /**
-   * Due to mithril 2.0, setting a route will not re-call oninit if the component handling the route has not changed.
-   * We, however, want to keep this behavior since it's more intuitive to users (clicking home should refresh home).
-   * Mithril allows us to provide an options parameter to m.route.set, which, if has the state.key parameter changed,
-   * will force a re-oninit. See https://mithril.js.org/route.html#key-parameter.
+   * If the href URL of the link is the same as the current page path
+   * we will not add a new entry to the browser history.
    *
-   * However, manually implementing this on every button and component is both tedious, and will make further changes in
-   * functionality difficult to implement at scale, so we patch it here. The original behavior can be replicated by passing
-   * an empty object as the "options" attr to a link component.
+   * This allows us to still refresh the Page component
+   * without adding endless history entries.
    *
-   * Please note that any code that manually calls m.route.set will need to provide something like this to the
-   * options parameter itself. Patching m.route.set would be more convenient, but would too severely restrict flexibility.
+   * We also add the `force` attribute that adds a custom state key
+   * for when you want to force a complete refresh of the Page
    */
+  const defaultLinkView = defaultMithril.route.Link.view;
+  const modifiedLink = {
+    view: function (vnode) {
+      let { href, options = {} } = vnode.attrs;
+
+      if (href === m.route.get()) {
+        if (!('replace' in options)) options.replace = true;
+      }
+
+      if (extract(vnode.attrs, 'force')) {
+        if (!('state' in options)) options.state = {};
+        if (!('key' in options.state)) options.state.key = Date.now();
+      }
+
+      vnode.attrs.options = options;
+
+      return defaultLinkView(vnode);
+    },
+  };
 
   const modifiedMithril = function (comp, ...args) {
     const node = defaultMithril.apply(this, arguments);
@@ -31,7 +48,7 @@ export default function patchMithril(global) {
     // supports linking to other pages in the SPA without refreshing the document.
     if (node.attrs.route) {
       node.attrs.href = node.attrs.route;
-      node.tag = modifiedMithril.route.Link;
+      node.tag = modifiedLink;
 
       // For some reason, m.route.Link does not like vnode.text, so if present, we
       // need to convert it to text vnodes and store it in children.
@@ -48,6 +65,8 @@ export default function patchMithril(global) {
   Object.keys(defaultMithril).forEach((key) => (modifiedMithril[key] = defaultMithril[key]));
 
   modifiedMithril.stream = Stream;
+
+  modifiedMithril.route.Link = modifiedLink;
 
   global.m = modifiedMithril;
 }
