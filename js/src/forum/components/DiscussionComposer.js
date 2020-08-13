@@ -46,7 +46,6 @@ export default class DiscussionComposer extends ComposerBody {
       <h3>
         <input
           className="FormControl"
-          value={this.title()}
           bidi={this.title}
           placeholder={this.attrs.titlePlaceholder}
           disabled={!!this.attrs.disabled}
