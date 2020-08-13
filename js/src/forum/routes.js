@@ -21,7 +21,7 @@ const match = (component) => ({
  */
 export default function (app) {
   app.routes = {
-    index: { path: '/all', component: match(IndexPage) },
+    index: { path: '/all', component: IndexPage },
 
     discussion: { path: '/d/:id', component: DiscussionPage },
     'discussion.near': { path: '/d/:id/:near', component: DiscussionPage },

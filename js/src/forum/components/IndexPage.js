@@ -29,23 +29,33 @@ export default class IndexPage extends Page {
       this.lastDiscussion = app.previous.get('discussion');
     }
 
+    if (app.previous.matches(IndexPage)) {
+      app.discussions.clear();
+    }
+
     app.discussions.refreshParams(app.search.params());
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
     this.bodyClass = 'App--index';
+
+    this.currentPath = m.route.get();
   }
 
-  static onroutematch() {
-    // If the user is coming from the discussion list, then they have either
-    // just switched one of the parameters (filter, sort, search) or they
-    // probably want to refresh the results. We will clear the discussion list
-    // cache so that results are reloaded.
-    if (app.current.matches(IndexPage)) {
+  onbeforeupdate(vnode) {
+    super.onbeforeupdate(vnode);
+
+    const curPath = m.route.get();
+
+    if (this.currentPath !== curPath) {
       app.discussions.clear();
 
       app.discussions.refreshParams(app.search.params());
+
+      this.currentPath = curPath;
     }
+
+    console.log('IndexPage#onbeforeupdate');
   }
 
   view() {
