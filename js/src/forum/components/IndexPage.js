@@ -53,9 +53,9 @@ export default class IndexPage extends Page {
       app.discussions.refreshParams(app.search.params());
 
       this.currentPath = curPath;
-    }
 
-    console.log('IndexPage#onbeforeupdate');
+      this.setTitle();
+    }
   }
 
   view() {
@@ -80,11 +80,15 @@ export default class IndexPage extends Page {
     );
   }
 
+  setTitle() {
+    app.setTitle(app.translator.trans('core.forum.index.meta_title_text'));
+    app.setTitleCount(0);
+  }
+
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    app.setTitle(app.translator.trans('core.forum.index.meta_title_text'));
-    app.setTitleCount(0);
+    this.setTitle();
 
     // Work out the difference between the height of this hero and that of the
     // previous hero. Maintain the same scroll position relative to the bottom
