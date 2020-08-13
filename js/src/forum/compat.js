@@ -9,7 +9,6 @@ import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import UserControls from './utils/UserControls';
 import Pane from './utils/Pane';
 import ComposerState from './states/ComposerState';
-import IndexFilterRouteResolver from './utils/IndexFilterRouteResolver';
 import DiscussionListState from './states/DiscussionListState';
 import GlobalSearchState from './states/GlobalSearchState';
 import NotificationListState from './states/NotificationListState';
@@ -82,7 +81,6 @@ export default Object.assign(compat, {
   'utils/alertEmailConfirmation': alertEmailConfirmation,
   'utils/UserControls': UserControls,
   'utils/Pane': Pane,
-  'utils/IndexFilterRouteResolver': IndexFilterRouteResolver,
   'states/ComposerState': ComposerState,
   'states/DiscussionListState': DiscussionListState,
   'states/GlobalSearchState': GlobalSearchState,
