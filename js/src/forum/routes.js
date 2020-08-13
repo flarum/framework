@@ -4,7 +4,6 @@ import PostsUserPage from './components/PostsUserPage';
 import DiscussionsUserPage from './components/DiscussionsUserPage';
 import SettingsPage from './components/SettingsPage';
 import NotificationsPage from './components/NotificationsPage';
-import IndexFilterRouteResolver from './utils/IndexFilterRouteResolver';
 
 /**
  * The `routes` initializer defines the forum app's routes.
@@ -24,8 +23,6 @@ export default function (app) {
 
     settings: { path: '/settings', component: SettingsPage },
     notifications: { path: '/notifications', component: NotificationsPage },
-
-    'index.filter': { path: '/:filter', component: IndexFilterRouteResolver },
   };
 
   /**
