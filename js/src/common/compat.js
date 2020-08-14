@@ -63,6 +63,7 @@ import highlight from './helpers/highlight';
 import username from './helpers/username';
 import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
+import Fragment from './Fragment';
 
 export default {
   extend: extend,
@@ -97,6 +98,7 @@ export default {
   'models/Group': Group,
   'models/Forum': Forum,
   Component: Component,
+  Fragment: Fragment,
   Translator: Translator,
   'components/AlertManager': AlertManager,
   'components/Page': Page,
