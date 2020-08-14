@@ -1,3 +1,6 @@
+/**
+ * Base class enabling jquery for mithril components attached with m.render().
+ */
 export default abstract class Fragment {
   element!: Element;
 
@@ -39,7 +42,7 @@ export default abstract class Fragment {
     return vdom;
   }
 
-  oncreate: () => {}
+  oncreate: () => {};
 
   abstract view();
 }
