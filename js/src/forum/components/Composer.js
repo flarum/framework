@@ -82,7 +82,7 @@ export default class Composer extends Component {
     });
 
     // When the escape key is pressed on any inputs, close the composer.
-    this.$().on('keydown', ':input', 'esc', () => this.close());
+    this.$().on('keydown', ':input', 'esc', () => this.state.close());
 
     const handlers = {};
 
