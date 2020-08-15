@@ -9,22 +9,20 @@ export default class UploadImageButton extends Button {
 
     if (app.data.settings[this.attrs.name + '_path']) {
       this.attrs.onclick = this.remove.bind(this);
-      vnode.children = app.translator.trans('core.admin.upload_image.remove_button');
 
       return (
         <div>
           <p>
             <img src={app.forum.attribute(this.attrs.name + 'Url')} alt="" />
           </p>
-          <p>{super.view(vnode)}</p>
+          <p>{super.view({ ...vnode, children: app.translator.trans('core.admin.upload_image.remove_button') })}</p>
         </div>
       );
     } else {
       this.attrs.onclick = this.upload.bind(this);
-      vnode.children = app.translator.trans('core.admin.upload_image.upload_button');
     }
 
-    return super.view(vnode);
+    return super.view({ ...vnode, children: app.translator.trans('core.admin.upload_image.upload_button')});
   }
 
   /**

@@ -13,19 +13,20 @@ export default class SettingDropdown extends SelectDropdown {
   }
 
   view(vnode) {
-    vnode.children = this.attrs.options.map(({ value, label }) => {
-      const active = app.data.settings[this.attrs.key] === value;
+    return super.view({
+      ...vnode,
+      children: this.attrs.options.map(({ value, label }) => {
+        const active = app.data.settings[this.attrs.key] === value;
 
-      return Button.component(
-        {
-          icon: active ? 'fas fa-check' : true,
-          onclick: saveSettings.bind(this, { [this.attrs.key]: value }),
-          active,
-        },
-        label
-      );
+        return Button.component(
+          {
+            icon: active ? 'fas fa-check' : true,
+            onclick: saveSettings.bind(this, { [this.attrs.key]: value }),
+            active,
+          },
+          label
+        );
+      }),
     });
-
-    return super.view(vnode);
   }
 }

@@ -40,7 +40,7 @@ export default class PermissionDropdown extends Dropdown {
   }
 
   view(vnode) {
-    vnode.children = [];
+    const children = [];
 
     let groupIds = app.data.permissions[this.attrs.permission] || [];
 
@@ -60,7 +60,7 @@ export default class PermissionDropdown extends Dropdown {
 
     if (this.showing) {
       if (this.attrs.allowGuest) {
-        vnode.children.push(
+        children.push(
           Button.component(
             {
               icon: everyone ? 'fas fa-check' : true,
@@ -72,7 +72,7 @@ export default class PermissionDropdown extends Dropdown {
         );
       }
 
-      vnode.children.push(
+      children.push(
         Button.component(
           {
             icon: members ? 'fas fa-check' : true,
@@ -98,7 +98,7 @@ export default class PermissionDropdown extends Dropdown {
       );
 
       [].push.apply(
-        vnode.children,
+        children,
         app.store
           .all('groups')
           .filter((group) => [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
@@ -118,7 +118,7 @@ export default class PermissionDropdown extends Dropdown {
       );
     }
 
-    return super.view(vnode);
+    return super.view({ ...vnode, children });
   }
 
   save(groupIds) {

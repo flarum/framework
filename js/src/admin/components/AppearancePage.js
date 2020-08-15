@@ -28,18 +28,8 @@ export default class AppearancePage extends Page {
               <div className="helpText">{app.translator.trans('core.admin.appearance.colors_text')}</div>
 
               <div className="AppearancePage-colors-input">
-                <input
-                  className="FormControl"
-                  type="text"
-                  placeholder="#aaaaaa"
-                  bidi={this.primaryColor}
-                />
-                <input
-                  className="FormControl"
-                  type="text"
-                  placeholder="#aaaaaa"
-                  bidi={this.secondaryColor}
-                />
+                <input className="FormControl" type="text" placeholder="#aaaaaa" bidi={this.primaryColor} />
+                <input className="FormControl" type="text" placeholder="#aaaaaa" bidi={this.secondaryColor} />
               </div>
 
               {Switch.component(

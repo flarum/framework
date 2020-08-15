@@ -18,9 +18,7 @@ export default class SessionDropdown extends Dropdown {
   }
 
   view(vnode) {
-    vnode.children = this.items().toArray();
-
-    return super.view(vnode);
+    return super.view({ ...vnode, children: this.items().toArray() });
   }
 
   getButtonContent() {
