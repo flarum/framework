@@ -119,6 +119,9 @@ export default class Search extends Component {
     const search = this;
     const state = this.state;
 
+    // Highlight the item that is currently selected.
+    this.setIndex(this.getCurrentNumericIndex());
+
     this.$('.Search-results')
       .on('mousedown', (e) => e.preventDefault())
       .on('click', () => this.$('input').blur())
