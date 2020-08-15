@@ -50,7 +50,7 @@ export default class UsersSearchResults {
           <li className="UserSearchResult" data-index={'users' + user.id()}>
             <a route={app.route.user(user)}>
               {avatar(user)}
-              {{...name, text: undefined, children}}
+              {{ ...name, text: undefined, children }}
             </a>
           </li>
         );
