@@ -14,7 +14,9 @@ export default class DiscussionListPane extends Component {
     return <div className="DiscussionPage-list">{!$('.App-navigation').is(':visible') && <DiscussionList state={app.discussions} />}</div>;
   }
 
-  onupdate(vnode) {
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
     const $list = $(vnode.dom);
 
     // When the mouse enters and leaves the discussions pane, we want to show
