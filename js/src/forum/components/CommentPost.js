@@ -53,7 +53,7 @@ export default class CommentPost extends Post {
     ]);
   }
 
-  onupdate() {
+  onupdate(vnode) {
     super.onupdate();
 
     const contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
