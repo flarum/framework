@@ -11,8 +11,8 @@
  * );
  * this.subtree.check(() => this.attrs.user.freshness);
  *
- * // view
- * this.subtree.retain() || 'expensive expression'
+ * // onbeforeupdate
+ * return this.subtree.needsRebuild()
  *
  * @see https://mithril.js.org/lifecycle-methods.html#onbeforeupdate
  */
