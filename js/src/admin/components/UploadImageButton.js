@@ -22,7 +22,7 @@ export default class UploadImageButton extends Button {
       this.attrs.onclick = this.upload.bind(this);
     }
 
-    return super.view({ ...vnode, children: app.translator.trans('core.admin.upload_image.upload_button')});
+    return super.view({ ...vnode, children: app.translator.trans('core.admin.upload_image.upload_button') });
   }
 
   /**

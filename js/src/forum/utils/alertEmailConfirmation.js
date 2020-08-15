@@ -57,7 +57,7 @@ export default function alertEmailConfirmation(app) {
     view(vnode) {
       const vdom = super.view(vnode);
 
-      return { ...vdom, children: [<div className="container">{vdom.children}</div>]};
+      return { ...vdom, children: [<div className="container">{vdom.children}</div>] };
     }
   }
 
