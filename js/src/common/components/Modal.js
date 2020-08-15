@@ -54,7 +54,7 @@ export default class Modal extends Component {
 
             {this.alertAttrs ? <div className="Modal-alert">{Alert.component(this.alertAttrs)}</div> : ''}
 
-            {this.content(this.attrs)}
+            {this.content()}
           </form>
         </div>
       </div>
