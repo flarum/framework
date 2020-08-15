@@ -59,14 +59,12 @@ export default class EditGroupModal extends Modal {
           <input
             className="FormControl"
             placeholder={app.translator.trans('core.admin.edit_group.singular_placeholder')}
-            value={this.nameSingular()}
-            oninput={withAttr('value', this.nameSingular)}
+            bidi={this.nameSingular}
           />
           <input
             className="FormControl"
             placeholder={app.translator.trans('core.admin.edit_group.plural_placeholder')}
-            value={this.namePlural()}
-            oninput={withAttr('value', this.namePlural)}
+            bidi={this.namePlural}
           />
         </div>
       </div>,
@@ -77,7 +75,7 @@ export default class EditGroupModal extends Modal {
       'color',
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.color_label')}</label>
-        <input className="FormControl" placeholder="#aaaaaa" value={this.color()} oninput={withAttr('value', this.color)} />
+        <input className="FormControl" placeholder="#aaaaaa" bidi={this.color} />
       </div>,
       20
     );
@@ -89,7 +87,7 @@ export default class EditGroupModal extends Modal {
         <div className="helpText">
           {app.translator.trans('core.admin.edit_group.icon_text', { a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1" /> })}
         </div>
-        <input className="FormControl" placeholder="fas fa-bolt" value={this.icon()} oninput={withAttr('value', this.icon)} />
+        <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon} />
       </div>,
       10
     );

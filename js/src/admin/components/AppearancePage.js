@@ -32,15 +32,13 @@ export default class AppearancePage extends Page {
                   className="FormControl"
                   type="text"
                   placeholder="#aaaaaa"
-                  value={this.primaryColor()}
-                  onchange={withAttr('value', this.primaryColor)}
+                  bidi={this.primaryColor}
                 />
                 <input
                   className="FormControl"
                   type="text"
                   placeholder="#aaaaaa"
-                  value={this.secondaryColor()}
-                  onchange={withAttr('value', this.secondaryColor)}
+                  bidi={this.secondaryColor}
                 />
               </div>
 

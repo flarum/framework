@@ -72,7 +72,6 @@ export default class SignUpModal extends Modal {
           name="username"
           type="text"
           placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
-          value={this.username()}
           bidi={this.username}
           disabled={this.loading || this.isProvided('username', this.attrs)}
         />
@@ -88,7 +87,6 @@ export default class SignUpModal extends Modal {
           name="email"
           type="email"
           placeholder={extractText(app.translator.trans('core.forum.sign_up.email_placeholder'))}
-          value={this.email()}
           bidi={this.email}
           disabled={this.loading || this.isProvided('email', this.attrs)}
         />
@@ -105,7 +103,6 @@ export default class SignUpModal extends Modal {
             name="password"
             type="password"
             placeholder={extractText(app.translator.trans('core.forum.sign_up.password_placeholder'))}
-            value={this.password()}
             bidi={this.password}
             disabled={this.loading}
           />

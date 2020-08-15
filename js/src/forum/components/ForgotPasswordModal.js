@@ -63,7 +63,6 @@ export default class ForgotPasswordModal extends Modal {
               name="email"
               type="email"
               placeholder={extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'))}
-              value={this.email()}
               bidi={this.email}
               disabled={this.loading}
             />

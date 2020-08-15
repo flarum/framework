@@ -79,7 +79,7 @@ export default class MailPage extends Page {
                 <div className="MailPage-MailSettings-input">
                   <label>
                     {app.translator.trans('core.admin.email.from_label')}
-                    <input className="FormControl" value={this.values.mail_from() || ''} oninput={withAttr('value', this.values.mail_from)} />
+                    <input className="FormControl" bidi={this.values.mail_from} />
                   </label>
                 </div>,
               ]
@@ -171,7 +171,7 @@ export default class MailPage extends Page {
     const prop = this.values[name];
 
     if (typeof field === 'string') {
-      return <input className="FormControl" value={prop() || ''} oninput={withAttr('value', prop)} />;
+      return <input className="FormControl" bidi={prop} />;
     } else {
       return <Select value={prop()} options={field} onchange={prop} />;
     }
