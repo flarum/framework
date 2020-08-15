@@ -177,7 +177,7 @@ export default class SignUpModal extends Modal {
    * Get the data that should be submitted in the sign-up request.
    *
    * @return {Object}
-   * @protected
+   * @public
    */
   submitData() {
     const data = {

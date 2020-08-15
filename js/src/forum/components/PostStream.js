@@ -26,6 +26,11 @@ export default class PostStream extends Component {
   }
 
   view() {
+    function fadeIn(element, isInitialized, context) {
+      if (!context.fadedIn) $(element).hide().fadeIn();
+      context.fadedIn = true;
+    }
+
     let lastTime;
 
     const viewingEnd = this.stream.viewingEnd();
@@ -42,6 +47,7 @@ export default class PostStream extends Component {
         content = PostComponent ? PostComponent.component({ post }) : '';
 
         attrs.key = 'post' + post.id();
+        attrs.config = fadeIn;
         attrs['data-time'] = time.toISOString();
         attrs['data-number'] = post.number();
         attrs['data-id'] = post.id();
