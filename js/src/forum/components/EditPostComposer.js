@@ -89,7 +89,7 @@ export default class EditPostComposer extends ComposerBody {
           {
             className: 'Button Button--link',
             onclick: () => {
-              m.route(app.route.post(post));
+              m.route.set(app.route.post(post));
               app.alerts.dismiss(alert);
             },
           },
