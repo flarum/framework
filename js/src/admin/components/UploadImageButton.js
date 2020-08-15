@@ -1,9 +1,7 @@
 import Button from '../../common/components/Button';
 
 export default class UploadImageButton extends Button {
-  pninit() {
-    this.loading = false;
-  }
+  loading = false;
 
   view(vnode) {
     this.attrs.loading = this.loading;
