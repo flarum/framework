@@ -24,6 +24,7 @@ export default class Alert extends Component {
     const type = extract(attrs, 'type');
     attrs.className = 'Alert Alert--' + type + ' ' + (attrs.className || '');
 
+    const content = extract(attrs, 'content') || vnode.children;
     const controls = extract(attrs, 'controls') || [];
 
     // If the alert is meant to be dismissible (which is the case by default),
@@ -33,7 +34,6 @@ export default class Alert extends Component {
     const ondismiss = extract(attrs, 'ondismiss');
     const dismissControl = [];
 
-    const content = extract(attrs, 'content') || vnode.children;
 
     if (dismissible || dismissible === undefined) {
       dismissControl.push(<Button icon="fas fa-times" className="Button Button--link Button--icon Alert-dismiss" onclick={ondismiss} />);
