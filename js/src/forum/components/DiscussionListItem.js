@@ -54,7 +54,7 @@ export default class DiscussionListItem extends Component {
     };
   }
 
-  view(vnode) {
+  view() {
     const discussion = this.attrs.discussion;
     const user = discussion.user();
     const isUnread = discussion.isUnread();

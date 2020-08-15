@@ -12,7 +12,7 @@ import Placeholder from '../../common/components/Placeholder';
  * - `state` A DiscussionListState object that represents the discussion lists's state.
  */
 export default class DiscussionList extends Component {
-  view(vnode) {
+  view() {
     const state = this.attrs.state;
 
     const params = state.getParams();

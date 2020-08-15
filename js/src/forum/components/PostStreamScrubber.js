@@ -22,7 +22,7 @@ export default class PostStreamScrubber extends Component {
     this.scrollListener = new ScrollListener(this.updateScrubberValues.bind(this, { fromScroll: true, forceHeightChange: true }));
   }
 
-  view(vnode) {
+  view() {
     const count = this.stream.count();
 
     // Index is left blank for performance reasons, it is filled in in updateScubberValues

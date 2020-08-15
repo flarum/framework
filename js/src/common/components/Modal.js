@@ -27,7 +27,7 @@ export default class Modal extends Component {
     this.attrs.onshow(() => this.onready());
   }
 
-  view(vnode) {
+  view() {
     if (this.alertAttrs) {
       this.alertAttrs.dismissible = false;
     }

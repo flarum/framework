@@ -6,7 +6,7 @@ import Component from '../Component';
  * overwrite the previous one.
  */
 export default class ModalManager extends Component {
-  view(vnode) {
+  view() {
     const modal = this.attrs.state.modal;
 
     return (

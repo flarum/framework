@@ -9,7 +9,7 @@ import Component from '../Component';
  * - `text`
  */
 export default class Placeholder extends Component {
-  view(vnode) {
+  view() {
     return (
       <div className="Placeholder">
         <p>{this.attrs.text}</p>

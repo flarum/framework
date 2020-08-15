@@ -23,7 +23,7 @@ export default function alertEmailConfirmation(app) {
       this.content = app.translator.trans('core.forum.user_email_confirmation.resend_button');
     }
 
-    view(vnode) {
+    view() {
       return (
         <Button class="Button Button--link" onclick={this.onclick.bind(this)} loading={this.loading} disabled={this.disabled}>
           {this.content}
