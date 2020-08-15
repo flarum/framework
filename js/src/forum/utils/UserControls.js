@@ -22,7 +22,7 @@ export default {
     const items = new ItemList();
 
     ['user', 'moderation', 'destructive'].forEach((section) => {
-      const controls = this[section](user, context).toArray();
+      const controls = this[section + 'Controls'](user, context).toArray();
       if (controls.length) {
         controls.forEach((item) => items.add(item.itemName, item));
         items.add(section + 'Separator', <Separator />);
@@ -41,7 +41,7 @@ export default {
    * @return {ItemList}
    * @protected
    */
-  user() {
+  userControls() {
     return new ItemList();
   },
 
@@ -54,7 +54,7 @@ export default {
    * @return {ItemList}
    * @protected
    */
-  moderation(user) {
+  moderationControls(user) {
     const items = new ItemList();
 
     if (user.canEdit()) {
@@ -78,7 +78,7 @@ export default {
    * @return {ItemList}
    * @protected
    */
-  destructive(user) {
+  destructiveControls(user) {
     const items = new ItemList();
 
     if (user.id() !== '1' && user.canDelete()) {
