@@ -34,7 +34,7 @@ export default class PostEdited extends Component {
     );
   }
 
-  onupdate(vnode) {
+  onupdate() {
     if (this.shouldUpdateTooltip) {
       this.$().tooltip('destroy').tooltip();
       this.shouldUpdateTooltip = false;

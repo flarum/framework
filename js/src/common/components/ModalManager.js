@@ -16,7 +16,7 @@ export default class ModalManager extends Component {
     );
   }
 
-  onupdate(vnode) {
+  onupdate() {
     if (this.$('Modal') && !this.attrs.state.modal) {
       this.animateHide();
     }

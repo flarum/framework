@@ -34,7 +34,7 @@ export default class ReplyPlaceholderPreview extends Component {
     }, 50);
   }
 
-  onremove(vnode) {
+  onremove() {
     clearInterval(this.updateInterval);
   }
 }

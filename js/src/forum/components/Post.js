@@ -84,7 +84,7 @@ export default class Post extends Component {
     return this.subtree.needsRebuild();
   }
 
-  onupdate(vnode) {
+  onupdate() {
     const $actions = this.$('.Post-actions');
     const $controls = this.$('.Post-controls');
 

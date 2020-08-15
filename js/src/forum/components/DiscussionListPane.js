@@ -41,7 +41,7 @@ export default class DiscussionListPane extends Component {
     }
   }
 
-  onremove(vnode) {
+  onremove() {
     $(document).off('mousemove', hotEdge);
   }
 }

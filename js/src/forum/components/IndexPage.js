@@ -125,8 +125,8 @@ export default class IndexPage extends Page {
     }
   }
 
-  onremove(vnode) {
-    super.onremove(vnode);
+  onremove() {
+    super.onremove();
 
     $('#app').css('min-height', '');
 

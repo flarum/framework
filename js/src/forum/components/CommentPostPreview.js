@@ -27,7 +27,7 @@ export default class CommentPostPreview extends Component {
     this.updateInterval = setInterval(updatePreview, 50);
   }
 
-  onremove(vnode) {
+  onremove() {
     clearInterval(this.updateInterval);
   }
 }
