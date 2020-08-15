@@ -44,18 +44,13 @@ export default class UsersSearchResults {
       results.map((user) => {
         const name = username(user);
 
-        if (!name.children) {
-          name.children = [name.text];
-          delete name.text;
-        }
-
-        name.children[0] = highlight(name.children[0], query);
+        const children = [highlight(name.text, query)];
 
         return (
           <li className="UserSearchResult" data-index={'users' + user.id()}>
             <a route={app.route.user(user)}>
               {avatar(user)}
-              {name}
+              {{...name, text: undefined, children}}
             </a>
           </li>
         );
