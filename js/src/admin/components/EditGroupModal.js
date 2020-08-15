@@ -56,16 +56,8 @@ export default class EditGroupModal extends Modal {
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.name_label')}</label>
         <div className="EditGroupModal-name-input">
-          <input
-            className="FormControl"
-            placeholder={app.translator.trans('core.admin.edit_group.singular_placeholder')}
-            bidi={this.nameSingular}
-          />
-          <input
-            className="FormControl"
-            placeholder={app.translator.trans('core.admin.edit_group.plural_placeholder')}
-            bidi={this.namePlural}
-          />
+          <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.singular_placeholder')} bidi={this.nameSingular} />
+          <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.plural_placeholder')} bidi={this.namePlural} />
         </div>
       </div>,
       30
