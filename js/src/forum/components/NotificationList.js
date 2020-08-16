@@ -99,6 +99,7 @@ export default class NotificationList extends Component {
 
     const $notifications = this.$('.NotificationList-content');
     const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+
     $scrollParent.on('scroll', this.scrollHandler.bind(this));
   }
 
@@ -111,11 +112,12 @@ export default class NotificationList extends Component {
 
   scrollHandler() {
     const state = this.attrs.state;
-    const scrollTop = $scrollParent.scrollTop();
-    const viewportHeight = $scrollParent.height();
 
     const $notifications = this.$('.NotificationList-content');
     const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+
+    const scrollTop = $scrollParent.scrollTop();
+    const viewportHeight = $scrollParent.height();
 
     const contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
     const contentHeight = $notifications[0].scrollHeight;
