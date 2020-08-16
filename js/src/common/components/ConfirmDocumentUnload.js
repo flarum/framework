@@ -24,11 +24,12 @@ export default class ConfirmDocumentUnload extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    $(window).on('beforeunload', this.handler.bind(this));
+    this.boundHandler = this.handler.bind(this);
+    $(window).on('beforeunload', this.boundHandler);
   }
 
   onremove() {
-    $(window).off('beforeunload', this.handler.bind(this));
+    $(window).off('beforeunload', this.boundHandler);
   }
 
   view(vnode) {

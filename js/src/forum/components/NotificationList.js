@@ -100,14 +100,15 @@ export default class NotificationList extends Component {
     const $notifications = this.$('.NotificationList-content');
     const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
 
-    $scrollParent.on('scroll', this.scrollHandler.bind(this));
+    this.boundScrollHandler = this.scrollHandler.bind(this);
+    $scrollParent.on('scroll', this.boundScrollHandler);
   }
 
   onremove() {
     const $notifications = this.$('.NotificationList-content');
     const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
 
-    $scrollParent.off('scroll', this.scrollHandler.bind(this));
+    $scrollParent.off('scroll', this.boundScrollHandler);
   }
 
   scrollHandler() {

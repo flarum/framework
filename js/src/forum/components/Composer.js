@@ -84,21 +84,21 @@ export default class Composer extends Component {
     // When the escape key is pressed on any inputs, close the composer.
     this.$().on('keydown', ':input', 'esc', () => this.close());
 
-    const handlers = {};
+    this.handlers = {};
 
     $(window)
-      .on('resize', (handlers.onresize = this.updateHeight.bind(this)))
+      .on('resize', (this.handlers.onresize = this.updateHeight.bind(this)))
       .resize();
 
     $(document)
-      .on('mousemove', (handlers.onmousemove = this.onmousemove.bind(this)))
-      .on('mouseup', (handlers.onmouseup = this.onmouseup.bind(this)));
+      .on('mousemove', (this.handlers.onmousemove = this.onmousemove.bind(this)))
+      .on('mouseup', (this.handlers.onmouseup = this.onmouseup.bind(this)));
   }
 
   onremove() {
-    $(window).off('resize', handlers.onresize);
+    $(window).off('resize', this.handlers.onresize);
 
-    $(document).off('mousemove', handlers.onmousemove).off('mouseup', handlers.onmouseup);
+    $(document).off('mousemove', this.handlers.onmousemove).off('mouseup', this.handlers.onmouseup);
   }
 
   /**
