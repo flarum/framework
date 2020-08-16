@@ -68,15 +68,12 @@ export default class TextEditor extends Component {
   /**
    * Here for extensibility
    */
-  textareaOnupdate(vnode) {
-  }
-
+  textareaOnupdate(vnode) {}
 
   /**
    * Here for extensibility
    */
-  textareaOnremove(vnode) {
-  }
+  textareaOnremove(vnode) {}
 
   /**
    * Build an item list for the text editor controls.
