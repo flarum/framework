@@ -10,7 +10,7 @@ export default function abbreviateNumber(number: number): string {
   if (number >= 1000000) {
     return Math.floor(number / 1000000) + app.translator.trans('core.lib.number_suffix.mega_text');
   } else if (number >= 1000) {
-    return Math.floor(number / 1000) + app.translator.trans('core.lib.number_suffix.kilo_text');
+    return (number / 1000).toFixed(1) + app.translator.trans('core.lib.number_suffix.kilo_text');
   } else {
     return number.toString();
   }
