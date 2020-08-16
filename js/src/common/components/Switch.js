@@ -5,7 +5,7 @@ import Checkbox from './Checkbox';
  * a tick/cross one.
  */
 export default class Switch extends Checkbox {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.className = (attrs.className || '') + ' Checkbox--switch';

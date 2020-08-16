@@ -12,7 +12,7 @@ import icon from '../helpers/icon';
  * - `defaultLabel`
  */
 export default class SelectDropdown extends Dropdown {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-sort';
 
     super.initAttrs(attrs);

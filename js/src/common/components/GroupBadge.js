@@ -1,7 +1,7 @@
 import Badge from './Badge';
 
 export default class GroupBadge extends Badge {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     if (attrs.group) {

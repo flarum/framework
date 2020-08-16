@@ -9,7 +9,7 @@ import ItemList from '../../common/utils/ItemList';
  * avatar/name, with a dropdown of session controls.
  */
 export default class SessionDropdown extends Dropdown {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.className = 'SessionDropdown';

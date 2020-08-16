@@ -3,7 +3,7 @@ import Button from '../../common/components/Button';
 import saveSettings from '../utils/saveSettings';
 
 export default class SettingDropdown extends SelectDropdown {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.className = 'SettingDropdown';

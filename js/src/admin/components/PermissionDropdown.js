@@ -32,7 +32,7 @@ function filterByRequiredPermissions(groupIds, permission) {
 }
 
 export default class PermissionDropdown extends Dropdown {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.className = 'PermissionDropdown';

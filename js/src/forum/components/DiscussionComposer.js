@@ -13,7 +13,7 @@ import extractText from '../../common/utils/extractText';
  * - `titlePlaceholder`
  */
 export default class DiscussionComposer extends ComposerBody {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.placeholder = attrs.placeholder || extractText(app.translator.trans('core.forum.composer_discussion.body_placeholder'));

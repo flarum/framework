@@ -20,7 +20,7 @@ function minimizeComposerIfFullScreen(e) {
  * - `discussion`
  */
 export default class ReplyComposer extends ComposerBody {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.placeholder = attrs.placeholder || extractText(app.translator.trans('core.forum.composer_reply.body_placeholder'));

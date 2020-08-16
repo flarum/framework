@@ -7,7 +7,7 @@ import icon from '../helpers/icon';
  * is displayed as its own button prior to the toggle button.
  */
 export default class SplitDropdown extends Dropdown {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.className += ' Dropdown--split';

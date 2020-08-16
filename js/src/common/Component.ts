@@ -83,7 +83,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
     this.attrs = attrs;
   }
 
-  protected initAttrs(attrs: T): T {
+  protected static initAttrs<T>(attrs: T): T {
     return attrs;
   }
 }

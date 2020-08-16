@@ -5,7 +5,7 @@ import Button from '../../common/components/Button';
  * editor toolbar.
  */
 export default class TextEditorButton extends Button {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.className = attrs.className || 'Button Button--icon Button--link';

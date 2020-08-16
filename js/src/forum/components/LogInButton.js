@@ -9,7 +9,7 @@ import Button from '../../common/components/Button';
  * - `path`
  */
 export default class LogInButton extends Button {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     attrs.className = (attrs.className || '') + ' LogInButton';
 
     attrs.onclick = function () {

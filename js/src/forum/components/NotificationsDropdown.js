@@ -3,7 +3,7 @@ import icon from '../../common/helpers/icon';
 import NotificationList from './NotificationList';
 
 export default class NotificationsDropdown extends Dropdown {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     attrs.className = attrs.className || 'NotificationsDropdown';
     attrs.buttonClassName = attrs.buttonClassName || 'Button Button--flat';
     attrs.menuClassName = attrs.menuClassName || 'Dropdown-menu--right';

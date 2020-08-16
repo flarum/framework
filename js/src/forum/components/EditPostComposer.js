@@ -20,7 +20,7 @@ function minimizeComposerIfFullScreen(e) {
  * - `post`
  */
 export default class EditPostComposer extends ComposerBody {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.submitLabel = attrs.submitLabel || app.translator.trans('core.forum.composer_edit.submit_button');

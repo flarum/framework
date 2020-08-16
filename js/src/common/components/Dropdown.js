@@ -19,7 +19,7 @@ import listItems from '../helpers/listItems';
  * The children will be displayed as a list inside of the dropdown menu.
  */
 export default class Dropdown extends Component {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     attrs.className = attrs.className || '';
     attrs.buttonClassName = attrs.buttonClassName || '';
     attrs.menuClassName = attrs.menuClassName || '';

@@ -5,7 +5,7 @@ import Button from '../../common/components/Button';
  * controls.
  */
 export default class ComposerButton extends Button {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.className = attrs.className || 'Button Button--icon Button--link';

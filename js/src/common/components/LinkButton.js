@@ -13,7 +13,7 @@ import Button from './Button';
  *   the `active` prop will automatically be set to true.
  */
 export default class LinkButton extends Button {
-  initAttrs(attrs) {
+  static initAttrs(attrs) {
     super.initAttrs(attrs);
 
     attrs.active = this.constructor.isActive(attrs);
