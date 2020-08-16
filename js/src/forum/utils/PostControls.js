@@ -140,7 +140,7 @@ export default {
       app.composer.load(EditPostComposer, { post: this });
       app.composer.show();
 
-      return resolve()
+      return resolve();
     });
   },
 
