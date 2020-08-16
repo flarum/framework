@@ -28,7 +28,7 @@ export default class Modal extends Component {
   }
 
   onremove() {
-    this.props.onhide();
+    this.attrs.onhide();
   }
 
   view() {
