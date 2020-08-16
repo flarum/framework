@@ -30,23 +30,13 @@ export default class TextEditor extends Component {
   }
 
   view() {
-    const configTextArea = (vnode) => {
-      const handler = () => {
-        this.onsubmit();
-        m.redraw();
-      };
-
-      $(vnode.dom).bind('keydown', 'meta+return', handler);
-      $(vnode.dom).bind('keydown', 'ctrl+return', handler);
-
-      this.attrs.composer.editor = new SuperTextarea(vnode.dom);
-    };
-
     return (
       <div className="TextEditor">
         <textarea
           className="FormControl Composer-flexible"
-          oncreate={configTextArea.bind(this)}
+          oncreate={this.textareaOncreate.bind(this)}
+          onupdate={this.textareaOnupdate.bind(this)}
+          onremove={this.textareaOnremove.bind(this)}
           oninput={(e) => {
             this.oninput(e.target.value, e);
           }}
@@ -61,6 +51,31 @@ export default class TextEditor extends Component {
         </ul>
       </div>
     );
+  }
+
+  textareaOncreate(vnode) {
+    const handler = () => {
+      this.onsubmit();
+      m.redraw();
+    };
+
+    $(vnode.dom).bind('keydown', 'meta+return', handler);
+    $(vnode.dom).bind('keydown', 'ctrl+return', handler);
+
+    this.attrs.composer.editor = new SuperTextarea(vnode.dom);
+  }
+
+  /**
+   * Here for extensibility
+   */
+  textareaOnupdate(vnode) {
+  }
+
+
+  /**
+   * Here for extensibility
+   */
+  textareaOnremove(vnode) {
   }
 
   /**
