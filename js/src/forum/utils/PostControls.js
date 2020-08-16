@@ -136,10 +136,12 @@ export default {
    * @return {Promise}
    */
   editAction() {
-    app.composer.load(EditPostComposer, { post: this });
-    app.composer.show();
+    return new Promise((resolve) => {
+      app.composer.load(EditPostComposer, { post: this });
+      app.composer.show();
 
-    return Promise.resolve(app.composer);
+      return resolve()
+    });
   },
 
   /**
