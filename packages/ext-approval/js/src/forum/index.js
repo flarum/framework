@@ -21,20 +21,20 @@ app.initializers.add('flarum-approval', () => {
   Post.prototype.isApproved = Post.attribute('isApproved');
   Post.prototype.canApprove = Post.attribute('canApprove');
 
-  extend(DiscussionListItem.prototype, 'elementAttrs', function(attrs) {
-    if (!this.attrs.discussion.isApproved()) {
+  extend(DiscussionListItem.prototype, 'attrs', function(attrs) {
+    if (!this.props.discussion.isApproved()) {
       attrs.className += ' DiscussionListItem--unapproved';
     }
   });
 
-  extend(PostComponent.prototype, 'elementAttrs', function(attrs) {
-    if (!this.attrs.post.isApproved()) {
+  extend(PostComponent.prototype, 'attrs', function(attrs) {
+    if (!this.props.post.isApproved()) {
       attrs.className += ' Post--unapproved';
     }
   });
 
   extend(CommentPost.prototype, 'headerItems', function(items) {
-    if (!this.attrs.post.isApproved() && !this.attrs.post.isHidden()) {
+    if (!this.props.post.isApproved() && !this.props.post.isHidden()) {
       items.add('unapproved', app.translator.trans('flarum-approval.forum.post.awaiting_approval_text'));
     }
   });
