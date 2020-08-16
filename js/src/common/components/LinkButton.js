@@ -16,7 +16,7 @@ export default class LinkButton extends Button {
   static initAttrs(attrs) {
     super.initAttrs(attrs);
 
-    attrs.active = this.constructor.isActive(attrs);
+    attrs.active = this.isActive(attrs);
   }
 
   view(vnode) {
