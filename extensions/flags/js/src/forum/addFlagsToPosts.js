@@ -20,19 +20,19 @@ export default function() {
 
     this.subtree.invalidate();
 
-    if (app.cache.flags) {
-      app.cache.flags.some((flag, i) => {
+    if (app.flags.cache) {
+      app.flags.cache.some((flag, i) => {
         if (flag.post() === post) {
-          app.cache.flags.splice(i, 1);
+          app.flags.cache.splice(i, 1);
 
-          if (app.cache.flagIndex === post) {
-            let next = app.cache.flags[i];
+          if (app.flags.index === post) {
+            let next = app.flags.cache[i];
 
-            if (!next) next = app.cache.flags[0];
+            if (!next) next = app.flags.cache[0];
 
             if (next) {
               const nextPost = next.post();
-              app.cache.flagIndex = nextPost;
+              app.flags.index = nextPost;
               m.route(app.route.post(nextPost));
             }
           }
