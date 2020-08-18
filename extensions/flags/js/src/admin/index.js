@@ -5,7 +5,7 @@ import PermissionGrid from 'flarum/components/PermissionGrid';
 import FlagsSettingsModal from './components/FlagsSettingsModal';
 
 app.initializers.add('flarum-flags', () => {
-  app.extensionSettings['flarum-flags'] = () => app.modal.show(new FlagsSettingsModal());
+  app.extensionSettings['flarum-flags'] = () => app.modal.show(FlagsSettingsModal);
 
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('viewFlags', {
