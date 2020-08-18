@@ -12,13 +12,12 @@ export default class FlagsPage extends Page {
 
     app.history.push('flags');
 
-    this.list = new FlagList();
-    this.list.load();
+    app.flags.load();
 
     this.bodyClass = 'App--flags';
   }
 
   view() {
-    return <div className="FlagsPage">{this.list.render()}</div>;
+    return <div className="FlagsPage"><FlagList state={app.flags}></FlagList></div>;
   }
 }

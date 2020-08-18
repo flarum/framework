@@ -10,10 +10,12 @@ export default class FlagsDropdown extends NotificationsDropdown {
     super.initProps(props);
   }
 
-  init() {
-    super.init();
-
-    this.list = new FlagList();
+  getMenu() {
+    return (
+      <div className={'Dropdown-menu ' + this.props.menuClassName} onclick={this.menuClick.bind(this)}>
+        {this.showing ? FlagList.component({ state: this.props.state }) : ''}
+      </div>
+    );
   }
 
   goToRoute() {
@@ -21,7 +23,7 @@ export default class FlagsDropdown extends NotificationsDropdown {
   }
 
   getUnreadCount() {
-    return app.cache.flags ? app.cache.flags.length : app.forum.attribute('flagCount');
+    return app.flags.cache ? app.flags.cache.length : app.forum.attribute('flagCount');
   }
 
   getNewCount() {
