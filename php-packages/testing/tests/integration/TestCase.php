@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration;
 
 use Flarum\Extend\ExtenderInterface;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\InstalledSite;
 use Flarum\Foundation\Paths;
 use Illuminate\Database\ConnectionInterface;
@@ -40,7 +41,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'public' => __DIR__.'/tmp/public',
                     'storage' => __DIR__.'/tmp/storage',
                 ]),
-                include __DIR__.'/tmp/config.php'
+                new Config(include __DIR__.'/tmp/config.php')
             );
 
             $site->extendWith($this->extenders);
