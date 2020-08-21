@@ -95,7 +95,9 @@ class Application
      */
     public function config($key, $default = null)
     {
-        return Arr::get($this->container->make('flarum.config'), $key, $default);
+        $config = $this->container->make('flarum.config');
+
+        return $config[$key] ?? $default;
     }
 
     /**
@@ -117,18 +119,10 @@ class Application
     public function url($path = null)
     {
         $config = $this->container->make('flarum.config');
-        $url = Arr::get($config, 'url', Arr::get($_SERVER, 'REQUEST_URI'));
-
-        if (is_array($url)) {
-            if (isset($url[$path])) {
-                return $url[$path];
-            }
-
-            $url = $url['base'];
-        }
+        $url = (string) $config->url();
 
         if ($path) {
-            $url .= '/'.Arr::get($config, "paths.$path", $path);
+            $url .= '/'.($config["paths.$path"] ?? $path);
         }
 
         return $url;
