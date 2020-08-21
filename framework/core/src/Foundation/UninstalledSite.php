@@ -35,9 +35,15 @@ class UninstalledSite implements SiteInterface
      */
     protected $paths;
 
-    public function __construct(Paths $paths)
+    /**
+     * @var string
+     */
+    private $baseUrl;
+
+    public function __construct(Paths $paths, string $baseUrl)
     {
         $this->paths = $paths;
+        $this->baseUrl = $baseUrl;
     }
 
     /**
@@ -58,8 +64,9 @@ class UninstalledSite implements SiteInterface
         $laravel = new Application($container, $this->paths);
 
         $container->instance('env', 'production');
-        $container->instance('flarum.config', []);
-        $container->instance('flarum.debug', $laravel->inDebugMode());
+        $container->instance('flarum.config', new Config(['url' => $this->baseUrl]));
+        $container->alias('flarum.config', Config::class);
+        $container->instance('flarum.debug', true);
         $container->instance('config', $config = $this->getIlluminateConfig());
 
         $this->registerLogger($container);
