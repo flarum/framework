@@ -34,9 +34,6 @@ export default class TextEditor extends Component {
       <div className="TextEditor">
         <textarea
           className="FormControl Composer-flexible"
-          oncreate={this.textareaOncreate.bind(this)}
-          onupdate={this.textareaOnupdate.bind(this)}
-          onremove={this.textareaOnremove.bind(this)}
           oninput={(e) => {
             this.oninput(e.target.value, e);
           }}
@@ -53,27 +50,17 @@ export default class TextEditor extends Component {
     );
   }
 
-  textareaOncreate(vnode) {
+  oncreate(vnode) {
     const handler = () => {
       this.onsubmit();
       m.redraw();
     };
 
-    $(vnode.dom).bind('keydown', 'meta+return', handler);
-    $(vnode.dom).bind('keydown', 'ctrl+return', handler);
+    this.$('textarea').bind('keydown', 'meta+return', handler);
+    this.$('textarea').bind('keydown', 'ctrl+return', handler);
 
-    this.attrs.composer.editor = new SuperTextarea(vnode.dom);
+    this.attrs.composer.editor = new SuperTextarea(this.$('textarea'));
   }
-
-  /**
-   * Here for extensibility
-   */
-  textareaOnupdate(vnode) {}
-
-  /**
-   * Here for extensibility
-   */
-  textareaOnremove(vnode) {}
 
   /**
    * Build an item list for the text editor controls.
