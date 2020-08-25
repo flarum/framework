@@ -1,3 +1,4 @@
+import setRouteWithForcedRefresh from '../utils/setRouteWithForcedRefresh';
 import SearchState from './SearchState';
 
 export default class GlobalSearchState extends SearchState {
@@ -66,7 +67,7 @@ export default class GlobalSearchState extends SearchState {
       params.sort = sort;
     }
 
-    m.route.set(app.route(this.searchRoute, params), null, { state: { key: Date.now() } });
+    setRouteWithForcedRefresh(app.route(this.searchRoute, params));
   }
 
   /**
@@ -90,6 +91,6 @@ export default class GlobalSearchState extends SearchState {
     const params = this.params();
     delete params.q;
 
-    m.route.set(app.route(this.searchRoute, params), null, { state: { key: Date.now() } });
+    setRouteWithForcedRefresh(app.route(this.searchRoute, params));
   }
 }
