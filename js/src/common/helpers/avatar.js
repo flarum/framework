@@ -25,7 +25,7 @@ export default function avatar(user, attrs = {}) {
     if (hasTitle) attrs.title = attrs.title || username;
 
     if (avatarUrl) {
-      return <img {...attrs} src={avatarUrl} alt={username} />;
+      return <img {...attrs} src={avatarUrl} alt="" />;
     }
 
     content = username.charAt(0).toUpperCase();
