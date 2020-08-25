@@ -50,7 +50,7 @@ export default class TextEditor extends Component {
     );
   }
 
-  oncreate(vnode) {
+  oncreate() {
     const handler = () => {
       this.onsubmit();
       m.redraw();
