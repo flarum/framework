@@ -6,7 +6,7 @@ import SelectDropdown from '../../common/components/SelectDropdown';
 import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
 import listItems from '../../common/helpers/listItems';
-import UserPageSidebar from './AffixedSidebar';
+import AffixedSidebar from './AffixedSidebar';
 
 /**
  * The `UserPage` component shows a user's profile. It can be extended to show
@@ -42,11 +42,11 @@ export default class UserPage extends Page {
               />,
               <div className="container">
                 <div className="sideNavContainer">
-                  <UserPageSidebar>
+                  <AffixedSidebar>
                     <nav className="sideNav UserPage-nav">
                       <ul>{listItems(this.sidebarItems().toArray())}</ul>
                     </nav>
-                  </UserPageSidebar>
+                  </AffixedSidebar>
                   <div className="sideNavOffset UserPage-content">{this.content()}</div>
                 </div>
               </div>,
