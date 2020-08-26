@@ -14,6 +14,7 @@ import DiscussionControls from '../utils/DiscussionControls';
 import slidable from '../utils/slidable';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
+
 import { escapeRegExp } from 'lodash-es';
 /**
  * The `DiscussionListItem` component shows a single discussion in the
