@@ -67,7 +67,7 @@ export default class GlobalSearchState extends SearchState {
       params.sort = sort;
     }
 
-    setRouteWithForcedRefresh(app.route(this.searchRoute, params));
+    setRouteWithForcedRefresh(app.route(app.current.get('routeName'), params));
   }
 
   /**
