@@ -52,6 +52,7 @@ export default class IndexPage extends Page {
 
       app.discussions.refreshParams(app.search.params());
 
+      this.onNewRoute();
       this.currentPath = curPath;
 
       this.setTitle();

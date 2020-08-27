@@ -11,7 +11,9 @@ export default class Page extends Component {
     super.oninit(vnode);
 
     app.previous = app.current;
-    app.current = new PageState(this.constructor, { routeName: vnode.attrs.routeName });
+    app.current = new PageState(this.constructor);
+
+    this.onNewRoute();
 
     app.drawer.hide();
     app.modal.close();
@@ -22,6 +24,16 @@ export default class Page extends Component {
      * @type {String}
      */
     this.bodyClass = '';
+  }
+
+  /**
+   * A collections of actions to run when the route changes.
+   * This is extracted here, and not hardcoded in oninit, as oninit is not called
+   * when a different route is handled by the same component, but we still need to
+   * adjust the current route name.
+   */
+  onNewRoute() {
+    app.current.set('routeName', this.attrs.routeName);
   }
 
   oncreate(vnode) {
