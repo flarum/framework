@@ -37,7 +37,7 @@
     "require": {
         "php": ">=7.2",
         "axy/sourcemap": "^0.1.4",
-        "components/font-awesome": "5.9.*",
+        "components/font-awesome": "^5.14.0",
         "dflydev/fig-cookies": "^2.0.1",
         "doctrine/dbal": "^2.7",
         "franzl/whoops-middleware": "^0.4.0",
