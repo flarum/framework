@@ -40,7 +40,8 @@ export default class CommentPost extends Post {
 
     this.subtree.check(
       () => this.cardVisible,
-      () => this.isEditing()
+      () => this.isEditing(),
+      () => this.revealContent
     );
   }
 
