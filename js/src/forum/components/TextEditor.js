@@ -50,7 +50,9 @@ export default class TextEditor extends Component {
     );
   }
 
-  oncreate() {
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
     const handler = () => {
       this.onsubmit();
       m.redraw();
@@ -59,7 +61,7 @@ export default class TextEditor extends Component {
     this.$('textarea').bind('keydown', 'meta+return', handler);
     this.$('textarea').bind('keydown', 'ctrl+return', handler);
 
-    this.attrs.composer.editor = new SuperTextarea(this.$('textarea'));
+    this.attrs.composer.editor = new SuperTextarea(this.$('textarea')[0]);
   }
 
   /**
