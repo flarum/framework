@@ -1,4 +1,4 @@
-import defaultResolver from './defaultResolver.ts';
+import DefaultResolver from './DefaultResolver.ts';
 
 /**
  * The `mapRoutes` utility converts a map of named application routes into a
@@ -19,7 +19,7 @@ export default function mapRoutes(routes, basePath = '') {
     if ('render' in route.component || 'onmatch' in route.component) {
       map[basePath + route.path] = route.component;
     } else {
-      map[basePath + route.path] = defaultResolver(route.component, key);
+      map[basePath + route.path] = new DefaultResolver(route.component, key);
     }
   }
 
