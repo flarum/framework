@@ -48,11 +48,12 @@ export default class IndexPage extends Page {
     const curPath = m.route.get();
 
     if (this.currentPath !== curPath) {
+      this.onNewRoute();
+
       app.discussions.clear();
 
       app.discussions.refreshParams(app.search.params());
 
-      this.onNewRoute();
       this.currentPath = curPath;
 
       this.setTitle();
