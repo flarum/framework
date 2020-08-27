@@ -7,6 +7,7 @@ import ItemList from './utils/ItemList';
 import mixin from './utils/mixin';
 import humanTime from './utils/humanTime';
 import computed from './utils/computed';
+import defaultResolver from './utils/defaultResolver';
 import Drawer from './utils/Drawer';
 import anchorScroll from './utils/anchorScroll';
 import RequestError from './utils/RequestError';
@@ -78,6 +79,7 @@ export default {
   'utils/mixin': mixin,
   'utils/humanTime': humanTime,
   'utils/computed': computed,
+  'utils/defaultResolver': defaultResolver,
   'utils/Drawer': Drawer,
   'utils/anchorScroll': anchorScroll,
   'utils/RequestError': RequestError,

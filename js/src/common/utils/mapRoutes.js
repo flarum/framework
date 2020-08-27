@@ -1,3 +1,5 @@
+import defaultResolver from './defaultResolver.ts';
+
 /**
  * The `mapRoutes` utility converts a map of named application routes into a
  * format that can be understood by Mithril, and wraps them in route resolvers
@@ -17,13 +19,7 @@ export default function mapRoutes(routes, basePath = '') {
     if ('render' in route.component || 'onmatch' in route.component) {
       map[basePath + route.path] = route.component;
     } else {
-      map[basePath + route.path] = {
-        render() {
-          return m(route.component, {
-            routeName: key,
-          });
-        },
-      };
+      map[basePath + route.path] = defaultResolver(route.component, key);
     }
   }
 
