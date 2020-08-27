@@ -360,7 +360,7 @@ export default class PostStream extends Component {
     return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
       this.updateScrubber();
       const index = $item.data('index');
-      m.redraw(true);
+      m.redraw.sync();
       const scroll = index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
       $(window).scrollTop(scroll);
       this.calculatePosition();

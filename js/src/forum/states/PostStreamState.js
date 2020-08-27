@@ -229,7 +229,7 @@ class PostStreamState {
         this.loadRange(start, end).then(() => {
           if (start >= this.visibleStart && end <= this.visibleEnd) {
             const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
-            anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw(true));
+            anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw.sync());
           }
           this.pagesLoading--;
         });
