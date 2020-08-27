@@ -13,7 +13,11 @@ export default function mapRoutes(routes, basePath = '') {
   for (const key in routes) {
     const route = routes[key];
 
-    map[basePath + route.path] = route.component;
+    map[basePath + route.path] = {
+      render() {
+        return m(route.component, { routeName: key });
+      },
+    };
   }
 
   return map;

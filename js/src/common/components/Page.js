@@ -11,7 +11,7 @@ export default class Page extends Component {
     super.oninit(vnode);
 
     app.previous = app.current;
-    app.current = new PageState(this.constructor);
+    app.current = new PageState(this.constructor, { routeName: vnode.attrs.routeName });
 
     app.drawer.hide();
     app.modal.close();
