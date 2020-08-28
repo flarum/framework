@@ -15,6 +15,7 @@ import slidable from '../utils/slidable';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
 
+import { escapeRegExp } from 'lodash-es';
 /**
  * The `DiscussionListItem` component shows a single discussion in the
  * discussion list.
@@ -72,7 +73,7 @@ export default class DiscussionListItem extends Component {
         jumpTo = post.number();
       }
 
-      const phrase = this.props.params.q;
+      const phrase = escapeRegExp(this.props.params.q);
       this.highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
     } else {
       jumpTo = Math.min(discussion.lastPostNumber(), (discussion.lastReadPostNumber() || 0) + 1);
