@@ -16,7 +16,7 @@ export default class SuspendUserModal extends Modal {
     }
 
     this.status = m.prop(status);
-    this.daysRemaining = m.prop(status === 'limited' && -moment().diff(until, 'days') + 1);
+    this.daysRemaining = m.prop(status === 'limited' && -dayjs().diff(until, 'days') + 1);
   }
 
   className() {
@@ -88,7 +88,7 @@ export default class SuspendUserModal extends Modal {
         break;
 
       case 'limited':
-        suspendedUntil = moment().add(this.daysRemaining(), 'days').toDate();
+        suspendedUntil = dayjs().add(this.daysRemaining(), 'days').toDate();
         break;
 
       default:
