@@ -180,7 +180,7 @@ export default class Model {
         // old data! We'll revert to that and let others handle the error.
         (response) => {
           this.pushData(oldData);
-          m.lazyRedraw();
+          m.redraw();
           throw response;
         }
       );
@@ -195,7 +195,7 @@ export default class Model {
    * @public
    */
   delete(body, options = {}) {
-    if (!this.exists) return m.deferred().resolve().promise;
+    if (!this.exists) return Promise.resolve();
 
     return app
       .request(
