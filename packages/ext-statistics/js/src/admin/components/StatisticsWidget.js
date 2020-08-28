@@ -110,12 +110,12 @@ export default class StatisticsWidget extends DashboardWidget {
       let label;
 
       if (period.step < 86400) {
-        label = moment.unix(i + offset).utc().format('h A');
+        label = dayjs.unix(i + offset).format('h A');
       } else {
-        label = moment.unix(i + offset).utc().format('D MMM');
+        label = dayjs.unix(i + offset).format('D MMM');
 
         if (period.step > 86400) {
-          label += ' - ' + moment.unix(i + offset + period.step - 1).utc().format('D MMM');
+          label += ' - ' + dayjs.unix(i + offset + period.step - 1).format('D MMM');
         }
       }
 
