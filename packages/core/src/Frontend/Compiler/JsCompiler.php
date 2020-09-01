@@ -65,7 +65,7 @@ class JsCompiler extends RevisionCompiler
      */
     protected function format(string $string): string
     {
-        return preg_replace('~//# sourceMappingURL.*$~m', '', $string).";\n";
+        return preg_replace('~//# sourceMappingURL.*$~m', '', $string)."\n";
     }
 
     /**
