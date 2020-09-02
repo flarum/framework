@@ -28,10 +28,12 @@ class PushNewPost
     public function handle(Posted $event)
     {
         if ($event->post->isVisibleTo(new Guest)) {
+            $tags = $event->post->discussion->tags;
+
             $this->pusher->trigger('public', 'newPost', [
                 'postId' => $event->post->id,
                 'discussionId' => $event->post->discussion->id,
-                'tagIds' => $event->post->discussion->tags()->pluck('id')
+                'tagIds' => $tags ? $tags->pluck('id') : null
             ]);
         }
     }
