@@ -1,4 +1,4 @@
-import setRouteWithForcedRefresh from '../utils/setRouteWithForcedRefresh';
+import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
 import SearchState from './SearchState';
 
 export default class GlobalSearchState extends SearchState {

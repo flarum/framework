@@ -1,4 +1,4 @@
-import setRouteWithForcedRefresh from './setRouteWithForcedRefresh';
+import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
 
 /**
  * The `History` class keeps track and manages a stack of routes that the user

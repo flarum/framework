@@ -13,6 +13,7 @@ import RequestError from './utils/RequestError';
 import abbreviateNumber from './utils/abbreviateNumber';
 import * as string from './utils/string';
 import SubtreeRetainer from './utils/SubtreeRetainer';
+import setRouteWithForcedRefresh from './utils/setRouteWithForcedRefresh';
 import extract from './utils/extract';
 import ScrollListener from './utils/ScrollListener';
 import stringToColor from './utils/stringToColor';
@@ -85,6 +86,7 @@ export default {
   'utils/ScrollListener': ScrollListener,
   'utils/stringToColor': stringToColor,
   'utils/subclassOf': subclassOf,
+  'utils/setRouteWithForcedRefresh': setRouteWithForcedRefresh,
   'utils/patchMithril': patchMithril,
   'utils/classList': classList,
   'utils/extractText': extractText,
