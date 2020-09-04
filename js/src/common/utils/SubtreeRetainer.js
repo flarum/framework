@@ -26,10 +26,10 @@ export default class SubtreeRetainer {
   }
 
   /**
-   * Return a virtual DOM directive that will retain a subtree if no data has
-   * changed since the last check.
+   * Return whether any data has changed since the last check.
+   * If so, Mithril needs to re-diff the vnode and its children.
    *
-   * @return {Object|false}
+   * @return {boolean}
    * @public
    */
   needsRebuild() {
