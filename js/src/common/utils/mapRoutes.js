@@ -16,10 +16,13 @@ export default function mapRoutes(routes, basePath = '') {
   for (const routeName in routes) {
     const route = routes[routeName];
 
-    if ('render' in route.component || 'onmatch' in route.component) {
-      map[basePath + route.path] = route.component;
+    if ('resolver' in route) {
+      map[basePath + route.path] = route.resolver;
+    } else if ('component' in route) {
+      const resolverClass = 'resolverClass' in route ? route.resolverClass : DefaultResolver;
+      map[basePath + route.path] = new resolverClass(route.component, key);
     } else {
-      map[basePath + route.path] = new DefaultResolver(route.component, key);
+      throw new Error(`Either a resolver or a component must be provided for the route [${key}]`);
     }
   }
 
