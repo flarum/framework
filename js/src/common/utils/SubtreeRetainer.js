@@ -33,18 +33,16 @@ export default class SubtreeRetainer {
    * @public
    */
   needsRebuild() {
-    let needsRebuild = false;
-
-    this.callbacks.forEach((callback, i) => {
+    return this.callbacks.some((callback, i) => {
       const result = callback();
 
       if (result !== this.data[i]) {
         this.data[i] = result;
-        needsRebuild = true;
+        return true;
       }
-    });
 
-    return needsRebuild;
+      return false;
+    });
   }
 
   /**
