@@ -93,7 +93,7 @@ class ComposerState {
     if (this.position === ComposerState.Position.NORMAL || this.position === ComposerState.Position.FULLSCREEN) return;
 
     this.position = ComposerState.Position.NORMAL;
-    m.redraw();
+    m.redraw(true);
   }
 
   /**
