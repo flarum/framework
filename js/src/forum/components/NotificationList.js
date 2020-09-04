@@ -97,31 +97,25 @@ export default class NotificationList extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    const $notifications = this.$('.NotificationList-content');
-    const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+    this.$notifications = this.$('.NotificationList-content');
+    this.$scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
 
     this.boundScrollHandler = this.scrollHandler.bind(this);
-    $scrollParent.on('scroll', this.boundScrollHandler);
+    this.$scrollParent.on('scroll', this.boundScrollHandler);
   }
 
   onremove() {
-    const $notifications = this.$('.NotificationList-content');
-    const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
-
-    $scrollParent.off('scroll', this.boundScrollHandler);
+    this.$scrollParent.off('scroll', this.boundScrollHandler);
   }
 
   scrollHandler() {
     const state = this.attrs.state;
 
-    const $notifications = this.$('.NotificationList-content');
-    const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+    const scrollTop = this.$scrollParent.scrollTop();
+    const viewportHeight = this.$scrollParent.height();
 
-    const scrollTop = $scrollParent.scrollTop();
-    const viewportHeight = $scrollParent.height();
-
-    const contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
-    const contentHeight = $notifications[0].scrollHeight;
+    const contentTop = this.$scrollParent === this.$notifications ? 0 : this.$notifications.offset().top;
+    const contentHeight = this.$notifications[0].scrollHeight;
 
     if (state.hasMoreResults() && !state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
       state.loadMore();
