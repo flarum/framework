@@ -8,30 +8,67 @@ export type ComponentAttrs = {
 
 /**
  * The `Component` class defines a user interface 'building block'. A component
- * can generate a virtual DOM to be rendered on each redraw.
+ * generates a virtual DOM to be rendered on each redraw.
  *
+ * Essentially, this is a wrapper for Mithril's components that adds several useful features:
+ *
+ *  - In the `oninit` and `onbeforeupdate` lifecycle hooks, we store vnode attrs in `this.attrs.
+ *    This allows us to use attrs across components without having to pass the vnode to every single
+ *    method.
+ *  - The static `initAttrs` method allows a convenient way to provide defaults (or to otherwise modify)
+ *    the attrs that have been passed into a component.
+ *  - When the component is created in the DOM, we store its DOM element under `this.element`; this lets
+ *    us use jQuery to modify child DOM state from internal methods via the `this.$()` method.
+ *  - A convenience `component` method, which serves as an alternative to hyperscript and JSX.
+ *
+ * As with other Mithril components, components extending Component can be initialized
+ * and nested using JSX, hyperscript, or a combination of both. The `component` method can also
+ * be used.
  *
  * @example
- * return m('div', MyComponent.component({foo: 'bar'));
+ * return m('div', <MyComponent foo="bar"><p>Hello World</p></MyComponent>);
+ *
+ * @example
+ * return m('div', MyComponent.component({foo: 'bar'), m('p', 'Hello World!'));
  *
  * @see https://mithril.js.org/components.html
  */
 export default abstract class Component<T extends ComponentAttrs = any> implements Mithril.ClassComponent<T> {
-  element!: Element;
+  /**
+   * The root DOM element for the component.
+   */
+  protected element!: Element;
 
-  attrs: T;
+  /**
+   * The attributes passed into the component.
+   *
+   * @see https://mithril.js.org/hyperscript.html#dom-attributes
+   */
+  protected attrs: T;
 
+  /**
+   * @inheritdoc
+   */
   abstract view(vnode: Mithril.Vnode<T, this>): Mithril.Children;
 
-  oninit(vnode: Mithril.Vnode<T, this>) {
+  /**
+   * @inheritdoc
+   */
+  protected oninit(vnode: Mithril.Vnode<T, this>) {
     this.setAttrs(vnode.attrs);
   }
 
-  oncreate(vnode: Mithril.VnodeDOM<T, this>) {
+  /**
+   * @inheritdoc
+   */
+  protected oncreate(vnode: Mithril.VnodeDOM<T, this>) {
     this.element = vnode.dom;
   }
 
-  onbeforeupdate(vnode: Mithril.VnodeDOM<T, this>) {
+  /**
+   * @inheritdoc
+   */
+  protected onbeforeupdate(vnode: Mithril.VnodeDOM<T, this>) {
     this.setAttrs(vnode.attrs);
   }
 
@@ -48,7 +85,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    * @returns {jQuery} the jQuery object for the DOM node
    * @final
    */
-  $(selector) {
+  protected $(selector) {
     const $element = $(this.element);
 
     return selector ? $element.find(selector) : $element;
@@ -56,14 +93,21 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
 
   /**
    * Convenience method to attach a component without JSX.
+   * Has the same effect as calling `m(THIS_CLASS, attrs, children)`.
+   *
+   * @see https://mithril.js.org/hyperscript.html#mselector,-attributes,-children
    */
-  static component(attrs = {}, children = null) {
+  static component(attrs = {}, children = null): Mithril.Vnode {
     const componentProps = Object.assign({}, attrs);
 
     return m(this as any, componentProps, children);
   }
 
-  private setAttrs(attrs: T = {} as T) {
+  /**
+   * Saves a reference to the vnode attrs after running them through initAttrs,
+   * and checking for common issues.
+   */
+  private setAttrs(attrs: T = {} as T): void {
     this.constructor.initAttrs(attrs);
 
     if (attrs) {
@@ -83,7 +127,8 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
     this.attrs = attrs;
   }
 
-  protected static initAttrs<T>(attrs: T): T {
-    return attrs;
-  }
+  /**
+   * Initialize the component's attrs.
+   */
+  protected static initAttrs<T>(attrs: T): void {}
 }

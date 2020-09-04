@@ -1,32 +1,54 @@
+import * as Mithril from 'mithril';
+
 /**
- * Base class enabling jquery for mithril components attached with m.render().
+ * The `Fragment` class provides a wrapper class for Mithril components to be used with m.render().
+ * This is very similar to the `Component` wrapper class, but is used for more fine-grained control over
+ * the rendering and display of some significant chunks of the DOM.
+ *
+ * The main benefit of using this wrapper class as opposed to Mithril components directly
+ * is that it stores the vnode DOM, and provides a `$()` method allowing manipulation of said DOM.
+ *
+ * This should only be used when necessary, and only with `m.render`. If you are unsure whether you need
+ * this or `Component, you probably need `Component`.
  */
-export default abstract class Fragment {
-  element!: Element;
+export default abstract class Fragment implements Mithril.ClassComponent {
+  /**
+   * The root DOM element for the fragment.
+   */
+  protected element!: Element;
 
   /**
-   * Returns a jQuery object for this component's element. If you pass in a
+   * Returns a jQuery object for this fragment's element. If you pass in a
    * selector string, this method will return a jQuery object, using the current
    * element as its buffer.
    *
-   * For example, calling `component.$('li')` will return a jQuery object
+   * For example, calling `fragment.$('li')` will return a jQuery object
    * containing all of the `li` elements inside the DOM element of this
-   * component.
+   * fragment.
    *
    * @param {String} [selector] a jQuery-compatible selector string
    * @returns {jQuery} the jQuery object for the DOM node
    * @final
    */
-  $(selector) {
+  public $(selector) {
     const $element = $(this.element);
 
     return selector ? $element.find(selector) : $element;
   }
 
   /**
+   * Get the renderable virtual DOM that represents the fragment's view.
    *
+   * This should NOT be overridden by subclasses. Subclasses wishing to define
+   * their virtual DOM should override Fragment#view instead.
+   *
+   * @example
+   * const fragment = new MyFragment();
+   * m.render(document.body, fragment.render());
+   *
+   * @final
    */
-  render() {
+  public render(): Mithril.Vnode {
     const vdom = this.view();
 
     vdom.attrs = vdom.attrs || {};
@@ -42,7 +64,8 @@ export default abstract class Fragment {
     return vdom;
   }
 
-  oncreate: () => {};
-
+  /**
+   * @inheritdoc
+   */
   abstract view();
 }
