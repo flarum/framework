@@ -1,9 +1,10 @@
 import getCaretCoordinates from 'textarea-caret';
 
 import { extend } from 'flarum/extend';
-import ComposerBody from 'flarum/components/ComposerBody';
 import TextEditor from 'flarum/components/TextEditor';
 import TextEditorButton from 'flarum/components/TextEditorButton';
+import ReplyComposer from 'flarum/components/ReplyComposer';
+import EditPostComposer from 'flarum/components/EditPostComposer';
 import avatar from 'flarum/helpers/avatar';
 import usernameHelper from 'flarum/helpers/username';
 import highlight from 'flarum/helpers/highlight';
@@ -13,10 +14,9 @@ import { truncate } from 'flarum/utils/string';
 import AutocompleteDropdown from './components/AutocompleteDropdown';
 
 export default function addComposerAutocomplete() {
-  extend(ComposerBody.prototype, 'config', function(original, isInitialized) {
+  extend(TextEditor.prototype, 'config', function(original, isInitialized) {
     if (isInitialized) return;
 
-    const composer = this;
     const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
     const dropdown = new AutocompleteDropdown({items: []});
     const $textarea = this.$('textarea').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
@@ -31,16 +31,8 @@ export default function addComposerAutocomplete() {
     const returnedUsers = Array.from(app.store.all('users'));
     const returnedUserIds = new Set(returnedUsers.map(u => u.id()));
 
-    const applySuggestion = function(replacement) {
-      const insert = replacement + ' ';
-
-      // When calling setValue(), mentionStart will be set back to 0 so we need to compute this beforehand
-      const index = mentionStart - 1 + insert.length;
-
-      const content = composer.content();
-      composer.editor.setValue(content.substring(0, mentionStart - 1) + insert + content.substr($textarea[0].selectionStart));
-
-      composer.editor.setSelectionRange(index, index);
+    const applySuggestion = (replacement) => {
+      app.composer.editor.replaceBeforeCursor(mentionStart - 1, replacement + ' ');
 
       dropdown.hide();
     };
@@ -131,26 +123,30 @@ export default function addComposerAutocomplete() {
             // post, then we can suggest other posts in the discussion to mention.
             // We will add the 5 most recent comments in the discussion which
             // match any username characters that have been typed.
-            const composerPost = composer.props.post;
-            const discussion = (composerPost && composerPost.discussion()) || composer.props.discussion;
-            if (discussion) {
-              discussion.posts()
-                .filter(post => post && post.contentType() === 'comment' && (!composerPost || post.number() < composerPost.number()))
-                .sort((a, b) => b.createdAt() - a.createdAt())
-                .filter(post => {
-                  const user = post.user();
-                  return user && userMatches(user);
-                })
-                .splice(0, 5)
-                .forEach(post => {
-                  const user = post.user();
-                  suggestions.push(
-                    makeSuggestion(user, '@' + user.username() + '#' + post.id(), [
-                      app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', { number: post.number() }), ' — ',
-                      truncate(post.contentPlain(), 200)
-                    ], 'MentionsDropdown-post')
-                  );
-                });
+            if (app.composer.bodyMatches(ReplyComposer) || app.composer.bodyMatches(EditPostComposer)) {
+              const composerAttrs = app.composer.body.attrs;
+              const composerPost = composerAttrs.post;
+              const discussion = (composerPost && composerPost.discussion()) || composerAttrs.discussion;
+
+              if (discussion) {
+                discussion.posts()
+                  .filter(post => post && post.contentType() === 'comment' && (!composerPost || post.number() < composerPost.number()))
+                  .sort((a, b) => b.createdAt() - a.createdAt())
+                  .filter(post => {
+                    const user = post.user();
+                    return user && userMatches(user);
+                  })
+                  .splice(0, 5)
+                  .forEach(post => {
+                    const user = post.user();
+                    suggestions.push(
+                      makeSuggestion(user, '@' + user.username() + '#' + post.id(), [
+                        app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', {number: post.number()}), ' — ',
+                        truncate(post.contentPlain(), 200)
+                      ], 'MentionsDropdown-post')
+                    );
+                  });
+              }
             }
 
             if (suggestions.length) {
