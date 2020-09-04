@@ -13,7 +13,7 @@
     "jquery.hotkeys": "^0.1.0",
     "lodash-es": "^4.17.14",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
-    "mithril": "^0.2.8",
+    "mithril": "^1.1.7",
     "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
     "webpack": "^4.43.0",
