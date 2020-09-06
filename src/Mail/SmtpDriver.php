@@ -34,8 +34,8 @@ class SmtpDriver implements DriverInterface
             'mail_host' => 'required',
             'mail_port' => 'nullable|integer',
             'mail_encryption' => 'nullable|in:tls,ssl',
-            'mail_username' => 'required',
-            'mail_password' => 'required',
+            'mail_username' => 'nullable|string',
+            'mail_password' => 'nullable|string',
         ])->errors();
     }
 
