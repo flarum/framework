@@ -11,25 +11,21 @@ namespace Flarum\Extension\Exception;
 
 use Exception;
 use Flarum\Extension\Extension;
-use Flarum\Foundation\KnownError;
 
-class MissingDependenciesException extends Exception implements KnownError
+class MissingDependenciesException extends Exception
 {
     public $extension;
-    public $flarum_dependencies;
+    public $missing_dependencies;
 
     /**
      * @param $extension: The extension we are attempting to activate.
-     * @param $flarum_dependencies: Extension IDs of the missing flarum extension dependencies for this extension
+     * @param $missing_dependencies: Extension IDs of the missing flarum extension dependencies for this extension
      */
-    public function __construct(Extension $extension, array $flarum_dependencies = [])
+    public function __construct(Extension $extension, array $missing_dependencies = null)
     {
         $this->extension = $extension;
-        $this->$flarum_dependencies = $flarum_dependencies;
-    }
+        $this->missing_dependencies = $missing_dependencies;
 
-    public function getType(): string
-    {
-        return 'missing_dependencies';
+        parent::__construct(implode("\n", $missing_dependencies));
     }
 }
