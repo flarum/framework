@@ -21,7 +21,7 @@ class DependentExtensionsException extends Exception
      * @param $extension: The extension we are attempting to activate.
      * @param $dependent_extensions: Extension IDs of the Flarum extensions that depend on this extension
      */
-    public function __construct(Extension $extension, array $dependent_extensions = [])
+    public function __construct(Extension $extension, array $dependent_extensions)
     {
         $this->extension = $extension;
         $this->dependent_extensions = $dependent_extensions;
