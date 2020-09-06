@@ -196,7 +196,7 @@ class ExtensionManager
         foreach ($this->getEnabledExtensions() as $possibleDependent) {
             foreach ($possibleDependent->extensionDependencies as $dependency) {
                 if ($dependency === $extension->getId()) {
-                    $dependentExtensions[] = $dependency;
+                    $dependentExtensions[] = $possibleDependent->getId();
                     // No need to cycle through the rest of this extension's dependencies.
                     break;
                 }
