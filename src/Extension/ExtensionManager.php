@@ -15,7 +15,6 @@ use Flarum\Extension\Event\Disabling;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
-use Flarum\Extension\Exception\DependentExtensionsException;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -205,7 +204,7 @@ class ExtensionManager
         }
 
         if (! empty($dependentExtensions)) {
-            throw new DependentExtensionsException($extension, $dependentExtensions);
+            throw new Exception\DependentExtensionsException($extension, $dependentExtensions);
         }
 
         $this->dispatcher->dispatch(new Disabling($extension));
