@@ -11,9 +11,8 @@ namespace Flarum\Extension\Exception;
 
 use Exception;
 use Flarum\Extension\Extension;
-use Flarum\Foundation\KnownError;
 
-class DependentExtensionsException extends Exception implements KnownError
+class DependentExtensionsException extends Exception
 {
     public $extension;
     public $dependent_extensions;
@@ -25,11 +24,8 @@ class DependentExtensionsException extends Exception implements KnownError
     public function __construct(Extension $extension, array $dependent_extensions = [])
     {
         $this->extension = $extension;
-        $this->$dependent_extensions = $dependent_extensions;
-    }
+        $this->dependent_extensions = $dependent_extensions;
 
-    public function getType(): string
-    {
-        return 'dependent_extensions';
+        parent::__construct(implode("\n", $dependent_extensions));
     }
 }
