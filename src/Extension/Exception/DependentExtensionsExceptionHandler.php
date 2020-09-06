@@ -27,7 +27,7 @@ class DependentExtensionsExceptionHandler
         return [
             [
                 'extension' => $e->extension->getId(),
-                'dependent_dependencies' => $e->dependent_dependencies
+                'extensions' => $e->dependent_extensions
             ]
         ];
     }

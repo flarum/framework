@@ -27,7 +27,7 @@ class MissingDependenciesExceptionHandler
         return [
             [
                 'extension' => $e->extension->getId(),
-                'missing_dependencies' => $e->missing_dependencies
+                'extensions' => $e->missing_dependencies
             ]
         ];
     }
