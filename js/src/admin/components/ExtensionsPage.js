@@ -123,6 +123,7 @@ export default class ExtensionsPage extends Page {
         url: app.forum.attribute('apiUrl') + '/extensions/' + id,
         method: 'PATCH',
         body: { enabled: !enabled },
+        errorHandler: this.onerror.bind(this),
       })
       .then(() => {
         if (!enabled) localStorage.setItem('enabledExtension', id);
@@ -130,5 +131,19 @@ export default class ExtensionsPage extends Page {
       });
 
     app.modal.show(LoadingModal);
+  }
+
+  onerror(e) {
+    app.modal.close();
+
+    const error = JSON.parse(e.responseText).errors[0];
+
+    app.alerts.show(
+      app.translator.trans(`core.lib.error.${error.code}_message`, {
+        extension: error.extension,
+        extensions: error.extensions.join(', '),
+      }),
+      { type: 'error' }
+    );
   }
 }
