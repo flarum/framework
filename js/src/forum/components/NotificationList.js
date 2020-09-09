@@ -98,7 +98,7 @@ export default class NotificationList extends Component {
     super.oncreate(vnode);
 
     this.$notifications = this.$('.NotificationList-content');
-    this.$scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+    this.$scrollParent = this.$notifications.css('overflow') === 'auto' ? this.$notifications : $(window);
 
     this.boundScrollHandler = this.scrollHandler.bind(this);
     this.$scrollParent.on('scroll', this.boundScrollHandler);
