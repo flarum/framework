@@ -16,6 +16,7 @@ import SubtreeRetainer from './utils/SubtreeRetainer';
 import extract from './utils/extract';
 import ScrollListener from './utils/ScrollListener';
 import stringToColor from './utils/stringToColor';
+import subclassOf from './utils/subclassOf';
 import patchMithril from './utils/patchMithril';
 import classList from './utils/classList';
 import extractText from './utils/extractText';
@@ -81,6 +82,7 @@ export default {
   'utils/extract': extract,
   'utils/ScrollListener': ScrollListener,
   'utils/stringToColor': stringToColor,
+  'utils/subclassOf': subclassOf,
   'utils/patchMithril': patchMithril,
   'utils/classList': classList,
   'utils/extractText': extractText,
