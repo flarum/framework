@@ -2,7 +2,25 @@ import Dropdown from './Dropdown';
 import icon from '../helpers/icon';
 
 /**
- * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle
+ * Determines via a vnode is currently "active".
+ * Due to changes in Mithril 2, attrs will not be instantiated until AFTER view()
+ * is initially called on the parent component, so we can not always depend on the
+ * active attr to determine which element should be displayed as the "active child".
+ *
+ * This is a temporary patch, and as so, is not exported / placed in utils.
+ */
+function isActive(vnode) {
+  const tag = vnode.tag;
+
+  if ('initAttrs' in tag) {
+    tag.initAttrs(vnode.attrs);
+  }
+
+  return 'isActive' in tag ? tag.isActive(vnode.attrs) : vnode.attrs.active;
+}
+
+/**
+ * The `SelectDropdown` csomponent is the same as a `Dropdown`, except the toggle
  * button's label is set as the label of the first child which has a truthy
  * `active` prop.
  *
@@ -21,7 +39,7 @@ export default class SelectDropdown extends Dropdown {
   }
 
   getButtonContent(children) {
-    const activeChild = children.filter((child) => child.attrs.active)[0];
+    const activeChild = children.filter(isActive)[0];
     let label = (activeChild && activeChild.children) || this.attrs.defaultLabel;
 
     if (label instanceof Array) label = label[0];
