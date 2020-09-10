@@ -167,7 +167,7 @@ export default class IndexPage extends Page {
           onclick: () => {
             // If the user is not logged in, the promise rejects, and a login modal shows up.
             // Since that's already handled, we dont need to show an error message in the console.
-            return this.newDiscussionAction().catch(() => { });
+            return this.newDiscussionAction().catch(() => {});
           },
           disabled: !canStartDiscussion,
         },

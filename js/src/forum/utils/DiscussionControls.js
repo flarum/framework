@@ -56,26 +56,26 @@ export default {
         'reply',
         !app.session.user || discussion.canReply()
           ? Button.component(
-            {
-              icon: 'fas fa-reply',
-              onclick: () => {
-                // If the user is not logged in, the promise rejects, and a login modal shows up.
-                // Since that's already handled, we dont need to show an error message in the console.
-                return this.replyAction(discussion, true, false).catch(() => { });
+              {
+                icon: 'fas fa-reply',
+                onclick: () => {
+                  // If the user is not logged in, the promise rejects, and a login modal shows up.
+                  // Since that's already handled, we dont need to show an error message in the console.
+                  return this.replyAction(discussion, true, false).catch(() => {});
+                },
               },
-            },
-            app.translator.trans(
-              app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'
+              app.translator.trans(
+                app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'
+              )
             )
-          )
           : Button.component(
-            {
-              icon: 'fas fa-reply',
-              className: 'disabled',
-              title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text'),
-            },
-            app.translator.trans('core.forum.discussion_controls.cannot_reply_button')
-          )
+              {
+                icon: 'fas fa-reply',
+                className: 'disabled',
+                title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text'),
+              },
+              app.translator.trans('core.forum.discussion_controls.cannot_reply_button')
+            )
       );
     }
 
