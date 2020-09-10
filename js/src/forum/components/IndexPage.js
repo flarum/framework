@@ -164,7 +164,11 @@ export default class IndexPage extends Page {
           icon: 'fas fa-edit',
           className: 'Button Button--primary IndexPage-newDiscussion',
           itemClassName: 'App-primaryControl',
-          onclick: this.newDiscussionAction.bind(this),
+          onclick: () => {
+            // If the user is not logged in, the promise rejects, and a login modal shows up.
+            // Since that's already handled, we dont need to show an error message in the console.
+            return this.newDiscussionAction().catch(() => { });
+          },
           disabled: !canStartDiscussion,
         },
         app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button')
