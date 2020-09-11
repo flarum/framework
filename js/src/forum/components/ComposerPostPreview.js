@@ -3,7 +3,7 @@
 import Component from '../../common/Component';
 
 /**
- * The `TextFormatterPreview` component renders Markdown as HTML using the
+ * The `ComposerPostPreview` component renders Markdown as HTML using the
  * TextFormatter library, polling a data source for changes every 50ms. This is
  * done to prevent expensive redraws on e.g. every single keystroke, while
  * still retaining the perception of live updates for the user.
@@ -12,7 +12,7 @@ import Component from '../../common/Component';
  *
  * - `content` A callback that retrieves the latest content that should be rendered.
  */
-export default class TextFormatterPreview extends Component {
+export default class ComposerPostPreview extends Component {
   view() {
     return <div className="Post-preview" />;
   }
