@@ -50,7 +50,9 @@ export default class CommentPost extends Post {
       <header className="Post-header">
         <ul>{listItems(this.headerItems().toArray())}</ul>
       </header>,
-      <div className="Post-body">{this.isEditing() ? <TextFormatterPreview /> : m.trust(this.attrs.post.contentHtml())}</div>,
+      <div className="Post-body">
+        {this.isEditing() ? <TextFormatterPreview content={() => app.composer.fields.content()} /> : m.trust(this.attrs.post.contentHtml())}
+      </div>,
     ]);
   }
 

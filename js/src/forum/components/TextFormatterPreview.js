@@ -14,7 +14,7 @@ export default class TextFormatterPreview extends Component {
     // body with a preview.
     let preview;
     const updatePreview = () => {
-      const content = app.composer.fields.content();
+      const content = this.attrs.content();
 
       if (preview === content) return;
 
