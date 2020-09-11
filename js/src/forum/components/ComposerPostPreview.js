@@ -24,6 +24,10 @@ export default class ComposerPostPreview extends Component {
     // body with a preview.
     let preview;
     const updatePreview = () => {
+      // Since we're polling, the composer may have been closed in the meantime,
+      // so we bail in that case.
+      if (!this.attrs.composer.isVisible()) return;
+
       const content = this.attrs.composer.fields.content();
 
       if (preview === content) return;
