@@ -12,10 +12,12 @@ import Component from '../../common/Component';
  *
  * - `composer` The state of the composer controlling this preview.
  * - `className` A CSS class for the element surrounding the preview.
+ * - `surround` A callback that can execute code before and after re-render, e.g. for scroll anchoring.
  */
 export default class ComposerPostPreview extends Component {
   static initAttrs(attrs) {
     attrs.className = attrs.className || '';
+    attrs.surround = attrs.surround || ((preview) => preview());
   }
 
   view() {
@@ -39,7 +41,7 @@ export default class ComposerPostPreview extends Component {
 
       preview = content;
 
-      s9e.TextFormatter.preview(preview || '', vnode.dom);
+      this.attrs.surround(() => s9e.TextFormatter.preview(preview || '', vnode.dom));
     };
     updatePreview();
 
