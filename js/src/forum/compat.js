@@ -61,6 +61,7 @@ import NotificationList from './components/NotificationList';
 import WelcomeHero from './components/WelcomeHero';
 import SignUpModal from './components/SignUpModal';
 import CommentPost from './components/CommentPost';
+import TextFormatterPreview from './components/TextFormatterPreview';
 import ReplyComposer from './components/ReplyComposer';
 import NotificationsPage from './components/NotificationsPage';
 import PostStreamScrubber from './components/PostStreamScrubber';
@@ -135,6 +136,7 @@ export default Object.assign(compat, {
   'components/WelcomeHero': WelcomeHero,
   'components/SignUpModal': SignUpModal,
   'components/CommentPost': CommentPost,
+  'components/TextFormatterPreview': TextFormatterPreview,
   'components/ReplyComposer': ReplyComposer,
   'components/NotificationsPage': NotificationsPage,
   'components/PostStreamScrubber': PostStreamScrubber,
