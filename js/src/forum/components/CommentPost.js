@@ -7,7 +7,7 @@ import EditPostComposer from './EditPostComposer';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
-import CommentPostPreview from './CommentPostPreview';
+import TextFormatterPreview from './TextFormatterPreview';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -50,7 +50,7 @@ export default class CommentPost extends Post {
       <header className="Post-header">
         <ul>{listItems(this.headerItems().toArray())}</ul>
       </header>,
-      <div className="Post-body">{this.isEditing() ? <CommentPostPreview /> : m.trust(this.attrs.post.contentHtml())}</div>,
+      <div className="Post-body">{this.isEditing() ? <TextFormatterPreview /> : m.trust(this.attrs.post.contentHtml())}</div>,
     ]);
   }
 

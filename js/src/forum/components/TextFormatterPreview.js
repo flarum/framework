@@ -2,7 +2,7 @@
 
 import Component from '../../common/Component';
 
-export default class CommentPostPreview extends Component {
+export default class TextFormatterPreview extends Component {
   view() {
     return <div className="Post-preview" />;
   }
