@@ -62,13 +62,13 @@ export default class CommentPost extends Post {
     // If the post content has changed since the last render, we'll run through
     // all of the <script> tags in the content and evaluate them. This is
     // necessary because TextFormatter outputs them for e.g. syntax highlighting.
-    if (vnode.dom.contentHtml !== contentHtml) {
+    if (this.contentHtml !== contentHtml) {
       this.$('.Post-body script').each(function () {
         eval.call(window, $(this).text());
       });
     }
 
-    vnode.dom.contentHtml = contentHtml;
+    this.contentHtml = contentHtml;
   }
 
   isEditing() {
