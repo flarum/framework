@@ -5,13 +5,22 @@ const hotEdge = (e) => {
   if (e.pageX < 10) app.pane.show();
 };
 
+/**
+ * The `DiscussionListPane` component displays the list of previously viewed
+ * discussions in a panel that can be displayed by moving the mouse to the left
+ * edge of the screen, where it can also be pinned in place.
+ *
+ * ### Props
+ *
+ * - `state` A DiscussionListState object that represents the discussion lists's state.
+ */
 export default class DiscussionListPane extends Component {
   view() {
-    if (!app.discussions.hasDiscussions()) {
+    if (!this.attrs.state.hasDiscussions()) {
       return;
     }
 
-    return <div className="DiscussionPage-list">{!$('.App-navigation').is(':visible') && <DiscussionList state={app.discussions} />}</div>;
+    return <div className="DiscussionPage-list">{this.enoughSpace() && <DiscussionList state={this.attrs.state} />}</div>;
   }
 
   oncreate(vnode) {
@@ -45,5 +54,14 @@ export default class DiscussionListPane extends Component {
 
   onremove() {
     $(document).off('mousemove', hotEdge);
+  }
+
+  /**
+   * Are we on a device that's larger than we consider "mobile"?
+   *
+   * @returns {boolean}
+   */
+  enoughSpace() {
+    return !$('.App-navigation').is(':visible');
   }
 }

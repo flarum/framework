@@ -70,7 +70,7 @@ export default class DiscussionPage extends Page {
 
     return (
       <div className="DiscussionPage">
-        <DiscussionListPane />
+        <DiscussionListPane state={app.discussions} />
         <div className="DiscussionPage-discussion">
           {discussion
             ? [
