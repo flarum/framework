@@ -10,7 +10,7 @@ import Component from '../../common/Component';
  *
  * ### Attrs
  *
- * - `content` A callback that retrieves the latest content that should be rendered.
+ * - `composer` The state of the composer controlling this preview.
  */
 export default class ComposerPostPreview extends Component {
   view() {
@@ -24,7 +24,7 @@ export default class ComposerPostPreview extends Component {
     // body with a preview.
     let preview;
     const updatePreview = () => {
-      const content = this.attrs.content();
+      const content = this.attrs.composer.fields.content();
 
       if (preview === content) return;
 
