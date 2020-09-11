@@ -4,7 +4,7 @@ import Component from '../../common/Component';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import DiscussionControls from '../utils/DiscussionControls';
-import ReplyPlaceholderPreview from './ReplyPlaceholderPreview';
+import ComposerPostPreview from './ComposerPostPreview';
 
 /**
  * The `ReplyPlaceholder` component displays a placeholder for a reply, which,
@@ -27,7 +27,7 @@ export default class ReplyPlaceholder extends Component {
               </h3>
             </div>
           </header>
-          <ReplyPlaceholderPreview />
+          <ComposerPostPreview className="Post-body" composer={app.composer} surround={this.anchorPreview.bind(this)} />
         </article>
       );
     }
@@ -43,5 +43,15 @@ export default class ReplyPlaceholder extends Component {
         </header>
       </article>
     );
+  }
+
+  anchorPreview(preview) {
+    const anchorToBottom = $(window).scrollTop() + $(window).height() >= $(document).height();
+
+    preview();
+
+    if (anchorToBottom) {
+      $(window).scrollTop($(document).height());
+    }
   }
 }
