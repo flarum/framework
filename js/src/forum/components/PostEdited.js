@@ -34,7 +34,17 @@ export default class PostEdited extends Component {
     );
   }
 
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.rebuildTooltip();
+  }
+
   onupdate() {
+    this.rebuildTooltip();
+  }
+
+  rebuildTooltip() {
     if (this.shouldUpdateTooltip) {
       this.$().tooltip('destroy').tooltip();
       this.shouldUpdateTooltip = false;
