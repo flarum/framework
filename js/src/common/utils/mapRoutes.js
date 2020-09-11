@@ -2,7 +2,7 @@
  * The `mapRoutes` utility converts a map of named application routes into a
  * format that can be understood by Mithril.
  *
- * @see https://lhorie.github.io/mithril/mithril.route.html#defining-routes
+ * @see https://mithril.js.org/route.html#signature
  * @param {Object} routes
  * @param {String} [basePath]
  * @return {Object}
