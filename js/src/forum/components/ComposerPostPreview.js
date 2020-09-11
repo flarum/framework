@@ -11,10 +11,15 @@ import Component from '../../common/Component';
  * ### Attrs
  *
  * - `composer` The state of the composer controlling this preview.
+ * - `className` A CSS class for the element surrounding the preview.
  */
 export default class ComposerPostPreview extends Component {
+  static initAttrs(attrs) {
+    attrs.className = attrs.className || '';
+  }
+
   view() {
-    return <div className="Post-preview" />;
+    return <div className={this.attrs.className} />;
   }
 
   oncreate(vnode) {
