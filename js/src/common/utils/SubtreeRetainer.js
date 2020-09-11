@@ -1,17 +1,22 @@
 /**
- * The `SubtreeRetainer` class represents a Mithril virtual DOM subtree. It
- * keeps track of a number of pieces of data, allowing the subtree to be
- * retained if none of them have changed.
+ * The `SubtreeRetainer` class keeps track of a number of pieces of data,
+ * comparing the values of these pieces at every iteration.
+ *
+ * This is useful for preventing redraws to relatively static (or huge)
+ * components whose VDOM only depends on very few values, when none of them
+ * have changed.
  *
  * @example
- * // constructor
+ * // Check two callbacks for changes on each update
  * this.subtree = new SubtreeRetainer(
  *   () => this.attrs.post.freshness,
  *   () => this.showing
  * );
+ *
+ * // Add more callbacks to be checked for updates
  * this.subtree.check(() => this.attrs.user.freshness);
  *
- * // onbeforeupdate
+ * // In a component's onbeforeupdate() method:
  * return this.subtree.needsRebuild()
  *
  * @see https://mithril.js.org/lifecycle-methods.html#onbeforeupdate
