@@ -33,7 +33,7 @@ class SmtpDriver implements DriverInterface
         return $validator->make($settings->all(), [
             'mail_host' => 'required',
             'mail_port' => 'nullable|integer',
-            'mail_encryption' => 'nullable|in:tls,ssl',
+            'mail_encryption' => 'nullable|in:tls,ssl,TLS,SSL',
             'mail_username' => 'nullable|string',
             'mail_password' => 'nullable|string',
         ])->errors();
