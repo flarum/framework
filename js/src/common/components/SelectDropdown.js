@@ -39,7 +39,7 @@ export default class SelectDropdown extends Dropdown {
   }
 
   getButtonContent(children) {
-    const activeChild = children.filter(isActive)[0];
+    const activeChild = children.find(isActive);
     let label = (activeChild && activeChild.children) || this.attrs.defaultLabel;
 
     if (label instanceof Array) label = label[0];
