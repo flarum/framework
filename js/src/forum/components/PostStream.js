@@ -45,7 +45,7 @@ export default class PostStream extends Component {
         attrs['data-id'] = post.id();
         attrs['data-type'] = post.contentType();
 
-        // If the post before this one was more than 4 hours ago, we will
+        // If the post before this one was more than 4 days ago, we will
         // display a 'time gap' indicating how long it has been in between
         // the posts.
         const dt = time - lastTime;
