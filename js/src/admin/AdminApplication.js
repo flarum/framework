@@ -33,9 +33,8 @@ export default class AdminApplication extends Application {
     m.mount(document.getElementById('header-secondary'), HeaderSecondary);
     m.mount(document.getElementById('admin-navigation'), AdminNav);
 
-    // With mithril 0.2.x, mithril redirects to the route with the hash automatically.
-    // With 2.x, it does not do that, so it doesn't display the home route in the admin.
-    // This code makes sure that going to https://example.com/admin takes us to the right page.
+    // Mithril does not render the home route on https://example.com/admin, so
+    // we need to go to https://example.com/admin#/ explicitly.
     if (!document.location.hash) document.location.hash = '#/';
 
     m.route.prefix = '#';
