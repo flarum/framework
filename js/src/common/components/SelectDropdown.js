@@ -20,7 +20,7 @@ function isActive(vnode) {
 }
 
 /**
- * The `SelectDropdown` csomponent is the same as a `Dropdown`, except the toggle
+ * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle
  * button's label is set as the label of the first child which has a truthy
  * `active` prop.
  *
