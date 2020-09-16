@@ -42,7 +42,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
   /**
    * The attributes passed into the component.
    *
-   * @see https://mithril.js.org/hyperscript.html#dom-attributes
+   * @see https://mithril.js.org/components.html#passing-data-to-components
    */
   protected attrs: T;
 
