@@ -9,7 +9,7 @@ function withoutUnnecessarySeparators(items) {
   const newItems = [];
   let prevItem;
 
-  items.forEach((item, i) => {
+  items.filter(Boolean).forEach((item, i) => {
     if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
       prevItem = item;
       newItems.push(item);
