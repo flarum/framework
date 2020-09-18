@@ -75,7 +75,7 @@ export default class PostStream extends Component {
       }
 
       return (
-        <div className="PostStream-item fade-in" {...attrs}>
+        <div className="PostStream-item" {...attrs}>
           {content}
         </div>
       );
