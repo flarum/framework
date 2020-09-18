@@ -1,12 +1,16 @@
 import * as Mithril from 'mithril';
 
 /**
- * The `Fragment` class provides a wrapper class for Mithril components to be used with m.render().
- * This is very similar to the `Component` wrapper class, but is used for more fine-grained control over
- * the rendering and display of some significant chunks of the DOM.
+ * The `Fragment` class represents a chunk of DOM that is rendered once with Mithril and then takes
+ * over control of its own DOM and lifecycle.
  *
- * The main benefit of using this wrapper class as opposed to Mithril components directly
- * is that it stores the vnode DOM, and provides a `$()` method allowing manipulation of said DOM.
+ * This is very similar to the `Component` wrapper class, but is used for more fine-grained control over
+ * the rendering and display of some significant chunks of the DOM. In contrast to components, fragments
+ * do not offer Mithril's lifecycle hooks.
+ *
+ * Use this when you want to enjoy the benefits of JSX / VDOM for initial rendering, combined with
+ * small helper methods that then make updates to that DOM directly, instead of fully redrawing
+ * everything through Mithril.
  *
  * This should only be used when necessary, and only with `m.render`. If you are unsure whether you need
  * this or `Component, you probably need `Component`.
