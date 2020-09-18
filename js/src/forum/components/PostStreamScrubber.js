@@ -41,13 +41,13 @@ export default class PostStreamScrubber extends Component {
         height: unreadPercent * 100 + '%',
       };
 
-      if (vnode.oldStyle) {
-        $element.stop(true).css(vnode.oldStyle).animate(newStyle);
+      if (vnode.state.oldStyle) {
+        $element.stop(true).css(vnode.state.oldStyle).animate(newStyle);
       } else {
         $element.css(newStyle);
       }
 
-      vnode.oldStyle = newStyle;
+      vnode.state.oldStyle = newStyle;
     }
     const classNames = ['PostStreamScrubber', 'Dropdown'];
     if (this.attrs.className) classNames.push(this.attrs.className);
