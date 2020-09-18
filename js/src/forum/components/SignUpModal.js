@@ -8,7 +8,7 @@ import ItemList from '../../common/utils/ItemList';
 /**
  * The `SignUpModal` component displays a modal dialog with a singup form.
  *
- * ### Props
+ * ### Attrs
  *
  * - `username`
  * - `email`
@@ -16,29 +16,29 @@ import ItemList from '../../common/utils/ItemList';
  * - `token` An email token to sign up with.
  */
 export default class SignUpModal extends Modal {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     /**
      * The value of the username input.
      *
      * @type {Function}
      */
-    this.username = m.prop(this.props.username || '');
+    this.username = m.stream(this.attrs.username || '');
 
     /**
      * The value of the email input.
      *
      * @type {Function}
      */
-    this.email = m.prop(this.props.email || '');
+    this.email = m.stream(this.attrs.email || '');
 
     /**
      * The value of the password input.
      *
      * @type {Function}
      */
-    this.password = m.prop(this.props.password || '');
+    this.password = m.stream(this.attrs.password || '');
   }
 
   className() {
@@ -54,11 +54,11 @@ export default class SignUpModal extends Modal {
   }
 
   isProvided(field) {
-    return this.props.provided && this.props.provided.indexOf(field) !== -1;
+    return this.attrs.provided && this.attrs.provided.indexOf(field) !== -1;
   }
 
   body() {
-    return [this.props.token ? '' : <LogInButtons />, <div className="Form Form--centered">{this.fields().toArray()}</div>];
+    return [this.attrs.token ? '' : <LogInButtons />, <div className="Form Form--centered">{this.fields().toArray()}</div>];
   }
 
   fields() {
@@ -72,8 +72,7 @@ export default class SignUpModal extends Modal {
           name="username"
           type="text"
           placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
-          value={this.username()}
-          onchange={m.withAttr('value', this.username)}
+          bidi={this.username}
           disabled={this.loading || this.isProvided('username')}
         />
       </div>,
@@ -88,15 +87,14 @@ export default class SignUpModal extends Modal {
           name="email"
           type="email"
           placeholder={extractText(app.translator.trans('core.forum.sign_up.email_placeholder'))}
-          value={this.email()}
-          onchange={m.withAttr('value', this.email)}
+          bidi={this.email}
           disabled={this.loading || this.isProvided('email')}
         />
       </div>,
       20
     );
 
-    if (!this.props.token) {
+    if (!this.attrs.token) {
       items.add(
         'password',
         <div className="Form-group">
@@ -105,8 +103,7 @@ export default class SignUpModal extends Modal {
             name="password"
             type="password"
             placeholder={extractText(app.translator.trans('core.forum.sign_up.password_placeholder'))}
-            value={this.password()}
-            onchange={m.withAttr('value', this.password)}
+            bidi={this.password}
             disabled={this.loading}
           />
         </div>,
@@ -140,16 +137,16 @@ export default class SignUpModal extends Modal {
    * @public
    */
   logIn() {
-    const props = {
+    const attrs = {
       identification: this.email() || this.username(),
       password: this.password(),
     };
 
-    app.modal.show(LogInModal, props);
+    app.modal.show(LogInModal, attrs);
   }
 
   onready() {
-    if (this.props.username && !this.props.email) {
+    if (this.attrs.username && !this.attrs.email) {
       this.$('[name=email]').select();
     } else {
       this.$('[name=username]').select();
@@ -161,13 +158,13 @@ export default class SignUpModal extends Modal {
 
     this.loading = true;
 
-    const data = this.submitData();
+    const body = this.submitData();
 
     app
       .request({
         url: app.forum.attribute('baseUrl') + '/register',
         method: 'POST',
-        data,
+        body,
         errorHandler: this.onerror.bind(this),
       })
       .then(() => window.location.reload(), this.loaded.bind(this));
@@ -177,7 +174,7 @@ export default class SignUpModal extends Modal {
    * Get the data that should be submitted in the sign-up request.
    *
    * @return {Object}
-   * @protected
+   * @public
    */
   submitData() {
     const data = {
@@ -185,8 +182,8 @@ export default class SignUpModal extends Modal {
       email: this.email(),
     };
 
-    if (this.props.token) {
-      data.token = this.props.token;
+    if (this.attrs.token) {
+      data.token = this.attrs.token;
     } else {
       data.password = this.password();
     }

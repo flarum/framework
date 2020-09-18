@@ -14,23 +14,21 @@ export default class Modal extends Component {
    */
   static isDismissible = true;
 
-  init() {
-    /**
-     * Attributes for an alert component to show below the header.
-     *
-     * @type {object}
-     */
-    this.alertAttrs = null;
+  /**
+   * Attributes for an alert component to show below the header.
+   *
+   * @type {object}
+   */
+  alertAttrs = null;
+
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.attrs.onshow(() => this.onready());
   }
 
-  config(isInitialized, context) {
-    if (isInitialized) return;
-
-    this.props.onshow(() => this.onready());
-
-    context.onunload = () => {
-      this.props.onhide();
-    };
+  onremove() {
+    this.attrs.onhide();
   }
 
   view() {
@@ -105,11 +103,13 @@ export default class Modal extends Component {
     this.$('form').find('input, select, textarea').first().focus().select();
   }
 
+  onhide() {}
+
   /**
    * Hide the modal.
    */
   hide() {
-    this.props.onhide();
+    this.attrs.onhide();
   }
 
   /**

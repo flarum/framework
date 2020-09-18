@@ -7,7 +7,7 @@ import extract from '../utils/extract';
  * The `Alert` component represents an alert box, which contains a message,
  * some controls, and may be dismissible.
  *
- * The alert may have the following special props:
+ * ### Attrs
  *
  * - `type` The type of alert this is. Will be used to give the alert a class
  *   name of `Alert--{type}`.
@@ -15,16 +15,16 @@ import extract from '../utils/extract';
  * - `dismissible` Whether or not the alert can be dismissed.
  * - `ondismiss` A callback to run when the alert is dismissed.
  *
- * All other props will be assigned as attributes on the alert element.
+ * All other attrs will be assigned as attributes on the DOM element.
  */
 export default class Alert extends Component {
-  view() {
-    const attrs = Object.assign({}, this.props);
+  view(vnode) {
+    const attrs = Object.assign({}, this.attrs);
 
     const type = extract(attrs, 'type');
     attrs.className = 'Alert Alert--' + type + ' ' + (attrs.className || '');
 
-    const children = extract(attrs, 'children');
+    const content = extract(attrs, 'content') || vnode.children;
     const controls = extract(attrs, 'controls') || [];
 
     // If the alert is meant to be dismissible (which is the case by default),
@@ -40,7 +40,7 @@ export default class Alert extends Component {
 
     return (
       <div {...attrs}>
-        <span className="Alert-body">{children}</span>
+        <span className="Alert-body">{content}</span>
         <ul className="Alert-controls">{listItems(controls.concat(dismissControl))}</ul>
       </div>
     );

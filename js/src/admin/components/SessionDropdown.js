@@ -9,18 +9,16 @@ import ItemList from '../../common/utils/ItemList';
  * avatar/name, with a dropdown of session controls.
  */
 export default class SessionDropdown extends Dropdown {
-  static initProps(props) {
-    super.initProps(props);
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    props.className = 'SessionDropdown';
-    props.buttonClassName = 'Button Button--user Button--flat';
-    props.menuClassName = 'Dropdown-menu--right';
+    attrs.className = 'SessionDropdown';
+    attrs.buttonClassName = 'Button Button--user Button--flat';
+    attrs.menuClassName = 'Dropdown-menu--right';
   }
 
-  view() {
-    this.props.children = this.items().toArray();
-
-    return super.view();
+  view(vnode) {
+    return super.view({ ...vnode, children: this.items().toArray() });
   }
 
   getButtonContent() {
@@ -39,11 +37,13 @@ export default class SessionDropdown extends Dropdown {
 
     items.add(
       'logOut',
-      Button.component({
-        icon: 'fas fa-sign-out-alt',
-        children: app.translator.trans('core.admin.header.log_out_button'),
-        onclick: app.session.logout.bind(app.session),
-      }),
+      Button.component(
+        {
+          icon: 'fas fa-sign-out-alt',
+          onclick: app.session.logout.bind(app.session),
+        },
+        app.translator.trans('core.admin.header.log_out_button')
+      ),
       -100
     );
 

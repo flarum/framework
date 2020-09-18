@@ -6,7 +6,9 @@ import Button from '../../common/components/Button';
  * forum.
  */
 export default class WelcomeHero extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.hidden = localStorage.getItem('welcomeHidden');
   }
 

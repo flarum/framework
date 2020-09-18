@@ -13,7 +13,7 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(attrs, componentClass = Alert) {
+  show(children, attrs, componentClass = Alert) {
     // Breaking Change Compliance Warning, Remove in Beta 15.
     // This is applied to the first argument (attrs) because previously, the alert was passed as the first argument.
     if (attrs === Alert || attrs instanceof Alert) {
@@ -22,7 +22,7 @@ export default class AlertManagerState {
       throw new Error('The AlertManager can only show Alerts. Whichever extension triggered this alert should be updated to comply with beta 14.');
     }
     // End Change Compliance Warning, Remove in Beta 15
-    this.activeAlerts[++this.alertId] = { attrs, componentClass };
+    this.activeAlerts[++this.alertId] = { children, attrs, componentClass };
     m.redraw();
 
     return this.alertId;

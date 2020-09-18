@@ -11,13 +11,15 @@ import ComposerState from '../states/ComposerState';
  * `show`, `hide`, `close`, `minimize`, `fullScreen`, and `exitFullScreen`.
  */
 export default class Composer extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     /**
      * The composer's "state".
      *
      * @type {ComposerState}
      */
-    this.state = this.props.state;
+    this.state = this.attrs.state;
 
     /**
      * Whether or not the composer currently has focus.
@@ -45,7 +47,7 @@ export default class Composer extends Component {
 
     return (
       <div className={'Composer ' + classList(classes)}>
-        <div className="Composer-handle" config={this.configHandle.bind(this)} />
+        <div className="Composer-handle" oncreate={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
           {body.componentClass ? body.componentClass.component({ ...body.attrs, composer: this.state, disabled: classes.minimized }) : ''}
@@ -54,7 +56,7 @@ export default class Composer extends Component {
     );
   }
 
-  config(isInitialized, context) {
+  onupdate() {
     if (this.state.position === this.prevPosition) {
       // Set the height of the Composer element and its contents on each redraw,
       // so that they do not lose it if their DOM elements are recreated.
@@ -64,12 +66,10 @@ export default class Composer extends Component {
 
       this.prevPosition = this.state.position;
     }
+  }
 
-    if (isInitialized) return;
-
-    // Since this component is a part of the global UI that persists between
-    // routes, we will flag the DOM to be retained across route changes.
-    context.retain = true;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     this.initializeHeight();
     this.$().hide().css('bottom', -this.state.computedHeight());
@@ -82,38 +82,33 @@ export default class Composer extends Component {
     });
 
     // When the escape key is pressed on any inputs, close the composer.
-    this.$().on('keydown', ':input', 'esc', () => this.state.close());
+    this.$().on('keydown', ':input', 'esc', () => this.close());
 
-    const handlers = {};
+    this.handlers = {};
 
     $(window)
-      .on('resize', (handlers.onresize = this.updateHeight.bind(this)))
+      .on('resize', (this.handlers.onresize = this.updateHeight.bind(this)))
       .resize();
 
     $(document)
-      .on('mousemove', (handlers.onmousemove = this.onmousemove.bind(this)))
-      .on('mouseup', (handlers.onmouseup = this.onmouseup.bind(this)));
+      .on('mousemove', (this.handlers.onmousemove = this.onmousemove.bind(this)))
+      .on('mouseup', (this.handlers.onmouseup = this.onmouseup.bind(this)));
+  }
 
-    context.onunload = () => {
-      $(window).off('resize', handlers.onresize);
+  onremove() {
+    $(window).off('resize', this.handlers.onresize);
 
-      $(document).off('mousemove', handlers.onmousemove).off('mouseup', handlers.onmouseup);
-    };
+    $(document).off('mousemove', this.handlers.onmousemove).off('mouseup', this.handlers.onmouseup);
   }
 
   /**
    * Add the necessary event handlers to the composer's handle so that it can
    * be used to resize the composer.
-   *
-   * @param {DOMElement} element
-   * @param {Boolean} isInitialized
    */
-  configHandle(element, isInitialized) {
-    if (isInitialized) return;
-
+  configHandle(vnode) {
     const composer = this;
 
-    $(element)
+    $(vnode.dom)
       .css('cursor', 'row-resize')
       .bind('dragstart mousedown', (e) => e.preventDefault())
       .mousedown(function (e) {

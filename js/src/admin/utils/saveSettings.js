@@ -7,7 +7,7 @@ export default function saveSettings(settings) {
     .request({
       method: 'POST',
       url: app.forum.attribute('apiUrl') + '/settings',
-      data: settings,
+      body: settings,
     })
     .catch((error) => {
       app.data.settings = oldSettings;

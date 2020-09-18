@@ -8,13 +8,13 @@ import listItems from '../../common/helpers/listItems';
 /**
  * The `PostUser` component shows the avatar and username of a post's author.
  *
- * ### Props
+ * ### Attrs
  *
  * - `post`
  */
 export default class PostUser extends Component {
   view() {
-    const post = this.props.post;
+    const post = this.attrs.post;
     const user = post.user();
 
     if (!user) {
@@ -29,7 +29,7 @@ export default class PostUser extends Component {
 
     let card = '';
 
-    if (!post.isHidden() && this.props.cardVisible) {
+    if (!post.isHidden() && this.attrs.cardVisible) {
       card = UserCard.component({
         user,
         className: 'UserCard--popover',
@@ -40,7 +40,7 @@ export default class PostUser extends Component {
     return (
       <div className="PostUser">
         <h3>
-          <a href={app.route.user(user)} config={m.route}>
+          <a route={app.route.user(user)}>
             {avatar(user, { className: 'PostUser-avatar' })}
             {userOnline(user)}
             {username(user)}
@@ -52,8 +52,8 @@ export default class PostUser extends Component {
     );
   }
 
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     let timeout;
 
@@ -72,7 +72,7 @@ export default class PostUser extends Component {
    * Show the user card.
    */
   showCard() {
-    this.props.oncardshow();
+    this.attrs.oncardshow();
 
     setTimeout(() => this.$('.UserCard').addClass('in'));
   }
@@ -84,7 +84,7 @@ export default class PostUser extends Component {
     this.$('.UserCard')
       .removeClass('in')
       .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
-        this.props.oncardhide();
+        this.attrs.oncardhide();
       });
   }
 }

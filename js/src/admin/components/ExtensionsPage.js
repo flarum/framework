@@ -12,12 +12,14 @@ export default class ExtensionsPage extends Page {
       <div className="ExtensionsPage">
         <div className="ExtensionsPage-header">
           <div className="container">
-            {Button.component({
-              children: app.translator.trans('core.admin.extensions.add_button'),
-              icon: 'fas fa-plus',
-              className: 'Button Button--primary',
-              onclick: () => app.modal.show(AddExtensionModal),
-            })}
+            {Button.component(
+              {
+                icon: 'fas fa-plus',
+                className: 'Button Button--primary',
+                onclick: () => app.modal.show(AddExtensionModal),
+              },
+              app.translator.trans('core.admin.extensions.add_button')
+            )}
           </div>
         </div>
 
@@ -72,31 +74,35 @@ export default class ExtensionsPage extends Page {
     if (app.extensionSettings[name]) {
       items.add(
         'settings',
-        Button.component({
-          icon: 'fas fa-cog',
-          children: app.translator.trans('core.admin.extensions.settings_button'),
-          onclick: app.extensionSettings[name],
-        })
+        Button.component(
+          {
+            icon: 'fas fa-cog',
+            onclick: app.extensionSettings[name],
+          },
+          app.translator.trans('core.admin.extensions.settings_button')
+        )
       );
     }
 
     if (!enabled) {
       items.add(
         'uninstall',
-        Button.component({
-          icon: 'far fa-trash-alt',
-          children: app.translator.trans('core.admin.extensions.uninstall_button'),
-          onclick: () => {
-            app
-              .request({
-                url: app.forum.attribute('apiUrl') + '/extensions/' + name,
-                method: 'DELETE',
-              })
-              .then(() => window.location.reload());
+        Button.component(
+          {
+            icon: 'far fa-trash-alt',
+            onclick: () => {
+              app
+                .request({
+                  url: app.forum.attribute('apiUrl') + '/extensions/' + name,
+                  method: 'DELETE',
+                })
+                .then(() => window.location.reload());
 
-            app.modal.show(LoadingModal);
+              app.modal.show(LoadingModal);
+            },
           },
-        })
+          app.translator.trans('core.admin.extensions.uninstall_button')
+        )
       );
     }
 
@@ -116,7 +122,7 @@ export default class ExtensionsPage extends Page {
       .request({
         url: app.forum.attribute('apiUrl') + '/extensions/' + id,
         method: 'PATCH',
-        data: { enabled: !enabled },
+        body: { enabled: !enabled },
       })
       .then(() => {
         if (!enabled) localStorage.setItem('enabledExtension', id);

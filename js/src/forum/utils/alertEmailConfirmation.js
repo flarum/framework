@@ -1,22 +1,38 @@
 import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import icon from '../../common/helpers/icon';
+import Component from '../../common/Component';
 
 /**
  * Shows an alert if the user has not yet confirmed their email address.
  *
- * @param {ForumApp} app
+ * @param {ForumApplication} app
  */
 export default function alertEmailConfirmation(app) {
   const user = app.session.user;
 
   if (!user || user.isEmailConfirmed()) return;
 
-  const resendButton = Button.component({
-    className: 'Button Button--link',
-    children: app.translator.trans('core.forum.user_email_confirmation.resend_button'),
-    onclick: function () {
-      resendButton.props.loading = true;
+  class ResendButton extends Component {
+    oninit(vnode) {
+      super.oninit(vnode);
+
+      this.loading = false;
+      this.sent = false;
+    }
+
+    view() {
+      return (
+        <Button class="Button Button--link" onclick={this.onclick.bind(this)} loading={this.loading} disabled={this.sent}>
+          {this.sent
+            ? [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')]
+            : app.translator.trans('core.forum.user_email_confirmation.resend_button')}
+        </Button>
+      );
+    }
+
+    onclick() {
+      this.loading = true;
       m.redraw();
 
       app
@@ -25,34 +41,24 @@ export default function alertEmailConfirmation(app) {
           url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/send-confirmation',
         })
         .then(() => {
-          resendButton.props.loading = false;
-          resendButton.props.children = [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
-          resendButton.props.disabled = true;
+          this.loading = false;
+          this.sent = true;
           m.redraw();
         })
         .catch(() => {
-          resendButton.props.loading = false;
+          this.loading = false;
           m.redraw();
         });
-    },
-  });
-
-  class ContainedAlert extends Alert {
-    view() {
-      const vdom = super.view();
-
-      vdom.children = [<div className="container">{vdom.children}</div>];
-
-      return vdom;
     }
   }
 
-  m.mount(
-    $('<div/>').insertBefore('#content')[0],
-    ContainedAlert.component({
-      dismissible: false,
-      children: app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> }),
-      controls: [resendButton],
-    })
-  );
+  m.mount($('<div/>').insertBefore('#content')[0], {
+    view: () => (
+      <Alert dismissible={false} controls={[<ResendButton />]}>
+        <div className="container">
+          {app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> })}
+        </div>
+      </Alert>
+    ),
+  });
 }

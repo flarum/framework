@@ -19,8 +19,8 @@ import SelectDropdown from '../../common/components/SelectDropdown';
 export default class IndexPage extends Page {
   static providesInitialSearch = true;
 
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
@@ -42,12 +42,26 @@ export default class IndexPage extends Page {
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
     this.bodyClass = 'App--index';
+
+    this.currentPath = m.route.get();
   }
 
-  onunload() {
-    // Save the scroll position so we can restore it when we return to the
-    // discussion list.
-    app.cache.scrollTop = $(window).scrollTop();
+  onbeforeupdate(vnode) {
+    super.onbeforeupdate(vnode);
+
+    const curPath = m.route.get();
+
+    if (this.currentPath !== curPath) {
+      this.onNewRoute();
+
+      app.discussions.clear();
+
+      app.discussions.refreshParams(app.search.params());
+
+      this.currentPath = curPath;
+
+      this.setTitle();
+    }
   }
 
   view() {
@@ -72,15 +86,15 @@ export default class IndexPage extends Page {
     );
   }
 
-  config(isInitialized, context) {
-    super.config(...arguments);
-
-    if (isInitialized) return;
-
-    extend(context, 'onunload', () => $('#app').css('min-height', ''));
-
+  setTitle() {
     app.setTitle(app.translator.trans('core.forum.index.meta_title_text'));
     app.setTitleCount(0);
+  }
+
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.setTitle();
 
     // Work out the difference between the height of this hero and that of the
     // previous hero. Maintain the same scroll position relative to the bottom
@@ -117,6 +131,16 @@ export default class IndexPage extends Page {
     }
   }
 
+  onremove() {
+    super.onremove();
+
+    $('#app').css('min-height', '');
+
+    // Save the scroll position so we can restore it when we return to the
+    // discussion list.
+    app.cache.scrollTop = $(window).scrollTop();
+  }
+
   /**
    * Get the component to display as the hero.
    *
@@ -139,25 +163,31 @@ export default class IndexPage extends Page {
 
     items.add(
       'newDiscussion',
-      Button.component({
-        children: app.translator.trans(
-          canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'
-        ),
-        icon: 'fas fa-edit',
-        className: 'Button Button--primary IndexPage-newDiscussion',
-        itemClassName: 'App-primaryControl',
-        onclick: this.newDiscussionAction.bind(this),
-        disabled: !canStartDiscussion,
-      })
+      Button.component(
+        {
+          icon: 'fas fa-edit',
+          className: 'Button Button--primary IndexPage-newDiscussion',
+          itemClassName: 'App-primaryControl',
+          onclick: () => {
+            // If the user is not logged in, the promise rejects, and a login modal shows up.
+            // Since that's already handled, we dont need to show an error message in the console.
+            return this.newDiscussionAction().catch(() => {});
+          },
+          disabled: !canStartDiscussion,
+        },
+        app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button')
+      )
     );
 
     items.add(
       'nav',
-      SelectDropdown.component({
-        children: this.navItems(this).toArray(),
-        buttonClassName: 'Button',
-        className: 'App-titleControl',
-      })
+      SelectDropdown.component(
+        {
+          buttonClassName: 'Button',
+          className: 'App-titleControl',
+        },
+        this.navItems(this).toArray()
+      )
     );
 
     return items;
@@ -175,11 +205,13 @@ export default class IndexPage extends Page {
 
     items.add(
       'allDiscussions',
-      LinkButton.component({
-        href: app.route('index', params),
-        children: app.translator.trans('core.forum.index.all_discussions_link'),
-        icon: 'far fa-comments',
-      }),
+      LinkButton.component(
+        {
+          href: app.route('index', params),
+          icon: 'far fa-comments',
+        },
+        app.translator.trans('core.forum.index.all_discussions_link')
+      ),
       100
     );
 
@@ -204,21 +236,25 @@ export default class IndexPage extends Page {
 
     items.add(
       'sort',
-      Dropdown.component({
-        buttonClassName: 'Button',
-        label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
-        children: Object.keys(sortOptions).map((value) => {
+      Dropdown.component(
+        {
+          buttonClassName: 'Button',
+          label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
+        },
+        Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
           const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
 
-          return Button.component({
-            children: label,
-            icon: active ? 'fas fa-check' : true,
-            onclick: app.search.changeSort.bind(app.search, value),
-            active: active,
-          });
-        }),
-      })
+          return Button.component(
+            {
+              icon: active ? 'fas fa-check' : true,
+              onclick: app.search.changeSort.bind(app.search, value),
+              active: active,
+            },
+            label
+          );
+        })
+      )
     );
 
     return items;
@@ -270,20 +306,18 @@ export default class IndexPage extends Page {
    * @return {Promise}
    */
   newDiscussionAction() {
-    const deferred = m.deferred();
+    return new Promise((resolve, reject) => {
+      if (app.session.user) {
+        app.composer.load(DiscussionComposer, { user: app.session.user });
+        app.composer.show();
 
-    if (app.session.user) {
-      app.composer.load(DiscussionComposer, { user: app.session.user });
-      app.composer.show();
+        return resolve(app.composer);
+      } else {
+        app.modal.show(LogInModal);
 
-      deferred.resolve(app.composer);
-    } else {
-      deferred.reject();
-
-      app.modal.show(LogInModal);
-    }
-
-    return deferred.promise;
+        return reject();
+      }
+    });
   }
 
   /**

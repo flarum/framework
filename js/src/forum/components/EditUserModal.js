@@ -9,22 +9,22 @@ import ItemList from '../../common/utils/ItemList';
  * The `EditUserModal` component displays a modal dialog with a login form.
  */
 export default class EditUserModal extends Modal {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
-    const user = this.props.user;
+    const user = this.attrs.user;
 
-    this.username = m.prop(user.username() || '');
-    this.email = m.prop(user.email() || '');
-    this.isEmailConfirmed = m.prop(user.isEmailConfirmed() || false);
-    this.setPassword = m.prop(false);
-    this.password = m.prop(user.password() || '');
+    this.username = m.stream(user.username() || '');
+    this.email = m.stream(user.email() || '');
+    this.isEmailConfirmed = m.stream(user.isEmailConfirmed() || false);
+    this.setPassword = m.stream(false);
+    this.password = m.stream(user.password() || '');
     this.groups = {};
 
     app.store
       .all('groups')
       .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
-      .forEach((group) => (this.groups[group.id()] = m.prop(user.groups().indexOf(group) !== -1)));
+      .forEach((group) => (this.groups[group.id()] = m.stream(user.groups().indexOf(group) !== -1)));
   }
 
   className() {
@@ -55,7 +55,7 @@ export default class EditUserModal extends Modal {
       40
     );
 
-    if (app.session.user !== this.props.user) {
+    if (app.session.user !== this.attrs.user) {
       items.add(
         'email',
         <div className="Form-group">
@@ -65,12 +65,14 @@ export default class EditUserModal extends Modal {
           </div>
           {!this.isEmailConfirmed() ? (
             <div>
-              {Button.component({
-                className: 'Button Button--block',
-                children: app.translator.trans('core.forum.edit_user.activate_button'),
-                loading: this.loading,
-                onclick: this.activate.bind(this),
-              })}
+              {Button.component(
+                {
+                  className: 'Button Button--block',
+                  loading: this.loading,
+                  onclick: this.activate.bind(this),
+                },
+                app.translator.trans('core.forum.edit_user.activate_button')
+              )}
             </div>
           ) : (
             ''
@@ -89,9 +91,9 @@ export default class EditUserModal extends Modal {
                 type="checkbox"
                 onchange={(e) => {
                   this.setPassword(e.target.checked);
-                  m.redraw(true);
+                  m.redraw.sync();
                   if (e.target.checked) this.$('[name=password]').select();
-                  m.redraw.strategy('none');
+                  e.redraw = false;
                 }}
               />
               {app.translator.trans('core.forum.edit_user.set_password_label')}
@@ -125,7 +127,7 @@ export default class EditUserModal extends Modal {
                 <input
                   type="checkbox"
                   bidi={this.groups[group.id()]}
-                  disabled={this.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID}
+                  disabled={this.attrs.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID}
                 />
                 {GroupBadge.component({ group, label: '' })} {group.nameSingular()}
               </label>
@@ -138,12 +140,14 @@ export default class EditUserModal extends Modal {
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component({
-          className: 'Button Button--primary',
-          type: 'submit',
-          loading: this.loading,
-          children: app.translator.trans('core.forum.edit_user.submit_button'),
-        })}
+        {Button.component(
+          {
+            className: 'Button Button--primary',
+            type: 'submit',
+            loading: this.loading,
+          },
+          app.translator.trans('core.forum.edit_user.submit_button')
+        )}
       </div>,
       -10
     );
@@ -157,7 +161,7 @@ export default class EditUserModal extends Modal {
       username: this.username(),
       isEmailConfirmed: true,
     };
-    this.props.user
+    this.attrs.user
       .save(data, { errorHandler: this.onerror.bind(this) })
       .then(() => {
         this.isEmailConfirmed(true);
@@ -180,7 +184,7 @@ export default class EditUserModal extends Modal {
       relationships: { groups },
     };
 
-    if (app.session.user !== this.props.user) {
+    if (app.session.user !== this.attrs.user) {
       data.email = this.email();
     }
 
@@ -196,7 +200,7 @@ export default class EditUserModal extends Modal {
 
     this.loading = true;
 
-    this.props.user
+    this.attrs.user
       .save(this.data(), { errorHandler: this.onerror.bind(this) })
       .then(this.hide.bind(this))
       .catch(() => {

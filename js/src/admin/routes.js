@@ -12,11 +12,11 @@ import MailPage from './components/MailPage';
  */
 export default function (app) {
   app.routes = {
-    dashboard: { path: '/', component: DashboardPage.component() },
-    basics: { path: '/basics', component: BasicsPage.component() },
-    permissions: { path: '/permissions', component: PermissionsPage.component() },
-    appearance: { path: '/appearance', component: AppearancePage.component() },
-    extensions: { path: '/extensions', component: ExtensionsPage.component() },
-    mail: { path: '/mail', component: MailPage.component() },
+    dashboard: { path: '/', component: DashboardPage },
+    basics: { path: '/basics', component: BasicsPage },
+    permissions: { path: '/permissions', component: PermissionsPage },
+    appearance: { path: '/appearance', component: AppearancePage },
+    extensions: { path: '/extensions', component: ExtensionsPage },
+    mail: { path: '/mail', component: MailPage },
   };
 }

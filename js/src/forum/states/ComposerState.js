@@ -58,7 +58,7 @@ class ComposerState {
     // on a blank slate.
     if (this.isVisible()) {
       this.clear();
-      m.redraw(true);
+      m.redraw.sync();
     }
 
     this.body = body;
@@ -74,7 +74,7 @@ class ComposerState {
     this.onExit = null;
 
     this.fields = {
-      content: m.prop(''),
+      content: m.stream(''),
     };
 
     /**
@@ -93,7 +93,7 @@ class ComposerState {
     if (this.position === ComposerState.Position.NORMAL || this.position === ComposerState.Position.FULLSCREEN) return;
 
     this.position = ComposerState.Position.NORMAL;
-    m.redraw(true);
+    m.redraw.sync();
   }
 
   /**

@@ -32,7 +32,7 @@ export default class ModalManagerState {
 
     this.modal = { componentClass, attrs };
 
-    m.redraw(true);
+    m.redraw.sync();
   }
 
   /**
@@ -50,7 +50,7 @@ export default class ModalManagerState {
     // ahead.
     this.closeTimeout = setTimeout(() => {
       this.modal = null;
-      m.lazyRedraw();
+      m.redraw();
     });
   }
 }

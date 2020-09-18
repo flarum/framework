@@ -7,17 +7,13 @@ import Placeholder from '../../common/components/Placeholder';
 /**
  * The `DiscussionList` component displays a list of discussions.
  *
- * ### Props
+ * ### Attrs
  *
  * - `state` A DiscussionListState object that represents the discussion lists's state.
  */
 export default class DiscussionList extends Component {
-  init() {
-    this.state = this.props.state;
-  }
-
   view() {
-    const state = this.state;
+    const state = this.attrs.state;
 
     const params = state.getParams();
     let loading;
@@ -25,11 +21,13 @@ export default class DiscussionList extends Component {
     if (state.isLoading()) {
       loading = LoadingIndicator.component();
     } else if (state.moreResults) {
-      loading = Button.component({
-        children: app.translator.trans('core.forum.discussion_list.load_more_button'),
-        className: 'Button',
-        onclick: state.loadMore.bind(state),
-      });
+      loading = Button.component(
+        {
+          className: 'Button',
+          onclick: state.loadMore.bind(state),
+        },
+        app.translator.trans('core.forum.discussion_list.load_more_button')
+      );
     }
 
     if (state.empty()) {

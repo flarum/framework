@@ -8,7 +8,7 @@ import Button from '../../common/components/Button';
  * The `Notification` component abstract displays a single notification.
  * Subclasses should implement the `icon`, `href`, and `content` methods.
  *
- * ### Props
+ * ### Attrs
  *
  * - `notification`
  *
@@ -16,18 +16,17 @@ import Button from '../../common/components/Button';
  */
 export default class Notification extends Component {
   view() {
-    const notification = this.props.notification;
+    const notification = this.attrs.notification;
     const href = this.href();
+
+    const linkAttrs = {};
+    linkAttrs[href.indexOf('://') === -1 ? 'route' : 'href'] = href;
 
     return (
       <a
         className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
-        href={href}
-        config={function (element, isInitialized) {
-          if (href.indexOf('://') === -1) m.route.apply(this, arguments);
-
-          if (!isInitialized) $(element).click(this.markAsRead.bind(this));
-        }}
+        {...linkAttrs}
+        onclick={this.markAsRead.bind(this)}
       >
         {!notification.isRead() &&
           Button.component({
@@ -86,10 +85,10 @@ export default class Notification extends Component {
    * Mark the notification as read.
    */
   markAsRead() {
-    if (this.props.notification.isRead()) return;
+    if (this.attrs.notification.isRead()) return;
 
     app.session.user.pushAttributes({ unreadNotificationCount: app.session.user.unreadNotificationCount() - 1 });
 
-    this.props.notification.save({ isRead: true });
+    this.attrs.notification.save({ isRead: true });
   }
 }

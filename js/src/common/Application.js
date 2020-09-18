@@ -189,8 +189,9 @@ export default class Application {
   }
 
   mount(basePath = '') {
-    m.mount(document.getElementById('modal'), <ModalManager state={this.modal} />);
-    m.mount(document.getElementById('alerts'), <AlertManager state={this.alerts} />);
+    // An object with a callable view property is used in order to pass arguments to the component; see https://mithril.js.org/mount.html
+    m.mount(document.getElementById('modal'), { view: () => ModalManager.component({ state: this.modal }) });
+    m.mount(document.getElementById('alerts'), { view: () => AlertManager.component({ state: this.alerts }) });
 
     this.drawer = new Drawer();
 
@@ -263,7 +264,7 @@ export default class Application {
 
   updateTitle() {
     const count = this.titleCount ? `(${this.titleCount}) ` : '';
-    const pageTitleWithSeparator = this.title && m.route() !== '/' ? this.title + ' - ' : '';
+    const pageTitleWithSeparator = this.title && m.route.get() !== '/' ? this.title + ' - ' : '';
     const title = this.forum.attribute('title');
     document.title = count + pageTitleWithSeparator + title;
   }
@@ -342,16 +343,14 @@ export default class Application {
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
-    const deferred = m.deferred();
-
-    m.request(options).then(
-      (response) => deferred.resolve(response),
+    return m.request(options).then(
+      (response) => response,
       (error) => {
-        let children;
+        let content;
 
         switch (error.status) {
           case 422:
-            children = error.response.errors
+            content = error.response.errors
               .map((error) => [error.detail, <br />])
               .reduce((a, b) => a.concat(b), [])
               .slice(0, -1);
@@ -359,30 +358,31 @@ export default class Application {
 
           case 401:
           case 403:
-            children = app.translator.trans('core.lib.error.permission_denied_message');
+            content = app.translator.trans('core.lib.error.permission_denied_message');
             break;
 
           case 404:
           case 410:
-            children = app.translator.trans('core.lib.error.not_found_message');
+            content = app.translator.trans('core.lib.error.not_found_message');
             break;
 
           case 429:
-            children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+            content = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
             break;
 
           default:
-            children = app.translator.trans('core.lib.error.generic_message');
+            content = app.translator.trans('core.lib.error.generic_message');
         }
 
         const isDebug = app.forum.attribute('debug');
         // contains a formatted errors if possible, response must be an JSON API array of errors
         // the details property is decoded to transform escaped characters such as '\n'
-        const formattedError = error.response && Array.isArray(error.response.errors) && error.response.errors.map((e) => decodeURI(e.detail));
+        const errors = error.response && error.response.errors;
+        const formattedError = Array.isArray(errors) && errors[0] && errors[0].detail && errors.map((e) => decodeURI(e.detail));
 
         error.alert = {
           type: 'error',
-          children,
+          content,
           controls: isDebug && [
             <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
               Debug
@@ -404,14 +404,12 @@ export default class Application {
             console.groupEnd();
           }
 
-          this.requestErrorAlert = this.alerts.show(error.alert);
+          this.requestErrorAlert = this.alerts.show(error.alert.content, error.alert);
         }
 
-        deferred.reject(error);
+        return Promise.reject(error);
       }
     );
-
-    return deferred.promise;
   }
 
   /**
@@ -434,9 +432,19 @@ export default class Application {
    * @public
    */
   route(name, params = {}) {
-    const url = this.routes[name].path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
-    const queryString = m.route.buildQueryString(params);
-    const prefix = m.route.mode === 'pathname' ? app.forum.attribute('basePath') : '';
+    const route = this.routes[name];
+
+    if (!route) throw new Error(`Route '${name}' does not exist`);
+
+    const url = route.path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
+
+    // Remove falsy values in params to avoid having urls like '/?sort&q'
+    for (const key in params) {
+      if (params.hasOwnProperty(key) && !params[key]) delete params[key];
+    }
+
+    const queryString = m.buildQueryString(params);
+    const prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
 
     return prefix + url + (queryString ? '?' + queryString : '');
   }
