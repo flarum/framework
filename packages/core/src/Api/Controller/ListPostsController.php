@@ -108,12 +108,13 @@ class ListPostsController extends AbstractListController
      */
     private function getPostIds(ServerRequestInterface $request)
     {
+        $actor = $request->getAttribute('actor');
         $filter = $this->extractFilter($request);
         $sort = $this->extractSort($request);
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
 
-        $query = $this->posts->query();
+        $query = $this->posts->query()->whereVisibleTo($actor);
 
         $this->applyFilters($query, $filter);
 
