@@ -18,15 +18,15 @@ export default function alertEmailConfirmation(app) {
       super.oninit(vnode);
 
       this.loading = false;
-      this.disabled = false;
-
-      this.content = app.translator.trans('core.forum.user_email_confirmation.resend_button');
+      this.sent = false;
     }
 
     view() {
       return (
-        <Button class="Button Button--link" onclick={this.onclick.bind(this)} loading={this.loading} disabled={this.disabled}>
-          {this.content}
+        <Button class="Button Button--link" onclick={this.onclick.bind(this)} loading={this.loading} disabled={this.sent}>
+          {this.sent
+            ? [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')]
+            : app.translator.trans('core.forum.user_email_confirmation.resend_button')}
         </Button>
       );
     }
@@ -42,8 +42,7 @@ export default function alertEmailConfirmation(app) {
         })
         .then(() => {
           this.loading = false;
-          this.content = [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
-          this.disabled = true;
+          this.sent = true;
           m.redraw();
         })
         .catch(() => {
@@ -53,22 +52,13 @@ export default function alertEmailConfirmation(app) {
     }
   }
 
-  class ContainedAlert extends Alert {
-    view(vnode) {
-      const vdom = super.view(vnode);
-
-      return { ...vdom, children: [<div className="container">{vdom.children}</div>] };
-    }
-  }
-
   m.mount($('<div/>').insertBefore('#content')[0], {
-    view: () =>
-      ContainedAlert.component(
-        {
-          dismissible: false,
-          controls: [ResendButton.component()],
-        },
-        app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> })
-      ),
+    view: () => (
+      <Alert dismissible={false} controls={[<ResendButton />]}>
+        <div className="container">
+          {app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> })}
+        </div>
+      </Alert>
+    ),
   });
 }
