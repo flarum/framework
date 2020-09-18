@@ -6,7 +6,7 @@ import extractText from '../../common/utils/extractText';
  * The `ForgotPasswordModal` component displays a modal which allows the user to
  * enter their email address and request a link to reset their password.
  *
- * ### Props
+ * ### Attrs
  *
  * - `email`
  */

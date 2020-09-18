@@ -7,7 +7,7 @@ import ItemList from '../../common/utils/ItemList';
  * The `NotificationGrid` component displays a table of notification types and
  * methods, allowing the user to toggle each combination.
  *
- * ### Props
+ * ### Attrs
  *
  * - `user`
  */

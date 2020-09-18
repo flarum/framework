@@ -2,12 +2,13 @@ import Component from '../Component';
 import { Spinner } from 'spin.js';
 
 /**
- * The `LoadingIndicator` component displays a loading spinner with spin.js. It
- * may have the following special props:
+ * The `LoadingIndicator` component displays a loading spinner with spin.js.
+ *
+ * ### Attrs
  *
  * - `size` The spin.js size preset to use. Defaults to 'small'.
  *
- * All other props will be assigned as attributes on the element.
+ * All other attrs will be assigned as attributes on the DOM element.
  */
 export default class LoadingIndicator extends Component {
   view() {

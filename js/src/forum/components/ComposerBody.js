@@ -11,7 +11,7 @@ import ItemList from '../../common/utils/ItemList';
  * composer. Subclasses should implement the `onsubmit` method and override
  * `headerTimes`.
  *
- * ### Props
+ * ### Attrs
  *
  * - `composer`
  * - `originalContent`

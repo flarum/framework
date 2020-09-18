@@ -7,7 +7,9 @@ import LoadingIndicator from './LoadingIndicator';
 
 /**
  * The `Button` component defines an element which, when clicked, performs an
- * action. The button may have the following special props:
+ * action.
+ *
+ * ### Attrs
  *
  * - `icon` The name of the icon class. If specified, the button will be given a
  *   'has-icon' class name.
@@ -16,7 +18,7 @@ import LoadingIndicator from './LoadingIndicator';
  *   removed.
  * - `loading` Whether or not the button should be in a disabled loading state.
  *
- * All other props will be assigned as attributes on the button element.
+ * All other attrs will be assigned as attributes on the button element.
  *
  * Note that a Button has no default class names. This is because a Button can
  * be used to represent any generic clickable control, like a menu item.

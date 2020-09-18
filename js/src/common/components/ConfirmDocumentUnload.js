@@ -5,7 +5,7 @@ import Component from '../Component';
  * event handler that prevents closing the browser window/tab based on the
  * return value of a given callback prop.
  *
- * ### Props
+ * ### Attrs
  *
  * - `when` - a callback returning true when the browser should prompt for
  *            confirmation before closing the window/tab

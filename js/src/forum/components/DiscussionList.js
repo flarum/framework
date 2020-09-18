@@ -7,7 +7,7 @@ import Placeholder from '../../common/components/Placeholder';
 /**
  * The `DiscussionList` component displays a list of discussions.
  *
- * ### Props
+ * ### Attrs
  *
  * - `state` A DiscussionListState object that represents the discussion lists's state.
  */

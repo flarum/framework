@@ -19,7 +19,7 @@ import { escapeRegExp } from 'lodash-es';
  * The `DiscussionListItem` component shows a single discussion in the
  * discussion list.
  *
- * ### Props
+ * ### Attrs
  *
  * - `discussion`
  * - `params`

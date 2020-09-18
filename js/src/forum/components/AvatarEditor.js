@@ -11,7 +11,7 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
  * The `AvatarEditor` component displays a user's avatar along with a dropdown
  * menu which allows the user to upload/remove the avatar.
  *
- * ### Props
+ * ### Attrs
  *
  * - `className`
  * - `user`

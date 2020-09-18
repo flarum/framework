@@ -5,7 +5,7 @@ import icon from '../../common/helpers/icon';
 /**
  * Displays information about a the first or last post in a discussion.
  *
- * ### Props
+ * ### Attrs
  *
  * - `discussion`
  * - `lastPost`

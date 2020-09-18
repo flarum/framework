@@ -10,7 +10,7 @@ const hotEdge = (e) => {
  * discussions in a panel that can be displayed by moving the mouse to the left
  * edge of the screen, where it can also be pinned in place.
  *
- * ### Props
+ * ### Attrs
  *
  * - `state` A DiscussionListState object that represents the discussion lists's state.
  */

@@ -14,7 +14,7 @@ import listItems from '../../common/helpers/listItems';
  * the `UserPage` (in the hero) and in discussions, shown when hovering over a
  * post author.
  *
- * ### Props
+ * ### Attrs
  *
  * - `user`
  * - `className`

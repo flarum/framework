@@ -3,9 +3,9 @@ import Button from './Button';
 /**
  * The `LinkButton` component defines a `Button` which links to a route.
  *
- * ### Props
+ * ### Attrs
  *
- * All of the props accepted by `Button`, plus:
+ * All of the attrs accepted by `Button`, plus:
  *
  * - `active` Whether or not the page that this button links to is currently
  *   active.
@@ -29,9 +29,9 @@ export default class LinkButton extends Button {
   }
 
   /**
-   * Determine whether a component with the given props is 'active'.
+   * Determine whether a component with the given attrs is 'active'.
    *
-   * @param {Object} props
+   * @param {Object} attrs
    * @return {Boolean}
    */
   static isActive(attrs) {

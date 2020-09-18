@@ -7,7 +7,7 @@ import withAttr from '../utils/withAttr';
 /**
  * The `Checkbox` component defines a checkbox input.
  *
- * ### Props
+ * ### Attrs
  *
  * - `state` Whether or not the checkbox is checked.
  * - `className` The class name for the root element.

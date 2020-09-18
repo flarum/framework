@@ -8,7 +8,7 @@ import Button from '../../common/components/Button';
  * The `TextEditor` component displays a textarea with controls, including a
  * submit button.
  *
- * ### Props
+ * ### Attrs
  *
  * - `composer`
  * - `submitLabel`

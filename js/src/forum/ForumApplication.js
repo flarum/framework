@@ -156,8 +156,8 @@ export default class ForumApplication extends Application {
    * will be reloaded. Otherwise, a SignUpModal will be opened, prefilled
    * with the provided details.
    *
-   * @param {Object} payload A dictionary of props to pass into the sign up
-   *     modal. A truthy `loggedIn` prop indicates that the user has logged
+   * @param {Object} payload A dictionary of attrs to pass into the sign up
+   *     modal. A truthy `loggedIn` attr indicates that the user has logged
    *     in, and thus the page is reloaded.
    * @public
    */
