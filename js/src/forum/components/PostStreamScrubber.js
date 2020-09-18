@@ -31,7 +31,7 @@ export default class PostStreamScrubber extends Component {
       count: <span className="Scrubber-count">{formatNumber(count)}</span>,
     });
 
-    const unreadCount = this.attrs.discussion.unreadCount();
+    const unreadCount = this.stream.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.stream.index, unreadCount) / count : 0;
 
     function styleUnread(vnode) {

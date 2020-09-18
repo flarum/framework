@@ -223,7 +223,6 @@ export default class DiscussionPage extends Page {
     items.add(
       'scrubber',
       PostStreamScrubber.component({
-        discussion: this.discussion,
         stream: this.stream,
         className: 'App-titleControl',
       }),
