@@ -2,14 +2,14 @@ import Separator from '../components/Separator';
 import classList from '../utils/classList';
 
 function isSeparator(item) {
-  return item.tag === Separator;
+  return item && item.tag === Separator;
 }
 
 function withoutUnnecessarySeparators(items) {
   const newItems = [];
   let prevItem;
 
-  items.filter(Boolean).forEach((item, i) => {
+  items.forEach((item, i) => {
     if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
       prevItem = item;
       newItems.push(item);
