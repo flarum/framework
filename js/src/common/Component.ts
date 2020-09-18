@@ -129,6 +129,8 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
 
   /**
    * Initialize the component's attrs.
+   *
+   * This can be used to assign default values for missing, optional attrs.
    */
   protected static initAttrs<T>(attrs: T): void {}
 }
