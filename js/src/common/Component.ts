@@ -108,7 +108,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    * and checking for common issues.
    */
   private setAttrs(attrs: T = {} as T): void {
-    (this.constructor as any).initAttrs(attrs);
+    (this.constructor as typeof Component).initAttrs(attrs);
 
     if (attrs) {
       if ('children' in attrs) {
