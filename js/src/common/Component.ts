@@ -44,7 +44,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    *
    * @see https://mithril.js.org/components.html#passing-data-to-components
    */
-  protected attrs: T;
+  protected attrs!: T;
 
   /**
    * @inheritdoc
@@ -54,21 +54,21 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
   /**
    * @inheritdoc
    */
-  protected oninit(vnode: Mithril.Vnode<T, this>) {
+  oninit(vnode: Mithril.Vnode<T, this>) {
     this.setAttrs(vnode.attrs);
   }
 
   /**
    * @inheritdoc
    */
-  protected oncreate(vnode: Mithril.VnodeDOM<T, this>) {
+  oncreate(vnode: Mithril.VnodeDOM<T, this>) {
     this.element = vnode.dom;
   }
 
   /**
    * @inheritdoc
    */
-  protected onbeforeupdate(vnode: Mithril.VnodeDOM<T, this>) {
+  onbeforeupdate(vnode: Mithril.VnodeDOM<T, this>) {
     this.setAttrs(vnode.attrs);
   }
 
@@ -108,7 +108,7 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    * and checking for common issues.
    */
   private setAttrs(attrs: T = {} as T): void {
-    this.constructor.initAttrs(attrs);
+    (this.constructor as any).initAttrs(attrs);
 
     if (attrs) {
       if ('children' in attrs) {
