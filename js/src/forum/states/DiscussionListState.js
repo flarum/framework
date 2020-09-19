@@ -88,11 +88,9 @@ export default class DiscussionListState {
 
     return this.loadResults().then(
       (results) => {
-        // If `this.loading` is false, that means that a prior request loaded while this one was in process.
-        // As such, before we add on the discussion items we just loaded in, we want to clear the list again.
-        if (clear && !this.loading) {
-          this.clear();
-        }
+        // Just in case we had 2 requests going at the same time, let's clear our cached list to ensure that
+        // we only take into account the latest set of data.
+        this.clear();
         this.parseResults(results);
       },
       () => {
