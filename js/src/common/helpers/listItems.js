@@ -51,8 +51,6 @@ export default function listItems(items) {
       </li>
     );
 
-    node.state = node.state || {};
-
     return node;
   });
 }
