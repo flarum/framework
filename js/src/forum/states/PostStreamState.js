@@ -37,6 +37,18 @@ class PostStreamState {
      */
     this.description = '';
 
+    /**
+     * When the page is scrolled, goToIndex is called, or the page is loaded,
+     * various listeners result in the scrubber being updated with a new
+     * position and values. However, if goToNumber is called, the scrubber
+     * will not be updated. Accordingly, we add logic to the scrubber's
+     * onupdate to update itself, but only when needed, as indicated by this
+     * property.
+     *
+     * @type {Boolean}
+     */
+    this.forceUpdateScrubber = false;
+
     this.show(includedPosts);
   }
 
