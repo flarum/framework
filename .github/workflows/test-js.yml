@@ -20,6 +20,6 @@ jobs:
         run: npm ci
         working-directory: ./js
 
-      - name: Check JS code for formatting
+      - name: Run Tests
         run: npm run test
         working-directory: ./js
