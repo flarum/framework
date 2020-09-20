@@ -355,8 +355,21 @@ export default class PostStream extends Component {
       this.updateScrubber();
       const index = $item.data('index');
       m.redraw.sync();
-      const scroll = index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
-      $(window).scrollTop(scroll);
+
+      // After post data has been loaded in, we will attempt to scroll back
+      // to the top of the requested post (or to the top of the page if the
+      // first post was requested). In some cases, we may have scrolled to
+      // the end of the available post range, in which case, the next range
+      // of posts will be loaded in. However, in those cases, the post we
+      // requested won't exist, so scrolling to it would cause an error.
+      // Accordingly, we start by checking that it's offset is defined.
+      const offset = $(`.PostStream-item[data-index=${index}]`).offset();
+      if (index === 0) {
+        $(window).scrollTop(0);
+      } else if (offset) {
+        $(window).scrollTop($(`.PostStream-item[data-index=${index}]`).offset().top - this.getMarginTop());
+      }
+
       this.calculatePosition();
       this.stream.paused = false;
     });
