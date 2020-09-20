@@ -353,6 +353,8 @@ export default class PostStream extends Component {
 
     return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
       this.updateScrubber();
+      this.stream.forceUpdateScrubber = true;
+
       const index = $item.data('index');
       m.redraw.sync();
 
