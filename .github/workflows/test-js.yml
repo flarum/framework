@@ -1,12 +1,6 @@
 name: Frontend Unit Tests
 
-on:
-  push:
-    paths:
-      - 'js/src/**'
-  pull_request:
-    paths:
-      - 'js/src/**'
+on: [push, pull_request]
 
 jobs:
   prettier:
