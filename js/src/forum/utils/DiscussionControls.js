@@ -61,7 +61,9 @@ export default {
                 onclick: () => {
                   // If the user is not logged in, the promise rejects, and a login modal shows up.
                   // Since that's already handled, we dont need to show an error message in the console.
-                  return this.replyAction.bind(discussion)(true, false).catch(() => { });
+                  return this.replyAction
+                    .bind(discussion)(true, false)
+                    .catch(() => {});
                 },
               },
               app.translator.trans(
