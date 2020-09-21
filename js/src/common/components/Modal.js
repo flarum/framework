@@ -103,8 +103,6 @@ export default class Modal extends Component {
     this.$('form').find('input, select, textarea').first().focus().select();
   }
 
-  onhide() {}
-
   /**
    * Hide the modal.
    */
