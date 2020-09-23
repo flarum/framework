@@ -9,6 +9,8 @@
 
 namespace Flarum\Admin;
 
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
@@ -116,7 +118,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         $events = $this->app->make('events');
 
         $events->listen(
-            ClearingCache::class,
+            [Enabled::class, Disabled::class, ClearingCache::class],
             function () {
                 $recompile = new RecompileFrontendAssets(
                     $this->app->make('flarum.assets.admin'),

@@ -9,6 +9,8 @@
 
 namespace Flarum\Forum;
 
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\Registry;
@@ -132,7 +134,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $events = $this->app->make('events');
 
         $events->listen(
-            ClearingCache::class,
+            [Enabled::class, Disabled::class, ClearingCache::class],
             function () {
                 $recompile = new RecompileFrontendAssets(
                     $this->app->make('flarum.assets.forum'),
