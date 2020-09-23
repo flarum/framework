@@ -404,7 +404,7 @@ export default class Application {
             console.groupEnd();
           }
 
-          this.requestErrorAlert = this.alerts.show(error.alert.content, error.alert);
+          this.requestErrorAlert = this.alerts.show(error.alert, error.alert.content);
         }
 
         return Promise.reject(error);

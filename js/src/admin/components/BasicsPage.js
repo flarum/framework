@@ -193,9 +193,7 @@ export default class BasicsPage extends Page {
 
     saveSettings(settings)
       .then(() => {
-        this.successAlert = app.alerts.show(app.translator.trans('core.admin.basics.saved_message'), {
-          type: 'success',
-        });
+        this.successAlert = app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.basics.saved_message'));
       })
       .catch(() => {})
       .then(() => {

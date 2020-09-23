@@ -13,7 +13,21 @@ export default class AlertManagerState {
   /**
    * Show an Alert in the alerts area.
    */
-  show(children, attrs, componentClass = Alert) {
+  show(arg1, arg2, arg3) {
+    let componentClass = Alert;
+    let attrs = {};
+    let children;
+    if (arguments.length == 1) {
+      children = arg1;
+    } else if (arguments.length == 2) {
+      attrs = arg1;
+      children = arg2;
+    } else if (arguments.length == 3) {
+      componentClass = arg1;
+      attrs = arg2;
+      children = arg3;
+    }
+
     // Breaking Change Compliance Warning, Remove in Beta 15.
     // This is applied to the first argument (attrs) because previously, the alert was passed as the first argument.
     if (attrs === Alert || attrs instanceof Alert) {

@@ -98,10 +98,13 @@ export default class ReplyComposer extends ComposerBody {
             },
             app.translator.trans('core.forum.composer_reply.view_button')
           );
-          alert = app.alerts.show(app.translator.trans('core.forum.composer_reply.posted_message'), {
-            type: 'success',
-            controls: [viewButton],
-          });
+          alert = app.alerts.show(
+            {
+              type: 'success',
+              controls: [viewButton],
+            },
+            app.translator.trans('core.forum.composer_reply.posted_message')
+          );
         }
 
         this.composer.hide();
