@@ -7,14 +7,14 @@ import PostControls from 'flarum/utils/PostControls';
 import humanTime from 'flarum/utils/humanTime';
 
 export default function() {
-  extend(Post.prototype, 'attrs', function(attrs) {
-    if (this.props.post.flags().length) {
+  extend(Post.prototype, 'elementAttrs', function(attrs) {
+    if (this.attrs.post.flags().length) {
       attrs.className += ' Post--flagged';
     }
   });
 
-  Post.prototype.dismissFlag = function(data) {
-    const post = this.props.post;
+  Post.prototype.dismissFlag = function(body) {
+    const post = this.attrs.post;
 
     delete post.data.relationships.flags;
 
@@ -33,7 +33,7 @@ export default function() {
             if (next) {
               const nextPost = next.post();
               app.flags.index = nextPost;
-              m.route(app.route.post(nextPost));
+              m.route.set(app.route.post(nextPost));
             }
           }
 
@@ -45,21 +45,21 @@ export default function() {
     return app.request({
       url: app.forum.attribute('apiUrl') + post.apiEndpoint() + '/flags',
       method: 'DELETE',
-      data
+      body
     });
   };
 
   Post.prototype.flagActionItems = function() {
     const items = new ItemList();
 
-    const controls = PostControls.destructiveControls(this.props.post);
+    const controls = PostControls.destructiveControls(this.attrs.post);
 
     Object.keys(controls.items).forEach(k => {
-      const props = controls.get(k).props;
+      const attrs = controls.get(k).attrs;
 
-      props.className = 'Button';
+      attrs.className = 'Button';
 
-      extend(props, 'onclick', () => this.dismissFlag());
+      extend(attrs, 'onclick', () => this.dismissFlag());
     });
 
     items.add('controls', (
@@ -78,7 +78,7 @@ export default function() {
   };
 
   extend(Post.prototype, 'content', function(vdom) {
-    const post = this.props.post;
+    const post = this.attrs.post;
     const flags = post.flags();
 
     if (!flags.length) return;

@@ -6,8 +6,9 @@ import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/humanTime';
 
 export default class FlagList extends Component {
-  init() {
-    this.state = this.props.state;
+  oninit(vnode) {
+    super.oninit(vnode);
+    this.state = this.attrs.state;
   }
 
   view() {
@@ -26,10 +27,9 @@ export default class FlagList extends Component {
 
                 return (
                   <li>
-                    <a href={app.route.post(post)} className="Notification Flag" config={function(element, isInitialized) {
-                      m.route.apply(this, arguments);
-
-                      if (!isInitialized) $(element).on('click', () => app.flags.index = post);
+                    <a route={app.route.post(post)} className="Notification Flag" onclick={e => {
+                      app.flags.index = post;
+                      e.redraw = false;
                     }}>
                       {avatar(post.user())}
                       {icon('fas fa-flag', {className: 'Notification-icon'})}

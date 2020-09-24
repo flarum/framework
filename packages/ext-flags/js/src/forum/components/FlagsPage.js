@@ -7,8 +7,8 @@ import FlagList from './FlagList';
  * used on mobile devices where the flags dropdown is within the drawer.
  */
 export default class FlagsPage extends Page {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     app.history.push('flags');
 
