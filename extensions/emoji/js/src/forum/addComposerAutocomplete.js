@@ -7,22 +7,21 @@ import TextEditorButton from 'flarum/components/TextEditorButton';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 
-import AutocompleteDropdown from './components/AutocompleteDropdown';
+import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 
 export default function addComposerAutocomplete() {
   const emojiKeys = Object.keys(emojiMap);
 
-  extend(TextEditor.prototype, 'config', function(original, isInitialized) {
-    if (isInitialized) return;
+  extend(TextEditor.prototype, 'oncreate', function() {
 
     const $container = $('<div class="ComposerBody-emojiDropdownContainer"></div>');
-    const dropdown = new AutocompleteDropdown({items: []});
+    const dropdown = new AutocompleteDropdown();
     const $textarea = this.$('textarea').wrap('<div class="ComposerBody-emojiWrapper"></div>');
     let emojiStart;
     let typed;
 
     const applySuggestion = (replacement) => {
-      this.props.composer.editor.replaceBeforeCursor(emojiStart - 1, replacement + ' ');
+      this.attrs.composer.editor.replaceBeforeCursor(emojiStart - 1, replacement + ' ');
 
       dropdown.hide();
     };
@@ -125,7 +124,7 @@ export default function addComposerAutocomplete() {
               })).map(makeSuggestion);
 
             if (suggestions.length) {
-              dropdown.props.items = suggestions;
+              dropdown.items = suggestions;
               m.render($container[0], dropdown.render());
 
               dropdown.show();
@@ -158,7 +157,7 @@ export default function addComposerAutocomplete() {
 
   extend(TextEditor.prototype, 'toolbarItems', function(items) {
     items.add('emoji', (
-      <TextEditorButton onclick={() => this.props.composer.editor.insertAtCursor(':')} icon="far fa-smile">
+      <TextEditorButton onclick={() => this.attrs.composer.editor.insertAtCursor(':')} icon="far fa-smile">
         {app.translator.trans('flarum-emoji.forum.composer.emoji_tooltip')}
       </TextEditorButton>
     ));
