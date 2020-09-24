@@ -10,7 +10,7 @@ app.initializers.add('flarum-akismet', () => {
       const flags = post.flags();
 
       if (flags && flags.some(flag => flag.type() === 'akismet')) {
-        items.get('approve').props.children = app.translator.trans('flarum-akismet.forum.post.not_spam_button');
+        items.get('approve').children = app.translator.trans('flarum-akismet.forum.post.not_spam_button');
       }
     }
   });
