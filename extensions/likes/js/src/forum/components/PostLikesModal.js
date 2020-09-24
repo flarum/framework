@@ -15,9 +15,9 @@ export default class PostLikesModal extends Modal {
     return (
       <div className="Modal-body">
         <ul className="PostLikesModal-list">
-          {this.props.post.likes().map(user => (
+          {this.attrs.post.likes().map(user => (
             <li>
-              <a href={app.route.user(user)} config={m.route}>
+              <a route={app.route.user(user)}>
                 {avatar(user)} {' '}
                 {username(user)}
               </a>

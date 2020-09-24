@@ -7,17 +7,17 @@ export default class PostLikedNotification extends Notification {
   }
 
   href() {
-    return app.route.post(this.props.notification.subject());
+    return app.route.post(this.attrs.notification.subject());
   }
 
   content() {
-    const notification = this.props.notification;
+    const notification = this.attrs.notification;
     const user = notification.fromUser();
 
     return app.translator.transChoice('flarum-likes.forum.notifications.post_liked_text', 1, {user});
   }
 
   excerpt() {
-    return truncate(this.props.notification.subject().contentPlain(), 200);
+    return truncate(this.attrs.notification.subject().contentPlain(), 200);
   }
 }

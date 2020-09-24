@@ -9,7 +9,7 @@ import PostLikesModal from './components/PostLikesModal';
 
 export default function() {
   extend(CommentPost.prototype, 'footerItems', function(items) {
-    const post = this.props.post;
+    const post = this.attrs.post;
     const likes = post.likes();
 
     if (likes && likes.length) {
@@ -22,7 +22,7 @@ export default function() {
         .slice(0, overLimit ? limit - 1 : limit)
         .map(user => {
           return (
-            <a href={app.route.user(user)} config={m.route}>
+            <a route={app.route.user(user)}>
               {user === app.session.user ? app.translator.trans('flarum-likes.forum.post.you_text') : username(user)}
             </a>
           );
