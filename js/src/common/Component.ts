@@ -133,4 +133,31 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    * This can be used to assign default values for missing, optional attrs.
    */
   protected static initAttrs<T>(attrs: T): void {}
+
+  // BEGIN DEPRECATED MITHRIL 2 BC LAYER
+
+  /**
+   * Initialize the component's attrs.
+   *
+   * This can be used to assign default values for missing, optional attrs.
+   *
+   * @deprecated, use initAttrs instead.
+   */
+  protected static initProps<T>(attrs: T): void {}
+
+  /**
+   * The attributes passed into the component.
+   *
+   * @see https://mithril.js.org/components.html#passing-data-to-components
+   *
+   * @deprecated, use attrs instead.
+   */
+  get props() {
+    return this.attrs;
+  }
+  set props(props) {
+    this.attrs = props;
+  }
+
+  // END DEPRECATED MITHRIL 2 BC LAYER
 }
