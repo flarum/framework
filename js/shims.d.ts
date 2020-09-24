@@ -13,7 +13,7 @@ import Application from './src/common/Application';
  * Helpers that flarum/core patches into Mithril
  */
 interface m extends Mithril.Static {
-  prop: typeof Stream;
+  stream: typeof Stream;
 }
 
 /**
