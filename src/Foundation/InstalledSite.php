@@ -52,17 +52,17 @@ class InstalledSite implements SiteInterface
     /**
      * @var Paths
      */
-    private $paths;
+    protected $paths;
 
     /**
      * @var array
      */
-    private $config;
+    protected $config;
 
     /**
      * @var \Flarum\Extend\ExtenderInterface[]
      */
-    private $extenders = [];
+    protected $extenders = [];
 
     public function __construct(Paths $paths, array $config)
     {
@@ -94,7 +94,7 @@ class InstalledSite implements SiteInterface
         return $this;
     }
 
-    private function bootLaravel(): Container
+    protected function bootLaravel(): Container
     {
         $container = new \Illuminate\Container\Container;
         $laravel = new Application($container, $this->paths);
@@ -153,7 +153,7 @@ class InstalledSite implements SiteInterface
      * @param Application $app
      * @return ConfigRepository
      */
-    private function getIlluminateConfig(Application $app)
+    protected function getIlluminateConfig(Application $app)
     {
         return new ConfigRepository([
             'view' => [
@@ -186,7 +186,7 @@ class InstalledSite implements SiteInterface
         ]);
     }
 
-    private function registerLogger(Container $container)
+    protected function registerLogger(Container $container)
     {
         $logPath = $this->paths->storage.'/logs/flarum.log';
         $handler = new RotatingFileHandler($logPath, Logger::INFO);
@@ -196,7 +196,7 @@ class InstalledSite implements SiteInterface
         $container->alias('log', LoggerInterface::class);
     }
 
-    private function registerCache(Container $container)
+    protected function registerCache(Container $container)
     {
         $container->singleton('cache.store', function ($container) {
             return new CacheRepository($container->make('cache.filestore'));

@@ -33,7 +33,7 @@ class UninstalledSite implements SiteInterface
     /**
      * @var Paths
      */
-    private $paths;
+    protected $paths;
 
     public function __construct(Paths $paths)
     {
@@ -52,7 +52,7 @@ class UninstalledSite implements SiteInterface
         );
     }
 
-    private function bootLaravel(): Container
+    protected function bootLaravel(): Container
     {
         $container = new \Illuminate\Container\Container;
         $laravel = new Application($container, $this->paths);
@@ -100,7 +100,7 @@ class UninstalledSite implements SiteInterface
     /**
      * @return ConfigRepository
      */
-    private function getIlluminateConfig()
+    protected function getIlluminateConfig()
     {
         return new ConfigRepository([
             'session' => [
@@ -114,7 +114,7 @@ class UninstalledSite implements SiteInterface
         ]);
     }
 
-    private function registerLogger(Container $container)
+    protected function registerLogger(Container $container)
     {
         $logPath = $this->paths->storage.'/logs/flarum-installer.log';
         $handler = new StreamHandler($logPath, Logger::DEBUG);
