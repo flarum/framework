@@ -4,18 +4,19 @@ import PostPreview from 'flarum/components/PostPreview';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 
 export default function addPostMentionPreviews() {
-  extend(CommentPost.prototype, 'config', function() {
-    const contentHtml = this.props.post.contentHtml();
+  function addPreviews() {
+    const contentHtml = this.attrs.post.contentHtml();
 
     if (contentHtml === this.oldPostContentHtml || this.isEditing()) return;
 
     this.oldPostContentHtml = contentHtml;
 
-    const parentPost = this.props.post;
+    const parentPost = this.attrs.post;
     const $parentPost = this.$();
 
-    this.$('.UserMention, .PostMention').each(function() {
-      m.route.call(this, this, false, {}, {attrs: {href: this.getAttribute('href')}});
+    this.$().on('click', '.UserMention, .PostMention', function (e) {
+      m.route.set(this.getAttribute('href'));
+      e.preventDefault();
     });
 
     this.$('.PostMention').each(function() {
@@ -122,5 +123,8 @@ export default function addPostMentionPreviews() {
 
       $(document).on('touchend', hidePreview);
     });
-  });
+  }
+
+  extend(CommentPost.prototype, 'oncreate', addPreviews);
+  extend(CommentPost.prototype, 'onupdate', addPreviews);
 }

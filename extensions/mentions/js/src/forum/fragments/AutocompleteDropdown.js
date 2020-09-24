@@ -1,16 +1,15 @@
-import Component from 'flarum/Component';
+import Fragment from 'flarum/Fragment';
 
-export default class AutocompleteDropdown extends Component {
-  init() {
-    this.active = false;
-    this.index = 0;
-    this.keyWasJustPressed = false;
-  }
+export default class AutocompleteDropdown extends Fragment {
+  items = [];
+  active = false;
+  index = 0;
+  keyWasJustPressed = false;
 
   view() {
     return (
       <ul className="Dropdown-menu MentionsDropdown">
-        {this.props.items.map(item => <li>{item}</li>)}
+        {this.items.map(item => <li>{item}</li>)}
       </ul>
     );
   }
@@ -71,7 +70,7 @@ export default class AutocompleteDropdown extends Component {
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.stop(true).animate({scrollTop}, 100);
+        $dropdown.stop(true).animate({ scrollTop }, 100);
       }
     }
   }

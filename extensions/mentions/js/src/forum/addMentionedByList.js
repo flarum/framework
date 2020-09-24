@@ -11,7 +11,7 @@ export default function addMentionedByList() {
   Post.prototype.mentionedBy = Model.hasMany('mentionedBy');
 
   extend(CommentPost.prototype, 'footerItems', function(items) {
-    const post = this.props.post;
+    const post = this.attrs.post;
     const replies = post.mentionedBy();
 
     if (replies && replies.length) {
@@ -21,10 +21,8 @@ export default function addMentionedByList() {
           .one('transitionend', function() { $(this).hide(); });
       };
 
-      const config = function(element, isInitialized) {
-        if (isInitialized) return;
-
-        const $this = $(element);
+      const oncreate = function(vnode) {
+        const $this = $(vnode.dom);
         let timeout;
 
         const $preview = $('<ul class="Dropdown-menu Post-mentionedBy-preview fade"/>');
@@ -86,8 +84,7 @@ export default function addMentionedByList() {
           const user = reply.user();
 
           return (
-            <a href={app.route.post(reply)}
-               config={m.route}
+            <a route={app.route.post(reply)}
                onclick={hidePreview}
                data-number={reply.number()}>
               {app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)}
@@ -107,7 +104,7 @@ export default function addMentionedByList() {
       }
 
       items.add('replies',
-        <div className="Post-mentionedBy" config={config}>
+        <div className="Post-mentionedBy" oncreate={oncreate}>
           <span className="Post-mentionedBy-summary">
             {icon('fas fa-reply')}
             {app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (repliers[0].user() === app.session.user ? '_self' : '') + '_text', names.length, {

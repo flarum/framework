@@ -7,16 +7,14 @@ import reply from './utils/reply';
 export default function () {
   extend(CommentPost.prototype, 'actionItems', function (items) {
 
-    const post = this.props.post;
+    const post = this.attrs.post;
 
     if (post.isHidden() || (app.session.user && !post.discussion().canReply())) return;
 
     items.add('reply',
-      Button.component({
-        className: 'Button Button--link',
-        children: app.translator.trans('flarum-mentions.forum.post.reply_link'),
-        onclick: () => reply(post)
-      })
+      <Button className='Button Button--link' onclick={() => reply(post)}>
+        {app.translator.trans('flarum-mentions.forum.post.reply_link')}
+      </Button>
     );
   });
 }

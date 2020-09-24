@@ -7,7 +7,7 @@ export default class PostMentionedNotification extends Notification {
   }
 
   href() {
-    const notification = this.props.notification;
+    const notification = this.attrs.notification;
     const post = notification.subject();
     const content = notification.content();
 
@@ -15,13 +15,13 @@ export default class PostMentionedNotification extends Notification {
   }
 
   content() {
-    const notification = this.props.notification;
+    const notification = this.attrs.notification;
     const user = notification.fromUser();
 
     return app.translator.transChoice('flarum-mentions.forum.notifications.post_mentioned_text', 1, {user});
   }
 
   excerpt() {
-    return truncate(this.props.notification.subject().contentPlain(), 200);
+    return truncate(this.attrs.notification.subject().contentPlain(), 200);
   }
 }

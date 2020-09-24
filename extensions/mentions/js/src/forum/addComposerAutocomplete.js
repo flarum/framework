@@ -11,14 +11,12 @@ import highlight from 'flarum/helpers/highlight';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 import { truncate } from 'flarum/utils/string';
 
-import AutocompleteDropdown from './components/AutocompleteDropdown';
+import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 
 export default function addComposerAutocomplete() {
-  extend(TextEditor.prototype, 'config', function(original, isInitialized) {
-    if (isInitialized) return;
-
+  extend(TextEditor.prototype, 'oncreate', function () {
     const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
-    const dropdown = new AutocompleteDropdown({items: []});
+    const dropdown = new AutocompleteDropdown();
     const $textarea = this.$('textarea').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
     const searched = [];
     let mentionStart;
@@ -77,7 +75,8 @@ export default function addComposerAutocomplete() {
           const makeSuggestion = function(user, replacement, content, className = '') {
             const username = usernameHelper(user);
             if (typed) {
-              username.children[0] = highlight(username.children[0], typed);
+              username.children = [highlight(username.text, typed)];
+              delete username.text;
             }
 
             return (
@@ -150,7 +149,7 @@ export default function addComposerAutocomplete() {
             }
 
             if (suggestions.length) {
-              dropdown.props.items = suggestions;
+              dropdown.items = suggestions;
               m.render($container[0], dropdown.render());
 
               dropdown.show();
