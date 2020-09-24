@@ -1,6 +1,11 @@
 import Mithril from 'mithril';
 import Alert, { AlertAttrs } from '../components/Alert';
 
+/**
+ * Returned by `AlertManagerState.show`. Used to dismiss alerts.
+ */
+export type AlertIdentifier = number;
+
 export interface AlertState {
   componentClass: typeof Alert;
   attrs: AlertAttrs;
@@ -20,11 +25,11 @@ export default class AlertManagerState {
    *
    * @returns The alert's ID, which can be used to dismiss the alert.
    */
-  show(children: Mithril.Children): number;
-  show(attrs: AlertAttrs, children: Mithril.Children): number;
-  show(componentClass: Alert, attrs: AlertAttrs, children: Mithril.Children): number;
+  show(children: Mithril.Children): AlertIdentifier;
+  show(attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
+  show(componentClass: Alert, attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
 
-  show(arg1: Mithril.Children | AlertAttrs | Alert, arg2?: AlertAttrs | Mithril.Children, arg3?: Mithril.Children) {
+  show(arg1: any, arg2?: any, arg3?: any) {
     // Assigns variables as per the above signatures
     let componentClass = Alert;
     let attrs: AlertAttrs = {};
@@ -58,7 +63,7 @@ export default class AlertManagerState {
   /**
    * Dismiss an alert.
    */
-  dismiss(key: number): void {
+  dismiss(key: AlertIdentifier): void {
     if (!key || !(key in this.activeAlerts)) return;
 
     delete this.activeAlerts[key];
