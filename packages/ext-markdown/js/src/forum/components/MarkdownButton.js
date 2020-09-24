@@ -5,17 +5,19 @@ import apply from '../util/apply';
 const modifierKey = navigator.userAgent.match(/Macintosh/) ? '⌘' : 'ctrl';
 
 export default class MarkdownButton extends Component {
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     this.$().tooltip();
   }
 
   view() {
-    return <button className="Button Button--icon Button--link" title={this.title()} data-hotkey={this.props.hotkey}
-                   onclick={this.click.bind(this)} onkeydown={this.keydown.bind(this)}>
-      {icon(this.props.icon)}
-    </button>;
+    return (
+      <button className="Button Button--icon Button--link" title={this.title()} data-hotkey={this.attrs.hotkey}
+        onclick={this.click.bind(this)} onkeydown={this.keydown.bind(this)}>
+        {icon(this.attrs.icon)}
+      </button>
+    );
   }
 
   keydown(event) {
@@ -26,13 +28,13 @@ export default class MarkdownButton extends Component {
   }
 
   click() {
-    return apply(this.element, this.props.style);
+    return apply(this.element, this.attrs.style);
   }
 
   title() {
-    let tooltip = this.props.title;
+    let tooltip = this.attrs.title;
 
-    if (this.props.hotkey) tooltip += ` <${modifierKey}-${this.props.hotkey}>`;
+    if (this.attrs.hotkey) tooltip += ` <${modifierKey}-${this.attrs.hotkey}>`;
 
     return tooltip;
   }
