@@ -1,17 +1,16 @@
-import Component from 'flarum/Component';
+import Fragment from 'flarum/Fragment';
 
-export default class AutocompleteDropdown extends Component {
-  init() {
-    this.active = false;
-    this.index = 0;
-    this.keyWasJustPressed = false;
-  }
+export default class AutocompleteDropdown extends Fragment {
+  items = [];
+  active = false;
+  index = 0;
+  keyWasJustPressed = false;
 
   view() {
     return (
       <ul className="Dropdown-menu EmojiDropdown">
-        <li className="Dropdown-header" key="0">{app.translator.trans('flarum-emoji.forum.composer.type_to_search_text')}</li>
-        {this.props.items.map(item => <li key={item.attrs.key}>{item}</li>)}
+        <li className="Dropdown-header">{app.translator.trans('flarum-emoji.forum.composer.type_to_search_text')}</li>
+        {this.items.map(item => <li key={item.attrs.key}>{item}</li>)}
       </ul>
     );
   }
@@ -72,7 +71,7 @@ export default class AutocompleteDropdown extends Component {
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.stop(true).animate({scrollTop}, 100);
+        $dropdown.stop(true).animate({ scrollTop }, 100);
       }
     }
   }
