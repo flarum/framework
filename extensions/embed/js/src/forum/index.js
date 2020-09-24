@@ -20,23 +20,12 @@ extend(ForumApplication.prototype, 'mount', function() {
   }
 });
 
-m.route.mode = 'pathname';
-
-override(m, 'route', function(original, root, arg1, arg2, vdom) {
-  if (arguments.length === 1) {
-
-  } else if (arguments.length === 4 && typeof arg1 === 'string') {
-
-  } else if (root.addEventListener || root.attachEvent) {
-    root.href = vdom.attrs.href.replace('/embed', '/d');
-    root.target = '_blank';
-
-    // TODO: If href leads to a post within this discussion that we have
-    // already loaded, then scroll to it?
-    return;
-  }
-
-  return original.apply(this, Array.prototype.slice.call(arguments, 1));
+override(m.route.Link, 'view', function (original, vnode) {
+  vnode.attrs.href = vnode.attrs.href.replace('/embed', '/d');
+  vnode.attrs.target = '_blank';
+  // TODO: If href leads to a post within this discussion that we have
+  // already loaded, then scroll to it?
+  return original(vnode);
 });
 
 // Trim the /embed prefix off of post permalinks
@@ -44,7 +33,7 @@ override(PostMeta.prototype, 'getPermalink', (original, post) => {
   return original(post).replace('/embed', '/d');
 });
 
-app.pageInfo = m.prop({});
+app.pageInfo = m.stream({});
 
 const reposition = function() {
   const info = app.pageInfo();
@@ -73,16 +62,15 @@ extend(DiscussionPage.prototype, 'sidebarItems', function(items) {
   const count = this.discussion.replyCount();
 
   items.add('replies', <h3>
-    <a href={app.route.discussion(this.discussion).replace('/embed', '/d')} config={m.route}>
+    <a route={app.route.discussion(this.discussion).replace('/embed', '/d')}>
       {count} comment{count == 1 ? '' : 's'}
     </a>
   </h3>, 100);
 
-  const props = items.get('controls').props;
-  props.className = props.className.replace('App-primaryControl', '');
+  const attrs = items.get('controls').attrs;
+  attrs.className = attrs.className.replace('App-primaryControl', '');
 });
 
-delete app.routes['index.filter'];
-app.routes['discussion'] = {path: '/embed/:id', component: DiscussionPage.component()};
-app.routes['discussion.near'] = {path: '/embed/:id/:near', component: DiscussionPage.component()};
+app.routes['discussion'] = {path: '/embed/:id', component: DiscussionPage};
+app.routes['discussion.near'] = {path: '/embed/:id/:near', component: DiscussionPage};
 
