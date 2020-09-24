@@ -17,7 +17,7 @@ import MarkdownButton from './components/MarkdownButton';
 app.initializers.add('flarum-markdown', function(app) {
   let index = 1;
 
-  extend(TextEditor.prototype, 'init', function() {
+  extend(TextEditor.prototype, 'oninit', function() {
     this.textareaId = 'textarea'+(index++);
   });
 
@@ -25,19 +25,17 @@ app.initializers.add('flarum-markdown', function(app) {
     vdom.children[0].attrs.id = this.textareaId;
   });
 
-  extend(TextEditor.prototype, 'configTextarea', function(value, element, isInitialized, context) {
-    if (isInitialized) return;
-
-    const editor = new MarkdownArea(element, {
+  extend(TextEditor.prototype, 'oncreate', function() {
+    this.editor = new MarkdownArea(this.$('textarea')[0], {
       keyMap: {
         indent: ['Ctrl+m'],
         outdent: ['Ctrl+M']
       }
     });
+  });
 
-    context.onunload = function() {
-      editor.destroy();
-    };
+  extend(TextEditor.prototype, 'onremove', function () {
+    this.editor.destroy();
   });
 
   extend(TextEditor.prototype, 'toolbarItems', function(items) {

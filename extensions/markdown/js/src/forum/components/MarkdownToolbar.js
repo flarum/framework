@@ -3,17 +3,17 @@ import Component from 'flarum/Component';
 const modifierKey = navigator.userAgent.match(/Macintosh/) ? 'Meta' : 'Control';
 
 export default class MarkdownToolbar extends Component {
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
-    const field = document.getElementById(this.props.for);
+    const field = document.getElementById(this.attrs.for);
 
     field.addEventListener('keydown', this.shortcut.bind(this));
   }
 
-  view() {
-    return <div id="MarkdownToolbar" data-for={this.props.for} style={{ display: 'inline-block' }}>
-      {this.props.children}
+  view(vnode) {
+    return <div id="MarkdownToolbar" data-for={this.attrs.for} style={{ display: 'inline-block' }}>
+      {vnode.children}
     </div>;
   }
 
