@@ -7,14 +7,16 @@ import ScrollListener from '../../common/utils/ScrollListener';
  * The `PostStreamScrubber` component displays a scrubber which can be used to
  * navigate/scrub through a post stream.
  *
- * ### Props
+ * ### Attrs
  *
  * - `stream`
  * - `className`
  */
 export default class PostStreamScrubber extends Component {
-  init() {
-    this.stream = this.props.stream;
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    this.stream = this.attrs.stream;
     this.handlers = {};
 
     this.scrollListener = new ScrollListener(this.updateScrubberValues.bind(this, { fromScroll: true, forceHeightChange: true }));
@@ -32,23 +34,23 @@ export default class PostStreamScrubber extends Component {
     const unreadCount = this.stream.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.stream.index, unreadCount) / count : 0;
 
-    function styleUnread(element, isInitialized, context) {
-      const $element = $(element);
+    function styleUnread(vnode) {
+      const $element = $(vnode.dom);
       const newStyle = {
         top: 100 - unreadPercent * 100 + '%',
         height: unreadPercent * 100 + '%',
       };
 
-      if (context.oldStyle) {
-        $element.stop(true).css(context.oldStyle).animate(newStyle);
+      if (vnode.state.oldStyle) {
+        $element.stop(true).css(vnode.state.oldStyle).animate(newStyle);
       } else {
         $element.css(newStyle);
       }
 
-      context.oldStyle = newStyle;
+      vnode.state.oldStyle = newStyle;
     }
     const classNames = ['PostStreamScrubber', 'Dropdown'];
-    if (this.props.className) classNames.push(this.props.className);
+    if (this.attrs.className) classNames.push(this.attrs.className);
 
     return (
       <div className={classNames.join(' ')}>
@@ -68,12 +70,12 @@ export default class PostStreamScrubber extends Component {
                 <div className="Scrubber-bar" />
                 <div className="Scrubber-info">
                   <strong>{viewing}</strong>
-                  <span className="Scrubber-description">{this.stream.description}</span>
+                  <span className="Scrubber-description"></span>
                 </div>
               </div>
               <div className="Scrubber-after" />
 
-              <div className="Scrubber-unread" config={styleUnread}>
+              <div className="Scrubber-unread" oncreate={styleUnread} onupdate={styleUnread}>
                 {app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount })}
               </div>
             </div>
@@ -87,11 +89,12 @@ export default class PostStreamScrubber extends Component {
     );
   }
 
-  config(isInitialized, context) {
+  onupdate() {
     this.stream.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
-    if (isInitialized) return;
+  }
 
-    context.onunload = this.ondestroy.bind(this);
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     // Whenever the window is resized, adjust the height of the scrollbar
     // so that it fills the height of the sidebar.
@@ -133,6 +136,15 @@ export default class PostStreamScrubber extends Component {
       .on('mouseup touchend', (this.handlers.onmouseup = this.onmouseup.bind(this)));
 
     setTimeout(() => this.scrollListener.start());
+
+    this.updateScrubberValues({ animate: true, forceHeightChange: true });
+  }
+
+  onremove() {
+    this.scrollListener.stop();
+    $(window).off('resize', this.handlers.onresize);
+
+    $(document).off('mousemove touchmove', this.handlers.onmousemove).off('mouseup touchend', this.handlers.onmouseup);
   }
 
   /**
@@ -194,13 +206,6 @@ export default class PostStreamScrubber extends Component {
   goToLast() {
     this.stream.goToLast();
     this.updateScrubberValues({ animate: true, forceHeightChange: true });
-  }
-
-  ondestroy() {
-    this.scrollListener.stop();
-    $(window).off('resize', this.handlers.onresize);
-
-    $(document).off('mousemove touchmove', this.handlers.onmousemove).off('mouseup touchend', this.handlers.onmouseup);
   }
 
   onresize() {

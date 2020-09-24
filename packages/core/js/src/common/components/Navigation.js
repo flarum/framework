@@ -11,7 +11,7 @@ import LinkButton from './LinkButton';
  * If the app has a pane, it will also include a 'pin' button which toggles the
  * pinned state of the pane.
  *
- * Accepts the following props:
+ * Accepts the following attrs:
  *
  * - `className` The name of a class to set on the root element.
  * - `drawer` Whether or not to show a button to toggle the app's drawer if
@@ -23,20 +23,13 @@ export default class Navigation extends Component {
 
     return (
       <div
-        className={'Navigation ButtonGroup ' + (this.props.className || '')}
+        className={'Navigation ButtonGroup ' + (this.attrs.className || '')}
         onmouseenter={pane && pane.show.bind(pane)}
         onmouseleave={pane && pane.onmouseleave.bind(pane)}
       >
         {history.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton()}
       </div>
     );
-  }
-
-  config(isInitialized, context) {
-    // Since this component is 'above' the content of the page (that is, it is a
-    // part of the global UI that persists between routes), we will flag the DOM
-    // to be retained across route changes.
-    context.retain = true;
   }
 
   /**
@@ -54,7 +47,6 @@ export default class Navigation extends Component {
       href: history.backUrl(),
       icon: 'fas fa-chevron-left',
       title: previous.title,
-      config: () => {},
       onclick: (e) => {
         if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
         e.preventDefault();
@@ -88,7 +80,7 @@ export default class Navigation extends Component {
    * @protected
    */
   getDrawerButton() {
-    if (!this.props.drawer) return '';
+    if (!this.attrs.drawer) return '';
 
     const { drawer } = app;
     const user = app.session.user;

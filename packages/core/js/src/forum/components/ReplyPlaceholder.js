@@ -4,18 +4,19 @@ import Component from '../../common/Component';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import DiscussionControls from '../utils/DiscussionControls';
+import ComposerPostPreview from './ComposerPostPreview';
 
 /**
  * The `ReplyPlaceholder` component displays a placeholder for a reply, which,
  * when clicked, opens the reply composer.
  *
- * ### Props
+ * ### Attrs
  *
  * - `discussion`
  */
 export default class ReplyPlaceholder extends Component {
   view() {
-    if (app.composer.composingReplyTo(this.props.discussion)) {
+    if (app.composer.composingReplyTo(this.attrs.discussion)) {
       return (
         <article className="Post CommentPost editing">
           <header className="Post-header">
@@ -26,13 +27,13 @@ export default class ReplyPlaceholder extends Component {
               </h3>
             </div>
           </header>
-          <div className="Post-body" config={this.configPreview.bind(this)} />
+          <ComposerPostPreview className="Post-body" composer={app.composer} surround={this.anchorPreview.bind(this)} />
         </article>
       );
     }
 
     const reply = () => {
-      DiscussionControls.replyAction.call(this.props.discussion, true);
+      DiscussionControls.replyAction.call(this.attrs.discussion, true);
     };
 
     return (
@@ -44,32 +45,13 @@ export default class ReplyPlaceholder extends Component {
     );
   }
 
-  configPreview(element, isInitialized, context) {
-    if (isInitialized) return;
+  anchorPreview(preview) {
+    const anchorToBottom = $(window).scrollTop() + $(window).height() >= $(document).height();
 
-    // Every 50ms, if the composer content has changed, then update the post's
-    // body with a preview.
-    let preview;
-    const updateInterval = setInterval(() => {
-      // Since we're polling, the composer may have been closed in the meantime,
-      // so we bail in that case.
-      if (!app.composer.isVisible()) return;
+    preview();
 
-      const content = app.composer.fields.content();
-
-      if (preview === content) return;
-
-      preview = content;
-
-      const anchorToBottom = $(window).scrollTop() + $(window).height() >= $(document).height();
-
-      s9e.TextFormatter.preview(preview || '', element);
-
-      if (anchorToBottom) {
-        $(window).scrollTop($(document).height());
-      }
-    }, 50);
-
-    context.onunload = () => clearInterval(updateInterval);
+    if (anchorToBottom) {
+      $(window).scrollTop($(document).height());
+    }
   }
 }

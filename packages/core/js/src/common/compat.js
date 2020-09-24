@@ -13,6 +13,7 @@ import RequestError from './utils/RequestError';
 import abbreviateNumber from './utils/abbreviateNumber';
 import * as string from './utils/string';
 import SubtreeRetainer from './utils/SubtreeRetainer';
+import setRouteWithForcedRefresh from './utils/setRouteWithForcedRefresh';
 import extract from './utils/extract';
 import ScrollListener from './utils/ScrollListener';
 import stringToColor from './utils/stringToColor';
@@ -22,6 +23,7 @@ import classList from './utils/classList';
 import extractText from './utils/extractText';
 import formatNumber from './utils/formatNumber';
 import mapRoutes from './utils/mapRoutes';
+import withAttr from './utils/withAttr';
 import Notification from './models/Notification';
 import User from './models/User';
 import Post from './models/Post';
@@ -62,6 +64,7 @@ import highlight from './helpers/highlight';
 import username from './helpers/username';
 import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
+import Fragment from './Fragment';
 
 export default {
   extend: extend,
@@ -83,11 +86,13 @@ export default {
   'utils/ScrollListener': ScrollListener,
   'utils/stringToColor': stringToColor,
   'utils/subclassOf': subclassOf,
+  'utils/setRouteWithForcedRefresh': setRouteWithForcedRefresh,
   'utils/patchMithril': patchMithril,
   'utils/classList': classList,
   'utils/extractText': extractText,
   'utils/formatNumber': formatNumber,
   'utils/mapRoutes': mapRoutes,
+  'utils/withAttr': withAttr,
   'models/Notification': Notification,
   'models/User': User,
   'models/Post': Post,
@@ -95,6 +100,7 @@ export default {
   'models/Group': Group,
   'models/Forum': Forum,
   Component: Component,
+  Fragment: Fragment,
   Translator: Translator,
   'components/AlertManager': AlertManager,
   'components/Page': Page,

@@ -161,7 +161,7 @@ export default class Model {
           {
             method: this.exists ? 'PATCH' : 'POST',
             url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-            data: request,
+            body: request,
           },
           options
         )
@@ -180,7 +180,7 @@ export default class Model {
         // old data! We'll revert to that and let others handle the error.
         (response) => {
           this.pushData(oldData);
-          m.lazyRedraw();
+          m.redraw();
           throw response;
         }
       );
@@ -189,13 +189,13 @@ export default class Model {
   /**
    * Send a request to delete the resource.
    *
-   * @param {Object} data Data to send along with the DELETE request.
+   * @param {Object} body Data to send along with the DELETE request.
    * @param {Object} [options]
    * @return {Promise}
    * @public
    */
-  delete(data, options = {}) {
-    if (!this.exists) return m.deferred().resolve().promise;
+  delete(body, options = {}) {
+    if (!this.exists) return Promise.resolve();
 
     return app
       .request(
@@ -203,7 +203,7 @@ export default class Model {
           {
             method: 'DELETE',
             url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-            data,
+            body,
           },
           options
         )

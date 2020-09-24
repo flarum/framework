@@ -6,8 +6,10 @@ import Alert from './Alert';
  * be shown and dismissed.
  */
 export default class AlertManager extends Component {
-  init() {
-    this.state = this.props.state;
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    this.state = this.attrs.state;
   }
 
   view() {
@@ -15,17 +17,12 @@ export default class AlertManager extends Component {
       <div className="AlertManager">
         {Object.entries(this.state.getActiveAlerts()).map(([key, alert]) => (
           <div className="AlertManager-alert">
-            {(alert.componentClass || Alert).component({ ...alert.attrs, ondismiss: this.state.dismiss.bind(this.state, key) })}
+            <alert.componentClass {...alert.attrs} ondismiss={this.state.dismiss.bind(this.state, key)}>
+              {alert.children}
+            </alert.componentClass>
           </div>
         ))}
       </div>
     );
-  }
-
-  config(isInitialized, context) {
-    // Since this component is 'above' the content of the page (that is, it is a
-    // part of the global UI that persists between routes), we will flag the DOM
-    // to be retained across route changes.
-    context.retain = true;
   }
 }

@@ -3,6 +3,7 @@
   "name": "@flarum/core",
   "dependencies": {
     "@babel/preset-typescript": "^7.10.1",
+    "@types/mithril": "^2.0.3",
     "bootstrap": "^3.4.1",
     "classnames": "^2.2.5",
     "color-thief-browser": "^2.0.2",
@@ -13,7 +14,7 @@
     "jquery.hotkeys": "^0.1.0",
     "lodash-es": "^4.17.14",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
-    "mithril": "^0.2.8",
+    "mithril": "^2.0.4",
     "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
     "webpack": "^4.43.0",
