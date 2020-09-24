@@ -1,11 +1,13 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 
-export default class SuspendUserModal extends Modal {
-  init() {
-    super.init();
+import withAttr from 'flarum/utils/withAttr';
 
-    let until = this.props.user.suspendedUntil();
+export default class SuspendUserModal extends Modal {
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    let until = this.attrs.user.suspendedUntil();
     let status = null;
 
     if (new Date() > until) until = null;
@@ -15,8 +17,8 @@ export default class SuspendUserModal extends Modal {
       else status = 'limited';
     }
 
-    this.status = m.prop(status);
-    this.daysRemaining = m.prop(status === 'limited' && -dayjs().diff(until, 'days') + 1);
+    this.status = m.stream(status);
+    this.daysRemaining = m.stream(status === 'limited' && -dayjs().diff(until, 'days') + 1);
   }
 
   className() {
@@ -24,7 +26,7 @@ export default class SuspendUserModal extends Modal {
   }
 
   title() {
-    return app.translator.trans('flarum-suspend.forum.suspend_user.title', {user: this.props.user});
+    return app.translator.trans('flarum-suspend.forum.suspend_user.title', {user: this.attrs.user});
   }
 
   content() {
@@ -35,21 +37,21 @@ export default class SuspendUserModal extends Modal {
             <label>{app.translator.trans('flarum-suspend.forum.suspend_user.status_heading')}</label>
             <div>
               <label className="checkbox">
-                <input type="radio" name="status" checked={!this.status()} value="" onclick={m.withAttr('value', this.status)}/>
+                <input type="radio" name="status" checked={!this.status()} value="" onclick={withAttr('value', this.status)}/>
                 {app.translator.trans('flarum-suspend.forum.suspend_user.not_suspended_label')}
               </label>
 
               <label className="checkbox">
-                <input type="radio" name="status" checked={this.status() === 'indefinitely'} value='indefinitely' onclick={m.withAttr('value', this.status)}/>
+                <input type="radio" name="status" checked={this.status() === 'indefinitely'} value='indefinitely' onclick={withAttr('value', this.status)}/>
                 {app.translator.trans('flarum-suspend.forum.suspend_user.indefinitely_label')}
               </label>
 
               <label className="checkbox SuspendUserModal-days">
                 <input type="radio" name="status" checked={this.status() === 'limited'} value='limited' onclick={e => {
                   this.status(e.target.value);
-                  m.redraw(true);
+                  m.redraw.sync();
                   this.$('.SuspendUserModal-days-input input').select();
-                  m.redraw.strategy('none');
+                  e.redraw = false;
                 }}/>
                 {app.translator.trans('flarum-suspend.forum.suspend_user.limited_time_label')}
                 {this.status() === 'limited' ? (
@@ -57,7 +59,7 @@ export default class SuspendUserModal extends Modal {
                     <input type="number"
                       min="0"
                       value={this.daysRemaining()}
-                      oninput={m.withAttr('value', this.daysRemaining)}
+                      oninput={withAttr('value', this.daysRemaining)}
                       className="FormControl"/>
                     {app.translator.trans('flarum-suspend.forum.suspend_user.limited_time_days_text')}
                   </div>
@@ -95,7 +97,7 @@ export default class SuspendUserModal extends Modal {
         // no default
     }
 
-    this.props.user.save({suspendedUntil}).then(
+    this.attrs.user.save({suspendedUntil}).then(
       () => this.hide(),
       this.loaded.bind(this)
     );

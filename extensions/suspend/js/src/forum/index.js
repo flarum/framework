@@ -20,10 +20,9 @@ app.initializers.add('flarum-suspend', () => {
   extend(UserControls, 'moderationControls', (items, user) => {
     if (user.canSuspend()) {
       items.add('suspend', Button.component({
-        children: app.translator.trans('flarum-suspend.forum.user_controls.suspend_button'),
         icon: 'fas fa-ban',
         onclick: () => app.modal.show(SuspendUserModal, {user})
-      }));
+      }, app.translator.trans('flarum-suspend.forum.user_controls.suspend_button')));
     }
   });
 
