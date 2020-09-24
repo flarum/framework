@@ -3,7 +3,7 @@ import tagIcon from '../../common/helpers/tagIcon';
 
 export default class TagHero extends Component {
   view() {
-    const tag = this.props.tag;
+    const tag = this.attrs.model;
     const color = tag.color();
 
     return (

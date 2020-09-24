@@ -11,13 +11,13 @@ import tagIcon from '../../common/helpers/tagIcon';
 import sortTags from '../../common/utils/sortTags';
 
 export default class TagDiscussionModal extends Modal {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     this.tags = app.store.all('tags');
 
-    if (this.props.discussion) {
-      this.tags = this.tags.filter(tag => tag.canAddToDiscussion() || this.props.discussion.tags().indexOf(tag) !== -1);
+    if (this.attrs.discussion) {
+      this.tags = this.tags.filter(tag => tag.canAddToDiscussion() || this.attrs.discussion.tags().indexOf(tag) !== -1);
     } else {
       this.tags = this.tags.filter(tag => tag.canStartDiscussion());
     }
@@ -25,14 +25,14 @@ export default class TagDiscussionModal extends Modal {
     this.tags = sortTags(this.tags);
 
     this.selected = [];
-    this.filter = m.prop('');
+    this.filter = m.stream('');
     this.index = this.tags[0].id();
     this.focused = false;
 
-    if (this.props.selectedTags) {
-      this.props.selectedTags.map(this.addTag.bind(this));
-    } else if (this.props.discussion) {
-      this.props.discussion.tags().map(this.addTag.bind(this));
+    if (this.attrs.selectedTags) {
+      this.attrs.selectedTags.map(this.addTag.bind(this));
+    } else if (this.attrs.discussion) {
+      this.attrs.discussion.tags().map(this.addTag.bind(this));
     }
 
     this.minPrimary = app.forum.attribute('minPrimaryTags');
@@ -100,8 +100,8 @@ export default class TagDiscussionModal extends Modal {
   }
 
   title() {
-    return this.props.discussion
-      ? app.translator.trans('flarum-tags.forum.choose_tags.edit_title', {title: <em>{this.props.discussion.title()}</em>})
+    return this.attrs.discussion
+      ? app.translator.trans('flarum-tags.forum.choose_tags.edit_title', {title: <em>{this.attrs.discussion.title()}</em>})
       : app.translator.trans('flarum-tags.forum.choose_tags.title');
   }
 
@@ -169,22 +169,17 @@ export default class TagDiscussionModal extends Modal {
               </span>
               <input className="FormControl"
                 placeholder={extractText(this.getInstruction(primaryCount, secondaryCount))}
-                value={this.filter()}
+                bidi={this.filter}
                 style={{ width: inputWidth + 'ch' }}
-                oninput={m.withAttr('value', this.filter)}
                 onkeydown={this.navigator.navigate.bind(this.navigator)}
                 onfocus={() => this.focused = true}
                 onblur={() => this.focused = false}/>
             </div>
           </div>
           <div className="TagDiscussionModal-form-submit App-primaryControl">
-            {Button.component({
-              type: 'submit',
-              className: 'Button Button--primary',
-              disabled: primaryCount < this.minPrimary || secondaryCount < this.minSecondary,
-              icon: 'fas fa-check',
-              children: app.translator.trans('flarum-tags.forum.choose_tags.submit_button')
-            })}
+            <Button type="submit" className="Button Button--primary" disabled={primaryCount < this.minPrimary || secondaryCount < this.minSecondary} icon="fas fa-check">
+              {app.translator.trans('flarum-tags.forum.choose_tags.submit_button')}
+            </Button>
           </div>
         </div>
       </div>,
@@ -304,7 +299,7 @@ export default class TagDiscussionModal extends Modal {
   onsubmit(e) {
     e.preventDefault();
 
-    const discussion = this.props.discussion;
+    const discussion = this.attrs.discussion;
     const tags = this.selected;
 
     if (discussion) {
@@ -317,10 +312,8 @@ export default class TagDiscussionModal extends Modal {
         });
     }
 
-    if (this.props.onsubmit) this.props.onsubmit(tags);
+    if (this.attrs.onsubmit) this.attrs.onsubmit(tags);
 
-    app.modal.close();
-
-    m.redraw.strategy('none');
+    this.hide();
   }
 }

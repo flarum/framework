@@ -48,18 +48,11 @@ export default function() {
     const tags = sortTags(app.store.all('tags').filter(tag => !tag.isRestricted()));
 
     if (tags.length) {
-      items.add('tag', Dropdown.component({
-        className: 'Dropdown--restrictByTag',
-        buttonClassName: 'Button Button--text',
-        label: app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading'),
-        icon: 'fas fa-plus',
-        caretIcon: null,
-        children: tags.map(tag => Button.component({
-          icon: true,
-          children: [tagIcon(tag, {className: 'Button-icon'}), ' ', tag.name()],
-          onclick: () => tag.save({isRestricted: true})
-        }))
-      }));
+      items.add('tag', <Dropdown className='Dropdown--restrictByTag' buttonClassName='Button Button--text' label={app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading')} icon='fas fa-plus' caretIcon={null}>
+        {tags.map(tag => <Button icon={true} onclick={() => tag.save({ isRestricted: true })}>
+          {[tagIcon(tag, { className: 'Button-icon' }), ' ', tag.name()]}
+        </Button>)}
+      </Dropdown>);
     }
   });
 }
