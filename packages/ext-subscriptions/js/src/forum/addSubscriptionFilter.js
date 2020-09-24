@@ -8,24 +8,21 @@ export default function addSubscriptionFilter() {
     if (app.session.user) {
       const params = app.search.stickyParams();
 
-      params.filter = 'following';
-
       items.add('following', LinkButton.component({
-        href: app.route('index.filter', params),
-        children: app.translator.trans('flarum-subscriptions.forum.index.following_link'),
+        href: app.route('following', params),
         icon: 'fas fa-star'
-      }), 50);
+      }, app.translator.trans('flarum-subscriptions.forum.index.following_link')), 50);
     }
   });
 
-  extend(IndexPage.prototype, 'config', function () {
-    if (m.route() == "/following") {
+  extend(IndexPage.prototype, 'setTitle', function () {
+    if (app.current.get('routeName') === 'following') {
       app.setTitle(app.translator.trans('flarum-subscriptions.forum.following.meta_title_text'));
     }
   });
 
   extend(DiscussionListState.prototype, 'requestParams', function(params) {
-    if (this.params.filter === 'following') {
+    if (app.current.get('routeName') === 'following') {
       params.filter.q = (params.filter.q || '') + ' is:following';
     }
   });

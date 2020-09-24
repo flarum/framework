@@ -2,6 +2,7 @@ import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import Model from 'flarum/Model';
 import Discussion from 'flarum/models/Discussion';
+import IndexPage from 'flarum/components/IndexPage';
 import NotificationGrid from 'flarum/components/NotificationGrid';
 
 import addSubscriptionBadge from './addSubscriptionBadge';
@@ -11,7 +12,8 @@ import addSubscriptionSettings from './addSubscriptionSettings';
 
 import NewPostNotification from './components/NewPostNotification';
 
-app.initializers.add('subscriptions', function() {
+app.initializers.add('subscriptions', function () {
+  app.routes.following = { path: '/following', component: IndexPage };
   app.notificationComponents.newPost = NewPostNotification;
 
   Discussion.prototype.subscription = Model.attribute('subscription');

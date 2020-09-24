@@ -6,7 +6,9 @@ import extractText from 'flarum/utils/extractText';
 import SubscriptionMenuItem from './SubscriptionMenuItem';
 
 export default class SubscriptionMenu extends Dropdown {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.options = [
       {
         subscription: false,
@@ -30,7 +32,7 @@ export default class SubscriptionMenu extends Dropdown {
   }
 
   view() {
-    const discussion = this.props.discussion;
+    const discussion = this.attrs.discussion;
     const subscription = discussion.subscription();
 
     let buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.follow_button');
@@ -59,17 +61,16 @@ export default class SubscriptionMenu extends Dropdown {
       ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip'
       : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip'));
 
-    const buttonProps = {
+    const buttonAttrs = {
       className: 'Button SubscriptionMenu-button ' + buttonClass,
       icon: buttonIcon,
-      children: buttonLabel,
       onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow'),
       title: title
     };
 
     if ((notifyEmail || notifyAlert) && subscription === false) {
-      buttonProps.config = element => {
-        $(element).tooltip({
+      buttonAttrs.oncreate = buttonAttrs.onupdate = vnode => {
+        $(vnode.dom).tooltip({
           container: '.SubscriptionMenu',
           placement: 'bottom',
           delay: 250,
@@ -77,24 +78,24 @@ export default class SubscriptionMenu extends Dropdown {
         });
       }
     } else {
-      buttonProps.config = element => $(element).tooltip('destroy');
+      buttonAttrs.onupdate = vnode => $(vnode.dom).tooltip('destroy');
     }
 
     return (
       <div className="Dropdown ButtonGroup SubscriptionMenu">
-        {Button.component(buttonProps)}
+        {Button.component(buttonAttrs, buttonLabel)}
 
         <button className={'Dropdown-toggle Button Button--icon ' + buttonClass} data-toggle="dropdown">
           {icon('fas fa-caret-down', {className: 'Button-icon'})}
         </button>
 
         <ul className="Dropdown-menu dropdown-menu Dropdown-menu--right">
-          {this.options.map(props => {
-            props.onclick = this.saveSubscription.bind(this, discussion, props.subscription);
-            props.active = subscription === props.subscription;
-
-            return <li>{SubscriptionMenuItem.component(props)}</li>;
-          })}
+          {this.options.map(attrs => <li>{SubscriptionMenuItem.component({
+              ...attrs,
+              onclick: this.saveSubscription.bind(this, discussion, attrs.subscription),
+              active: subscription === attrs.subscription
+            })}</li>
+          )}
         </ul>
       </div>
     );

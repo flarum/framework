@@ -4,12 +4,12 @@ import icon from 'flarum/helpers/icon';
 export default class SubscriptionMenuItem extends Component {
   view() {
     return (
-      <button className="SubscriptionMenuItem hasIcon" onclick={this.props.onclick}>
-        {this.props.active ? icon('fas fa-check', {className: 'Button-icon'}) : ''}
+      <button className="SubscriptionMenuItem hasIcon" onclick={this.attrs.onclick}>
+        {this.attrs.active ? icon('fas fa-check', {className: 'Button-icon'}) : ''}
         <span className="SubscriptionMenuItem-label">
-          {icon(this.props.icon, {className: 'Button-icon'})}
-          <strong>{this.props.label}</strong>
-          <span className="SubscriptionMenuItem-description">{this.props.description}</span>
+          {icon(this.attrs.icon, {className: 'Button-icon'})}
+          <strong>{this.attrs.label}</strong>
+          <span className="SubscriptionMenuItem-description">{this.attrs.description}</span>
         </span>
       </button>
     );
