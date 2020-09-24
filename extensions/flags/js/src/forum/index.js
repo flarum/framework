@@ -14,7 +14,7 @@ app.initializers.add('flarum-flags', () => {
 
   app.store.models.flags = Flag;
 
-  app.routes.flags = { path: '/flags', component: <FlagsPage /> };
+  app.routes.flags = { path: '/flags', component: FlagsPage };
 
   app.flags = new FlagListState(app);
 
