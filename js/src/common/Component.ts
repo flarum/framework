@@ -32,7 +32,7 @@ export interface ComponentAttrs extends Mithril.Attributes {}
  *
  * @see https://mithril.js.org/components.html
  */
-export default abstract class Component<T extends ComponentAttrs> implements Mithril.ClassComponent<T> {
+export default abstract class Component<T extends ComponentAttrs = ComponentAttrs> implements Mithril.ClassComponent<T> {
   /**
    * The root DOM element for the component.
    */
