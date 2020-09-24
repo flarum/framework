@@ -8,31 +8,29 @@ import IndexPage from 'flarum/components/IndexPage';
 import Button from 'flarum/components/Button';
 
 app.initializers.add('flarum-pusher', () => {
-  const loadPusher = m.deferred();
-
-  $.getScript('//cdn.jsdelivr.net/npm/pusher-js@3.0.0/dist/pusher.min.js', () => {
-    const socket = new Pusher(app.forum.attribute('pusherKey'), {
-      authEndpoint: app.forum.attribute('apiUrl') + '/pusher/auth',
-      cluster: app.forum.attribute('pusherCluster'),
-      auth: {
-        headers: {
-          'X-CSRF-Token': app.session.csrfToken
+  const loadPusher = new Promise((resolve) => {
+    $.getScript('//cdn.jsdelivr.net/npm/pusher-js@3.0.0/dist/pusher.min.js', () => {
+      const socket = new Pusher(app.forum.attribute('pusherKey'), {
+        authEndpoint: app.forum.attribute('apiUrl') + '/pusher/auth',
+        cluster: app.forum.attribute('pusherCluster'),
+        auth: {
+          headers: {
+            'X-CSRF-Token': app.session.csrfToken
+          }
         }
-      }
-    });
+      });
 
-    loadPusher.resolve({
-      main: socket.subscribe('public'),
-      user: app.session.user ? socket.subscribe('private-user' + app.session.user.id()) : null
+      return resolve({
+        main: socket.subscribe('public'),
+        user: app.session.user ? socket.subscribe('private-user' + app.session.user.id()) : null
+      });
     });
   });
 
-  app.pusher = loadPusher.promise;
+  app.pusher = loadPusher;
   app.pushedUpdates = [];
 
-  extend(DiscussionList.prototype, 'config', function(x, isInitialized, context) {
-    if (isInitialized) return;
-
+  extend(DiscussionList.prototype, 'oncreate', function() {
     app.pusher.then(channels => {
       channels.main.bind('newPost', data => {
         const params = app.discussions.getParams();
@@ -57,8 +55,12 @@ app.initializers.add('flarum-pusher', () => {
           }
         }
       });
+    });
+  });
 
-      extend(context, 'onunload', () => channels.main.unbind('newPost'));
+  extend(DiscussionList.prototype, 'onremove', function () {
+    app.pusher.then(channels => {
+      channels.main.unbind('newPost');
     });
   });
 
@@ -105,9 +107,7 @@ app.initializers.add('flarum-pusher', () => {
     m.redraw();
   });
 
-  extend(DiscussionPage.prototype, 'config', function(x, isInitialized, context) {
-    if (isInitialized) return;
-
+  extend(DiscussionPage.prototype, 'oncreate', function() {
     app.pusher.then(channels => {
       channels.main.bind('newPost', data => {
         const id = String(data.discussionId);
@@ -126,8 +126,12 @@ app.initializers.add('flarum-pusher', () => {
           });
         }
       });
+    });
+  });
 
-      extend(context, 'onunload', () => channels.main.unbind('newPost'));
+  extend(DiscussionPage.prototype, 'onremove', function () {
+    app.pusher.then(channels => {
+      channels.main.unbind('newPost')
     });
   });
 
