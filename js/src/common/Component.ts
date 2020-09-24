@@ -132,7 +132,10 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    *
    * This can be used to assign default values for missing, optional attrs.
    */
-  protected static initAttrs<T>(attrs: T): void {}
+  protected static initAttrs<T>(attrs: T): void {
+    // Deprecated, part of Mithril 2 BC layer
+    this.initProps(attrs);
+  }
 
   // BEGIN DEPRECATED MITHRIL 2 BC LAYER
 
