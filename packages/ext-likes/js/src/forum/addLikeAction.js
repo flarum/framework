@@ -5,7 +5,7 @@ import CommentPost from 'flarum/components/CommentPost';
 
 export default function() {
   extend(CommentPost.prototype, 'actionItems', function(items) {
-    const post = this.props.post;
+    const post = this.attrs.post;
 
     if (post.isHidden() || !post.canLike()) return;
 
@@ -15,7 +15,6 @@ export default function() {
 
     items.add('like',
       Button.component({
-        children: app.translator.trans(isLiked ? 'flarum-likes.forum.post.unlike_link' : 'flarum-likes.forum.post.like_link'),
         className: 'Button Button--link',
         onclick: () => {
           isLiked = !isLiked;
@@ -37,7 +36,7 @@ export default function() {
             data.unshift({type: 'users', id: app.session.user.id()});
           }
         }
-      })
+      }, app.translator.trans(isLiked ? 'flarum-likes.forum.post.unlike_link' : 'flarum-likes.forum.post.like_link'))
     );
   });
 }
