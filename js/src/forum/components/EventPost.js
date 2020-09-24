@@ -8,28 +8,28 @@ import icon from '../../common/helpers/icon';
  * event, like a discussion being renamed or stickied. Subclasses must implement
  * the `icon` and `description` methods.
  *
- * ### Props
+ * ### Attrs
  *
- * - All of the props for `Post`
+ * - All of the attrs for `Post`
  *
  * @abstract
  */
 export default class EventPost extends Post {
-  attrs() {
-    const attrs = super.attrs();
+  elementAttrs() {
+    const attrs = super.elementAttrs();
 
-    attrs.className = (attrs.className || '') + ' EventPost ' + ucfirst(this.props.post.contentType()) + 'Post';
+    attrs.className = (attrs.className || '') + ' EventPost ' + ucfirst(this.attrs.post.contentType()) + 'Post';
 
     return attrs;
   }
 
   content() {
-    const user = this.props.post.user();
+    const user = this.attrs.post.user();
     const username = usernameHelper(user);
     const data = Object.assign(this.descriptionData(), {
       user,
       username: user ? (
-        <a className="EventPost-user" href={app.route.user(user)} config={m.route}>
+        <a className="EventPost-user" route={app.route.user(user)}>
           {username}
         </a>
       ) : (

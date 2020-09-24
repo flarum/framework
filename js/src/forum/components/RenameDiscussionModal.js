@@ -5,12 +5,12 @@ import Button from '../../common/components/Button';
  * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion
  */
 export default class RenameDiscussionModal extends Modal {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
-    this.discussion = this.props.discussion;
-    this.currentTitle = this.props.currentTitle;
-    this.newTitle = m.prop(this.currentTitle);
+    this.discussion = this.attrs.discussion;
+    this.currentTitle = this.attrs.currentTitle;
+    this.newTitle = m.stream(this.currentTitle);
   }
 
   className() {
@@ -29,12 +29,14 @@ export default class RenameDiscussionModal extends Modal {
             <input className="FormControl" bidi={this.newTitle} type="text" />
           </div>
           <div className="Form-group">
-            {Button.component({
-              className: 'Button Button--primary Button--block',
-              type: 'submit',
-              loading: this.loading,
-              children: app.translator.trans('core.forum.rename_discussion.submit_button'),
-            })}
+            {Button.component(
+              {
+                className: 'Button Button--primary Button--block',
+                type: 'submit',
+                loading: this.loading,
+              },
+              app.translator.trans('core.forum.rename_discussion.submit_button')
+            )}
           </div>
         </div>
       </div>

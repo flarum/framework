@@ -3,9 +3,9 @@ import Button from './Button';
 /**
  * The `LinkButton` component defines a `Button` which links to a route.
  *
- * ### Props
+ * ### Attrs
  *
- * All of the props accepted by `Button`, plus:
+ * All of the attrs accepted by `Button`, plus:
  *
  * - `active` Whether or not the page that this button links to is currently
  *   active.
@@ -13,26 +13,28 @@ import Button from './Button';
  *   the `active` prop will automatically be set to true.
  */
 export default class LinkButton extends Button {
-  static initProps(props) {
-    props.active = this.isActive(props);
-    props.config = props.config || m.route;
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
+
+    attrs.active = this.isActive(attrs);
   }
 
-  view() {
-    const vdom = super.view();
+  view(vnode) {
+    const vdom = super.view(vnode);
 
-    vdom.tag = 'a';
+    vdom.tag = m.route.Link;
+    vdom.attrs.active = String(vdom.attrs.active);
 
     return vdom;
   }
 
   /**
-   * Determine whether a component with the given props is 'active'.
+   * Determine whether a component with the given attrs is 'active'.
    *
-   * @param {Object} props
+   * @param {Object} attrs
    * @return {Boolean}
    */
-  static isActive(props) {
-    return typeof props.active !== 'undefined' ? props.active : m.route() === props.href;
+  static isActive(attrs) {
+    return typeof attrs.active !== 'undefined' ? attrs.active : m.route.get() === attrs.href;
   }
 }

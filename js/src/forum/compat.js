@@ -3,7 +3,6 @@ import compat from '../common/compat';
 import PostControls from './utils/PostControls';
 import KeyboardNavigatable from './utils/KeyboardNavigatable';
 import slidable from './utils/slidable';
-import affixSidebar from './utils/affixSidebar';
 import History from './utils/History';
 import DiscussionControls from './utils/DiscussionControls';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
@@ -15,6 +14,7 @@ import GlobalSearchState from './states/GlobalSearchState';
 import NotificationListState from './states/NotificationListState';
 import PostStreamState from './states/PostStreamState';
 import SearchState from './states/SearchState';
+import AffixedSidebar from './components/AffixedSidebar';
 import DiscussionPage from './components/DiscussionPage';
 import LogInModal from './components/LogInModal';
 import ComposerBody from './components/ComposerBody';
@@ -61,6 +61,7 @@ import NotificationList from './components/NotificationList';
 import WelcomeHero from './components/WelcomeHero';
 import SignUpModal from './components/SignUpModal';
 import CommentPost from './components/CommentPost';
+import ComposerPostPreview from './components/ComposerPostPreview';
 import ReplyComposer from './components/ReplyComposer';
 import NotificationsPage from './components/NotificationsPage';
 import PostStreamScrubber from './components/PostStreamScrubber';
@@ -77,7 +78,6 @@ export default Object.assign(compat, {
   'utils/PostControls': PostControls,
   'utils/KeyboardNavigatable': KeyboardNavigatable,
   'utils/slidable': slidable,
-  'utils/affixSidebar': affixSidebar,
   'utils/History': History,
   'utils/DiscussionControls': DiscussionControls,
   'utils/alertEmailConfirmation': alertEmailConfirmation,
@@ -89,6 +89,7 @@ export default Object.assign(compat, {
   'states/NotificationListState': NotificationListState,
   'states/PostStreamState': PostStreamState,
   'states/SearchState': SearchState,
+  'components/AffixedSidebar': AffixedSidebar,
   'components/DiscussionPage': DiscussionPage,
   'components/LogInModal': LogInModal,
   'components/ComposerBody': ComposerBody,
@@ -135,6 +136,7 @@ export default Object.assign(compat, {
   'components/WelcomeHero': WelcomeHero,
   'components/SignUpModal': SignUpModal,
   'components/CommentPost': CommentPost,
+  'components/ComposerPostPreview': ComposerPostPreview,
   'components/ReplyComposer': ReplyComposer,
   'components/NotificationsPage': NotificationsPage,
   'components/PostStreamScrubber': PostStreamScrubber,

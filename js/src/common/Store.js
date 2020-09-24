@@ -82,13 +82,13 @@ export default class Store {
    * @public
    */
   find(type, id, query = {}, options = {}) {
-    let data = query;
+    let params = query;
     let url = app.forum.attribute('apiUrl') + '/' + type;
 
     if (id instanceof Array) {
       url += '?filter[id]=' + id.join(',');
     } else if (typeof id === 'object') {
-      data = id;
+      params = id;
     } else if (id) {
       url += '/' + id;
     }
@@ -99,7 +99,7 @@ export default class Store {
           {
             method: 'GET',
             url,
-            data,
+            params,
           },
           options
         )

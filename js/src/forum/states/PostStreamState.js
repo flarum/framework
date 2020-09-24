@@ -47,7 +47,7 @@ class PostStreamState {
    * @public
    */
   update() {
-    if (!this.viewingEnd()) return m.deferred().resolve().promise;
+    if (!this.viewingEnd()) return Promise.resolve();
 
     this.visibleEnd = this.count();
 
@@ -134,7 +134,7 @@ class PostStreamState {
    */
   loadNearNumber(number) {
     if (this.posts().some((post) => post && Number(post.number()) === Number(number))) {
-      return m.deferred().resolve().promise;
+      return Promise.resolve();
     }
 
     this.reset();
@@ -157,7 +157,7 @@ class PostStreamState {
    */
   loadNearIndex(index) {
     if (index >= this.visibleStart && index <= this.visibleEnd) {
-      return m.deferred().resolve().promise;
+      return Promise.resolve();
     }
 
     const start = this.sanitizeIndex(index - this.constructor.loadCount / 2);
@@ -229,7 +229,7 @@ class PostStreamState {
         this.loadRange(start, end).then(() => {
           if (start >= this.visibleStart && end <= this.visibleEnd) {
             const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
-            anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw(true));
+            anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw.sync());
           }
           this.pagesLoading--;
         });
@@ -266,7 +266,7 @@ class PostStreamState {
         }
       });
 
-    return loadIds.length ? app.store.find('posts', loadIds) : m.deferred().resolve(loaded).promise;
+    return loadIds.length ? app.store.find('posts', loadIds) : Promise.resolve(loaded);
   }
 
   /**

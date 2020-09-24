@@ -6,8 +6,8 @@ import NotificationList from './NotificationList';
  * used on mobile devices where the notifications dropdown is within the drawer.
  */
 export default class NotificationsPage extends Page {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     app.history.push('notifications');
 
