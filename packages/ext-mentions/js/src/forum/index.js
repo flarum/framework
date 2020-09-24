@@ -53,16 +53,15 @@ app.initializers.add('flarum-mentions', function() {
   });
 
   // Add mentions tab in user profile
-  app.routes['user.mentions'] = {path: '/u/:username/mentions', component: MentionsUserPage.component()};
+  app.routes['user.mentions'] = {path: '/u/:username/mentions', component: MentionsUserPage};
   extend(UserPage.prototype, 'navItems', function(items) {
     const user = this.user;
     items.add('mentions',
       LinkButton.component({
         href: app.route('user.mentions', {username: user.username()}),
         name: 'mentions',
-        children: [app.translator.trans('flarum-mentions.forum.user.mentions_link')],
         icon: 'fas fa-at'
-      }),
+      }, app.translator.trans('flarum-mentions.forum.user.mentions_link')),
       80
     );
   });

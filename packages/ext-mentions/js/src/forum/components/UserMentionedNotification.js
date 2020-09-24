@@ -7,18 +7,18 @@ export default class UserMentionedNotification extends Notification {
   }
 
   href() {
-    const post = this.props.notification.subject();
+    const post = this.attrs.notification.subject();
 
     return app.route.discussion(post.discussion(), post.number());
   }
 
   content() {
-    const user = this.props.notification.fromUser();
+    const user = this.attrs.notification.fromUser();
 
     return app.translator.trans('flarum-mentions.forum.notifications.user_mentioned_text', {user});
   }
 
   excerpt() {
-    return truncate(this.props.notification.subject().contentPlain(), 200);
+    return truncate(this.attrs.notification.subject().contentPlain(), 200);
   }
 }
