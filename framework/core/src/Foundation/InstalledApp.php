@@ -70,12 +70,12 @@ class InstalledApp implements AppInterface
         return $pipe;
     }
 
-    private function inMaintenanceMode(): bool
+    protected function inMaintenanceMode(): bool
     {
         return $this->config['offline'] ?? false;
     }
 
-    private function needsUpdate(): bool
+    protected function needsUpdate(): bool
     {
         $settings = $this->container->make(SettingsRepositoryInterface::class);
         $version = $settings->get('version');
@@ -86,7 +86,7 @@ class InstalledApp implements AppInterface
     /**
      * @return \Psr\Http\Server\RequestHandlerInterface
      */
-    private function getUpdaterHandler()
+    protected function getUpdaterHandler()
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(new BasePath($this->basePath()));
@@ -97,12 +97,12 @@ class InstalledApp implements AppInterface
         return $pipe;
     }
 
-    private function basePath(): string
+    protected function basePath(): string
     {
         return parse_url($this->config['url'], PHP_URL_PATH) ?: '/';
     }
 
-    private function subPath($pathName): string
+    protected function subPath($pathName): string
     {
         return '/'.($this->config['paths'][$pathName] ?? $pathName);
     }
