@@ -55,6 +55,34 @@ class ExtensionDependencyResolutionTest extends TestCase
     }
 
     /** @test */
+    public function works_with_proper_data_in_different_order()
+    {
+        $exts = [$this->help, $this->categories, $this->tagBackgrounds, $this->tags, $this->something];
+
+        $expected = [
+            'valid' => [$this->tags, $this->tagBackgrounds, $this->help, $this->categories, $this->something],
+            'missingDependencies' => [],
+            'circularDependencies' => [],
+        ];
+
+        $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
+    }
+
+    /** @test */
+    public function works_with_proper_data_in_yet_another_order()
+    {
+        $exts = [$this->something, $this->tagBackgrounds, $this->help, $this->categories, $this->tags];
+
+        $expected = [
+            'valid' => [$this->tags, $this->tagBackgrounds, $this->help, $this->categories, $this->something],
+            'missingDependencies' => [],
+            'circularDependencies' => [],
+        ];
+
+        $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
+    }
+
+    /** @test */
     public function works_with_missing_dependencies()
     {
         $exts = [$this->tags, $this->categories, $this->tagBackgrounds, $this->something, $this->help, $this->missing];
