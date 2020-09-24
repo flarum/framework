@@ -1,22 +1,33 @@
-import Alert from '../components/Alert';
+import Mithril from 'mithril';
+import Alert, { AlertAttrs } from '../components/Alert';
+
+export interface AlertState {
+  componentClass: AlertManagerState;
+  attrs: AlertAttrs;
+  children: Mithril.Children;
+}
 
 export default class AlertManagerState {
-  constructor() {
-    this.activeAlerts = {};
-    this.alertId = 0;
-  }
+  protected activeAlerts: { [ids: string]: AlertState } = {};
+  protected alertId = 0;
 
-  getActiveAlerts() {
+  public getActiveAlerts() {
     return this.activeAlerts;
   }
 
   /**
    * Show an Alert in the alerts area.
+   *
+   * @returns The alert's ID, which can be used to dismiss the alert.
    */
-  show(arg1, arg2, arg3) {
+  public show(children: Mithril.Children): number;
+  public show(attrs: AlertAttrs, children: Mithril.Children): number;
+  public show(componentClass: Alert, attrs: AlertAttrs, children: Mithril.Children): number;
+
+  public show(arg1: Mithril.Children | AlertAttrs | Alert, arg2?: AlertAttrs | Mithril.Children, arg3?: Mithril.Children) {
     let componentClass = Alert;
-    let attrs = {};
-    let children;
+    let attrs: AlertAttrs = {};
+    let children: Mithril.Children;
     if (arguments.length == 1) {
       children = arg1;
     } else if (arguments.length == 2) {
@@ -24,7 +35,7 @@ export default class AlertManagerState {
       children = arg2;
     } else if (arguments.length == 3) {
       componentClass = arg1;
-      attrs = arg2;
+      attrs = arg2 as AlertAttrs;
       children = arg3;
     }
 
@@ -45,7 +56,7 @@ export default class AlertManagerState {
   /**
    * Dismiss an alert.
    */
-  dismiss(key) {
+  public dismiss(key: number): void {
     if (!key || !(key in this.activeAlerts)) return;
 
     delete this.activeAlerts[key];
@@ -54,10 +65,8 @@ export default class AlertManagerState {
 
   /**
    * Clear all alerts.
-   *
-   * @public
    */
-  clear() {
+  public clear(): void {
     this.activeAlerts = {};
     m.redraw();
   }
