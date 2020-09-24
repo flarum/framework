@@ -7,8 +7,8 @@ import tagLabel from '../../common/helpers/tagLabel';
 import sortTags from '../../common/utils/sortTags';
 
 export default class TagsPage extends Page {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     this.tags = sortTags(app.store.all('tags').filter(tag => !tag.parent()));
 
@@ -23,7 +23,7 @@ export default class TagsPage extends Page {
       <div className="TagsPage">
         {IndexPage.prototype.hero()}
         <div className="container">
-          <nav className="TagsPage-nav IndexPage-nav sideNav" config={IndexPage.prototype.affixSidebar}>
+          <nav className="TagsPage-nav IndexPage-nav sideNav">
             <ul>{listItems(IndexPage.prototype.sidebarItems().toArray())}</ul>
           </nav>
 
@@ -36,18 +36,14 @@ export default class TagsPage extends Page {
                 return (
                   <li className={'TagTile ' + (tag.color() ? 'colored' : '')}
                     style={{backgroundColor: tag.color()}}>
-                    <a className="TagTile-info" href={app.route.tag(tag)} config={m.route}>
+                    <a className="TagTile-info" route={app.route.tag(tag)}>
                       <h3 className="TagTile-name">{tag.name()}</h3>
                       <p className="TagTile-description">{tag.description()}</p>
                       {children
                         ? (
                           <div className="TagTile-children">
                             {children.map(child => [
-                              <a href={app.route.tag(child)} config={function(element, isInitialized) {
-                                if (isInitialized) return;
-                                $(element).on('click', e => e.stopPropagation());
-                                m.route.apply(this, arguments);
-                              }}>
+                              <a route={app.route.tag(child)}>
                                 {child.name()}
                               </a>,
                               ' '
@@ -58,8 +54,8 @@ export default class TagsPage extends Page {
                     {lastPostedDiscussion
                       ? (
                         <a className="TagTile-lastPostedDiscussion"
-                          href={app.route.discussion(lastPostedDiscussion, lastPostedDiscussion.lastPostNumber())}
-                          config={m.route}>
+                          route={app.route.discussion(lastPostedDiscussion, lastPostedDiscussion.lastPostNumber())}
+                          >
                           <span className="TagTile-lastPostedDiscussion-title">{lastPostedDiscussion.title()}</span>
                           {humanTime(lastPostedDiscussion.lastPostedAt())}
                         </a>
@@ -85,8 +81,8 @@ export default class TagsPage extends Page {
     );
   }
 
-  config(...args) {
-    super.config(...args);
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     app.setTitle(app.translator.trans('flarum-tags.forum.all_tags.meta_title_text'));
     app.setTitleCount(0);

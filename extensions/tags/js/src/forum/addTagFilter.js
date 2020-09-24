@@ -16,7 +16,7 @@ export default function() {
   override(IndexPage.prototype, 'hero', function(original) {
     const tag = this.currentTag();
 
-    if (tag) return TagHero.component({tag});
+    if (tag) return <TagHero model={tag} />;
 
     return original();
   });
@@ -27,7 +27,7 @@ export default function() {
     if (tag) vdom.attrs.className += ' IndexPage--tag'+tag.id();
   });
 
-  extend(IndexPage.prototype, 'config', function() {
+  extend(IndexPage.prototype, 'setTitle', function() {
     const tag = this.currentTag();
 
     if (tag) {
@@ -45,11 +45,11 @@ export default function() {
       const canStartDiscussion = tag.canStartDiscussion();
 
       if (color) {
-        items.get('newDiscussion').props.style = {backgroundColor: color};
+        items.get('newDiscussion').attrs.style = {backgroundColor: color};
       }
 
-      items.get('newDiscussion').props.disabled = !canStartDiscussion;
-      items.get('newDiscussion').props.children = app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button');
+      items.get('newDiscussion').attrs.disabled = !canStartDiscussion;
+      items.get('newDiscussion').children = app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button');
     }
   });
 

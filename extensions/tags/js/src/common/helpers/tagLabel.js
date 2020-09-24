@@ -17,8 +17,7 @@ export default function tagLabel(tag, attrs = {}) {
 
     if (link) {
       attrs.title = tag.description() || '';
-      attrs.href = app.route('tag', {tags: tag.slug()});
-      attrs.config = m.route;
+      attrs.route = app.route('tag', {tags: tag.slug()});
     }
   } else {
     attrs.className += ' untagged';

@@ -1,4 +1,5 @@
 import SettingsModal from 'flarum/components/SettingsModal';
+import withAttr from 'flarum/utils/withAttr';
 
 export default class TagSettingsModal extends SettingsModal {
   setMinTags(minTags, maxTags, value) {
@@ -32,7 +33,7 @@ export default class TagSettingsModal extends SettingsModal {
             type="number"
             min="0"
             value={minPrimaryTags()}
-            oninput={m.withAttr('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags))} />
+            oninput={withAttr('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags))} />
           {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
           <input className="FormControl"
             type="number"
@@ -51,7 +52,7 @@ export default class TagSettingsModal extends SettingsModal {
             type="number"
             min="0"
             value={minSecondaryTags()}
-            oninput={m.withAttr('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags))} />
+            oninput={withAttr('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags))} />
           {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
           <input className="FormControl"
             type="number"
