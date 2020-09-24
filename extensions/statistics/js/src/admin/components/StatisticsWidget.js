@@ -16,8 +16,8 @@ import abbreviateNumber from 'flarum/utils/abbreviateNumber';
 import { Chart } from 'frappe-charts/dist/frappe-charts.esm.js';
 
 export default class StatisticsWidget extends DashboardWidget {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     // Create a Date object which represents the start of the day in the
     // configured timezone. To do this we convert a UTC time into that timezone,
@@ -89,13 +89,13 @@ export default class StatisticsWidget extends DashboardWidget {
           );
         })}
 
-        <div className="StatisticsWidget-chart" config={this.drawChart.bind(this)}/>
+        <div className="StatisticsWidget-chart" oncreate={this.drawChart.bind(this)} onupdate={this.drawChart.bind(this)}/>
       </div>
     );
   }
 
-  drawChart(elm, isInitialized, context) {
-    if (context.chart && context.entity === this.selectedEntity && context.period === this.selectedPeriod) {
+  drawChart(vnode) {
+    if (this.chart && this.entity === this.selectedEntity && this.period === this.selectedPeriod) {
       return;
     }
 
@@ -135,8 +135,8 @@ export default class StatisticsWidget extends DashboardWidget {
       datasets
     };
 
-    if (!context.chart) {
-      context.chart = new Chart(elm, {
+    if (!this.chart) {
+      this.chart = new Chart(vnode.dom, {
         data,
         type: 'line',
         height: 280,
@@ -151,11 +151,11 @@ export default class StatisticsWidget extends DashboardWidget {
         colors: ['black', app.forum.attribute('themePrimaryColor')]
       });
     } else {
-      context.chart.update(data);
+      this.chart.update(data);
     }
 
-    context.entity = this.selectedEntity;
-    context.period = this.selectedPeriod;
+    this.entity = this.selectedEntity;
+    this.period = this.selectedPeriod;
   }
 
   changeEntity(entity) {
