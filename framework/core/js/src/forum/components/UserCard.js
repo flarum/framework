@@ -14,7 +14,7 @@ import listItems from '../../common/helpers/listItems';
  * the `UserPage` (in the hero) and in discussions, shown when hovering over a
  * post author.
  *
- * ### Props
+ * ### Attrs
  *
  * - `user`
  * - `className`
@@ -23,32 +23,34 @@ import listItems from '../../common/helpers/listItems';
  */
 export default class UserCard extends Component {
   view() {
-    const user = this.props.user;
+    const user = this.attrs.user;
     const controls = UserControls.controls(user, this).toArray();
     const color = user.color();
     const badges = user.badges().toArray();
 
     return (
-      <div className={'UserCard ' + (this.props.className || '')} style={color ? { backgroundColor: color } : ''}>
+      <div className={'UserCard ' + (this.attrs.className || '')} style={color ? { backgroundColor: color } : ''}>
         <div className="darkenBackground">
           <div className="container">
             {controls.length
-              ? Dropdown.component({
-                  children: controls,
-                  className: 'UserCard-controls App-primaryControl',
-                  menuClassName: 'Dropdown-menu--right',
-                  buttonClassName: this.props.controlsButtonClassName,
-                  label: app.translator.trans('core.forum.user_controls.button'),
-                  icon: 'fas fa-ellipsis-v',
-                })
+              ? Dropdown.component(
+                  {
+                    className: 'UserCard-controls App-primaryControl',
+                    menuClassName: 'Dropdown-menu--right',
+                    buttonClassName: this.attrs.controlsButtonClassName,
+                    label: app.translator.trans('core.forum.user_controls.button'),
+                    icon: 'fas fa-ellipsis-v',
+                  },
+                  controls
+                )
               : ''}
 
             <div className="UserCard-profile">
               <h2 className="UserCard-identity">
-                {this.props.editable ? (
+                {this.attrs.editable ? (
                   [AvatarEditor.component({ user, className: 'UserCard-avatar' }), username(user)]
                 ) : (
-                  <a href={app.route.user(user)} config={m.route}>
+                  <a route={app.route.user(user)}>
                     <div className="UserCard-avatar">{avatar(user)}</div>
                     {username(user)}
                   </a>
@@ -72,7 +74,7 @@ export default class UserCard extends Component {
    */
   infoItems() {
     const items = new ItemList();
-    const user = this.props.user;
+    const user = this.attrs.user;
     const lastSeenAt = user.lastSeenAt();
 
     if (lastSeenAt) {

@@ -115,15 +115,15 @@ export default class ForumApplication extends Application {
     this.routes[defaultAction].path = '/';
     this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
 
-    m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
-    m.mount(document.getElementById('header-navigation'), Navigation.component());
-    m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
-    m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
-    m.mount(document.getElementById('composer'), Composer.component({ state: this.composer }));
+    m.mount(document.getElementById('app-navigation'), { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
+    m.mount(document.getElementById('header-navigation'), Navigation);
+    m.mount(document.getElementById('header-primary'), HeaderPrimary);
+    m.mount(document.getElementById('header-secondary'), HeaderSecondary);
+    m.mount(document.getElementById('composer'), { view: () => Composer.component({ state: this.composer }) });
 
     this.pane = new Pane(document.getElementById('app'));
 
-    m.route.mode = 'pathname';
+    m.route.prefix = '';
     super.mount(this.forum.attribute('basePath'));
 
     alertEmailConfirmation(this);
@@ -161,8 +161,8 @@ export default class ForumApplication extends Application {
    * will be reloaded. Otherwise, a SignUpModal will be opened, prefilled
    * with the provided details.
    *
-   * @param {Object} payload A dictionary of props to pass into the sign up
-   *     modal. A truthy `loggedIn` prop indicates that the user has logged
+   * @param {Object} payload A dictionary of attrs to pass into the sign up
+   *     modal. A truthy `loggedIn` attr indicates that the user has logged
    *     in, and thus the page is reloaded.
    * @public
    */

@@ -6,15 +6,16 @@ import EditCustomHeaderModal from './EditCustomHeaderModal';
 import EditCustomFooterModal from './EditCustomFooterModal';
 import UploadImageButton from './UploadImageButton';
 import saveSettings from '../utils/saveSettings';
+import withAttr from '../../common/utils/withAttr';
 
 export default class AppearancePage extends Page {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
-    this.primaryColor = m.prop(app.data.settings.theme_primary_color);
-    this.secondaryColor = m.prop(app.data.settings.theme_secondary_color);
-    this.darkMode = m.prop(app.data.settings.theme_dark_mode);
-    this.coloredHeader = m.prop(app.data.settings.theme_colored_header);
+    this.primaryColor = m.stream(app.data.settings.theme_primary_color);
+    this.secondaryColor = m.stream(app.data.settings.theme_secondary_color);
+    this.darkMode = m.stream(app.data.settings.theme_dark_mode);
+    this.coloredHeader = m.stream(app.data.settings.theme_colored_header);
   }
 
   view() {
@@ -27,40 +28,34 @@ export default class AppearancePage extends Page {
               <div className="helpText">{app.translator.trans('core.admin.appearance.colors_text')}</div>
 
               <div className="AppearancePage-colors-input">
-                <input
-                  className="FormControl"
-                  type="text"
-                  placeholder="#aaaaaa"
-                  value={this.primaryColor()}
-                  onchange={m.withAttr('value', this.primaryColor)}
-                />
-                <input
-                  className="FormControl"
-                  type="text"
-                  placeholder="#aaaaaa"
-                  value={this.secondaryColor()}
-                  onchange={m.withAttr('value', this.secondaryColor)}
-                />
+                <input className="FormControl" type="text" placeholder="#aaaaaa" bidi={this.primaryColor} />
+                <input className="FormControl" type="text" placeholder="#aaaaaa" bidi={this.secondaryColor} />
               </div>
 
-              {Switch.component({
-                state: this.darkMode(),
-                children: app.translator.trans('core.admin.appearance.dark_mode_label'),
-                onchange: this.darkMode,
-              })}
+              {Switch.component(
+                {
+                  state: this.darkMode(),
+                  onchange: this.darkMode,
+                },
+                app.translator.trans('core.admin.appearance.dark_mode_label')
+              )}
 
-              {Switch.component({
-                state: this.coloredHeader(),
-                children: app.translator.trans('core.admin.appearance.colored_header_label'),
-                onchange: this.coloredHeader,
-              })}
+              {Switch.component(
+                {
+                  state: this.coloredHeader(),
+                  onchange: this.coloredHeader,
+                },
+                app.translator.trans('core.admin.appearance.colored_header_label')
+              )}
 
-              {Button.component({
-                className: 'Button Button--primary',
-                type: 'submit',
-                children: app.translator.trans('core.admin.appearance.submit_button'),
-                loading: this.loading,
-              })}
+              {Button.component(
+                {
+                  className: 'Button Button--primary',
+                  type: 'submit',
+                  loading: this.loading,
+                },
+                app.translator.trans('core.admin.appearance.submit_button')
+              )}
             </fieldset>
           </form>
 
@@ -79,31 +74,37 @@ export default class AppearancePage extends Page {
           <fieldset>
             <legend>{app.translator.trans('core.admin.appearance.custom_header_heading')}</legend>
             <div className="helpText">{app.translator.trans('core.admin.appearance.custom_header_text')}</div>
-            {Button.component({
-              className: 'Button',
-              children: app.translator.trans('core.admin.appearance.edit_header_button'),
-              onclick: () => app.modal.show(EditCustomHeaderModal),
-            })}
+            {Button.component(
+              {
+                className: 'Button',
+                onclick: () => app.modal.show(EditCustomHeaderModal),
+              },
+              app.translator.trans('core.admin.appearance.edit_header_button')
+            )}
           </fieldset>
 
           <fieldset>
             <legend>{app.translator.trans('core.admin.appearance.custom_footer_heading')}</legend>
             <div className="helpText">{app.translator.trans('core.admin.appearance.custom_footer_text')}</div>
-            {Button.component({
-              className: 'Button',
-              children: app.translator.trans('core.admin.appearance.edit_footer_button'),
-              onclick: () => app.modal.show(EditCustomFooterModal),
-            })}
+            {Button.component(
+              {
+                className: 'Button',
+                onclick: () => app.modal.show(EditCustomFooterModal),
+              },
+              app.translator.trans('core.admin.appearance.edit_footer_button')
+            )}
           </fieldset>
 
           <fieldset>
             <legend>{app.translator.trans('core.admin.appearance.custom_styles_heading')}</legend>
             <div className="helpText">{app.translator.trans('core.admin.appearance.custom_styles_text')}</div>
-            {Button.component({
-              className: 'Button',
-              children: app.translator.trans('core.admin.appearance.edit_css_button'),
-              onclick: () => app.modal.show(EditCustomCssModal),
-            })}
+            {Button.component(
+              {
+                className: 'Button',
+                onclick: () => app.modal.show(EditCustomCssModal),
+              },
+              app.translator.trans('core.admin.appearance.edit_css_button')
+            )}
           </fieldset>
         </div>
       </div>

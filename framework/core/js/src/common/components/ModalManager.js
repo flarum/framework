@@ -6,12 +6,8 @@ import Component from '../Component';
  * overwrite the previous one.
  */
 export default class ModalManager extends Component {
-  init() {
-    this.state = this.props.state;
-  }
-
   view() {
-    const modal = this.state.modal;
+    const modal = this.attrs.state.modal;
 
     return (
       <div className="ModalManager modal fade">
@@ -20,22 +16,17 @@ export default class ModalManager extends Component {
     );
   }
 
-  config(isInitialized, context) {
-    if (isInitialized) return;
-
-    // Since this component is 'above' the content of the page (that is, it is a
-    // part of the global UI that persists between routes), we will flag the DOM
-    // to be retained across route changes.
-    context.retain = true;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     // Ensure the modal state is notified about a closed modal, even when the
     // DOM-based Bootstrap JavaScript code triggered the closing of the modal,
     // e.g. via ESC key or a click on the modal backdrop.
-    this.$().on('hidden.bs.modal', this.state.close.bind(this.state));
+    this.$().on('hidden.bs.modal', this.attrs.state.close.bind(this.attrs.state));
   }
 
   animateShow(readyCallback) {
-    const dismissible = !!this.state.modal.componentClass.isDismissible;
+    const dismissible = !!this.attrs.state.modal.componentClass.isDismissible;
 
     this.$()
       .one('shown.bs.modal', readyCallback)

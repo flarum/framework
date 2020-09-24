@@ -6,7 +6,9 @@ import ItemList from '../../common/utils/ItemList';
 import icon from '../../common/helpers/icon';
 
 export default class PermissionGrid extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.permissions = this.permissionItems().toArray();
   }
 

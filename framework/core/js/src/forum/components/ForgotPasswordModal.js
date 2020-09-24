@@ -1,5 +1,4 @@
 import Modal from '../../common/components/Modal';
-import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import extractText from '../../common/utils/extractText';
 
@@ -7,20 +6,20 @@ import extractText from '../../common/utils/extractText';
  * The `ForgotPasswordModal` component displays a modal which allows the user to
  * enter their email address and request a link to reset their password.
  *
- * ### Props
+ * ### Attrs
  *
  * - `email`
  */
 export default class ForgotPasswordModal extends Modal {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     /**
      * The value of the email input.
      *
      * @type {Function}
      */
-    this.email = m.prop(this.props.email || '');
+    this.email = m.stream(this.attrs.email || '');
 
     /**
      * Whether or not the password reset email was sent successfully.
@@ -64,18 +63,19 @@ export default class ForgotPasswordModal extends Modal {
               name="email"
               type="email"
               placeholder={extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'))}
-              value={this.email()}
-              onchange={m.withAttr('value', this.email)}
+              bidi={this.email}
               disabled={this.loading}
             />
           </div>
           <div className="Form-group">
-            {Button.component({
-              className: 'Button Button--primary Button--block',
-              type: 'submit',
-              loading: this.loading,
-              children: app.translator.trans('core.forum.forgot_password.submit_button'),
-            })}
+            {Button.component(
+              {
+                className: 'Button Button--primary Button--block',
+                type: 'submit',
+                loading: this.loading,
+              },
+              app.translator.trans('core.forum.forgot_password.submit_button')
+            )}
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@ export default class ForgotPasswordModal extends Modal {
       .request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/forgot',
-        data: { email: this.email() },
+        body: { email: this.email() },
         errorHandler: this.onerror.bind(this),
       })
       .then(() => {
@@ -104,7 +104,7 @@ export default class ForgotPasswordModal extends Modal {
 
   onerror(error) {
     if (error.status === 404) {
-      error.alert.children = app.translator.trans('core.forum.forgot_password.not_found_message');
+      error.alert.content = app.translator.trans('core.forum.forgot_password.not_found_message');
     }
 
     super.onerror(error);

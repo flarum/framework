@@ -8,7 +8,7 @@ import Button from '../../common/components/Button';
  * The `TextEditor` component displays a textarea with controls, including a
  * submit button.
  *
- * ### Props
+ * ### Attrs
  *
  * - `composer`
  * - `submitLabel`
@@ -18,13 +18,15 @@ import Button from '../../common/components/Button';
  * - `preview`
  */
 export default class TextEditor extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     /**
      * The value of the textarea.
      *
      * @type {String}
      */
-    this.value = this.props.value || '';
+    this.value = this.attrs.value || '';
   }
 
   view() {
@@ -32,10 +34,11 @@ export default class TextEditor extends Component {
       <div className="TextEditor">
         <textarea
           className="FormControl Composer-flexible"
-          config={this.configTextarea.bind(this)}
-          oninput={m.withAttr('value', this.oninput.bind(this))}
-          placeholder={this.props.placeholder || ''}
-          disabled={!!this.props.disabled}
+          oninput={(e) => {
+            this.oninput(e.target.value, e);
+          }}
+          placeholder={this.attrs.placeholder || ''}
+          disabled={!!this.attrs.disabled}
           value={this.value}
         />
 
@@ -47,24 +50,18 @@ export default class TextEditor extends Component {
     );
   }
 
-  /**
-   * Configure the textarea element.
-   *
-   * @param {HTMLTextAreaElement} element
-   * @param {Boolean} isInitialized
-   */
-  configTextarea(element, isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     const handler = () => {
       this.onsubmit();
       m.redraw();
     };
 
-    $(element).bind('keydown', 'meta+return', handler);
-    $(element).bind('keydown', 'ctrl+return', handler);
+    this.$('textarea').bind('keydown', 'meta+return', handler);
+    this.$('textarea').bind('keydown', 'ctrl+return', handler);
 
-    this.props.composer.editor = new SuperTextarea(element);
+    this.attrs.composer.editor = new SuperTextarea(this.$('textarea')[0]);
   }
 
   /**
@@ -77,24 +74,26 @@ export default class TextEditor extends Component {
 
     items.add(
       'submit',
-      Button.component({
-        children: this.props.submitLabel,
-        icon: 'fas fa-paper-plane',
-        className: 'Button Button--primary',
-        itemClassName: 'App-primaryControl',
-        onclick: this.onsubmit.bind(this),
-      })
+      Button.component(
+        {
+          icon: 'fas fa-paper-plane',
+          className: 'Button Button--primary',
+          itemClassName: 'App-primaryControl',
+          onclick: this.onsubmit.bind(this),
+        },
+        this.attrs.submitLabel
+      )
     );
 
-    if (this.props.preview) {
+    if (this.attrs.preview) {
       items.add(
         'preview',
         Button.component({
           icon: 'far fa-eye',
           className: 'Button Button--icon',
-          onclick: this.props.preview,
+          onclick: this.attrs.preview,
           title: app.translator.trans('core.forum.composer.preview_tooltip'),
-          config: (elm) => $(elm).tooltip(),
+          oncreate: (vnode) => $(vnode.dom).tooltip(),
         })
       );
     }
@@ -116,18 +115,18 @@ export default class TextEditor extends Component {
    *
    * @param {String} value
    */
-  oninput(value) {
+  oninput(value, e) {
     this.value = value;
 
-    this.props.onchange(this.value);
+    this.attrs.onchange(this.value);
 
-    m.redraw.strategy('none');
+    e.redraw = false;
   }
 
   /**
    * Handle the submit button being clicked.
    */
   onsubmit() {
-    this.props.onsubmit(this.value);
+    this.attrs.onsubmit(this.value);
   }
 }

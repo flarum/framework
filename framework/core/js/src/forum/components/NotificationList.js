@@ -9,12 +9,9 @@ import Discussion from '../../common/models/Discussion';
  * notifications, grouped by discussion.
  */
 export default class NotificationList extends Component {
-  init() {
-    this.state = this.props.state;
-  }
-
   view() {
-    const pages = this.state.getNotificationPages();
+    const state = this.attrs.state;
+    const pages = state.getNotificationPages();
 
     return (
       <div className="NotificationList">
@@ -24,7 +21,7 @@ export default class NotificationList extends Component {
               className: 'Button Button--icon Button--link',
               icon: 'fas fa-check',
               title: app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip'),
-              onclick: this.state.markAllAsRead.bind(this.state),
+              onclick: state.markAllAsRead.bind(state),
             })}
           </div>
 
@@ -66,7 +63,7 @@ export default class NotificationList extends Component {
                   return (
                     <div className="NotificationGroup">
                       {group.discussion ? (
-                        <a className="NotificationGroup-header" href={app.route.discussion(group.discussion)} config={m.route}>
+                        <a className="NotificationGroup-header" route={app.route.discussion(group.discussion)}>
                           {badges && badges.length ? <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul> : ''}
                           {group.discussion.title()}
                         </a>
@@ -85,7 +82,7 @@ export default class NotificationList extends Component {
                 });
               })
             : ''}
-          {this.state.isLoading() ? (
+          {state.isLoading() ? (
             <LoadingIndicator className="LoadingIndicator--block" />
           ) : pages.length ? (
             ''
@@ -97,27 +94,31 @@ export default class NotificationList extends Component {
     );
   }
 
-  config(isInitialized, context) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
-    const $notifications = this.$('.NotificationList-content');
-    const $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+    this.$notifications = this.$('.NotificationList-content');
+    this.$scrollParent = this.$notifications.css('overflow') === 'auto' ? this.$notifications : $(window);
 
-    const scrollHandler = () => {
-      const scrollTop = $scrollParent.scrollTop();
-      const viewportHeight = $scrollParent.height();
-      const contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
-      const contentHeight = $notifications[0].scrollHeight;
+    this.boundScrollHandler = this.scrollHandler.bind(this);
+    this.$scrollParent.on('scroll', this.boundScrollHandler);
+  }
 
-      if (this.state.hasMoreResults() && !this.state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
-        this.state.loadMore();
-      }
-    };
+  onremove() {
+    this.$scrollParent.off('scroll', this.boundScrollHandler);
+  }
 
-    $scrollParent.on('scroll', scrollHandler);
+  scrollHandler() {
+    const state = this.attrs.state;
 
-    context.onunload = () => {
-      $scrollParent.off('scroll', scrollHandler);
-    };
+    const scrollTop = this.$scrollParent.scrollTop();
+    const viewportHeight = this.$scrollParent.height();
+
+    const contentTop = this.$scrollParent === this.$notifications ? 0 : this.$notifications.offset().top;
+    const contentHeight = this.$notifications[0].scrollHeight;
+
+    if (state.hasMoreResults() && !state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
+      state.loadMore();
+    }
   }
 }
