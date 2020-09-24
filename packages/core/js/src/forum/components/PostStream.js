@@ -368,6 +368,10 @@ export default class PostStream extends Component {
    * @param {jQuery} $item
    */
   flashItem($item) {
-    $item.addClass('flash').one('animationend webkitAnimationEnd', () => $item.removeClass('flash'));
+    $item.addClass('flash').on('animationend webkitAnimationEnd', (e) => {
+      if (e.animationName === 'fadeIn') {
+        $item.removeClass('flash');
+      }
+    });
   }
 }
