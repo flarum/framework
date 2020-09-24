@@ -139,11 +139,11 @@ export default class ExtensionsPage extends Page {
     const error = JSON.parse(e.responseText).errors[0];
 
     app.alerts.show(
+      { type: 'error' },
       app.translator.trans(`core.lib.error.${error.code}_message`, {
         extension: error.extension,
         extensions: error.extensions.join(', '),
-      }),
-      { type: 'error' }
+      })
     );
   }
 }
