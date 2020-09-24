@@ -2,7 +2,7 @@ import Mithril from 'mithril';
 import Alert, { AlertAttrs } from '../components/Alert';
 
 export interface AlertState {
-  componentClass: AlertManagerState;
+  componentClass: typeof Alert;
   attrs: AlertAttrs;
   children: Mithril.Children;
 }
@@ -11,7 +11,7 @@ export default class AlertManagerState {
   protected activeAlerts: { [ids: string]: AlertState } = {};
   protected alertId = 0;
 
-  public getActiveAlerts() {
+  getActiveAlerts() {
     return this.activeAlerts;
   }
 
@@ -20,21 +20,23 @@ export default class AlertManagerState {
    *
    * @returns The alert's ID, which can be used to dismiss the alert.
    */
-  public show(children: Mithril.Children): number;
-  public show(attrs: AlertAttrs, children: Mithril.Children): number;
-  public show(componentClass: Alert, attrs: AlertAttrs, children: Mithril.Children): number;
+  show(children: Mithril.Children): number;
+  show(attrs: AlertAttrs, children: Mithril.Children): number;
+  show(componentClass: Alert, attrs: AlertAttrs, children: Mithril.Children): number;
 
-  public show(arg1: Mithril.Children | AlertAttrs | Alert, arg2?: AlertAttrs | Mithril.Children, arg3?: Mithril.Children) {
+  show(arg1: Mithril.Children | AlertAttrs | Alert, arg2?: AlertAttrs | Mithril.Children, arg3?: Mithril.Children) {
+    // Assigns variables as per the above signatures
     let componentClass = Alert;
     let attrs: AlertAttrs = {};
     let children: Mithril.Children;
+
     if (arguments.length == 1) {
-      children = arg1;
+      children = arg1 as Mithril.Children;
     } else if (arguments.length == 2) {
-      attrs = arg1;
-      children = arg2;
+      attrs = arg1 as AlertAttrs;
+      children = arg2 as Mithril.Children;
     } else if (arguments.length == 3) {
-      componentClass = arg1;
+      componentClass = arg1 as typeof Alert;
       attrs = arg2 as AlertAttrs;
       children = arg3;
     }
@@ -56,7 +58,7 @@ export default class AlertManagerState {
   /**
    * Dismiss an alert.
    */
-  public dismiss(key: number): void {
+  dismiss(key: number): void {
     if (!key || !(key in this.activeAlerts)) return;
 
     delete this.activeAlerts[key];
@@ -66,7 +68,7 @@ export default class AlertManagerState {
   /**
    * Clear all alerts.
    */
-  public clear(): void {
+  clear(): void {
     this.activeAlerts = {};
     m.redraw();
   }
