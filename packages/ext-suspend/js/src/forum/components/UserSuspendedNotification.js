@@ -6,11 +6,11 @@ export default class UserSuspendedNotification extends Notification {
   }
 
   href() {
-    return app.route.user(this.props.notification.subject());
+    return app.route.user(this.attrs.notification.subject());
   }
 
   content() {
-    const notification = this.props.notification;
+    const notification = this.attrs.notification;
     const suspendedUntil = notification.content();
     const timeReadable = dayjs(suspendedUntil.date).from(notification.createdAt(), true);
 
