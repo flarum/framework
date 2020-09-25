@@ -330,6 +330,7 @@ export default class PostStream extends Component {
    */
   scrollToItem($item, animate, force, bottom) {
     const $container = $('html, body').stop(true);
+    const index = $item.data('index');
 
     if ($item.length) {
       const itemTop = $item.offset().top - this.getMarginTop();
@@ -351,11 +352,16 @@ export default class PostStream extends Component {
       }
     }
 
-    return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
-      this.updateScrubber();
-      this.stream.forceUpdateScrubber = true;
+    // Even before scrolling, we want to provide location information
+    // to the scrubber as soon as possible. This way, we avoid an unnecessary
+    // and confusing animation.
+    this.updateScrubber();
+    // We manually set the index because we want to display the index of the
+    // exact post we've scrolled to, not just that of the first post on the page.
+    this.stream.index = index;
+    this.stream.forceUpdateScrubber = true;
 
-      const index = $item.data('index');
+    return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
       m.redraw.sync();
 
       // After post data has been loaded in, we will attempt to scroll back
