@@ -1,5 +1,8 @@
 import * as Mithril from 'mithril';
 
+let deprecatedPropsWarned = false;
+let deprecatedInitPropsWarned = false;
+
 export type ComponentAttrs = {
   className?: string;
 
@@ -134,8 +137,8 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    */
   protected static initAttrs<T>(attrs: T): void {
     // Deprecated, part of Mithril 2 BC layer
-    if ('initProps' in this && !window.deprecatedInitPropsWarned) {
-      window.deprecatedInitPropsWarned = true;
+    if ('initProps' in this && !deprecatedInitPropsWarned) {
+      deprecatedInitPropsWarned = true;
       console.warn('initProps is deprecated, please use initAttrs instead.');
       (this as any).initProps(attrs);
     }
@@ -151,15 +154,15 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    * @deprecated, use attrs instead.
    */
   get props() {
-    if (!window.deprecatedPropsWarned) {
-      window.deprecatedPropsWarned = true;
+    if (!deprecatedPropsWarned) {
+      deprecatedPropsWarned = true;
       console.warn('this.props is deprecated, please use this.attrs instead.');
     }
     return this.attrs;
   }
   set props(props) {
-    if (!window.deprecatedPropsWarned) {
-      window.deprecatedPropsWarned = true;
+    if (!deprecatedPropsWarned) {
+      deprecatedPropsWarned = true;
       console.warn('this.props is deprecated, please use this.attrs instead.');
     }
     this.attrs = props;
