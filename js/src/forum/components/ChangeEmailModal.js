@@ -1,5 +1,6 @@
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
+import stream from '../../common/utils/stream';
 
 /**
  * The `ChangeEmailModal` component shows a modal dialog which allows the user
@@ -21,14 +22,14 @@ export default class ChangeEmailModal extends Modal {
      *
      * @type {function}
      */
-    this.email = m.stream(app.session.user.email());
+    this.email = stream(app.session.user.email());
 
     /**
      * The value of the password input.
      *
      * @type {function}
      */
-    this.password = m.stream('');
+    this.password = stream('');
   }
 
   className() {

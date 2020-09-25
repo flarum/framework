@@ -68,7 +68,6 @@ export default function patchMithril(global) {
 
   Object.keys(defaultMithril).forEach((key) => (modifiedMithril[key] = defaultMithril[key]));
 
-
   modifiedMithril.route.Link = modifiedLink;
 
   // BEGIN DEPRECATED MITHRIL 2 BC LAYER

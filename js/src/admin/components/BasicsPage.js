@@ -5,6 +5,7 @@ import Button from '../../common/components/Button';
 import saveSettings from '../utils/saveSettings';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
+import stream from '../../common/utils/stream';
 import withAttr from '../../common/utils/withAttr';
 
 export default class BasicsPage extends Page {
@@ -26,7 +27,7 @@ export default class BasicsPage extends Page {
     this.values = {};
 
     const settings = app.data.settings;
-    this.fields.forEach((key) => (this.values[key] = m.stream(settings[key])));
+    this.fields.forEach((key) => (this.values[key] = stream(settings[key])));
 
     this.localeOptions = {};
     const locales = app.data.locales;

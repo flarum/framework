@@ -1,6 +1,7 @@
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import extractText from '../../common/utils/extractText';
+import stream from '../../common/utils/stream';
 
 /**
  * The `ForgotPasswordModal` component displays a modal which allows the user to
@@ -19,7 +20,7 @@ export default class ForgotPasswordModal extends Modal {
      *
      * @type {Function}
      */
-    this.email = m.stream(this.attrs.email || '');
+    this.email = stream(this.attrs.email || '');
 
     /**
      * Whether or not the password reset email was sent successfully.

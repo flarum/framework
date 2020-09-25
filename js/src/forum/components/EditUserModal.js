@@ -4,6 +4,7 @@ import GroupBadge from '../../common/components/GroupBadge';
 import Group from '../../common/models/Group';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
+import stream from '../../common/utils/stream';
 
 /**
  * The `EditUserModal` component displays a modal dialog with a login form.
@@ -14,17 +15,17 @@ export default class EditUserModal extends Modal {
 
     const user = this.attrs.user;
 
-    this.username = m.stream(user.username() || '');
-    this.email = m.stream(user.email() || '');
-    this.isEmailConfirmed = m.stream(user.isEmailConfirmed() || false);
-    this.setPassword = m.stream(false);
-    this.password = m.stream(user.password() || '');
+    this.username = stream(user.username() || '');
+    this.email = stream(user.email() || '');
+    this.isEmailConfirmed = stream(user.isEmailConfirmed() || false);
+    this.setPassword = stream(false);
+    this.password = stream(user.password() || '');
     this.groups = {};
 
     app.store
       .all('groups')
       .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
-      .forEach((group) => (this.groups[group.id()] = m.stream(user.groups().indexOf(group) !== -1)));
+      .forEach((group) => (this.groups[group.id()] = stream(user.groups().indexOf(group) !== -1)));
   }
 
   className() {

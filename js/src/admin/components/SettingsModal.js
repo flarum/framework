@@ -1,5 +1,6 @@
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
+import stream from '../../common/utils/stream';
 import saveSettings from '../utils/saveSettings';
 
 export default class SettingsModal extends Modal {
@@ -35,7 +36,7 @@ export default class SettingsModal extends Modal {
   }
 
   setting(key, fallback = '') {
-    this.settings[key] = this.settings[key] || m.stream(app.data.settings[key] || fallback);
+    this.settings[key] = this.settings[key] || stream(app.data.settings[key] || fallback);
 
     return this.settings[key];
   }
