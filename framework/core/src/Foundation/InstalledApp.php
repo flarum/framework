@@ -9,7 +9,6 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
@@ -28,11 +27,11 @@ class InstalledApp implements AppInterface
     protected $container;
 
     /**
-     * @var array
+     * @var Config
      */
     protected $config;
 
-    public function __construct(Container $container, array $config)
+    public function __construct(Container $container, Config $config)
     {
         $this->container = $container;
         $this->config = $config;
@@ -48,7 +47,7 @@ class InstalledApp implements AppInterface
      */
     public function getRequestHandler()
     {
-        if ($this->inMaintenanceMode()) {
+        if ($this->config->inMaintenanceMode()) {
             return new MaintenanceModeHandler();
         } elseif ($this->needsUpdate()) {
             return $this->getUpdaterHandler();
@@ -68,11 +67,6 @@ class InstalledApp implements AppInterface
         $pipe->pipe(new RequestHandler($this->container));
 
         return $pipe;
-    }
-
-    protected function inMaintenanceMode(): bool
-    {
-        return $this->config['offline'] ?? false;
     }
 
     protected function needsUpdate(): bool
@@ -99,7 +93,7 @@ class InstalledApp implements AppInterface
 
     protected function basePath(): string
     {
-        return parse_url($this->config['url'], PHP_URL_PATH) ?: '/';
+        return $this->config->url()->getPath() ?: '/';
     }
 
     protected function subPath($pathName): string
@@ -112,21 +106,14 @@ class InstalledApp implements AppInterface
      */
     public function getConsoleCommands()
     {
-        $commands = [];
+        return array_map(function ($command) {
+            $command = $this->container->make($command);
 
-        // The info command is a special case, as it requires a config parameter that's only available here.
-        $commands[] = $this->container->make(InfoCommand::class, ['config' => $this->config]);
-
-        foreach ($this->container->make('flarum.console.commands') as $command) {
-            $newCommand = $this->container->make($command);
-
-            if ($newCommand instanceof Command) {
-                $newCommand->setLaravel($this->container);
+            if ($command instanceof Command) {
+                $command->setLaravel($this->container);
             }
 
-            $commands[] = $newCommand;
-        }
-
-        return $commands;
+            return $command;
+        }, $this->container->make('flarum.console.commands'));
     }
 }

@@ -55,7 +55,7 @@ class InstalledSite implements SiteInterface
     protected $paths;
 
     /**
-     * @var array
+     * @var Config
      */
     protected $config;
 
@@ -64,7 +64,7 @@ class InstalledSite implements SiteInterface
      */
     protected $extenders = [];
 
-    public function __construct(Paths $paths, array $config)
+    public function __construct(Paths $paths, Config $config)
     {
         $this->paths = $paths;
         $this->config = $config;
@@ -101,7 +101,8 @@ class InstalledSite implements SiteInterface
 
         $container->instance('env', 'production');
         $container->instance('flarum.config', $this->config);
-        $container->instance('flarum.debug', $laravel->inDebugMode());
+        $container->alias('flarum.config', Config::class);
+        $container->instance('flarum.debug', $this->config->inDebugMode());
         $container->instance('config', $config = $this->getIlluminateConfig($laravel));
 
         $this->registerLogger($container);
