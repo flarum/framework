@@ -40,6 +40,7 @@ export default class ModalManager extends Component {
     // So, we need to manually trigger the readyCallback.
     if (this.$().hasClass('in')) {
       readyCallback();
+      return;
     }
 
     this.$()
