@@ -132,10 +132,10 @@ export default class PostStream extends Component {
     }
 
     if ('number' in newTarget) {
-      this.scrollToNumber(newTarget.number, this.stream.noAnimationScroll);
+      this.scrollToNumber(newTarget.number, this.stream.animateScroll);
     } else if ('index' in newTarget) {
       const backwards = newTarget.index === this.stream.count() - 1;
-      this.scrollToIndex(newTarget.index, this.stream.noAnimationScroll, backwards);
+      this.scrollToIndex(newTarget.index, this.stream.animateScroll, backwards);
     }
 
     this.prevTarget = newTarget;
