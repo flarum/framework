@@ -140,7 +140,7 @@ export default class PostStreamScrubber extends Component {
 
     setTimeout(() => this.scrollListener.start());
 
-    this.stream.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
+    this.stream.loadPromise.then(() => this.updateScrubberValues({ animate: false, forceHeightChange: true }));
   }
 
   onremove() {
