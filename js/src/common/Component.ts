@@ -134,19 +134,13 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    */
   protected static initAttrs<T>(attrs: T): void {
     // Deprecated, part of Mithril 2 BC layer
-    this.initProps(attrs);
+    if ('initProps' in this) {
+      console.warn('initProps is deprecated, please use initAttrs instead.');
+      (this as any).initProps(attrs);
+    }
   }
 
   // BEGIN DEPRECATED MITHRIL 2 BC LAYER
-
-  /**
-   * Initialize the component's attrs.
-   *
-   * This can be used to assign default values for missing, optional attrs.
-   *
-   * @deprecated, use initAttrs instead.
-   */
-  protected static initProps<T>(attrs: T): void {}
 
   /**
    * The attributes passed into the component.
@@ -156,9 +150,11 @@ export default abstract class Component<T extends ComponentAttrs = any> implemen
    * @deprecated, use attrs instead.
    */
   get props() {
+    console.warn('this.props is deprecated, please use this.attrs instead.');
     return this.attrs;
   }
   set props(props) {
+    console.warn('this.props is deprecated, please use this.attrs instead.');
     this.attrs = props;
   }
 

@@ -70,9 +70,15 @@ export default function patchMithril(global) {
   modifiedMithril.route.Link = modifiedLink;
 
   // BEGIN DEPRECATED MITHRIL 2 BC LAYER
-  modifiedMithril.prop = Stream;
+  modifiedMithril.prop = function (...args) {
+    console.warn('m.prop() is deprecated, please use m.stream() instead.');
+    return Stream.bind(this)(...args);
+  };
 
-  modifiedMithril.withAttr = withAttr;
+  modifiedMithril.withAttr = function (...args) {
+    console.warn('m.prop() is deprecated, please use m.stream() instead.');
+    return withAttr.bind(this)(...args);
+  };
   // END DEPRECATED MITHRIL 2 BC LAYER
 
   global.m = modifiedMithril;
