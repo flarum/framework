@@ -7,7 +7,7 @@
 <a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/d/total.svg" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/v/stable.svg" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/license.svg" alt="License"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="Styleci"></a>
+<a href="https://github.styleci.io/repos/28257573"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="Styleci"></a>
 </p>
 
 
