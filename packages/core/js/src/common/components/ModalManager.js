@@ -28,6 +28,13 @@ export default class ModalManager extends Component {
   animateShow(readyCallback) {
     const dismissible = !!this.attrs.state.modal.componentClass.isDismissible;
 
+    // If we are opening this modal while another modal is already open,
+    // the shown event will not run, because the modal is already open.
+    // So, we need to manually trigger the readyCallback.
+    if (this.$().hasClass('in')) {
+      readyCallback();
+    }
+
     this.$()
       .one('shown.bs.modal', readyCallback)
       .modal({
