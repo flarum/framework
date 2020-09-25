@@ -24,13 +24,13 @@ class Site
 
         date_default_timezone_set('UTC');
 
-        if (static::hasConfigFile($paths->base)) {
-            return (
-                new InstalledSite($paths, static::loadConfig($paths->base))
-            )->extendWith(static::loadExtenders($paths->base));
-        } else {
-            return new UninstalledSite($paths);
+        if (! static::hasConfigFile($paths->base)) {
+            return new UninstalledSite($paths, $_SERVER['REQUEST_URI']);
         }
+
+        return (
+            new InstalledSite($paths, static::loadConfig($paths->base))
+        )->extendWith(static::loadExtenders($paths->base));
     }
 
     protected static function hasConfigFile($basePath)
@@ -38,7 +38,7 @@ class Site
         return file_exists("$basePath/config.php");
     }
 
-    protected static function loadConfig($basePath): array
+    protected static function loadConfig($basePath): Config
     {
         $config = include "$basePath/config.php";
 
@@ -46,7 +46,7 @@ class Site
             throw new RuntimeException('config.php should return an array');
         }
 
-        return $config;
+        return new Config($config);
     }
 
     protected static function loadExtenders($basePath): array
