@@ -160,10 +160,8 @@ export default class DiscussionPage extends Page {
    * @param {Discussion} discussion
    */
   show(discussion) {
-    this.discussion = discussion;
-
     app.history.push('discussion', discussion.title());
-    app.setTitle(this.discussion.title());
+    app.setTitle(discussion.title());
     app.setTitleCount(0);
 
     // When the API responds with a discussion, it will also include a number of
@@ -194,10 +192,12 @@ export default class DiscussionPage extends Page {
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
     this.stream = new PostStreamState(discussion, includedPosts);
-    this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
+    this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true).then(() => {
+      this.discussion = discussion;
 
-    app.current.set('discussion', discussion);
-    app.current.set('stream', this.stream);
+      app.current.set('discussion', discussion);
+      app.current.set('stream', this.stream);
+    });
   }
 
   /**
