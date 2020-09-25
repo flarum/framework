@@ -1,11 +1,15 @@
-<p align="center"><img src="https://flarum.org/img/logo.png"></p>
+<p align="center"><img src="https://discuss.flarum.org/assets/logo-2q2rcevl.png"></p>
 
 <p align="center">
-<a href="https://travis-ci.org/flarum/core"><img src="https://travis-ci.org/flarum/core.svg" alt="Build Status"></a>
+<a href="https://github.com/flarum/core/actions"><img src="https://github.com/flarum/core/workflows/JavaScript/badge.svg" alt="Git Actions"></a>
+<a href="https://github.com/flarum/core/actions"><img src="https://github.com/flarum/core/workflows/Lint/badge.svg" alt="Git Actions"></a>
+<a href="https://github.com/flarum/core/actions"><img src="https://github.com/flarum/core/workflows/Tests/badge.svg" alt="Git Actions"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/d/total.svg" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/v/stable.svg" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/license.svg" alt="License"></a>
+<a href="https://packagist.org/packages/flarum/core"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="Styleci"></a>
 </p>
+
 
 ## About Flarum
 
