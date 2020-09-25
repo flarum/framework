@@ -11,7 +11,14 @@ export default class ModalManager extends Component {
 
     return (
       <div className="ModalManager modal fade">
-        {modal ? modal.componentClass.component({ ...modal.attrs, onshow: this.animateShow.bind(this), onhide: this.animateHide.bind(this) }) : ''}
+        {modal
+          ? modal.componentClass.component({
+              ...modal.attrs,
+              onshow: this.animateShow.bind(this),
+              onhide: this.animateHide.bind(this),
+              state: this.attrs.state,
+            })
+          : ''}
       </div>
     );
   }
