@@ -27,6 +27,10 @@ export default class Modal extends Component {
     this.attrs.onshow(() => this.onready());
   }
 
+  onremove() {
+    this.attrs.onhide();
+  }
+
   view() {
     if (this.alertAttrs) {
       this.alertAttrs.dismissible = false;
