@@ -1,5 +1,6 @@
 import Stream from 'mithril/stream';
 import extract from './extract';
+import withAttr from './withAttr';
 
 export default function patchMithril(global) {
   const defaultMithril = global.m;
@@ -67,6 +68,12 @@ export default function patchMithril(global) {
   modifiedMithril.stream = Stream;
 
   modifiedMithril.route.Link = modifiedLink;
+
+  // BEGIN DEPRECATED MITHRIL 2 BC LAYER
+  modifiedMithril.prop = Stream;
+
+  modifiedMithril.withAttr = withAttr;
+  // END DEPRECATED MITHRIL 2 BC LAYER
 
   global.m = modifiedMithril;
 }
