@@ -1,6 +1,7 @@
 import highlight from '../../common/helpers/highlight';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
+import Link from '../../common/components/Link';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
@@ -48,10 +49,10 @@ export default class UsersSearchResults {
 
         return (
           <li className="UserSearchResult" data-index={'users' + user.id()}>
-            <a route={app.route.user(user)}>
+            <Link href={app.route.user(user)}>
               {avatar(user)}
               {{ ...name, text: undefined, children }}
-            </a>
+            </Link>
           </li>
         );
       }),
