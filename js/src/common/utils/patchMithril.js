@@ -71,12 +71,18 @@ export default function patchMithril(global) {
 
   // BEGIN DEPRECATED MITHRIL 2 BC LAYER
   modifiedMithril.prop = function (...args) {
-    console.warn('m.prop() is deprecated, please use m.stream() instead.');
+    if (!window.deprecatedMPropWarned) {
+      window.deprecatedMPropWarned = true;
+      console.warn('m.prop() is deprecated, please use m.stream() instead.');
+    }
     return Stream.bind(this)(...args);
   };
 
   modifiedMithril.withAttr = function (...args) {
-    console.warn('m.prop() is deprecated, please use m.stream() instead.');
+    if (!window.deprecatedMWithAttrWarned) {
+      window.deprecatedMWithAttrWarned = true;
+      console.warn("m.withAttr() is deprecated, please use flarum's withAttr util (flarum/utils/withAttr) instead.");
+    }
     return withAttr.bind(this)(...args);
   };
   // END DEPRECATED MITHRIL 2 BC LAYER
