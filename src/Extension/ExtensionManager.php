@@ -83,19 +83,18 @@ class ExtensionManager
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
 
-            // We calculate and store an associative copy of the json manifest
+            // We calculate and store a set of installed extension IDs (associative array with null keys)
             // to avoid an O(n * m) complexity when finding extension dependencies.
-            // Additionally, by only including flarum extensions, we know that
-            // anything present in this associative copy is a flarum extension, removing
-            // the need to check for it's type.
-            $associativeInstalled = [];
+            // By only including flarum extensions, we know that anything present in this associative copy
+            // is a flarum extension, removing the need to check for it's type.
+            $installedSet = [];
 
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
                     continue;
                 }
 
-                $associativeInstalled[Arr::get($package, 'name')] = $package;
+                $installedSet[Arr::get($package, 'name')] = null;
 
                 $path = isset($package['install-path'])
                     ? $this->paths->vendor.'/composer/'.$package['install-path']
@@ -112,7 +111,7 @@ class ExtensionManager
             }
 
             foreach ($extensions as $extension) {
-                $extension->calculateDependencies($associativeInstalled);
+                $extension->calculateDependencies($installedSet);
             }
 
             $this->extensions = $extensions->sortBy(function ($extension, $name) {
