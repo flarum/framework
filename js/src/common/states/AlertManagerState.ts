@@ -13,7 +13,7 @@ export interface AlertState {
 }
 
 export default class AlertManagerState {
-  protected activeAlerts: { [ids: string]: AlertState } = {};
+  protected activeAlerts: { [id: number]: AlertState } = {};
   protected alertId = 0;
 
   getActiveAlerts() {
