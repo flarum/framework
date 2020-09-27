@@ -2,6 +2,9 @@ import Stream from 'mithril/stream';
 import extract from './extract';
 import withAttr from './withAttr';
 
+let deprecatedMPropWarned = false;
+let deprecatedMWithAttrWarned = false;
+
 export default function patchMithril(global) {
   const defaultMithril = global.m;
 
@@ -70,9 +73,21 @@ export default function patchMithril(global) {
   modifiedMithril.route.Link = modifiedLink;
 
   // BEGIN DEPRECATED MITHRIL 2 BC LAYER
-  modifiedMithril.prop = Stream;
+  modifiedMithril.prop = function (...args) {
+    if (!deprecatedMPropWarned) {
+      deprecatedMPropWarned = true;
+      console.warn('m.prop() is deprecated, please use m.stream() instead.');
+    }
+    return Stream.bind(this)(...args);
+  };
 
-  modifiedMithril.withAttr = withAttr;
+  modifiedMithril.withAttr = function (...args) {
+    if (!deprecatedMWithAttrWarned) {
+      deprecatedMWithAttrWarned = true;
+      console.warn("m.withAttr() is deprecated, please use flarum's withAttr util (flarum/utils/withAttr) instead.");
+    }
+    return withAttr.bind(this)(...args);
+  };
   // END DEPRECATED MITHRIL 2 BC LAYER
 
   global.m = modifiedMithril;
