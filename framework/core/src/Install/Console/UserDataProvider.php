@@ -69,7 +69,7 @@ class UserDataProvider implements DataProviderInterface
 
     private function getBaseUrl(): BaseUrl
     {
-        $baseUrl = $this->ask('Base URL (Default: http://flarum.local):', 'http://flarum.local');
+        $baseUrl = $this->ask('Base URL (Default: http://flarum.localhost):', 'http://flarum.localhost');
 
         return $this->baseUrl = BaseUrl::fromString($baseUrl);
     }
