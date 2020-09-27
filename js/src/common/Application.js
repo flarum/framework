@@ -159,6 +159,14 @@ export default class Application {
   title = '';
   titleCount = 0;
 
+  /**
+   * An object that keeps track of active GET requests.
+   *
+   * @type {Object}
+   * @public
+   */
+  activeRequests = {};
+
   load(payload) {
     this.data = payload;
     this.translator.locale = payload.locale;
@@ -297,6 +305,10 @@ export default class Application {
       options.method = 'POST';
     }
 
+    //Save a reference to the request object, that can be used to abort the request when the user changes routes while the request is still loading.
+    const requestId = +new Date();
+    if (options.method === 'GET') extend(options, 'config', (result, xhr) => (this.activeRequests[requestId] = xhr));
+
     // When we deserialize JSON data, if for some reason the server has provided
     // a dud response, we don't want the application to crash. We'll show an
     // error message to the user instead.
@@ -343,73 +355,76 @@ export default class Application {
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
-    return m.request(options).then(
-      (response) => response,
-      (error) => {
-        let content;
+    return m
+      .request(options)
+      .then(
+        (response) => response,
+        (error) => {
+          let content;
 
-        switch (error.status) {
-          case 422:
-            content = error.response.errors
-              .map((error) => [error.detail, <br />])
-              .reduce((a, b) => a.concat(b), [])
-              .slice(0, -1);
-            break;
+          switch (error.status) {
+            case 422:
+              content = error.response.errors
+                .map((error) => [error.detail, <br />])
+                .reduce((a, b) => a.concat(b), [])
+                .slice(0, -1);
+              break;
 
-          case 401:
-          case 403:
-            content = app.translator.trans('core.lib.error.permission_denied_message');
-            break;
+            case 401:
+            case 403:
+              content = app.translator.trans('core.lib.error.permission_denied_message');
+              break;
 
-          case 404:
-          case 410:
-            content = app.translator.trans('core.lib.error.not_found_message');
-            break;
+            case 404:
+            case 410:
+              content = app.translator.trans('core.lib.error.not_found_message');
+              break;
 
-          case 429:
-            content = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
-            break;
+            case 429:
+              content = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+              break;
 
-          default:
-            content = app.translator.trans('core.lib.error.generic_message');
-        }
-
-        const isDebug = app.forum.attribute('debug');
-        // contains a formatted errors if possible, response must be an JSON API array of errors
-        // the details property is decoded to transform escaped characters such as '\n'
-        const errors = error.response && error.response.errors;
-        const formattedError = Array.isArray(errors) && errors[0] && errors[0].detail && errors.map((e) => decodeURI(e.detail));
-
-        error.alert = {
-          type: 'error',
-          content,
-          controls: isDebug && [
-            <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
-              Debug
-            </Button>,
-          ],
-        };
-
-        try {
-          options.errorHandler(error);
-        } catch (error) {
-          if (isDebug && error.xhr) {
-            const { method, url } = error.options;
-            const { status = '' } = error.xhr;
-
-            console.group(`${method} ${url} ${status}`);
-
-            console.error(...(formattedError || [error]));
-
-            console.groupEnd();
+            default:
+              content = app.translator.trans('core.lib.error.generic_message');
           }
 
-          this.requestErrorAlert = this.alerts.show(error.alert, error.alert.content);
-        }
+          const isDebug = app.forum.attribute('debug');
+          // contains a formatted errors if possible, response must be an JSON API array of errors
+          // the details property is decoded to transform escaped characters such as '\n'
+          const errors = error.response && error.response.errors;
+          const formattedError = Array.isArray(errors) && errors[0] && errors[0].detail && errors.map((e) => decodeURI(e.detail));
 
-        return Promise.reject(error);
-      }
-    );
+          error.alert = {
+            type: 'error',
+            content,
+            controls: isDebug && [
+              <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
+                Debug
+              </Button>,
+            ],
+          };
+
+          try {
+            options.errorHandler(error);
+          } catch (error) {
+            if (isDebug && error.xhr) {
+              const { method, url } = error.options;
+              const { status = '' } = error.xhr;
+
+              console.group(`${method} ${url} ${status}`);
+
+              console.error(...(formattedError || [error]));
+
+              console.groupEnd();
+            }
+
+            this.requestErrorAlert = this.alerts.show(error.alert, error.alert.content);
+          }
+
+          return Promise.reject(error);
+        }
+      )
+      .finally(() => delete this.activeRequests[requestId]);
   }
 
   /**
