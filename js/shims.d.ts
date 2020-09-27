@@ -10,13 +10,6 @@ import * as _$ from 'jquery';
 import Application from './src/common/Application';
 
 /**
- * Helpers that flarum/core patches into Mithril
- */
-interface m extends Mithril.Static {
-  stream: typeof Stream;
-}
-
-/**
  * Export Mithril typings globally.
  *
  * This lets us use these typings without an extra import everywhere we use
