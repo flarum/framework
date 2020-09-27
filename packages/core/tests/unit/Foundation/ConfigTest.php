@@ -28,27 +28,27 @@ class ConfigTest extends TestCase
     public function it_wraps_base_url_in_value_object()
     {
         $config = new Config([
-            'url' => 'https://flarum.local/myforum/',
+            'url' => 'https://flarum.localhost/myforum/',
         ]);
 
         $url = $config->url();
         $this->assertEquals('https', $url->getScheme());
         $this->assertEquals('/myforum', $url->getPath()); // Note that trailing slashes are removed
-        $this->assertEquals('https://flarum.local/myforum', (string) $url);
+        $this->assertEquals('https://flarum.localhost/myforum', (string) $url);
     }
 
     /** @test */
     public function it_has_a_helper_for_debug_mode()
     {
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
             'debug' => false,
         ]);
 
         $this->assertFalse($config->inDebugMode());
 
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
             'debug' => true,
         ]);
 
@@ -59,7 +59,7 @@ class ConfigTest extends TestCase
     public function it_turns_off_debug_mode_by_default()
     {
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
         ]);
 
         $this->assertFalse($config->inDebugMode());
@@ -69,14 +69,14 @@ class ConfigTest extends TestCase
     public function it_has_a_helper_for_maintenance_mode()
     {
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
             'offline' => false,
         ]);
 
         $this->assertFalse($config->inMaintenanceMode());
 
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
             'offline' => true,
         ]);
 
@@ -87,7 +87,7 @@ class ConfigTest extends TestCase
     public function it_turns_off_maintenance_mode_by_default()
     {
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
         ]);
 
         $this->assertFalse($config->inMaintenanceMode());
@@ -97,7 +97,7 @@ class ConfigTest extends TestCase
     public function it_exposes_additional_keys_via_array_access()
     {
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
             'custom_a' => 'b',
         ]);
 
@@ -108,7 +108,7 @@ class ConfigTest extends TestCase
     public function it_exposes_nested_keys_via_dot_syntax()
     {
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
             'nested' => [
                 'first' => '1',
                 'second' => '2',
@@ -123,7 +123,7 @@ class ConfigTest extends TestCase
     public function it_does_not_allow_mutation_via_array_access()
     {
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
             'custom_a' => 'b',
         ]);
 
@@ -140,7 +140,7 @@ class ConfigTest extends TestCase
     public function it_does_not_allow_removal_via_array_access()
     {
         $config = new Config([
-            'url' => 'https://flarum.local',
+            'url' => 'https://flarum.localhost',
             'custom_a' => 'b',
         ]);
 
