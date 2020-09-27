@@ -1,6 +1,6 @@
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
-import stream from '../../common/utils/stream';
+import Stream from '../../common/utils/Stream';
 
 /**
  * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion
@@ -11,7 +11,7 @@ export default class RenameDiscussionModal extends Modal {
 
     this.discussion = this.attrs.discussion;
     this.currentTitle = this.attrs.currentTitle;
-    this.newTitle = stream(this.currentTitle);
+    this.newTitle = Stream(this.currentTitle);
   }
 
   className() {

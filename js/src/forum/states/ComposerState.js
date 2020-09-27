@@ -1,5 +1,5 @@
 import subclassOf from '../../common/utils/subclassOf';
-import stream from '../../common/utils/stream';
+import Stream from '../../common/utils/Stream';
 import ReplyComposer from '../components/ReplyComposer';
 
 class ComposerState {
@@ -75,7 +75,7 @@ class ComposerState {
     this.onExit = null;
 
     this.fields = {
-      content: stream(''),
+      content: Stream(''),
     };
 
     /**

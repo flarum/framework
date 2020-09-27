@@ -4,7 +4,7 @@ import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
-import stream from '../../common/utils/stream';
+import Stream from '../../common/utils/Stream';
 
 /**
  * The `SignUpModal` component displays a modal dialog with a singup form.
@@ -25,21 +25,21 @@ export default class SignUpModal extends Modal {
      *
      * @type {Function}
      */
-    this.username = stream(this.attrs.username || '');
+    this.username = Stream(this.attrs.username || '');
 
     /**
      * The value of the email input.
      *
      * @type {Function}
      */
-    this.email = stream(this.attrs.email || '');
+    this.email = Stream(this.attrs.email || '');
 
     /**
      * The value of the password input.
      *
      * @type {Function}
      */
-    this.password = stream(this.attrs.password || '');
+    this.password = Stream(this.attrs.password || '');
   }
 
   className() {

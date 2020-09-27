@@ -5,7 +5,7 @@ import Alert from '../../common/components/Alert';
 import Select from '../../common/components/Select';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import saveSettings from '../utils/saveSettings';
-import stream from '../../common/utils/stream';
+import Stream from '../../common/utils/Stream';
 
 export default class MailPage extends Page {
   oninit(vnode) {
@@ -25,7 +25,7 @@ export default class MailPage extends Page {
     this.status = { sending: false, errors: {} };
 
     const settings = app.data.settings;
-    this.fields.forEach((key) => (this.values[key] = stream(settings[key])));
+    this.fields.forEach((key) => (this.values[key] = Stream(settings[key])));
 
     app
       .request({
@@ -40,7 +40,7 @@ export default class MailPage extends Page {
         for (const driver in this.driverFields) {
           for (const field in this.driverFields[driver]) {
             this.fields.push(field);
-            this.values[field] = stream(settings[field]);
+            this.values[field] = Stream(settings[field]);
           }
         }
 

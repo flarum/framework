@@ -4,7 +4,7 @@ import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
-import stream from '../../common/utils/stream';
+import Stream from '../../common/utils/Stream';
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
@@ -16,11 +16,11 @@ export default class EditGroupModal extends Modal {
 
     this.group = this.attrs.group || app.store.createRecord('groups');
 
-    this.nameSingular = stream(this.group.nameSingular() || '');
-    this.namePlural = stream(this.group.namePlural() || '');
-    this.icon = stream(this.group.icon() || '');
-    this.color = stream(this.group.color() || '');
-    this.isHidden = stream(this.group.isHidden() || false);
+    this.nameSingular = Stream(this.group.nameSingular() || '');
+    this.namePlural = Stream(this.group.namePlural() || '');
+    this.icon = Stream(this.group.icon() || '');
+    this.color = Stream(this.group.color() || '');
+    this.isHidden = Stream(this.group.isHidden() || false);
   }
 
   className() {
