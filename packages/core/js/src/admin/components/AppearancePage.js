@@ -1,21 +1,21 @@
 import Page from '../../common/components/Page';
 import Button from '../../common/components/Button';
 import Switch from '../../common/components/Switch';
+import Stream from '../../common/utils/Stream';
 import EditCustomCssModal from './EditCustomCssModal';
 import EditCustomHeaderModal from './EditCustomHeaderModal';
 import EditCustomFooterModal from './EditCustomFooterModal';
 import UploadImageButton from './UploadImageButton';
 import saveSettings from '../utils/saveSettings';
-import withAttr from '../../common/utils/withAttr';
 
 export default class AppearancePage extends Page {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.primaryColor = m.stream(app.data.settings.theme_primary_color);
-    this.secondaryColor = m.stream(app.data.settings.theme_secondary_color);
-    this.darkMode = m.stream(app.data.settings.theme_dark_mode);
-    this.coloredHeader = m.stream(app.data.settings.theme_colored_header);
+    this.primaryColor = Stream(app.data.settings.theme_primary_color);
+    this.secondaryColor = Stream(app.data.settings.theme_secondary_color);
+    this.darkMode = Stream(app.data.settings.theme_dark_mode);
+    this.coloredHeader = Stream(app.data.settings.theme_colored_header);
   }
 
   view() {

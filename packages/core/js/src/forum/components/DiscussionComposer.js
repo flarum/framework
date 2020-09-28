@@ -1,5 +1,6 @@
 import ComposerBody from './ComposerBody';
 import extractText from '../../common/utils/extractText';
+import Stream from '../../common/utils/Stream';
 
 /**
  * The `DiscussionComposer` component displays the composer content for starting
@@ -26,7 +27,7 @@ export default class DiscussionComposer extends ComposerBody {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.composer.fields.title = this.composer.fields.title || m.stream('');
+    this.composer.fields.title = this.composer.fields.title || Stream('');
 
     /**
      * The value of the title input.
