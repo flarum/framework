@@ -12,6 +12,7 @@ import anchorScroll from './utils/anchorScroll';
 import RequestError from './utils/RequestError';
 import abbreviateNumber from './utils/abbreviateNumber';
 import * as string from './utils/string';
+import Stream from './utils/Stream';
 import SubtreeRetainer from './utils/SubtreeRetainer';
 import setRouteWithForcedRefresh from './utils/setRouteWithForcedRefresh';
 import extract from './utils/extract';
@@ -85,6 +86,7 @@ export default {
   'utils/extract': extract,
   'utils/ScrollListener': ScrollListener,
   'utils/stringToColor': stringToColor,
+  'utils/Stream': Stream,
   'utils/subclassOf': subclassOf,
   'utils/setRouteWithForcedRefresh': setRouteWithForcedRefresh,
   'utils/patchMithril': patchMithril,
