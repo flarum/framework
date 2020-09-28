@@ -305,9 +305,12 @@ export default class Application {
       options.method = 'POST';
     }
 
-    //Save a reference to the request object, that can be used to abort the request when the user changes routes while the request is still loading.
+    // Save a reference to the request object, that can be used to abort the request
+    // when the user changes routes while the request is still loading.
     const requestId = +new Date();
-    if (options.method === 'GET') extend(options, 'config', (result, xhr) => (this.activeRequests[requestId] = xhr));
+    if (options.method === 'GET') {
+      extend(options, 'config', (result, xhr) => (this.activeRequests[requestId] = xhr));
+    }
 
     // When we deserialize JSON data, if for some reason the server has provided
     // a dud response, we don't want the application to crash. We'll show an

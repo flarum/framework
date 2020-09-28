@@ -34,8 +34,8 @@ export default class Page extends Component {
    */
   onNewRoute() {
     app.current.set('routeName', this.attrs.routeName);
-    //abort all previous requests to prevent bugs
-    for (let request in app.activeRequests) request.abort();
+    // Abort all previous requests to prevent bugs
+    for (let requestId in app.activeRequests) app.activeRequests[requestId].abort();
   }
 
   oncreate(vnode) {
