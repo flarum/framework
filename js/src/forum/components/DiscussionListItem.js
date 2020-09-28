@@ -50,6 +50,7 @@ export default class DiscussionListItem extends Component {
         'DiscussionListItem',
         this.active() ? 'active' : '',
         this.attrs.discussion.isHidden() ? 'DiscussionListItem--hidden' : '',
+        'ontouchstart' in window ? 'Slidable' : '',
       ]),
     };
   }
@@ -136,7 +137,7 @@ export default class DiscussionListItem extends Component {
     // This allows the user to drag the row to either side of the screen to
     // reveal controls.
     if ('ontouchstart' in window) {
-      const slidableInstance = slidable(this.$().addClass('Slidable'));
+      const slidableInstance = slidable(this.$());
 
       this.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', () => slidableInstance.reset());
     }
