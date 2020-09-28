@@ -77,7 +77,9 @@ export default class DiscussionListState {
   }
 
   /**
-   * Clear and reload the discussion list.
+   * Clear and reload the discussion list. Passing the option { clear: false } will clear
+   * discussions only after new data has been received. This can be used to refresh
+   * discussions without loading animations.
    */
   refresh({ clear = true } = {}) {
     this.loading = true;
@@ -88,6 +90,8 @@ export default class DiscussionListState {
 
     return this.loadResults().then(
       (results) => {
+        // We don't use the clear method, since it would lead to an additional redraw.
+        this.discussions = [];
         this.parseResults(results);
       },
       () => {
