@@ -160,12 +160,12 @@ export default class Application {
   titleCount = 0;
 
   /**
-   * An object that keeps track of active GET requests.
+   * A Map object that keeps track of active GET requests.
    *
    * @type {Object}
    * @public
    */
-  activeRequests = {};
+  activeRequests = new Map();
 
   load(payload) {
     this.data = payload;
@@ -309,7 +309,7 @@ export default class Application {
     // when the user changes routes while the request is still loading.
     const requestId = +new Date();
     if (options.method === 'GET') {
-      extend(options, 'config', (result, xhr) => (this.activeRequests[requestId] = xhr));
+      extend(options, 'config', (result, xhr) => this.activeRequests.set(requestId, xhr));
     }
 
     // When we deserialize JSON data, if for some reason the server has provided
@@ -427,7 +427,7 @@ export default class Application {
           return Promise.reject(error);
         }
       )
-      .finally(() => delete this.activeRequests[requestId]);
+      .finally(() => this.activeRequests.delete(requestId));
   }
 
   /**
