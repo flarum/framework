@@ -1,6 +1,6 @@
-import Stream from 'mithril/stream';
 import extract from './extract';
 import withAttr from './withAttr';
+import Stream from './Stream';
 
 let deprecatedMPropWarned = false;
 let deprecatedMWithAttrWarned = false;
@@ -68,15 +68,13 @@ export default function patchMithril(global) {
 
   Object.keys(defaultMithril).forEach((key) => (modifiedMithril[key] = defaultMithril[key]));
 
-  modifiedMithril.stream = Stream;
-
   modifiedMithril.route.Link = modifiedLink;
 
   // BEGIN DEPRECATED MITHRIL 2 BC LAYER
-  modifiedMithril.prop = function (...args) {
+  modifiedMithril.prop = modifiedMithril.stream = function (...args) {
     if (!deprecatedMPropWarned) {
       deprecatedMPropWarned = true;
-      console.warn('m.prop() is deprecated, please use m.stream() instead.');
+      console.warn('m.prop() is deprecated, please use the Stream util (flarum/utils/Streams) instead.');
     }
     return Stream.bind(this)(...args);
   };

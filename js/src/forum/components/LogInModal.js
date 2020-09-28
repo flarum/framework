@@ -5,6 +5,7 @@ import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
+import Stream from '../../common/utils/Stream';
 
 /**
  * The `LogInModal` component displays a modal dialog with a login form.
@@ -23,21 +24,21 @@ export default class LogInModal extends Modal {
      *
      * @type {Function}
      */
-    this.identification = m.stream(this.attrs.identification || '');
+    this.identification = Stream(this.attrs.identification || '');
 
     /**
      * The value of the password input.
      *
      * @type {Function}
      */
-    this.password = m.stream(this.attrs.password || '');
+    this.password = Stream(this.attrs.password || '');
 
     /**
      * The value of the remember me input.
      *
      * @type {Function}
      */
-    this.remember = m.stream(!!this.attrs.remember);
+    this.remember = Stream(!!this.attrs.remember);
   }
 
   className() {
