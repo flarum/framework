@@ -17,7 +17,7 @@ export default function addStickyControl() {
       if (firstPost) {
         const excerpt = truncate(firstPost.contentPlain(), 175);
 
-        items.add('excerpt', excerpt, -100);
+        items.add('excerpt', m.trust(excerpt), -100);
       }
     }
   });
