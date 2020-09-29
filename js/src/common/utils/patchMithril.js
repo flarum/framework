@@ -1,4 +1,3 @@
-import Stream from 'mithril/stream';
 import Link from '../components/Link';
 import withAttr from './withAttr';
 import Stream from './Stream';
