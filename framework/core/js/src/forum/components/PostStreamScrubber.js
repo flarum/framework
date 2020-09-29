@@ -90,7 +90,10 @@ export default class PostStreamScrubber extends Component {
   }
 
   onupdate() {
-    this.stream.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
+    if (this.stream.forceUpdateScrubber) {
+      this.stream.forceUpdateScrubber = false;
+      this.stream.loadPromise.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
+    }
   }
 
   oncreate(vnode) {
@@ -137,7 +140,7 @@ export default class PostStreamScrubber extends Component {
 
     setTimeout(() => this.scrollListener.start());
 
-    this.updateScrubberValues({ animate: true, forceHeightChange: true });
+    this.stream.loadPromise.then(() => this.updateScrubberValues({ animate: false, forceHeightChange: true }));
   }
 
   onremove() {

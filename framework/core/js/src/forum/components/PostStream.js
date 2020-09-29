@@ -132,10 +132,10 @@ export default class PostStream extends Component {
     }
 
     if ('number' in newTarget) {
-      this.scrollToNumber(newTarget.number, this.stream.noAnimationScroll);
+      this.scrollToNumber(newTarget.number, this.stream.animateScroll);
     } else if ('index' in newTarget) {
       const backwards = newTarget.index === this.stream.count() - 1;
-      this.scrollToIndex(newTarget.index, this.stream.noAnimationScroll, backwards);
+      this.scrollToIndex(newTarget.index, this.stream.animateScroll, backwards);
     }
 
     this.prevTarget = newTarget;
@@ -330,6 +330,7 @@ export default class PostStream extends Component {
    */
   scrollToItem($item, animate, force, bottom) {
     const $container = $('html, body').stop(true);
+    const index = $item.data('index');
 
     if ($item.length) {
       const itemTop = $item.offset().top - this.getMarginTop();
@@ -351,12 +352,32 @@ export default class PostStream extends Component {
       }
     }
 
+    // Even before scrolling, we want to provide location information
+    // to the scrubber as soon as possible. This way, we avoid an unnecessary
+    // and confusing animation.
+    this.updateScrubber();
+    // We manually set the index because we want to display the index of the
+    // exact post we've scrolled to, not just that of the first post on the page.
+    this.stream.index = index;
+    this.stream.forceUpdateScrubber = true;
+
     return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
-      this.updateScrubber();
-      const index = $item.data('index');
       m.redraw.sync();
-      const scroll = index == 0 ? 0 : $(`.PostStream-item[data-index=${$item.data('index')}]`).offset().top - this.getMarginTop();
-      $(window).scrollTop(scroll);
+
+      // After post data has been loaded in, we will attempt to scroll back
+      // to the top of the requested post (or to the top of the page if the
+      // first post was requested). In some cases, we may have scrolled to
+      // the end of the available post range, in which case, the next range
+      // of posts will be loaded in. However, in those cases, the post we
+      // requested won't exist, so scrolling to it would cause an error.
+      // Accordingly, we start by checking that it's offset is defined.
+      const offset = $(`.PostStream-item[data-index=${index}]`).offset();
+      if (index === 0) {
+        $(window).scrollTop(0);
+      } else if (offset) {
+        $(window).scrollTop($(`.PostStream-item[data-index=${index}]`).offset().top - this.getMarginTop());
+      }
+
       this.calculatePosition();
       this.stream.paused = false;
     });
