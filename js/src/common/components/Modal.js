@@ -24,7 +24,16 @@ export default class Modal extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    this.attrs.onshow(() => this.onready());
+    this.attrs.animateShow(() => this.onready());
+  }
+
+  onbeforeremove() {
+    // If the global modal state currently contains a modal,
+    // we've just opened up a new one, and accordingly,
+    // we don't need to show a hide animation.
+    if (!this.attrs.state.modal) {
+      this.attrs.animateHide();
+    }
   }
 
   view() {
@@ -103,7 +112,7 @@ export default class Modal extends Component {
    * Hide the modal.
    */
   hide() {
-    this.attrs.onhide();
+    this.attrs.state.close();
   }
 
   /**

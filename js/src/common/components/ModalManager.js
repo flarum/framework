@@ -11,15 +11,16 @@ export default class ModalManager extends Component {
 
     return (
       <div className="ModalManager modal fade">
-        {modal ? modal.componentClass.component({ ...modal.attrs, onshow: this.animateShow.bind(this), onhide: this.animateHide.bind(this) }) : ''}
+        {modal
+          ? modal.componentClass.component({
+              ...modal.attrs,
+              animateShow: this.animateShow.bind(this),
+              animateHide: this.animateHide.bind(this),
+              state: this.attrs.state,
+            })
+          : ''}
       </div>
     );
-  }
-
-  onupdate() {
-    if (this.$('.Modal') && !this.attrs.state.modal) {
-      this.animateHide();
-    }
   }
 
   oncreate(vnode) {
@@ -33,6 +34,14 @@ export default class ModalManager extends Component {
 
   animateShow(readyCallback) {
     const dismissible = !!this.attrs.state.modal.componentClass.isDismissible;
+
+    // If we are opening this modal while another modal is already open,
+    // the shown event will not run, because the modal is already open.
+    // So, we need to manually trigger the readyCallback.
+    if (this.$().hasClass('in')) {
+      readyCallback();
+      return;
+    }
 
     this.$()
       .one('shown.bs.modal', readyCallback)
