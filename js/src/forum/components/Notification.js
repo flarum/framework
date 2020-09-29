@@ -24,6 +24,7 @@ export default class Notification extends Component {
       <Link
         className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
         href={href}
+        external={href.indexOf('://') === -1}
         onclick={this.markAsRead.bind(this)}
       >
         {!notification.isRead() &&

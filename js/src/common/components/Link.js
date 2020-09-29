@@ -6,9 +6,8 @@ import extract from '../utils/extract';
  * It will return a regular HTML link for any links to external sites,
  * and it will use Mithril's m.route.Link for any internal links.
  *
- * Please note that absolute links to the current site will be returned as regular HTML
- * links. Otherwise, linking to other sites or SPAs (or even the Flarum admin dashboard)
- * wouldn't work.
+ * Links will default to internal; the 'external' attr must be set to
+ * `true` for the link to be external.
  */
 export default class Link extends Component {
   view(vnode) {
@@ -20,10 +19,7 @@ export default class Link extends Component {
     // need to convert it to text vnodes and store it in children.
     const children = vnode.children || { tag: '#', children: vnode.text };
 
-    // If an absolute url is being used, we will return a plain old link.
-    // This saves us from having to do additional checks in components
-    // that might use internal OR external urls.
-    if (attrs.href.includes('://')) {
+    if (attrs.external) {
       return <a {...attrs}>{children}</a>;
     }
 
