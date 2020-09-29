@@ -160,7 +160,7 @@ export default class Application {
   titleCount = 0;
 
   /**
-   * A Map object that keeps track of active GET requests.
+   * A Map object that keeps track of all active requests.
    *
    * @type {Object}
    * @public
@@ -305,12 +305,10 @@ export default class Application {
       options.method = 'POST';
     }
 
-    // Save a reference to the request object, that can be used to abort the request
-    // when the user changes routes while the request is still loading.
-    const requestId = +new Date();
-    if (options.abortOnPageChange) {
-      extend(options, 'config', (result, xhr) => this.activeRequests.set(requestId, xhr));
-    }
+    // Save a reference to the request object, that can be used to later
+    // abort the request.
+    const requestId = options.requestId || +new Date();
+    extend(options, 'config', (result, xhr) => this.activeRequests.set(requestId, xhr));
 
     // When we deserialize JSON data, if for some reason the server has provided
     // a dud response, we don't want the application to crash. We'll show an

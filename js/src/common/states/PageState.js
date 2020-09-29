@@ -4,6 +4,7 @@ export default class PageState {
   constructor(type, data = {}) {
     this.type = type;
     this.data = data;
+    this.activeRequestIds = new Set();
   }
 
   /**
@@ -36,7 +37,12 @@ export default class PageState {
    *
    */
   findInStore(type, id, query = {}, options = {}) {
-    options = Object.assign({}, { abortOnPageChange: true }, options);
-    return app.store.find(type, id, query, options);
+    const requestId = +new Date();
+    this.activeRequestIds.add(requestId);
+    options = Object.assign({}, { requestId }, options);
+    return app.store.find(type, id, query, options).then((result) => {
+      this.activeRequestIds.delete(requestId);
+      return result;
+    });
   }
 }
