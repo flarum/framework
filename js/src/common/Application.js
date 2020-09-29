@@ -308,7 +308,7 @@ export default class Application {
     // Save a reference to the request object, that can be used to abort the request
     // when the user changes routes while the request is still loading.
     const requestId = +new Date();
-    if (options.method === 'GET') {
+    if (options.abortOnPageChange) {
       extend(options, 'config', (result, xhr) => this.activeRequests.set(requestId, xhr));
     }
 
