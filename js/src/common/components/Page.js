@@ -10,9 +10,6 @@ export default class Page extends Component {
   oninit(vnode) {
     super.oninit(vnode);
 
-    app.previous = app.current;
-    app.current = new PageState(this.constructor);
-
     this.onNewRoute();
 
     app.drawer.hide();
@@ -33,12 +30,9 @@ export default class Page extends Component {
    * adjust the current route name.
    */
   onNewRoute() {
+    app.previous = app.current;
+    app.current = new PageState(this.constructor);
     app.current.set('routeName', this.attrs.routeName);
-    // Abort all previous requests to prevent bugs
-    for (let [requestId, request] of app.activeRequests) {
-      request.abort();
-      app.activeRequests.delete(requestId);
-    }
   }
 
   oncreate(vnode) {
