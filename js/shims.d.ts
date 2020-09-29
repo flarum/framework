@@ -1,6 +1,5 @@
 // Mithril
-import * as Mithril from 'mithril';
-import Stream from 'mithril/stream';
+import Mithril from 'mithril';
 
 // Other third-party libs
 import * as _dayjs from 'dayjs';
@@ -29,7 +28,7 @@ export as namespace Mithril;
  */
 declare global {
   const $: typeof _$;
-  const m: m;
+  const m: Mithril.Static;
   const dayjs: typeof _dayjs;
 }
 
