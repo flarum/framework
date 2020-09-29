@@ -2,9 +2,8 @@ import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefr
 import SearchState from './SearchState';
 
 export default class GlobalSearchState extends SearchState {
-  constructor(cachedSearches = [], searchRoute = 'index') {
+  constructor(cachedSearches = []) {
     super(cachedSearches);
-    this.searchRoute = searchRoute;
   }
 
   getValue() {
@@ -91,6 +90,6 @@ export default class GlobalSearchState extends SearchState {
     const params = this.params();
     delete params.q;
 
-    setRouteWithForcedRefresh(app.route(this.searchRoute, params));
+    setRouteWithForcedRefresh(app.route(app.current.get('routeName'), params));
   }
 }
