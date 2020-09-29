@@ -31,8 +31,23 @@ export default class Page extends Component {
    */
   onNewRoute() {
     app.previous = app.current;
+    this.abortRequests(app.previous);
     app.current = new PageState(this.constructor);
     app.current.set('routeName', this.attrs.routeName);
+  }
+
+  /**
+   * Aborts all ongoing page GET requests to prevent bugs.
+   */
+  abortRequests(state) {
+    for (let requestId of state.activeRequestIds) {
+      const request = app.activeRequests.get(requestId);
+      if (request) {
+        request.abort();
+        app.activeRequests.delete(requestId);
+      }
+    }
+    state.activeRequestIds.clear();
   }
 
   oncreate(vnode) {
