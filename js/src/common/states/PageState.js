@@ -30,4 +30,13 @@ export default class PageState {
   set(key, value) {
     this.data[key] = value;
   }
+
+  /**
+   * A wrapper around the Store find method.
+   *
+   */
+  findInStore(type, id, query = {}, options = {}) {
+    options = Object.assign({}, { abortOnPageChange: true }, options);
+    return app.store.find(type, id, query, options);
+  }
 }
