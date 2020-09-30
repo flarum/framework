@@ -12,6 +12,7 @@ import mapRoutes from './utils/mapRoutes';
 import RequestError from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
 import liveHumanTimes from './utils/liveHumanTimes';
+import ActiveRequests from './utils/ActiveRequests';
 import { extend } from './extend';
 
 import Forum from './models/Forum';
@@ -165,7 +166,7 @@ export default class Application {
    * @type {Object}
    * @public
    */
-  activeRequests = new Map();
+  activeRequests = new ActiveRequests();
 
   load(payload) {
     this.data = payload;

@@ -51,11 +51,7 @@ export default class PageState {
    */
   abortRequests() {
     for (let requestId of this.activeRequestIds) {
-      const request = app.activeRequests.get(requestId);
-      if (request) {
-        request.abort();
-        app.activeRequests.delete(requestId);
-      }
+      app.activeRequests.abort(requestId);
     }
     this.activeRequestIds.clear();
   }
