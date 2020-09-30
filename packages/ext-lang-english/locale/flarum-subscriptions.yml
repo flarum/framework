@@ -47,6 +47,28 @@ flarum-subscriptions:
       notify_alert_tooltip: Get a forum notification when there are new posts
       notify_email_tooltip: Get an email when there are new posts
 
+  # Translations in this namespace are used in emails sent by the forum.
+  email:
+
+    # These translations are used in emails sent when a post is made in a subscribed discussion
+    new_post:
+      subject: "[New Post] {title}"
+      body: |
+        Hey {recipient_display_name}!
+
+        {poster_display_name} made a post in a discussion you're following: {title}.
+
+        To view the new activity, check out the following link:
+        {url}
+
+        ---
+
+        {content}
+
+        ---
+
+        You won't receive any more notifications about this discussion until you're up-to-date.
+
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
   ##
