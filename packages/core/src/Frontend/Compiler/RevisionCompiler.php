@@ -86,7 +86,7 @@ class RevisionCompiler implements CompilerInterface
 
             $this->putRevision($newRevision);
 
-            if ($oldFile) {
+            if ($oldFile && $oldFile !== $newFile) {
                 $this->delete($oldFile);
             }
         }
