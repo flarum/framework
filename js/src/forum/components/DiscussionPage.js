@@ -136,7 +136,7 @@ export default class DiscussionPage extends Page {
     } else {
       const params = this.requestParams();
 
-      app.store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
+      app.current.findInStore('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
     }
 
     m.redraw();

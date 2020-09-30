@@ -266,7 +266,7 @@ class PostStreamState {
         }
       });
 
-    return loadIds.length ? app.store.find('posts', loadIds) : Promise.resolve(loaded);
+    return loadIds.length ? app.current.findInStore('posts', loadIds) : Promise.resolve(loaded);
   }
 
   /**

@@ -118,7 +118,7 @@ export default class PostsUserPage extends UserPage {
    * @protected
    */
   loadResults(offset) {
-    return app.store.find('posts', {
+    return app.current.findInStore('posts', {
       filter: {
         user: this.user.id(),
         type: 'comment',
