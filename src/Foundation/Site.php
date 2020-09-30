@@ -25,7 +25,10 @@ class Site
         date_default_timezone_set('UTC');
 
         if (! static::hasConfigFile($paths->base)) {
-            return new UninstalledSite($paths, $_SERVER['REQUEST_URI']);
+            return new UninstalledSite(
+                $paths,
+                Arr::get($_SERVER, 'REQUEST_URI', 'http://localhost')
+            );
         }
 
         return (
