@@ -77,14 +77,14 @@ export default class DiscussionListState {
   }
 
   /**
-   * Clear and reload the discussion list. Passing the option { clear: false } will clear
-   * discussions only after new data has been received. This can be used to refresh
-   * discussions without loading animations.
+   * Clear and reload the discussion list. Passing the option `deferClear: true`
+   * will clear discussions only after new data has been received.
+   * This can be used to refresh discussions without loading animations.
    */
-  refresh({ clear = true } = {}) {
+  refresh({ deferClear = false } = {}) {
     this.loading = true;
 
-    if (clear) {
+    if (!deferClear) {
       this.clear();
     }
 
