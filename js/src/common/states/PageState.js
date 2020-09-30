@@ -33,8 +33,8 @@ export default class PageState {
   }
 
   /**
-   * A wrapper around the Store find method.
-   *
+   * A wrapper around the Store find method to keep track of active requests
+   * that should be aborted when the user navigates away while loading.
    */
   findInStore(type, id, query = {}, options = {}) {
     const requestId = +new Date();
@@ -47,7 +47,7 @@ export default class PageState {
   }
 
   /**
-   * Aborts all ongoing page GET requests.
+   * Aborts ongoing page (GET) requests.
    */
   abortRequests() {
     for (let requestId of this.activeRequestIds) {

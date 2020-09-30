@@ -306,8 +306,8 @@ export default class Application {
       options.method = 'POST';
     }
 
-    // Save a reference to the request object, that can be used to later
-    // abort the request.
+    // Save a reference to the xhr object, that can be used to later
+    // abort the request by calling this.activeRequests.abort(requestId)
     const requestId = options.requestId || +new Date();
     extend(options, 'config', (result, xhr) => this.activeRequests.set(requestId, xhr));
 
