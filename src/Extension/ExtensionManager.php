@@ -84,9 +84,11 @@ class ExtensionManager
             $installed = $installed['packages'] ?? $installed;
 
             // We calculate and store a set of installed extension IDs (associative array with null keys)
-            // to avoid an O(n * m) complexity when finding extension dependencies.
+            // to avoid O(n * m) complexity when finding extension dependencies.
             // By only including flarum extensions, we know that anything present in this associative copy
             // is a flarum extension, removing the need to check for it's type.
+            // We store the installed flarum extensions as keys, not values, of this array
+            // so that we have constant lookup time.
             $installedSet = [];
 
             foreach ($installed as $package) {
@@ -94,7 +96,7 @@ class ExtensionManager
                     continue;
                 }
 
-                $installedSet[Arr::get($package, 'name')] = null;
+                $installedSet[Arr::get($package, 'name')] = true;
 
                 $path = isset($package['install-path'])
                     ? $this->paths->vendor.'/composer/'.$package['install-path']
@@ -109,6 +111,8 @@ class ExtensionManager
 
                 $extensions->put($extension->getId(), $extension);
             }
+
+            $installedSet = $extensions->pluck('name')->toArray();
 
             foreach ($extensions as $extension) {
                 $extension->calculateDependencies($installedSet);
