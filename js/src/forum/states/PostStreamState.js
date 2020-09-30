@@ -344,7 +344,12 @@ class PostStreamState {
    * @return {boolean}
    */
   viewingEnd() {
-    return this.visibleEnd === this.count();
+    // In some cases, such as if we've stickied a post, an event post
+    // may have been added / removed. This means that `this.visibleEnd`
+    // and`this.count()` will be out of sync by 1 post, but we are still
+    // "viewing the end" of the post stream, so we should still reload
+    // all posts up until the last one.
+    return Math.abs(this.count() - this.visibleEnd) <= 1;
   }
 
   /**
