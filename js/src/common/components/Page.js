@@ -31,9 +31,7 @@ export default class Page extends Component {
    */
   onNewRoute() {
     app.previous = app.current;
-    app.current = new PageState(this.constructor);
-
-    app.current.set('routeName', this.attrs.routeName);
+    app.current = new PageState(this.constructor, { routeName: this.attrs.routeName });
   }
 
   oncreate(vnode) {
