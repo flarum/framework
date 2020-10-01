@@ -103,6 +103,7 @@ class PostStreamState {
 
     this.loadPromise = this.loadNearNumber(number);
 
+    this.needsScroll = true;
     this.targetPost = { number };
     this.animateScroll = !noAnimation;
     this.number = number;
@@ -127,6 +128,7 @@ class PostStreamState {
 
     this.loadPromise = this.loadNearIndex(index);
 
+    this.needsScroll = true;
     this.targetPost = { index };
     this.animateScroll = !noAnimation;
     this.index = index;
