@@ -22,6 +22,8 @@ export default class SuperTextarea {
    */
   setValue(value) {
     this.$.val(value).trigger('input');
+
+    this.el.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
   }
 
   /**
@@ -49,8 +51,6 @@ export default class SuperTextarea {
    */
   insertAtCursor(text) {
     this.insertAt(this.el.selectionStart, text);
-
-    this.el.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
   }
 
   /**
