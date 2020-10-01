@@ -40,6 +40,7 @@ export default class PageState {
     const requestId = +new Date();
     this.activeRequestIds.add(requestId);
     options = Object.assign({}, { requestId }, options);
+
     return app.store.find(type, id, query, options).then((result) => {
       this.activeRequestIds.delete(requestId);
       return result;
