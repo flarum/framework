@@ -90,9 +90,9 @@ export default class DiscussionListState {
 
     return this.loadResults().then(
       (results) => {
-        // Same effect as this.clear(), but without an additional redraw.
         // This ensures that any changes made while waiting on this request
         // are ignored. Otherwise, we could get duplicate discussions.
+        // We don't use `this.clear()` to avoid an unnecessary redraw.
         this.discussions = [];
         this.parseResults(results);
       },
