@@ -1,5 +1,6 @@
 import ComposerBody from './ComposerBody';
 import Button from '../../common/components/Button';
+import Link from '../../common/components/Link';
 import icon from '../../common/helpers/icon';
 
 function minimizeComposerIfFullScreen(e) {
@@ -39,9 +40,9 @@ export default class EditPostComposer extends ComposerBody {
       'title',
       <h3>
         {icon('fas fa-pencil-alt')}{' '}
-        <a route={app.route.discussion(post.discussion(), post.number())} onclick={minimizeComposerIfFullScreen}>
+        <Link href={app.route.discussion(post.discussion(), post.number())} onclick={minimizeComposerIfFullScreen}>
           {app.translator.trans('core.forum.composer_edit.post_link', { number: post.number(), discussion: post.discussion().title() })}
-        </a>
+        </Link>
       </h3>
     );
 

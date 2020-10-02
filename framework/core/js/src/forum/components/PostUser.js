@@ -1,4 +1,5 @@
 import Component from '../../common/Component';
+import Link from '../../common/components/Link';
 import UserCard from './UserCard';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
@@ -40,11 +41,11 @@ export default class PostUser extends Component {
     return (
       <div className="PostUser">
         <h3>
-          <a route={app.route.user(user)}>
+          <Link href={app.route.user(user)}>
             {avatar(user, { className: 'PostUser-avatar' })}
             {userOnline(user)}
             {username(user)}
-          </a>
+          </Link>
         </h3>
         <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
         {card}

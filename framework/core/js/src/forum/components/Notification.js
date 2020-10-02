@@ -3,6 +3,7 @@ import avatar from '../../common/helpers/avatar';
 import icon from '../../common/helpers/icon';
 import humanTime from '../../common/helpers/humanTime';
 import Button from '../../common/components/Button';
+import Link from '../../common/components/Link';
 
 /**
  * The `Notification` component abstract displays a single notification.
@@ -19,13 +20,11 @@ export default class Notification extends Component {
     const notification = this.attrs.notification;
     const href = this.href();
 
-    const linkAttrs = {};
-    linkAttrs[href.indexOf('://') === -1 ? 'route' : 'href'] = href;
-
     return (
-      <a
+      <Link
         className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
-        {...linkAttrs}
+        href={href}
+        external={href.indexOf('://') === -1}
         onclick={this.markAsRead.bind(this)}
       >
         {!notification.isRead() &&
@@ -45,7 +44,7 @@ export default class Notification extends Component {
         <span className="Notification-content">{this.content()}</span>
         {humanTime(notification.createdAt())}
         <div className="Notification-excerpt">{this.excerpt()}</div>
-      </a>
+      </Link>
     );
   }
 

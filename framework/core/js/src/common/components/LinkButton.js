@@ -1,4 +1,5 @@
 import Button from './Button';
+import Link from './Link';
 
 /**
  * The `LinkButton` component defines a `Button` which links to a route.
@@ -22,7 +23,7 @@ export default class LinkButton extends Button {
   view(vnode) {
     const vdom = super.view(vnode);
 
-    vdom.tag = m.route.Link;
+    vdom.tag = Link;
     vdom.attrs.active = String(vdom.attrs.active);
 
     return vdom;

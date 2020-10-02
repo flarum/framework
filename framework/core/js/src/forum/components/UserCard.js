@@ -6,6 +6,7 @@ import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import icon from '../../common/helpers/icon';
 import Dropdown from '../../common/components/Dropdown';
+import Link from '../../common/components/Link';
 import AvatarEditor from './AvatarEditor';
 import listItems from '../../common/helpers/listItems';
 
@@ -50,10 +51,10 @@ export default class UserCard extends Component {
                 {this.attrs.editable ? (
                   [AvatarEditor.component({ user, className: 'UserCard-avatar' }), username(user)]
                 ) : (
-                  <a route={app.route.user(user)}>
+                  <Link href={app.route.user(user)}>
                     <div className="UserCard-avatar">{avatar(user)}</div>
                     {username(user)}
-                  </a>
+                  </Link>
                 )}
               </h2>
 

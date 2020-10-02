@@ -1,5 +1,6 @@
 import ComposerBody from './ComposerBody';
 import Button from '../../common/components/Button';
+import Link from '../../common/components/Link';
 import icon from '../../common/helpers/icon';
 import extractText from '../../common/utils/extractText';
 
@@ -36,9 +37,9 @@ export default class ReplyComposer extends ComposerBody {
       'title',
       <h3>
         {icon('fas fa-reply')}{' '}
-        <a route={app.route.discussion(discussion)} onclick={minimizeComposerIfFullScreen}>
+        <Link href={app.route.discussion(discussion)} onclick={minimizeComposerIfFullScreen}>
           {discussion.title()}
-        </a>
+        </Link>
       </h3>
     );
 
