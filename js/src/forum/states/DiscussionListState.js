@@ -90,7 +90,7 @@ export default class DiscussionListState {
 
     return this.loadResults().then(
       (results) => {
-        // We don't use the clear method, since it would lead to an additional redraw.
+        // Same effect as this.clear(), but without an additional redraw.
         this.discussions = [];
         this.parseResults(results);
       },
