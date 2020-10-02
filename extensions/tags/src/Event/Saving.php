@@ -12,10 +12,7 @@ namespace Flarum\Tags\Event;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
 
-/**
- * @deprecated beta 14, removed beta 15.
- */
-class TagWillBeSaved
+class Saving
 {
     /**
      * @var Tag
