@@ -9,6 +9,7 @@
 
 namespace Flarum\Tags\Command;
 
+use Flarum\Tags\Event\Saving;
 use Flarum\Tags\Event\TagWillBeSaved;
 use Flarum\Tags\TagRepository;
 use Flarum\Tags\TagValidator;
@@ -80,6 +81,9 @@ class EditTagHandler
             $tag->is_restricted = (bool) $attributes['isRestricted'];
         }
 
+        event(new Saving($tag, $actor, $data));
+
+        // Deprecated BC layer, remove in beta 15.
         event(new TagWillBeSaved($tag, $actor, $data));
 
         $this->validator->assertValid($tag->getDirty());
