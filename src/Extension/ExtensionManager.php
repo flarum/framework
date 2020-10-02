@@ -83,10 +83,17 @@ class ExtensionManager
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
 
+            // We calculate and store a set of composer package names for all installed Flarum extensions,
+            // so we know what is and isn't a flarum extension in `calculateDependencies`.
+            // Using keys of an associative array allows us to do these checks in constant time.
+            $installedSet = [];
+
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
                     continue;
                 }
+
+                $installedSet[Arr::get($package, 'name')] = true;
 
                 $path = isset($package['install-path'])
                     ? $this->paths->vendor.'/composer/'.$package['install-path']
@@ -101,6 +108,11 @@ class ExtensionManager
 
                 $extensions->put($extension->getId(), $extension);
             }
+
+            foreach ($extensions as $extension) {
+                $extension->calculateDependencies($installedSet);
+            }
+
             $this->extensions = $extensions->sortBy(function ($extension, $name) {
                 return $extension->composerJsonAttribute('extra.flarum-extension.title');
             });
@@ -133,17 +145,27 @@ class ExtensionManager
 
         $extension = $this->getExtension($name);
 
+        $missingDependencies = [];
+        $enabledIds = $this->getEnabled();
+        foreach ($extension->getExtensionDependencyIds() as $dependencyId) {
+            if (! in_array($dependencyId, $enabledIds)) {
+                $missingDependencies[] = $this->getExtension($dependencyId);
+            }
+        }
+
+        if (! empty($missingDependencies)) {
+            throw new Exception\MissingDependenciesException($extension, $missingDependencies);
+        }
+
         $this->dispatcher->dispatch(new Enabling($extension));
 
-        $enabled = $this->getEnabled();
-
-        $enabled[] = $name;
+        $enabledIds[] = $name;
 
         $this->migrate($extension);
 
         $this->publishAssets($extension);
 
-        $this->setEnabled($enabled);
+        $this->setEnabled($enabledIds);
 
         $extension->enable($this->container);
 
@@ -164,6 +186,18 @@ class ExtensionManager
         }
 
         $extension = $this->getExtension($name);
+
+        $dependentExtensions = [];
+
+        foreach ($this->getEnabledExtensions() as $possibleDependent) {
+            if (in_array($extension->getId(), $possibleDependent->getExtensionDependencyIds())) {
+                $dependentExtensions[] = $possibleDependent;
+            }
+        }
+
+        if (! empty($dependentExtensions)) {
+            throw new Exception\DependentExtensionsException($extension, $dependentExtensions);
+        }
 
         $this->dispatcher->dispatch(new Disabling($extension));
 
