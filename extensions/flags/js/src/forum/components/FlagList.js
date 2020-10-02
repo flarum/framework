@@ -1,4 +1,5 @@
 import Component from 'flarum/Component';
+import Link from 'flarum/components/Link';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
@@ -27,7 +28,7 @@ export default class FlagList extends Component {
 
                 return (
                   <li>
-                    <a route={app.route.post(post)} className="Notification Flag" onclick={e => {
+                    <Link href={app.route.post(post)} className="Notification Flag" onclick={e => {
                       app.flags.index = post;
                       e.redraw = false;
                     }}>
@@ -40,7 +41,7 @@ export default class FlagList extends Component {
                       <div className="Notification-excerpt">
                         {post.contentPlain()}
                       </div>
-                    </a>
+                    </Link>
                   </li>
                 );
               })
