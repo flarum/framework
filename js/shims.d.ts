@@ -9,14 +9,6 @@ import * as _$ from 'jquery';
 import Application from './src/common/Application';
 
 /**
- * Export Mithril typings globally.
- *
- * This lets us use these typings without an extra import everywhere we use
- * Mithril in a TypeScript file.
- */
-export as namespace Mithril;
-
-/**
  * flarum/core exposes several extensions globally:
  *
  * - jQuery for convenient DOM manipulation
