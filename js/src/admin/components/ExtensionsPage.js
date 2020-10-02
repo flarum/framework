@@ -116,8 +116,6 @@ export default class ExtensionsPage extends Page {
   }
 
   toggle(id) {
-    app.modal.show(LoadingModal);
-
     const enabled = this.isEnabled(id);
 
     app
@@ -131,6 +129,8 @@ export default class ExtensionsPage extends Page {
         if (!enabled) localStorage.setItem('enabledExtension', id);
         window.location.reload();
       });
+
+    app.modal.show(LoadingModal);
   }
 
   onerror(e) {
