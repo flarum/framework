@@ -345,17 +345,23 @@ export default class PostStream extends Component {
       }
     }
 
-    // Even before scrolling, we want to provide location information
-    // to the scrubber as soon as possible. This way, we avoid an unnecessary
-    // and confusing animation.
-    this.updateScrubber();
-    // We manually set the index because we want to display the index of the
-    // exact post we've scrolled to, not just that of the first post on the page.
-    this.stream.index = index;
+    const updateScrubberHeight = () => {
+      // We manually set the index because we want to display the index of the
+      // exact post we've scrolled to, not just that of the first post within viewport.
+      this.updateScrubber();
+      this.stream.index = index;
+    };
+
+    // If we don't update this before the scroll, the scrubber will start
+    // at the top, and animate down, which can be confusing
+    updateScrubberHeight();
     this.stream.forceUpdateScrubber = true;
 
     return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
       m.redraw.sync();
+      // We want to adjust this again after posts have been loaded in so that
+      // the height of the scrubber is accurate.
+      updateScrubberHeight();
 
       // After post data has been loaded in, we will attempt to scroll back
       // to the top of the requested post (or to the top of the page if the
