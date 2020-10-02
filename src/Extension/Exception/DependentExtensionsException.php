@@ -12,7 +12,6 @@ namespace Flarum\Extension\Exception;
 use Exception;
 use Flarum\Extension\Extension;
 
-
 /**
  * This exception is thrown when someone attempts to disable an extension
  * that other enabled extensions depend on.

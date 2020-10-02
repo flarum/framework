@@ -74,11 +74,11 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor . '/composer/installed.json')) {
+        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get($this->paths->vendor . '/composer/installed.json'), true);
+            $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
 
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
@@ -96,8 +96,8 @@ class ExtensionManager
                 $installedSet[Arr::get($package, 'name')] = true;
 
                 $path = isset($package['install-path'])
-                    ? $this->paths->vendor . '/composer/' . $package['install-path']
-                    : $this->paths->vendor . '/' . Arr::get($package, 'name');
+                    ? $this->paths->vendor.'/composer/'.$package['install-path']
+                    : $this->paths->vendor.'/'.Arr::get($package, 'name');
 
                 // Instantiates an Extension object using the package path and composer.json file.
                 $extension = new Extension($path, $package);
@@ -148,12 +148,12 @@ class ExtensionManager
         $missingDependencies = [];
         $enabledIds = $this->getEnabled();
         foreach ($extension->getExtensionDependencyIds() as $dependencyId) {
-            if (!in_array($dependencyId, $enabledIds)) {
+            if (! in_array($dependencyId, $enabledIds)) {
                 $missingDependencies[] = $this->getExtension($dependencyId);
             }
         }
 
-        if (!empty($missingDependencies)) {
+        if (! empty($missingDependencies)) {
             throw new Exception\MissingDependenciesException($extension, $missingDependencies);
         }
 
@@ -195,7 +195,7 @@ class ExtensionManager
             }
         }
 
-        if (!empty($dependentExtensions)) {
+        if (! empty($dependentExtensions)) {
             throw new Exception\DependentExtensionsException($extension, $dependentExtensions);
         }
 
@@ -239,8 +239,8 @@ class ExtensionManager
     {
         if ($extension->hasAssets()) {
             $this->filesystem->copyDirectory(
-                $extension->getPath() . '/assets',
-                $this->paths->public . '/assets/extensions/' . $extension->getId()
+                $extension->getPath().'/assets',
+                $this->paths->public.'/assets/extensions/'.$extension->getId()
             );
         }
     }
@@ -252,7 +252,7 @@ class ExtensionManager
      */
     protected function unpublishAssets(Extension $extension)
     {
-        $this->filesystem->deleteDirectory($this->paths->public . '/assets/extensions/' . $extension->getId());
+        $this->filesystem->deleteDirectory($this->paths->public.'/assets/extensions/'.$extension->getId());
     }
 
     /**
@@ -264,7 +264,7 @@ class ExtensionManager
      */
     public function getAsset(Extension $extension, $path)
     {
-        return $this->paths->public . '/assets/extensions/' . $extension->getId() . $path;
+        return $this->paths->public.'/assets/extensions/'.$extension->getId().$path;
     }
 
     /**

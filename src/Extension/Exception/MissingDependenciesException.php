@@ -38,8 +38,9 @@ class MissingDependenciesException extends Exception
      *
      * @return array
      */
-    public function getMissingDependencyIds() {
-        return array_map(function(Extension $extension) {
+    public function getMissingDependencyIds()
+    {
+        return array_map(function (Extension $extension) {
             return $extension->getId();
         }, $this->missing_dependencies);
     }
