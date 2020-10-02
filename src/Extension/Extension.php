@@ -199,14 +199,16 @@ class Extension implements Arrayable
     /**
      * Get the list of flarum extensions that this extension depends on.
      *
-     * @param array $lockJson: The json manifest of all installed php extensions
+     * @param array $extensionSet: An associative array where keys are the composer package names
+     *                             of installed extensions. Used to figure out which dependencies
+     *                             are flarum extensions.
      */
-    public function calculateDependencies($lockJson)
+    public function calculateDependencies($extensionSet)
     {
         $this->extensionDependencies = (new Collection(Arr::get($this->composerJson, 'require', [])))
             ->keys()
-            ->filter(function ($key) use ($lockJson) {
-                return array_key_exists($key, $lockJson);
+            ->filter(function ($key) use ($extensionSet) {
+                return array_key_exists($key, $extensionSet);
             })->map(function ($key) {
                 return static::nameToId($key);
             })->toArray();

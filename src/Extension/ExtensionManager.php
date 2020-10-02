@@ -83,20 +83,10 @@ class ExtensionManager
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
 
-            // We calculate and store a set of installed extension IDs (associative array with true keys)
-            // to speed up figuring what is and isn't a flarum extension later on.
-            // By only including flarum extensions, we know that anything present in this associative copy
-            // is a flarum extension, removing the need to check for it's type.
-            // We store the installed flarum extensions as keys, not values, of this array
-            // so that we have constant lookup time.
-            $installedSet = [];
-
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
                     continue;
                 }
-
-                $installedSet[Arr::get($package, 'name')] = true;
 
                 $path = isset($package['install-path'])
                     ? $this->paths->vendor.'/composer/'.$package['install-path']
@@ -109,16 +99,17 @@ class ExtensionManager
                 $extension->setInstalled(true);
                 $extension->setVersion(Arr::get($package, 'version'));
 
-                $extensions->put($extension->getId(), $extension);
+                // We use the composer package name as the key so that:
+                //   1. We don't have naming collisions
+                //   2. We can use it for constant time lookups in `calculateDependencies`
+                $extensions->put(Arr::get($package, 'name'), $extension);
             }
-
-            $installedSet = $extensions->pluck('name')->toArray();
 
             foreach ($extensions as $extension) {
-                $extension->calculateDependencies($installedSet);
+                $extension->calculateDependencies($extensions);
             }
 
-            $this->extensions = $extensions->sortBy(function ($extension, $name) {
+            $this->extensions = $extensions->sortBy(function ($extension) {
                 return $extension->composerJsonAttribute('extra.flarum-extension.title');
             });
         }
