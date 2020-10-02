@@ -77,17 +77,23 @@ export default class DiscussionListState {
   }
 
   /**
-   * Clear and reload the discussion list.
+   * Clear and reload the discussion list. Passing the option `deferClear: true`
+   * will clear discussions only after new data has been received.
+   * This can be used to refresh discussions without loading animations.
    */
-  refresh({ clear = true } = {}) {
+  refresh({ deferClear = false } = {}) {
     this.loading = true;
 
-    if (clear) {
+    if (!deferClear) {
       this.clear();
     }
 
     return this.loadResults().then(
       (results) => {
+        // This ensures that any changes made while waiting on this request
+        // are ignored. Otherwise, we could get duplicate discussions.
+        // We don't use `this.clear()` to avoid an unnecessary redraw.
+        this.discussions = [];
         this.parseResults(results);
       },
       () => {
