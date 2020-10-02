@@ -206,7 +206,7 @@ class Extension implements Arrayable
      */
     public function calculateDependencies($extensionSet)
     {
-        $this->extensionDependencies = (new Collection(Arr::get($this->composerJson, 'require', [])))
+        $this->extensionDependencyIds = (new Collection(Arr::get($this->composerJson, 'require', [])))
             ->keys()
             ->filter(function ($key) use ($extensionSet) {
                 return array_key_exists($key, $extensionSet);
