@@ -33,6 +33,9 @@ export default class Modal extends Component {
     // we don't need to show a hide animation.
     if (!this.attrs.state.modal) {
       this.attrs.animateHide();
+      // Here, we ensure that the animation has time to complete.
+      // See https://mithril.js.org/lifecycle-methods.html#onbeforeremove
+      return new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
