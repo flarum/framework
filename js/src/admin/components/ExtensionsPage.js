@@ -116,6 +116,8 @@ export default class ExtensionsPage extends Page {
   }
 
   toggle(id) {
+    app.modal.show(LoadingModal);
+
     const enabled = this.isEnabled(id);
 
     app
@@ -129,21 +131,24 @@ export default class ExtensionsPage extends Page {
         if (!enabled) localStorage.setItem('enabledExtension', id);
         window.location.reload();
       });
-
-    app.modal.show(LoadingModal);
   }
 
   onerror(e) {
-    app.modal.close();
+    // We need to give the modal animation time to start; if we close the modal too early,
+    // it breaks the bootstrap modal library.
+    // TODO: This workaround should be removed when we move away from bootstrap JS for modals.
+    setTimeout(() => {
+      app.modal.close();
 
-    const error = JSON.parse(e.responseText).errors[0];
+      const error = JSON.parse(e.responseText).errors[0];
 
-    app.alerts.show(
-      { type: 'error' },
-      app.translator.trans(`core.lib.error.${error.code}_message`, {
-        extension: error.extension,
-        extensions: error.extensions.join(', '),
-      })
-    );
+      app.alerts.show(
+        { type: 'error' },
+        app.translator.trans(`core.lib.error.${error.code}_message`, {
+          extension: error.extension,
+          extensions: error.extensions.join(', '),
+        })
+      );
+    }, 250);
   }
 }
