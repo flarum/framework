@@ -89,7 +89,7 @@ class Extension implements Arrayable
      *
      * @var string[]
      */
-    protected $extensionDependencies;
+    protected $extensionDependencyIds;
 
     /**
      * Whether the extension is installed.
@@ -291,9 +291,9 @@ class Extension implements Arrayable
      *
      * @return array
      */
-    public function getExtensionDependencies()
+    public function getExtensionDependencyIds()
     {
-        return $this->extensionDependencies;
+        return $this->extensionDependencyIds;
     }
 
     private function getExtenders(): array
@@ -406,13 +406,13 @@ class Extension implements Arrayable
     public function toArray()
     {
         return (array) array_merge([
-            'id'                    => $this->getId(),
-            'version'               => $this->getVersion(),
-            'path'                  => $this->getPath(),
-            'icon'                  => $this->getIcon(),
-            'hasAssets'             => $this->hasAssets(),
-            'hasMigrations'         => $this->hasMigrations(),
-            'extensionDependencies' => $this->getExtensionDependencies(),
+            'id'                     => $this->getId(),
+            'version'                => $this->getVersion(),
+            'path'                   => $this->getPath(),
+            'icon'                   => $this->getIcon(),
+            'hasAssets'              => $this->hasAssets(),
+            'hasMigrations'          => $this->hasMigrations(),
+            'extensionDependencyIds' => $this->getExtensionDependencyIds(),
         ], $this->composerJson);
     }
 }

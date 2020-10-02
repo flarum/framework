@@ -147,7 +147,7 @@ class ExtensionManager
 
         $missingDependencies = [];
         $enabledIds = $this->getEnabled();
-        foreach ($extension->getExtensionDependencies() as $dependencyId) {
+        foreach ($extension->getExtensionDependencyIds() as $dependencyId) {
             if (!in_array($dependencyId, $enabledIds)) {
                 $missingDependencies[] = $this->getExtension($dependencyId);
             }
@@ -190,7 +190,7 @@ class ExtensionManager
         $dependentExtensions = [];
 
         foreach ($this->getEnabledExtensions() as $possibleDependent) {
-            if (in_array($extension->getId(), $possibleDependent->getExtensionDependencies())) {
+            if (in_array($extension->getId(), $possibleDependent->getExtensionDependencyIds())) {
                 $dependentExtensions[] = $possibleDependent;
             }
         }
