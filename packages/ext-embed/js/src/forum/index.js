@@ -2,6 +2,7 @@ import 'iframe-resizer/js/iframeResizer.contentWindow.js';
 
 import { override, extend } from 'flarum/extend';
 import app from 'flarum/app';
+import Stream from 'flarum/utils/Stream';
 import ForumApplication from 'flarum/ForumApplication';
 import Composer from 'flarum/components/Composer';
 import PostStream from 'flarum/components/PostStream';
@@ -33,7 +34,7 @@ override(PostMeta.prototype, 'getPermalink', (original, post) => {
   return original(post).replace('/embed', '/d');
 });
 
-app.pageInfo = m.stream({});
+app.pageInfo = Stream({});
 
 const reposition = function() {
   const info = app.pageInfo();
