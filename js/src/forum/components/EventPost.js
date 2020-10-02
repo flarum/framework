@@ -2,6 +2,7 @@ import Post from './Post';
 import { ucfirst } from '../../common/utils/string';
 import usernameHelper from '../../common/helpers/username';
 import icon from '../../common/helpers/icon';
+import Link from '../../common/components/Link';
 
 /**
  * The `EventPost` component displays a post which indicating a discussion
@@ -29,9 +30,9 @@ export default class EventPost extends Post {
     const data = Object.assign(this.descriptionData(), {
       user,
       username: user ? (
-        <a className="EventPost-user" route={app.route.user(user)}>
+        <Link className="EventPost-user" href={app.route.user(user)}>
           {username}
-        </a>
+        </Link>
       ) : (
         username
       ),
