@@ -1,10 +1,20 @@
-import Alert from '../components/Alert';
+import Mithril from 'mithril';
+import Alert, { AlertAttrs } from '../components/Alert';
+
+/**
+ * Returned by `AlertManagerState.show`. Used to dismiss alerts.
+ */
+export type AlertIdentifier = number;
+
+export interface AlertState {
+  componentClass: typeof Alert;
+  attrs: AlertAttrs;
+  children: Mithril.Children;
+}
 
 export default class AlertManagerState {
-  constructor() {
-    this.activeAlerts = {};
-    this.alertId = 0;
-  }
+  protected activeAlerts: { [id: number]: AlertState } = {};
+  protected alertId = 0;
 
   getActiveAlerts() {
     return this.activeAlerts;
@@ -12,19 +22,27 @@ export default class AlertManagerState {
 
   /**
    * Show an Alert in the alerts area.
+   *
+   * @returns The alert's ID, which can be used to dismiss the alert.
    */
-  show(arg1, arg2, arg3) {
+  show(children: Mithril.Children): AlertIdentifier;
+  show(attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
+  show(componentClass: Alert, attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
+
+  show(arg1: any, arg2?: any, arg3?: any) {
+    // Assigns variables as per the above signatures
     let componentClass = Alert;
-    let attrs = {};
-    let children;
+    let attrs: AlertAttrs = {};
+    let children: Mithril.Children;
+
     if (arguments.length == 1) {
-      children = arg1;
+      children = arg1 as Mithril.Children;
     } else if (arguments.length == 2) {
-      attrs = arg1;
-      children = arg2;
+      attrs = arg1 as AlertAttrs;
+      children = arg2 as Mithril.Children;
     } else if (arguments.length == 3) {
-      componentClass = arg1;
-      attrs = arg2;
+      componentClass = arg1 as typeof Alert;
+      attrs = arg2 as AlertAttrs;
       children = arg3;
     }
 
@@ -45,7 +63,7 @@ export default class AlertManagerState {
   /**
    * Dismiss an alert.
    */
-  dismiss(key) {
+  dismiss(key: AlertIdentifier): void {
     if (!key || !(key in this.activeAlerts)) return;
 
     delete this.activeAlerts[key];
@@ -54,10 +72,8 @@ export default class AlertManagerState {
 
   /**
    * Clear all alerts.
-   *
-   * @public
    */
-  clear() {
+  clear(): void {
     this.activeAlerts = {};
     m.redraw();
   }
