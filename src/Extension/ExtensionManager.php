@@ -83,8 +83,8 @@ class ExtensionManager
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
 
-            // We calculate and store a set of installed extension IDs (associative array with null keys)
-            // to avoid O(n * m) complexity when finding extension dependencies.
+            // We calculate and store a set of installed extension IDs (associative array with true keys)
+            // to speed up figuring what is and isn't a flarum extension later on.
             // By only including flarum extensions, we know that anything present in this associative copy
             // is a flarum extension, removing the need to check for it's type.
             // We store the installed flarum extensions as keys, not values, of this array
@@ -198,9 +198,10 @@ class ExtensionManager
 
         foreach ($this->getEnabledExtensions() as $possibleDependent) {
             foreach ($possibleDependent->extensionDependencies as $dependency) {
+                // We check all enabled extensions. For each of them, if any depend on the extension
+                // we're disabling, we add it to the list and move onto the next one.
                 if ($dependency === $extension->getId()) {
                     $dependentExtensions[] = $possibleDependent->getId();
-                    // No need to cycle through the rest of this extension's dependencies.
                     break;
                 }
             }
