@@ -1,5 +1,6 @@
 import highlight from '../../common/helpers/highlight';
 import LinkButton from '../../common/components/LinkButton';
+import Link from '../../common/components/Link';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in
@@ -47,10 +48,10 @@ export default class DiscussionsSearchSource {
 
         return (
           <li className="DiscussionSearchResult" data-index={'discussions' + discussion.id()}>
-            <a route={app.route.discussion(discussion, mostRelevantPost && mostRelevantPost.number())}>
+            <Link href={app.route.discussion(discussion, mostRelevantPost && mostRelevantPost.number())}>
               <div className="DiscussionSearchResult-title">{highlight(discussion.title(), query)}</div>
               {mostRelevantPost ? <div className="DiscussionSearchResult-excerpt">{highlight(mostRelevantPost.contentPlain(), query, 100)}</div> : ''}
-            </a>
+            </Link>
           </li>
         );
       }),

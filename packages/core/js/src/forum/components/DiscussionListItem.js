@@ -1,4 +1,5 @@
 import Component from '../../common/Component';
+import Link from '../../common/components/Link';
 import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import highlight from '../../common/helpers/highlight';
@@ -98,8 +99,8 @@ export default class DiscussionListItem extends Component {
         </a>
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
-          <a
-            route={user ? app.route.user(user) : '#'}
+          <Link
+            href={user ? app.route.user(user) : '#'}
             className="DiscussionListItem-author"
             title={extractText(
               app.translator.trans('core.forum.discussion_list.started_text', { user: user, ago: humanTime(discussion.createdAt()) })
@@ -109,14 +110,14 @@ export default class DiscussionListItem extends Component {
             }}
           >
             {avatar(user, { title: '' })}
-          </a>
+          </Link>
 
           <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>
 
-          <a route={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
+          <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
             <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
             <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
-          </a>
+          </Link>
 
           <span
             className="DiscussionListItem-count"

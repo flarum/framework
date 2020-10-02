@@ -1,6 +1,7 @@
 import Component from '../../common/Component';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
+import Link from '../../common/components/Link';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Discussion from '../../common/models/Discussion';
 
@@ -63,10 +64,10 @@ export default class NotificationList extends Component {
                   return (
                     <div className="NotificationGroup">
                       {group.discussion ? (
-                        <a className="NotificationGroup-header" route={app.route.discussion(group.discussion)}>
+                        <Link className="NotificationGroup-header" href={app.route.discussion(group.discussion)}>
                           {badges && badges.length ? <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul> : ''}
                           {group.discussion.title()}
-                        </a>
+                        </Link>
                       ) : (
                         <div className="NotificationGroup-header">{app.forum.attribute('title')}</div>
                       )}

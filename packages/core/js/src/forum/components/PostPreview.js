@@ -1,4 +1,5 @@
 import Component from '../../common/Component';
+import Link from '../../common/components/Link';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import highlight from '../../common/helpers/highlight';
@@ -18,12 +19,12 @@ export default class PostPreview extends Component {
     const excerpt = highlight(post.contentPlain(), this.attrs.highlight, 300);
 
     return (
-      <a className="PostPreview" route={app.route.post(post)} onclick={this.attrs.onclick}>
+      <Link className="PostPreview" href={app.route.post(post)} onclick={this.attrs.onclick}>
         <span className="PostPreview-content">
           {avatar(user)}
           {username(user)} <span className="PostPreview-excerpt">{excerpt}</span>
         </span>
-      </a>
+      </Link>
     );
   }
 }

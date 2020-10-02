@@ -1,6 +1,7 @@
 import UserPage from './UserPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
+import Link from '../../common/components/Link';
 import Placeholder from '../../common/components/Placeholder';
 import CommentPost from './CommentPost';
 
@@ -73,7 +74,7 @@ export default class PostsUserPage extends UserPage {
             <li>
               <div className="PostsUserPage-discussion">
                 {app.translator.trans('core.forum.user.in_discussion_text', {
-                  discussion: <a route={app.route.post(post)}>{post.discussion().title()}</a>,
+                  discussion: <Link href={app.route.post(post)}>{post.discussion().title()}</Link>,
                 })}
               </div>
 
