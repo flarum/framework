@@ -15,6 +15,7 @@ use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
@@ -51,6 +52,14 @@ class Extension implements Arrayable
         'jpg' => 'image/jpeg',
     ];
 
+    protected static function nameToId($name)
+    {
+        list($vendor, $package) = explode('/', $name);
+        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
+
+        return "$vendor-$package";
+    }
+
     /**
      * Unique Id of the extension.
      *
@@ -60,6 +69,7 @@ class Extension implements Arrayable
      * @var string
      */
     protected $id;
+
     /**
      * The directory of this extension.
      *
@@ -73,6 +83,13 @@ class Extension implements Arrayable
      * @var array
      */
     protected $composerJson;
+
+    /**
+     * The IDs of all Flarum extensions that this extension depends on.
+     *
+     * @var string[]
+     */
+    protected $extensionDependencyIds;
 
     /**
      * Whether the extension is installed.
@@ -104,9 +121,7 @@ class Extension implements Arrayable
      */
     protected function assignId()
     {
-        list($vendor, $package) = explode('/', $this->name);
-        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
-        $this->id = "$vendor-$package";
+        $this->id = static::nameToId($this->name);
     }
 
     public function extend(Container $app)
@@ -183,6 +198,24 @@ class Extension implements Arrayable
     }
 
     /**
+     * Get the list of flarum extensions that this extension depends on.
+     *
+     * @param array $extensionSet: An associative array where keys are the composer package names
+     *                             of installed extensions. Used to figure out which dependencies
+     *                             are flarum extensions.
+     */
+    public function calculateDependencies($extensionSet)
+    {
+        $this->extensionDependencyIds = (new Collection(Arr::get($this->composerJson, 'require', [])))
+            ->keys()
+            ->filter(function ($key) use ($extensionSet) {
+                return array_key_exists($key, $extensionSet);
+            })->map(function ($key) {
+                return static::nameToId($key);
+            })->toArray();
+    }
+
+    /**
      * @return string
      */
     public function getVersion()
@@ -251,6 +284,16 @@ class Extension implements Arrayable
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * The IDs of all Flarum extensions that this extension depends on.
+     *
+     * @return array
+     */
+    public function getExtensionDependencyIds()
+    {
+        return $this->extensionDependencyIds;
     }
 
     private function getExtenders(): array
@@ -363,12 +406,13 @@ class Extension implements Arrayable
     public function toArray()
     {
         return (array) array_merge([
-            'id'            => $this->getId(),
-            'version'       => $this->getVersion(),
-            'path'          => $this->path,
-            'icon'          => $this->getIcon(),
-            'hasAssets'     => $this->hasAssets(),
-            'hasMigrations' => $this->hasMigrations(),
+            'id'                     => $this->getId(),
+            'version'                => $this->getVersion(),
+            'path'                   => $this->getPath(),
+            'icon'                   => $this->getIcon(),
+            'hasAssets'              => $this->hasAssets(),
+            'hasMigrations'          => $this->hasMigrations(),
+            'extensionDependencyIds' => $this->getExtensionDependencyIds(),
         ], $this->composerJson);
     }
 }

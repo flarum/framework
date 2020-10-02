@@ -9,6 +9,10 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Extension\Exception\DependentExtensionsException;
+use Flarum\Extension\Exception\DependentExtensionsExceptionHandler;
+use Flarum\Extension\Exception\MissingDependenciesException;
+use Flarum\Extension\Exception\MissingDependenciesExceptionHandler;
 use Flarum\Foundation\ErrorHandling\ExceptionHandler;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\ErrorHandling\Registry;
@@ -57,6 +61,8 @@ class ErrorServiceProvider extends AbstractServiceProvider
             return [
                 IlluminateValidationException::class => ExceptionHandler\IlluminateValidationExceptionHandler::class,
                 ValidationException::class => ExceptionHandler\ValidationExceptionHandler::class,
+                DependentExtensionsException::class => DependentExtensionsExceptionHandler::class,
+                MissingDependenciesException::class => MissingDependenciesExceptionHandler::class,
             ];
         });
 

@@ -123,6 +123,7 @@ export default class ExtensionsPage extends Page {
         url: app.forum.attribute('apiUrl') + '/extensions/' + id,
         method: 'PATCH',
         body: { enabled: !enabled },
+        errorHandler: this.onerror.bind(this),
       })
       .then(() => {
         if (!enabled) localStorage.setItem('enabledExtension', id);
@@ -130,5 +131,24 @@ export default class ExtensionsPage extends Page {
       });
 
     app.modal.show(LoadingModal);
+  }
+
+  onerror(e) {
+    // We need to give the modal animation time to start; if we close the modal too early,
+    // it breaks the bootstrap modal library.
+    // TODO: This workaround should be removed when we move away from bootstrap JS for modals.
+    setTimeout(() => {
+      app.modal.close();
+
+      const error = JSON.parse(e.responseText).errors[0];
+
+      app.alerts.show(
+        { type: 'error' },
+        app.translator.trans(`core.lib.error.${error.code}_message`, {
+          extension: error.extension,
+          extensions: error.extensions.join(', '),
+        })
+      );
+    }, 250);
   }
 }
