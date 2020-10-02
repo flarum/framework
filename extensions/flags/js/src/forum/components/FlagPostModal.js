@@ -1,6 +1,7 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 
+import Stream from 'flarum/utils/Stream';
 import withAttr from 'flarum/utils/withAttr';
 
 export default class FlagPostModal extends Modal {
@@ -9,8 +10,8 @@ export default class FlagPostModal extends Modal {
 
     this.success = false;
 
-    this.reason = m.stream('');
-    this.reasonDetail = m.stream('');
+    this.reason = Stream('');
+    this.reasonDetail = Stream('');
   }
 
   className() {
