@@ -69,6 +69,7 @@ class Extension implements Arrayable
      * @var string
      */
     protected $id;
+
     /**
      * The directory of this extension.
      *
@@ -84,11 +85,11 @@ class Extension implements Arrayable
     protected $composerJson;
 
     /**
-     * An array of extension ids for extension dependencies.
+     * The IDs of all Flarum extensions that this extension depends on.
      *
      * @var string[]
      */
-    protected $dependencies;
+    protected $extensionDependencies;
 
     /**
      * Whether the extension is installed.
@@ -285,6 +286,16 @@ class Extension implements Arrayable
         return $this->path;
     }
 
+    /**
+     * The IDs of all Flarum extensions that this extension depends on.
+     *
+     * @return array
+     */
+    public function getExtensionDependencies()
+    {
+        return $this->extensionDependencies;
+    }
+
     private function getExtenders(): array
     {
         $extenderFile = $this->getExtenderFile();
@@ -397,11 +408,11 @@ class Extension implements Arrayable
         return (array) array_merge([
             'id'                    => $this->getId(),
             'version'               => $this->getVersion(),
-            'path'                  => $this->path,
+            'path'                  => $this->getPath(),
             'icon'                  => $this->getIcon(),
             'hasAssets'             => $this->hasAssets(),
             'hasMigrations'         => $this->hasMigrations(),
-            'extensionDependencies' => $this->extensionDependencies,
+            'extensionDependencies' => $this->getExtensionDependencies(),
         ], $this->composerJson);
     }
 }
