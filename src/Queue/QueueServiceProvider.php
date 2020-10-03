@@ -63,7 +63,8 @@ class QueueServiceProvider extends AbstractServiceProvider
             return new Worker(
                 new HackyManagerForWorker($app[Factory::class]),
                 $app['events'],
-                $app[ExceptionHandling::class]
+                $app[ExceptionHandling::class],
+                function () { return false; }
             );
         });
 
