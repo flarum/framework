@@ -1,6 +1,7 @@
 import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import CommentPost from 'flarum/components/CommentPost';
+import Link from 'flarum/components/Link';
 import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
 import icon from 'flarum/helpers/icon';
@@ -22,9 +23,9 @@ export default function() {
         .slice(0, overLimit ? limit - 1 : limit)
         .map(user => {
           return (
-            <a route={app.route.user(user)}>
+            <Link href={app.route.user(user)}>
               {user === app.session.user ? app.translator.trans('flarum-likes.forum.post.you_text') : username(user)}
-            </a>
+            </Link>
           );
         });
 
