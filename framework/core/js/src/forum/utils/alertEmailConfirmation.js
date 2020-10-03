@@ -52,13 +52,18 @@ export default function alertEmailConfirmation(app) {
     }
   }
 
+  class ContainedAlert extends Alert {
+    view(vnode) {
+      const vdom = super.view(vnode);
+      return { ...vdom, children: [<div className="container">{vdom.children}</div>] };
+    }
+  }
+
   m.mount($('<div/>').insertBefore('#content')[0], {
     view: () => (
-      <Alert dismissible={false} controls={[<ResendButton />]}>
-        <div className="container">
-          {app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> })}
-        </div>
-      </Alert>
+      <ContainedAlert dismissible={false} controls={[<ResendButton />]}>
+        {app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> })}
+      </ContainedAlert>
     ),
   });
 }
