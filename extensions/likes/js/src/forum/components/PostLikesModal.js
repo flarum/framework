@@ -1,4 +1,5 @@
 import Modal from 'flarum/components/Modal';
+import Link from 'flarum/components/Link';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 
@@ -17,10 +18,10 @@ export default class PostLikesModal extends Modal {
         <ul className="PostLikesModal-list">
           {this.attrs.post.likes().map(user => (
             <li>
-              <a route={app.route.user(user)}>
+              <Link href={app.route.user(user)}>
                 {avatar(user)} {' '}
                 {username(user)}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
