@@ -59,6 +59,10 @@ class SaveTagsToDatabase
 
         // TODO: clean up, prevent discussion from being created without tags
         if (isset($event->data['relationships']['tags']['data'])) {
+            if ($discussion->exists) {
+                $actor->assertCan('tag', $discussion);
+            }
+
             $linkage = (array) $event->data['relationships']['tags']['data'];
 
             $newTagIds = [];
