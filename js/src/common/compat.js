@@ -1,10 +1,8 @@
 import * as extend from './extend';
 import Session from './Session';
 import Store from './Store';
-import evented from './utils/evented';
 import liveHumanTimes from './utils/liveHumanTimes';
 import ItemList from './utils/ItemList';
-import mixin from './utils/mixin';
 import humanTime from './utils/humanTime';
 import computed from './utils/computed';
 import Drawer from './utils/Drawer';
@@ -72,10 +70,8 @@ export default {
   extend: extend,
   Session: Session,
   Store: Store,
-  'utils/evented': evented,
   'utils/liveHumanTimes': liveHumanTimes,
   'utils/ItemList': ItemList,
-  'utils/mixin': mixin,
   'utils/humanTime': humanTime,
   'utils/computed': computed,
   'utils/Drawer': Drawer,
