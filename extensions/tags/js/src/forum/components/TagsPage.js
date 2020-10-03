@@ -1,5 +1,6 @@
 import Page from 'flarum/components/Page';
 import IndexPage from 'flarum/components/IndexPage';
+import Link from 'flarum/components/Link';
 import listItems from 'flarum/helpers/listItems';
 import humanTime from 'flarum/helpers/humanTime';
 
@@ -36,29 +37,29 @@ export default class TagsPage extends Page {
                 return (
                   <li className={'TagTile ' + (tag.color() ? 'colored' : '')}
                     style={{backgroundColor: tag.color()}}>
-                    <a className="TagTile-info" route={app.route.tag(tag)}>
+                    <Link className="TagTile-info" href={app.route.tag(tag)}>
                       <h3 className="TagTile-name">{tag.name()}</h3>
                       <p className="TagTile-description">{tag.description()}</p>
                       {children
                         ? (
                           <div className="TagTile-children">
                             {children.map(child => [
-                              <a route={app.route.tag(child)}>
+                              <Link href={app.route.tag(child)}>
                                 {child.name()}
-                              </a>,
+                              </Link>,
                               ' '
                             ])}
                           </div>
                         ) : ''}
-                    </a>
+                    </Link>
                     {lastPostedDiscussion
                       ? (
-                        <a className="TagTile-lastPostedDiscussion"
-                          route={app.route.discussion(lastPostedDiscussion, lastPostedDiscussion.lastPostNumber())}
+                        <Link className="TagTile-lastPostedDiscussion"
+                          href={app.route.discussion(lastPostedDiscussion, lastPostedDiscussion.lastPostNumber())}
                           >
                           <span className="TagTile-lastPostedDiscussion-title">{lastPostedDiscussion.title()}</span>
                           {humanTime(lastPostedDiscussion.lastPostedAt())}
-                        </a>
+                        </Link>
                       ) : (
                         <span className="TagTile-lastPostedDiscussion"/>
                       )}
