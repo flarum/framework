@@ -1,6 +1,7 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 
+import Stream from 'flarum/utils/Stream';
 import withAttr from 'flarum/utils/withAttr';
 
 export default class SuspendUserModal extends Modal {
@@ -17,8 +18,8 @@ export default class SuspendUserModal extends Modal {
       else status = 'limited';
     }
 
-    this.status = m.stream(status);
-    this.daysRemaining = m.stream(status === 'limited' && -dayjs().diff(until, 'days') + 1);
+    this.status = Stream(status);
+    this.daysRemaining = Stream(status === 'limited' && -dayjs().diff(until, 'days') + 1);
   }
 
   className() {
