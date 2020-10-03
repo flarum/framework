@@ -8,10 +8,10 @@
  * position can be anchor to an element that is in or below the viewport, so
  * the content in the viewport will stay the same.
  *
- * @param {DOMElement} element The element to anchor the scroll position to.
+ * @param {HTMLElement} element The element to anchor the scroll position to.
  * @param {Function} callback The callback to run that will change page content.
  */
-export default function anchorScroll(element, callback) {
+export default function anchorScroll(element: HTMLElement, callback: Function): void {
   const $window = $(window);
   const relativeScroll = $(element).offset().top - $window.scrollTop();
 

@@ -7,10 +7,10 @@
  * // "foo qux"
  *
  * @param {Object} classes
- * @return {String}
+ * @return {string}
  */
-export default function classList(classes) {
-  let classNames;
+export default function classList(classes: Object): string {
+  let classNames: Array<string>;
 
   if (classes instanceof Array) {
     classNames = classes.filter((name) => name);

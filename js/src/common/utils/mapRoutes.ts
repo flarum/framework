@@ -7,7 +7,7 @@
  * @param {String} [basePath]
  * @return {Object}
  */
-export default function mapRoutes(routes, basePath = '') {
+export default function mapRoutes(routes: Object, basePath: string = ''): Object {
   const map = {};
 
   for (const key in routes) {

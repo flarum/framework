@@ -4,6 +4,8 @@
  * footer.
  */
 export default class Drawer {
+  private $backdrop;
+
   constructor() {
     // Set up an event handler so that whenever the content area is tapped,
     // the drawer will close.
@@ -21,7 +23,7 @@ export default class Drawer {
    * @return {Boolean}
    * @public
    */
-  isOpen() {
+  isOpen(): Boolean {
     return $('#app').hasClass('drawerOpen');
   }
 
@@ -30,7 +32,7 @@ export default class Drawer {
    *
    * @public
    */
-  hide() {
+  hide(): void {
     $('#app').removeClass('drawerOpen');
 
     if (this.$backdrop) this.$backdrop.remove();
@@ -41,7 +43,7 @@ export default class Drawer {
    *
    * @public
    */
-  show() {
+  show(): void {
     $('#app').addClass('drawerOpen');
 
     this.$backdrop = $('<div/>')
