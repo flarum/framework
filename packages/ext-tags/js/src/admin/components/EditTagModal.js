@@ -2,6 +2,7 @@ import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import { slug } from 'flarum/utils/string';
+import Stream from 'flarum/utils/Stream';
 
 import tagLabel from '../../common/helpers/tagLabel';
 
@@ -15,12 +16,12 @@ export default class EditTagModal extends Modal {
 
     this.tag = this.attrs.model || app.store.createRecord('tags');
 
-    this.name = m.stream(this.tag.name() || '');
-    this.slug = m.stream(this.tag.slug() || '');
-    this.description = m.stream(this.tag.description() || '');
-    this.color = m.stream(this.tag.color() || '');
-    this.icon = m.stream(this.tag.icon() || '');
-    this.isHidden = m.stream(this.tag.isHidden() || false);
+    this.name = Stream(this.tag.name() || '');
+    this.slug = Stream(this.tag.slug() || '');
+    this.description = Stream(this.tag.description() || '');
+    this.color = Stream(this.tag.color() || '');
+    this.icon = Stream(this.tag.icon() || '');
+    this.isHidden = Stream(this.tag.isHidden() || false);
   }
 
   className() {
@@ -122,7 +123,7 @@ export default class EditTagModal extends Modal {
 
     this.loading = true;
 
-    // Errors aren't passed to the modal onerror handler here. 
+    // Errors aren't passed to the modal onerror handler here.
     // This is done for better error visibility on smaller screen heights.
     this.tag.save(this.submitData()).then(
       () => this.hide(),
