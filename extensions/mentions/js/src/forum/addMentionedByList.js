@@ -2,6 +2,7 @@ import { extend } from 'flarum/extend';
 import Model from 'flarum/Model';
 import Post from 'flarum/models/Post';
 import CommentPost from 'flarum/components/CommentPost';
+import Link from 'flarum/components/Link';
 import PostPreview from 'flarum/components/PostPreview';
 import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
@@ -84,11 +85,11 @@ export default function addMentionedByList() {
           const user = reply.user();
 
           return (
-            <a route={app.route.post(reply)}
+            <Link href={app.route.post(reply)}
                onclick={hidePreview}
                data-number={reply.number()}>
               {app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)}
-            </a>
+            </Link>
           );
         });
 
