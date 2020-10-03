@@ -5,6 +5,7 @@ import highlight from 'flarum/helpers/highlight';
 import classList from 'flarum/utils/classList';
 import extractText from 'flarum/utils/extractText';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
+import Stream from 'flarum/utils/Stream';
 
 import tagLabel from '../../common/helpers/tagLabel';
 import tagIcon from '../../common/helpers/tagIcon';
@@ -25,7 +26,7 @@ export default class TagDiscussionModal extends Modal {
     this.tags = sortTags(this.tags);
 
     this.selected = [];
-    this.filter = m.stream('');
+    this.filter = Stream('');
     this.index = this.tags[0].id();
     this.focused = false;
 
