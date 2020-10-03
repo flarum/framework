@@ -17,7 +17,6 @@ use Flarum\Tags\Content;
 use Flarum\Tags\Listener;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\View\Factory;
 
 return [
     (new Extend\Frontend('forum'))
@@ -45,7 +44,7 @@ return [
     (new Extend\View)
         ->namespace('tags', __DIR__.'/views'),
 
-    function (Dispatcher $events, Factory $view) {
+    function (Dispatcher $events) {
         $events->subscribe(Listener\AddDiscussionTagsRelationship::class);
 
         $events->subscribe(Listener\AddForumTagsRelationship::class);
