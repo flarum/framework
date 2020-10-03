@@ -1,3 +1,4 @@
+import Link from 'flarum/components/Link';
 import LinkButton from 'flarum/components/LinkButton';
 import classList from 'flarum/utils/classList';
 import tagIcon from '../../common/helpers/tagIcon';
@@ -15,12 +16,12 @@ export default class TagLinkButton extends LinkButton {
     ]);
 
     return (
-      <a className={className} route={this.attrs.route}
+      <Link className={className} href={this.attrs.route}
         style={active && tag ? {color: tag.color()} : ''}
         title={description || ''}>
         {tagIcon(tag, {className: 'Button-icon'})}
         {tag ? tag.name() : app.translator.trans('flarum-tags.forum.index.untagged_link')}
-      </a>
+      </Link>
     );
   }
 
