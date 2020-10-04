@@ -103,6 +103,22 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->app->alias(Factory::class, 'queue');
         $this->app->alias(Worker::class, 'queue.worker');
         $this->app->alias(Listener::class, 'queue.listener');
+
+        $this->registerCommands();
+    }
+
+    private function registerCommands()
+    {
+        $queue = $this->app->make(Queue::class);
+
+        // There is no need to have the queue commands when using the sync driver.
+        if ($queue instanceof SyncQueue) {
+            return;
+        }
+
+        $this->app->extend('flarum.console.commands', function ($existingCommands) {
+            return array_merge($existingCommands, $this->commands);
+        });
     }
 
     public function boot()
