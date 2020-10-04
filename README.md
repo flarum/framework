@@ -2,9 +2,9 @@
 
 <p align="center">
 <a href="https://github.com/flarum/core/actions?query=workflow%3ATests"><img src="https://github.com/flarum/core/workflows/Tests/badge.svg" alt="PHP Tests"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/v/unstable.svg" alt="Latest Version"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/license.svg" alt="License"></a>
+<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/dt/flarum/core" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/github/v/release/flarum/core?sort=semver" alt="Latest Version"></a>
+<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/l/flarum/core" alt="License"></a>
 <a href="https://github.styleci.io/repos/28257573"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="StyleCI"></a>
 </p>
 
