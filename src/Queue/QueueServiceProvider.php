@@ -63,7 +63,9 @@ class QueueServiceProvider extends AbstractServiceProvider
             return new Worker(
                 new HackyManagerForWorker($app[Factory::class]),
                 $app['events'],
-                $app[ExceptionHandling::class]
+                $app[ExceptionHandling::class],
+                // Inform Laravel Worker that the application is not in maintenance mode.
+                function () { return false; }
             );
         });
 
