@@ -6,10 +6,10 @@
  * classList({ foo: true, bar: false, qux: 'qaz' });
  * // "foo qux"
  *
- * @param {Object} classes
+ * @param {IClassParam} classes
  * @return {string}
  */
-export default function classList(classes: Object): string {
+export default function classList(classes: IClassParam): string {
   let classNames: Array<string>;
 
   if (classes instanceof Array) {
@@ -23,4 +23,8 @@ export default function classList(classes: Object): string {
   }
 
   return classNames.join(' ');
+}
+
+export interface IClassParam {
+  [name: string]: boolean | string | number;
 }

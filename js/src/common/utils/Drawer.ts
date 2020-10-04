@@ -20,10 +20,10 @@ export default class Drawer {
   /**
    * Check whether or not the drawer is currently open.
    *
-   * @return {Boolean}
+   * @return {boolean}
    * @public
    */
-  isOpen(): Boolean {
+  isOpen(): boolean {
     return $('#app').hasClass('drawerOpen');
   }
 

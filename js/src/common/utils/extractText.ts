@@ -1,10 +1,12 @@
+import * as mithril from 'mithril';
+
 /**
  * Extract the text nodes from a virtual element.
  *
- * @param {VirtualElement} vdom
- * @return {string}
+ * @param {mithril.VnodeDOM} vdom
+ * @return {IExtractTextReturn}
  */
-export default function extractText(vdom: IVirtualElement): string {
+export default function extractText(vdom: mithril.VnodeDOM): IExtractTextReturn {
   if (vdom instanceof Array) {
     return vdom.map((element) => extractText(element)).join('');
   } else if (typeof vdom === 'object' && vdom !== null) {
@@ -15,9 +17,4 @@ export default function extractText(vdom: IVirtualElement): string {
   }
 }
 
-export interface IVirtualElement extends HTMLElement {
-  _virtual: {
-    parent?: IVirtualElement;
-    children: IVirtualElement[];
-  };
-}
+export type IExtractTextReturn = string | number | boolean | undefined;
