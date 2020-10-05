@@ -105,6 +105,24 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->app->alias(Factory::class, 'queue');
         $this->app->alias(Worker::class, 'queue.worker');
         $this->app->alias(Listener::class, 'queue.listener');
+
+        $this->registerCommands();
+    }
+
+    protected function registerCommands()
+    {
+        $this->app['events']->listen(Configuring::class, function (Configuring $event) {
+            $queue = $this->app->make(Queue::class);
+
+            // There is no need to have the queue commands when using the sync driver.
+            if ($queue instanceof SyncQueue) {
+                return;
+            }
+
+            foreach ($this->commands as $command) {
+                $event->addCommand($command);
+            }
+        });
     }
 
     public function boot()
