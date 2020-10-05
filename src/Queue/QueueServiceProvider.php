@@ -9,7 +9,6 @@
 
 namespace Flarum\Queue;
 
-use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
@@ -22,6 +21,7 @@ use Illuminate\Queue\Console as Commands;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
+use Illuminate\Queue\QueueManager;
 use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
 
@@ -62,7 +62,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton(Worker::class, function ($app) {
             return new Worker(
-                new HackyManagerForWorker($app[Factory::class]),
+                new QueueManager($app),
                 $app['events'],
                 $app[ExceptionHandling::class]
             );
@@ -110,17 +110,17 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     protected function registerCommands()
     {
-        $this->app['events']->listen(Configuring::class, function (Configuring $event) {
+        $this->app->resolving('flarum.console.commands', function ($commands) {
             $queue = $this->app->make(Queue::class);
 
             // There is no need to have the queue commands when using the sync driver.
             if ($queue instanceof SyncQueue) {
-                return;
+                return $commands;
             }
 
-            foreach ($this->commands as $command) {
-                $event->addCommand($command);
-            }
+            // Otherwise add our commands, while allowing them to be overridden by those
+            // already added through the container.
+            return array_merge($this->commands, $commands);
         });
     }
 
