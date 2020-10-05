@@ -16,7 +16,7 @@ use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Contracts\Translation\Translator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class EventTest extends TestCase
 {
@@ -87,7 +87,7 @@ class CustomListener
 {
     protected $translator;
 
-    public function __construct(Translator $translator)
+    public function __construct(TranslatorInterface $translator)
     {
         $this->translator = $translator;
     }
