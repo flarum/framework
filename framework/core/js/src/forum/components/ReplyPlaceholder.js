@@ -33,7 +33,7 @@ export default class ReplyPlaceholder extends Component {
     }
 
     const reply = () => {
-      DiscussionControls.replyAction.call(this.attrs.discussion, true);
+      DiscussionControls.replyAction.call(this.attrs.discussion, true).catch(() => {});
     };
 
     return (
