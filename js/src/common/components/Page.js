@@ -12,15 +12,18 @@ export default class Page extends Component {
 
     this.onNewRoute();
 
-    app.drawer.hide();
-    app.modal.close();
-
     /**
      * A class name to apply to the body while the route is active.
      *
      * @type {String}
      */
     this.bodyClass = '';
+
+    this.currentPath = m.route.get();
+  }
+
+  routeHasChanged() {
+    return this.currentPath !== m.route.get();
   }
 
   /**
@@ -30,8 +33,21 @@ export default class Page extends Component {
    * adjust the current route name.
    */
   onNewRoute() {
+    this.currentPath = m.route.get();
+
     app.previous = app.current;
     app.current = new PageState(this.constructor, { routeName: this.attrs.routeName });
+
+    app.drawer.hide();
+    app.modal.close();
+  }
+
+  onbeforeupdate(vnode, old) {
+    super.onbeforeupdate(vnode, old);
+
+    if (this.routeHasChanged()) {
+      this.onNewRoute();
+    }
   }
 
   oncreate(vnode) {

@@ -32,23 +32,9 @@ export default class DiscussionPage extends Page {
      */
     this.near = m.route.param('near') || 0;
 
-    this.load();
-
-    // If the discussion list has been loaded, then we'll enable the pane (and
-    // hide it by default). Also, if we've just come from another discussion
-    // page, then we don't want Mithril to redraw the whole page – if it did,
-    // then the pane would redraw which would be slow and would cause problems with
-    // event handlers.
-    if (app.discussions.hasDiscussions()) {
-      app.pane.enable();
-      app.pane.hide();
-    }
-
     app.history.push('discussion');
 
     this.bodyClass = 'App--discussion';
-
-    this.prevRoute = m.route.get();
   }
 
   onremove() {
@@ -95,30 +81,32 @@ export default class DiscussionPage extends Page {
     );
   }
 
-  onbeforeupdate(vnode) {
-    super.onbeforeupdate(vnode);
+  onNewRoute() {
+    // If we have routed to the same discussion as we were viewing previously,
+    // prompt the post stream to jump to the new 'near' param.
+    // Otherwise, load in a new discussion. The `else` branch will
+    // be followed when `onNewRoute` is called from `oninit`.
+    const idParam = m.route.param('id');
+    if (this.discussion && idParam && idParam.split('-')[0] === this.discussion.id()) {
+      const near = m.route.param('near') || '1';
 
-    if (m.route.get() !== this.prevRoute) {
-      this.onNewRoute();
-      this.prevRoute = m.route.get();
+      if (near !== String(this.near)) {
+        this.stream.goToNumber(near);
+      }
 
-      // If we have routed to the same discussion as we were viewing previously,
-      // cancel the unloading of this controller and instead prompt the post
-      // stream to jump to the new 'near' param.
-      if (this.discussion) {
-        const idParam = m.route.param('id');
+      this.near = near;
+    } else {
+      super.onNewRoute();
 
-        if (idParam && idParam.split('-')[0] === this.discussion.id()) {
-          const near = m.route.param('near') || '1';
+      this.discussion = null;
 
-          if (near !== String(this.near)) {
-            this.stream.goToNumber(near);
-          }
+      this.load();
 
-          this.near = near;
-        } else {
-          this.oninit(vnode);
-        }
+      // If the discussion list has been loaded, then we'll enable the pane (and
+      // hide it by default).
+      if (app.discussions.hasDiscussions()) {
+        app.pane.enable();
+        app.pane.hide();
       }
     }
   }
