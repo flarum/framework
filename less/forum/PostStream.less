@@ -6,18 +6,7 @@
     margin-top: 10px;
   }
 }
-
-@-webkit-keyframes fadeIn {
-  0% {opacity: 0}
-  100% {opacity: 1}
-}
-@keyframes fadeIn {
-  0% {opacity: 0}
-  100% {opacity: 1}
-}
 .PostStream-item {
-  .animation(fadeIn 0.4s ease-in-out);
-
   &:not(:last-child) {
     border-bottom: 1px solid @control-bg;
 
@@ -102,5 +91,17 @@
 }
 .flash {
   .animation(pulsate 0.2s ease-in-out);
+}
+
+@-webkit-keyframes fadeIn {
+  0% {opacity: 0}
+  100% {opacity: 1}
+}
+@keyframes fadeIn {
+  0% {opacity: 0}
+  100% {opacity: 1}
+}
+.fadeIn {
+  .animation(fadeIn 0.4s ease-in-out);
   .animation-iteration-count(1);
 }
