@@ -10,6 +10,7 @@
 namespace Flarum\Queue;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\Paths;
@@ -61,10 +62,16 @@ class QueueServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->singleton(Worker::class, function ($app) {
+            /** @var Config $config */
+            $config = $app->make(Config::class);
+
             return new Worker(
                 new QueueManager($app),
                 $app['events'],
-                $app[ExceptionHandling::class]
+                $app[ExceptionHandling::class],
+                function () use ($config) {
+                    return $config->inMaintenanceMode();
+                }
             );
         });
 
