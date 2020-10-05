@@ -117,7 +117,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     protected function registerCommands()
     {
-        $this->app->resolving('flarum.console.commands', function ($commands) {
+        $this->app->extend('flarum.console.commands', function ($commands) {
             $queue = $this->app->make(Queue::class);
 
             // There is no need to have the queue commands when using the sync driver.
