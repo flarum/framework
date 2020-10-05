@@ -27,14 +27,14 @@ export default class UserPage extends Page {
     this.user = null;
 
     this.bodyClass = 'App--user';
-
-    this.currUsername = m.route.param('username');
   }
 
   onNewRoute() {
     super.onNewRoute();
 
-    this.loadUser(m.route.param('username'));
+    if (m.route.param('username')) {
+      this.loadUser(m.route.param('username'));
+    }
   }
 
   view() {
