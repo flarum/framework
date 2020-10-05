@@ -12,9 +12,6 @@ export default class Page extends Component {
 
     this.onNewRoute();
 
-    app.drawer.hide();
-    app.modal.close();
-
     /**
      * A class name to apply to the body while the route is active.
      *
@@ -32,6 +29,9 @@ export default class Page extends Component {
   onNewRoute() {
     app.previous = app.current;
     app.current = new PageState(this.constructor, { routeName: this.attrs.routeName });
+
+    app.drawer.hide();
+    app.modal.close();
   }
 
   oncreate(vnode) {
