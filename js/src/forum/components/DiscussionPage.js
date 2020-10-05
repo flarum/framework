@@ -52,6 +52,7 @@ export default class DiscussionPage extends Page {
   }
 
   onremove() {
+    super.onremove();
     // If we are indeed navigating away from this discussion, then disable the
     // discussion list pane. Also, if we're composing a reply to this
     // discussion, minimize the composer – unless it's empty, in which case
