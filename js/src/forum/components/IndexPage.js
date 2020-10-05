@@ -29,16 +29,6 @@ export default class IndexPage extends Page {
       this.lastDiscussion = app.previous.get('discussion');
     }
 
-    // If the user is coming from the discussion list, then they have either
-    // just switched one of the parameters (filter, sort, search) or they
-    // probably want to refresh the results. We will clear the discussion list
-    // cache so that results are reloaded.
-    if (app.previous.matches(IndexPage)) {
-      app.discussions.clear();
-    }
-
-    app.discussions.refreshParams(app.search.params());
-
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
     this.bodyClass = 'App--index';
@@ -47,7 +37,13 @@ export default class IndexPage extends Page {
   onNewRoute() {
     super.onNewRoute();
 
-    app.discussions.clear();
+    // If the user is coming from the discussion list, then they have either
+    // just switched one of the parameters (filter, sort, search) or they
+    // probably want to refresh the results. We will clear the discussion list
+    // cache so that results are reloaded.
+    if (app.previous.matches(IndexPage)) {
+      app.discussions.clear();
+    }
 
     app.discussions.refreshParams(app.search.params());
 
