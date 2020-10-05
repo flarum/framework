@@ -1,13 +1,13 @@
-import { Attributes, Vnode } from 'mithril';
+import * as Mithril from 'mithril';
 
 /**
  * The `icon` helper displays an icon.
  *
  * @param {String} fontClass The full icon class, prefix and the icon’s name.
- * @param {Attributes} attrs Any other attributes to apply.
- * @return {Vnode}
+ * @param {Mithril.Attributes} attrs Any other attributes to apply.
+ * @return {Mithril.Vnode}
  */
-export default function icon(fontClass: string, attrs: Attributes = {}): Vnode {
+export default function icon(fontClass: string, attrs: Mithril.Attributes = {}): Mithril.Vnode {
   attrs.className = 'icon ' + fontClass + ' ' + (attrs.className || '');
 
   return <i {...attrs} />;
