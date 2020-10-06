@@ -272,7 +272,7 @@ export default class Application {
   /**
    * Make an AJAX request, handling any low-level errors that may occur.
    *
-   * @see https://lhorie.github.io/mithril/mithril.request.html
+   * @see https://mithril.js.org/request.html
    * @param {Object} options
    * @return {Promise}
    * @public
