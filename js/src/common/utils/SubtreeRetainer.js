@@ -28,6 +28,9 @@ export default class SubtreeRetainer {
   constructor(...callbacks) {
     this.callbacks = callbacks;
     this.data = {};
+    // Build the initial data, so it is available when calling
+    // needsRebuild from the onbeforeupdate hook.
+    this.needsRebuild();
   }
 
   /**
@@ -60,6 +63,8 @@ export default class SubtreeRetainer {
    */
   check(...callbacks) {
     this.callbacks = this.callbacks.concat(callbacks);
+    // Update the data cache when new checks are added.
+    this.needsRebuild();
   }
 
   /**
