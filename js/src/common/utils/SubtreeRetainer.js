@@ -63,6 +63,8 @@ export default class SubtreeRetainer {
    */
   check(...callbacks) {
     this.callbacks = this.callbacks.concat(callbacks);
+    // Update the data cache when new checks are added.
+    this.needsRebuild();
   }
 
   /**
