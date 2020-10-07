@@ -199,7 +199,7 @@ export default class Application {
 
     // Add a class to the body which indicates that the page has been scrolled
     // down.
-    new ScrollListener((top) => {
+    const scrollListener = new ScrollListener((top) => {
       const $app = $('#app');
       const offset = $app.offset().top;
 
@@ -207,7 +207,10 @@ export default class Application {
       // If we're scrolled down, add the navbar-fixed-top css class, so that Bootstrap's
       // JS will compensate for shifts when the modal is opened/closed.
       $('.App-header').toggleClass('navbar-fixed-top', top >= offset);
-    }).start();
+    });
+
+    scrollListener.start();
+    scrollListener.update();
 
     $(() => {
       $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
