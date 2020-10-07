@@ -100,7 +100,6 @@ export default class DiscussionPage extends Page {
     super.onbeforeupdate(vnode);
 
     if (m.route.get() !== this.prevRoute) {
-      this.onNewRoute();
       this.prevRoute = m.route.get();
 
       // If we have routed to the same discussion as we were viewing previously,
@@ -118,6 +117,7 @@ export default class DiscussionPage extends Page {
 
           this.near = near;
         } else {
+          this.onNewRoute();
           this.oninit(vnode);
         }
       }
