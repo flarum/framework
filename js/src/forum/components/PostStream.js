@@ -372,19 +372,20 @@ export default class PostStream extends Component {
 
       // Rendering post contents will probably throw off our position.
       // To counter this, we'll scroll either:
-      //   - To the top of the page if we're on the first post
       //   - To the reply placeholder (aligned with composer top)
+      //   - To the top of the page if we're on the first post
       //   - To the top of a post (if that post exists)
       // If the post does not currently exist, it's probably
       // outside of the range we loaded in, so we won't adjust anything,
       // as it will soon be rendered by the "load more" system.
-      const $item = $(`.PostStream-item[data-index=${index}]`);
-      if (index === 0) {
+      let itemOffset;
+      if (reply) {
+        const $placeholder = $('.PostStream-item:last-child');
+        $(window).scrollTop($placeholder.offset().top + $placeholder.height() - $(window).height() + app.composer.computedHeight());
+      } else if (index === 0) {
         $(window).scrollTop(0);
-      } else if ($item.offset() && reply) {
-        $(window).scrollTop($item.offset().top + $item.height() - $(window).height() + app.composer.computedHeight());
-      } else if ($item.offset()) {
-        $(window).scrollTop($item.offset().top - this.getMarginTop());
+      } else if ((itemOffset = $(`.PostStream-item[data-index=${index}]`).offset())) {
+        $(window).scrollTop(itemOffset.top - this.getMarginTop());
       }
 
       // We want to adjust this again after posts have been loaded in
