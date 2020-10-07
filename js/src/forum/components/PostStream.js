@@ -97,7 +97,7 @@ export default class PostStream extends Component {
     // is not already doing so, then show a 'write a reply' placeholder.
     if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
-        <div className="PostStream-item" key="reply" oncreate={postFadeIn}>
+        <div className="PostStream-item" key="reply" data-index={this.stream.count()} oncreate={postFadeIn}>
           {ReplyPlaceholder.component({ discussion: this.discussion })}
         </div>
       );
@@ -308,20 +308,17 @@ export default class PostStream extends Component {
    *
    * @param {Integer} index
    * @param {Boolean} animate
-   * @param {Boolean} bottom Whether or not to scroll to the bottom of the post
-   *     at the given index, instead of the top of it.
+   * @param {Boolean} reply Whether or not to scroll to the reply placeholder.
    * @return {jQuery.Deferred}
    */
-  scrollToIndex(index, animate, bottom) {
-    const $item = this.$(`.PostStream-item[data-index=${index}]`);
-
-    return this.scrollToItem($item, animate, true).then(() => {
-      if (bottom) {
-        const $placeholder = this.$('.PostStream-item:last-child');
-        this.scrollToItem($placeholder, animate, true, true);
-        this.flashItem($placeholder);
-      }
-    });
+  scrollToIndex(index, animate, reply) {
+    if (reply) {
+      const $placeholder = this.$('.PostStream-item:last-child');
+      this.scrollToItem($placeholder, animate, true, true);
+      this.flashItem($placeholder);
+    } else {
+      this.scrollToItem(this.$(`.PostStream-item[data-index=${index}]`), animate, true);
+    }
   }
 
   /**
@@ -331,11 +328,10 @@ export default class PostStream extends Component {
    * @param {Boolean} animate
    * @param {Boolean} force Whether or not to force scrolling to the item, even
    *     if it is already in the viewport.
-   * @param {Boolean} bottom Whether or not to scroll to the bottom of the post
-   *     at the given index, instead of the top of it.
+   * @param {Boolean} reply Whether or not to scroll to the reply placeholder.
    * @return {jQuery.Deferred}
    */
-  scrollToItem($item, animate, force, bottom) {
+  scrollToItem($item, animate, force, reply) {
     const $container = $('html, body').stop(true);
     const index = $item.data('index');
 
@@ -346,10 +342,10 @@ export default class PostStream extends Component {
       const scrollBottom = scrollTop + $(window).height();
 
       // If the item is already in the viewport, we may not need to scroll.
-      // If we're scrolling to the bottom of an item, then we'll make sure the
+      // If we're scrolling to the reply placeholder, we'll make sure it's
       // bottom will line up with the top of the composer.
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        const top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
+        const top = reply ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
 
         if (!animate) {
           $container.scrollTop(top);
@@ -381,11 +377,13 @@ export default class PostStream extends Component {
       // of posts will be loaded in. However, in those cases, the post we
       // requested won't exist, so scrolling to it would cause an error.
       // Accordingly, we start by checking that it's offset is defined.
-      const offset = $(`.PostStream-item[data-index=${index}]`).offset();
+      const $item = $(`.PostStream-item[data-index=${index}]`);
       if (index === 0) {
         $(window).scrollTop(0);
-      } else if (offset && !bottom) {
-        $(window).scrollTop($(`.PostStream-item[data-index=${index}]`).offset().top - this.getMarginTop());
+      } else if ($item.offset() && reply) {
+        $(window).scrollTop($item.offset().top + $item.height() - $(window).height() + app.composer.computedHeight());
+      } else if ($item.offset()) {
+        $(window).scrollTop($item.offset().top - this.getMarginTop());
       }
 
       // We want to adjust this again after posts have been loaded in
