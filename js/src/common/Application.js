@@ -204,6 +204,9 @@ export default class Application {
       const offset = $app.offset().top;
 
       $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
+      // If we're scrolled down, add the navbar-fixed-top css class, so that Bootstrap's
+      // JS will compensate for shifts when the modal is opened/closed.
+      $('.App-header').toggleClass('navbar-fixed-top', top >= offset);
     }).start();
 
     $(() => {
