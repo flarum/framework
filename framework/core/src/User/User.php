@@ -722,7 +722,7 @@ class User extends AbstractModel
             $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->pluck('id')->all());
         }
 
-        // Deprecated, remove in beta 14.
+        /** @deprecated in beta 14, remove in beta 15 */
         event(new PrepareUserGroups($this, $groupIds));
 
         foreach (static::$groupProcessors as $processor) {
