@@ -359,9 +359,6 @@ export default class PostStream extends Component {
 
     return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
       m.redraw.sync();
-      // We want to adjust this again after posts have been loaded in so that
-      // the height of the scrubber is accurate.
-      updateScrubberHeight();
 
       // After post data has been loaded in, we will attempt to scroll back
       // to the top of the requested post (or to the top of the page if the
@@ -376,6 +373,10 @@ export default class PostStream extends Component {
       } else if (offset) {
         $(window).scrollTop($(`.PostStream-item[data-index=${index}]`).offset().top - this.getMarginTop());
       }
+
+      // We want to adjust this again after posts have been loaded in
+      // and position adjusted so that the scrubber's height is accurate.
+      updateScrubberHeight();
 
       this.calculatePosition();
       this.stream.paused = false;
