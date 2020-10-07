@@ -68,14 +68,13 @@ export default class TagDiscussionModal extends Modal {
     // If this tag has a parent, we'll also need to add the parent tag to the
     // selected list if it's not already in there.
     const parent = tag.parent();
-    if (parent) {
-      const index = this.selected.indexOf(parent);
-      if (index === -1) {
-        this.selected.push(parent);
-      }
+    if (parent && this.selected.indexOf(parent) === -1) {
+      this.selected.push(parent);
     }
 
-    this.selected.push(tag);
+    if (this.selected.indexOf(tag) === -1) {
+      this.selected.push(tag);
+    }
   }
 
   /**
