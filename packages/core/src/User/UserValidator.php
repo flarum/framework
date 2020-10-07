@@ -51,7 +51,7 @@ class UserValidator extends AbstractValidator
             ],
             'email' => [
                 'required',
-                'email',
+                'email:filter',
                 'unique:users,email'.$idSuffix
             ],
             'password' => [
