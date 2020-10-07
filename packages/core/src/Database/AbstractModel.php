@@ -82,7 +82,7 @@ abstract class AbstractModel extends Eloquent
         }
 
         $this->attributes = array_map(function ($item) {
-            return is_callable($item) ? $item() : $item;
+            return is_callable($item) ? $item($this) : $item;
         }, $this->attributes);
 
         parent::__construct($attributes);
