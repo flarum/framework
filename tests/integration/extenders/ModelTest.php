@@ -277,7 +277,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(Group::class))
-                ->default('counter', function () {
+                ->default('counter', function (Group $group) {
                     static $counter = 0;
 
                     return ++$counter;
