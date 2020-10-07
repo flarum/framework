@@ -32,6 +32,13 @@ export default class PostStream extends Component {
     const posts = this.stream.posts();
     const postIds = this.discussion.postIds();
 
+    const postFadeIn = (vnode) => {
+      $(vnode.dom).addClass('fadeIn');
+      // 500 is the duration of the fadeIn CSS animation + 100ms,
+      // so the animation has time to complete
+      setTimeout(() => $(vnode.dom).removeClass('fadeIn'), 500);
+    };
+
     const items = posts.map((post, i) => {
       let content;
       const attrs = { 'data-index': this.stream.visibleStart + i };
@@ -42,7 +49,7 @@ export default class PostStream extends Component {
         content = PostComponent ? PostComponent.component({ post }) : '';
 
         attrs.key = 'post' + post.id();
-        attrs.oncreate = (vnode) => setTimeout(() => $(vnode.dom).removeClass('fadeIn'), 500); // We give enough time for the animation to complete
+        attrs.oncreate = postFadeIn;
         attrs['data-time'] = time.toISOString();
         attrs['data-number'] = post.number();
         attrs['data-id'] = post.id();
@@ -70,7 +77,7 @@ export default class PostStream extends Component {
       }
 
       return (
-        <div className="PostStream-item fadeIn" {...attrs}>
+        <div className="PostStream-item" {...attrs}>
           {content}
         </div>
       );
@@ -90,7 +97,7 @@ export default class PostStream extends Component {
     // is not already doing so, then show a 'write a reply' placeholder.
     if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
-        <div className="PostStream-item fadeIn" key="reply">
+        <div className="PostStream-item" key="reply" oncreate={postFadeIn}>
           {ReplyPlaceholder.component({ discussion: this.discussion })}
         </div>
       );
