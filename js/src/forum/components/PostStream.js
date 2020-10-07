@@ -342,7 +342,7 @@ export default class PostStream extends Component {
       const scrollBottom = scrollTop + $(window).height();
 
       // If the item is already in the viewport, we may not need to scroll.
-      // If we're scrolling to the reply placeholder, we'll make sure it's
+      // If we're scrolling to the reply placeholder, we'll make sure its
       // bottom will line up with the top of the composer.
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
         const top = reply ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
@@ -370,13 +370,14 @@ export default class PostStream extends Component {
     return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
       m.redraw.sync();
 
-      // After post data has been loaded in, we will attempt to scroll back
-      // to the top of the requested post (or to the top of the page if the
-      // first post was requested). In some cases, we may have scrolled to
-      // the end of the available post range, in which case, the next range
-      // of posts will be loaded in. However, in those cases, the post we
-      // requested won't exist, so scrolling to it would cause an error.
-      // Accordingly, we start by checking that it's offset is defined.
+      // Rendering post contents will probably throw off our position.
+      // To counter this, we'll scroll either:
+      //   - To the top of the page if we're on the first post
+      //   - To the reply placeholder (aligned with composer top)
+      //   - To the top of a post (if that post exists)
+      // If the post does not currently exist, it's probably
+      // outside of the range we loaded in, so we won't adjust anything,
+      // as it will soon be rendered by the "load more" system.
       const $item = $(`.PostStream-item[data-index=${index}]`);
       if (index === 0) {
         $(window).scrollTop(0);
