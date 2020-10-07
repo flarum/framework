@@ -312,12 +312,12 @@ export default class PostStream extends Component {
    * @return {jQuery.Deferred}
    */
   scrollToIndex(index, animate, reply) {
+    const $item = reply ? $('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${index}]`);
+
+    this.scrollToItem($item, animate, true, reply);
+
     if (reply) {
-      const $placeholder = this.$('.PostStream-item:last-child');
-      this.scrollToItem($placeholder, animate, true, true);
-      this.flashItem($placeholder);
-    } else {
-      this.scrollToItem(this.$(`.PostStream-item[data-index=${index}]`), animate, true);
+      this.flashItem($item);
     }
   }
 
