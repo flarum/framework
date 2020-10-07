@@ -129,15 +129,15 @@ export default class PostStream extends Component {
    * Start scrolling, if appropriate, to a newly-targeted post.
    */
   triggerScroll() {
-    if (!this.attrs.targetPost || !this.stream.needsScroll) return;
+    if (!this.stream.needsScroll) return;
 
-    const newTarget = this.attrs.targetPost;
+    const target = this.stream.targetPost;
     this.stream.needsScroll = false;
 
-    if ('number' in newTarget) {
-      this.scrollToNumber(newTarget.number, this.stream.animateScroll);
-    } else if ('index' in newTarget) {
-      this.scrollToIndex(newTarget.index, this.stream.animateScroll, newTarget.reply);
+    if ('number' in target) {
+      this.scrollToNumber(target.number, this.stream.animateScroll);
+    } else if ('index' in target) {
+      this.scrollToIndex(target.index, this.stream.animateScroll, target.reply);
     }
   }
 
