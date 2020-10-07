@@ -137,8 +137,7 @@ export default class PostStream extends Component {
     if ('number' in newTarget) {
       this.scrollToNumber(newTarget.number, this.stream.animateScroll);
     } else if ('index' in newTarget) {
-      const backwards = newTarget.index === this.stream.count() - 1;
-      this.scrollToIndex(newTarget.index, this.stream.animateScroll, backwards);
+      this.scrollToIndex(newTarget.index, this.stream.animateScroll, newTarget.reply);
     }
   }
 
@@ -316,9 +315,11 @@ export default class PostStream extends Component {
   scrollToIndex(index, animate, bottom) {
     const $item = this.$(`.PostStream-item[data-index=${index}]`);
 
-    return this.scrollToItem($item, animate, true, bottom).then(() => {
-      if (index == this.stream.count() - 1) {
-        this.flashItem(this.$('.PostStream-item:last-child'));
+    return this.scrollToItem($item, animate, true).then(() => {
+      if (bottom) {
+        const $placeholder = this.$('.PostStream-item:last-child');
+        this.scrollToItem($placeholder, animate, true, true);
+        this.flashItem($placeholder);
       }
     });
   }
@@ -383,7 +384,7 @@ export default class PostStream extends Component {
       const offset = $(`.PostStream-item[data-index=${index}]`).offset();
       if (index === 0) {
         $(window).scrollTop(0);
-      } else if (offset) {
+      } else if (offset && !bottom) {
         $(window).scrollTop($(`.PostStream-item[data-index=${index}]`).offset().top - this.getMarginTop());
       }
 
