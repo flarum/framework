@@ -184,6 +184,7 @@ export default class PostStream extends Component {
     let index = $items.first().data('index') || 0;
     let visible = 0;
     let period = '';
+    let indexWasUpdated = false;
 
     // Now loop through each of the items in the discussion. An 'item' is
     // either a single post or a 'gap' of one or more posts that haven't
@@ -209,8 +210,11 @@ export default class PostStream extends Component {
       const visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
       const visiblePost = visibleBottom - visibleTop;
 
-      if (top <= viewportTop) {
+      // We take the index of the first item that passed the previous checks.
+      // It is the item that is first visible in the viewport.
+      if (!indexWasUpdated) {
         index = parseFloat($this.data('index')) + visibleTop / height;
+        indexWasUpdated = true;
       }
 
       if (visiblePost > 0) {
