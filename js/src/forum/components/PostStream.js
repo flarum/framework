@@ -225,7 +225,10 @@ export default class PostStream extends Component {
       if (time) period = time;
     });
 
-    this.stream.index = indexFromViewPort !== null ? indexFromViewPort + 1 : 1;
+    // If indexFromViewPort is null, it means no posts are visible in the
+    // viewport. This can happen, when drafting a long reply post. In that case
+    // set the index to the last post.
+    this.stream.index = indexFromViewPort !== null ? indexFromViewPort + 1 : this.stream.count();
     this.stream.visible = visible;
     if (period) this.stream.description = dayjs(period).format('MMMM YYYY');
   }
