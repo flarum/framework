@@ -225,7 +225,7 @@ export default class PostStream extends Component {
       if (time) period = time;
     });
 
-    let index = indexFromViewPort !== null ? indexFromViewPort : $items.first().data('index') || 0;
+    let index = indexFromViewPort !== null ? indexFromViewPort : 0;
     this.stream.index = index + 1;
     this.stream.visible = visible;
     if (period) this.stream.description = dayjs(period).format('MMMM YYYY');
