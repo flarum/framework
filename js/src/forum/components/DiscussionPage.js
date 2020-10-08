@@ -99,28 +99,12 @@ export default class DiscussionPage extends Page {
   onbeforeupdate(vnode) {
     super.onbeforeupdate(vnode);
 
-    if (m.route.get() !== this.prevRoute) {
+    const idParam = m.route.param('id');
+    if (m.route.get() !== this.prevRoute && this.discussion && (!idParam || idParam.split('-')[0] !== this.discussion.id())) {
       this.prevRoute = m.route.get();
 
-      // If we have routed to the same discussion as we were viewing previously,
-      // cancel the unloading of this controller and instead prompt the post
-      // stream to jump to the new 'near' param.
-      if (this.discussion) {
-        const idParam = m.route.param('id');
-
-        if (idParam && idParam.split('-')[0] === this.discussion.id()) {
-          const near = m.route.param('near') || '1';
-
-          if (near !== String(this.near)) {
-            this.stream.goToNumber(near);
-          }
-
-          this.near = near;
-        } else {
-          this.onNewRoute();
-          this.oninit(vnode);
-        }
-      }
+      this.onNewRoute();
+      this.oninit(vnode);
     }
   }
 
@@ -190,15 +174,19 @@ export default class DiscussionPage extends Page {
         .slice(0, 20);
     }
 
+    const startNumber = m.route.param('near') || (includedPosts[0] && includedPosts[0].number());
+
     // Set up the post stream for this discussion, along with the first page of
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
     this.stream = new PostStreamState(discussion, includedPosts);
-    this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true).then(() => {
+    this.stream.goToNumber(startNumber, true).then(() => {
       this.discussion = discussion;
 
       app.current.set('discussion', discussion);
       app.current.set('stream', this.stream);
+
+      this.positionChanged(startNumber);
     });
   }
 
