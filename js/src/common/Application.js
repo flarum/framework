@@ -198,14 +198,14 @@ export default class Application {
     m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
 
     // Add a class to the body which indicates that the page has been scrolled
-    // down.
+    // down. When this happens, we'll add classes to the header and app body
+    // which will set the navbar's position to fixed. We don't want to always
+    // have it fixed, as that could overlap with custom headers.
     const scrollListener = new ScrollListener((top) => {
       const $app = $('#app');
       const offset = $app.offset().top;
 
       $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
-      // If we're scrolled down, add the navbar-fixed-top css class, so that Bootstrap's
-      // JS will compensate for shifts when the modal is opened/closed.
       $('.App-header').toggleClass('navbar-fixed-top', top >= offset);
     });
 
