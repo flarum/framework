@@ -12,12 +12,20 @@ export default function mapRoutes(routes, basePath = '') {
 
   for (const key in routes) {
     const route = routes[key];
+    const attrs = { routeName: key };
+    const diffRoute = route.diffRoute;
 
-    map[basePath + route.path] = {
-      view() {
-        return m(route.component, { routeName: key });
-      },
-    };
+    map[basePath + route.path] = diffRoute
+      ? {
+          render() {
+            return m(route.component, attrs);
+          },
+        }
+      : {
+          view() {
+            return m(route.component, attrs);
+          },
+        };
   }
 
   return map;

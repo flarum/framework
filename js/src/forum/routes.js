@@ -14,8 +14,8 @@ export default function (app) {
   app.routes = {
     index: { path: '/all', component: IndexPage },
 
-    discussion: { path: '/d/:id', component: DiscussionPage },
-    'discussion.near': { path: '/d/:id/:near', component: DiscussionPage },
+    discussion: { path: '/d/:id', component: DiscussionPage, diffRoute: true },
+    'discussion.near': { path: '/d/:id/:near', component: DiscussionPage, diffRoute: true },
 
     user: { path: '/u/:username', component: PostsUserPage },
     'user.posts': { path: '/u/:username', component: PostsUserPage },
