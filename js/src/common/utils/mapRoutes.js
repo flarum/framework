@@ -14,8 +14,8 @@ export default function mapRoutes(routes, basePath = '') {
     const route = routes[key];
 
     map[basePath + route.path] = {
-      view() {
-        return m(route.component, { routeName: key });
+      render() {
+        return [m(route.component, { routeName: key, key: JSON.stringify(m.route.param()) })];
       },
     };
   }
