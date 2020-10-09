@@ -39,7 +39,6 @@ export default class DiscussionsSearchSource {
           {
             icon: 'fas fa-search',
             href: app.route('index', { q: query }),
-            force: true,
           },
           app.translator.trans('core.forum.search.all_discussions_button', { query })
         )}
