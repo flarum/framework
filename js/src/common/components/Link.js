@@ -31,10 +31,12 @@ export default class Link extends Component {
       if (!('replace' in options)) options.replace = true;
     }
 
-    // Mithril 2 does not completely rerender the page if a route change leads to the same route
-    // (or the same component handling a different route).
-    // Here, the `force` parameter will use Mithril's key system to force a full rerender
-    // see https://mithril.js.org/route.html#key-parameter
+    // Mithril 2 does not completely rerender the page if a route change leads
+    // to the same route.
+    // Here, the `force` parameter will use Mithril's key system to force a full
+    // rerender. See https://mithril.js.org/route.html#key-parameter
+    // Routing to a different route handled by the same component will rerender
+    // the whole page regardless of this option.
     if (extract(attrs, 'force')) {
       if (!('state' in options)) options.state = {};
       if (!('key' in options.state)) options.state.key = Date.now();
