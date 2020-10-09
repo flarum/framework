@@ -236,11 +236,15 @@
   .App-header {
     padding: 8px;
     height: @header-height;
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
     z-index: @zindex-header;
+
+    .affix & {
+      position: fixed;
+    }
 
     & when (@config-colored-header = true) {
       .light-contents(@header-color, @header-control-bg, @header-control-color);

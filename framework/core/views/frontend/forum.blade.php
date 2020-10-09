@@ -6,7 +6,7 @@
 
     <div id="drawer" class="App-drawer">
 
-        <header id="header" class="App-header navbar-fixed-top">
+        <header id="header" class="App-header">
             <div id="header-navigation" class="Header-navigation"></div>
             <div class="container">
                 <h1 class="Header-title">
