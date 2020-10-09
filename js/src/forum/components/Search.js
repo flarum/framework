@@ -7,6 +7,7 @@ import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import icon from '../../common/helpers/icon';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
+import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
 
 /**
  * The `Search` component displays a menu of as-you-type results from a variety
@@ -185,7 +186,7 @@ export default class Search extends Component {
     this.loadingSources = 0;
 
     if (this.state.getValue()) {
-      m.route.set(this.getItem(this.index).find('a').attr('href'));
+      setRouteWithForcedRefresh(this.getItem(this.index).find('a').attr('href'));
     } else {
       this.clear();
     }
