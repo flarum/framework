@@ -1,5 +1,3 @@
-import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
-
 /**
  * The `History` class keeps track and manages a stack of routes that the user
  * has navigated to in their session.
@@ -116,6 +114,6 @@ export default class History {
   home() {
     this.stack.splice(0);
 
-    setRouteWithForcedRefresh('/');
+    m.route.set('/');
   }
 }
