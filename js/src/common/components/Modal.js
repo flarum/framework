@@ -35,7 +35,7 @@ export default class Modal extends Component {
       this.attrs.animateHide();
       // Here, we ensure that the animation has time to complete.
       // See https://mithril.js.org/lifecycle-methods.html#onbeforeremove
-      // Bootstrap's default animation duration is 300 ms.
+      // Bootstrap's Modal.TRANSITION_DURATION is 300 ms.
       return new Promise((resolve) => setTimeout(resolve, 300));
     }
   }
