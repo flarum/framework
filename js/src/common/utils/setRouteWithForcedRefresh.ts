@@ -9,9 +9,7 @@ import Mithril from 'mithril';
  * @see https://mithril.js.org/route.html#key-parameter
  */
 export default function setRouteWithForcedRefresh(route: string, params = null, options: Mithril.RouteOptions = {}) {
-  const newOptions = { ...options };
-  newOptions.state = newOptions.state || {};
-  newOptions.state.key = Date.now();
+  app.forceRefresh = true;
 
-  m.route.set(route, params, newOptions);
+  m.route.set(route, params, options);
 }

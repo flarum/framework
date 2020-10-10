@@ -39,7 +39,7 @@ export default class Link extends Component {
     // the whole page regardless of this option.
     if (extract(attrs, 'force')) {
       if (!('state' in options)) options.state = {};
-      if (!('key' in options.state)) options.state.key = Date.now();
+      options.state.forceRefresh = true;
     }
 
     attrs.options = options;

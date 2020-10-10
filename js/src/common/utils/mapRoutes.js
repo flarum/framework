@@ -9,13 +9,20 @@
  */
 export default function mapRoutes(routes, basePath = '') {
   const map = {};
+  let keyModifier = '';
 
   for (const routeName in routes) {
     const route = routes[routeName];
 
     map[basePath + route.path] = {
+      onmatch(args, requestedPath, route) {
+        if (args.forceRefresh || app.forceRefresh) {
+          keyModifier = +new Date();
+          app.forceRefresh = false;
+        }
+      },
       render() {
-        const key = routeName + JSON.stringify(m.route.param());
+        const key = routeName + JSON.stringify(m.route.param()) + keyModifier;
         return [m(route.component, { routeName, key })];
       },
     };
