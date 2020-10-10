@@ -10,12 +10,13 @@
 export default function mapRoutes(routes, basePath = '') {
   const map = {};
 
-  for (const key in routes) {
-    const route = routes[key];
+  for (const routeName in routes) {
+    const route = routes[routeName];
 
     map[basePath + route.path] = {
       render() {
-        return [m(route.component, { routeName: key, key: JSON.stringify(m.route.param()) })];
+        const key = routeName + JSON.stringify(m.route.param());
+        return [m(route.component, { routeName, key })];
       },
     };
   }
