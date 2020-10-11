@@ -139,16 +139,20 @@ export default class ExtensionsPage extends Page {
     // TODO: This workaround should be removed when we move away from bootstrap JS for modals.
     setTimeout(() => {
       app.modal.close();
+    }, 300); // Bootstrap's Modal.TRANSITION_DURATION is 300 ms.
 
-      const error = JSON.parse(e.responseText).errors[0];
+    if (e.status !== 409) {
+      throw e;
+    }
 
-      app.alerts.show(
-        { type: 'error' },
-        app.translator.trans(`core.lib.error.${error.code}_message`, {
-          extension: error.extension,
-          extensions: error.extensions.join(', '),
-        })
-      );
-    }, 250);
+    const error = e.response.errors[0];
+
+    app.alerts.show(
+      { type: 'error' },
+      app.translator.trans(`core.lib.error.${error.code}_message`, {
+        extension: error.extension,
+        extensions: error.extensions.join(', '),
+      })
+    );
   }
 }
