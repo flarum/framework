@@ -91,12 +91,12 @@ export default class DiscussionListItem extends Component {
             )
           : ''}
 
-        <a
+        <span
           className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
           onclick={this.markAsRead.bind(this)}
         >
           {icon('fas fa-check')}
-        </a>
+        </span>
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
           <Link
