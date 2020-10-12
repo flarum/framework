@@ -282,7 +282,13 @@ class PostStreamState {
         }
       });
 
-    return loadIds.length ? app.store.find('posts', loadIds) : Promise.resolve(loaded);
+    if (loadIds.length) {
+      return app.store.find('posts', loadIds).then((newPosts) => {
+        return loaded.concat(newPosts).sort((a, b) => a.id() - b.id());
+      });
+    }
+
+    return Promise.resolve(loaded);
   }
 
   /**
