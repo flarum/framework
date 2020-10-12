@@ -1,8 +1,10 @@
 import Mithril from 'mithril';
 
 /**
- * Generates a route resolver for a given component, to which it provides
- * a key as a 'routeName' attr.
+ * Generates a route resolver for a given component.
+ * In addition to regular route resolver functionality:
+ * - It provide the current route name as an attr
+ * - It sets a key on the component so a rerender will be triggered on route change.
  */
 export default class DefaultResolver {
   component: Mithril.Component;
