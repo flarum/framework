@@ -15,6 +15,11 @@ export default class DefaultResolver {
     this.routeName = routeName;
   }
 
+  /**
+   * When a route change results in a changed key, a full page
+   * rerender occurs. This method can be overriden in subclasses
+   * to prevent rerenders on some route changes.
+   */
   makeKey() {
     return this.routeName + JSON.stringify(m.route.param());
   }
