@@ -7,7 +7,6 @@ import ItemList from './utils/ItemList';
 import mixin from './utils/mixin';
 import humanTime from './utils/humanTime';
 import computed from './utils/computed';
-import DefaultResolver from './utils/DefaultResolver';
 import Drawer from './utils/Drawer';
 import anchorScroll from './utils/anchorScroll';
 import RequestError from './utils/RequestError';
@@ -68,6 +67,7 @@ import username from './helpers/username';
 import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
 import Fragment from './Fragment';
+import DefaultResolver from './resolvers/DefaultResolver';
 
 export default {
   extend: extend,
@@ -79,7 +79,6 @@ export default {
   'utils/mixin': mixin,
   'utils/humanTime': humanTime,
   'utils/computed': computed,
-  'utils/DefaultResolver': DefaultResolver,
   'utils/Drawer': Drawer,
   'utils/anchorScroll': anchorScroll,
   'utils/RequestError': RequestError,
@@ -140,4 +139,5 @@ export default {
   'helpers/username': username,
   'helpers/userOnline': userOnline,
   'helpers/listItems': listItems,
+  'resolvers/DefaultResolver': DefaultResolver,
 };

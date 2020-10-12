@@ -13,13 +13,15 @@ export default class DefaultResolver {
     this.routeName = routeName;
   }
 
+  makeKey() {
+    return this.routeName + JSON.stringify(m.route.param());
+  }
+
   onmatch(args, requestedPath, route) {
     return this.component;
   }
 
   render(vnode) {
-    vnode.attrs.routeName = this.routeName;
-
-    return vnode;
+    return { ...vnode, routeName: this.routeName, key: this.makeKey() };
   }
 }

@@ -1,4 +1,4 @@
-import DefaultResolver from './DefaultResolver.ts';
+import DefaultResolver from '../resolvers/DefaultResolver';
 
 /**
  * The `mapRoutes` utility converts a map of named application routes into a
