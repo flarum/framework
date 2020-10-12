@@ -6,7 +6,7 @@ import DefaultResolver from '../../common/resolvers/DefaultResolver';
  * in the same discussion.
  */
 export default class DiscussionPageResolver extends DefaultResolver {
-  static scrollToPostNumber: number | null = null;
+  static scrollToPostNumber: string | null = null;
 
   makeKey() {
     const params = { ...m.route.param() };
@@ -30,7 +30,8 @@ export default class DiscussionPageResolver extends DefaultResolver {
 
   render(vnode) {
     if (DiscussionPageResolver.scrollToPostNumber !== null) {
-      app.current.get('stream').goToNumber(DiscussionPageResolver.scrollToPostNumber);
+      console.log(DiscussionPageResolver.scrollToPostNumber);
+      app.current.get('stream').goToNumber(parseInt(DiscussionPageResolver.scrollToPostNumber));
       DiscussionPageResolver.scrollToPostNumber = null;
     }
 
