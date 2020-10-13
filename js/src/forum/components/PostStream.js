@@ -399,6 +399,8 @@ export default class PostStream extends Component {
 
       this.calculatePosition();
       this.stream.paused = false;
+      // Run the onscroll handler to check if we need to load more posts after scrolling.
+      this.onscroll();
     });
   }
 
