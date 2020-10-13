@@ -7,7 +7,7 @@ export default class GlobalSearchState extends SearchState {
   }
 
   getValue() {
-    if (this.value == undefined || !this.value.length) {
+    if (this.value === undefined || this.value === '') {
       this.value = this.getInitialSearch() || '';
     }
 
