@@ -155,7 +155,7 @@ export default class DiscussionPage extends Page {
             record.relationships.discussion.data.id === discussionId
         )
         .map((record) => app.store.getById('posts', record.id))
-        .sort((a, b) => a.id() - b.id())
+        .sort((a, b) => a.createdAt() - b.createdAt())
         .slice(0, 20);
     }
 
