@@ -359,7 +359,7 @@ export default class PostStream extends Component {
       // We manually set the index because we want to display the index of the
       // exact post we've scrolled to, not just that of the first post within viewport.
       this.updateScrubber();
-      this.stream.index = index || this.stream.index;
+     if (index !== undefined) this.stream.index = index + 1;
     };
 
     // If we don't update this before the scroll, the scrubber will start
