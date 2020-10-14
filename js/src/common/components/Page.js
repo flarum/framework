@@ -40,6 +40,9 @@ export default class Page extends Component {
     if (this.bodyClass) {
       $('#app').addClass(this.bodyClass);
     }
+
+    // hotfix the redraw of header components for beta.14
+    m.redraw();
   }
 
   onremove() {
