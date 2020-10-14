@@ -9,8 +9,8 @@
         "source": "https://github.com/flarum/approval"
     },
     "require": {
-        "flarum/core": "^0.1.0-beta.13",
-        "flarum/flags": "^0.1.0-beta.13"
+        "flarum/core": "^0.1.0-beta.14",
+        "flarum/flags": "^0.1.0-beta.14"
     },
     "autoload": {
         "psr-4": {
