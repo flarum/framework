@@ -1,11 +1,11 @@
+import dayjs from 'dayjs';
+import * as Mithrill from 'mithril';
+
 /**
  * The `fullTime` helper displays a formatted time string wrapped in a <time>
  * tag.
- *
- * @param {Date} time
- * @return {Object}
  */
-export default function fullTime(time) {
+export default function fullTime(time: Date): Mithrill.Vnode {
   const d = dayjs(time);
 
   const datetime = d.format();

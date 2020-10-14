@@ -1,14 +1,13 @@
 import humanTimeUtil from '../utils/humanTime';
+import * as Mithril from 'mithril';
+import * as dayjs from 'dayjs';
 
 /**
  * The `humanTime` helper displays a time in a human-friendly time-ago format
  * (e.g. '12 days ago'), wrapped in a <time> tag with other information about
  * the time.
- *
- * @param {Date} time
- * @return {Object}
  */
-export default function humanTime(time) {
+export default function humanTime(time: Date): Mithril.Vnode {
   const d = dayjs(time);
 
   const datetime = d.format();
