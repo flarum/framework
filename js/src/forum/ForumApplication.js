@@ -115,16 +115,18 @@ export default class ForumApplication extends Application {
     this.routes[defaultAction].path = '/';
     this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
 
+    this.pane = new Pane(document.getElementById('app'));
+
+    m.route.prefix = '';
+    super.mount(this.forum.attribute('basePath'));
+
+    // We mount navigation and header components after the page, so components
+    // like the back button can access the updated state when rendering.
     m.mount(document.getElementById('app-navigation'), { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
     m.mount(document.getElementById('header-navigation'), Navigation);
     m.mount(document.getElementById('header-primary'), HeaderPrimary);
     m.mount(document.getElementById('header-secondary'), HeaderSecondary);
     m.mount(document.getElementById('composer'), { view: () => Composer.component({ state: this.composer }) });
-
-    this.pane = new Pane(document.getElementById('app'));
-
-    m.route.prefix = '';
-    super.mount(this.forum.attribute('basePath'));
 
     alertEmailConfirmation(this);
 
