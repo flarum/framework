@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.0-beta.14](https://github.com/flarum/tags/compare/v0.1.0-beta.13...v0.1.0-beta.14)
+
+### Added
+- Introduced Creating and Deleting events (#86)
+
+### Changed
+- Updated mithril to version 2
+- Load language strings correctly on en-/disable
+- Updated JS dependencies
+- Allow tag visibility override with an event listener (#79)
+- TagWillBeSaved event renamed to Saving (#92)
+
+### Fixed
+- Sorting tag structure on mobile hardly worked (#82)
+- Discussion count and visibility incorrectly included hidden or private discussions (#78)
+- Negated tag filtering does not work (#88)
+- Call to non existing method handleErrors (#94)
+- Changing tags of discussions by other users is possible (#95)
+- Tag modal shows duplicate tags ()
+
 ## [0.1.0-beta.13](https://github.com/flarum/tags/compare/v0.1.0-beta.12...v0.1.0-beta.13)
 
 ### Added
