@@ -67,6 +67,7 @@ import username from './helpers/username';
 import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
 import Fragment from './Fragment';
+import DefaultResolver from './resolvers/DefaultResolver';
 
 export default {
   extend: extend,
@@ -138,4 +139,5 @@ export default {
   'helpers/username': username,
   'helpers/userOnline': userOnline,
   'helpers/listItems': listItems,
+  'resolvers/DefaultResolver': DefaultResolver,
 };
