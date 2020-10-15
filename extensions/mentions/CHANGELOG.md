@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.0-beta.14](https://github.com/flarum/mentions/compare/v0.1.0-beta.13...v0.1.0-beta.14)
+
+### Changed
+- Updated mithril to version 2
+- Load language strings correctly on en-/disable
+- Updated JS dependencies
+- Always show concurrent replies instead of hiding them (#47)
+- Made notification emails translatable (#50)
+
+### Fixed
+- Fix dropdown overflow on mobile (#46)
+- Fix replies dropdown menu with (#38)
+- Fix jumping of dropdown items when API results are returned (#48)
+
 ## [0.1.0-beta.13](https://github.com/flarum/mentions/compare/v0.1.0-beta.12...v0.1.0-beta.13)
 
 ### Changed
