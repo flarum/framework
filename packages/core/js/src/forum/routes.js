@@ -4,6 +4,7 @@ import PostsUserPage from './components/PostsUserPage';
 import DiscussionsUserPage from './components/DiscussionsUserPage';
 import SettingsPage from './components/SettingsPage';
 import NotificationsPage from './components/NotificationsPage';
+import DiscussionPageResolver from './resolver/DiscussionPageResolver';
 
 /**
  * The `routes` initializer defines the forum app's routes.
@@ -14,8 +15,8 @@ export default function (app) {
   app.routes = {
     index: { path: '/all', component: IndexPage },
 
-    discussion: { path: '/d/:id', component: DiscussionPage },
-    'discussion.near': { path: '/d/:id/:near', component: DiscussionPage },
+    discussion: { path: '/d/:id', component: DiscussionPage, resolverClass: DiscussionPageResolver },
+    'discussion.near': { path: '/d/:id/:near', component: DiscussionPage, resolverClass: DiscussionPageResolver },
 
     user: { path: '/u/:username', component: PostsUserPage },
     'user.posts': { path: '/u/:username', component: PostsUserPage },
