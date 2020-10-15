@@ -71,6 +71,7 @@ import Search from './components/Search';
 import DiscussionListItem from './components/DiscussionListItem';
 import LoadingPost from './components/LoadingPost';
 import PostsUserPage from './components/PostsUserPage';
+import DiscussionPageResolver from './resolver/DiscussionPageResolver';
 import routes from './routes';
 import ForumApplication from './ForumApplication';
 
@@ -146,6 +147,7 @@ export default Object.assign(compat, {
   'components/DiscussionListItem': DiscussionListItem,
   'components/LoadingPost': LoadingPost,
   'components/PostsUserPage': PostsUserPage,
+  'resolvers/DiscussionPageResolver': DiscussionPageResolver,
   routes: routes,
   ForumApplication: ForumApplication,
 });
