@@ -36,7 +36,9 @@ export default class DiscussionPageResolver extends DefaultResolver {
 
   render(vnode) {
     if (DiscussionPageResolver.scrollToPostNumber !== null) {
-      app.current.get('stream').goToNumber(DiscussionPageResolver.scrollToPostNumber);
+      const number = DiscussionPageResolver.scrollToPostNumber;
+      // Scroll after a timeout to avoid clashes with the render.
+      setTimeout(() => app.current.get('stream').goToNumber(number));
       DiscussionPageResolver.scrollToPostNumber = null;
     }
 
