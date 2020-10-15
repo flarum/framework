@@ -29,6 +29,6 @@ export default class DefaultResolver {
   }
 
   render(vnode) {
-    return { ...vnode, routeName: this.routeName, key: this.makeKey() };
+    return [{ ...vnode, routeName: this.routeName, key: this.makeKey() }];
   }
 }
