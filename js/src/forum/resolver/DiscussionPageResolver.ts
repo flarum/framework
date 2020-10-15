@@ -1,28 +1,34 @@
 import DefaultResolver from '../../common/resolvers/DefaultResolver';
 
 /**
+ * This isn't exported as it is a temporary measure.
+ * A more robust system will be implemented alongside UTF-8 support in beta 15.
+ */
+function getDiscussionIdFromSlug(slug: string | undefined) {
+  if (!slug) return;
+  return slug.split('-')[0];
+}
+
+/**
  * A custom route resolver for DiscussionPage that generates the same key to all posts
  * on the same discussion. It triggers a scroll when going from one post to another
  * in the same discussion.
  */
 export default class DiscussionPageResolver extends DefaultResolver {
-  static scrollToPostNumber: string | null = null;
+  static scrollToPostNumber: number | null = null;
 
   makeKey() {
     const params = { ...m.route.param() };
     if ('near' in params) {
       delete params.near;
     }
-    if ('id' in params && params.id.includes('-')) {
-      params.id = params.id.split('-')[0];
-    }
+    params.id = getDiscussionIdFromSlug(params.id);
     return this.routeName.replace('.near', '') + JSON.stringify(params);
   }
 
   onmatch(args, requestedPath, route) {
-    const sameDiscussion = m.route.param('id') && args.id && m.route.param('id').split('-')[0] === args.id.split('-')[0];
-    if (route.startsWith('/d/:id') && sameDiscussion) {
-      DiscussionPageResolver.scrollToPostNumber = args.near;
+    if (route.includes('/d/:id') && getDiscussionIdFromSlug(args.id) === getDiscussionIdFromSlug(m.route.param('id'))) {
+      DiscussionPageResolver.scrollToPostNumber = parseInt(args.near);
     }
 
     return super.onmatch(args, requestedPath, route);
@@ -30,8 +36,7 @@ export default class DiscussionPageResolver extends DefaultResolver {
 
   render(vnode) {
     if (DiscussionPageResolver.scrollToPostNumber !== null) {
-      console.log(DiscussionPageResolver.scrollToPostNumber);
-      app.current.get('stream').goToNumber(parseInt(DiscussionPageResolver.scrollToPostNumber));
+      app.current.get('stream').goToNumber(DiscussionPageResolver.scrollToPostNumber);
       DiscussionPageResolver.scrollToPostNumber = null;
     }
 
