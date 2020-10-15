@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.0-beta.14](https://github.com/flarum/subscriptions/compare/v0.1.0-beta.13...v0.1.0-beta.14)
+
+### Added
+- Meta title now available for following page (#23)
+
+### Changed
+- Updated mithril to version 2
+- Load language strings correctly on en-/disable
+- Updated JS dependencies
+- Notification emails now are translatable (#30)
+
+### Fixed
+- Button colors for dark mode were too vague (#26)
+
 ## [0.1.0-beta.13](https://github.com/flarum/subscriptions/compare/v0.1.0-beta.12...v0.1.0-beta.13)
 
 ### Changed
