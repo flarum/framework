@@ -189,9 +189,9 @@ export default class PostStream extends Component {
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
     const $items = this.$('.PostStream-item[data-index]');
-    let index = $items.first().data('index') || 0;
     let visible = 0;
     let period = '';
+    let indexFromViewPort = null;
 
     // Now loop through each of the items in the discussion. An 'item' is
     // either a single post or a 'gap' of one or more posts that haven't
@@ -217,8 +217,10 @@ export default class PostStream extends Component {
       const visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
       const visiblePost = visibleBottom - visibleTop;
 
-      if (top <= viewportTop) {
-        index = parseFloat($this.data('index')) + visibleTop / height;
+      // We take the index of the first item that passed the previous checks.
+      // It is the item that is first visible in the viewport.
+      if (indexFromViewPort === null) {
+        indexFromViewPort = parseFloat($this.data('index')) + visibleTop / height;
       }
 
       if (visiblePost > 0) {
@@ -231,7 +233,10 @@ export default class PostStream extends Component {
       if (time) period = time;
     });
 
-    this.stream.index = index + 1;
+    // If indexFromViewPort is null, it means no posts are visible in the
+    // viewport. This can happen, when drafting a long reply post. In that case
+    // set the index to the last post.
+    this.stream.index = indexFromViewPort !== null ? indexFromViewPort + 1 : this.stream.count();
     this.stream.visible = visible;
     if (period) this.stream.description = dayjs(period).format('MMMM YYYY');
   }
