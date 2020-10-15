@@ -58,7 +58,7 @@ export default class ScrollListener {
    */
   start() {
     if (!this.active) {
-      window.addEventListener('scroll', (this.active = this.loop.bind(this)));
+      window.addEventListener('scroll', (this.active = this.loop.bind(this)), { passive: true });
     }
   }
 
