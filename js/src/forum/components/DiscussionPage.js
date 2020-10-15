@@ -47,8 +47,6 @@ export default class DiscussionPage extends Page {
     app.history.push('discussion');
 
     this.bodyClass = 'App--discussion';
-
-    this.prevRoute = m.route.get();
   }
 
   onremove() {
@@ -94,34 +92,6 @@ export default class DiscussionPage extends Page {
         </div>
       </div>
     );
-  }
-
-  onbeforeupdate(vnode) {
-    super.onbeforeupdate(vnode);
-
-    if (m.route.get() !== this.prevRoute) {
-      this.prevRoute = m.route.get();
-
-      // If we have routed to the same discussion as we were viewing previously,
-      // cancel the unloading of this controller and instead prompt the post
-      // stream to jump to the new 'near' param.
-      if (this.discussion) {
-        const idParam = m.route.param('id');
-
-        if (idParam && idParam.split('-')[0] === this.discussion.id()) {
-          const near = m.route.param('near') || '1';
-
-          if (near !== String(this.near)) {
-            this.stream.goToNumber(near);
-          }
-
-          this.near = near;
-        } else {
-          this.onNewRoute();
-          this.oninit(vnode);
-        }
-      }
-    }
   }
 
   /**
@@ -248,10 +218,7 @@ export default class DiscussionPage extends Page {
     // replace it into the window's history and our own history stack.
     const url = app.route.discussion(discussion, (this.near = startNumber));
 
-    this.prevRoute = url;
-    m.route.set(url, null, { replace: true });
     window.history.replaceState(null, document.title, url);
-
     app.history.push('discussion', discussion.title());
 
     // If the user hasn't read past here before, then we'll update their read
