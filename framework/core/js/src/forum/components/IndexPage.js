@@ -42,26 +42,6 @@ export default class IndexPage extends Page {
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
     this.bodyClass = 'App--index';
-
-    this.currentPath = m.route.get();
-  }
-
-  onbeforeupdate(vnode) {
-    super.onbeforeupdate(vnode);
-
-    const curPath = m.route.get();
-
-    if (this.currentPath !== curPath) {
-      this.onNewRoute();
-
-      app.discussions.clear();
-
-      app.discussions.refreshParams(app.search.params());
-
-      this.currentPath = curPath;
-
-      this.setTitle();
-    }
   }
 
   view() {

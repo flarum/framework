@@ -27,19 +27,6 @@ export default class UserPage extends Page {
     this.user = null;
 
     this.bodyClass = 'App--user';
-
-    this.prevUsername = m.route.param('username');
-  }
-
-  onbeforeupdate() {
-    const currUsername = m.route.param('username');
-    if (currUsername !== this.prevUsername) {
-      this.onNewRoute();
-
-      this.prevUsername = currUsername;
-
-      this.loadUser(currUsername);
-    }
   }
 
   view() {
