@@ -27,19 +27,18 @@ export default class AdminApplication extends Application {
    * @inheritdoc
    */
   mount() {
-    m.mount(document.getElementById('app-navigation'), { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
-    m.mount(document.getElementById('header-navigation'), Navigation);
-    m.mount(document.getElementById('header-primary'), HeaderPrimary);
-    m.mount(document.getElementById('header-secondary'), HeaderSecondary);
-    m.mount(document.getElementById('admin-navigation'), AdminNav);
-
     // Mithril does not render the home route on https://example.com/admin, so
     // we need to go to https://example.com/admin#/ explicitly.
     if (!document.location.hash) document.location.hash = '#/';
 
     m.route.prefix = '#';
-
     super.mount();
+
+    m.mount(document.getElementById('app-navigation'), { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
+    m.mount(document.getElementById('header-navigation'), Navigation);
+    m.mount(document.getElementById('header-primary'), HeaderPrimary);
+    m.mount(document.getElementById('header-secondary'), HeaderSecondary);
+    m.mount(document.getElementById('admin-navigation'), AdminNav);
 
     // If an extension has just been enabled, then we will run its settings
     // callback.
