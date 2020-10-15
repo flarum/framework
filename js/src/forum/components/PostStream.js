@@ -32,6 +32,13 @@ export default class PostStream extends Component {
     const posts = this.stream.posts();
     const postIds = this.discussion.postIds();
 
+    const postFadeIn = (vnode) => {
+      $(vnode.dom).addClass('fadeIn');
+      // 500 is the duration of the fadeIn CSS animation + 100ms,
+      // so the animation has time to complete
+      setTimeout(() => $(vnode.dom).removeClass('fadeIn'), 500);
+    };
+
     const items = posts.map((post, i) => {
       let content;
       const attrs = { 'data-index': this.stream.visibleStart + i };
@@ -42,6 +49,7 @@ export default class PostStream extends Component {
         content = PostComponent ? PostComponent.component({ post }) : '';
 
         attrs.key = 'post' + post.id();
+        attrs.oncreate = postFadeIn;
         attrs['data-time'] = time.toISOString();
         attrs['data-number'] = post.number();
         attrs['data-id'] = post.id();
@@ -89,7 +97,7 @@ export default class PostStream extends Component {
     // is not already doing so, then show a 'write a reply' placeholder.
     if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
-        <div className="PostStream-item" key="reply">
+        <div className="PostStream-item" key="reply" oncreate={postFadeIn}>
           {ReplyPlaceholder.component({ discussion: this.discussion })}
         </div>
       );
@@ -389,10 +397,11 @@ export default class PostStream extends Component {
    * @param {jQuery} $item
    */
   flashItem($item) {
+    // This might execute before the fadeIn class has been removed in PostStreamItem's
+    // oncreate, so we remove it just to be safe and avoid a double animation.
+    $item.removeClass('fadeIn');
     $item.addClass('flash').on('animationend webkitAnimationEnd', (e) => {
-      if (e.animationName === 'fadeIn') {
-        $item.removeClass('flash');
-      }
+      $item.removeClass('flash');
     });
   }
 }
