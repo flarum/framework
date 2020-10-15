@@ -115,6 +115,8 @@ export default class ForumApplication extends Application {
     this.routes[defaultAction].path = '/';
     this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
 
+    this.pane = new Pane(document.getElementById('app'));
+
     m.route.prefix = '';
     super.mount(this.forum.attribute('basePath'));
 
@@ -125,8 +127,6 @@ export default class ForumApplication extends Application {
     m.mount(document.getElementById('header-primary'), HeaderPrimary);
     m.mount(document.getElementById('header-secondary'), HeaderSecondary);
     m.mount(document.getElementById('composer'), { view: () => Composer.component({ state: this.composer }) });
-
-    this.pane = new Pane(document.getElementById('app'));
 
     alertEmailConfirmation(this);
 
