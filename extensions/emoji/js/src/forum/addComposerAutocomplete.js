@@ -4,10 +4,11 @@ import emojiMap from 'simple-emoji-map';
 import { extend } from 'flarum/extend';
 import TextEditor from 'flarum/components/TextEditor';
 import TextEditorButton from 'flarum/components/TextEditorButton';
-import getEmojiIconCode from './helpers/getEmojiIconCode';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
+import getEmojiIconCode from './helpers/getEmojiIconCode';
+import cdn from './cdn';
 
 export default function addComposerAutocomplete() {
   const emojiKeys = Object.keys(emojiMap);
@@ -76,7 +77,7 @@ export default function addComposerAutocomplete() {
                 onmouseenter={function() {
                   dropdown.setIndex($(this).parent().index() - 1);
                 }}>
-                  <img alt={emoji} class="emoji" draggable="false" src={'//cdn.jsdelivr.net/gh/twitter/twemoji@13/assets/72x72/' + code + '.png'}/>
+                  <img alt={emoji} class="emoji" draggable="false" src={`${cdn}72x72/${code}.png`}/>
                   {name}
               </button>
             );
