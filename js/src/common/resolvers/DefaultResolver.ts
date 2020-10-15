@@ -24,11 +24,18 @@ export default class DefaultResolver {
     return this.routeName + JSON.stringify(m.route.param());
   }
 
+  makeAttrs(vnode) {
+    return {
+      ...vnode.attrs,
+      routeName: this.routeName,
+    };
+  }
+
   onmatch(args, requestedPath, route) {
     return this.component;
   }
 
   render(vnode) {
-    return [{ ...vnode, routeName: this.routeName, key: this.makeKey() }];
+    return [{ ...vnode, attrs: this.makeAttrs(vnode), key: this.makeKey() }];
   }
 }
