@@ -20,9 +20,9 @@ export default function mapRoutes(routes, basePath = '') {
       map[basePath + route.path] = route.resolver;
     } else if ('component' in route) {
       const resolverClass = 'resolverClass' in route ? route.resolverClass : DefaultResolver;
-      map[basePath + route.path] = new resolverClass(route.component, key);
+      map[basePath + route.path] = new resolverClass(route.component, routeName);
     } else {
-      throw new Error(`Either a resolver or a component must be provided for the route [${key}]`);
+      throw new Error(`Either a resolver or a component must be provided for the route [${routeName}]`);
     }
   }
 
