@@ -30,6 +30,10 @@ export default class Page extends Component {
     if (this.bodyClass) {
       $('#app').addClass(this.bodyClass);
     }
+
+    if (!this.dontScrollTopOnCreate) {
+      window.scrollTo(0, 0);
+    }
   }
 
   onremove() {
