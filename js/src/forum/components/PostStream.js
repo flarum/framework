@@ -97,7 +97,7 @@ export default class PostStream extends Component {
     // is not already doing so, then show a 'write a reply' placeholder.
     if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
-        <div className="PostStream-item" key="reply" oncreate={postFadeIn}>
+        <div className="PostStream-item" key="reply" data-index={this.stream.count()} oncreate={postFadeIn}>
           {ReplyPlaceholder.component({ discussion: this.discussion })}
         </div>
       );
@@ -129,16 +129,15 @@ export default class PostStream extends Component {
    * Start scrolling, if appropriate, to a newly-targeted post.
    */
   triggerScroll() {
-    if (!this.attrs.targetPost || !this.stream.needsScroll) return;
+    if (!this.stream.needsScroll) return;
 
-    const newTarget = this.attrs.targetPost;
+    const target = this.stream.targetPost;
     this.stream.needsScroll = false;
 
-    if ('number' in newTarget) {
-      this.scrollToNumber(newTarget.number, this.stream.animateScroll);
-    } else if ('index' in newTarget) {
-      const backwards = newTarget.index === this.stream.count() - 1;
-      this.scrollToIndex(newTarget.index, this.stream.animateScroll, backwards);
+    if ('number' in target) {
+      this.scrollToNumber(target.number, this.stream.animateScroll);
+    } else if ('index' in target) {
+      this.scrollToIndex(target.index, this.stream.animateScroll, target.reply);
     }
   }
 
@@ -309,18 +308,17 @@ export default class PostStream extends Component {
    *
    * @param {Integer} index
    * @param {Boolean} animate
-   * @param {Boolean} bottom Whether or not to scroll to the bottom of the post
-   *     at the given index, instead of the top of it.
+   * @param {Boolean} reply Whether or not to scroll to the reply placeholder.
    * @return {jQuery.Deferred}
    */
-  scrollToIndex(index, animate, bottom) {
-    const $item = this.$(`.PostStream-item[data-index=${index}]`);
+  scrollToIndex(index, animate, reply) {
+    const $item = reply ? $('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${index}]`);
 
-    return this.scrollToItem($item, animate, true, bottom).then(() => {
-      if (index == this.stream.count() - 1) {
-        this.flashItem(this.$('.PostStream-item:last-child'));
-      }
-    });
+    this.scrollToItem($item, animate, true, reply);
+
+    if (reply) {
+      this.flashItem($item);
+    }
   }
 
   /**
@@ -330,11 +328,10 @@ export default class PostStream extends Component {
    * @param {Boolean} animate
    * @param {Boolean} force Whether or not to force scrolling to the item, even
    *     if it is already in the viewport.
-   * @param {Boolean} bottom Whether or not to scroll to the bottom of the post
-   *     at the given index, instead of the top of it.
+   * @param {Boolean} reply Whether or not to scroll to the reply placeholder.
    * @return {jQuery.Deferred}
    */
-  scrollToItem($item, animate, force, bottom) {
+  scrollToItem($item, animate, force, reply) {
     const $container = $('html, body').stop(true);
     const index = $item.data('index');
 
@@ -345,10 +342,10 @@ export default class PostStream extends Component {
       const scrollBottom = scrollTop + $(window).height();
 
       // If the item is already in the viewport, we may not need to scroll.
-      // If we're scrolling to the bottom of an item, then we'll make sure the
+      // If we're scrolling to the reply placeholder, we'll make sure its
       // bottom will line up with the top of the composer.
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        const top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
+        const top = reply ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
 
         if (!animate) {
           $container.scrollTop(top);
@@ -362,7 +359,7 @@ export default class PostStream extends Component {
       // We manually set the index because we want to display the index of the
       // exact post we've scrolled to, not just that of the first post within viewport.
       this.updateScrubber();
-      this.stream.index = index;
+      if (index !== undefined) this.stream.index = index + 1;
     };
 
     // If we don't update this before the scroll, the scrubber will start
@@ -373,18 +370,22 @@ export default class PostStream extends Component {
     return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
       m.redraw.sync();
 
-      // After post data has been loaded in, we will attempt to scroll back
-      // to the top of the requested post (or to the top of the page if the
-      // first post was requested). In some cases, we may have scrolled to
-      // the end of the available post range, in which case, the next range
-      // of posts will be loaded in. However, in those cases, the post we
-      // requested won't exist, so scrolling to it would cause an error.
-      // Accordingly, we start by checking that it's offset is defined.
-      const offset = $(`.PostStream-item[data-index=${index}]`).offset();
-      if (index === 0) {
+      // Rendering post contents will probably throw off our position.
+      // To counter this, we'll scroll either:
+      //   - To the reply placeholder (aligned with composer top)
+      //   - To the top of the page if we're on the first post
+      //   - To the top of a post (if that post exists)
+      // If the post does not currently exist, it's probably
+      // outside of the range we loaded in, so we won't adjust anything,
+      // as it will soon be rendered by the "load more" system.
+      let itemOffset;
+      if (reply) {
+        const $placeholder = $('.PostStream-item:last-child');
+        $(window).scrollTop($placeholder.offset().top + $placeholder.height() - $(window).height() + app.composer.computedHeight());
+      } else if (index === 0) {
         $(window).scrollTop(0);
-      } else if (offset) {
-        $(window).scrollTop($(`.PostStream-item[data-index=${index}]`).offset().top - this.getMarginTop());
+      } else if ((itemOffset = $(`.PostStream-item[data-index=${index}]`).offset())) {
+        $(window).scrollTop(itemOffset.top - this.getMarginTop());
       }
 
       // We want to adjust this again after posts have been loaded in
