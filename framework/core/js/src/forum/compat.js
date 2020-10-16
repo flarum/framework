@@ -71,7 +71,7 @@ import Search from './components/Search';
 import DiscussionListItem from './components/DiscussionListItem';
 import LoadingPost from './components/LoadingPost';
 import PostsUserPage from './components/PostsUserPage';
-import DiscussionPageResolver from './resolver/DiscussionPageResolver';
+import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 import routes from './routes';
 import ForumApplication from './ForumApplication';
 
