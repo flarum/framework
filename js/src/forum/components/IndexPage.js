@@ -86,6 +86,7 @@ export default class IndexPage extends Page {
 
     $('#app').css('min-height', $(window).height() + heroHeight);
 
+    // Let browser handle scrolling on page reload.
     if (app.previous.type == null) return;
 
     $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
@@ -94,7 +95,7 @@ export default class IndexPage extends Page {
     // have set the `lastDiscussion` property. If this is the case, we want to
     // scroll down to that discussion so that it's in view.
     if (this.lastDiscussion) {
-      const $discussion = this.$(`.DiscussionListItem[data-id="${this.lastDiscussion.id()}"]`);
+      const $discussion = this.$(`li[data-id="${this.lastDiscussion.id()}"] .DiscussionListItem`);
 
       if ($discussion.length) {
         const indexTop = $('#header').outerHeight();
