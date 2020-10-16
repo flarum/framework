@@ -1,4 +1,5 @@
 import DefaultResolver from '../../common/resolvers/DefaultResolver';
+import DiscussionPage from '../components/DiscussionPage';
 
 /**
  * This isn't exported as it is a temporary measure.
@@ -27,7 +28,7 @@ export default class DiscussionPageResolver extends DefaultResolver {
   }
 
   onmatch(args, requestedPath, route) {
-    if (route.includes('/d/:id') && getDiscussionIdFromSlug(args.id) === getDiscussionIdFromSlug(m.route.param('id'))) {
+    if (app.current.matches(DiscussionPage) && getDiscussionIdFromSlug(args.id) === getDiscussionIdFromSlug(m.route.param('id'))) {
       DiscussionPageResolver.scrollToPostNumber = args.near === 'reply' ? 'reply' : parseInt(args.near);
     }
 
