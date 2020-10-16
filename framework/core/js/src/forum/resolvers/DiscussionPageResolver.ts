@@ -16,7 +16,7 @@ function getDiscussionIdFromSlug(slug: string | undefined) {
  * in the same discussion.
  */
 export default class DiscussionPageResolver extends DefaultResolver {
-  static scrollToPostNumber: string | number | null = null;
+  static scrollToPostNumber: string | null = null;
 
   makeKey() {
     const params = { ...m.route.param() };
@@ -29,7 +29,8 @@ export default class DiscussionPageResolver extends DefaultResolver {
 
   onmatch(args, requestedPath, route) {
     if (app.current.matches(DiscussionPage) && getDiscussionIdFromSlug(args.id) === getDiscussionIdFromSlug(m.route.param('id'))) {
-      DiscussionPageResolver.scrollToPostNumber = args.near === 'reply' ? 'reply' : parseInt(args.near);
+      // By default, the first post number of any discussion is 1
+      DiscussionPageResolver.scrollToPostNumber = args.near || '1';
     }
 
     return super.onmatch(args, requestedPath, route);
