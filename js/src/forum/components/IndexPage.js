@@ -116,14 +116,16 @@ export default class IndexPage extends Page {
     }
   }
 
+  onbeforeremove() {
+    // Save the scroll position so we can restore it when we return to the
+    // discussion list.
+    app.cache.scrollTop = $(window).scrollTop();
+  }
+
   onremove() {
     super.onremove();
 
     $('#app').css('min-height', '');
-
-    // Save the scroll position so we can restore it when we return to the
-    // discussion list.
-    app.cache.scrollTop = $(window).scrollTop();
   }
 
   /**
