@@ -89,7 +89,13 @@ export default class IndexPage extends Page {
     // Let browser handle scrolling on page reload.
     if (app.previous.type == null) return;
 
-    $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
+    // When on mobile, only retain scroll if we're coming from a discussion page.
+    // Otherwise, we've just changed the filter, so we should go to the top of the page.
+    if (app.screen() == 'desktop' || app.screen() == 'desktop-hd' || this.lastDiscussion) {
+      $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
+    } else {
+      $(window).scrollTop(0);
+    }
 
     // If we've just returned from a discussion page, then the constructor will
     // have set the `lastDiscussion` property. If this is the case, we want to
