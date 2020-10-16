@@ -15,7 +15,7 @@ function getDiscussionIdFromSlug(slug: string | undefined) {
  * in the same discussion.
  */
 export default class DiscussionPageResolver extends DefaultResolver {
-  static scrollToPostNumber: number | null = null;
+  static scrollToPostNumber: string | number | null = null;
 
   makeKey() {
     const params = { ...m.route.param() };
@@ -28,7 +28,7 @@ export default class DiscussionPageResolver extends DefaultResolver {
 
   onmatch(args, requestedPath, route) {
     if (route.includes('/d/:id') && getDiscussionIdFromSlug(args.id) === getDiscussionIdFromSlug(m.route.param('id'))) {
-      DiscussionPageResolver.scrollToPostNumber = parseInt(args.near);
+      DiscussionPageResolver.scrollToPostNumber = args.near === 'reply' ? 'reply' : parseInt(args.near);
     }
 
     return super.onmatch(args, requestedPath, route);
