@@ -22,6 +22,13 @@ export default class Page extends Component {
      * @type {String}
      */
     this.bodyClass = '';
+
+    /**
+     * Whether we should scroll to the top of the page when its rendered.
+     *
+     * @type {Boolean}
+     */
+    this.scrollTopOnCreate = true;
   }
 
   oncreate(vnode) {
@@ -31,8 +38,8 @@ export default class Page extends Component {
       $('#app').addClass(this.bodyClass);
     }
 
-    if (!this.dontScrollTopOnCreate) {
-      window.scrollTo(0, 0);
+    if (this.scrollTopOnCreate) {
+      $(window).scrollTop(0);
     }
   }
 

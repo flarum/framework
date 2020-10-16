@@ -42,7 +42,7 @@ export default class IndexPage extends Page {
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
     this.bodyClass = 'App--index';
-    this.dontScrollTopOnCreate = true;
+    this.scrollTopOnCreate = false;
   }
 
   view() {
