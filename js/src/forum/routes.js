@@ -4,7 +4,7 @@ import PostsUserPage from './components/PostsUserPage';
 import DiscussionsUserPage from './components/DiscussionsUserPage';
 import SettingsPage from './components/SettingsPage';
 import NotificationsPage from './components/NotificationsPage';
-import DiscussionPageResolver from './resolver/DiscussionPageResolver';
+import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 
 /**
  * The `routes` initializer defines the forum app's routes.
