@@ -88,12 +88,7 @@ export default class IndexPage extends Page {
 
     if (app.previous.type == null) return;
 
-    // Scroll to the remembered position. We do this after a short delay so that
-    // it happens after the browser has done its own "back button" scrolling,
-    // which isn't right. https://github.com/flarum/core/issues/835
-    const scroll = () => $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
-    scroll();
-    setTimeout(scroll, 1);
+    $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
 
     // If we've just returned from a discussion page, then the constructor will
     // have set the `lastDiscussion` property. If this is the case, we want to
