@@ -42,6 +42,7 @@ export default class IndexPage extends Page {
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
     this.bodyClass = 'App--index';
+    this.scrollTopOnCreate = false;
   }
 
   view() {
@@ -85,18 +86,22 @@ export default class IndexPage extends Page {
 
     $('#app').css('min-height', $(window).height() + heroHeight);
 
-    // Scroll to the remembered position. We do this after a short delay so that
-    // it happens after the browser has done its own "back button" scrolling,
-    // which isn't right. https://github.com/flarum/core/issues/835
-    const scroll = () => $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
-    scroll();
-    setTimeout(scroll, 1);
+    // Let browser handle scrolling on page reload.
+    if (app.previous.type == null) return;
+
+    // When on mobile, only retain scroll if we're coming from a discussion page.
+    // Otherwise, we've just changed the filter, so we should go to the top of the page.
+    if (app.screen() == 'desktop' || app.screen() == 'desktop-hd' || this.lastDiscussion) {
+      $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
+    } else {
+      $(window).scrollTop(0);
+    }
 
     // If we've just returned from a discussion page, then the constructor will
     // have set the `lastDiscussion` property. If this is the case, we want to
     // scroll down to that discussion so that it's in view.
     if (this.lastDiscussion) {
-      const $discussion = this.$(`.DiscussionListItem[data-id="${this.lastDiscussion.id()}"]`);
+      const $discussion = this.$(`li[data-id="${this.lastDiscussion.id()}"] .DiscussionListItem`);
 
       if ($discussion.length) {
         const indexTop = $('#header').outerHeight();
@@ -111,14 +116,16 @@ export default class IndexPage extends Page {
     }
   }
 
+  onbeforeremove() {
+    // Save the scroll position so we can restore it when we return to the
+    // discussion list.
+    app.cache.scrollTop = $(window).scrollTop();
+  }
+
   onremove() {
     super.onremove();
 
     $('#app').css('min-height', '');
-
-    // Save the scroll position so we can restore it when we return to the
-    // discussion list.
-    app.cache.scrollTop = $(window).scrollTop();
   }
 
   /**
