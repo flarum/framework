@@ -10,7 +10,7 @@
             "email": "franz@develophp.org"
         },
         {
-            "name": "Daniel Klabbers",
+            "name": "Daniël Klabbers",
             "email": "daniel@klabbers.email",
             "homepage": "https://luceos.com"
         },
@@ -27,6 +27,10 @@
         {
             "name": "Matthew Kilgore",
             "email": "matthew@kilgore.dev"
+        },
+        {
+          "name": "Alexander (Sasha) Skvortsov",
+          "email": "sasha.skvortsov109@gmail.com"
         }
     ],
     "support": {
