@@ -1,5 +1,102 @@
 # Changelog
 
+## [0.1.0-beta.14](https://github.com/flarum/core/compare/v0.1.0-beta.13...v0.1.0-beta.14)
+
+### Added
+
+- Check dependencies before enabling / disabling extensions (https://github.com/flarum/core/pull/2188)
+- Set up temporary infrastructure for TypeScript in core (https://github.com/flarum/core/pull/2206)
+- Better UI for request error modals (https://github.com/flarum/core/pull/1929)
+- Display name extender, tests, frontend UI (https://github.com/flarum/core/pull/2174)
+- Scroll to post or show alert when editing a post from another page (https://github.com/flarum/core/pull/2108)
+- Feature to test email config by sending an email to the current user (https://github.com/flarum/core/pull/2023)
+- Allow searching users by group ID using the group gambit (https://github.com/flarum/core/pull/2192)
+- Use `liveHumanTimes` helper to update times without reload/rerender (https://github.com/flarum/core/pull/2208)
+- View extender, tests (https://github.com/flarum/core/pull/2134)
+- User extender to replace `PrepareUserGroups` (https://github.com/flarum/core/pull/2110)
+- Increase extensibility of skeleton PHP (https://github.com/flarum/core/pull/2308, https://github.com/flarum/core/pull/2318)
+- Pass a translator instance to `getEmailSubject` in `MailableInterface` (https://github.com/flarum/core/pull/2244)
+- Force LF line endings on windows (https://github.com/flarum/core/pull/2321)
+- Add a `Link` component for internal and external links (https://github.com/flarum/core/pull/2315)
+- `ConfirmDocumentUnload` component
+- Error handler middleware can now be manipulated by the middleware extender
+
+### Changed
+
+- Update to Mithril 2 (https://github.com/flarum/core/pull/2255)
+- Stop storing component instances (https://github.com/flarum/core/issues/1821, https://github.com/flarum/core/issues/2144)
+- Update to Laravel 6.x (https://github.com/flarum/core/issues/2055)
+- `Flarum\Foundation\Application` no longer implements `Illuminate\Contracts\Foundation\Application` (#2142)
+- `Flarum\Foundation\Application` no longer inherits `Illuminate\Container\Container` (#2142)
+- `paths` have been split off from `Flarum\Foundation\Application` into `Flarum\Foundation\Paths`, which can be injected where needed  (#2142)
+- `Flarum\User\Gate` no longer implements `Illuminate\Contracts\Auth\Access\Gate` (https://github.com/flarum/core/pull/2181)
+- Improve Group Gambit performance (https://github.com/flarum/core/pull/2192)
+- Switch to `dayjs` from `momentjs` (https://github.com/flarum/core/pull/2219)
+- Don't create a `bio` column in `users` for new installations (https://github.com/flarum/core/pull/2215)
+- Start converting core JS to TypeScript (https://github.com/flarum/core/pull/2207)
+- Make Carbon an explicit dependency (https://github.com/flarum/core/commit/3b39c212e0fef7522e7d541a9214ff3817138d5d)
+- Use Symfony's translator interface instead of Laravel's (https://github.com/flarum/core/pull/2243)
+- Use newer versions of fontawesome (https://github.com/flarum/core/pull/2274)
+- Use URL generator instead of `app()->url()` where possible (https://github.com/flarum/core/pull/2302)
+- Move config from `config.php` into an injectable helper class (https://github.com/flarum/core/pull/2271)
+- Use reserved TLD for bogus and test urls (https://github.com/flarum/core/commit/6860b24b70bd04544dde90e537ce021a5fc5a689)
+- Replace `m.stream` with `flarum/utils/Stream` (https://github.com/flarum/core/pull/2316)
+- Replace `affixedSidebar` util with `AffixedSidebar` component
+- Replace `m.withAttr` with `flarum/utils/withAttr`
+- Scroll Listener is now passive, performance improvement (https://github.com/flarum/core/pull/2387)
+
+### Fixed
+
+- `generate:migration` command for extensions (https://github.com/flarum/core/commit/443949f7b9d7558dbc1e0994cb898cbac59bec87)
+- Container config for `UninstalledSite` (https://github.com/flarum/core/commit/ecdce44d555dd36a365fd472b2916e677ef173cf)
+- Tooltip glitch on page chang (https://github.com/flarum/core/issues/2118)
+- Using multiple extenders in tests (https://github.com/flarum/core/commit/c4f4f218bf4b175a30880b807f9ccb1a37a25330)
+- Header glitch when opening modals (https://github.com/flarum/core/pull/2131)
+- Ensure `SameSite` is explicitly set for cookies (https://github.com/flarum/core/pull/2159)
+- Ensure `Flarum\User\Event\AvatarChanged` event is properly dispatched (https://github.com/flarum/core/pull/2197)
+- Show correct error message on wrong password when changing email (https://github.com/flarum/core/pull/2171)
+- Discussion unreadCount could be higher than commentCount if posts deleted (https://github.com/flarum/core/pull/2195)
+- Don't show page title on the default route (https://github.com/flarum/core/pull/2047)
+- Add page title to `All Discussions` page when it isn't the default route (https://github.com/flarum/core/pull/2047)
+- Accept `'0'` as `false` for `flarum/components/Checkbox` (https://github.com/flarum/core/pull/2210)
+- Fix PostStreamScrubber background (https://github.com/flarum/core/pull/2222)
+- Test port on BaseUrl tests (https://github.com/flarum/core/pull/2226)
+- `UrlGenerator` can now generate urls with optional parameters (https://github.com/flarum/core/pull/2246)
+- Allow `less` to be compiled independently of Flarum (https://github.com/flarum/core/pull/2252)
+- Use correct number abbreviation (https://github.com/flarum/core/pull/2261)
+- Ensure avatar html uses alt tags for accessibility (https://github.com/flarum/core/pull/2269)
+- Escape regex when searching (https://github.com/flarum/core/pull/2273)
+- Remove unneeded semicolons inserted during JS compilation (https://github.com/flarum/core/pull/2280)
+- Don't require a username/password for SMTP (https://github.com/flarum/core/pull/2287)
+- Allow uppercase entries for SMTP encryption validation (https://github.com/flarum/core/pull/2289)
+- Ensure that the right number of posts is returned from list posts API (https://github.com/flarum/core/pull/2291)
+- Fix a variety of PostStream bugs (https://github.com/flarum/core/pull/2160, https://github.com/flarum/core/pull/2160)
+- Sliding discussion glitch on mobile (https://github.com/flarum/core/pull/2324)
+- Sliding discussion button in wrong place (https://github.com/flarum/core/pull/2330, https://github.com/flarum/core/pull/2383)
+- Sliding discussion glitch on mobile (https://github.com/flarum/core/pull/2381)
+- Fix PostStream for posts with top margins, and scrubber position when scrolling below posts (https://github.com/flarum/core/pull/2369)
+
+### Removed
+
+- `Flarum\Event\AbstractConfigureRoutes` event class
+- `Flarum\Event\ConfigureApiRoutes` event class
+- `Flarum\Event\ConfigureForumRoutes` event class
+- `Flarum\Console\Event\Configuring` event class
+- `Flarum\Event\ConfigureModelDates` event class
+- `Flarum\Event\ConfigureLocales` event class
+- `Flarum\Event\ConfigureModelDefaultAttributes` event class
+- `Flarum\Event\GetModelRelationship` event class
+- `Flarum\User\Event\BioChanged` event class
+- `Flarum\Database\MigrationServiceProvider` moved into `Flarum\Database\DatabaseServiceProvider`
+- Unused `admin/components/Widget` component (`admin/component/DashboardWidget` should be used instead)
+- Mandrill mail driver (https://github.com/flarum/core/commit/bca833d3f1c34d45d95bf905902368a2753b8908)
+
+### Deprecated
+
+- `Flarum\User\Event\GetDisplayName` event class
+- Global path helpers, `Flarum\Foundation\Application` path methods (https://github.com/flarum/core/pull/2155)
+- `Flarum\User\AssertPermissionTrait` (https://github.com/flarum/core/pull/2044)
+
 ## [0.1.0-beta.13](https://github.com/flarum/core/compare/v0.1.0-beta.12...v0.1.0-beta.13)
 
 ### Added
