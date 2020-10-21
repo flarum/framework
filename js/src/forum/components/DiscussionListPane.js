@@ -40,6 +40,8 @@ export default class DiscussionListPane extends Component {
     // If the discussion we are viewing is listed in the discussion list, then
     // we will make sure it is visible in the viewport – if it is not we will
     // scroll the list down to it.
+    // When coming from another discussion, scroll to the previous postition
+    // to prevent the discussion list jumping around.
     if (!app.previous.matches(DiscussionPage)) {
       const $discussion = $list.find('.DiscussionListItem.active');
       if ($discussion.length) {
