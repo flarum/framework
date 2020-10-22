@@ -438,8 +438,8 @@ core:
     # These translations are displayed as error messages.
     error:
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
-      missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
+      missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
       not_found_message: The requested resource was not found.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
