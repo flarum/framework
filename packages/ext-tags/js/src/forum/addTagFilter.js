@@ -42,7 +42,7 @@ export default function() {
 
     if (tag) {
       const color = tag.color();
-      const canStartDiscussion = tag.canStartDiscussion();
+      const canStartDiscussion = tag.canStartDiscussion() || !app.session.user;
 
       if (color) {
         items.get('newDiscussion').attrs.style = {backgroundColor: color};
