@@ -10,6 +10,7 @@
 use Flarum\Akismet\Listener;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extend;
+use Flarum\Http\UrlGenerator;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -28,11 +29,14 @@ return [
 
     function (Dispatcher $events, Container $container) {
         $container->bind(Akismet::class, function ($app) {
+            /** @var SettingsRepositoryInterface $settings */
             $settings = $app->make(SettingsRepositoryInterface::class);
+            /** @var UrlGenerator $url */
+            $url = $app->make(UrlGenerator::class);
 
             return new Akismet(
                 $settings->get('flarum-akismet.api_key'),
-                $app->url()
+                $url->to('forum')->base()
             );
         });
 
