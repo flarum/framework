@@ -1,7 +1,33 @@
 .DashboardPage {
-  background: @control-bg;
+  background: @body-bg;
   color: @control-color;
   min-height: 100vh;
+
+  .DashboardPage-header {
+    background: @control-bg;
+
+    @media @phone, @tablet {
+      margin-bottom: 20px;
+    }
+
+    .container{
+      padding: 30px;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: @muted-color;
+    }
+
+    .helpText {
+      margin: 0;
+    }
+
+    i {
+      margin-right: 15px;
+    }
+  }
 
   @media @desktop-up {
     .container {
@@ -11,8 +37,8 @@
   }
 }
 
-.DashboardWidget {
-  background: @body-bg;
+.Widget {
+  background: @control-bg;
   color: @text-color;
   border-radius: @border-radius;
   padding: 20px;
