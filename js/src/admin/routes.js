@@ -2,7 +2,6 @@ import DashboardPage from './components/DashboardPage';
 import BasicsPage from './components/BasicsPage';
 import PermissionsPage from './components/PermissionsPage';
 import AppearancePage from './components/AppearancePage';
-import ExtensionsPage from './components/ExtensionsPage';
 import MailPage from './components/MailPage';
 
 /**
@@ -16,7 +15,6 @@ export default function (app) {
     basics: { path: '/basics', component: BasicsPage },
     permissions: { path: '/permissions', component: PermissionsPage },
     appearance: { path: '/appearance', component: AppearancePage },
-    extensions: { path: '/extensions', component: ExtensionsPage },
     mail: { path: '/mail', component: MailPage },
   };
 }

@@ -1,12 +1,15 @@
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import routes from './routes';
+import ExtensionPage from './components/ExtensionPage';
 import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
 
 export default class AdminApplication extends Application {
   extensionSettings = {};
+
+  extensionPermissions = {};
 
   history = {
     canGoBack: () => true,
@@ -27,6 +30,9 @@ export default class AdminApplication extends Application {
    * @inheritdoc
    */
   mount() {
+    // Add the default extension pages
+    this.setDefaultExtensionPages();
+
     // Mithril does not render the home route on https://example.com/admin, so
     // we need to go to https://example.com/admin#/ explicitly.
     if (!document.location.hash) document.location.hash = '#/';
@@ -63,5 +69,15 @@ export default class AdminApplication extends Application {
     }
 
     return required;
+  }
+
+  setDefaultExtensionPages() {
+    Object.keys(app.data.extensions).map((id) => {
+      const extension = app.data.extensions[id];
+
+      if (!app.routes[extension.id]) {
+        app.routes[extension.id] = { path: '/' + extension.id, component: ExtensionPage };
+      }
+    });
   }
 }

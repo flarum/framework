@@ -9,6 +9,15 @@ export default class PermissionsPage extends Page {
   view() {
     return (
       <div className="PermissionsPage">
+        <div className="PermissionsPage-header">
+          <div className="container">
+            <h2>
+              {icon('fas fa-key')}
+              {app.translator.trans('core.admin.permissions.title')}
+            </h2>
+            <div className="helpText">{app.translator.trans('core.admin.permissions.description')}</div>
+          </div>
+        </div>
         <div className="PermissionsPage-groups">
           <div className="container">
             {app.store

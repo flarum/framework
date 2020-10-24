@@ -10,6 +10,7 @@ export default class PermissionGrid extends Component {
     super.oninit(vnode);
 
     this.permissions = this.permissionItems().toArray();
+    this.extensionId = this.attrs.extensionId;
   }
 
   view() {
@@ -103,6 +104,10 @@ export default class PermissionGrid extends Component {
   viewItems() {
     const items = new ItemList();
 
+    if (this.extensionId) {
+      return this.getExtensionPermissions('view');
+    }
+
     items.add(
       'viewDiscussions',
       {
@@ -158,11 +163,17 @@ export default class PermissionGrid extends Component {
       permission: 'user.viewLastSeenAt',
     });
 
+    items.merge(this.getExtensionPermissions('view'));
+
     return items;
   }
 
   startItems() {
     const items = new ItemList();
+
+    if (this.extensionId) {
+      return this.getExtensionPermissions('start');
+    }
 
     items.add(
       'start',
@@ -198,11 +209,17 @@ export default class PermissionGrid extends Component {
       90
     );
 
+    items.merge(this.getExtensionPermissions('start'));
+
     return items;
   }
 
   replyItems() {
     const items = new ItemList();
+
+    if (this.extensionId) {
+      return this.getExtensionPermissions('reply');
+    }
 
     items.add(
       'reply',
@@ -238,11 +255,17 @@ export default class PermissionGrid extends Component {
       90
     );
 
+    items.merge(this.getExtensionPermissions('start'));
+
     return items;
   }
 
   moderateItems() {
     const items = new ItemList();
+
+    if (this.extensionId) {
+      return this.getExtensionPermissions('reply');
+    }
 
     items.add(
       'viewIpsPosts',
@@ -334,6 +357,8 @@ export default class PermissionGrid extends Component {
       60
     );
 
+    items.merge(this.getExtensionPermissions('start'));
+
     return items;
   }
 
@@ -365,5 +390,19 @@ export default class PermissionGrid extends Component {
 
   scopeControlItems() {
     return new ItemList();
+  }
+
+  getExtensionPermissions(type) {
+    const items = new ItemList();
+
+    if (this.extensionId) {
+      items.merge(app.extensionPermissions[this.extensionId][type]);
+    } else {
+      Object.keys(app.extensionPermissions).map((extension) => {
+        items.merge(app.extensionPermissions[extension][type]);
+      });
+    }
+
+    return items;
   }
 }

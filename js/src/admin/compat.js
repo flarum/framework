@@ -11,7 +11,8 @@ import HeaderSecondary from './components/HeaderSecondary';
 import SettingsModal from './components/SettingsModal';
 import DashboardWidget from './components/DashboardWidget';
 import AddExtensionModal from './components/AddExtensionModal';
-import ExtensionsPage from './components/ExtensionsPage';
+import ExtensionPage from './components/ExtensionPage';
+import ExtensionLinkButton from './components/ExtensionLinkButton';
 import AdminLinkButton from './components/AdminLinkButton';
 import PermissionGrid from './components/PermissionGrid';
 import MailPage from './components/MailPage';
@@ -40,7 +41,8 @@ export default Object.assign(compat, {
   'components/SettingsModal': SettingsModal,
   'components/DashboardWidget': DashboardWidget,
   'components/AddExtensionModal': AddExtensionModal,
-  'components/ExtensionsPage': ExtensionsPage,
+  'components/ExtensionPage': ExtensionPage,
+  'components/ExtensionLinkButton': ExtensionLinkButton,
   'components/AdminLinkButton': AdminLinkButton,
   'components/PermissionGrid': PermissionGrid,
   'components/MailPage': MailPage,
