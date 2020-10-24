@@ -79,7 +79,7 @@ class EventTest extends TestCase
 
         $group = $this->buildGroup();
 
-        $this->assertEquals('core.group.admin', $group->name_singular);
+        $this->assertEquals('Admin', $group->name_singular);
     }
 }
 
