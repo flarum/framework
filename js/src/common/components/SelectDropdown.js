@@ -12,6 +12,8 @@ import icon from '../helpers/icon';
 function isActive(vnode) {
   const tag = vnode.tag;
 
+  if (typeof tag === 'string') return false;
+
   if ('initAttrs' in tag) {
     tag.initAttrs(vnode.attrs);
   }
