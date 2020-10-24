@@ -1,6 +1,6 @@
 import humanTimeUtil from '../utils/humanTime';
 import * as Mithril from 'mithril';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 /**
  * The `humanTime` helper displays a time in a human-friendly time-ago format
