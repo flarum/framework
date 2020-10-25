@@ -8,8 +8,6 @@ export default class FlagListState {
      * @type {Boolean}
      */
     this.loading = false;
-
-    this.cache = [];
   }
 
   /**
@@ -17,7 +15,7 @@ export default class FlagListState {
    * been loaded.
    */
   load() {
-    if (this.cache.length && !this.app.session.user.attribute('newFlagCount')) {
+    if (this.cache && !this.app.session.user.attribute('newFlagCount')) {
       return;
     }
 

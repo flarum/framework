@@ -13,7 +13,7 @@ export default class FlagList extends Component {
   }
 
   view() {
-    const flags = this.state.cache;
+    const flags = this.state.cache || [];
 
     return (
       <div className="NotificationList FlagList">
