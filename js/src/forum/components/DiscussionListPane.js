@@ -37,12 +37,15 @@ export default class DiscussionListPane extends Component {
 
     $(document).on('mousemove', hotEdge);
 
-    // If the discussion we are viewing is listed in the discussion list, then
-    // we will make sure it is visible in the viewport – if it is not we will
-    // scroll the list down to it.
     // When coming from another discussion, scroll to the previous postition
     // to prevent the discussion list jumping around.
-    if (!app.previous.matches(DiscussionPage)) {
+    if (app.previous.matches(DiscussionPage)) {
+      const top = app.cache.paneScrollTop || 0;
+      $list.scrollTop(top);
+    } else {
+      // If the discussion we are viewing is listed in the discussion list, then
+      // we will make sure it is visible in the viewport – if it is not we will
+      // scroll the list down to it.
       const $discussion = $list.find('.DiscussionListItem.active');
       if ($discussion.length) {
         const listTop = $list.offset().top;
@@ -54,9 +57,6 @@ export default class DiscussionListPane extends Component {
           $list.scrollTop($list.scrollTop() - listTop + discussionTop);
         }
       }
-    } else {
-      const top = app.cache.paneScrollTop || 0;
-      $list.scrollTop(top);
     }
   }
 
