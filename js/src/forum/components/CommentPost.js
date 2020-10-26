@@ -64,7 +64,11 @@ export default class CommentPost extends Post {
     // necessary because TextFormatter outputs them for e.g. syntax highlighting.
     if (this.contentHtml !== contentHtml) {
       this.$('.Post-body script').each(function () {
-        eval.call(window, $(this).text());
+        const script = document.createElement('script');
+        script.innerText = this.innerText;
+        Array.from(this.attributes).forEach((attr) => script.setAttribute(attr.name, attr.value));
+        this.parentNode.appendChild(script);
+        this.remove();
       });
     }
 
