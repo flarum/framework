@@ -56,9 +56,7 @@ export default class CommentPost extends Post {
     ]);
   }
 
-  onupdate(vnode) {
-    super.onupdate();
-
+  refreshContent() {
     const contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
 
     // If the post content has changed since the last render, we'll run through
@@ -71,6 +69,18 @@ export default class CommentPost extends Post {
     }
 
     this.contentHtml = contentHtml;
+  }
+
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.refreshContent();
+  }
+
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
+    this.refreshContent();
   }
 
   isEditing() {
