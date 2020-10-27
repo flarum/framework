@@ -1,6 +1,7 @@
 import compat from '../common/compat';
 
 import saveSettings from './utils/saveSettings';
+import extensionData from "./utils/extensionData";
 import SettingDropdown from './components/SettingDropdown';
 import EditCustomFooterModal from './components/EditCustomFooterModal';
 import SessionDropdown from './components/SessionDropdown';
@@ -14,6 +15,7 @@ import AddExtensionModal from './components/AddExtensionModal';
 import ExtensionPage from './components/ExtensionPage';
 import ExtensionLinkButton from './components/ExtensionLinkButton';
 import AdminLinkButton from './components/AdminLinkButton';
+import ExtensionSetting from "./components/ExtensionSetting";
 import PermissionGrid from './components/PermissionGrid';
 import MailPage from './components/MailPage';
 import UploadImageButton from './components/UploadImageButton';
@@ -24,6 +26,7 @@ import EditCustomHeaderModal from './components/EditCustomHeaderModal';
 import PermissionsPage from './components/PermissionsPage';
 import PermissionDropdown from './components/PermissionDropdown';
 import AdminNav from './components/AdminNav';
+import AdminHeader from "./components/AdminHeader";
 import EditCustomCssModal from './components/EditCustomCssModal';
 import EditGroupModal from './components/EditGroupModal';
 import routes from './routes';
@@ -31,6 +34,7 @@ import AdminApplication from './AdminApplication';
 
 export default Object.assign(compat, {
   'utils/saveSettings': saveSettings,
+  'utils/extensionData': extensionData,
   'components/SettingDropdown': SettingDropdown,
   'components/EditCustomFooterModal': EditCustomFooterModal,
   'components/SessionDropdown': SessionDropdown,
@@ -44,6 +48,7 @@ export default Object.assign(compat, {
   'components/ExtensionPage': ExtensionPage,
   'components/ExtensionLinkButton': ExtensionLinkButton,
   'components/AdminLinkButton': AdminLinkButton,
+  'components/ExtensionSetting': ExtensionSetting,
   'components/PermissionGrid': PermissionGrid,
   'components/MailPage': MailPage,
   'components/UploadImageButton': UploadImageButton,
@@ -54,6 +59,7 @@ export default Object.assign(compat, {
   'components/PermissionsPage': PermissionsPage,
   'components/PermissionDropdown': PermissionDropdown,
   'components/AdminNav': AdminNav,
+  'components/AdminHeader': AdminHeader,
   'components/EditCustomCssModal': EditCustomCssModal,
   'components/EditGroupModal': EditGroupModal,
   routes: routes,

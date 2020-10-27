@@ -8,6 +8,7 @@ import EditCustomHeaderModal from './EditCustomHeaderModal';
 import EditCustomFooterModal from './EditCustomFooterModal';
 import UploadImageButton from './UploadImageButton';
 import saveSettings from '../utils/saveSettings';
+import AdminHeader from "./AdminHeader";
 
 export default class AppearancePage extends Page {
   oninit(vnode) {
@@ -22,15 +23,12 @@ export default class AppearancePage extends Page {
   view() {
     return (
       <div className="AppearancePage">
-        <div className="AppearancePage-header">
-          <div className="container">
-            <h2>
-              {icon('fas fa-paint-brush')}
-              {app.translator.trans('core.admin.appearance.title')}
-            </h2>
-            <div className="helpText">{app.translator.trans('core.admin.appearance.description')}</div>
-          </div>
-        </div>
+        {AdminHeader.component({
+            icon: 'fas fa-paint-brush',
+            description: app.translator.trans('core.admin.appearance.description'),
+            className: 'AppearancePage-header'
+          }, app.translator.trans('core.admin.appearance.title')
+        )}
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             <fieldset className="AppearancePage-colors">

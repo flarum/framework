@@ -84,7 +84,8 @@ export default class AdminNav extends Component {
     items.add(
       'search',
       <div className="Search-input">
-        <input className="FormControl SearchBar" type="search" placeholder={app.translator.trans('core.admin.nav.search_placeholder')} />
+        <input className="FormControl SearchBar" type="search"
+               placeholder={app.translator.trans('core.admin.nav.search_placeholder')}/>
       </div>
     );
 
@@ -100,13 +101,15 @@ export default class AdminNav extends Component {
       } else {
         list.children('li').map((key) => {
           const element = $(list.children('li')[key]);
+          const child = $(element.children()[0]);
           if (
             (!element
-              .attr('class')
-              .replace(/item-|ExtensionItem|active/gi, '')
-              .toUpperCase()
-              .includes(filter) &&
-              element.attr('class').includes('ExtensionItem')) ||
+                .attr('class')
+                .replace(/item-|ExtensionItem|active/gi, '')
+                .toUpperCase()
+                .includes(filter) &&
+              !(child && child.attr('title') && child.attr('title').toUpperCase().includes(filter))) &&
+            element.attr('class').includes('ExtensionItem') ||
             element.attr('class').includes('NavDivider')
           ) {
             $(list.children('li')[key]).hide();
@@ -180,7 +183,7 @@ export default class AdminNav extends Component {
           `${extension.id} ExtensionItem`,
           ExtensionLinkButton.component(
             {
-              href: app.route(extension.id),
+              href: app.route('extension', {id: extension.id}),
               extensionId: extension.id,
               className: 'ExtensionNavButton',
               title: extension.description,

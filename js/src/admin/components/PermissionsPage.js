@@ -4,20 +4,18 @@ import EditGroupModal from './EditGroupModal';
 import Group from '../../common/models/Group';
 import icon from '../../common/helpers/icon';
 import PermissionGrid from './PermissionGrid';
+import AdminHeader from "./AdminHeader";
 
 export default class PermissionsPage extends Page {
   view() {
     return (
       <div className="PermissionsPage">
-        <div className="PermissionsPage-header">
-          <div className="container">
-            <h2>
-              {icon('fas fa-key')}
-              {app.translator.trans('core.admin.permissions.title')}
-            </h2>
-            <div className="helpText">{app.translator.trans('core.admin.permissions.description')}</div>
-          </div>
-        </div>
+        {AdminHeader.component({
+            icon: 'fas fa-key',
+            description: app.translator.trans('core.admin.permissions.description'),
+            className: 'PermissionsPage-header'
+          }, app.translator.trans('core.admin.permissions.title')
+        )}
         <div className="PermissionsPage-groups">
           <div className="container">
             {app.store

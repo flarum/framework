@@ -6,7 +6,6 @@ import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
-import addExtensionPermission from '../utils/addExtensionPermission';
 import Switch from '../../common/components/Switch';
 import saveSettings from '../utils/saveSettings';
 
@@ -14,10 +13,15 @@ export default class ExtensionPage extends Page {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.settings = {};
     this.loading = false;
-    this.extension = app.data.extensions[this.attrs.routeName];
+    this.extension = app.data.extensions[this.attrs.id];
     this.changingState = false;
+
+    // Backwards compatibility layer will be removed in
+    // Beta 16
+    if (app.extensionSettings[this.extension.id]) {
+      app.extensionData[this.extension.id] = app.extensionSettings[this.extension.id];
+    }
   }
 
   className() {
@@ -25,83 +29,107 @@ export default class ExtensionPage extends Page {
   }
 
   view() {
-    new addExtensionPermission('flarum-flags')
-      .add('discussion.viewFlags', 'fas fa-flag', app.translator.trans('flarum-flags.admin.permissions.view_flags_label'), 'moderate')
-      .add('discussion.flagPosts', 'fas fa-flag', app.translator.trans('flarum-flags.admin.permissions.flag_posts_label'), 'reply');
     return (
       <div className={'ExtensionPage ' + this.className()}>
-        <div className="ExtensionPage-header">
-          <div className="container">
-            <div className="ExtensionPage-headerItems">
-              <ul>{listItems(this.headerItems().toArray())}</ul>
-            </div>
-            <h2 className="ExtensionTitle">
-              <span className="ExtensionIcon" style={this.extension.icon}>
-                {this.extension.icon ? icon(this.extension.icon.name) : ''}
-              </span>
-              {this.extension.extra['flarum-extension'].title}
-              <span>{this.extension.version}</span>
-            </h2>
-            <div className="helpText">{this.extension.description}</div>
-            <div className="ExtensionPage-actionItems">
-              <aside className="ExtensionInfo">
-                <ul>{listItems(this.infoItems().toArray())}</ul>
-              </aside>
-              {Switch.component(
-                {
-                  state: this.isEnabled(),
-                  onchange: this.toggle.bind(this, this.extension.id),
-                },
-                this.isEnabled(this.extension.id)
-                  ? app.translator.trans('core.admin.extension.enabled')
-                  : app.translator.trans('core.admin.extension.disabled')
-              )}
-            </div>
-          </div>
-        </div>
+        {this.header()}
         {!this.isEnabled() ? (
           <div className="container">
             <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h2>
           </div>
         ) : (
           <div className="ExtensionPage-body">
-            <div className="ExtensionPage-settings">
-              <div className="container">
-                {this.form() ? (
-                  <div className="Form">
-                    {this.form()}
-
-                    <div className="Form-group">{this.submitButton()}</div>
-                  </div>
-                ) : app.extensionSettings[this.extension.id] ? (
-                  <Button onclick={app.extensionSettings[this.extension.id].bind(this)} className="Button Button--primary">
-                    {app.translator.trans('core.admin.extension.open_modal')}
-                  </Button>
-                ) : (
-                  <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h2>
-                )}
-              </div>
-            </div>
-            <div className="ExtensionPage-permissions">
-              <div className="ExtensionPage-permissions-header">
-                <h2 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h2>
-              </div>
-              <div className="container">
-                {app.extensionPermissions[this.extension.id] ? (
-                  ExtensionPermissionGrid.component({ extensionId: this.extension.id })
-                ) : (
-                  <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
-                )}
-              </div>
-            </div>
+            {listItems(this.sections().toArray())}
           </div>
         )}
       </div>
     );
   }
 
-  form() {
+  content() {
+    if (this.contentAvalible('settings')) {
+      return app.extensionData[this.extension.id].settings;
+    }
     return '';
+  }
+
+  sections() {
+    const items = new ItemList();
+
+
+    items.add('settings',
+      [
+        <div className="ExtensionPage-settings">
+          <div className="container">
+            {this.content() ? (
+              <div className="Form">
+                {this.content()}
+
+                <div className="Form-group">{this.submitButton()}</div>
+              </div>
+            ) : typeof app.extensionData[this.extension.id] === 'function' ? (
+              <Button onclick={app.extensionData[this.extension.id].bind(this)} className="Button Button--primary">
+                {app.translator.trans('core.admin.extension.open_modal')}
+              </Button>
+            ) : (
+              <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h2>
+            )}
+          </div>
+        </div>
+      ]
+    )
+
+    items.add('permissions',
+      [
+        <div className="ExtensionPage-permissions">
+          <div className="ExtensionPage-permissions-header">
+            <h2 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h2>
+          </div>
+          <div className="container">
+            {this.contentAvalible('permissions') ? (
+              ExtensionPermissionGrid.component({ extensionId: this.extension.id })
+            ) : (
+              <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
+            )}
+          </div>
+        </div>
+      ]
+    )
+
+    return items;
+  }
+
+  header() {
+    return [
+      <div className="ExtensionPage-header">
+        <div className="container">
+          <div className="ExtensionPage-headerItems">
+            <ul>{listItems(this.headerItems().toArray())}</ul>
+          </div>
+          <h2 className="ExtensionTitle">
+              <span className="ExtensionIcon" style={this.extension.icon}>
+                {this.extension.icon ? icon(this.extension.icon.name) : ''}
+              </span>
+            {this.extension.extra['flarum-extension'].title}
+            <span>{this.extension.version}</span>
+          </h2>
+          <div className="helpText">{this.extension.description}</div>
+          <div className="ExtensionPage-actionItems">
+            <aside className="ExtensionInfo">
+              <ul>{listItems(this.infoItems().toArray())}</ul>
+            </aside>
+            {Switch.component(
+              {
+                state: this.isEnabled(),
+                onchange: this.toggle.bind(this, this.extension.id),
+              },
+              this.isEnabled(this.extension.id)
+                ? app.translator.trans('core.admin.extension.enabled')
+                : app.translator.trans('core.admin.extension.disabled')
+            )}
+          </div>
+        </div>
+      </div>
+    ]
   }
 
   headerItems() {
@@ -134,9 +162,7 @@ export default class ExtensionPage extends Page {
     const items = new ItemList();
 
     if (this.extension.authors) {
-      console.log(this.extension);
       let authors = [];
-      console.log(this.extension.authors);
 
       Object.keys(this.extension.authors).map((author) => {
         authors.push(this.extension.authors[author].name);
@@ -200,19 +226,17 @@ export default class ExtensionPage extends Page {
     );
   }
 
-  // Simple version to allow copy
-  // paste from old exts
-  setting(key, fallback = '') {
-    this.settings[key] = this.settings[key] || m.prop(app.data.settings[key] || fallback);
+  oncreate(vnode) {
+    super.oncreate(vnode)
 
-    return this.settings[key];
+    app.pendingSettings = {};
   }
 
   dirty() {
     const dirty = {};
 
-    Object.keys(this.settings).forEach((key) => {
-      const value = this.settings[key]();
+    Object.keys(app.pendingSettings).forEach((key) => {
+      const value = app.pendingSettings[key]();
 
       if (value !== app.data.settings[key]) {
         dirty[key] = value;
@@ -247,5 +271,9 @@ export default class ExtensionPage extends Page {
         app.translator.trans('core.admin.extension.saved_message')
       )
     );
+  }
+
+  contentAvalible(type) {
+    return app.extensionData[this.extension.id] && app.extensionData[this.extension.id][type];
   }
 }

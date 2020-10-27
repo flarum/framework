@@ -7,7 +7,7 @@ import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 import Stream from '../../common/utils/Stream';
 import withAttr from '../../common/utils/withAttr';
-import icon from '../../common/helpers/icon';
+import AdminHeader from './AdminHeader';
 
 export default class BasicsPage extends Page {
   oninit(vnode) {
@@ -50,22 +50,19 @@ export default class BasicsPage extends Page {
   view() {
     return (
       <div className="BasicsPage">
-        <div className="BasicsPage-header">
-          <div className="container">
-            <h2>
-              {icon('fas fa-pencil-alt')}
-              {app.translator.trans('core.admin.basics.title')}
-            </h2>
-            <div className="helpText">{app.translator.trans('core.admin.basics.description')}</div>
-          </div>
-        </div>
+        {AdminHeader.component({
+            icon: 'fas fa-pencil-alt',
+            description: app.translator.trans('core.admin.basics.description'),
+            className: 'BasicsPage-header'
+          }, app.translator.trans('core.admin.basics.title')
+        )}
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             {FieldSet.component(
               {
                 label: app.translator.trans('core.admin.basics.forum_title_heading'),
               },
-              [<input className="FormControl" bidi={this.values.forum_title} />]
+              [<input className="FormControl" bidi={this.values.forum_title}/>]
             )}
 
             {FieldSet.component(
@@ -74,30 +71,30 @@ export default class BasicsPage extends Page {
               },
               [
                 <div className="helpText">{app.translator.trans('core.admin.basics.forum_description_text')}</div>,
-                <textarea className="FormControl" bidi={this.values.forum_description} />,
+                <textarea className="FormControl" bidi={this.values.forum_description}/>,
               ]
             )}
 
             {Object.keys(this.localeOptions).length > 1
               ? FieldSet.component(
-                  {
-                    label: app.translator.trans('core.admin.basics.default_language_heading'),
-                  },
-                  [
-                    Select.component({
-                      options: this.localeOptions,
-                      value: this.values.default_locale(),
-                      onchange: this.values.default_locale,
-                    }),
-                    Switch.component(
-                      {
-                        state: this.values.show_language_selector(),
-                        onchange: this.values.show_language_selector,
-                      },
-                      app.translator.trans('core.admin.basics.show_language_selector_label')
-                    ),
-                  ]
-                )
+                {
+                  label: app.translator.trans('core.admin.basics.default_language_heading'),
+                },
+                [
+                  Select.component({
+                    options: this.localeOptions,
+                    value: this.values.default_locale(),
+                    onchange: this.values.default_locale,
+                  }),
+                  Switch.component(
+                    {
+                      state: this.values.show_language_selector(),
+                      onchange: this.values.show_language_selector,
+                    },
+                    app.translator.trans('core.admin.basics.show_language_selector_label')
+                  ),
+                ]
+              )
               : ''}
 
             {FieldSet.component(
@@ -109,7 +106,7 @@ export default class BasicsPage extends Page {
                 <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>,
                 this.homePageItems()
                   .toArray()
-                  .map(({ path, label }) => (
+                  .map(({path, label}) => (
                     <label className="checkbox">
                       <input
                         type="radio"
@@ -132,25 +129,25 @@ export default class BasicsPage extends Page {
               [
                 <div className="helpText">{app.translator.trans('core.admin.basics.welcome_banner_text')}</div>,
                 <div className="BasicsPage-welcomeBanner-input">
-                  <input className="FormControl" bidi={this.values.welcome_title} />
-                  <textarea className="FormControl" bidi={this.values.welcome_message} />
+                  <input className="FormControl" bidi={this.values.welcome_title}/>
+                  <textarea className="FormControl" bidi={this.values.welcome_message}/>
                 </div>,
               ]
             )}
 
             {Object.keys(this.displayNameOptions).length > 1
               ? FieldSet.component(
-                  {
-                    label: app.translator.trans('core.admin.basics.display_name_heading'),
-                  },
-                  [
-                    <div className="helpText">{app.translator.trans('core.admin.basics.display_name_text')}</div>,
-                    Select.component({
-                      options: this.displayNameOptions,
-                      bidi: this.values.display_name_driver,
-                    }),
-                  ]
-                )
+                {
+                  label: app.translator.trans('core.admin.basics.display_name_heading'),
+                },
+                [
+                  <div className="helpText">{app.translator.trans('core.admin.basics.display_name_text')}</div>,
+                  Select.component({
+                    options: this.displayNameOptions,
+                    bidi: this.values.display_name_driver,
+                  }),
+                ]
+              )
               : ''}
 
             {Button.component(
@@ -204,9 +201,10 @@ export default class BasicsPage extends Page {
 
     saveSettings(settings)
       .then(() => {
-        this.successAlert = app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.basics.saved_message'));
+        this.successAlert = app.alerts.show({type: 'success'}, app.translator.trans('core.admin.basics.saved_message'));
       })
-      .catch(() => {})
+      .catch(() => {
+      })
       .then(() => {
         this.loading = false;
         m.redraw();

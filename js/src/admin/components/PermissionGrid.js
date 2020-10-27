@@ -396,10 +396,10 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     if (this.extensionId) {
-      items.merge(app.extensionPermissions[this.extensionId][type]);
+      items.merge(app.extensionData[this.extensionId].permissions[type]);
     } else {
-      Object.keys(app.extensionPermissions).map((extension) => {
-        items.merge(app.extensionPermissions[extension][type]);
+      Object.keys(app.extensionData).map((extension) => {
+        items.merge(app.extensionData[extension].permissions[type]);
       });
     }
 

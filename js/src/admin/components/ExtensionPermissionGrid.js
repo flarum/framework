@@ -35,8 +35,8 @@ export default class ExtensionPermissionGrid extends PermissionGrid {
 
     const extensionId = this.attrs.extensionId;
 
-    if (app.extensionPermissions[extensionId] && app.extensionPermissions[extensionId][type]) {
-      items.merge(app.extensionPermissions[extensionId][type]);
+    if (app.extensionData[extensionId] && app.extensionData[extensionId].permissions && app.extensionData[extensionId].permissions[type]) {
+      items.merge(app.extensionData[extensionId].permissions[type]);
     }
 
     return items;
