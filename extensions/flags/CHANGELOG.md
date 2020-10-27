@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.14.1](https://github.com/flarum/flags/compare/v0.1.0-beta.14...v0.1.0-beta.14.1)
+
+### Fixed
+- Flags cache was instantiated prematurely causing incorrect flags count (#31)
+
 ## [0.1.0-beta.14](https://github.com/flarum/flags/compare/v0.1.0-beta.13...v0.1.0-beta.14)
 
 ### Changed
