@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.14.1](https://github.com/flarum/akismet/compare/v0.1.0-beta.14...v0.1.0-beta.14.1)
+
+### Fixed
+- Incorrect use of Container::url method
+
 ## [0.1.0-beta.14](https://github.com/flarum/akismet/compare/v0.1.0-beta.13...v0.1.0-beta.14)
 
 ### Changed
