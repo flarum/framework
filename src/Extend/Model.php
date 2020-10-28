@@ -17,6 +17,7 @@ use Illuminate\Support\Arr;
 class Model implements ExtenderInterface
 {
     private $modelClass;
+    private $customRelations = [];
 
     /**
      * @param string $modelClass The ::class attribute of the model you are modifying.
@@ -171,13 +172,19 @@ class Model implements ExtenderInterface
      */
     public function relationship(string $name, $callback)
     {
-        Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", $callback);
+        $this->customRelations[$name] = $callback;
 
         return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
-        // Nothing needed here.
+        foreach ($this->customRelations as $name => $callback) {
+            if (is_string($callback)) {
+                $callback = $container->make($callback);
+            }
+
+            Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", $callback);
+        }
     }
 }
