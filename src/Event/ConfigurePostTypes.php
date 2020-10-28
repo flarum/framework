@@ -10,7 +10,7 @@
 namespace Flarum\Event;
 
 /**
- * @deprecated in beta 13, remove in beta 14. Use the Post extender instead.
+ * @deprecated in beta 15, remove in beta 16. Use the Post extender instead.
  */
 class ConfigurePostTypes
 {
