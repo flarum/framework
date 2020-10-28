@@ -91,7 +91,7 @@ class CustomValidatorClass
             'password' => [
                 'required',
                 'min:20'
-        ]
+            ]
         ] + $validator->getRules());
     }
 }
