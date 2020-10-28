@@ -13,28 +13,25 @@ use Flarum\Extend;
 use Flarum\Group\GroupValidator;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\UserValidator;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 class ValidatorTest extends TestCase
 {
     private function extendToRequireLongPassword()
     {
-        $this->extend((new Extend\Validator(UserValidator::class))->configure(function ($validator) {
-            $rules = $validator->getRules();
-            $passwordRules = Arr::get($rules, 'password', []);
-            if (count($passwordRules)) {
-                $rules['password'] = array_map(function ($rule) {
-                    if ($rule === 'min:8') {
-                        return 'min:20';
-                    }
-
-                    return $rule;
-                }, $passwordRules);
-
-                $validator->setRules($rules);
-            }
+        $this->extend((new Extend\Validator(UserValidator::class))->configure(function ($flarumValidator, $validator) {
+            $validator->setRules([
+                'password' => [
+                    'required',
+                    'min:20'
+                ]
+            ] + $validator->getRules());
         }));
+    }
+
+    private function extendToRequireLongPasswordViaInvokableClass()
+    {
+        $this->extend((new Extend\Validator(UserValidator::class))->configure(CustomValidatorClass::class));
     }
 
     /**
@@ -63,6 +60,18 @@ class ValidatorTest extends TestCase
     /**
      * @test
      */
+    public function custom_validation_rule_exists_if_added_via_invokable_class()
+    {
+        $this->extendToRequireLongPasswordViaInvokableClass();
+
+        $this->expectException(ValidationException::class);
+
+        $this->app()->getContainer()->make(UserValidator::class)->assertValid(['password' => 'simplePassword']);
+    }
+
+    /**
+     * @test
+     */
     public function custom_validation_rule_doesnt_affect_other_validators()
     {
         $this->extendToRequireLongPassword();
@@ -72,4 +81,17 @@ class ValidatorTest extends TestCase
         // If we have gotten this far, no validation exception has been thrown, so the test is succesful.
         $this->assertTrue(true);
     }
+}
+
+
+class CustomValidatorClass
+{
+    public function __invoke($flarumValidator, $validator) {
+            $validator->setRules([
+                'password' => [
+                    'required',
+                    'min:20'
+                ]
+            ] + $validator->getRules());
+        }
 }

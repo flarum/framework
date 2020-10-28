@@ -110,7 +110,7 @@ abstract class AbstractValidator
         );
 
         foreach ($this->configuration as $callable) {
-            $callable($validator);
+            $callable($this, $validator);
         }
 
         return $validator;

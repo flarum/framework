@@ -33,7 +33,8 @@ class Validator implements ExtenderInterface
      * @param callable $callable
      *
      * The callable can be a closure or invokable class, and should accept:
-     * - \Illuminate\Validation\Validator $validator: The validator object that is being modified.
+     * - \Flarum\Foundation\AbstractValidator $flarumValidator: The Flarum validator wrapper
+     * - \Illuminate\Validation\Validator $validator: The Laravel validator instance
      */
     public function configure($callback)
     {
