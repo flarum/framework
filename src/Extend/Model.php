@@ -157,7 +157,7 @@ class Model implements ExtenderInterface
      * @param string $name: The name of the relation. This doesn't have to be anything in particular,
      *                      but has to be unique from other relation names for this model, and should
      *                      work as the name of a method.
-     * @param callable $callable
+     * @param callable|string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      * - $instance: An instance of this model.
@@ -168,9 +168,9 @@ class Model implements ExtenderInterface
      *
      * @return self
      */
-    public function relationship(string $name, callable $callable)
+    public function relationship(string $name, $callback)
     {
-        Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", $callable);
+        Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", $callback);
 
         return $this;
     }

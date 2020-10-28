@@ -25,7 +25,7 @@ class Event implements ExtenderInterface
      *  - the class attribute of a class with a public `handle` method, which accepts an instance of the event as a parameter
      *
      * @param string $event
-     * @param callable $listener
+     * @param callable|string $listener
      */
     public function listen(string $event, $listener)
     {
