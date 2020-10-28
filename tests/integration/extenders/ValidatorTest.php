@@ -83,15 +83,15 @@ class ValidatorTest extends TestCase
     }
 }
 
-
 class CustomValidatorClass
 {
-    public function __invoke($flarumValidator, $validator) {
-            $validator->setRules([
-                'password' => [
-                    'required',
-                    'min:20'
-                ]
-            ] + $validator->getRules());
-        }
+    public function __invoke($flarumValidator, $validator)
+    {
+        $validator->setRules([
+            'password' => [
+                'required',
+                'min:20'
+        ]
+        ] + $validator->getRules());
+    }
 }
