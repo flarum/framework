@@ -137,6 +137,23 @@ class ModelTest extends TestCase
     /**
      * @test
      */
+    public function custom_relationship_can_be_invokable_class()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->relationship('customRelation', CustomRelationClass::class)
+        );
+
+        $this->prepDB();
+
+        $user = User::find(1);
+
+        $this->assertEquals([], $user->customRelation()->get()->toArray());
+    }
+
+    /**
+     * @test
+     */
     public function custom_relationship_exists_and_can_return_instances_if_added()
     {
         $this->extend(
@@ -422,4 +439,11 @@ class ModelTestCustomPost extends AbstractEventPost
      * {@inheritdoc}
      */
     public static $type = 'customPost';
+}
+
+class CustomRelationClass
+{
+    public function __invoke(User $user) {
+        return $user->hasMany(Discussion::class, 'user_id');
+    }
 }

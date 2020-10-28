@@ -88,6 +88,19 @@ class UserTest extends TestCase
 
         $this->assertNotContains('viewUserList', $user->getPermissions());
     }
+
+    /**
+     * @test
+     */
+    public function processor_can_be_invokable_class()
+    {
+        $this->extend((new Extend\User)->permissionGroups(CustomGroupProcessorClass::class));
+
+        $this->prepDb();
+        $user = User::find(2);
+
+        $this->assertNotContains('viewUserList', $user->getPermissions());
+    }
 }
 
 class CustomDisplayNameDriver implements DriverInterface
@@ -95,5 +108,14 @@ class CustomDisplayNameDriver implements DriverInterface
     public function displayName(User $user): string
     {
         return $user->email.'$$$suffix';
+    }
+}
+
+class CustomGroupProcessorClass
+{
+    public function __invoke(User $user, array $groupIds) {
+        return array_filter($groupIds, function ($id) {
+            return $id != 3;
+        });
     }
 }
