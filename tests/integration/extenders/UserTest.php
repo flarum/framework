@@ -113,7 +113,8 @@ class CustomDisplayNameDriver implements DriverInterface
 
 class CustomGroupProcessorClass
 {
-    public function __invoke(User $user, array $groupIds) {
+    public function __invoke(User $user, array $groupIds)
+    {
         return array_filter($groupIds, function ($id) {
             return $id != 3;
         });
