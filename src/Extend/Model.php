@@ -49,6 +49,7 @@ class Model implements ExtenderInterface
 
     /**
      * Add a default value for a given attribute, which can be an explicit value, or a closure.
+     * Unlike with some other extenders, it CANNOT be an invokable class.
      *
      * @param string $attribute
      * @param mixed $value
