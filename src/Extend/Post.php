@@ -16,6 +16,7 @@ use Illuminate\Contracts\Container\Container;
 class Post implements ExtenderInterface
 {
     private $postTypes = [];
+
     /**
      * Register a new post type. This is generally done for custom 'event posts',
      * such as those that appear when a discussion is renamed.
