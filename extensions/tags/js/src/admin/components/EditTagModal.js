@@ -85,7 +85,7 @@ export default class EditTagModal extends Modal {
     items.add('hidden', <div className="Form-group">
       <div>
         <label className="checkbox">
-          <input type="checkbox" bidi={this.isHidden()}/>
+          <input type="checkbox" bidi={this.isHidden}/>
           {app.translator.trans('flarum-tags.admin.edit_tag.hide_label')}
         </label>
       </div>
