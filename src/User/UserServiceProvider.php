@@ -32,6 +32,7 @@ class UserServiceProvider extends AbstractServiceProvider
     {
         $this->registerAvatarsFilesystem();
         $this->registerDisplayNameDrivers();
+        $this->registerPasswordCheckers();
 
         $this->app->singleton('flarum.user.group_processors', function () {
             return [];
@@ -72,6 +73,19 @@ class UserServiceProvider extends AbstractServiceProvider
             ->give($avatarsFilesystem);
     }
 
+    protected function registerPasswordCheckers()
+    {
+        $this->app->singleton('flarum.user.password_checkers', function () {
+            return [
+                'standard' => function (User $user, $password) {
+                    if (User::getHasher()->check($password, $user->password)) {
+                        return true;
+                    }
+                }
+            ];
+        });
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -81,6 +95,15 @@ class UserServiceProvider extends AbstractServiceProvider
             User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $this->app));
         }
 
+        $passwordCheckers = array_map(function ($checker) {
+            if (is_string($checker)) {
+                $checker = $this->app->make($checker);
+            }
+
+            return $checker;
+        }, $this->app->make('flarum.user.password_checkers'));
+
+        User::setPasswordCheckers($passwordCheckers);
         User::setHasher($this->app->make('hash'));
         User::setGate($this->app->make(Gate::class));
         User::setDisplayNameDriver($this->app->make('flarum.user.display_name.driver'));
