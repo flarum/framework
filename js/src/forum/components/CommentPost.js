@@ -65,10 +65,9 @@ export default class CommentPost extends Post {
     if (this.contentHtml !== contentHtml) {
       this.$('.Post-body script').each(function () {
         const script = document.createElement('script');
-        script.innerText = this.innerText;
+        script.textContent = this.textContent;
         Array.from(this.attributes).forEach((attr) => script.setAttribute(attr.name, attr.value));
-        this.parentNode.appendChild(script);
-        this.remove();
+        this.parentNode.replaceChild(script, this);
       });
     }
 
