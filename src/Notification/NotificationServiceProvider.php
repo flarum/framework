@@ -34,6 +34,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
             DiscussionRenamedBlueprint::class => ['alert']
         ];
 
+        // Deprecated in beta 15, remove in beta 16
         $this->app->make('events')->dispatch(
             new ConfigureNotificationTypes($blueprints)
         );

@@ -13,6 +13,9 @@ use Flarum\Notification\Blueprint\BlueprintInterface;
 use InvalidArgumentException;
 use ReflectionClass;
 
+/**
+ * @deprecated in beta 15, removed in beta 16
+ */
 class ConfigureNotificationTypes
 {
     /**

@@ -101,6 +101,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             'discussionRenamed' => BasicDiscussionSerializer::class
         ];
 
+        // Deprecated in beta 15, remove in beta 16
         $this->app->make('events')->dispatch(
             new ConfigureNotificationTypes($blueprints, $serializers)
         );
