@@ -10,26 +10,29 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Post\Post as ActualPost;
+use Flarum\Post\Post as PostModel;
 use Illuminate\Contracts\Container\Container;
 
 class Post implements ExtenderInterface
 {
+    private $postTypes = [];
     /**
      * Register a new post type. This is generally done for custom 'event posts',
      * such as those that appear when a discussion is renamed.
      *
      * @param string $postType: The ::class attribute of the custom Post type that is being added.
      */
-    public function type($postType)
+    public function type(string $postType)
     {
-        ActualPost::setModel($postType::$type, $postType);
+        $this->postTypes[] = $postType;
 
         return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
-        // Nothing happens here, type does all the work.
+        foreach ($this->postTypes as $postType) {
+            PostModel::setModel($postType::$type, $postType);
+        }
     }
 }

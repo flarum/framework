@@ -218,7 +218,7 @@ class Post extends AbstractModel
      * @param string $model The class name of the model for that type.
      * @return void
      */
-    public static function setModel($type, $model)
+    public static function setModel(string $type, string $model)
     {
         static::$models[$type] = $model;
     }
