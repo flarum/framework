@@ -362,11 +362,7 @@ class User extends AbstractModel
             }
         }
 
-        if ($valid !== null) {
-            return $valid;
-        }
-
-        return static::$hasher->check($password, $this->password);
+        return $valid || false;
     }
 
     /**
