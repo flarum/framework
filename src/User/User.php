@@ -197,7 +197,8 @@ class User extends AbstractModel
         static::$displayNameDriver = $driver;
     }
 
-    public static function setPasswordCheckers(array $checkers) {
+    public static function setPasswordCheckers(array $checkers)
+    {
         static::$passwordCheckers = $checkers;
     }
 
