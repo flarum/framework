@@ -124,6 +124,13 @@ class User extends AbstractModel
     protected static $gate;
 
     /**
+     * Callbacks to check passwords.
+     *
+     * @var array
+     */
+    protected static $passwordCheckers;
+
+    /**
      * Boot the model.
      *
      * @return void
@@ -188,6 +195,10 @@ class User extends AbstractModel
     public static function setDisplayNameDriver(DriverInterface $driver)
     {
         static::$displayNameDriver = $driver;
+    }
+
+    public static function setPasswordCheckers(array $checkers) {
+        static::$passwordCheckers = $checkers;
     }
 
     /**
@@ -340,6 +351,16 @@ class User extends AbstractModel
     public function checkPassword($password)
     {
         $valid = static::$dispatcher->until(new CheckingPassword($this, $password));
+
+        foreach (static::$passwordCheckers as $checker) {
+            $result = $checker($this, $password);
+
+            if ($result === false) {
+                return false;
+            } elseif ($result === true) {
+                $valid = true;
+            }
+        }
 
         if ($valid !== null) {
             return $valid;
