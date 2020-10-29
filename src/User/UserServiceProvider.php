@@ -78,7 +78,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.user.password_checkers', function () {
             return [
                 'standard' => function (User $user, $password) {
-                    if (User::getHasher()->check($password, $user->password)) {
+                    if ($this->app->make('hash')->check($password, $user->password)) {
                         return true;
                     }
                 }
