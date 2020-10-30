@@ -270,7 +270,7 @@ export default class Application {
 
   updateTitle() {
     const count = this.titleCount ? `(${this.titleCount}) ` : '';
-    const pageTitleWithSeparator = this.title && m.route.get() !== '/' ? this.title + ' - ' : '';
+    const pageTitleWithSeparator = this.title && m.route.get() !== this.forum.attribute('basePath') + '/' ? this.title + ' - ' : '';
     const title = this.forum.attribute('title');
     document.title = count + pageTitleWithSeparator + title;
   }
