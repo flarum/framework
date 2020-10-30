@@ -43,25 +43,30 @@ class NotificationServiceProvider extends AbstractServiceProvider
             new ConfigureNotificationTypes($blueprints)
         );
 
-        foreach ($blueprints as $blueprint => $enabled) {
-            Notification::setSubjectModel(
-                $type = $blueprint::getType(),
-                $blueprint::getSubjectModel()
-            );
+        foreach ($blueprints as $blueprint => $channelsEnabledByDefault) {
+            $this->addType($blueprint, $channelsEnabledByDefault);
+        }
+    }
 
+    public function addType(Blueprint\BlueprintInterface $blueprint, array $channelsEnabledByDefault)
+    {
+        Notification::setSubjectModel(
+            $type = $blueprint::getType(),
+            $blueprint::getSubjectModel()
+        );
+
+        User::addPreference(
+            User::getNotificationPreferenceKey($type, 'alert'),
+            'boolval',
+            in_array('alert', $channelsEnabledByDefault)
+        );
+
+        if ((new ReflectionClass($blueprint))->implementsInterface(MailableInterface::class)) {
             User::addPreference(
-                User::getNotificationPreferenceKey($type, 'alert'),
+                User::getNotificationPreferenceKey($type, 'email'),
                 'boolval',
-                in_array('alert', $enabled)
+                in_array('email', $channelsEnabledByDefault)
             );
-
-            if ((new ReflectionClass($blueprint))->implementsInterface(MailableInterface::class)) {
-                User::addPreference(
-                    User::getNotificationPreferenceKey($type, 'email'),
-                    'boolval',
-                    in_array('email', $enabled)
-                );
-            }
         }
     }
 }
