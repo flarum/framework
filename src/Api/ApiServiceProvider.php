@@ -51,8 +51,10 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\AuthenticateWithHeader::class,
+                'flarum.api.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\SetLocale::class,
+                HttpMiddleware\ExecuteRoute::class
             ];
         });
 
@@ -64,15 +66,16 @@ class ApiServiceProvider extends AbstractServiceProvider
             );
         });
 
+        $this->app->bind('flarum.api.route_resolver', function() {
+            return new HttpMiddleware\ResolveRoute($this->app->make('flarum.api.routes'));
+        });
+
         $this->app->singleton('flarum.api.handler', function () {
             $pipe = new MiddlewarePipe;
 
             foreach ($this->app->make('flarum.api.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
             }
-
-            $pipe->pipe(new HttpMiddleware\ResolveRoute($this->app->make('flarum.api.routes')));
-            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });
