@@ -96,10 +96,14 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     protected function registerNotificationSerializers()
     {
+        $this->app->singleton('flarum.api.notification_serializers', function () {
+            return [
+                'discussionRenamed' => BasicDiscussionSerializer::class
+            ];
+        });
+
         $blueprints = [];
-        $serializers = [
-            'discussionRenamed' => BasicDiscussionSerializer::class
-        ];
+        $serializers = $this->app->make('flarum.api.notification_serializers');
 
         // Deprecated in beta 15, remove in beta 16
         $this->app->make('events')->dispatch(

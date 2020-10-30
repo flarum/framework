@@ -19,33 +19,25 @@ use ReflectionClass;
 
 class Notification implements ExtenderInterface
 {
-    public function type(string $blueprint, string $serializer, array $enabledByDefault = [])
+    private $blueprints = [];
+    private $serializers = [];
+
+    public function type(string $blueprint, string $serializer, array $channelsEnabledByDefault = [])
     {
-        $type = $blueprint::getType();
-
-        NotificationSerializer::setSubjectSerializer($type, $serializer);
-
-        NotificationModel::setSubjectModel($type, $blueprint::getSubjectModel());
-
-        User::addPreference(
-            User::getNotificationPreferenceKey($type, 'alert'),
-            'boolval',
-            in_array('alert', $enabledByDefault)
-        );
-
-        if ((new ReflectionClass($blueprint))->implementsInterface(MailableInterface::class)) {
-            User::addPreference(
-                User::getNotificationPreferenceKey($type, 'email'),
-                'boolval',
-                in_array('email', $enabledByDefault)
-            );
-        }
+        $this->blueprints[$blueprint] = $channelsEnabledByDefault;
+        $this->serializers[$blueprint::getType()] = $serializer;
 
         return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
-        // ...
+        $container->extend('flarum.notification.blueprints', function ($existingBlueprints) {
+            return array_merge($existingBlueprints, $this->blueprints);
+        });
+
+        $container->extend('flarum.api.notification_serializers', function ($existingSerializers) {
+            return array_merge($existingSerializers, $this->serializers);
+        });
     }
 }
