@@ -71,7 +71,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 $pipe->pipe($this->app->make($middleware));
             }
 
-            $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.api.routes')));
+            $pipe->pipe(new HttpMiddleware\ResolveRoute($this->app->make('flarum.api.routes')));
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });
