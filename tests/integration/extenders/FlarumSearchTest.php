@@ -99,7 +99,7 @@ class FlarumSearchTest extends TestCase
      */
     public function search_mutator_has_effect_if_added()
     {
-        $this->extend((new Extend\FlarumSearch(DiscussionSearcher::class))->addSearchMutator(function($search, $criteria) {
+        $this->extend((new Extend\FlarumSearch(DiscussionSearcher::class))->addSearchMutator(function ($search, $criteria) {
             $search->getquery()->whereRaw('1=0');
         }));
 

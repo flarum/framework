@@ -22,7 +22,7 @@ abstract class AbstractSearcher
 
     public static function addSearchMutator($searcherClass, $mutator)
     {
-        if (!array_key_exists($searcherClass, static::$searchMutators)) {
+        if (! array_key_exists($searcherClass, static::$searchMutators)) {
             static::$searchMutators[$searcherClass] = [];
         }
 
@@ -101,7 +101,7 @@ abstract class AbstractSearcher
             foreach ($sort as $field => $order) {
                 if (is_array($order)) {
                     foreach ($order as $value) {
-                        $search->getQuery()->orderByRaw(Str::snake($field) . ' != ?', [$value]);
+                        $search->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
                     }
                 } else {
                     $search->getQuery()->orderBy(Str::snake($field), $order);

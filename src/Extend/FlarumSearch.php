@@ -56,9 +56,10 @@ class FlarumSearch implements ExtenderInterface
     }
 
     /**
-     * Add a callback through which to run search results
+     * Add a callback through which to run all search queries after gambits have been applied.
      */
-    public function addSearchMutator($callback) {
+    public function addSearchMutator($callback)
+    {
         $this->searchMutators[] = $callback;
 
         return $this;
