@@ -65,7 +65,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->app->bind('flarum.api.route_resolver', function() {
+        $this->app->bind('flarum.api.route_resolver', function () {
             return new HttpMiddleware\ResolveRoute($this->app->make('flarum.api.routes'));
         });
 

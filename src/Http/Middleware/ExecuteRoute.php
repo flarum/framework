@@ -23,6 +23,7 @@ class ExecuteRoute implements Middleware
     {
         $handler = $request->getAttribute('routeHandler');
         $parameters = $request->getAttribute('routeParameters');
+
         return $handler($request, $parameters);
     }
 }
