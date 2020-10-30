@@ -39,7 +39,7 @@
         "docs": "https://flarum.org/docs/"
     },
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.3",
         "axy/sourcemap": "^0.1.4",
         "components/font-awesome": "^5.14.0",
         "dflydev/fig-cookies": "^2.0.1",
