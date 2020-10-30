@@ -59,9 +59,9 @@ class ResolveRoute implements Middleware
             case Dispatcher::METHOD_NOT_ALLOWED:
                 throw new MethodNotAllowedException($method);
             case Dispatcher::FOUND:
-                echo json_encode($routeInfo);
                 $request = $request
-                    ->withAttribute('routeHandler', $routeInfo[1])
+                    ->withAttribute('routeName', $routeInfo[1]['name'])
+                    ->withAttribute('routeHandler', $routeInfo[1]['handler'])
                     ->withAttribute('routeParameters', $routeInfo[2]);
 
                 return $handler->handle($request);
