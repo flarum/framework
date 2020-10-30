@@ -29,7 +29,6 @@ use Flarum\User\Event\CheckingPassword;
 use Flarum\User\Event\Deleted;
 use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\EmailChangeRequested;
-use Flarum\User\Event\GetDisplayName;
 use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
