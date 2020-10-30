@@ -48,7 +48,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
         }
     }
 
-    public function addType(Blueprint\BlueprintInterface $blueprint, array $channelsEnabledByDefault)
+    public function addType(string $blueprint, array $channelsEnabledByDefault)
     {
         Notification::setSubjectModel(
             $type = $blueprint::getType(),
