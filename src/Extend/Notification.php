@@ -9,13 +9,8 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Extension\Extension;
-use Flarum\Notification\MailableInterface;
-use Flarum\Notification\Notification as NotificationModel;
-use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
-use ReflectionClass;
 
 class Notification implements ExtenderInterface
 {
