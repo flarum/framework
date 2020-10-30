@@ -11,11 +11,23 @@ namespace Flarum\Search;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 abstract class AbstractSearcher
 {
     protected static $gambitManagers = [];
+
+    protected static $searchMutators = [];
+
+    public static function addSearchMutator($searcherClass, $mutator)
+    {
+        if (!array_key_exists($searcherClass, static::$searchMutators)) {
+            static::$searchMutators[$searcherClass] = [];
+        }
+
+        static::$searchMutators[$searcherClass][] = $mutator;
+    }
 
     public static function gambitManager($searcher)
     {
@@ -30,9 +42,11 @@ abstract class AbstractSearcher
 
     abstract protected function getSearch(Builder $query, User $actor): AbstractSearch;
 
-    protected function searching(AbstractSearch $search, SearchCriteria $criteria)
+    protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
     {
-        // Do nothing by default, extending searchers can override this to dispatch events.
+        foreach (Arr::get(static::$searchMutators, static::class, []) as $mutator) {
+            $mutator($search, $criteria);
+        }
     }
 
     /**
@@ -55,7 +69,7 @@ abstract class AbstractSearcher
         $this->applyOffset($search, $offset);
         $this->applyLimit($search, $limit + 1);
 
-        $this->searching($search, $criteria);
+        $this->mutateSearch($search, $criteria);
 
         // Execute the search query and retrieve the results. We get one more
         // results than the user asked for, so that we can say if there are more
@@ -87,7 +101,7 @@ abstract class AbstractSearcher
             foreach ($sort as $field => $order) {
                 if (is_array($order)) {
                     foreach ($order as $value) {
-                        $search->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
+                        $search->getQuery()->orderByRaw(Str::snake($field) . ' != ?', [$value]);
                     }
                 } else {
                     $search->getQuery()->orderBy(Str::snake($field), $order);

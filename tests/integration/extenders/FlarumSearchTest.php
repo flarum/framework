@@ -54,7 +54,7 @@ class FlarumSearchTest extends TestCase
     /**
      * @test
      */
-    public function works_as_expected_with_no_gambits_added()
+    public function works_as_expected_with_no_modifications()
     {
         $this->prepDb();
 
@@ -82,7 +82,7 @@ class FlarumSearchTest extends TestCase
     /**
      * @test
      */
-    public function custom_filter_gambit_has_effect_if_not_added()
+    public function custom_filter_gambit_has_effect_if_added()
     {
         $this->extend((new Extend\FlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFilterGambit::class));
 
@@ -92,6 +92,32 @@ class FlarumSearchTest extends TestCase
         $this->assertContains('DISCUSSION 1', $withResultSearch);
         $this->assertContains('DISCUSSION 2', $withResultSearch);
         $this->assertEquals('[]', json_encode($this->searchDiscussions('noResult:1', 5)));
+    }
+
+    /**
+     * @test
+     */
+    public function search_mutator_has_effect_if_added()
+    {
+        $this->extend((new Extend\FlarumSearch(DiscussionSearcher::class))->addSearchMutator(function($search, $criteria) {
+            $search->getquery()->whereRaw('1=0');
+        }));
+
+        $this->prepDb();
+
+        $this->assertEquals('[]', json_encode($this->searchDiscussions('foo bar', 5)));
+    }
+
+    /**
+     * @test
+     */
+    public function search_mutator_has_effect_if_added_with_invokable_class()
+    {
+        $this->extend((new Extend\FlarumSearch(DiscussionSearcher::class))->addSearchMutator(CustomSearchMutator::class));
+
+        $this->prepDb();
+
+        $this->assertEquals('[]', json_encode($this->searchDiscussions('foo bar', 5)));
     }
 }
 
@@ -117,10 +143,17 @@ class NoResultFilterGambit extends AbstractRegexGambit
     public function conditions(AbstractSearch $search, array $matches, $negate)
     {
         $noResults = trim($matches[1], ' ');
-        echo $noResults;
         if ($noResults == '1') {
             $search->getQuery()
                 ->whereRaw('0=1');
         }
+    }
+}
+
+class CustomSearchMutator
+{
+    public function __invoke($search, $criteria)
+    {
+        $search->getQuery()->whereRaw('1=0');
     }
 }

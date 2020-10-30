@@ -18,6 +18,7 @@ class FlarumSearch implements ExtenderInterface
     private $fullTextGambit;
     private $gambits = [];
     private $searcher;
+    private $searchMutators = [];
 
     /**
      * @param string $searcherClass: The ::class attribute of the Searcher you are modifying.
@@ -54,6 +55,15 @@ class FlarumSearch implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Add a callback through which to run search results
+     */
+    public function addSearchMutator($callback) {
+        $this->searchMutators[] = $callback;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $gambitManager = AbstractSearcher::gambitManager($this->searcher);
@@ -64,6 +74,14 @@ class FlarumSearch implements ExtenderInterface
 
         foreach ($this->gambits as $gambit) {
             $gambitManager->add($container->make($gambit));
+        }
+
+        foreach ($this->searchMutators as $mutator) {
+            if (is_string($mutator)) {
+                $mutator = $container->make($mutator);
+            }
+
+            AbstractSearcher::addSearchMutator($this->searcher, $mutator);
         }
     }
 }

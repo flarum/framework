@@ -53,8 +53,13 @@ class UserSearcher extends AbstractSearcher
         return new UserSearch($query->getQuery(), $actor);
     }
 
-    protected function searching(AbstractSearch $search, SearchCriteria $criteria)
+    /**
+     * @deprecated along with the Searching event, remove in Beta 16.
+     */
+    protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
     {
+        parent::mutateSearch($search, $criteria);
+
         $this->events->dispatch(new Searching($search, $criteria));
     }
 }
