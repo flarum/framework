@@ -67,8 +67,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 'flarum.forum.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\SetLocale::class,
-                HttpMiddleware\ShareErrorsFromSession::class,
-                HttpMiddleware\ExecuteRoute::class
+                HttpMiddleware\ShareErrorsFromSession::class
             ];
         });
 
@@ -90,6 +89,8 @@ class ForumServiceProvider extends AbstractServiceProvider
             foreach ($this->app->make('flarum.forum.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
             }
+
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });

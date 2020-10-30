@@ -53,8 +53,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\AuthenticateWithHeader::class,
                 'flarum.api.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
-                HttpMiddleware\SetLocale::class,
-                HttpMiddleware\ExecuteRoute::class
+                HttpMiddleware\SetLocale::class
             ];
         });
 
@@ -76,6 +75,8 @@ class ApiServiceProvider extends AbstractServiceProvider
             foreach ($this->app->make('flarum.api.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
             }
+
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });

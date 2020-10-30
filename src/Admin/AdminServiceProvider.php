@@ -57,8 +57,7 @@ class AdminServiceProvider extends AbstractServiceProvider
                 'flarum.admin.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\SetLocale::class,
-                Middleware\RequireAdministrateAbility::class,
-                HttpMiddleware\ExecuteRoute::class
+                Middleware\RequireAdministrateAbility::class
             ];
         });
 
@@ -80,6 +79,8 @@ class AdminServiceProvider extends AbstractServiceProvider
             foreach ($this->app->make('flarum.admin.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
             }
+
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });
