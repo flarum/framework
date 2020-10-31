@@ -11,7 +11,6 @@ use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Event\ConfigurePostTypes;
 use Flarum\Extend;
 use Flarum\Lock\Access;
@@ -33,6 +32,9 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\Notification())
+        ->type(DiscussionLockedBlueprint::class, BasicDiscussionSerializer::class, ['alert']),
+
     function (Dispatcher $events) {
         $events->listen(ConfigureDiscussionGambits::class, function (ConfigureDiscussionGambits $event) {
             $event->gambits->add(LockedGambit::class);
@@ -42,9 +44,6 @@ return [
 
         $events->listen(ConfigurePostTypes::class, function (ConfigurePostTypes $event) {
             $event->add(DiscussionLockedPost::class);
-        });
-        $events->listen(ConfigureNotificationTypes::class, function (ConfigureNotificationTypes $event) {
-            $event->add(DiscussionLockedBlueprint::class, BasicDiscussionSerializer::class, ['alert']);
         });
         $events->listen(DiscussionWasLocked::class, Listener\CreatePostWhenDiscussionIsLocked::class);
         $events->listen(DiscussionWasUnlocked::class, Listener\CreatePostWhenDiscussionIsUnlocked::class);
