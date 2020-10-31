@@ -34,13 +34,13 @@ class NotificationServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->registerNotificationTypes();
+        $this->bootNotificationTypes();
     }
 
     /**
      * Register notification types.
      */
-    protected function registerNotificationTypes()
+    protected function bootNotificationTypes()
     {
         $blueprints = $this->app->make('flarum.notification.blueprints');
 

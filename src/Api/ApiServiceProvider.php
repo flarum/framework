@@ -88,7 +88,7 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->registerNotificationSerializers();
+        $this->bootNotificationSerializers();
 
         AbstractSerializeController::setContainer($this->app);
         AbstractSerializeController::setEventDispatcher($events = $this->app->make('events'));
@@ -100,7 +100,7 @@ class ApiServiceProvider extends AbstractServiceProvider
     /**
      * Register notification serializers.
      */
-    protected function registerNotificationSerializers()
+    protected function bootNotificationSerializers()
     {
         $blueprints = [];
         $serializers = $this->app->make('flarum.api.notification_serializers');
