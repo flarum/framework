@@ -6,7 +6,6 @@ import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import NotificationsDropdown from './NotificationsDropdown';
 import ItemList from '../../common/utils/ItemList';
-import listItems from '../../common/helpers/listItems';
 import Search from '../components/Search';
 
 /**
@@ -16,7 +15,7 @@ import Search from '../components/Search';
  */
 export default class HeaderSecondary extends Component {
   view() {
-    return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
+    return <ul className="Header-controls">{this.items().toNodes()}</ul>;
   }
 
   /**
