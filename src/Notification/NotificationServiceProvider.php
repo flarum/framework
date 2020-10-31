@@ -20,6 +20,18 @@ class NotificationServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
+    public function register()
+    {
+        $this->app->singleton('flarum.notification.blueprints', function () {
+            return [
+                DiscussionRenamedBlueprint::class => ['alert']
+            ];
+        });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function boot()
     {
         $this->registerNotificationTypes();
@@ -30,12 +42,6 @@ class NotificationServiceProvider extends AbstractServiceProvider
      */
     public function registerNotificationTypes()
     {
-        $this->app->singleton('flarum.notification.blueprints', function () {
-            return [
-                DiscussionRenamedBlueprint::class => ['alert']
-            ];
-        });
-
         $blueprints = $this->app->make('flarum.notification.blueprints');
 
         // Deprecated in beta 15, remove in beta 16

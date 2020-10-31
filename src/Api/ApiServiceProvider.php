@@ -75,6 +75,12 @@ class ApiServiceProvider extends AbstractServiceProvider
 
             return $pipe;
         });
+
+        $this->app->singleton('flarum.api.notification_serializers', function () {
+            return [
+                'discussionRenamed' => BasicDiscussionSerializer::class
+            ];
+        });
     }
 
     /**
@@ -96,12 +102,6 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     protected function registerNotificationSerializers()
     {
-        $this->app->singleton('flarum.api.notification_serializers', function () {
-            return [
-                'discussionRenamed' => BasicDiscussionSerializer::class
-            ];
-        });
-
         $blueprints = [];
         $serializers = $this->app->make('flarum.api.notification_serializers');
 
