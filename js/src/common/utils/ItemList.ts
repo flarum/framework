@@ -1,3 +1,6 @@
+import listItems from '../helpers/listItems';
+import Mithril from 'mithril';
+
 class Item {
   content: any;
   priority: number;
@@ -127,5 +130,14 @@ export default class ItemList {
         return 1;
       })
       .map((item) => item.content);
+  }
+
+  /**
+   * Return a list of vnodes.
+   */
+  toNodes(): Mithril.Vnode[] {
+    const items = this.toArray();
+
+    return listItems(items);
   }
 }
