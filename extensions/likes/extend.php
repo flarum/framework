@@ -8,7 +8,6 @@
  */
 
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Extend;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
@@ -31,13 +30,13 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\Notification())
+        ->type(PostLikedBlueprint::class, PostSerializer::class, ['alert']),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddPostLikesRelationship::class);
         $events->subscribe(Listener\SaveLikesToDatabase::class);
 
-        $events->listen(ConfigureNotificationTypes::class, function (ConfigureNotificationTypes $event) {
-            $event->add(PostLikedBlueprint::class, PostSerializer::class, ['alert']);
-        });
         $events->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class);
         $events->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class);
     },
