@@ -9,7 +9,6 @@
 
 use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Event\ConfigurePostsQuery;
 use Flarum\Extend;
 use Flarum\Formatter\Event\Rendering;
@@ -44,14 +43,14 @@ return [
     (new Extend\View)
         ->namespace('flarum-mentions', __DIR__.'/views'),
 
+    (new Extend\Notification())
+        ->type(PostMentionedBlueprint::class, PostSerializer::class, ['alert'])
+        ->type(UserMentionedBlueprint::class, PostSerializer::class, ['alert']),
+
     function (Dispatcher $events) {
         $events->listen(WillSerializeData::class, Listener\FilterVisiblePosts::class);
         $events->subscribe(Listener\AddPostMentionedByRelationship::class);
 
-        $events->listen(ConfigureNotificationTypes::class, function (ConfigureNotificationTypes $event) {
-            $event->add(PostMentionedBlueprint::class, PostSerializer::class, ['alert']);
-            $event->add(UserMentionedBlueprint::class, PostSerializer::class, ['alert']);
-        });
         $events->listen(
             [Posted::class, Restored::class, Revised::class],
             Listener\UpdateMentionsMetadataWhenVisible::class
