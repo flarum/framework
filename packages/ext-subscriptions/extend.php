@@ -12,7 +12,6 @@ use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Event\Searching;
 use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Extend;
 use Flarum\Post\Event\Deleted;
@@ -35,6 +34,9 @@ return [
     (new Extend\View)
         ->namespace('flarum-subscriptions', __DIR__.'/views'),
 
+    (new Extend\Notification())
+        ->type(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email']),
+
     function (Dispatcher $events) {
         $events->listen(Serializing::class, Listener\AddDiscussionSubscriptionAttribute::class);
         $events->listen(Saving::class, Listener\SaveSubscriptionToDatabase::class);
@@ -44,9 +46,6 @@ return [
         });
         $events->listen(Searching::class, Listener\FilterDiscussionListBySubscription::class);
 
-        $events->listen(ConfigureNotificationTypes::class, function (ConfigureNotificationTypes $event) {
-            $event->add(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email']);
-        });
         $events->listen(Posted::class, Listener\SendNotificationWhenReplyIsPosted::class);
         $events->listen(Hidden::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class);
         $events->listen(Restored::class, Listener\RestoreNotificationWhenPostIsRestored::class);
