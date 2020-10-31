@@ -8,7 +8,6 @@
  */
 
 use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Event\ConfigureUserGambits;
 use Flarum\Extend;
 use Flarum\Suspend\Access;
@@ -36,16 +35,16 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\Notification())
+        ->type(UserSuspendedBlueprint::class, BasicUserSerializer::class, ['alert', 'email'])
+        ->type(UserUnsuspendedBlueprint::class, BasicUserSerializer::class, ['alert', 'email']),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddUserSuspendAttributes::class);
         $events->subscribe(Listener\RevokeAccessFromSuspendedUsers::class);
 
         $events->listen(Saving::class, Listener\SaveSuspensionToDatabase::class);
 
-        $events->listen(ConfigureNotificationTypes::class, function (ConfigureNotificationTypes $event) {
-            $event->add(UserSuspendedBlueprint::class, BasicUserSerializer::class, ['alert', 'email']);
-            $event->add(UserUnsuspendedBlueprint::class, BasicUserSerializer::class, ['alert', 'email']);
-        });
         $events->listen(Suspended::class, Listener\SendNotificationWhenUserIsSuspended::class);
         $events->listen(Unsuspended::class, Listener\SendNotificationWhenUserIsUnsuspended::class);
 
