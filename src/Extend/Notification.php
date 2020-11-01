@@ -16,11 +16,19 @@ class Notification implements ExtenderInterface
 {
     private $blueprints = [];
     private $serializers = [];
+    private $drivers = [];
 
     public function type(string $blueprint, string $serializer, array $channelsEnabledByDefault = [])
     {
         $this->blueprints[$blueprint] = $channelsEnabledByDefault;
         $this->serializers[$blueprint::getType()] = $serializer;
+
+        return $this;
+    }
+
+    public function driver(string $driverName, string $driver)
+    {
+        $this->drivers[$driverName] = $driver;
 
         return $this;
     }
@@ -33,6 +41,10 @@ class Notification implements ExtenderInterface
 
         $container->extend('flarum.api.notification_serializers', function ($existingSerializers) {
             return array_merge($existingSerializers, $this->serializers);
+        });
+
+        $container->extend('flarum.notification.drivers', function ($existingDrivers) {
+            return array_merge($existingDrivers, $this->drivers);
         });
     }
 }

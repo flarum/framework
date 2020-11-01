@@ -10,10 +10,8 @@
 namespace Flarum\Notification;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
-use Flarum\Notification\Job\SendEmailNotificationJob;
-use Flarum\Notification\Job\SendNotificationsJob;
+use Flarum\Notification\Event\Sending;
 use Flarum\User\User;
-use Illuminate\Contracts\Queue\Queue;
 
 /**
  * The Notification Syncer commits notification blueprints to the database, and
@@ -36,16 +34,6 @@ class NotificationSyncer
      * @var int[]
      */
     protected static $sentTo = [];
-
-    /**
-     * @var Queue
-     */
-    protected $queue;
-
-    public function __construct(Queue $queue)
-    {
-        $this->queue = $queue;
-    }
 
     /**
      * Sync a notification so that it is visible to the specified users, and not
@@ -102,12 +90,13 @@ class NotificationSyncer
         // receiving this notification for the first time (we know because they
         // didn't have a record in the database). As both operations can be
         // intensive on resources (database and mail server), we queue them.
-        if (count($newRecipients)) {
-            $this->queue->push(new SendNotificationsJob($blueprint, $newRecipients));
+        foreach (Notification::getNotificationDrivers() as $driverName => $driver) {
+            $driver->send($blueprint, $newRecipients);
         }
 
-        if ($blueprint instanceof MailableInterface) {
-            $this->mailNotifications($blueprint, $newRecipients);
+        if (count($newRecipients)) {
+            // Deprecated in beta 15, removed in beta 16
+            event(new Sending($blueprint, $newRecipients));
         }
     }
 
@@ -148,21 +137,6 @@ class NotificationSyncer
         $callback();
 
         static::$onePerUser = false;
-    }
-
-    /**
-     * Mail a notification to a list of users.
-     *
-     * @param MailableInterface $blueprint
-     * @param User[] $recipients
-     */
-    protected function mailNotifications(MailableInterface $blueprint, array $recipients)
-    {
-        foreach ($recipients as $user) {
-            if ($user->shouldEmail($blueprint::getType())) {
-                $this->queue->push(new SendEmailNotificationJob($blueprint, $user));
-            }
-        }
     }
 
     /**

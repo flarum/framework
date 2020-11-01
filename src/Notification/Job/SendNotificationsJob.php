@@ -10,7 +10,6 @@
 namespace Flarum\Notification\Job;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
-use Flarum\Notification\Event\Sending;
 use Flarum\Notification\Notification;
 use Flarum\Queue\AbstractJob;
 use Flarum\User\User;
@@ -35,8 +34,6 @@ class SendNotificationsJob extends AbstractJob
 
     public function handle()
     {
-        event(new Sending($this->blueprint, $this->recipients));
-
         Notification::notify($this->recipients, $this->blueprint);
     }
 }
