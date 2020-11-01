@@ -65,7 +65,7 @@ class Notification extends AbstractModel
     protected static $subjectModels = [];
 
     /**
-     * A map of notification drivers
+     * A map of notification drivers.
      *
      * @var NotificationDriverInterface[]
      */
@@ -276,7 +276,7 @@ class Notification extends AbstractModel
     }
 
     /**
-     * Adds a notification driver to the list
+     * Adds a notification driver to the list.
      *
      * @param string $driverName
      * @param NotificationDriverInterface $driver

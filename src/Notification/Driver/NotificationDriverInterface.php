@@ -15,7 +15,7 @@ use Flarum\User\User;
 interface NotificationDriverInterface
 {
     /**
-     * Enqueues the job for this notification
+     * Enqueues the job for this notification.
      *
      * @param BlueprintInterface $blueprint
      * @param User[] $users
@@ -24,7 +24,7 @@ interface NotificationDriverInterface
     public function send(BlueprintInterface $blueprint, array $users): void;
 
     /**
-     * Logic for adding a user preference
+     * Logic for adding a user preference.
      *
      * @param string $blueprintClass
      * @param bool $default

@@ -95,11 +95,11 @@ class CustomNotificationDriver implements NotificationDriverInterface
 {
     public function send(BlueprintInterface $blueprint, array $users): void
     {
-        return;
+        // ...
     }
 
     public function addUserPreference(string $blueprintClass, bool $default): void
     {
-        return;
+        // ...
     }
 }
