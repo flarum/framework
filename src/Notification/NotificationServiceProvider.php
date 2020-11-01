@@ -62,12 +62,12 @@ class NotificationServiceProvider extends AbstractServiceProvider
             new ConfigureNotificationTypes($blueprints)
         );
 
-        foreach ($blueprints as $blueprint => $channelsEnabledByDefault) {
-            $this->addType($blueprint, $channelsEnabledByDefault);
+        foreach ($blueprints as $blueprint => $driversEnabledByDefault) {
+            $this->addType($blueprint, $driversEnabledByDefault);
         }
     }
 
-    protected function addType(string $blueprint, array $channelsEnabledByDefault)
+    protected function addType(string $blueprint, array $driversEnabledByDefault)
     {
         Notification::setSubjectModel(
             $type = $blueprint::getType(),
@@ -77,7 +77,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
         foreach (Notification::getNotificationDrivers() as $driverName => $driver) {
             $driver->addUserPreference(
                 $blueprint,
-                in_array($driverName, $channelsEnabledByDefault)
+                in_array($driverName, $driversEnabledByDefault)
             );
         }
     }
