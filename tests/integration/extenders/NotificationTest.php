@@ -63,6 +63,22 @@ class NotificationTest extends TestCase
 
         $this->assertArrayHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
+
+    /**
+     * @test
+     */
+    public function notification_driver_default_types_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\Notification())
+                ->type(CustomNotificationType::class, 'customSerializer')
+                ->driver('customDriver', CustomNotificationDriver::class, [CustomNotificationType::class])
+        );
+
+        $this->app();
+
+
+    }
 }
 
 class CustomNotificationType implements BlueprintInterface
