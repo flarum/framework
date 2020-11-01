@@ -18,6 +18,14 @@ class Notification implements ExtenderInterface
     private $serializers = [];
     private $drivers = [];
 
+    /**
+     * @param string $blueprint The ::class attribute of the blueprint class.
+     *                          This blueprint should implement \Flarum\Notification\Blueprint\BlueprintInterface.
+     * @param string $serializer The ::class attribute of the serializer class.
+     *                           This serializer should extend from \Flarum\Api\Serializer\AbstractSerializer.
+     * @param array $channelsEnabledByDefault The channels enabled by default for this notification type
+     * @return self
+     */
     public function type(string $blueprint, string $serializer, array $channelsEnabledByDefault = [])
     {
         $this->blueprints[$blueprint] = $channelsEnabledByDefault;
@@ -26,6 +34,12 @@ class Notification implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * @param string $driverName The name of the notification driver.
+     * @param string $driver The ::class attribute of the driver class.
+     *                       This driver should implement \Flarum\Notification\Driver\NotificationDriverInterface.
+     * @return self
+     */
     public function driver(string $driverName, string $driver)
     {
         $this->drivers[$driverName] = $driver;
