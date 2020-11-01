@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\Notification\Notification;
 
 class NotificationTest extends \Flarum\Tests\integration\TestCase
@@ -26,6 +27,14 @@ class NotificationTest extends \Flarum\Tests\integration\TestCase
     /**
      * @test
      */
+    public function notification_driver_doesnt_exist_by_default()
+    {
+        $this->assertArrayNotHasKey('customNotificationDriver', Notification::getNotificationDrivers());
+    }
+
+    /**
+     * @test
+     */
     public function notification_type_exists_if_added()
     {
         $this->extend((new Extend\Notification)->type(
@@ -36,6 +45,21 @@ class NotificationTest extends \Flarum\Tests\integration\TestCase
         $this->app();
 
         $this->assertArrayHasKey('customNotificationType', Notification::getSubjectModels());
+    }
+
+    /**
+     * @test
+     */
+    public function notification_driver_exists_if_added()
+    {
+        $this->extend((new Extend\Notification())->driver(
+            'customNotificationDriver',
+            CustomNotificationDriver::class
+        ));
+
+        $this->app();
+
+        $this->assertArrayHasKey('customNotificationDriver', Notification::getNotificationDrivers());
     }
 }
 
@@ -64,5 +88,18 @@ class CustomNotificationType implements BlueprintInterface
     public static function getSubjectModel()
     {
         return 'customNotificationTypeSubjectModel';
+    }
+}
+
+class CustomNotificationDriver implements NotificationDriverInterface
+{
+    public function send(BlueprintInterface $blueprint, array $users): void
+    {
+        return;
+    }
+
+    public function addUserPreference(string $blueprintClass, bool $default): void
+    {
+        return;
     }
 }
