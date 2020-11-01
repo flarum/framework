@@ -56,7 +56,7 @@ class EmailNotificationDriver implements NotificationDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function addUserPreference(string $blueprintClass, bool $default): void
+    public function registerType(string $blueprintClass, bool $default): void
     {
         if ((new ReflectionClass($blueprintClass))->implementsInterface(MailableInterface::class)) {
             User::addPreference(

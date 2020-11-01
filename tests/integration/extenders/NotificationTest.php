@@ -13,8 +13,10 @@ use Flarum\Extend;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\Notification\Notification;
+use Flarum\Notification\NotificationSyncer;
+use Flarum\Tests\integration\TestCase;
 
-class NotificationTest extends \Flarum\Tests\integration\TestCase
+class NotificationTest extends TestCase
 {
     /**
      * @test
@@ -98,7 +100,7 @@ class CustomNotificationDriver implements NotificationDriverInterface
         // ...
     }
 
-    public function addUserPreference(string $blueprintClass, bool $default): void
+    public function registerType(string $blueprintClass, bool $default): void
     {
         // ...
     }

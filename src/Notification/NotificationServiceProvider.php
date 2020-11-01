@@ -75,7 +75,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
         );
 
         foreach (Notification::getNotificationDrivers() as $driverName => $driver) {
-            $driver->addUserPreference(
+            $driver->registerType(
                 $blueprint,
                 in_array($driverName, $driversEnabledByDefault)
             );
