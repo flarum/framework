@@ -73,7 +73,7 @@ app.initializers.add('flarum-pusher', () => {
           Button.component({
             className: 'Button Button--block DiscussionList-update',
             onclick: () => {
-              this.refresh(false).then(() => {
+              this.attrs.state.refresh(false).then(() => {
                 this.loadingUpdated = false;
                 app.pushedUpdates = [];
                 app.setTitleCount(0);
