@@ -13,6 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 use Illuminate\Validation\Validator;
 
 /**
+ * @deprecated in Beta 15, remove in beta 16. Use the Validator extender instead.
  * The `Validating` event is called when a validator instance for a
  * model is being built. This event can be used to add custom rules/extensions
  * to the validator for when validation takes place.
