@@ -43,10 +43,13 @@ class NotificationServiceProvider extends AbstractServiceProvider
         $this->setNotificationTypes();
     }
 
-    public function setNotificationDrivers()
+    /**
+     * Register notification drivers.
+     */
+    protected function setNotificationDrivers()
     {
         foreach ($this->app->make('flarum.notification.drivers') as $driverName => $driver) {
-            Notification::addNotificationDriver($driverName, $this->app->make($driver));
+            NotificationSyncer::addNotificationDriver($driverName, $this->app->make($driver));
         }
     }
 
@@ -74,7 +77,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
             $blueprint::getSubjectModel()
         );
 
-        foreach (Notification::getNotificationDrivers() as $driverName => $driver) {
+        foreach (NotificationSyncer::getNotificationDrivers() as $driverName => $driver) {
             $driver->registerType(
                 $blueprint,
                 in_array($driverName, $driversEnabledByDefault)

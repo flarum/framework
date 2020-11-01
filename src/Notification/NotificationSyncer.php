@@ -10,6 +10,7 @@
 namespace Flarum\Notification;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\Notification\Event\Sending;
 use Flarum\User\User;
 
@@ -34,6 +35,13 @@ class NotificationSyncer
      * @var int[]
      */
     protected static $sentTo = [];
+
+    /**
+     * A map of notification drivers.
+     *
+     * @var NotificationDriverInterface[]
+     */
+    protected static $notificationDrivers = [];
 
     /**
      * Sync a notification so that it is visible to the specified users, and not
@@ -90,7 +98,7 @@ class NotificationSyncer
         // receiving this notification for the first time (we know because they
         // didn't have a record in the database). As both operations can be
         // intensive on resources (database and mail server), we queue them.
-        foreach (Notification::getNotificationDrivers() as $driverName => $driver) {
+        foreach (static::getNotificationDrivers() as $driverName => $driver) {
             $driver->send($blueprint, $newRecipients);
         }
 
@@ -148,5 +156,24 @@ class NotificationSyncer
     protected function setDeleted(array $ids, $isDeleted)
     {
         Notification::whereIn('id', $ids)->update(['is_deleted' => $isDeleted]);
+    }
+
+    /**
+     * Adds a notification driver to the list.
+     *
+     * @param string $driverName
+     * @param NotificationDriverInterface $driver
+     */
+    public static function addNotificationDriver(string $driverName, NotificationDriverInterface $driver)
+    {
+        static::$notificationDrivers[$driverName] = $driver;
+    }
+
+    /**
+     * @return NotificationDriverInterface[]
+     */
+    public static function getNotificationDrivers(): array
+    {
+        return static::$notificationDrivers;
     }
 }

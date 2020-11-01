@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Notification\Blueprint\BlueprintInterface;
-use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -63,13 +62,6 @@ class Notification extends AbstractModel
      * @var array
      */
     protected static $subjectModels = [];
-
-    /**
-     * A map of notification drivers.
-     *
-     * @var NotificationDriverInterface[]
-     */
-    protected static $notificationDrivers = [];
 
     /**
      * Mark a notification as read.
@@ -273,24 +265,5 @@ class Notification extends AbstractModel
             'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
             'data' => ($data = $blueprint->getData()) ? json_encode($data) : null
         ];
-    }
-
-    /**
-     * Adds a notification driver to the list.
-     *
-     * @param string $driverName
-     * @param NotificationDriverInterface $driver
-     */
-    public static function addNotificationDriver(string $driverName, NotificationDriverInterface $driver)
-    {
-        static::$notificationDrivers[$driverName] = $driver;
-    }
-
-    /**
-     * @return NotificationDriverInterface[]
-     */
-    public static function getNotificationDrivers(): array
-    {
-        return static::$notificationDrivers;
     }
 }

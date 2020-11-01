@@ -31,7 +31,7 @@ class NotificationTest extends TestCase
      */
     public function notification_driver_doesnt_exist_by_default()
     {
-        $this->assertArrayNotHasKey('customNotificationDriver', Notification::getNotificationDrivers());
+        $this->assertArrayNotHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
 
     /**
@@ -61,7 +61,7 @@ class NotificationTest extends TestCase
 
         $this->app();
 
-        $this->assertArrayHasKey('customNotificationDriver', Notification::getNotificationDrivers());
+        $this->assertArrayHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
 }
 
