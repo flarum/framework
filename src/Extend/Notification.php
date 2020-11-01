@@ -70,7 +70,13 @@ class Notification implements ExtenderInterface
         });
 
         $container->extend('flarum.notification.drivers', function ($existingDrivers) {
-            return array_merge($existingDrivers, $this->drivers[0]);
+            $drivers = [];
+
+            array_walk($this->drivers, function ($driverData, $driverName) use (&$drivers) {
+                $drivers[$driverName] = $driverData[0];
+            });
+
+            return array_merge($existingDrivers, $drivers);
         });
     }
 }
