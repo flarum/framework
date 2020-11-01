@@ -17,6 +17,7 @@ class Notification implements ExtenderInterface
     private $blueprints = [];
     private $serializers = [];
     private $drivers = [];
+    private $typesEnabledByDefault = [];
 
     /**
      * @param string $blueprint The ::class attribute of the blueprint class.
@@ -44,7 +45,8 @@ class Notification implements ExtenderInterface
      */
     public function driver(string $driverName, string $driver, array $typesEnabledByDefault = [])
     {
-        $this->drivers[$driverName] = [$driver, $typesEnabledByDefault];
+        $this->drivers[$driverName] = $driver;
+        $this->typesEnabledByDefault[$driverName] = $typesEnabledByDefault;
 
         return $this;
     }
@@ -54,7 +56,7 @@ class Notification implements ExtenderInterface
         $container->extend('flarum.notification.blueprints', function ($existingBlueprints) {
             $existingBlueprints = array_merge($existingBlueprints, $this->blueprints);
 
-            foreach ($this->drivers as $driverName => [$driver, $typesEnabledByDefault]) {
+            foreach ($this->typesEnabledByDefault as $driverName => $typesEnabledByDefault) {
                 foreach ($typesEnabledByDefault as $blueprintClass) {
                     if (isset($existingBlueprints[$blueprintClass]) && (! in_array($driverName, $existingBlueprints[$blueprintClass]))) {
                         $existingBlueprints[$blueprintClass][] = $driverName;
@@ -70,13 +72,7 @@ class Notification implements ExtenderInterface
         });
 
         $container->extend('flarum.notification.drivers', function ($existingDrivers) {
-            $drivers = [];
-
-            array_walk($this->drivers, function ($driverData, $driverName) use (&$drivers) {
-                $drivers[$driverName] = $driverData[0];
-            });
-
-            return array_merge($existingDrivers, $drivers);
+            return array_merge($existingDrivers, $this->drivers);
         });
     }
 }
