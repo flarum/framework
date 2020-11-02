@@ -29,6 +29,19 @@ class NotificationTest extends TestCase
     /**
      * @test
      */
+    public function notification_serializer_doesnt_exist_by_default()
+    {
+        $this->app();
+
+        $this->assertNotContains(
+            'customNotificationTypeSerializer',
+            $this->app->getContainer()->make('flarum.api.notification_serializers')
+        );
+    }
+
+    /**
+     * @test
+     */
     public function notification_driver_doesnt_exist_by_default()
     {
         $this->assertArrayNotHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
@@ -47,6 +60,24 @@ class NotificationTest extends TestCase
         $this->app();
 
         $this->assertArrayHasKey('customNotificationType', Notification::getSubjectModels());
+    }
+
+    /**
+     * @test
+     */
+    public function notification_serializer_exists_if_added()
+    {
+        $this->extend((new Extend\Notification)->type(
+            CustomNotificationType::class,
+            'customNotificationTypeSerializer'
+        ));
+
+        $this->app();
+
+        $this->assertContains(
+            'customNotificationTypeSerializer',
+            $this->app->getContainer()->make('flarum.api.notification_serializers')
+        );
     }
 
     /**
