@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-beta.14.1](https://github.com/flarum/pusher/compare/v0.1.0-beta.14...v0.1.0-beta.14.1)
+
+### Fixed
+- Children were incorrectly passed to show update highlight
+- Update discussion list caused an error (#27)
+
 ## [0.1.0-beta.14](https://github.com/flarum/pusher/compare/v0.1.0-beta.13...v0.1.0-beta.14)
 
 ### Changed
