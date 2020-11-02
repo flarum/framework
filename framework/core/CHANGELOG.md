@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-beta.14.1](https://github.com/flarum/core/compare/v0.1.0-beta.14...v0.1.0-beta.14.1)
+
+### Fixed
+
+- SuperTextarea component is not exported.
+- Symfony dependencies do not match those depended on by Laravel (#2407)
+- Scripts from textformatter aren't executed (#2415)
+- Sub path installations have no page title.
+- Losing focus of Composer area when coming from fullscreen.
+
 ## [0.1.0-beta.14](https://github.com/flarum/core/compare/v0.1.0-beta.13...v0.1.0-beta.14)
 
 ### Added
