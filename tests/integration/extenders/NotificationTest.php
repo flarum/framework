@@ -63,6 +63,31 @@ class NotificationTest extends TestCase
 
         $this->assertArrayHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
+
+    /**
+     * @test
+     */
+    public function notification_driver_enabled_types_exist_if_added()
+    {
+        $this->extend(
+            (new Extend\Notification())
+                ->type(CustomNotificationType::class, 'customSerializer')
+                ->type(SecondCustomNotificationType::class, 'secondCustomSerializer', ['customDriver'])
+                ->type(ThirdCustomNotificationType::class, 'thirdCustomSerializer')
+                ->driver('customDriver', CustomNotificationDriver::class, [CustomNotificationType::class])
+                ->driver('secondCustomDriver', SecondCustomNotificationDriver::class, [SecondCustomNotificationType::class])
+        );
+
+        $this->app();
+
+        $blueprints = $this->app->getContainer()->make('flarum.notification.blueprints');
+
+        $this->assertContains('customDriver', $blueprints[CustomNotificationType::class]);
+        $this->assertCount(1, $blueprints[CustomNotificationType::class]);
+        $this->assertContains('customDriver', $blueprints[SecondCustomNotificationType::class]);
+        $this->assertContains('secondCustomDriver', $blueprints[SecondCustomNotificationType::class]);
+        $this->assertEmpty($blueprints[ThirdCustomNotificationType::class]);
+    }
 }
 
 class CustomNotificationType implements BlueprintInterface
@@ -93,6 +118,22 @@ class CustomNotificationType implements BlueprintInterface
     }
 }
 
+class SecondCustomNotificationType extends CustomNotificationType
+{
+    public static function getType()
+    {
+        return 'secondCustomNotificationType';
+    }
+}
+
+class ThirdCustomNotificationType extends CustomNotificationType
+{
+    public static function getType()
+    {
+        return 'thirdCustomNotificationType';
+    }
+}
+
 class CustomNotificationDriver implements NotificationDriverInterface
 {
     public function send(BlueprintInterface $blueprint, array $users): void
@@ -104,4 +145,9 @@ class CustomNotificationDriver implements NotificationDriverInterface
     {
         // ...
     }
+}
+
+class SecondCustomNotificationDriver extends CustomNotificationDriver
+{
+    // ...
 }
