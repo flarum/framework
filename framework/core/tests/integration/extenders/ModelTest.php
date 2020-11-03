@@ -326,7 +326,7 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $post = new CustomPost;
+        $post = new ModelTestCustomPost;
 
         $this->assertEquals(42, $post->answer);
 
@@ -416,7 +416,7 @@ class ModelTest extends TestCase
     }
 }
 
-class CustomPost extends AbstractEventPost
+class ModelTestCustomPost extends AbstractEventPost
 {
     /**
      * {@inheritdoc}

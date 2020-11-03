@@ -21,19 +21,20 @@ class PostServiceProvider extends AbstractServiceProvider
     {
         CommentPost::setFormatter($this->app->make('flarum.formatter'));
 
-        $this->registerPostTypes();
+        $this->setPostTypes();
 
         $events = $this->app->make('events');
         $events->subscribe(PostPolicy::class);
     }
 
-    public function registerPostTypes()
+    protected function setPostTypes()
     {
         $models = [
             CommentPost::class,
             DiscussionRenamedPost::class
         ];
 
+        // Deprecated in beta 15, remove in beta 16.
         $this->app->make('events')->dispatch(
             new ConfigurePostTypes($models)
         );
