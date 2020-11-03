@@ -53,7 +53,7 @@ class WritablePaths implements PrerequisiteInterface
             })->map(function ($path, $index) {
                 return [
                     'message' => 'The '.$this->getAbsolutePath($path).' directory is not writable.',
-                    'detail' => 'Please chmod this directory'.(in_array($index, $this->wildcards) ? ' and its contents' : '').' to 0775.'
+                    'detail' => 'Please make sure your web server/PHP user has write access to this directory'.(in_array($index, $this->wildcards) ? ' and its contents' : '').'. Please read the <a href="https://docs.flarum.org/install.html#folder-ownership">installation documentation</a> for a detailed explanation and steps to follow to resolve this error.'
                 ];
             });
     }
