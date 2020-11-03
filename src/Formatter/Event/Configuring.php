@@ -12,7 +12,7 @@ namespace Flarum\Formatter\Event;
 use s9e\TextFormatter\Configurator;
 
 /**
- * @deprecated beta 13, removed beta 14. Use the Formatter extender instead.
+ * @deprecated beta 15, removed beta 16. Use the Formatter extender instead.
  */
 class Configuring
 {

@@ -13,7 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Renderer;
 
 /**
- * @deprecated beta 13, removed beta 14. Use the Formatter extender instead.
+ * @deprecated beta 15, removed beta 16. Use the Formatter extender instead.
  */
 class Rendering
 {
