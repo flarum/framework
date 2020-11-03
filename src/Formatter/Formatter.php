@@ -79,7 +79,7 @@ class Formatter
     {
         $parser = $this->getParser($context);
 
-        // Deprecated in beta 13, remove in beta 14
+        // Deprecated in beta 15, remove in beta 16
         $this->events->dispatch(new Parsing($parser, $context, $text));
 
         foreach ($this->parsingCallbacks as $callback) {
@@ -101,7 +101,7 @@ class Formatter
     {
         $renderer = $this->getRenderer();
 
-        // Deprecated in beta 13, remove in beta 14
+        // Deprecated in beta 15, remove in beta 16
         $this->events->dispatch(new Rendering($renderer, $context, $xml, $request));
 
         foreach ($this->renderingCallbacks as $callback) {
@@ -153,7 +153,7 @@ class Formatter
         $configurator->Autolink;
         $configurator->tags->onDuplicate('replace');
 
-        // Deprecated in beta 13, remove in beta 14
+        // Deprecated in beta 15, remove in beta 16
         $this->events->dispatch(new Configuring($configurator));
 
         foreach ($this->configurationCallbacks as $callback) {
