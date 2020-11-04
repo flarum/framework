@@ -172,7 +172,7 @@ class CustomNotificationDriver implements NotificationDriverInterface
         // ...
     }
 
-    public function registerType(string $blueprintClass, bool $default): void
+    public function registerType(string $blueprintClass, array $driversEnabledByDefault): void
     {
         // ...
     }

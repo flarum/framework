@@ -80,7 +80,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
         foreach (NotificationSyncer::getNotificationDrivers() as $driverName => $driver) {
             $driver->registerType(
                 $blueprint,
-                in_array($driverName, $driversEnabledByDefault)
+                $driversEnabledByDefault
             );
         }
     }

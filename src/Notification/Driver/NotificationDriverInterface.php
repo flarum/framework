@@ -27,8 +27,8 @@ interface NotificationDriverInterface
      * Logic for registering a notification type, generally used for adding a user preference.
      *
      * @param string $blueprintClass
-     * @param bool $default
+     * @param array $driversEnabledByDefault
      * @return void
      */
-    public function registerType(string $blueprintClass, bool $default): void;
+    public function registerType(string $blueprintClass, array $driversEnabledByDefault): void;
 }
