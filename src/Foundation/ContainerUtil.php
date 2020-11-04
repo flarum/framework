@@ -16,6 +16,7 @@ class ContainerUtil
         if (is_string($callback)) {
             $callback = function () use ($container, $callback) {
                 $callback = $container->make($callback);
+
                 return call_user_func_array($callback, func_get_args());
             };
         }
