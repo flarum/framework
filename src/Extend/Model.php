@@ -11,6 +11,7 @@ namespace Flarum\Extend;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 
@@ -180,11 +181,7 @@ class Model implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         foreach ($this->customRelations as $name => $callback) {
-            if (is_string($callback)) {
-                $callback = $container->make($callback);
-            }
-
-            Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", $callback);
+            Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", ContainerUtil::wrapCallback($callback, $container));
         }
     }
 }
