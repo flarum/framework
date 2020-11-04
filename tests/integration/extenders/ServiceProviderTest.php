@@ -9,9 +9,9 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Flarum\Extend;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Tests\integration\TestCase;
-use Flarum\Extend;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 class ServiceProviderTest extends TestCase
