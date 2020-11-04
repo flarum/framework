@@ -51,9 +51,9 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\AuthenticateWithHeader::class,
+                HttpMiddleware\SetLocale::class,
                 'flarum.api.route_resolver',
-                HttpMiddleware\CheckCsrfToken::class,
-                HttpMiddleware\SetLocale::class
+                HttpMiddleware\CheckCsrfToken::class
             ];
         });
 
