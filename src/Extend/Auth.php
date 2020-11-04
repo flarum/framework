@@ -21,16 +21,16 @@ class Auth implements ExtenderInterface
      * Add a new password checker.
      *
      * @param string $identifier: Unique identifier for password checker.
-     * @param string $passwordChecker: A closure or invokable class that contains the logic of the password checker.
+     * @param callable|string $callback: A closure or invokable class that contains the logic of the password checker.
      *                                 It should return one of:
      *                                   - `false`: This marks the password as NOT VALID. It overrides all other outputs
      *                                   - `true`: This marks the password as VALID.
      *                                 All other outputs will be ignored.
      * @return self
      */
-    public function addPasswordChecker(string $identifier, $passwordChecker)
+    public function addPasswordChecker(string $identifier, $callback)
     {
-        $this->addPasswordCheckers[$identifier] = $passwordChecker;
+        $this->addPasswordCheckers[$identifier] = $callback;
 
         return $this;
     }
