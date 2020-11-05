@@ -11,6 +11,9 @@ namespace Flarum\Notification\Event;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
 
+/**
+ * @deprecated in beta 15, removed in beta 16
+ */
 class Sending
 {
     /**
