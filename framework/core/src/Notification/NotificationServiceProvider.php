@@ -12,8 +12,6 @@ namespace Flarum\Notification;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
-use Flarum\User\User;
-use ReflectionClass;
 
 class NotificationServiceProvider extends AbstractServiceProvider
 {
@@ -22,6 +20,13 @@ class NotificationServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
+        $this->app->singleton('flarum.notification.drivers', function () {
+            return [
+                'alert' => Driver\AlertNotificationDriver::class,
+                'email' => Driver\EmailNotificationDriver::class,
+            ];
+        });
+
         $this->app->singleton('flarum.notification.blueprints', function () {
             return [
                 DiscussionRenamedBlueprint::class => ['alert']
@@ -34,7 +39,18 @@ class NotificationServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
+        $this->setNotificationDrivers();
         $this->setNotificationTypes();
+    }
+
+    /**
+     * Register notification drivers.
+     */
+    protected function setNotificationDrivers()
+    {
+        foreach ($this->app->make('flarum.notification.drivers') as $driverName => $driver) {
+            NotificationSyncer::addNotificationDriver($driverName, $this->app->make($driver));
+        }
     }
 
     /**
@@ -49,29 +65,22 @@ class NotificationServiceProvider extends AbstractServiceProvider
             new ConfigureNotificationTypes($blueprints)
         );
 
-        foreach ($blueprints as $blueprint => $channelsEnabledByDefault) {
-            $this->addType($blueprint, $channelsEnabledByDefault);
+        foreach ($blueprints as $blueprint => $driversEnabledByDefault) {
+            $this->addType($blueprint, $driversEnabledByDefault);
         }
     }
 
-    protected function addType(string $blueprint, array $channelsEnabledByDefault)
+    protected function addType(string $blueprint, array $driversEnabledByDefault)
     {
         Notification::setSubjectModel(
             $type = $blueprint::getType(),
             $blueprint::getSubjectModel()
         );
 
-        User::addPreference(
-            User::getNotificationPreferenceKey($type, 'alert'),
-            'boolval',
-            in_array('alert', $channelsEnabledByDefault)
-        );
-
-        if ((new ReflectionClass($blueprint))->implementsInterface(MailableInterface::class)) {
-            User::addPreference(
-                User::getNotificationPreferenceKey($type, 'email'),
-                'boolval',
-                in_array('email', $channelsEnabledByDefault)
+        foreach (NotificationSyncer::getNotificationDrivers() as $driverName => $driver) {
+            $driver->registerType(
+                $blueprint,
+                $driversEnabledByDefault
             );
         }
     }
