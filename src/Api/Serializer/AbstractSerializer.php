@@ -48,6 +48,11 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     protected static $container;
 
     /**
+     * @var callable[]
+     */
+    protected static $attributeHandlers = [];
+
+    /**
      * @return Request
      */
     public function getRequest()
@@ -83,6 +88,16 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
         $attributes = $this->getDefaultAttributes($model);
 
+        if (isset(static::$attributeHandlers[static::class])) {
+            foreach (static::$attributeHandlers[static::class] as $handler) {
+                $attributes = array_merge(
+                    $attributes,
+                    $handler($attributes, $model, $this)
+                );
+            }
+        }
+
+        // Deprecated in beta 15, removed in beta 16
         static::$dispatcher->dispatch(
             new Serializing($this, $model, $attributes)
         );
@@ -279,5 +294,18 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     public static function setContainer(Container $container)
     {
         static::$container = $container;
+    }
+
+    /**
+     * @param string $serializerClass
+     * @param callable $attributeHandler
+     */
+    public static function addAttributeHandler(string $serializerClass, callable $attributeHandler)
+    {
+        if (! isset(static::$attributeHandlers[$serializerClass])) {
+            static::$attributeHandlers[$serializerClass] = [];
+        }
+
+        static::$attributeHandlers[$serializerClass][] = $attributeHandler;
     }
 }

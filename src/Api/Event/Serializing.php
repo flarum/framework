@@ -17,6 +17,8 @@ use Flarum\Api\Serializer\AbstractSerializer;
  *
  * This event is fired when a serializer is constructing an array of resource
  * attributes for API output.
+ *
+ * @deprecated in beta 15, removed in beta 16
  */
 class Serializing
 {
