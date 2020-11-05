@@ -9,10 +9,10 @@
 
 use Flarum\Api\Event\Serializing;
 use Flarum\Extend;
-use Flarum\Notification\Event\Sending;
 use Flarum\Post\Event\Posted;
 use Flarum\Pusher\Api\Controller\AuthController;
 use Flarum\Pusher\Listener;
+use Flarum\Pusher\PusherNotificationDriver;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -29,6 +29,9 @@ return [
         ->post('/pusher/auth', 'pusher.auth', AuthController::class),
 
     new Extend\Locales(__DIR__.'/locale'),
+
+    (new Extend\Notification())
+        ->driver('pusher', PusherNotificationDriver::class),
 
     function (Dispatcher $events, Container $container) {
         $container->bind(Pusher::class, function ($app) {
@@ -49,7 +52,6 @@ return [
         });
 
         $events->listen(Posted::class, Listener\PushNewPost::class);
-        $events->listen(Sending::class, Listener\PushNotification::class);
         $events->listen(Serializing::class, Listener\AddPusherApi::class);
     },
 ];
