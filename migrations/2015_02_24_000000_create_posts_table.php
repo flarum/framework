@@ -31,7 +31,7 @@ return [
 
             $table->unique(['discussion_id', 'number']);
 
-            $table->engine = 'MyISAM';
+
         });
 
         $connection = $schema->getConnection();
