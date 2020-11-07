@@ -16,7 +16,7 @@ class ContainerUtil
     /**
      * Wraps a callback so that string-based invokable classes get resolved only when actually used.
      *
-     * @internal Backwards compatability not guarunteed.
+     * @internal Backwards compatability not guaranteed.
      *
      * @param callable|string $callback: A callable, or a ::class attribute of an invokable class
      * @param Container $container
