@@ -1,6 +1,6 @@
 import Component from '../../common/Component';
 import classList from '../../common/utils/classList';
-import icon from "../../common/helpers/icon";
+import icon from '../../common/helpers/icon';
 
 export default class AdminHeader extends Component {
   view(vnode) {
@@ -15,7 +15,7 @@ export default class AdminHeader extends Component {
           </h2>
           <div className="helpText">{attrs.description}</div>
         </div>
-      </div>
-    ]
+      </div>,
+    ];
   }
 }

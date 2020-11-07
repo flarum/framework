@@ -1,7 +1,7 @@
 import compat from '../common/compat';
 
 import saveSettings from './utils/saveSettings';
-import ExtensionData from "./utils/ExtensionData";
+import ExtensionData from './utils/ExtensionData';
 import SettingDropdown from './components/SettingDropdown';
 import EditCustomFooterModal from './components/EditCustomFooterModal';
 import SessionDropdown from './components/SessionDropdown';
@@ -26,7 +26,7 @@ import EditCustomHeaderModal from './components/EditCustomHeaderModal';
 import PermissionsPage from './components/PermissionsPage';
 import PermissionDropdown from './components/PermissionDropdown';
 import AdminNav from './components/AdminNav';
-import AdminHeader from "./components/AdminHeader";
+import AdminHeader from './components/AdminHeader';
 import EditCustomCssModal from './components/EditCustomCssModal';
 import EditGroupModal from './components/EditGroupModal';
 import routes from './routes';

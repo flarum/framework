@@ -7,7 +7,7 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import saveSettings from '../utils/saveSettings';
 import Stream from '../../common/utils/Stream';
 import icon from '../../common/helpers/icon';
-import AdminHeader from "./AdminHeader";
+import AdminHeader from './AdminHeader';
 
 export default class MailPage extends Page {
   oninit(vnode) {
@@ -67,11 +67,13 @@ export default class MailPage extends Page {
 
     return (
       <div className="MailPage">
-        {AdminHeader.component({
+        {AdminHeader.component(
+          {
             icon: 'fas fa-envelope',
             description: app.translator.trans('core.admin.email.description'),
-            className: 'MailPage-header'
-          }, app.translator.trans('core.admin.email.title')
+            className: 'MailPage-header',
+          },
+          app.translator.trans('core.admin.email.title')
         )}
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>

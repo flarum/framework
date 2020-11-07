@@ -7,7 +7,6 @@ import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
 
 export default class AdminApplication extends Application {
-
   // Deprecated as of beta 15
   extensionSettings = {};
 

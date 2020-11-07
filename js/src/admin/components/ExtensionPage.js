@@ -8,7 +8,7 @@ import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import Switch from '../../common/components/Switch';
 import saveSettings from '../utils/saveSettings';
-import Stream from "../../common/utils/Stream";
+import Stream from '../../common/utils/Stream';
 
 export default class ExtensionPage extends Page {
   oninit(vnode) {
@@ -39,38 +39,35 @@ export default class ExtensionPage extends Page {
             <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h2>
           </div>
         ) : (
-          <div className="ExtensionPage-body">
-            {listItems(this.sections().toArray())}
-          </div>
+          <div className="ExtensionPage-body">{listItems(this.sections().toArray())}</div>
         )}
       </div>
     );
   }
 
   content() {
-    const settings = this.getContent('settings')
+    const settings = this.getContent('settings');
 
     if (settings) {
       const items = new ItemList();
 
-      Object.keys(settings).map(key => {
-        const value = this.setting([key])()
+      Object.keys(settings).map((key) => {
+        const value = this.setting([key])();
         if (['bool', 'checkbox', 'switch', 'boolean'].indexOf(settings[key].type) >= 0) {
-          items.add(key,
+          items.add(
+            key,
             <div className="Form-group">
-              <Switch
-                state={!!value && value !== '0'}
-                onchange={this.settings[key]}
-              >
+              <Switch state={!!value && value !== '0'} onchange={this.settings[key]}>
                 {settings[key].label}
               </Switch>
             </div>
-          )
+          );
         } else {
-          items.add(key,
+          items.add(
+            key,
             <div className="Form-group">
               <label>{settings[key].label}</label>
-              <input type={settings[key].type} className="FormControl" bidi={this.setting(key)}/>
+              <input type={settings[key].type} className="FormControl" bidi={this.setting(key)} />
             </div>
           );
         }
@@ -83,46 +80,39 @@ export default class ExtensionPage extends Page {
   sections() {
     const items = new ItemList();
 
-
-    items.add('settings',
-      [
-        <div className="ExtensionPage-settings">
-          <div className="container">
-            {typeof app.extensionData[this.extension.id] === 'function' ? (
-                <Button onclick={app.extensionData[this.extension.id].bind(this)} className="Button Button--primary">
-                  {app.translator.trans('core.admin.extension.open_modal')}
-                </Button>
-              ) :
-              this.content() ? (
-                <div className="Form">
-                  {this.content().toArray()}
-                  <div className="Form-group">{this.submitButton()}</div>
-                </div>
-              ) : (
-                <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h2>
-              )}
-          </div>
+    items.add('settings', [
+      <div className="ExtensionPage-settings">
+        <div className="container">
+          {typeof app.extensionData[this.extension.id] === 'function' ? (
+            <Button onclick={app.extensionData[this.extension.id].bind(this)} className="Button Button--primary">
+              {app.translator.trans('core.admin.extension.open_modal')}
+            </Button>
+          ) : this.content() ? (
+            <div className="Form">
+              {this.content().toArray()}
+              <div className="Form-group">{this.submitButton()}</div>
+            </div>
+          ) : (
+            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h2>
+          )}
         </div>
-      ]
-    )
+      </div>,
+    ]);
 
-    items.add('permissions',
-      [
-        <div className="ExtensionPage-permissions">
-          <div className="ExtensionPage-permissions-header">
-            <h2 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h2>
-          </div>
-          <div className="container">
-            {this.getContent('permissions') ? (
-              ExtensionPermissionGrid.component({extensionId: this.extension.id})
-            ) : (
-              <h2
-                className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
-            )}
-          </div>
+    items.add('permissions', [
+      <div className="ExtensionPage-permissions">
+        <div className="ExtensionPage-permissions-header">
+          <h2 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h2>
         </div>
-      ]
-    )
+        <div className="container">
+          {this.getContent('permissions') ? (
+            ExtensionPermissionGrid.component({ extensionId: this.extension.id })
+          ) : (
+            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
+          )}
+        </div>
+      </div>,
+    ]);
 
     return items;
   }
@@ -132,9 +122,9 @@ export default class ExtensionPage extends Page {
       <div className="ExtensionPage-header">
         <div className="container">
           <h2 className="ExtensionTitle">
-              <span className="ExtensionIcon" style={this.extension.icon}>
+            <span className="ExtensionIcon" style={this.extension.icon}>
               {this.extension.icon ? icon(this.extension.icon.name) : ''}
-              </span>
+            </span>
             {this.extension.extra['flarum-extension'].title}
             <span>{this.extension.version}</span>
           </h2>
@@ -157,8 +147,8 @@ export default class ExtensionPage extends Page {
             </div>
           </div>
         </div>
-      </div>
-    ]
+      </div>,
+    ];
   }
 
   actionItems() {
@@ -237,7 +227,7 @@ export default class ExtensionPage extends Page {
       .request({
         url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
         method: 'PATCH',
-        body: {enabled: !enabled},
+        body: { enabled: !enabled },
       })
       .then(() => {
         if (!enabled) localStorage.setItem('enabledExtension', this.extension.id);
@@ -249,8 +239,7 @@ export default class ExtensionPage extends Page {
 
   submitButton() {
     return (
-      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading}
-              disabled={!this.changed()}>
+      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.changed()}>
         {app.translator.trans('core.admin.settings.submit_button')}
       </Button>
     );

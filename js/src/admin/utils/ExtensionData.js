@@ -1,5 +1,5 @@
 import ItemList from '../../common/utils/ItemList';
-import listItems from "../../common/helpers/listItems";
+import listItems from '../../common/helpers/listItems';
 
 export default class ExtensionData {
   constructor(extension) {
@@ -18,8 +18,7 @@ export default class ExtensionData {
       if (!app.extensionData[this.extension][type][permissionType]) {
         app.extensionData[this.extension][type][permissionType] = new ItemList();
       }
-      app.extensionData[this.extension][type][permissionType]
-        .add(content.permission, content)
+      app.extensionData[this.extension][type][permissionType].add(content.permission, content);
     } else {
       app.extensionData[this.extension][type] = content;
     }
@@ -28,7 +27,7 @@ export default class ExtensionData {
   }
 
   registerPage(component) {
-    app.routes[this.extension] = { path: this.extension, component}
+    app.routes[this.extension] = { path: this.extension, component };
 
     return this;
   }
