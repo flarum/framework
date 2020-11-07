@@ -1,105 +1,120 @@
 @extension-list-column-width: 410px;
 
-.ExtensionPage-header,
-.ExtensionPage-permissions-header {
-  padding: 20px 0;
-  background: @control-bg;
+.ExtensionPage {
+  min-height: 100vh;
 
-  h2 {
-    color: @muted-color;
-    margin-left: 35px;
+  .ExtensionPage-header,
+  .ExtensionPage-permissions-header {
+    padding: 10px 0;
+    background: @control-bg;
 
-    span {
-      margin-left: 10px;
-      font-size: 13px;
+    h2 {
       color: @muted-color;
-      font-weight: normal;
-    }
-  }
+      margin-left: 35px;
 
-  button {
-    background: none;
-    border: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-
-    > li {
-      display: inline;
-      color: @muted-color;
-      margin-right: 7px;
-
-      > a {
+      span {
+        margin-left: 10px;
+        font-size: 13px;
         color: @muted-color;
-      }
-
-      > .icon {
-        margin-right: 5px;
+        font-weight: normal;
       }
     }
-  }
 
-  .ExtensionPage-headerItems {
-    float: right;
-    padding-top: 21px;
-  }
+    button {
+      background: none;
+      border: none;
 
-  .ExtensionPage-actionItems{
-    padding-top: 5px;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+
+      > li {
+        display: inline;
+        color: @muted-color;
+        margin-right: 7px;
+
+        > a {
+          color: @muted-color;
+        }
+
+        > .icon {
+          margin-right: 5px;
+        }
+      }
+    }
+
+    .ExtensionPage-headerItems {
+      padding-top: 15px;
+
+      .ExtensionInfo {
+        padding-top: 5px;
+      }
+
+      @media @phone {
+        .ExtensionPage-headerActionItems {
+          padding-top: 20px;
+        }
+      }
+    }
+
+    .Checkbox.off {
+      .Checkbox-display {
+        background: @muted-more-color;
+      }
+    }
 
     .ExtensionInfo {
-      padding-top: 5px;
+      float: right;
+    }
+
+    .ExtensionIcon {
+      width: 25px;
+      height: 25px;
+      background: @control-bg;
+      color: @control-color;
+      border-radius: 4px;
+      display: inline-block;
+      font-size: 12.5px;
+      line-height: 25px;
+      text-align: center;
+      position: absolute;
+      margin-left: -35px;
     }
   }
 
-  .Checkbox-display {
-    background: @muted-more-color;
+  @media @tablet-up {
+    .ExtensionPage-headerActionItems {
+      float: right;
+      position: relative;
+      top: -22px;
+    }
   }
 
-  .ExtensionInfo {
-    float: right;
+  .ExtensionPage-settings {
+    margin-top: 20px;
+
+    input {
+      max-width: 400px;
+    }
   }
 
-  .ExtensionIcon {
-    width: 25px;
-    height: 25px;
-    background: @control-bg;
-    color: @control-color;
-    border-radius: 4px;
-    display: inline-block;
-    font-size: 12.5px;
-    line-height: 25px;
+  .ExtensionPage-subHeader {
+    color: @muted-color;
+    font-weight: normal;
     text-align: center;
-    position: absolute;
-    margin-left: -35px;
   }
-}
-
-.ExtensionPage-settings {
-  margin-top: 20px;
-
-  input {
-    max-width: 400px;
-  }
-}
-
-.ExtensionPage-subHeader {
-  color: @muted-color;
-  font-weight: normal;
-  text-align: center;
-}
 
 
-.ExtensionPage-permissions {
-  .ExtensionPage-permissions-header {
-    margin: 20px 0 20px;
-    padding: 5px 0;
+  .ExtensionPage-permissions {
+    .ExtensionPage-permissions-header {
+      margin: 20px 0 20px;
+      padding: 5px 0;
+    }
   }
 }
