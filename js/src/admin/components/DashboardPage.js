@@ -1,5 +1,6 @@
 import Page from '../../common/components/Page';
 import StatusWidget from "./StatusWidget";
+import ExtensionsWidget from "./ExtensionsWidget";
 import AdminHeader from "./AdminHeader";
 
 export default class DashboardPage extends Page {
@@ -18,6 +19,6 @@ export default class DashboardPage extends Page {
   }
 
   availableWidgets() {
-    return [<StatusWidget />];
+    return [<StatusWidget />, <ExtensionsWidget />];
   }
 }

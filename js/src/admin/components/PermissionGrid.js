@@ -255,7 +255,7 @@ export default class PermissionGrid extends Component {
       90
     );
 
-    items.merge(this.getExtensionPermissions('start'));
+    items.merge(this.getExtensionPermissions('reply'));
 
     return items;
   }
@@ -264,7 +264,7 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     if (this.extensionId) {
-      return this.getExtensionPermissions('reply');
+      return this.getExtensionPermissions('moderate');
     }
 
     items.add(
@@ -357,7 +357,7 @@ export default class PermissionGrid extends Component {
       60
     );
 
-    items.merge(this.getExtensionPermissions('start'));
+    items.merge(this.getExtensionPermissions('moderate'));
 
     return items;
   }
@@ -399,7 +399,9 @@ export default class PermissionGrid extends Component {
       items.merge(app.extensionData[this.extensionId].permissions[type]);
     } else {
       Object.keys(app.extensionData).map((extension) => {
-        items.merge(app.extensionData[extension].permissions[type]);
+        if (app.extensionData[extension] && app.extensionData[extension].permissions && app.extensionData[extension].permissions[type]) {
+          items.merge(app.extensionData[extension].permissions[type]);
+        }
       });
     }
 

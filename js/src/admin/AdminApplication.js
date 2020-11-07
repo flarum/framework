@@ -50,7 +50,7 @@ export default class AdminApplication extends Application {
     // If an extension has just been enabled, then we will run its settings
     // callback.
     const enabled = localStorage.getItem('enabledExtension');
-    if (enabled && this.extensionSettings[enabled]) {
+    if (enabled && this.extensionSettings[enabled] && typeof this.extensionSettings[enabled] === 'function') {
       this.extensionSettings[enabled]();
       localStorage.removeItem('enabledExtension');
     }

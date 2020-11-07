@@ -1,13 +1,14 @@
 import compat from '../common/compat';
 
 import saveSettings from './utils/saveSettings';
-import extensionData from "./utils/extensionData";
+import ExtensionData from "./utils/ExtensionData";
 import SettingDropdown from './components/SettingDropdown';
 import EditCustomFooterModal from './components/EditCustomFooterModal';
 import SessionDropdown from './components/SessionDropdown';
 import HeaderPrimary from './components/HeaderPrimary';
 import AppearancePage from './components/AppearancePage';
 import StatusWidget from './components/StatusWidget';
+import ExtensionsWidget from './components/ExtensionsWidget';
 import HeaderSecondary from './components/HeaderSecondary';
 import SettingsModal from './components/SettingsModal';
 import DashboardWidget from './components/DashboardWidget';
@@ -15,7 +16,6 @@ import AddExtensionModal from './components/AddExtensionModal';
 import ExtensionPage from './components/ExtensionPage';
 import ExtensionLinkButton from './components/ExtensionLinkButton';
 import AdminLinkButton from './components/AdminLinkButton';
-import ExtensionSetting from "./components/ExtensionSetting";
 import PermissionGrid from './components/PermissionGrid';
 import MailPage from './components/MailPage';
 import UploadImageButton from './components/UploadImageButton';
@@ -34,13 +34,14 @@ import AdminApplication from './AdminApplication';
 
 export default Object.assign(compat, {
   'utils/saveSettings': saveSettings,
-  'utils/extensionData': extensionData,
+  'utils/ExtensionData': ExtensionData,
   'components/SettingDropdown': SettingDropdown,
   'components/EditCustomFooterModal': EditCustomFooterModal,
   'components/SessionDropdown': SessionDropdown,
   'components/HeaderPrimary': HeaderPrimary,
   'components/AppearancePage': AppearancePage,
   'components/StatusWidget': StatusWidget,
+  'components/ExtensionsWidget': ExtensionsWidget,
   'components/HeaderSecondary': HeaderSecondary,
   'components/SettingsModal': SettingsModal,
   'components/DashboardWidget': DashboardWidget,
@@ -48,7 +49,6 @@ export default Object.assign(compat, {
   'components/ExtensionPage': ExtensionPage,
   'components/ExtensionLinkButton': ExtensionLinkButton,
   'components/AdminLinkButton': AdminLinkButton,
-  'components/ExtensionSetting': ExtensionSetting,
   'components/PermissionGrid': PermissionGrid,
   'components/MailPage': MailPage,
   'components/UploadImageButton': UploadImageButton,
