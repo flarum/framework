@@ -42,9 +42,15 @@ class ApiSerializerTest extends TestCase
             'posts' => [
                 ['id' => 1, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
             ],
+        ]);
+    }
+
+    protected function prepSettingsDb()
+    {
+        $this->prepareDatabase([
             'settings' => [
                 ['key' => 'customPrefix.customSetting', 'value' => 'customValue']
-            ]
+            ],
         ]);
     }
 
@@ -97,6 +103,24 @@ class ApiSerializerTest extends TestCase
     /**
      * @test
      */
+    public function custom_setting_doesnt_exist_by_default()
+    {
+        $this->prepSettingsDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayNotHasKey('customPrefix.customSetting', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
     public function custom_setting_exists_if_added()
     {
         $this->extend(
@@ -104,7 +128,7 @@ class ApiSerializerTest extends TestCase
                 ->setting('customPrefix.customSetting', 'default')
         );
 
-        $this->prepDb();
+        $this->prepSettingsDb();
 
         $response = $this->send(
             $this->request('GET', '/api', [
