@@ -149,9 +149,9 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->hasMany('customRelation', Discussion::class, 'user_id'),
+                ->hasMany('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->hasManyRelationship('customRelation', DiscussionSerializer::class)
+                ->hasManyRelationship('customSerializerRelation', DiscussionSerializer::class)
         );
 
         $this->prepDb();
@@ -163,7 +163,7 @@ class ApiSerializerTest extends TestCase
         $serializer = $this->app()->getContainer()->make(UserSerializer::class);
         $serializer->setRequest($request);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'customRelation');
+        $relationship = $serializer->getRelationship(User::find(2), 'customSerializerRelation');
 
         $this->assertNotEmpty($relationship);
         $this->assertCount(3, $relationship->toArray()['data']);
@@ -176,9 +176,9 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->hasOne('customRelation', Discussion::class, 'user_id'),
+                ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->hasOneRelationship('customRelation', DiscussionSerializer::class)
+                ->hasOneRelationship('customSerializerRelation', DiscussionSerializer::class)
         );
 
         $this->prepDb();
@@ -190,7 +190,7 @@ class ApiSerializerTest extends TestCase
         $serializer = $this->app()->getContainer()->make(UserSerializer::class);
         $serializer->setRequest($request);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'customRelation');
+        $relationship = $serializer->getRelationship(User::find(2), 'customSerializerRelation');
 
         $this->assertNotEmpty($relationship);
         $this->assertEquals('discussions', $relationship->toArray()['data']['type']);
@@ -203,10 +203,10 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->hasOne('customRelation', Discussion::class, 'user_id'),
+                ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('customRelation', function (AbstractSerializer $serializer, $model) {
-                    return $serializer->hasOne($model, DiscussionSerializer::class, 'customRelation');
+                ->relationship('customSerializerRelation', function (AbstractSerializer $serializer, $model) {
+                    return $serializer->hasOne($model, DiscussionSerializer::class, 'customSerializerRelation');
                 })
         );
 
@@ -219,7 +219,7 @@ class ApiSerializerTest extends TestCase
         $serializer = $this->app()->getContainer()->make(UserSerializer::class);
         $serializer->setRequest($request);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'customRelation');
+        $relationship = $serializer->getRelationship(User::find(2), 'customSerializerRelation');
 
         $this->assertNotEmpty($relationship);
         $this->assertEquals('discussions', $relationship->toArray()['data']['type']);
@@ -232,9 +232,9 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->hasOne('customRelation', Discussion::class, 'user_id'),
+                ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('customRelation', CustomRelationshipInvokableClass::class)
+                ->relationship('customSerializerRelation', CustomRelationshipInvokableClass::class)
         );
 
         $this->prepDb();
@@ -246,7 +246,7 @@ class ApiSerializerTest extends TestCase
         $serializer = $this->app()->getContainer()->make(UserSerializer::class);
         $serializer->setRequest($request);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'customRelation');
+        $relationship = $serializer->getRelationship(User::find(2), 'customSerializerRelation');
 
         $this->assertNotEmpty($relationship);
         $this->assertEquals('discussions', $relationship->toArray()['data']['type']);
@@ -327,6 +327,6 @@ class CustomRelationshipInvokableClass
 {
     public function __invoke(AbstractSerializer $serializer, $model)
     {
-        return $serializer->hasOne($model, DiscussionSerializer::class, 'customRelation');
+        return $serializer->hasOne($model, DiscussionSerializer::class, 'customSerializerRelation');
     }
 }
