@@ -150,7 +150,6 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasMany('customRelation', Discussion::class, 'user_id'),
-
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->hasManyRelationship('customRelation', DiscussionSerializer::class)
         );
@@ -178,7 +177,6 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasOne('customRelation', Discussion::class, 'user_id'),
-
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->hasOneRelationship('customRelation', DiscussionSerializer::class)
         );
@@ -206,7 +204,6 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasOne('customRelation', Discussion::class, 'user_id'),
-
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->relationship('customRelation', function (AbstractSerializer $serializer, $model) {
                     return $serializer->hasOne($model, DiscussionSerializer::class, 'customRelation');
@@ -236,7 +233,6 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasOne('customRelation', Discussion::class, 'user_id'),
-
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->relationship('customRelation', CustomRelationshipInvokableClass::class)
         );
@@ -264,7 +260,6 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasMany('anotherCustomRelation', Discussion::class, 'user_id'),
-
             (new Extend\ApiSerializer(BasicUserSerializer::class))
                 ->hasManyRelationship('anotherCustomRelation', DiscussionSerializer::class)
         );
@@ -292,13 +287,10 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasOne('postCustomRelation', Post::class, 'user_id'),
-
             (new Extend\Model(User::class))
                 ->hasOne('discussionCustomRelation', Discussion::class, 'user_id'),
-
             (new Extend\ApiSerializer(BasicUserSerializer::class))
                 ->hasOneRelationship('postCustomRelation', PostSerializer::class),
-
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->relationship('postCustomRelation', function (AbstractSerializer $serializer, $model) {
                     return $serializer->hasOne($model, DiscussionSerializer::class, 'discussionCustomRelation');
