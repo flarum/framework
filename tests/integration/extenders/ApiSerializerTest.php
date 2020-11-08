@@ -42,6 +42,9 @@ class ApiSerializerTest extends TestCase
             'posts' => [
                 ['id' => 1, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
             ],
+            'settings' => [
+                ['key' => 'customPrefix.customSetting', 'value' => 'customValue']
+            ]
         ]);
     }
 
@@ -89,6 +92,54 @@ class ApiSerializerTest extends TestCase
 
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
         $this->assertArrayHasKey('customAttributeFromInvokable', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_setting_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->setting('customPrefix.customSetting', 'default')
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customPrefix.customSetting', $payload['data']['attributes']);
+        $this->assertEquals('customValue', $payload['data']['attributes']['customPrefix.customSetting']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_setting_falls_back_to_default_value()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->setting('customPrefix.unavailableCustomSetting', 'default')
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customPrefix.unavailableCustomSetting', $payload['data']['attributes']);
+        $this->assertEquals('default', $payload['data']['attributes']['customPrefix.unavailableCustomSetting']);
     }
 
     /**

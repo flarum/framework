@@ -11,12 +11,14 @@ namespace Flarum\Extend;
 
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Extension\Extension;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
 class ApiSerializer implements ExtenderInterface
 {
     private $serializerClass;
     private $attributeHandlers = [];
+    private $settings = [];
     private $relationships = [];
 
     public function __construct(string $serializerClass)
@@ -31,6 +33,18 @@ class ApiSerializer implements ExtenderInterface
     public function attributes($handler)
     {
         $this->attributeHandlers[] = $handler;
+
+        return $this;
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $default
+     * @return self
+     */
+    public function setting(string $key, $default = null)
+    {
+        $this->settings[$key] = $default;
 
         return $this;
     }
@@ -83,6 +97,18 @@ class ApiSerializer implements ExtenderInterface
             }
 
             AbstractSerializer::addAttributeHandler($this->serializerClass, $attributeHandler);
+        }
+
+        if (! empty($this->settings)) {
+            AbstractSerializer::addAttributeHandler($this->serializerClass, function (array $attributes) use ($container) {
+                $settings = $container->make(SettingsRepositoryInterface::class);
+
+                foreach ($this->settings as $key => $default) {
+                    $attributes[$key] = $settings->get($key, $default);
+                }
+
+                return $attributes;
+            });
         }
 
         foreach ($this->relationships as $serializerClass => $relationships) {
