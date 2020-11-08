@@ -11,6 +11,7 @@ export default class ExtensionsWidget extends DashboardWidget {
     return (
       <div className="ExtensionsWidget-list">
         <div className="container">
+          <h2 className="ExtensionsWidget-title">{app.translator.trans('core.admin.dashboard.extensions_title')}</h2>
           <ul className="ExtensionList">
             {Object.keys(app.data.extensions).map((id) => {
               const extension = app.data.extensions[id];
