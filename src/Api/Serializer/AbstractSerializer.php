@@ -53,6 +53,11 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     protected static $attributeHandlers = [];
 
     /**
+     * @var array
+     */
+    public static $customRelations = [];
+
+    /**
      * @return Request
      */
     public function getRequest()
@@ -145,9 +150,21 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      */
     protected function getCustomRelationship($model, $name)
     {
+        // Deprecated in beta 15, removed in beta 16
         $relationship = static::$dispatcher->until(
             new GetApiRelationship($this, $name, $model)
         );
+
+        foreach (array_merge([static::class], class_parents($this)) as $class) {
+            if (isset(static::$customRelations[$class], static::$customRelations[$class][$name])) {
+                $callback = static::$customRelations[$class][$name];
+
+                if (is_callable($callback)) {
+                    $relationship = $callback($this, $model);
+                    break;
+                }
+            }
+        }
 
         if ($relationship && ! ($relationship instanceof Relationship)) {
             throw new LogicException(
@@ -307,5 +324,15 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         }
 
         static::$attributeHandlers[$serializerClass][] = $attributeHandler;
+    }
+
+    /**
+     * @param string $serializerClass
+     * @param string $relation
+     * @param callable $callback
+     */
+    public static function setRelationship(string $serializerClass, string $relation, callable $callback)
+    {
+        static::$customRelations[$serializerClass][$relation] = $callback;
     }
 }

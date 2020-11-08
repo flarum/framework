@@ -17,6 +17,7 @@ class ApiSerializer implements ExtenderInterface
 {
     private $serializerClass;
     private $attributeHandlers = [];
+    private $relationships = [];
 
     public function __construct(string $serializerClass)
     {
@@ -34,6 +35,42 @@ class ApiSerializer implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @param string $serializerClass
+     * @return self
+     */
+    public function hasOneRelationship(string $name, string $serializerClass)
+    {
+        return $this->relationship($name, function (AbstractSerializer $serializer, $model) use ($serializerClass, $name) {
+            return $serializer->hasOne($model, $serializerClass, $name);
+        });
+    }
+
+    /**
+     * @param string $name
+     * @param string $serializerClass
+     * @return self
+     */
+    public function hasManyRelationship(string $name, string $serializerClass)
+    {
+        return $this->relationship($name, function (AbstractSerializer $serializer, $model) use ($serializerClass, $name) {
+            return $serializer->hasMany($model, $serializerClass, $name);
+        });
+    }
+
+    /**
+     * @param string $name
+     * @param callable|string $callback
+     * @return self
+     */
+    public function relationship(string $name, $callback)
+    {
+        $this->relationships[$this->serializerClass][$name] = $callback;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         foreach ($this->attributeHandlers as $attributeHandler) {
@@ -46,6 +83,20 @@ class ApiSerializer implements ExtenderInterface
             }
 
             AbstractSerializer::addAttributeHandler($this->serializerClass, $attributeHandler);
+        }
+
+        foreach ($this->relationships as $serializerClass => $relationships) {
+            foreach ($relationships as $relation => $callback) {
+                if (is_string($callback)) {
+                    $callback = function () use ($container, $callback) {
+                        $callback = $container->make($callback);
+
+                        return call_user_func_array($callback, func_get_args());
+                    };
+                }
+
+                AbstractSerializer::setRelationship($serializerClass, $relation, $callback);
+            }
         }
     }
 }
