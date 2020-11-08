@@ -56,7 +56,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * @var array
      */
-    public static $customRelations = [];
+    protected static $customRelations = [];
 
     /**
      * @return Request
