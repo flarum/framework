@@ -16,6 +16,7 @@ use Flarum\Event\GetApiRelationship;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use LogicException;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -156,13 +157,11 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         );
 
         foreach (array_merge([static::class], class_parents($this)) as $class) {
-            if (isset(static::$customRelations[$class], static::$customRelations[$class][$name])) {
-                $callback = static::$customRelations[$class][$name];
+            $callback = Arr::get(static::$customRelations, "$class.$name");
 
-                if (is_callable($callback)) {
-                    $relationship = $callback($this, $model);
-                    break;
-                }
+            if (is_callable($callback)) {
+                $relationship = $callback($this, $model);
+                break;
             }
         }
 
