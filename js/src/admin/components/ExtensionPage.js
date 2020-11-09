@@ -125,8 +125,10 @@ export default class ExtensionPage extends Page {
             <span className="ExtensionIcon" style={this.extension.icon}>
               {this.extension.icon ? icon(this.extension.icon.name) : ''}
             </span>
-            {this.extension.extra['flarum-extension'].title}
-            <span>{this.extension.version}</span>
+            <div className="ExtensionName">
+              <label>{this.extension.extra['flarum-extension'].title}</label>
+              <span className="ExtensionVersion">{this.extension.version}</span>
+            </div>
           </h2>
           <aside className="ExtensionInfo">
             <ul>{listItems(this.infoItems().toArray())}</ul>

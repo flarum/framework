@@ -2,6 +2,8 @@ import Page from '../../common/components/Page';
 import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
 import AdminHeader from './AdminHeader';
+import ItemList from "../../common/utils/ItemList";
+import listItems from "../../common/helpers/listItems";
 
 export default class DashboardPage extends Page {
   view() {
@@ -15,12 +17,20 @@ export default class DashboardPage extends Page {
           },
           app.translator.trans('core.admin.dashboard.title')
         )}
-        <div className="container">{this.availableWidgets()}</div>
+        <div className="container">
+            {this.availableWidgets().toArray()}
+        </div>
       </div>
     );
   }
 
   availableWidgets() {
-    return [<StatusWidget />, <ExtensionsWidget />];
+    const items = new ItemList();
+
+    items.add('status', <StatusWidget/>, 30)
+
+    items.add('extensions', <ExtensionsWidget/>, 10)
+
+    return items;
   }
 }

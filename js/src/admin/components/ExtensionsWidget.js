@@ -4,7 +4,7 @@ import icon from '../../common/helpers/icon';
 
 export default class ExtensionsWidget extends DashboardWidget {
   className() {
-    return 'Widget ExtensionsWidget';
+    return 'ExtensionsWidget';
   }
 
   content() {

@@ -16,7 +16,7 @@ import LoadingModal from './LoadingModal';
 
 export default class StatusWidget extends DashboardWidget {
   className() {
-    return 'Widget StatusWidget';
+    return 'StatusWidget';
   }
 
   content() {
