@@ -1,51 +1,75 @@
-.ExtensionsWidget-title {
-  color: @muted-color;
-  margin-top: 0;
+.ExtensionsWidget {
+  background-color: @body-bg;
+  padding: 0;
 }
 
 .ExtensionsWidget-list {
   > .container {
     padding: 0;
-  }
-}
-.ExtensionGroup {
-  margin-bottom: 20px;
+    background-color: @body-bg;
 
-  h3 {
-    color: @muted-color;
-    text-transform: uppercase;
-    font-size: 12px;
-    margin: 0 0 10px;
-  }
-}
+    .ExtensionList-Category {
+      background: @control-bg;
+      padding: 20px 0 30px 20px;
+      margin-bottom: 20px;
+      border-radius: @border-radius;
 
-.ExtensionList {
-  margin: 0 -6px;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: repeat(auto-fit, 90px);
+      .ExtensionList-Label {
+        margin-top: 0;
+        color: @muted-color;
+      }
+    }
 
-  > li {
-    text-align: left;
-    position: relative;
-    display: block;
+    .ExtensionGroup {
+      margin-bottom: 20px;
+
+      h3 {
+        color: @muted-color;
+        text-transform: uppercase;
+        font-size: 12px;
+        margin: 0 0 10px;
+      }
+    }
+
+    .ExtensionList {
+      margin: 0 -6px;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: repeat(auto-fit, 90px);
+
+      > li {
+        text-align: left;
+        position: relative;
+        display: block;
+      }
+    }
   }
-}
-.ExtensionListItem.disabled {
-  .ExtensionListItem-title {
-    opacity: 0.5;
-    color: @muted-color;
+
+  .ExtensionListItem.disabled {
+    .ExtensionListItem-title {
+      opacity: 0.5;
+      color: @muted-color;
+    }
+
+    .ExtensionListItem-icon {
+      opacity: 0.5;
+    }
   }
-  .ExtensionListItem-icon {
-    opacity: 0.5;
+
+  .ExtensionListItem {
+    width: 90px;
+    height: 90px;
+    margin: 6px;
+
+    .ExtensionListItem-title {
+      display: block;
+      text-align: center;
+      margin-top: 5px;
+      color: @text-color;
+    }
   }
-}
-.ExtensionListItem {
-  width: 90px;
-  height: 90px;
-  margin: 6px;
 }
 
 .ExtensionIcon {
