@@ -35,7 +35,7 @@ class User implements ExtenderInterface
      * This can be used to give a user permissions for groups they aren't actually in, based on context.
      * It will not change the group badges displayed for the user.
      *
-     * @param callable $callable
+     * @param callable|string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      * - \Flarum\User\User $user: the user in question.
@@ -44,9 +44,9 @@ class User implements ExtenderInterface
      * The callable should return:
      * - array $groupIds: an array of ids for the groups the user belongs to.
      */
-    public function permissionGroups(callable $callable)
+    public function permissionGroups($callback)
     {
-        $this->groupProcessors[] = $callable;
+        $this->groupProcessors[] = $callback;
 
         return $this;
     }

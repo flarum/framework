@@ -10,6 +10,7 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 
 class Validator implements ExtenderInterface
@@ -47,11 +48,7 @@ class Validator implements ExtenderInterface
     {
         $container->resolving($this->validator, function ($validator, $container) {
             foreach ($this->configurationCallbacks as $callback) {
-                if (is_string($callback)) {
-                    $callback = $container->make($callback);
-                }
-
-                $validator->addConfiguration($callback);
+                $validator->addConfiguration(ContainerUtil::wrapCallback($callback, $container));
             }
         });
     }
