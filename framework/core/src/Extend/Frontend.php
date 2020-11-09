@@ -171,11 +171,7 @@ class Frontend implements ExtenderInterface
             "flarum.frontend.$this->frontend",
             function (ActualFrontend $frontend, Container $container) {
                 foreach ($this->content as $content) {
-                    if (is_string($content)) {
-                        $content = $container->make($content);
-                    }
-
-                    $frontend->content($content);
+                    $frontend->content(ContainerUtil::wrapCallback($content, $container));
                 }
             }
         );

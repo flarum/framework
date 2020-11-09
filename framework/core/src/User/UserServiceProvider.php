@@ -11,6 +11,7 @@ namespace Flarum\User;
 
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\DisplayName\UsernameDriver;
@@ -77,11 +78,7 @@ class UserServiceProvider extends AbstractServiceProvider
     public function boot()
     {
         foreach ($this->app->make('flarum.user.group_processors') as $callback) {
-            if (is_string($callback)) {
-                $callback = $this->app->make($callback);
-            }
-
-            User::addGroupProcessor($callback);
+            User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $this->app));
         }
 
         User::setHasher($this->app->make('hash'));
