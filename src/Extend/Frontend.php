@@ -12,6 +12,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
