@@ -11,12 +11,14 @@ namespace Flarum\Extend;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 
 class Model implements ExtenderInterface
 {
     private $modelClass;
+    private $customRelations = [];
 
     /**
      * @param string $modelClass The ::class attribute of the model you are modifying.
@@ -48,7 +50,9 @@ class Model implements ExtenderInterface
     }
 
     /**
-     * Add a default value for a given attribute, which can be an explicit value, or a closure.
+     * Add a default value for a given attribute, which can be an explicit value, a closure,
+     * or an instance of an invokable class. Unlike with some other extenders,
+     * it CANNOT be the `::class` attribute of an invokable class.
      *
      * @param string $attribute
      * @param mixed $value
@@ -157,7 +161,7 @@ class Model implements ExtenderInterface
      * @param string $name: The name of the relation. This doesn't have to be anything in particular,
      *                      but has to be unique from other relation names for this model, and should
      *                      work as the name of a method.
-     * @param callable $callable
+     * @param callable|string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      * - $instance: An instance of this model.
@@ -168,15 +172,17 @@ class Model implements ExtenderInterface
      *
      * @return self
      */
-    public function relationship(string $name, callable $callable)
+    public function relationship(string $name, $callback)
     {
-        Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", $callable);
+        $this->customRelations[$name] = $callback;
 
         return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
-        // Nothing needed here.
+        foreach ($this->customRelations as $name => $callback) {
+            Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", ContainerUtil::wrapCallback($callback, $container));
+        }
     }
 }

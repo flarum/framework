@@ -11,6 +11,7 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Flarum\Formatter\Formatter as ActualFormatter;
+use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 
 class Formatter implements ExtenderInterface, LifecycleInterface
@@ -83,27 +84,15 @@ class Formatter implements ExtenderInterface, LifecycleInterface
     {
         $container->extend('flarum.formatter', function ($formatter, $container) {
             foreach ($this->configurationCallbacks as $callback) {
-                if (is_string($callback)) {
-                    $callback = $container->make($callback);
-                }
-
-                $formatter->addConfigurationCallback($callback);
+                $formatter->addConfigurationCallback(ContainerUtil::wrapCallback($callback, $container));
             }
 
             foreach ($this->parsingCallbacks as $callback) {
-                if (is_string($callback)) {
-                    $callback = $container->make($callback);
-                }
-
-                $formatter->addParsingCallback($callback);
+                $formatter->addParsingCallback(ContainerUtil::wrapCallback($callback, $container));
             }
 
             foreach ($this->renderingCallbacks as $callback) {
-                if (is_string($callback)) {
-                    $callback = $container->make($callback);
-                }
-
-                $formatter->addRenderingCallback($callback);
+                $formatter->addRenderingCallback(ContainerUtil::wrapCallback($callback, $container));
             }
 
             return $formatter;
