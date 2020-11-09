@@ -11,6 +11,7 @@ namespace Flarum\Extend;
 
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
@@ -127,13 +128,7 @@ class ApiSerializer implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         foreach ($this->attributeHandlers as $attributeHandler) {
-            if (is_string($attributeHandler)) {
-                $attributeHandler = function () use ($container, $attributeHandler) {
-                    $attributeHandler = $container->make($attributeHandler);
-
-                    return call_user_func_array($attributeHandler, func_get_args());
-                };
-            }
+            $attributeHandler = ContainerUtil::wrapCallback($attributeHandler, $container);
 
             AbstractSerializer::addAttributeHandler($this->serializerClass, $attributeHandler);
         }
@@ -152,13 +147,7 @@ class ApiSerializer implements ExtenderInterface
 
         foreach ($this->relationships as $serializerClass => $relationships) {
             foreach ($relationships as $relation => $callback) {
-                if (is_string($callback)) {
-                    $callback = function () use ($container, $callback) {
-                        $callback = $container->make($callback);
-
-                        return call_user_func_array($callback, func_get_args());
-                    };
-                }
+                $callback = ContainerUtil::wrapCallback($callback, $container);
 
                 AbstractSerializer::setRelationship($serializerClass, $relation, $callback);
             }
