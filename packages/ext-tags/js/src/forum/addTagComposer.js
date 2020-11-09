@@ -19,7 +19,6 @@ export default function () {
   });
 
   // Add tag-selection abilities to the discussion composer.
-  DiscussionComposer.prototype.tags = [];
   DiscussionComposer.prototype.chooseTags = function () {
     app.modal.show(TagDiscussionModal, {
       selectedTags: (this.composer.fields.tags || []).slice(0),
