@@ -3,6 +3,18 @@
 .ExtensionPage {
   min-height: 100vh;
 
+  .ExtensionPage-permissions-header {
+    .ExtensionTitle {
+      margin-left: 30px;
+    }
+  }
+
+  .ExtensionPage-header {
+    .ExtensionTitle {
+      margin-left: 0px;
+    }
+  }
+
   .ExtensionPage-header,
   .ExtensionPage-permissions-header {
     padding: 10px 0;
@@ -73,19 +85,19 @@
       float: right;
     }
 
-    .ExtensionIcon {
-      width: 25px;
-      height: 25px;
-      background: @control-bg;
-      color: @control-color;
-      border-radius: 4px;
-      display: inline-block;
-      font-size: 12.5px;
-      line-height: 25px;
-      text-align: center;
-      position: absolute;
-      margin-left: -35px;
-    }
+
+      .ExtensionName {
+        display: inline-block;
+        margin-left: 8px;
+      }
+
+      .ExtensionIcon {
+        width: 30px;
+        height: 30px;
+        font-size: 15px;
+        margin-left: 0;
+        vertical-align: middle;
+      }
   }
 
   @media @tablet-up {
