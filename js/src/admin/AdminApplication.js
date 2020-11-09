@@ -12,7 +12,16 @@ export default class AdminApplication extends Application {
 
   extensionData = {};
 
-  pendingSettings = {};
+  extensionCategories = {
+    discussion: 70,
+    moderation: 60,
+    feature: 50,
+    formatting: 40,
+    theme: 30,
+    authentication: 20,
+    language: 10,
+    other: 0,
+  };
 
   history = {
     canGoBack: () => true,
@@ -40,7 +49,13 @@ export default class AdminApplication extends Application {
     m.route.prefix = '#';
     super.mount();
 
-    m.mount(document.getElementById('app-navigation'), { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
+    m.mount(document.getElementById('app-navigation'), {
+      view: () =>
+        Navigation.component({
+          className: 'App-backControl',
+          drawer: true,
+        }),
+    });
     m.mount(document.getElementById('header-navigation'), Navigation);
     m.mount(document.getElementById('header-primary'), HeaderPrimary);
     m.mount(document.getElementById('header-secondary'), HeaderSecondary);

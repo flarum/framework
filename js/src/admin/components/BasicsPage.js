@@ -50,14 +50,9 @@ export default class BasicsPage extends Page {
   view() {
     return (
       <div className="BasicsPage">
-        {AdminHeader.component(
-          {
-            icon: 'fas fa-pencil-alt',
-            description: app.translator.trans('core.admin.basics.description'),
-            className: 'BasicsPage-header',
-          },
-          app.translator.trans('core.admin.basics.title')
-        )}
+        <AdminHeader icon="fas fa-pencil-alt" description={app.translator.trans('core.admin.basics.description')} className="BasicsPage-header">
+          {app.translator.trans('core.admin.basics.title')}
+        </AdminHeader>
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             {FieldSet.component(

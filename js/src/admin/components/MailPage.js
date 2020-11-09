@@ -67,14 +67,9 @@ export default class MailPage extends Page {
 
     return (
       <div className="MailPage">
-        {AdminHeader.component(
-          {
-            icon: 'fas fa-envelope',
-            description: app.translator.trans('core.admin.email.description'),
-            className: 'MailPage-header',
-          },
-          app.translator.trans('core.admin.email.title')
-        )}
+        <AdminHeader icon="fas fa-envelope" description={app.translator.trans('core.admin.email.description')} className="MailPage-header">
+          {app.translator.trans('core.admin.email.title')}
+        </AdminHeader>
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             {FieldSet.component(

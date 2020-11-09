@@ -1,4 +1,5 @@
 import DashboardWidget from './DashboardWidget';
+import getCategorizedExtensions from '../utils/getCategorizedExtensions';
 import Link from '../../common/components/Link';
 import icon from '../../common/helpers/icon';
 
@@ -8,27 +9,37 @@ export default class ExtensionsWidget extends DashboardWidget {
   }
 
   content() {
+    const categorizedExtensions = getCategorizedExtensions();
+    const categories = app.extensionCategories;
+
     return (
       <div className="ExtensionsWidget-list">
         <div className="container">
-          <h2 className="ExtensionsWidget-title">{app.translator.trans('core.admin.dashboard.extensions_title')}</h2>
-          <ul className="ExtensionList">
-            {Object.keys(app.data.extensions).map((id) => {
-              const extension = app.data.extensions[id];
+          {Object.keys(categorizedExtensions).map((category) => {
+            return (
+              <div className="ExtensionList-Category">
+                <h4 className="ExtensionList-Label">{app.translator.trans(`core.admin.nav.categories.${category}`)}</h4>
+                <ul className="ExtensionList">
+                  {Object.keys(categorizedExtensions[category]).map((id) => {
+                    const extension = app.data.extensions[id];
 
-              return (
-                <li className={'ExtensionListItem ' + (!this.isEnabled(extension.id) ? 'disabled' : '')}>
-                  <Link href={app.route('extension', { id: extension.id })}>
-                    <div className="ExtensionListItem-content">
-                      <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-                        {extension.icon ? icon(extension.icon.name) : ''}
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                    return (
+                      <li className={'ExtensionListItem ' + (!this.isEnabled(extension.id) ? 'disabled' : '')}>
+                        <Link href={app.route('extension', { id: extension.id })}>
+                          <div className="ExtensionListItem-content">
+                            <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
+                              {extension.icon ? icon(extension.icon.name) : ''}
+                            </span>
+                            <span className="ExtensionListItem-title">{extension.extra['flarum-extension'].title}</span>
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
         </div>
       </div>
     );

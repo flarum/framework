@@ -2,7 +2,6 @@ import Page from '../../common/components/Page';
 import Button from '../../common/components/Button';
 import Switch from '../../common/components/Switch';
 import Stream from '../../common/utils/Stream';
-import icon from '../../common/helpers/icon';
 import EditCustomCssModal from './EditCustomCssModal';
 import EditCustomHeaderModal from './EditCustomHeaderModal';
 import EditCustomFooterModal from './EditCustomFooterModal';
@@ -23,14 +22,13 @@ export default class AppearancePage extends Page {
   view() {
     return (
       <div className="AppearancePage">
-        {AdminHeader.component(
-          {
-            icon: 'fas fa-paint-brush',
-            description: app.translator.trans('core.admin.appearance.description'),
-            className: 'AppearancePage-header',
-          },
-          app.translator.trans('core.admin.appearance.title')
-        )}
+        <AdminHeader
+          icon="fas fa-paint-brush"
+          description={app.translator.trans('core.admin.appearance.description')}
+          className="AppearancePage-header"
+        >
+          {app.translator.trans('core.admin.appearance.title')}
+        </AdminHeader>
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             <fieldset className="AppearancePage-colors">

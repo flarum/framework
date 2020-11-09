@@ -1,14 +1,15 @@
 import Alert from '../../common/components/Alert';
-import Page from '../../common/components/Page';
 import Button from '../../common/components/Button';
+import Page from '../../common/components/Page';
+import Select from '../../common/components/Select';
+import Switch from '../../common/components/Switch';
 import icon from '../../common/helpers/icon';
-import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
+import ItemList from '../../common/utils/ItemList';
+import Stream from '../../common/utils/Stream';
 import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
-import Switch from '../../common/components/Switch';
 import saveSettings from '../utils/saveSettings';
-import Stream from '../../common/utils/Stream';
 
 export default class ExtensionPage extends Page {
   oninit(vnode) {
@@ -39,7 +40,7 @@ export default class ExtensionPage extends Page {
             <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h2>
           </div>
         ) : (
-          <div className="ExtensionPage-body">{listItems(this.sections().toArray())}</div>
+          <div className="ExtensionPage-body">{this.sections().toArray()}</div>
         )}
       </div>
     );
@@ -53,13 +54,26 @@ export default class ExtensionPage extends Page {
 
       Object.keys(settings).map((key) => {
         const value = this.setting([key])();
-        if (['bool', 'checkbox', 'switch', 'boolean'].indexOf(settings[key].type) >= 0) {
+        if (['bool', 'checkbox', 'switch', 'boolean'].includes(settings[key].type)) {
           items.add(
             key,
             <div className="Form-group">
               <Switch state={!!value && value !== '0'} onchange={this.settings[key]}>
                 {settings[key].label}
               </Switch>
+            </div>
+          );
+        } else if (['select', 'dropdown', 'selectdropdown'].includes(settings[key].type)) {
+          items.add(
+            key,
+            <div className="Form-group">
+              <label>{settings[key].label}</label>
+              <Select
+                value={this.setting(key) || settings[key].default}
+                options={settings[key].options}
+                buttonClassName="Button"
+                onchange={this.settings[key]}
+              />
             </div>
           );
         } else {
@@ -135,15 +149,11 @@ export default class ExtensionPage extends Page {
           </aside>
           <div className="helpText">{this.extension.description}</div>
           <div className="ExtensionPage-headerItems">
-            {Switch.component(
-              {
-                state: this.isEnabled(),
-                onchange: this.toggle.bind(this, this.extension.id),
-              },
-              this.isEnabled(this.extension.id)
+            <Switch state={this.isEnabled()} onchange={this.toggle.bind(this, this.extension.id)}>
+              {this.isEnabled(this.extension.id)
                 ? app.translator.trans('core.admin.extension.enabled')
-                : app.translator.trans('core.admin.extension.disabled')
-            )}
+                : app.translator.trans('core.admin.extension.disabled')}
+            </Switch>
             <div className="ExtensionPage-headerActionItems">
               <ul>{listItems(this.actionItems().toArray())}</ul>
             </div>
@@ -156,25 +166,27 @@ export default class ExtensionPage extends Page {
   actionItems() {
     const items = new ItemList();
 
-    items.add(
-      'uninstall',
-      Button.component(
-        {
-          icon: 'far fa-trash-alt',
-          onclick: () => {
-            app
-              .request({
-                url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
-                method: 'DELETE',
-              })
-              .then(() => window.location.reload());
+    if (this.isEnabled()) {
+      items.add(
+        'uninstall',
+        Button.component(
+          {
+            icon: 'far fa-trash-alt',
+            onclick: () => {
+              app
+                .request({
+                  url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
+                  method: 'DELETE',
+                })
+                .then(() => window.location.reload());
 
-            app.modal.show(LoadingModal);
+              app.modal.show(LoadingModal);
+            },
           },
-        },
-        app.translator.trans('core.admin.extension.uninstall_button')
-      )
-    );
+          app.translator.trans('core.admin.extension.uninstall_button')
+        )
+      );
+    }
 
     return items;
   }
@@ -211,7 +223,7 @@ export default class ExtensionPage extends Page {
   isEnabled() {
     const enabled = JSON.parse(app.data.settings.extensions_enabled);
 
-    let isEnabled = enabled.indexOf(this.extension.id) !== -1;
+    let isEnabled = enabled.includes(this.extension.id);
 
     if (this.changingState) {
       return !isEnabled;
@@ -230,6 +242,7 @@ export default class ExtensionPage extends Page {
         url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
         method: 'PATCH',
         body: { enabled: !enabled },
+        errorHandler: this.onerror.bind(this),
       })
       .then(() => {
         if (!enabled) localStorage.setItem('enabledExtension', this.extension.id);
@@ -300,5 +313,28 @@ export default class ExtensionPage extends Page {
     }
 
     return false;
+  }
+
+  onerror(e) {
+    // We need to give the modal animation time to start; if we close the modal too early,
+    // it breaks the bootstrap modal library.
+    // TODO: This workaround should be removed when we move away from bootstrap JS for modals.
+    setTimeout(() => {
+      app.modal.close();
+    }, 300); // Bootstrap's Modal.TRANSITION_DURATION is 300 ms.
+
+    if (e.status !== 409) {
+      throw e;
+    }
+
+    const error = e.response.errors[0];
+
+    app.alerts.show(
+      { type: 'error' },
+      app.translator.trans(`core.lib.error.${error.code}_message`, {
+        extension: error.extension,
+        extensions: error.extensions.join(', '),
+      })
+    );
   }
 }

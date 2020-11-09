@@ -2,6 +2,7 @@ import compat from '../common/compat';
 
 import saveSettings from './utils/saveSettings';
 import ExtensionData from './utils/ExtensionData';
+import getCategorizedExtensions from './utils/getCategorizedExtensions';
 import SettingDropdown from './components/SettingDropdown';
 import EditCustomFooterModal from './components/EditCustomFooterModal';
 import SessionDropdown from './components/SessionDropdown';
@@ -34,6 +35,7 @@ import AdminApplication from './AdminApplication';
 export default Object.assign(compat, {
   'utils/saveSettings': saveSettings,
   'utils/ExtensionData': ExtensionData,
+  'utils/getCategorizedExtensions': getCategorizedExtensions,
   'components/SettingDropdown': SettingDropdown,
   'components/EditCustomFooterModal': EditCustomFooterModal,
   'components/SessionDropdown': SessionDropdown,

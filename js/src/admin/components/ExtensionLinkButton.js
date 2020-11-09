@@ -31,6 +31,6 @@ export default class ExtensionLinkButton extends LinkButton {
   isEnabled(name) {
     const enabled = JSON.parse(app.data.settings.extensions_enabled);
 
-    return enabled.indexOf(name) !== -1;
+    return enabled.includes(name);
   }
 }
