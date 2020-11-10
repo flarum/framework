@@ -28,7 +28,6 @@ class Csrf implements ExtenderInterface
         return $this;
     }
 
-
     /**
      * Exempt a path from csrf checks. Wildcards are supported.
      *
