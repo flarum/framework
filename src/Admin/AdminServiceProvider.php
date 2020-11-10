@@ -54,9 +54,10 @@ class AdminServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
-                HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\SetLocale::class,
-                Middleware\RequireAdministrateAbility::class,
+                'flarum.admin.route_resolver',
+                HttpMiddleware\CheckCsrfToken::class,
+                Middleware\RequireAdministrateAbility::class
             ];
         });
 
@@ -68,6 +69,10 @@ class AdminServiceProvider extends AbstractServiceProvider
             );
         });
 
+        $this->app->bind('flarum.admin.route_resolver', function () {
+            return new HttpMiddleware\ResolveRoute($this->app->make('flarum.admin.routes'));
+        });
+
         $this->app->singleton('flarum.admin.handler', function () {
             $pipe = new MiddlewarePipe;
 
@@ -75,7 +80,7 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $pipe->pipe($this->app->make($middleware));
             }
 
-            $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.admin.routes')));
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });
