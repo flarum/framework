@@ -32,7 +32,6 @@
     }
 
     .ExtensionList {
-      margin: 0 -6px;
       padding: 0;
       list-style: none;
       display: grid;
@@ -59,15 +58,22 @@
   }
 
   .ExtensionListItem {
-    width: 90px;
     height: 90px;
-    margin: 6px;
+    transition: .15s ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+    }
 
     .ExtensionListItem-title {
       display: block;
       text-align: center;
       margin-top: 5px;
       color: @text-color;
+    }
+
+    a:hover {
+      text-decoration: none;
     }
   }
 }
