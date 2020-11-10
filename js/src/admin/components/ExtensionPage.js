@@ -142,12 +142,11 @@ export default class ExtensionPage extends Page {
             </span>
             <div className="ExtensionName">
               <label>{this.extension.extra['flarum-extension'].title}</label>
-              <span className="ExtensionVersion">{this.extension.version}</span>
+            </div>
+            <div className="ExtensionPage-headerTopItems">
+              <ul>{listItems(this.topItems().toArray())}</ul>
             </div>
           </h2>
-          <aside className="ExtensionInfo">
-            <ul>{listItems(this.infoItems().toArray())}</ul>
-          </aside>
           <div className="helpText">{this.extension.description}</div>
           <div className="ExtensionPage-headerItems">
             <Switch state={this.isEnabled()} onchange={this.toggle.bind(this, this.extension.id)}>
@@ -155,19 +154,24 @@ export default class ExtensionPage extends Page {
                 ? app.translator.trans('core.admin.extension.enabled')
                 : app.translator.trans('core.admin.extension.disabled')}
             </Switch>
-            <div className="ExtensionPage-headerActionItems">
-              <ul>{listItems(this.actionItems().toArray())}</ul>
-            </div>
+            <aside className="ExtensionInfo">
+              <ul>{listItems(this.infoItems().toArray())}</ul>
+            </aside>
           </div>
         </div>
       </div>,
     ];
   }
 
-  actionItems() {
+  topItems() {
     const items = new ItemList();
 
-    if (this.isEnabled()) {
+    items.add(
+      'version',
+      <span className="ExtensionVersion">{this.extension.version}</span>
+    )
+
+    if (!this.isEnabled()) {
       items.add(
         'uninstall',
         Button.component(
