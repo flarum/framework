@@ -1,5 +1,6 @@
 import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
+import LinkButton from "../../common/components/LinkButton";
 import Page from '../../common/components/Page';
 import Select from '../../common/components/Select';
 import Switch from '../../common/components/Switch';
@@ -207,10 +208,12 @@ export default class ExtensionPage extends Page {
     if (this.extension.source || this.extension.support) {
       items.add(
         'source',
-        Button.component(
+        LinkButton.component(
           {
             href: this.extension.source ? this.extension.source.url : this.extension.support.source,
             icon: 'fas fa-code',
+            external: true,
+            target: '_blank',
           },
           app.translator.trans('core.admin.extension.source')
         )
