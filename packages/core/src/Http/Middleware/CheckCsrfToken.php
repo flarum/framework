@@ -28,7 +28,10 @@ class CheckCsrfToken implements Middleware
     {
         $path = $request->getAttribute('originalUri')->getPath();
         foreach ($this->exemptRoutes as $exemptRoute) {
-            if (fnmatch($exemptRoute, $path)) {
+            /**
+             * @deprecated path match should be removed in beta 16, only route name match should be supported.
+             */
+            if ($exemptRoute === $request->getAttribute('routeName') || fnmatch($exemptRoute, $path)) {
                 return $handler->handle($request);
             }
         }

@@ -66,7 +66,7 @@ class RouteCollection
         $routeDatas = $this->routeParser->parse($path);
 
         foreach ($routeDatas as $routeData) {
-            $this->dataGenerator->addRoute($method, $routeData, $handler);
+            $this->dataGenerator->addRoute($method, $routeData, ['name' => $name, 'handler' => $handler]);
         }
 
         $this->reverse[$name] = $routeDatas;

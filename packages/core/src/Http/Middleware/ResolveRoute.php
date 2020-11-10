@@ -18,7 +18,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
 
-class DispatchRoute implements Middleware
+class ResolveRoute implements Middleware
 {
     /**
      * @var RouteCollection
@@ -41,7 +41,7 @@ class DispatchRoute implements Middleware
     }
 
     /**
-     * Dispatch the given request to our route collection.
+     * Resolve the given request from our route collection.
      *
      * @throws MethodNotAllowedException
      * @throws RouteNotFoundException
@@ -59,10 +59,12 @@ class DispatchRoute implements Middleware
             case Dispatcher::METHOD_NOT_ALLOWED:
                 throw new MethodNotAllowedException($method);
             case Dispatcher::FOUND:
-                $handler = $routeInfo[1];
-                $parameters = $routeInfo[2];
+                $request = $request
+                    ->withAttribute('routeName', $routeInfo[1]['name'])
+                    ->withAttribute('routeHandler', $routeInfo[1]['handler'])
+                    ->withAttribute('routeParameters', $routeInfo[2]);
 
-                return $handler($request, $parameters);
+                return $handler->handle($request);
         }
     }
 
