@@ -103,6 +103,33 @@ class ApiSerializerTest extends TestCase
     /**
      * @test
      */
+    public function custom_attribute_exists_if_added_to_parent_class()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(BasicUserSerializer::class))
+                ->attributes(function () {
+                    return [
+                        'customAttribute' => true
+                    ];
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
     public function custom_setting_doesnt_exist_by_default()
     {
         $this->prepSettingsDb();

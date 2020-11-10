@@ -94,12 +94,14 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
         $attributes = $this->getDefaultAttributes($model);
 
-        if (isset(static::$attributeHandlers[static::class])) {
-            foreach (static::$attributeHandlers[static::class] as $handler) {
-                $attributes = array_merge(
-                    $attributes,
-                    $handler($attributes, $model, $this)
-                );
+        foreach (array_merge([static::class], class_parents($this)) as $class) {
+            if (isset(static::$attributeHandlers[$class])) {
+                foreach (static::$attributeHandlers[$class] as $handler) {
+                    $attributes = array_merge(
+                        $attributes,
+                        $handler($attributes, $model, $this)
+                    );
+                }
             }
         }
 
