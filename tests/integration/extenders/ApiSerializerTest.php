@@ -202,7 +202,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasMany('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->hasManyRelationship('customSerializerRelation', DiscussionSerializer::class)
+                ->hasMany('customSerializerRelation', DiscussionSerializer::class)
         );
 
         $this->prepDb();
@@ -229,7 +229,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->hasOneRelationship('customSerializerRelation', DiscussionSerializer::class)
+                ->hasOne('customSerializerRelation', DiscussionSerializer::class)
         );
 
         $this->prepDb();
@@ -312,7 +312,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasMany('anotherCustomRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->hasManyRelationship('anotherCustomRelation', DiscussionSerializer::class)
+                ->hasMany('anotherCustomRelation', DiscussionSerializer::class)
         );
 
         $this->prepDb();
@@ -341,7 +341,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('discussionCustomRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->hasOneRelationship('postCustomRelation', PostSerializer::class),
+                ->hasOne('postCustomRelation', PostSerializer::class),
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->relationship('postCustomRelation', function (AbstractSerializer $serializer, $model) {
                     return $serializer->hasOne($model, DiscussionSerializer::class, 'discussionCustomRelation');
