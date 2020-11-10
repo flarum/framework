@@ -50,6 +50,7 @@ class CsrfTest extends TestCase
 
     /**
      * @test
+     * @deprecated
      */
     public function create_user_post_doesnt_need_csrf_token_if_whitelisted()
     {
@@ -82,19 +83,37 @@ class CsrfTest extends TestCase
     /**
      * @test
      */
-    public function post_to_unknown_route_will_cause_400_error_without_csrf_override()
+    public function create_user_post_doesnt_need_csrf_token_if_whitelisted_via_routename()
     {
+        $this->extend(
+            (new Extend\Csrf)
+                ->exemptRoute('users.create')
+        );
+
         $this->prepDb();
 
         $response = $this->send(
-            $this->request('POST', '/api/fake/route/i/made/up')
+            $this->request('POST', '/api/users', [
+                'json' => [
+                    'data' => [
+                        'attributes' => $this->testUser
+                    ]
+                ],
+            ])
         );
 
-        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $user = User::where('username', $this->testUser['username'])->firstOrFail();
+
+        $this->assertEquals(0, $user->is_email_confirmed);
+        $this->assertEquals($this->testUser['username'], $user->username);
+        $this->assertEquals($this->testUser['email'], $user->email);
     }
 
     /**
      * @test
+     * @deprecated
      */
     public function csrf_matches_wildcards_properly()
     {

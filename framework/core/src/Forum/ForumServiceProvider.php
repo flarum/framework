@@ -64,8 +64,9 @@ class ForumServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
-                HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\SetLocale::class,
+                'flarum.forum.route_resolver',
+                HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\ShareErrorsFromSession::class
             ];
         });
@@ -78,6 +79,10 @@ class ForumServiceProvider extends AbstractServiceProvider
             );
         });
 
+        $this->app->bind('flarum.forum.route_resolver', function () {
+            return new HttpMiddleware\ResolveRoute($this->app->make('flarum.forum.routes'));
+        });
+
         $this->app->singleton('flarum.forum.handler', function () {
             $pipe = new MiddlewarePipe;
 
@@ -85,7 +90,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $pipe->pipe($this->app->make($middleware));
             }
 
-            $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.forum.routes')));
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });
@@ -198,8 +203,8 @@ class ForumServiceProvider extends AbstractServiceProvider
         $factory = $this->app->make(RouteHandlerFactory::class);
         $defaultRoute = $this->app->make('flarum.settings')->get('default_route');
 
-        if (isset($routes->getRouteData()[0]['GET'][$defaultRoute])) {
-            $toDefaultController = $routes->getRouteData()[0]['GET'][$defaultRoute];
+        if (isset($routes->getRouteData()[0]['GET'][$defaultRoute]['handler'])) {
+            $toDefaultController = $routes->getRouteData()[0]['GET'][$defaultRoute]['handler'];
         } else {
             $toDefaultController = $factory->toForum(Content\Index::class);
         }
