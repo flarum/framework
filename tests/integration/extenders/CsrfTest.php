@@ -50,6 +50,7 @@ class CsrfTest extends TestCase
 
     /**
      * @test
+     * @deprecated
      */
     public function create_user_post_doesnt_need_csrf_token_if_whitelisted()
     {
@@ -86,7 +87,7 @@ class CsrfTest extends TestCase
     {
         $this->extend(
             (new Extend\Csrf)
-                ->exemptPath('users.create')
+                ->exemptRoute('users.create')
         );
 
         $this->prepDb();
@@ -112,6 +113,7 @@ class CsrfTest extends TestCase
 
     /**
      * @test
+     * @deprecated
      */
     public function csrf_matches_wildcards_properly()
     {
