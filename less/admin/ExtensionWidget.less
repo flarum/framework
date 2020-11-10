@@ -10,7 +10,7 @@
 
     .ExtensionList-Category {
       background: @control-bg;
-      padding: 20px 0 30px 20px;
+      padding: 20px 0 20px 20px;
       margin-bottom: 20px;
       border-radius: @border-radius;
 
@@ -37,6 +37,7 @@
       display: grid;
       grid-gap: 10px;
       grid-template-columns: repeat(auto-fit, 90px);
+      margin-bottom: 0;
 
       > li {
         text-align: left;
@@ -58,7 +59,6 @@
   }
 
   .ExtensionListItem {
-    height: 90px;
     transition: .15s ease-in-out;
 
     &:hover {

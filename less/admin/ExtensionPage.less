@@ -11,7 +11,10 @@
 
   .ExtensionPage-header {
     .ExtensionTitle {
-      margin-left: 0px;
+      margin: 20px 0 15px;
+    }
+    .helpText {
+      margin-bottom: 5px;
     }
   }
 
@@ -24,7 +27,6 @@
       margin-left: 35px;
 
       span {
-        margin-left: 10px;
         font-size: 13px;
         color: @muted-color;
         font-weight: normal;
@@ -48,7 +50,6 @@
       > li {
         display: inline;
         color: @muted-color;
-        margin-right: 7px;
 
         > a {
           color: @muted-color;
@@ -61,14 +62,18 @@
     }
 
     .ExtensionPage-headerItems {
-      padding-top: 15px;
+      padding: 15px 0;
+
+      .Checkbox {
+        display: inline-block;
+      }
 
       .ExtensionInfo {
         padding-top: 5px;
       }
 
       @media @phone {
-        .ExtensionPage-headerActionItems {
+        .ExtensionPage-headerTopItems {
           padding-top: 20px;
         }
       }
@@ -100,10 +105,13 @@
   }
 
   @media @tablet-up {
-    .ExtensionPage-headerActionItems {
+    .ExtensionPage-headerTopItems {
       float: right;
       position: relative;
-      top: -22px;
+
+      li {
+        margin-left: 13px;
+      }
 
       button {
         padding: 0;
