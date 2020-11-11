@@ -68,7 +68,7 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function limited_by_floodgate()
+    public function limited_by_throttler()
     {
         $this->send(
             $this->request('POST', '/api/posts', [

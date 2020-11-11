@@ -148,7 +148,7 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function discussion_creation_limited_by_floodgate()
+    public function discussion_creation_limited_by_throttler()
     {
         $this->send(
             $this->request('POST', '/api/discussions', [
@@ -184,7 +184,7 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function floodgate_doesnt_apply_to_admin()
+    public function throttler_doesnt_apply_to_admin()
     {
         $this->send(
             $this->request('POST', '/api/discussions', [

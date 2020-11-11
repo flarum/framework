@@ -38,7 +38,7 @@ class AuthenticateWithHeader implements Middleware
                 $actor = $key->user ?? $this->getUser($userId);
 
                 $request = $request->withAttribute('apiKey', $key);
-                $request = $request->withAttribute('bypassFloodgate', true);
+                $request = $request->withAttribute('bypassThrottling', true);
             } elseif ($token = AccessToken::find($id)) {
                 $token->touch();
 

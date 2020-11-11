@@ -13,7 +13,7 @@ use Flarum\Extend;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 
-class FloodgateTest extends TestCase
+class ThrottleApiTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -52,8 +52,10 @@ class FloodgateTest extends TestCase
      */
     public function list_discussions_can_be_restricted()
     {
-        $this->extend((new Extend\Floodgate)->set('blockListDiscussions', ['/api/discussions'], ['GET'], function ($actor, $request) {
-            return true;
+        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
+            if ($request->getAttribute('routeName') === 'discussions.index') {
+                return true;
+            }
         }));
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
 
@@ -63,13 +65,17 @@ class FloodgateTest extends TestCase
     /**
      * @test
      */
-    public function false_overrides_true_for_evaluating_floodgates()
+    public function false_overrides_true_for_evaluating_throttlers()
     {
-        $this->extend((new Extend\Floodgate)->set('blockListDiscussions', ['/api/discussions'], ['GET'], function ($actor, $request) {
-            return true;
+        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
+            if ($request->getAttribute('routeName') === 'discussions.index') {
+                return true;
+            }
         }));
-        $this->extend((new Extend\Floodgate)->set('blockListDiscussions', ['/api/discussions'], ['GET'], function ($actor, $request) {
-            return false;
+        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussionsOverride', function ($request) {
+            if ($request->getAttribute('routeName') === 'discussions.index') {
+                return false;
+            }
         }));
 
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));

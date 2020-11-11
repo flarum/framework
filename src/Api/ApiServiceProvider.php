@@ -42,30 +42,18 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
-        $this->app->singleton('flarum.api.floodgates', function () {
+        $this->app->singleton('flarum.api.throttlers', function () {
             return [
-                [
-                    'paths' => ['*'],
-                    'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-                    'callback' => function ($actor, $request) {
-                        if ($request->getAttribute('bypassFloodgate')) {
-                            return false;
-                        }
+                'bypassThrottlingAttribute' => function($request) {
+                    if ($request->getAttribute('bypassThrottling')) {
+                        return false;
                     }
-                ]
+                }
             ];
         });
 
-        $this->app->bind(Middleware\Floodgate::class, function ($app) {
-            $floodCheckers = array_map(function ($element) use ($app) {
-                if (is_string($element['callback'])) {
-                    $element['callback'] = $app->make($element['callback']);
-                }
-
-                return $element;
-            }, $app->make('flarum.api.floodgates'));
-
-            return new Middleware\Floodgate($floodCheckers);
+        $this->app->bind(Middleware\ThrottleApi::class, function ($app) {
+            return new Middleware\ThrottleApi($app->make('flarum.api.throttlers'));
         });
 
         $this->app->singleton('flarum.api.middleware', function () {
@@ -80,7 +68,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\SetLocale::class,
                 'flarum.api.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
-                Middleware\Floodgate::class
+                Middleware\ThrottleApi::class
             ];
         });
 

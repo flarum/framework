@@ -20,22 +20,22 @@ class PostServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->extend('flarum.api.floodgates', function ($floodgates) {
-            $floodgates['createPostFloodgate'] = [
-                'paths' => ['/api/posts', '/api/discussions'],
-                'methods' => ['POST'],
-                'callback' => function ($actor, $request) {
-                    if ($actor->can('postWithoutThrottle')) {
-                        return false;
-                    }
+        $this->app->extend('flarum.api.throttlers', function ($throttlers) {
+            $throttlers['postTimeout'] = function ($request) {
+                if (!in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) return;
 
-                    if (Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime('-10 seconds'))->exists()) {
-                        return true;
-                    }
+                $actor = $request->getAttribute('actor');
+
+                if ($actor->can('postWithoutThrottle')) {
+                    return false;
                 }
-            ];
 
-            return $floodgates;
+                if (Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime('-10 seconds'))->exists()) {
+                    return true;
+                }
+            };
+
+            return $throttlers;
         });
     }
 
