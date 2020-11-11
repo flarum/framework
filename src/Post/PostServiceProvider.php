@@ -22,7 +22,9 @@ class PostServiceProvider extends AbstractServiceProvider
     {
         $this->app->extend('flarum.api.throttlers', function ($throttlers) {
             $throttlers['postTimeout'] = function ($request) {
-                if (!in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) return;
+                if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) {
+                    return;
+                }
 
                 $actor = $request->getAttribute('actor');
 

@@ -44,7 +44,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.api.throttlers', function () {
             return [
-                'bypassThrottlingAttribute' => function($request) {
+                'bypassThrottlingAttribute' => function ($request) {
                     if ($request->getAttribute('bypassThrottling')) {
                         return false;
                     }
