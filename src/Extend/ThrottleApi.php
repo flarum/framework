@@ -28,6 +28,8 @@ class ThrottleApi implements ExtenderInterface
      *   - $request: The current `\Psr\Http\Message\ServerRequestInterface` request object.
      *               `$request->getAttribute('actor')` can be used to get the current user.
      *               `$request->getAttribute('routeName')` can be used to get the current route.
+     * Please note that every throttler runs by default on every route.
+     * If you only want to throttle certain routes, you'll need to check for that inside your logic.
      *
      * The callable should return one of:
      *   - `false`: This marks the request as NOT to be throttled. It overrides all other throttlers
