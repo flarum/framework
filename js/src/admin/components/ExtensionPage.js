@@ -21,6 +21,14 @@ export default class ExtensionPage extends Page {
     this.changingState = false;
     this.settings = {};
 
+    this.infoFields = {
+      'discuss': 'fas fa-comment-alt',
+      'documentation': 'fas fa-book',
+      'support': 'fas fa-life-ring',
+      'website': 'fas fa-link',
+      'donate': 'fas fa-donate',
+    };
+
     // Backwards compatibility layer will be removed in
     // Beta 16
     if (app.extensionSettings[this.extension.id]) {
@@ -50,69 +58,26 @@ export default class ExtensionPage extends Page {
   content() {
     const settings = this.getContent('settings');
 
-    if (settings) {
-      const items = new ItemList();
-
-      Object.keys(settings).map((key) => {
-        const value = this.setting([key])();
-        if (['bool', 'checkbox', 'switch', 'boolean'].includes(settings[key].type)) {
-          items.add(
-            key,
-            <div className="Form-group">
-              <Switch state={!!value && value !== '0'} onchange={this.settings[key]}>
-                {settings[key].label}
-              </Switch>
-            </div>
-          );
-        } else if (['select', 'dropdown', 'selectdropdown'].includes(settings[key].type)) {
-          items.add(
-            key,
-            <div className="Form-group">
-              <label>{settings[key].label}</label>
-              <Select
-                value={this.setting(key) || settings[key].default}
-                options={settings[key].options}
-                buttonClassName="Button"
-                onchange={this.settings[key]}
-              />
-            </div>
-          );
-        } else {
-          items.add(
-            key,
-            <div className="Form-group">
-              <label>{settings[key].label}</label>
-              <input type={settings[key].type} className="FormControl" bidi={this.setting(key)} />
-            </div>
-          );
-        }
-      });
-
-      return items;
-    }
-  }
-
-  sections() {
-    const items = new ItemList();
-
-    items.add('settings', [
+    return (
       <div className="ExtensionPage-settings">
         <div className="container">
           {typeof app.extensionData[this.extension.id] === 'function' ? (
             <Button onclick={app.extensionData[this.extension.id].bind(this)} className="Button Button--primary">
               {app.translator.trans('core.admin.extension.open_modal')}
             </Button>
-          ) : this.content() ? (
-            <div className="Form">
-              {this.content().toArray()}
-              <div className="Form-group">{this.submitButton()}</div>
-            </div>
-          ) : (
-            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h2>
-          )}
+          ) : settings ? this.getSettings(settings)
+            : (
+              <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h2>
+            )}
         </div>
-      </div>,
-    ]);
+      </div>
+    )
+  }
+
+  sections() {
+    const items = new ItemList();
+
+    items.add('content', this.content());
 
     items.add('permissions', [
       <div className="ExtensionPage-permissions">
@@ -121,7 +86,7 @@ export default class ExtensionPage extends Page {
         </div>
         <div className="container">
           {this.getContent('permissions') ? (
-            ExtensionPermissionGrid.component({ extensionId: this.extension.id })
+            ExtensionPermissionGrid.component({extensionId: this.extension.id})
           ) : (
             <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
           )}
@@ -132,11 +97,50 @@ export default class ExtensionPage extends Page {
     return items;
   }
 
+  getSettings(settings) {
+    return (
+      <div className="Form">
+        {Object.keys(settings).map((key) => {
+          const value = this.setting([key])();
+          if (['bool', 'checkbox', 'switch', 'boolean'].includes(settings[key].type)) {
+            return (
+              <div className="Form-group">
+                <Switch state={!!value && value !== '0'} onchange={this.settings[key]}>
+                  {settings[key].label}
+                </Switch>
+              </div>
+            );
+          } else if (['select', 'dropdown', 'selectdropdown'].includes(settings[key].type)) {
+            return (
+              <div className="Form-group">
+                <label>{settings[key].label}</label>
+                <Select
+                  value={this.setting(key) || settings[key].default}
+                  options={settings[key].options}
+                  buttonClassName="Button"
+                  onchange={this.settings[key]}
+                />
+              </div>
+            );
+          } else {
+            return (
+              <div className="Form-group">
+                <label>{settings[key].label}</label>
+                <input type={settings[key].type} className="FormControl" bidi={this.setting(key)}/>
+              </div>
+            );
+          }
+        })}
+        <div className="Form-group">{this.submitButton()}</div>
+      </div>
+    );
+  }
+
   header() {
     return [
       <div className="ExtensionPage-header">
         <div className="container">
-          <h2 className="ExtensionTitle">
+          <div className="ExtensionTitle">
             <span className="ExtensionIcon" style={this.extension.icon}>
               {this.extension.icon ? icon(this.extension.icon.name) : ''}
             </span>
@@ -146,7 +150,7 @@ export default class ExtensionPage extends Page {
             <div className="ExtensionPage-headerTopItems">
               <ul>{listItems(this.topItems().toArray())}</ul>
             </div>
-          </h2>
+          </div>
           <div className="helpText">{this.extension.description}</div>
           <div className="ExtensionPage-headerItems">
             <Switch state={this.isEnabled()} onchange={this.toggle.bind(this, this.extension.id)}>
@@ -174,27 +178,28 @@ export default class ExtensionPage extends Page {
     if (!this.isEnabled()) {
       items.add(
         'uninstall',
-        Button.component(
-          {
-            icon: 'far fa-trash-alt',
-            onclick: () => {
-              app
-                .request({
-                  url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
-                  method: 'DELETE',
-                })
-                .then(() => window.location.reload());
+        <Button icon='fas fa-trash-alt' className="Button Button--primary" onclick={() => {
+          if (confirm(app.translator.trans('core.admin.extension.confirm_uninstall'))) {
+            app
+              .request({
+                url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
+                method: 'DELETE',
+              })
+              .then(() => window.location.reload());
 
-              app.modal.show(LoadingModal);
-            },
-          },
-          app.translator.trans('core.admin.extension.uninstall_button')
-        )
-      );
+            app.modal.show(LoadingModal);
+          }
+        }
+        }
+        >
+          {app.translator.trans('core.admin.extension.uninstall_button')}
+        </Button>
+      )
     }
 
     return items;
   }
+
 
   infoItems() {
     const items = new ItemList();
@@ -219,9 +224,29 @@ export default class ExtensionPage extends Page {
             external: true,
             target: '_blank',
           },
-          app.translator.trans('core.admin.extension.source')
+          app.translator.trans('core.admin.extension.info_links.source')
         )
       );
+    }
+
+    if (this.extension.extra['flarum-extension'].info) {
+
+      Object.keys(this.infoFields).map(field => {
+        if (this.extension.extra['flarum-extension'].info[field]) {
+          items.add(
+            field,
+            LinkButton.component(
+              {
+                href: this.extension.extra['flarum-extension'].info[field],
+                icon: this.infoFields[field],
+                external: true,
+                target: '_blank',
+              },
+              app.translator.trans(`core.admin.extension.info_links.${field}`)
+            )
+          );
+        }
+      });
     }
 
     return items;
@@ -248,7 +273,7 @@ export default class ExtensionPage extends Page {
       .request({
         url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
         method: 'PATCH',
-        body: { enabled: !enabled },
+        body: {enabled: !enabled},
         errorHandler: this.onerror.bind(this),
       })
       .then(() => {
@@ -261,7 +286,8 @@ export default class ExtensionPage extends Page {
 
   submitButton() {
     return (
-      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.changed()}>
+      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading}
+              disabled={!this.changed()}>
         {app.translator.trans('core.admin.settings.submit_button')}
       </Button>
     );
@@ -337,7 +363,7 @@ export default class ExtensionPage extends Page {
     const error = e.response.errors[0];
 
     app.alerts.show(
-      { type: 'error' },
+      {type: 'error'},
       app.translator.trans(`core.lib.error.${error.code}_message`, {
         extension: error.extension,
         extensions: error.extensions.join(', '),
