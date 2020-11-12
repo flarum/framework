@@ -34,11 +34,8 @@
     }
 
     button {
-      background: none;
-      border: none;
-
-      &:hover {
-        text-decoration: underline;
+      i {
+        display: unset;
       }
     }
 
@@ -50,6 +47,8 @@
       > li {
         display: inline;
         color: @muted-color;
+        margin-left: 13px;
+
 
         > a {
           color: @muted-color;
@@ -108,14 +107,6 @@
     .ExtensionPage-headerTopItems {
       float: right;
       position: relative;
-
-      li {
-        margin-left: 13px;
-      }
-
-      button {
-        padding: 0;
-      }
     }
   }
 
