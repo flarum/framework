@@ -95,6 +95,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\SendConfirmationEmailController::class)
     );
 
+    // List users
+    $map->get(
+        '/search/users',
+        'users.search',
+        $route->toController(Controller\SearchUsersController::class)
+    );
+
     /*
     |--------------------------------------------------------------------------
     | Notifications
@@ -161,6 +168,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/discussions/{id}',
         'discussions.delete',
         $route->toController(Controller\DeleteDiscussionController::class)
+    );
+
+    // Search discussions
+    $map->get(
+        '/search/discussions',
+        'discussions.search',
+        $route->toController(Controller\SearchDiscussionsController::class)
     );
 
     /*
