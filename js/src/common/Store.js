@@ -83,7 +83,7 @@ export default class Store {
    */
   find(type, id, query = {}, options = {}) {
     let params = query;
-    let url = app.forum.attribute('apiUrl') + '/' + type;
+    let url = app.forum.attribute('apiUrl') + (query.search ? '/search/' : '/') + type;
 
     if (id instanceof Array) {
       url += '?filter[id]=' + id.join(',');

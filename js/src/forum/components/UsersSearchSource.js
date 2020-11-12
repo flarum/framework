@@ -16,10 +16,14 @@ export default class UsersSearchResults {
 
   search(query) {
     return app.store
-      .find('users', {
-        filter: { q: query },
-        page: { limit: 5 },
-      })
+      .find(
+        'users',
+        {
+          filter: { q: query },
+          page: { limit: 5 },
+        },
+        { search: query }
+      )
       .then((results) => {
         this.results[query] = results;
         m.redraw();

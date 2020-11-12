@@ -119,7 +119,7 @@ export default class DiscussionListState {
     params.page = { offset };
     params.include = params.include.join(',');
 
-    return this.app.store.find('discussions', params);
+    return this.app.store.find('discussions', params, { search: params.filter.q });
   }
 
   /**
