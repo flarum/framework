@@ -13,6 +13,9 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
+/**
+ * @deprecated in beta 15, removed in beta 16
+ */
 class WillSerializeData
 {
     /**
