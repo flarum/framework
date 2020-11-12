@@ -3,12 +3,6 @@
 .ExtensionPage {
   min-height: 100vh;
 
-  .ExtensionPage-permissions-header {
-    .ExtensionTitle {
-      margin-left: 30px;
-    }
-  }
-
   .ExtensionPage-header {
     .ExtensionTitle {
       margin: 20px 0 15px;
@@ -60,6 +54,14 @@
       }
     }
 
+    @media @phone {
+      .ExtensionPage-headerTopItems {
+        float: right;
+      }
+
+
+    }
+
     .ExtensionPage-headerItems {
       padding: 15px 0;
 
@@ -69,12 +71,6 @@
 
       .ExtensionInfo {
         padding-top: 5px;
-      }
-
-      @media @phone {
-        .ExtensionPage-headerTopItems {
-          padding-top: 20px;
-        }
       }
     }
 
@@ -101,14 +97,19 @@
         margin-left: 0;
         vertical-align: middle;
       }
-  }
 
-  @media @tablet-up {
-    .ExtensionPage-headerTopItems {
-      float: right;
-      position: relative;
+    @media (max-width: @screen-phone-max) {
+      .ExtensionPage-headerTopItems {
+        float: right;
+        position: relative;
+      }
+
+      .item-website, .item-source, .item-documentation {
+        display: none;
+      }
     }
   }
+
 
   .ExtensionPage-settings {
     margin-top: 20px;
@@ -127,9 +128,18 @@
 
 
   .ExtensionPage-permissions {
+    > .container {
+      overflow-x: scroll;
+      padding-bottom: 20px;
+    }
+
     .ExtensionPage-permissions-header {
       margin: 20px 0 20px;
       padding: 5px 0;
+
+      .ExtensionTitle {
+        margin-left: 30px;
+      }
     }
   }
 }
