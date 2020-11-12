@@ -115,7 +115,7 @@ export default class ExtensionPage extends Page {
               <div className="Form-group">
                 <label>{settings[key].label}</label>
                 <Select
-                  value={this.setting(key) || settings[key].default}
+                  value={value || settings[key].default}
                   options={settings[key].options}
                   buttonClassName="Button"
                   onchange={this.settings[key]}
@@ -324,14 +324,7 @@ export default class ExtensionPage extends Page {
   onsaved() {
     this.loading = false;
 
-    app.alerts.show(
-      new Alert(
-        {
-          type: 'success',
-        },
-        app.translator.trans('core.admin.extension.saved_message')
-      )
-    );
+    app.alerts.show({type: 'success'}, app.translator.trans('core.admin.extension.saved_message'));
   }
 
   setting(key, fallback = '') {
