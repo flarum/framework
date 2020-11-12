@@ -22,14 +22,21 @@ class ThrottleApi implements ExtenderInterface
      * Add a new throttler (or override one with the same name).
      *
      * @param string $name: The name of the throttler.
-     * @param string[] $callback: A closure or invokable class that contains the logic of the throttler.
-     *                            It should return one of:
-     *                              - `false`: This marks the request as NOT flooding. It overrides all other outputs
-     *                              - `true`: This marks the request as flooding.
-     *                            All other outputs will be ignored.
+     * @param string|callable $callback
+     *
+     * The callable can be a closure or invokable class, and should accept:
+     *   - $request: The current `\Psr\Http\Message\ServerRequestInterface` request object.
+     *               `$request->getAttribute('actor')` can be used to get the current user.
+     *               `$request->getAttribute('routeName')` can be used to get the current route.
+     *
+     * The callable should return one of:
+     *   - `false`: This marks the request as NOT to be throttled. It overrides all other throttlers
+     *   - `true`: This marks the request as to be throttled.
+     *  All other outputs will be ignored.
+     *
      * @return self
      */
-    public function set(string $name, callable $callback)
+    public function set(string $name, $callback)
     {
         $this->setThrottlers[$name] = $callback;
 
