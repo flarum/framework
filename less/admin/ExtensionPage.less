@@ -1,7 +1,7 @@
 @extension-list-column-width: 410px;
 
 .ExtensionPage {
-  min-height: 100vh;
+  min-height: 110vh;
 
   .ExtensionPage-header {
     .ExtensionTitle {
@@ -9,6 +9,10 @@
     }
     .helpText {
       margin-bottom: 5px;
+    }
+
+    h2 {
+      margin-left: 35px;
     }
   }
 
@@ -18,7 +22,6 @@
 
     h2 {
       color: @muted-color;
-      margin-left: 35px;
 
       span {
         font-size: 13px;
@@ -52,14 +55,6 @@
           margin-right: 5px;
         }
       }
-    }
-
-    @media @phone {
-      .ExtensionPage-headerTopItems {
-        float: right;
-      }
-
-
     }
 
     .ExtensionPage-headerItems {
@@ -98,6 +93,10 @@
         vertical-align: middle;
       }
 
+    .ExtensionPage-headerTopItems {
+      float: right;
+    }
+
     @media (max-width: @screen-phone-max) {
       .ExtensionPage-headerTopItems {
         float: right;
@@ -128,18 +127,17 @@
 
 
   .ExtensionPage-permissions {
-    > .container {
-      overflow-x: scroll;
-      padding-bottom: 20px;
+
+    @media @phone {
+      > .container {
+        overflow-x: scroll;
+        padding-bottom: 20px;
+      }
     }
 
     .ExtensionPage-permissions-header {
       margin: 20px 0 20px;
       padding: 5px 0;
-
-      .ExtensionTitle {
-        margin-left: 30px;
-      }
     }
   }
 }

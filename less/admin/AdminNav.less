@@ -48,6 +48,12 @@
   }
 }
 
+@media @tablet {
+  .ExtensionItem, .item-search {
+    display: none !important;
+  }
+}
+
 @media @phone, @tablet {
   .App-nav .AdminNav {
     .Dropdown-menu {
@@ -61,8 +67,15 @@
           margin: 25px 0 10px 15px;
         }
 
+        .ExtensionListItem-Dot {
+          display: none;
+        }
+
         .ExtensionIcon {
           margin: -2px -29px;
+          width: 25px !important;
+          height: 25px !important;
+          font-size: 12.5px !important;
 
           .icon {
             margin: 0;
@@ -159,6 +172,7 @@
       }
     }
   }
+
   .container {
     width: 100%;
     margin: 0;
@@ -170,6 +184,7 @@
       padding: 0;
     }
   }
+
 }
 
 .mainLink {
@@ -204,18 +219,4 @@
 }
 .ExtensionListItem-Dot.disabled {
   background-color: #FF4136;
-}
-
-@media (max-width: @screen-tablet-max) {
-  .ExtensionListItem-Dot {
-    display: none;
-  }
-}
-
-@media (@phone) {
-  .ExtensionIcon {
-    width: 25px !important;
-    height: 25px !important;
-    font-size: 12.5px !important;
-  }
 }
