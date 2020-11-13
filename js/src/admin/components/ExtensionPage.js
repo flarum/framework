@@ -1,4 +1,3 @@
-import Alert from '../../common/components/Alert';
 import Button from '../../common/components/Button';
 import LinkButton from "../../common/components/LinkButton";
 import Page from '../../common/components/Page';
@@ -82,7 +81,9 @@ export default class ExtensionPage extends Page {
     items.add('permissions', [
       <div className="ExtensionPage-permissions">
         <div className="ExtensionPage-permissions-header">
-          <h2 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h2>
+          <div className="container">
+            <h2 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h2>
+          </div>
         </div>
         <div className="container">
           {this.getContent('permissions') ? (
@@ -297,7 +298,7 @@ export default class ExtensionPage extends Page {
     const dirty = {};
 
     Object.keys(this.settings).forEach((key) => {
-      const value = this.settings[key];
+      const value = this.settings[key]();
 
       if (value !== app.data.settings[key]) {
         dirty[key] = value;
