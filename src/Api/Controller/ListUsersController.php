@@ -10,10 +10,9 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Filter\Filterer;
 use Flarum\Http\UrlGenerator;
-use Flarum\Search\SearchCriteria;
-use Flarum\User\Search\UserSearcher;
-use Illuminate\Support\Arr;
+use Flarum\User\UserRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -41,9 +40,9 @@ class ListUsersController extends AbstractListController
     ];
 
     /**
-     * @var UserSearcher
+     * @var Filterer
      */
-    protected $searcher;
+    protected $filterer;
 
     /**
      * @var UrlGenerator
@@ -51,13 +50,20 @@ class ListUsersController extends AbstractListController
     protected $url;
 
     /**
-     * @param UserSearcher $searcher
-     * @param UrlGenerator $url
+     * @var UserRepository
      */
-    public function __construct(UserSearcher $searcher, UrlGenerator $url)
+    protected $users;
+
+    /**
+     * @param Filterer $filterer
+     * @param UrlGenerator $url
+     * @param UserRepository $users
+     */
+    public function __construct(Filterer $filterer, UrlGenerator $url, UserRepository $users)
     {
-        $this->searcher = $searcher;
+        $this->filterer = $filterer;
         $this->url = $url;
+        $this->users = $users;
     }
 
     /**
@@ -69,16 +75,16 @@ class ListUsersController extends AbstractListController
 
         $actor->assertCan('viewUserList');
 
-        $query = Arr::get($this->extractFilter($request), 'q');
-        $sort = $this->extractSort($request);
+        $query = $this->users->query();
 
-        $criteria = new SearchCriteria($actor, $query, $sort);
+        $filters = $this->extractFilter($request);
+        $sort = $this->extractSort($request);
 
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
         $load = $this->extractInclude($request);
 
-        $results = $this->searcher->search($criteria, $limit, $offset, $load);
+        $results = $this->filterer->filter($actor, $query, $filters, $sort, $limit, $offset, $load);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),

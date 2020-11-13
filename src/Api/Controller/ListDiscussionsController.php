@@ -11,10 +11,10 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
+use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Filter\Filterer;
 use Flarum\Http\UrlGenerator;
-use Flarum\Search\SearchCriteria;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -49,9 +49,14 @@ class ListDiscussionsController extends AbstractListController
     public $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
 
     /**
-     * @var DiscussionSearcher
+     * @var DiscussionRepository
      */
-    protected $searcher;
+    protected $discussions;
+
+    /**
+     * @var Filterer
+     */
+    protected $filterer;
 
     /**
      * @var UrlGenerator
@@ -62,9 +67,10 @@ class ListDiscussionsController extends AbstractListController
      * @param DiscussionSearcher $searcher
      * @param UrlGenerator $url
      */
-    public function __construct(DiscussionSearcher $searcher, UrlGenerator $url)
+    public function __construct(DiscussionRepository $discussions, Filterer $filterer, UrlGenerator $url)
     {
-        $this->searcher = $searcher;
+        $this->discussions = $discussions;
+        $this->filterer = $filterer;
         $this->url = $url;
     }
 
@@ -74,16 +80,17 @@ class ListDiscussionsController extends AbstractListController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
-        $query = Arr::get($this->extractFilter($request), 'q');
-        $sort = $this->extractSort($request);
 
-        $criteria = new SearchCriteria($actor, $query, $sort);
+
+        $filters = $this->extractFilter($request);
+        $sort = $this->extractSort($request);
+        $query = $this->discussions->query();
 
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
         $load = array_merge($this->extractInclude($request), ['state']);
 
-        $results = $this->searcher->search($criteria, $limit, $offset);
+        $results = $this->filterer->filter($actor, $query, $filters, $sort, $limit, $offset, $load);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('discussions.index'),
