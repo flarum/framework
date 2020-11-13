@@ -6,7 +6,7 @@ export default function getCategorizedExtensions() {
     let category = extension.extra['flarum-extension'].category;
 
     // Wrap languages packs into new system
-    if (extension.extra['flarum-locale'] && !category) {
+    if (extension.extra['flarum-locale']) {
       category = 'language';
     }
 

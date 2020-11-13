@@ -16,7 +16,7 @@ export default class ExtensionData {
    *
    * @param extension
    */
-  load(extension) {
+  for(extension) {
     this.currentExtension = extension;
     this.data[extension] = this.data[extension] || {};
 
@@ -43,9 +43,9 @@ export default class ExtensionData {
    * @returns {ExtensionData}
    */
   registerSettings(content, permissionType = null, priority = 0) {
-    this.data[this.currentExtension].settings = this.data[this.currentExtension].settings || {};
+    this.data[this.currentExtension].settings = this.data[this.currentExtension].settings || [];
 
-    this.data[this.currentExtension].settings = content;
+    this.data[this.currentExtension].settings.push(...content);
 
     return this;
   }
@@ -79,7 +79,8 @@ export default class ExtensionData {
   }
 
   /**
-   * Replace the default extension page with a custom component
+   * Replace the default extension page with a custom component.
+   * This component would typically extend ExtensionPage
    *
    * @param component
    * @returns {ExtensionData}
@@ -112,11 +113,11 @@ export default class ExtensionData {
    * @param type
    * @returns {ItemList}
    */
-  getPermissions(type) {
+  getAllExtensionPermissions(type) {
     const items = new ItemList();
 
     Object.keys(this.data).map((extension) => {
-      if (this.data[extension] && this.data[extension].permissions && this.data[extension].permissions[type]) {
+      if (this.extensionHasPermissions(extension) && this.data[extension].permissions[type]) {
         items.merge(this.data[extension].permissions[type]);
       }
     });
@@ -132,12 +133,22 @@ export default class ExtensionData {
    * @returns {boolean|*}
    */
   getExtensionPermissions(extension, type) {
+    if (this.extensionHasPermissions(extension) && this.data[extension].permissions[type]) {
+      return this.data[extension].permissions[type];
+    }
+
+    return new ItemList();
+  }
+
+  /**
+   * Checks whether a given extension has registered permissions.
+   *
+   * @param extension
+   * @returns {boolean}
+   */
+  extensionHasPermissions(extension) {
     if (this.data[extension] && this.data[extension].permissions) {
-      if (!type) {
-        return true;
-      } else if (this.data[extension].permissions[type]) {
-        return this.data[extension].permissions[type];
-      }
+      return true;
     }
 
     return false;

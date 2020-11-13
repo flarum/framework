@@ -154,7 +154,7 @@ export default class PermissionGrid extends Component {
       permission: 'user.viewLastSeenAt',
     });
 
-    items.merge(app.extensionData.getPermissions('view'));
+    items.merge(app.extensionData.getAllExtensionPermissions('view'));
 
     return items;
   }
@@ -196,7 +196,7 @@ export default class PermissionGrid extends Component {
       90
     );
 
-    items.merge(app.extensionData.getPermissions('start'));
+    items.merge(app.extensionData.getAllExtensionPermissions('start'));
 
     return items;
   }
@@ -238,7 +238,7 @@ export default class PermissionGrid extends Component {
       90
     );
 
-    items.merge(app.extensionData.getPermissions('reply'));
+    items.merge(app.extensionData.getAllExtensionPermissions('reply'));
 
     return items;
   }
@@ -336,7 +336,7 @@ export default class PermissionGrid extends Component {
       60
     );
 
-    items.merge(app.extensionData.getPermissions('moderate'));
+    items.merge(app.extensionData.getAllExtensionPermissions('moderate'));
 
     return items;
   }

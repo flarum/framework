@@ -100,7 +100,7 @@ export default class ExtensionPage extends Page {
           </div>
         </div>
         <div className="container">
-          {app.extensionData.getExtensionPermissions(this.extension.id) ? (
+          {app.extensionData.extensionHasPermissions(this.extension.id) ? (
             ExtensionPermissionGrid.component({ extensionId: this.extension.id })
           ) : (
             <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
@@ -178,39 +178,40 @@ export default class ExtensionPage extends Page {
       items.add('authors', [icon('fas fa-user'), <span>{authors.join(', ')}</span>]);
     }
 
-    if (this.extension.source || this.extension.support) {
-      items.add(
-        'source',
-        LinkButton.component(
-          {
-            href: this.extension.source ? this.extension.source.url : this.extension.support.source,
-            icon: 'fas fa-code',
-            external: true,
-            target: '_blank',
-          },
-          app.translator.trans('core.admin.extension.info_links.source')
-        )
-      );
-    }
+    const infoData = {};
 
     if (this.extension.extra['flarum-extension'].info) {
       Object.keys(this.infoFields).map((field) => {
         if (this.extension.extra['flarum-extension'].info[field]) {
-          items.add(
-            field,
-            LinkButton.component(
-              {
-                href: this.extension.extra['flarum-extension'].info[field],
-                icon: this.infoFields[field],
-                external: true,
-                target: '_blank',
-              },
-              app.translator.trans(`core.admin.extension.info_links.${field}`)
-            )
-          );
+          infoData[field] = {
+            icon: this.infoFields[field],
+            href: this.extension.extra['flarum-extension'].info[field],
+          };
         }
       });
     }
+
+    if (this.extension.source || this.extension.support) {
+      infoData.source = {
+        icon: 'fas fa-code',
+        href: this.extension.source ? this.extension.source.url : this.extension.support.source,
+      };
+    }
+
+    Object.entries(infoData).map(([field, value]) => {
+      items.add(
+        field,
+        LinkButton.component(
+          {
+            href: value.href,
+            icon: value.href,
+            external: true,
+            target: '_blank',
+          },
+          app.translator.trans(`core.admin.extension.info_links.${field}`)
+        )
+      );
+    });
 
     return items;
   }
@@ -253,28 +254,29 @@ export default class ExtensionPage extends Page {
    * @returns {JSX.Element}
    */
   getSettings(settings) {
-    return Object.keys(settings).map((key) => {
-      const value = this.setting([key])();
-      if (['bool', 'checkbox', 'switch', 'boolean'].includes(settings[key].type)) {
+    return settings.map((entry) => {
+      const setting = entry.setting;
+      const value = this.setting([setting])();
+      if (['bool', 'checkbox', 'switch', 'boolean'].includes(entry.type)) {
         return (
           <div className="Form-group">
-            <Switch state={!!value && value !== '0'} onchange={this.settings[key]}>
-              {settings[key].label}
+            <Switch state={!!value && value !== '0'} onchange={this.settings[setting]}>
+              {entry.label}
             </Switch>
           </div>
         );
-      } else if (['select', 'dropdown', 'selectdropdown'].includes(settings[key].type)) {
+      } else if (['select', 'dropdown', 'selectdropdown'].includes(entry.type)) {
         return (
           <div className="Form-group">
-            <label>{settings[key].label}</label>
-            <Select value={value || settings[key].default} options={settings[key].options} buttonClassName="Button" onchange={this.settings[key]} />
+            <label>{entry.label}</label>
+            <Select value={value || entry.default} options={entry.options} buttonClassName="Button" onchange={this.settings[setting]} />
           </div>
         );
       } else {
         return (
           <div className="Form-group">
-            <label>{settings[key].label}</label>
-            <input type={settings[key].type} className="FormControl" bidi={this.setting(key)} />
+            <label>{entry.label}</label>
+            <input type={entry.type} className="FormControl" bidi={this.setting(setting)} />
           </div>
         );
       }
