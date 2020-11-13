@@ -21,13 +21,17 @@ class Filterer
 
     protected static $filterMutators = [];
 
-    public static function addFilter($resource, $filterKey, $filter)
+    public static function addFilter($resource, FilterInterface $filter)
     {
         if (!array_key_exists($resource, static::$filters)) {
             static::$filters[$resource] = [];
         }
 
-        static::$filters[$resource][$filterKey] = $filter;
+        if (!array_key_exists($filter->getKey(), static::$filters[$resource])) {
+            static::$filters[$resource][$filter->getKey()] = [];
+        }
+
+        static::$filters[$resource][$filter->getKey()][] = $filter;
     }
 
     public static function addFilterMutator($resource, $mutator)
@@ -52,20 +56,20 @@ class Filterer
 
         $query->whereVisibleTo($actor);
 
-        foreach (Arr::get(static::$filters, $resource, []) as $filterKey => $filterCallback) {
-            if (array_key_exists($filterKey, $filters)) {
-                $filterCallback($query, $filters[$filterKey]);
+        $wrappedFilter = new WrappedFilter($query->getQuery(), $actor);
+
+        foreach ($filters as $filterKey => $filterValue) {
+            foreach (Arr::get(static::$filters, "$resource.$filterKey", []) as $filter) {
+                $filter->apply($wrappedFilter, $filterValue);
             }
         }
-
-        $wrappedFilter = new WrappedFilter($query->getQuery(), $actor);
 
         $this->applySort($wrappedFilter, $sort);
         $this->applyOffset($wrappedFilter, $offset);
         $this->applyLimit($wrappedFilter, $limit + 1);
 
         foreach (Arr::get(static::$filterMutators, $resource, []) as $mutator) {
-            $mutator($wrappedFilter, $filters, $sort);
+            $mutator($query, $actor, $filters, $sort);
         }
 
         // Execute the filter query and retrieve the results. We get one more
