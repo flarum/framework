@@ -5,23 +5,17 @@ export default function getCategorizedExtensions() {
     const extension = app.data.extensions[id];
     let category = extension.extra['flarum-extension'].category;
 
-    if (!extension.extra['flarum-extension'].category) {
-      category = 'other';
-    }
-
     // Wrap languages packs into new system
-    if (extension.extra['flarum-locale']) {
+    if (extension.extra['flarum-locale'] && !category) {
       category = 'language';
     }
 
     if (category in app.extensionCategories) {
-      extensions[category] = extensions[category] || {};
+      extensions[category] = extensions[category] || [];
 
-      extensions[category][id] = extension;
+      extensions[category].push(extension);
     } else {
-      // If the extension doesn't fit
-      // into a category add it to other
-      extensions.other[id] = extension;
+      extensions.other.push(extension);
     }
   });
 

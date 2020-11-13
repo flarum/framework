@@ -5,12 +5,13 @@ import ExtensionPage from './components/ExtensionPage';
 import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
+import ExtensionData from './utils/ExtensionData';
 
 export default class AdminApplication extends Application {
   // Deprecated as of beta 15
   extensionSettings = {};
 
-  extensionData = {};
+  extensionData = new ExtensionData();
 
   extensionCategories = {
     discussion: 70,

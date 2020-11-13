@@ -1,44 +1,38 @@
 import PermissionGrid from './PermissionGrid';
-import ItemList from '../../common/utils/ItemList';
+import ItemList from "../../common/utils/ItemList";
 
 export default class ExtensionPermissionGrid extends PermissionGrid {
-  permissionItems() {
-    const items = super.permissionItems();
+  oninit(vnode) {
+    super.oninit(vnode);
 
-    Object.keys(items.items).map((item) => {
-      if (items.items[item].content.children.length === 0) {
-        items.remove([item]);
+    this.extensionId = this.attrs.extensionId;
+  }
+
+  permissionItems() {
+    const permissionCategories = super.permissionItems();
+
+    Object.keys(permissionCategories.items).map((item) => {
+      if (permissionCategories.items[item].content.children.length === 0) {
+        permissionCategories.remove([item]);
       }
     });
 
-    return items;
+    return permissionCategories;
   }
 
   viewItems() {
-    return this.getExtensionPermissions('view');
+    return app.extensionData.getExtensionPermissions(this.extensionId, 'view') || new ItemList();
   }
 
   startItems() {
-    return this.getExtensionPermissions('start');
+    return app.extensionData.getExtensionPermissions(this.extensionId, 'start') || new ItemList();
   }
 
   replyItems() {
-    return this.getExtensionPermissions('reply');
+    return app.extensionData.getExtensionPermissions(this.extensionId, 'reply') || new ItemList();
   }
 
   moderateItems() {
-    return this.getExtensionPermissions('moderate');
-  }
-
-  getExtensionPermissions(type) {
-    const items = new ItemList();
-
-    const extensionId = this.attrs.extensionId;
-
-    if (app.extensionData[extensionId] && app.extensionData[extensionId].permissions && app.extensionData[extensionId].permissions[type]) {
-      items.merge(app.extensionData[extensionId].permissions[type]);
-    }
-
-    return items;
+    return app.extensionData.getExtensionPermissions(this.extensionId, 'moderate') || new ItemList();
   }
 }

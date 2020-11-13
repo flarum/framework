@@ -6,13 +6,6 @@ import ItemList from '../../common/utils/ItemList';
 import icon from '../../common/helpers/icon';
 
 export default class PermissionGrid extends Component {
-  oninit(vnode) {
-    super.oninit(vnode);
-
-    this.permissions = this.permissionItems().toArray();
-    this.extensionId = this.attrs.extensionId;
-  }
-
   view() {
     const scopes = this.scopeItems().toArray();
 
@@ -36,7 +29,7 @@ export default class PermissionGrid extends Component {
             <th>{this.scopeControlItems().toArray()}</th>
           </tr>
         </thead>
-        {this.permissions.map((section) => (
+        {this.permissionItems().toArray().map((section) => (
           <tbody>
             <tr className="PermissionGrid-section">
               <th>{section.label}</th>
@@ -104,10 +97,6 @@ export default class PermissionGrid extends Component {
   viewItems() {
     const items = new ItemList();
 
-    if (this.extensionId) {
-      return this.getExtensionPermissions('view');
-    }
-
     items.add(
       'viewDiscussions',
       {
@@ -163,17 +152,13 @@ export default class PermissionGrid extends Component {
       permission: 'user.viewLastSeenAt',
     });
 
-    items.merge(this.getExtensionPermissions('view'));
+    items.merge(app.extensionData.getPermissions('view'));
 
     return items;
   }
 
   startItems() {
     const items = new ItemList();
-
-    if (this.extensionId) {
-      return this.getExtensionPermissions('start');
-    }
 
     items.add(
       'start',
@@ -209,17 +194,13 @@ export default class PermissionGrid extends Component {
       90
     );
 
-    items.merge(this.getExtensionPermissions('start'));
+    items.merge(app.extensionData.getPermissions('start'));
 
     return items;
   }
 
   replyItems() {
     const items = new ItemList();
-
-    if (this.extensionId) {
-      return this.getExtensionPermissions('reply');
-    }
 
     items.add(
       'reply',
@@ -255,17 +236,13 @@ export default class PermissionGrid extends Component {
       90
     );
 
-    items.merge(this.getExtensionPermissions('reply'));
+    items.merge(app.extensionData.getPermissions('reply'));
 
     return items;
   }
 
   moderateItems() {
     const items = new ItemList();
-
-    if (this.extensionId) {
-      return this.getExtensionPermissions('moderate');
-    }
 
     items.add(
       'viewIpsPosts',
@@ -357,7 +334,7 @@ export default class PermissionGrid extends Component {
       60
     );
 
-    items.merge(this.getExtensionPermissions('moderate'));
+    items.merge(app.extensionData.getPermissions('moderate'));
 
     return items;
   }
@@ -390,21 +367,5 @@ export default class PermissionGrid extends Component {
 
   scopeControlItems() {
     return new ItemList();
-  }
-
-  getExtensionPermissions(type) {
-    const items = new ItemList();
-
-    if (this.extensionId) {
-      items.merge(app.extensionData[this.extensionId].permissions[type]);
-    } else {
-      Object.keys(app.extensionData).map((extension) => {
-        if (app.extensionData[extension] && app.extensionData[extension].permissions && app.extensionData[extension].permissions[type]) {
-          items.merge(app.extensionData[extension].permissions[type]);
-        }
-      });
-    }
-
-    return items;
   }
 }

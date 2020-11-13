@@ -16,7 +16,7 @@ export default class AdminNav extends Component {
   view() {
     return (
       <SelectDropdown className="AdminNav App-titleControl AdminNav-Main" buttonClassName="Button">
-        {this.mainItems().toArray().concat(this.extensionItems().toArray())}
+        {this.items().toArray().concat(this.extensionItems().toArray())}
       </SelectDropdown>
     );
   }
@@ -26,7 +26,7 @@ export default class AdminNav extends Component {
    *
    * @return {ItemList}
    */
-  mainItems() {
+  items() {
     const items = new ItemList();
 
     items.add(
@@ -35,7 +35,7 @@ export default class AdminNav extends Component {
         {
           href: app.route('dashboard'),
           icon: 'far fa-chart-bar',
-          className: 'mainLink',
+          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.dashboard_title'),
         },
         app.translator.trans('core.admin.nav.dashboard_button')
@@ -48,6 +48,7 @@ export default class AdminNav extends Component {
         {
           href: app.route('basics'),
           icon: 'fas fa-pencil-alt',
+          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.basics_title'),
         },
         app.translator.trans('core.admin.nav.basics_button')
@@ -60,7 +61,7 @@ export default class AdminNav extends Component {
         {
           href: app.route('mail'),
           icon: 'fas fa-envelope',
-          className: 'mainLink',
+          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.email_title'),
         },
         app.translator.trans('core.admin.nav.email_button')
@@ -73,7 +74,7 @@ export default class AdminNav extends Component {
         {
           href: app.route('permissions'),
           icon: 'fas fa-key',
-          className: 'mainLink',
+          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.permissions_title'),
         },
         app.translator.trans('core.admin.nav.permissions_button')
@@ -86,7 +87,7 @@ export default class AdminNav extends Component {
         {
           href: app.route('appearance'),
           icon: 'fas fa-paint-brush',
-          className: 'mainLink',
+          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.appearance_title'),
         },
         app.translator.trans('core.admin.nav.appearance_button')
@@ -123,9 +124,7 @@ export default class AdminNav extends Component {
         );
       }
 
-      Object.keys(categorizedExtensions[category]).map((id) => {
-        const extension = categorizedExtensions[category][id];
-
+      categorizedExtensions[category].map((extension) => {
         const query = this.query().toUpperCase();
 
         if (

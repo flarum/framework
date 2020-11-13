@@ -1,5 +1,4 @@
 import DefaultResolver from '../../common/resolvers/DefaultResolver';
-import ExtensionPage from '../components/ExtensionPage';
 
 /**
  * A custom route resolver for ExtensionPage that generates handles routes
@@ -9,10 +8,10 @@ export default class ExtensionPageResolver extends DefaultResolver {
   static extension: string | null = null;
 
   onmatch(args, requestedPath, route) {
-    const extensionRoute = app.routes[args.id];
+    const extensionPage = app.extensionData.getPage(args.id);
 
-    if (extensionRoute) {
-      return extensionRoute.component;
+    if (extensionPage) {
+      return extensionPage;
     }
 
     return super.onmatch(args, requestedPath, route);
