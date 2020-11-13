@@ -3,9 +3,7 @@
 .App {
   padding-bottom: 0;
 }
-.App-content {
-  border-top: none;
-}
+
 .AdminContent {
   padding: 20px 0;
 }
@@ -19,9 +17,9 @@
   }
 }
 
-@media @tablet {
-  .item-search{
-    display: none;
+.AdminNav-mainLink {
+  > .Button-label {
+    font-size: 14px !important;
   }
 }
 
@@ -49,7 +47,15 @@
 }
 
 @media @tablet {
+  .item-search{
+    display: none;
+  }
+
   .ExtensionItem, .item-search {
+    display: none !important;
+  }
+
+  .NavDivider {
     display: none !important;
   }
 }
@@ -57,9 +63,6 @@
 @media @phone, @tablet {
   .App-nav .AdminNav {
     .Dropdown-menu {
-      .NavDivider {
-        display: none;
-      }
       > li {
         .ExtensionListTitle {
           color: @muted-color;
@@ -67,15 +70,11 @@
           margin: 25px 0 10px 15px;
         }
 
-        .ExtensionListItem-Dot {
-          display: none;
-        }
-
         .ExtensionIcon {
           margin: -2px -29px;
-          width: 25px !important;
-          height: 25px !important;
-          font-size: 12.5px !important;
+          width: 25px;
+          height: 25px;
+          font-size: 12.5px;
 
           .icon {
             margin: 0;
@@ -185,12 +184,6 @@
     }
   }
 
-}
-
-.mainLink {
-  > .Button-label {
-    font-size: 14px !important;
-  }
 }
 
 .ExtensionListItem-Dot {
