@@ -19,6 +19,7 @@ import extract from './utils/extract';
 import ScrollListener from './utils/ScrollListener';
 import stringToColor from './utils/stringToColor';
 import subclassOf from './utils/subclassOf';
+import SuperTextarea from './utils/SuperTextarea';
 import patchMithril from './utils/patchMithril';
 import classList from './utils/classList';
 import extractText from './utils/extractText';
@@ -90,6 +91,7 @@ export default {
   'utils/stringToColor': stringToColor,
   'utils/Stream': Stream,
   'utils/subclassOf': subclassOf,
+  'utils/SuperTextArea': SuperTextarea,
   'utils/setRouteWithForcedRefresh': setRouteWithForcedRefresh,
   'utils/patchMithril': patchMithril,
   'utils/classList': classList,
