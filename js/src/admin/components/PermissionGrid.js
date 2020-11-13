@@ -29,25 +29,27 @@ export default class PermissionGrid extends Component {
             <th>{this.scopeControlItems().toArray()}</th>
           </tr>
         </thead>
-        {this.permissionItems().toArray().map((section) => (
-          <tbody>
-            <tr className="PermissionGrid-section">
-              <th>{section.label}</th>
-              {permissionCells(section)}
-              <td />
-            </tr>
-            {section.children.map((child) => (
-              <tr className="PermissionGrid-child">
-                <th>
-                  {icon(child.icon)}
-                  {child.label}
-                </th>
-                {permissionCells(child)}
+        {this.permissionItems()
+          .toArray()
+          .map((section) => (
+            <tbody>
+              <tr className="PermissionGrid-section">
+                <th>{section.label}</th>
+                {permissionCells(section)}
                 <td />
               </tr>
-            ))}
-          </tbody>
-        ))}
+              {section.children.map((child) => (
+                <tr className="PermissionGrid-child">
+                  <th>
+                    {icon(child.icon)}
+                    {child.label}
+                  </th>
+                  {permissionCells(child)}
+                  <td />
+                </tr>
+              ))}
+            </tbody>
+          ))}
       </table>
     );
   }

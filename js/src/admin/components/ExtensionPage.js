@@ -1,5 +1,5 @@
 import Button from '../../common/components/Button';
-import LinkButton from "../../common/components/LinkButton";
+import LinkButton from '../../common/components/LinkButton';
 import Page from '../../common/components/Page';
 import Select from '../../common/components/Select';
 import Switch from '../../common/components/Switch';
@@ -10,8 +10,8 @@ import Stream from '../../common/utils/Stream';
 import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import saveSettings from '../utils/saveSettings';
-import ExtensionData from "../utils/ExtensionData";
-import extensionEnabled from "../utils/extensionEnabled";
+import ExtensionData from '../utils/ExtensionData';
+import extensionEnabled from '../utils/extensionEnabled';
 
 export default class ExtensionPage extends Page {
   oninit(vnode) {
@@ -23,11 +23,11 @@ export default class ExtensionPage extends Page {
     this.settings = {};
 
     this.infoFields = {
-      'discuss': 'fas fa-comment-alt',
-      'documentation': 'fas fa-book',
-      'support': 'fas fa-life-ring',
-      'website': 'fas fa-link',
-      'donate': 'fas fa-donate',
+      discuss: 'fas fa-comment-alt',
+      documentation: 'fas fa-book',
+      support: 'fas fa-life-ring',
+      website: 'fas fa-link',
+      donate: 'fas fa-donate',
     };
 
     // Backwards compatibility layer will be removed in
@@ -101,7 +101,7 @@ export default class ExtensionPage extends Page {
         </div>
         <div className="container">
           {app.extensionData.getExtensionPermissions(this.extension.id) ? (
-            ExtensionPermissionGrid.component({extensionId: this.extension.id})
+            ExtensionPermissionGrid.component({ extensionId: this.extension.id })
           ) : (
             <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
           )}
@@ -132,19 +132,15 @@ export default class ExtensionPage extends Page {
           )}
         </div>
       </div>
-    )
+    );
   }
 
   topItems() {
     const items = new ItemList();
 
-    items.add(
-      'version',
-      <span className="ExtensionVersion">{this.extension.version}</span>
-    )
+    items.add('version', <span className="ExtensionVersion">{this.extension.version}</span>);
 
     if (!this.isEnabled()) {
-
       const uninstall = () => {
         if (confirm(app.translator.trans('core.admin.extension.confirm_uninstall'))) {
           app
@@ -156,19 +152,18 @@ export default class ExtensionPage extends Page {
 
           app.modal.show(LoadingModal);
         }
-      }
+      };
 
       items.add(
         'uninstall',
-        <Button icon='fas fa-trash-alt' className="Button Button--primary" onclick={uninstall.bind(this)}>
+        <Button icon="fas fa-trash-alt" className="Button Button--primary" onclick={uninstall.bind(this)}>
           {app.translator.trans('core.admin.extension.uninstall_button')}
         </Button>
-      )
+      );
     }
 
     return items;
   }
-
 
   infoItems() {
     const items = new ItemList();
@@ -199,8 +194,7 @@ export default class ExtensionPage extends Page {
     }
 
     if (this.extension.extra['flarum-extension'].info) {
-
-      Object.keys(this.infoFields).map(field => {
+      Object.keys(this.infoFields).map((field) => {
         if (this.extension.extra['flarum-extension'].info[field]) {
           items.add(
             field,
@@ -223,8 +217,7 @@ export default class ExtensionPage extends Page {
 
   submitButton() {
     return (
-      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading}
-              disabled={!this.changed()}>
+      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.changed()}>
         {app.translator.trans('core.admin.settings.submit_button')}
       </Button>
     );
@@ -274,23 +267,18 @@ export default class ExtensionPage extends Page {
         return (
           <div className="Form-group">
             <label>{settings[key].label}</label>
-            <Select
-              value={value || settings[key].default}
-              options={settings[key].options}
-              buttonClassName="Button"
-              onchange={this.settings[key]}
-            />
+            <Select value={value || settings[key].default} options={settings[key].options} buttonClassName="Button" onchange={this.settings[key]} />
           </div>
         );
       } else {
         return (
           <div className="Form-group">
             <label>{settings[key].label}</label>
-            <input type={settings[key].type} className="FormControl" bidi={this.setting(key)}/>
+            <input type={settings[key].type} className="FormControl" bidi={this.setting(key)} />
           </div>
         );
       }
-    })
+    });
   }
 
   toggle() {
@@ -302,7 +290,7 @@ export default class ExtensionPage extends Page {
       .request({
         url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
         method: 'PATCH',
-        body: {enabled: !enabled},
+        body: { enabled: !enabled },
         errorHandler: this.onerror.bind(this),
       })
       .then(() => {
@@ -344,7 +332,7 @@ export default class ExtensionPage extends Page {
   onsaved() {
     this.loading = false;
 
-    app.alerts.show({type: 'success'}, app.translator.trans('core.admin.extension.saved_message'));
+    app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.extension.saved_message'));
   }
 
   setting(key, fallback = '') {
@@ -354,7 +342,7 @@ export default class ExtensionPage extends Page {
   }
 
   isEnabled() {
-    let isEnabled = extensionEnabled(this.extension.id)
+    let isEnabled = extensionEnabled(this.extension.id);
 
     return this.changingState ? !isEnabled : isEnabled;
   }
@@ -374,7 +362,7 @@ export default class ExtensionPage extends Page {
     const error = e.response.errors[0];
 
     app.alerts.show(
-      {type: 'error'},
+      { type: 'error' },
       app.translator.trans(`core.lib.error.${error.code}_message`, {
         extension: error.extension,
         extensions: error.extensions.join(', '),

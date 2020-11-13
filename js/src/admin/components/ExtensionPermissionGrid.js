@@ -1,5 +1,5 @@
 import PermissionGrid from './PermissionGrid';
-import ItemList from "../../common/utils/ItemList";
+import ItemList from '../../common/utils/ItemList';
 
 export default class ExtensionPermissionGrid extends PermissionGrid {
   oninit(vnode) {
