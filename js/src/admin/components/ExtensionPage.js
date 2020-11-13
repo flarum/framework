@@ -180,17 +180,6 @@ export default class ExtensionPage extends Page {
 
     const infoData = {};
 
-    if (this.extension.extra['flarum-extension'].info) {
-      Object.keys(this.infoFields).map((field) => {
-        if (this.extension.extra['flarum-extension'].info[field]) {
-          infoData[field] = {
-            icon: this.infoFields[field],
-            href: this.extension.extra['flarum-extension'].info[field],
-          };
-        }
-      });
-    }
-
     if (this.extension.source || this.extension.support) {
       infoData.source = {
         icon: 'fas fa-code',
@@ -198,13 +187,22 @@ export default class ExtensionPage extends Page {
       };
     }
 
+    Object.keys(this.infoFields).map((field) => {
+      if (this.extension.extra['flarum-extension'].info && this.extension.extra['flarum-extension'].info[field]) {
+        infoData[field] = {
+          icon: this.infoFields[field],
+          href: this.extension.extra['flarum-extension'].info[field],
+        };
+      }
+    });
+
     Object.entries(infoData).map(([field, value]) => {
       items.add(
         field,
         LinkButton.component(
           {
             href: value.href,
-            icon: value.href,
+            icon: value.icon,
             external: true,
             target: '_blank',
           },
@@ -225,21 +223,23 @@ export default class ExtensionPage extends Page {
   }
 
   /**
-   * getSettings accepts an object of settings where the key is the settings key.
+   * getSettings accepts an array of settings.
    * Depending on the type of input, you can set the type to 'bool', 'select', or
    * any standard <input> type.
    *
    * @example
-   * {
-   *   'acme.checkbox': {
-   *      label: app.translator.trans('acme.admin.setting_label')
+   * [
+   *   {
+   *      setting: 'acme.checkbox',
+   *      label: app.translator.trans('acme.admin.setting_label'),
    *      type: 'bool'
    *   }
-   * }
+   * ]
    *
    * @example
-   * {
-   *   'acme.select': {
+   * [
+   *   {
+   *      setting: 'acme.select',
    *      label: app.translator.trans('acme.admin.setting_label'),
    *      type: 'select',
    *      options: {
@@ -248,7 +248,7 @@ export default class ExtensionPage extends Page {
    *      },
    *      default: 'option1',
    *   }
-   * }
+   * ]
    *
    * @param settings
    * @returns {JSX.Element}
