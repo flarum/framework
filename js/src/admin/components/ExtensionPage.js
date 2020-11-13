@@ -1,4 +1,5 @@
 import Button from '../../common/components/Button';
+import Link from '../../common/components/Link';
 import LinkButton from '../../common/components/LinkButton';
 import Page from '../../common/components/Page';
 import Select from '../../common/components/Select';
@@ -12,7 +13,6 @@ import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import saveSettings from '../utils/saveSettings';
 import ExtensionData from '../utils/ExtensionData';
 import extensionEnabled from '../utils/extensionEnabled';
-import Link from '../../common/components/Link';
 
 export default class ExtensionPage extends Page {
   oninit(vnode) {
