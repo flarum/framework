@@ -11,14 +11,11 @@ namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\WrappedFilter;
-use Flarum\Search\AbstractSearch;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Flarum\User\User;
 
 class FilterTest extends TestCase
 {

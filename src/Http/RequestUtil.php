@@ -15,7 +15,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class RequestUtil
 {
-    public static function getActor(Request $request): User {
+    public static function getActor(Request $request): User
+    {
         return $request->getAttribute('actor');
     }
 

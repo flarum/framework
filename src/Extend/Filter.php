@@ -11,7 +11,6 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Flarum\Filter\Filterer;
-use Flarum\Filter\FilterInterface;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 
@@ -30,7 +29,7 @@ class Filter implements ExtenderInterface
     }
 
     /**
-     * Add a filter to run when the resource is filtered
+     * Add a filter to run when the resource is filtered.
      *
      * @param string $filterClass: The ::class attribute of the filter you are adding.
      */
@@ -53,7 +52,6 @@ class Filter implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-
         foreach ($this->filters as $filter) {
             Filterer::addFilter($this->resource, $container->make($filter));
         }

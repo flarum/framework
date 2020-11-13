@@ -23,11 +23,11 @@ class Filterer
 
     public static function addFilter($resource, FilterInterface $filter)
     {
-        if (!array_key_exists($resource, static::$filters)) {
+        if (! array_key_exists($resource, static::$filters)) {
             static::$filters[$resource] = [];
         }
 
-        if (!array_key_exists($filter->getKey(), static::$filters[$resource])) {
+        if (! array_key_exists($filter->getKey(), static::$filters[$resource])) {
             static::$filters[$resource][$filter->getKey()] = [];
         }
 
@@ -36,7 +36,7 @@ class Filterer
 
     public static function addFilterMutator($resource, $mutator)
     {
-        if (!array_key_exists($resource, static::$filterMutators)) {
+        if (! array_key_exists($resource, static::$filterMutators)) {
             static::$filterMutators[$resource] = [];
         }
 

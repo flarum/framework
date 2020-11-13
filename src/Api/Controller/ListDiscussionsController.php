@@ -81,7 +81,6 @@ class ListDiscussionsController extends AbstractListController
     {
         $actor = $request->getAttribute('actor');
 
-
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
         $query = $this->discussions->query();
