@@ -12,6 +12,7 @@ import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import saveSettings from '../utils/saveSettings';
 import ExtensionData from '../utils/ExtensionData';
 import extensionEnabled from '../utils/extensionEnabled';
+import Link from '../../common/components/Link';
 
 export default class ExtensionPage extends Page {
   oninit(vnode) {
@@ -171,11 +172,23 @@ export default class ExtensionPage extends Page {
     if (this.extension.authors) {
       let authors = [];
 
-      Object.keys(this.extension.authors).map((author) => {
-        authors.push(this.extension.authors[author].name);
+      Object.keys(this.extension.authors).map((author, i) => {
+        const link = this.extension.authors[author].homepage
+          ? this.extension.authors[author].homepage
+          : 'mailto:' + this.extension.authors[author].email;
+
+        authors.push(
+          <Link href={link} external={true} target="_blank">
+            {this.extension.authors[author].name}
+          </Link>
+        );
+
+        if (i < this.extension.authors.length - 1) {
+          authors.push(', ');
+        }
       });
 
-      items.add('authors', [icon('fas fa-user'), <span>{authors.join(', ')}</span>]);
+      items.add('authors', [icon('fas fa-user'), <span>{authors}</span>]);
     }
 
     const infoData = {};
