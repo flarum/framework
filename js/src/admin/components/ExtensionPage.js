@@ -5,7 +5,7 @@ import Page from '../../common/components/Page';
 import Select from '../../common/components/Select';
 import Switch from '../../common/components/Switch';
 import icon from '../../common/helpers/icon';
-import punctuateSeries from "../../common/helpers/punctuateSeries";
+import punctuateSeries from '../../common/helpers/punctuateSeries';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
@@ -67,7 +67,7 @@ export default class ExtensionPage extends Page {
               {this.extension.icon ? icon(this.extension.icon.name) : ''}
             </span>
             <div className="ExtensionName">
-              <label>{this.extension.extra['flarum-extension'].title}</label>
+              <h2>{this.extension.extra['flarum-extension'].title}</h2>
             </div>
             <div className="ExtensionPage-headerTopItems">
               <ul>{listItems(this.topItems().toArray())}</ul>
