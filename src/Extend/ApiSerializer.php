@@ -19,7 +19,6 @@ class ApiSerializer implements ExtenderInterface
 {
     private $serializerClass;
     private $attributeHandlers = [];
-    private $settings = [];
     private $relationships = [];
 
     /**
@@ -50,20 +49,6 @@ class ApiSerializer implements ExtenderInterface
     public function attributes($callback)
     {
         $this->attributeHandlers[] = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Add a setting value to the attributes of this serializer.
-     *
-     * @param string $key: The key of the setting. It should be prefixed with the extension ID. (ex: extension-id.setting_key).
-     * @param mixed $default: The default value of the setting.
-     * @return self
-     */
-    public function setting(string $key, $default = null)
-    {
-        $this->settings[$key] = $default;
 
         return $this;
     }
@@ -131,18 +116,6 @@ class ApiSerializer implements ExtenderInterface
             $attributeHandler = ContainerUtil::wrapCallback($attributeHandler, $container);
 
             AbstractSerializer::addAttributeHandler($this->serializerClass, $attributeHandler);
-        }
-
-        if (! empty($this->settings)) {
-            AbstractSerializer::addAttributeHandler($this->serializerClass, function (array $attributes) use ($container) {
-                $settings = $container->make(SettingsRepositoryInterface::class);
-
-                foreach ($this->settings as $key => $default) {
-                    $attributes[$key] = $settings->get($key, $default);
-                }
-
-                return $attributes;
-            });
         }
 
         foreach ($this->relationships as $serializerClass => $relationships) {
