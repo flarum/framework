@@ -51,7 +51,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * @var callable[]
      */
-    protected static $attributeHandlers = [];
+    protected static $mutators = [];
 
     /**
      * @var array
@@ -95,11 +95,11 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         $attributes = $this->getDefaultAttributes($model);
 
         foreach (array_merge([static::class], class_parents($this)) as $class) {
-            if (isset(static::$attributeHandlers[$class])) {
-                foreach (static::$attributeHandlers[$class] as $handler) {
+            if (isset(static::$mutators[$class])) {
+                foreach (static::$mutators[$class] as $callback) {
                     $attributes = array_merge(
                         $attributes,
-                        $handler($attributes, $model, $this)
+                        $callback($attributes, $model, $this)
                     );
                 }
             }
@@ -316,15 +316,15 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
     /**
      * @param string $serializerClass
-     * @param callable $attributeHandler
+     * @param callable $mutator
      */
-    public static function addAttributeHandler(string $serializerClass, callable $attributeHandler)
+    public static function addMutator(string $serializerClass, callable $mutator)
     {
-        if (! isset(static::$attributeHandlers[$serializerClass])) {
-            static::$attributeHandlers[$serializerClass] = [];
+        if (! isset(static::$mutators[$serializerClass])) {
+            static::$mutators[$serializerClass] = [];
         }
 
-        static::$attributeHandlers[$serializerClass][] = $attributeHandler;
+        static::$mutators[$serializerClass][] = $mutator;
     }
 
     /**

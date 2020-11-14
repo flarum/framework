@@ -79,11 +79,11 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attributes(function () {
+                ->mutate(function () {
                     return [
                         'customAttribute' => true
                     ];
-                })->attributes(CustomAttributesInvokableClass::class)
+                })->mutate(CustomAttributesInvokableClass::class)
         );
 
         $this->app();
@@ -107,7 +107,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attributes(function () {
+                ->mutate(function () {
                     return [
                         'customAttribute' => true
                     ];

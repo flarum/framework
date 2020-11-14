@@ -18,7 +18,7 @@ use Illuminate\Contracts\Container\Container;
 class ApiSerializer implements ExtenderInterface
 {
     private $serializerClass;
-    private $attributeHandlers = [];
+    private $mutators = [];
     private $relationships = [];
 
     /**
@@ -46,9 +46,9 @@ class ApiSerializer implements ExtenderInterface
      *
      * @return self
      */
-    public function attributes($callback)
+    public function mutate($callback)
     {
-        $this->attributeHandlers[] = $callback;
+        $this->mutators[] = $callback;
 
         return $this;
     }
@@ -112,10 +112,10 @@ class ApiSerializer implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        foreach ($this->attributeHandlers as $attributeHandler) {
+        foreach ($this->mutators as $attributeHandler) {
             $attributeHandler = ContainerUtil::wrapCallback($attributeHandler, $container);
 
-            AbstractSerializer::addAttributeHandler($this->serializerClass, $attributeHandler);
+            AbstractSerializer::addMutator($this->serializerClass, $attributeHandler);
         }
 
         foreach ($this->relationships as $serializerClass => $relationships) {
