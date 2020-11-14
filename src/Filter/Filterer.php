@@ -27,11 +27,11 @@ class Filterer
             static::$filters[$resource] = [];
         }
 
-        if (! array_key_exists($filter->getKey(), static::$filters[$resource])) {
-            static::$filters[$resource][$filter->getKey()] = [];
+        if (! array_key_exists($filter->getFilterKey(), static::$filters[$resource])) {
+            static::$filters[$resource][$filter->getFilterKey()] = [];
         }
 
-        static::$filters[$resource][$filter->getKey()][] = $filter;
+        static::$filters[$resource][$filter->getFilterKey()][] = $filter;
     }
 
     public static function addFilterMutator($resource, $mutator)
@@ -59,8 +59,13 @@ class Filterer
         $wrappedFilter = new WrappedFilter($query->getQuery(), $actor);
 
         foreach ($filters as $filterKey => $filterValue) {
+            $negate = false;
+            if (substr($filterKey, 0, 1) == '-') {
+                $negate = true;
+                $filterKey = substr($filterKey, 1);
+            }
             foreach (Arr::get(static::$filters, "$resource.$filterKey", []) as $filter) {
-                $filter->apply($wrappedFilter, $filterValue);
+                $filter->filter($wrappedFilter, $filterValue, $negate);
             }
         }
 

@@ -52,9 +52,13 @@ class Filter implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        foreach ($this->filters as $filter) {
-            Filterer::addFilter($this->resource, $container->make($filter));
-        }
+        $container->extend('flarum.filter.filters', function ($originalFilters) {
+            foreach ($this->filters as $filter) {
+                $originalFilters[$this->resource][] = $filter;
+            }
+
+            return $originalFilters;
+        });
 
         foreach ($this->filterMutators as $mutator) {
             Filterer::addFilterMutator($this->resource, ContainerUtil::wrapCallback($mutator, $container));

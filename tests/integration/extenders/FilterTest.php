@@ -117,7 +117,7 @@ class NoResultFilter implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    public function applyFilter(WrappedFilter $wrappedFilter, $filterValue)
+    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
     {
         if ($filterValue) {
             $wrappedFilter->getQuery()

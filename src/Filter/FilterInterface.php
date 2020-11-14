@@ -22,5 +22,5 @@ interface FilterInterface
      * @param WrappedFilter $filter
      * @param string $value The value of the requested filter
      */
-    public function filter(WrappedFilter $wrappedFilter, $filterValue);
+    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate);
 }
