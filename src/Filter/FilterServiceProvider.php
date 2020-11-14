@@ -14,7 +14,6 @@ use Flarum\Discussion\Filter\AuthorFilter;
 use Flarum\Discussion\Filter\CreatedFilter;
 use Flarum\Discussion\Filter\HiddenFilter;
 use Flarum\Discussion\Filter\UnreadFilter;
-use Flarum\Filter\Filterer;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\User\Filter\EmailFilter;
 use Flarum\User\Filter\GroupFilter;
@@ -29,7 +28,7 @@ class FilterServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.filter.filters', function() {
+        $this->app->singleton('flarum.filter.filters', function () {
             return [
                 Discussion::class => [
                     AuthorFilter::class,

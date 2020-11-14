@@ -34,6 +34,5 @@ class CreatedFilter implements FilterInterface
         } else {
             $wrappedFilter->getQuery()->whereBetween('created_at', [$matches[1], $matches[3]], 'and', $negate);
         }
-
     }
 }

@@ -21,7 +21,7 @@ class EmailFilter implements FilterInterface
 
     public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
     {
-        if (!$wrappedFilter->getActor()->hasPermission('user.edit')) {
+        if (! $wrappedFilter->getActor()->hasPermission('user.edit')) {
             return;
         }
 

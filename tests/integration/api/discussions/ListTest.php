@@ -10,8 +10,6 @@
 namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Discussion\Discussion;
-use Flarum\Discussion\UserState;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
@@ -272,7 +270,7 @@ class ListTest extends TestCase
     public function hidden_filter_works_negated()
     {
         $response = $this->send(
-            $this->request('GET','/api/discussions', ['authenticatedAs' => 1])
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
             ->withQueryParams([
                 'filter' => ['-hidden' => ''],
                 'include' => 'mostRelevantPost',

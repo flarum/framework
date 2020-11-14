@@ -15,7 +15,6 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\UserRepository;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 

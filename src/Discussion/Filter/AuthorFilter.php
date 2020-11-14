@@ -44,6 +44,5 @@ class AuthorFilter implements FilterInterface
         }
 
         $wrappedFilter->getQuery()->whereIn('discussions.user_id', $ids, 'and', $negate);
-
     }
 }
