@@ -23,16 +23,16 @@ class CreatedFilter implements FilterInterface
     {
         $pattern = '(\d{4}\-\d\d\-\d\d)(\.\.(\d{4}\-\d\d\-\d\d))?';
 
-        preg_match('/^(-?)'.$pattern.'$/i', $filterValue, $matches);
+        preg_match('/^'.$pattern.'$/i', $filterValue, $matches);
 
         // If we've just been provided with a single YYYY-MM-DD date, then find
         // discussions that were started on that exact date. But if we've been
         // provided with a YYYY-MM-DD..YYYY-MM-DD range, then find discussions
         // that were started during that period.
         if (empty($matches[2])) {
-            $wrappedFilter->getQuery()->whereDate('created_at', $negate ? '!=' : '=', $matches[0]);
+            $wrappedFilter->getQuery()->whereDate('created_at', $negate ? '!=' : '=', $matches[1]);
         } else {
-            $wrappedFilter->getQuery()->whereBetween('created_at', [$matches[0], $matches[2]], 'and', $negate);
+            $wrappedFilter->getQuery()->whereBetween('created_at', [$matches[1], $matches[3]], 'and', $negate);
         }
 
     }
