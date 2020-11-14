@@ -287,7 +287,9 @@ export default class PostStream extends Component {
    * @return {Integer}
    */
   getMarginTop() {
-    return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
+    const headerId = app.screen() === 'phone' ? '#app-navigation' : '#header';
+
+    return this.$() && $(headerId).outerHeight() + parseInt(this.$().css('margin-top'), 10);
   }
 
   /**
