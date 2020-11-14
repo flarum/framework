@@ -33,7 +33,6 @@ class UnreadFilter implements FilterInterface
         $this->discussions = $discussions;
     }
 
-
     public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
     {
         $actor = $wrappedFilter->getActor();
@@ -42,7 +41,7 @@ class UnreadFilter implements FilterInterface
             $readIds = $this->discussions->getReadIds($actor);
 
             $wrappedFilter->getQuery()->where(function ($query) use ($readIds, $negate, $actor) {
-                if (!$negate) {
+                if (! $negate) {
                     $query->whereNotIn('id', $readIds)->where('last_posted_at', '>', $actor->marked_all_as_read_at ?: 0);
                 } else {
                     $query->whereIn('id', $readIds)->orWhere('last_posted_at', '<=', $actor->marked_all_as_read_at ?: 0);
