@@ -10,6 +10,8 @@
 namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Discussion\UserState;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
@@ -40,9 +42,14 @@ class ListTest extends TestCase
                 ['id' => 4, 'discussion_id' => 4, 'created_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
             ],
             'users' => [
+                $this->adminUser(),
                 $this->normalUser(),
             ]
         ]);
+
+        $user = User::find(2);
+        $user->marked_all_as_read_at = Carbon::createFromDate(1990, 0, 0)->toDateTimeString();
+        $user->save();
     }
 
     /**
