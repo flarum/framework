@@ -84,6 +84,9 @@ class ApiSerializerTest extends TestCase
                         'customAttribute' => true
                     ];
                 })->mutate(CustomAttributesInvokableClass::class)
+                ->attribute('customSingleAttribute', function () {
+                    return true;
+                })
         );
 
         $this->app();
@@ -98,6 +101,7 @@ class ApiSerializerTest extends TestCase
 
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
         $this->assertArrayHasKey('customAttributeFromInvokable', $payload['data']['attributes']);
+        $this->assertArrayHasKey('customSingleAttribute', $payload['data']['attributes']);
     }
 
     /**
@@ -111,6 +115,8 @@ class ApiSerializerTest extends TestCase
                     return [
                         'customAttribute' => true
                     ];
+                })->attribute('customSingleAttribute', function () {
+                    return true;
                 })
         );
 
@@ -125,6 +131,7 @@ class ApiSerializerTest extends TestCase
         $payload = json_decode($response->getBody(), true);
 
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
+        $this->assertArrayHasKey('customSingleAttribute', $payload['data']['attributes']);
     }
 
     /**

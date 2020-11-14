@@ -18,6 +18,7 @@ use Illuminate\Contracts\Container\Container;
 class ApiSerializer implements ExtenderInterface
 {
     private $serializerClass;
+    private $attributes = [];
     private $mutators = [];
     private $relationships = [];
 
@@ -28,6 +29,27 @@ class ApiSerializer implements ExtenderInterface
     public function __construct(string $serializerClass)
     {
         $this->serializerClass = $serializerClass;
+    }
+
+    /**
+     * @param string $name: The name of the attribute.
+     * @param callable|string $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $attributes: An array of existing attributes.
+     * - $model: An instance of the model being serialized.
+     * - $serializer: An instance of this serializer.
+     *
+     * The callable should return:
+     * - The value of the attribute.
+     *
+     * @return self
+     */
+    public function attribute(string $name, $callback)
+    {
+        $this->attributes[$name] = $callback;
+
+        return $this;
     }
 
     /**
@@ -112,10 +134,22 @@ class ApiSerializer implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        foreach ($this->mutators as $attributeHandler) {
-            $attributeHandler = ContainerUtil::wrapCallback($attributeHandler, $container);
+        if (! empty($this->attributes)) {
+            $this->mutators[] = function ($attributes, $serializer, $model) use ($container) {
+                foreach ($this->attributes as $attributeName => $callback) {
+                    $callback = ContainerUtil::wrapCallback($callback, $container);
 
-            AbstractSerializer::addMutator($this->serializerClass, $attributeHandler);
+                    $attributes[$attributeName] = $callback($attributes, $serializer, $model);
+                }
+
+                return $attributes;
+            };
+        }
+
+        foreach ($this->mutators as $mutator) {
+            $mutator = ContainerUtil::wrapCallback($mutator, $container);
+
+            AbstractSerializer::addMutator($this->serializerClass, $mutator);
         }
 
         foreach ($this->relationships as $serializerClass => $relationships) {
