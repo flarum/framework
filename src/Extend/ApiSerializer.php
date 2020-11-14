@@ -12,7 +12,6 @@ namespace Flarum\Extend;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
 class ApiSerializer implements ExtenderInterface
