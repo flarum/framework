@@ -94,7 +94,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
         $attributes = $this->getDefaultAttributes($model);
 
-        foreach (array_merge([static::class], class_parents($this)) as $class) {
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
             if (isset(static::$mutators[$class])) {
                 foreach (static::$mutators[$class] as $callback) {
                     $attributes = array_merge(
