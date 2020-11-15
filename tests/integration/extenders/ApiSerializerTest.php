@@ -57,7 +57,7 @@ class ApiSerializerTest extends TestCase
     /**
      * @test
      */
-    public function custom_attribute_doesnt_exist_by_default()
+    public function custom_attributes_dont_exist_by_default()
     {
         $this->app();
 
@@ -75,7 +75,7 @@ class ApiSerializerTest extends TestCase
     /**
      * @test
      */
-    public function custom_attribute_exists_if_added()
+    public function custom_attributes_exist_if_added()
     {
         $this->extend(
             (new Extend\ApiSerializer(ForumSerializer::class))
@@ -83,9 +83,6 @@ class ApiSerializerTest extends TestCase
                     return [
                         'customAttribute' => true
                     ];
-                })->mutate(CustomAttributesInvokableClass::class)
-                ->attribute('customSingleAttribute', function () {
-                    return true;
                 })
         );
 
@@ -100,14 +97,35 @@ class ApiSerializerTest extends TestCase
         $payload = json_decode($response->getBody(), true);
 
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
-        $this->assertArrayHasKey('customAttributeFromInvokable', $payload['data']['attributes']);
-        $this->assertArrayHasKey('customSingleAttribute', $payload['data']['attributes']);
     }
 
     /**
      * @test
      */
-    public function custom_attribute_exists_if_added_to_parent_class()
+    public function custom_attributes_with_invokable_exist_if_added()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->mutate(CustomAttributesInvokableClass::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customAttributeFromInvokable', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_attributes_exist_if_added_to_parent_class()
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
@@ -115,8 +133,6 @@ class ApiSerializerTest extends TestCase
                     return [
                         'customAttribute' => true
                     ];
-                })->attribute('customSingleAttribute', function () {
-                    return true;
                 })
         );
 
@@ -131,7 +147,182 @@ class ApiSerializerTest extends TestCase
         $payload = json_decode($response->getBody(), true);
 
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_attributes_prioritize_child_classes()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(BasicUserSerializer::class))
+                ->mutate(function () {
+                    return [
+                        'customAttribute' => 'initialValue'
+                    ];
+                }),
+            (new Extend\ApiSerializer(UserSerializer::class))
+                ->mutate(function () {
+                    return [
+                        'customAttribute' => 'newValue'
+                    ];
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
+        $this->assertEquals('newValue', $payload['data']['attributes']['customAttribute']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_single_attribute_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->attribute('customSingleAttribute', function () {
+                    return true;
+                })->attribute('customSingleAttribute_0', function () {
+                    return 0;
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
         $this->assertArrayHasKey('customSingleAttribute', $payload['data']['attributes']);
+        $this->assertArrayHasKey('customSingleAttribute_0', $payload['data']['attributes']);
+        $this->assertEquals(0, $payload['data']['attributes']['customSingleAttribute_0']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_single_attribute_with_invokable_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->attribute('customSingleAttribute_1', CustomSingleAttributeInvokableClass::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customSingleAttribute_1', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_single_attribute_exists_if_added_to_parent_class()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(BasicUserSerializer::class))
+                ->attribute('customSingleAttribute_2', function () {
+                    return true;
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customSingleAttribute_2', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_single_attribute_prioritizes_child_classes()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(BasicUserSerializer::class))
+                ->attribute('customSingleAttribute_3', function () {
+                    return 'initialValue';
+                }),
+            (new Extend\ApiSerializer(UserSerializer::class))
+                ->attribute('customSingleAttribute_3', function () {
+                    return 'newValue';
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customSingleAttribute_3', $payload['data']['attributes']);
+        $this->assertEquals('newValue', $payload['data']['attributes']['customSingleAttribute_3']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_attributes_can_be_overriden()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(BasicUserSerializer::class))
+                ->attribute('someCustomAttribute', function () {
+                    return 'newValue';
+                })->mutate(function () {
+                    return [
+                        'someCustomAttribute' => 'initialValue',
+                        'someOtherCustomAttribute' => 'initialValue',
+                    ];
+                })->attribute('someOtherCustomAttribute', function () {
+                    return 'newValue';
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('someCustomAttribute', $payload['data']['attributes']);
+        $this->assertEquals('newValue', $payload['data']['attributes']['someCustomAttribute']);
+        $this->assertArrayHasKey('someOtherCustomAttribute', $payload['data']['attributes']);
+        $this->assertEquals('newValue', $payload['data']['attributes']['someOtherCustomAttribute']);
     }
 
     /**
@@ -312,6 +503,14 @@ class CustomAttributesInvokableClass
         return [
             'customAttributeFromInvokable' => true
         ];
+    }
+}
+
+class CustomSingleAttributeInvokableClass
+{
+    public function __invoke()
+    {
+        return true;
     }
 }
 
