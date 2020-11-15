@@ -100,7 +100,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     {
         $document = new Document;
 
-        foreach (array_merge([static::class], class_parents($this)) as $class) {
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
             if (isset(static::$beforeDataCallbacks[$class])) {
                 foreach (static::$beforeDataCallbacks as $callback) {
                     $callback($this);
@@ -115,7 +115,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
         $data = $this->data($request, $document);
 
-        foreach (array_merge([static::class], class_parents($this)) as $class) {
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
             if (isset(static::$beforeSerializationCallbacks[$class])) {
                 foreach (static::$beforeSerializationCallbacks as $callback) {
                     $data = array_merge($data, $callback($this, $data, $request, $document));
