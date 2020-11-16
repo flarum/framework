@@ -35,7 +35,6 @@ export default class AdminNav extends Component {
         {
           href: app.route('dashboard'),
           icon: 'far fa-chart-bar',
-          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.dashboard_title'),
         },
         app.translator.trans('core.admin.nav.dashboard_button')
@@ -48,7 +47,6 @@ export default class AdminNav extends Component {
         {
           href: app.route('basics'),
           icon: 'fas fa-pencil-alt',
-          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.basics_title'),
         },
         app.translator.trans('core.admin.nav.basics_button')
@@ -61,7 +59,6 @@ export default class AdminNav extends Component {
         {
           href: app.route('mail'),
           icon: 'fas fa-envelope',
-          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.email_title'),
         },
         app.translator.trans('core.admin.nav.email_button')
@@ -74,7 +71,6 @@ export default class AdminNav extends Component {
         {
           href: app.route('permissions'),
           icon: 'fas fa-key',
-          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.permissions_title'),
         },
         app.translator.trans('core.admin.nav.permissions_button')
@@ -87,7 +83,6 @@ export default class AdminNav extends Component {
         {
           href: app.route('appearance'),
           icon: 'fas fa-paint-brush',
-          className: 'AdminNav-mainLink',
           title: app.translator.trans('core.admin.nav.appearance_title'),
         },
         app.translator.trans('core.admin.nav.appearance_button')
