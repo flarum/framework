@@ -91,7 +91,7 @@ export default {
   'utils/stringToColor': stringToColor,
   'utils/Stream': Stream,
   'utils/subclassOf': subclassOf,
-  'utils/SuperTextArea': SuperTextarea,
+  'utils/SuperTextarea': SuperTextarea,
   'utils/setRouteWithForcedRefresh': setRouteWithForcedRefresh,
   'utils/patchMithril': patchMithril,
   'utils/classList': classList,
