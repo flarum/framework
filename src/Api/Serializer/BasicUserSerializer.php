@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Serializer;
 
+use Flarum\Http\SlugManager;
 use Flarum\User\User;
 use InvalidArgumentException;
 
@@ -18,6 +19,16 @@ class BasicUserSerializer extends AbstractSerializer
      * {@inheritdoc}
      */
     protected $type = 'users';
+
+    /**
+     * @var SlugManager
+     */
+    protected $slugManager;
+
+    public function __construct(SlugManager $slugManager)
+    {
+        $this->slugManager = $slugManager;
+    }
 
     /**
      * {@inheritdoc}
@@ -36,7 +47,8 @@ class BasicUserSerializer extends AbstractSerializer
         return [
             'username'    => $user->username,
             'displayName' => $user->display_name,
-            'avatarUrl'   => $user->avatar_url
+            'avatarUrl'   => $user->avatar_url,
+            'slug'        => $this->slugManager->forResource(User::class)->toSlug($user)
         ];
     }
 

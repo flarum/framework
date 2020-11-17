@@ -10,6 +10,7 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
+use Flarum\Discussion\Discussion as FlarumDiscussion;
 use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
@@ -74,9 +75,7 @@ class Discussion
             unset($newQueryParams['id']);
             $queryString = http_build_query($newQueryParams);
 
-            $idWithSlug = $apiDocument->data->id.(trim($apiDocument->data->attributes->slug) ? '-'.$apiDocument->data->attributes->slug : '');
-
-            return $this->url->to('forum')->route('discussion', ['id' => $idWithSlug]).
+            return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->attributes->slug]).
             ($queryString ? '?'.$queryString : '');
         };
 
@@ -106,6 +105,7 @@ class Discussion
      */
     protected function getApiDocument(User $actor, array $params)
     {
+        $params['bySlug'] = true;
         $response = $this->api->send('Flarum\Api\Controller\ShowDiscussionController', $actor, $params);
         $statusCode = $response->getStatusCode();
 

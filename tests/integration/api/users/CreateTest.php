@@ -25,9 +25,10 @@ class CreateTest extends TestCase
         $this->prepareDatabase([
             'users' => [
                 $this->adminUser(),
+                $this->normalUser(),
             ],
             'groups' => [
-                $this->adminGroup(),
+                $this->adminGroup()
             ],
             'group_user' => [
                 ['user_id' => 1, 'group_id' => 1],
@@ -56,7 +57,7 @@ class CreateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
+        $body = (string)$response->getBody();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [
