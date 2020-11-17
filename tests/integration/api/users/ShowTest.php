@@ -1,8 +1,13 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Tests\integration\api\users;
-
 
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
@@ -55,7 +60,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/normal', [
                 'authenticatedAs' => 1,
             ])->withQueryParams([
-                "bySlug" => true
+                'bySlug' => true
             ])
         );
 
@@ -81,7 +86,7 @@ class ShowTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/users/2')->withQueryParams([
-                "bySlug" => true
+                'bySlug' => true
             ])
         );
 
@@ -111,7 +116,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/normal', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                "bySlug" => true
+                'bySlug' => true
             ])
         );
 
@@ -141,7 +146,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/admin', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                "bySlug" => true
+                'bySlug' => true
             ])
         );
 
@@ -173,7 +178,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/admin', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                "bySlug" => true
+                'bySlug' => true
             ])
         );
 

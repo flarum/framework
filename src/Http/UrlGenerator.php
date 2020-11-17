@@ -68,7 +68,7 @@ class UrlGenerator
     }
 
     /**
-     * Generate a URL to an instance of a resource
+     * Generate a URL to an instance of a resource.
      *
      * @param string $resourceClass
      * @param AbstractModel $instance
