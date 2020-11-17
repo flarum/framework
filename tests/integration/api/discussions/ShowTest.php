@@ -69,6 +69,24 @@ class ShowTest extends TestCase
     /**
      * @test
      */
+    public function author_can_see_discussion_via_slug()
+    {
+        // Note that here, the slug doesn't actually have to match the real slug
+        // since the default slugging strategy only takes the numerical part into account
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1-fdsafdsajfsakf', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams([
+                "bySlug" => true
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
     public function guest_cannot_see_empty_discussion()
     {
         $response = $this->send(
