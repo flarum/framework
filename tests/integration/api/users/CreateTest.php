@@ -57,7 +57,7 @@ class CreateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
 
         // The response body should contain details about the failed validation
-        $body = (string)$response->getBody();
+        $body = (string) $response->getBody();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [

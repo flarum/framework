@@ -33,7 +33,7 @@ class HttpServiceProvider extends AbstractServiceProvider
             return new Middleware\CheckCsrfToken($app->make('flarum.http.csrfExemptPaths'));
         });
 
-        $this->app->singleton('flarum.http.slugDrivers', function() {
+        $this->app->singleton('flarum.http.slugDrivers', function () {
             return [
                 Discussion::class => [
                     'default' => IdWithSlugDriver::class
@@ -44,12 +44,12 @@ class HttpServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('flarum.http.selectedSlugDrivers', function() {
+        $this->app->singleton('flarum.http.selectedSlugDrivers', function () {
             $settings = $this->app->make(SettingsRepositoryInterface::class);
 
             $compiledDrivers = [];
 
-            foreach($this->app->make('flarum.http.slugDrivers') as $resourceClass => $resourceDrivers) {
+            foreach ($this->app->make('flarum.http.slugDrivers') as $resourceClass => $resourceDrivers) {
                 $driverClass = $resourceDrivers[$settings->get("slug_driver_$resourceClass", 'default')];
                 $compiledDrivers[$resourceClass] = $this->app->make($driverClass);
             }
@@ -57,36 +57,37 @@ class HttpServiceProvider extends AbstractServiceProvider
             return $compiledDrivers;
         });
 
-        $this->app->singleton('flarum.http.resourceUrlGenerators', function() {
+        $this->app->singleton('flarum.http.resourceUrlGenerators', function () {
             $slugManager = $this->app->make(SlugManager::class);
 
             return [
-                Discussion::class => function(UrlGenerator $urlGenerator, Discussion $discussion) use ($slugManager) {
+                Discussion::class => function (UrlGenerator $urlGenerator, Discussion $discussion) use ($slugManager) {
                     return $urlGenerator->to('forum')->route('discussion', [
                         'id' => $slugManager->toResource(Discussion::class)->toSlug($discussion)
                     ]);
                 },
-                Post::class => function(UrlGenerator $urlGenerator, Post $post) use ($slugManager) {
+                Post::class => function (UrlGenerator $urlGenerator, Post $post) use ($slugManager) {
                     return $urlGenerator->to('forum')->route('user', [
                         'id' => $slugManager->toResource(Discussion::class)->toSlug($post->discussion),
                         'near' => $post->id,
                     ]);
                 },
-                User::class => function(UrlGenerator $urlGenerator, User $user) use ($slugManager) {
+                User::class => function (UrlGenerator $urlGenerator, User $user) use ($slugManager) {
                     return $urlGenerator->to('forum')->route('user', [
                         'id' => $slugManager->toResource(User::class)->toSlug($user)
                     ]);
                 },
             ];
         });
-        $this->app->bind(SlugManager::class, function() {
+        $this->app->bind(SlugManager::class, function () {
             return new SlugManager($this->app->make('flarum.http.selectedSlugDrivers'));
         });
 
-        $this->app->bind(UrlGenerator::class, function() {
+        $this->app->bind(UrlGenerator::class, function () {
             return new UrlGenerator(
                 $this->app->make(Application::class),
-                $this->app->make('flarum.http.resourceUrlGenerators'));
+                $this->app->make('flarum.http.resourceUrlGenerators')
+            );
         });
     }
 }

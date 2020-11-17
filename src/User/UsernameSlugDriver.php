@@ -1,15 +1,19 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\User;
-
 
 use Flarum\Database\AbstractModel;
 use Flarum\Http\SlugDriverInterface;
 
 class UsernameSlugDriver implements SlugDriverInterface
 {
-
     public function toSlug(AbstractModel $instance): string
     {
         return $instance->username;

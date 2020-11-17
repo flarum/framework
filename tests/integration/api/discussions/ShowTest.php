@@ -77,7 +77,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/discussions/1-fdsafdsajfsakf', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                "bySlug" => true
+                'bySlug' => true
             ])
         );
 

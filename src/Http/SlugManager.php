@@ -9,7 +9,6 @@
 
 namespace Flarum\Http;
 
-
 use Illuminate\Support\Arr;
 
 class SlugManager
