@@ -102,7 +102,7 @@ export default class UserPage extends Page {
     });
 
     if (!this.user) {
-      app.store.find('users', username, {bySlug: true}).then(this.show.bind(this));
+      app.store.find('users', username, { bySlug: true }).then(this.show.bind(this));
     }
   }
 
