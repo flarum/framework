@@ -96,11 +96,7 @@ class UserServiceProvider extends AbstractServiceProvider
         }
 
         $passwordCheckers = array_map(function ($checker) {
-            if (is_string($checker)) {
-                $checker = $this->app->make($checker);
-            }
-
-            return $checker;
+            return ContainerUtil::wrapCallback($checker, $this->app);
         }, $this->app->make('flarum.user.password_checkers'));
 
         User::setPasswordCheckers($passwordCheckers);
