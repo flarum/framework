@@ -158,7 +158,11 @@ class ShowTest extends TestCase
      */
     public function user_can_see_others_if_allowed()
     {
-        $this->
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'viewDiscussions', 'group_id' => 3],
+            ]
+        ]);
 
         $response = $this->send(
             $this->request('GET', '/api/users/1', [
@@ -166,7 +170,7 @@ class ShowTest extends TestCase
             ])
         );
 
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -174,6 +178,12 @@ class ShowTest extends TestCase
      */
     public function user_can_see_others_if_allowed_via_slug()
     {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'viewDiscussions', 'group_id' => 3],
+            ]
+        ]);
+
         $response = $this->send(
             $this->request('GET', '/api/users/admin', [
                 'authenticatedAs' => 2,
@@ -182,6 +192,6 @@ class ShowTest extends TestCase
             ])
         );
 
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }
