@@ -11,7 +11,6 @@ namespace Flarum\Group;
 
 use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Builder;
 
 class GroupPolicy extends AbstractPolicy
 {

@@ -11,7 +11,6 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
-use Flarum\Event\ScopeModelVisibility;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;

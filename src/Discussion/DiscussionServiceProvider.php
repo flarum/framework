@@ -9,8 +9,6 @@
 
 namespace Flarum\Discussion;
 
-use Flarum\Database\AbstractModel;
-use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Access\ScopeDiscussionVisibility;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Foundation\AbstractServiceProvider;

@@ -10,7 +10,6 @@
 namespace Flarum\Database;
 
 use Flarum\Event\ScopeModelVisibility;
-use Flarum\Group\Group;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -28,13 +27,12 @@ trait ScopeVisibilityTrait
             $ability = static::$DEFAULT;
         }
 
-        if (!Arr::has(static::$visibilityScopers, "$model.$ability")) {
+        if (! Arr::has(static::$visibilityScopers, "$model.$ability")) {
             Arr::set(static::$visibilityScopers, "$model.$ability", []);
         }
 
         static::$visibilityScopers[$model][$ability][] = $scoper;
     }
-
 
     /**
      * Scope a query to only include records that are visible to a user.

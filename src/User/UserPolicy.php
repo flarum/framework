@@ -9,8 +9,6 @@
 
 namespace Flarum\User;
 
-use Illuminate\Database\Eloquent\Builder;
-
 class UserPolicy extends AbstractPolicy
 {
     /**

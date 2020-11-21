@@ -9,12 +9,10 @@
 
 namespace Flarum\Discussion;
 
-use Flarum\Event\ScopeModelVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Eloquent\Builder;
 
 class DiscussionPolicy extends AbstractPolicy
 {

@@ -9,8 +9,6 @@
 
 namespace Flarum\User;
 
-use Flarum\Database\AbstractModel;
-use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;

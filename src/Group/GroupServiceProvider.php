@@ -9,8 +9,6 @@
 
 namespace Flarum\Group;
 
-use Flarum\Database\AbstractModel;
-use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Group\Access\ScopeGroupVisibility;
 

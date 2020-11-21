@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
-use Egulias\EmailValidator\Warning\Comment;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Post\CommentPost;
@@ -75,7 +74,7 @@ class ModelVisibilityTest extends TestCase
         $this->extend(
             (new Extend\ModelVisibility(CommentPost::class))
                 ->scoper(function (User $user, Builder $query) {
-                    $query->whereRaw("1=0");
+                    $query->whereRaw('1=0');
                 }, 'view')
         );
 
@@ -96,7 +95,7 @@ class ModelVisibilityTest extends TestCase
         $this->extend(
             (new Extend\ModelVisibility(Post::class))
                 ->scoper(function (User $user, Builder $query) {
-                    $query->whereRaw("1=0");
+                    $query->whereRaw('1=0');
                 }, 'view')
         );
 
@@ -117,11 +116,11 @@ class ModelVisibilityTest extends TestCase
         $this->extend(
             (new Extend\ModelVisibility(CommentPost::class))
                 ->scoper(function (User $user, Builder $query) {
-                    $query->orWhereRaw("1=1");
+                    $query->orWhereRaw('1=1');
                 }, 'view'),
             (new Extend\ModelVisibility(Post::class))
                 ->scoper(function (User $user, Builder $query) {
-                    $query->whereRaw("1=0");
+                    $query->whereRaw('1=0');
                 }, 'view'),
         );
 
@@ -142,11 +141,11 @@ class ModelVisibilityTest extends TestCase
         $this->extend(
             (new Extend\ModelVisibility(Discussion::class))
                 ->scoper(function (User $user, Builder $query) {
-                    $query->whereRaw("1=1");
+                    $query->whereRaw('1=1');
                 }, 'viewPrivate'),
             (new Extend\ModelVisibility(Post::class))
                 ->scoper(function (User $user, Builder $query) {
-                    $query->whereRaw("1=1");
+                    $query->whereRaw('1=1');
                 }, 'viewPrivate'),
         );
 
@@ -168,13 +167,13 @@ class ModelVisibilityTest extends TestCase
             (new Extend\ModelVisibility(Discussion::class))
                 ->defaultScoper(function (User $user, Builder $query, string $ability) {
                     if ($ability == 'viewPrivate') {
-                        $query->whereRaw("1=1");
+                        $query->whereRaw('1=1');
                     }
                 }),
             (new Extend\ModelVisibility(Post::class))
                 ->defaultScoper(function (User $user, Builder $query, string $ability) {
                     if ($ability == 'viewPrivate') {
-                        $query->whereRaw("1=1");
+                        $query->whereRaw('1=1');
                     }
                 }),
         );

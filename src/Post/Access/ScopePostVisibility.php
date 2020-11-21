@@ -40,7 +40,7 @@ class ScopePostVisibility
         // Hide hidden posts, unless they are authored by the current user, or
         // the current user has permission to view hidden posts in the
         // discussion.
-        if (!$actor->hasPermission('discussion.hidePosts')) {
+        if (! $actor->hasPermission('discussion.hidePosts')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('posts.hidden_at')
                 ->orWhere('posts.user_id', $actor->id)
