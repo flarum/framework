@@ -99,7 +99,7 @@ class UserServiceProvider extends AbstractServiceProvider
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
 
-        User::registerVisibilityScoper(User::class, new ScopeUserVisibility(), 'view');
+        User::registerVisibilityScoper(new ScopeUserVisibility(), 'view');
     }
 
     /**

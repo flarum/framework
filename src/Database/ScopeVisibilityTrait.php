@@ -18,10 +18,12 @@ use Illuminate\Support\Arr;
 trait ScopeVisibilityTrait
 {
     protected static $visibilityScopers = [];
-    protected static $DEFAULT = 'default';
+    protected static $DEFAULT = '*';
 
-    public static function registerVisibilityScoper(string $model, $scoper, $ability = null)
+    public static function registerVisibilityScoper($scoper, $ability = null)
     {
+        $model = static::class;
+
         if ($ability == null) {
             $ability = static::$DEFAULT;
         }
@@ -40,18 +42,7 @@ trait ScopeVisibilityTrait
      * @param Builder $query
      * @param User $actor
      */
-    public function scopeWhereVisibleTo(Builder $query, User $actor)
-    {
-        return $this->scopeWhereVisibleWithAbility($query, $actor, 'view');
-    }
-
-    /**
-     * Scope a query to only include records that are visible to a user.
-     *
-     * @param Builder $query
-     * @param User $actor
-     */
-    public function scopeWhereVisibleWithAbility(Builder $query, User $actor, string $ability)
+    public function scopeWhereVisibleTo(Builder $query, User $actor, string $ability = 'view')
     {
         $listeners = static::$dispatcher->getListeners(ScopeModelVisibility::class);
         foreach ($listeners as $listener) {
@@ -65,7 +56,8 @@ trait ScopeVisibilityTrait
                     $listener($actor, $query);
                 }
             } else {
-                foreach (Arr::get(static::$visibilityScopers, "$class.*", []) as $listener) {
+                $fallbackAbility = static::$DEFAULT;
+                foreach (Arr::get(static::$visibilityScopers, "$class.$fallbackAbility", []) as $listener) {
                     $listener($actor, $query, $ability);
                 }
             }

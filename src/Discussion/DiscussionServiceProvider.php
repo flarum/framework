@@ -32,6 +32,6 @@ class DiscussionServiceProvider extends AbstractServiceProvider
             DiscussionRenamedLogger::class
         );
 
-        Discussion::registerVisibilityScoper(Discussion::class, new ScopeDiscussionVisibility(), 'view');
+        Discussion::registerVisibilityScoper(new ScopeDiscussionVisibility(), 'view');
     }
 }
