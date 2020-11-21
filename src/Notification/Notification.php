@@ -161,9 +161,7 @@ class Notification extends AbstractModel
                                 ->from((new $class)->getTable())
                                 ->whereColumn('id', 'subject_id');
 
-                            static::$dispatcher->dispatch(
-                                new ScopeModelVisibility($class::query()->setQuery($query), $actor, 'view')
-                            );
+                            $class::query()->setQuery($query)->whereVisibleTo($actor);
                         });
                 });
             }

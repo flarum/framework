@@ -29,19 +29,4 @@ class UserPolicy extends AbstractPolicy
             return true;
         }
     }
-
-    /**
-     * @param User $actor
-     * @param Builder $query
-     */
-    public function find(User $actor, Builder $query)
-    {
-        if ($actor->cannot('viewDiscussions')) {
-            if ($actor->isGuest()) {
-                $query->whereRaw('FALSE');
-            } else {
-                $query->where('id', $actor->id);
-            }
-        }
-    }
 }

@@ -9,10 +9,13 @@
 
 namespace Flarum\User;
 
+use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Access\ScopeUserVisibility;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\DisplayName\UsernameDriver;
 use Flarum\User\Event\EmailChangeRequested;
@@ -95,6 +98,8 @@ class UserServiceProvider extends AbstractServiceProvider
         $events->subscribe(UserPolicy::class);
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
+
+        User::registerVisibilityScoper(User::class, new ScopeUserVisibility(), 'view');
     }
 
     /**

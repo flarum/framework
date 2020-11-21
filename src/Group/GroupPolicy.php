@@ -31,15 +31,4 @@ class GroupPolicy extends AbstractPolicy
             return true;
         }
     }
-
-    /**
-     * @param User $actor
-     * @param Builder $query
-     */
-    public function find(User $actor, Builder $query)
-    {
-        if ($actor->cannot('viewHiddenGroups')) {
-            $query->where('is_hidden', false);
-        }
-    }
 }
