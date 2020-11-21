@@ -51,15 +51,12 @@ trait ScopeVisibilityTrait
         }
 
         foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
-            if (!empty($newListeners = Arr::get(static::$visibilityScopers, "$class.$ability", []))) {
-                foreach ($newListeners as $listener) {
-                    $listener($actor, $query);
-                }
-            } else {
-                $fallbackAbility = static::$DEFAULT;
-                foreach (Arr::get(static::$visibilityScopers, "$class.$fallbackAbility", []) as $listener) {
-                    $listener($actor, $query, $ability);
-                }
+            $defaultAbility = static::$DEFAULT;
+            foreach (Arr::get(static::$visibilityScopers, "$class.$defaultAbility", []) as $listener) {
+                $listener($actor, $query, $ability);
+            }
+            foreach (Arr::get(static::$visibilityScopers, "$class.$ability", []) as $listener) {
+                $listener($actor, $query);
             }
         }
 
