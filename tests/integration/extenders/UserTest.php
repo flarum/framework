@@ -32,6 +32,9 @@ class UserTest extends TestCase
             'settings' => [
                 ['key' => 'display_name_driver', 'value' => 'custom'],
             ],
+            'group_permission' => [
+                ['permission' => 'viewUserList', 'group_id' => 3],
+            ]
         ]);
     }
 
