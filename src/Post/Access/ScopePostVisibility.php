@@ -33,7 +33,7 @@ class ScopePostVisibility
         $query->where(function ($query) use ($actor) {
             $query->where('posts.is_private', false)
                 ->orWhere(function ($query) use ($actor) {
-                    $query->whereVisibleWithAbility($actor, 'viewPrivate');
+                    $query->whereVisibleTo($actor, 'viewPrivate');
                 });
         });
 
@@ -52,7 +52,7 @@ class ScopePostVisibility
                                 $query
                                     ->whereRaw('1=0')
                                     ->orWhere(function ($query) use ($actor) {
-                                        Discussion::query()->setQuery($query)->whereVisibleWithAbility($actor, 'hidePosts');
+                                        Discussion::query()->setQuery($query)->whereVisibleTo($actor, 'hidePosts');
                                     });
                             });
                     });

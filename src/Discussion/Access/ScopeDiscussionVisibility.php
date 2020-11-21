@@ -30,7 +30,7 @@ class ScopeDiscussionVisibility
         $query->where(function ($query) use ($actor) {
             $query->where('discussions.is_private', false)
             ->orWhere(function ($query) use ($actor) {
-                $query->whereVisibleWithAbility($actor, 'viewPrivate');
+                $query->whereVisibleTo($actor, 'viewPrivate');
             });
         });
 
@@ -41,7 +41,7 @@ class ScopeDiscussionVisibility
                 $query->whereNull('discussions.hidden_at')
                 ->orWhere('discussions.user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
-                        $query->whereVisibleWithAbility($actor, 'hide');
+                        $query->whereVisibleTo($actor, 'hide');
                     });
             });
         }
@@ -53,7 +53,7 @@ class ScopeDiscussionVisibility
                 $query->where('discussions.comment_count', '>', 0)
                     ->orWhere('discussions.user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
-                        $query->whereVisibleWithAbility($actor, 'editPosts');
+                        $query->whereVisibleTo($actor, 'editPosts');
                     });
             });
         }
