@@ -121,7 +121,7 @@ class ModelVisibilityTest extends TestCase
             (new Extend\ModelVisibility(Post::class))
                 ->scoper(function (User $user, Builder $query) {
                     $query->whereRaw('1=0');
-                }, 'view'),
+                }, 'view')
         );
 
         $this->prepDb();
@@ -146,7 +146,7 @@ class ModelVisibilityTest extends TestCase
             (new Extend\ModelVisibility(Post::class))
                 ->scoper(function (User $user, Builder $query) {
                     $query->whereRaw('1=1');
-                }, 'viewPrivate'),
+                }, 'viewPrivate')
         );
 
         $this->prepDb();
@@ -175,7 +175,7 @@ class ModelVisibilityTest extends TestCase
                     if ($ability == 'viewPrivate') {
                         $query->whereRaw('1=1');
                     }
-                }),
+                })
         );
 
         $this->prepDb();
