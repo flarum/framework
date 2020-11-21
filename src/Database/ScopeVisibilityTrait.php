@@ -44,11 +44,10 @@ trait ScopeVisibilityTrait
      */
     public function scopeWhereVisibleTo(Builder $query, User $actor, string $ability = 'view')
     {
-        $listeners = static::$dispatcher->getListeners(ScopeModelVisibility::class);
-        foreach ($listeners as $listener) {
-            $event = new ScopeModelVisibility($query, $actor, $ability);
-            $listener(get_class($event), Arr::wrap($event));
-        }
+        /**
+         * @deprecated beta 15, remove beta 15
+         */
+        static::$dispatcher->dispatch(new ScopeModelVisibility($query, $actor, $ability));
 
         foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
             $defaultAbility = static::$DEFAULT;
