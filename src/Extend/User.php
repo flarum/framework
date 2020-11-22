@@ -10,12 +10,14 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\User\User as FlarumUser;
 use Illuminate\Contracts\Container\Container;
 
 class User implements ExtenderInterface
 {
     private $displayNameDrivers = [];
     private $groupProcessors = [];
+    private $preferences = [];
 
     /**
      * Add a display name driver.
@@ -51,6 +53,20 @@ class User implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Register a new user preference.
+     *
+     * @param string $key
+     * @param callable $transformer
+     * @param $default
+     */
+    public function registerPreference(string $key, callable $transformer = null, $default = null)
+    {
+        $this->preferences[$key] = compact('transformer', 'default');
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend('flarum.user.display_name.supported_drivers', function ($existingDrivers) {
@@ -60,5 +76,9 @@ class User implements ExtenderInterface
         $container->extend('flarum.user.group_processors', function ($existingRelations) {
             return array_merge($existingRelations, $this->groupProcessors);
         });
+
+        foreach ($this->preferences as $key => $preference) {
+            FlarumUser::addPreference($key, $preference['transformer'], $preference['default']);
+        }
     }
 }

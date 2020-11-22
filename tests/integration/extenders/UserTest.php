@@ -14,6 +14,7 @@ use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
+use Illuminate\Support\Arr;
 
 class UserTest extends TestCase
 {
@@ -26,10 +27,21 @@ class UserTest extends TestCase
                 $this->adminUser(),
                 $this->normalUser(),
             ],
+            'group_permission' => [
+                ['permission' => 'viewUserList', 'group_id' => 3],
+            ],
             'settings' => [
                 ['key' => 'display_name_driver', 'value' => 'custom'],
             ],
         ]);
+    }
+
+    protected function registerTestPreference()
+    {
+        $this->extend(
+            (new Extend\User())
+                ->registerPreference('test', 'boolval', true)
+        );
     }
 
     /**
@@ -100,6 +112,51 @@ class UserTest extends TestCase
         $user = User::find(2);
 
         $this->assertNotContains('viewUserList', $user->getPermissions());
+    }
+
+    /**
+     * @test
+     */
+    public function can_add_user_preference()
+    {
+        $this->registerTestPreference();
+        $this->prepDb();
+
+        /** @var User $user */
+        $user = User::find(2);
+        $this->assertEquals(true, Arr::get($user->preferences, 'test'));
+    }
+
+    /**
+     * @test
+     */
+    public function can_store_user_preference()
+    {
+        $this->registerTestPreference();
+        $this->prepDb();
+
+        /** @var User $user */
+        $user = User::find(2);
+
+        $user->setPreference('test', false);
+
+        $this->assertEquals(false, $user->getPreference('test'));
+    }
+
+    /**
+     * @test
+     */
+    public function storing_user_preference_modified_by_transformer()
+    {
+        $this->registerTestPreference();
+        $this->prepDb();
+
+        /** @var User $user */
+        $user = User::find(2);
+
+        $user->setPreference('test', []);
+
+        $this->assertEquals(false, $user->getPreference('test'));
     }
 }
 
