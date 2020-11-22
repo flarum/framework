@@ -1,5 +1,5 @@
 import DashboardWidget from './DashboardWidget';
-import extensionEnabled from '../utils/extensionEnabled';
+import isExtensionEnabled from '../utils/isExtensionEnabled';
 import getCategorizedExtensions from '../utils/getCategorizedExtensions';
 import Link from '../../common/components/Link';
 import icon from '../../common/helpers/icon';
@@ -24,7 +24,7 @@ export default class ExtensionsWidget extends DashboardWidget {
                   <ul className="ExtensionList">
                     {categorizedExtensions[category].map((extension) => {
                       return (
-                        <li className={'ExtensionListItem ' + (!extensionEnabled(extension.id) ? 'disabled' : '')}>
+                        <li className={'ExtensionListItem ' + (!isExtensionEnabled(extension.id) ? 'disabled' : '')}>
                           <Link href={app.route('extension', { id: extension.id })}>
                             <div className="ExtensionListItem-content">
                               <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>

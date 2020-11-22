@@ -12,9 +12,9 @@ export default class ExtensionPermissionGrid extends PermissionGrid {
     const permissionCategories = super.permissionItems();
 
     permissionCategories.items = Object.entries(permissionCategories.items)
-      .filter(([k, v]) => v.content.children.length > 0)
-      .reduce((obj, [key, v]) => {
-        obj[key] = v;
+      .filter(([category, info]) => info.content.children.length > 0)
+      .reduce((obj, [category, info]) => {
+        obj[category] = info;
         return obj;
       }, {});
 

@@ -31,62 +31,37 @@ export default class AdminNav extends Component {
 
     items.add(
       'dashboard',
-      LinkButton.component(
-        {
-          href: app.route('dashboard'),
-          icon: 'far fa-chart-bar',
-          title: app.translator.trans('core.admin.nav.dashboard_title'),
-        },
-        app.translator.trans('core.admin.nav.dashboard_button')
-      )
+      <LinkButton href={app.route('dashboard')} icon="far fa-chart-bar" title={app.translator.trans('core.admin.nav.dashboard_title')}>
+        {app.translator.trans('core.admin.nav.dashboard_button')}
+      </LinkButton>
     );
 
     items.add(
       'basics',
-      LinkButton.component(
-        {
-          href: app.route('basics'),
-          icon: 'fas fa-pencil-alt',
-          title: app.translator.trans('core.admin.nav.basics_title'),
-        },
-        app.translator.trans('core.admin.nav.basics_button')
-      )
+      <LinkButton href={app.route('basics')} icon="fas fa-pencil-alt" title={app.translator.trans('core.admin.nav.basics_title')}>
+        {app.translator.trans('core.admin.nav.basics_button')}
+      </LinkButton>
     );
 
     items.add(
       'mail',
-      LinkButton.component(
-        {
-          href: app.route('mail'),
-          icon: 'fas fa-envelope',
-          title: app.translator.trans('core.admin.nav.email_title'),
-        },
-        app.translator.trans('core.admin.nav.email_button')
-      )
+      <LinkButton href={app.route('mail')} icon="fas fa-envelope" title={app.translator.trans('core.admin.nav.email_title')}>
+        {app.translator.trans('core.admin.nav.email_button')}
+      </LinkButton>
     );
 
     items.add(
       'permissions',
-      LinkButton.component(
-        {
-          href: app.route('permissions'),
-          icon: 'fas fa-key',
-          title: app.translator.trans('core.admin.nav.permissions_title'),
-        },
-        app.translator.trans('core.admin.nav.permissions_button')
-      )
+      <LinkButton href={app.route('permissions')} icon="fas fa-key" title={app.translator.trans('core.admin.nav.permissions_title')}>
+        {app.translator.trans('core.admin.nav.permissions_button')}
+      </LinkButton>
     );
 
     items.add(
       'appearance',
-      LinkButton.component(
-        {
-          href: app.route('appearance'),
-          icon: 'fas fa-paint-brush',
-          title: app.translator.trans('core.admin.nav.appearance_title'),
-        },
-        app.translator.trans('core.admin.nav.appearance_button')
-      )
+      <LinkButton href={app.route('appearance')} icon="fas fa-paint-brush" title={app.translator.trans('core.admin.nav.appearance_title')}>
+        {app.translator.trans('core.admin.nav.appearance_button')}
+      </LinkButton>
     );
 
     items.add(
@@ -113,7 +88,7 @@ export default class AdminNav extends Component {
     Object.keys(categorizedExtensions).map((category) => {
       if (!this.query()) {
         items.add(
-          `${category} NavDivider`,
+          category,
           <h4 className="ExtensionListTitle">{app.translator.trans(`core.admin.nav.categories.${category}`)}</h4>,
           categories[category]
         );
@@ -121,23 +96,19 @@ export default class AdminNav extends Component {
 
       categorizedExtensions[category].map((extension) => {
         const query = this.query().toUpperCase();
+        const title = extension.extra['flarum-extension'].title;
 
-        if (
-          !query ||
-          extension.extra['flarum-extension'].title.toUpperCase().includes(query) ||
-          extension.description.toUpperCase().includes(query)
-        ) {
+        if (!query || title.toUpperCase().includes(query) || extension.description.toUpperCase().includes(query)) {
           items.add(
-            `${extension.id} ExtensionItem`,
-            ExtensionLinkButton.component(
-              {
-                href: app.route('extension', { id: extension.id }),
-                extensionId: extension.id,
-                className: 'ExtensionNavButton',
-                title: extension.description,
-              },
-              extension.extra['flarum-extension'].title
-            ),
+            extension.id,
+            <ExtensionLinkButton
+              href={app.route('extension', { id: extension.id })}
+              extensionId={extension.id}
+              className="ExtensionNavButton"
+              title={extension.description}
+            >
+              {title}
+            </ExtensionLinkButton>,
             categories[category]
           );
         }

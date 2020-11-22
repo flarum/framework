@@ -22,15 +22,9 @@ export default class HeaderSecondary extends Component {
 
     items.add(
       'help',
-      LinkButton.component(
-        {
-          href: 'https://docs.flarum.org/troubleshoot.html',
-          icon: 'fas fa-question-circle',
-          external: true,
-          target: '_blank',
-        },
-        app.translator.trans('core.admin.header.get_help')
-      )
+      <LinkButton href="https://docs.flarum.org/troubleshoot.html" icon="fas fa-question-circle" external={true} target="_blank">
+        {app.translator.trans('core.admin.header.get_help')}
+      </LinkButton>
     );
 
     items.add('session', SessionDropdown.component());

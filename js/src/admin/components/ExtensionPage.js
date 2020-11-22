@@ -13,7 +13,7 @@ import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import saveSettings from '../utils/saveSettings';
 import ExtensionData from '../utils/ExtensionData';
-import extensionEnabled from '../utils/extensionEnabled';
+import isExtensionEnabled from '../utils/isExtensionEnabled';
 
 export default class ExtensionPage extends Page {
   oninit(vnode) {
@@ -198,10 +198,12 @@ export default class ExtensionPage extends Page {
     }
 
     Object.keys(this.infoFields).map((field) => {
-      if (this.extension.extra['flarum-extension'].info && this.extension.extra['flarum-extension'].info[field]) {
+      const info = this.extension.extra['flarum-extension'].info;
+
+      if (info && info[field]) {
         infoData[field] = {
           icon: this.infoFields[field],
-          href: this.extension.extra['flarum-extension'].info[field],
+          href: info[field],
         };
       }
     });
@@ -209,15 +211,9 @@ export default class ExtensionPage extends Page {
     Object.entries(infoData).map(([field, value]) => {
       items.add(
         field,
-        LinkButton.component(
-          {
-            href: value.href,
-            icon: value.icon,
-            external: true,
-            target: '_blank',
-          },
-          app.translator.trans(`core.admin.extension.info_links.${field}`)
-        )
+        <LinkButton href={value.href} icon={value.icon} external={true} target="_blank">
+          {app.translator.trans(`core.admin.extension.info_links.${field}`)}
+        </LinkButton>
       );
     });
 
@@ -226,7 +222,7 @@ export default class ExtensionPage extends Page {
 
   submitButton() {
     return (
-      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.changed()}>
+      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.isChanged()}>
         {app.translator.trans('core.admin.settings.submit_button')}
       </Button>
     );
@@ -327,7 +323,7 @@ export default class ExtensionPage extends Page {
     return dirty;
   }
 
-  changed() {
+  isChanged() {
     return Object.keys(this.dirty()).length;
   }
 
@@ -354,7 +350,7 @@ export default class ExtensionPage extends Page {
   }
 
   isEnabled() {
-    let isEnabled = extensionEnabled(this.extension.id);
+    let isEnabled = isExtensionEnabled(this.extension.id);
 
     return this.changingState ? !isEnabled : isEnabled;
   }

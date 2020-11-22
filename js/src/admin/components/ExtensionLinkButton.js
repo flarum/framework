@@ -1,4 +1,4 @@
-import extensionEnabled from '../utils/extensionEnabled';
+import isExtensionEnabled from '../utils/isExtensionEnabled';
 import LinkButton from '../../common/components/LinkButton';
 import icon from '../../common/helpers/icon';
 import ItemList from '../../common/utils/ItemList';
@@ -22,7 +22,7 @@ export default class ExtensionLinkButton extends LinkButton {
   statusItems(name) {
     const items = new ItemList();
 
-    items.add('enabled', <span class={'ExtensionListItem-Dot ' + (extensionEnabled(name) ? 'enabled' : 'disabled')} />);
+    items.add('enabled', <span class={'ExtensionListItem-Dot ' + (isExtensionEnabled(name) ? 'enabled' : 'disabled')} />);
 
     return items;
   }
