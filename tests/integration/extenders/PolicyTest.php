@@ -11,13 +11,12 @@ namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\User\Access\AbstractPolicy;
 use Flarum\Extend;
-use Flarum\Tests\integration\TestCase;
 use Flarum\Tests\integration\BuildsHttpRequests;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
+use Flarum\Tests\integration\TestCase;
+use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Builder;
 
 class PolicyTest extends TestCase
 {

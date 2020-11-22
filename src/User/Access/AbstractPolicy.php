@@ -49,7 +49,7 @@ abstract class AbstractPolicy
         if (method_exists($this, $ability)) {
             $result = call_user_func_array([$this, $ability], [$actor, $instance]);
 
-            if (!is_null($result)) {
+            if (! is_null($result)) {
                 return $result;
             }
         }

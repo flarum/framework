@@ -53,8 +53,8 @@ class UserServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->singleton('flarum.policies.compiled', function () {
-            return array_map(function($modelPolicies) {
-                return array_map(function($rawPolicy) {
+            return array_map(function ($modelPolicies) {
+                return array_map(function ($rawPolicy) {
                     return $this->app->make($rawPolicy);
                 }, $modelPolicies);
             }, $this->app->make('flarum.policies'));
