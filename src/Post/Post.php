@@ -96,6 +96,10 @@ class Post extends AbstractModel
             $post->discussion->save();
         });
 
+        /**
+         * @deprecated beta 15, remove beta 16
+         * When needed, the `Flarum\Discussion\Event\Saving` event should be listened to directly.
+         */
         static::saving(function (self $post) {
             $event = new GetModelIsPrivate($post);
 

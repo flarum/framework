@@ -13,6 +13,9 @@ use Flarum\Database\AbstractModel;
 
 /**
  * Determine whether or not a model should be marked as `is_private`.
+ *
+ * @deprecated beta 15, remove beta 16
+ * When needed, the `Flarum\Discussion\Event\Saving` event should be listened to directly.
  */
 class GetModelIsPrivate
 {

@@ -110,6 +110,10 @@ class Discussion extends AbstractModel
             Notification::whereSubject($discussion)->delete();
         });
 
+        /**
+         * @deprecated beta 15, remove beta 16
+         * When needed, the `Flarum\Discussion\Event\Saving` event should be listened to directly.
+         */
         static::saving(function (self $discussion) {
             $event = new GetModelIsPrivate($discussion);
 
