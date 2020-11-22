@@ -145,6 +145,9 @@ class User extends AbstractModel
             Notification::whereSubject($user)->delete();
         });
 
+        /**
+         * @deprecated beta 15, remove beta 16
+         */
         static::$dispatcher->dispatch(
             new ConfigureUserPreferences
         );
