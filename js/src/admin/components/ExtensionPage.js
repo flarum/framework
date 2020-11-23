@@ -126,9 +126,7 @@ export default class ExtensionPage extends Page {
             </Button>
           ) : settings ? (
             <div className="Form">
-              {settings.map((setting) => {
-                return this.getSetting(setting);
-              })}
+              {settings.map((setting) => this.getSetting(setting))}
               <div className="Form-group">{this.submitButton()}</div>
             </div>
           ) : (
