@@ -26,7 +26,7 @@ export default class ExtensionData {
   /**
    * This function registers your settings with Flarum
    *
-   * @example - settings
+   * @example
    *
    * .registerSettings({
    *   setting: 'flarum-flags.guidelines_url',
@@ -36,9 +36,10 @@ export default class ExtensionData {
    *
    *
    * @param content
+   * @param priority
    * @returns {ExtensionData}
    */
-  registerSettings(content, priority = 0) {
+  registerSetting(content, priority = 0) {
     this.data[this.currentExtension].settings = this.data[this.currentExtension].settings || new ItemList();
 
     this.data[this.currentExtension].settings.add(content.setting, content, priority);
