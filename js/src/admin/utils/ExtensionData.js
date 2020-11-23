@@ -28,24 +28,20 @@ export default class ExtensionData {
    *
    * @example - settings
    *
-   * .registerSettings('settings', {
-   *     'flarum-flags.guidelines_url': {
-   *         type: 'text', // This will be inputted into the input tag for the setting (text/number/etc)
-   *         label: app.translator.trans('flarum-flags.admin.settings.guidelines_url_label')
-   *     }
-   * })
+   * .registerSettings({
+   *   setting: 'flarum-flags.guidelines_url',
+   *   type: 'text', // This will be inputted into the input tag for the setting (text/number/etc)
+   *   label: app.translator.trans('flarum-flags.admin.settings.guidelines_url_label')
+   * }, 15) // priority is optional (ItemList)
    *
    *
-   * @param type
    * @param content
-   * @param permissionType
-   * @param priority
    * @returns {ExtensionData}
    */
-  registerSettings(content, permissionType = null, priority = 0) {
-    this.data[this.currentExtension].settings = this.data[this.currentExtension].settings || [];
+  registerSettings(content, priority = 0) {
+    this.data[this.currentExtension].settings = this.data[this.currentExtension].settings || new ItemList();
 
-    this.data[this.currentExtension].settings.push(...content);
+    this.data[this.currentExtension].settings.add(content.setting, content, priority);
 
     return this;
   }
@@ -73,7 +69,7 @@ export default class ExtensionData {
       this.data[this.currentExtension].permissions[permissionType] = new ItemList();
     }
 
-    this.data[this.currentExtension].permissions[permissionType].add(content.permission, content);
+    this.data[this.currentExtension].permissions[permissionType].add(content.permission, content, priority);
 
     return this;
   }
@@ -99,7 +95,7 @@ export default class ExtensionData {
    */
   getSettings(extensionId) {
     if (this.data[extensionId] && this.data[extensionId].settings) {
-      return this.data[extensionId].settings;
+      return this.data[extensionId].settings.toArray();
     }
 
     return false;
