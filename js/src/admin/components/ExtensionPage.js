@@ -126,7 +126,9 @@ export default class ExtensionPage extends Page {
             </Button>
           ) : settings ? (
             <div className="Form">
-              {this.getSettings(settings)}
+              {settings.map((setting) => {
+                return this.getSetting(setting);
+              })}
               <div className="Form-group">{this.submitButton()}</div>
             </div>
           ) : (
@@ -229,64 +231,60 @@ export default class ExtensionPage extends Page {
   }
 
   /**
-   * getSettings accepts an array of settings.
+   * getSetting takes a settings object.
    * Depending on the type of input, you can set the type to 'bool', 'select', or
    * any standard <input> type.
    *
    * @example
-   * [
-   *   {
-   *      setting: 'acme.checkbox',
-   *      label: app.translator.trans('acme.admin.setting_label'),
-   *      type: 'bool'
-   *   }
-   * ]
+   *
+   * {
+   *    setting: 'acme.checkbox',
+   *    label: app.translator.trans('acme.admin.setting_label'),
+   *    type: 'bool'
+   * }
    *
    * @example
-   * [
-   *   {
-   *      setting: 'acme.select',
-   *      label: app.translator.trans('acme.admin.setting_label'),
-   *      type: 'select',
-   *      options: {
-   *        'option1': 'Option 1 label',
-   *        'option2': 'Option 2 label',
-   *      },
-   *      default: 'option1',
-   *   }
-   * ]
    *
-   * @param settings
+   * {
+   *    setting: 'acme.select',
+   *    label: app.translator.trans('acme.admin.setting_label'),
+   *    type: 'select',
+   *    options: {
+   *      'option1': 'Option 1 label',
+   *      'option2': 'Option 2 label',
+   *    },
+   *    default: 'option1',
+   * }
+   *
+   * @param setting
    * @returns {JSX.Element}
    */
-  getSettings(settings) {
-    return settings.map((entry) => {
-      const setting = entry.setting;
-      const value = this.setting([setting])();
-      if (['bool', 'checkbox', 'switch', 'boolean'].includes(entry.type)) {
-        return (
-          <div className="Form-group">
-            <Switch state={!!value && value !== '0'} onchange={this.settings[setting]}>
-              {entry.label}
-            </Switch>
-          </div>
-        );
-      } else if (['select', 'dropdown', 'selectdropdown'].includes(entry.type)) {
-        return (
-          <div className="Form-group">
-            <label>{entry.label}</label>
-            <Select value={value || entry.default} options={entry.options} buttonClassName="Button" onchange={this.settings[setting]} />
-          </div>
-        );
-      } else {
-        return (
-          <div className="Form-group">
-            <label>{entry.label}</label>
-            <input type={entry.type} className="FormControl" bidi={this.setting(setting)} />
-          </div>
-        );
-      }
-    });
+  getSetting(entry) {
+    const setting = entry.setting;
+    const value = this.setting([setting])();
+    if (['bool', 'checkbox', 'switch', 'boolean'].includes(entry.type)) {
+      return (
+        <div className="Form-group">
+          <Switch state={!!value && value !== '0'} onchange={this.settings[setting]}>
+            {entry.label}
+          </Switch>
+        </div>
+      );
+    } else if (['select', 'dropdown', 'selectdropdown'].includes(entry.type)) {
+      return (
+        <div className="Form-group">
+          <label>{entry.label}</label>
+          <Select value={value || entry.default} options={entry.options} buttonClassName="Button" onchange={this.settings[setting]} />
+        </div>
+      );
+    } else {
+      return (
+        <div className="Form-group">
+          <label>{entry.label}</label>
+          <input type={entry.type} className="FormControl" bidi={this.setting(setting)} />
+        </div>
+      );
+    }
   }
 
   toggle() {
