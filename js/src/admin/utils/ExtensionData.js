@@ -28,7 +28,7 @@ export default class ExtensionData {
    *
    * @example
    *
-   * .registerSettings({
+   * .registerSetting({
    *   setting: 'flarum-flags.guidelines_url',
    *   type: 'text', // This will be inputted into the input tag for the setting (text/number/etc)
    *   label: app.translator.trans('flarum-flags.admin.settings.guidelines_url_label')
