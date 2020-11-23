@@ -126,7 +126,7 @@ export default class ExtensionPage extends Page {
             </Button>
           ) : settings ? (
             <div className="Form">
-              {settings.map((setting) => this.getSetting(setting))}
+              {settings.map((setting) => this.buildSettingComponent(setting))}
               <div className="Form-group">{this.submitButton()}</div>
             </div>
           ) : (
@@ -229,7 +229,7 @@ export default class ExtensionPage extends Page {
   }
 
   /**
-   * getSetting takes a settings object.
+   * getSetting takes a settings object and turns it into a component.
    * Depending on the type of input, you can set the type to 'bool', 'select', or
    * any standard <input> type.
    *
@@ -257,7 +257,7 @@ export default class ExtensionPage extends Page {
    * @param setting
    * @returns {JSX.Element}
    */
-  getSetting(entry) {
+  buildSettingComponent(entry) {
     const setting = entry.setting;
     const value = this.setting([setting])();
     if (['bool', 'checkbox', 'switch', 'boolean'].includes(entry.type)) {
