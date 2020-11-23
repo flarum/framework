@@ -51,7 +51,7 @@ class Gate
      * @param  string|AbstractModel $model
      * @return bool
      */
-    public function allows($actor, $ability, $model)
+    public function allows(User $actor, string $ability, $model): bool
     {
         if ($model) {
             $modelClass = is_string($model) ? $model : get_class($model);
@@ -60,8 +60,6 @@ class Gate
             foreach (Arr::get($this->policies, $modelClass, []) as $policy) {
                 $results[] = $policy->checkAbility($actor, $ability, $model);
             }
-
-            echo json_encode($results);
 
             foreach (static::EVALUATION_CRITERIA as $criteria => $decision) {
                 if (in_array($criteria, $results, true)) {

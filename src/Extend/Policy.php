@@ -31,7 +31,7 @@ class Policy implements ExtenderInterface
      *
      * @param string $policy ::class attribute of policy class, which must extend Flarum\User\AbstractPolicy
      */
-    public function add($policy)
+    public function add(string $policy)
     {
         $this->addPolicies[] = $policy;
 
@@ -44,6 +44,7 @@ class Policy implements ExtenderInterface
             if (! array_key_exists($this->modelClass, $existingPolicies)) {
                 $existingPolicies[$this->modelClass] = [];
             }
+
             foreach ($this->addPolicies as $policy) {
                 $existingPolicies[$this->modelClass][] = $policy;
             }

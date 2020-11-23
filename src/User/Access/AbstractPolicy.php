@@ -40,10 +40,12 @@ abstract class AbstractPolicy
     }
 
     /**
-     * @param GetPermission $event
+     * @param User $user
+     * @param string $ability
+     * @param $instance
      * @return bool|void
      */
-    public function checkAbility(User $actor, $ability, $instance)
+    public function checkAbility(User $actor, string $ability, $instance)
     { // If a specific method for this ability is defined,
         // call that and return any non-null results
         if (method_exists($this, $ability)) {
