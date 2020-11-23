@@ -9,7 +9,6 @@
 
 namespace Flarum\User\Access;
 
-use Flarum\Event\GetPermission;
 use Flarum\User\User;
 
 abstract class AbstractPolicy
