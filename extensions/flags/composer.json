@@ -22,6 +22,10 @@
         },
         "flarum-extension": {
             "title": "Flags",
+            "category": "moderation",
+            "info": {
+                "donate": "https://flarum.org/donate/"
+            },
             "icon": {
                 "name": "fas fa-flag",
                 "backgroundColor": "#D659B5",
