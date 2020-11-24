@@ -1,0 +1,32 @@
+{
+    "name": "flarum/nicknames",
+    "description": "Use nicknames for users",
+    "type": "flarum-extension",
+    "keywords": ["nicknames"],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/nicknames"
+    },
+    "require": {
+        "flarum/core": "^0.1.0-beta.14"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Nicknames\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        },
+        "flarum-extension": {
+            "title": "Nicknames",
+            "icon": {
+                "name": "fas fa-user-tag",
+                "backgroundColor": "#8E4529",
+                "color": "#ffffff"
+            }
+        }
+    }
+}
