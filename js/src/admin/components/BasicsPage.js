@@ -7,6 +7,7 @@ import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 import Stream from '../../common/utils/Stream';
 import withAttr from '../../common/utils/withAttr';
+import AdminHeader from './AdminHeader';
 
 export default class BasicsPage extends Page {
   oninit(vnode) {
@@ -49,6 +50,9 @@ export default class BasicsPage extends Page {
   view() {
     return (
       <div className="BasicsPage">
+        <AdminHeader icon="fas fa-pencil-alt" description={app.translator.trans('core.admin.basics.description')} className="BasicsPage-header">
+          {app.translator.trans('core.admin.basics.title')}
+        </AdminHeader>
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             {FieldSet.component(
