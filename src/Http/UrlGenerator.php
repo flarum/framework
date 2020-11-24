@@ -79,8 +79,6 @@ class UrlGenerator
     {
         $callback = $this->resourceUrlGenerators[$resourceClass];
 
-        $result = $callback($this, $instance, ...$args);
-
-        return $result;
+        return $callback($this, $instance, ...$args);
     }
 }

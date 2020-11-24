@@ -14,6 +14,7 @@ use Flarum\Extend;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
@@ -24,34 +25,17 @@ class ModelUrlTest extends TestCase
 
     protected function prepDb()
     {
+        $userClass = User::class;
         $this->prepareDatabase([
             'users' => [
                 $this->adminUser(),
                 $this->normalUser(),
             ],
-        ]);
-    }
-
-    protected function activateCustomDriver()
-    {
-        $userClass = User::class;
-        $this->prepareDatabase([
             'settings' => [
                 ['key' => "slug_driver_$userClass", 'value' => 'testDriver'],
-            ],
+            ]
         ]);
     }
-
-//    public function tearDown()
-//    {
-//        $userClass = User::class;
-//        $this->prepareDatabase([
-//            'settings' => [
-//                ['key' => "slug_driver_$userClass", 'value' => 'default'],
-//            ],
-//        ]);
-//        parent::tearDown();
-//    }
 
     /**
      * @test
@@ -102,29 +86,11 @@ class ModelUrlTest extends TestCase
     /**
      * @test
      */
-    public function custom_slug_driver_doesnt_have_effect_unless_enabled()
+    public function custom_slug_driver_has_effect_if_added()
     {
         $this->extend((new Extend\ModelUrl(User::class))->addSlugDriver('testDriver', TestSlugDriver::class));
 
         $this->prepDb();
-
-        $slugManager = $this->app()->getContainer()->make(SlugManager::class);
-
-        $testUser = User::find(1);
-
-        $this->assertEquals('admin', $slugManager->forResource(User::class)->toSlug($testUser));
-        $this->assertEquals('1', $slugManager->forResource(User::class)->fromSlug('admin', $testUser)->id);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_slug_driver_has_effect_if_enabled()
-    {
-        $this->extend((new Extend\ModelUrl(User::class))->addSlugDriver('testDriver', TestSlugDriver::class));
-
-        $this->prepDb();
-        $this->activateCustomDriver();
 
         $slugManager = $this->app()->getContainer()->make(SlugManager::class);
 

@@ -50,10 +50,12 @@ class HttpServiceProvider extends AbstractServiceProvider
             $compiledDrivers = [];
 
             foreach ($this->app->make('flarum.http.slugDrivers') as $resourceClass => $resourceDrivers) {
-                $driverClass = $resourceDrivers[$settings->get("slug_driver_$resourceClass", 'default')];
-                echo 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-                echo "slug_driver_$resourceClass";
-                //echo $settings->get("slug_driver_$resourceClass", 'default');
+                $driverKey = $settings->get("slug_driver_$resourceClass", 'default');
+                if (array_key_exists($driverKey, $resourceDrivers)) {
+                    $driverClass = $resourceDrivers[$driverKey];
+                } else {
+                    $driverClass = $resourceDrivers['default'];
+                }
                 $compiledDrivers[$resourceClass] = $this->app->make($driverClass);
             }
 
@@ -70,14 +72,14 @@ class HttpServiceProvider extends AbstractServiceProvider
                     ]);
                 },
                 Post::class => function (UrlGenerator $urlGenerator, Post $post) use ($slugManager) {
-                    return $urlGenerator->to('forum')->route('user', [
+                    return $urlGenerator->to('forum')->route('post', [
                         'id' => $slugManager->forResource(Discussion::class)->toSlug($post->discussion),
                         'near' => $post->id,
                     ]);
                 },
                 User::class => function (UrlGenerator $urlGenerator, User $user) use ($slugManager) {
                     return $urlGenerator->to('forum')->route('user', [
-                        'id' => $slugManager->forResource(User::class)->toSlug($user)
+                        'username' => $slugManager->forResource(User::class)->toSlug($user)
                     ]);
                 },
             ];
