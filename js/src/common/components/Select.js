@@ -13,7 +13,7 @@ import withAttr from '../utils/withAttr';
  */
 export default class Select extends Component {
   view() {
-    const { options, onchange, value, disabled } = this.attrs;
+    const { options, onchange, value, disabled, bidi } = this.attrs;
 
     return (
       <span className="Select">
