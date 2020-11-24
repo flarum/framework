@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Tests\integration\extenders;
 
@@ -26,7 +32,8 @@ class ModelUrlTest extends TestCase
         ]);
     }
 
-    protected function activateCustomDriver() {
+    protected function activateCustomDriver()
+    {
         $userClass = User::class;
         $this->prepareDatabase([
             'settings' => [
@@ -49,7 +56,8 @@ class ModelUrlTest extends TestCase
     /**
      * @test
      */
-    public function default_url_generator_used_by_default() {
+    public function default_url_generator_used_by_default()
+    {
         $this->prepDb();
 
         $urlGenerator = $this->app()->getContainer()->make(UrlGenerator::class);
@@ -62,10 +70,11 @@ class ModelUrlTest extends TestCase
     /**
      * @test
      */
-    public function custom_url_generator_can_be_used() {
+    public function custom_url_generator_can_be_used()
+    {
         $this->extend(
-            (new Extend\ModelUrl(User::class))->setUrlGenerator(function(UrlGenerator $urlGenerator, User $instance) {
-                return "hello there!";
+            (new Extend\ModelUrl(User::class))->setUrlGenerator(function (UrlGenerator $urlGenerator, User $instance) {
+                return 'hello there!';
             })
         );
 
@@ -75,10 +84,11 @@ class ModelUrlTest extends TestCase
 
         $testUser = User::find(1);
 
-        $this->assertEquals("hello there!", $urlGenerator->toResource(User::class, $testUser));
+        $this->assertEquals('hello there!', $urlGenerator->toResource(User::class, $testUser));
     }
 
-    public function uses_default_driver_by_default() {
+    public function uses_default_driver_by_default()
+    {
         $this->prepDb();
 
         $slugManager = $this->app()->getContainer()->make(SlugManager::class);
@@ -92,7 +102,8 @@ class ModelUrlTest extends TestCase
     /**
      * @test
      */
-    public function custom_slug_driver_doesnt_have_effect_unless_enabled() {
+    public function custom_slug_driver_doesnt_have_effect_unless_enabled()
+    {
         $this->extend((new Extend\ModelUrl(User::class))->addSlugDriver('testDriver', TestSlugDriver::class));
 
         $this->prepDb();
@@ -108,7 +119,8 @@ class ModelUrlTest extends TestCase
     /**
      * @test
      */
-    public function custom_slug_driver_has_effect_if_enabled() {
+    public function custom_slug_driver_has_effect_if_enabled()
+    {
         $this->extend((new Extend\ModelUrl(User::class))->addSlugDriver('testDriver', TestSlugDriver::class));
 
         $this->prepDb();
@@ -123,8 +135,8 @@ class ModelUrlTest extends TestCase
     }
 }
 
-class TestSlugDriver implements SlugDriverInterface {
-
+class TestSlugDriver implements SlugDriverInterface
+{
     public function toSlug(AbstractModel $instance): string
     {
         return 'test-slug';
