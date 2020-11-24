@@ -126,7 +126,7 @@ export default class ExtensionPage extends Page {
             </Button>
           ) : settings ? (
             <div className="Form">
-              {settings.map((setting) => this.buildSettingComponent(setting))}
+              {settings.map(this.buildSettingComponent.bind(this))}
               <div className="Form-group">{this.submitButton()}</div>
             </div>
           ) : (
