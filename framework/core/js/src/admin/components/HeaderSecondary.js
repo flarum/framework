@@ -1,4 +1,5 @@
 import Component from '../../common/Component';
+import LinkButton from '../../common/components/LinkButton';
 import SessionDropdown from './SessionDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
@@ -18,6 +19,13 @@ export default class HeaderSecondary extends Component {
    */
   items() {
     const items = new ItemList();
+
+    items.add(
+      'help',
+      <LinkButton href="https://docs.flarum.org/troubleshoot.html" icon="fas fa-question-circle" external={true} target="_blank">
+        {app.translator.trans('core.admin.header.get_help')}
+      </LinkButton>
+    );
 
     items.add('session', SessionDropdown.component());
 
