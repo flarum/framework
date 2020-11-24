@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Extend;
 
@@ -30,7 +36,8 @@ class ModelUrl implements ExtenderInterface
      * @param string $driver ::class attribute of driver class, which must implement Flarum\Http\SlugDriverInterface
      * @return self
      */
-    public function addSlugDriver(string $identifier, string $driver) {
+    public function addSlugDriver(string $identifier, string $driver)
+    {
         $this->slugDrivers[$identifier] = $driver;
 
         return $this;
@@ -60,14 +67,16 @@ class ModelUrl implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         if ($this->urlGenerator) {
-            $container->extend('flarum.http.resourceUrlGenerators', function($existingUrlGenerators) use ($container) {
+            $container->extend('flarum.http.resourceUrlGenerators', function ($existingUrlGenerators) use ($container) {
                 $existingUrlGenerators[$this->modelClass] = ContainerUtil::wrapCallback($this->urlGenerator, $container);
+
                 return $existingUrlGenerators;
             });
         }
         if ($this->slugDrivers) {
             $container->extend('flarum.http.slugDrivers', function ($existingDrivers) {
                 $existingDrivers[$this->modelClass] = array_merge(Arr::get($existingDrivers, $this->modelClass, []), $this->slugDrivers);
+
                 return $existingDrivers;
             });
         }

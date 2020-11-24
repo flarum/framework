@@ -51,7 +51,7 @@ class HttpServiceProvider extends AbstractServiceProvider
 
             foreach ($this->app->make('flarum.http.slugDrivers') as $resourceClass => $resourceDrivers) {
                 $driverClass = $resourceDrivers[$settings->get("slug_driver_$resourceClass", 'default')];
-                echo "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+                echo 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
                 echo "slug_driver_$resourceClass";
                 //echo $settings->get("slug_driver_$resourceClass", 'default');
                 $compiledDrivers[$resourceClass] = $this->app->make($driverClass);
