@@ -23,6 +23,12 @@
         },
         "flarum-extension": {
             "title": "Pusher",
+            "category": "feature",
+            "info": {
+                "donate": "https://flarum.org/donate/",
+                "website": "https://flarum.org",
+                "support": "https://discuss.flarum.org"
+            },
             "icon": {
                 "image": "icon.png",
                 "backgroundSize": "46% 63%",
