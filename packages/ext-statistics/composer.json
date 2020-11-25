@@ -22,6 +22,12 @@
         },
         "flarum-extension": {
             "title": "Statistics",
+            "category": "feature",
+            "info": {
+                "donate": "https://flarum.org/donate/",
+                "website": "https://flarum.org",
+                "support": "https://discuss.flarum.org"
+            },
             "icon": {
                 "name": "fas fa-chart-bar",
                 "backgroundColor": "#6932d1",
