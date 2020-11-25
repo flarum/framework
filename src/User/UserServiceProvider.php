@@ -95,11 +95,7 @@ class UserServiceProvider extends AbstractServiceProvider
             User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $this->app));
         }
 
-        $passwordCheckers = array_map(function ($checker) {
-            return ContainerUtil::wrapCallback($checker, $this->app);
-        }, $this->app->make('flarum.user.password_checkers'));
-
-        User::setPasswordCheckers($passwordCheckers);
+        User::setPasswordCheckers($this->app->make('flarum.user.password_checkers'));
         User::setHasher($this->app->make('hash'));
         User::setGate($this->app->make(Gate::class));
         User::setDisplayNameDriver($this->app->make('flarum.user.display_name.driver'));

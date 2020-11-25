@@ -10,6 +10,7 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 
 class Auth implements ExtenderInterface
@@ -50,14 +51,18 @@ class Auth implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('flarum.user.password_checkers', function ($passwordCheckers) {
+        $container->extend('flarum.user.password_checkers', function ($passwordCheckers) use ($container) {
             foreach ($this->removePasswordCheckers as $identifier) {
                 if (array_key_exists($identifier, $passwordCheckers)) {
                     unset($passwordCheckers[$identifier]);
                 }
             }
 
-            return array_merge($passwordCheckers, $this->addPasswordCheckers);
+            foreach ($this->addPasswordCheckers as $identifier => $checker) {
+                $passwordCheckers[$identifier] = ContainerUtil::wrapCallback($checker, $container);
+            }
+
+            return $passwordCheckers;
         });
     }
 }
