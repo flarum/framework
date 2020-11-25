@@ -24,7 +24,7 @@ flarum-tags:
       name_placeholder: => flarum-tags.ref.name
       slug_label: Slug
       submit_button: => core.ref.save_changes
-      title: => flarum-tags.ref.create_tag
+      title: Create Tag
 
     # These translations are used in the navigation bar.
     nav:
@@ -49,10 +49,11 @@ flarum-tags:
     # These translations are used in the Tags page.
     tags:
       about_tags_text: "Tags are used to categorize discussions. Primary tags are like traditional forum categories: they can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization."
-      create_tag_button: => flarum-tags.ref.create_tag
+      create_primary_tag_button: Create Primary Tag
+      create_secondary_tag_button: Create Secondary Tag
       primary_heading: Primary Tags
       secondary_heading: Secondary Tags
-      settings_button: Settings
+      settings_heading: Settings
 
   # Translations in this namespace are used by the forum user interface.
   forum:
@@ -110,6 +111,5 @@ flarum-tags:
 
   # Translations in this namespace are referenced by two or more unique keys.
   ref:
-    create_tag: Create Tag
     name: Name
     tags: Tags

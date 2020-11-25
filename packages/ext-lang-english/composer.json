@@ -13,6 +13,12 @@
         },
         "flarum-extension": {
             "title": "English",
+            "category": "language",
+            "info": {
+                "donate": "https://flarum.org/donate/",
+                "website": "https://flarum.org",
+                "support": "https://discuss.flarum.org"
+            },
             "icon": {
                 "image": "icon.svg",
                 "backgroundColor": "#00247d",
