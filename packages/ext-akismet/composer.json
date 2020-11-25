@@ -24,6 +24,12 @@
         },
         "flarum-extension": {
             "title": "Akismet",
+            "category": "moderation",
+            "info": {
+                "donate": "https://flarum.org/donate/",
+                "website": "https://flarum.org",
+                "support": "https://discuss.flarum.org"
+            },
             "icon": {
                 "image": "icon.jpg",
                 "backgroundSize": "cover",
