@@ -17,6 +17,12 @@
         },
         "flarum-extension": {
             "title": "Emoji",
+            "category": "discussion",
+            "info": {
+                "donate": "https://flarum.org/donate/",
+                "website": "https://flarum.org",
+                "support": "https://discuss.flarum.org"
+            },
             "icon": {
                 "image": "icon.svg",
                 "backgroundColor": "#FECC4D"
