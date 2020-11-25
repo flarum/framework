@@ -22,10 +22,13 @@ export default class AdminNav extends Component {
   }
 
   onupdate() {
-    if ($(".Dropdown-menu").children('.active').length > 0) {
-      $("#admin-navigation").animate({
-        scrollTop: $(".Dropdown-menu").children('.active')[0].offsetTop - 25
-      }, 1000);
+    if ($('.Dropdown-menu').children('.active').length > 0) {
+      $('#admin-navigation').animate(
+        {
+          scrollTop: $('.Dropdown-menu').children('.active')[0].offsetTop - 25,
+        },
+        1000
+      );
     }
   }
 
