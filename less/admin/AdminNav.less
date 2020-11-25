@@ -41,16 +41,10 @@
 }
 
 @media @tablet {
-  .item-search{
-    display: none;
-  }
-
-  .ExtensionItem, .item-search {
-    display: none !important;
-  }
-
-  .ExtensionListTitle {
-    display: none !important;
+  .AdminNav {
+    .item-search, .ExtensionListTitle, li[class^="item-extension"] {
+      display: none !important;
+    }
   }
 }
 
