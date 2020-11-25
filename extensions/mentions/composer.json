@@ -22,6 +22,12 @@
         },
         "flarum-extension": {
             "title": "Mentions",
+            "category": "discussion",
+            "info": {
+                "donate": "https://flarum.org/donate/",
+                "website": "https://flarum.org",
+                "support": "https://discuss.flarum.org"
+            },
             "icon": {
                 "name": "fas fa-at",
                 "backgroundColor": "#539EC1",
