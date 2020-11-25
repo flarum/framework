@@ -24,7 +24,9 @@
             "title": "Flags",
             "category": "moderation",
             "info": {
-                "donate": "https://flarum.org/donate/"
+                "donate": "https://flarum.org/donate/",
+                "website": "https://flarum.org",
+                "support": "https://discuss.flarum.org"
             },
             "icon": {
                 "name": "fas fa-flag",
