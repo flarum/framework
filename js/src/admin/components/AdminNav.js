@@ -100,7 +100,7 @@ export default class AdminNav extends Component {
 
         if (!query || title.toUpperCase().includes(query) || extension.description.toUpperCase().includes(query)) {
           items.add(
-            extension.id,
+            `extension-${extension.id}`,
             <ExtensionLinkButton
               href={app.route('extension', { id: extension.id })}
               extensionId={extension.id}
