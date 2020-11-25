@@ -22,6 +22,7 @@ export default class EditTagModal extends Modal {
     this.color = Stream(this.tag.color() || '');
     this.icon = Stream(this.tag.icon() || '');
     this.isHidden = Stream(this.tag.isHidden() || false);
+    this.primary = Stream(this.attrs.primary || false);
   }
 
   className() {
@@ -114,7 +115,8 @@ export default class EditTagModal extends Modal {
       description: this.description(),
       color: this.color(),
       icon: this.icon(),
-      isHidden: this.isHidden()
+      isHidden: this.isHidden(),
+      primary: this.primary(),
     };
   }
 

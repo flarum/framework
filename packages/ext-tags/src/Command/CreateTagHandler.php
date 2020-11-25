@@ -50,11 +50,12 @@ class CreateTagHandler
         );
 
         $parentId = Arr::get($data, 'relationships.parent.data.id');
+        $primary = Arr::get($data, 'attributes.primary');
 
-        if ($parentId !== null) {
+        if ($parentId !== null || $primary) {
             $rootTags = Tag::whereNull('parent_id')->whereNotNull('position');
 
-            if ($parentId === 0) {
+            if ($parentId === 0 || $primary) {
                 $tag->position = $rootTags->max('position') + 1;
             } elseif ($rootTags->find($parentId)) {
                 $position = Tag::where('parent_id', $parentId)->max('position');
