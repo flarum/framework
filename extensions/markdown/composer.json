@@ -17,6 +17,12 @@
         },
         "flarum-extension": {
             "title": "Markdown",
+            "category": "formatting",
+            "info": {
+                "donate": "https://flarum.org/donate/",
+                "website": "https://flarum.org",
+                "support": "https://discuss.flarum.org"
+            },
             "icon": {
                 "image": "icon.svg",
                 "backgroundColor": "#000",
