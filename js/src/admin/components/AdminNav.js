@@ -21,6 +21,14 @@ export default class AdminNav extends Component {
     );
   }
 
+  onupdate() {
+    if ($(".Dropdown-menu").children('.active').length > 0) {
+      $("#admin-navigation").animate({
+        scrollTop: $(".Dropdown-menu").children('.active')[0].offsetTop - 25
+      }, 1000);
+    }
+  }
+
   /**
    * Build an item list of main links to show in the admin navigation.
    *
@@ -28,6 +36,8 @@ export default class AdminNav extends Component {
    */
   items() {
     const items = new ItemList();
+
+    items.add('category-core', <h4 className="ExtensionListTitle">{app.translator.trans('core.admin.nav.categories.core')}</h4>);
 
     items.add(
       'dashboard',
@@ -88,7 +98,7 @@ export default class AdminNav extends Component {
     Object.keys(categorizedExtensions).map((category) => {
       if (!this.query()) {
         items.add(
-          category,
+          `category-${category}`,
           <h4 className="ExtensionListTitle">{app.translator.trans(`core.admin.nav.categories.${category}`)}</h4>,
           categories[category]
         );
