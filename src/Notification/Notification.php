@@ -160,7 +160,9 @@ class Notification extends AbstractModel
                                 ->from((new $class)->getTable())
                                 ->whereColumn('id', 'subject_id');
 
-                            $class::query()->setQuery($query)->whereVisibleTo($actor);
+                            if (method_exists($class, 'registerVisibilityScoper')) {
+                                $class::query()->setQuery($query)->whereVisibleTo($actor);
+                            }
                         });
                 });
             }
