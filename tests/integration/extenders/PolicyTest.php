@@ -82,8 +82,8 @@ class PolicyTest extends TestCase
     {
         $this->extend(
             (new Extend\Policy(Discussion::class))
-                ->add(CustomPolicy::class)
                 ->add(DenyHidePolicy::class)
+                ->add(CustomPolicy::class)
         );
 
         $this->prepDb();
@@ -102,9 +102,9 @@ class PolicyTest extends TestCase
     {
         $this->extend(
             (new Extend\Policy(Discussion::class))
-                ->add(CustomPolicy::class)
-                ->add(DenyHidePolicy::class)
                 ->add(ForceAllowHidePolicy::class)
+                ->add(DenyHidePolicy::class)
+                ->add(CustomPolicy::class)
         );
 
         $this->prepDb();
@@ -125,10 +125,10 @@ class PolicyTest extends TestCase
         // order isn't considered, as the last result overrides all.
         $this->extend(
             (new Extend\Policy(Discussion::class))
-                ->add(CustomPolicy::class)
                 ->add(DenyHidePolicy::class)
-                ->add(ForceAllowHidePolicy::class)
                 ->add(ForceDenyHidePolicy::class)
+                ->add(CustomPolicy::class)
+                ->add(ForceAllowHidePolicy::class)
         );
 
         $this->prepDb();
