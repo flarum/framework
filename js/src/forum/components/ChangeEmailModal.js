@@ -120,7 +120,7 @@ export default class ChangeEmailModal extends Modal {
       )
       .then(() => {
         this.success = true;
-        this.alert = null;
+        this.alertAttrs = null;
       })
       .catch(() => {})
       .then(this.loaded.bind(this));
