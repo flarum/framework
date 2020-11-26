@@ -118,7 +118,10 @@ export default class ChangeEmailModal extends Modal {
           meta: { password: this.password() },
         }
       )
-      .then(() => (this.success = true))
+      .then(() => {
+        this.success = true;
+        this.alertAttrs = null;
+      })
       .catch(() => {})
       .then(this.loaded.bind(this));
   }
