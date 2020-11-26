@@ -60,9 +60,13 @@ class UserMetadataUpdater
     public function whenDiscussionWasDeleted(DiscussionDeleted $event)
     {
         $this->updateDiscussionsCount($event->discussion);
+        $this->updateCommentsCount($event->discussion);
     }
 
-    private function updateCommentsCount(Post $post)
+    /**
+     * @param \Flarum\Discussion\Discussion|\Flarum\Post\Post $post
+     */
+    private function updateCommentsCount($post)
     {
         $user = $post->user;
 
