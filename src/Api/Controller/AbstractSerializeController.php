@@ -14,7 +14,6 @@ use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -102,7 +101,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
         foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
             if (isset(static::$beforeDataCallbacks[$class])) {
-                foreach (static::$beforeDataCallbacks as $callback) {
+                foreach (static::$beforeDataCallbacks[$class] as $callback) {
                     $callback($this);
                 }
             }
@@ -117,7 +116,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
         foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
             if (isset(static::$beforeSerializationCallbacks[$class])) {
-                foreach (static::$beforeSerializationCallbacks as $callback) {
+                foreach (static::$beforeSerializationCallbacks[$class] as $callback) {
                     $data = array_merge($data, $callback($this, $data, $request, $document));
                 }
             }
@@ -231,7 +230,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      *
      * @param string $serializer
      */
-    public function setSerializer($serializer)
+    public function setSerializer(string $serializer)
     {
         $this->serializer = $serializer;
     }
@@ -249,31 +248,31 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Don't include the given relationship by default.
      *
-     * @param string $name
+     * @param string|array $name
      */
     public function removeInclude($name)
     {
-        Arr::forget($this->include, $name);
+        $this->include = array_diff($this->include, (array) $name);
     }
 
     /**
      * Make the given relationship available for inclusion.
      *
-     * @param string $name
+     * @param string|array $name
      */
     public function addOptionalInclude($name)
     {
-        $this->optionalInclude[] = $name;
+        $this->optionalInclude = array_merge($this->optionalInclude, (array) $name);
     }
 
     /**
      * Don't allow the given relationship to be included.
      *
-     * @param string $name
+     * @param string|array $name
      */
     public function removeOptionalInclude($name)
     {
-        Arr::forget($this->optionalInclude, $name);
+        $this->optionalInclude = array_diff($this->optionalInclude, (array) $name);
     }
 
     /**
@@ -281,7 +280,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      *
      * @param int $limit
      */
-    public function setLimit($limit)
+    public function setLimit(int $limit)
     {
         $this->limit = $limit;
     }
@@ -291,7 +290,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      *
      * @param int $max
      */
-    public function setMaxLimit($max)
+    public function setMaxLimit(int $max)
     {
         $this->maxLimit = $max;
     }
@@ -299,21 +298,21 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Allow sorting results by the given field.
      *
-     * @param string $field
+     * @param string|array $field
      */
     public function addSortField($field)
     {
-        $this->sortFields[] = $field;
+        $this->sortFields = array_merge($this->sortFields, (array) $field);
     }
 
     /**
      * Disallow sorting results by the given field.
      *
-     * @param string $field
+     * @param string|array $field
      */
     public function removeSortField($field)
     {
-        Arr::forget($this->sortFields, $field);
+        $this->sortFields = array_diff($this->sortFields, (array) $field);
     }
 
     /**
@@ -364,6 +363,10 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      */
     public static function addDataPreparationCallback(string $controllerClass, callable $callback)
     {
+        if (! isset(static::$beforeDataCallbacks[$controllerClass])) {
+            static::$beforeDataCallbacks[$controllerClass] = [];
+        }
+
         static::$beforeDataCallbacks[$controllerClass][] = $callback;
     }
 
@@ -373,6 +376,10 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      */
     public static function addSerializationPreparationCallback(string $controllerClass, callable $callback)
     {
+        if (! isset(static::$beforeSerializationCallbacks[$controllerClass])) {
+            static::$beforeSerializationCallbacks[$controllerClass] = [];
+        }
+
         static::$beforeSerializationCallbacks[$controllerClass][] = $callback;
     }
 }
