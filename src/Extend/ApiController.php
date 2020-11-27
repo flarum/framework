@@ -273,10 +273,12 @@ class ApiController implements ExtenderInterface
         };
 
         foreach ($this->beforeDataCallbacks as $beforeDataCallback) {
+            $beforeDataCallback = ContainerUtil::wrapCallback($beforeDataCallback, $container);
             AbstractSerializeController::addDataPreparationCallback($this->controllerClass, $beforeDataCallback);
         }
 
         foreach ($this->beforeSerializationCallbacks as $beforeSerializationCallback) {
+            $beforeSerializationCallback = ContainerUtil::wrapCallback($beforeSerializationCallback, $container);
             AbstractSerializeController::addSerializationPreparationCallback($this->controllerClass, $beforeSerializationCallback);
         }
     }
