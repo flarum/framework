@@ -10,7 +10,7 @@
 namespace Flarum\Http;
 
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\IdWithSlugDriver;
+use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
 use Flarum\Post\Post;
@@ -36,7 +36,7 @@ class HttpServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.http.slugDrivers', function () {
             return [
                 Discussion::class => [
-                    'default' => IdWithSlugDriver::class
+                    'default' => IdWithTransliteratedSlugDriver::class
                 ],
                 User::class => [
                     'default' => UsernameSlugDriver::class
