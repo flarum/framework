@@ -13,7 +13,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\User\User;
 
-class IdWithSlugDriver implements SlugDriverInterface
+class IdWithTransliteratedSlugDriver implements SlugDriverInterface
 {
     public function toSlug(AbstractModel $instance): string
     {
@@ -22,7 +22,7 @@ class IdWithSlugDriver implements SlugDriverInterface
 
     public function fromSlug(string $slug, User $actor): AbstractModel
     {
-        if (strpos($slug, '-') == true) {
+        if (strpos($slug, '-')) {
             $slug_array = explode('-', $slug);
             $slug = $slug_array[0];
         }
