@@ -390,8 +390,8 @@ class CustomDiscussionSerializer extends DiscussionSerializer
     protected function getDefaultAttributes($discussion)
     {
         return parent::getDefaultAttributes($discussion) + [
-                'customSerializer' => true
-            ];
+            'customSerializer' => true
+        ];
     }
 }
 
@@ -400,8 +400,8 @@ class CustomUserSerializer extends UserSerializer
     protected function getDefaultAttributes($user)
     {
         return parent::getDefaultAttributes($user) + [
-                'customSerializer' => true
-            ];
+            'customSerializer' => true
+        ];
     }
 }
 
@@ -410,8 +410,8 @@ class CustomPostSerializer extends PostSerializer
     protected function getDefaultAttributes($post)
     {
         return parent::getDefaultAttributes($post) + [
-                'customSerializer' => true
-            ];
+            'customSerializer' => true
+        ];
     }
 }
 
