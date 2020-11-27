@@ -117,7 +117,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
             if (isset(static::$beforeSerializationCallbacks[$class])) {
                 foreach (static::$beforeSerializationCallbacks[$class] as $callback) {
-                    $data = array_merge($data, $callback($this, $data, $request, $document));
+                    $callback($this, $data, $request, $document);
                 }
             }
         }
