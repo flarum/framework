@@ -15,6 +15,9 @@ use Flarum\Post\Exception\FloodingException;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
+/**
+ * @deprecated beta 14, removed beta 15 in favor of Floodgate middleware
+ */
 class Floodgate
 {
     /**

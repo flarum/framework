@@ -35,6 +35,11 @@ export default class Button extends Component {
       attrs['aria-label'] = attrs.title;
     }
 
+    // If given a translation object, extract the text.
+    if (typeof attrs.title === 'object') {
+      attrs.title = extractText(attrs.title);
+    }
+
     // If nothing else is provided, we use the textual button content as tooltip
     if (!attrs.title && vnode.children) {
       attrs.title = extractText(vnode.children);
