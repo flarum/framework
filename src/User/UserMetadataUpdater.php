@@ -15,7 +15,6 @@ use Flarum\Discussion\Event\Started;
 use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\Event\Posted;
 use Illuminate\Contracts\Events\Dispatcher;
-use Flarum\User\User;
 
 class UserMetadataUpdater
 {
