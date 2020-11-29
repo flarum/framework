@@ -22,12 +22,16 @@ export default class AdminNav extends Component {
   }
 
   onupdate() {
-    if ($('.Dropdown-menu').children('.active').length > 0 && app.previous.type) {
-      $('#admin-navigation').animate(
+    const children = $('.Dropdown-menu').children('.active');
+    const nav = $('#admin-navigation');
+    const time = app.previous.type ? 250 : 0;
+
+    if (children.length > 0 && (children[0].offsetTop > nav.scrollTop() || children[0].offsetTop + children[0].offsetHeight < nav.scrollTop())) {
+      nav.animate(
         {
-          scrollTop: $('.Dropdown-menu').children('.active')[0].offsetTop - 25,
+          scrollTop: children[0].offsetTop - nav.height() / 2,
         },
-        500
+        time
       );
     }
   }
