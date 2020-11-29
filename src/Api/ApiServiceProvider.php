@@ -42,6 +42,20 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
+        $this->app->singleton('flarum.api.throttlers', function () {
+            return [
+                'bypassThrottlingAttribute' => function ($request) {
+                    if ($request->getAttribute('bypassThrottling')) {
+                        return false;
+                    }
+                }
+            ];
+        });
+
+        $this->app->bind(Middleware\ThrottleApi::class, function ($app) {
+            return new Middleware\ThrottleApi($app->make('flarum.api.throttlers'));
+        });
+
         $this->app->singleton('flarum.api.middleware', function () {
             return [
                 'flarum.api.error_handler',
@@ -53,7 +67,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\AuthenticateWithHeader::class,
                 HttpMiddleware\SetLocale::class,
                 'flarum.api.route_resolver',
-                HttpMiddleware\CheckCsrfToken::class
+                HttpMiddleware\CheckCsrfToken::class,
+                Middleware\ThrottleApi::class
             ];
         });
 

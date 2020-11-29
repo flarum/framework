@@ -26,6 +26,9 @@ class UserTest extends TestCase
                 $this->adminUser(),
                 $this->normalUser(),
             ],
+            'group_permission' => [
+                ['permission' => 'viewUserList', 'group_id' => 3]
+            ],
             'settings' => [
                 ['key' => 'display_name_driver', 'value' => 'custom'],
             ],
