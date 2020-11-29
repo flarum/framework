@@ -29,6 +29,12 @@ class MailTest extends TestCase
             'users' => [
                 $this->adminUser(),
             ],
+            'groups' => [
+                $this->adminGroup(),
+            ],
+            'group_user' => [
+                ['user_id' => 1, 'group_id' => 1],
+            ],
         ]);
     }
 
