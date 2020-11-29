@@ -64,4 +64,44 @@ class CreateTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function limited_by_throttler()
+    {
+        $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'reply with predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 1]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'Second reply with predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 1]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(429, $response->getStatusCode());
+    }
 }
