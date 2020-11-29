@@ -93,8 +93,8 @@ class UserServiceProvider extends AbstractServiceProvider
         $events->subscribe(UserMetadataUpdater::class);
         $events->subscribe(UserPolicy::class);
 
-        User::addPreference('discloseOnline', 'boolval', true);
-        User::addPreference('indexProfile', 'boolval', true);
-        User::addPreference('locale');
+        User::registerPreference('discloseOnline', 'boolval', true);
+        User::registerPreference('indexProfile', 'boolval', true);
+        User::registerPreference('locale');
     }
 }

@@ -78,7 +78,7 @@ class User implements ExtenderInterface
         });
 
         foreach ($this->preferences as $key => $preference) {
-            FlarumUser::addPreference($key, $preference['transformer'], $preference['default']);
+            FlarumUser::registerPreference($key, $preference['transformer'], $preference['default']);
         }
     }
 }
