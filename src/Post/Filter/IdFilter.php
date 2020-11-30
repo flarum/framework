@@ -22,9 +22,12 @@ class IdFilter implements FilterInterface
 
     public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
     {
-        $ids = trim($filterValue, '"');
-        $ids = explode(',', $ids);
+        $idString = trim($filterValue, '"');
+        $ids = explode(',', $idString);
 
-        $wrappedFilter->getQuery()->whereIn('posts.id', $ids, 'and', $negate);
+        $wrappedFilter
+            ->getQuery()
+            ->whereIn('posts.id', $ids, 'and', $negate)
+            ->orderByRaw("FIELD(id, $idString)");
     }
 }

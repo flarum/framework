@@ -54,7 +54,7 @@ class ListTests extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals(0, count($data['data']));
+        $this->assertEquals([], $data['data']);
     }
 
     /**
@@ -196,6 +196,24 @@ class ListTests extends TestCase
         $data = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(['1', '3', '5'], Arr::pluck($data['data'], 'id'));
+    }
+
+    /**
+     * @test
+     */
+    public function id_filter_returns_requested_order()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams([
+                    'filter' => ['id' => '3,1,5'],
+                ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals(['3', '1', '5'], Arr::pluck($data['data'], 'id'));
     }
 
     /**
