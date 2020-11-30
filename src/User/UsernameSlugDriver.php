@@ -14,6 +14,17 @@ use Flarum\Http\SlugDriverInterface;
 
 class UsernameSlugDriver implements SlugDriverInterface
 {
+
+    /**
+     * @var $users UserRepository
+     */
+    protected $users;
+
+    public function __construct(UserRepository $users)
+    {
+        $this->users = $users;
+    }
+
     public function toSlug(AbstractModel $instance): string
     {
         return $instance->username;
@@ -21,6 +32,6 @@ class UsernameSlugDriver implements SlugDriverInterface
 
     public function fromSlug(string $slug, User $actor): AbstractModel
     {
-        return User::where('username', $slug)->whereVisibleTo($actor)->firstOrFail();
+        return $this->users->findOrFailByUsername($slug, $actor);
     }
 }
