@@ -29,6 +29,13 @@ export default class Page extends Component {
      * @type {Boolean}
      */
     this.scrollTopOnCreate = true;
+
+    /**
+     * Whether the browser should restore scroll state on refreshes.
+     *
+     * @type {Boolean}
+     */
+    this.useBrowserScrollRestoration = true;
   }
 
   oncreate(vnode) {
@@ -40,6 +47,10 @@ export default class Page extends Component {
 
     if (this.scrollTopOnCreate) {
       $(window).scrollTop(0);
+    }
+
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = this.useBrowserScrollRestoration ? 'auto' : 'manual';
     }
   }
 
