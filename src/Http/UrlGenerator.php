@@ -79,9 +79,9 @@ class UrlGenerator
         foreach (array_merge(array_reverse(class_parents($instance)), [get_class($instance)]) as $class) {
             $callback = $this->resourceUrlGenerators[$class];
 
-           if ($callback) {
-               return $callback($instance, ...$args);
-           }
+            if ($callback) {
+                return $callback($instance, ...$args);
+            }
         }
     }
 }
