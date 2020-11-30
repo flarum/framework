@@ -13,7 +13,6 @@ use Flarum\Database\AbstractModel;
 use Flarum\Extend;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\Http\SlugManager;
-use Flarum\Http\UrlGenerator;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
@@ -34,40 +33,6 @@ class ModelUrlTest extends TestCase
                 ['key' => "slug_driver_$userClass", 'value' => 'testDriver'],
             ]
         ]);
-    }
-
-    /**
-     * @test
-     */
-    public function default_url_generator_used_by_default()
-    {
-        $this->prepDb();
-
-        $urlGenerator = $this->app()->getContainer()->make(UrlGenerator::class);
-
-        $testUser = User::find(1);
-
-        $this->assertEquals($urlGenerator->to('forum')->route('user', ['username' => 'admin']), $urlGenerator->toResource(User::class, $testUser));
-    }
-
-    /**
-     * @test
-     */
-    public function custom_url_generator_can_be_used()
-    {
-        $this->extend(
-            (new Extend\ModelUrl(User::class))->setUrlGenerator(function (UrlGenerator $urlGenerator, User $instance) {
-                return 'hello there!';
-            })
-        );
-
-        $this->prepDb();
-
-        $urlGenerator = $this->app()->getContainer()->make(UrlGenerator::class);
-
-        $testUser = User::find(1);
-
-        $this->assertEquals('hello there!', $urlGenerator->toResource(User::class, $testUser));
     }
 
     public function uses_default_driver_by_default()

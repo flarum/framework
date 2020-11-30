@@ -59,38 +59,8 @@ class HttpServiceProvider extends AbstractServiceProvider
 
             return $compiledDrivers;
         });
-
-        $this->app->singleton('flarum.http.resourceUrlGenerators', function () {
-            $slugManager = $this->app->make(SlugManager::class);
-
-            return [
-                Discussion::class => function (UrlGenerator $urlGenerator, Discussion $discussion) use ($slugManager) {
-                    return $urlGenerator->to('forum')->route('discussion', [
-                        'id' => $slugManager->forResource(Discussion::class)->toSlug($discussion)
-                    ]);
-                },
-                Post::class => function (UrlGenerator $urlGenerator, Post $post) use ($slugManager) {
-                    return $urlGenerator->to('forum')->route('post', [
-                        'id' => $slugManager->forResource(Discussion::class)->toSlug($post->discussion),
-                        'near' => $post->id,
-                    ]);
-                },
-                User::class => function (UrlGenerator $urlGenerator, User $user) use ($slugManager) {
-                    return $urlGenerator->to('forum')->route('user', [
-                        'username' => $slugManager->forResource(User::class)->toSlug($user)
-                    ]);
-                },
-            ];
-        });
         $this->app->bind(SlugManager::class, function () {
             return new SlugManager($this->app->make('flarum.http.selectedSlugDrivers'));
-        });
-
-        $this->app->bind(UrlGenerator::class, function () {
-            return new UrlGenerator(
-                $this->app->make(Application::class),
-                $this->app->make('flarum.http.resourceUrlGenerators')
-            );
         });
     }
 }

@@ -25,17 +25,11 @@ class UrlGenerator
     protected $app;
 
     /**
-     * @var array
-     */
-    protected $resourceUrlGenerators;
-
-    /**
      * @param Application $app
      */
-    public function __construct(Application $app, array $resourceUrlGenerators)
+    public function __construct(Application $app)
     {
         $this->app = $app;
-        $this->resourceUrlGenerators = $resourceUrlGenerators;
     }
 
     /**
@@ -65,20 +59,5 @@ class UrlGenerator
     public function to($collection)
     {
         return $this->routes[$collection];
-    }
-
-    /**
-     * Generate a URL to an instance of a resource.
-     *
-     * @param string $resourceClass
-     * @param AbstractModel $instance
-     * @param $args
-     * @return void
-     */
-    public function toResource(string $resourceClass, AbstractModel $instance, ...$args): string
-    {
-        $callback = $this->resourceUrlGenerators[$resourceClass];
-
-        return $callback($this, $instance, ...$args);
     }
 }
