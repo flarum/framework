@@ -9,7 +9,6 @@
 
 namespace Flarum\Http;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Foundation\Application;
 
 class UrlGenerator

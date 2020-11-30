@@ -12,8 +12,6 @@ namespace Flarum\Http;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Application;
-use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
