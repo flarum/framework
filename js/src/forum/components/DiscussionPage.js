@@ -18,6 +18,8 @@ export default class DiscussionPage extends Page {
   oninit(vnode) {
     super.oninit(vnode);
 
+    this.useBrowserScrollRestoration = false;
+
     /**
      * The discussion that is being viewed.
      *
