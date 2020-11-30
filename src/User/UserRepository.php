@@ -52,7 +52,7 @@ class UserRepository
      */
     public function findOrFailByUsername($username, User $actor = null)
     {
-        $query = User::where('id', $username);
+        $query = User::where('username', $username);
 
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();
     }
