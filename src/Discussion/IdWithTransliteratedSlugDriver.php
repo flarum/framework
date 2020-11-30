@@ -15,6 +15,17 @@ use Flarum\User\User;
 
 class IdWithTransliteratedSlugDriver implements SlugDriverInterface
 {
+
+    /**
+     * @var $discussions DiscussionRepository
+     */
+    protected $discussions;
+
+    public function __construct(DiscussionRepository $discussions)
+    {
+        $this->discussions = $discussions;
+    }
+
     public function toSlug(AbstractModel $instance): string
     {
         return $instance->id.(trim($instance->slug) ? '-'.$instance->slug : '');
@@ -27,6 +38,6 @@ class IdWithTransliteratedSlugDriver implements SlugDriverInterface
             $slug = $slug_array[0];
         }
 
-        return Discussion::where('id', $slug)->whereVisibleTo($actor)->firstOrFail();
+        return $this->discussions->findOrFail($slug, $actor);
     }
 }
