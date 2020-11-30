@@ -11,6 +11,8 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\ConfigurePostsQuery;
+use Flarum\Filter\Filterer;
+use Flarum\Http\UrlGenerator;
 use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -43,16 +45,30 @@ class ListPostsController extends AbstractListController
     public $sortFields = ['createdAt'];
 
     /**
-     * @var \Flarum\Post\PostRepository
+     * @var Filterer
+     */
+    protected $filterer;
+
+    /**
+     * @var PostRepository
      */
     protected $posts;
 
     /**
-     * @param \Flarum\Post\PostRepository $posts
+     * @var UrlGenerator
      */
-    public function __construct(PostRepository $posts)
+    protected $url;
+
+    /**
+     * @param Filterer $filterer
+     * @param PostRepository $posts
+     * @param UrlGenerator $url
+     */
+    public function __construct(Filterer $filterer, PostRepository $posts, UrlGenerator $url)
     {
+        $this->filterer = $filterer;
         $this->posts = $posts;
+        $this->url = $url;
     }
 
     /**
@@ -61,18 +77,27 @@ class ListPostsController extends AbstractListController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
-        $filter = $this->extractFilter($request);
-        $include = $this->extractInclude($request);
 
-        if ($postIds = Arr::get($filter, 'id')) {
-            $postIds = explode(',', $postIds);
-        } else {
-            $postIds = $this->getPostIds($request);
-        }
+        $filters = $this->extractFilter($request);
+        $sort = $this->extractSort($request);
 
-        $posts = $this->posts->findByIds($postIds, $actor);
+        $limit = $this->extractLimit($request);
+        $offset = $this->extractOffset($request);
+        $load = $this->extractInclude($request);
 
-        return $posts->load($include);
+        $query = $this->posts->query();
+
+        $results = $this->filterer->filter($actor, $query, $filters, $sort, $limit, $offset, $load);
+
+        $document->addPaginationLinks(
+            $this->url->to('api')->route('posts.index'),
+            $request->getQueryParams(),
+            $offset,
+            $limit,
+            $results->areMoreResults() ? null : 0
+        );
+
+        return $results->getResults();
     }
 
     /**
@@ -99,56 +124,5 @@ class ListPostsController extends AbstractListController
         }
 
         return parent::extractOffset($request);
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     * @return array
-     * @throws InvalidParameterException
-     */
-    private function getPostIds(ServerRequestInterface $request)
-    {
-        $actor = $request->getAttribute('actor');
-        $filter = $this->extractFilter($request);
-        $sort = $this->extractSort($request);
-        $limit = $this->extractLimit($request);
-        $offset = $this->extractOffset($request);
-
-        $query = $this->posts->query()->whereVisibleTo($actor);
-
-        $this->applyFilters($query, $filter);
-
-        $query->skip($offset)->take($limit);
-
-        foreach ((array) $sort as $field => $order) {
-            $query->orderBy(Str::snake($field), $order);
-        }
-
-        return $query->pluck('id')->all();
-    }
-
-    /**
-     * @param Builder $query
-     * @param array $filter
-     */
-    private function applyFilters(Builder $query, array $filter)
-    {
-        if ($discussionId = Arr::get($filter, 'discussion')) {
-            $query->where('discussion_id', $discussionId);
-        }
-
-        if ($number = Arr::get($filter, 'number')) {
-            $query->where('number', $number);
-        }
-
-        if ($userId = Arr::get($filter, 'user')) {
-            $query->where('user_id', $userId);
-        }
-
-        if ($type = Arr::get($filter, 'type')) {
-            $query->where('type', $type);
-        }
-
-        event(new ConfigurePostsQuery($query, $filter));
     }
 }
