@@ -15,9 +15,8 @@ use Flarum\User\User;
 
 class IdWithTransliteratedSlugDriver implements SlugDriverInterface
 {
-
     /**
-     * @var $discussions DiscussionRepository
+     * @var DiscussionRepository
      */
     protected $discussions;
 
