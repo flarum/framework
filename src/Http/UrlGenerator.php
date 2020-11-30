@@ -70,15 +70,18 @@ class UrlGenerator
     /**
      * Generate a URL to an instance of a resource.
      *
-     * @param string $resourceClass
      * @param AbstractModel $instance
      * @param $args
-     * @return void
+     * @return string
      */
-    public function toResource(string $resourceClass, AbstractModel $instance, ...$args): string
+    public function toResource(AbstractModel $instance, ...$args): string
     {
-        $callback = $this->resourceUrlGenerators[$resourceClass];
+        foreach (array_merge(array_reverse(class_parents($instance)), [get_class($instance)]) as $class) {
+            $callback = $this->resourceUrlGenerators[$class];
 
-        return $callback($this, $instance, ...$args);
+           if ($callback) {
+               return $callback($instance, ...$args);
+           }
+        }
     }
 }
