@@ -222,7 +222,7 @@ class ListTests extends TestCase
      */
     public function deprecated_configure_posts_query_extension_still_works()
     {
-        $this->app()->getContainer()->make('events')->listen(ConfigurePostsQuery::class, function(ConfigurePostsQuery $event) {
+        $this->app()->getContainer()->make('events')->listen(ConfigurePostsQuery::class, function (ConfigurePostsQuery $event) {
             $event->query->where('id', '1');
         });
 

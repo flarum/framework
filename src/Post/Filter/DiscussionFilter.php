@@ -14,7 +14,6 @@ use Flarum\Filter\WrappedFilter;
 
 class DiscussionFilter implements FilterInterface
 {
-
     public function getFilterKey(): string
     {
         return 'discussion';

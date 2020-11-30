@@ -15,7 +15,6 @@ use Flarum\User\UserRepository;
 
 class AuthorFilter implements FilterInterface
 {
-
     /**
      * @var \Flarum\User\UserRepository
      */

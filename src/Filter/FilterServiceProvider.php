@@ -12,10 +12,10 @@ namespace Flarum\Filter;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Filter as DiscussionFilter;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Post\Post;
 use Flarum\Post\Filter as PostFilter;
-use Flarum\User\User;
+use Flarum\Post\Post;
 use Flarum\User\Filter as UserFilter;
+use Flarum\User\User;
 
 class FilterServiceProvider extends AbstractServiceProvider
 {

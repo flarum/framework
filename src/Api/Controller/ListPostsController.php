@@ -10,13 +10,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Event\ConfigurePostsQuery;
 use Flarum\Filter\Filterer;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\PostRepository;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\InvalidParameterException;

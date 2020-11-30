@@ -14,7 +14,6 @@ use Flarum\Filter\WrappedFilter;
 
 class NumberFilter implements FilterInterface
 {
-
     public function getFilterKey(): string
     {
         return 'number';

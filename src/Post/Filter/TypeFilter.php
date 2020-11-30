@@ -14,7 +14,6 @@ use Flarum\Filter\WrappedFilter;
 
 class TypeFilter implements FilterInterface
 {
-
     public function getFilterKey(): string
     {
         return 'type';

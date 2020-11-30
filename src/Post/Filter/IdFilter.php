@@ -14,7 +14,6 @@ use Flarum\Filter\WrappedFilter;
 
 class IdFilter implements FilterInterface
 {
-
     public function getFilterKey(): string
     {
         return 'id';
