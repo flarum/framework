@@ -31,7 +31,8 @@ class UploadFaviconController extends UploadImageController
     /**
      * {@inheritdoc}
      */
-    protected function makeImage(UploadedFileInterface $file): Image {
+    protected function makeImage(UploadedFileInterface $file): Image
+    {
         $this->fileExtension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 
         if ($this->fileExtension === 'ico') {

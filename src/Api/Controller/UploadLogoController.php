@@ -31,7 +31,8 @@ class UploadLogoController extends UploadImageController
     /**
      * {@inheritdoc}
      */
-    protected function makeImage(UploadedFileInterface $file): Image {
+    protected function makeImage(UploadedFileInterface $file): Image
+    {
         $manager = new ImageManager();
 
         $encodedImage = $manager->make($file->getStream())->heighten(60, function ($constraint) {
