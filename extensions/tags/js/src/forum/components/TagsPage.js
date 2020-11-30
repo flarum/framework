@@ -4,6 +4,7 @@ import Link from 'flarum/components/Link';
 import listItems from 'flarum/helpers/listItems';
 import humanTime from 'flarum/helpers/humanTime';
 
+import tagIcon from '../../common/helpers/tagIcon';
 import tagLabel from '../../common/helpers/tagLabel';
 import sortTags from '../../common/utils/sortTags';
 
@@ -38,6 +39,7 @@ export default class TagsPage extends Page {
                   <li className={'TagTile ' + (tag.color() ? 'colored' : '')}
                     style={{backgroundColor: tag.color()}}>
                     <Link className="TagTile-info" href={app.route.tag(tag)}>
+                      {tag.icon() && tagIcon(tag, {}, { useColor: false })}
                       <h3 className="TagTile-name">{tag.name()}</h3>
                       <p className="TagTile-description">{tag.description()}</p>
                       {children
