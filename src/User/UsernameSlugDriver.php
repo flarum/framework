@@ -14,9 +14,8 @@ use Flarum\Http\SlugDriverInterface;
 
 class UsernameSlugDriver implements SlugDriverInterface
 {
-
     /**
-     * @var $users UserRepository
+     * @var UserRepository
      */
     protected $users;
 
