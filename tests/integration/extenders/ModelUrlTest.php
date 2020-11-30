@@ -35,6 +35,9 @@ class ModelUrlTest extends TestCase
         ]);
     }
 
+    /**
+     * @test
+     */
     public function uses_default_driver_by_default()
     {
         $this->prepDb();
