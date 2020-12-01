@@ -16,6 +16,7 @@ use Flarum\Event\GetApiRelationship;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use LogicException;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -46,6 +47,16 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @var Container
      */
     protected static $container;
+
+    /**
+     * @var callable[]
+     */
+    protected static $mutators = [];
+
+    /**
+     * @var array
+     */
+    protected static $customRelations = [];
 
     /**
      * @return Request
@@ -83,6 +94,18 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
         $attributes = $this->getDefaultAttributes($model);
 
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
+            if (isset(static::$mutators[$class])) {
+                foreach (static::$mutators[$class] as $callback) {
+                    $attributes = array_merge(
+                        $attributes,
+                        $callback($this, $model, $attributes)
+                    );
+                }
+            }
+        }
+
+        // Deprecated in beta 15, removed in beta 16
         static::$dispatcher->dispatch(
             new Serializing($this, $model, $attributes)
         );
@@ -102,7 +125,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @param DateTime|null $date
      * @return string|null
      */
-    protected function formatDate(DateTime $date = null)
+    public function formatDate(DateTime $date = null)
     {
         if ($date) {
             return $date->format(DateTime::RFC3339);
@@ -130,9 +153,19 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      */
     protected function getCustomRelationship($model, $name)
     {
+        // Deprecated in beta 15, removed in beta 16
         $relationship = static::$dispatcher->until(
             new GetApiRelationship($this, $name, $model)
         );
+
+        foreach (array_merge([static::class], class_parents($this)) as $class) {
+            $callback = Arr::get(static::$customRelations, "$class.$name");
+
+            if (is_callable($callback)) {
+                $relationship = $callback($this, $model);
+                break;
+            }
+        }
 
         if ($relationship && ! ($relationship instanceof Relationship)) {
             throw new LogicException(
@@ -279,5 +312,28 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     public static function setContainer(Container $container)
     {
         static::$container = $container;
+    }
+
+    /**
+     * @param string $serializerClass
+     * @param callable $mutator
+     */
+    public static function addMutator(string $serializerClass, callable $mutator)
+    {
+        if (! isset(static::$mutators[$serializerClass])) {
+            static::$mutators[$serializerClass] = [];
+        }
+
+        static::$mutators[$serializerClass][] = $mutator;
+    }
+
+    /**
+     * @param string $serializerClass
+     * @param string $relation
+     * @param callable $callback
+     */
+    public static function setRelationship(string $serializerClass, string $relation, callable $callback)
+    {
+        static::$customRelations[$serializerClass][$relation] = $callback;
     }
 }

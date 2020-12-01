@@ -21,6 +21,8 @@ use Flarum\Api\Serializer\AbstractSerializer;
  * @see AbstractSerializer::hasOne()
  * @see AbstractSerializer::hasMany()
  * @see https://github.com/tobscure/json-api
+ *
+ * @deprecated in beta 15, removed in beta 16
  */
 class GetApiRelationship
 {
