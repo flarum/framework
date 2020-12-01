@@ -15,7 +15,6 @@ use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Event\PrepareUserGroups;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
@@ -30,7 +29,6 @@ use Flarum\User\Event\CheckingPassword;
 use Flarum\User\Event\Deleted;
 use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\EmailChangeRequested;
-use Flarum\User\Event\GetDisplayName;
 use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
@@ -327,8 +325,7 @@ class User extends AbstractModel
      */
     public function getDisplayNameAttribute()
     {
-        // Event is deprecated in beta 14, remove in beta 15.
-        return static::$dispatcher->until(new GetDisplayName($this)) ?: static::$displayNameDriver->displayName($this);
+        return static::$displayNameDriver->displayName($this);
     }
 
     /**
@@ -721,9 +718,6 @@ class User extends AbstractModel
         if ($this->is_email_confirmed) {
             $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->pluck('id')->all());
         }
-
-        /** @deprecated in beta 14, remove in beta 15 */
-        event(new PrepareUserGroups($this, $groupIds));
 
         foreach (static::$groupProcessors as $processor) {
             $groupIds = $processor($this, $groupIds);

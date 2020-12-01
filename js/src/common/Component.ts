@@ -1,8 +1,5 @@
 import * as Mithril from 'mithril';
 
-let deprecatedPropsWarned = false;
-let deprecatedInitPropsWarned = false;
-
 export interface ComponentAttrs extends Mithril.Attributes {}
 
 /**
@@ -131,38 +128,5 @@ export default abstract class Component<T extends ComponentAttrs = ComponentAttr
    *
    * This can be used to assign default values for missing, optional attrs.
    */
-  protected static initAttrs<T>(attrs: T): void {
-    // Deprecated, part of Mithril 2 BC layer
-    if ('initProps' in this && !deprecatedInitPropsWarned) {
-      deprecatedInitPropsWarned = true;
-      console.warn('initProps is deprecated, please use initAttrs instead.');
-      (this as any).initProps(attrs);
-    }
-  }
-
-  // BEGIN DEPRECATED MITHRIL 2 BC LAYER
-
-  /**
-   * The attributes passed into the component.
-   *
-   * @see https://mithril.js.org/components.html#passing-data-to-components
-   *
-   * @deprecated, use attrs instead.
-   */
-  get props() {
-    if (!deprecatedPropsWarned) {
-      deprecatedPropsWarned = true;
-      console.warn('this.props is deprecated, please use this.attrs instead.');
-    }
-    return this.attrs;
-  }
-  set props(props) {
-    if (!deprecatedPropsWarned) {
-      deprecatedPropsWarned = true;
-      console.warn('this.props is deprecated, please use this.attrs instead.');
-    }
-    this.attrs = props;
-  }
-
-  // END DEPRECATED MITHRIL 2 BC LAYER
+  protected static initAttrs<T>(attrs: T): void {}
 }
