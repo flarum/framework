@@ -38,12 +38,12 @@ abstract class UploadImageController extends ShowForumController
     /**
      * @var string
      */
-    protected $filePathSettingKey;
+    protected $filePathSettingKey = '';
 
     /**
      * @var string
      */
-    protected $filenamePrefix;
+    protected $filenamePrefix = '';
 
     /**
      * @param SettingsRepositoryInterface $settings
