@@ -44,12 +44,6 @@ export default class ComposerBody extends Component {
     }
 
     this.composer.fields.content(this.attrs.originalContent || '');
-
-    /**
-     * @deprecated BC layer, remove in Beta 15.
-     */
-    this.content = this.composer.fields.content;
-    this.editor = this.composer;
   }
 
   view() {
