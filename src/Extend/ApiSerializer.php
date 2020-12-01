@@ -35,9 +35,9 @@ class ApiSerializer implements ExtenderInterface
      * @param callable|string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
-     * - $attributes: An array of existing attributes.
-     * - $model: An instance of the model being serialized.
      * - $serializer: An instance of this serializer.
+     * - $model: An instance of the model being serialized.
+     * - $attributes: An array of existing attributes.
      *
      * The callable should return:
      * - The value of the attribute.
@@ -57,9 +57,9 @@ class ApiSerializer implements ExtenderInterface
      * @param callable|string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
-     * - $attributes: An array of existing attributes.
-     * - $model: An instance of the model being serialized.
      * - $serializer: An instance of this serializer.
+     * - $model: An instance of the model being serialized.
+     * - $attributes: An array of existing attributes.
      *
      * The callable should return:
      * - An array of additional attributes to merge with the existing array.
@@ -134,11 +134,11 @@ class ApiSerializer implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         if (! empty($this->attributes)) {
-            $this->mutators[] = function ($attributes, $serializer, $model) use ($container) {
+            $this->mutators[] = function ($serializer, $model, $attributes) use ($container) {
                 foreach ($this->attributes as $attributeName => $callback) {
                     $callback = ContainerUtil::wrapCallback($callback, $container);
 
-                    $attributes[$attributeName] = $callback($attributes, $serializer, $model);
+                    $attributes[$attributeName] = $callback($serializer, $model, $attributes);
                 }
 
                 return $attributes;

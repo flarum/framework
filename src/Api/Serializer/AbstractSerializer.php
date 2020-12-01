@@ -99,7 +99,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
                 foreach (static::$mutators[$class] as $callback) {
                     $attributes = array_merge(
                         $attributes,
-                        $callback($attributes, $model, $this)
+                        $callback($this, $model, $attributes)
                     );
                 }
             }
