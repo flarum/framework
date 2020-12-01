@@ -141,7 +141,7 @@ class ApiController implements ExtenderInterface
      */
     public function removeOptionalInclude($name, $callback = null)
     {
-        $this->removeOptionalIncludes = [$name, $callback];
+        $this->removeOptionalIncludes[] = [$name, $callback];
 
         return $this;
     }
