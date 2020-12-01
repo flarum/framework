@@ -66,7 +66,7 @@ class QueueServiceProvider extends AbstractServiceProvider
             $config = $app->make(Config::class);
 
             return new Worker(
-                new QueueManager($app),
+                $app[Factory::class],
                 $app['events'],
                 $app[ExceptionHandling::class],
                 function () use ($config) {
