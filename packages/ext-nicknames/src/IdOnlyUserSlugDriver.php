@@ -6,8 +6,18 @@ namespace Flarum\Nicknames;
 use Flarum\Database\AbstractModel;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\User\User;
+use Flarum\User\UserRepository;
 
 class IdOnlyUserSlugDriver implements SlugDriverInterface {
+    /**
+     * @var $users UserRepository
+     */
+    protected $users;
+
+    public function __construct(UserRepository $users)
+    {
+        $this->users = $users;
+    }
 
     public function toSlug(AbstractModel $instance): string
     {
@@ -16,6 +26,6 @@ class IdOnlyUserSlugDriver implements SlugDriverInterface {
 
     public function fromSlug(string $slug, User $actor): AbstractModel
     {
-        return User::where('id', $slug)->whereVisibleTo($actor)->firstOrFail();
+        return $this->users->findOrFail($slug, $actor);
     }
 }
