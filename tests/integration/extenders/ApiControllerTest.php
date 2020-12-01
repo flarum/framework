@@ -21,6 +21,8 @@ use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\User;
+use Illuminate\Support\Arr;
 
 class ApiControllerTest extends TestCase
 {
@@ -32,6 +34,10 @@ class ApiControllerTest extends TestCase
             'users' => [
                 $this->adminUser(),
                 $this->normalUser()
+            ],
+            'groups' => [
+                $this->adminGroup(),
+                $this->memberGroup()
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
@@ -181,6 +187,150 @@ class ApiControllerTest extends TestCase
         $payload = json_decode($response->getBody(), true);
 
         $this->assertArrayNotHasKey('customSerializer', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_not_included_by_default()
+    {
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayNotHasKey('customApiControllerRelation', $payload['data']['relationships']);
+        $this->assertArrayNotHasKey('customApiControllerRelation2', $payload['data']['relationships']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_included_if_added()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasMany('customApiControllerRelation', Discussion::class, 'user_id'),
+            (new Extend\ApiSerializer(UserSerializer::class))
+                ->hasMany('customApiControllerRelation', DiscussionSerializer::class),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addInclude('customApiControllerRelation')
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customApiControllerRelation', $payload['data']['relationships']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_optionally_included_if_added()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasMany('customApiControllerRelation2', Discussion::class, 'user_id'),
+            (new Extend\ApiSerializer(UserSerializer::class))
+                ->hasMany('customApiControllerRelation2', DiscussionSerializer::class),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addOptionalInclude('customApiControllerRelation2')
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams([
+                'include' => 'customApiControllerRelation2',
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customApiControllerRelation2', $payload['data']['relationships']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_included_by_default()
+    {
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('groups', $payload['data']['relationships']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_not_included_if_removed()
+    {
+        $this->extend(
+            (new Extend\ApiController(ShowUserController::class))
+                ->removeInclude('groups')
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayNotHasKey('groups', Arr::get($payload, 'data.relationships', []));
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_not_optionally_included_if_removed()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasMany('customApiControllerRelation2', Discussion::class, 'user_id'),
+            (new Extend\ApiSerializer(UserSerializer::class))
+                ->hasMany('customApiControllerRelation2', DiscussionSerializer::class),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addOptionalInclude('customApiControllerRelation2')
+                ->removeOptionalInclude('customApiControllerRelation2')
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams([
+                'include' => 'customApiControllerRelation2',
+            ])
+        );
+
+        $this->assertEquals(400, $response->getStatusCode());
     }
 
     /**
