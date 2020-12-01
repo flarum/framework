@@ -22,7 +22,6 @@ use Illuminate\Queue\Console as Commands;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
-use Illuminate\Queue\QueueManager;
 use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
 
