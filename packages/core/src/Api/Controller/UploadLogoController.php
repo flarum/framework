@@ -9,61 +9,27 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
-use League\Flysystem\FilesystemInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
+use Psr\Http\Message\UploadedFileInterface;
 
-class UploadLogoController extends ShowForumController
+class UploadLogoController extends UploadImageController
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected $filePathSettingKey = 'logo_path';
 
-    /**
-     * @var FilesystemInterface
-     */
-    protected $uploadDir;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param FilesystemInterface $uploadDir
-     */
-    public function __construct(SettingsRepositoryInterface $settings, FilesystemInterface $uploadDir)
-    {
-        $this->settings = $settings;
-        $this->uploadDir = $uploadDir;
-    }
+    protected $filenamePrefix = 'logo';
 
     /**
      * {@inheritdoc}
      */
-    public function data(ServerRequestInterface $request, Document $document)
+    protected function makeImage(UploadedFileInterface $file): Image
     {
-        $request->getAttribute('actor')->assertAdmin();
-
-        $file = Arr::get($request->getUploadedFiles(), 'logo');
-
-        $manager = new ImageManager;
+        $manager = new ImageManager();
 
         $encodedImage = $manager->make($file->getStream())->heighten(60, function ($constraint) {
             $constraint->upsize();
         })->encode('png');
 
-        if (($path = $this->settings->get('logo_path')) && $this->uploadDir->has($path)) {
-            $this->uploadDir->delete($path);
-        }
-
-        $uploadName = 'logo-'.Str::lower(Str::random(8)).'.png';
-
-        $this->uploadDir->write($uploadName, $encodedImage);
-
-        $this->settings->set('logo_path', $uploadName);
-
-        return parent::data($request, $document);
+        return $encodedImage;
     }
 }
