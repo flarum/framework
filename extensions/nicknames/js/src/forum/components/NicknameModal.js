@@ -13,7 +13,7 @@ export default class NicknameModal extends Modal {
   }
 
   title() {
-    return app.translator.trans('flarum-nicknames.forum.nickname.change');
+    return app.translator.trans('flarum-nicknames.forum.change_nickname.title');
   }
 
   content() {
@@ -34,7 +34,7 @@ export default class NicknameModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-            }, app.translator.trans('flarum-nicknames.forum.nickname.submit_button'))}
+            }, app.translator.trans('flarum-nicknames.forum.change_nickname.submit_button'))}
           </div>
         </div>
       </div>

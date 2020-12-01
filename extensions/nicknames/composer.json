@@ -22,6 +22,7 @@
         },
         "flarum-extension": {
             "title": "Nicknames",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-user-tag",
                 "backgroundColor": "#8E4529",
