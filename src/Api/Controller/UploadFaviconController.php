@@ -9,24 +9,15 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
-use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadFaviconController extends UploadImageController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(SettingsRepositoryInterface $settings, FilesystemInterface $uploadDir)
-    {
-        parent::__construct($settings, $uploadDir);
+    protected $filePathSettingKey = 'favicon_path';
 
-        $this->filenamePrefix = 'favicon';
-        $this->filePathSettingKey = 'favicon_path';
-    }
+    protected $filenamePrefix = 'favicon';
 
     /**
      * {@inheritdoc}

@@ -9,24 +9,15 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
-use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadLogoController extends UploadImageController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(SettingsRepositoryInterface $settings, FilesystemInterface $uploadDir)
-    {
-        parent::__construct($settings, $uploadDir);
+    protected $filePathSettingKey = 'logo_path';
 
-        $this->filenamePrefix = 'logo';
-        $this->filePathSettingKey = 'logo_path';
-    }
+    protected $filenamePrefix = 'logo';
 
     /**
      * {@inheritdoc}
