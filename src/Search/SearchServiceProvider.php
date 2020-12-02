@@ -22,7 +22,6 @@ use Flarum\User\Search\Gambit\EmailGambit;
 use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextGambit;
 use Flarum\User\Search\Gambit\GroupGambit;
 use Flarum\User\Search\UserSearcher;
-use Illuminate\Contracts\Container\Container;
 
 class SearchServiceProvider extends AbstractServiceProvider
 {
@@ -40,41 +39,47 @@ class SearchServiceProvider extends AbstractServiceProvider
 
     public function registerUserGambits()
     {
-        $this->app->when(UserSearcher::class)
-            ->needs(GambitManager::class)
-            ->give(function (Container $app) {
-                $gambits = new GambitManager($app);
+        $gambits = AbstractSearcher::gambitManager(UserSearcher::class);
+        $gambits->setFullTextGambit($this->app->make(UserFulltextGambit::class));
+        $gambits->add($this->app->make(EmailGambit::class));
+        $gambits->add($this->app->make(GroupGambit::class));
 
-                $gambits->setFulltextGambit(UserFulltextGambit::class);
-                $gambits->add(EmailGambit::class);
-                $gambits->add(GroupGambit::class);
+        // Deprecated BC layer to support the ConfigureGambits events till next version.
+        $tempGambits = new GambitManager;
+        $this->app->make('events')->dispatch(
+            new ConfigureUserGambits($tempGambits)
+        );
 
-                $app->make('events')->dispatch(
-                    new ConfigureUserGambits($gambits)
-                );
+        if (!is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
+            $gambits->setFullTextGambit($this->app->make($fullTextGambit));
+        }
 
-                return $gambits;
-            });
+        foreach ($tempGambits->getGambits() as $gambit) {
+            $gambits->add($this->app->make($gambit));
+        }
     }
 
     public function registerDiscussionGambits()
     {
-        $this->app->when(DiscussionSearcher::class)
-            ->needs(GambitManager::class)
-            ->give(function (Container $app) {
-                $gambits = new GambitManager($app);
+        $gambits = AbstractSearcher::gambitManager(DiscussionSearcher::class);
+        $gambits->setFullTextGambit($this->app->make(DiscussionFulltextGambit::class));
+        $gambits->add($this->app->make(AuthorGambit::class));
+        $gambits->add($this->app->make(CreatedGambit::class));
+        $gambits->add($this->app->make(HiddenGambit::class));
+        $gambits->add($this->app->make(UnreadGambit::class));
 
-                $gambits->setFulltextGambit(DiscussionFulltextGambit::class);
-                $gambits->add(AuthorGambit::class);
-                $gambits->add(CreatedGambit::class);
-                $gambits->add(HiddenGambit::class);
-                $gambits->add(UnreadGambit::class);
+        // Deprecated BC layer to support the ConfigureGambits events till next version.
+        $tempGambits = new GambitManager;
+        $this->app->make('events')->dispatch(
+            new ConfigureDiscussionGambits($tempGambits)
+        );
 
-                $app->make('events')->dispatch(
-                    new ConfigureDiscussionGambits($gambits)
-                );
+        if (!is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
+            $gambits->setFullTextGambit($this->app->make($fullTextGambit));
+        }
 
-                return $gambits;
-            });
+        foreach ($tempGambits->getGambits() as $gambit) {
+            $gambits->add($this->app->make($gambit));
+        }
     }
 }
