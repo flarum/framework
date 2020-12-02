@@ -465,7 +465,7 @@ class ApiControllerTest extends TestCase
         $payload = json_decode($response->getBody(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(3, $payload['data'][0]['id']);
+        $this->assertEquals([3, 1, 2], Arr::pluck($payload['data'], 'id'));
     }
 
     /**
@@ -531,7 +531,7 @@ class ApiControllerTest extends TestCase
         $payload = json_decode($response->getBody(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(2, $payload['data'][0]['id']);
+        $this->assertEquals([2, 1, 3], Arr::pluck($payload['data'], 'id'));
     }
 }
 
