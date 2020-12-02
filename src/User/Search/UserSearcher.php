@@ -9,25 +9,25 @@
 
 namespace Flarum\User\Search;
 
-use Flarum\Search\ApplySearchParametersTrait;
-use Flarum\Search\GambitManager;
+use Flarum\Search\AbstractSearch;
+use Flarum\Search\AbstractSearcher;
 use Flarum\Search\SearchCriteria;
-use Flarum\Search\SearchResults;
 use Flarum\User\Event\Searching;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Takes a UserSearchCriteria object, performs a search using gambits,
  * and spits out a UserSearchResults object.
  */
-class UserSearcher
+class UserSearcher extends AbstractSearcher
 {
-    use ApplySearchParametersTrait;
-
     /**
-     * @var GambitManager
+     * @var Dispatcher
      */
-    protected $gambits;
+    protected $events;
 
     /**
      * @var UserRepository
@@ -35,51 +35,31 @@ class UserSearcher
     protected $users;
 
     /**
-     * @param GambitManager $gambits
      * @param \Flarum\User\UserRepository $users
      */
-    public function __construct(GambitManager $gambits, UserRepository $users)
+    public function __construct(UserRepository $users, Dispatcher $events)
     {
-        $this->gambits = $gambits;
+        $this->events = $events;
         $this->users = $users;
     }
 
-    /**
-     * @param SearchCriteria $criteria
-     * @param int|null $limit
-     * @param int $offset
-     * @param array $load An array of relationships to load on the results.
-     * @return SearchResults
-     */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
+    protected function getQuery(User $actor): Builder
     {
-        $actor = $criteria->actor;
+        return $this->users->query()->whereVisibleTo($actor);
+    }
 
-        $query = $this->users->query()->whereVisibleTo($actor);
+    protected function getSearch(Builder $query, User $actor): AbstractSearch
+    {
+        return new UserSearch($query->getQuery(), $actor);
+    }
 
-        // Construct an object which represents this search for users.
-        // Apply gambits to it, sort, and paging criteria. Also give extensions
-        // an opportunity to modify it.
-        $search = new UserSearch($query->getQuery(), $actor);
+    /**
+     * @deprecated along with the Searching event, remove in Beta 16.
+     */
+    protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
+    {
+        parent::mutateSearch($search, $criteria);
 
-        $this->gambits->apply($search, $criteria->query);
-        $this->applySort($search, $criteria->sort);
-        $this->applyOffset($search, $offset);
-        $this->applyLimit($search, $limit + 1);
-
-        event(new Searching($search, $criteria));
-
-        // Execute the search query and retrieve the results. We get one more
-        // results than the user asked for, so that we can say if there are more
-        // results. If there are, we will get rid of that extra result.
-        $users = $query->get();
-
-        if ($areMoreResults = ($limit > 0 && $users->count() > $limit)) {
-            $users->pop();
-        }
-
-        $users->load($load);
-
-        return new SearchResults($users, $areMoreResults);
+        $this->events->dispatch(new Searching($search, $criteria));
     }
 }
