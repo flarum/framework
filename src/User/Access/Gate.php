@@ -66,21 +66,21 @@ class Gate
                     return $decision;
                 }
             }
-
-            // START OLD DEPRECATED SYSTEM
-
-            // Fire an event so that core and extension policies can hook into
-            // this permission query and explicitly grant or deny the
-            // permission.
-            $allowed = $this->events->until(
-                new GetPermission($actor, $ability, $model)
-            );
-
-            if (! is_null($allowed)) {
-                return $allowed;
-            }
-            // END OLD DEPRECATED SYSTEM
         }
+
+        // START OLD DEPRECATED SYSTEM
+
+        // Fire an event so that core and extension policies can hook into
+        // this permission query and explicitly grant or deny the
+        // permission.
+        $allowed = $this->events->until(
+            new GetPermission($actor, $ability, $model)
+        );
+
+        if (!is_null($allowed)) {
+            return $allowed;
+        }
+        // END OLD DEPRECATED SYSTEM
 
         // If no policy covered this permission query, we will only grant
         // the permission if the actor's groups have it. Otherwise, we will
