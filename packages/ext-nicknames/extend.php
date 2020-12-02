@@ -11,19 +11,21 @@
 
 namespace Flarum\Nicknames;
 
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Event\ConfigureUserGambits;
 use Flarum\Extend;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Saving;
 use Flarum\User\User;
 use Flarum\User\UserValidator;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__.'/js/dist/forum.js'),
+        ->js(__DIR__ . '/js/dist/forum.js'),
 
     (new Extend\Frontend('admin'))
-        ->js(__DIR__.'/js/dist/admin.js'),
+        ->js(__DIR__ . '/js/dist/admin.js'),
 
     (new Extend\User())
         ->displayNameDriver('nickname', NicknameDriver::class),
@@ -36,9 +38,14 @@ return [
         ->listen(ConfigureUserGambits::class, SetUserNicknameGambit::class),
 
     (new Extend\ApiSerializer(UserSerializer::class))
-        ->attribute('canEditOwnNickname', function($serializer, $user) {
+        ->attribute('canEditOwnNickname', function ($serializer, $user) {
             $actor = $serializer->getActor();
             return $actor->id === $user->id && $serializer->getActor()->can('editOwnNickname', $user);
+        }),
+
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attribute('displayNameDriver', function ($serializer, $user) {
+            return app(SettingsRepositoryInterface::class)->get('display_name_driver', 'username');
         }),
 
     (new Extend\Validator(UserValidator::class))

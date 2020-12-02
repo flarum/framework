@@ -12,6 +12,8 @@ app.initializers.add('flarum/nicknames', () => {
   User.prototype.canEditOwnNickname = Model.attribute('canEditOwnNickname');
 
   extend(SettingsPage.prototype, 'accountItems', function (items) {
+    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
+
     if (this.user.canEditOwnNickname()) {
       items.add('changeNickname',
         <Button className="Button" onclick={() => app.modal.show(NickNameModal)}>
@@ -22,10 +24,14 @@ app.initializers.add('flarum/nicknames', () => {
   });
 
   extend(EditUserModal.prototype, 'oninit', function () {
+    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
+
     this.nickname = Stream(this.attrs.user.displayName());
   });
 
   extend(EditUserModal.prototype, 'fields', function (items) {
+    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
+
     items.add('nickname',
       <div className="Form-group">
         <label>{app.translator.trans('flarum-nicknames.forum.edit_user.nicknames_heading')}</label>
@@ -36,6 +42,8 @@ app.initializers.add('flarum/nicknames', () => {
   });
 
   extend(EditUserModal.prototype, 'data', function (data) {
+    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
+
     const user = this.attrs.user;
     if (this.nickname() !== this.attrs.user.username()) {
       data.nickname = this.nickname();
