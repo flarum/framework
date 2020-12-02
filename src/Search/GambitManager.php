@@ -97,15 +97,15 @@ class GambitManager
     {
         $bits = $this->explode($query);
 
-        if (!$bits) {
+        if (! $bits) {
             return '';
         }
 
         foreach ($bits as $k => $bit) {
             foreach ($this->gambits as $gambit) {
-                if (!$gambit instanceof GambitInterface) {
+                if (! $gambit instanceof GambitInterface) {
                     throw new LogicException(
-                        'Gambit ' . get_class($gambit) . ' does not implement ' . GambitInterface::class
+                        'Gambit '.get_class($gambit).' does not implement '.GambitInterface::class
                     );
                 }
 
@@ -126,7 +126,7 @@ class GambitManager
      */
     protected function applyFulltext(AbstractSearch $search, $query)
     {
-        if (!$this->fulltextGambit) {
+        if (! $this->fulltextGambit) {
             return;
         }
 

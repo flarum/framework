@@ -69,7 +69,7 @@ class SimpleFlarumSearch implements ExtenderInterface
     {
         $gambitManager = AbstractSearcher::gambitManager($this->searcher);
 
-        if (!is_null($this->fullTextGambit)) {
+        if (! is_null($this->fullTextGambit)) {
             $gambitManager->setFullTextGambit($container->make($this->fullTextGambit));
         }
 
