@@ -23,7 +23,7 @@ trait ScopeVisibilityTrait
     {
         $model = static::class;
 
-        if ($ability == null) {
+        if ($ability === null) {
             $ability = static::$DEFAULT;
         }
 
