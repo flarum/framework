@@ -657,8 +657,8 @@ class CustomDiscussionSerializer extends DiscussionSerializer
     protected function getDefaultAttributes($discussion)
     {
         return parent::getDefaultAttributes($discussion) + [
-                'customSerializer' => true
-            ];
+            'customSerializer' => true
+        ];
     }
 }
 
@@ -667,8 +667,8 @@ class CustomDiscussionSerializer2 extends DiscussionSerializer
     protected function getDefaultAttributes($discussion)
     {
         return parent::getDefaultAttributes($discussion) + [
-                'customSerializer2' => true
-            ];
+            'customSerializer2' => true
+        ];
     }
 }
 
