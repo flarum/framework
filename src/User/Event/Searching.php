@@ -12,6 +12,9 @@ namespace Flarum\User\Event;
 use Flarum\Search\SearchCriteria;
 use Flarum\User\Search\UserSearch;
 
+/**
+ * @deprecated beta 15, remove beta 16
+ */
 class Searching
 {
     /**
