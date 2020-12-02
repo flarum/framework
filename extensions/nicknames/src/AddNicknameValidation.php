@@ -21,20 +21,25 @@ class AddNicknameValidation
 
     public function __invoke($flarumValidator, Validator $validator)
     {
-        $unique_nickname = ($this->settings->get('flarum-nicknames.unique')) ? 'unique:users,nickname' : '';
+        $nicknameRules = [
+            function ($attribute, $value, $fail) {
+                $regex = $this->settings->get('flarum-nicknames.regex');
+                if ($regex && !preg_match_all("/$regex/", $value)) {
+                    $fail(app('translator')->trans('flarum-nicknames.api.invalid_nickname_message'));
+                }
+            },
+            'min:' . $this->settings->get('flarum-nicknames.min'),
+            'max:' . $this->settings->get('flarum-nicknames.max'),
+            'nullable'
+        ];
+
+        if ($this->settings->get('flarum-nicknames.unique')) {
+            $nicknameRules[] = 'unique:users,username';
+            $nicknameRules[] = 'unique:users,nickname';
+        }
 
         $validator->setRules([
-                'nickname' => [
-                    $unique_nickname,
-                    function ($attribute, $value, $fail) {
-                        $regex = $this->settings->get('flarum-nicknames.regex');
-                        if ($regex && !preg_match_all("/$regex/", $value)) {
-                            $fail(app('translator')->trans('flarum-nicknames.api.invalid_nickname_message'));
-                        }
-                    },
-                    'min:' . $this->settings->get('flarum-nicknames.min', 1),
-                    'max:' . $this->settings->get('flarum-nicknames.max', 150),
-                ],
+                'nickname' => $nicknameRules,
             ] + $validator->getRules());
     }
 }
