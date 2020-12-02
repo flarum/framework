@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
+use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Api\Controller\ShowPostController;
@@ -93,6 +94,122 @@ class ApiControllerTest extends TestCase
         $payload = json_decode($response->getBody(), true);
 
         $this->assertEquals(CustomPrepareDataSerializationInvokableClass::class, $payload['data']['attributes']['title']);
+    }
+
+    /**
+     * @test
+     */
+    public function prepare_data_serialization_callback_works_if_added_to_parent_class()
+    {
+        $this->extend(
+            (new Extend\ApiController(AbstractShowController::class))
+                ->prepareDataForSerialization(function ($controller, Discussion $discussion) {
+                    if ($controller instanceof ShowDiscussionController) {
+                        $discussion->title = 'dataSerializationPrepCustomTitle2';
+                    }
+                })
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertEquals('dataSerializationPrepCustomTitle2', $payload['data']['attributes']['title']);
+    }
+
+    /**
+     * @test
+     */
+    public function prepare_data_serialization_callback_prioritizes_child_classes()
+    {
+        $this->extend(
+            (new Extend\ApiController(AbstractShowController::class))
+                ->prepareDataForSerialization(function ($controller, Discussion $discussion) {
+                    if ($controller instanceof ShowDiscussionController) {
+                        $discussion->title = 'dataSerializationPrepCustomTitle3';
+                    }
+                }),
+            (new Extend\ApiController(ShowDiscussionController::class))
+                ->prepareDataForSerialization(function ($controller, Discussion $discussion) {
+                    $discussion->title = 'dataSerializationPrepCustomTitle4';
+                })
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertEquals('dataSerializationPrepCustomTitle4', $payload['data']['attributes']['title']);
+    }
+
+    /**
+     * @test
+     */
+    public function prepare_data_query_callback_works_if_added_to_parent_class()
+    {
+        $this->extend(
+            (new Extend\ApiController(AbstractShowController::class))
+                ->prepareDataQuery(function ($controller) {
+                    if ($controller instanceof ShowDiscussionController) {
+                        $controller->setSerializer(CustomDiscussionSerializer2::class);
+                    }
+                })
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customSerializer2', $payload['data']['attributes']);
+    }
+
+    /**
+     * @test
+     */
+    public function prepare_data_query_callback_prioritizes_child_classes()
+    {
+        $this->extend(
+            (new Extend\ApiController(AbstractShowController::class))
+                ->prepareDataForSerialization(function ($controller) {
+                    if ($controller instanceof ShowDiscussionController) {
+                        $controller->setSerializer(CustomDiscussionSerializer2::class);
+                    }
+                }),
+            (new Extend\ApiController(ShowDiscussionController::class))
+                ->prepareDataForSerialization(function ($controller) {
+                    $controller->setSerializer(CustomDiscussionSerializer::class);
+                })
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customSerializer', $payload['data']['attributes']);
     }
 
     /**
@@ -540,8 +657,18 @@ class CustomDiscussionSerializer extends DiscussionSerializer
     protected function getDefaultAttributes($discussion)
     {
         return parent::getDefaultAttributes($discussion) + [
-            'customSerializer' => true
-        ];
+                'customSerializer' => true
+            ];
+    }
+}
+
+class CustomDiscussionSerializer2 extends DiscussionSerializer
+{
+    protected function getDefaultAttributes($discussion)
+    {
+        return parent::getDefaultAttributes($discussion) + [
+                'customSerializer2' => true
+            ];
     }
 }
 
