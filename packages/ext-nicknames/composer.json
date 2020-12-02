@@ -1,6 +1,6 @@
 {
     "name": "flarum/nicknames",
-    "description": "Use nicknames for users",
+    "description": "Allow users to set nicknames.",
     "type": "flarum-extension",
     "keywords": ["nicknames"],
     "license": "MIT",
