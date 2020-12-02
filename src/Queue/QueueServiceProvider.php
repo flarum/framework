@@ -22,7 +22,6 @@ use Illuminate\Queue\Console as Commands;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
-use Illuminate\Queue\QueueManager;
 use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
 
@@ -66,7 +65,7 @@ class QueueServiceProvider extends AbstractServiceProvider
             $config = $app->make(Config::class);
 
             return new Worker(
-                new QueueManager($app),
+                $app[Factory::class],
                 $app['events'],
                 $app[ExceptionHandling::class],
                 function () use ($config) {
