@@ -57,6 +57,9 @@ class ThrottleApiTest extends TestCase
                 return true;
             }
         }));
+
+        $this->prepDb();
+
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
 
         $this->assertEquals(429, $response->getStatusCode());
@@ -67,16 +70,20 @@ class ThrottleApiTest extends TestCase
      */
     public function false_overrides_true_for_evaluating_throttlers()
     {
-        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
-            if ($request->getAttribute('routeName') === 'discussions.index') {
-                return true;
-            }
-        }));
-        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussionsOverride', function ($request) {
-            if ($request->getAttribute('routeName') === 'discussions.index') {
-                return false;
-            }
-        }));
+        $this->extend(
+            (new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
+                if ($request->getAttribute('routeName') === 'discussions.index') {
+                    return true;
+                }
+            }),
+            (new Extend\ThrottleApi)->set('blockListDiscussionsOverride', function ($request) {
+                if ($request->getAttribute('routeName') === 'discussions.index') {
+                    return false;
+                }
+            })
+        );
+
+        $this->prepDb();
 
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
 
