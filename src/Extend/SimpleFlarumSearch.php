@@ -10,6 +10,7 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\Search\AbstractSearcher;
 use Illuminate\Contracts\Container\Container;
 
@@ -57,6 +58,12 @@ class SimpleFlarumSearch implements ExtenderInterface
 
     /**
      * Add a callback through which to run all search queries after gambits have been applied.
+     *
+     * @param callable|string $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - Flarum\Search\AbstractSearch $search
+     * - Flarum\Search\SearchCriteria $criteria
      */
     public function addSearchMutator($callback)
     {
@@ -79,7 +86,7 @@ class SimpleFlarumSearch implements ExtenderInterface
 
         foreach ($this->searchMutators as $mutator) {
             if (is_string($mutator)) {
-                $mutator = $container->make($mutator);
+                $mutator = ContainerUtil::wrapCallback($mutator, $container);
             }
 
             AbstractSearcher::addSearchMutator($this->searcher, $mutator);
