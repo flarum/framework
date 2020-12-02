@@ -624,7 +624,7 @@ class User extends AbstractModel
      * @param mixed $arguments
      * @throws PermissionDeniedException
      */
-    public function assertCan($ability, $arguments = [])
+    public function assertCan($ability, $arguments = null)
     {
         $this->assertPermission(
             $this->can($ability, $arguments)
