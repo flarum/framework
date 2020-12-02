@@ -349,7 +349,8 @@ class Extension implements Arrayable
     /**
      * Compile a list of links for this extension.
      */
-    public function getLinks() {
+    public function getLinks()
+    {
         $links = [];
 
         if (($sourceUrl = $this->composerJsonAttribute('source.url')) || ($sourceUrl = $this->composerJsonAttribute('support.source'))) {
