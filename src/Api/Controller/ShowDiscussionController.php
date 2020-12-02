@@ -33,14 +33,14 @@ class ShowDiscussionController extends AbstractShowController
     protected $posts;
 
     /**
-     * {@inheritdoc}
-     */
-    public $serializer = DiscussionSerializer::class;
-
-    /**
      * @var SlugManager
      */
     protected $slugManager;
+
+    /**
+     * {@inheritdoc}
+     */
+    public $serializer = DiscussionSerializer::class;
 
     /**
      * {@inheritdoc}
@@ -67,12 +67,13 @@ class ShowDiscussionController extends AbstractShowController
     /**
      * @param \Flarum\Discussion\DiscussionRepository $discussions
      * @param \Flarum\Post\PostRepository $posts
+     * @param \Flarum\Http\SlugManager $slugManager
      */
-    public function __construct(SlugManager $slugManager, DiscussionRepository $discussions, PostRepository $posts)
+    public function __construct(DiscussionRepository $discussions, PostRepository $posts, SlugManager $slugManager)
     {
-        $this->slugManager = $slugManager;
         $this->discussions = $discussions;
         $this->posts = $posts;
+        $this->slugManager = $slugManager;
     }
 
     /**
