@@ -34,7 +34,7 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function custom_setting_doesnt_exist_by_default()
+    public function custom_setting_isnt_serialized_by_default()
     {
         $this->prepDb();
 
@@ -52,7 +52,7 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function custom_setting_exists_if_added()
+    public function custom_setting_serialized_if_added()
     {
         $this->extend(
             (new Extend\Settings())

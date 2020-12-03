@@ -72,8 +72,8 @@ class Settings implements ExtenderInterface
                         $value = $settings->get($key, null);
 
                         if (isset($setting['callback'])) {
-                            $setting['callback'] = ContainerUtil::wrapCallback($setting['callback'], $container);
-                            $value = $setting['callback']($value);
+                            $callback = ContainerUtil::wrapCallback($setting['callback'], $container);
+                            $value = $callback($value);
                         }
 
                         $attributes[$setting['attributeName']] = $value;
