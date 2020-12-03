@@ -242,7 +242,7 @@ export default class ExtensionPage extends Page {
    */
   buildSettingComponent(entry) {
     if (typeof entry === 'function') {
-      return entry.bind(this);
+      return entry.call(this);
     }
 
     const setting = entry.setting;
