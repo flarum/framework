@@ -174,6 +174,47 @@ class SettingsTest extends TestCase
         $this->assertArrayHasKey('customPrefix.unavailableCustomSetting2', $payload['data']['attributes']);
         $this->assertEquals('defaultModified', $payload['data']['attributes']['customPrefix.unavailableCustomSetting2']);
     }
+
+    /**
+     * @test
+     */
+    public function custom_setting_default_prioritizes_extender()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->serializeToForum('customPrefix.unavailableCustomSetting3', 'custom-prefix.unavailable_custom_setting3')
+                ->default('custom-prefix.unavailable_custom_setting3', 'extenderDefault')
+        );
+
+        $this->prepDb();
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.unavailable_custom_setting3', 'defaultParameterValue');
+
+        $this->assertEquals('extenderDefault', $value);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_setting_default_falls_back_to_parameter()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->serializeToForum('customPrefix.unavailableCustomSetting4', 'custom-prefix.unavailable_custom_setting4')
+        );
+
+        $this->prepDb();
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.unavailable_custom_setting4', 'defaultParameterValue');
+
+        $this->assertEquals('defaultParameterValue', $value);
+    }
 }
 
 class CustomInvokableClass
