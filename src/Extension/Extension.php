@@ -386,7 +386,7 @@ class Extension implements Arrayable
             ];
         }
 
-        return array_merge($links, $this->composerJsonAttribute('flarum-extension.links'));
+        return array_merge($links, $this->composerJsonAttribute('flarum-extension.links') ?? []);
     }
 
     /**
