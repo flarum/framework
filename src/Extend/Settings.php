@@ -20,18 +20,18 @@ class Settings implements ExtenderInterface
 {
     private $settings = [];
     private $defaults = [];
-    private $modifiers = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
      *
      * @param string $attributeName: The attribute name to be used in the ForumSerializer attributes array.
      * @param string $key: The key of the setting.
+     * @param string|callable|null $callback: Optional callback to modify the value before serialization.
      * @return $this
      */
-    public function serializeToForum(string $attributeName, string $key)
+    public function serializeToForum(string $attributeName, string $key, $callback = null)
     {
-        $this->settings[$key] = $attributeName;
+        $this->settings[$key] = compact('attributeName', 'callback');
 
         return $this;
     }
@@ -50,20 +50,6 @@ class Settings implements ExtenderInterface
         return $this;
     }
 
-    /**
-     * Modify a setting's value.
-     *
-     * @param string $key
-     * @param $callback
-     * @return $this
-     */
-    public function modifier(string $key, $callback)
-    {
-        $this->modifiers[$key] = $callback;
-
-        return $this;
-    }
-
     public function extend(Container $container, Extension $extension = null)
     {
         if (! empty($this->settings)) {
@@ -73,15 +59,15 @@ class Settings implements ExtenderInterface
                     $settings = $container->make(SettingsRepositoryInterface::class);
                     $attributes = [];
 
-                    foreach ($this->settings as $key => $attributeName) {
-                        $value = $settings->get($key, $this->defaults[$key] ?? null);
+                    foreach ($this->settings as $key => $setting) {
+                        $value = $settings->get($key, null);
 
-                        if (isset($this->modifiers[$key])) {
-                            $callback = ContainerUtil::wrapCallback($this->modifiers[$key], $container);
-                            $value = $callback($value);
+                        if (isset($setting['callback'])) {
+                            $setting['callback'] = ContainerUtil::wrapCallback($setting['callback'], $container);
+                            $value = $setting['callback']($value);
                         }
 
-                        $attributes[$attributeName] = $value;
+                        $attributes[$setting['attributeName']] = $value;
                     }
 
                     return $attributes;

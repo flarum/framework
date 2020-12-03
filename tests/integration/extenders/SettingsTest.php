@@ -101,12 +101,11 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function custom_setting_modifier_works_if_added()
+    public function custom_setting_callback_works_if_added()
     {
         $this->extend(
             (new Extend\Settings())
-                ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting')
-                ->modifier('custom-prefix.custom_setting', function ($value) {
+                ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting', function ($value) {
                     return $value.'Modified';
                 })
         );
@@ -128,12 +127,11 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function custom_setting_modifier_works_with_invokable_class()
+    public function custom_setting_callback_works_with_invokable_class()
     {
         $this->extend(
             (new Extend\Settings())
-                ->serializeToForum('customPrefix.customSetting2', 'custom-prefix.custom_setting2')
-                ->modifier('custom-prefix.custom_setting2', CustomInvokableClass::class)
+                ->serializeToForum('customPrefix.customSetting2', 'custom-prefix.custom_setting2', CustomInvokableClass::class)
         );
 
         $this->prepDb();
@@ -153,15 +151,14 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function custom_setting_modifier_works_on_default_value()
+    public function custom_setting_callback_works_on_default_value()
     {
         $this->extend(
             (new Extend\Settings())
-                ->serializeToForum('customPrefix.unavailableCustomSetting2', 'custom-prefix.unavailable_custom_setting2')
-                ->default('custom-prefix.unavailable_custom_setting2', 'default')
-                ->modifier('custom-prefix.unavailable_custom_setting2', function ($value) {
+                ->serializeToForum('customPrefix.unavailableCustomSetting2', 'custom-prefix.unavailable_custom_setting2', function ($value) {
                     return $value.'Modified';
                 })
+                ->default('custom-prefix.unavailable_custom_setting2', 'default')
         );
 
         $this->prepDb();
