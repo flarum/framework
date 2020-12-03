@@ -26,7 +26,7 @@ export default class AdminNav extends Component {
     const nav = $('#admin-navigation');
     const time = app.previous.type ? 250 : 0;
 
-    if (children.length > 0 && (children[0].offsetTop > nav.scrollTop() || children[0].offsetTop + children[0].offsetHeight < nav.scrollTop())) {
+    if (children.length > 0 && (children[0].offsetTop > nav.scrollTop() + nav.outerHeight() || children[0].offsetTop + children[0].offsetHeight < nav.scrollTop())) {
       nav.animate(
         {
           scrollTop: children[0].offsetTop - nav.height() / 2,
