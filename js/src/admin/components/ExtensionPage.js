@@ -49,7 +49,7 @@ export default class ExtensionPage extends Page {
         {this.header()}
         {!this.isEnabled() ? (
           <div className="container">
-            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h2>
+            <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
           </div>
         ) : (
           <div className="ExtensionPage-body">{this.sections().toArray()}</div>
