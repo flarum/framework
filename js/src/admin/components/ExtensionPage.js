@@ -105,7 +105,7 @@ export default class ExtensionPage extends Page {
           {app.extensionData.extensionHasPermissions(this.extension.id) ? (
             ExtensionPermissionGrid.component({ extensionId: this.extension.id })
           ) : (
-            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
+            <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h3>
           )}
         </div>
       </div>,
@@ -130,7 +130,7 @@ export default class ExtensionPage extends Page {
               <div className="Form-group">{this.submitButton()}</div>
             </div>
           ) : (
-            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h2>
+            <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>
           )}
         </div>
       </div>
