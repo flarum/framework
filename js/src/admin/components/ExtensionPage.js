@@ -213,6 +213,9 @@ export default class ExtensionPage extends Page {
    * Depending on the type of input, you can set the type to 'bool', 'select', or
    * any standard <input> type.
    *
+   * Alternatively, you can pass a callback that will be executed in ExtensionPage's
+   * context to include custom JSX elements.
+   *
    * @example
    *
    * {
@@ -238,6 +241,10 @@ export default class ExtensionPage extends Page {
    * @returns {JSX.Element}
    */
   buildSettingComponent(entry) {
+    if (typeof entry === 'function') {
+      return entry.bind(this);
+    }
+
     const setting = entry.setting;
     const value = this.setting([setting])();
     if (['bool', 'checkbox', 'switch', 'boolean'].includes(entry.type)) {
