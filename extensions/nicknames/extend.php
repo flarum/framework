@@ -30,9 +30,6 @@ return [
     (new Extend\User())
         ->displayNameDriver('nickname', NicknameDriver::class),
 
-    (new Extend\ModelUrl(User::class))
-        ->addSlugDriver('idOnly', IdOnlyUserSlugDriver::class),
-
     (new Extend\Event())
         ->listen(Saving::class, SaveNicknameToDatabase::class)
         ->listen(ConfigureUserGambits::class, SetUserNicknameGambit::class),
