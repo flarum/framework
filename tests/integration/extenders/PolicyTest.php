@@ -219,7 +219,8 @@ class ForceDenyHidePolicy extends AbstractPolicy
 
 class GlobalStartDiscussionPolicy extends AbstractPolicy
 {
-    protected function startDiscussion(User $user) {
+    protected function startDiscussion(User $user)
+    {
         return $this->allow();
     }
 }

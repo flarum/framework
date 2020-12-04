@@ -39,7 +39,7 @@ class Policy implements ExtenderInterface
      */
     public function modelPolicy(string $modelClass, string $policy)
     {
-        if (!array_key_exists($modelClass, $this->modelPolicies)) {
+        if (! array_key_exists($modelClass, $this->modelPolicies)) {
             $this->modelPolicies[$modelClass] = [];
         }
 
@@ -52,7 +52,7 @@ class Policy implements ExtenderInterface
     {
         $container->extend('flarum.policies', function ($existingPolicies) {
             foreach ($this->modelPolicies as $modelClass => $addPolicies) {
-                if (!array_key_exists($modelClass, $existingPolicies)) {
+                if (! array_key_exists($modelClass, $existingPolicies)) {
                     $existingPolicies[$modelClass] = [];
                 }
 
