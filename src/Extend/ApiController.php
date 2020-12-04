@@ -59,7 +59,7 @@ class ApiController implements ExtenderInterface
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
-     * - $data: An array of data.
+     * - $data: Mixed, can be an array of data or an object (like an instance of Collection or AbstractModel).
      * - $request: An instance of \Psr\Http\Message\ServerRequestInterface.
      * - $document: An instance of \Tobscure\JsonApi\Document.
      *
