@@ -62,8 +62,8 @@ class PolicyTest extends TestCase
     public function unrelated_user_can_hide_discussion_if_allowed()
     {
         $this->extend(
-            (new Extend\Policy(Discussion::class))
-                ->add(CustomPolicy::class)
+            (new Extend\Policy())
+                ->modelPolicy(Discussion::class, CustomPolicy::class)
         );
 
         $this->prepDb();
@@ -81,9 +81,9 @@ class PolicyTest extends TestCase
     public function unrelated_user_cant_hide_discussion_if_denied()
     {
         $this->extend(
-            (new Extend\Policy(Discussion::class))
-                ->add(DenyHidePolicy::class)
-                ->add(CustomPolicy::class)
+            (new Extend\Policy())
+                ->modelPolicy(Discussion::class, DenyHidePolicy::class)
+                ->modelPolicy(Discussion::class, CustomPolicy::class)
         );
 
         $this->prepDb();
@@ -101,10 +101,10 @@ class PolicyTest extends TestCase
     public function unrelated_user_can_hide_discussion_if_force_allowed()
     {
         $this->extend(
-            (new Extend\Policy(Discussion::class))
-                ->add(ForceAllowHidePolicy::class)
-                ->add(DenyHidePolicy::class)
-                ->add(CustomPolicy::class)
+            (new Extend\Policy())
+                ->modelPolicy(Discussion::class, ForceAllowHidePolicy::class)
+                ->modelPolicy(Discussion::class, DenyHidePolicy::class)
+                ->modelPolicy(Discussion::class, CustomPolicy::class)
         );
 
         $this->prepDb();
@@ -121,14 +121,12 @@ class PolicyTest extends TestCase
      */
     public function unrelated_user_cant_hide_discussion_if_force_denied()
     {
-        // Because the force deny policy is last, this also shows that
-        // order isn't considered, as the last result overrides all.
         $this->extend(
-            (new Extend\Policy(Discussion::class))
-                ->add(DenyHidePolicy::class)
-                ->add(ForceDenyHidePolicy::class)
-                ->add(CustomPolicy::class)
-                ->add(ForceAllowHidePolicy::class)
+            (new Extend\Policy())
+                ->modelPolicy(Discussion::class, DenyHidePolicy::class)
+                ->modelPolicy(Discussion::class, ForceDenyHidePolicy::class)
+                ->modelPolicy(Discussion::class, CustomPolicy::class)
+                ->modelPolicy(Discussion::class, ForceAllowHidePolicy::class)
         );
 
         $this->prepDb();
@@ -138,6 +136,52 @@ class PolicyTest extends TestCase
         );
 
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function regular_user_cant_start_discussions_by_default()
+    {
+        $this->prepDb();
+
+        $user = User::find(2);
+
+        $this->assertEquals(false, $user->can('startDiscussion'));
+    }
+
+    /**
+     * @test
+     */
+    public function regular_user_can_start_discussions_if_granted_by_global_policy()
+    {
+        $this->extend(
+            (new Extend\Policy)
+            ->globalPolicy(GlobalStartDiscussionPolicy::class)
+        );
+
+        $this->prepDb();
+
+        $user = User::find(2);
+
+        $this->assertEquals(true, $user->can('startDiscussion'));
+    }
+
+    /**
+     * @test
+     */
+    public function global_policy_doesnt_apply_if_argument_provided()
+    {
+        $this->extend(
+            (new Extend\Policy)
+                ->globalPolicy(GlobalStartDiscussionPolicy::class)
+        );
+
+        $this->prepDb();
+
+        $user = User::find(2);
+
+        $this->assertEquals(false, $user->can('startDiscussion', Discussion::find(1)));
     }
 }
 
@@ -170,5 +214,12 @@ class ForceDenyHidePolicy extends AbstractPolicy
     protected function hide(User $user, Discussion $discussion)
     {
         return $this->forceDeny();
+    }
+}
+
+class GlobalStartDiscussionPolicy extends AbstractPolicy
+{
+    protected function startDiscussion(User $user) {
+        return $this->allow();
     }
 }

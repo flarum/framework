@@ -13,6 +13,7 @@ use Flarum\User\User;
 
 abstract class AbstractPolicy
 {
+    public const GLOBAL = 'GLOBAL';
     public const ALLOW = 'ALLOW';
     public const DENY = 'DENY';
     public const FORCE_ALLOW = 'FORCE_ALLOW';

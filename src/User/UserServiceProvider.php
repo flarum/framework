@@ -45,6 +45,7 @@ class UserServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.policies', function () {
             return [
+                Access\AbstractPolicy::GLOBAL => [],
                 Discussion::class => [DiscussionPolicy::class],
                 Group::class => [GroupPolicy::class],
                 Post::class => [PostPolicy::class],

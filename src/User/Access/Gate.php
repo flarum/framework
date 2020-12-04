@@ -53,31 +53,37 @@ class Gate
      */
     public function allows(User $actor, string $ability, $model): bool
     {
+        $results = [];
+        $appliedPolicies = [];
+
         if ($model) {
             $modelClass = is_string($model) ? $model : get_class($model);
 
-            $results = [];
-            foreach (Arr::get($this->policies, $modelClass, []) as $policy) {
-                $results[] = $policy->checkAbility($actor, $ability, $model);
-            }
+            $appliedPolicies = Arr::get($this->policies, $modelClass, []);
+        } else {
+            $appliedPolicies = Arr::get($this->policies, AbstractPolicy::GLOBAL);
+        }
 
-            foreach (static::EVALUATION_CRITERIA as $criteria => $decision) {
-                if (in_array($criteria, $results, true)) {
-                    return $decision;
-                }
+        foreach ($appliedPolicies as $policy) {
+            $results[] = $policy->checkAbility($actor, $ability, $model);
+        }
+
+        foreach (static::EVALUATION_CRITERIA as $criteria => $decision) {
+            if (in_array($criteria, $results, true)) {
+                return $decision;
             }
         }
 
         // START OLD DEPRECATED SYSTEM
 
-        // Fire an event so that core and extension policies can hook into
+        // Fire an event so that core and extension modelPolicies can hook into
         // this permission query and explicitly grant or deny the
         // permission.
         $allowed = $this->events->until(
             new GetPermission($actor, $ability, $model)
         );
 
-        if (! is_null($allowed)) {
+        if (!is_null($allowed)) {
             return $allowed;
         }
         // END OLD DEPRECATED SYSTEM
