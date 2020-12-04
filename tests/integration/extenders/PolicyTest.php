@@ -12,6 +12,8 @@ namespace Flarum\Tests\integration\extenders;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
+use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Tests\integration\BuildsHttpRequests;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
@@ -183,6 +185,55 @@ class PolicyTest extends TestCase
 
         $this->assertEquals(false, $user->can('startDiscussion', Discussion::find(1)));
     }
+
+    /**
+     * @test
+     */
+    public function unrelated_user_cant_hide_post_by_default()
+    {
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/post/1', $this->hideQuery)
+        );
+
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function unrelated_user_can_hide_post_if_allowed()
+    {
+        $this->extend(
+            (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
+        );
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/post/1', $this->hideQuery)
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function policies_are_inherited_to_child_classes()
+    {
+        $this->extend(
+            (new Extend\Policy)->modelPolicy(Post::class, PostChildClassPolicy::class),
+            (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
+        );
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/post/1', $this->hideQuery)
+        );
+
+        $this->assertEquals(403, $response->getStatusCode());
+    }
 }
 
 class CustomPolicy extends AbstractPolicy
@@ -220,6 +271,21 @@ class ForceDenyHidePolicy extends AbstractPolicy
 class GlobalStartDiscussionPolicy extends AbstractPolicy
 {
     protected function startDiscussion(User $user)
+    {
+        return $this->allow();
+    }
+}
+
+class PostParentClassPolicy extends AbstractPolicy
+{
+    protected function hide(User $user, Post $post) {
+        return $this->deny();
+    }
+}
+
+class CommentPostChildClassPolicy extends AbstractPolicy
+{
+    protected function hide(User $user, CommentPost $post)
     {
         return $this->allow();
     }

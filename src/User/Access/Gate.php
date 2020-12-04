@@ -57,9 +57,11 @@ class Gate
         $appliedPolicies = [];
 
         if ($model) {
-            $modelClass = is_string($model) ? $model : get_class($model);
+            $modelClasses = is_string($model) ? [$model] : array_merge(array_reverse(class_parents(($model)), get_class($model)));
 
-            $appliedPolicies = Arr::get($this->policies, $modelClass, []);
+            foreach ($modelClasses as $class) {
+                $appliedPolicies = array_merge($appliedPolicies, Arr::get($this->policies, $class, []));
+            }
         } else {
             $appliedPolicies = Arr::get($this->policies, AbstractPolicy::GLOBAL);
         }
