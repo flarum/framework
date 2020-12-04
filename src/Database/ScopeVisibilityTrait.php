@@ -17,14 +17,14 @@ use Illuminate\Support\Arr;
 trait ScopeVisibilityTrait
 {
     protected static $visibilityScopers = [];
-    protected static $DEFAULT = '*';
+    protected static $default = '*';
 
     public static function registerVisibilityScoper($scoper, $ability = null)
     {
         $model = static::class;
 
         if ($ability === null) {
-            $ability = static::$DEFAULT;
+            $ability = static::$default;
         }
 
         if (! Arr::has(static::$visibilityScopers, "$model.$ability")) {
@@ -48,7 +48,7 @@ trait ScopeVisibilityTrait
         static::$dispatcher->dispatch(new ScopeModelVisibility($query, $actor, $ability));
 
         foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
-            $defaultAbility = static::$DEFAULT;
+            $defaultAbility = static::$default;
             foreach (Arr::get(static::$visibilityScopers, "$class.$defaultAbility", []) as $listener) {
                 $listener($actor, $query, $ability);
             }
