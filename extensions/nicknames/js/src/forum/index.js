@@ -45,7 +45,7 @@ app.initializers.add('flarum/nicknames', () => {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     const user = this.attrs.user;
-    if (this.nickname() !== this.attrs.user.username()) {
+    if (this.nickname() !== this.attrs.user.displayName()) {
       data.nickname = this.nickname();
     }
   });
