@@ -193,11 +193,9 @@ class PolicyTest extends TestCase
     {
         $this->prepDb();
 
-        $response = $this->send(
-            $this->request('PATCH', '/api/post/1', $this->hideQuery)
-        );
+        $user = User::find(2);
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(false, $user->can('hide', Post::find(1)));
     }
 
     /**
@@ -210,11 +208,9 @@ class PolicyTest extends TestCase
         );
         $this->prepDb();
 
-        $response = $this->send(
-            $this->request('PATCH', '/api/post/1', $this->hideQuery)
-        );
+        $user = User::find(2);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(true, $user->can('hide', Post::find(1)));
     }
 
     /**
@@ -223,16 +219,14 @@ class PolicyTest extends TestCase
     public function policies_are_inherited_to_child_classes()
     {
         $this->extend(
-            (new Extend\Policy)->modelPolicy(Post::class, PostChildClassPolicy::class),
+            (new Extend\Policy)->modelPolicy(Post::class, PostParentClassPolicy::class),
             (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
         );
         $this->prepDb();
 
-        $response = $this->send(
-            $this->request('PATCH', '/api/post/1', $this->hideQuery)
-        );
+        $user = User::find(2);
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(false, $user->can('hide', Post::find(1)));
     }
 }
 
