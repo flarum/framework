@@ -41,7 +41,7 @@ class AlertNotificationDriver implements NotificationDriverInterface
      */
     public function registerType(string $blueprintClass, array $driversEnabledByDefault): void
     {
-        User::addPreference(
+        User::registerPreference(
             User::getNotificationPreferenceKey($blueprintClass::getType(), 'alert'),
             'boolval',
             in_array('alert', $driversEnabledByDefault)

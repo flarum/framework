@@ -11,6 +11,9 @@ namespace Flarum\Event;
 
 use Flarum\User\User;
 
+/**
+ * @deprecated beta 15, removed beta 16
+ */
 class ConfigureUserPreferences
 {
     public function add($key, callable $transformer = null, $default = null)
