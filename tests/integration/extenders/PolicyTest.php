@@ -278,7 +278,8 @@ class GlobalStartDiscussionPolicy extends AbstractPolicy
 
 class PostParentClassPolicy extends AbstractPolicy
 {
-    protected function hide(User $user, Post $post) {
+    protected function hide(User $user, Post $post)
+    {
         return $this->deny();
     }
 }
