@@ -59,7 +59,7 @@ class EmailNotificationDriver implements NotificationDriverInterface
     public function registerType(string $blueprintClass, array $driversEnabledByDefault): void
     {
         if ((new ReflectionClass($blueprintClass))->implementsInterface(MailableInterface::class)) {
-            User::addPreference(
+            User::registerPreference(
                 User::getNotificationPreferenceKey($blueprintClass::getType(), 'email'),
                 'boolval',
                 in_array('email', $driversEnabledByDefault)
