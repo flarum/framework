@@ -26,14 +26,11 @@ class SettingsServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(DefaultSettingsManager::class);
-
         $this->app->singleton(SettingsRepositoryInterface::class, function () {
             return new MemoryCacheSettingsRepository(
                 new DatabaseSettingsRepository(
                     $this->app->make(ConnectionInterface::class)
-                ),
-                $this->app->make(DefaultSettingsManager::class)
+                )
             );
         });
 
