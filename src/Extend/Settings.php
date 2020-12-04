@@ -19,7 +19,6 @@ use Illuminate\Contracts\Container\Container;
 class Settings implements ExtenderInterface
 {
     private $settings = [];
-    private $defaults = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -32,20 +31,6 @@ class Settings implements ExtenderInterface
     public function serializeToForum(string $attributeName, string $key, $callback = null)
     {
         $this->settings[$key] = compact('attributeName', 'callback');
-
-        return $this;
-    }
-
-    /**
-     * Set a default value for a setting selected for serialization.
-     *
-     * @param string $key
-     * @param $value
-     * @return $this
-     */
-    public function default(string $key, $value)
-    {
-        $this->defaults[$key] = $value;
 
         return $this;
     }

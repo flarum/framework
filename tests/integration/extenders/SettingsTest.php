@@ -76,31 +76,6 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function custom_setting_falls_back_to_default_value()
-    {
-        $this->extend(
-            (new Extend\Settings())
-                ->serializeToForum('customPrefix.unavailableCustomSetting', 'custom-prefix.unavailable_custom_setting')
-                ->default('custom-prefix.unavailable_custom_setting', 'default')
-        );
-
-        $this->prepDb();
-
-        $response = $this->send(
-            $this->request('GET', '/api', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody(), true);
-
-        $this->assertArrayHasKey('customPrefix.unavailableCustomSetting', $payload['data']['attributes']);
-        $this->assertEquals('default', $payload['data']['attributes']['customPrefix.unavailableCustomSetting']);
-    }
-
-    /**
-     * @test
-     */
     public function custom_setting_callback_works_if_added()
     {
         $this->extend(
@@ -146,33 +121,6 @@ class SettingsTest extends TestCase
 
         $this->assertArrayHasKey('customPrefix.customSetting2', $payload['data']['attributes']);
         $this->assertEquals('customValueModifiedByInvokable', $payload['data']['attributes']['customPrefix.customSetting2']);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_setting_callback_works_on_default_value()
-    {
-        $this->extend(
-            (new Extend\Settings())
-                ->serializeToForum('customPrefix.unavailableCustomSetting2', 'custom-prefix.unavailable_custom_setting2', function ($value) {
-                    return $value.'Modified';
-                })
-                ->default('custom-prefix.unavailable_custom_setting2', 'default')
-        );
-
-        $this->prepDb();
-
-        $response = $this->send(
-            $this->request('GET', '/api', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody(), true);
-
-        $this->assertArrayHasKey('customPrefix.unavailableCustomSetting2', $payload['data']['attributes']);
-        $this->assertEquals('defaultModified', $payload['data']['attributes']['customPrefix.unavailableCustomSetting2']);
     }
 }
 
