@@ -15,6 +15,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
+use Illuminate\Support\Arr;
 
 class HttpServiceProvider extends AbstractServiceProvider
 {
@@ -50,7 +51,7 @@ class HttpServiceProvider extends AbstractServiceProvider
             foreach ($this->app->make('flarum.http.slugDrivers') as $resourceClass => $resourceDrivers) {
                 $driverKey = $settings->get("slug_driver_$resourceClass", 'default');
 
-                $driverClass = array_key_exists($driverKey, $resourceDrivers) ? $resourceDrivers[$driverKey] : $resourceDrivers['default'];
+                $driverClass = Arr::get($resourceDrivers, $driverKey, $resourceDrivers['default']);
 
                 $compiledDrivers[$resourceClass] = $this->app->make($driverClass);
             }
