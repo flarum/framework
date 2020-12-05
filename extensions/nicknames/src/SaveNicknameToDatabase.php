@@ -24,10 +24,8 @@ class SaveNicknameToDatabase {
 
             $nickname = $attributes['nickname'];
 
-            // If unique validation is enabled, the nickname will be checked
-            // against ALL nicknames and usernames, including the username
-            // of the current user. So, to allow users to reset their nickname
-            // back to their username, in this case we'd set it to null.
+            // If the user sets their nickname back to the username
+            // set the nickname to null so that it just falls back to the username
             if ($user->username === $nickname) {
                 $user->nickname = null;
             } else {
