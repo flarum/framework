@@ -316,7 +316,7 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(ShowPostController::class))
-                ->setSerializer(CustomPostSerializer::class, CustomInvokableClass::class)
+                ->setSerializer(CustomPostSerializer::class, CustomApiControllerInvokableClass::class)
         );
 
         $this->prepDb();
@@ -748,7 +748,7 @@ class CustomPostSerializer extends PostSerializer
     }
 }
 
-class CustomInvokableClass
+class CustomApiControllerInvokableClass
 {
     public function __invoke()
     {
