@@ -29,6 +29,7 @@ class ContainerUtilTest extends TestCase
     {
         $callback = ContainerUtil::wrapCallback(function ($array) {
             $array['key'] = 'newValue';
+
             return 'return';
         }, $this->container);
 
@@ -58,6 +59,7 @@ class ContainerUtilTest extends TestCase
             public function __invoke($array)
             {
                 $array['key'] = 'newValue5';
+
                 return 'return5';
             }
         }, $this->container);
@@ -74,6 +76,7 @@ class ContainerUtilTest extends TestCase
     {
         $callback = ContainerUtil::wrapCallback(function (&$array) {
             $array['key'] = 'newValue3';
+
             return 'return3';
         }, $this->container);
 
@@ -103,6 +106,7 @@ class ContainerUtilTest extends TestCase
             public function __invoke(&$array)
             {
                 $array['key'] = 'newValue6';
+
                 return 'return6';
             }
         }, $this->container);
@@ -120,6 +124,7 @@ class CustomInvokableClass
     public function __invoke($array)
     {
         $array['key'] = 'newValue2';
+
         return 'return2';
     }
 }
@@ -129,6 +134,7 @@ class SecondCustomInvokableClass
     public function __invoke(&$array)
     {
         $array['key'] = 'newValue4';
+
         return 'return4';
     }
 }
