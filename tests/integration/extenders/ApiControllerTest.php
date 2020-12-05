@@ -13,9 +13,11 @@ use Carbon\Carbon;
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Api\Controller\ShowDiscussionController;
+use Flarum\Api\Controller\ShowForumController;
 use Flarum\Api\Controller\ShowPostController;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Discussion\Discussion;
@@ -94,6 +96,60 @@ class ApiControllerTest extends TestCase
         $payload = json_decode($response->getBody(), true);
 
         $this->assertEquals(CustomPrepareDataSerializationInvokableClass::class, $payload['data']['attributes']['title']);
+    }
+
+    /**
+     * @test
+     */
+    public function prepare_data_serialization_allows_passing_args_by_reference_with_closures()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->hasMany('referenceTest', UserSerializer::class),
+            (new Extend\ApiController(ShowForumController::class))
+                ->addInclude('referenceTest')
+                ->prepareDataForSerialization(function ($controller, &$data) {
+                    $data['referenceTest'] = User::limit(2)->get();
+                })
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('referenceTest', $payload['data']['relationships']);
+    }
+
+    /**
+     * @test
+     */
+    public function prepare_data_serialization_allows_passing_args_by_reference_with_invokable_classes()
+    {
+        $this->extend(
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->hasMany('referenceTest2', UserSerializer::class),
+            (new Extend\ApiController(ShowForumController::class))
+                ->addInclude('referenceTest2')
+                ->prepareDataForSerialization(CustomInvokableClassArgsReference::class)
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('referenceTest2', $payload['data']['relationships']);
     }
 
     /**
@@ -705,5 +761,13 @@ class CustomPrepareDataSerializationInvokableClass
     public function __invoke(ShowDiscussionController $controller, Discussion $discussion)
     {
         $discussion->title = __CLASS__;
+    }
+}
+
+class CustomInvokableClassArgsReference
+{
+    public function __invoke($controller, &$data)
+    {
+        $data['referenceTest2'] = User::limit(2)->get();
     }
 }
