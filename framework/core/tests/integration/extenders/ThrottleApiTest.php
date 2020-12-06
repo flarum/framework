@@ -85,6 +85,8 @@ class ThrottleApiTest extends TestCase
 
         $this->prepDb();
 
+        $this->prepDb();
+
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
 
         $this->assertEquals(200, $response->getStatusCode());
