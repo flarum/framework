@@ -83,18 +83,46 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     protected static $events;
 
     /**
+     * @var array
+     */
+    protected static $beforeDataCallbacks = [];
+
+    /**
+     * @var array
+     */
+    protected static $beforeSerializationCallbacks = [];
+
+    /**
      * {@inheritdoc}
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $document = new Document;
 
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
+            if (isset(static::$beforeDataCallbacks[$class])) {
+                foreach (static::$beforeDataCallbacks[$class] as $callback) {
+                    $callback($this);
+                }
+            }
+        }
+
+        // Deprected in beta 15, removed in beta 16
         static::$events->dispatch(
             new WillGetData($this)
         );
 
         $data = $this->data($request, $document);
 
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
+            if (isset(static::$beforeSerializationCallbacks[$class])) {
+                foreach (static::$beforeSerializationCallbacks[$class] as $callback) {
+                    $callback($this, $data, $request, $document);
+                }
+            }
+        }
+
+        // Deprecated in beta 15, removed in beta 16
         static::$events->dispatch(
             new WillSerializeData($this, $data, $request, $document)
         );
@@ -198,6 +226,106 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
+     * Set the serializer that will serialize data for the endpoint.
+     *
+     * @param string $serializer
+     */
+    public function setSerializer(string $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+    /**
+     * Include the given relationship by default.
+     *
+     * @param string|array $name
+     */
+    public function addInclude($name)
+    {
+        $this->include = array_merge($this->include, (array) $name);
+    }
+
+    /**
+     * Don't include the given relationship by default.
+     *
+     * @param string|array $name
+     */
+    public function removeInclude($name)
+    {
+        $this->include = array_diff($this->include, (array) $name);
+    }
+
+    /**
+     * Make the given relationship available for inclusion.
+     *
+     * @param string|array $name
+     */
+    public function addOptionalInclude($name)
+    {
+        $this->optionalInclude = array_merge($this->optionalInclude, (array) $name);
+    }
+
+    /**
+     * Don't allow the given relationship to be included.
+     *
+     * @param string|array $name
+     */
+    public function removeOptionalInclude($name)
+    {
+        $this->optionalInclude = array_diff($this->optionalInclude, (array) $name);
+    }
+
+    /**
+     * Set the default number of results.
+     *
+     * @param int $limit
+     */
+    public function setLimit(int $limit)
+    {
+        $this->limit = $limit;
+    }
+
+    /**
+     * Set the maximum number of results.
+     *
+     * @param int $max
+     */
+    public function setMaxLimit(int $max)
+    {
+        $this->maxLimit = $max;
+    }
+
+    /**
+     * Allow sorting results by the given field.
+     *
+     * @param string|array $field
+     */
+    public function addSortField($field)
+    {
+        $this->sortFields = array_merge($this->sortFields, (array) $field);
+    }
+
+    /**
+     * Disallow sorting results by the given field.
+     *
+     * @param string|array $field
+     */
+    public function removeSortField($field)
+    {
+        $this->sortFields = array_diff($this->sortFields, (array) $field);
+    }
+
+    /**
+     * Set the default sort order for the results.
+     *
+     * @param array $sort
+     */
+    public function setSort(array $sort)
+    {
+        $this->sort = $sort;
+    }
+
+    /**
      * @return Dispatcher
      */
     public static function getEventDispatcher()
@@ -227,5 +355,31 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     public static function setContainer(Container $container)
     {
         static::$container = $container;
+    }
+
+    /**
+     * @param string $controllerClass
+     * @param callable $callback
+     */
+    public static function addDataPreparationCallback(string $controllerClass, callable $callback)
+    {
+        if (! isset(static::$beforeDataCallbacks[$controllerClass])) {
+            static::$beforeDataCallbacks[$controllerClass] = [];
+        }
+
+        static::$beforeDataCallbacks[$controllerClass][] = $callback;
+    }
+
+    /**
+     * @param string $controllerClass
+     * @param callable $callback
+     */
+    public static function addSerializationPreparationCallback(string $controllerClass, callable $callback)
+    {
+        if (! isset(static::$beforeSerializationCallbacks[$controllerClass])) {
+            static::$beforeSerializationCallbacks[$controllerClass] = [];
+        }
+
+        static::$beforeSerializationCallbacks[$controllerClass][] = $callback;
     }
 }
