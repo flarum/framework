@@ -24,10 +24,10 @@ class ContainerUtil
     public static function wrapCallback($callback, Container $container)
     {
         if (is_string($callback)) {
-            $callback = function () use ($container, $callback) {
+            $callback = function (&...$args) use ($container, $callback) {
                 $callback = $container->make($callback);
 
-                return call_user_func_array($callback, func_get_args());
+                return $callback(...$args);
             };
         }
 
