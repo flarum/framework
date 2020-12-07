@@ -14,6 +14,7 @@ import DiscussionControls from '../utils/DiscussionControls';
 import slidable from '../utils/slidable';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
+import DiscussionPage from './DiscussionPage';
 
 import { escapeRegExp } from 'lodash-es';
 /**
@@ -156,9 +157,7 @@ export default class DiscussionListItem extends Component {
    * @return {Boolean}
    */
   active() {
-    const idParam = m.route.param('id');
-
-    return idParam && idParam.split('-')[0] === this.attrs.discussion.id();
+    return app.current.matches(DiscussionPage, { discussion: this.attrs.discussion });
   }
 
   /**

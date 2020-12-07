@@ -54,7 +54,7 @@ class User
         $user = $apiDocument->data->attributes;
 
         $document->title = $user->displayName;
-        $document->canonicalUrl = $this->url->to('forum')->route('user', ['username' => $user->username]);
+        $document->canonicalUrl = $this->url->to('forum')->route('user', ['username' => $user->slug]);
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;
@@ -70,6 +70,7 @@ class User
      */
     protected function getApiDocument(FlarumUser $actor, array $params)
     {
+        $params['bySlug'] = true;
         $response = $this->api->send(ShowUserController::class, $actor, $params);
         $statusCode = $response->getStatusCode();
 
