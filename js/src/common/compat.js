@@ -21,6 +21,7 @@ import stringToColor from './utils/stringToColor';
 import subclassOf from './utils/subclassOf';
 import SuperTextarea from './utils/SuperTextarea';
 import patchMithril from './utils/patchMithril';
+import proxifyCompat from './utils/proxifyCompat';
 import classList from './utils/classList';
 import extractText from './utils/extractText';
 import formatNumber from './utils/formatNumber';
@@ -94,6 +95,7 @@ export default {
   'utils/SuperTextarea': SuperTextarea,
   'utils/setRouteWithForcedRefresh': setRouteWithForcedRefresh,
   'utils/patchMithril': patchMithril,
+  'utils/proxifyCompat': proxifyCompat,
   'utils/classList': classList,
   'utils/extractText': extractText,
   'utils/formatNumber': formatNumber,

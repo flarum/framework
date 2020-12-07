@@ -9,7 +9,6 @@
 
 namespace Flarum\User;
 
-use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -95,18 +94,10 @@ class UserServiceProvider extends AbstractServiceProvider
         $events->subscribe(UserMetadataUpdater::class);
         $events->subscribe(UserPolicy::class);
 
-        $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
+        User::registerPreference('discloseOnline', 'boolval', true);
+        User::registerPreference('indexProfile', 'boolval', true);
+        User::registerPreference('locale');
 
         User::registerVisibilityScoper(new ScopeUserVisibility(), 'view');
-    }
-
-    /**
-     * @param ConfigureUserPreferences $event
-     */
-    public function configureUserPreferences(ConfigureUserPreferences $event)
-    {
-        $event->add('discloseOnline', 'boolval', true);
-        $event->add('indexProfile', 'boolval', true);
-        $event->add('locale');
     }
 }
