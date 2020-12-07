@@ -1,6 +1,6 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import Stream from 'flarum/utils/Stream';
+import Modal from 'flarum/common/components/Modal';
+import Button from 'flarum/common/components/Button';
+import Stream from 'flarum/common/utils/Stream';
 
 export default class NicknameModal extends Modal {
   oninit(vnode) {

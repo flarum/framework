@@ -1,11 +1,11 @@
-import { extend } from 'flarum/extend';
-import Button from 'flarum/components/Button';
-import EditUserModal from 'flarum/components/EditUserModal';
-import SettingsPage from 'flarum/components/SettingsPage';
-import Model from 'flarum/Model';
-import User from 'flarum/models/User';
-import extractText from 'flarum/utils/extractText';
-import Stream from 'flarum/utils/Stream';
+import { extend } from 'flarum/common/extend';
+import Button from 'flarum/common/components/Button';
+import EditUserModal from 'flarum/forum/components/EditUserModal';
+import SettingsPage from 'flarum/forum/components/SettingsPage';
+import Model from 'flarum/common/Model';
+import User from 'flarum/common/models/User';
+import extractText from 'flarum/common/utils/extractText';
+import Stream from 'flarum/common/utils/Stream';
 import NickNameModal from './components/NicknameModal';
 
 app.initializers.add('flarum/nicknames', () => {
