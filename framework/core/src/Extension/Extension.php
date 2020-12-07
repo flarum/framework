@@ -347,6 +347,49 @@ class Extension implements Arrayable
     }
 
     /**
+     * Compile a list of links for this extension.
+     */
+    public function getLinks()
+    {
+        $links = [];
+
+        if (($sourceUrl = $this->composerJsonAttribute('source.url')) || ($sourceUrl = $this->composerJsonAttribute('support.source'))) {
+            $links['source'] = $sourceUrl;
+        }
+
+        if (($discussUrl = $this->composerJsonAttribute('support.forum'))) {
+            $links['discuss'] = $discussUrl;
+        }
+
+        if (($documentationUrl = $this->composerJsonAttribute('support.docs'))) {
+            $links['documentation'] = $documentationUrl;
+        }
+
+        if (($websiteUrl = $this->composerJsonAttribute('homepage'))) {
+            $links['website'] = $websiteUrl;
+        }
+
+        if (($supportEmail = $this->composerJsonAttribute('support.email'))) {
+            $links['support'] = "mailto:$supportEmail";
+        }
+
+        if (($funding = $this->composerJsonAttribute('funding')) && count($funding)) {
+            $links['donate'] = $funding[0]['url'];
+        }
+
+        $links['authors'] = [];
+
+        foreach ((array) $this->composerJsonAttribute('authors') as $author) {
+            $links['authors'][] = [
+                'name' => Arr::get($author, 'name'),
+                'link' => Arr::get($author, 'homepage') ?? (Arr::get($author, 'email') ? 'mailto:'.Arr::get($author, 'email') : ''),
+            ];
+        }
+
+        return array_merge($links, $this->composerJsonAttribute('flarum-extension.links') ?? []);
+    }
+
+    /**
      * Tests whether the extension has assets.
      *
      * @return bool
@@ -413,6 +456,7 @@ class Extension implements Arrayable
             'hasAssets'              => $this->hasAssets(),
             'hasMigrations'          => $this->hasMigrations(),
             'extensionDependencyIds' => $this->getExtensionDependencyIds(),
+            'links'                  => $this->getLinks(),
         ], $this->composerJson);
     }
 }

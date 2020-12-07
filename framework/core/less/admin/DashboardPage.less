@@ -10,17 +10,21 @@
   border-radius: @border-radius;
   padding: 20px;
   margin-bottom: 20px;
+
+  .Button {
+    .Button--color(@control-color, @body-bg)
+  }
 }
 
 .StatusWidget {
   color: @muted-color;
 
-  > ul {
+  >ul {
     margin: 0;
     padding: 0;
     list-style-type: none;
 
-    > li {
+    >li {
       display: inline-block;
       margin-right: 30px;
       vertical-align: middle;
@@ -31,6 +35,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       &.item-tools {
         float: right;
         margin-right: 0;
