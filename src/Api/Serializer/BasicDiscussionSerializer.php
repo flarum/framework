@@ -10,6 +10,7 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Discussion\Discussion;
+use Flarum\Http\SlugManager;
 use InvalidArgumentException;
 
 class BasicDiscussionSerializer extends AbstractSerializer
@@ -18,6 +19,16 @@ class BasicDiscussionSerializer extends AbstractSerializer
      * {@inheritdoc}
      */
     protected $type = 'discussions';
+
+    /**
+     * @var SlugManager
+     */
+    protected $slugManager;
+
+    public function __construct(SlugManager $slugManager)
+    {
+        $this->slugManager = $slugManager;
+    }
 
     /**
      * {@inheritdoc}
@@ -35,7 +46,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
 
         return [
             'title' => $discussion->title,
-            'slug'  => $discussion->slug,
+            'slug' =>  $this->slugManager->forResource(Discussion::class)->toSlug($discussion),
         ];
     }
 
