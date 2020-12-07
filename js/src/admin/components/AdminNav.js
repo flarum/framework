@@ -21,7 +21,17 @@ export default class AdminNav extends Component {
     );
   }
 
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.scrollToActive();
+  }
+
   onupdate() {
+    this.scrollToActive();
+  }
+
+  scrollToActive() {
     const children = $('.Dropdown-menu').children('.active');
     const nav = $('#admin-navigation');
     const time = app.previous.type ? 250 : 0;
