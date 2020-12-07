@@ -15,8 +15,9 @@ export { app };
 // export { IndexPage, DicsussionList } from './components';
 
 // Export compat API
-import compat from './compat';
+import compatObj from './compat';
+import proxifyCompat from '../common/utils/proxifyCompat';
 
-compat.app = app;
+compatObj.app = app;
 
-export { compat };
+export const compat = proxifyCompat(compatObj, 'forum');
