@@ -21,6 +21,8 @@ import UsersSearchSource from './UsersSearchSource';
  * - state: SearchState instance.
  */
 export default class Search extends Component {
+  static MIN_SEARCH_LEN = 3;
+
   oninit(vnode) {
     super.oninit(vnode);
     this.state = this.attrs.state;
@@ -152,7 +154,7 @@ export default class Search extends Component {
         search.searchTimeout = setTimeout(() => {
           if (state.isCached(query)) return;
 
-          if (query.length >= 3) {
+          if (query.length >= Search.MIN_SEARCH_LEN) {
             search.sources.map((source) => {
               if (!source.search) return;
 
