@@ -26,6 +26,8 @@ export default class ExtensionData {
   /**
    * This function registers your settings with Flarum
    *
+   * It takes either a settings object or a callback.
+   *
    * @example
    *
    * .registerSetting({

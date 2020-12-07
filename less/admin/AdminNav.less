@@ -41,16 +41,13 @@
 }
 
 @media @tablet {
-  .item-search{
-    display: none;
-  }
-
-  .ExtensionItem, .item-search {
-    display: none !important;
-  }
-
-  .ExtensionListTitle {
-    display: none !important;
+  .AdminNav {
+    .item-search,
+    li[class^="item-category"],
+    li[class^="item-extension"],
+    .AdminLinkButton-description {
+      display: none !important;
+    }
   }
 }
 
@@ -80,7 +77,7 @@
 }
 
 
-@media @desktop, @desktop-hd {
+@media @desktop-up {
   .App-nav {
     position: absolute;
     top: @header-height;
@@ -107,36 +104,47 @@
         margin-bottom: 20px;
       }
 
+      .item-category-core {
+        > .ExtensionListTitle {
+          margin-top: 10px;
+        }
+      }
+
       > li {
         > a {
           padding: 10px 10px 10px 45px;
           display: block;
           text-decoration: none;
         }
+
         > a,
         > a:hover,
         &.active > a {
           color: @text-color;
         }
+
         > a:hover {
           background: @control-bg;
         }
+
         &.active > a {
-          background: @primary-color;
+          background: @control-color;
           font-weight: normal;
+          color: @body-bg;
 
           .Button-label,
           .Button-icon {
-            color: @body-bg;
             font-weight: bold;
           }
         }
+
         .Button-icon {
           float: left;
           font-size: 13px !important;
           margin-left: -25px !important;
           margin-top: 4px !important;
         }
+
         .Button-label {
           padding-left: 5px;
           font-size: 14px;
@@ -152,7 +160,7 @@
         .ExtensionListTitle {
           color: @muted-color;
           text-transform: uppercase;
-          margin: 25px 0 15px 15px;
+          margin: 25px 0 8px 15px;
         }
 
         .ExtensionIcon {
@@ -178,6 +186,11 @@
     }
   }
 
+}
+
+.AdminLinkButton-description {
+  white-space: normal;
+  padding-left: 5px;
 }
 
 .ExtensionListItem-Dot {
