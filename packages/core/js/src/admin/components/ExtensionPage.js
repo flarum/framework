@@ -12,7 +12,6 @@ import Stream from '../../common/utils/Stream';
 import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import saveSettings from '../utils/saveSettings';
-import ExtensionData from '../utils/ExtensionData';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
 
 export default class ExtensionPage extends Page {
@@ -30,6 +29,7 @@ export default class ExtensionPage extends Page {
       support: 'fas fa-life-ring',
       website: 'fas fa-link',
       donate: 'fas fa-donate',
+      source: 'fas fa-code',
     };
 
     // Backwards compatibility layer will be removed in
@@ -49,7 +49,7 @@ export default class ExtensionPage extends Page {
         {this.header()}
         {!this.isEnabled() ? (
           <div className="container">
-            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h2>
+            <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
           </div>
         ) : (
           <div className="ExtensionPage-body">{this.sections().toArray()}</div>
@@ -105,7 +105,7 @@ export default class ExtensionPage extends Page {
           {app.extensionData.extensionHasPermissions(this.extension.id) ? (
             ExtensionPermissionGrid.component({ extensionId: this.extension.id })
           ) : (
-            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h2>
+            <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h3>
           )}
         </div>
       </div>,
@@ -130,7 +130,7 @@ export default class ExtensionPage extends Page {
               <div className="Form-group">{this.submitButton()}</div>
             </div>
           ) : (
-            <h2 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h2>
+            <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>
           )}
         </div>
       </div>
@@ -170,17 +170,15 @@ export default class ExtensionPage extends Page {
   infoItems() {
     const items = new ItemList();
 
-    if (this.extension.authors) {
+    const links = this.extension.links;
+
+    if (links.authors.length) {
       let authors = [];
 
-      Object.keys(this.extension.authors).map((author, i) => {
-        const link = this.extension.authors[author].homepage
-          ? this.extension.authors[author].homepage
-          : 'mailto:' + this.extension.authors[author].email;
-
+      links.authors.map((author) => {
         authors.push(
-          <Link href={link} external={true} target="_blank">
-            {this.extension.authors[author].name}
+          <Link href={author.link} external={true} target="_blank">
+            {author.name}
           </Link>
         );
       });
@@ -188,33 +186,15 @@ export default class ExtensionPage extends Page {
       items.add('authors', [icon('fas fa-user'), <span>{punctuateSeries(authors)}</span>]);
     }
 
-    const infoData = {};
-
-    if (this.extension.source || this.extension.support) {
-      infoData.source = {
-        icon: 'fas fa-code',
-        href: this.extension.source ? this.extension.source.url : this.extension.support.source,
-      };
-    }
-
     Object.keys(this.infoFields).map((field) => {
-      const info = this.extension.extra['flarum-extension'].info;
-
-      if (info && info[field]) {
-        infoData[field] = {
-          icon: this.infoFields[field],
-          href: info[field],
-        };
+      if (links[field]) {
+        items.add(
+          field,
+          <LinkButton href={links[field]} icon={this.infoFields[field]} external={true} target="_blank">
+            {app.translator.trans(`core.admin.extension.info_links.${field}`)}
+          </LinkButton>
+        );
       }
-    });
-
-    Object.entries(infoData).map(([field, value]) => {
-      items.add(
-        field,
-        <LinkButton href={value.href} icon={value.icon} external={true} target="_blank">
-          {app.translator.trans(`core.admin.extension.info_links.${field}`)}
-        </LinkButton>
-      );
     });
 
     return items;
@@ -232,6 +212,9 @@ export default class ExtensionPage extends Page {
    * getSetting takes a settings object and turns it into a component.
    * Depending on the type of input, you can set the type to 'bool', 'select', or
    * any standard <input> type.
+   *
+   * Alternatively, you can pass a callback that will be executed in ExtensionPage's
+   * context to include custom JSX elements.
    *
    * @example
    *
@@ -258,6 +241,10 @@ export default class ExtensionPage extends Page {
    * @returns {JSX.Element}
    */
   buildSettingComponent(entry) {
+    if (typeof entry === 'function') {
+      return entry.call(this);
+    }
+
     const setting = entry.setting;
     const value = this.setting([setting])();
     if (['bool', 'checkbox', 'switch', 'boolean'].includes(entry.type)) {

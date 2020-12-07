@@ -15,33 +15,31 @@ export default class ExtensionsWidget extends DashboardWidget {
 
     return (
       <div className="ExtensionsWidget-list">
-        <div className="container">
-          {Object.keys(categories).map((category) => {
-            if (categorizedExtensions[category]) {
-              return (
-                <div className="ExtensionList-Category">
-                  <h4 className="ExtensionList-Label">{app.translator.trans(`core.admin.nav.categories.${category}`)}</h4>
-                  <ul className="ExtensionList">
-                    {categorizedExtensions[category].map((extension) => {
-                      return (
-                        <li className={'ExtensionListItem ' + (!isExtensionEnabled(extension.id) ? 'disabled' : '')}>
-                          <Link href={app.route('extension', { id: extension.id })}>
-                            <div className="ExtensionListItem-content">
-                              <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-                                {extension.icon ? icon(extension.icon.name) : ''}
-                              </span>
-                              <span className="ExtensionListItem-title">{extension.extra['flarum-extension'].title}</span>
-                            </div>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              );
-            }
-          })}
-        </div>
+        {Object.keys(categories).map((category) => {
+          if (categorizedExtensions[category]) {
+            return (
+              <div className="ExtensionList-Category">
+                <h4 className="ExtensionList-Label">{app.translator.trans(`core.admin.nav.categories.${category}`)}</h4>
+                <ul className="ExtensionList">
+                  {categorizedExtensions[category].map((extension) => {
+                    return (
+                      <li className={'ExtensionListItem ' + (!isExtensionEnabled(extension.id) ? 'disabled' : '')}>
+                        <Link href={app.route('extension', { id: extension.id })}>
+                          <div className="ExtensionListItem-content">
+                            <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
+                              {extension.icon ? icon(extension.icon.name) : ''}
+                            </span>
+                            <span className="ExtensionListItem-title">{extension.extra['flarum-extension'].title}</span>
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          }
+        })}
       </div>
     );
   }
