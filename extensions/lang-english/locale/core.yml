@@ -45,6 +45,8 @@ core:
       home_page_text: Choose the page which users will first see when they visit your forum.
       saved_message: Your changes were saved.
       show_language_selector_label: Show language selector
+      slug_driver_heading: "Slug Driver: {model}"
+      slug_driver_text: Select a driver to be used for slugging this model.
       submit_button: => core.ref.save_changes
       title: Basics
       welcome_banner_heading: Welcome Banner
