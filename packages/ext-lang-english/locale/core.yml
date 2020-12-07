@@ -127,8 +127,8 @@ core:
         source: Source
         support: Support
         website: Website
-      no_permissions: No Permissions
-      no_settings: No Settings
+      no_permissions: This extension has no permissions.
+      no_settings: This extension has no settings.
       open_modal: Open Settings
       permissions_title: Permissions
       saved_message: Your changes were saved.
@@ -151,6 +151,7 @@ core:
       basics_title: => core.admin.basics.description
       categories:
         authentication: Authentication
+        core: Core Configuration
         discussion: Discussion
         feature: Features
         formatting: Formatting
