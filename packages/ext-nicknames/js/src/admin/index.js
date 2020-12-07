@@ -1,6 +1,20 @@
+import Alert from 'flarum/common/components/Alert';
+import Link from 'flarum/common/components/Link';
+
 app.initializers.add('flarum/nicknames', () => {
   app.extensionData
     .for('flarum-nicknames')
+    .registerSetting(function () {
+      if (app.data.settings.display_name_driver === 'nickname') return;
+
+      return (
+        <div className="Form-group">
+          <Alert dismissible={false}>
+            {app.translator.trans('flarum-nicknames.admin.wrong_driver', {a: <Link href={app.route('basics')}></Link>})}
+          </Alert>
+        </div>
+      );
+    })
     .registerSetting({
       setting: 'flarum-nicknames.unique',
       type: 'boolean',
