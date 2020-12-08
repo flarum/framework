@@ -94,7 +94,7 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(Post::class))
-                ->scoper(function (User $user, Builder $query) {
+                ->scope(function (User $user, Builder $query) {
                     $query->whereRaw('1=0');
                 }, 'view')
         );
