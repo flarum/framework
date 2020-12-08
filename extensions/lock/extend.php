@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
+use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigurePostTypes;
 use Flarum\Extend;
 use Flarum\Lock\Access;
 use Flarum\Lock\Event\DiscussionWasLocked;
@@ -35,19 +35,26 @@ return [
     (new Extend\Notification())
         ->type(DiscussionLockedBlueprint::class, BasicDiscussionSerializer::class, ['alert']),
 
-    function (Dispatcher $events) {
-        $events->listen(ConfigureDiscussionGambits::class, function (ConfigureDiscussionGambits $event) {
+    (new Extend\ApiSerializer(DiscussionSerializer::class))
+        ->attribute('isLocked', function (DiscussionSerializer $serializer, Discussion $discussion) {
+            return (bool) $discussion->is_locked;
+        })
+        ->attribute('canLock', function (DiscussionSerializer $serializer, Discussion $discussion) {
+            return (bool) $serializer->getActor()->can('lock', $discussion);
+        }),
+
+    (new Extend\Post())
+        ->type(DiscussionLockedPost::class),
+
+    (new Extend\Event())
+        ->listen(ConfigureDiscussionGambits::class, function (ConfigureDiscussionGambits $event) {
             $event->gambits->add(LockedGambit::class);
-        });
-        $events->listen(Serializing::class, Listener\AddDiscussionLockedAttributes::class);
-        $events->listen(Saving::class, Listener\SaveLockedToDatabase::class);
+        })
+        ->listen(Saving::class, Listener\SaveLockedToDatabase::class)
+        ->listen(DiscussionWasLocked::class, Listener\CreatePostWhenDiscussionIsLocked::class)
+        ->listen(DiscussionWasUnlocked::class, Listener\CreatePostWhenDiscussionIsUnlocked::class),
 
-        $events->listen(ConfigurePostTypes::class, function (ConfigurePostTypes $event) {
-            $event->add(DiscussionLockedPost::class);
-        });
-        $events->listen(DiscussionWasLocked::class, Listener\CreatePostWhenDiscussionIsLocked::class);
-        $events->listen(DiscussionWasUnlocked::class, Listener\CreatePostWhenDiscussionIsUnlocked::class);
-
+    function (Dispatcher $events) {
         $events->subscribe(Access\DiscussionPolicy::class);
     },
 ];
