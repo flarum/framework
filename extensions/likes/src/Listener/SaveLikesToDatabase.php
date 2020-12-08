@@ -13,19 +13,9 @@ use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Saving;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveLikesToDatabase
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Saving::class, [$this, 'whenPostIsSaving']);
-        $events->listen(Deleted::class, [$this, 'whenPostIsDeleted']);
-    }
-
     /**
      * @param Saving $event
      */

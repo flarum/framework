@@ -16,8 +16,9 @@ use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Listener;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Post\Post;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Saving;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
@@ -55,9 +56,7 @@ return [
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
-        ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class),
-
-    function (Dispatcher $events) {
-        $events->subscribe(Listener\SaveLikesToDatabase::class);
-    },
+        ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
+        ->listen(Deleted::class, [Listener\SaveLikesToDatabase::class, 'whenPostIsDeleted'])
+        ->listen(Saving::class, [Listener\SaveLikesToDatabase::class, 'whenPostIsSaving']),
 ];
