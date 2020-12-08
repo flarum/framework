@@ -17,7 +17,7 @@ use Illuminate\Support\Arr;
 
 class Gate
 {
-    protected const EVALUATION_CRITERIA = [
+    protected const EVALUATION_CRITERIA_PRIORITY = [
         AbstractPolicy::FORCE_DENY => false,
         AbstractPolicy::FORCE_ALLOW => true,
         AbstractPolicy::DENY => false,
