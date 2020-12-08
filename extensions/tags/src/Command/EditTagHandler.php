@@ -10,7 +10,6 @@
 namespace Flarum\Tags\Command;
 
 use Flarum\Tags\Event\Saving;
-use Flarum\Tags\Event\TagWillBeSaved;
 use Flarum\Tags\TagRepository;
 use Flarum\Tags\TagValidator;
 use Illuminate\Support\Arr;
@@ -82,9 +81,6 @@ class EditTagHandler
         }
 
         event(new Saving($tag, $actor, $data));
-
-        // Deprecated BC layer, remove in beta 15.
-        event(new TagWillBeSaved($tag, $actor, $data));
 
         $this->validator->assertValid($tag->getDirty());
 
