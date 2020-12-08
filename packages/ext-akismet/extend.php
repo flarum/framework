@@ -8,15 +8,11 @@
  */
 
 use Flarum\Akismet\Listener;
+use Flarum\Akismet\Provider\AkismetProvider;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extend;
-use Flarum\Http\UrlGenerator;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Saving;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
-use TijsVerkoyen\Akismet\Akismet;
 
 return [
     (new Extend\Frontend('forum'))
@@ -27,21 +23,11 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
-    function (Dispatcher $events, Container $container) {
-        $container->bind(Akismet::class, function ($app) {
-            /** @var SettingsRepositoryInterface $settings */
-            $settings = $app->make(SettingsRepositoryInterface::class);
-            /** @var UrlGenerator $url */
-            $url = $app->make(UrlGenerator::class);
+    (new Extend\Event())
+        ->listen(Hidden::class, Listener\SubmitSpam::class)
+        ->listen(PostWasApproved::class, Listener\SubmitHam::class)
+        ->listen(Saving::class, Listener\ValidatePost::class),
 
-            return new Akismet(
-                $settings->get('flarum-akismet.api_key'),
-                $url->to('forum')->base()
-            );
-        });
-
-        $events->listen(Saving::class, Listener\ValidatePost::class);
-        $events->listen(PostWasApproved::class, Listener\SubmitHam::class);
-        $events->listen(Hidden::class, Listener\SubmitSpam::class);
-    },
+    (new Extend\ServiceProvider())
+        ->register(AkismetProvider::class),
 ];
