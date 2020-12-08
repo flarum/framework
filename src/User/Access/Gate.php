@@ -113,7 +113,7 @@ class Gate
     }
 
     /**
-     * Get all policies for a given model and ability
+     * Get all policies for a given model and ability.
      */
     protected function getPolicies(string $model)
     {
