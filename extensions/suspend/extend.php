@@ -8,9 +8,11 @@
  */
 
 use Flarum\Api\Serializer\BasicUserSerializer;
+use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Event\ConfigureUserGambits;
 use Flarum\Extend;
 use Flarum\Suspend\Access;
+use Flarum\Suspend\AddUserSuspendAttributes;
 use Flarum\Suspend\Event\Suspended;
 use Flarum\Suspend\Event\Unsuspended;
 use Flarum\Suspend\Listener;
@@ -33,6 +35,9 @@ return [
     (new Extend\Model(User::class))
         ->dateAttribute('suspended_until'),
 
+    (new Extend\ApiSerializer(UserSerializer::class))
+        ->mutate(AddUserSuspendAttributes::class),
+
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Notification())
@@ -40,7 +45,6 @@ return [
         ->type(UserUnsuspendedBlueprint::class, BasicUserSerializer::class, ['alert', 'email']),
 
     function (Dispatcher $events) {
-        $events->subscribe(Listener\AddUserSuspendAttributes::class);
         $events->subscribe(Listener\RevokeAccessFromSuspendedUsers::class);
 
         $events->listen(Saving::class, Listener\SaveSuspensionToDatabase::class);
