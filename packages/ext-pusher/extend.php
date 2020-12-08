@@ -11,9 +11,8 @@ use Flarum\Extend;
 use Flarum\Post\Event\Posted;
 use Flarum\Pusher\Api\Controller\AuthController;
 use Flarum\Pusher\Listener;
+use Flarum\Pusher\Provider\PusherProvider;
 use Flarum\Pusher\PusherNotificationDriver;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Container\Container;
 
 return [
     (new Extend\Frontend('forum'))
@@ -38,22 +37,6 @@ return [
     (new Extend\Event())
         ->listen(Posted::class, Listener\PushNewPost::class),
 
-    function (Container $container) {
-        $container->bind(Pusher::class, function ($app) {
-            $settings = $app->make(SettingsRepositoryInterface::class);
-
-            $options = [];
-
-            if ($cluster = $settings->get('flarum-pusher.app_cluster')) {
-                $options['cluster'] = $cluster;
-            }
-
-            return new Pusher(
-                $settings->get('flarum-pusher.app_key'),
-                $settings->get('flarum-pusher.app_secret'),
-                $settings->get('flarum-pusher.app_id'),
-                $options
-            );
-        });
-    },
+    (new Extend\ServiceProvider())
+        ->register(PusherProvider::class),
 ];
