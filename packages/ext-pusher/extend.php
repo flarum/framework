@@ -7,7 +7,6 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Api\Event\Serializing;
 use Flarum\Extend;
 use Flarum\Post\Event\Posted;
 use Flarum\Pusher\Api\Controller\AuthController;
@@ -15,7 +14,6 @@ use Flarum\Pusher\Listener;
 use Flarum\Pusher\PusherNotificationDriver;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
@@ -33,7 +31,14 @@ return [
     (new Extend\Notification())
         ->driver('pusher', PusherNotificationDriver::class),
 
-    function (Dispatcher $events, Container $container) {
+    (new Extend\Settings())
+        ->serializeToForum('pusherKey', 'flarum-pusher.app_key')
+        ->serializeToForum('pusherCluster', 'flarum-pusher.app_cluster'),
+
+    (new Extend\Event())
+        ->listen(Posted::class, Listener\PushNewPost::class),
+
+    function (Container $container) {
         $container->bind(Pusher::class, function ($app) {
             $settings = $app->make(SettingsRepositoryInterface::class);
 
@@ -50,8 +55,5 @@ return [
                 $options
             );
         });
-
-        $events->listen(Posted::class, Listener\PushNewPost::class);
-        $events->listen(Serializing::class, Listener\AddPusherApi::class);
     },
 ];
