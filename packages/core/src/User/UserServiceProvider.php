@@ -12,6 +12,7 @@ namespace Flarum\User;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Access\ScopeUserVisibility;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\DisplayName\UsernameDriver;
 use Flarum\User\Event\EmailChangeRequested;
@@ -96,5 +97,7 @@ class UserServiceProvider extends AbstractServiceProvider
         User::registerPreference('discloseOnline', 'boolval', true);
         User::registerPreference('indexProfile', 'boolval', true);
         User::registerPreference('locale');
+
+        User::registerVisibilityScoper(new ScopeUserVisibility(), 'view');
     }
 }
