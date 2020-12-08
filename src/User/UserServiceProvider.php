@@ -52,14 +52,6 @@ class UserServiceProvider extends AbstractServiceProvider
                 User::class => [Access\UserPolicy::class],
             ];
         });
-
-        $this->app->singleton('flarum.policies.compiled', function () {
-            return array_map(function ($modelPolicies) {
-                return array_map(function ($policyClass) {
-                    return $this->app->make($policyClass);
-                }, $modelPolicies);
-            }, $this->app->make('flarum.policies'));
-        });
     }
 
     protected function registerDisplayNameDrivers()
@@ -108,7 +100,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $events = $this->app->make('events');
 
         User::setHasher($this->app->make('hash'));
-        User::setGate($this->app->makeWith(Access\Gate::class, ['policies' => $this->app->make('flarum.policies.compiled')]));
+        User::setGate($this->app->makeWith(Access\Gate::class, ['policies' => $this->app->make('flarum.policies')]));
         User::setDisplayNameDriver($this->app->make('flarum.user.display_name.driver'));
 
         $events->listen(Saving::class, SelfDemotionGuard::class);

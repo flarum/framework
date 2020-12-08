@@ -12,6 +12,7 @@ namespace Flarum\User\Access;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\GetPermission;
 use Flarum\User\User;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
@@ -25,9 +26,19 @@ class Gate
     ];
 
     /**
+     * @var Container
+     */
+    protected $container;
+
+    /**
      * @var Dispatcher
      */
     protected $events;
+
+    /**
+     * @var array
+     */
+    protected $policyClasses;
 
     /**
      * @var array
@@ -37,10 +48,11 @@ class Gate
     /**
      * @param Dispatcher $events
      */
-    public function __construct(Dispatcher $events, array $policies)
+    public function __construct(Container $container, Dispatcher $events, array $policyClasses)
     {
+        $this->container = $container;
         $this->events = $events;
-        $this->policies = $policies;
+        $this->policyClasses = $policyClasses;
     }
 
     /**
@@ -60,17 +72,17 @@ class Gate
             $modelClasses = is_string($model) ? [$model] : array_merge(class_parents(($model)), [get_class($model)]);
 
             foreach ($modelClasses as $class) {
-                $appliedPolicies = array_merge($appliedPolicies, Arr::get($this->policies, $class, []));
+                $appliedPolicies = array_merge($appliedPolicies, Arr::get($this->getPolicies(), $class, []));
             }
         } else {
-            $appliedPolicies = Arr::get($this->policies, AbstractPolicy::GLOBAL);
+            $appliedPolicies = Arr::get($this->getPolicies(), AbstractPolicy::GLOBAL);
         }
 
         foreach ($appliedPolicies as $policy) {
             $results[] = $policy->checkAbility($actor, $ability, $model);
         }
 
-        foreach (static::EVALUATION_CRITERIA as $criteria => $decision) {
+        foreach (static::EVALUATION_CRITERIA_PRIORITY as $criteria => $decision) {
             if (in_array($criteria, $results, true)) {
                 return $decision;
             }
@@ -85,7 +97,7 @@ class Gate
             new GetPermission($actor, $ability, $model)
         );
 
-        if (! is_null($allowed)) {
+        if (!is_null($allowed)) {
             return $allowed;
         }
         // END OLD DEPRECATED SYSTEM
@@ -98,5 +110,18 @@ class Gate
         }
 
         return false;
+    }
+
+    protected function getPolicies()
+    {
+        if (is_null($this->policies)) {
+            $this->policies = array_map(function ($modelPolicies) {
+                return array_map(function ($policyClass) {
+                    return $this->container->make($policyClass);
+                }, $modelPolicies);
+            }, $this->policyClasses);
+        }
+
+        return $this->policies;
     }
 }
