@@ -15,9 +15,9 @@ use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Listener;
 use Flarum\Likes\Notification\PostLikedBlueprint;
-use Flarum\Post\Post;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Saving;
+use Flarum\Post\Post;
 use Flarum\User\User;
 
 return [
