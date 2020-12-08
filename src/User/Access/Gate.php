@@ -97,7 +97,7 @@ class Gate
             new GetPermission($actor, $ability, $model)
         );
 
-        if (!is_null($allowed)) {
+        if (! is_null($allowed)) {
             return $allowed;
         }
         // END OLD DEPRECATED SYSTEM
