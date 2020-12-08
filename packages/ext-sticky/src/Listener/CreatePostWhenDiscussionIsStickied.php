@@ -14,25 +14,15 @@ use Flarum\Sticky\Event\DiscussionWasStickied;
 use Flarum\Sticky\Event\DiscussionWasUnstickied;
 use Flarum\Sticky\Post\DiscussionStickiedPost;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class CreatePostWhenDiscussionIsStickied
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(DiscussionWasStickied::class, [$this, 'whenDiscussionWasStickied']);
-        $events->listen(DiscussionWasUnstickied::class, [$this, 'whenDiscussionWasUnstickied']);
-    }
-
     /**
      * @param DiscussionWasStickied $event
      */
     public function whenDiscussionWasStickied(DiscussionWasStickied $event)
     {
-        $this->stickyChanged($event->discussion, $event->user, true);
+        static::stickyChanged($event->discussion, $event->user, true);
     }
 
     /**
@@ -40,7 +30,7 @@ class CreatePostWhenDiscussionIsStickied
      */
     public function whenDiscussionWasUnstickied(DiscussionWasUnstickied $event)
     {
-        $this->stickyChanged($event->discussion, $event->user, false);
+        static::stickyChanged($event->discussion, $event->user, false);
     }
 
     /**
@@ -48,7 +38,7 @@ class CreatePostWhenDiscussionIsStickied
      * @param User $user
      * @param bool $isSticky
      */
-    protected function stickyChanged(Discussion $discussion, User $user, $isSticky)
+    protected static function stickyChanged(Discussion $discussion, User $user, $isSticky)
     {
         $post = DiscussionStickiedPost::reply(
             $discussion->id,
