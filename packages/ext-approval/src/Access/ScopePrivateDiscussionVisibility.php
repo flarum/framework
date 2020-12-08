@@ -9,7 +9,6 @@
 
 namespace Flarum\Approval\Access;
 
-use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -26,7 +25,7 @@ class ScopePrivateDiscussionVisibility
         // approve posts.
         $query->where('discussions.is_approved', 0);
 
-        if (!$actor->hasPermission('discussion.approvePosts')) {
+        if (! $actor->hasPermission('discussion.approvePosts')) {
             $query->where(function (Builder $query) use ($actor) {
                 $query->where('discussions.user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
