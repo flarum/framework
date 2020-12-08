@@ -54,6 +54,7 @@ abstract class AbstractPolicy
 
     /**
      * @param ScopeModelVisibility $event
+     * @deprecated beta 15, remove beta 16
      */
     public function scopeModelVisibility(ScopeModelVisibility $event)
     {

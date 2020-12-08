@@ -12,6 +12,7 @@ namespace Flarum\Post;
 use DateTime;
 use Flarum\Event\ConfigurePostTypes;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Post\Access\ScopePostVisibility;
 
 class PostServiceProvider extends AbstractServiceProvider
 {
@@ -52,6 +53,8 @@ class PostServiceProvider extends AbstractServiceProvider
 
         $events = $this->app->make('events');
         $events->subscribe(PostPolicy::class);
+
+        Post::registerVisibilityScoper(new ScopePostVisibility(), 'view');
     }
 
     protected function setPostTypes()
