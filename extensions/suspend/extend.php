@@ -56,7 +56,6 @@ return [
     (new Extend\User())
         ->permissionGroups(RevokeAccessFromSuspendedUsers::class),
 
-
     function (Dispatcher $events) {
         $events->listen(ConfigureUserGambits::class, function (ConfigureUserGambits $event) {
             $event->gambits->add(SuspendedGambit::class);
