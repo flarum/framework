@@ -75,7 +75,7 @@ class Gate
                 $appliedPolicies = array_merge($appliedPolicies, $this->getPolicies($class));
             }
         } else {
-            $appliedPolicies = Arr::get($this->getPolicies($model), AbstractPolicy::GLOBAL);
+            $appliedPolicies = $this->getPolicies(AbstractPolicy::GLOBAL);
         }
 
         foreach ($appliedPolicies as $policy) {
@@ -119,10 +119,10 @@ class Gate
     {
         $compiledPolicies = Arr::get($this->policies, $model);
         if (is_null($compiledPolicies)) {
-            $rawPolicies = Arr::get($this->policies, $model, []);
+            $policyClasses = Arr::get($this->policyClasses, $model, []);
             $compiledPolicies = array_map(function ($policyClass) {
                 return $this->container->make($policyClass);
-            }, $rawPolicies);
+            }, $policyClasses);
             Arr::set($this->policies, $model, $compiledPolicies);
         }
 
