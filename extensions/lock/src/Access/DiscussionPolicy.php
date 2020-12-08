@@ -10,16 +10,11 @@
 namespace Flarum\Lock\Access;
 
 use Flarum\Discussion\Discussion;
-use Flarum\User\AbstractPolicy;
+use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
 
 class DiscussionPolicy extends AbstractPolicy
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $model = Discussion::class;
-
     /**
      * @param User $actor
      * @param Discussion $discussion
@@ -28,7 +23,7 @@ class DiscussionPolicy extends AbstractPolicy
     public function reply(User $actor, Discussion $discussion)
     {
         if ($discussion->is_locked && $actor->cannot('lock', $discussion)) {
-            return false;
+            return $this->deny();
         }
     }
 }
