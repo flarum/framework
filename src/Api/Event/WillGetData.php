@@ -12,6 +12,9 @@ namespace Flarum\Api\Event;
 use Flarum\Api\Controller\AbstractSerializeController;
 use Illuminate\Support\Arr;
 
+/**
+ * @deprecated in beta 15, removed in beta 16
+ */
 class WillGetData
 {
     /**

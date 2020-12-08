@@ -45,15 +45,6 @@ class ApiSerializerTest extends TestCase
         ]);
     }
 
-    protected function prepSettingsDb()
-    {
-        $this->prepareDatabase([
-            'settings' => [
-                ['key' => 'customPrefix.customSetting', 'value' => 'customValue']
-            ],
-        ]);
-    }
-
     /**
      * @test
      */
