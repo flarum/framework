@@ -9,6 +9,7 @@
 
 namespace Flarum\Discussion;
 
+use Flarum\Discussion\Access\ScopeDiscussionVisibility;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Foundation\AbstractServiceProvider;
 
@@ -28,5 +29,7 @@ class DiscussionServiceProvider extends AbstractServiceProvider
             Renamed::class,
             DiscussionRenamedLogger::class
         );
+
+        Discussion::registerVisibilityScoper(new ScopeDiscussionVisibility(), 'view');
     }
 }

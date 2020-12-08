@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * The `ScopeModelVisibility` event allows constraints to be applied in a query
  * to fetch a model, effectively scoping that model's visibility to the user.
+ *
+ * @deprecated beta 15, remove beta 16
  */
 class ScopeModelVisibility
 {
