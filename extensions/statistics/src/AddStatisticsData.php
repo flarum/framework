@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Statistics\Listener;
+namespace Flarum\Statistics;
 
 use DateTime;
 use DateTimeZone;
