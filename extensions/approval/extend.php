@@ -10,10 +10,14 @@
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Approval\Access;
+use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Approval\Listener;
 use Flarum\Discussion\Discussion;
+use Flarum\Event\GetModelIsPrivate;
 use Flarum\Extend;
+use Flarum\Post\Event\Saving;
 use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
@@ -46,12 +50,21 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
-    function (Dispatcher $events) {
-        $events->subscribe(Listener\ApproveContent::class);
-        $events->subscribe(Listener\UnapproveNewContent::class);
+    (new Extend\Event())
+        ->listen(Saving::class, [Listener\ApproveContent::class, 'approvePost'])
+        ->listen(Saving::class, [Listener\UnapproveNewContent::class, 'unapproveNewPosts'])
+        ->listen(PostWasApproved::class, [Listener\ApproveContent::class, 'approveDiscussion']),
 
-        $events->subscribe(Access\TagPolicy::class);
-        $events->subscribe(Access\DiscussionPolicy::class);
-        $events->subscribe(Access\PostPolicy::class);
+    (new Extend\Policy())
+        ->modelPolicy(Tag::class, Access\TagPolicy::class),
+
+    (new Extend\ModelVisibility(Post::class))
+        ->scope(Access\ScopePrivatePostVisibility::class, 'viewPrivate'),
+
+    (new Extend\ModelVisibility(Discussion::class))
+        ->scope(Access\ScopePrivateDiscussionVisibility::class, 'viewPrivate'),
+
+    function (Dispatcher $events) {
+        $events->listen(GetModelIsPrivate::class, [Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']);
     },
 ];

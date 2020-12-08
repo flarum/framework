@@ -10,16 +10,11 @@
 namespace Flarum\Approval\Access;
 
 use Flarum\Tags\Tag;
-use Flarum\User\AbstractPolicy;
+use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
 
 class TagPolicy extends AbstractPolicy
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $model = Tag::class;
-
     /**
      * @param User $actor
      * @param Tag $tag
@@ -34,7 +29,7 @@ class TagPolicy extends AbstractPolicy
         }
 
         if (in_array($tag->id, $disallowedTags)) {
-            return false;
+            return $this->deny();
         }
     }
 }

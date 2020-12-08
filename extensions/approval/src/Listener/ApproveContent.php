@@ -11,19 +11,9 @@ namespace Flarum\Approval\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Post\Event\Saving;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class ApproveContent
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Saving::class, [$this, 'approvePost']);
-        $events->listen(PostWasApproved::class, [$this, 'approveDiscussion']);
-    }
-
     /**
      * @param Saving $event
      */
