@@ -10,13 +10,13 @@
  */
 
 use Flarum\Extend;
-use Flarum\Statistics\Listener;
+use Flarum\Statistics\AddStatisticsData;
 
 return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/less/admin.less')
-        ->content(Listener\AddStatisticsData::class),
+        ->content(AddStatisticsData::class),
 
     new Extend\Locales(__DIR__.'/locale'),
 ];
