@@ -13,7 +13,6 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Event\Searching;
 use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Extend;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
@@ -22,6 +21,7 @@ use Flarum\Post\Event\Restored;
 use Flarum\Subscriptions\Gambit\SubscriptionGambit;
 use Flarum\Subscriptions\Listener;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
+use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
@@ -44,18 +44,21 @@ return [
             }
         }),
 
+    (new Extend\User())
+        ->registerPreference('followAfterReply', 'boolval', false),
+
     (new Extend\Event())
         ->listen(Saving::class, Listener\SaveSubscriptionToDatabase::class)
-        ->listen(ConfigureDiscussionGambits::class, function (ConfigureDiscussionGambits $event) {
-            $event->gambits->add(SubscriptionGambit::class);
-        })
-        ->listen(Searching::class, Listener\FilterDiscussionListBySubscription::class)
         ->listen(Posted::class, Listener\SendNotificationWhenReplyIsPosted::class)
         ->listen(Hidden::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
         ->listen(Restored::class, Listener\RestoreNotificationWhenPostIsRestored::class)
         ->listen(Deleted::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
-        ->listen(ConfigureUserPreferences::class, function (ConfigureUserPreferences $event) {
-            $event->add('followAfterReply', 'boolval', false);
-        })
         ->listen(Posted::class, Listener\FollowAfterReply::class),
+
+    function (Dispatcher $events) {
+        $events->listen(ConfigureDiscussionGambits::class, function (ConfigureDiscussionGambits $event) {
+            $event->gambits->add(SubscriptionGambit::class);
+        });
+        $events->listen(Searching::class, Listener\FilterDiscussionListBySubscription::class);
+    }
 ];
