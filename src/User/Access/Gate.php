@@ -72,10 +72,10 @@ class Gate
             $modelClasses = is_string($model) ? [$model] : array_merge(class_parents(($model)), [get_class($model)]);
 
             foreach ($modelClasses as $class) {
-                $appliedPolicies = array_merge($appliedPolicies, Arr::get($this->getPolicies(), $class, []));
+                $appliedPolicies = array_merge($appliedPolicies, $this->getPolicies($class));
             }
         } else {
-            $appliedPolicies = Arr::get($this->getPolicies(), AbstractPolicy::GLOBAL);
+            $appliedPolicies = Arr::get($this->getPolicies($model), AbstractPolicy::GLOBAL);
         }
 
         foreach ($appliedPolicies as $policy) {
@@ -112,16 +112,20 @@ class Gate
         return false;
     }
 
-    protected function getPolicies()
+    /**
+     * Get all policies for a given model and ability
+     */
+    protected function getPolicies(string $model)
     {
-        if (is_null($this->policies)) {
-            $this->policies = array_map(function ($modelPolicies) {
-                return array_map(function ($policyClass) {
-                    return $this->container->make($policyClass);
-                }, $modelPolicies);
-            }, $this->policyClasses);
+        $compiledPolicies = Arr::get($this->policies, $model);
+        if (is_null($compiledPolicies)) {
+            $rawPolicies = Arr::get($this->policies, $model, []);
+            $compiledPolicies = array_map(function ($policyClass) {
+                return $this->container->make($policyClass);
+            }, $rawPolicies);
+            Arr::set($this->policies, $model, $compiledPolicies);
         }
 
-        return $this->policies;
+        return $compiledPolicies;
     }
 }
