@@ -73,7 +73,7 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(CommentPost::class))
-                ->scoper(function (User $user, Builder $query) {
+                ->scope(function (User $user, Builder $query) {
                     $query->whereRaw('1=0');
                 }, 'view')
         );
@@ -115,11 +115,11 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(CommentPost::class))
-                ->scoper(function (User $user, Builder $query) {
+                ->scope(function (User $user, Builder $query) {
                     $query->orWhereRaw('1=1');
                 }, 'view'),
             (new Extend\ModelVisibility(Post::class))
-                ->scoper(function (User $user, Builder $query) {
+                ->scope(function (User $user, Builder $query) {
                     $query->whereRaw('1=0');
                 }, 'view')
         );
@@ -140,11 +140,11 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(Discussion::class))
-                ->scoper(function (User $user, Builder $query) {
+                ->scope(function (User $user, Builder $query) {
                     $query->whereRaw('1=1');
                 }, 'viewPrivate'),
             (new Extend\ModelVisibility(Post::class))
-                ->scoper(function (User $user, Builder $query) {
+                ->scope(function (User $user, Builder $query) {
                     $query->whereRaw('1=1');
                 }, 'viewPrivate')
         );
@@ -161,17 +161,17 @@ class ModelVisibilityTest extends TestCase
     /**
      * @test
      */
-    public function default_scoper_works()
+    public function universal_scoper_works()
     {
         $this->extend(
             (new Extend\ModelVisibility(Discussion::class))
-                ->defaultScoper(function (User $user, Builder $query, string $ability) {
+                ->scopeAll(function (User $user, Builder $query, string $ability) {
                     if ($ability == 'viewPrivate') {
                         $query->whereRaw('1=1');
                     }
                 }),
             (new Extend\ModelVisibility(Post::class))
-                ->defaultScoper(function (User $user, Builder $query, string $ability) {
+                ->scopeAll(function (User $user, Builder $query, string $ability) {
                     if ($ability == 'viewPrivate') {
                         $query->whereRaw('1=1');
                     }

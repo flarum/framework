@@ -26,14 +26,14 @@ use Illuminate\Contracts\Container\Container;
  * can request scoping with other abilities, which provides an entrypoint for extensions
  * to modify some restriction to a query.
  *
- * The query will be run through any "default" scopers registered for the model being queried,
- * which accept the ability name as an additional argument.
+ * Scopers registered via `scopeAll` will apply to all queries under a model, regardless
+ * of the ability, and will accept the ability name as an additional argument.
  */
 class ModelVisibility implements ExtenderInterface
 {
     private $modelClass;
     private $scopers = [];
-    private $defaultScopers = [];
+    private $allScopers = [];
 
     /**
      * @param string $modelClass The ::class attribute of the model you are applying scopers to.
@@ -61,7 +61,7 @@ class ModelVisibility implements ExtenderInterface
      *
      * @return self
      */
-    public function scoper($callback, $ability = 'view')
+    public function scope($callback, $ability = 'view')
     {
         $this->scopers[$ability][] = $callback;
 
@@ -69,7 +69,7 @@ class ModelVisibility implements ExtenderInterface
     }
 
     /**
-     * Add a default scoper.
+     * Add a scoper scoper that will always run for this model, regardless of requested ability.
      *
      * @param callable|string $callback
      *
@@ -80,9 +80,9 @@ class ModelVisibility implements ExtenderInterface
      *
      * @return self
      */
-    public function defaultScoper($callback)
+    public function scopeAll($callback)
     {
-        $this->defaultScopers[] = $callback;
+        $this->allScopers[] = $callback;
 
         return $this;
     }
@@ -95,7 +95,7 @@ class ModelVisibility implements ExtenderInterface
             }
         }
 
-        foreach ($this->defaultScopers as $scoper) {
+        foreach ($this->allScopers as $scoper) {
             $this->modelClass::registerVisibilityScoper(ContainerUtil::wrapCallback($scoper, $container));
         }
     }
