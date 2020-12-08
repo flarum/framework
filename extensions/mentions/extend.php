@@ -12,9 +12,9 @@ use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\ConfigurePostsQuery;
 use Flarum\Extend;
-use Flarum\Formatter\Event\Rendering;
 use Flarum\Mentions\ConfigureMentions;
 use Flarum\Mentions\FilterVisiblePosts;
+use Flarum\Mentions\Formatter;
 use Flarum\Mentions\Listener;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
@@ -25,7 +25,6 @@ use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
@@ -77,8 +76,7 @@ return [
         ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
         ->listen(ConfigurePostsQuery::class, Listener\AddFilterByMentions::class),
 
-    function (Dispatcher $events) {
-        $events->listen(Rendering::class, Listener\FormatPostMentions::class);
-        $events->listen(Rendering::class, Listener\FormatUserMentions::class);
-    },
+    (new Extend\Formatter())
+        ->render(Formatter\FormatPostMentions::class)
+        ->render(Formatter\FormatUserMentions::class),
 ];
