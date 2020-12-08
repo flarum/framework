@@ -12,22 +12,13 @@ namespace Flarum\Sticky\Listener;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Sticky\Event\DiscussionWasStickied;
 use Flarum\Sticky\Event\DiscussionWasUnstickied;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveStickyToDatabase
 {
     /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(Saving::class, [$this, 'whenSaving']);
-    }
-
-    /**
      * @param Saving $event
      */
-    public function whenSaving(Saving $event)
+    public function handle(Saving $event)
     {
         if (isset($event->data['attributes']['isSticky'])) {
             $isSticky = (bool) $event->data['attributes']['isSticky'];
