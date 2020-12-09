@@ -51,9 +51,6 @@ class PostServiceProvider extends AbstractServiceProvider
 
         $this->setPostTypes();
 
-        $events = $this->app->make('events');
-        $events->subscribe(PostPolicy::class);
-
         Post::registerVisibilityScoper(new ScopePostVisibility(), 'view');
     }
 

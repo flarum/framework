@@ -7,18 +7,13 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Group;
+namespace Flarum\Group\Access;
 
-use Flarum\User\AbstractPolicy;
+use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
 
 class GroupPolicy extends AbstractPolicy
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $model = Group::class;
-
     /**
      * @param User $actor
      * @param string $ability
@@ -27,7 +22,7 @@ class GroupPolicy extends AbstractPolicy
     public function can(User $actor, $ability)
     {
         if ($actor->hasPermission('group.'.$ability)) {
-            return true;
+            return $this->allow();
         }
     }
 }

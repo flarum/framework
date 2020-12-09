@@ -19,9 +19,6 @@ class GroupServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $events = $this->app->make('events');
-        $events->subscribe(GroupPolicy::class);
-
         Group::registerVisibilityScoper(new ScopeGroupVisibility(), 'view');
     }
 }

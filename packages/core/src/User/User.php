@@ -624,7 +624,7 @@ class User extends AbstractModel
      * @param mixed $arguments
      * @throws PermissionDeniedException
      */
-    public function assertCan($ability, $arguments = [])
+    public function assertCan($ability, $arguments = null)
     {
         $this->assertPermission(
             $this->can($ability, $arguments)
@@ -762,7 +762,7 @@ class User extends AbstractModel
      * @param array|mixed $arguments
      * @return bool
      */
-    public function can($ability, $arguments = [])
+    public function can($ability, $arguments = null)
     {
         return static::$gate->allows($this, $ability, $arguments);
     }
@@ -772,7 +772,7 @@ class User extends AbstractModel
      * @param array|mixed $arguments
      * @return bool
      */
-    public function cannot($ability, $arguments = [])
+    public function cannot($ability, $arguments = null)
     {
         return ! $this->can($ability, $arguments);
     }
