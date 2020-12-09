@@ -23,7 +23,6 @@ class DiscussionServiceProvider extends AbstractServiceProvider
         $events = $this->app->make('events');
 
         $events->subscribe(DiscussionMetadataUpdater::class);
-        $events->subscribe(DiscussionPolicy::class);
 
         $events->listen(
             Renamed::class,
