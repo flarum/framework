@@ -6,8 +6,16 @@
     "license": "MIT",
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/pusher"
+        "source": "https://github.com/flarum/pusher",
+        "forum": "https://discuss.flarum.org"
     },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
     "require": {
         "flarum/core": "^0.1.0-beta.14",
         "pusher/pusher-php-server": "^2.2"
@@ -24,11 +32,6 @@
         "flarum-extension": {
             "title": "Pusher",
             "category": "feature",
-            "info": {
-                "donate": "https://flarum.org/donate/",
-                "website": "https://flarum.org",
-                "support": "https://discuss.flarum.org"
-            },
             "icon": {
                 "image": "icon.png",
                 "backgroundSize": "46% 63%",
