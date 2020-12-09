@@ -9,24 +9,17 @@
 
 namespace Flarum\Tags\Access;
 
-use Flarum\Flags\Flag;
 use Flarum\Tags\Tag;
-use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class FlagPolicy extends AbstractPolicy
+class ScopeFlagVisibility
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $model = Flag::class;
-
     /**
      * @param User $actor
      * @param Builder $query
      */
-    public function find(User $actor, Builder $query)
+    public function __invoke(User $actor, Builder $query)
     {
         $query
             ->select('flags.*')

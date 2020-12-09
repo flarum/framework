@@ -190,7 +190,7 @@ class Tag extends AbstractModel
         Permission::where('permission', 'like', "tag{$this->id}.%")->delete();
     }
 
-    protected static function getIdsWherePermission(User $user, string $permission, bool $condition = true): array
+    protected static function getIdsWherePermission(User $user, string $permission, bool $condition = true, bool $includePrimary, bool $includeSecondary): array
     {
         static $tags;
 
@@ -212,7 +212,9 @@ class Tag extends AbstractModel
                 $can = $canForTag($tag->parent);
             }
 
-            if ($can === $condition) {
+            $isPrimary = $tag->position === null && ! $tag->parent;
+
+            if ($can === $condition && ($includePrimary && $isPrimary || $includeSecondary && ! $isPrimary)) {
                 $ids[] = $tag->id;
             }
         }
@@ -220,13 +222,13 @@ class Tag extends AbstractModel
         return $ids;
     }
 
-    public static function getIdsWhereCan(User $user, string $permission): array
+    public static function getIdsWhereCan(User $user, string $permission, bool $includePrimary = true, bool $includeSecondary = true): array
     {
-        return static::getIdsWherePermission($user, $permission, true);
+        return static::getIdsWherePermission($user, $permission, true, $includePrimary, $includeSecondary);
     }
 
-    public static function getIdsWhereCannot(User $user, string $permission): array
+    public static function getIdsWhereCannot(User $user, string $permission, bool $includePrimary = true, bool $includeSecondary = true): array
     {
-        return static::getIdsWherePermission($user, $permission, false);
+        return static::getIdsWherePermission($user, $permission, false, $includePrimary, $includeSecondary);
     }
 }
