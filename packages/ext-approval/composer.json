@@ -5,9 +5,17 @@
     "keywords": ["moderation"],
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/approval"
+      "issues": "https://github.com/flarum/core/issues",
+      "source": "https://github.com/flarum/approval",
+      "forum": "https://discuss.flarum.org"
     },
+    "homepage": "https://flarum.org",
+    "funding": [
+      {
+        "type": "website",
+        "url": "https://flarum.org/donate/"
+      }
+    ],
     "require": {
         "flarum/core": "^0.1.0-beta.14",
         "flarum/flags": "^0.1.0-beta.14"
@@ -24,11 +32,6 @@
         "flarum-extension": {
             "title": "Approval",
             "category": "moderation",
-            "info": {
-                "donate": "https://flarum.org/donate/",
-                "website": "https://flarum.org",
-                "support": "https://discuss.flarum.org"
-            },
             "icon": {
                 "name": "fas fa-check",
                 "backgroundColor": "#ABDC88",
