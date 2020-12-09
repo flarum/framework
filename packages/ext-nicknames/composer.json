@@ -6,8 +6,16 @@
     "license": "MIT",
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/nicknames"
+        "source": "https://github.com/flarum/nicknames",
+        "forum": "https://discuss.flarum.org"
     },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
     "require": {
         "flarum/core": "^0.1.0-beta.15"
     },
