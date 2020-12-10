@@ -10,9 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\UrlGenerator;
-use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\EmailToken;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;

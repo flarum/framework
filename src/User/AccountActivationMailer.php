@@ -10,7 +10,6 @@
 namespace Flarum\User;
 
 use Flarum\Http\UrlGenerator;
-use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Queue\Queue;
