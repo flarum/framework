@@ -24,6 +24,8 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class SendConfirmationEmailController implements RequestHandlerInterface
 {
+    use \Flarum\User\AccountActivationMailerTrait;
+
     /**
      * @var SettingsRepositoryInterface
      */
@@ -72,19 +74,10 @@ class SendConfirmationEmailController implements RequestHandlerInterface
             throw new PermissionDeniedException;
         }
 
-        $token = EmailToken::generate($actor->email, $actor->id);
-        $token->save();
+        $token = $this->generateToken($actor, $actor->email);
+        $data = $this->getEmailData($actor, $actor->email, $token);
 
-        $data = [
-            '{username}' => $actor->username,
-            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
-            '{forum}' => $this->settings->get('forum_title')
-        ];
-
-        $body = $this->translator->trans('core.email.activate_account.body', $data);
-        $subject = $this->translator->trans('core.email.activate_account.subject');
-
-        $this->queue->push(new SendRawEmailJob($actor->email, $subject, $body));
+        $this->sendConfirmationEmail($actor, $data);
 
         return new EmptyResponse;
     }
