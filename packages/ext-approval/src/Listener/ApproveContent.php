@@ -17,7 +17,7 @@ class ApproveContent
     /**
      * @param Saving $event
      */
-    public function approvePost(Saving $event)
+    public static function approvePost(Saving $event)
     {
         $attributes = $event->data['attributes'];
         $post = $event->post;
@@ -40,7 +40,7 @@ class ApproveContent
     /**
      * @param PostWasApproved $event
      */
-    public function approveDiscussion(PostWasApproved $event)
+    public static function approveDiscussion(PostWasApproved $event)
     {
         $post = $event->post;
         $discussion = $post->discussion;
