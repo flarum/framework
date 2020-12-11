@@ -19,7 +19,7 @@ class SaveLikesToDatabase
     /**
      * @param Saving $event
      */
-    public function whenPostIsSaving(Saving $event)
+    public static function whenPostIsSaving(Saving $event)
     {
         $post = $event->post;
         $data = $event->data;
@@ -47,7 +47,7 @@ class SaveLikesToDatabase
     /**
      * @param Deleted $event
      */
-    public function whenPostIsDeleted(Deleted $event)
+    public static function whenPostIsDeleted(Deleted $event)
     {
         $event->post->likes()->detach();
     }
