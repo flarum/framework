@@ -20,7 +20,7 @@ class CreatePostWhenDiscussionIsStickied
     /**
      * @param DiscussionWasStickied $event
      */
-    public function whenDiscussionWasStickied(DiscussionWasStickied $event)
+    public static function whenDiscussionWasStickied(DiscussionWasStickied $event)
     {
         static::stickyChanged($event->discussion, $event->user, true);
     }
@@ -28,7 +28,7 @@ class CreatePostWhenDiscussionIsStickied
     /**
      * @param DiscussionWasUnstickied $event
      */
-    public function whenDiscussionWasUnstickied(DiscussionWasUnstickied $event)
+    public static function whenDiscussionWasUnstickied(DiscussionWasUnstickied $event)
     {
         static::stickyChanged($event->discussion, $event->user, false);
     }
