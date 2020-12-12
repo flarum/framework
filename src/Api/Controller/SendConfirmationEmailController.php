@@ -23,6 +23,8 @@ use Flarum\User\AccountActivationMailerTrait;
 
 class SendConfirmationEmailController implements RequestHandlerInterface
 {
+    use AccountActivationMailerTrait;
+
     /**
      * @var SettingsRepositoryInterface
      */
