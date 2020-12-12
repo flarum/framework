@@ -62,7 +62,7 @@ class AccountActivationMailer
         }
 
         $token = $this->generateToken($user, $user->email);
-        $data = $this->getEmailData($user, $user->email, $token);
+        $data = $this->getEmailData($user, $token);
 
         $this->sendConfirmationEmail($user, $data);
     }

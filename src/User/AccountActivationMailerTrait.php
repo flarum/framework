@@ -30,11 +30,10 @@ trait AccountActivationMailerTrait
      * Get the data that should be made available to email templates.
      *
      * @param User $user
-     * @param string $email
      * @param EmailToken $token
      * @return array
      */
-    protected function getEmailData(User $user, $email, EmailToken $token)
+    protected function getEmailData(User $user, EmailToken $token)
     {
         return [
             '{username}' => $user->display_name,

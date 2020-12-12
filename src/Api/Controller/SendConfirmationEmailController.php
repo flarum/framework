@@ -19,11 +19,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+use \Flarum\User\AccountActivationMailerTrait;
 
 class SendConfirmationEmailController implements RequestHandlerInterface
 {
-    use \Flarum\User\AccountActivationMailerTrait;
-
     /**
      * @var SettingsRepositoryInterface
      */
@@ -73,7 +72,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
         }
 
         $token = $this->generateToken($actor, $actor->email);
-        $data = $this->getEmailData($actor, $actor->email, $token);
+        $data = $this->getEmailData($actor, $token);
 
         $this->sendConfirmationEmail($actor, $data);
 
