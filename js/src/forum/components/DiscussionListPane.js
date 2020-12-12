@@ -40,7 +40,7 @@ export default class DiscussionListPane extends Component {
     // When coming from another discussion, scroll to the previous postition
     // to prevent the discussion list jumping around.
     if (app.previous.matches(DiscussionPage)) {
-      const top = app.cache.paneScrollTop || 0;
+      const top = app.cache.discussionListPaneScrollTop || 0;
       $list.scrollTop(top);
     } else {
       // If the discussion we are viewing is listed in the discussion list, then
@@ -61,7 +61,7 @@ export default class DiscussionListPane extends Component {
   }
 
   onremove(vnode) {
-    app.cache.paneScrollTop = $(vnode.dom).scrollTop();
+    app.cache.discussionListPaneScrollTop = $(vnode.dom).scrollTop();
     $(document).off('mousemove', hotEdge);
   }
 
