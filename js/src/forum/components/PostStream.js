@@ -152,7 +152,7 @@ export default class PostStream extends Component {
 
     if (this.stream.pagesLoading) return;
 
-    this.loadPostsWhenNeeded(top);
+    this.loadPostsIfNeeded(top);
 
     // Throttle calculation of our position (start/end numbers of posts in the
     // viewport) to 100ms.
@@ -166,7 +166,7 @@ export default class PostStream extends Component {
    *
    * @param {Integer} top
    */
-  loadPostsWhenNeeded(top = window.pageYOffset) {
+  loadPostsIfNeeded(top = window.pageYOffset) {
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;
@@ -408,7 +408,7 @@ export default class PostStream extends Component {
       this.calculatePosition();
       this.stream.paused = false;
       // Check if we need to load more posts after scrolling.
-      this.loadPostsWhenNeeded();
+      this.loadPostsIfNeeded();
     });
   }
 
