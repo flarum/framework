@@ -26,11 +26,12 @@ class Settings implements ExtenderInterface
      * @param string $attributeName: The attribute name to be used in the ForumSerializer attributes array.
      * @param string $key: The key of the setting.
      * @param string|callable|null $callback: Optional callback to modify the value before serialization.
+     * @param mixed $default: Optional default serialized value.
      * @return $this
      */
-    public function serializeToForum(string $attributeName, string $key, $callback = null)
+    public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null)
     {
-        $this->settings[$key] = compact('attributeName', 'callback');
+        $this->settings[$key] = compact('attributeName', 'callback', 'default');
 
         return $this;
     }
@@ -45,7 +46,7 @@ class Settings implements ExtenderInterface
                     $attributes = [];
 
                     foreach ($this->settings as $key => $setting) {
-                        $value = $settings->get($key, null);
+                        $value = $settings->get($key, $setting['default']);
 
                         if (isset($setting['callback'])) {
                             $callback = ContainerUtil::wrapCallback($setting['callback'], $container);
