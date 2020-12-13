@@ -24,7 +24,7 @@ class FormatPostMentions
      * @param Psr\Http\Message\ServerRequestInterface $request
      * @return void
      */
-    public function __invoke(Renderer $renderer, $context, $xml, Request $request)
+    public function __invoke(Renderer $renderer, $context, $xml, Request $request = null)
     {
         $post = $context;
 

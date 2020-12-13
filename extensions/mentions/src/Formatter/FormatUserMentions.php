@@ -23,7 +23,7 @@ class FormatUserMentions
      * @param string|null $xml
      * @param Psr\Http\Message\ServerRequestInterface $request
      */
-    public function __invoke(Renderer $renderer, $context, $xml, Request $request)
+    public function __invoke(Renderer $renderer, $context, $xml, Request $request = null)
     {
         $post = $context;
 
