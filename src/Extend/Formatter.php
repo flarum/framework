@@ -68,7 +68,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * - \s9e\TextFormatter\Rendered $renderer
      * - mixed $context
      * - string $xml: The xml to be rendered.
-     * - ServerRequestInterface $request
+     * - ServerRequestInterface $request. This argument MUST either be nullable, or omitted entirely.
      *
      * The callback should return:
      * - string $xml: The xml to be rendered.
