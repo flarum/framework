@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0-beta.15](https://github.com/flarum/approval/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
+## [0.1.0-beta.15](https://github.com/flarum/approval/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Changed
 - Updated composer.json and admin javascript for new admin area.
