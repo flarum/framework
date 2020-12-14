@@ -17,8 +17,8 @@
       }
     ],
     "require": {
-        "flarum/core": "^0.1.0-beta.14",
-        "flarum/flags": "^0.1.0-beta.14"
+        "flarum/core": "^0.1.0-beta.15",
+        "flarum/flags": "^0.1.0-beta.15"
     },
     "autoload": {
         "psr-4": {
