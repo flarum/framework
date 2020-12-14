@@ -149,6 +149,11 @@ export default class PostStream extends Component {
    */
   onscroll(top = window.pageYOffset) {
     if (this.stream.paused) return;
+
+    this.updateScrubber(top);
+
+    if (this.stream.pagesLoading) return;
+
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;
@@ -174,8 +179,6 @@ export default class PostStream extends Component {
     // viewport) to 100ms.
     clearTimeout(this.calculatePositionTimeout);
     this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this, top), 100);
-
-    this.updateScrubber(top);
   }
 
   updateScrubber(top = window.pageYOffset) {
