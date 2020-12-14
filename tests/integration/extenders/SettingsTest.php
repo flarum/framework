@@ -130,6 +130,30 @@ class SettingsTest extends TestCase
     {
         $this->extend(
             (new Extend\Settings())
+                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', null, 'customDefault')
+        );
+
+        $this->prepDb();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
+        $this->assertEquals('customDefault', $payload['data']['attributes']['customPrefix.noCustomSetting']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_setting_default_passed_to_callback()
+    {
+        $this->extend(
+            (new Extend\Settings())
                 ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', function ($value) {
                     return $value.'Modified2';
                 }, 'customDefault')
