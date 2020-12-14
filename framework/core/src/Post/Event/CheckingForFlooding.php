@@ -11,6 +11,9 @@ namespace Flarum\Post\Event;
 
 use Flarum\User\User;
 
+/**
+ * @deprecated beta 15, remove beta 16
+ */
 class CheckingForFlooding
 {
     /**
