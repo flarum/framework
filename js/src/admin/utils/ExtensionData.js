@@ -44,6 +44,14 @@ export default class ExtensionData {
   registerSetting(content, priority = 0) {
     this.data[this.currentExtension].settings = this.data[this.currentExtension].settings || new ItemList();
 
+    // Callbacks can be passed in instead of settings to display custom content.
+    // By default, they will be added with the `null` key, since they don't have a `.setting` attr.
+    // To support multiple such items for one extension, we assign a random ID.
+    // 36 is arbitrary length, but makes collisions very unlikely.
+    if (typeof content === 'function') {
+      content.setting = Math.random().toString(36);
+    }
+
     this.data[this.currentExtension].settings.add(content.setting, content, priority);
 
     return this;
