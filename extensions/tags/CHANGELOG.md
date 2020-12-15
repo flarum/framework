@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.0-beta.15](https://github.com/flarum/tags/compare/v0.1.0-beta.14...v0.1.0-beta.15)
+
+### Added
+- Tag tiles have icons (#104).
+
+### Changed
+- Updated composer.json and admin javascript for new admin area.
+- Updated to use newest extenders.
+- Implement new authorization layer ([c3eff74](https://github.com/flarum/tags/commit/c3eff74289d3461e55d7320556b1e5a5ca08e0ac)).
+
+### Fixed
+- Guests do not see "new discussion" and get the log in modal when clicked (#98).
+- The tag hidden property is not a bidi and is not saved ([3f54b70](https://github.com/flarum/tags/commit/3f54b70733bb94f7f100580f50f6503a0c387ad6)).
+
+### Removed
+- TagWillBeSaved event is removed ([05837de](https://github.com/flarum/tags/commit/05837de8bbe11ca094c7ac63f1a23d7aeceb28d2)).
+
 ## [0.1.0-beta.14](https://github.com/flarum/tags/compare/v0.1.0-beta.13...v0.1.0-beta.14)
 
 ### Added
