@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-beta.15](https://github.com/flarum/mentions/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
+
+### Changed
+- Updated composer.json and admin javascript for new admin area.
+- Updated to use newest extenders.
+
+### Fixed
+- Touchstart event with cancelable=false triggers a console error (#54)
+- Props in javascript component still used after rewrite.
+
 ## [0.1.0-beta.14](https://github.com/flarum/mentions/compare/v0.1.0-beta.13...v0.1.0-beta.14)
 
 ### Changed
