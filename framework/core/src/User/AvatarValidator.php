@@ -80,6 +80,6 @@ class AvatarValidator extends AbstractValidator
 
     protected function getAllowedTypes()
     {
-        return ['jpeg', 'png', 'bmp', 'gif'];
+        return ['jpg', 'png', 'bmp', 'gif'];
     }
 }
