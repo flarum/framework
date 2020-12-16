@@ -79,6 +79,7 @@
         "symfony/config": "^4.3.4",
         "symfony/console": "^4.3.4",
         "symfony/event-dispatcher": "^4.3.4",
+        "symfony/mime": "^5.2.0",
         "symfony/translation": "^4.3.4",
         "symfony/yaml": "^4.3.4",
         "tobscure/json-api": "^0.3.0",
