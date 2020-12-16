@@ -34,6 +34,6 @@ class TagPolicy extends AbstractPolicy
      */
     public function addToDiscussion(User $actor, Tag $tag)
     {
-        return $this->startDiscussion($actor, $tag);
+        return $actor->can('startDiscussion', $tag);
     }
 }
