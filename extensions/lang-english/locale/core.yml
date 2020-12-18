@@ -148,7 +148,7 @@ core:
     # These translations are used in the navigation bar.
     nav:
       appearance_button: => core.admin.appearance.title
-      appearance_title: => core.admin.appearence.description
+      appearance_title: => core.admin.appearance.description
       basics_button: => core.admin.basics.title
       basics_title: => core.admin.basics.description
       categories:
