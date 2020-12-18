@@ -1,12 +1,70 @@
 # Changelog
 
+## [0.1.0-beta.15](https://github.com/flarum/core/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
+
+### Added
+
+- Slug drivers support (https://github.com/flarum/core/pull/2456).
+- Notification type extender (https://github.com/flarum/core/pull/2424).
+- Validation extender (https://github.com/flarum/core/pull/2102).
+- Post extender (https://github.com/flarum/core/pull/2101).
+- Notification channel extender (https://github.com/flarum/core/pull/2432).
+- Service provider extender (https://github.com/flarum/core/pull/2437).
+- API serializer extender (https://github.com/flarum/core/pull/2438).
+- User preferences extender (https://github.com/flarum/core/pull/2463).
+- Settings extender (https://github.com/flarum/core/pull/2452).
+- ApiController extender (https://github.com/flarum/core/pull/2451).
+- Model visibility extender (https://github.com/flarum/core/pull/2460).
+- Policy extender (https://github.com/flarum/core/pull/2461).
+
+### Changed
+
+- Time helpers converted to Typescript (https://github.com/flarum/core/pull/2391).
+- Improved the formatter extender (https://github.com/flarum/core/pull/2098).
+- Improve wording on installer when facing file permission issues (https://github.com/flarum/core/pull/2435).
+- Background color of checkbox toggles improved for better usability (https://github.com/flarum/core/pull/2443).
+- Route resolving refactored (https://github.com/flarum/core/pull/2425).
+- Administration panel UX refactored (https://github.com/flarum/core/pull/2409).
+- Floodgate moved to middleware and extender added (https://github.com/flarum/core/pull/2170).
+- DRY up image uploading logic (https://github.com/flarum/core/pull/2477).
+- Process isolation on testing (https://github.com/flarum/core/commit/984f751c718c89501cc09857bc271efa2c7eea8c).
+- Forum and admin javascript exports namespaced (https://github.com/flarum/core/pull/2488).
+
+### Fixed
+
+- Web updater does not take into account subfolder installations (https://github.com/flarum/core/pull/2426).
+- Callables handling in extenders failed (https://github.com/flarum/core/pull/2423).
+- Scrolling on mobile from PostSteam changes didn't work correctly (https://github.com/flarum/core/pull/2385).
+- Side pane covers part of the discussion page due to `app.discussions` being empty (https://github.com/flarum/core/commit/102e76b084bf47fdfb4c73f95e1fbb322537f7aa).
+- Change email modal keeps showing the previous error message even on success (https://github.com/flarum/core/pull/2467).
+- Comment count not updated when discussions are deleted (https://github.com/flarum/core/pull/2472).
+- `goToIndex` in PostStream does not trigger an xhr to retrieve new data (https://github.com/flarum/core/commit/09e2736cbcc267594b660beabbd001d9030f9880).
+- On refresh the post number is reduced by one (https://github.com/flarum/core/pull/2476).
+- Queue worker would instantiate a new Queue factory, not the bound one (https://github.com/flarum/core/pull/2481).
+- Header accidentally has a border bottom (https://github.com/flarum/core/pull/2489).
+- Namespace mentioned in docblock is incorrect (https://github.com/flarum/core/pull/2494).
+- Scrolling inside longer discussions (especially Firefox) skips posts (https://github.com/flarum/core/commit/210a6b3e253d7917bd1eacd3ed8d2f95073ae99d).
+- Uploading avatars that are jpg/jpeg fails with a validation error (https://github.com/flarum/core/pull/2497).
+
+### Removed
+
+- MomentJS alias (https://github.com/flarum/core/pull/2428).
+- Deprecated user events `GetDisplayName` and `PrepareUserGroups` (https://github.com/flarum/core/pull/2428).
+- AssertPermissionTrait (https://github.com/flarum/core/pull/2428).
+- Path related helpers and methods in Application (https://github.com/flarum/core/pull/2428).
+- Backward compatibility layers from the frontend rewrite (https://github.com/flarum/core/pull/2428).
+
+### Deprecated
+
+- `CheckingForFlooding` (https://github.com/flarum/core/commit/8e25bcb68f86cc992c46dfa70368419fe9f936ac).
+
 ## [0.1.0-beta.14.1](https://github.com/flarum/core/compare/v0.1.0-beta.14...v0.1.0-beta.14.1)
 
 ### Fixed
 
 - SuperTextarea component is not exported.
-- Symfony dependencies do not match those depended on by Laravel (#2407)
-- Scripts from textformatter aren't executed (#2415)
+- Symfony dependencies do not match those depended on by Laravel (https://github.com/flarum/core/pull/2407).
+- Scripts from textformatter aren't executed (https://github.com/flarum/core/pull/2415)
 - Sub path installations have no page title.
 - Losing focus of Composer area when coming from fullscreen.
 
