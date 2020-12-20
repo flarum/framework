@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-beta.14.1](https://github.com/flarum/lang-english/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
+
+### Added
+- Keys for new admin interface (#176)
+- Keys for slug driver (#179)
+- Keys for flarum/nicknames (#178)
+
+### Fixes
+- Appearance title key references incorrect key (#180)
+
 ## [0.1.0-beta.14.1](https://github.com/flarum/lang-english/compare/v0.1.0-beta.14...v0.1.0-beta.14.1)
 
 ### Fixed
