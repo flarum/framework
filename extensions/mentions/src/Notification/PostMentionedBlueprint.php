@@ -74,7 +74,7 @@ class PostMentionedBlueprint implements BlueprintInterface, MailableInterface
     public function getEmailSubject(TranslatorInterface $translator)
     {
         return $translator->trans('flarum-mentions.email.post_mentioned.subject', [
-            '{replier_display_name}' => $this->post->user->display_name,
+            '{replier_display_name}' => $this->reply->user->display_name,
             '{title}' => $this->post->discussion->title
         ]);
     }
