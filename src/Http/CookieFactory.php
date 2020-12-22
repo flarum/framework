@@ -9,9 +9,8 @@
 
 namespace Flarum\Http;
 
-use Dflydev\FigCookies\Modifier\SameSite;
-use Dflydev\FigCookies\SetCookie;
 use Flarum\Foundation\Config;
+use HansOtt\PSR7Cookies\SetCookie;
 
 class CookieFactory
 {
@@ -75,42 +74,31 @@ class CookieFactory
      * @param  string  $name
      * @param  string  $value
      * @param  int     $maxAge
-     * @return \Dflydev\FigCookies\SetCookie
+     * @return SetCookie
      */
-    public function make($name, $value = null, $maxAge = null)
+    public function make(string $name, ?string $value, ?int $maxAge): SetCookie
     {
-        $cookie = SetCookie::create($this->getName($name), $value);
-
-        // Make sure we send both the MaxAge and Expires parameters (the former
-        // is not supported by all browser versions)
-        if ($maxAge) {
-            $cookie = $cookie
-                ->withMaxAge($maxAge)
-                ->withExpires(time() + $maxAge);
-        }
-
-        if ($this->domain != null) {
-            $cookie = $cookie->withDomain($this->domain);
-        }
-
-        // Explicitly set SameSite value, use sensible default if no value provided
-        $cookie = $cookie->withSameSite(SameSite::{$this->samesite ?? 'lax'}());
-
-        return $cookie
-            ->withPath($this->path)
-            ->withSecure($this->secure)
-            ->withHttpOnly(true);
+        $cookie = new SetCookie(
+            $this->getName($name),
+            $value,
+            $maxAge ? time() + $maxAge : null,
+            $this->path,
+            $this->domain,
+            $this->secure,
+            true,
+            $this->samesite ?? 'lax'
+        );
     }
 
     /**
      * Make an expired cookie instance.
      *
      * @param string $name
-     * @return \Dflydev\FigCookies\SetCookie
+     * @return SetCookie
      */
-    public function expire($name)
+    public function expire(string $name): SetCookie
     {
-        return $this->make($name)->expire();
+        return SetCookie::thatExpires($name);
     }
 
     /**
