@@ -34,8 +34,8 @@ class GlobalPolicy extends AbstractPolicy
     public function can(User $actor, string $ability)
     {
         if (in_array($ability, ['viewDiscussions', 'startDiscussion'])) {
-            $enoughPrimary = count(Tag::getIdsWhereCan($actor, $ability, true, false)) >= $this->settings->get('min_primary_tags');
-            $enoughSecondary = count(Tag::getIdsWhereCan($actor, $ability, false, true)) >= $this->settings->get('min_secondary_tags');
+            $enoughPrimary = count(Tag::getIdsWhereCan($actor, $ability, true, false)) >= $this->settings->get('flarum-tags.min_primary_tags');
+            $enoughSecondary = count(Tag::getIdsWhereCan($actor, $ability, false, true)) >= $this->settings->get('flarum-tags.min_secondary_tags');
 
             if ($enoughPrimary && $enoughSecondary) {
                 return $this->allow();
