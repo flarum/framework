@@ -118,7 +118,7 @@ core:
 
     # These translations are used on default extension pages.
     extension:
-      confirm_uninstall: Uninstalling will remove all database entires and assets related to the extension. Are you sure you want to contiune?
+      confirm_uninstall: Uninstalling will remove all database entries and assets related to the extension. Are you sure you want to continue?
       disabled: Disabled
       enabled: Enabled
       enable_to_see: Enable the extension to view and change settings.
