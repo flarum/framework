@@ -212,7 +212,7 @@ class Tag extends AbstractModel
                 $can = $canForTag($tag->parent);
             }
 
-            $isPrimary = $tag->position === null && ! $tag->parent;
+            $isPrimary = $tag->position !== null && ! $tag->parent;
 
             if ($can === $condition && ($includePrimary && $isPrimary || $includeSecondary && ! $isPrimary)) {
                 $ids[] = $tag->id;
