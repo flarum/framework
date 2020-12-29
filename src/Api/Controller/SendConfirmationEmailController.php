@@ -82,7 +82,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
         ];
 
         $body = $this->translator->trans('core.email.activate_account.body', $data);
-        $subject = $this->translator->trans('core.email.activate_account.subject');
+        $subject = '['.$data['{forum}'].'] '.$this->translator->trans('core.email.activate_account.subject');
 
         $this->queue->push(new SendRawEmailJob($actor->email, $subject, $body));
 
