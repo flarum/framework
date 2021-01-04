@@ -43,6 +43,7 @@
         "axy/sourcemap": "^0.1.4",
         "components/font-awesome": "^5.14.0",
         "doctrine/dbal": "^2.7",
+        "franzl/whoops-middleware": "^2.0.0",
         "hansott/psr7-cookies": "^3.0.2",
         "illuminate/bus": "^6.0",
         "illuminate/cache": "^6.0",
