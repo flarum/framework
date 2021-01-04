@@ -65,7 +65,7 @@ class UserMetadataUpdater
     /**
      * @param \Flarum\User\User $user
      */
-    private function updateCommentsCount(User $user)
+    private function updateCommentsCount(?User $user)
     {
         if ($user && $user->exists) {
             $user->refreshCommentCount()->save();
