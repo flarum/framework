@@ -112,13 +112,13 @@ export default class NotificationList extends Component {
   scrollHandler() {
     const state = this.attrs.state;
 
-    const scrollTop = this.$scrollParent.scrollTop();
-    const viewportHeight = this.$scrollParent.height();
+    const notificationsElement = this.$scrollParent[0];
 
-    const contentTop = this.$scrollParent === this.$notifications ? 0 : this.$notifications.offset().top;
-    const contentHeight = this.$notifications[0].scrollHeight;
+    // On very short screens, the scrollHeight + scrollTop might not reach the clientHeight
+    // by a fraction of a pixel, so we compensate for that.
+    const atBottom = Math.abs(notificationsElement.scrollHeight - notificationsElement.scrollTop - notificationsElement.clientHeight) <= 1;
 
-    if (state.hasMoreResults() && !state.isLoading() && scrollTop + viewportHeight >= contentTop + contentHeight) {
+    if (state.hasMoreResults() && !state.isLoading() && atBottom) {
       state.loadMore();
     }
   }
