@@ -88,7 +88,7 @@ class AddStatisticsData
 
         $results->each(function ($count, $time) use (&$timed, $userTimezone) {
             $time = new DateTime($time, $userTimezone);
-            $timed[$time->getTimestamp()] = $count;
+            $timed[$time->getTimestamp()] = (int) $count;
         });
 
         return $timed;
