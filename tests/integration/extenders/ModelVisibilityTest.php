@@ -23,8 +23,13 @@ class ModelVisibilityTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'discussions' => [
                 ['id' => 1, 'title' => 'Empty discussion', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => null, 'comment_count' => 0, 'is_private' => 0],
@@ -39,8 +44,6 @@ class ModelVisibilityTest extends TestCase
                 $this->normalUser(),
             ]
         ]);
-
-        $this->app();
     }
 
     /**
@@ -48,7 +51,7 @@ class ModelVisibilityTest extends TestCase
      */
     public function user_can_see_posts_by_default()
     {
-        $this->prepDb();
+        $this->app();
 
         $actor = User::find(2);
 
@@ -69,7 +72,7 @@ class ModelVisibilityTest extends TestCase
                 }, 'view')
         );
 
-        $this->prepDb();
+        $this->app();
 
         $actor = User::find(2);
 
@@ -90,7 +93,7 @@ class ModelVisibilityTest extends TestCase
                 }, 'view')
         );
 
-        $this->prepDb();
+        $this->app();
 
         $actor = User::find(2);
 
@@ -115,7 +118,7 @@ class ModelVisibilityTest extends TestCase
                 }, 'view')
         );
 
-        $this->prepDb();
+        $this->app();
 
         $actor = User::find(2);
 
@@ -140,7 +143,7 @@ class ModelVisibilityTest extends TestCase
                 }, 'viewPrivate')
         );
 
-        $this->prepDb();
+        $this->app();
 
         $actor = User::find(2);
 
@@ -169,7 +172,7 @@ class ModelVisibilityTest extends TestCase
                 })
         );
 
-        $this->prepDb();
+        $this->app();
 
         $actor = User::find(2);
 

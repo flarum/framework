@@ -17,8 +17,13 @@ class SettingsTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser()
@@ -35,8 +40,6 @@ class SettingsTest extends TestCase
      */
     public function custom_setting_isnt_serialized_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api', [
                 'authenticatedAs' => 1,
@@ -57,8 +60,6 @@ class SettingsTest extends TestCase
             (new Extend\Settings())
                 ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting')
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -84,8 +85,6 @@ class SettingsTest extends TestCase
                 })
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api', [
                 'authenticatedAs' => 1,
@@ -108,8 +107,6 @@ class SettingsTest extends TestCase
                 ->serializeToForum('customPrefix.customSetting2', 'custom-prefix.custom_setting2', CustomInvokableClass::class)
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api', [
                 'authenticatedAs' => 1,
@@ -131,8 +128,6 @@ class SettingsTest extends TestCase
             (new Extend\Settings())
                 ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', null, 'customDefault')
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -157,8 +152,6 @@ class SettingsTest extends TestCase
                     return $value.'Modified2';
                 }, 'customDefault')
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api', [
