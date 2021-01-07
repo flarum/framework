@@ -265,7 +265,7 @@ export default class Composer extends Component {
     this.animateHeightChange().then(() => this.focus());
 
     if (app.screen() === 'phone') {
-      this.$().css('top', $(window).scrollTop());
+      this.$().css('top', 0);
       this.showBackdrop();
     }
   }
