@@ -137,19 +137,19 @@ class PolicyTest extends TestCase
     /**
      * @test
      */
-    public function regular_user_cant_start_discussions_by_default()
+    public function regular_user_can_start_discussions_by_default()
     {
         $this->app();
 
         $user = User::find(2);
 
-        $this->assertEquals(false, $user->can('startDiscussion'));
+        $this->assertEquals(true, $user->can('startDiscussion'));
     }
 
     /**
      * @test
      */
-    public function regular_user_can_start_discussions_if_granted_by_global_policy()
+    public function regular_user_cant_start_discussions_if_blocked_by_global_policy()
     {
         $this->extend(
             (new Extend\Policy)
@@ -160,7 +160,7 @@ class PolicyTest extends TestCase
 
         $user = User::find(2);
 
-        $this->assertEquals(true, $user->can('startDiscussion'));
+        $this->assertEquals(false, $user->can('startDiscussion'));
     }
 
     /**
@@ -177,7 +177,7 @@ class PolicyTest extends TestCase
 
         $user = User::find(2);
 
-        $this->assertEquals(false, $user->can('startDiscussion', Discussion::find(1)));
+        $this->assertEquals(true, $user->can('startDiscussion', Discussion::find(1)));
     }
 
     /**
@@ -260,7 +260,7 @@ class GlobalStartDiscussionPolicy extends AbstractPolicy
 {
     protected function startDiscussion(User $user)
     {
-        return $this->allow();
+        return $this->deny();
     }
 }
 
