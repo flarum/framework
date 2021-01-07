@@ -20,8 +20,13 @@ class UserTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
@@ -30,8 +35,6 @@ class UserTest extends TestCase
                 ['key' => 'display_name_driver', 'value' => 'custom'],
             ]
         ]);
-
-        $this->app();
     }
 
     protected function registerTestPreference()
@@ -47,7 +50,7 @@ class UserTest extends TestCase
      */
     public function username_display_name_driver_used_by_default()
     {
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(1);
 
@@ -64,7 +67,7 @@ class UserTest extends TestCase
                 ->displayNameDriver('custom', CustomDisplayNameDriver::class)
         );
 
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(1);
 
@@ -76,7 +79,8 @@ class UserTest extends TestCase
      */
     public function user_has_permissions_for_expected_groups_if_no_processors_added()
     {
-        $this->prepDb();
+        $this->app();
+
         $user = User::find(2);
 
         $this->assertContains('viewUserList', $user->getPermissions());
@@ -93,7 +97,8 @@ class UserTest extends TestCase
             });
         }));
 
-        $this->prepDb();
+        $this->app();
+
         $user = User::find(2);
 
         $this->assertNotContains('viewUserList', $user->getPermissions());
@@ -106,7 +111,8 @@ class UserTest extends TestCase
     {
         $this->extend((new Extend\User)->permissionGroups(CustomGroupProcessorClass::class));
 
-        $this->prepDb();
+        $this->app();
+
         $user = User::find(2);
 
         $this->assertNotContains('viewUserList', $user->getPermissions());
@@ -118,7 +124,8 @@ class UserTest extends TestCase
     public function can_add_user_preference()
     {
         $this->registerTestPreference();
-        $this->prepDb();
+
+        $this->app();
 
         /** @var User $user */
         $user = User::find(2);
@@ -131,7 +138,8 @@ class UserTest extends TestCase
     public function can_store_user_preference()
     {
         $this->registerTestPreference();
-        $this->prepDb();
+
+        $this->app();
 
         /** @var User $user */
         $user = User::find(2);
@@ -147,7 +155,8 @@ class UserTest extends TestCase
     public function storing_user_preference_modified_by_transformer()
     {
         $this->registerTestPreference();
-        $this->prepDb();
+
+        $this->app();
 
         /** @var User $user */
         $user = User::find(2);
