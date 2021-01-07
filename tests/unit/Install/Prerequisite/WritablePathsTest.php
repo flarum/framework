@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Install\Prerequisite;
 
 use Flarum\Install\Prerequisite\WritablePaths;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 
 class WritablePathsTest extends TestCase
 {

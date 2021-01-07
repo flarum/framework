@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\User;
 
 use Flarum\Event\GetPermission;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
 use Illuminate\Events\Dispatcher;

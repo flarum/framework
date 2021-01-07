@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Tests\integration\ConfigureSetup;
+use Flarum\Testing\integration\ConfigureSetup;
 
 require __DIR__.'/../../vendor/autoload.php';
 

@@ -9,7 +9,7 @@
 
 namespace Flarum\Tests\unit\User;
 
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use Flarum\User\AvatarUploader;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;

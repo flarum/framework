@@ -91,7 +91,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Flarum\\": "src/"
+            "Flarum\\": "src/",
+            "Flarum\\Testing\\": "testing/"
         },
         "files": [
             "src/helpers.php"

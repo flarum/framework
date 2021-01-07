@@ -10,8 +10,8 @@
 namespace Flarum\Tests\integration\api\authentication;
 
 use Flarum\Http\AccessToken;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 
 class WithTokenTest extends TestCase
 {

@@ -11,8 +11,8 @@ namespace Flarum\Tests\integration\api\authentication;
 
 use Carbon\Carbon;
 use Flarum\Api\ApiKey;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 
 class WithApiKeyTest extends TestCase
 {

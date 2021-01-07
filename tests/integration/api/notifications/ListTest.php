@@ -9,8 +9,8 @@
 
 namespace Flarum\Tests\integration\api\notifications;
 
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 
 class ListTest extends TestCase
 {

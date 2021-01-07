@@ -9,8 +9,8 @@
 
 namespace Flarum\Tests\integration\api\forum;
 
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
 
 class ShowTest extends TestCase

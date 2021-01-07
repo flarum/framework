@@ -14,7 +14,7 @@ use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationSyncer;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\TestCase;
 
 class NotificationTest extends TestCase
 {

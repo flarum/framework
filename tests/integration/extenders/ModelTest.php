@@ -17,8 +17,8 @@ use Flarum\Post\AbstractEventPost;
 use Flarum\Post\CommentPost;
 use Flarum\Post\DiscussionRenamedPost;
 use Flarum\Post\Post;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 
 class ModelTest extends TestCase

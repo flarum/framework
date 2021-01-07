@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Foundation\ContainerUtil;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use Illuminate\Container\Container;
 
 class ContainerUtilTest extends TestCase

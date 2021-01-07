@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration;
+namespace Flarum\Testing\integration;
 
 use Flarum\Foundation\Paths;
 use Flarum\Install\AdminUser;
