@@ -79,8 +79,6 @@ class CsrfTest extends TestCase
                 ->exemptRoute('users.create')
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('POST', '/api/users', [
                 'json' => [

@@ -28,8 +28,13 @@ class PolicyTest extends TestCase
     // Request body to hide discussions sent in tests.
     protected $hideQuery = ['authenticatedAs' => 2, 'json' => ['data' => ['attributes' => ['isHidden' => true]]]];
 
-    private function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
@@ -41,8 +46,6 @@ class PolicyTest extends TestCase
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>a normal reply - too-obscure</p></t>'],
             ]
         ]);
-
-        $this->app();
     }
 
     /**
@@ -50,8 +53,6 @@ class PolicyTest extends TestCase
      */
     public function unrelated_user_cant_hide_discussion_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('PATCH', '/api/discussions/1', $this->hideQuery)
         );
@@ -68,8 +69,6 @@ class PolicyTest extends TestCase
             (new Extend\Policy())
                 ->modelPolicy(Discussion::class, CustomPolicy::class)
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('PATCH', '/api/discussions/1', $this->hideQuery)
@@ -89,8 +88,6 @@ class PolicyTest extends TestCase
                 ->modelPolicy(Discussion::class, CustomPolicy::class)
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('PATCH', '/api/discussions/1', $this->hideQuery)
         );
@@ -109,8 +106,6 @@ class PolicyTest extends TestCase
                 ->modelPolicy(Discussion::class, DenyHidePolicy::class)
                 ->modelPolicy(Discussion::class, CustomPolicy::class)
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('PATCH', '/api/discussions/1', $this->hideQuery)
@@ -132,8 +127,6 @@ class PolicyTest extends TestCase
                 ->modelPolicy(Discussion::class, ForceAllowHidePolicy::class)
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('PATCH', '/api/discussions/1', $this->hideQuery)
         );
@@ -146,7 +139,7 @@ class PolicyTest extends TestCase
      */
     public function regular_user_cant_start_discussions_by_default()
     {
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(2);
 
@@ -163,7 +156,7 @@ class PolicyTest extends TestCase
             ->globalPolicy(GlobalStartDiscussionPolicy::class)
         );
 
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(2);
 
@@ -180,7 +173,7 @@ class PolicyTest extends TestCase
                 ->globalPolicy(GlobalStartDiscussionPolicy::class)
         );
 
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(2);
 
@@ -192,7 +185,7 @@ class PolicyTest extends TestCase
      */
     public function unrelated_user_cant_hide_post_by_default()
     {
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(2);
 
@@ -207,7 +200,7 @@ class PolicyTest extends TestCase
         $this->extend(
             (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
         );
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(2);
 
@@ -223,7 +216,7 @@ class PolicyTest extends TestCase
             (new Extend\Policy)->modelPolicy(Post::class, PostParentClassPolicy::class),
             (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
         );
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(2);
 

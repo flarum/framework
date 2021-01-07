@@ -25,23 +25,23 @@ class ModelTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
             ],
         ]);
-
-        $this->app();
     }
 
     protected function prepPostsHierarchy()
     {
         $this->prepareDatabase([
-            'users' => [
-                $this->normalUser(),
-            ],
             'discussions' => [
                 ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
             ],
@@ -49,8 +49,6 @@ class ModelTest extends TestCase
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
             ],
         ]);
-
-        $this->app();
     }
 
     /**
@@ -58,7 +56,7 @@ class ModelTest extends TestCase
      */
     public function custom_relationship_does_not_exist_by_default()
     {
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -76,7 +74,7 @@ class ModelTest extends TestCase
                 ->hasOne('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -93,7 +91,7 @@ class ModelTest extends TestCase
                 ->hasMany('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -110,7 +108,7 @@ class ModelTest extends TestCase
                 ->belongsTo('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -129,7 +127,7 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -146,7 +144,7 @@ class ModelTest extends TestCase
                 ->relationship('customRelation', CustomRelationClass::class)
         );
 
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -170,7 +168,8 @@ class ModelTest extends TestCase
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1]
             ]
         ]);
-        $this->prepDB();
+
+        $this->app();
 
         $user = User::find(1);
 
@@ -189,6 +188,8 @@ class ModelTest extends TestCase
         );
 
         $this->prepPostsHierarchy();
+
+        $this->app();
 
         $post = CommentPost::find(1);
 
@@ -210,6 +211,8 @@ class ModelTest extends TestCase
 
         $this->prepPostsHierarchy();
 
+        $this->app();
+
         $post = DiscussionRenamedPost::find(1);
 
         $this->assertInstanceOf(Discussion::class, $post->ancestor);
@@ -229,6 +232,9 @@ class ModelTest extends TestCase
         );
 
         $this->prepPostsHierarchy();
+
+        $this->app();
+
         $post = DiscussionRenamedPost::find(1);
 
         $this->assertInstanceOf(User::class, $post->ancestor);
@@ -247,7 +253,7 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->prepDB();
+        $this->app();
 
         $group = Group::find(1);
 
