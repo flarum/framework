@@ -23,6 +23,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     use BuildsHttpRequests;
 
+    /**
+     * @inheritDoc
+     */
     protected function tearDown(): void
     {
         parent::tearDown();
