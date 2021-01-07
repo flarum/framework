@@ -2,6 +2,7 @@ import { extend } from 'flarum/extend';
 import LinkButton from 'flarum/components/LinkButton';
 import IndexPage from 'flarum/components/IndexPage';
 import DiscussionListState from 'flarum/states/DiscussionListState';
+import GlobalSearchState from 'flarum/states/GlobalSearchState';
 
 export default function addSubscriptionFilter() {
   extend(IndexPage.prototype, 'navItems', function(items) {
@@ -21,8 +22,14 @@ export default function addSubscriptionFilter() {
     }
   });
 
-  extend(DiscussionListState.prototype, 'requestParams', function(params) {
-    if (app.current.get('routeName') === 'following') {
+  extend(GlobalSearchState.prototype, 'params', function (params) {
+    // We can't set `q` here directly, as that would make the search bar
+    // think that text has been entered, and display the "clear" button.
+    params.onFollowing = app.current.get('routeName') === 'following';
+  });
+
+  extend(DiscussionListState.prototype, 'requestParams', function (params) {
+    if (this.params.onFollowing) {
       params.filter.q = (params.filter.q || '') + ' is:following';
     }
   });
