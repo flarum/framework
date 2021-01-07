@@ -203,7 +203,7 @@ class ModelTest extends TestCase
     public function custom_relationship_prioritizes_child_classes_within_2_parent_classes()
     {
         $this->extend(
-            # FIXME: Second has no effect
+            // FIXME: Second has no effect
             (new Extend\Model(Post::class))
                 ->belongsTo('ancestor', User::class, 'user_id'),
             (new Extend\Model(AbstractEventPost::class))

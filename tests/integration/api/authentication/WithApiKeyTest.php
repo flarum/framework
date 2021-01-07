@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Flarum\Api\ApiKey;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Illuminate\Support\Str;
 
 class WithApiKeyTest extends TestCase
 {
