@@ -21,8 +21,13 @@ class ModelUrlTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $userClass = User::class;
         $this->prepareDatabase([
             'users' => [
@@ -39,8 +44,6 @@ class ModelUrlTest extends TestCase
      */
     public function uses_default_driver_by_default()
     {
-        $this->prepDb();
-
         $slugManager = $this->app()->getContainer()->make(SlugManager::class);
 
         $testUser = User::find(1);
@@ -55,8 +58,6 @@ class ModelUrlTest extends TestCase
     public function custom_slug_driver_has_effect_if_added()
     {
         $this->extend((new Extend\ModelUrl(User::class))->addSlugDriver('testDriver', TestSlugDriver::class));
-
-        $this->prepDb();
 
         $slugManager = $this->app()->getContainer()->make(SlugManager::class);
 
