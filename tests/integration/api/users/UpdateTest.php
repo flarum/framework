@@ -16,6 +16,9 @@ class UpdateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
