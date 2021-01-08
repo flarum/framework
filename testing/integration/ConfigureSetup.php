@@ -18,6 +18,11 @@ use Flarum\Install\Installation;
 class ConfigureSetup
 {
     /**
+     * Path to this package's vendor directory.
+     */
+    protected $vendorPath;
+
+    /**
      * Test database host.
      *
      * @var string
@@ -59,8 +64,10 @@ class ConfigureSetup
      */
     protected $prefix;
 
-    public function __construct()
+    public function __construct($vendorPath)
     {
+        $this->vendorPath = $vendorPath;
+
         $this->host = getenv('DB_HOST') ?: 'localhost';
         $this->port = intval(getenv('DB_PORT') ?: 3306);
         $this->name = getenv('DB_DATABASE') ?: 'flarum_test';
@@ -87,7 +94,7 @@ class ConfigureSetup
                 'base' => __DIR__.'/tmp',
                 'public' => __DIR__.'/tmp/public',
                 'storage' => __DIR__.'/tmp/storage',
-                'vendor' => __DIR__.'/../../vendor',
+                'vendor' => $this->vendorPath,
             ])
         );
 

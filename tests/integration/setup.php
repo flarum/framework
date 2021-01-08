@@ -11,6 +11,6 @@ use Flarum\Testing\integration\ConfigureSetup;
 
 require __DIR__.'/../../vendor/autoload.php';
 
-$setup = new ConfigureSetup();
+$setup = new ConfigureSetup(__DIR__.'/../../vendor');
 
 $setup->run();
