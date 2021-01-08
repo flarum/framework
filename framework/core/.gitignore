@@ -7,3 +7,4 @@ Thumbs.db
 /tests/integration/tmp
 .vagrant
 .idea/*
+.vscode
