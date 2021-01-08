@@ -86,13 +86,11 @@
         "wikimedia/less.php": "^3.0"
     },
     "require-dev": {
-        "mockery/mockery": "^1.0",
-        "phpunit/phpunit": "^7.0"
+        "flarum/testing": "^0.1"
     },
     "autoload": {
         "psr-4": {
-            "Flarum\\": "src/",
-            "Flarum\\Testing\\": "testing/"
+            "Flarum\\": "src/"
         },
         "files": [
             "src/helpers.php"
