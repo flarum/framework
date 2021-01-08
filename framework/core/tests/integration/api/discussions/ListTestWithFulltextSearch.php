@@ -52,7 +52,7 @@ class ListTest extends TestCase
     {
         parent::tearDown();
 
-        $this->database()->table('discussions')->whereIn('id', [1,2])->delete();
+        $this->database()->table('discussions')->whereIn('id', [1, 2])->delete();
         $this->database()->table('posts')->whereIn('id', [1, 2])->delete();
     }
 
