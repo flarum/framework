@@ -46,7 +46,7 @@ class NotificationSyncer
     /**
      * @var array
      */
-     protected static $beforeSendingCallbacks = [];
+    protected static $beforeSendingCallbacks = [];
 
     /**
      * Sync a notification so that it is visible to the specified users, and not
