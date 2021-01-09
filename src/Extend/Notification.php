@@ -10,6 +10,8 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
+use Flarum\Notification\NotificationSyncer;
 use Illuminate\Contracts\Container\Container;
 
 class Notification implements ExtenderInterface
@@ -18,6 +20,7 @@ class Notification implements ExtenderInterface
     private $serializers = [];
     private $drivers = [];
     private $typesEnabledByDefault = [];
+    private $beforeSendingCallbacks = [];
 
     /**
      * @param string $blueprint The ::class attribute of the blueprint class.
@@ -51,6 +54,16 @@ class Notification implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * @param callable|string $callback
+     */
+    public function beforeSending($callback)
+    {
+        $this->beforeSendingCallbacks[] = $callback;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend('flarum.notification.blueprints', function ($existingBlueprints) {
@@ -74,5 +87,9 @@ class Notification implements ExtenderInterface
         $container->extend('flarum.notification.drivers', function ($existingDrivers) {
             return array_merge($existingDrivers, $this->drivers);
         });
+
+        foreach ($this->beforeSendingCallbacks as $callback) {
+            NotificationSyncer::beforeSending(ContainerUtil::wrapCallback($callback, $container));
+        }
     }
 }
