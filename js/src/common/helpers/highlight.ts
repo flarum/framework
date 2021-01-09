@@ -4,21 +4,21 @@ import { truncate } from '../utils/string';
  * The `highlight` helper searches for a word phrase in a string, and wraps
  * matches with the <mark> tag.
  *
- * @param {String} string The string to highlight.
- * @param {String|RegExp} phrase The word or words to highlight.
- * @param {Integer} [length] The number of characters to truncate the string to.
+ * @param {string} string The string to highlight.
+ * @param {string|RegExp} phrase The word or words to highlight.
+ * @param {number} [length] The number of characters to truncate the string to.
  *     The string will be truncated surrounding the first match.
  * @return {Object}
  */
-export default function highlight(string, phrase, length) {
+export default function highlight(string: string, phrase: string | RegExp, length: number): Object | string {
   if (!phrase && !length) return string;
 
   // Convert the word phrase into a global regular expression (if it isn't
   // already) so we can search the string for matched.
-  const regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
+  const regexp: RegExp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
 
-  let highlighted = string;
-  let start = 0;
+  let highlighted: string = string;
+  let start: number = 0;
 
   // If a length was given, the truncate the string surrounding the first match.
   if (length) {
