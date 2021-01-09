@@ -70,7 +70,7 @@ abstract class AbstractPolicy
     {
         if ($result === true) {
             $result = $this->allow();
-        } else if ($result === false) {
+        } elseif ($result === false) {
             $result = $this->deny();
         }
 
