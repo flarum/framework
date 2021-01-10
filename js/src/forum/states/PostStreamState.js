@@ -172,7 +172,7 @@ class PostStreamState {
    * @return {Promise}
    */
   loadNearIndex(index) {
-    if (index >= this.visibleStart && index < this.visibleEnd) {
+    if (index >= this.visibleStart && index <= this.visibleEnd) {
       return Promise.resolve();
     }
 
