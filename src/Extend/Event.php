@@ -16,6 +16,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 class Event implements ExtenderInterface
 {
     private $listeners = [];
+    private $subscribers = [];
 
     /**
      * Add a listener to a domain event dispatched by flarum or a flarum extension.
@@ -34,6 +35,18 @@ class Event implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Add a subscriber for a set of domain events dispatched by flarum or a flarum extension.
+     *
+     * @param string $subscriber
+     */
+    public function subscribe(string $subscriber)
+    {
+        $this->subscribers[] = $subscriber;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $events = $container->make(Dispatcher::class);
@@ -41,5 +54,13 @@ class Event implements ExtenderInterface
         foreach ($this->listeners as $listener) {
             $events->listen($listener[0], $listener[1]);
         }
+
+        $app = $container->make('flarum');
+
+        $app->booted(function () use ($events) {
+            foreach ($this->subscribers as $subscriber) {
+                $events->subscribe($subscriber);
+            }
+        });
     }
 }
