@@ -100,7 +100,7 @@ class NotificationSyncer
         }
 
         foreach (static::$beforeSendingCallbacks as $callback) {
-            $callback($blueprint, $newRecipients);
+            $newRecipients = $callback($blueprint, $newRecipients);
         }
 
         // Create a notification record, and send an email, for all users
