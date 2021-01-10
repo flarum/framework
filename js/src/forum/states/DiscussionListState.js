@@ -1,4 +1,8 @@
+import Pagination from '../../common/utils/Pagination';
+
 export default class DiscussionListState {
+  static DISCUSSIONS_PER_PAGE = 20;
+
   constructor(params = {}, app = window.app) {
     this.params = params;
 
@@ -8,7 +12,7 @@ export default class DiscussionListState {
 
     this.moreResults = false;
 
-    this.loading = false;
+    this.pagination = new Pagination(this.load.bind(this));
   }
 
   /**
@@ -82,33 +86,16 @@ export default class DiscussionListState {
    * This can be used to refresh discussions without loading animations.
    */
   refresh({ deferClear = false } = {}) {
-    this.loading = true;
+    this.pagination.loading.next = true;
 
     if (!deferClear) {
       this.clear();
     }
 
-    return this.loadResults().then(
-      (results) => {
-        // This ensures that any changes made while waiting on this request
-        // are ignored. Otherwise, we could get duplicate discussions.
-        // We don't use `this.clear()` to avoid an unnecessary redraw.
-        this.discussions = [];
-        this.parseResults(results);
-      },
-      () => {
-        this.loading = false;
-        m.redraw();
-      }
-    );
+    return this.pagination.refresh(Number(m.route.param('page')) || 1).then(this.parse.bind(this));
   }
 
-  /**
-   * Load a new page of discussion results.
-   *
-   * @param offset The index to start the page at.
-   */
-  loadResults(offset) {
+  load(page) {
     const preloadedDiscussions = this.app.preloadedApiDocument();
 
     if (preloadedDiscussions) {
@@ -116,44 +103,54 @@ export default class DiscussionListState {
     }
 
     const params = this.requestParams();
-    params.page = { offset };
+    params.page = { offset: DiscussionListState.DISCUSSIONS_PER_PAGE * (page - 1) };
     params.include = params.include.join(',');
 
     return this.app.store.find('discussions', params);
   }
 
-  /**
-   * Load the next page of discussion results.
-   */
-  loadMore() {
-    this.loading = true;
+  loadPrev() {
+    return this.pagination.loadPrev().then(this.parse.bind(this));
+  }
 
-    this.loadResults(this.discussions.length).then(this.parseResults.bind(this));
+  loadMore() {
+    return this.pagination.loadNext().then(this.parse.bind(this));
   }
 
   /**
    * Parse results and append them to the discussion list.
    */
-  parseResults(results) {
-    this.discussions.push(...results);
+  parse() {
+    const discussions = [];
+    const { first, last } = this.pagination.pages;
 
-    this.loading = false;
-    this.moreResults = !!results.payload.links && !!results.payload.links.next;
+    for (let page = first; page <= last; page++) {
+      const results = this.pagination.data[page];
+
+      if (Array.isArray(results)) discussions.push(...results);
+    }
+
+    this.discussions = discussions;
+
+    const results = this.pagination.data[last];
+    this.moreResults = !!results.payload.links.next;
 
     m.redraw();
 
-    return results;
+    return discussions;
   }
 
   /**
    * Remove a discussion from the list if it is present.
    */
   removeDiscussion(discussion) {
-    const index = this.discussions.indexOf(discussion);
+    Object.keys(this.pagination.data).forEach((key) => {
+      const index = this.pagination.data[key].indexOf(discussion);
 
-    if (index !== -1) {
-      this.discussions.splice(index, 1);
-    }
+      this.pagination.data[key].splice(index, 1);
+    });
+
+    this.parse();
 
     m.redraw();
   }
@@ -177,7 +174,11 @@ export default class DiscussionListState {
    * Are discussions currently being loaded?
    */
   isLoading() {
-    return this.loading;
+    return this.pagination.loading.next;
+  }
+
+  isLoadingPrev() {
+    return this.pagination.loading.prev;
   }
 
   /**
