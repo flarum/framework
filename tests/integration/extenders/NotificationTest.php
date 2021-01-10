@@ -9,15 +9,21 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationSyncer;
+use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\User\User;
 
 class NotificationTest extends TestCase
 {
+    use RetrievesAuthorizedUsers;
+
     /**
      * @test
      */
@@ -119,23 +125,64 @@ class NotificationTest extends TestCase
         $this->assertContains('secondCustomDriver', $blueprints[SecondCustomNotificationType::class]);
         $this->assertEmpty($blueprints[ThirdCustomNotificationType::class]);
     }
+
+    /**
+     * @test
+     */
+    public function notification_before_sending_callback_works_if_added()
+    {
+        $this->extend(
+            (new Extend\Notification)
+                ->type(CustomNotificationType::class, 'customNotificationTypeSerializer')
+                ->driver('customNotificationDriver', CustomNotificationDriver::class)
+                ->beforeSending(function ($blueprint, $users) {
+                    if ($blueprint instanceof CustomNotificationType) {
+                        unset($users[1]);
+                    }
+
+                    return $users;
+                })
+        );
+
+        $this->prepareDatabase([
+            'discussions' => [
+                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 3, 'first_post_id' => 1, 'comment_count' => 1],
+            ],
+            'users' => [
+                $this->adminUser(),
+                $this->normalUser(),
+                ['id' => 3, 'username' => 'hani', 'password' => '$2y$10$HMOAe.XaQjOimA778VmFue1OCt7tj5j0wk5vfoL/CMSJq2BQlfBV2', 'email' => 'hani@machine.local', 'is_email_confirmed' => 1]
+            ],
+        ]);
+
+        $this->app();
+
+        $users = User::whereIn('id', [1, 2, 3])->get()->all();
+
+        $notificationSyncer = $this->app()->getContainer()->make(NotificationSyncer::class);
+        $notificationSyncer->sync(new CustomNotificationType(), $users);
+
+        $this->assertEquals('potato', $users[0]->username);
+        $this->assertEquals('normal', $users[1]->username);
+        $this->assertEquals('potato', $users[2]->username);
+    }
 }
 
 class CustomNotificationType implements BlueprintInterface
 {
     public function getFromUser()
     {
-        // ...
+        return User::find(3);
     }
 
     public function getSubject()
     {
-        // ...
+        return Discussion::find(1);
     }
 
     public function getData()
     {
-        // ...
+        return [];
     }
 
     public static function getType()
@@ -145,7 +192,7 @@ class CustomNotificationType implements BlueprintInterface
 
     public static function getSubjectModel()
     {
-        return 'customNotificationTypeSubjectModel';
+        return Discussion::class;
     }
 }
 
@@ -169,7 +216,9 @@ class CustomNotificationDriver implements NotificationDriverInterface
 {
     public function send(BlueprintInterface $blueprint, array $users): void
     {
-        // ...
+        foreach ($users as $user) {
+            $user->username = 'potato';
+        }
     }
 
     public function registerType(string $blueprintClass, array $driversEnabledByDefault): void
