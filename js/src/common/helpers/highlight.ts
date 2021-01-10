@@ -3,12 +3,6 @@ import { truncate } from '../utils/string';
 /**
  * The `highlight` helper searches for a word phrase in a string, and wraps
  * matches with the <mark> tag.
- *
- * @param {string} string The string to highlight.
- * @param {string|RegExp} phrase The word or words to highlight.
- * @param {number} [length] The number of characters to truncate the string to.
- *     The string will be truncated surrounding the first match.
- * @return {Object}
  */
 export default function highlight(string: string, phrase: string | RegExp, length: number): Object | string {
   if (!phrase && !length) return string;
