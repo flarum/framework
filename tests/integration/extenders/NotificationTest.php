@@ -187,7 +187,7 @@ class CustomNotificationType implements BlueprintInterface
 
     public static function getSubjectModel()
     {
-        return 'customNotificationSubjectModel';
+        return 'customNotificationTypeSubjectModel';
     }
 }
 

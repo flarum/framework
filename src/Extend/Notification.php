@@ -56,6 +56,7 @@ class Notification implements ExtenderInterface
 
     /**
      * @param callable|string $callback
+     * @return self
      */
     public function beforeSending($callback)
     {
