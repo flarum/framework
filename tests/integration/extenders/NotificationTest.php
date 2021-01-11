@@ -145,13 +145,10 @@ class NotificationTest extends TestCase
         );
 
         $this->prepareDatabase([
-            'discussions' => [
-                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 3, 'first_post_id' => 1, 'comment_count' => 1],
-            ],
             'users' => [
                 $this->adminUser(),
                 $this->normalUser(),
-                ['id' => 3, 'username' => 'hani', 'password' => '$2y$10$HMOAe.XaQjOimA778VmFue1OCt7tj5j0wk5vfoL/CMSJq2BQlfBV2', 'email' => 'hani@machine.local', 'is_email_confirmed' => 1]
+                ['id' => 3, 'username' => 'hani']
             ],
         ]);
 
@@ -172,12 +169,12 @@ class CustomNotificationType implements BlueprintInterface
 {
     public function getFromUser()
     {
-        return User::find(3);
+        return null;
     }
 
     public function getSubject()
     {
-        return Discussion::find(1);
+        return null;
     }
 
     public function getData()
@@ -192,7 +189,7 @@ class CustomNotificationType implements BlueprintInterface
 
     public static function getSubjectModel()
     {
-        return Discussion::class;
+        return 'customNotificationSubjectModel';
     }
 }
 
