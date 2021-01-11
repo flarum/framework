@@ -9,8 +9,6 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Carbon\Carbon;
-use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
