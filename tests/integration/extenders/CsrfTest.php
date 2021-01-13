@@ -21,20 +21,11 @@ class CsrfTest extends TestCase
         'email' => 'test@machine.local',
     ];
 
-    protected function prepDb()
-    {
-        $this->prepareDatabase([
-            'users' => [],
-        ]);
-    }
-
     /**
      * @test
      */
     public function create_user_post_needs_csrf_token_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('POST', '/api/users', [
                 'json' => [
@@ -58,8 +49,6 @@ class CsrfTest extends TestCase
             (new Extend\Csrf)
                 ->exemptPath('/api/users')
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('POST', '/api/users', [
@@ -90,8 +79,6 @@ class CsrfTest extends TestCase
                 ->exemptRoute('users.create')
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('POST', '/api/users', [
                 'json' => [
@@ -121,8 +108,6 @@ class CsrfTest extends TestCase
             (new Extend\Csrf)
                 ->exemptPath('/api/fake/*/up')
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('POST', '/api/fake/route/i/made/up')

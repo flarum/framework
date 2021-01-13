@@ -12,16 +12,22 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\Tests\integration\UsesSettings;
 
 class SettingsTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use UsesSettings;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser()
             ],
             'settings' => [
@@ -36,7 +42,7 @@ class SettingsTest extends TestCase
      */
     public function custom_setting_isnt_serialized_by_default()
     {
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -59,7 +65,7 @@ class SettingsTest extends TestCase
                 ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting')
         );
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -85,7 +91,7 @@ class SettingsTest extends TestCase
                 })
         );
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -109,7 +115,7 @@ class SettingsTest extends TestCase
                 ->serializeToForum('customPrefix.customSetting2', 'custom-prefix.custom_setting2', CustomInvokableClass::class)
         );
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -133,7 +139,7 @@ class SettingsTest extends TestCase
                 ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', null, 'customDefault')
         );
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -159,7 +165,7 @@ class SettingsTest extends TestCase
                 }, 'customDefault')
         );
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
