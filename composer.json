@@ -67,8 +67,7 @@
         "wikimedia/less.php": "^3.0"
     },
     "require-dev": {
-        "mockery/mockery": "^1.4",
-        "phpunit/phpunit": "^9.0"
+        "flarum/testing": "dev-main"
     },
     "autoload": {
         "psr-4": {
