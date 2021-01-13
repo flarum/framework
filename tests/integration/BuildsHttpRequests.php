@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration;
 
 use Carbon\Carbon;
-use HansOtt\PSR7Cookies\SetCookie;
 use Illuminate\Support\Str;
 use Laminas\Diactoros\CallbackStream;
 use Psr\Http\Message\ResponseInterface as Response;
