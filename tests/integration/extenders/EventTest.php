@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
+use Flarum\Foundation\Application;
 use Flarum\Group\Command\CreateGroup;
 use Flarum\Group\Event\Created;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
@@ -130,9 +131,9 @@ class CustomSubscriber
     protected $bootedAtConstruct;
     protected $translator;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(Application $app, TranslatorInterface $translator)
     {
-        $this->bootedAtConstruct = app('flarum')->isBooted();
+        $this->bootedAtConstruct = $app->isBooted();
         $this->translator = $translator;
     }
 
