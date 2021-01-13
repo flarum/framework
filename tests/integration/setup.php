@@ -56,8 +56,8 @@ $pipeline = $installation
     )
     ->adminUser(new AdminUser(
         'admin',
-        'secret',
-        'admin@flarum.email'
+        'password',
+        'admin@machine.local'
     ))
     ->settings(['mail_driver' => 'log'])
     ->build();

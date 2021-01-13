@@ -15,18 +15,24 @@ use Flarum\Http\SlugDriverInterface;
 use Flarum\Http\SlugManager;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\Tests\integration\UsesSettings;
 use Flarum\User\User;
 
 class ModelUrlTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use UsesSettings;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $userClass = User::class;
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ],
             'settings' => [
@@ -40,7 +46,7 @@ class ModelUrlTest extends TestCase
      */
     public function uses_default_driver_by_default()
     {
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $slugManager = $this->app()->getContainer()->make(SlugManager::class);
 
@@ -57,7 +63,7 @@ class ModelUrlTest extends TestCase
     {
         $this->extend((new Extend\ModelUrl(User::class))->addSlugDriver('testDriver', TestSlugDriver::class));
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $slugManager = $this->app()->getContainer()->make(SlugManager::class);
 

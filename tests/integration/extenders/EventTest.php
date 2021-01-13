@@ -26,15 +26,6 @@ class EventTest extends TestCase
 
     protected function buildGroup()
     {
-        $this->prepareDatabase([
-            'groups' => [
-                $this->adminGroup(),
-            ],
-            'users' => [
-                $this->adminUser(),
-            ],
-        ]);
-
         $bus = $this->app()->getContainer()->make(BusDispatcher::class);
 
         return $bus->dispatch(
