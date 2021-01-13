@@ -12,16 +12,22 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\Tests\integration\UsesSettings;
 
 class SettingsTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use UsesSettings;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser()
             ],
             'settings' => [
@@ -36,7 +42,7 @@ class SettingsTest extends TestCase
      */
     public function custom_setting_isnt_serialized_by_default()
     {
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -59,7 +65,7 @@ class SettingsTest extends TestCase
                 ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting')
         );
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -85,7 +91,7 @@ class SettingsTest extends TestCase
                 })
         );
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -109,7 +115,7 @@ class SettingsTest extends TestCase
                 ->serializeToForum('customPrefix.customSetting2', 'custom-prefix.custom_setting2', CustomInvokableClass::class)
         );
 
-        $this->prepDb();
+        $this->purgeSettingsCache();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -121,6 +127,56 @@ class SettingsTest extends TestCase
 
         $this->assertArrayHasKey('customPrefix.customSetting2', $payload['data']['attributes']);
         $this->assertEquals('customValueModifiedByInvokable', $payload['data']['attributes']['customPrefix.customSetting2']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_setting_falls_back_to_default()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', null, 'customDefault')
+        );
+
+        $this->purgeSettingsCache();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
+        $this->assertEquals('customDefault', $payload['data']['attributes']['customPrefix.noCustomSetting']);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_setting_default_passed_to_callback()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', function ($value) {
+                    return $value.'Modified2';
+                }, 'customDefault')
+        );
+
+        $this->purgeSettingsCache();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
+        $this->assertEquals('customDefaultModified2', $payload['data']['attributes']['customPrefix.noCustomSetting']);
     }
 }
 

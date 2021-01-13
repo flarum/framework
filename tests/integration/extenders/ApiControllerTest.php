@@ -31,16 +31,16 @@ class ApiControllerTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser()
-            ],
-            'groups' => [
-                $this->adminGroup(),
-                $this->memberGroup()
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
@@ -62,8 +62,6 @@ class ApiControllerTest extends TestCase
                 })
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
                 'authenticatedAs' => 1,
@@ -84,8 +82,6 @@ class ApiControllerTest extends TestCase
             (new Extend\ApiController(ShowDiscussionController::class))
                 ->prepareDataForSerialization(CustomPrepareDataSerializationInvokableClass::class)
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
@@ -113,8 +109,6 @@ class ApiControllerTest extends TestCase
                 })
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api', [
                 'authenticatedAs' => 1,
@@ -138,8 +132,6 @@ class ApiControllerTest extends TestCase
                 ->addInclude('referenceTest2')
                 ->prepareDataForSerialization(CustomInvokableClassArgsReference::class)
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -165,8 +157,6 @@ class ApiControllerTest extends TestCase
                     }
                 })
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
@@ -197,8 +187,6 @@ class ApiControllerTest extends TestCase
                 })
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
                 'authenticatedAs' => 1,
@@ -223,8 +211,6 @@ class ApiControllerTest extends TestCase
                     }
                 })
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
@@ -255,8 +241,6 @@ class ApiControllerTest extends TestCase
                 })
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
                 'authenticatedAs' => 1,
@@ -273,8 +257,6 @@ class ApiControllerTest extends TestCase
      */
     public function custom_serializer_doesnt_work_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
                 'authenticatedAs' => 1,
@@ -296,8 +278,6 @@ class ApiControllerTest extends TestCase
                 ->setSerializer(CustomDiscussionSerializer::class)
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
                 'authenticatedAs' => 1,
@@ -318,8 +298,6 @@ class ApiControllerTest extends TestCase
             (new Extend\ApiController(ShowPostController::class))
                 ->setSerializer(CustomPostSerializer::class, CustomApiControllerInvokableClass::class)
         );
-
-        $this->prepDb();
         $this->prepareDatabase([
             'posts' => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>'],
@@ -349,8 +327,6 @@ class ApiControllerTest extends TestCase
                 })
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
                 'authenticatedAs' => 1,
@@ -367,8 +343,6 @@ class ApiControllerTest extends TestCase
      */
     public function custom_relationship_not_included_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
                 'authenticatedAs' => 1,
@@ -395,8 +369,6 @@ class ApiControllerTest extends TestCase
                 ->addInclude('customApiControllerRelation')
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
                 'authenticatedAs' => 1,
@@ -422,8 +394,6 @@ class ApiControllerTest extends TestCase
                 ->addOptionalInclude('customApiControllerRelation2')
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
                 'authenticatedAs' => 1,
@@ -442,8 +412,6 @@ class ApiControllerTest extends TestCase
      */
     public function custom_relationship_included_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
                 'authenticatedAs' => 1,
@@ -464,8 +432,6 @@ class ApiControllerTest extends TestCase
             (new Extend\ApiController(ShowUserController::class))
                 ->removeInclude('groups')
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
@@ -493,8 +459,6 @@ class ApiControllerTest extends TestCase
                 ->removeOptionalInclude('customApiControllerRelation2')
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
                 'authenticatedAs' => 1,
@@ -511,8 +475,6 @@ class ApiControllerTest extends TestCase
      */
     public function custom_limit_doesnt_work_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
                 'authenticatedAs' => 1,
@@ -533,8 +495,6 @@ class ApiControllerTest extends TestCase
             (new Extend\ApiController(ListDiscussionsController::class))
                 ->setLimit(1)
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
@@ -557,8 +517,6 @@ class ApiControllerTest extends TestCase
                 ->setMaxLimit(1)
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
                 'authenticatedAs' => 1,
@@ -577,8 +535,6 @@ class ApiControllerTest extends TestCase
      */
     public function custom_sort_field_doesnt_exist_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
                 'authenticatedAs' => 1,
@@ -602,8 +558,6 @@ class ApiControllerTest extends TestCase
                 })
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
                 'authenticatedAs' => 1,
@@ -625,8 +579,6 @@ class ApiControllerTest extends TestCase
                 ->addSortField('userId')
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
                 'authenticatedAs' => 1,
@@ -646,8 +598,6 @@ class ApiControllerTest extends TestCase
      */
     public function custom_sort_field_exists_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
                 'authenticatedAs' => 1,
@@ -668,8 +618,6 @@ class ApiControllerTest extends TestCase
             (new Extend\ApiController(ListDiscussionsController::class))
                 ->removeSortField('createdAt')
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
@@ -692,8 +640,6 @@ class ApiControllerTest extends TestCase
                 ->addSortField('userId')
                 ->setSort(['userId' => 'desc'])
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api/discussions', [

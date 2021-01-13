@@ -114,7 +114,7 @@
     background: @body-bg;
 
     &:not(.minimized) {
-      position: absolute;
+      position: fixed;
       top: 0;
       height: 350px !important;
       padding-top: @header-height-phone;
@@ -219,7 +219,6 @@
   .Composer {
     border-radius: @border-radius @border-radius 0 0;
     background: fade(@body-bg, 95%);
-    transform: translateZ(0); // Fix for Chrome bug where a transparent white background is actually gray
     position: relative;
     height: 300px;
     .transition(~"background 0.2s, box-shadow 0.2s");

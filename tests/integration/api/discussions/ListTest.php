@@ -17,6 +17,9 @@ class ListTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -30,13 +33,6 @@ class ListTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->memberGroup(),
-                $this->guestGroup(),
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 2],
             ]
         ]);
     }
@@ -70,97 +66,5 @@ class ListTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-    }
-
-    /**
-     * @test
-     */
-    public function can_search_for_word_in_post()
-    {
-        $this->database()->table('discussions')->insert([
-            ['id' => 2, 'title' => 'lightsail in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
-            ['id' => 3, 'title' => 'not in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
-        ]);
-
-        $this->database()->table('posts')->insert([
-            ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
-            ['id' => 3, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
-        ]);
-
-        $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
-                    'filter' => ['q' => 'lightsail'],
-                    'include' => 'mostRelevantPost',
-                ])
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
-            return $row['id'];
-        }, $data['data']);
-
-        // Order-independent comparison
-        $this->assertEquals(['3'], $ids, 'IDs do not match', 0.0, 10, true);
-    }
-
-    /**
-     * @test
-     */
-    public function ignores_non_word_characters_when_searching()
-    {
-        $this->database()->table('discussions')->insert([
-            ['id' => 2, 'title' => 'lightsail in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
-            ['id' => 3, 'title' => 'not in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
-        ]);
-
-        $this->database()->table('posts')->insert([
-            ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
-            ['id' => 3, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
-        ]);
-
-        $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
-                    'filter' => ['q' => 'lightsail+'],
-                    'include' => 'mostRelevantPost',
-                ])
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
-            return $row['id'];
-        }, $data['data']);
-
-        // Order-independent comparison
-        $this->assertEquals(['3'], $ids, 'IDs do not match', 0.0, 10, true);
-    }
-
-    /**
-     * @test
-     */
-    public function search_for_special_characters_gives_empty_result()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
-                    'filter' => ['q' => '*'],
-                    'include' => 'mostRelevantPost',
-                ])
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals([], $data['data']);
-
-        $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
-                    'filter' => ['q' => '@'],
-                    'include' => 'mostRelevantPost',
-                ])
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals([], $data['data']);
     }
 }
