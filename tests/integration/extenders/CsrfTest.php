@@ -10,7 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 
 class CsrfTest extends TestCase

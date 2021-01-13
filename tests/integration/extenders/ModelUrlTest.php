@@ -13,9 +13,9 @@ use Flarum\Database\AbstractModel;
 use Flarum\Extend;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\Http\SlugManager;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
-use Flarum\Tests\integration\UsesSettings;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
+use Flarum\Testing\integration\UsesSettings;
 use Flarum\User\User;
 
 class ModelUrlTest extends TestCase

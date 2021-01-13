@@ -9,8 +9,8 @@
 
 namespace Flarum\Tests\integration\api\users;
 
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
