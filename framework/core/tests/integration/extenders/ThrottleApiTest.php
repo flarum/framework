@@ -17,20 +17,16 @@ class ThrottleApiTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb(): void
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->memberGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 2, 'group_id' => 3],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 3],
             ]
         ]);
     }
@@ -40,8 +36,6 @@ class ThrottleApiTest extends TestCase
      */
     public function list_discussions_not_restricted_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -57,8 +51,6 @@ class ThrottleApiTest extends TestCase
                 return true;
             }
         }));
-
-        $this->prepDb();
 
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
 
@@ -82,10 +74,6 @@ class ThrottleApiTest extends TestCase
                 }
             })
         );
-
-        $this->prepDb();
-
-        $this->prepDb();
 
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
 

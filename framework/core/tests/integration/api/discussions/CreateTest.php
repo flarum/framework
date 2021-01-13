@@ -18,28 +18,16 @@ class CreateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [],
-            'posts' => [],
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->adminGroup(),
-                $this->memberGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
-                ['user_id' => 2, 'group_id' => 3],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 3],
-                ['permission' => 'startDiscussion', 'group_id' => 3],
             ]
         ]);
     }

@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Flarum\Tests\integration\UsesSettings;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -19,24 +20,34 @@ use Illuminate\Support\Arr;
 class UserTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use UsesSettings;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
-            ],
-            'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 3]
             ],
             'settings' => [
                 ['key' => 'display_name_driver', 'value' => 'custom'],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 3],
             ]
         ]);
+    }
+
+    /**
+     * Purge the settings cache and reset the new display name driver.
+     */
+    protected function recalculateDisplayNameDriver()
+    {
+        $this->purgeSettingsCache();
+        $container = $this->app()->getContainer();
+        $container->forgetInstance('flarum.user.display_name.driver');
+        User::setDisplayNameDriver($container->make('flarum.user.display_name.driver'));
     }
 
     protected function registerTestPreference()
@@ -52,7 +63,8 @@ class UserTest extends TestCase
      */
     public function username_display_name_driver_used_by_default()
     {
-        $this->prepDb();
+        $this->app();
+        $this->recalculateDisplayNameDriver();
 
         $user = User::find(1);
 
@@ -69,7 +81,8 @@ class UserTest extends TestCase
                 ->displayNameDriver('custom', CustomDisplayNameDriver::class)
         );
 
-        $this->prepDb();
+        $this->app();
+        $this->recalculateDisplayNameDriver();
 
         $user = User::find(1);
 
@@ -81,7 +94,8 @@ class UserTest extends TestCase
      */
     public function user_has_permissions_for_expected_groups_if_no_processors_added()
     {
-        $this->prepDb();
+        $this->app();
+
         $user = User::find(2);
 
         $this->assertContains('viewUserList', $user->getPermissions());
@@ -98,7 +112,8 @@ class UserTest extends TestCase
             });
         }));
 
-        $this->prepDb();
+        $this->app();
+
         $user = User::find(2);
 
         $this->assertNotContains('viewUserList', $user->getPermissions());
@@ -111,7 +126,8 @@ class UserTest extends TestCase
     {
         $this->extend((new Extend\User)->permissionGroups(CustomGroupProcessorClass::class));
 
-        $this->prepDb();
+        $this->app();
+
         $user = User::find(2);
 
         $this->assertNotContains('viewUserList', $user->getPermissions());
@@ -123,7 +139,8 @@ class UserTest extends TestCase
     public function can_add_user_preference()
     {
         $this->registerTestPreference();
-        $this->prepDb();
+
+        $this->app();
 
         /** @var User $user */
         $user = User::find(2);
@@ -136,7 +153,8 @@ class UserTest extends TestCase
     public function can_store_user_preference()
     {
         $this->registerTestPreference();
-        $this->prepDb();
+
+        $this->app();
 
         /** @var User $user */
         $user = User::find(2);
@@ -152,7 +170,8 @@ class UserTest extends TestCase
     public function storing_user_preference_modified_by_transformer()
     {
         $this->registerTestPreference();
-        $this->prepDb();
+
+        $this->app();
 
         /** @var User $user */
         $user = User::find(2);

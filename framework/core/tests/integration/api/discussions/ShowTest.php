@@ -20,6 +20,9 @@ class ShowTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -37,17 +40,6 @@ class ShowTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->guestGroup(),
-                $this->memberGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 2, 'group_id' => 3],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 2],
-                ['permission' => 'viewDiscussions', 'group_id' => 3],
             ]
         ]);
     }

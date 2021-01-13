@@ -27,11 +27,15 @@ class ApiSerializerTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser()
             ],
             'discussions' => [
@@ -328,8 +332,6 @@ class ApiSerializerTest extends TestCase
                 ->hasMany('customSerializerRelation', DiscussionSerializer::class)
         );
 
-        $this->prepDb();
-
         $request = $this->request('GET', '/api/users/2', [
             'authenticatedAs' => 1,
         ]);
@@ -354,8 +356,6 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->hasOne('customSerializerRelation', DiscussionSerializer::class)
         );
-
-        $this->prepDb();
 
         $request = $this->request('GET', '/api/users/2', [
             'authenticatedAs' => 1,
@@ -384,8 +384,6 @@ class ApiSerializerTest extends TestCase
                 })
         );
 
-        $this->prepDb();
-
         $request = $this->request('GET', '/api/users/2', [
             'authenticatedAs' => 1,
         ]);
@@ -411,8 +409,6 @@ class ApiSerializerTest extends TestCase
                 ->relationship('customSerializerRelation', CustomRelationshipInvokableClass::class)
         );
 
-        $this->prepDb();
-
         $request = $this->request('GET', '/api/users/2', [
             'authenticatedAs' => 1,
         ]);
@@ -437,8 +433,6 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(BasicUserSerializer::class))
                 ->hasMany('anotherCustomRelation', DiscussionSerializer::class)
         );
-
-        $this->prepDb();
 
         $request = $this->request('GET', '/api/users/2', [
             'authenticatedAs' => 1,
@@ -470,8 +464,6 @@ class ApiSerializerTest extends TestCase
                     return $serializer->hasOne($model, DiscussionSerializer::class, 'discussionCustomRelation');
                 })
         );
-
-        $this->prepDb();
 
         $request = $this->request('GET', '/api/users/2', [
             'authenticatedAs' => 1,
