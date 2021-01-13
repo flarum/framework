@@ -17,6 +17,9 @@ class CreateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -25,18 +28,8 @@ class CreateTest extends TestCase
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2],
             ],
-            'posts' => [],
             'users' => [
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->memberGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 2, 'group_id' => 3],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 3],
             ]
         ]);
     }

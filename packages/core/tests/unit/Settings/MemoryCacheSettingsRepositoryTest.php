@@ -19,6 +19,9 @@ class MemoryCacheSettingsRepositoryTest extends TestCase
     private $baseRepository;
     private $repository;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         $this->baseRepository = m::mock(SettingsRepositoryInterface::class);
