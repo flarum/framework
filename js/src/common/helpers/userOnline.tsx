@@ -1,5 +1,5 @@
-import * as Mithril from "mithril";
-import User from "../models/User";
+import * as Mithril from 'mithril';
+import User from '../models/User';
 import icon from './icon';
 
 /**

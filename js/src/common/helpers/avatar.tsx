@@ -1,5 +1,5 @@
-import * as Mithril from "mithril";
-import User from "../models/User";
+import * as Mithril from 'mithril';
+import User from '../models/User';
 
 /**
  * The `avatar` helper displays a user's avatar.
