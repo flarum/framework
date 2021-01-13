@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration;
+namespace Flarum\Testing\integration;
 
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Foundation\Config;

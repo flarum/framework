@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration;
+namespace Flarum\Testing\integration;
 
 use Carbon\Carbon;
 use Dflydev\FigCookies\SetCookie;
