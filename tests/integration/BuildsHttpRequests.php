@@ -10,7 +10,7 @@
 namespace Flarum\Tests\integration;
 
 use Carbon\Carbon;
-use Dflydev\FigCookies\SetCookie;
+use HansOtt\PSR7Cookies\SetCookie;
 use Illuminate\Support\Str;
 use Laminas\Diactoros\CallbackStream;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -56,8 +56,9 @@ trait BuildsHttpRequests
         $cookies = array_reduce(
             $previous->getHeader('Set-Cookie'),
             function ($memo, $setCookieString) {
-                $setCookie = SetCookie::fromSetCookieString($setCookieString);
-                $memo[$setCookie->getName()] = $setCookie->getValue();
+                preg_match('~^(?<name>[^=]+)=(?<value>[^;]+)~', $setCookieString, $m);
+
+                $memo[$m['name']] = $m['value'];
 
                 return $memo;
             },

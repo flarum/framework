@@ -71,19 +71,19 @@ class CookieFactory
      * This method returns a cookie instance for use with the Set-Cookie HTTP header.
      * It will be pre-configured according to Flarum's base URL and protocol.
      *
-     * @param  string  $name
-     * @param  string  $value
-     * @param  int     $maxAge
+     * @param  string       $name
+     * @param  string|null  $value
+     * @param  int|null     $maxAge
      * @return SetCookie
      */
     public function make(string $name, ?string $value, ?int $maxAge): SetCookie
     {
-        $cookie = new SetCookie(
+        return new SetCookie(
             $this->getName($name),
             $value,
             $maxAge ? time() + $maxAge : null,
             $this->path,
-            $this->domain,
+            $this->domain ?? '',
             $this->secure,
             true,
             $this->samesite ?? 'lax'
