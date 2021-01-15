@@ -69,9 +69,9 @@ abstract class AbstractPolicy
     public function sanitizeResult($result)
     {
         if ($result === true) {
-            $result = $this->allow();
+            return $this->allow();
         } elseif ($result === false) {
-            $result = $this->deny();
+            return $this->deny();
         }
 
         return $result;
