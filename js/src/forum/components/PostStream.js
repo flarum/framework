@@ -148,11 +148,9 @@ export default class PostStream extends Component {
    * @param {Integer} top
    */
   onscroll(top = window.pageYOffset) {
-    if (this.stream.paused) return;
+    if (this.stream.paused || this.stream.pagesLoading) return;
 
     this.updateScrubber(top);
-
-    if (this.stream.pagesLoading) return;
 
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
