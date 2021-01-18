@@ -63,6 +63,15 @@ abstract class AbstractPolicy
     }
 
     /**
+     * Allows `true` to be used in place of `->allow()`, and `false` instead of `->deny()`
+     * This allows more concise and intuitive code, by returning boolean statements:
+     *
+     * WITHOUT THIS:
+     * `return SOME_BOOLEAN_LOGIC ? $this->allow() : $this->deny();
+     *
+     * WITH THIS:
+     * `return SOME_BOOLEAN_LOGIC;
+     *
      * @param mixed $result
      * @return string|void
      */
