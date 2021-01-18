@@ -9,9 +9,8 @@
 
 namespace Flarum\Tests\unit\User;
 
-use Flarum\Event\GetPermission;
 use Flarum\Tests\unit\TestCase;
-use Flarum\User\AbstractPolicy;
+use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
 use Illuminate\Events\Dispatcher;
 use Mockery as m;
@@ -19,7 +18,6 @@ use Mockery as m;
 class AbstractPolicyTest extends TestCase
 {
     private $policy;
-    private $dispatcher;
 
     /**
      * @inheritDoc
@@ -27,27 +25,43 @@ class AbstractPolicyTest extends TestCase
     protected function setUp(): void
     {
         $this->policy = m::mock(CustomUserPolicy::class)->makePartial();
-        $this->dispatcher = new Dispatcher();
-        $this->dispatcher->subscribe($this->policy);
-        User::setEventDispatcher($this->dispatcher);
+        User::setEventDispatcher(new Dispatcher());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function tearDown(): void
+    {
+        m::close();
     }
 
     public function test_policy_can_be_called_with_object()
     {
-        $this->policy->shouldReceive('edit')->andReturn(true);
+        $allowed = $this->policy->checkAbility(new User(), 'create', new User());
 
-        $allowed = $this->dispatcher->until(new GetPermission(new User(), 'edit', new User()));
-
-        $this->assertTrue($allowed);
+        $this->assertEquals(AbstractPolicy::ALLOW, $allowed);
     }
 
     public function test_policy_can_be_called_with_class()
     {
-        $this->policy->shouldReceive('create')->andReturn(true);
+        $allowed = $this->policy->checkAbility(new User(), 'edit', User::class);
 
-        $allowed = $this->dispatcher->until(new GetPermission(new User(), 'create', User::class));
+        $this->assertEquals(AbstractPolicy::DENY, $allowed);
+    }
 
-        $this->assertTrue($allowed);
+    public function test_policy_converts_true_to_ALLOW()
+    {
+        $allowed = $this->policy->checkAbility(new User(), 'somethingRandom', User::class);
+
+        $this->assertEquals(AbstractPolicy::ALLOW, $allowed);
+    }
+
+    public function test_policy_converts_false_to_DENY()
+    {
+        $allowed = $this->policy->checkAbility(new User(), 'somethingElseRandom', User::class);
+
+        $this->assertEquals(AbstractPolicy::DENY, $allowed);
     }
 }
 
@@ -57,11 +71,21 @@ class CustomUserPolicy extends AbstractPolicy
 
     public function create(User $actor)
     {
+        return $this->allow();
+    }
+
+    public function edit(User $actor, $target)
+    {
+        return $this->deny();
+    }
+
+    public function somethingRandom(User $actor, $target)
+    {
         return true;
     }
 
-    public function edit(User $actor, User $user)
+    public function somethingElseRandom(User $actor, $target)
     {
-        return true;
+        return false;
     }
 }
