@@ -40,11 +40,15 @@ class ListTest extends TestCase
                 ['id' => 4, 'discussion_id' => 4, 'created_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
             ],
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ]
         ]);
+    }
 
+    /**
+     * Mark some discussions, but not others, as read to test that filter/gambit.
+     */
+    protected function read() {
         $user = User::find(2);
         $user->marked_all_as_read_at = Carbon::createFromDate(1990, 0, 0)->toDateTimeString();
         $user->save();
