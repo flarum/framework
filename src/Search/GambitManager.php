@@ -37,7 +37,7 @@ class GambitManager
     }
 
     /**
-     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 14.
+     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 17.
      */
     public function getFullTextGambit()
     {
@@ -45,7 +45,7 @@ class GambitManager
     }
 
     /**
-     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 14.
+     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 17.
      */
     public function getGambits()
     {

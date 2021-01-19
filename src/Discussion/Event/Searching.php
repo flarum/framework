@@ -13,7 +13,7 @@ use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Search\SearchCriteria;
 
 /**
- * @deprecated beta 15, remove beta 16
+ * @deprecated beta 16, remove beta 17
  */
 class Searching
 {

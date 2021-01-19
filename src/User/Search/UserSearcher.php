@@ -54,7 +54,7 @@ class UserSearcher extends AbstractSearcher
     }
 
     /**
-     * @deprecated along with the Searching event, remove in Beta 16.
+     * @deprecated along with the Searching event, remove in Beta 17.
      */
     protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
     {
