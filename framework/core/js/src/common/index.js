@@ -1,7 +1,6 @@
 import 'expose-loader?$!expose-loader?jQuery!jquery';
 import 'expose-loader?m!mithril';
 import 'expose-loader?dayjs!dayjs';
-import 'expose-loader?m.bidi!m.attrs.bidi';
 import 'bootstrap/js/affix';
 import 'bootstrap/js/dropdown';
 import 'bootstrap/js/modal';
