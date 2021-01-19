@@ -18,6 +18,20 @@ class ListTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->prepareDatabase([
+            'users' => [
+                $this->normalUser(),
+            ],
+        ]);
+    }
+
+    /**
      * @test
      */
     public function disallows_index_for_guest()

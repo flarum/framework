@@ -40,11 +40,15 @@ class ListTest extends TestCase
                 ['id' => 4, 'discussion_id' => 4, 'created_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
             ],
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ]
         ]);
+    }
 
+    /**
+     * Mark some discussions, but not others, as read to test that filter/gambit.
+     */
+    protected function read() {
         $user = User::find(2);
         $user->marked_all_as_read_at = Carbon::createFromDate(1990, 0, 0)->toDateTimeString();
         $user->save();
@@ -63,72 +67,6 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(3, count($data['data']));
-    }
-
-    /**
-     * @test
-     */
-    public function can_search_for_word_in_post()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
-                    'filter' => ['q' => 'lightsail'],
-                    'include' => 'mostRelevantPost',
-                ])
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
-
-        // Order-independent comparison
-        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
-    }
-
-    /**
-     * @test
-     */
-    public function ignores_non_word_characters_when_searching()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
-                    'filter' => ['q' => 'lightsail+'],
-                    'include' => 'mostRelevantPost',
-                ])
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
-
-        // Order-independent comparison
-        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
-    }
-
-    /**
-     * @test
-     */
-    public function search_for_special_characters_gives_empty_result()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
-                    'filter' => ['q' => '*'],
-                    'include' => 'mostRelevantPost',
-                ])
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals([], $data['data']);
-
-        $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
-                    'filter' => ['q' => '@'],
-                    'include' => 'mostRelevantPost',
-                ])
-        );
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals([], $data['data']);
     }
 
     /**
@@ -288,6 +226,9 @@ class ListTest extends TestCase
      */
     public function unread_filter_works()
     {
+        $this->app();
+        $this->read();
+
         $response = $this->send(
             $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
                 ->withQueryParams([
@@ -307,6 +248,9 @@ class ListTest extends TestCase
      */
     public function unread_filter_works_when_negated()
     {
+        $this->app();
+        $this->read();
+
         $response = $this->send(
             $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
                 ->withQueryParams([
@@ -478,6 +422,9 @@ class ListTest extends TestCase
      */
     public function unread_gambit_works()
     {
+        $this->app();
+        $this->read();
+
         $response = $this->send(
             $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
                 ->withQueryParams([
@@ -497,6 +444,9 @@ class ListTest extends TestCase
      */
     public function unread_gambit_works_when_negated()
     {
+        $this->app();
+        $this->read();
+
         $response = $this->send(
             $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
                 ->withQueryParams([

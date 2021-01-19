@@ -33,7 +33,6 @@ class FilterTest extends TestCase
                 ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar not the same</p></t>'],
             ],
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ],
         ]);
