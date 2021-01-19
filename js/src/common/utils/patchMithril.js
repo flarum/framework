@@ -1,3 +1,5 @@
+import bidi from './bidi';
+
 export default function patchMithril(global) {
   const defaultMithril = global.m;
 
@@ -8,7 +10,7 @@ export default function patchMithril(global) {
 
     // Allows the use of the bidi attr.
     if (node.attrs.bidi) {
-      modifiedMithril.bidi(node, node.attrs.bidi);
+      bidi(node, node.attrs.bidi);
     }
 
     return node;
