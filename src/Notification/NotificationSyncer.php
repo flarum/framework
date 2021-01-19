@@ -44,6 +44,11 @@ class NotificationSyncer
     protected static $notificationDrivers = [];
 
     /**
+     * @var array
+     */
+    protected static $beforeSendingCallbacks = [];
+
+    /**
      * Sync a notification so that it is visible to the specified users, and not
      * visible to anyone else. If it is being made visible for the first time,
      * attempt to send the user an email.
@@ -92,6 +97,10 @@ class NotificationSyncer
 
         if (count($toUndelete)) {
             $this->setDeleted($toUndelete, false);
+        }
+
+        foreach (static::$beforeSendingCallbacks as $callback) {
+            $newRecipients = $callback($blueprint, $newRecipients);
         }
 
         // Create a notification record, and send an email, for all users
@@ -175,5 +184,13 @@ class NotificationSyncer
     public static function getNotificationDrivers(): array
     {
         return static::$notificationDrivers;
+    }
+
+    /**
+     * @param callable|string $callback
+     */
+    public static function beforeSending($callback): void
+    {
+        static::$beforeSendingCallbacks[] = $callback;
     }
 }
