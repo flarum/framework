@@ -36,10 +36,14 @@ class ListTests extends TestCase
                 ['id' => 5, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>something</p></t>'],
             ],
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ],
         ]);
+    }
+
+    private function forbidGuestsFromSeeingForum()
+    {
+        $this->database()->table('group_permission')->where('permission', 'viewDiscussions')->where('group_id', 2)->delete();
     }
 
     /**
@@ -47,6 +51,8 @@ class ListTests extends TestCase
      */
     public function guests_cant_see_anything_if_not_allowed()
     {
+        $this->forbidGuestsFromSeeingForum();
+
         $response = $this->send(
             $this->request('GET', '/api/posts')
         );
