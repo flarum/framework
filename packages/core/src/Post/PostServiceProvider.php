@@ -10,7 +10,6 @@
 namespace Flarum\Post;
 
 use DateTime;
-use Flarum\Event\ConfigurePostTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Post\Access\ScopePostVisibility;
 
@@ -60,11 +59,6 @@ class PostServiceProvider extends AbstractServiceProvider
             CommentPost::class,
             DiscussionRenamedPost::class
         ];
-
-        // Deprecated in beta 15, remove in beta 16.
-        $this->app->make('events')->dispatch(
-            new ConfigurePostTypes($models)
-        );
 
         foreach ($models as $model) {
             Post::setModel($model::$type, $model);
