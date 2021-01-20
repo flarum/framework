@@ -346,6 +346,8 @@ export default class ExtensionPage extends Page {
       app.modal.close();
     }, 300); // Bootstrap's Modal.TRANSITION_DURATION is 300 ms.
 
+    this.changingState = false;
+
     if (e.status !== 409) {
       throw e;
     }
