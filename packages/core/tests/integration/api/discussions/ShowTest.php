@@ -10,10 +10,8 @@
 namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Event\ScopeModelVisibility;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class ShowTest extends TestCase

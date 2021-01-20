@@ -110,10 +110,8 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->setNotificationSerializers();
 
         AbstractSerializeController::setContainer($this->app);
-        AbstractSerializeController::setEventDispatcher($events = $this->app->make('events'));
 
         AbstractSerializer::setContainer($this->app);
-        AbstractSerializer::setEventDispatcher($events);
     }
 
     /**
