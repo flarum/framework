@@ -11,7 +11,6 @@ namespace Flarum\Notification;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
-use Flarum\Notification\Event\Sending;
 use Flarum\User\User;
 
 /**
@@ -109,11 +108,6 @@ class NotificationSyncer
         // intensive on resources (database and mail server), we queue them.
         foreach (static::getNotificationDrivers() as $driverName => $driver) {
             $driver->send($blueprint, $newRecipients);
-        }
-
-        if (count($newRecipients)) {
-            // Deprecated in beta 15, removed in beta 16
-            event(new Sending($blueprint, $newRecipients));
         }
     }
 
