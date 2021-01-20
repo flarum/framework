@@ -9,8 +9,6 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Foundation\Event\Validating;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
@@ -39,24 +37,17 @@ abstract class AbstractValidator
     protected $validator;
 
     /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
      * @var TranslatorInterface
      */
     protected $translator;
 
     /**
      * @param Factory $validator
-     * @param Dispatcher $events
      * @param TranslatorInterface $translator
      */
-    public function __construct(Factory $validator, Dispatcher $events, TranslatorInterface $translator)
+    public function __construct(Factory $validator, TranslatorInterface $translator)
     {
         $this->validator = $validator;
-        $this->events = $events;
         $this->translator = $translator;
     }
 
@@ -101,13 +92,6 @@ abstract class AbstractValidator
         $rules = Arr::only($this->getRules(), array_keys($attributes));
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());
-
-        /**
-         * @deprecated in beta 15, removed in beta 16.
-         */
-        $this->events->dispatch(
-            new Validating($this, $validator)
-        );
 
         foreach ($this->configuration as $callable) {
             $callable($this, $validator);
