@@ -9,7 +9,6 @@
 
 namespace Flarum\Notification;
 
-use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
 
@@ -59,11 +58,6 @@ class NotificationServiceProvider extends AbstractServiceProvider
     protected function setNotificationTypes()
     {
         $blueprints = $this->app->make('flarum.notification.blueprints');
-
-        // Deprecated in beta 15, remove in beta 16
-        $this->app->make('events')->dispatch(
-            new ConfigureNotificationTypes($blueprints)
-        );
 
         foreach ($blueprints as $blueprint => $driversEnabledByDefault) {
             $this->addType($blueprint, $driversEnabledByDefault);
