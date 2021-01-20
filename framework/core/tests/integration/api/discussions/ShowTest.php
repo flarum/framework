@@ -121,29 +121,6 @@ class ShowTest extends TestCase
     /**
      * @test
      */
-    public function when_allowed_guests_can_see_hidden_posts()
-    {
-        /** @var Dispatcher $events */
-        $events = $this->app()->getContainer()->make(Dispatcher::class);
-
-        $events->listen(ScopeModelVisibility::class, function (ScopeModelVisibility $event) {
-            if ($event->ability === 'hidePosts') {
-                $event->query->whereRaw('1=1');
-            }
-        });
-
-        $response = $this->send(
-            $this->request('GET', '/api/discussions/4')
-        );
-
-        $json = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertEquals(2, Arr::get($json, 'data.relationships.posts.data.0.id'));
-    }
-
-    /**
-     * @test
-     */
     public function guest_can_see_discussion()
     {
         $response = $this->send(
