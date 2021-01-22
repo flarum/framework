@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.15.1](https://github.com/flarum/sticky/compare/v0.1.0-beta.14...v0.1.0-beta.15.1)
+
+### Fixed
+- Fixed security vulnerability for HTML injection in the first post of stickied discussions. See https://github.com/flarum/sticky/security/advisories/GHSA-h3gg-7wx2-cq3h.
+
 ## [0.1.0-beta.15](https://github.com/flarum/sticky/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Changed
