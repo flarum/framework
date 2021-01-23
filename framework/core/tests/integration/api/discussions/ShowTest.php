@@ -10,10 +10,8 @@
 namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Event\ScopeModelVisibility;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class ShowTest extends TestCase
@@ -111,29 +109,6 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/discussions/4', [
                 'authenticatedAs' => 2,
             ])
-        );
-
-        $json = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertEquals(2, Arr::get($json, 'data.relationships.posts.data.0.id'));
-    }
-
-    /**
-     * @test
-     */
-    public function when_allowed_guests_can_see_hidden_posts()
-    {
-        /** @var Dispatcher $events */
-        $events = $this->app()->getContainer()->make(Dispatcher::class);
-
-        $events->listen(ScopeModelVisibility::class, function (ScopeModelVisibility $event) {
-            if ($event->ability === 'hidePosts') {
-                $event->query->whereRaw('1=1');
-            }
-        });
-
-        $response = $this->send(
-            $this->request('GET', '/api/discussions/4')
         );
 
         $json = json_decode($response->getBody()->getContents(), true);
