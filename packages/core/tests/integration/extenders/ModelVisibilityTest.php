@@ -18,6 +18,7 @@ use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 class ModelVisibilityTest extends TestCase
 {
@@ -44,6 +45,27 @@ class ModelVisibilityTest extends TestCase
                 $this->normalUser(),
             ]
         ]);
+    }
+
+    /**
+     * @test
+     */
+    public function when_allowed_guests_can_see_hidden_posts()
+    {
+        $this->extend(
+            (new Extend\ModelVisibility(CommentPost::class))
+                ->scope(function (User $user, Builder $query) {
+                    $query->whereRaw('1=1');
+                }, 'hidePosts')
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/2')
+        );
+
+        $json = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals(1, Arr::get($json, 'data.relationships.posts.data.0.id'));
     }
 
     /**

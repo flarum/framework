@@ -11,11 +11,8 @@ namespace Flarum\Api\Serializer;
 
 use Closure;
 use DateTime;
-use Flarum\Api\Event\Serializing;
-use Flarum\Event\GetApiRelationship;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use LogicException;
@@ -37,11 +34,6 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @var User
      */
     protected $actor;
-
-    /**
-     * @var Dispatcher
-     */
-    protected static $dispatcher;
 
     /**
      * @var Container
@@ -105,11 +97,6 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
             }
         }
 
-        // Deprecated in beta 15, removed in beta 16
-        static::$dispatcher->dispatch(
-            new Serializing($this, $model, $attributes)
-        );
-
         return $attributes;
     }
 
@@ -153,27 +140,21 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      */
     protected function getCustomRelationship($model, $name)
     {
-        // Deprecated in beta 15, removed in beta 16
-        $relationship = static::$dispatcher->until(
-            new GetApiRelationship($this, $name, $model)
-        );
-
         foreach (array_merge([static::class], class_parents($this)) as $class) {
             $callback = Arr::get(static::$customRelations, "$class.$name");
 
             if (is_callable($callback)) {
                 $relationship = $callback($this, $model);
-                break;
+
+                if (isset($relationship) && ! ($relationship instanceof Relationship)) {
+                    throw new LogicException(
+                        'GetApiRelationship handler must return an instance of '.Relationship::class
+                    );
+                }
+
+                return $relationship;
             }
         }
-
-        if ($relationship && ! ($relationship instanceof Relationship)) {
-            throw new LogicException(
-                'GetApiRelationship handler must return an instance of '.Relationship::class
-            );
-        }
-
-        return $relationship;
     }
 
     /**
@@ -280,22 +261,6 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         $serializer->setRequest($this->request);
 
         return $serializer;
-    }
-
-    /**
-     * @return Dispatcher
-     */
-    public static function getEventDispatcher()
-    {
-        return static::$dispatcher;
-    }
-
-    /**
-     * @param Dispatcher $dispatcher
-     */
-    public static function setEventDispatcher(Dispatcher $dispatcher)
-    {
-        static::$dispatcher = $dispatcher;
     }
 
     /**

@@ -10,10 +10,8 @@
 namespace Flarum\User\Access;
 
 use Flarum\Database\AbstractModel;
-use Flarum\Event\GetPermission;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class Gate
@@ -31,11 +29,6 @@ class Gate
     protected $container;
 
     /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
      * @var array
      */
     protected $policyClasses;
@@ -46,12 +39,12 @@ class Gate
     protected $policies;
 
     /**
-     * @param Dispatcher $events
+     * @param Container $container
+     * @param array $policyClasses
      */
-    public function __construct(Container $container, Dispatcher $events, array $policyClasses)
+    public function __construct(Container $container, array $policyClasses)
     {
         $this->container = $container;
-        $this->events = $events;
         $this->policyClasses = $policyClasses;
     }
 
@@ -87,20 +80,6 @@ class Gate
                 return $decision;
             }
         }
-
-        // START OLD DEPRECATED SYSTEM
-
-        // Fire an event so that core and extension modelPolicies can hook into
-        // this permission query and explicitly grant or deny the
-        // permission.
-        $allowed = $this->events->until(
-            new GetPermission($actor, $ability, $model)
-        );
-
-        if (! is_null($allowed)) {
-            return $allowed;
-        }
-        // END OLD DEPRECATED SYSTEM
 
         // If no policy covered this permission query, we will only grant
         // the permission if the actor's groups have it. Otherwise, we will
