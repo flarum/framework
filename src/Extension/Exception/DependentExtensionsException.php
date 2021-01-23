@@ -30,7 +30,7 @@ class DependentExtensionsException extends Exception
         $this->extension = $extension;
         $this->dependent_extensions = $dependent_extensions;
 
-        parent::__construct($extension->getId().' could not be disabled, because it is a dependency of: '.implode(', ', $this->getDependentExtensionIds()));
+        parent::__construct($extension->getId().' could not be disabled, because it is a dependency of: '.implode(', ', $this->getDependentExtensionNames()));
     }
 
     /**
@@ -38,10 +38,10 @@ class DependentExtensionsException extends Exception
      *
      * @return array
      */
-    public function getDependentExtensionIds()
+    public function getDependentExtensionNames()
     {
         return array_map(function (Extension $extension) {
-            return $extension->getId();
+            return $extension->composerJsonAttribute('extra.flarum-extension.title') ?: $extension->getId();
         }, $this->dependent_extensions);
     }
 }

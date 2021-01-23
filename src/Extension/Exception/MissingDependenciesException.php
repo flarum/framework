@@ -30,7 +30,7 @@ class MissingDependenciesException extends Exception
         $this->extension = $extension;
         $this->missing_dependencies = $missing_dependencies;
 
-        parent::__construct($extension->getId().' could not be enabled, because it depends on: '.implode(', ', $this->getMissingDependencyIds()));
+        parent::__construct($extension->getId().' could not be enabled, because it depends on: '.implode(', ', $this->getMissingDependencyNames()));
     }
 
     /**
@@ -38,10 +38,10 @@ class MissingDependenciesException extends Exception
      *
      * @return array
      */
-    public function getMissingDependencyIds()
+    public function getMissingDependencyNames()
     {
         return array_map(function (Extension $extension) {
-            return $extension->getId();
+            return $extension->composerJsonAttribute('extra.flarum-extension.title') ?: $extension->getId();
         }, $this->missing_dependencies);
     }
 }
