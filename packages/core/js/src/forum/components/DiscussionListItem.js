@@ -121,6 +121,8 @@ export default class DiscussionListItem extends Component {
           </Link>
 
           <span
+            tabindex="0"
+            role="button"
             className="DiscussionListItem-count"
             onclick={this.markAsRead.bind(this)}
             title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}
