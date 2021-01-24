@@ -99,7 +99,9 @@ export default class NotificationList extends Component {
     super.oncreate(vnode);
 
     this.$notifications = this.$('.NotificationList-content');
-    this.$scrollParent = this.$notifications.css('overflow') === 'auto' ? this.$notifications : $(window);
+
+    // If we are on the notifications page, the window will be scrolling and not the $notifications element.
+    this.$scrollParent = this.inPanel() ? this.$notifications : $(window);
 
     this.boundScrollHandler = this.scrollHandler.bind(this);
     this.$scrollParent.on('scroll', this.boundScrollHandler);
@@ -112,7 +114,7 @@ export default class NotificationList extends Component {
   scrollHandler() {
     const state = this.attrs.state;
 
-    const notificationsElement = this.$scrollParent[0];
+    const notificationsElement = this.inPanel() ? this.$scrollParent[0] : document.querySelector('body');
 
     // On very short screens, the scrollHeight + scrollTop might not reach the clientHeight
     // by a fraction of a pixel, so we compensate for that.
@@ -121,5 +123,13 @@ export default class NotificationList extends Component {
     if (state.hasMoreResults() && !state.isLoading() && atBottom) {
       state.loadMore();
     }
+  }
+
+  /**
+   * If the NotificationList component isn't in a panel (e.g. on NotificationPage when mobile),
+   * we need to listen to scroll events on the window, and get scroll state from the body.
+   */
+  inPanel() {
+    return this.$notifications.css('overflow') === 'auto';
   }
 }
