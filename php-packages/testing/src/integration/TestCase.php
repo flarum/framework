@@ -13,6 +13,7 @@ use Flarum\Extend\ExtenderInterface;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\InstalledSite;
 use Flarum\Foundation\Paths;
+use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
 use Illuminate\Database\ConnectionInterface;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
@@ -51,10 +52,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'public' => __DIR__.'/tmp/public',
                     'storage' => __DIR__.'/tmp/storage',
                 ]),
-                new Config(include __DIR__.'/tmp/config.php')
+                new Config(include __DIR__ . '/tmp/config.php')
             );
 
-            $site->extendWith($this->extenders);
+            $extenders = array_merge([
+                new OverrideExtensionManagerForTests($this->extensions)
+            ], $this->extenders);
+
+            $site->extendWith($extenders);
 
             $this->app = $site->bootApp();
 
@@ -74,6 +79,16 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function extend(ExtenderInterface ...$extenders)
     {
         $this->extenders = array_merge($this->extenders, $extenders);
+    }
+
+    /**
+     * @var string[]
+     */
+    protected $extensions = [];
+
+    protected function extension(string ...$extensions)
+    {
+        $this->extensions = array_merge($this->extensions, $extensions);
     }
 
     /**
