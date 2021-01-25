@@ -1,4 +1,5 @@
 import { baseKeymap } from 'prosemirror-commands';
+import { undo, redo, history } from 'prosemirror-history';
 import { keymap } from 'prosemirror-keymap';
 import { Schema } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
@@ -62,6 +63,10 @@ export default class ProseMirrorView {
     items.add('shiftEnterSameAsEnter', keymap({ 'Shift-Enter': baseKeymap['Enter'] }));
 
     items.add('placeholder', placeholderPlugin(this.attrs.placeholder));
+
+    items.add('history', history());
+
+    items.add('historyKeymap', keymap({ 'Mod-z': undo, 'Mod-y': redo }));
 
     return items;
   }
