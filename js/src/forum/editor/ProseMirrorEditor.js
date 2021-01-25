@@ -8,7 +8,7 @@ import ItemList from '../../common/utils/ItemList';
 import placeholderPlugin from './placeholderPlugin';
 import PlaintextFormatter from './PlaintextFormatter';
 
-export default class ProseMirrorView {
+export default class ProseMirrorEditor {
   constructor(target, attrs) {
     this.build(target, attrs);
   }

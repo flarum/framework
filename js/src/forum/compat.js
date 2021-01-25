@@ -72,6 +72,7 @@ import DiscussionListItem from './components/DiscussionListItem';
 import LoadingPost from './components/LoadingPost';
 import PostsUserPage from './components/PostsUserPage';
 import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
+import ProseMirrorEditor from './editor/ProseMirrorEditor';
 import routes from './routes';
 import ForumApplication from './ForumApplication';
 
@@ -148,6 +149,7 @@ export default Object.assign(compat, {
   'components/LoadingPost': LoadingPost,
   'components/PostsUserPage': PostsUserPage,
   'resolvers/DiscussionPageResolver': DiscussionPageResolver,
+  'editor/ProseMirrorEditor': ProseMirrorEditor,
   routes: routes,
   ForumApplication: ForumApplication,
 });

@@ -2,7 +2,7 @@ import Component from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
-import ProseMirrorView from '../editor/ProseMirrorView';
+import ProseMirrorEditor from '../editor/ProseMirrorEditor';
 
 /**
  * The `TextEditor` component displays a textarea with controls, including a
@@ -63,7 +63,7 @@ export default class TextEditor extends Component {
   }
 
   buildProseView(dom) {
-    return new ProseMirrorView(dom, this.buildProseViewAttrs());
+    return new ProseMirrorEditor(dom, this.buildProseViewAttrs());
   }
 
   /**
