@@ -29,7 +29,7 @@ class ComposerState {
     /**
      * A reference to the text editor that allows text manipulation.
      *
-     * @type {SuperTextArea|null}
+     * @type {ProseMirrorView}
      */
     this.editor = null;
 

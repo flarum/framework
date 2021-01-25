@@ -2,7 +2,7 @@ import { baseKeymap } from 'prosemirror-commands';
 import { undo, redo, history } from 'prosemirror-history';
 import { keymap } from 'prosemirror-keymap';
 import { Schema } from 'prosemirror-model';
-import { EditorState } from 'prosemirror-state';
+import { EditorState, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import ItemList from '../../common/utils/ItemList';
 import placeholderPlugin from './placeholderPlugin';
@@ -97,14 +97,95 @@ export default class ProseMirrorView {
     return new PlaintextFormatter(schema).serialize(doc);
   }
 
+  addCssClass(className) {
+    this.view.dom.classList.add(className);
+  }
+
+  // External Control Stuff
+
+  /**
+   * Focus the textarea and place the cursor at the given index.
+   *
+   * @param {number} position
+   */
+  moveCursorTo(position) {
+    this.setSelectionRange(position, position);
+  }
+
+  /**
+   * Get the selected range of the textarea.
+   *
+   * @return {Array}
+   */
+  getSelectionRange() {
+    return [this.view.state.selection.from, this.view.state.selection.to];
+  }
+
+  /**
+   * Insert content into the textarea at the position of the cursor.
+   *
+   * @param {String} text
+   */
+  insertAtCursor(text) {
+    this.insertAt(this.getSelectionRange()[0], text);
+  }
+
+  /**
+   * Insert content into the textarea at the given position.
+   *
+   * @param {number} pos
+   * @param {String} text
+   */
+  insertAt(pos, text) {
+    this.insertBetween(pos, pos, text);
+  }
+
+  /**
+   * Insert content into the textarea between the given positions.
+   *
+   * If the start and end positions are different, any text between them will be
+   * overwritten.
+   *
+   * @param start
+   * @param end
+   * @param text
+   */
+  insertBetween(start, end, text) {
+    this.view.dispatch(this.view.state.tr.insertText(text, start, end));
+
+    // Move the textarea cursor to the end of the content we just inserted.
+    this.moveCursorTo(start + text.length);
+  }
+
+  /**
+   * Replace existing content from the start to the current cursor position.
+   *
+   * @param start
+   * @param text
+   */
+  replaceBeforeCursor(start, text) {
+    this.insertBetween(start, this.getSelectionRange()[0], text);
+  }
+
+  /**
+   * Set the selected range of the textarea.
+   *
+   * @param {number} start
+   * @param {number} end
+   * @private
+   */
+  setSelectionRange(start, end) {
+    const $start = this.view.state.tr.doc.resolve(start);
+    const $end = this.view.state.tr.doc.resolve(end);
+
+    this.view.dispatch(this.view.state.tr.setSelection(new TextSelection($start, $end)));
+    this.focus();
+  }
+
   focus() {
     this.view.focus();
   }
   destroy() {
     this.view.destroy();
-  }
-
-  addCssClass(className) {
-    this.view.dom.classList.add(className);
   }
 }

@@ -1,6 +1,5 @@
 import Component from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
-import SuperTextarea from '../../common/utils/SuperTextarea';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 import ProseMirrorView from '../editor/ProseMirrorView';
@@ -46,12 +45,10 @@ export default class TextEditor extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    this.proseView = this.buildProseView(this.$('.ProseEditor')[0]);
+    this.attrs.composer.editor = this.buildProseView(this.$('.ProseEditor')[0]);
 
-    this.proseView.addCssClass('FormControl');
-    this.proseView.addCssClass('Composer-flexible');
-
-    // this.attrs.composer.editor = new SuperTextarea(this.$('textarea')[0]);
+    this.attrs.composer.editor.addCssClass('FormControl');
+    this.attrs.composer.editor.addCssClass('Composer-flexible');
   }
 
   buildProseViewAttrs() {
