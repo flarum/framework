@@ -46,14 +46,6 @@ export default class TextEditor extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    // const handler = () => {
-    //   this.onsubmit();
-    //   m.redraw();
-    // };
-
-    // this.$('textarea').bind('keydown', 'meta+return', handler);
-    // this.$('textarea').bind('keydown', 'ctrl+return', handler);
-
     this.proseView = this.buildProseView(this.$('.ProseEditor')[0]);
 
     this.proseView.addCssClass('FormControl');
@@ -68,6 +60,10 @@ export default class TextEditor extends Component {
       placeholder: this.attrs.placeholder || '',
       value: this.value,
       oninput: this.oninput.bind(this),
+      onsubmit: () => {
+        this.onsubmit();
+        m.redraw();
+      },
     };
   }
 

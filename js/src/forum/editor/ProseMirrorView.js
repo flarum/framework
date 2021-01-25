@@ -58,6 +58,8 @@ export default class ProseMirrorView {
   buildPluginItems() {
     const items = new ItemList();
 
+    items.add('submit', keymap({ 'Mod-Enter': this.attrs.onsubmit }));
+
     items.add('baseKeymap', keymap(baseKeymap));
 
     items.add('shiftEnterSameAsEnter', keymap({ 'Shift-Enter': baseKeymap['Enter'] }));
