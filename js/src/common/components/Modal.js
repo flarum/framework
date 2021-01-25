@@ -15,6 +15,22 @@ export default class Modal extends Component {
   static isDismissible = true;
 
   /**
+   * Determine whether a click on the modal backdrop should dismiss the modal.
+   *
+   * Clicking and dragging from certain elements onto the backdrop can sometimes
+   * inadvertantly trigger this.
+   *
+   * It's recommended to disable this for modals which contain forms that may
+   * take a user a longer amount of time to complete.
+   */
+  static doesBackdropDismiss = false;
+
+  /**
+   * Determine whether pressing the Escape key should dismiss the modal.
+   */
+  static doesEscKeyDismiss = true;
+
+  /**
    * Attributes for an alert component to show below the header.
    *
    * @type {object}
