@@ -45,10 +45,10 @@ export default class TextEditor extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    this.attrs.composer.editor = this.buildProseView(this.$('.ProseEditor')[0]);
+    this.attrs.composer.editor = this.buildEditor(this.$('.ProseEditor')[0]);
   }
 
-  buildProseViewAttrs() {
+  buildEditorAttrs() {
     return {
       classNames: ['FormControl', 'Composer-flexible'],
       disabled: !!this.attrs.disabled,
@@ -62,8 +62,8 @@ export default class TextEditor extends Component {
     };
   }
 
-  buildProseView(dom) {
-    return new ProseMirrorEditor(dom, this.buildProseViewAttrs());
+  buildEditor(dom) {
+    return new ProseMirrorEditor(dom, this.buildEditorAttrs());
   }
 
   /**
