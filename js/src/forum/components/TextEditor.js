@@ -34,15 +34,6 @@ export default class TextEditor extends Component {
     return (
       <div className="TextEditor">
         <div className="ProseEditor"></div>
-        {/* <textarea
-          className="FormControl Composer-flexible"
-          oninput={(e) => {
-            this.oninput(e.target.value, e);
-          }}
-          placeholder={this.attrs.placeholder || ''}
-          disabled={!!this.attrs.disabled}
-          value={this.value}
-        /> */}
 
         <ul className="TextEditor-controls Composer-footer">
           {listItems(this.controlItems().toArray())}
@@ -71,8 +62,17 @@ export default class TextEditor extends Component {
     // this.attrs.composer.editor = new SuperTextarea(this.$('textarea')[0]);
   }
 
+  buildProseViewAttrs() {
+    return {
+      disabled: !!this.attrs.disabled,
+      placeholder: this.attrs.placeholder || '',
+      value: this.value,
+      oninput: this.oninput.bind(this),
+    };
+  }
+
   buildProseView(dom) {
-    return new ProseMirrorView(dom, this.value);
+    return new ProseMirrorView(dom, this.buildProseViewAttrs());
   }
 
   /**
@@ -126,12 +126,10 @@ export default class TextEditor extends Component {
    *
    * @param {String} value
    */
-  oninput(value, e) {
+  oninput(value) {
     this.value = value;
 
     this.attrs.onchange(this.value);
-
-    e.redraw = false;
   }
 
   /**

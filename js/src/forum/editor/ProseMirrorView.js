@@ -3,35 +3,22 @@ import { keymap } from 'prosemirror-keymap';
 import { Schema } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
+import ItemList from '../../common/utils/ItemList';
+import PlaintextFormatter from './PlaintextFormatter';
 
 export default class ProseMirrorView {
-  constructor(target, content) {
-    this.build(target, content);
+  constructor(target, attrs) {
+    this.build(target, attrs);
   }
 
-  build(target, content) {
+  build(target, attrs) {
+    this.attrs = attrs;
+    this.schema = new Schema(this.buildSchemaConfig());
+    this.state = EditorState.create(this.buildEditorStateConfig());
     this.view = new EditorView(target, this.buildEditorProps());
   }
 
-  buildEditorProps() {
-    return {
-      state: this.buildEditorState(),
-    };
-  }
-
-  buildEditorState() {
-    window.play = this.buildEditorStateConfig();
-    return EditorState.create(this.buildEditorStateConfig());
-  }
-
-  buildEditorStateConfig() {
-    return {
-      schema: new Schema(this.buildEditorStateSchemaConfig()),
-      plugins: [keymap(baseKeymap), keymap({ 'Shift-Enter': baseKeymap['Enter'] })],
-    };
-  }
-
-  buildEditorStateSchemaConfig() {
+  buildSchemaConfig() {
     // The simplest possible schema config that supports line breaks.
     // This is intended to be overriden by extensions.
     const nodes = {
@@ -56,6 +43,48 @@ export default class ProseMirrorView {
     return {
       nodes,
     };
+  }
+
+  buildEditorStateConfig() {
+    return {
+      doc: this.parseInitialValue(this.attrs.value, this.schema),
+      schema: this.schema,
+      plugins: this.buildPluginItems().toArray(),
+    };
+  }
+
+  buildPluginItems() {
+    const items = new ItemList();
+
+    items.add('baseKeymap', keymap(baseKeymap));
+
+    items.add('shiftEnterSameAsEnter', keymap({ 'Shift-Enter': baseKeymap['Enter'] }));
+
+    return items;
+  }
+
+  buildEditorProps() {
+    const self = this;
+
+    return {
+      state: this.state,
+      dispatchTransaction(transaction) {
+        let newState = this.state.apply(transaction);
+        this.updateState(newState);
+
+        const newDoc = this.state.doc;
+        const newDocPlaintext = self.serializeContent(newDoc, self.schema);
+        self.attrs.oninput(newDocPlaintext);
+      },
+    };
+  }
+
+  parseInitialValue(text, schema) {
+    return new PlaintextFormatter(schema).parse(text);
+  }
+
+  serializeContent(doc, schema) {
+    return new PlaintextFormatter(schema).serialize(doc);
   }
 
   focus() {
