@@ -5,7 +5,7 @@ import Button from '../../common/components/Button';
 import ProseMirrorEditor from '../editor/ProseMirrorEditor';
 
 /**
- * The `TextEditor` component displays a textarea with controls, including a
+ * The `TextEditor` component displays an editor with controls, including a
  * submit button.
  *
  * ### Attrs
@@ -22,11 +22,16 @@ export default class TextEditor extends Component {
     super.oninit(vnode);
 
     /**
-     * The value of the textarea.
+     * The value of the editor.
      *
      * @type {String}
      */
     this.value = this.attrs.value || '';
+
+    /**
+     * Whether the editor is disabled.
+     */
+    this.disabled = !!this.attrs.disabled || true;
   }
 
   view() {
@@ -48,10 +53,19 @@ export default class TextEditor extends Component {
     this.attrs.composer.editor = this.buildEditor(this.$('.ProseEditor')[0]);
   }
 
+  onupdate() {
+    const newDisabled = !!this.attrs.disabled;
+
+    if (this.disabled !== newDisabled) {
+      this.disabled = newDisabled;
+      this.attrs.composer.editor.disabled(newDisabled);
+    }
+  }
+
   buildEditorAttrs() {
     return {
       classNames: ['FormControl', 'Composer-flexible'],
-      disabled: !!this.attrs.disabled,
+      disabled: this.disabled,
       placeholder: this.attrs.placeholder || '',
       value: this.value,
       oninput: this.oninput.bind(this),

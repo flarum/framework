@@ -5,6 +5,7 @@ import { Schema } from 'prosemirror-model';
 import { EditorState, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import ItemList from '../../common/utils/ItemList';
+import disabledPlugin from './disabledPlugin';
 import placeholderPlugin from './placeholderPlugin';
 import PlaintextFormatter from './PlaintextFormatter';
 
@@ -53,6 +54,7 @@ export default class ProseMirrorEditor {
   buildEditorStateConfig() {
     return {
       doc: this.parseInitialValue(this.attrs.value, this.schema),
+      disabled: this.attrs.disabled,
       schema: this.schema,
       plugins: this.buildPluginItems().toArray(),
     };
@@ -72,6 +74,8 @@ export default class ProseMirrorEditor {
     items.add('history', history());
 
     items.add('historyKeymap', keymap({ 'Mod-z': undo, 'Mod-y': redo }));
+
+    items.add('disabled', disabledPlugin());
 
     return items;
   }
@@ -186,5 +190,9 @@ export default class ProseMirrorEditor {
   }
   destroy() {
     this.view.destroy();
+  }
+
+  disabled(disabled) {
+    this.view.dispatch(this.view.state.tr.setMeta('disabled', disabled));
   }
 }
