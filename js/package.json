@@ -18,7 +18,13 @@
     "spin.js": "^3.1.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
-    "webpack-merge": "^4.1.4"
+    "webpack-merge": "^4.1.4",
+    "prosemirror-commands": "^1.0.0",
+    "prosemirror-keymap": "^1.0.0",
+    "prosemirror-model": "^1.0.0",
+    "prosemirror-state": "^1.0.0",
+    "prosemirror-transform": "^1.0.0",
+    "prosemirror-view": "^1.0.0"
   },
   "devDependencies": {
     "husky": "^4.2.5",

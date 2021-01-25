@@ -3,6 +3,7 @@ import ItemList from '../../common/utils/ItemList';
 import SuperTextarea from '../../common/utils/SuperTextarea';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
+import ProseMirrorView from '../utils/ProseMirrorView';
 
 /**
  * The `TextEditor` component displays a textarea with controls, including a
@@ -32,7 +33,8 @@ export default class TextEditor extends Component {
   view() {
     return (
       <div className="TextEditor">
-        <textarea
+        <div className="ProseEditor"></div>
+        {/* <textarea
           className="FormControl Composer-flexible"
           oninput={(e) => {
             this.oninput(e.target.value, e);
@@ -40,7 +42,7 @@ export default class TextEditor extends Component {
           placeholder={this.attrs.placeholder || ''}
           disabled={!!this.attrs.disabled}
           value={this.value}
-        />
+        /> */}
 
         <ul className="TextEditor-controls Composer-footer">
           {listItems(this.controlItems().toArray())}
@@ -53,15 +55,24 @@ export default class TextEditor extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    const handler = () => {
-      this.onsubmit();
-      m.redraw();
-    };
+    // const handler = () => {
+    //   this.onsubmit();
+    //   m.redraw();
+    // };
 
-    this.$('textarea').bind('keydown', 'meta+return', handler);
-    this.$('textarea').bind('keydown', 'ctrl+return', handler);
+    // this.$('textarea').bind('keydown', 'meta+return', handler);
+    // this.$('textarea').bind('keydown', 'ctrl+return', handler);
 
-    this.attrs.composer.editor = new SuperTextarea(this.$('textarea')[0]);
+    this.proseView = this.buildProseView(this.$('.ProseEditor')[0]);
+
+    this.proseView.addCssClass('FormControl');
+    this.proseView.addCssClass('Composer-flexible');
+
+    // this.attrs.composer.editor = new SuperTextarea(this.$('textarea')[0]);
+  }
+
+  buildProseView(dom) {
+    return new ProseMirrorView(dom, this.value);
   }
 
   /**

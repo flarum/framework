@@ -292,7 +292,7 @@
     }
   }
   .ComposerBody-editor {
-    .fullScreen & textarea {
+    .fullScreen & .ProseMirror {
       font-size: 16px;
     }
   }
@@ -322,7 +322,7 @@
 // ------------------------------------
 // Text Editor
 
-.TextEditor textarea {
+.TextEditor .ProseMirror {
   border-radius: 0;
   padding: 0 0 10px;
   border: 0;
@@ -338,6 +338,19 @@
 
   @media @phone {
     font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
+  }
+
+  // Taken from https://github.com/ProseMirror/prosemirror-view/blob/master/style/prosemirror.css
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  white-space: break-spaces;
+  -webkit-font-variant-ligatures: none;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga"0;
+  /* the above doesn't seem to work in Edge */
+
+  p {
+    margin: 0;
   }
 }
 .TextEditor-controls {
