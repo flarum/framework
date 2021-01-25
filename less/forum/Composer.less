@@ -353,6 +353,13 @@
   p {
     margin: 0;
   }
+
+  .placeholder::before {
+    color: @control-color;
+    position: absolute;
+    cursor: text;
+    content: attr(data-before);
+  }
 }
 .TextEditor-controls {
   margin: 0;

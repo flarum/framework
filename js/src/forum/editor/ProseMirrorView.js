@@ -4,6 +4,7 @@ import { Schema } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import ItemList from '../../common/utils/ItemList';
+import placeholderPlugin from './placeholderPlugin';
 import PlaintextFormatter from './PlaintextFormatter';
 
 export default class ProseMirrorView {
@@ -59,6 +60,8 @@ export default class ProseMirrorView {
     items.add('baseKeymap', keymap(baseKeymap));
 
     items.add('shiftEnterSameAsEnter', keymap({ 'Shift-Enter': baseKeymap['Enter'] }));
+
+    items.add('placeholder', placeholderPlugin(this.attrs.placeholder));
 
     return items;
   }
