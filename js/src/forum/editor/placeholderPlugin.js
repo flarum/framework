@@ -8,7 +8,7 @@ export default function placeholderPlugin(text) {
         const decorations = [];
 
         const decorate = (node, pos) => {
-          if (node.type.isBlock && node.childCount === 0) {
+          if (node.type.isBlock && node.childCount === 0 && pos === 0) {
             decorations.push(
               Decoration.node(pos, pos + node.nodeSize, {
                 class: 'placeholder',
