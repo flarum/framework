@@ -76,7 +76,7 @@ export default class Composer extends Component {
 
     // Whenever any of the inputs inside the composer are have focus, we want to
     // add a class to the composer to draw attention to it.
-    this.$().on('focus blur', ':input', (e) => {
+    this.$().on('focus blur', ':input, .ProseMirror', (e) => {
       this.active = e.type === 'focusin';
       m.redraw();
     });
