@@ -3,7 +3,7 @@ import ItemList from '../../common/utils/ItemList';
 import SuperTextarea from '../../common/utils/SuperTextarea';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
-import ProseMirrorView from '../utils/ProseMirrorView';
+import ProseMirrorView from '../editor/ProseMirrorView';
 
 /**
  * The `TextEditor` component displays a textarea with controls, including a
