@@ -46,13 +46,11 @@ export default class TextEditor extends Component {
     super.oncreate(vnode);
 
     this.attrs.composer.editor = this.buildProseView(this.$('.ProseEditor')[0]);
-
-    this.attrs.composer.editor.addCssClass('FormControl');
-    this.attrs.composer.editor.addCssClass('Composer-flexible');
   }
 
   buildProseViewAttrs() {
     return {
+      classNames: ['FormControl', 'Composer-flexible'],
       disabled: !!this.attrs.disabled,
       placeholder: this.attrs.placeholder || '',
       value: this.value,

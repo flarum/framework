@@ -18,6 +18,9 @@ export default class ProseMirrorView {
     this.schema = new Schema(this.buildSchemaConfig());
     this.state = EditorState.create(this.buildEditorStateConfig());
     this.view = new EditorView(target, this.buildEditorProps());
+
+    const cssClasses = attrs.classNames || [];
+    cssClasses.forEach((className) => this.view.dom.classList.add(className));
   }
 
   buildSchemaConfig() {
@@ -95,10 +98,6 @@ export default class ProseMirrorView {
 
   serializeContent(doc, schema) {
     return new PlaintextFormatter(schema).serialize(doc);
-  }
-
-  addCssClass(className) {
-    this.view.dom.classList.add(className);
   }
 
   // External Control Stuff
