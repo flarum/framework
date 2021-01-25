@@ -9,19 +9,15 @@
 
 namespace Flarum\Flags\Event;
 
-use Flarum\Post\Post;
+use Flarum\Flags\Flag;
 use Flarum\User\User;
 
-/**
- * @deprecated 0.1.0-beta.16, remove 0.1.0-beta.17
- * Listen for Flarum\Flags\Event\Deleting instead
- */
-class FlagsWillBeDeleted
+class Created
 {
     /**
-     * @var Post
+     * @var Flag
      */
-    public $post;
+    public $flag;
 
     /**
      * @var User
@@ -34,13 +30,13 @@ class FlagsWillBeDeleted
     public $data;
 
     /**
-     * @param Post $post
+     * @param Flag $flag
      * @param User $actor
      * @param array $data
      */
-    public function __construct(Post $post, User $actor, array $data = [])
+    public function __construct(Flag $flag, User $actor, array $data = [])
     {
-        $this->post = $post;
+        $this->flag = $flag;
         $this->actor = $actor;
         $this->data = $data;
     }
