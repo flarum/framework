@@ -27,7 +27,7 @@ export default class ProseMirrorView {
   buildEditorStateConfig() {
     return {
       schema: new Schema(this.buildEditorStateSchemaConfig()),
-      plugins: [keymap(baseKeymap)],
+      plugins: [keymap(baseKeymap), keymap({ 'Shift-Enter': baseKeymap['Enter'] })],
     };
   }
 
