@@ -18,7 +18,7 @@ class ContainerUtilTest extends TestCase
     private $container;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function setUp(): void
     {
