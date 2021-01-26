@@ -72,11 +72,11 @@ class CookieFactory
      * It will be pre-configured according to Flarum's base URL and protocol.
      *
      * @param  string       $name
-     * @param  string|null  $value
+     * @param  string       $value
      * @param  int|null     $maxAge
      * @return SetCookie
      */
-    public function make(string $name, ?string $value, ?int $maxAge): SetCookie
+    public function make(string $name, string $value, ?int $maxAge): SetCookie
     {
         return new SetCookie(
             $this->getName($name),
@@ -98,7 +98,7 @@ class CookieFactory
      */
     public function expire(string $name): SetCookie
     {
-        return SetCookie::thatExpires($name);
+        return $this->make($name, '', -3600);
     }
 
     /**
@@ -107,7 +107,7 @@ class CookieFactory
      * @param string $name
      * @return string
      */
-    public function getName($name)
+    public function getName(string $name): string
     {
         return $this->prefix.'_'.$name;
     }
