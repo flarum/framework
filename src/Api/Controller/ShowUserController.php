@@ -61,6 +61,7 @@ class ShowUserController extends AbstractShowController
         if (Arr::get($request->getQueryParams(), 'bySlug', false)) {
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
+            $actor->assertCan('viewUserList');
             $user = $this->users->findOrFail($id, $actor);
         }
 
