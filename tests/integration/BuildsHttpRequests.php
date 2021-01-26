@@ -9,8 +9,8 @@
 
 namespace Flarum\Tests\integration;
 
-use Carbon\Carbon;
-use Illuminate\Support\Str;
+use Dflydev\FigCookies\SetCookie;
+use Flarum\Http\AccessToken;
 use Laminas\Diactoros\CallbackStream;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -33,21 +33,10 @@ trait BuildsHttpRequests
 
     protected function requestAsUser(Request $req, int $userId): Request
     {
-        $token = Str::random(40);
+        $token = AccessToken::generate($userId);
+        $token->save();
 
-        /**
-         * We insert this directly instead of via `prepareDatabase`
-         * so that requests can be created/sent after the app is booted.
-         */
-        $this->database()->table('access_tokens')->insert([
-            'token' => $token,
-            'user_id' => $userId,
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'last_activity_at' => Carbon::now()->toDateTimeString(),
-            'lifetime_seconds' => 3600
-        ]);
-
-        return $req->withAddedHeader('Authorization', "Token {$token}");
+        return $req->withAddedHeader('Authorization', "Token {$token->token}");
     }
 
     protected function requestWithCookiesFrom(Request $req, Response $previous): Request
@@ -55,9 +44,8 @@ trait BuildsHttpRequests
         $cookies = array_reduce(
             $previous->getHeader('Set-Cookie'),
             function ($memo, $setCookieString) {
-                preg_match('~^(?<name>[^=]+)=(?<value>[^;]+)~', $setCookieString, $m);
-
-                $memo[$m['name']] = $m['value'];
+                $setCookie = SetCookie::fromSetCookieString($setCookieString);
+                $memo[$setCookie->getName()] = $setCookie->getValue();
 
                 return $memo;
             },

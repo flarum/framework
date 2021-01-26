@@ -9,8 +9,9 @@
 
 namespace Flarum\Http;
 
+use Dflydev\FigCookies\Modifier\SameSite;
+use Dflydev\FigCookies\SetCookie;
 use Flarum\Foundation\Config;
-use HansOtt\PSR7Cookies\SetCookie;
 
 class CookieFactory
 {
@@ -71,34 +72,45 @@ class CookieFactory
      * This method returns a cookie instance for use with the Set-Cookie HTTP header.
      * It will be pre-configured according to Flarum's base URL and protocol.
      *
-     * @param  string       $name
-     * @param  string       $value
-     * @param  int|null     $maxAge
-     * @return SetCookie
+     * @param  string  $name
+     * @param  string  $value
+     * @param  int     $maxAge
+     * @return \Dflydev\FigCookies\SetCookie
      */
-    public function make(string $name, string $value, int $maxAge = null): SetCookie
+    public function make($name, $value = null, $maxAge = null)
     {
-        return new SetCookie(
-            $this->getName($name),
-            $value,
-            $maxAge ? time() + $maxAge : 0,
-            $this->path,
-            $this->domain ?? '',
-            $this->secure,
-            true,
-            $this->samesite ?? 'lax'
-        );
+        $cookie = SetCookie::create($this->getName($name), $value);
+
+        // Make sure we send both the MaxAge and Expires parameters (the former
+        // is not supported by all browser versions)
+        if ($maxAge) {
+            $cookie = $cookie
+                ->withMaxAge($maxAge)
+                ->withExpires(time() + $maxAge);
+        }
+
+        if ($this->domain != null) {
+            $cookie = $cookie->withDomain($this->domain);
+        }
+
+        // Explicitly set SameSite value, use sensible default if no value provided
+        $cookie = $cookie->withSameSite(SameSite::{$this->samesite ?? 'lax'}());
+
+        return $cookie
+            ->withPath($this->path)
+            ->withSecure($this->secure)
+            ->withHttpOnly(true);
     }
 
     /**
      * Make an expired cookie instance.
      *
      * @param string $name
-     * @return SetCookie
+     * @return \Dflydev\FigCookies\SetCookie
      */
-    public function expire(string $name): SetCookie
+    public function expire($name)
     {
-        return $this->make($name, '', -3600);
+        return $this->make($name)->expire();
     }
 
     /**
@@ -107,7 +119,7 @@ class CookieFactory
      * @param string $name
      * @return string
      */
-    public function getName(string $name): string
+    public function getName($name)
     {
         return $this->prefix.'_'.$name;
     }

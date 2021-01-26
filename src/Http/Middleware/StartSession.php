@@ -9,6 +9,7 @@
 
 namespace Flarum\Http\Middleware;
 
+use Dflydev\FigCookies\FigResponseCookies;
 use Flarum\Http\CookieFactory;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Session\Session;
@@ -81,8 +82,10 @@ class StartSession implements Middleware
 
     private function withSessionCookie(Response $response, Session $session): Response
     {
-        return $this->cookie->make($session->getName(), $session->getId(), $this->getSessionLifetimeInSeconds())
-            ->addToResponse($response);
+        return FigResponseCookies::set(
+            $response,
+            $this->cookie->make($session->getName(), $session->getId(), $this->getSessionLifetimeInSeconds())
+        );
     }
 
     private function getSessionLifetimeInSeconds(): int

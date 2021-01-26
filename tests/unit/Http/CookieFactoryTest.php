@@ -31,8 +31,8 @@ class CookieFactoryTest extends TestCase
 
         $this->assertEquals('flarum_test', $cookie->getName());
         $this->assertEquals('australia', $cookie->getValue());
-        $this->assertEquals(0, $cookie->expiresAt());
-        $this->assertFalse($cookie->isSecure());
+        $this->assertEquals(0, $cookie->getExpires());
+        $this->assertFalse($cookie->getSecure());
         $this->assertEquals('/', $cookie->getPath());
     }
 
@@ -49,8 +49,8 @@ class CookieFactoryTest extends TestCase
         ])->make('test', 'australia');
 
         $this->assertEquals('australia_test', $cookie->getName());
-        $this->assertTrue($cookie->isSecure());
+        $this->assertTrue($cookie->getSecure());
         $this->assertEquals('flarum.com', $cookie->getDomain());
-        $this->assertEquals('none', $cookie->getSameSite());
+        $this->assertEquals('SameSite=None', $cookie->getSameSite()->asString());
     }
 }
