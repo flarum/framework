@@ -29,7 +29,8 @@ app.initializers.add('flarum-markdown', function(app) {
     this.editor = new MarkdownArea(this.$('textarea')[0], {
       keyMap: {
         indent: ['Ctrl+m'],
-        outdent: ['Ctrl+M']
+        outdent: ['Ctrl+M'],
+        inline: []
       }
     });
   });
