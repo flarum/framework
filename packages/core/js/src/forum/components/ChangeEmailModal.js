@@ -106,8 +106,6 @@ export default class ChangeEmailModal extends Modal {
       return;
     }
 
-    const oldEmail = app.session.user.email();
-
     this.loading = true;
     this.alertAttrs = null;
 
