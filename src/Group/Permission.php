@@ -39,7 +39,7 @@ class Permission extends AbstractModel
      * @param Builder $query
      * @return Builder
      */
-    protected function setKeysForSaveQuery(Builder $query)
+    protected function setKeysForSaveQuery($query)
     {
         $query->where('group_id', $this->group_id)
               ->where('permission', $this->permission);
