@@ -13,7 +13,6 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
-use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
@@ -111,10 +110,8 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->setNotificationSerializers();
 
         AbstractSerializeController::setContainer($this->app);
-        AbstractSerializeController::setEventDispatcher($events = $this->app->make('events'));
 
         AbstractSerializer::setContainer($this->app);
-        AbstractSerializer::setEventDispatcher($events);
     }
 
     /**
@@ -122,13 +119,7 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     protected function setNotificationSerializers()
     {
-        $blueprints = [];
         $serializers = $this->app->make('flarum.api.notification_serializers');
-
-        // Deprecated in beta 15, remove in beta 16
-        $this->app->make('events')->dispatch(
-            new ConfigureNotificationTypes($blueprints, $serializers)
-        );
 
         foreach ($serializers as $type => $serializer) {
             NotificationSerializer::setSubjectSerializer($type, $serializer);

@@ -334,15 +334,6 @@ class Extension implements Arrayable
             return $filename;
         }
 
-        // To give extension authors some time to migrate to the new extension
-        // format, we will also fallback to the old bootstrap.php name. Consider
-        // this feature deprecated.
-        $deprecatedFilename = "{$this->path}/bootstrap.php";
-
-        if (file_exists($deprecatedFilename)) {
-            return $deprecatedFilename;
-        }
-
         return null;
     }
 
