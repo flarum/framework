@@ -33,8 +33,7 @@ export default class ModalManager extends Component {
   }
 
   animateShow(readyCallback) {
-    const buttonDismissible = !!this.attrs.state.modal.componentClass.isDismissible;
-    const backdropDismissible = !!this.attrs.state.modal.componentClass.doesBackdropDismiss;
+    const backdropDismissible = !!this.attrs.state.modal.componentClass.doesBackdropClickDismiss;
     const keyboardDismissible = !!this.attrs.state.modal.componentClass.doesEscKeyDismiss;
 
     // If we are opening this modal while another modal is already open,
