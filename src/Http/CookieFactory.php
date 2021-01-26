@@ -76,12 +76,12 @@ class CookieFactory
      * @param  int|null     $maxAge
      * @return SetCookie
      */
-    public function make(string $name, string $value, ?int $maxAge): SetCookie
+    public function make(string $name, string $value, int $maxAge = null): SetCookie
     {
         return new SetCookie(
             $this->getName($name),
             $value,
-            $maxAge ? time() + $maxAge : null,
+            $maxAge ? time() + $maxAge : 0,
             $this->path,
             $this->domain ?? '',
             $this->secure,
