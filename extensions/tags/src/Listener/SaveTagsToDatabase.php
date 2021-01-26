@@ -111,8 +111,10 @@ class SaveTagsToDatabase
                 throw new PermissionDeniedException;
             }
 
-            $this->validateTagCount('primary', $primaryCount);
-            $this->validateTagCount('secondary', $secondaryCount);
+            if (! $actor->can('bypassTagCounts', $discussion)) {
+                $this->validateTagCount('primary', $primaryCount);
+                $this->validateTagCount('secondary', $secondaryCount);
+            }
 
             $discussion->afterSave(function ($discussion) use ($newTagIds) {
                 $discussion->tags()->sync($newTagIds);

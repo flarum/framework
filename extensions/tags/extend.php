@@ -47,7 +47,10 @@ return [
         ->belongsToMany('tags', Tag::class, 'discussion_tag'),
 
     (new Extend\ApiSerializer(ForumSerializer::class))
-        ->hasMany('tags', TagSerializer::class),
+        ->hasMany('tags', TagSerializer::class)
+        ->attribute('canBypassTagCounts', function (ForumSerializer $serializer) {
+            return $serializer->getActor()->can('bypassTagCounts');
+        }),
 
     (new Extend\ApiSerializer(DiscussionSerializer::class))
         ->hasMany('tags', TagSerializer::class)
