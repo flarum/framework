@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\unit\Http;
 
+use Carbon\Carbon;
 use Flarum\Foundation\Config;
 use Flarum\Http\CookieFactory;
 use Flarum\Tests\unit\TestCase;
@@ -52,5 +53,13 @@ class CookieFactoryTest extends TestCase
         $this->assertTrue($cookie->getSecure());
         $this->assertEquals('flarum.com', $cookie->getDomain());
         $this->assertEquals('SameSite=None', $cookie->getSameSite()->asString());
+    }
+
+    /** @test */
+    public function can_expire_cookies()
+    {
+        $cookie = $this->factory()->expire('test');
+
+        $this->assertLessThan(Carbon::now()->timestamp, $cookie->getExpires());
     }
 }
