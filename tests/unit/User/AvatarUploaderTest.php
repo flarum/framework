@@ -97,6 +97,6 @@ class AvatarUploaderTest extends TestCase
         }
         $user->syncOriginal();
 
-        $this->assertNotEquals('ABCDEFGHabcdefgh.png', $user->getOriginal('avatar_url'));
+        $this->assertNotEquals('ABCDEFGHabcdefgh.png', $user->getRawOriginal('avatar_url'));
     }
 }
