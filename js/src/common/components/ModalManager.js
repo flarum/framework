@@ -55,6 +55,18 @@ export default class ModalManager extends Component {
         keyboard: keyboardDismissible,
       })
       .modal('show');
+
+    // Disabling backdrop dismissal also disables keyboard dismissibility
+    // but we want to be able to provide key-based dismissal while having
+    // backdrop-based disabled. To do this, we set up our own event
+    // handler to hide the modal if we press Escape.
+    if (!backdropDismissible && keyboardDismissible) {
+      this.$().on('keypress', function (e) {
+        if (e.key === 'Escape') {
+          this.animateHide();
+        }
+      });
+    }
   }
 
   animateHide() {
