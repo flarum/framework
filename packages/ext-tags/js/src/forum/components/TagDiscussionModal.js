@@ -177,7 +177,7 @@ export default class TagDiscussionModal extends Modal {
             </div>
           </div>
           <div className="TagDiscussionModal-form-submit App-primaryControl">
-            <Button type="submit" className="Button Button--primary" disabled={primaryCount < this.minPrimary || secondaryCount < this.minSecondary} icon="fas fa-check">
+            <Button type="submit" className="Button Button--primary" disabled={!this.meetsRequirements(primaryCount, secondaryCount)} icon="fas fa-check">
               {app.translator.trans('flarum-tags.forum.choose_tags.submit_button')}
             </Button>
           </div>
@@ -216,6 +216,14 @@ export default class TagDiscussionModal extends Modal {
         </ul>
       </div>
     ];
+  }
+
+  meetsRequirements(primaryCount, secondaryCount) {
+    if (app.forum.attribute('canBypassTagCounts')) {
+      return true;
+    }
+
+    return primaryCount >= this.minPrimary && secondaryCount >= this.minSecondary;
   }
 
   toggleTag(tag) {
