@@ -36,8 +36,8 @@ export default class ModalManager extends Component {
     const isDismissible = !!this.attrs.state.modal.componentClass.isDismissible;
 
     // If the modal isn't dismissible, set these options to false.
-    const backdropDismissible = isDismissible ? !!this.attrs.state.modal.componentClass.doesBackdropClickDismiss : false;
-    const keyboardDismissible = isDismissible ? !!this.attrs.state.modal.componentClass.doesEscKeyDismiss : false;
+    const backdropDismissible = isDismissible ? !!this.attrs.state.modal.componentClass.dismissOnBackdropClick : false;
+    const keyboardDismissible = isDismissible ? !!this.attrs.state.modal.componentClass.dismissOnEscapeKeyPress : false;
 
     // If we are opening this modal while another modal is already open,
     // the shown event will not run, because the modal is already open.
@@ -51,7 +51,7 @@ export default class ModalManager extends Component {
       .one('shown.bs.modal', readyCallback)
       .modal({
         // 'static' means that a backdrop click doesn't dismiss the modal
-        backdrop: backdropDismissible ? true : 'static',
+        backdrop: backdropDismissible || 'static',
         keyboard: keyboardDismissible,
       })
       .modal('show');

@@ -12,7 +12,8 @@ export default class Modal extends Component {
   /**
    * Determine whether or not the modal should be dismissible.
    *
-   * This overrides `doesBackdropClickDismiss` and `doesEscKeyDismiss`.
+   * Setting to `false` will override `doesBackdropClickDismiss` and
+   * `doesEscKeyDismiss`.
    */
   static isDismissible = true;
 
@@ -25,12 +26,12 @@ export default class Modal extends Component {
    * It's recommended to disable this for modals which contain forms that may
    * take a user a longer amount of time to complete to prevent frustration.
    */
-  static doesBackdropClickDismiss = false;
+  static dismissOnBackdropClick = false;
 
   /**
    * Determine whether pressing the Escape key should dismiss the modal.
    */
-  static doesEscKeyDismiss = true;
+  static dismissOnEscapeKeyPress = true;
 
   /**
    * Attributes for an alert component to show below the header.
