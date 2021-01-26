@@ -9,6 +9,7 @@
 
 namespace Flarum\Http;
 
+use Dflydev\FigCookies\FigResponseCookies;
 use Psr\Http\Message\ResponseInterface;
 
 class Rememberer
@@ -33,9 +34,10 @@ class Rememberer
         $token->lifetime_seconds = 5 * 365 * 24 * 60 * 60; // 5 years
         $token->save();
 
-        return $this->cookie
-            ->make(self::COOKIE_NAME, $token->token, $token->lifetime_seconds)
-            ->addToResponse($response);
+        return FigResponseCookies::set(
+            $response,
+            $this->cookie->make(self::COOKIE_NAME, $token->token, $token->lifetime_seconds)
+        );
     }
 
     public function rememberUser(ResponseInterface $response, $userId)
@@ -47,7 +49,9 @@ class Rememberer
 
     public function forget(ResponseInterface $response)
     {
-        return $this->cookie->expire(self::COOKIE_NAME)
-            ->addToResponse($response);
+        return FigResponseCookies::set(
+            $response,
+            $this->cookie->expire(self::COOKIE_NAME)
+        );
     }
 }
