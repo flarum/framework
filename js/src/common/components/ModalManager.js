@@ -33,8 +33,11 @@ export default class ModalManager extends Component {
   }
 
   animateShow(readyCallback) {
-    const backdropDismissible = !!this.attrs.state.modal.componentClass.doesBackdropClickDismiss;
-    const keyboardDismissible = !!this.attrs.state.modal.componentClass.doesEscKeyDismiss;
+    const isDismissible = !!this.attrs.state.modal.componentClass.isDismissible;
+
+    // If the modal isn't dismissible, set these options to false.
+    const backdropDismissible = isDismissible ? !!this.attrs.state.modal.componentClass.doesBackdropClickDismiss : false;
+    const keyboardDismissible = isDismissible ? !!this.attrs.state.modal.componentClass.doesEscKeyDismiss : false;
 
     // If we are opening this modal while another modal is already open,
     // the shown event will not run, because the modal is already open.
@@ -47,6 +50,7 @@ export default class ModalManager extends Component {
     this.$()
       .one('shown.bs.modal', readyCallback)
       .modal({
+        // 'static' means that a backdrop click doesn't dismiss the modal
         backdrop: backdropDismissible ? true : 'static',
         keyboard: keyboardDismissible,
       })

@@ -10,7 +10,9 @@ import Button from './Button';
  */
 export default class Modal extends Component {
   /**
-   * Determine whether or not the modal should be dismissible via an 'x' button.
+   * Determine whether or not the modal should be dismissible.
+   *
+   * This overrides `doesBackdropClickDismiss` and `doesEscKeyDismiss`.
    */
   static isDismissible = true;
 
@@ -21,9 +23,9 @@ export default class Modal extends Component {
    * inadvertantly trigger this.
    *
    * It's recommended to disable this for modals which contain forms that may
-   * take a user a longer amount of time to complete.
+   * take a user a longer amount of time to complete to prevent frustration.
    */
-  static doesBackdropDismiss = false;
+  static doesBackdropClickDismiss = false;
 
   /**
    * Determine whether pressing the Escape key should dismiss the modal.
