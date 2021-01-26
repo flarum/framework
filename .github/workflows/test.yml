@@ -33,6 +33,12 @@ jobs:
           - php: 8.0
             service: mariadb
             prefix: flarum_
+          - php: 8.0
+            service: 'mysql:5.7'
+            prefix: flarum_
+          - php: 8.0
+            service: mariadb
+            prefix: flarum_
 
     services:
       mysql:
