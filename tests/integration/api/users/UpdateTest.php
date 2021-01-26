@@ -44,7 +44,7 @@ class UpdateTest extends TestCase
 
         // Test for successful response and that the email is included in the response
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertContains('normal@machine.local', (string) $response->getBody());
+        $this->assertStringContainsString('normal@machine.local', (string) $response->getBody());
     }
 
     /**
@@ -61,6 +61,6 @@ class UpdateTest extends TestCase
 
         // Make sure sensitive information is not made public
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertNotContains('admin@machine.local', (string) $response->getBody());
+        $this->assertStringNotContainsString('admin@machine.local', (string) $response->getBody());
     }
 }
