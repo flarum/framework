@@ -30,6 +30,11 @@ class RouteCollection
      */
     protected $routeParser;
 
+    /**
+     * @var array
+     */
+    protected $routes = [];
+
     public function __construct()
     {
         $this->dataGenerator = new DataGenerator\GroupCountBased;
@@ -63,19 +68,37 @@ class RouteCollection
 
     public function addRoute($method, $path, $name, $handler)
     {
-        $routeDatas = $this->routeParser->parse($path);
-
-        foreach ($routeDatas as $routeData) {
-            $this->dataGenerator->addRoute($method, $routeData, ['name' => $name, 'handler' => $handler]);
-        }
-
-        $this->reverse[$name] = $routeDatas;
+        $this->routes[$method][$name] = compact('path', 'handler');
 
         return $this;
     }
 
+    protected function applyRoutes(): void
+    {
+        foreach ($this->routes as $method => $routes) {
+            foreach ($routes as $name => $route) {
+                $routeDatas = $this->routeParser->parse($route['path']);
+
+                foreach ($routeDatas as $routeData) {
+                    $this->dataGenerator->addRoute($method, $routeData, ['name' => $name, 'handler' => $route['handler']]);
+                }
+
+                $this->reverse[$name] = $routeDatas;
+            }
+        }
+    }
+
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
     public function getRouteData()
     {
+        if (empty($this->reverse)) {
+            $this->applyRoutes();
+        }
+
         return $this->dataGenerator->getData();
     }
 
@@ -88,6 +111,10 @@ class RouteCollection
 
     public function getPath($name, array $parameters = [])
     {
+        if (empty($this->reverse)) {
+            $this->applyRoutes();
+        }
+
         if (isset($this->reverse[$name])) {
             $maxMatches = 0;
             $matchingParts = $this->reverse[$name][0];
