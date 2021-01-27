@@ -369,4 +369,16 @@ class ExtensionManager
 
         return isset($enabled[$extension]);
     }
+
+    /**
+     * Returns the titles of the extensions passed
+     *
+     * @param array $exts
+     * @return string[]
+     */
+    public static function pluckTitles(array $exts) {
+        return array_map(function (Extension $extension) {
+            return $extension->getTitle();
+        }, $exts);
+    }
 }

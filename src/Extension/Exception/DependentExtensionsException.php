@@ -11,6 +11,7 @@ namespace Flarum\Extension\Exception;
 
 use Exception;
 use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 
 /**
  * This exception is thrown when someone attempts to disable an extension
@@ -30,18 +31,6 @@ class DependentExtensionsException extends Exception
         $this->extension = $extension;
         $this->dependent_extensions = $dependent_extensions;
 
-        parent::__construct($extension->getId().' could not be disabled, because it is a dependency of: '.implode(', ', $this->getDependentExtensionNames()));
-    }
-
-    /**
-     * Get array of IDs for extensions that depend on this extension.
-     *
-     * @return array
-     */
-    public function getDependentExtensionNames()
-    {
-        return array_map(function (Extension $extension) {
-            return $extension->getTitle();
-        }, $this->dependent_extensions);
+        parent::__construct($extension->getId().' could not be disabled, because it is a dependency of: '.implode(', ', ExtensionManager::pluckTitles($dependent_extensions)));
     }
 }
