@@ -47,6 +47,28 @@ class RoutesTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('Hello Flarumites!', $response->getBody());
     }
+
+    /**
+     * @test
+     */
+    public function custom_route_can_override_existing_route()
+    {
+        $this->extend(
+            (new Extend\Routes('api'))
+                ->get('/overridenRoute', 'forum.show', CustomRoute::class)
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/')
+        );
+
+        $response2 = $this->send(
+            $this->request('GET', '/api/overridenRoute')
+        );
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals('Hello Flarumites!', $response2->getBody());
+    }
 }
 
 class CustomRoute implements RequestHandlerInterface
