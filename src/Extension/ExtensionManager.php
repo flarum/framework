@@ -371,12 +371,13 @@ class ExtensionManager
     }
 
     /**
-     * Returns the titles of the extensions passed
+     * Returns the titles of the extensions passed.
      *
      * @param array $exts
      * @return string[]
      */
-    public static function pluckTitles(array $exts) {
+    public static function pluckTitles(array $exts)
+    {
         return array_map(function (Extension $extension) {
             return $extension->getTitle();
         }, $exts);
