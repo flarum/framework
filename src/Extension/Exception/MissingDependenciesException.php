@@ -41,7 +41,7 @@ class MissingDependenciesException extends Exception
     public function getMissingDependencyNames()
     {
         return array_map(function (Extension $extension) {
-            return $extension->composerJsonAttribute('extra.flarum-extension.title') ?: $extension->getId();
+            return $extension->getTitle();
         }, $this->missing_dependencies);
     }
 }

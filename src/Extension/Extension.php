@@ -281,6 +281,14 @@ class Extension implements Arrayable
     /**
      * @return string
      */
+    public function getTitle()
+    {
+        return $this->composerJsonAttribute('extra.flarum-extension.title');
+    }
+
+    /**
+     * @return string
+     */
     public function getPath()
     {
         return $this->path;

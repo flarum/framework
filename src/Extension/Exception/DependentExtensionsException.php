@@ -41,7 +41,7 @@ class DependentExtensionsException extends Exception
     public function getDependentExtensionNames()
     {
         return array_map(function (Extension $extension) {
-            return $extension->composerJsonAttribute('extra.flarum-extension.title') ?: $extension->getId();
+            return $extension->getTitle();
         }, $this->dependent_extensions);
     }
 }
