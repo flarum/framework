@@ -63,6 +63,7 @@ class MailServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('mailer', function ($app) {
             $mailer = new Mailer(
+                'flarum',
                 $app['view'],
                 $app['swift.mailer'],
                 $app['events']
