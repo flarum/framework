@@ -114,7 +114,7 @@ class ExtensionManager
             }
 
             $this->extensions = $extensions->sortBy(function ($extension, $name) {
-                return $extension->composerJsonAttribute('extra.flarum-extension.title');
+                return $extension->getTitle();
             });
         }
 
