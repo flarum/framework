@@ -40,6 +40,14 @@ class ShowTest extends TestCase
         $this->database()->table('group_permission')->where('permission', 'viewUserList')->where('group_id', 3)->delete();
     }
 
+    private function allowGuestsToSearchUsers()
+    {
+        $this->database()->table('group_permission')->insert([
+            'permission' => 'viewUserList',
+            'group_id' => 3
+        ]);
+    }
+
     /**
      * @test
      */
@@ -73,13 +81,13 @@ class ShowTest extends TestCase
     /**
      * @test
      */
-    public function guest_can_see_user_by_default()
+    public function guest_cant_see_user_by_id_default()
     {
         $response = $this->send(
             $this->request('GET', '/api/users/2')
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**
@@ -99,9 +107,9 @@ class ShowTest extends TestCase
     /**
      * @test
      */
-    public function guest_cant_see_user_if_blocked()
+    public function guest_can_see_user_by_id_if_allowed()
     {
-        $this->forbidGuestsFromSeeingForum();
+        $this->allowGuestsToSearchUsers();
 
         $response = $this->send(
             $this->request('GET', '/api/users/2')
