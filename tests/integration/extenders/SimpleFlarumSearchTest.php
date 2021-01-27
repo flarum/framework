@@ -24,24 +24,44 @@ class FlarumSearchTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    public function prepDb()
+    /**
+     * @inheritDoc
+     */
+    public function setUp()
     {
-        $this->prepareDatabase([
-            'discussions' => [
-                ['id' => 1, 'title' => 'DISCUSSION 1', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1],
-                ['id' => 2, 'title' => 'DISCUSSION 2', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 2, 'comment_count' => 1],
-            ],
-            'posts' => [
-                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>'],
-                ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar not the same</p></t>'],
-            ],
-            'users' => [
-                $this->adminUser(),
-                $this->normalUser(),
-            ],
+        parent::setUp();
+
+        $this->database()->rollBack();
+
+        // We need to insert these outside of a transaction, because FULLTEXT indexing,
+        // which is needed for search, doesn't happen in transactions.
+        // We clean it up explcitly at the end.
+        $this->database()->table('discussions')->insert([
+            ['id' => 1, 'title' => 'lightsail in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 2, 'title' => 'not in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
         ]);
+
+        $this->database()->table('posts')->insert([
+            ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
+            ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
+        ]);
+
+        // We need to call these again, since we rolled back the transaction started by `::app()`.
+        $this->database()->beginTransaction();
+
+        $this->populateDatabase();
     }
 
+    /**
+     * @inheritDoc
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->database()->table('discussions')->whereIn('id', [1, 2])->delete();
+        $this->database()->table('posts')->whereIn('id', [1, 2])->delete();
+    }
     public function searchDiscussions($query, $limit = null)
     {
         $actor = User::find(1);
@@ -56,8 +76,6 @@ class FlarumSearchTest extends TestCase
      */
     public function works_as_expected_with_no_modifications()
     {
-        $this->prepDb();
-
         $searchForAll = json_encode($this->searchDiscussions('foo bar', 5));
         $this->assertContains('DISCUSSION 1', $searchForAll);
         $this->assertContains('DISCUSSION 2', $searchForAll);
@@ -74,8 +92,6 @@ class FlarumSearchTest extends TestCase
     {
         $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFullTextGambit::class));
 
-        $this->prepDb();
-
         $this->assertEquals('[]', json_encode($this->searchDiscussions('foo bar', 5)));
     }
 
@@ -85,8 +101,6 @@ class FlarumSearchTest extends TestCase
     public function custom_filter_gambit_has_effect_if_added()
     {
         $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFilterGambit::class));
-
-        $this->prepDb();
 
         $withResultSearch = json_encode($this->searchDiscussions('noResult:0', 5));
         $this->assertContains('DISCUSSION 1', $withResultSearch);
@@ -103,8 +117,6 @@ class FlarumSearchTest extends TestCase
             $search->getquery()->whereRaw('1=0');
         }));
 
-        $this->prepDb();
-
         $this->assertEquals('[]', json_encode($this->searchDiscussions('foo bar', 5)));
     }
 
@@ -114,8 +126,6 @@ class FlarumSearchTest extends TestCase
     public function search_mutator_has_effect_if_added_with_invokable_class()
     {
         $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addSearchMutator(CustomSearchMutator::class));
-
-        $this->prepDb();
 
         $this->assertEquals('[]', json_encode($this->searchDiscussions('foo bar', 5)));
     }
