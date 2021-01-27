@@ -9,6 +9,7 @@
 
 namespace Flarum\Extension\Exception;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ErrorHandling\HandledError;
 
 class DependentExtensionsExceptionHandler
@@ -26,8 +27,8 @@ class DependentExtensionsExceptionHandler
     {
         return [
             [
-                'extension' => $e->extension->getId(),
-                'extensions' => $e->getDependentExtensionNames(),
+                'extension' => $e->extension->getTitle(),
+                'extensions' => ExtensionManager::pluckTitles($e->dependent_extensions),
             ]
         ];
     }
