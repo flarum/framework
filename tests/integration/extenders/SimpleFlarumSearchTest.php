@@ -76,11 +76,11 @@ class FlarumSearchTest extends TestCase
      */
     public function works_as_expected_with_no_modifications()
     {
-        $searchForAll = json_encode($this->searchDiscussions('foo bar', 5));
+        $searchForAll = json_encode($this->searchDiscussions('in text', 5));
         $this->assertContains('DISCUSSION 1', $searchForAll);
         $this->assertContains('DISCUSSION 2', $searchForAll);
 
-        $searchForSecond = json_encode($this->searchDiscussions('not the same', 5));
+        $searchForSecond = json_encode($this->searchDiscussions('lightsail in text', 5));
         $this->assertNotContains('DISCUSSION 1', $searchForSecond);
         $this->assertContains('DISCUSSION 2', $searchForSecond);
     }
@@ -92,7 +92,7 @@ class FlarumSearchTest extends TestCase
     {
         $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFullTextGambit::class));
 
-        $this->assertEquals('[]', json_encode($this->searchDiscussions('foo bar', 5)));
+        $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
 
     /**
@@ -117,7 +117,7 @@ class FlarumSearchTest extends TestCase
             $search->getquery()->whereRaw('1=0');
         }));
 
-        $this->assertEquals('[]', json_encode($this->searchDiscussions('foo bar', 5)));
+        $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
 
     /**
@@ -127,7 +127,7 @@ class FlarumSearchTest extends TestCase
     {
         $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addSearchMutator(CustomSearchMutator::class));
 
-        $this->assertEquals('[]', json_encode($this->searchDiscussions('foo bar', 5)));
+        $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
 }
 
