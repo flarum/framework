@@ -105,7 +105,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/2')
         );
 
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**
