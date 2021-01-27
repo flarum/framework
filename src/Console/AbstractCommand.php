@@ -34,7 +34,7 @@ abstract class AbstractCommand extends Command
         $this->input = $input;
         $this->output = $output;
 
-        $this->fire();
+        $this->fire() ?: 0;
     }
 
     /**
