@@ -41,7 +41,7 @@ class WritablePathsTest extends TestCase
 
         $problems = $writable->problems();
         $this->assertCount(1, $problems);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "%^The .+/tests/fixtures/writable_paths/missing directory doesn't exist$%",
             $problems[0]['message']
         );
@@ -59,7 +59,7 @@ class WritablePathsTest extends TestCase
 
         $problems = $writable->problems();
         $this->assertCount(1, $problems);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "%^The .+/tests/fixtures/writable_paths/missing directory doesn't exist$%",
             $problems[0]['message']
         );
