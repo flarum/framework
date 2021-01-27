@@ -61,7 +61,7 @@ export default class BasicsPage extends Page {
       }
     });
 
-    if (typeof this.values.show_language_selector() !== 'number') this.values.show_language_selector(1);
+    if (this.values.show_language_selector() === undefined) this.values.show_language_selector(1);
   }
 
   view() {
