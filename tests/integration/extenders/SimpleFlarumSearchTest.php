@@ -62,6 +62,7 @@ class FlarumSearchTest extends TestCase
         $this->database()->table('discussions')->whereIn('id', [1, 2])->delete();
         $this->database()->table('posts')->whereIn('id', [1, 2])->delete();
     }
+
     public function searchDiscussions($query, $limit = null)
     {
         $actor = User::find(1);
