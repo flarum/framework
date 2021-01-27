@@ -68,7 +68,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals('dataSerializationPrepCustomTitle', $payload['data']['attributes']['title']);
     }
@@ -89,7 +89,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(CustomPrepareDataSerializationInvokableClass::class, $payload['data']['attributes']['title']);
     }
@@ -115,7 +115,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('referenceTest', $payload['data']['relationships']);
     }
@@ -139,7 +139,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('referenceTest2', $payload['data']['relationships']);
     }
@@ -164,7 +164,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals('dataSerializationPrepCustomTitle2', $payload['data']['attributes']['title']);
     }
@@ -193,7 +193,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals('dataSerializationPrepCustomTitle4', $payload['data']['attributes']['title']);
     }
@@ -218,7 +218,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('customSerializer2', $payload['data']['attributes']);
     }
@@ -247,7 +247,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -263,7 +263,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayNotHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -284,7 +284,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -310,7 +310,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -333,7 +333,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayNotHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -349,7 +349,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayNotHasKey('customApiControllerRelation', $payload['data']['relationships']);
         $this->assertArrayNotHasKey('customApiControllerRelation2', $payload['data']['relationships']);
@@ -375,7 +375,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('customApiControllerRelation', $payload['data']['relationships']);
     }
@@ -402,7 +402,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('customApiControllerRelation2', $payload['data']['relationships']);
     }
@@ -418,7 +418,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('groups', $payload['data']['relationships']);
     }
@@ -439,7 +439,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayNotHasKey('groups', Arr::get($payload, 'data.relationships', []));
     }
@@ -481,7 +481,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(3, $payload['data']);
     }
@@ -502,7 +502,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(1, $payload['data']);
     }
@@ -525,7 +525,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(1, $payload['data']);
     }
@@ -587,7 +587,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals([3, 1, 2], Arr::pluck($payload['data'], 'id'));
@@ -647,7 +647,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody(), true);
+        $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals([2, 1, 3], Arr::pluck($payload['data'], 'id'));

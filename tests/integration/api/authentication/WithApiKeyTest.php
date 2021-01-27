@@ -45,7 +45,7 @@ class WithApiKeyTest extends TestCase
             $this->request('GET', '/api')
         );
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
         $this->assertFalse($data['data']['attributes']['canViewUserList']);
     }
 
@@ -59,7 +59,7 @@ class WithApiKeyTest extends TestCase
                 ->withAddedHeader('Authorization', 'Token mastertoken; userId=1')
         );
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
         $this->assertTrue($data['data']['attributes']['canViewUserList']);
         $this->assertArrayHasKey('adminUrl', $data['data']['attributes']);
 
@@ -78,7 +78,7 @@ class WithApiKeyTest extends TestCase
                 ->withAddedHeader('Authorization', 'Token personaltoken; userId=1')
         );
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
         $this->assertTrue($data['data']['attributes']['canViewUserList']);
         $this->assertArrayNotHasKey('adminUrl', $data['data']['attributes']);
 
@@ -97,7 +97,7 @@ class WithApiKeyTest extends TestCase
                 ->withAddedHeader('Authorization', 'Token personaltoken')
         );
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
         $this->assertTrue($data['data']['attributes']['canViewUserList']);
         $this->assertArrayNotHasKey('adminUrl', $data['data']['attributes']);
 
