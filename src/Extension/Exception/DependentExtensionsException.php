@@ -31,6 +31,6 @@ class DependentExtensionsException extends Exception
         $this->extension = $extension;
         $this->dependent_extensions = $dependent_extensions;
 
-        parent::__construct($extension->getId().' could not be disabled, because it is a dependency of: '.implode(', ', ExtensionManager::pluckTitles($dependent_extensions)));
+        parent::__construct($extension->getTitle().' could not be disabled, because it is a dependency of: '.implode(', ', ExtensionManager::pluckTitles($dependent_extensions)));
     }
 }

@@ -31,6 +31,6 @@ class MissingDependenciesException extends Exception
         $this->extension = $extension;
         $this->missing_dependencies = $missing_dependencies;
 
-        parent::__construct($extension->getId().' could not be enabled, because it depends on: '.implode(', ', ExtensionManager::pluckTitles($missing_dependencies)));
+        parent::__construct($extension->getTitle().' could not be enabled, because it depends on: '.implode(', ', ExtensionManager::pluckTitles($missing_dependencies)));
     }
 }
