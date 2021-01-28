@@ -86,7 +86,9 @@ class ExtensionManager
             // We calculate and store a set of composer package names for all installed Flarum extensions,
             // so we know what is and isn't a flarum extension in `calculateDependencies`.
             // Using keys of an associative array allows us to do these checks in constant time.
+            // We do the same for enabled extensions, for optional dependencies.
             $installedSet = [];
+            $enabledIds = array_flip($this->getEnabled());
 
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
@@ -109,8 +111,9 @@ class ExtensionManager
                 $extensions->put($extension->getId(), $extension);
             }
 
+
             foreach ($extensions as $extension) {
-                $extension->calculateDependencies($installedSet);
+                $extension->calculateDependencies($installedSet, $enabledIds);
             }
 
             $this->extensions = $extensions->sortBy(function ($extension, $name) {
