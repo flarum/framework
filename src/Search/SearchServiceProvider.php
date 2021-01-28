@@ -18,68 +18,91 @@ use Flarum\Discussion\Search\Gambit\UnreadGambit;
 use Flarum\Event\ConfigureDiscussionGambits;
 use Flarum\Event\ConfigureUserGambits;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\User\Search\Gambit\EmailGambit;
 use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextGambit;
 use Flarum\User\Search\Gambit\GroupGambit;
 use Flarum\User\Search\UserSearcher;
+use Illuminate\Support\Arr;
 
 class SearchServiceProvider extends AbstractServiceProvider
 {
     /**
-     * Register the service provider.
-     *
-     * @return void
+     * @inheritDoc
      */
     public function register()
     {
-        $this->registerDiscussionGambits();
+        $this->app->singleton('flarum.simple_search.fulltext_gambits', function () {
+            return [
+                DiscussionSearcher::class => DiscussionFulltextGambit::class,
+                UserSearcher::class => UserFulltextGambit::class
+            ];
+        });
 
-        $this->registerUserGambits();
+        $this->app->singleton('flarum.simple_search.gambits', function() {
+            return [
+                DiscussionSearcher::class => [
+                    AuthorGambit::class,
+                    CreatedGambit::class,
+                    HiddenGambit::class,
+                    UnreadGambit::class
+                ],
+                UserSearcher::class => [
+                    EmailGambit::class,
+                    GroupGambit::class
+                ]
+            ];
+        });
+
+        $this->app->singleton('flarum.simple_search.search_mutators', function () {
+            return [];
+        });
     }
 
-    public function registerUserGambits()
+    /**
+     * {@inheritdoc}
+     */
+    public function boot()
     {
-        $gambits = AbstractSearcher::gambitManager(UserSearcher::class);
-        $gambits->setFullTextGambit($this->app->make(UserFulltextGambit::class));
-        $gambits->add($this->app->make(EmailGambit::class));
-        $gambits->add($this->app->make(GroupGambit::class));
+        // The rest of these we can resolve in the when->needs->give callback,
+        // but we need to resolve at least one regardless so we know which
+        // searchers we need to register gambits for.
+        $fullTextGambits = $this->app->make('flarum.simple_search.fulltext_gambits');
 
-        // Deprecated BC layer to support the ConfigureGambits events till next version.
-        $tempGambits = new GambitManager;
-        $this->app->make('events')->dispatch(
-            new ConfigureUserGambits($tempGambits)
-        );
+        foreach($fullTextGambits as $searcher => $fullTextGambitClass) {
+            $this->app
+                ->when($searcher)
+                ->needs(GambitManager::class)
+                ->give(function() use ($searcher, $fullTextGambitClass) {
+                    $gambitManager = new GambitManager();
+                    $gambitManager->setFulltextGambit($this->app->make($fullTextGambitClass));
+                    foreach (Arr::get($this->app->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
+                        $gambitManager->add($this->app->make($gambit));
+                    }
 
-        if (! is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
-            $gambits->setFullTextGambit($this->app->make($fullTextGambit));
-        }
+                    if ($searcher === UserSearcher::class) {
+                        $this->app->make('events')->dispatch(
+                            new ConfigureUserGambits($gambitManager)
+                        );
+                    } elseif ($searcher === DiscussionSearcher::class) {
+                        $this->app->make('events')->dispatch(
+                            new ConfigureDiscussionGambits($gambitManager)
+                        );
+                    }
 
-        foreach ($tempGambits->getGambits() as $gambit) {
-            $gambits->add($this->app->make($gambit));
-        }
-    }
+                    return $gambitManager;
+                });
 
-    public function registerDiscussionGambits()
-    {
-        $gambits = AbstractSearcher::gambitManager(DiscussionSearcher::class);
-        $gambits->setFullTextGambit($this->app->make(DiscussionFulltextGambit::class));
-        $gambits->add($this->app->make(AuthorGambit::class));
-        $gambits->add($this->app->make(CreatedGambit::class));
-        $gambits->add($this->app->make(HiddenGambit::class));
-        $gambits->add($this->app->make(UnreadGambit::class));
+            $this->app
+                ->when($searcher)
+                ->needs(SearchMutators::class)
+                ->give(function () use ($searcher) {
+                    $searchMutators = Arr::get($this->app->make('flarum.simple_search.search_mutators'), $searcher, []);
 
-        // Deprecated BC layer to support the ConfigureGambits events till next version.
-        $tempGambits = new GambitManager;
-        $this->app->make('events')->dispatch(
-            new ConfigureDiscussionGambits($tempGambits)
-        );
-
-        if (! is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
-            $gambits->setFullTextGambit($this->app->make($fullTextGambit));
-        }
-
-        foreach ($tempGambits->getGambits() as $gambit) {
-            $gambits->add($this->app->make($gambit));
+                    return new SearchMutators(array_map(function($mutator) {
+                        return ContainerUtil::wrapCallback($mutator, $this->app);
+                    }, $searchMutators));
+                });
         }
     }
 }

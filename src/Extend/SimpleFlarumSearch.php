@@ -74,22 +74,28 @@ class SimpleFlarumSearch implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $gambitManager = AbstractSearcher::gambitManager($this->searcher);
-
         if (! is_null($this->fullTextGambit)) {
-            $gambitManager->setFullTextGambit($container->make($this->fullTextGambit));
+            $container->resolving('flarum.simple_search.fulltext_gambits', function ($oldFulltextGambits) {
+                $oldFulltextGambits[$this->searcher] = $this->fullTextGambit;
+
+                return $oldFulltextGambits;
+            });
         }
 
-        foreach ($this->gambits as $gambit) {
-            $gambitManager->add($container->make($gambit));
-        }
-
-        foreach ($this->searchMutators as $mutator) {
-            if (is_string($mutator)) {
-                $mutator = ContainerUtil::wrapCallback($mutator, $container);
+        $container->extend('flarum.simple_search.gambits', function ($oldGambits) {
+            foreach ($this->gambits as $gambit) {
+                $oldGambits[$this->searcher][] = $gambit;
             }
 
-            AbstractSearcher::addSearchMutator($this->searcher, $mutator);
-        }
+            return $oldGambits;
+        });
+
+        $container->extend('flarum.simple_search.search_mutators', function ($oldMutators) {
+            foreach ($this->searchMutators as $mutator) {
+                $oldMutators[$this->searcher][] = $mutator;
+            }
+
+            return $oldMutators;
+        });
     }
 }

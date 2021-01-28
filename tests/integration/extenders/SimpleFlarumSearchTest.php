@@ -100,7 +100,7 @@ class SimpleFlarumSearchTest extends TestCase
      */
     public function custom_filter_gambit_has_effect_if_added()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFilterGambit::class));
+        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addGambit(NoResultFilterGambit::class));
 
         $this->prepDb();
 

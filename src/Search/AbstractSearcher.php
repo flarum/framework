@@ -17,26 +17,20 @@ abstract class AbstractSearcher
 {
     use ApplySearchParametersTrait;
 
-    protected static $gambitManagers = [];
+    /**
+     * @var GambitManager
+     */
+    protected $gambits;
 
-    protected static $searchMutators = [];
+    /**
+     * @var SearchMutators
+     */
+    protected $searchMutators;
 
-    public static function addSearchMutator($searcherClass, $mutator)
+    public function __construct(GambitManager $gambits, SearchMutators $searchMutators)
     {
-        if (! array_key_exists($searcherClass, static::$searchMutators)) {
-            static::$searchMutators[$searcherClass] = [];
-        }
-
-        static::$searchMutators[$searcherClass][] = $mutator;
-    }
-
-    public static function gambitManager($searcher)
-    {
-        if (! array_key_exists($searcher, static::$gambitManagers)) {
-            static::$gambitManagers[$searcher] = new GambitManager;
-        }
-
-        return static::$gambitManagers[$searcher];
+        $this->gambits = $gambits;
+        $this->searchMutators = $searchMutators;
     }
 
     abstract protected function getQuery(User $actor): Builder;
@@ -45,7 +39,7 @@ abstract class AbstractSearcher
 
     protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
     {
-        foreach (Arr::get(static::$searchMutators, static::class, []) as $mutator) {
+        foreach ($this->searchMutators->getMutators() as $mutator) {
             $mutator($search, $criteria);
         }
     }
@@ -65,7 +59,7 @@ abstract class AbstractSearcher
 
         $search = $this->getSearch($query, $actor);
 
-        $this->gambitManager(static::class)->apply($search, $criteria->query);
+        $this->gambits->apply($search, $criteria->query);
         $this->applySort($search, $criteria->sort);
         $this->applyOffset($search, $offset);
         $this->applyLimit($search, $limit + 1);
