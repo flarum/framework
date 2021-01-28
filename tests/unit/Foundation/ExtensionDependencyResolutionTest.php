@@ -29,7 +29,6 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->optionalDependencyCategories = new FakeExtension('flarum-categories', ['flarum-tags'], ['flarum-tag-backgrounds']);
     }
 
-
     /** @test */
     public function works_with_empty_set()
     {

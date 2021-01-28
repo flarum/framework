@@ -111,7 +111,6 @@ class ExtensionManager
                 $extensions->put($extension->getId(), $extension);
             }
 
-
             foreach ($extensions as $extension) {
                 $extension->calculateDependencies($installedSet, $enabledIds);
             }
@@ -418,7 +417,6 @@ class ExtensionManager
         $pendingQueue = [];
         $inDegreeCount = []; // How many extensions are dependent on a given extension?
 
-
         foreach ($extensionList as $extension) {
             $extensionIdMapping[$extension->getId()] = $extension;
             $extensionGraph[$extension->getId()] = array_merge($extension->getExtensionDependencyIds(), $extension->getOptionalDependencyIds());
@@ -429,7 +427,7 @@ class ExtensionManager
         }
 
         foreach ($extensionList as $extension) {
-            if (!array_key_exists($extension->getId(), $inDegreeCount)) {
+            if (! array_key_exists($extension->getId(), $inDegreeCount)) {
                 $inDegreeCount[$extension->getId()] = 0;
                 $pendingQueue[] = $extension->getId();
             }
@@ -443,7 +441,7 @@ class ExtensionManager
                 $inDegreeCount[$dependency] -= 1;
 
                 if ($inDegreeCount[$dependency] === 0) {
-                    if (!array_key_exists($dependency, $extensionGraph)) {
+                    if (! array_key_exists($dependency, $extensionGraph)) {
                         // Missing Dependency
                         $missingDependencies[$activeNode] = array_merge(
                             Arr::get($missingDependencies, $activeNode, []),
@@ -457,10 +455,10 @@ class ExtensionManager
         }
 
         $validOutput = array_filter($output, function ($extension) use ($missingDependencies) {
-            return !array_key_exists($extension, $missingDependencies);
+            return ! array_key_exists($extension, $missingDependencies);
         });
 
-        $validExtensions = array_reverse(array_map(function($extensionId) use ($extensionIdMapping) {
+        $validExtensions = array_reverse(array_map(function ($extensionId) use ($extensionIdMapping) {
             return $extensionIdMapping[$extensionId];
         }, $validOutput)); // Reversed as required by Kahn's algorithm.
 
