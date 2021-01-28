@@ -351,13 +351,21 @@ class ExtensionManager
     /**
      * Persist the currently enabled extensions.
      *
-     * @param array $enabled
+     * @param array $enabledIds
      */
-    protected function setEnabled(array $enabled)
+    protected function setEnabled(array $enabledIds)
     {
-        $enabled = array_values(array_unique($enabled));
+        $enabled = array_map(function ($id) {
+            return $this->getExtension($id);
+        }, array_unique($enabledIds));
 
-        $this->config->set('extensions_enabled', json_encode($enabled));
+        $sortedEnabled = static::resolveExtensionOrder($enabled)['valid'];
+
+        $sortedEnabledIds = array_map(function (Extension $extension) {
+            return $extension->getId();
+        }, $sortedEnabled);
+
+        $this->config->set('extensions_enabled', json_encode($sortedEnabledIds));
     }
 
     /**
