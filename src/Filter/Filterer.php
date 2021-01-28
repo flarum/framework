@@ -11,7 +11,10 @@ namespace Flarum\Filter;
 
 use Flarum\Search\ApplySearchParametersTrait;
 use Flarum\Search\SearchResults;
+use Flarum\User\User;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use InvalidArgumentException;
 
 class Filterer
 {
@@ -44,13 +47,17 @@ class Filterer
     }
 
     /**
-     * @param FilterCriteria $criteria
-     * @param int|null $limit
+     * @param User $actor
+     * @param Builder $query
+     * @param array $filters
+     * @param mixed|null $sort
+     * @param mixed|null $limit
      * @param int $offset
-     *
-     * @return FilterResults
+     * @param array $load
+     * @return SearchResults
+     * @throws InvalidArgumentException
      */
-    public function filter($actor, $query, $filters, $sort = null, $limit = null, $offset = 0, array $load = [])
+    public function filter(User $actor, Builder $query, array $filters, array $sort = null, int $limit = null, int $offset = 0, array $load = []): SearchResults
     {
         $resource = get_class($query->getModel());
 
