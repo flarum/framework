@@ -385,4 +385,87 @@ class ExtensionManager
             return $extension->getTitle();
         }, $exts);
     }
+
+    /**
+     * Sort a list of extensions so that they are properly resolved in respect to order.
+     * Effectively just topological sorting.
+     *
+     * @param Extension[] $extensionList: an array of \Flarum\Extension\Extension objects
+     *
+     * @return array with 2 keys: 'valid' points to an ordered array of \Flarum\Extension\Extension
+     *                            'missingDependencies' points to an associative array of extensions that could not be resolved due
+     *                                to missing dependencies, in the format extension id => array of missing dependency IDs.
+     *                            'circularDependencies' points to an array of extensions ids of extensions
+     *                                that cannot be processed due to circular dependencies
+     */
+    public static function resolveExtensionOrder($extensionList)
+    {
+        $extensionIdMapping = []; // Used for caching so we don't rerun ->getExtensions every time.
+
+        // This is an implementation of Kahn's Algorithm (https://dl.acm.org/doi/10.1145/368996.369025)
+        $extensionGraph = [];
+        $output = [];
+        $missingDependencies = []; // Extensions are invalid if they are missing dependencies, or have circular dependencies.
+        $circularDependencies = [];
+        $pendingQueue = [];
+        $inDegreeCount = []; // How many extensions are dependent on a given extension?
+
+
+        foreach ($extensionList as $extension) {
+            $extensionIdMapping[$extension->getId()] = $extension;
+            $extensionGraph[$extension->getId()] = array_merge($extension->getExtensionDependencyIds(), $extension->getOptionalDependencyIds());
+
+            foreach ($extensionGraph[$extension->getId()] as $dependency) {
+                $inDegreeCount[$dependency] = array_key_exists($dependency, $inDegreeCount) ? $inDegreeCount[$dependency] + 1 : 1;
+            }
+        }
+
+        foreach ($extensionList as $extension) {
+            if (!array_key_exists($extension->getId(), $inDegreeCount)) {
+                $inDegreeCount[$extension->getId()] = 0;
+                $pendingQueue[] = $extension->getId();
+            }
+        }
+
+        while (! empty($pendingQueue)) {
+            $activeNode = array_shift($pendingQueue);
+            $output[] = $activeNode;
+
+            foreach ($extensionGraph[$activeNode] as $dependency) {
+                $inDegreeCount[$dependency] -= 1;
+
+                if ($inDegreeCount[$dependency] === 0) {
+                    if (!array_key_exists($dependency, $extensionGraph)) {
+                        // Missing Dependency
+                        $missingDependencies[$activeNode] = array_merge(
+                            Arr::get($missingDependencies, $activeNode, []),
+                            [$dependency]
+                        );
+                    } else {
+                        $pendingQueue[] = $dependency;
+                    }
+                }
+            }
+        }
+
+        $validOutput = array_filter($output, function ($extension) use ($missingDependencies) {
+            return !array_key_exists($extension, $missingDependencies);
+        });
+
+        $validExtensions = array_reverse(array_map(function($extensionId) use ($extensionIdMapping) {
+            return $extensionIdMapping[$extensionId];
+        }, $validOutput)); // Reversed as required by Kahn's algorithm.
+
+        foreach ($inDegreeCount as $id => $count) {
+            if ($count != 0) {
+                $circularDependencies[] = $id;
+            }
+        }
+
+        return [
+            'valid' => $validExtensions,
+            'missingDependencies' => $missingDependencies,
+            'circularDependencies' => $circularDependencies
+        ];
+    }
 }
