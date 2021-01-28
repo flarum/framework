@@ -39,7 +39,7 @@ class SearchServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('flarum.simple_search.gambits', function() {
+        $this->app->singleton('flarum.simple_search.gambits', function () {
             return [
                 DiscussionSearcher::class => [
                     AuthorGambit::class,
@@ -69,11 +69,11 @@ class SearchServiceProvider extends AbstractServiceProvider
         // searchers we need to register gambits for.
         $fullTextGambits = $this->app->make('flarum.simple_search.fulltext_gambits');
 
-        foreach($fullTextGambits as $searcher => $fullTextGambitClass) {
+        foreach ($fullTextGambits as $searcher => $fullTextGambitClass) {
             $this->app
                 ->when($searcher)
                 ->needs(GambitManager::class)
-                ->give(function() use ($searcher, $fullTextGambitClass) {
+                ->give(function () use ($searcher, $fullTextGambitClass) {
                     $gambitManager = new GambitManager();
                     $gambitManager->setFulltextGambit($this->app->make($fullTextGambitClass));
                     foreach (Arr::get($this->app->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
@@ -99,7 +99,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 ->give(function () use ($searcher) {
                     $searchMutators = Arr::get($this->app->make('flarum.simple_search.search_mutators'), $searcher, []);
 
-                    return new SearchMutators(array_map(function($mutator) {
+                    return new SearchMutators(array_map(function ($mutator) {
                         return ContainerUtil::wrapCallback($mutator, $this->app);
                     }, $searchMutators));
                 });

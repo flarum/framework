@@ -10,8 +10,6 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Foundation\ContainerUtil;
-use Flarum\Search\AbstractSearcher;
 use Illuminate\Contracts\Container\Container;
 
 class SimpleFlarumSearch implements ExtenderInterface

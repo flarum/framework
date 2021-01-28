@@ -11,7 +11,6 @@ namespace Flarum\Search;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Arr;
 
 abstract class AbstractSearcher
 {
