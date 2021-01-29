@@ -11,6 +11,7 @@ namespace Flarum\Extension\Exception;
 
 use Exception;
 use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 
 /**
  * This exception is thrown when someone attempts to enable an extension
@@ -30,18 +31,6 @@ class MissingDependenciesException extends Exception
         $this->extension = $extension;
         $this->missing_dependencies = $missing_dependencies;
 
-        parent::__construct($extension->getId().' could not be enabled, because it depends on: '.implode(', ', $this->getMissingDependencyIds()));
-    }
-
-    /**
-     * Get array of IDs for missing (disabled) extensions that this extension depends on.
-     *
-     * @return array
-     */
-    public function getMissingDependencyIds()
-    {
-        return array_map(function (Extension $extension) {
-            return $extension->getId();
-        }, $this->missing_dependencies);
+        parent::__construct($extension->getTitle().' could not be enabled, because it depends on: '.implode(', ', ExtensionManager::pluckTitles($missing_dependencies)));
     }
 }

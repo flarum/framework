@@ -114,7 +114,7 @@ class ExtensionManager
             }
 
             $this->extensions = $extensions->sortBy(function ($extension, $name) {
-                return $extension->composerJsonAttribute('extra.flarum-extension.title');
+                return $extension->getTitle();
             });
         }
 
@@ -368,5 +368,18 @@ class ExtensionManager
         $enabled = $this->getEnabledExtensions();
 
         return isset($enabled[$extension]);
+    }
+
+    /**
+     * Returns the titles of the extensions passed.
+     *
+     * @param array $exts
+     * @return string[]
+     */
+    public static function pluckTitles(array $exts)
+    {
+        return array_map(function (Extension $extension) {
+            return $extension->getTitle();
+        }, $exts);
     }
 }
