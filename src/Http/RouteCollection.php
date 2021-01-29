@@ -68,7 +68,18 @@ class RouteCollection
 
     public function addRoute($method, $path, $name, $handler)
     {
+        if (isset($this->routes[$method][$name])) {
+            throw new \RuntimeException("Route $name already exists");
+        }
+
         $this->routes[$method][$name] = compact('path', 'handler');
+
+        return $this;
+    }
+
+    public function removeRoute(string $method, string $name): self
+    {
+        unset($this->routes[$method][$name]);
 
         return $this;
     }

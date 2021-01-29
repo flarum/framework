@@ -51,10 +51,11 @@ class RoutesTest extends TestCase
     /**
      * @test
      */
-    public function custom_route_can_override_existing_route()
+    public function custom_route_can_override_existing_route_if_removed()
     {
         $this->extend(
             (new Extend\Routes('api'))
+                ->remove('GET', 'forum.show')
                 ->get('/overridenRoute', 'forum.show', CustomRoute::class)
         );
 
