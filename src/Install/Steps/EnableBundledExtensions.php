@@ -111,7 +111,7 @@ class EnableBundledExtensions implements Step
             })->filter(function (Extension $extension) {
                 return in_array($extension->getId(), self::EXTENSION_WHITELIST);
             })->sortBy(function (Extension $extension) {
-                return $extension->composerJsonAttribute('extra.flarum-extension.title');
+                return $extension->getTitle();
             })->mapWithKeys(function (Extension $extension) {
                 return [$extension->getId() => $extension];
             });
