@@ -32,6 +32,10 @@ export default class ExtensionPage extends Page {
       source: 'fas fa-code',
     };
 
+    if (!this.extension) {
+      return m.route.set(app.route('dashboard'));
+    }
+
     // Backwards compatibility layer will be removed in
     // Beta 16
     if (app.extensionSettings[this.extension.id]) {
@@ -40,10 +44,14 @@ export default class ExtensionPage extends Page {
   }
 
   className() {
+    if (!this.extension) return '';
+
     return this.extension.id + '-Page';
   }
 
   view() {
+    if (!this.extension) return null;
+
     return (
       <div className={'ExtensionPage ' + this.className()}>
         {this.header()}
