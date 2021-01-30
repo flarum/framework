@@ -59,6 +59,8 @@ export default class ExtensionPage extends Page {
   }
 
   header() {
+    const isEnabled = this.isEnabled();
+
     return [
       <div className="ExtensionPage-header">
         <div className="container">
@@ -75,10 +77,12 @@ export default class ExtensionPage extends Page {
           </div>
           <div className="helpText">{this.extension.description}</div>
           <div className="ExtensionPage-headerItems">
-            <Switch state={this.isEnabled()} onchange={this.toggle.bind(this, this.extension.id)}>
-              {this.isEnabled(this.extension.id)
-                ? app.translator.trans('core.admin.extension.enabled')
-                : app.translator.trans('core.admin.extension.disabled')}
+            <Switch
+              state={this.changingState ? !isEnabled : isEnabled}
+              loading={this.changingState}
+              onchange={this.toggle.bind(this, this.extension.id)}
+            >
+              {isEnabled ? app.translator.trans('core.admin.extension.enabled') : app.translator.trans('core.admin.extension.disabled')}
             </Switch>
             <aside className="ExtensionInfo">
               <ul>{listItems(this.infoItems().toArray())}</ul>
@@ -333,9 +337,7 @@ export default class ExtensionPage extends Page {
   }
 
   isEnabled() {
-    let isEnabled = isExtensionEnabled(this.extension.id);
-
-    return this.changingState ? !isEnabled : isEnabled;
+    return isExtensionEnabled(this.extension.id);
   }
 
   onerror(e) {
@@ -345,6 +347,8 @@ export default class ExtensionPage extends Page {
     setTimeout(() => {
       app.modal.close();
     }, 300); // Bootstrap's Modal.TRANSITION_DURATION is 300 ms.
+
+    this.changingState = false;
 
     if (e.status !== 409) {
       throw e;
