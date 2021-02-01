@@ -20,6 +20,10 @@ export default function tagLabel(tag, attrs = {}) {
       attrs.title = tag.description() || '';
       attrs.href = app.route('tag', {tags: tag.slug()});
     }
+
+    if (tag.isChild()) {
+      attrs.className += ' TagLabel--child';
+    }
   } else {
     attrs.className += ' untagged';
   }
