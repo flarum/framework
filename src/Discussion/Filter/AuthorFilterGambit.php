@@ -11,9 +11,12 @@ namespace Flarum\Discussion\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\WrappedFilter;
+use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\AbstractSearch;
 use Flarum\User\UserRepository;
+use Illuminate\Database\Query\Builder;
 
-class AuthorFilter implements FilterInterface
+class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
     /**
      * @var \Flarum\User\UserRepository
@@ -28,6 +31,19 @@ class AuthorFilter implements FilterInterface
         $this->users = $users;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected $pattern = 'author:(.+)';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function conditions(AbstractSearch $search, array $matches, $negate)
+    {
+        $this->constrain($search->getQuery(), $matches[1], $negate);
+    }
+
     public function getFilterKey(): string
     {
         return 'author';
@@ -35,7 +51,12 @@ class AuthorFilter implements FilterInterface
 
     public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
     {
-        $usernames = trim($filterValue, '"');
+        $this->constrain($wrappedFilter->getQuery(), $filterValue, $negate);
+    }
+
+    protected function constrain(Builder $query, $rawUsernames, $negate)
+    {
+        $usernames = trim($rawUsernames, '"');
         $usernames = explode(',', $usernames);
 
         $ids = [];
@@ -43,6 +64,6 @@ class AuthorFilter implements FilterInterface
             $ids[] = $this->users->getIdForUsername($username);
         }
 
-        $wrappedFilter->getQuery()->whereIn('discussions.user_id', $ids, 'and', $negate);
+        $query->whereIn('discussions.user_id', $ids, 'and', $negate);
     }
 }

@@ -7,21 +7,18 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Discussion\Search\Gambit;
+namespace Flarum\Discussion\Filter;
 
 use Flarum\Discussion\DiscussionRepository;
-use Flarum\Discussion\Search\DiscussionSearch;
+use Flarum\Filter\FilterInterface;
+use Flarum\Filter\WrappedFilter;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
-use LogicException;
+use Flarum\User\User;
+use Illuminate\Database\Query\Builder;
 
-class UnreadGambit extends AbstractRegexGambit
+class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $pattern = 'is:unread';
-
     /**
      * @var \Flarum\Discussion\DiscussionRepository
      */
@@ -38,18 +35,32 @@ class UnreadGambit extends AbstractRegexGambit
     /**
      * {@inheritdoc}
      */
+    protected $pattern = 'is:unread';
+
+    /**
+     * {@inheritdoc}
+     */
     protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
-        if (! $search instanceof DiscussionSearch) {
-            throw new LogicException('This gambit can only be applied on a DiscussionSearch');
-        }
+        $this->constrain($search->getQuery(), $search->getActor(), $negate);
+    }
 
-        $actor = $search->getActor();
+    public function getFilterKey(): string
+    {
+        return 'unread';
+    }
 
+    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    {
+        $this->constrain($wrappedFilter->getQuery(), $wrappedFilter->getActor(), $negate);
+    }
+
+    protected function constrain(Builder $query, User $actor, bool $negate)
+    {
         if ($actor->exists) {
             $readIds = $this->discussions->getReadIds($actor);
 
-            $search->getQuery()->where(function ($query) use ($readIds, $negate, $actor) {
+            $query->where(function ($query) use ($readIds, $negate, $actor) {
                 if (! $negate) {
                     $query->whereNotIn('id', $readIds)->where('last_posted_at', '>', $actor->marked_all_as_read_at ?: 0);
                 } else {

@@ -10,13 +10,13 @@
 namespace Flarum\Filter;
 
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\Filter\AuthorFilter;
-use Flarum\Discussion\Filter\CreatedFilter;
-use Flarum\Discussion\Filter\HiddenFilter;
-use Flarum\Discussion\Filter\UnreadFilter;
+use Flarum\Discussion\Filter\AuthorFilterGambit;
+use Flarum\Discussion\Filter\CreatedFilterGambit;
+use Flarum\Discussion\Filter\HiddenFilterGambit;
+use Flarum\Discussion\Filter\UnreadFilterGambit;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\User\Filter\EmailFilter;
-use Flarum\User\Filter\GroupFilter;
+use Flarum\User\Filter\EmailFilterGambit;
+use Flarum\User\Filter\GroupFilterGambit;
 use Flarum\User\User;
 
 class FilterServiceProvider extends AbstractServiceProvider
@@ -31,14 +31,14 @@ class FilterServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.filter.filters', function () {
             return [
                 Discussion::class => [
-                    AuthorFilter::class,
-                    CreatedFilter::class,
-                    HiddenFilter::class,
-                    UnreadFilter::class,
+                    AuthorFilterGambit::class,
+                    CreatedFilterGambit::class,
+                    HiddenFilterGambit::class,
+                    UnreadFilterGambit::class,
                 ],
                 User::class => [
-                    EmailFilter::class,
-                    GroupFilter::class,
+                    EmailFilterGambit::class,
+                    GroupFilterGambit::class,
                 ]
             ];
         });

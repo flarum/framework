@@ -11,9 +11,25 @@ namespace Flarum\Discussion\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\WrappedFilter;
+use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\AbstractSearch;
+use Illuminate\Database\Query\Builder;
 
-class HiddenFilter implements FilterInterface
+class HiddenFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
+    /**
+     * {@inheritdoc}
+     */
+    protected $pattern = 'is:hidden';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function conditions(AbstractSearch $search, array $matches, $negate)
+    {
+        $this->constrain($search->getQuery(), $negate);
+    }
+
     public function getFilterKey(): string
     {
         return 'hidden';
@@ -21,7 +37,12 @@ class HiddenFilter implements FilterInterface
 
     public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
     {
-        $wrappedFilter->getQuery()->where(function ($query) use ($negate) {
+        $this->constrain($wrappedFilter->getQuery(), $negate);
+    }
+
+    protected function constrain(Builder $query, bool $negate)
+    {
+        $query->where(function ($query) use ($negate) {
             if ($negate) {
                 $query->whereNull('hidden_at')->where('comment_count', '>', 0);
             } else {
