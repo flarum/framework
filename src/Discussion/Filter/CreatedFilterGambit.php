@@ -14,6 +14,7 @@ use Flarum\Filter\WrappedFilter;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 
 class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
@@ -27,7 +28,7 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
      */
     protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
-        $this->constrain($search->getQuery(), $matches[1], $matches[3], $negate);
+        $this->constrain($search->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
     }
 
     public function getFilterKey(): string
@@ -39,10 +40,10 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
     {
         preg_match('/^'.$this->pattern.'$/i', 'created:'.$filterValue, $matches);
 
-        $this->constrain($wrappedFilter->getQuery(), $matches[1], $matches[3], $negate);
+        $this->constrain($wrappedFilter->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
     }
 
-    public function constrain(Builder $query, $firstDate, $secondDate, $negate)
+    public function constrain(Builder $query, ?string $firstDate, ?string $secondDate, $negate)
     {
         // If we've just been provided with a single YYYY-MM-DD date, then find
         // discussions that were started on that exact date. But if we've been
