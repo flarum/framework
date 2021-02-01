@@ -95,7 +95,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                                 new $event($tempGambits)
                             );
 
-                            if (!is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
+                            if (! is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
                                 $gambitManager->setFullTextGambit($this->app->make($fullTextGambit));
                             }
 
