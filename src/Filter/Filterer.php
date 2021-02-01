@@ -12,7 +12,7 @@ namespace Flarum\Filter;
 use Flarum\Search\ApplySearchParametersTrait;
 use Flarum\Search\SearchResults;
 use Flarum\User\User;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
