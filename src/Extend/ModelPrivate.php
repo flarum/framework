@@ -67,7 +67,7 @@ class ModelPrivate implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        if (!class_exists($this->modelClass)) {
+        if (! class_exists($this->modelClass)) {
             return;
         }
 

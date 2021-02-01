@@ -17,7 +17,6 @@ use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
-use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\MergeableInterface;

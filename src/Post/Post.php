@@ -12,7 +12,6 @@ namespace Flarum\Post;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
-use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;

@@ -28,7 +28,7 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $discussion = Discussion::start("Some Discussion", $user);
+        $discussion = Discussion::start('Some Discussion', $user);
         $discussion->save();
 
         $this->assertFalse($discussion->is_private);
@@ -42,7 +42,7 @@ class ModelPrivateTest extends TestCase
         $this->extend(
             (new Extend\ModelPrivate(Discussion::class))
                 ->checker(function ($discussion) {
-                    return $discussion->title === "Private Discussion";
+                    return $discussion->title === 'Private Discussion';
                 })
         );
 
@@ -50,8 +50,8 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start("Private Discussion", $user);
-        $publicDiscussion = Discussion::start("Public Discussion", $user);
+        $privateDiscussion = Discussion::start('Private Discussion', $user);
+        $publicDiscussion = Discussion::start('Public Discussion', $user);
         $privateDiscussion->save();
         $publicDiscussion->save();
 
@@ -73,8 +73,8 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start("Private Discussion", $user);
-        $publicDiscussion = Discussion::start("Public Discussion", $user);
+        $privateDiscussion = Discussion::start('Private Discussion', $user);
+        $publicDiscussion = Discussion::start('Public Discussion', $user);
         $privateDiscussion->save();
         $publicDiscussion->save();
 
@@ -102,8 +102,8 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start("Private Discussion", $user);
-        $publicDiscussion = Discussion::start("Public Discussion", $user);
+        $privateDiscussion = Discussion::start('Private Discussion', $user);
+        $publicDiscussion = Discussion::start('Public Discussion', $user);
         $privateDiscussion->save();
         $publicDiscussion->save();
 
@@ -114,8 +114,8 @@ class ModelPrivateTest extends TestCase
 
 class CustomPrivateChecker
 {
-    public function __invoke ($discussion)
+    public function __invoke($discussion)
     {
-        return $discussion->title === "Private Discussion";
+        return $discussion->title === 'Private Discussion';
     }
 }

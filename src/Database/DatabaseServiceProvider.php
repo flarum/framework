@@ -85,6 +85,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
                 foreach ($checkers as $checker) {
                     if ($checker($instance) === true) {
                         $instance->is_private = true;
+
                         return;
                     }
                 }
