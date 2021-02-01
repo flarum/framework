@@ -72,7 +72,7 @@ class FilterServiceProvider extends AbstractServiceProvider
             ->when(Filterer::class)
             ->needs('$filterMutators')
             ->give(function () {
-                return array_map(function($resourceFilters) {
+                return array_map(function ($resourceFilters) {
                     return array_map(function ($filterClass) {
                         return ContainerUtil::wrapCallback($filterClass, $this->app);
                     }, $resourceFilters);

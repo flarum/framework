@@ -10,8 +10,6 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Filter\Filterer;
-use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 
 class Filter implements ExtenderInterface
