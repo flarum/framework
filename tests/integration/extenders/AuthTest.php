@@ -18,21 +18,12 @@ class AuthTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
-    {
-        $this->prepareDatabase([
-            'users' => [
-                $this->adminUser(),
-            ],
-        ]);
-    }
-
     /**
      * @test
      */
     public function standard_password_works_by_default()
     {
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(1);
 
@@ -49,7 +40,7 @@ class AuthTest extends TestCase
                 ->removePasswordChecker('standard')
         );
 
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(1);
 
@@ -67,7 +58,7 @@ class AuthTest extends TestCase
                 ->addPasswordChecker('custom_true', CustomTrueChecker::class)
         );
 
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(1);
 
@@ -86,7 +77,7 @@ class AuthTest extends TestCase
                 })
         );
 
-        $this->prepDb();
+        $this->app();
 
         $user = User::find(1);
 
