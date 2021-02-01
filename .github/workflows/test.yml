@@ -74,3 +74,5 @@ jobs:
 
       - name: Run Composer tests
         run: composer test
+        env:
+          COMPOSER_PROCESS_TIMEOUT: 600
