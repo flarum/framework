@@ -80,15 +80,32 @@ class SearchServiceProvider extends AbstractServiceProvider
                         $gambitManager->add($this->app->make($gambit));
                     }
 
-                    if ($searcher === UserSearcher::class) {
-                        $this->app->make('events')->dispatch(
-                            new ConfigureUserGambits($gambitManager)
-                        );
-                    } elseif ($searcher === DiscussionSearcher::class) {
-                        $this->app->make('events')->dispatch(
-                            new ConfigureDiscussionGambits($gambitManager)
-                        );
+                    // Temporary BC Layer
+                    // @deprecated beta 16, remove beta 17.
+
+                    $oldEvents = [
+                        DiscussionSearcher::class => ConfigureDiscussionGambits::class,
+                        UserSearcher::class => ConfigureUserGambits::class
+                    ];
+
+                    foreach ($oldEvents as $oldSearcher => $event) {
+                        if ($searcher === $oldSearcher) {
+                            $tempGambits = new GambitManager;
+                            $this->app->make('events')->dispatch(
+                                new $event($tempGambits)
+                            );
+
+                            if (!is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
+                                $gambitManager->setFullTextGambit($this->app->make($fullTextGambit));
+                            }
+
+                            foreach ($tempGambits->getGambits() as $gambit) {
+                                $gambitManager->add($this->app->make($gambit));
+                            }
+                        }
                     }
+
+                    // End BC Layer
 
                     return $gambitManager;
                 });
