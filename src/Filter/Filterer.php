@@ -20,30 +20,18 @@ class Filterer
 {
     use ApplySearchParametersTrait;
 
-    protected static $filters = [];
+    protected $filters;
 
-    protected static $filterMutators = [];
+    protected $filterMutators;
 
-    public static function addFilter($resource, FilterInterface $filter)
+    /**
+     * @param array $filters
+     * @param array $filterMutators
+     */
+    public function __construct(array $filters, array $filterMutators)
     {
-        if (! array_key_exists($resource, static::$filters)) {
-            static::$filters[$resource] = [];
-        }
-
-        if (! array_key_exists($filter->getFilterKey(), static::$filters[$resource])) {
-            static::$filters[$resource][$filter->getFilterKey()] = [];
-        }
-
-        static::$filters[$resource][$filter->getFilterKey()][] = $filter;
-    }
-
-    public static function addFilterMutator($resource, $mutator)
-    {
-        if (! array_key_exists($resource, static::$filterMutators)) {
-            static::$filterMutators[$resource] = [];
-        }
-
-        static::$filterMutators[$resource][] = $mutator;
+        $this->filters = $filters;
+        $this->filterMutators = $filterMutators;
     }
 
     /**
@@ -71,7 +59,7 @@ class Filterer
                 $negate = true;
                 $filterKey = substr($filterKey, 1);
             }
-            foreach (Arr::get(static::$filters, "$resource.$filterKey", []) as $filter) {
+            foreach (Arr::get($this->filters, "$resource.$filterKey", []) as $filter) {
                 $filter->filter($wrappedFilter, $filterValue, $negate);
             }
         }
@@ -80,7 +68,7 @@ class Filterer
         $this->applyOffset($wrappedFilter, $offset);
         $this->applyLimit($wrappedFilter, $limit + 1);
 
-        foreach (Arr::get(static::$filterMutators, $resource, []) as $mutator) {
+        foreach (Arr::get($this->filterMutators, $resource, []) as $mutator) {
             $mutator($query, $actor, $filters, $sort);
         }
 

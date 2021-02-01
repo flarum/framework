@@ -59,9 +59,12 @@ class Filter implements ExtenderInterface
 
             return $originalFilters;
         });
+        $container->extend('flarum.filter.filter_mutators', function ($originalMutators) {
+            foreach ($this->filterMutators as $mutator) {
+                $originalMutators[$this->resource][] = $mutator;
+            }
 
-        foreach ($this->filterMutators as $mutator) {
-            Filterer::addFilterMutator($this->resource, ContainerUtil::wrapCallback($mutator, $container));
-        }
+            return $originalMutators;
+        });
     }
 }

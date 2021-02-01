@@ -15,6 +15,7 @@ use Flarum\Discussion\Filter\CreatedFilterGambit;
 use Flarum\Discussion\Filter\HiddenFilterGambit;
 use Flarum\Discussion\Filter\UnreadFilterGambit;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\User\Filter\EmailFilterGambit;
 use Flarum\User\Filter\GroupFilterGambit;
 use Flarum\User\User;
@@ -42,17 +43,40 @@ class FilterServiceProvider extends AbstractServiceProvider
                 ]
             ];
         });
+
+        $this->app->singleton('flarum.filter.filter_mutators', function () {
+            return [];
+        });
     }
 
     public function boot()
     {
-        $allFilters = $this->app->make('flarum.filter.filters');
+        $this->app
+            ->when(Filterer::class)
+            ->needs('$filters')
+            ->give(function () {
+                $compiled = [];
 
-        foreach ($allFilters as $resource => $resourceFilters) {
-            foreach ($resourceFilters as $filter) {
-                $filter = $this->app->make($filter);
-                Filterer::addFilter($resource, $filter);
-            }
-        }
+                foreach ($this->app->make('flarum.filter.filters') as $resourceClass => $filters) {
+                    $compiled[$resourceClass] = [];
+                    foreach ($filters as $filter) {
+                        $filter = $this->app->make($filter);
+                        $compiled[$resourceClass][$filter->getFilterKey()][] = $filter;
+                    }
+                }
+
+                return $compiled;
+            });
+
+        $this->app
+            ->when(Filterer::class)
+            ->needs('$filterMutators')
+            ->give(function () {
+                return array_map(function($resourceFilters) {
+                    return array_map(function ($filterClass) {
+                        return ContainerUtil::wrapCallback($filterClass, $this->app);
+                    }, $resourceFilters);
+                }, $this->app->make('flarum.filter.filter_mutators'));
+            });
     }
 }
