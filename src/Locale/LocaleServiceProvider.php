@@ -15,8 +15,8 @@ use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Translation\TranslatorInterface as DeprecatedTranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
