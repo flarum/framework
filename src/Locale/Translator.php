@@ -84,4 +84,9 @@ class Translator extends BaseTranslator implements TranslatorContract
 
         return $translation;
     }
+
+    public function setLocale($locale)
+    {
+        parent::setLocale($locale);
+    }
 }

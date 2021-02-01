@@ -18,7 +18,7 @@ use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RequestPasswordResetHandler
 {

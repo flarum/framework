@@ -14,7 +14,7 @@ use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Queue\Queue;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccountActivationMailer
 {

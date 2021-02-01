@@ -12,7 +12,7 @@ namespace Flarum\Notification;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NotificationMailer
 {
