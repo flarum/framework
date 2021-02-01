@@ -13,7 +13,6 @@ use Flarum\Search\AbstractSearch;
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
 use Flarum\Search\SearchCriteria;
-use Flarum\Search\SearchMutators;
 use Flarum\User\Event\Searching;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
@@ -40,9 +39,9 @@ class UserSearcher extends AbstractSearcher
      * @param UserRepository $users
      * @param Dispatcher $events
      * @param GambitManager $gambits
-     * @param SearchMutators $searchMutators
+     * @param array $searchMutators
      */
-    public function __construct(UserRepository $users, Dispatcher $events, GambitManager $gambits, SearchMutators $searchMutators)
+    public function __construct(UserRepository $users, Dispatcher $events, GambitManager $gambits, array $searchMutators)
     {
         parent::__construct($gambits, $searchMutators);
 

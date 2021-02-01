@@ -22,11 +22,11 @@ abstract class AbstractSearcher
     protected $gambits;
 
     /**
-     * @var SearchMutators
+     * @var array
      */
     protected $searchMutators;
 
-    public function __construct(GambitManager $gambits, SearchMutators $searchMutators)
+    public function __construct(GambitManager $gambits, array $searchMutators)
     {
         $this->gambits = $gambits;
         $this->searchMutators = $searchMutators;
@@ -38,7 +38,7 @@ abstract class AbstractSearcher
 
     protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
     {
-        foreach ($this->searchMutators->getMutators() as $mutator) {
+        foreach ($this->searchMutators as $mutator) {
             $mutator($search, $criteria);
         }
     }

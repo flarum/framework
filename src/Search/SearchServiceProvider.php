@@ -112,13 +112,13 @@ class SearchServiceProvider extends AbstractServiceProvider
 
             $this->app
                 ->when($searcher)
-                ->needs(SearchMutators::class)
+                ->needs('$searchMutators')
                 ->give(function () use ($searcher) {
                     $searchMutators = Arr::get($this->app->make('flarum.simple_search.search_mutators'), $searcher, []);
 
-                    return new SearchMutators(array_map(function ($mutator) {
+                    return array_map(function ($mutator) {
                         return ContainerUtil::wrapCallback($mutator, $this->app);
-                    }, $searchMutators));
+                    }, $searchMutators);
                 });
         }
     }
