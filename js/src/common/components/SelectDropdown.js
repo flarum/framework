@@ -12,6 +12,9 @@ import icon from '../helpers/icon';
 function isActive(vnode) {
   const tag = vnode.tag;
 
+  // Allow non-selectable dividers/headers to be added.
+  if (typeof tag === 'string' && tag !== 'a' && tag !== 'button') return false;
+
   if ('initAttrs' in tag) {
     tag.initAttrs(vnode.attrs);
   }

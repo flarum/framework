@@ -10,12 +10,14 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
+use Flarum\Foundation\Application;
 use Flarum\Group\Command\CreateGroup;
 use Flarum\Group\Event\Created;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
+use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class EventTest extends TestCase
@@ -24,16 +26,7 @@ class EventTest extends TestCase
 
     protected function buildGroup()
     {
-        $this->prepareDatabase([
-            'groups' => [
-                $this->adminGroup(),
-            ],
-            'users' => [
-                $this->adminUser(),
-            ],
-        ]);
-
-        $bus = $this->app()->getContainer()->make(Dispatcher::class);
+        $bus = $this->app()->getContainer()->make(BusDispatcher::class);
 
         return $bus->dispatch(
             new CreateGroup(User::find(1), ['attributes' => [
@@ -81,6 +74,32 @@ class EventTest extends TestCase
 
         $this->assertEquals('core.group.admin', $group->name_singular);
     }
+
+    /**
+     * @test
+     */
+    public function custom_subscriber_works()
+    {
+        // Because it injects a translator, this also tests that stuff can be injected into this callback.
+        $this->extend((new Extend\Event)->subscribe(CustomSubscriber::class));
+
+        $group = $this->buildGroup();
+
+        $this->assertEquals('core.group.admin', $group->name_singular);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_subscriber_applied_after_app_booted()
+    {
+        // Because it injects a translator, this also tests that stuff can be injected into this callback.
+        $this->extend((new Extend\Event)->subscribe(CustomSubscriber::class));
+
+        $group = $this->buildGroup();
+
+        $this->assertEquals('booted', $group->name_plural);
+    }
 }
 
 class CustomListener
@@ -95,5 +114,28 @@ class CustomListener
     public function handle(Created $event)
     {
         $event->group->name_singular = $this->translator->trans('core.group.admin');
+    }
+}
+
+class CustomSubscriber
+{
+    protected $bootedAtConstruct;
+    protected $translator;
+
+    public function __construct(Application $app, TranslatorInterface $translator)
+    {
+        $this->bootedAtConstruct = $app->isBooted();
+        $this->translator = $translator;
+    }
+
+    public function subscribe(Dispatcher $events)
+    {
+        $events->listen(Created::class, [$this, 'whenGroupCreated']);
+    }
+
+    public function whenGroupCreated(Created $event)
+    {
+        $event->group->name_singular = $this->translator->trans('core.group.admin');
+        $event->group->name_plural = $this->bootedAtConstruct ? 'booted' : 'not booted';
     }
 }

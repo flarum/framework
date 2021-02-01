@@ -199,7 +199,7 @@ export default class Composer extends Component {
    */
   animatePositionChange() {
     // When exiting full-screen mode: focus content
-    if (this.prevPosition === ComposerState.Position.FULLSCREEN) {
+    if (this.prevPosition === ComposerState.Position.FULLSCREEN && this.state.position === ComposerState.Position.NORMAL) {
       this.focus();
       return;
     }
@@ -265,7 +265,7 @@ export default class Composer extends Component {
     this.animateHeightChange().then(() => this.focus());
 
     if (app.screen() === 'phone') {
-      this.$().css('top', $(window).scrollTop());
+      this.$().css('top', 0);
       this.showBackdrop();
     }
   }

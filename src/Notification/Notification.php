@@ -11,7 +11,6 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
-use Flarum\Event\ScopeModelVisibility;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -161,9 +160,9 @@ class Notification extends AbstractModel
                                 ->from((new $class)->getTable())
                                 ->whereColumn('id', 'subject_id');
 
-                            static::$dispatcher->dispatch(
-                                new ScopeModelVisibility($class::query()->setQuery($query), $actor, 'view')
-                            );
+                            if (method_exists($class, 'registerVisibilityScoper')) {
+                                $class::query()->setQuery($query)->whereVisibleTo($actor);
+                            }
                         });
                 });
             }

@@ -21,7 +21,7 @@ class Application
      *
      * @var string
      */
-    const VERSION = '0.1.0-beta.14';
+    const VERSION = '0.1.0-beta.15';
 
     /**
      * The IoC container for the Flarum application.
@@ -151,50 +151,6 @@ class Application
     protected function registerBaseServiceProviders()
     {
         $this->register(new EventServiceProvider($this->container));
-    }
-
-    /**
-     * Get the base path of the Laravel installation.
-     *
-     * @return string
-     * @deprecated Will be removed in Beta.15.
-     */
-    public function basePath()
-    {
-        return $this->paths->base;
-    }
-
-    /**
-     * Get the path to the public / web directory.
-     *
-     * @return string
-     * @deprecated Will be removed in Beta.15.
-     */
-    public function publicPath()
-    {
-        return $this->paths->public;
-    }
-
-    /**
-     * Get the path to the storage directory.
-     *
-     * @return string
-     * @deprecated Will be removed in Beta.15.
-     */
-    public function storagePath()
-    {
-        return $this->paths->storage;
-    }
-
-    /**
-     * Get the path to the vendor directory where dependencies are installed.
-     *
-     * @return string
-     * @deprecated Will be removed in Beta.15.
-     */
-    public function vendorPath()
-    {
-        return $this->paths->vendor;
     }
 
     /**

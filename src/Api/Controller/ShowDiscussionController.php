@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
+use Flarum\Http\SlugManager;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -30,6 +31,11 @@ class ShowDiscussionController extends AbstractShowController
      * @var PostRepository
      */
     protected $posts;
+
+    /**
+     * @var SlugManager
+     */
+    protected $slugManager;
 
     /**
      * {@inheritdoc}
@@ -61,11 +67,13 @@ class ShowDiscussionController extends AbstractShowController
     /**
      * @param \Flarum\Discussion\DiscussionRepository $discussions
      * @param \Flarum\Post\PostRepository $posts
+     * @param \Flarum\Http\SlugManager $slugManager
      */
-    public function __construct(DiscussionRepository $discussions, PostRepository $posts)
+    public function __construct(DiscussionRepository $discussions, PostRepository $posts, SlugManager $slugManager)
     {
         $this->discussions = $discussions;
         $this->posts = $posts;
+        $this->slugManager = $slugManager;
     }
 
     /**
@@ -77,7 +85,11 @@ class ShowDiscussionController extends AbstractShowController
         $actor = $request->getAttribute('actor');
         $include = $this->extractInclude($request);
 
-        $discussion = $this->discussions->findOrFail($discussionId, $actor);
+        if (Arr::get($request->getQueryParams(), 'bySlug', false)) {
+            $discussion = $this->slugManager->forResource(Discussion::class)->fromSlug($discussionId, $actor);
+        } else {
+            $discussion = $this->discussions->findOrFail($discussionId, $actor);
+        }
 
         if (in_array('posts', $include)) {
             $postRelationships = $this->getPostRelationships($include);

@@ -14,6 +14,7 @@ import DiscussionControls from '../utils/DiscussionControls';
 import slidable from '../utils/slidable';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
+import DiscussionPage from './DiscussionPage';
 
 import { escapeRegExp } from 'lodash-es';
 /**
@@ -120,6 +121,8 @@ export default class DiscussionListItem extends Component {
           </Link>
 
           <span
+            tabindex="0"
+            role="button"
             className="DiscussionListItem-count"
             onclick={this.markAsRead.bind(this)}
             title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}
@@ -156,9 +159,7 @@ export default class DiscussionListItem extends Component {
    * @return {Boolean}
    */
   active() {
-    const idParam = m.route.param('id');
-
-    return idParam && idParam.split('-')[0] === this.attrs.discussion.id();
+    return app.current.matches(DiscussionPage, { discussion: this.attrs.discussion });
   }
 
   /**

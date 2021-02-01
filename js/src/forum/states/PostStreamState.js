@@ -172,7 +172,7 @@ class PostStreamState {
    * @return {Promise}
    */
   loadNearIndex(index) {
-    if (index >= this.visibleStart && index <= this.visibleEnd) {
+    if (index >= this.visibleStart && index < this.visibleEnd) {
       return Promise.resolve();
     }
 
@@ -238,23 +238,26 @@ class PostStreamState {
    * @param {Boolean} backwards
    */
   loadPage(start, end, backwards = false) {
-    m.redraw();
+    this.pagesLoading++;
+
+    const redraw = () => {
+      if (start < this.visibleStart || end > this.visibleEnd) return;
+
+      const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
+      anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, m.redraw.sync);
+    };
+    redraw();
 
     this.loadPageTimeouts[start] = setTimeout(
       () => {
         this.loadRange(start, end).then(() => {
-          if (start >= this.visibleStart && end <= this.visibleEnd) {
-            const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
-            anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw.sync());
-          }
+          redraw();
           this.pagesLoading--;
         });
         this.loadPageTimeouts[start] = null;
       },
-      this.pagesLoading ? 1000 : 0
+      this.pagesLoading - 1 ? 1000 : 0
     );
-
-    this.pagesLoading++;
   }
 
   /**

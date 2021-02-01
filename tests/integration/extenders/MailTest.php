@@ -23,22 +23,11 @@ class MailTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
-    {
-        $this->prepareDatabase([
-            'users' => [
-                $this->adminUser(),
-            ],
-        ]);
-    }
-
     /**
      * @test
      */
     public function drivers_are_unchanged_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/mail/settings', [
                 'authenticatedAs' => 1,
@@ -70,8 +59,6 @@ class MailTest extends TestCase
                 ->driver('custom', CustomDriver::class)
         );
 
-        $this->prepDb();
-
         $response = $this->send(
             $this->request('GET', '/api/mail/settings', [
                 'authenticatedAs' => 1,
@@ -93,8 +80,6 @@ class MailTest extends TestCase
             (new Extend\Mail)
                 ->driver('smtp', CustomDriver::class)
         );
-
-        $this->prepDb();
 
         $response = $this->send(
             $this->request('GET', '/api/mail/settings', [

@@ -9,11 +9,7 @@
 
 namespace Flarum\Formatter;
 
-use Flarum\Formatter\Event\Configuring;
-use Flarum\Formatter\Event\Parsing;
-use Flarum\Formatter\Event\Rendering;
 use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Unparser;
@@ -32,24 +28,17 @@ class Formatter
     protected $cache;
 
     /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
      * @var string
      */
     protected $cacheDir;
 
     /**
      * @param Repository $cache
-     * @param Dispatcher $events
      * @param string $cacheDir
      */
-    public function __construct(Repository $cache, Dispatcher $events, $cacheDir)
+    public function __construct(Repository $cache, $cacheDir)
     {
         $this->cache = $cache;
-        $this->events = $events;
         $this->cacheDir = $cacheDir;
     }
 
@@ -79,9 +68,6 @@ class Formatter
     {
         $parser = $this->getParser($context);
 
-        // Deprecated in beta 15, remove in beta 16
-        $this->events->dispatch(new Parsing($parser, $context, $text));
-
         foreach ($this->parsingCallbacks as $callback) {
             $text = $callback($parser, $context, $text);
         }
@@ -100,9 +86,6 @@ class Formatter
     public function render($xml, $context = null, ServerRequestInterface $request = null)
     {
         $renderer = $this->getRenderer();
-
-        // Deprecated in beta 15, remove in beta 16
-        $this->events->dispatch(new Rendering($renderer, $context, $xml, $request));
 
         foreach ($this->renderingCallbacks as $callback) {
             $xml = $callback($renderer, $context, $xml, $request);
@@ -152,9 +135,6 @@ class Formatter
         $configurator->Autoemail;
         $configurator->Autolink;
         $configurator->tags->onDuplicate('replace');
-
-        // Deprecated in beta 15, remove in beta 16
-        $this->events->dispatch(new Configuring($configurator));
 
         foreach ($this->configurationCallbacks as $callback) {
             $callback($configurator);

@@ -1,18 +1,83 @@
-@admin-pane-width: 300px;
+@admin-pane-width: 250px;
 
 .App {
   padding-bottom: 0;
 }
-.AdminLinkButton-description {
-  display: none;
-}
+
 .AdminContent {
   padding: 20px 0;
 }
 .App-content .sideNavOffset {
   margin-top: 0;
 }
-@media @desktop, @desktop-hd {
+
+.Header-controls {
+  > li {
+    margin-left: 10px;
+  }
+}
+
+@media @phone {
+  .Dropdown-menu {
+    height: 70vh;
+
+    .item-search {
+      margin: 10px;
+
+      .SearchBar {
+        width: 100%
+      }
+    }
+  }
+
+  .ExtensionNavButton {
+    .Button-label {
+      margin-left: 30px;
+    }
+    .ExtensionIcon {
+      margin: 0 0 0 -4px !important;
+    }
+  }
+}
+
+@media @tablet {
+  .AdminNav {
+    .item-search,
+    li[class^="item-category"],
+    li[class^="item-extension"],
+    .AdminLinkButton-description {
+      display: none !important;
+    }
+  }
+}
+
+@media @phone, @tablet {
+  .App-nav .AdminNav {
+    .Dropdown-menu {
+      > li {
+        .ExtensionListTitle {
+          color: @muted-color;
+          text-transform: uppercase;
+          margin: 25px 0 10px 15px;
+        }
+
+        .ExtensionIcon {
+          margin: -2px -29px;
+          width: 25px;
+          height: 25px;
+          font-size: 12.5px;
+
+          .icon {
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+@media @desktop-up {
   .App-nav {
     position: absolute;
     top: @header-height;
@@ -20,60 +85,95 @@
     width: @admin-pane-width;
     .box-shadow(0 6px 6px @shadow-color);
     background: @body-bg;
-    border-top: 1px solid @control-bg;
     z-index: @zindex-pane;
-    overflow: auto;
+    overflow-y: scroll;
+    padding-bottom: 40px;
 
     .affix & {
       position: fixed;
       bottom: 0;
-      height: auto;
     }
   }
   .App-content .sideNavOffset {
     margin-left: @admin-pane-width;
   }
   .App-nav .AdminNav {
-    .Dropdown-menu > li {
-      > a {
-        padding: 15px 15px 15px 45px;
-        display: block;
-        text-decoration: none;
-        white-space: normal;
+    .Dropdown-menu {
+      .item-search {
+        margin-top: 10px;
+        margin-bottom: 20px;
       }
-      > a, > a:hover, &.active > a {
-        color: @muted-color;
-      }
-      > a:hover {
-        background: @control-bg;
-      }
-      &.active > a {
-        background: @control-bg;
-        font-weight: normal;
 
-        .Button-label, .Button-icon {
+      .item-category-core {
+        > .ExtensionListTitle {
+          margin-top: 10px;
+        }
+      }
+
+      > li {
+        > a {
+          padding: 10px 10px 10px 45px;
+          display: block;
+          text-decoration: none;
+        }
+
+        > a,
+        > a:hover,
+        &.active > a {
           color: @text-color;
-          font-weight: bold;
+        }
+
+        > a:hover {
+          background: @control-bg;
+        }
+
+        &.active > a {
+          background: @control-color;
+          font-weight: normal;
+          color: @body-bg;
+
+          .Button-label,
+          .Button-icon {
+            font-weight: bold;
+          }
+        }
+
+        .Button-icon {
+          float: left;
+          font-size: 13px !important;
+          margin-left: -25px !important;
+          margin-top: 4px !important;
+        }
+
+        .Button-label {
+          padding-left: 5px;
+          font-size: 14px;
+          font-weight: normal;
+        }
+
+        .Search-input,
+        .SearchBar {
+          max-width: 215px;
+          margin: 0 auto;
+        }
+
+        .ExtensionListTitle {
+          color: @muted-color;
+          text-transform: uppercase;
+          margin: 25px 0 8px 15px;
+        }
+
+        .ExtensionIcon {
+          width: 25px;
+          height: 25px;
+          font-size: 15px;
+          margin-left: -29px;
+          vertical-align: middle;
         }
       }
     }
-    .Button-icon {
-      float: left;
-      margin-left: -30px;
-      font-size: 14px;
-      margin-top: 4px !important;
-    }
-    .Button-label {
-      display: block;
-      font-size: 15px;
-      font-weight: normal;
-      margin: 0 0 5px;
-    }
-    .AdminLinkButton-description {
-      display: block;
-      font-size: 12px;
-    }
   }
+
   .container {
     width: 100%;
     margin: 0;
@@ -85,4 +185,39 @@
       padding: 0;
     }
   }
+
+}
+
+.AdminLinkButton-description {
+  white-space: normal;
+  padding-left: 5px;
+}
+
+.ExtensionListItem-Dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  right: 13px;
+  margin: 6px 5px;
+  position: absolute;
+}
+
+.ExtensionNavButton {
+  .Button-label {
+    display: inline-block;
+    max-width: calc(100% - 18px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    margin-left: 5px;
+  }
+}
+
+.ExtensionListItem-Dot.enabled {
+  background-color: #2ECC40;
+}
+.ExtensionListItem-Dot.disabled {
+  border: 2px solid #FF4136;
+  box-sizing: border-box;
 }
