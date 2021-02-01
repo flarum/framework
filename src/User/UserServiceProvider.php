@@ -115,7 +115,7 @@ class UserServiceProvider extends AbstractServiceProvider
         User::setHasher($this->app->make('hash'));
         User::setGate($this->app->makeWith(Access\Gate::class, ['policyClasses' => $this->app->make('flarum.policies')]));
         User::setDisplayNameDriver($this->app->make('flarum.user.display_name.driver'));
-      
+
         $events = $this->app->make('events');
 
         $events->listen(Saving::class, SelfDemotionGuard::class);
