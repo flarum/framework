@@ -109,12 +109,6 @@ class Discussion extends AbstractModel
 
             Notification::whereSubject($discussion)->delete();
         });
-
-        static::saving(function (self $discussion) {
-            $event = new GetModelIsPrivate($discussion);
-
-            $discussion->is_private = static::$dispatcher->until($event) === true;
-        });
     }
 
     /**

@@ -96,12 +96,6 @@ class Post extends AbstractModel
             $post->discussion->save();
         });
 
-        static::saving(function (self $post) {
-            $event = new GetModelIsPrivate($post);
-
-            $post->is_private = static::$dispatcher->until($event) === true;
-        });
-
         static::deleted(function (self $post) {
             $post->raise(new Deleted($post));
 
