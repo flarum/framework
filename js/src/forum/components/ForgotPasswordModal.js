@@ -88,7 +88,7 @@ export default class ForgotPasswordModal extends Modal {
 
     this.loading = true;
 
-    app
+    return app
       .request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/forgot',

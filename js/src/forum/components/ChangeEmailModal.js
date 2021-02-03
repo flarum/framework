@@ -109,7 +109,7 @@ export default class ChangeEmailModal extends Modal {
     this.loading = true;
     this.alertAttrs = null;
 
-    app.session.user
+    return app.session.user
       .save(
         { email: this.email() },
         {

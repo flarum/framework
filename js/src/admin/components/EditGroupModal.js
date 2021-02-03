@@ -138,7 +138,7 @@ export default class EditGroupModal extends Modal {
 
     this.loading = true;
 
-    this.group
+    return this.group
       .save(this.submitData(), { errorHandler: this.onerror.bind(this) })
       .then(this.hide.bind(this))
       .catch(() => {

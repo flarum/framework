@@ -201,7 +201,7 @@ export default class EditUserModal extends Modal {
 
     this.loading = true;
 
-    this.attrs.user
+    return this.attrs.user
       .save(this.data(), { errorHandler: this.onerror.bind(this) })
       .then(this.hide.bind(this))
       .catch(() => {

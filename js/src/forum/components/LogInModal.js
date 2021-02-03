@@ -175,7 +175,7 @@ export default class LogInModal extends Modal {
     const password = this.password();
     const remember = this.remember();
 
-    app.session
+    return app.session
       .login({ identification, password, remember }, { errorHandler: this.onerror.bind(this) })
       .then(() => window.location.reload(), this.loaded.bind(this));
   }

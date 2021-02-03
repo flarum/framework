@@ -131,7 +131,7 @@ export default class AppearancePage extends Page {
 
     this.loading = true;
 
-    saveSettings({
+    return saveSettings({
       theme_primary_color: this.primaryColor(),
       theme_secondary_color: this.secondaryColor(),
       theme_dark_mode: this.darkMode(),

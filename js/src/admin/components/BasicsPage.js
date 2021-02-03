@@ -223,7 +223,7 @@ export default class BasicsPage extends Page {
 
     this.fields.forEach((key) => (settings[key] = this.values[key]()));
 
-    saveSettings(settings)
+    return saveSettings(settings)
       .then(() => {
         this.successAlert = app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.basics.saved_message'));
       })

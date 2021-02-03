@@ -95,7 +95,7 @@ export default class DiscussionComposer extends ComposerBody {
 
     const data = this.data();
 
-    app.store
+    return app.store
       .createRecord('discussions')
       .save(data)
       .then((discussion) => {

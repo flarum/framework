@@ -76,7 +76,7 @@ export default class EditPostComposer extends ComposerBody {
 
     const data = this.data();
 
-    this.attrs.post.save(data).then((post) => {
+    return this.attrs.post.save(data).then((post) => {
       // If we're currently viewing the discussion which this edit was made
       // in, then we can scroll to the post.
       if (app.viewingDiscussion(discussion)) {

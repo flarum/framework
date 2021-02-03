@@ -75,7 +75,7 @@ export default class ReplyComposer extends ComposerBody {
 
     const data = this.data();
 
-    app.store
+    return app.store
       .createRecord('posts')
       .save(data)
       .then((post) => {
