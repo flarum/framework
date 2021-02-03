@@ -161,7 +161,7 @@ export default class SignUpModal extends Modal {
 
     const body = this.submitData();
 
-    return app
+    app
       .request({
         url: app.forum.attribute('baseUrl') + '/register',
         method: 'POST',
