@@ -72,7 +72,9 @@ export default class AdminPage extends Page {
    * {
    *    setting: 'acme.checkbox',
    *    label: app.translator.trans('acme.admin.setting_label'),
-   *    type: 'bool'
+   *    type: 'bool',
+   *    help: app.translator.trans('acme.admin.setting_help'),
+   *    className: 'Setting-item'
    * }
    *
    * @example
@@ -133,7 +135,7 @@ export default class AdminPage extends Page {
   onsaved() {
     this.loading = false;
 
-    app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.page.saved_message'));
+    app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.setting.saved_message'));
   }
 
   setting(key, fallback = '') {
