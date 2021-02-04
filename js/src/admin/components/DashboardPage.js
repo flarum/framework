@@ -1,20 +1,20 @@
-import Page from '../../common/components/Page';
 import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
-import AdminHeader from './AdminHeader';
 import ItemList from '../../common/utils/ItemList';
-import listItems from '../../common/helpers/listItems';
+import AdminPage from './AdminPage';
 
-export default class DashboardPage extends Page {
-  view() {
-    return (
-      <div className="DashboardPage">
-        <AdminHeader icon="fas fa-chart-bar" description={app.translator.trans('core.admin.dashboard.description')} className="DashboardPage-header">
-          {app.translator.trans('core.admin.dashboard.title')}
-        </AdminHeader>
-        <div className="container">{this.availableWidgets().toArray()}</div>
-      </div>
-    );
+export default class DashboardPage extends AdminPage {
+  info() {
+    return {
+      name: 'DashboardPage',
+      icon: 'fas fa-chart-bar',
+      title: app.translator.trans('core.admin.dashboard.title'),
+      description: app.translator.trans('core.admin.dashboard.description'),
+    };
+  }
+
+  content() {
+    return this.availableWidgets().toArray();
   }
 
   availableWidgets() {
