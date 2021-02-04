@@ -1,20 +1,17 @@
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import LinkButton from '../../common/components/LinkButton';
-import Page from '../../common/components/Page';
-import Select from '../../common/components/Select';
 import Switch from '../../common/components/Switch';
 import icon from '../../common/helpers/icon';
 import punctuateSeries from '../../common/helpers/punctuateSeries';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
-import Stream from '../../common/utils/Stream';
 import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
-import saveSettings from '../utils/saveSettings';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
+import AdminPage from "./AdminPage";
 
-export default class ExtensionPage extends Page {
+export default class ExtensionPage extends AdminPage {
   oninit(vnode) {
     super.oninit(vnode);
 
