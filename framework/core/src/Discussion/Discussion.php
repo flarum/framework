@@ -17,7 +17,6 @@ use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
-use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\MergeableInterface;
@@ -108,12 +107,6 @@ class Discussion extends AbstractModel
             $discussion->raise(new Deleted($discussion));
 
             Notification::whereSubject($discussion)->delete();
-        });
-
-        static::saving(function (self $discussion) {
-            $event = new GetModelIsPrivate($discussion);
-
-            $discussion->is_private = static::$dispatcher->until($event) === true;
         });
     }
 
