@@ -9,7 +9,7 @@ import ItemList from '../../common/utils/ItemList';
 import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
-import AdminPage from "./AdminPage";
+import AdminPage from './AdminPage';
 
 export default class ExtensionPage extends AdminPage {
   oninit(vnode) {
@@ -121,11 +121,7 @@ export default class ExtensionPage extends AdminPage {
     return (
       <div className="ExtensionPage-settings">
         <div className="container">
-          {typeof app.extensionData[this.extension.id] === 'function' ? (
-            <Button onclick={app.extensionData[this.extension.id].bind(this)} className="Button Button--primary">
-              {app.translator.trans('core.admin.extension.open_modal')}
-            </Button>
-          ) : settings ? (
+          {settings ? (
             <div className="Form">
               {settings.map(this.buildSettingComponent.bind(this))}
               <div className="Form-group">{this.submitButton()}</div>
