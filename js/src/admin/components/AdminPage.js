@@ -135,7 +135,7 @@ export default class AdminPage extends Page {
   onsaved() {
     this.loading = false;
 
-    app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.setting.saved_message'));
+    app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.settings.saved_message'));
   }
 
   setting(key, fallback = '') {
