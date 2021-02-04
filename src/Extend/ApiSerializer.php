@@ -170,7 +170,7 @@ class ApiSerializer implements ExtenderInterface
         foreach ($this->attributes as $callback) {
             $callback = ContainerUtil::wrapCallback($callback, $container);
 
-            AbstractSerializer::addMutator($this->serializerClass, $callback);
+            AbstractSerializer::addAttributeMutator($this->serializerClass, $callback);
         }
 
         foreach ($this->relationships as $serializerClass => $relationships) {
