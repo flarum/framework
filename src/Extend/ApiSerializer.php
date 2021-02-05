@@ -17,8 +17,8 @@ use Illuminate\Contracts\Container\Container;
 class ApiSerializer implements ExtenderInterface
 {
     private $serializerClass;
+    private $attribute = [];
     private $attributes = [];
-    private $mutators = [];
     private $relationships = [];
 
     /**
@@ -46,7 +46,7 @@ class ApiSerializer implements ExtenderInterface
      */
     public function attribute(string $name, $callback)
     {
-        $this->attributes[$name] = $callback;
+        $this->attribute[$name] = $callback;
 
         return $this;
     }
@@ -67,11 +67,33 @@ class ApiSerializer implements ExtenderInterface
      *
      * @return self
      */
-    public function mutate($callback)
+    public function attributes($callback)
     {
-        $this->mutators[] = $callback;
+        $this->attributes[] = $callback;
 
         return $this;
+    }
+
+    /**
+     * Add to or modify the attributes array of this serializer.
+     *
+     * @param callable|string $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $serializer: An instance of this serializer.
+     * - $model: An instance of the model being serialized.
+     * - $attributes: An array of existing attributes.
+     *
+     * The callable should return:
+     * - An array of additional attributes to merge with the existing array.
+     *   Or a modified $attributes array.
+     *
+     * @deprecated in beta 16, removed in beta 17
+     * @return self
+     */
+    public function mutate($callback)
+    {
+        return $this->attributes($callback);
     }
 
     /**
@@ -133,9 +155,9 @@ class ApiSerializer implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        if (! empty($this->attributes)) {
-            $this->mutators[] = function ($serializer, $model, $attributes) use ($container) {
-                foreach ($this->attributes as $attributeName => $callback) {
+        if (! empty($this->attribute)) {
+            $this->attributes[] = function ($serializer, $model, $attributes) use ($container) {
+                foreach ($this->attribute as $attributeName => $callback) {
                     $callback = ContainerUtil::wrapCallback($callback, $container);
 
                     $attributes[$attributeName] = $callback($serializer, $model, $attributes);
@@ -145,10 +167,10 @@ class ApiSerializer implements ExtenderInterface
             };
         }
 
-        foreach ($this->mutators as $mutator) {
-            $mutator = ContainerUtil::wrapCallback($mutator, $container);
+        foreach ($this->attributes as $callback) {
+            $callback = ContainerUtil::wrapCallback($callback, $container);
 
-            AbstractSerializer::addMutator($this->serializerClass, $mutator);
+            AbstractSerializer::addAttributeMutator($this->serializerClass, $callback);
         }
 
         foreach ($this->relationships as $serializerClass => $relationships) {
