@@ -6,9 +6,7 @@ export default class MarkdownToolbar extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    const field = document.getElementById(this.attrs.for);
-
-    field.addEventListener('keydown', this.shortcut.bind(this));
+    this.attrs.setShortcutHandler(this.shortcut.bind(this));
   }
 
   view(vnode) {
