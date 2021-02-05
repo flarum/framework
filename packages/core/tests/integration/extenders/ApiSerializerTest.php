@@ -74,7 +74,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(ForumSerializer::class))
-                ->mutate(function () {
+                ->attributes(function () {
                     return [
                         'customAttribute' => true
                     ];
@@ -101,7 +101,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(ForumSerializer::class))
-                ->mutate(CustomAttributesInvokableClass::class)
+                ->attributes(CustomAttributesInvokableClass::class)
         );
 
         $this->app();
@@ -124,7 +124,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->mutate(function () {
+                ->attributes(function () {
                     return [
                         'customAttribute' => true
                     ];
@@ -151,13 +151,13 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->mutate(function () {
+                ->attributes(function () {
                     return [
                         'customAttribute' => 'initialValue'
                     ];
                 }),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->mutate(function () {
+                ->attributes(function () {
                     return [
                         'customAttribute' => 'newValue'
                     ];
@@ -294,7 +294,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(BasicUserSerializer::class))
                 ->attribute('someCustomAttribute', function () {
                     return 'newValue';
-                })->mutate(function () {
+                })->attributes(function () {
                     return [
                         'someCustomAttribute' => 'initialValue',
                         'someOtherCustomAttribute' => 'initialValue',

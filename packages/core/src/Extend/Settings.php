@@ -39,7 +39,7 @@ class Settings implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         if (! empty($this->settings)) {
-            AbstractSerializer::addMutator(
+            AbstractSerializer::addAttributeMutator(
                 ForumSerializer::class,
                 function () use ($container) {
                     $settings = $container->make(SettingsRepositoryInterface::class);
