@@ -1,8 +1,9 @@
 import Component from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
-import SuperTextarea from '../../common/utils/SuperTextarea';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
+
+import BasicEditorDriver from '../editor/BasicEditorDriver';
 
 /**
  * The `TextEditor` component displays a textarea with controls, including a
@@ -22,25 +23,22 @@ export default class TextEditor extends Component {
     super.oninit(vnode);
 
     /**
-     * The value of the textarea.
+     * The value of the editor.
      *
      * @type {String}
      */
     this.value = this.attrs.value || '';
+
+    /**
+     * Whether the editor is disabled.
+     */
+    this.disabled = !!this.attrs.disabled || true;
   }
 
   view() {
     return (
       <div className="TextEditor">
-        <textarea
-          className="FormControl Composer-flexible"
-          oninput={(e) => {
-            this.oninput(e.target.value, e);
-          }}
-          placeholder={this.attrs.placeholder || ''}
-          disabled={!!this.attrs.disabled}
-          value={this.value}
-        />
+        <div className="TextEditor-editorContainer"></div>
 
         <ul className="TextEditor-controls Composer-footer">
           {listItems(this.controlItems().toArray())}
@@ -53,15 +51,34 @@ export default class TextEditor extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    const handler = () => {
-      this.onsubmit();
-      m.redraw();
+    this.attrs.composer.editor = this.buildEditor(this.$('.TextEditor-editorContainer')[0]);
+  }
+
+  onupdate() {
+    const newDisabled = !!this.attrs.disabled;
+
+    if (this.disabled !== newDisabled) {
+      this.disabled = newDisabled;
+      this.attrs.composer.editor.disabled(newDisabled);
+    }
+  }
+
+  buildEditorParams() {
+    return {
+      classNames: ['FormControl', 'Composer-flexible', 'TextEditor-editor'],
+      disabled: this.disabled,
+      placeholder: this.attrs.placeholder || '',
+      value: this.value,
+      oninput: this.oninput.bind(this),
+      onsubmit: () => {
+        this.onsubmit();
+        m.redraw();
+      },
     };
+  }
 
-    this.$('textarea').bind('keydown', 'meta+return', handler);
-    this.$('textarea').bind('keydown', 'ctrl+return', handler);
-
-    this.attrs.composer.editor = new SuperTextarea(this.$('textarea')[0]);
+  buildEditor(dom) {
+    return new BasicEditorDriver(dom, this.buildEditorParams());
   }
 
   /**
@@ -115,12 +132,10 @@ export default class TextEditor extends Component {
    *
    * @param {String} value
    */
-  oninput(value, e) {
+  oninput(value) {
     this.value = value;
 
     this.attrs.onchange(this.value);
-
-    e.redraw = false;
   }
 
   /**

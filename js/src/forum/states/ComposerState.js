@@ -66,12 +66,16 @@ class ComposerState {
   clear() {
     this.position = ComposerState.Position.HIDDEN;
     this.body = { attrs: {} };
-    this.editor = null;
     this.onExit = null;
 
     this.fields = {
       content: Stream(''),
     };
+
+    if (this.editor) {
+      this.editor.destroy();
+    }
+    this.editor = null;
   }
 
   /**

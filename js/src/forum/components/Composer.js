@@ -76,13 +76,13 @@ export default class Composer extends Component {
 
     // Whenever any of the inputs inside the composer are have focus, we want to
     // add a class to the composer to draw attention to it.
-    this.$().on('focus blur', ':input', (e) => {
+    this.$().on('focus blur', ':input,.TextEditor-editorContainer', (e) => {
       this.active = e.type === 'focusin';
       m.redraw();
     });
 
     // When the escape key is pressed on any inputs, close the composer.
-    this.$().on('keydown', ':input', 'esc', () => this.state.close());
+    this.$().on('keydown', ':input,.TextEditor-editorContainer', 'esc', () => this.state.close());
 
     this.handlers = {};
 
@@ -157,7 +157,7 @@ export default class Composer extends Component {
    * Draw focus to the first focusable content element (the text editor).
    */
   focus() {
-    this.$('.Composer-content :input:enabled:visible:first').focus();
+    this.state.editor.focus();
   }
 
   /**
