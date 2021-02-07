@@ -247,7 +247,9 @@ export default class TagDiscussionModal extends Modal {
     // Ctrl + Enter submits the selection, just Enter completes the current entry
     if (e.metaKey || e.ctrlKey || this.selected.indexOf(this.index) !== -1) {
       if (this.selected.length) {
-        this.$('form').submit();
+        // The DOM submit method doesn't emit a `submit event, so we
+        // simulate a manual submission so our `onsubmit` logic is run.
+        this.$('button[type="submit"]').click();
       }
     } else {
       this.getItem(this.index)[0].dispatchEvent(new Event('click'));
