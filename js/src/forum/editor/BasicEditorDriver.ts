@@ -1,6 +1,7 @@
 import getCaretCoordinates from 'textarea-caret';
+import EditorDriverInterface from './EditorDriverInterface';
 
-export default class BasicEditorDriver {
+export default class BasicEditorDriver implements EditorDriverInterface {
   onsubmit?: Function;
   el: HTMLTextAreaElement;
 
@@ -29,61 +30,34 @@ export default class BasicEditorDriver {
     dom.append(this.el);
   }
 
-  // CONTENT INTERACTIONS
-
-  /**
-   * Set the value of the text editor.
-   */
-  setValue(value: string) {
+  protected setValue(value: string) {
     $(this.el).val(value).trigger('input');
 
     this.el.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
   }
 
-  /**
-   * Focus the textarea and place the cursor at the given index.
-   */
   moveCursorTo(position: number) {
     this.setSelectionRange(position, position);
   }
 
-  /**
-   * Get the selected range of the textarea.
-   */
   getSelectionRange(): Array<number> {
     return [this.el.selectionStart, this.el.selectionEnd];
   }
 
-  /**
-   * Get the last N characters from the current "text block".
-   * For the textarea driver, this will just return the last N characters.
-   */
   getLastNChars(n: number) {
     const value = this.el.value;
 
     return value.slice(Math.max(0, this.el.selectionStart - n), this.el.selectionStart);
   }
 
-  /**
-   * Insert content into the textarea at the position of the cursor.
-   */
   insertAtCursor(text: string) {
     this.insertAt(this.el.selectionStart, text);
   }
 
-  /**
-   * Insert content into the textarea at the given position.
-   */
   insertAt(pos: number, text: string) {
     this.insertBetween(pos, pos, text);
   }
 
-  /**
-   * Insert content into the textarea between the given positions.
-   *
-   * If the start and end positions are different, any text between them will be
-   * overwritten.
-   */
   insertBetween(start: number, end: number, text: string) {
     const value = this.el.value;
 
@@ -96,23 +70,17 @@ export default class BasicEditorDriver {
     this.moveCursorTo(start + text.length);
   }
 
-  /**
-   * Replace existing content from the start to the current cursor position.
-   */
   replaceBeforeCursor(start: number, text: string) {
     this.insertBetween(start, this.el.selectionStart, text);
   }
 
-  /**
-   * Set the selected range of the textarea.
-   */
   protected setSelectionRange(start: number, end: number) {
     this.el.setSelectionRange(start, end);
     this.focus();
   }
 
-  getCaretCoordinates(position, options) {
-    return getCaretCoordinates(this.el, position, options);
+  getCaretCoordinates(position: number) {
+    return getCaretCoordinates(this.el, position);
   }
 
   // DOM Interactions
