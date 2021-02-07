@@ -32,7 +32,7 @@ export default class TextEditor extends Component {
     /**
      * Whether the editor is disabled.
      */
-    this.disabled = !!this.attrs.disabled || true;
+    this.disabled = !!this.attrs.disabled;
   }
 
   view() {
