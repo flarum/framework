@@ -18,7 +18,7 @@ class ContainerUtil
      *
      * @internal Backwards compatability not guaranteed.
      *
-     * @param callable|string $callback: A callable, or a ::class attribute of an invokable class
+     * @param callable|string $callback: A callable, global function, or a ::class attribute of an invokable class
      * @param Container $container
      */
     public static function wrapCallback($callback, Container $container)
