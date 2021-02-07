@@ -23,7 +23,7 @@ class ContainerUtil
      */
     public static function wrapCallback($callback, Container $container)
     {
-        if (is_string($callback)) {
+        if (is_string($callback) && !function_exists($callback)) {
             $callback = function (&...$args) use ($container, $callback) {
                 $callback = $container->make($callback);
 

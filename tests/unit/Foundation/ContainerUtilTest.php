@@ -75,6 +75,18 @@ class ContainerUtilTest extends TestCase
     }
 
     /** @test */
+    public function it_works_with_global_functions()
+    {
+        $callback = ContainerUtil::wrapCallback('boolval', $this->container);
+
+        $this->assertEquals(true, $callback(true));
+        $this->assertEquals(true, $callback(1));
+        $this->assertEquals(true, $callback('1'));
+        $this->assertEquals(false, $callback(0));
+        $this->assertEquals(false, $callback(false));
+    }
+
+    /** @test */
     public function it_allows_passing_args_by_reference_on_closures()
     {
         $callback = ContainerUtil::wrapCallback(function (&$array) {
