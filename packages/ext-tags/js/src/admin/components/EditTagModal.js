@@ -31,11 +31,7 @@ export default class EditTagModal extends Modal {
 
   title() {
     return this.name()
-      ? tagLabel({
-        name: this.name,
-        color: this.color,
-        icon: this.icon,
-      })
+      ? tagLabel(app.store.createRecord('tags', { attributes: this.submitData() }))
       : app.translator.trans('flarum-tags.admin.edit_tag.title');
   }
 
@@ -57,36 +53,36 @@ export default class EditTagModal extends Modal {
       <input className="FormControl" placeholder={app.translator.trans('flarum-tags.admin.edit_tag.name_placeholder')} value={this.name()} oninput={e => {
         this.name(e.target.value);
         this.slug(slug(e.target.value));
-      }}/>
+      }} />
     </div>, 50);
 
     items.add('slug', <div className="Form-group">
       <label>{app.translator.trans('flarum-tags.admin.edit_tag.slug_label')}</label>
-      <input className="FormControl" bidi={this.slug}/>
+      <input className="FormControl" bidi={this.slug} />
     </div>, 40);
 
     items.add('description', <div className="Form-group">
       <label>{app.translator.trans('flarum-tags.admin.edit_tag.description_label')}</label>
-      <textarea className="FormControl" bidi={this.description}/>
+      <textarea className="FormControl" bidi={this.description} />
     </div>, 30);
 
     items.add('color', <div className="Form-group">
       <label>{app.translator.trans('flarum-tags.admin.edit_tag.color_label')}</label>
-      <input className="FormControl" placeholder="#aaaaaa" bidi={this.color}/>
+      <input className="FormControl" placeholder="#aaaaaa" bidi={this.color} />
     </div>, 20);
 
     items.add('icon', <div className="Form-group">
       <label>{app.translator.trans('flarum-tags.admin.edit_tag.icon_label')}</label>
       <div className="helpText">
-        {app.translator.trans('flarum-tags.admin.edit_tag.icon_text', {a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1"/>})}
+        {app.translator.trans('flarum-tags.admin.edit_tag.icon_text', { a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1" /> })}
       </div>
-      <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon}/>
+      <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon} />
     </div>, 10);
 
     items.add('hidden', <div className="Form-group">
       <div>
         <label className="checkbox">
-          <input type="checkbox" bidi={this.isHidden}/>
+          <input type="checkbox" bidi={this.isHidden} />
           {app.translator.trans('flarum-tags.admin.edit_tag.hide_label')}
         </label>
       </div>
@@ -139,8 +135,8 @@ export default class EditTagModal extends Modal {
 
       this.tag.delete().then(() => {
         children.forEach(tag => tag.pushData({
-          attributes: {isChild: false},
-          relationships: {parent: null}
+          attributes: { isChild: false },
+          relationships: { parent: null }
         }));
         m.redraw();
       });
