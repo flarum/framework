@@ -9,13 +9,15 @@
 
 namespace Flarum\Filter;
 
-use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Filter as DiscussionFilter;
+use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\Post\Filter as PostFilter;
-use Flarum\Post\Post;
+use Flarum\Post\Filter\PostFilterer;
 use Flarum\User\Filter as UserFilter;
-use Flarum\User\User;
+use Flarum\User\Filter\UserFilterer;
+use Illuminate\Support\Arr;
 
 class FilterServiceProvider extends AbstractServiceProvider
 {
@@ -38,7 +40,7 @@ class FilterServiceProvider extends AbstractServiceProvider
                     UserFilter\EmailFilterGambit::class,
                     UserFilter\GroupFilterGambit::class,
                 ],
-                Post::class => [
+                PostFilterer::class => [
                     PostFilter\AuthorFilter::class,
                     PostFilter\DiscussionFilter::class,
                     PostFilter\IdFilter::class,
