@@ -16,10 +16,22 @@ export default class BasicEditorDriver implements EditorDriverInterface {
     this.el.disabled = params.disabled;
     this.el.placeholder = params.placeholder;
     this.el.value = params.value;
-    this.el.oninput = (e) => {
-      params.oninput(this.el.value);
+
+    const callInputListeners = (e) => {
+      params.inputListeners.forEach((listener) => {
+        listener();
+      });
+
       e.redraw = false;
     };
+
+    this.el.oninput = (e) => {
+      params.oninput(this.el.value);
+      callInputListeners(e);
+    };
+
+    this.el.onclick = callInputListeners;
+    this.el.onkeyup = callInputListeners;
 
     this.el.addEventListener('keydown', function (e) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {

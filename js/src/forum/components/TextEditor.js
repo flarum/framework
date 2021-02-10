@@ -69,7 +69,11 @@ export default class TextEditor extends Component {
       disabled: this.disabled,
       placeholder: this.attrs.placeholder || '',
       value: this.value,
+      // This is separate from inputListeners since the full serialized content will be passed to it.
+      // This is considered private API.
       oninput: this.oninput.bind(this),
+      // Functions that will be called on click, input, and keyup. No arguments will be passed.
+      inputListeners: [],
       onsubmit: () => {
         this.onsubmit();
         m.redraw();
