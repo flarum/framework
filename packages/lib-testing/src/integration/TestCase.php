@@ -23,6 +23,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     use BuildsHttpRequests;
+    use UsesTmpDir;
 
     /**
      * @inheritDoc
@@ -45,14 +46,16 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function app()
     {
         if (is_null($this->app)) {
+            $tmp = $this->tmpDir();
+
             $site = new InstalledSite(
                 new Paths([
-                    'base' => __DIR__.'/tmp',
-                    'vendor' => __DIR__.'/../../../../',
-                    'public' => __DIR__.'/tmp/public',
-                    'storage' => __DIR__.'/tmp/storage',
+                    'base' => $tmp,
+                    'public' => "$tmp/public",
+                    'storage' => "$tmp/storage",
+                    'vendor' => getcwd().'/vendor',
                 ]),
-                new Config(include __DIR__ . '/tmp/config.php')
+                new Config(include "$tmp/config.php")
             );
 
             $extenders = array_merge([
