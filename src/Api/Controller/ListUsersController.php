@@ -60,14 +60,12 @@ class ListUsersController extends AbstractListController
      * @param UserFilterer $filterer
      * @param UserSearcher $searcher
      * @param UrlGenerator $url
-     * @param UserRepository $users
      */
     public function __construct(UserFilterer $filterer, UserSearcher $searcher, UrlGenerator $url)
     {
         $this->filterer = $filterer;
         $this->searcher = $searcher;
         $this->url = $url;
-        $this->users = $users;
     }
 
     /**
