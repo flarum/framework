@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Extend;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\WrappedFilter;
@@ -66,7 +67,7 @@ class FilterTest extends TestCase
     /**
      * @test
      */
-    public function custom_filter_gambit_has_effect_if_added()
+    public function custom_filter_has_effect_if_added()
     {
         $this->extend((new Extend\Filter(DiscussionFilterer::class))->addFilter(NoResultFilter::class));
 
