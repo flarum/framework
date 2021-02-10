@@ -87,6 +87,14 @@ class ContainerUtilTest extends TestCase
     }
 
     /** @test */
+    public function it_works_with_static_class_method_arrays()
+    {
+        $callback = ContainerUtil::wrapCallback([ClassWithMethod::class, 'staticMethod'], $this->container);
+
+        $this->assertEquals('returnStatic', $callback());
+    }
+
+    /** @test */
     public function it_allows_passing_args_by_reference_on_closures()
     {
         $callback = ContainerUtil::wrapCallback(function (&$array) {
@@ -151,5 +159,12 @@ class SecondCustomInvokableClass
         $array['key'] = 'newValue4';
 
         return 'return4';
+    }
+}
+
+class ClassWithMethod
+{
+    public static function staticMethod() {
+        return "returnStatic";
     }
 }
