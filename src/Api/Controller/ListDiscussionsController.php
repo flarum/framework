@@ -11,7 +11,6 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Filter\FilterCriteria;
@@ -51,11 +50,6 @@ class ListDiscussionsController extends AbstractListController
     public $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
 
     /**
-     * @var DiscussionRepository
-     */
-    protected $discussions;
-
-    /**
      * @var DiscussionFilterer
      */
     protected $filterer;
@@ -71,14 +65,12 @@ class ListDiscussionsController extends AbstractListController
     protected $url;
 
     /**
-     * @param DiscussionRepository $discussions
      * @param DiscussionFilterer $filterer
      * @param DiscussionSearcher $searcher
      * @param UrlGenerator $url
      */
-    public function __construct(DiscussionRepository $discussions, DiscussionFilterer $filterer, DiscussionSearcher $searcher, UrlGenerator $url)
+    public function __construct(DiscussionFilterer $filterer, DiscussionSearcher $searcher, UrlGenerator $url)
     {
-        $this->discussions = $discussions;
         $this->filterer = $filterer;
         $this->searcher = $searcher;
         $this->url = $url;

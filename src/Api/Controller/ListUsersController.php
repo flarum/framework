@@ -15,7 +15,6 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
 use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
-use Flarum\User\UserRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -58,22 +57,15 @@ class ListUsersController extends AbstractListController
     protected $url;
 
     /**
-     * @var UserRepository
-     */
-    protected $users;
-
-    /**
      * @param UserFilterer $filterer
      * @param UserSearcher $searcher
      * @param UrlGenerator $url
-     * @param UserRepository $users
      */
-    public function __construct(UserFilterer $filterer, UserSearcher $searcher, UrlGenerator $url, UserRepository $users)
+    public function __construct(UserFilterer $filterer, UserSearcher $searcher, UrlGenerator $url)
     {
         $this->filterer = $filterer;
         $this->searcher = $searcher;
         $this->url = $url;
-        $this->users = $users;
     }
 
     /**
