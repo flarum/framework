@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
-use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\WrappedFilter;
