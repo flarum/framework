@@ -9,7 +9,6 @@
 
 namespace Flarum\Search;
 
-use Illuminate\Contracts\Container\Container;
 use LogicException;
 
 /**
@@ -23,31 +22,34 @@ class GambitManager
     protected $gambits = [];
 
     /**
-     * @var string
+     * @var GambitInterface
      */
     protected $fulltextGambit;
 
     /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
-     * @param Container $container
-     */
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
      * Add a gambit.
      *
-     * @param string $gambit
+     * @param GambitInterface $gambit
      */
     public function add($gambit)
     {
         $this->gambits[] = $gambit;
+    }
+
+    /**
+     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 17.
+     */
+    public function getFullTextGambit()
+    {
+        return $this->fulltextGambit;
+    }
+
+    /**
+     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 17.
+     */
+    public function getGambits()
+    {
+        return $this->gambits;
     }
 
     /**
@@ -68,7 +70,7 @@ class GambitManager
     /**
      * Set the gambit to handle fulltext searching.
      *
-     * @param string $gambit
+     * @param GambitInterface $gambit
      */
     public function setFulltextGambit($gambit)
     {
@@ -99,10 +101,8 @@ class GambitManager
             return '';
         }
 
-        $gambits = array_map([$this->container, 'make'], $this->gambits);
-
         foreach ($bits as $k => $bit) {
-            foreach ($gambits as $gambit) {
+            foreach ($this->gambits as $gambit) {
                 if (! $gambit instanceof GambitInterface) {
                     throw new LogicException(
                         'Gambit '.get_class($gambit).' does not implement '.GambitInterface::class
@@ -130,9 +130,7 @@ class GambitManager
             return;
         }
 
-        $gambit = $this->container->make($this->fulltextGambit);
-
-        $search->addActiveGambit($gambit);
-        $gambit->apply($search, $query);
+        $search->addActiveGambit($this->fulltextGambit);
+        $this->fulltextGambit->apply($search, $query);
     }
 }

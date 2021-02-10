@@ -9,6 +9,9 @@
 
 namespace Flarum\Event;
 
+/**
+ * @deprecated beta 16, removed in beta 17
+ */
 class ConfigureDiscussionGambits extends AbstractConfigureGambits
 {
 }
