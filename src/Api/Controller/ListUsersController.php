@@ -10,9 +10,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\UserSerializer;
-use Flarum\Filter\Filterer;
+use Flarum\Filter\FilterCriteria;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
+use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\UserRepository;
 use Psr\Http\Message\ServerRequestInterface;
@@ -42,7 +43,7 @@ class ListUsersController extends AbstractListController
     ];
 
     /**
-     * @var Filterer
+     * @var UserFilterer
      */
     protected $filterer;
 
@@ -62,12 +63,12 @@ class ListUsersController extends AbstractListController
     protected $users;
 
     /**
-     * @param Filterer $filterer
+     * @param UserFilterer $filterer
      * @param UserSearcher $searcher
      * @param UrlGenerator $url
      * @param UserRepository $users
      */
-    public function __construct(Filterer $filterer, UserSearcher $searcher, UrlGenerator $url, UserRepository $users)
+    public function __construct(UserFilterer $filterer, UserSearcher $searcher, UrlGenerator $url, UserRepository $users)
     {
         $this->filterer = $filterer;
         $this->searcher = $searcher;
@@ -96,9 +97,9 @@ class ListUsersController extends AbstractListController
 
             $results = $this->searcher->search($criteria, $limit, $offset, $load);
         } else {
-            $query = $this->users->query();
+            $criteria = new FilterCriteria($actor, $filters, $sort);
 
-            $results = $this->filterer->filter($actor, $query, $filters, $sort, $limit, $offset, $load);
+            $results = $this->filterer->filter($criteria, $limit, $offset, $load);
         }
 
         $document->addPaginationLinks(

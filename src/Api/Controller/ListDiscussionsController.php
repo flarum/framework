@@ -12,8 +12,9 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
+use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
-use Flarum\Filter\Filterer;
+use Flarum\Filter\FilterCriteria;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
@@ -55,7 +56,7 @@ class ListDiscussionsController extends AbstractListController
     protected $discussions;
 
     /**
-     * @var Filterer
+     * @var DiscussionFilterer
      */
     protected $filterer;
 
@@ -71,11 +72,11 @@ class ListDiscussionsController extends AbstractListController
 
     /**
      * @param DiscussionRepository $discussions
-     * @param Filterer $filterer
+     * @param DiscussionFilterer $filterer
      * @param DiscussionSearcher $searcher
      * @param UrlGenerator $url
      */
-    public function __construct(DiscussionRepository $discussions, Filterer $filterer, DiscussionSearcher $searcher, UrlGenerator $url)
+    public function __construct(DiscussionRepository $discussions, DiscussionFilterer $filterer, DiscussionSearcher $searcher, UrlGenerator $url)
     {
         $this->discussions = $discussions;
         $this->filterer = $filterer;
@@ -101,9 +102,9 @@ class ListDiscussionsController extends AbstractListController
 
             $results = $this->searcher->search($criteria, $limit, $offset, $load);
         } else {
-            $query = $this->discussions->query();
+            $criteria = new FilterCriteria($actor, $filters, $sort);
 
-            $results = $this->filterer->filter($actor, $query, $filters, $sort, $limit, $offset, $load);
+            $results = $this->filterer->filter($criteria, $limit, $offset, $load);
         }
 
         $document->addPaginationLinks(

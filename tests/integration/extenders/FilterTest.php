@@ -69,7 +69,7 @@ class FilterTest extends TestCase
      */
     public function custom_filter_gambit_has_effect_if_added()
     {
-        $this->extend((new Extend\Filter(Discussion::class))->addFilter(NoResultFilter::class));
+        $this->extend((new Extend\Filter(DiscussionFilterer::class))->addFilter(NoResultFilter::class));
 
         $this->prepDb();
 
@@ -84,7 +84,7 @@ class FilterTest extends TestCase
      */
     public function filter_mutator_has_effect_if_added()
     {
-        $this->extend((new Extend\Filter(Discussion::class))->addFilterMutator(function ($query, $actor, $filters, $sort) {
+        $this->extend((new Extend\Filter(DiscussionFilterer::class))->addFilterMutator(function ($query, $actor, $filters, $sort) {
             $query->getQuery()->whereRaw('1=0');
         }));
 
@@ -98,7 +98,7 @@ class FilterTest extends TestCase
      */
     public function filter_mutator_has_effect_if_added_with_invokable_class()
     {
-        $this->extend((new Extend\Filter(Discussion::class))->addFilterMutator(CustomFilterMutator::class));
+        $this->extend((new Extend\Filter(DiscussionFilterer::class))->addFilterMutator(CustomFilterMutator::class));
 
         $this->prepDb();
 

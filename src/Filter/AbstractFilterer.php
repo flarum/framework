@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
-class Filterer
+abstract class AbstractFilterer
 {
     use ApplySearchParametersTrait;
 
@@ -34,42 +34,41 @@ class Filterer
         $this->filterMutators = $filterMutators;
     }
 
+    abstract protected function getQuery(User $actor): Builder;
+
     /**
-     * @param User $actor
-     * @param Builder $query
-     * @param array $filters
-     * @param mixed|null $sort
+     * @param FilterCriteria $criteria
      * @param mixed|null $limit
      * @param int $offset
      * @param array $load
      * @return SearchResults
      * @throws InvalidArgumentException
      */
-    public function filter(User $actor, Builder $query, array $filters, array $sort = null, int $limit = null, int $offset = 0, array $load = []): SearchResults
+    public function filter(FilterCriteria $criteria, int $limit = null, int $offset = 0, array $load = []): SearchResults
     {
-        $resource = get_class($query->getModel());
+        $actor = $criteria->actor;
 
-        $query->whereVisibleTo($actor);
+        $query = $this->getQuery($actor);
 
         $wrappedFilter = new WrappedFilter($query->getQuery(), $actor);
 
-        foreach ($filters as $filterKey => $filterValue) {
+        foreach ($criteria->queryParams as $filterKey => $filterValue) {
             $negate = false;
             if (substr($filterKey, 0, 1) == '-') {
                 $negate = true;
                 $filterKey = substr($filterKey, 1);
             }
-            foreach (Arr::get($this->filters, "$resource.$filterKey", []) as $filter) {
+            foreach (Arr::get($this->filters, $filterKey, []) as $filter) {
                 $filter->filter($wrappedFilter, $filterValue, $negate);
             }
         }
 
-        $this->applySort($wrappedFilter, $sort);
+        $this->applySort($wrappedFilter, $criteria->sort);
         $this->applyOffset($wrappedFilter, $offset);
         $this->applyLimit($wrappedFilter, $limit + 1);
 
-        foreach (Arr::get($this->filterMutators, $resource, []) as $mutator) {
-            $mutator($query, $actor, $filters, $sort);
+        foreach ($this->filterMutators as $mutator) {
+            $mutator($query, $actor, $criteria->queryParams, $criteria->sort);
         }
 
         // Execute the filter query and retrieve the results. We get one more

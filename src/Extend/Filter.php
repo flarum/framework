@@ -14,20 +14,20 @@ use Illuminate\Contracts\Container\Container;
 
 class Filter implements ExtenderInterface
 {
-    private $resource;
+    private $filtererClass;
     private $filters = [];
     private $filterMutators = [];
 
     /**
-     * @param string $resource: The ::class attribute of the resource this applies to, which is typically an Eloquent model.
+     * @param string $filtererclass: The ::class attribute of the filterer to extend
      */
-    public function __construct($resource)
+    public function __construct($filtererClass)
     {
-        $this->resource = $resource;
+        $this->filtererClass = $filtererClass;
     }
 
     /**
-     * Add a filter to run when the resource is filtered.
+     * Add a filter to run when the filtererclass is filtered.
      *
      * @param string $filterClass: The ::class attribute of the filter you are adding.
      */
@@ -52,14 +52,14 @@ class Filter implements ExtenderInterface
     {
         $container->extend('flarum.filter.filters', function ($originalFilters) {
             foreach ($this->filters as $filter) {
-                $originalFilters[$this->resource][] = $filter;
+                $originalFilters[$this->filtererClass][] = $filter;
             }
 
             return $originalFilters;
         });
         $container->extend('flarum.filter.filter_mutators', function ($originalMutators) {
             foreach ($this->filterMutators as $mutator) {
-                $originalMutators[$this->resource][] = $mutator;
+                $originalMutators[$this->filtererClass][] = $mutator;
             }
 
             return $originalMutators;
