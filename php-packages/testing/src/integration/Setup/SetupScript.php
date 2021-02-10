@@ -14,9 +14,12 @@ use Flarum\Install\AdminUser;
 use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
+use Flarum\Testing\integration\UsesTmpDir;
 
 class SetupScript
 {
+    use UsesTmpDir;
+
     /**
      * Test database host.
      *
@@ -71,23 +74,31 @@ class SetupScript
 
     public function run()
     {
+        $tmp = $this->tmpDir();
+
         echo "Connecting to database $this->name at $this->host:$this->port.\n";
         echo "Logging in as $this->user with password '$this->pass'.\n";
         echo "Table prefix: '$this->pref'\n";
+        echo "\nStoring test config in '$tmp'\n";
 
         echo "\n\nCancel now if that's not what you want...\n";
         echo "Use the following environment variables for configuration:\n";
-        echo "DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_PREFIX\n";
+        echo "Database: DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_PREFIX\n";
+        echo "Test Config: FLARUM_TEST_TMP_DIR or FLARUM_TEST_TMP_DIR_LOCAL\n";
+
 
         sleep(4);
 
         echo "\nOff we go...\n";
+
+        $this->setupTmpDir();
+
         $installation = new Installation(
             new Paths([
-                'base' => __DIR__.'/../tmp',
-                'public' => __DIR__.'/../tmp/public',
-                'storage' => __DIR__.'/../tmp/storage',
-                'vendor' => __DIR__.'/../../../../../',
+                'base' => $tmp,
+                'public' => "$tmp/public",
+                'storage' => "$tmp/storage",
+                'vendor' => getcwd().'/vendor',
             ])
         );
 
