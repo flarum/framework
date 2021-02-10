@@ -164,7 +164,8 @@ class SecondCustomInvokableClass
 
 class ClassWithMethod
 {
-    public static function staticMethod() {
-        return "returnStatic";
+    public static function staticMethod()
+    {
+        return 'returnStatic';
     }
 }
