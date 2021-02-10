@@ -12,6 +12,9 @@ namespace Flarum\Discussion\Event;
 use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Search\SearchCriteria;
 
+/**
+ * @deprecated beta 16, remove beta 17
+ */
 class Searching
 {
     /**
