@@ -14,7 +14,9 @@ abstract class AbstractRegexGambit implements GambitInterface
     /**
      * The regex pattern to match the bit against.
      */
-    protected function getGambitPattern() {}
+    protected function getGambitPattern()
+    {
+    }
 
     /**
      * {@inheritdoc}

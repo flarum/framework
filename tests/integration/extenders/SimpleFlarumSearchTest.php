@@ -154,7 +154,8 @@ class NoResultFilterGambit extends AbstractRegexGambit
     /**
      * {@inheritdoc}
      */
-    public function getGambitPattern() {
+    public function getGambitPattern()
+    {
         return 'noResult:(.+)';
     }
 
