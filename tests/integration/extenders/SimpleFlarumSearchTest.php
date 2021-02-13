@@ -151,7 +151,12 @@ class NoResultFullTextGambit implements GambitInterface
 
 class NoResultFilterGambit extends AbstractRegexGambit
 {
-    protected $pattern = 'noResult:(.+)';
+    /**
+     * {@inheritdoc}
+     */
+    public function getGambitPattern() {
+        return 'noResult:(.+)';
+    }
 
     /**
      * {@inheritdoc}

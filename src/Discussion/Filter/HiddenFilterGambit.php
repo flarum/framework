@@ -20,7 +20,10 @@ class HiddenFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    protected $pattern = 'is:hidden';
+    public function getGambitPattern()
+    {
+        return 'is:hidden';
+    }
 
     /**
      * {@inheritdoc}

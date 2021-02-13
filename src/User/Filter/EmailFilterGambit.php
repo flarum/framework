@@ -20,11 +20,6 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    protected $pattern = 'email:(.+)';
-
-    /**
-     * {@inheritdoc}
-     */
     public function apply(AbstractSearch $search, $bit)
     {
         if (! $search->getActor()->hasPermission('user.edit')) {
@@ -32,6 +27,14 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
         }
 
         return parent::apply($search, $bit);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGambitPattern()
+    {
+        return 'email:(.+)';
     }
 
     /**

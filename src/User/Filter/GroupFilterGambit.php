@@ -18,10 +18,14 @@ use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
 class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
-{/**
+{
+    /**
      * {@inheritdoc}
      */
-    protected $pattern = 'group:(.+)';
+    public function getGambitPattern()
+    {
+        return 'group:(.+)';
+    }
 
     /**
      * {@inheritdoc}

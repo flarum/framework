@@ -34,7 +34,10 @@ class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    protected $pattern = 'author:(.+)';
+    public function getGambitPattern()
+    {
+        return 'author:(.+)';
+    }
 
     /**
      * {@inheritdoc}

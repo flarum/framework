@@ -21,7 +21,10 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    protected $pattern = 'created:(\d{4}\-\d\d\-\d\d)(\.\.(\d{4}\-\d\d\-\d\d))?';
+    public function getGambitPattern()
+    {
+        return 'created:(\d{4}\-\d\d\-\d\d)(\.\.(\d{4}\-\d\d\-\d\d))?';
+    }
 
     /**
      * {@inheritdoc}
@@ -38,7 +41,7 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
     {
-        preg_match('/^'.$this->pattern.'$/i', 'created:'.$filterValue, $matches);
+        preg_match('/^'.$this->getGambitPattern().'$/i', 'created:'.$filterValue, $matches);
 
         $this->constrain($wrappedFilter->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
     }

@@ -35,7 +35,10 @@ class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    protected $pattern = 'is:unread';
+    public function getGambitPattern()
+    {
+        return 'is:unread';
+    }
 
     /**
      * {@inheritdoc}
