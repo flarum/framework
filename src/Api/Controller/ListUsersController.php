@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\UserSerializer;
-use Flarum\Filter\FilterCriteria;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
 use Flarum\User\Filter\UserFilterer;
@@ -84,13 +83,10 @@ class ListUsersController extends AbstractListController
         $offset = $this->extractOffset($request);
         $load = $this->extractInclude($request);
 
+        $criteria = new SearchCriteria($actor, $filters, $sort);
         if (array_key_exists('q', $filters)) {
-            $criteria = new SearchCriteria($actor, $filters['q'], $sort);
-
             $results = $this->searcher->search($criteria, $limit, $offset, $load);
         } else {
-            $criteria = new FilterCriteria($actor, $filters, $sort);
-
             $results = $this->filterer->filter($criteria, $limit, $offset, $load);
         }
 

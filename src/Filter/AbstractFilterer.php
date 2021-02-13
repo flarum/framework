@@ -10,6 +10,7 @@
 namespace Flarum\Filter;
 
 use Flarum\Search\ApplySearchParametersTrait;
+use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchResults;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,14 +38,14 @@ abstract class AbstractFilterer
     abstract protected function getQuery(User $actor): Builder;
 
     /**
-     * @param FilterCriteria $criteria
+     * @param SearchCriteria $criteria
      * @param mixed|null $limit
      * @param int $offset
      * @param array $load
      * @return SearchResults
      * @throws InvalidArgumentException
      */
-    public function filter(FilterCriteria $criteria, int $limit = null, int $offset = 0, array $load = []): SearchResults
+    public function filter(SearchCriteria $criteria, int $limit = null, int $offset = 0, array $load = []): SearchResults
     {
         $actor = $criteria->actor;
 
@@ -52,7 +53,7 @@ abstract class AbstractFilterer
 
         $wrappedFilter = new WrappedFilter($query->getQuery(), $actor);
 
-        foreach ($criteria->queryParams as $filterKey => $filterValue) {
+        foreach ($criteria->query as $filterKey => $filterValue) {
             $negate = false;
             if (substr($filterKey, 0, 1) == '-') {
                 $negate = true;
@@ -68,7 +69,7 @@ abstract class AbstractFilterer
         $this->applyLimit($wrappedFilter, $limit + 1);
 
         foreach ($this->filterMutators as $mutator) {
-            $mutator($query, $actor, $criteria->queryParams, $criteria->sort);
+            $mutator($query, $actor, $criteria->query, $criteria->sort);
         }
 
         // Execute the filter query and retrieve the results. We get one more

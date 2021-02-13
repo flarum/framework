@@ -58,7 +58,7 @@ abstract class AbstractSearcher
 
         $search = $this->getSearch($query, $actor);
 
-        $this->gambits->apply($search, $criteria->query);
+        $this->gambits->apply($search, $criteria->query['q']);
         $this->applySort($search, $criteria->sort);
         $this->applyOffset($search, $offset);
         $this->applyLimit($search, $limit + 1);

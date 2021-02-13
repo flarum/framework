@@ -13,7 +13,6 @@ use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
-use Flarum\Filter\FilterCriteria;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
@@ -89,13 +88,10 @@ class ListDiscussionsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $load = array_merge($this->extractInclude($request), ['state']);
 
+        $criteria = new SearchCriteria($actor, $filters, $sort);
         if (array_key_exists('q', $filters)) {
-            $criteria = new SearchCriteria($actor, $filters['q'], $sort);
-
             $results = $this->searcher->search($criteria, $limit, $offset, $load);
         } else {
-            $criteria = new FilterCriteria($actor, $filters, $sort);
-
             $results = $this->filterer->filter($criteria, $limit, $offset, $load);
         }
 

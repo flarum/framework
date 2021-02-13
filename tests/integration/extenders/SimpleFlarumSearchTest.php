@@ -64,7 +64,7 @@ class SimpleFlarumSearchTest extends TestCase
 
         $actor = User::find(1);
 
-        $criteria = new SearchCriteria($actor, $query);
+        $criteria = new SearchCriteria($actor, ['q' => $query]);
 
         return $this->app()->getContainer()->make(DiscussionSearcher::class)->search($criteria, $limit)->getResults();
     }
