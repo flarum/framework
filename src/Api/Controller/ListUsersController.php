@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\UserSerializer;
-use Flarum\Filter\FilterCriteria;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
 use Flarum\User\Filter\UserFilterer;
