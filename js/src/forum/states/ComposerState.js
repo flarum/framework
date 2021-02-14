@@ -1,7 +1,7 @@
 import subclassOf from '../../common/utils/subclassOf';
 import Stream from '../../common/utils/Stream';
 import ReplyComposer from '../components/ReplyComposer';
-import EditorDriverInterface from '../editor/EditorDriverInterface';
+import EditorDriverInterface from '../utils/EditorDriverInterface';
 
 class ComposerState {
   constructor() {

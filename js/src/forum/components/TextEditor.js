@@ -3,7 +3,7 @@ import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 
-import BasicEditorDriver from '../editor/BasicEditorDriver';
+import BasicEditorDriver from '../utils/BasicEditorDriver';
 
 /**
  * The `TextEditor` component displays a textarea with controls, including a
