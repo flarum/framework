@@ -1,6 +1,7 @@
 import subclassOf from '../../common/utils/subclassOf';
 import Stream from '../../common/utils/Stream';
 import ReplyComposer from '../components/ReplyComposer';
+import EditorDriverInterface from '../editor/EditorDriverInterface';
 
 class ComposerState {
   constructor() {
@@ -29,7 +30,7 @@ class ComposerState {
     /**
      * A reference to the text editor that allows text manipulation.
      *
-     * @type {SuperTextArea|null}
+     * @type {EditorDriverInterface|null}
      */
     this.editor = null;
 
