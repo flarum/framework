@@ -37,6 +37,8 @@ function bidi(node, prop) {
   } else {
     node.attrs.value = prop();
   }
+  
+  node.attrs.bidi = null;
 
   return node;
 }
