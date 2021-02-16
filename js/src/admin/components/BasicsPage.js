@@ -80,14 +80,10 @@ export default class BasicsPage extends AdminPage {
             ))}
         </FieldSet>
 
-        <div className="BasicsPage-welcomeBanner-input">
-          {this.buildSettingComponent({
-            type: 'text',
-            setting: 'welcome_title',
-            label: app.translator.trans('core.admin.basics.welcome_banner_heading'),
-            className: 'BasicsPage-welcomeBanner',
-            help: app.translator.trans('core.admin.basics.welcome_banner_text'),
-          })}
+        <div className="Form-group BasicsPage-welcomeBanner-input">
+          <label>{app.translator.trans('core.admin.basics.welcome_banner_heading')}</label>
+          <div className="helpText">{app.translator.trans('core.admin.basics.welcome_banner_text')}</div>
+          <input type="text" className="FormControl" bidi={this.setting('welcome_title')} />
           <textarea className="FormControl" bidi={this.setting('welcome_message')} />
         </div>
 

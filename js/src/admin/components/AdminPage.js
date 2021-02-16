@@ -1,7 +1,7 @@
 import Page from '../../common/components/Page';
+import Button from '../../common/components/Button';
 import Switch from '../../common/components/Switch';
 import Select from '../../common/components/Select';
-import Button from '../../common/components/Button';
 import classList from '../../common/utils/classList';
 import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
@@ -17,7 +17,7 @@ export default class AdminPage extends Page {
   }
 
   view() {
-    const className = classList(['AdminPage', this.info().className]);
+    const className = classList(['AdminPage', this.headerInfo().className]);
 
     return (
       <div className={className}>
@@ -40,11 +40,11 @@ export default class AdminPage extends Page {
   }
 
   header() {
-    const info = this.info();
+    const headerInfo = this.headerInfo();
 
     return (
-      <AdminHeader icon={info.icon} description={info.description} className={info.className + '-header'}>
-        {info.title}
+      <AdminHeader icon={headerInfo.icon} description={headerInfo.description} className={headerInfo.className + '-header'}>
+        {headerInfo.title}
       </AdminHeader>
     );
   }
@@ -59,7 +59,7 @@ export default class AdminPage extends Page {
   }
 
   /**
-   * getSetting takes a settings object and turns it into a component.
+   * buildSettingComponent takes a settings object and turns it into a component.
    * Depending on the type of input, you can set the type to 'bool', 'select', or
    * any standard <input> type. Any values inside the 'extra' object will be added
    * to the component as an attribute.
