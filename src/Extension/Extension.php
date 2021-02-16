@@ -218,7 +218,6 @@ class Extension implements Arrayable
     {
         $this->extensionDependencyIds = (new Collection(Arr::get($this->composerJson, 'require', [])))
             ->keys()
-            ->merge(Arr::get($this->composerJson, 'extra.flarum-extension.optional-dependencies', []))
             ->filter(function ($key) use ($extensionSet) {
                 return array_key_exists($key, $extensionSet);
             })
