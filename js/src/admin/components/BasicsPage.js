@@ -68,23 +68,17 @@ export default class BasicsPage extends AdminPage {
             ]
           : ''}
 
-        {FieldSet.component(
-          {
-            label: app.translator.trans('core.admin.basics.home_page_heading'),
-            className: 'BasicsPage-homePage Form-group',
-          },
-          [
-            <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>,
-            this.homePageItems()
-              .toArray()
-              .map(({ path, label }) => (
-                <label className="checkbox">
-                  <input type="radio" name="homePage" value={path} bidi={this.setting('default_route')} />
-                  {label}
-                </label>
-              )),
-          ]
-        )}
+          <FieldSet className='BasicsPage-homePage Form-group' label={app.translator.trans('core.admin.basics.home_page_heading')}>
+            <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>
+            {this.homePageItems()
+            .toArray()
+            .map(({ path, label }) => (
+            <label className="checkbox">
+              <input type="radio" name="homePage" value={path} bidi={this.setting('default_route')} />
+              {label}
+            </label>
+            ))}
+          </FieldSet>
 
         <div className="BasicsPage-welcomeBanner-input">
           {this.buildSettingComponent({
