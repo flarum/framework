@@ -17,7 +17,7 @@ export default class AdminPage extends Page {
   }
 
   view() {
-    const className = classList(['AdminPage', this.info().name]);
+    const className = classList(['AdminPage', this.info().className]);
 
     return (
       <div className={className}>
@@ -43,15 +43,15 @@ export default class AdminPage extends Page {
     const info = this.info();
 
     return (
-      <AdminHeader icon={info.icon} description={info.description} className={info.name + '-header'}>
+      <AdminHeader icon={info.icon} description={info.description} className={info.className + '-header'}>
         {info.title}
       </AdminHeader>
     );
   }
 
-  info() {
+  headerInfo() {
     return {
-      name: '',
+      className: '',
       icon: '',
       title: '',
       description: '',

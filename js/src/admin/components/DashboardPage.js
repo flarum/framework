@@ -4,9 +4,9 @@ import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 
 export default class DashboardPage extends AdminPage {
-  info() {
+  headerInfo() {
     return {
-      name: 'DashboardPage',
+      className: 'DashboardPage',
       icon: 'fas fa-chart-bar',
       title: app.translator.trans('core.admin.dashboard.title'),
       description: app.translator.trans('core.admin.dashboard.description'),

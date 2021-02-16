@@ -6,9 +6,9 @@ import UploadImageButton from './UploadImageButton';
 import AdminPage from './AdminPage';
 
 export default class AppearancePage extends AdminPage {
-  info() {
+  headerInfo() {
     return {
-      name: 'AppearancePage',
+      className: 'AppearancePage',
       icon: 'fas fa-paint-brush',
       title: app.translator.trans('core.admin.appearance.title'),
       description: app.translator.trans('core.admin.appearance.description'),

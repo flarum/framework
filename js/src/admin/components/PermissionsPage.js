@@ -6,9 +6,9 @@ import PermissionGrid from './PermissionGrid';
 import AdminPage from './AdminPage';
 
 export default class PermissionsPage extends AdminPage {
-  info() {
+  headerInfo() {
     return {
-      name: 'PermissionsPage',
+      className: 'PermissionsPage',
       icon: 'fas fa-key',
       title: app.translator.trans('core.admin.permissions.title'),
       description: app.translator.trans('core.admin.permissions.description'),

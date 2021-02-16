@@ -28,9 +28,9 @@ export default class BasicsPage extends AdminPage {
     });
   }
 
-  info() {
+  headerInfo() {
     return {
-      name: 'BasicsPage',
+      className: 'BasicsPage',
       icon: 'fas fa-pencil-alt',
       title: app.translator.trans('core.admin.basics.title'),
       description: app.translator.trans('core.admin.basics.description'),
@@ -68,17 +68,17 @@ export default class BasicsPage extends AdminPage {
             ]
           : ''}
 
-          <FieldSet className='BasicsPage-homePage Form-group' label={app.translator.trans('core.admin.basics.home_page_heading')}>
-            <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>
-            {this.homePageItems()
+        <FieldSet className="BasicsPage-homePage Form-group" label={app.translator.trans('core.admin.basics.home_page_heading')}>
+          <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>
+          {this.homePageItems()
             .toArray()
             .map(({ path, label }) => (
-            <label className="checkbox">
-              <input type="radio" name="homePage" value={path} bidi={this.setting('default_route')} />
-              {label}
-            </label>
+              <label className="checkbox">
+                <input type="radio" name="homePage" value={path} bidi={this.setting('default_route')} />
+                {label}
+              </label>
             ))}
-          </FieldSet>
+        </FieldSet>
 
         <div className="BasicsPage-welcomeBanner-input">
           {this.buildSettingComponent({
