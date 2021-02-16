@@ -15,9 +15,9 @@ export default function getCategorizedExtensions() {
 
       extensions[category].push(extension);
     } else {
-      extensions.other = extensions.other || [];
+      extensions.feature = extensions.feature || [];
 
-      extensions.other.push(extension);
+      extensions.feature.push(extension);
     }
   });
 
