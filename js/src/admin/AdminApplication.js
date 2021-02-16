@@ -16,7 +16,7 @@ export default class AdminApplication extends Application {
   extensionCategories = {
     feature: 30,
     theme: 20,
-    language: 10
+    language: 10,
   };
 
   history = {
