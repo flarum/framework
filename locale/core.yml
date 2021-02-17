@@ -7,13 +7,6 @@ core:
   # Translations in this namespace are used by the admin interface.
   admin:
 
-    # These translations are used in the placeholder Add Extension modal dialog.
-    add_extension:
-      developer_text: "If you're a developer, you can <a>read the docs</a> and have a go at building your own extensions."
-      install_text: "In the meantime, you can look for extensions at the <a>Flarum Community site</a> and install them manually using Composer."
-      temporary_text: "One day in the not-too-distant future, this dialog will allow you to add an extension to your forum with ease. We're building an ecosystem as we speak!"
-      title: Add Extension
-
     # These translations are used in the Appearance page.
     appearance:
       colored_header_label: Colored Header
@@ -26,6 +19,7 @@ core:
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles.
       dark_mode_label: Dark Mode
+      description: "Customize your forum's colors, logos, and other variables."
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
       edit_header_button: => core.ref.custom_header_title
@@ -35,11 +29,13 @@ core:
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
       submit_button: => core.ref.save_changes
+      title: Appearance
 
     # These translations are used in the Basics page.
     basics:
       all_discussions_label: => core.ref.all_discussions
       default_language_heading: Default Language
+      description: "Set your forum title, language, and other basic settings."
       display_name_heading: User Display Name
       display_name_text: Select the driver that should be used for users' display names. By default, the username is shown.
       forum_description_heading: Forum Description
@@ -49,13 +45,18 @@ core:
       home_page_text: Choose the page which users will first see when they visit your forum.
       saved_message: Your changes were saved.
       show_language_selector_label: Show language selector
+      slug_driver_heading: "Slug Driver: {model}"
+      slug_driver_text: Select a driver to be used for slugging this model.
       submit_button: => core.ref.save_changes
+      title: Basics
       welcome_banner_heading: Welcome Banner
       welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
 
     # These translations are used in the Dashboard page.
     dashboard:
       clear_cache_button: Clear Cache
+      description: Your forum at a glance.
+      title: Dashboard
       tools_button: Tools
 
     # These translations are used in the Edit Custom CSS modal dialog.
@@ -93,10 +94,10 @@ core:
     # These translations are used in the email page of the admin interface.
     email:
       addresses_heading: Addresses
+      description: "Configure the driver, settings and addresses your forum will use to send email."
       driver_heading: Choose a Driver
       driver_label: Driver
       from_label: Sender
-      heading: => core.ref.email
       mail_encryption_label: Encryption
       mail_host_label: Host
       mail_mailgun_domain_label: Domain
@@ -113,16 +114,31 @@ core:
       send_test_mail_text: "This will send an email using the above configuration to your email, {email}."
       smtp_heading: SMTP Settings
       submit_button: => core.ref.save_changes
-      text: Configure the driver, settings and addresses your forum will use to send email.
+      title: => core.ref.email
 
-    # These translations are used in the Extensions page.
-    extensions:
-      add_button: Add Extension
-      settings_button: => core.ref.settings
+    # These translations are used on default extension pages.
+    extension:
+      confirm_uninstall: Uninstalling will remove all database entries and assets related to the extension. Are you sure you want to continue?
+      disabled: Disabled
+      enable_to_see: Enable the extension to view and change settings.
+      enabled: Enabled
+      info_links:
+        discuss: Discuss
+        documentation: Documentation
+        donate: Donate
+        source: Source
+        support: Support
+        website: Website
+      no_permissions: This extension has no permissions.
+      no_settings: This extension has no settings.
+      open_modal: Open Settings
+      permissions_title: Permissions
+      saved_message: Your changes were saved.
       uninstall_button: Uninstall
 
-    # These translations are used in the session dropdown menu.
+    # These translations are used in the secondary header.
     header:
+      get_help: Get Help
       log_out_button: => core.ref.log_out
 
     # These translations are used in the modal dialog displayed when loading extensions.
@@ -131,18 +147,27 @@ core:
 
     # These translations are used in the navigation bar.
     nav:
-      appearance_button: Appearance
-      appearance_text: "Customize your forum's colors, logos, and other variables."
-      basics_button: Basics
-      basics_text: "Set your forum title, language, and other basic settings."
-      dashboard_button: Dashboard
-      dashboard_text: Your forum at a glance.
+      appearance_button: => core.admin.appearance.title
+      appearance_title: => core.admin.appearance.description
+      basics_button: => core.admin.basics.title
+      basics_title: => core.admin.basics.description
+      categories:
+        authentication: Authentication
+        core: Core Configuration
+        discussion: Discussion
+        feature: Features
+        formatting: Formatting
+        language: Languages
+        moderation: Moderation
+        other: Other Extensions
+        theme: Themes
+      dashboard_button: => core.admin.dashboard.title
+      dashboard_title: => core.admin.dashboard.description
       email_button: => core.ref.email
-      email_text: "Configure your forum's email settings."
-      extensions_button: Extensions
-      extensions_text: Add extra functionality to your forum and make it your own.
-      permissions_button: Permissions
-      permissions_text: Configure who can see and do what.
+      email_title: => core.admin.email.description
+      permissions_button: => core.admin.permissions.title
+      permissions_title: => core.admin.permissions.description
+      search_placeholder: Search Extensions
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:
@@ -153,6 +178,7 @@ core:
       delete_discussions_label: Delete discussions
       delete_posts_forever_label: Delete posts forever
       delete_posts_label: Delete posts
+      description: Configure who can see and do what.
       edit_posts_label: Edit posts
       edit_users_label: Edit users
       global_heading: Global
@@ -165,6 +191,7 @@ core:
       reply_to_discussions_label: Reply to discussions
       sign_up_label: Sign up
       start_discussions_label: Start discussions
+      title: Permissions
       view_discussions_label: View discussions
       view_hidden_groups_label: View hidden group badges
       view_last_seen_at_label: Always view user last seen time
