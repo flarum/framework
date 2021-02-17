@@ -61,7 +61,7 @@ class CreateTest extends TestCase
                 [
                     'status' => '422',
                     'code' => 'validation_error',
-                    'detail' => 'validation.required',
+                    'detail' => 'The content field is required.',
                     'source' => ['pointer' => '/data/attributes/content'],
                 ],
             ],
@@ -97,7 +97,7 @@ class CreateTest extends TestCase
                 [
                     'status' => '422',
                     'code' => 'validation_error',
-                    'detail' => 'validation.required',
+                    'detail' => 'The title field is required.',
                     'source' => ['pointer' => '/data/attributes/title'],
                 ],
             ],
