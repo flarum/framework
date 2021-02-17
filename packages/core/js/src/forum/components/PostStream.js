@@ -146,11 +146,9 @@ export default class PostStream extends Component {
    * @param {Integer} top
    */
   onscroll(top = window.pageYOffset) {
-    if (this.stream.paused) return;
+    if (this.stream.paused || this.stream.pagesLoading) return;
 
     this.updateScrubber(top);
-
-    if (this.stream.pagesLoading) return;
 
     this.loadPostsIfNeeded(top);
 
