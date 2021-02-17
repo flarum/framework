@@ -9,7 +9,7 @@
 
 use Illuminate\Container\Container;
 
-if (!function_exists('container')) {
+if (! function_exists('container')) {
     /**
      * Get the available container instance.
      *
@@ -30,7 +30,7 @@ if (!function_exists('container')) {
 /**
  * @deprecated beta 16, remove beta 17. Use container() instead.
  */
-if (!function_exists('app')) {
+if (! function_exists('app')) {
     /**
      * Get the available container instance.
      *
@@ -43,7 +43,6 @@ if (!function_exists('app')) {
         return container($make, $parameters);
     }
 }
-
 
 if (! function_exists('event')) {
     /**
