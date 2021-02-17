@@ -9,7 +9,7 @@ import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
 import PostStreamState from '../states/PostStreamState';
-import ScrollListener from "../../common/utils/ScrollListener";
+import ScrollListener from '../../common/utils/ScrollListener';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
@@ -59,7 +59,9 @@ export default class DiscussionPage extends Page {
       const $hero = $('.DiscussionHero');
       if ($hero.offset()) {
         $hero.toggleClass('DiscussionHero--floating', top > 92);
-        $('.DiscussionPage-discussion').children('.container').toggleClass('scrolled', top > 92);
+        $('.DiscussionPage-discussion')
+          .children('.container')
+          .toggleClass('scrolled', top > 92);
       }
     });
 
