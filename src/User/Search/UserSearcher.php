@@ -13,6 +13,7 @@ use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
+use Flarum\Search\SearchState;
 use Flarum\User\Event\Searching;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
