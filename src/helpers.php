@@ -27,6 +27,9 @@ if (! function_exists('app')) {
     }
 }
 
+/**
+ * @deprecated beta 16, removed in beta 17
+ */
 if (! function_exists('event')) {
     /**
      * Fire an event and call the listeners.
