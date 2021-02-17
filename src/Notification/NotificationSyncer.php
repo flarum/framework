@@ -11,7 +11,6 @@ namespace Flarum\Notification;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
-use Flarum\Notification\Event\Sending;
 use Flarum\User\User;
 
 /**
@@ -42,6 +41,11 @@ class NotificationSyncer
      * @var NotificationDriverInterface[]
      */
     protected static $notificationDrivers = [];
+
+    /**
+     * @var array
+     */
+    protected static $beforeSendingCallbacks = [];
 
     /**
      * Sync a notification so that it is visible to the specified users, and not
@@ -94,17 +98,16 @@ class NotificationSyncer
             $this->setDeleted($toUndelete, false);
         }
 
+        foreach (static::$beforeSendingCallbacks as $callback) {
+            $newRecipients = $callback($blueprint, $newRecipients);
+        }
+
         // Create a notification record, and send an email, for all users
         // receiving this notification for the first time (we know because they
         // didn't have a record in the database). As both operations can be
         // intensive on resources (database and mail server), we queue them.
         foreach (static::getNotificationDrivers() as $driverName => $driver) {
             $driver->send($blueprint, $newRecipients);
-        }
-
-        if (count($newRecipients)) {
-            // Deprecated in beta 15, removed in beta 16
-            event(new Sending($blueprint, $newRecipients));
         }
     }
 
@@ -175,5 +178,13 @@ class NotificationSyncer
     public static function getNotificationDrivers(): array
     {
         return static::$notificationDrivers;
+    }
+
+    /**
+     * @param callable|string $callback
+     */
+    public static function beforeSending($callback): void
+    {
+        static::$beforeSendingCallbacks[] = $callback;
     }
 }

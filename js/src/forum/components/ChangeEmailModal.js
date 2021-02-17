@@ -106,9 +106,8 @@ export default class ChangeEmailModal extends Modal {
       return;
     }
 
-    const oldEmail = app.session.user.email();
-
     this.loading = true;
+    this.alertAttrs = null;
 
     app.session.user
       .save(
@@ -120,7 +119,6 @@ export default class ChangeEmailModal extends Modal {
       )
       .then(() => {
         this.success = true;
-        this.alertAttrs = null;
       })
       .catch(() => {})
       .then(this.loaded.bind(this));

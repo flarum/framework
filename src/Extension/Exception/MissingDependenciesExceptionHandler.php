@@ -9,6 +9,7 @@
 
 namespace Flarum\Extension\Exception;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ErrorHandling\HandledError;
 
 class MissingDependenciesExceptionHandler
@@ -26,8 +27,8 @@ class MissingDependenciesExceptionHandler
     {
         return [
             [
-                'extension' => $e->extension->getId(),
-                'extensions' => $e->getMissingDependencyIds(),
+                'extension' => $e->extension->getTitle(),
+                'extensions' => ExtensionManager::pluckTitles($e->missing_dependencies),
             ]
         ];
     }

@@ -9,7 +9,10 @@
 
 namespace Flarum\Database;
 
+use Flarum\Discussion\Discussion;
+use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Post\Post;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
@@ -58,6 +61,15 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->app->singleton(MigrationRepositoryInterface::class, function ($app) {
             return new DatabaseMigrationRepository($app['flarum.db'], 'migrations');
         });
+
+        $this->app->singleton('flarum.database.model_private_checkers', function () {
+            // Discussion and Post are explicitly listed here to trigger the deprecated
+            // event-based model privacy system. They should be removed in beta 17.
+            return [
+                Discussion::class => [],
+                Post::class => []
+            ];
+        });
     }
 
     /**
@@ -67,5 +79,24 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     {
         AbstractModel::setConnectionResolver($this->app->make(ConnectionResolverInterface::class));
         AbstractModel::setEventDispatcher($this->app->make('events'));
+
+        foreach ($this->app->make('flarum.database.model_private_checkers') as $modelClass => $checkers) {
+            $modelClass::saving(function ($instance) use ($checkers) {
+                foreach ($checkers as $checker) {
+                    if ($checker($instance) === true) {
+                        $instance->is_private = true;
+
+                        return;
+                    }
+                }
+
+                $instance->is_private = false;
+
+                // @deprecated BC layer, remove beta 17
+                $event = new GetModelIsPrivate($instance);
+
+                $instance->is_private = $this->app->make('events')->until($event) === true;
+            });
+        }
     }
 }

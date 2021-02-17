@@ -174,7 +174,7 @@ class ModelTest extends TestCase
         $user = User::find(1);
 
         $this->assertNotEquals([], $user->customRelation()->get()->toArray());
-        $this->assertContains(json_encode(__CLASS__), json_encode($user->customRelation()->get()));
+        $this->assertStringContainsString(json_encode(__CLASS__), json_encode($user->customRelation()->get()));
     }
 
     /**

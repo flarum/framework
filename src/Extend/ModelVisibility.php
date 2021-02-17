@@ -44,7 +44,7 @@ class ModelVisibility implements ExtenderInterface
     {
         $this->modelClass = $modelClass;
 
-        if (! method_exists($modelClass, 'registerVisibilityScoper')) {
+        if (class_exists($this->modelClass) && ! is_callable([$modelClass, 'registerVisibilityScoper'])) {
             throw new Exception("Model $modelClass cannot be visibility scoped as it does not use Flarum\Database\ScopeVisibilityTrait.");
         }
     }
@@ -89,6 +89,10 @@ class ModelVisibility implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
+        if (! class_exists($this->modelClass)) {
+            return;
+        }
+
         foreach ($this->scopers as $ability => $scopers) {
             foreach ($scopers as $scoper) {
                 $this->modelClass::registerVisibilityScoper(ContainerUtil::wrapCallback($scoper, $container), $ability);

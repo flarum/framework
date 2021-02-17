@@ -1,16 +1,16 @@
+import * as Mithril from 'mithril';
 import { truncate } from '../utils/string';
 
 /**
  * The `highlight` helper searches for a word phrase in a string, and wraps
  * matches with the <mark> tag.
  *
- * @param {String} string The string to highlight.
- * @param {String|RegExp} phrase The word or words to highlight.
- * @param {Integer} [length] The number of characters to truncate the string to.
+ * @param string The string to highlight.
+ * @param phrase The word or words to highlight.
+ * @param [length] The number of characters to truncate the string to.
  *     The string will be truncated surrounding the first match.
- * @return {Object}
  */
-export default function highlight(string, phrase, length) {
+export default function highlight(string: string, phrase: string | RegExp, length?: number): Mithril.Vnode<any, any> | string {
   if (!phrase && !length) return string;
 
   // Convert the word phrase into a global regular expression (if it isn't

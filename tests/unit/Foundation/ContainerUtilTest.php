@@ -20,7 +20,7 @@ class ContainerUtilTest extends TestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -72,6 +72,26 @@ class ContainerUtilTest extends TestCase
 
         $this->assertEquals('value5', $array['key']);
         $this->assertEquals('return5', $return);
+    }
+
+    /** @test */
+    public function it_works_with_global_functions()
+    {
+        $callback = ContainerUtil::wrapCallback('boolval', $this->container);
+
+        $this->assertEquals(true, $callback(true));
+        $this->assertEquals(true, $callback(1));
+        $this->assertEquals(true, $callback('1'));
+        $this->assertEquals(false, $callback(0));
+        $this->assertEquals(false, $callback(false));
+    }
+
+    /** @test */
+    public function it_works_with_static_class_method_arrays()
+    {
+        $callback = ContainerUtil::wrapCallback([ClassWithMethod::class, 'staticMethod'], $this->container);
+
+        $this->assertEquals('returnStatic', $callback());
     }
 
     /** @test */
@@ -139,5 +159,13 @@ class SecondCustomInvokableClass
         $array['key'] = 'newValue4';
 
         return 'return4';
+    }
+}
+
+class ClassWithMethod
+{
+    public static function staticMethod()
+    {
+        return 'returnStatic';
     }
 }

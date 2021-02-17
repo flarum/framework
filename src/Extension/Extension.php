@@ -281,6 +281,14 @@ class Extension implements Arrayable
     /**
      * @return string
      */
+    public function getTitle()
+    {
+        return $this->composerJsonAttribute('extra.flarum-extension.title');
+    }
+
+    /**
+     * @return string
+     */
     public function getPath()
     {
         return $this->path;
@@ -332,15 +340,6 @@ class Extension implements Arrayable
 
         if (file_exists($filename)) {
             return $filename;
-        }
-
-        // To give extension authors some time to migrate to the new extension
-        // format, we will also fallback to the old bootstrap.php name. Consider
-        // this feature deprecated.
-        $deprecatedFilename = "{$this->path}/bootstrap.php";
-
-        if (file_exists($deprecatedFilename)) {
-            return $deprecatedFilename;
         }
 
         return null;

@@ -11,11 +11,8 @@ namespace Flarum\Api\Serializer;
 
 use Closure;
 use DateTime;
-use Flarum\Api\Event\Serializing;
-use Flarum\Event\GetApiRelationship;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use LogicException;
@@ -39,11 +36,6 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     protected $actor;
 
     /**
-     * @var Dispatcher
-     */
-    protected static $dispatcher;
-
-    /**
      * @var Container
      */
     protected static $container;
@@ -51,7 +43,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * @var callable[]
      */
-    protected static $mutators = [];
+    protected static $attributeMutators = [];
 
     /**
      * @var array
@@ -95,8 +87,8 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         $attributes = $this->getDefaultAttributes($model);
 
         foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
-            if (isset(static::$mutators[$class])) {
-                foreach (static::$mutators[$class] as $callback) {
+            if (isset(static::$attributeMutators[$class])) {
+                foreach (static::$attributeMutators[$class] as $callback) {
                     $attributes = array_merge(
                         $attributes,
                         $callback($this, $model, $attributes)
@@ -104,11 +96,6 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
                 }
             }
         }
-
-        // Deprecated in beta 15, removed in beta 16
-        static::$dispatcher->dispatch(
-            new Serializing($this, $model, $attributes)
-        );
 
         return $attributes;
     }
@@ -153,27 +140,21 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      */
     protected function getCustomRelationship($model, $name)
     {
-        // Deprecated in beta 15, removed in beta 16
-        $relationship = static::$dispatcher->until(
-            new GetApiRelationship($this, $name, $model)
-        );
-
         foreach (array_merge([static::class], class_parents($this)) as $class) {
             $callback = Arr::get(static::$customRelations, "$class.$name");
 
             if (is_callable($callback)) {
                 $relationship = $callback($this, $model);
-                break;
+
+                if (isset($relationship) && ! ($relationship instanceof Relationship)) {
+                    throw new LogicException(
+                        'GetApiRelationship handler must return an instance of '.Relationship::class
+                    );
+                }
+
+                return $relationship;
             }
         }
-
-        if ($relationship && ! ($relationship instanceof Relationship)) {
-            throw new LogicException(
-                'GetApiRelationship handler must return an instance of '.Relationship::class
-            );
-        }
-
-        return $relationship;
     }
 
     /**
@@ -283,22 +264,6 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @return Dispatcher
-     */
-    public static function getEventDispatcher()
-    {
-        return static::$dispatcher;
-    }
-
-    /**
-     * @param Dispatcher $dispatcher
-     */
-    public static function setEventDispatcher(Dispatcher $dispatcher)
-    {
-        static::$dispatcher = $dispatcher;
-    }
-
-    /**
      * @return Container
      */
     public static function getContainer()
@@ -316,15 +281,15 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
     /**
      * @param string $serializerClass
-     * @param callable $mutator
+     * @param callable $callback
      */
-    public static function addMutator(string $serializerClass, callable $mutator)
+    public static function addAttributeMutator(string $serializerClass, callable $callback)
     {
-        if (! isset(static::$mutators[$serializerClass])) {
-            static::$mutators[$serializerClass] = [];
+        if (! isset(static::$attributeMutators[$serializerClass])) {
+            static::$attributeMutators[$serializerClass] = [];
         }
 
-        static::$mutators[$serializerClass][] = $mutator;
+        static::$attributeMutators[$serializerClass][] = $callback;
     }
 
     /**
