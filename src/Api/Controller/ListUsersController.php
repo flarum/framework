@@ -81,13 +81,13 @@ class ListUsersController extends AbstractListController
 
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
-        $load = $this->extractInclude($request);
+        $include = $this->extractInclude($request);
 
         $criteria = new SearchCriteria($actor, $filters, $sort);
         if (array_key_exists('q', $filters)) {
-            $results = $this->searcher->search($criteria, $limit, $offset, $load);
+            $results = $this->searcher->search($criteria, $limit, $offset, $include);
         } else {
-            $results = $this->filterer->filter($criteria, $limit, $offset, $load);
+            $results = $this->filterer->filter($criteria, $limit, $offset, $include);
         }
 
         $document->addPaginationLinks(

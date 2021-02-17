@@ -91,13 +91,13 @@ class ListDiscussionsController extends AbstractListController
 
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
-        $load = array_merge($this->extractInclude($request), ['state']);
+        $include = array_merge($this->extractInclude($request), ['state']);
 
         $criteria = new SearchCriteria($actor, $filters, $sort);
         if (array_key_exists('q', $filters)) {
-            $results = $this->searcher->search($criteria, $limit, $offset, $load);
+            $results = $this->searcher->search($criteria, $limit, $offset, $include);
         } else {
-            $results = $this->filterer->filter($criteria, $limit, $offset, $load);
+            $results = $this->filterer->filter($criteria, $limit, $offset, $include);
         }
 
         $document->addPaginationLinks(
@@ -110,7 +110,7 @@ class ListDiscussionsController extends AbstractListController
 
         Discussion::setStateUser($actor);
 
-        if ($relations = array_intersect($load, ['firstPost', 'lastPost'])) {
+        if ($relations = array_intersect($include, ['firstPost', 'lastPost'])) {
             foreach ($results as $discussion) {
                 foreach ($relations as $relation) {
                     if ($discussion->$relation) {

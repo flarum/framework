@@ -41,11 +41,12 @@ abstract class AbstractFilterer
      * @param SearchCriteria $criteria
      * @param mixed|null $limit
      * @param int $offset
-     * @param array $load
+     * @param array $include
+     *
      * @return SearchResults
      * @throws InvalidArgumentException
      */
-    public function filter(SearchCriteria $criteria, int $limit = null, int $offset = 0, array $load = []): SearchResults
+    public function filter(SearchCriteria $criteria, int $limit = null, int $offset = 0, array $include = []): SearchResults
     {
         $actor = $criteria->actor;
 
@@ -81,7 +82,7 @@ abstract class AbstractFilterer
             $results->pop();
         }
 
-        $results->load($load);
+        $results->load($include);
 
         return new SearchResults($results, $areMoreResults);
     }
