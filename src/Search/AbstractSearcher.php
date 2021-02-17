@@ -34,8 +34,6 @@ abstract class AbstractSearcher
 
     abstract protected function getQuery(User $actor): Builder;
 
-    abstract protected function getSearch(Builder $query, User $actor): SearchState;
-
     protected function mutateSearch(SearchState $search, SearchCriteria $criteria)
     {
         foreach ($this->searchMutators as $mutator) {

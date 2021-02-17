@@ -44,6 +44,11 @@ class ListDiscussionsController extends AbstractListController
     ];
 
     /**
+     * {@inheritDoc}
+     */
+    public $sort = ['lastPostedAt' => 'desc'];
+
+    /**
      * {@inheritdoc}
      */
     public $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
@@ -57,11 +62,6 @@ class ListDiscussionsController extends AbstractListController
      * @var DiscussionSearcher
      */
     protected $searcher;
-
-    /**
-     * {@inheritDoc}
-     */
-    protected $sort = ['lastPostedAt' => 'desc'];
 
     /**
      * @var UrlGenerator
