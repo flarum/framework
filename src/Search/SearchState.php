@@ -9,4 +9,6 @@
 
 namespace Flarum\Search;
 
-class SearchState extends AbstractSearch {}
+class SearchState extends AbstractSearch
+{
+}
