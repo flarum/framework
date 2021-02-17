@@ -11,10 +11,10 @@ namespace Flarum\Discussion\Search;
 
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Event\Searching;
-use Flarum\Search\SearchState;
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
 use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchState;
 use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;

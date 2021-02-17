@@ -11,8 +11,8 @@ namespace Flarum\Discussion\Search\Gambit;
 
 use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Post\Post;
-use Flarum\Search\SearchState;
 use Flarum\Search\GambitInterface;
+use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Expression;
 use LogicException;
 
