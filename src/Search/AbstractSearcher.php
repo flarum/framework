@@ -49,7 +49,7 @@ abstract class AbstractSearcher
      * @return SearchResults
      * @throws InvalidArgumentException
      */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $include = []): SearchResults
+    public function search(SearchCriteria $criteria, $limit = null, $offset = 0): SearchResults
     {
         $actor = $criteria->actor;
 
@@ -72,8 +72,6 @@ abstract class AbstractSearcher
         if ($areMoreResults = $limit > 0 && $results->count() > $limit) {
             $results->pop();
         }
-
-        $results->load($include);
 
         return new SearchResults($results, $areMoreResults);
     }
