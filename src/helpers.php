@@ -9,15 +9,15 @@
 
 use Illuminate\Container\Container;
 
-if (! function_exists('app')) {
+if (!function_exists('container')) {
     /**
      * Get the available container instance.
      *
      * @param  string  $make
      * @param  array   $parameters
-     * @return mixed|\Illuminate\Foundation\Application
+     * @return mixed|\Illuminate\Container\Container
      */
-    function app($make = null, $parameters = [])
+    function container($make = null, $parameters = [])
     {
         if (is_null($make)) {
             return Container::getInstance();
@@ -26,6 +26,24 @@ if (! function_exists('app')) {
         return Container::getInstance()->make($make, $parameters);
     }
 }
+
+/**
+ * @deprecated beta 16, remove beta 17. Use container() instead.
+ */
+if (!function_exists('app')) {
+    /**
+     * Get the available container instance.
+     *
+     * @param  string  $make
+     * @param  array   $parameters
+     * @return mixed|\Illuminate\Container\Container
+     */
+    function app($make = null, $parameters = [])
+    {
+        return container($make, $parameters);
+    }
+}
+
 
 if (! function_exists('event')) {
     /**
