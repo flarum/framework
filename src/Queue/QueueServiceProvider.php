@@ -41,26 +41,26 @@ class QueueServiceProvider extends AbstractServiceProvider
     {
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
-        $this->app->singleton(Factory::class, function () {
+        $this->container->singleton(Factory::class, function () {
             return new QueueFactory(function () {
-                return $this->app->make('flarum.queue.connection');
+                return $this->container->make('flarum.queue.connection');
             });
         });
 
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
-        $this->app->singleton('flarum.queue.connection', function ($app) {
+        $this->container->singleton('flarum.queue.connection', function ($app) {
             $queue = new SyncQueue;
             $queue->setContainer($app);
 
             return $queue;
         });
 
-        $this->app->singleton(ExceptionHandling::class, function ($app) {
+        $this->container->singleton(ExceptionHandling::class, function ($app) {
             return new ExceptionHandler($app['log']);
         });
 
-        $this->app->singleton(Worker::class, function ($app) {
+        $this->container->singleton(Worker::class, function ($app) {
             /** @var Config $config */
             $config = $app->make(Config::class);
 
@@ -76,21 +76,21 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         // Override the Laravel native Listener, so that we can ignore the environment
         // option and force the binary to flarum.
-        $this->app->singleton(QueueListener::class, function ($app) {
+        $this->container->singleton(QueueListener::class, function ($app) {
             return new Listener($app[Paths::class]->base);
         });
 
         // Bind a simple cache manager that returns the cache store.
-        $this->app->singleton('cache', function ($app) {
+        $this->container->singleton('cache', function ($app) {
             return new class($app) {
                 public function __construct($app)
                 {
-                    $this->app = $app;
+                    $this->container = $app;
                 }
 
                 public function driver()
                 {
-                    return $this->app['cache.store'];
+                    return $this->container['cache.store'];
                 }
 
                 public function __call($name, $arguments)
@@ -100,24 +100,24 @@ class QueueServiceProvider extends AbstractServiceProvider
             };
         });
 
-        $this->app->singleton('queue.failer', function () {
+        $this->container->singleton('queue.failer', function () {
             return new NullFailedJobProvider();
         });
 
-        $this->app->alias('flarum.queue.connection', Queue::class);
+        $this->container->alias('flarum.queue.connection', Queue::class);
 
-        $this->app->alias(ConnectorInterface::class, 'queue.connection');
-        $this->app->alias(Factory::class, 'queue');
-        $this->app->alias(Worker::class, 'queue.worker');
-        $this->app->alias(Listener::class, 'queue.listener');
+        $this->container->alias(ConnectorInterface::class, 'queue.connection');
+        $this->container->alias(Factory::class, 'queue');
+        $this->container->alias(Worker::class, 'queue.worker');
+        $this->container->alias(Listener::class, 'queue.listener');
 
         $this->registerCommands();
     }
 
     protected function registerCommands()
     {
-        $this->app->extend('flarum.console.commands', function ($commands) {
-            $queue = $this->app->make(Queue::class);
+        $this->container->extend('flarum.console.commands', function ($commands) {
+            $queue = $this->container->make(Queue::class);
 
             // There is no need to have the queue commands when using the sync driver.
             if ($queue instanceof SyncQueue) {
@@ -132,14 +132,14 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     public function boot()
     {
-        $this->app['events']->listen(JobFailed::class, function (JobFailed $event) {
+        $this->container['events']->listen(JobFailed::class, function (JobFailed $event) {
             /** @var Registry $registry */
-            $registry = $this->app->make(Registry::class);
+            $registry = $this->container->make(Registry::class);
 
             $error = $registry->handle($event->exception);
 
             /** @var Reporter[] $reporters */
-            $reporters = $this->app->tagged(Reporter::class);
+            $reporters = $this->container->tagged(Reporter::class);
 
             if ($error->shouldBeReported()) {
                 foreach ($reporters as $reporter) {

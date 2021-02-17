@@ -20,7 +20,7 @@ class SessionServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('session.handler', function ($app) {
+        $this->container->singleton('session.handler', function ($app) {
             return new FileSessionHandler(
                 $app['files'],
                 $app['config']['session.files'],
@@ -28,6 +28,6 @@ class SessionServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->app->alias('session.handler', SessionHandlerInterface::class);
+        $this->container->alias('session.handler', SessionHandlerInterface::class);
     }
 }

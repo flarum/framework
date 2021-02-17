@@ -26,21 +26,21 @@ class SettingsServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(SettingsRepositoryInterface::class, function () {
+        $this->container->singleton(SettingsRepositoryInterface::class, function () {
             return new MemoryCacheSettingsRepository(
                 new DatabaseSettingsRepository(
-                    $this->app->make(ConnectionInterface::class)
+                    $this->container->make(ConnectionInterface::class)
                 )
             );
         });
 
-        $this->app->alias(SettingsRepositoryInterface::class, 'flarum.settings');
+        $this->container->alias(SettingsRepositoryInterface::class, 'flarum.settings');
 
-        $assets = function (Container $app) {
-            return $app->make(Factory::class)->disk('flarum-assets')->getDriver();
+        $assets = function (Container $container) {
+            return $container->make(Factory::class)->disk('flarum-assets')->getDriver();
         };
 
-        $this->app->when([
+        $this->container->when([
             DeleteFaviconController::class,
             DeleteLogoController::class,
             UploadFaviconController::class,

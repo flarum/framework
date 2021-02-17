@@ -40,11 +40,11 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->registerDisplayNameDrivers();
         $this->registerPasswordCheckers();
 
-        $this->app->singleton('flarum.user.group_processors', function () {
+        $this->container->singleton('flarum.user.group_processors', function () {
             return [];
         });
 
-        $this->app->singleton('flarum.policies', function () {
+        $this->container->singleton('flarum.policies', function () {
             return [
                 Access\AbstractPolicy::GLOBAL => [],
                 Discussion::class => [DiscussionPolicy::class],
@@ -57,34 +57,34 @@ class UserServiceProvider extends AbstractServiceProvider
 
     protected function registerDisplayNameDrivers()
     {
-        $this->app->singleton('flarum.user.display_name.supported_drivers', function () {
+        $this->container->singleton('flarum.user.display_name.supported_drivers', function () {
             return [
                 'username' => UsernameDriver::class,
             ];
         });
 
-        $this->app->singleton('flarum.user.display_name.driver', function () {
-            $drivers = $this->app->make('flarum.user.display_name.supported_drivers');
-            $settings = $this->app->make(SettingsRepositoryInterface::class);
+        $this->container->singleton('flarum.user.display_name.driver', function () {
+            $drivers = $this->container->make('flarum.user.display_name.supported_drivers');
+            $settings = $this->container->make(SettingsRepositoryInterface::class);
             $driverName = $settings->get('display_name_driver', '');
 
             $driverClass = Arr::get($drivers, $driverName);
 
             return $driverClass
-                ? $this->app->make($driverClass)
-                : $this->app->make(UsernameDriver::class);
+                ? $this->container->make($driverClass)
+                : $this->container->make(UsernameDriver::class);
         });
 
-        $this->app->alias('flarum.user.display_name.driver', DriverInterface::class);
+        $this->container->alias('flarum.user.display_name.driver', DriverInterface::class);
     }
 
     protected function registerAvatarsFilesystem()
     {
-        $avatarsFilesystem = function (Container $app) {
-            return $app->make(Factory::class)->disk('flarum-avatars')->getDriver();
+        $avatarsFilesystem = function (Container $container) {
+            return $container->make(Factory::class)->disk('flarum-avatars')->getDriver();
         };
 
-        $this->app->when(AvatarUploader::class)
+        $this->container->when(AvatarUploader::class)
             ->needs(FilesystemInterface::class)
             ->give($avatarsFilesystem);
     }
@@ -107,16 +107,15 @@ class UserServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        foreach ($this->app->make('flarum.user.group_processors') as $callback) {
-            User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $this->app));
+        foreach ($this->container->make('flarum.user.group_processors') as $callback) {
+            User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $this->container));
         }
 
-        User::setPasswordCheckers($this->app->make('flarum.user.password_checkers'));
-        User::setHasher($this->app->make('hash'));
-        User::setGate($this->app->makeWith(Access\Gate::class, ['policyClasses' => $this->app->make('flarum.policies')]));
-        User::setDisplayNameDriver($this->app->make('flarum.user.display_name.driver'));
+        User::setHasher($this->container->make('hash'));
+        User::setGate($this->container->makeWith(Access\Gate::class, ['policyClasses' => $this->container->make('flarum.policies')]));
+        User::setDisplayNameDriver($this->container->make('flarum.user.display_name.driver'));
 
-        $events = $this->app->make('events');
+        $events = $this->container->make('events');
 
         $events->listen(Saving::class, SelfDemotionGuard::class);
         $events->listen(Registered::class, AccountActivationMailer::class);
