@@ -47,7 +47,6 @@ abstract class AbstractSearcher
      * @param SearchCriteria $criteria
      * @param int|null $limit
      * @param int $offset
-     * @param array $include
      *
      * @return SearchResults
      * @throws InvalidArgumentException
