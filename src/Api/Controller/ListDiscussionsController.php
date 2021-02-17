@@ -110,8 +110,6 @@ class ListDiscussionsController extends AbstractListController
 
         Discussion::setStateUser($actor);
 
-        $results = $results->getResults()->load($load);
-
         if ($relations = array_intersect($load, ['firstPost', 'lastPost'])) {
             foreach ($results as $discussion) {
                 foreach ($relations as $relation) {
