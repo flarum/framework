@@ -27,11 +27,9 @@ if (! function_exists('container')) {
     }
 }
 
-/**
- * @deprecated beta 16, remove beta 17. Use container() instead.
- */
 if (! function_exists('app')) {
     /**
+     * @deprecated beta 16, remove beta 17. Use container() instead.
      * Get the available container instance.
      *
      * @param  string  $make
