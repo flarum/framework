@@ -14,7 +14,7 @@ use Flarum\Tests\unit\TestCase;
 
 class ExtensionDependencyResolutionTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
