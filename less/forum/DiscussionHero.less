@@ -1,4 +1,7 @@
 .DiscussionHero {
+  z-index: 1;
+  .transition(all 0.4s ease);
+
   .badges {
     margin-right: 10px;
     margin-bottom: -2px;
@@ -17,4 +20,35 @@
 .DiscussionHero-title {
   display: inline;
   vertical-align: middle;
+}
+
+.DiscussionHero--floating {
+  position: fixed;
+  height: 50px;
+  width: 100%;
+
+  > .container {
+    padding-top: 10px !important;
+  }
+
+  .DiscussionHero-items {
+    li {
+      vertical-align: middle;
+    }
+
+    .item-title {
+      display: inline-block;
+      margin-top: -2px;
+    }
+
+    .tooltip {
+      top: unset !important;
+      bottom: -30px;
+    }
+
+    .tooltip-arrow {
+      top: 0;
+      .scale(1, -1);
+    }
+  }
 }
