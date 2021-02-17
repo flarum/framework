@@ -57,19 +57,19 @@ class CreateTest extends TestCase
                 [
                     'status' => '422',
                     'code' => 'validation_error',
-                    'detail' => 'validation.required',
+                    'detail' => 'The username field is required.',
                     'source' => ['pointer' => '/data/attributes/username'],
                 ],
                 [
                     'status' => '422',
                     'code' => 'validation_error',
-                    'detail' => 'validation.required',
+                    'detail' => 'The email field is required.',
                     'source' => ['pointer' => '/data/attributes/email'],
                 ],
                 [
                     'status' => '422',
                     'code' => 'validation_error',
-                    'detail' => 'validation.required',
+                    'detail' => 'The password field is required.',
                     'source' => ['pointer' => '/data/attributes/password'],
                 ],
             ],
