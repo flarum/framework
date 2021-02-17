@@ -16,10 +16,10 @@ trait ApplySearchParametersTrait
     /**
      * Apply sort criteria to a discussion search.
      *
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param array $sort
      */
-    protected function applySort(AbstractSearch $search, array $sort = null)
+    protected function applySort(SearchState $search, array $sort = null)
     {
         $sort = $sort ?: $search->getDefaultSort();
 
@@ -39,10 +39,10 @@ trait ApplySearchParametersTrait
     }
 
     /**
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param int $offset
      */
-    protected function applyOffset(AbstractSearch $search, $offset)
+    protected function applyOffset(SearchState $search, $offset)
     {
         if ($offset > 0) {
             $search->getQuery()->skip($offset);
@@ -50,10 +50,10 @@ trait ApplySearchParametersTrait
     }
 
     /**
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param int|null $limit
      */
-    protected function applyLimit(AbstractSearch $search, $limit)
+    protected function applyLimit(SearchState $search, $limit)
     {
         if ($limit > 0) {
             $search->getQuery()->take($limit);

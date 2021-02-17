@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Extend;
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 
@@ -116,10 +116,10 @@ class NoResultFilter implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
         if ($filterValue) {
-            $wrappedFilter->getQuery()
+            $filterState->getQuery()
                 ->whereRaw('0=1');
         }
     }

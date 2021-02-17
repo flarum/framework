@@ -7,17 +7,12 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Search;
+namespace Flarum\Filter;
 
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
-/**
- * An object which represents the internal state of a generic search:
- * the search query, the user performing the search, the fallback sort order,
- * and a log of which gambits have been used.
- */
-abstract class AbstractSearch
+class FilterState
 {
     /**
      * @var Builder
@@ -30,23 +25,19 @@ abstract class AbstractSearch
     protected $actor;
 
     /**
-     * @var array
+     * @var mixed
      */
     protected $defaultSort = [];
-
-    /**
-     * @var GambitInterface[]
-     */
-    protected $activeGambits = [];
 
     /**
      * @param Builder $query
      * @param User $actor
      */
-    public function __construct(Builder $query, User $actor)
+    public function __construct(Builder $query, User $actor, $defaultSort = [])
     {
         $this->query = $query;
         $this->actor = $actor;
+        $this->defaultSort = $defaultSort;
     }
 
     /**
@@ -86,31 +77,11 @@ abstract class AbstractSearch
      * @param mixed $defaultSort An array of sort-order pairs, where the column
      *     is the key, and the order is the value. The order may be 'asc',
      *     'desc', or an array of IDs to order by.
+     *     Alternatively, a callable may be used.
      * @return mixed
      */
     public function setDefaultSort($defaultSort)
     {
         $this->defaultSort = $defaultSort;
-    }
-
-    /**
-     * Get a list of the gambits that are active in this search.
-     *
-     * @return GambitInterface[]
-     */
-    public function getActiveGambits()
-    {
-        return $this->activeGambits;
-    }
-
-    /**
-     * Add a gambit as being active in this search.
-     *
-     * @param GambitInterface $gambit
-     * @return void
-     */
-    public function addActiveGambit(GambitInterface $gambit)
-    {
-        $this->activeGambits[] = $gambit;
     }
 }

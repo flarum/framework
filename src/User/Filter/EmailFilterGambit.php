@@ -10,9 +10,9 @@
 namespace Flarum\User\Filter;
 
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
 
 class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
@@ -20,7 +20,7 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(AbstractSearch $search, $bit)
+    public function apply(SearchState $search, $bit)
     {
         if (! $search->getActor()->hasPermission('user.edit')) {
             return false;
@@ -40,7 +40,7 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    protected function conditions(AbstractSearch $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, $negate)
     {
         $this->constrain($search->getQuery(), $matches[1], $negate);
     }
@@ -50,13 +50,13 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'email';
     }
 
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
-        if (! $wrappedFilter->getActor()->hasPermission('user.edit')) {
+        if (! $filterState->getActor()->hasPermission('user.edit')) {
             return;
         }
 
-        $this->constrain($wrappedFilter->getQuery(), $filterValue, $negate);
+        $this->constrain($filterState->getQuery(), $filterValue, $negate);
     }
 
     protected function constrain(Builder $query, $rawEmail, bool $negate)

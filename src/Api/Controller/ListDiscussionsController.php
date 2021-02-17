@@ -59,6 +59,11 @@ class ListDiscussionsController extends AbstractListController
     protected $searcher;
 
     /**
+     * {@inheritDoc}
+     */
+    protected $sort = ['lastPostedAt' => 'desc'];
+
+    /**
      * @var UrlGenerator
      */
     protected $url;

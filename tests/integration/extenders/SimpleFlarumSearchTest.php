@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchCriteria;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
@@ -142,7 +142,7 @@ class NoResultFullTextGambit implements GambitInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(AbstractSearch $search, $searchValue)
+    public function apply(SearchState $search, $searchValue)
     {
         $search->getQuery()
             ->whereRaw('0=1');
@@ -162,7 +162,7 @@ class NoResultFilterGambit extends AbstractRegexGambit
     /**
      * {@inheritdoc}
      */
-    public function conditions(AbstractSearch $search, array $matches, $negate)
+    public function conditions(SearchState $search, array $matches, $negate)
     {
         $noResults = trim($matches[1], ' ');
         if ($noResults == '1') {

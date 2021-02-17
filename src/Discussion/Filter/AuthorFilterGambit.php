@@ -10,9 +10,9 @@
 namespace Flarum\Discussion\Filter;
 
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Query\Builder;
 
@@ -42,7 +42,7 @@ class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    protected function conditions(AbstractSearch $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, $negate)
     {
         $this->constrain($search->getQuery(), $matches[1], $negate);
     }
@@ -52,9 +52,9 @@ class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'author';
     }
 
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
-        $this->constrain($wrappedFilter->getQuery(), $filterValue, $negate);
+        $this->constrain($filterState->getQuery(), $filterValue, $negate);
     }
 
     protected function constrain(Builder $query, $rawUsernames, $negate)

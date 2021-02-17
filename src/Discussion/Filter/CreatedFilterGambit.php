@@ -10,9 +10,9 @@
 namespace Flarum\Discussion\Filter;
 
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 
@@ -29,7 +29,7 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
     /**
      * {@inheritdoc}
      */
-    protected function conditions(AbstractSearch $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, $negate)
     {
         $this->constrain($search->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
     }
@@ -39,11 +39,11 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'created';
     }
 
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
         preg_match('/^'.$this->getGambitPattern().'$/i', 'created:'.$filterValue, $matches);
 
-        $this->constrain($wrappedFilter->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
+        $this->constrain($filterState->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
     }
 
     public function constrain(Builder $query, ?string $firstDate, ?string $secondDate, $negate)

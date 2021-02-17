@@ -11,7 +11,7 @@ namespace Flarum\Discussion\Search\Gambit;
 
 use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Post\Post;
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Flarum\Search\GambitInterface;
 use Illuminate\Database\Query\Expression;
 use LogicException;
@@ -21,7 +21,7 @@ class FulltextGambit implements GambitInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(AbstractSearch $search, $bit)
+    public function apply(SearchState $search, $bit)
     {
         if (! $search instanceof DiscussionSearch) {
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');

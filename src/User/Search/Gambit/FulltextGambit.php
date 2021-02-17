@@ -9,7 +9,7 @@
 
 namespace Flarum\User\Search\Gambit;
 
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Flarum\Search\GambitInterface;
 use Flarum\User\UserRepository;
 
@@ -43,7 +43,7 @@ class FulltextGambit implements GambitInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(AbstractSearch $search, $searchValue)
+    public function apply(SearchState $search, $searchValue)
     {
         $search->getQuery()
             ->whereIn(

@@ -51,7 +51,7 @@ abstract class AbstractFilterer
 
         $query = $this->getQuery($actor);
 
-        $wrappedFilter = new WrappedFilter($query->getQuery(), $actor);
+        $filterState = new FilterState($query->getQuery(), $actor);
 
         foreach ($criteria->query as $filterKey => $filterValue) {
             $negate = false;
@@ -60,13 +60,13 @@ abstract class AbstractFilterer
                 $filterKey = substr($filterKey, 1);
             }
             foreach (Arr::get($this->filters, $filterKey, []) as $filter) {
-                $filter->filter($wrappedFilter, $filterValue, $negate);
+                $filter->filter($filterState, $filterValue, $negate);
             }
         }
 
-        $this->applySort($wrappedFilter, $criteria->sort);
-        $this->applyOffset($wrappedFilter, $offset);
-        $this->applyLimit($wrappedFilter, $limit + 1);
+        $this->applySort($filterState, $criteria->sort);
+        $this->applyOffset($filterState, $offset);
+        $this->applyLimit($filterState, $limit + 1);
 
         foreach ($this->filterMutators as $mutator) {
             $mutator($query, $actor, $criteria->query, $criteria->sort);

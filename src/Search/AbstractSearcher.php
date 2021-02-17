@@ -34,9 +34,9 @@ abstract class AbstractSearcher
 
     abstract protected function getQuery(User $actor): Builder;
 
-    abstract protected function getSearch(Builder $query, User $actor): AbstractSearch;
+    abstract protected function getSearch(Builder $query, User $actor): SearchState;
 
-    protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
+    protected function mutateSearch(SearchState $search, SearchCriteria $criteria)
     {
         foreach ($this->searchMutators as $mutator) {
             $mutator($search, $criteria);
@@ -56,7 +56,7 @@ abstract class AbstractSearcher
 
         $query = $this->getQuery($actor);
 
-        $search = $this->getSearch($query, $actor);
+        $search = new SearchState($query->getQuery(), $actor);
 
         $this->gambits->apply($search, $criteria->query['q']);
         $this->applySort($search, $criteria->sort);
