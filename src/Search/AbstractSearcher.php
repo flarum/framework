@@ -52,7 +52,7 @@ abstract class AbstractSearcher
      * @return SearchResults
      * @throws InvalidArgumentException
      */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $include = [])
+    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $include = []): SearchResults
     {
         $actor = $criteria->actor;
 
