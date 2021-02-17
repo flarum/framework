@@ -1,3 +1,4 @@
+import { throttle } from 'lodash-es';
 import anchorScroll from '../../common/utils/anchorScroll';
 
 class PostStreamState {
@@ -48,6 +49,9 @@ class PostStreamState {
      * @type {Boolean}
      */
     this.forceUpdateScrubber = false;
+
+    this.loadNext = throttle(this._loadNext, 300);
+    this.loadPrevious = throttle(this._loadPrevious, 300);
 
     this.show(includedPosts);
   }
@@ -187,7 +191,7 @@ class PostStreamState {
   /**
    * Load the next page of posts.
    */
-  loadNext() {
+  _loadNext() {
     const start = this.visibleEnd;
     const end = (this.visibleEnd = this.sanitizeIndex(this.visibleEnd + this.constructor.loadCount));
 
@@ -210,7 +214,7 @@ class PostStreamState {
   /**
    * Load the previous page of posts.
    */
-  loadPrevious() {
+  _loadPrevious() {
     const end = this.visibleStart;
     const start = (this.visibleStart = this.sanitizeIndex(this.visibleStart - this.constructor.loadCount));
 
