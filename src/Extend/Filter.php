@@ -40,6 +40,12 @@ class Filter implements ExtenderInterface
 
     /**
      * Add a callback through which to run all filter queries after filters have been applied.
+     *
+     * @param callable|string $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - Flarum\Filter\FilterState $filter
+     * - Flarum\Search\SearchCriteria $criteria
      */
     public function addFilterMutator($callback)
     {
