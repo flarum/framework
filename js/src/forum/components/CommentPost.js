@@ -56,9 +56,7 @@ export default class CommentPost extends Post {
     ]);
   }
 
-  onupdate(vnode) {
-    super.onupdate();
-
+  refreshContent() {
     const contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
 
     // If the post content has changed since the last render, we'll run through
@@ -66,11 +64,26 @@ export default class CommentPost extends Post {
     // necessary because TextFormatter outputs them for e.g. syntax highlighting.
     if (this.contentHtml !== contentHtml) {
       this.$('.Post-body script').each(function () {
-        eval.call(window, $(this).text());
+        const script = document.createElement('script');
+        script.textContent = this.textContent;
+        Array.from(this.attributes).forEach((attr) => script.setAttribute(attr.name, attr.value));
+        this.parentNode.replaceChild(script, this);
       });
     }
 
     this.contentHtml = contentHtml;
+  }
+
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.refreshContent();
+  }
+
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
+    this.refreshContent();
   }
 
   isEditing() {

@@ -10,12 +10,14 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\User\User as FlarumUser;
 use Illuminate\Contracts\Container\Container;
 
 class User implements ExtenderInterface
 {
     private $displayNameDrivers = [];
     private $groupProcessors = [];
+    private $preferences = [];
 
     /**
      * Add a display name driver.
@@ -35,7 +37,7 @@ class User implements ExtenderInterface
      * This can be used to give a user permissions for groups they aren't actually in, based on context.
      * It will not change the group badges displayed for the user.
      *
-     * @param callable $callable
+     * @param callable|string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      * - \Flarum\User\User $user: the user in question.
@@ -44,9 +46,23 @@ class User implements ExtenderInterface
      * The callable should return:
      * - array $groupIds: an array of ids for the groups the user belongs to.
      */
-    public function permissionGroups(callable $callable)
+    public function permissionGroups($callback)
     {
-        $this->groupProcessors[] = $callable;
+        $this->groupProcessors[] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Register a new user preference.
+     *
+     * @param string $key
+     * @param callable $transformer
+     * @param $default
+     */
+    public function registerPreference(string $key, callable $transformer = null, $default = null)
+    {
+        $this->preferences[$key] = compact('transformer', 'default');
 
         return $this;
     }
@@ -60,5 +76,9 @@ class User implements ExtenderInterface
         $container->extend('flarum.user.group_processors', function ($existingRelations) {
             return array_merge($existingRelations, $this->groupProcessors);
         });
+
+        foreach ($this->preferences as $key => $preference) {
+            FlarumUser::registerPreference($key, $preference['transformer'], $preference['default']);
+        }
     }
 }

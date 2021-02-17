@@ -18,6 +18,8 @@ export default class DiscussionPage extends Page {
   oninit(vnode) {
     super.oninit(vnode);
 
+    this.useBrowserScrollRestoration = false;
+
     /**
      * The discussion that is being viewed.
      *
@@ -107,7 +109,7 @@ export default class DiscussionPage extends Page {
     } else {
       const params = this.requestParams();
 
-      app.store.find('discussions', m.route.param('id').split('-')[0], params).then(this.show.bind(this));
+      app.store.find('discussions', m.route.param('id'), params).then(this.show.bind(this));
     }
 
     m.redraw();
@@ -121,6 +123,7 @@ export default class DiscussionPage extends Page {
    */
   requestParams() {
     return {
+      bySlug: true,
       page: { near: this.near },
     };
   }

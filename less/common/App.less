@@ -10,29 +10,23 @@
   }
 }
 
-// Fix a solid white box to the top of the viewport. This toolbar's contents
-// will differ depending on the device: on phones it will be content
-// controls, whereas on desktops it will be the header. We will overlay
-// these things on top of it later.
-.App:before {
-  content: " ";
-  .header-background();
-  border-bottom: 0;
-  position: absolute;
-
-  .affix& {
-    position: fixed;
-  }
-
-  .scrolled& {
-    .box-shadow(0 2px 6px @shadow-color);
-  }
-}
-
 // PHONES: Somewhere on the page there will be a .App-backControl, a
 // .App-primaryControl, and a .App-titleControl. We will position these on the
 // left, right, and center of the header respectively.
 @media @phone {
+  .App-navigation {
+    .header-background();
+    border-bottom: 0;
+    position: absolute;
+
+    .affix & {
+      position: fixed;
+    }
+
+    .scrolled & {
+      .box-shadow(0 2px 6px @shadow-color);
+    }
+  }
   .App-primaryControl, .App-titleControl, .App-backControl {
     position: absolute !important;
     z-index: @zindex-header + 1;
@@ -234,16 +228,17 @@
     display: none;
   }
   .App-header {
+    .header-background();
     padding: 8px;
-    height: @header-height;
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: @zindex-header;
+    border-bottom: 0;
 
     .affix & {
       position: fixed;
+    }
+
+    .scrolled & {
+      .box-shadow(0 2px 6px @shadow-color);
     }
 
     & when (@config-colored-header = true) {

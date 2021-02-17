@@ -26,9 +26,8 @@ class CheckCsrfToken implements Middleware
 
     public function process(Request $request, Handler $handler): Response
     {
-        $path = $request->getAttribute('originalUri')->getPath();
         foreach ($this->exemptRoutes as $exemptRoute) {
-            if (fnmatch($exemptRoute, $path)) {
+            if ($exemptRoute === $request->getAttribute('routeName')) {
                 return $handler->handle($request);
             }
         }

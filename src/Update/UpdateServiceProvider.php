@@ -44,13 +44,13 @@ class UpdateServiceProvider extends AbstractServiceProvider
         $route = $this->app->make(RouteHandlerFactory::class);
 
         $routes->get(
-            '/',
+            '/{path:.*}',
             'index',
             $route->toController(Controller\IndexController::class)
         );
 
         $routes->post(
-            '/',
+            '/{path:.*}',
             'update',
             $route->toController(Controller\UpdateController::class)
         );

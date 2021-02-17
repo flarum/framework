@@ -9,7 +9,7 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Http\Middleware\DispatchRoute;
+use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
@@ -85,8 +85,9 @@ class InstalledApp implements AppInterface
         $pipe = new MiddlewarePipe;
         $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(
-            new DispatchRoute($this->container->make('flarum.update.routes'))
+            new HttpMiddleware\ResolveRoute($this->container->make('flarum.update.routes'))
         );
+        $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
         return $pipe;
     }

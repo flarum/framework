@@ -7,6 +7,7 @@ import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 import Stream from '../../common/utils/Stream';
 import withAttr from '../../common/utils/withAttr';
+import AdminHeader from './AdminHeader';
 
 export default class BasicsPage extends Page {
   oninit(vnode) {
@@ -24,10 +25,6 @@ export default class BasicsPage extends Page {
       'welcome_message',
       'display_name_driver',
     ];
-    this.values = {};
-
-    const settings = app.data.settings;
-    this.fields.forEach((key) => (this.values[key] = Stream(settings[key])));
 
     this.localeOptions = {};
     const locales = app.data.locales;
@@ -41,14 +38,38 @@ export default class BasicsPage extends Page {
       this.displayNameOptions[identifier] = identifier;
     }, this);
 
+    this.slugDriverOptions = {};
+    Object.keys(app.data.slugDrivers).forEach((model) => {
+      this.fields.push(`slug_driver_${model}`);
+      this.slugDriverOptions[model] = {};
+
+      app.data.slugDrivers[model].forEach((option) => {
+        this.slugDriverOptions[model][option] = option;
+      });
+    });
+
+    this.values = {};
+
+    const settings = app.data.settings;
+    this.fields.forEach((key) => (this.values[key] = Stream(settings[key])));
+
     if (!this.values.display_name_driver() && displayNameDrivers.includes('username')) this.values.display_name_driver('username');
 
-    if (typeof this.values.show_language_selector() !== 'number') this.values.show_language_selector(1);
+    Object.keys(app.data.slugDrivers).forEach((model) => {
+      if (!this.values[`slug_driver_${model}`]() && 'default' in this.slugDriverOptions[model]) {
+        this.values[`slug_driver_${model}`]('default');
+      }
+    });
+
+    if (this.values.show_language_selector() === undefined) this.values.show_language_selector(1);
   }
 
   view() {
     return (
       <div className="BasicsPage">
+        <AdminHeader icon="fas fa-pencil-alt" description={app.translator.trans('core.admin.basics.description')} className="BasicsPage-header">
+          {app.translator.trans('core.admin.basics.title')}
+        </AdminHeader>
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             {FieldSet.component(
@@ -128,20 +149,30 @@ export default class BasicsPage extends Page {
               ]
             )}
 
-            {Object.keys(this.displayNameOptions).length > 1
-              ? FieldSet.component(
-                  {
-                    label: app.translator.trans('core.admin.basics.display_name_heading'),
-                  },
-                  [
-                    <div className="helpText">{app.translator.trans('core.admin.basics.display_name_text')}</div>,
-                    Select.component({
-                      options: this.displayNameOptions,
-                      bidi: this.values.display_name_driver,
-                    }),
-                  ]
-                )
-              : ''}
+            {Object.keys(this.displayNameOptions).length > 1 ? (
+              <FieldSet label={app.translator.trans('core.admin.basics.display_name_heading')}>
+                <div className="helpText">{app.translator.trans('core.admin.basics.display_name_text')}</div>
+                <Select
+                  options={this.displayNameOptions}
+                  value={this.values.display_name_driver()}
+                  onchange={this.values.display_name_driver}
+                ></Select>
+              </FieldSet>
+            ) : (
+              ''
+            )}
+
+            {Object.keys(this.slugDriverOptions).map((model) => {
+              const options = this.slugDriverOptions[model];
+              if (Object.keys(options).length > 1) {
+                return (
+                  <FieldSet label={app.translator.trans('core.admin.basics.slug_driver_heading', { model })}>
+                    <div className="helpText">{app.translator.trans('core.admin.basics.slug_driver_text', { model })}</div>
+                    <Select options={options} value={this.values[`slug_driver_${model}`]()} onchange={this.values[`slug_driver_${model}`]}></Select>
+                  </FieldSet>
+                );
+              }
+            })}
 
             {Button.component(
               {

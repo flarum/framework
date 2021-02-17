@@ -24,6 +24,16 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     use BuildsHttpRequests;
 
     /**
+     * @inheritDoc
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->database()->rollBack();
+    }
+
+    /**
      * @var \Flarum\Foundation\InstalledApp
      */
     protected $app;
@@ -47,6 +57,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             $site->extendWith($this->extenders);
 
             $this->app = $site->bootApp();
+
+            $this->database()->beginTransaction();
+
+            $this->populateDatabase();
         }
 
         return $this->app;
@@ -89,20 +103,23 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return $this->database;
     }
 
+    protected $databaseContent = [];
+
     protected function prepareDatabase(array $tableData)
+    {
+        $this->databaseContent = array_merge_recursive(
+            $this->databaseContent,
+            $tableData
+        );
+    }
+
+    protected function populateDatabase()
     {
         // We temporarily disable foreign key checks to simplify this process.
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
 
-        // First, truncate all referenced tables so that they are empty.
-        foreach (array_keys($tableData) as $table) {
-            if ($table !== 'settings') {
-                $this->database()->table($table)->truncate();
-            }
-        }
-
         // Then, insert all rows required for this test case.
-        foreach ($tableData as $table => $rows) {
+        foreach ($this->databaseContent as $table => $rows) {
             foreach ($rows as $row) {
                 if ($table === 'settings') {
                     $this->database()->table($table)->updateOrInsert(

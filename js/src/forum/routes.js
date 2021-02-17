@@ -34,9 +34,8 @@ export default function (app) {
    * @return {String}
    */
   app.route.discussion = (discussion, near) => {
-    const slug = discussion.slug();
     return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
-      id: discussion.id() + (slug.trim() ? '-' + slug : ''),
+      id: discussion.slug(),
       near: near && near !== 1 ? near : undefined,
     });
   };
@@ -59,7 +58,7 @@ export default function (app) {
    */
   app.route.user = (user) => {
     return app.route('user', {
-      username: user.username(),
+      username: user.slug(),
     });
   };
 }

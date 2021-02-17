@@ -41,6 +41,23 @@ class UserRepository
     }
 
     /**
+     * Find a user by username, optionally making sure it is visible to a certain
+     * user, or throw an exception.
+     *
+     * @param int $id
+     * @param User $actor
+     * @return User
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function findOrFailByUsername($username, User $actor = null)
+    {
+        $query = User::where('username', $username);
+
+        return $this->scopeVisibleTo($query, $actor)->firstOrFail();
+    }
+
+    /**
      * Find a user by an identification (username or email).
      *
      * @param string $identification

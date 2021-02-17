@@ -1,0 +1,91 @@
+.ExtensionsWidget {
+  background-color: @body-bg;
+  padding: 0;
+}
+
+.ExtensionsWidget-list {
+  padding: 0;
+  background-color: @body-bg;
+
+  .ExtensionList-Category {
+    background: @control-bg;
+    padding: 20px 0 20px 20px;
+    margin-bottom: 20px;
+    border-radius: @border-radius;
+
+    .ExtensionList-Label {
+      margin-top: 0;
+      color: @muted-color;
+    }
+  }
+
+  .ExtensionGroup {
+    margin-bottom: 20px;
+
+    h3 {
+      color: @muted-color;
+      text-transform: uppercase;
+      font-size: 12px;
+      margin: 0 0 10px;
+    }
+  }
+
+  .ExtensionList {
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fit, 90px);
+    margin-bottom: 0;
+
+    > li {
+      text-align: left;
+      position: relative;
+      display: block;
+    }
+  }
+}
+
+.ExtensionListItem.disabled {
+  .ExtensionListItem-title {
+    opacity: 0.5;
+    color: @muted-color;
+  }
+
+  .ExtensionListItem-icon {
+    opacity: 0.5;
+  }
+}
+
+.ExtensionListItem {
+  transition: .15s ease-in-out;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  .ExtensionListItem-title {
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+    color: @text-color;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+}
+
+.ExtensionIcon {
+  width: 90px;
+  height: 90px;
+  background: @control-bg;
+  color: @control-color;
+  border-radius: 6px;
+  display: inline-flex;
+  font-size: 45px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}

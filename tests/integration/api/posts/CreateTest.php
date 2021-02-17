@@ -17,6 +17,9 @@ class CreateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -25,18 +28,8 @@ class CreateTest extends TestCase
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2],
             ],
-            'posts' => [],
             'users' => [
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->memberGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 2, 'group_id' => 3],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 3],
             ]
         ]);
     }
@@ -63,5 +56,45 @@ class CreateTest extends TestCase
         );
 
         $this->assertEquals(201, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function limited_by_throttler()
+    {
+        $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'reply with predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 1]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'Second reply with predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 1]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(429, $response->getStatusCode());
     }
 }

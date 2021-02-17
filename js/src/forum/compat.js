@@ -16,6 +16,7 @@ import PostStreamState from './states/PostStreamState';
 import SearchState from './states/SearchState';
 import AffixedSidebar from './components/AffixedSidebar';
 import DiscussionPage from './components/DiscussionPage';
+import DiscussionListPane from './components/DiscussionListPane';
 import LogInModal from './components/LogInModal';
 import ComposerBody from './components/ComposerBody';
 import ForgotPasswordModal from './components/ForgotPasswordModal';
@@ -92,6 +93,7 @@ export default Object.assign(compat, {
   'states/SearchState': SearchState,
   'components/AffixedSidebar': AffixedSidebar,
   'components/DiscussionPage': DiscussionPage,
+  'components/DiscussionListPane': DiscussionListPane,
   'components/LogInModal': LogInModal,
   'components/ComposerBody': ComposerBody,
   'components/ForgotPasswordModal': ForgotPasswordModal,

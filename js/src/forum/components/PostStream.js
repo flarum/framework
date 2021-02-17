@@ -142,13 +142,29 @@ export default class PostStream extends Component {
   }
 
   /**
-   * When the window is scrolled, check if either extreme of the post stream is
-   * in the viewport, and if so, trigger loading the next/previous page.
    *
    * @param {Integer} top
    */
   onscroll(top = window.pageYOffset) {
-    if (this.stream.paused) return;
+    if (this.stream.paused || this.stream.pagesLoading) return;
+
+    this.updateScrubber(top);
+
+    this.loadPostsIfNeeded(top);
+
+    // Throttle calculation of our position (start/end numbers of posts in the
+    // viewport) to 100ms.
+    clearTimeout(this.calculatePositionTimeout);
+    this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this, top), 100);
+  }
+
+  /**
+   * Check if either extreme of the post stream is in the viewport,
+   * and if so, trigger loading the next/previous page.
+   *
+   * @param {Integer} top
+   */
+  loadPostsIfNeeded(top = window.pageYOffset) {
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;
@@ -169,13 +185,6 @@ export default class PostStream extends Component {
         this.stream.loadNext();
       }
     }
-
-    // Throttle calculation of our position (start/end numbers of posts in the
-    // viewport) to 100ms.
-    clearTimeout(this.calculatePositionTimeout);
-    this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this, top), 100);
-
-    this.updateScrubber(top);
   }
 
   updateScrubber(top = window.pageYOffset) {
@@ -287,7 +296,9 @@ export default class PostStream extends Component {
    * @return {Integer}
    */
   getMarginTop() {
-    return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
+    const headerId = app.screen() === 'phone' ? '#app-navigation' : '#header';
+
+    return this.$() && $(headerId).outerHeight() + parseInt(this.$().css('margin-top'), 10);
   }
 
   /**
@@ -394,6 +405,8 @@ export default class PostStream extends Component {
 
       this.calculatePosition();
       this.stream.paused = false;
+      // Check if we need to load more posts after scrolling.
+      this.loadPostsIfNeeded();
     });
   }
 

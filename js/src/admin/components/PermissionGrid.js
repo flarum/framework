@@ -6,12 +6,6 @@ import ItemList from '../../common/utils/ItemList';
 import icon from '../../common/helpers/icon';
 
 export default class PermissionGrid extends Component {
-  oninit(vnode) {
-    super.oninit(vnode);
-
-    this.permissions = this.permissionItems().toArray();
-  }
-
   view() {
     const scopes = this.scopeItems().toArray();
 
@@ -35,25 +29,27 @@ export default class PermissionGrid extends Component {
             <th>{this.scopeControlItems().toArray()}</th>
           </tr>
         </thead>
-        {this.permissions.map((section) => (
-          <tbody>
-            <tr className="PermissionGrid-section">
-              <th>{section.label}</th>
-              {permissionCells(section)}
-              <td />
-            </tr>
-            {section.children.map((child) => (
-              <tr className="PermissionGrid-child">
-                <th>
-                  {icon(child.icon)}
-                  {child.label}
-                </th>
-                {permissionCells(child)}
+        {this.permissionItems()
+          .toArray()
+          .map((section) => (
+            <tbody>
+              <tr className="PermissionGrid-section">
+                <th>{section.label}</th>
+                {permissionCells(section)}
                 <td />
               </tr>
-            ))}
-          </tbody>
-        ))}
+              {section.children.map((child) => (
+                <tr className="PermissionGrid-child">
+                  <th>
+                    {icon(child.icon)}
+                    {child.label}
+                  </th>
+                  {permissionCells(child)}
+                  <td />
+                </tr>
+              ))}
+            </tbody>
+          ))}
       </table>
     );
   }
@@ -158,6 +154,8 @@ export default class PermissionGrid extends Component {
       permission: 'user.viewLastSeenAt',
     });
 
+    items.merge(app.extensionData.getAllExtensionPermissions('view'));
+
     return items;
   }
 
@@ -198,6 +196,8 @@ export default class PermissionGrid extends Component {
       90
     );
 
+    items.merge(app.extensionData.getAllExtensionPermissions('start'));
+
     return items;
   }
 
@@ -237,6 +237,8 @@ export default class PermissionGrid extends Component {
       },
       90
     );
+
+    items.merge(app.extensionData.getAllExtensionPermissions('reply'));
 
     return items;
   }
@@ -333,6 +335,8 @@ export default class PermissionGrid extends Component {
       },
       60
     );
+
+    items.merge(app.extensionData.getAllExtensionPermissions('moderate'));
 
     return items;
   }

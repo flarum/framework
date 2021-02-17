@@ -25,7 +25,5 @@ interface MailableInterface
      *
      * @return string
      */
-    // TODO: This is temporarily commented out to avoid BC breaks between beta 13 and beta 14.
-    // It should be uncommented before beta 15.
-    // public function getEmailSubject(TranslatorInterface $translator);
+    public function getEmailSubject(TranslatorInterface $translator);
 }

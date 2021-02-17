@@ -1,3 +1,4 @@
+import { throttle } from 'lodash-es';
 import anchorScroll from '../../common/utils/anchorScroll';
 
 class PostStreamState {
@@ -48,6 +49,9 @@ class PostStreamState {
      * @type {Boolean}
      */
     this.forceUpdateScrubber = false;
+
+    this.loadNext = throttle(this._loadNext, 300);
+    this.loadPrevious = throttle(this._loadPrevious, 300);
 
     this.show(includedPosts);
   }
@@ -172,7 +176,7 @@ class PostStreamState {
    * @return {Promise}
    */
   loadNearIndex(index) {
-    if (index >= this.visibleStart && index <= this.visibleEnd) {
+    if (index >= this.visibleStart && index < this.visibleEnd) {
       return Promise.resolve();
     }
 
@@ -187,7 +191,7 @@ class PostStreamState {
   /**
    * Load the next page of posts.
    */
-  loadNext() {
+  _loadNext() {
     const start = this.visibleEnd;
     const end = (this.visibleEnd = this.sanitizeIndex(this.visibleEnd + this.constructor.loadCount));
 
@@ -210,7 +214,7 @@ class PostStreamState {
   /**
    * Load the previous page of posts.
    */
-  loadPrevious() {
+  _loadPrevious() {
     const end = this.visibleStart;
     const start = (this.visibleStart = this.sanitizeIndex(this.visibleStart - this.constructor.loadCount));
 
@@ -238,23 +242,26 @@ class PostStreamState {
    * @param {Boolean} backwards
    */
   loadPage(start, end, backwards = false) {
-    m.redraw();
+    this.pagesLoading++;
+
+    const redraw = () => {
+      if (start < this.visibleStart || end > this.visibleEnd) return;
+
+      const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
+      anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, m.redraw.sync);
+    };
+    redraw();
 
     this.loadPageTimeouts[start] = setTimeout(
       () => {
         this.loadRange(start, end).then(() => {
-          if (start >= this.visibleStart && end <= this.visibleEnd) {
-            const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
-            anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, () => m.redraw.sync());
-          }
+          redraw();
           this.pagesLoading--;
         });
         this.loadPageTimeouts[start] = null;
       },
-      this.pagesLoading ? 1000 : 0
+      this.pagesLoading - 1 ? 1000 : 0
     );
-
-    this.pagesLoading++;
   }
 
   /**

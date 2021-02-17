@@ -16,26 +16,16 @@ class UpdateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->adminGroup(),
-                $this->memberGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
-                ['user_id' => 2, 'group_id' => 3],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 3],
-                ['permission' => 'viewDiscussions', 'group_id' => 3]
             ]
         ]);
     }
@@ -54,7 +44,7 @@ class UpdateTest extends TestCase
 
         // Test for successful response and that the email is included in the response
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertContains('normal@machine.local', (string) $response->getBody());
+        $this->assertStringContainsString('normal@machine.local', (string) $response->getBody());
     }
 
     /**
@@ -71,6 +61,6 @@ class UpdateTest extends TestCase
 
         // Make sure sensitive information is not made public
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertNotContains('admin@machine.local', (string) $response->getBody());
+        $this->assertStringNotContainsString('admin@machine.local', (string) $response->getBody());
     }
 }

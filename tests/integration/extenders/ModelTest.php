@@ -25,23 +25,23 @@ class ModelTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
             ],
-            'discussions' => []
         ]);
     }
 
     protected function prepPostsHierarchy()
     {
         $this->prepareDatabase([
-            'users' => [
-                $this->normalUser(),
-            ],
             'discussions' => [
                 ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
             ],
@@ -56,7 +56,7 @@ class ModelTest extends TestCase
      */
     public function custom_relationship_does_not_exist_by_default()
     {
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -74,7 +74,7 @@ class ModelTest extends TestCase
                 ->hasOne('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -91,7 +91,7 @@ class ModelTest extends TestCase
                 ->hasMany('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -108,7 +108,7 @@ class ModelTest extends TestCase
                 ->belongsTo('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->prepDB();
+        $this->app();
 
         $user = User::find(1);
 
@@ -127,7 +127,24 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->prepDB();
+        $this->app();
+
+        $user = User::find(1);
+
+        $this->assertEquals([], $user->customRelation()->get()->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_relationship_can_be_invokable_class()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->relationship('customRelation', CustomRelationClass::class)
+        );
+
+        $this->app();
 
         $user = User::find(1);
 
@@ -146,17 +163,18 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->prepDB();
         $this->prepareDatabase([
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1]
             ]
         ]);
 
+        $this->app();
+
         $user = User::find(1);
 
         $this->assertNotEquals([], $user->customRelation()->get()->toArray());
-        $this->assertContains(json_encode(__CLASS__), json_encode($user->customRelation()->get()));
+        $this->assertStringContainsString(json_encode(__CLASS__), json_encode($user->customRelation()->get()));
     }
 
     /**
@@ -170,6 +188,8 @@ class ModelTest extends TestCase
         );
 
         $this->prepPostsHierarchy();
+
+        $this->app();
 
         $post = CommentPost::find(1);
 
@@ -191,6 +211,8 @@ class ModelTest extends TestCase
 
         $this->prepPostsHierarchy();
 
+        $this->app();
+
         $post = DiscussionRenamedPost::find(1);
 
         $this->assertInstanceOf(Discussion::class, $post->ancestor);
@@ -210,6 +232,9 @@ class ModelTest extends TestCase
         );
 
         $this->prepPostsHierarchy();
+
+        $this->app();
+
         $post = DiscussionRenamedPost::find(1);
 
         $this->assertInstanceOf(User::class, $post->ancestor);
@@ -228,12 +253,7 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->prepDB();
-        $this->prepareDatabase([
-            'groups' => [
-                $this->adminGroup()
-            ]
-        ]);
+        $this->app();
 
         $group = Group::find(1);
 
@@ -326,7 +346,7 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $post = new CustomPost;
+        $post = new ModelTestCustomPost;
 
         $this->assertEquals(42, $post->answer);
 
@@ -416,10 +436,18 @@ class ModelTest extends TestCase
     }
 }
 
-class CustomPost extends AbstractEventPost
+class ModelTestCustomPost extends AbstractEventPost
 {
     /**
      * {@inheritdoc}
      */
     public static $type = 'customPost';
+}
+
+class CustomRelationClass
+{
+    public function __invoke(User $user)
+    {
+        return $user->hasMany(Discussion::class, 'user_id');
+    }
 }

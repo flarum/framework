@@ -1,5 +1,6 @@
 import DiscussionList from './DiscussionList';
 import Component from '../../common/Component';
+import DiscussionPage from './DiscussionPage';
 
 const hotEdge = (e) => {
   if (e.pageX < 10) app.pane.show();
@@ -36,23 +37,31 @@ export default class DiscussionListPane extends Component {
 
     $(document).on('mousemove', hotEdge);
 
-    // If the discussion we are viewing is listed in the discussion list, then
-    // we will make sure it is visible in the viewport – if it is not we will
-    // scroll the list down to it.
-    const $discussion = $list.find('.DiscussionListItem.active');
-    if ($discussion.length) {
-      const listTop = $list.offset().top;
-      const listBottom = listTop + $list.outerHeight();
-      const discussionTop = $discussion.offset().top;
-      const discussionBottom = discussionTop + $discussion.outerHeight();
+    // When coming from another discussion, scroll to the previous postition
+    // to prevent the discussion list jumping around.
+    if (app.previous.matches(DiscussionPage)) {
+      const top = app.cache.discussionListPaneScrollTop || 0;
+      $list.scrollTop(top);
+    } else {
+      // If the discussion we are viewing is listed in the discussion list, then
+      // we will make sure it is visible in the viewport – if it is not we will
+      // scroll the list down to it.
+      const $discussion = $list.find('.DiscussionListItem.active');
+      if ($discussion.length) {
+        const listTop = $list.offset().top;
+        const listBottom = listTop + $list.outerHeight();
+        const discussionTop = $discussion.offset().top;
+        const discussionBottom = discussionTop + $discussion.outerHeight();
 
-      if (discussionTop < listTop || discussionBottom > listBottom) {
-        $list.scrollTop($list.scrollTop() - listTop + discussionTop);
+        if (discussionTop < listTop || discussionBottom > listBottom) {
+          $list.scrollTop($list.scrollTop() - listTop + discussionTop);
+        }
       }
     }
   }
 
-  onremove() {
+  onremove(vnode) {
+    app.cache.discussionListPaneScrollTop = $(vnode.dom).scrollTop();
     $(document).off('mousemove', hotEdge);
   }
 
