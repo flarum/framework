@@ -9,6 +9,7 @@
 
 namespace Flarum\Search;
 
+use Flarum\Filter\FilterState;
 use Illuminate\Support\Str;
 
 trait ApplySearchParametersTrait
@@ -16,10 +17,10 @@ trait ApplySearchParametersTrait
     /**
      * Apply sort criteria to a discussion search.
      *
-     * @param SearchState $search
+     * @param FilterState $search
      * @param array $sort
      */
-    protected function applySort(SearchState $search, array $sort = null)
+    protected function applySort(FilterState $search, array $sort = null)
     {
         $sort = $sort ?: $search->getDefaultSort();
 
@@ -39,10 +40,10 @@ trait ApplySearchParametersTrait
     }
 
     /**
-     * @param SearchState $search
+     * @param FilterState $search
      * @param int $offset
      */
-    protected function applyOffset(SearchState $search, $offset)
+    protected function applyOffset(FilterState $search, $offset)
     {
         if ($offset > 0) {
             $search->getQuery()->skip($offset);
@@ -50,10 +51,10 @@ trait ApplySearchParametersTrait
     }
 
     /**
-     * @param SearchState $search
+     * @param FilterState $search
      * @param int|null $limit
      */
-    protected function applyLimit(SearchState $search, $limit)
+    protected function applyLimit(FilterState $search, $limit)
     {
         if ($limit > 0) {
             $search->getQuery()->take($limit);

@@ -55,5 +55,6 @@ abstract class AbstractRegexGambit implements GambitInterface
      *     or not the conditions should be negated.
      * @return mixed
      */
-    abstract protected function conditions(SearchState $search, array $matches, $negate);
+    // Uncomment for beta 17
+    // abstract protected function conditions(SearchState $search, array $matches, $negate);
 }
