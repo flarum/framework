@@ -60,6 +60,7 @@ class LogInController implements RequestHandlerInterface
         $this->users = $users;
         $this->apiClient = $apiClient;
         $this->authenticator = $authenticator;
+        $this->events = $events;
         $this->rememberer = $rememberer;
     }
 
