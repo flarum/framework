@@ -27,6 +27,14 @@
   height: 50px;
   width: 100%;
 
+  @media @desktop-up {
+    height: 50px;
+  }
+
+  @media (max-width: @screen-tablet-max) {
+    height: 40px;
+  }
+
   > .container {
     padding-top: 10px !important;
   }

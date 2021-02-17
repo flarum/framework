@@ -58,10 +58,13 @@ export default class DiscussionPage extends Page {
     const scrollListener = new ScrollListener((top) => {
       const $hero = $('.DiscussionHero');
       if ($hero.offset()) {
-        $hero.toggleClass('DiscussionHero--floating', top > 92);
+        const container = $('.DiscussionHero').children('.container');
+        const containerPadding = parseInt(container.css('padding-top')) + parseInt(container.css('padding-bottom'));
+
+        $hero.toggleClass('DiscussionHero--floating', top > 22 + containerPadding);
         $('.DiscussionPage-discussion')
           .children('.container')
-          .toggleClass('scrolled', top > 92);
+          .toggleClass('scrolled', top > 22 + containerPadding);
       }
     });
 
