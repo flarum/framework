@@ -34,9 +34,7 @@ export default class PostStreamScrubber extends Component {
     const index = this.stream.index;
 
     const showBackButton =
-      this.lastPosition > count / 20 &&
-      this.lastPosition < count - count / 20 &&
-      100 * Math.abs((index - this.lastPosition) / count) > 25;
+      this.lastPosition > count / 20 && this.lastPosition < count - count / 20 && 100 * Math.abs((index - this.lastPosition) / count) > 25;
 
     const unreadCount = this.stream.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - index, unreadCount) / count : 0;
@@ -99,7 +97,7 @@ export default class PostStreamScrubber extends Component {
 
   backButton() {
     return (
-      <div style={"top: " + this.percentPerPost().index * this.lastPosition + "%"} className="Scrubber-back">
+      <div style={'top: ' + this.percentPerPost().index * this.lastPosition + '%'} className="Scrubber-back">
         {icon('fas fa-minus')}
         <button className="Button Button--primary" onclick={this.returnToLastPosition.bind(this)}>
           {app.translator.trans('core.forum.post_scrubber.back')}
