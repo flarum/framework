@@ -31,8 +31,15 @@ export default class PostStreamScrubber extends Component {
       count: <span className="Scrubber-count">{formatNumber(count)}</span>,
     });
 
+    const index = this.stream.index;
+
+    const showBackButton =
+      this.lastPosition > count / 20 &&
+      this.lastPosition < count - count / 20 &&
+      100 * Math.abs((index - this.lastPosition) / count) > 25;
+
     const unreadCount = this.stream.discussion.unreadCount();
-    const unreadPercent = count ? Math.min(count - this.stream.index, unreadCount) / count : 0;
+    const unreadPercent = count ? Math.min(count - index, unreadCount) / count : 0;
 
     function styleUnread(vnode) {
       const $element = $(vnode.dom);
@@ -65,6 +72,7 @@ export default class PostStreamScrubber extends Component {
             </a>
 
             <div className="Scrubber-scrollbar">
+              {showBackButton ? this.backButton() : ''}
               <div className="Scrubber-before" />
               <div className="Scrubber-handle">
                 <div className="Scrubber-bar" />
@@ -87,6 +95,27 @@ export default class PostStreamScrubber extends Component {
         </div>
       </div>
     );
+  }
+
+  backButton() {
+    return (
+      <div style={"top: " + this.percentPerPost().index * this.lastPosition + "%"} className="Scrubber-back">
+        {icon('fas fa-minus')}
+        <button className="Button Button--primary" onclick={this.returnToLastPosition.bind(this)}>
+          {app.translator.trans('core.forum.post_scrubber.back')}
+        </button>
+      </div>
+    );
+  }
+
+  returnToLastPosition(e) {
+    // Don't fire the scrubber click event as well
+    e.stopPropagation();
+
+    this.stream.goToIndex(Math.floor(this.lastPosition));
+    this.updateScrubberValues({ animate: true });
+
+    this.$().removeClass('open');
   }
 
   onupdate() {
@@ -199,6 +228,7 @@ export default class PostStreamScrubber extends Component {
    * Go to the first post in the discussion.
    */
   goToFirst() {
+    this.lastPosition = this.stream.index;
     this.stream.goToFirst();
     this.updateScrubberValues({ animate: true, forceHeightChange: true });
   }
@@ -207,6 +237,7 @@ export default class PostStreamScrubber extends Component {
    * Go to the last post in the discussion.
    */
   goToLast() {
+    this.lastPosition = this.stream.index;
     this.stream.goToLast();
     this.updateScrubberValues({ animate: true, forceHeightChange: true });
   }
@@ -232,6 +263,7 @@ export default class PostStreamScrubber extends Component {
     this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
     this.indexStart = this.stream.index;
     this.dragging = true;
+    this.lastPosition = this.stream.index;
     $('body').css('cursor', 'move');
     this.$().toggleClass('dragging', this.dragging);
   }
@@ -273,10 +305,12 @@ export default class PostStreamScrubber extends Component {
     // Calculate the index which we want to jump to based on the click position.
 
     // 1. Get the offset of the click from the top of the scrollbar, as a
-    //    percentage of the scrollbar's height.
+    //    percentage of the scrollbar's height. Save current location for the
+    //    back button.
     const $scrollbar = this.$('.Scrubber-scrollbar');
     const offsetPixels = (e.pageY || e.originalEvent.touches[0].pageY) - $scrollbar.offset().top + $('body').scrollTop();
     let offsetPercent = (offsetPixels / $scrollbar.outerHeight()) * 100;
+    this.lastPosition = this.stream.index;
 
     // 2. We want the handle of the scrollbar to end up centered on the click
     //    position. Thus, we calculate the height of the handle in percent and

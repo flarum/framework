@@ -22,6 +22,23 @@
 .Scrubber-before, .Scrubber-after {
   border-left: 1px solid @control-bg;
 }
+.Scrubber-back {
+  position: absolute;
+  z-index: 1;
+
+  .icon {
+    margin-left: -0.35em;
+    color: @muted-color;
+  }
+
+  .Button {
+    padding: 5px;
+    position: absolute;
+    left: 15px;
+    top: -5px;
+    width: initial;
+  }
+}
 .Scrubber-unread {
   position: absolute;
   border-left: 1px solid lighten(@muted-color, 10%);
