@@ -75,7 +75,8 @@
             "Flarum\\": "src/"
         },
         "files": [
-            "src/helpers.php"
+            "src/helpers.php",
+            "src/TranslatorInterface.php"
         ]
     },
     "autoload-dev": {
