@@ -1,27 +1,22 @@
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import LinkButton from '../../common/components/LinkButton';
-import Page from '../../common/components/Page';
-import Select from '../../common/components/Select';
 import Switch from '../../common/components/Switch';
 import icon from '../../common/helpers/icon';
 import punctuateSeries from '../../common/helpers/punctuateSeries';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
-import Stream from '../../common/utils/Stream';
 import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
-import saveSettings from '../utils/saveSettings';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
+import AdminPage from './AdminPage';
 
-export default class ExtensionPage extends Page {
+export default class ExtensionPage extends AdminPage {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.loading = false;
     this.extension = app.data.extensions[this.attrs.id];
     this.changingState = false;
-    this.settings = {};
 
     this.infoFields = {
       discuss: 'fas fa-comment-alt',
@@ -34,12 +29,6 @@ export default class ExtensionPage extends Page {
 
     if (!this.extension) {
       return m.route.set(app.route('dashboard'));
-    }
-
-    // Backwards compatibility layer will be removed in
-    // Beta 16
-    if (app.extensionSettings[this.extension.id]) {
-      app.extensionData[this.extension.id] = app.extensionSettings[this.extension.id];
     }
   }
 
@@ -132,11 +121,7 @@ export default class ExtensionPage extends Page {
     return (
       <div className="ExtensionPage-settings">
         <div className="container">
-          {typeof app.extensionData[this.extension.id] === 'function' ? (
-            <Button onclick={app.extensionData[this.extension.id].bind(this)} className="Button Button--primary">
-              {app.translator.trans('core.admin.extension.open_modal')}
-            </Button>
-          ) : settings ? (
+          {settings ? (
             <div className="Form">
               {settings.map(this.buildSettingComponent.bind(this))}
               <div className="Form-group">{this.submitButton()}</div>
@@ -212,78 +197,6 @@ export default class ExtensionPage extends Page {
     return items;
   }
 
-  submitButton() {
-    return (
-      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.isChanged()}>
-        {app.translator.trans('core.admin.settings.submit_button')}
-      </Button>
-    );
-  }
-
-  /**
-   * getSetting takes a settings object and turns it into a component.
-   * Depending on the type of input, you can set the type to 'bool', 'select', or
-   * any standard <input> type.
-   *
-   * Alternatively, you can pass a callback that will be executed in ExtensionPage's
-   * context to include custom JSX elements.
-   *
-   * @example
-   *
-   * {
-   *    setting: 'acme.checkbox',
-   *    label: app.translator.trans('acme.admin.setting_label'),
-   *    type: 'bool'
-   * }
-   *
-   * @example
-   *
-   * {
-   *    setting: 'acme.select',
-   *    label: app.translator.trans('acme.admin.setting_label'),
-   *    type: 'select',
-   *    options: {
-   *      'option1': 'Option 1 label',
-   *      'option2': 'Option 2 label',
-   *    },
-   *    default: 'option1',
-   * }
-   *
-   * @param setting
-   * @returns {JSX.Element}
-   */
-  buildSettingComponent(entry) {
-    if (typeof entry === 'function') {
-      return entry.call(this);
-    }
-
-    const setting = entry.setting;
-    const value = this.setting([setting])();
-    if (['bool', 'checkbox', 'switch', 'boolean'].includes(entry.type)) {
-      return (
-        <div className="Form-group">
-          <Switch state={!!value && value !== '0'} onchange={this.settings[setting]}>
-            {entry.label}
-          </Switch>
-        </div>
-      );
-    } else if (['select', 'dropdown', 'selectdropdown'].includes(entry.type)) {
-      return (
-        <div className="Form-group">
-          <label>{entry.label}</label>
-          <Select value={value || entry.default} options={entry.options} buttonClassName="Button" onchange={this.settings[setting]} />
-        </div>
-      );
-    } else {
-      return (
-        <div className="Form-group">
-          <label>{entry.label}</label>
-          <input type={entry.type} className="FormControl" bidi={this.setting(setting)} />
-        </div>
-      );
-    }
-  }
-
   toggle() {
     const enabled = this.isEnabled();
 
@@ -302,46 +215,6 @@ export default class ExtensionPage extends Page {
       });
 
     app.modal.show(LoadingModal);
-  }
-
-  dirty() {
-    const dirty = {};
-
-    Object.keys(this.settings).forEach((key) => {
-      const value = this.settings[key]();
-
-      if (value !== app.data.settings[key]) {
-        dirty[key] = value;
-      }
-    });
-
-    return dirty;
-  }
-
-  isChanged() {
-    return Object.keys(this.dirty()).length;
-  }
-
-  saveSettings(e) {
-    e.preventDefault();
-
-    app.alerts.clear();
-
-    this.loading = true;
-
-    saveSettings(this.dirty()).then(this.onsaved.bind(this));
-  }
-
-  onsaved() {
-    this.loading = false;
-
-    app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.extension.saved_message'));
-  }
-
-  setting(key, fallback = '') {
-    this.settings[key] = this.settings[key] || Stream(app.data.settings[key] || fallback);
-
-    return this.settings[key];
   }
 
   isEnabled() {
