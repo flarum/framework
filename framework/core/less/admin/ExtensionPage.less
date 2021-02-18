@@ -1,5 +1,4 @@
 .ExtensionPage {
-  min-height: 110vh;
 
   .ExtensionPage-header {
     .ExtensionTitle {
@@ -142,11 +141,13 @@
 
   .ExtensionPage-permissions {
 
-    @media @phone {
-      > .container {
-        overflow-x: scroll;
-        padding-bottom: 20px;
-      }
+    .PermissionGrid-removeScope {
+      display: none;
+    }
+
+    > .container {
+      overflow-x: auto;
+      padding-bottom: 25vh;
     }
 
     .ExtensionPage-permissions-header {
