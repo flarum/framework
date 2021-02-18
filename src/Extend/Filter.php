@@ -19,7 +19,7 @@ class Filter implements ExtenderInterface
     private $filterMutators = [];
 
     /**
-     * @param string $filtererclass: The ::class attribute of the filterer to extend
+     * @param string $filtererClass: The ::class attribute of the filterer to extend
      */
     public function __construct($filtererClass)
     {
@@ -27,7 +27,7 @@ class Filter implements ExtenderInterface
     }
 
     /**
-     * Add a filter to run when the filtererclass is filtered.
+     * Add a filter to run when the filtererClass is filtered.
      *
      * @param string $filterClass: The ::class attribute of the filter you are adding.
      */
