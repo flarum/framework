@@ -8,6 +8,7 @@ import SettingDropdown from './components/SettingDropdown';
 import EditCustomFooterModal from './components/EditCustomFooterModal';
 import SessionDropdown from './components/SessionDropdown';
 import HeaderPrimary from './components/HeaderPrimary';
+import AdminPage from './components/AdminPage';
 import AppearancePage from './components/AppearancePage';
 import StatusWidget from './components/StatusWidget';
 import ExtensionsWidget from './components/ExtensionsWidget';
@@ -16,7 +17,6 @@ import SettingsModal from './components/SettingsModal';
 import DashboardWidget from './components/DashboardWidget';
 import ExtensionPage from './components/ExtensionPage';
 import ExtensionLinkButton from './components/ExtensionLinkButton';
-import AdminLinkButton from './components/AdminLinkButton';
 import PermissionGrid from './components/PermissionGrid';
 import ExtensionPermissionGrid from './components/ExtensionPermissionGrid';
 import MailPage from './components/MailPage';
@@ -43,6 +43,7 @@ export default Object.assign(compat, {
   'components/EditCustomFooterModal': EditCustomFooterModal,
   'components/SessionDropdown': SessionDropdown,
   'components/HeaderPrimary': HeaderPrimary,
+  'components/AdminPage': AdminPage,
   'components/AppearancePage': AppearancePage,
   'components/StatusWidget': StatusWidget,
   'components/ExtensionsWidget': ExtensionsWidget,
@@ -51,7 +52,6 @@ export default Object.assign(compat, {
   'components/DashboardWidget': DashboardWidget,
   'components/ExtensionPage': ExtensionPage,
   'components/ExtensionLinkButton': ExtensionLinkButton,
-  'components/AdminLinkButton': AdminLinkButton,
   'components/PermissionGrid': PermissionGrid,
   'components/ExtensionPermissionGrid': ExtensionPermissionGrid,
   'components/MailPage': MailPage,

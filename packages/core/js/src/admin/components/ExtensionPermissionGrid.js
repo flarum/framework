@@ -1,4 +1,5 @@
 import PermissionGrid from './PermissionGrid';
+import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 
 export default class ExtensionPermissionGrid extends PermissionGrid {
@@ -35,5 +36,18 @@ export default class ExtensionPermissionGrid extends PermissionGrid {
 
   moderateItems() {
     return app.extensionData.getExtensionPermissions(this.extensionId, 'moderate') || new ItemList();
+  }
+
+  scopeControlItems() {
+    const items = new ItemList();
+
+    items.add(
+      'configureScopes',
+      <Button className="Button Button--text" onclick={() => m.route.set(app.route('permissions'))}>
+        {app.translator.trans('core.admin.extension.configure_scopes')}
+      </Button>
+    );
+
+    return items;
   }
 }

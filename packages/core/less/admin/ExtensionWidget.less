@@ -7,18 +7,6 @@
   padding: 0;
   background-color: @body-bg;
 
-  .ExtensionList-Category {
-    background: @control-bg;
-    padding: 20px 0 20px 20px;
-    margin-bottom: 20px;
-    border-radius: @border-radius;
-
-    .ExtensionList-Label {
-      margin-top: 0;
-      color: @muted-color;
-    }
-  }
-
   .ExtensionGroup {
     margin-bottom: 20px;
 
@@ -46,6 +34,18 @@
   }
 }
 
+.ExtensionList-Category {
+  background: @control-bg;
+  padding: 20px 0 20px 20px;
+  margin-bottom: 20px;
+  border-radius: @border-radius;
+}
+
+.ExtensionList-Label {
+  margin-top: 0;
+  color: @muted-color;
+}
+
 .ExtensionListItem.disabled {
   .ExtensionListItem-title {
     opacity: 0.5;
@@ -64,16 +64,16 @@
     transform: scale(1.05);
   }
 
-  .ExtensionListItem-title {
-    display: block;
-    text-align: center;
-    margin-top: 5px;
-    color: @text-color;
-  }
-
   a:hover {
     text-decoration: none;
   }
+}
+
+.ExtensionListItem-title {
+  display: block;
+  text-align: center;
+  margin-top: 5px;
+  color: @text-color;
 }
 
 .ExtensionIcon {
