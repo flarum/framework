@@ -23,7 +23,11 @@ interface MailableInterface
     /**
      * Get the subject line for a notification email.
      *
+     * @param TranslatorInterface $translator
+     *
      * @return string
      */
-    public function getEmailSubject(TranslatorInterface $translator);
+    // Uncomment beta 17. Commented as temporary BC layer since Symfony changed
+    // the namespace of their translator interface
+    // public function getEmailSubject(TranslatorInterface $translator);
 }
