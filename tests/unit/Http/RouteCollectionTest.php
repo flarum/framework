@@ -33,14 +33,14 @@ class RouteCollectionTest extends TestCase
     public function can_add_routes_late()
     {
         $routeCollection = (new RouteCollection)->addRoute('GET', '/index', 'index', function () {
-                echo 'index';
-            });
+            echo 'index';
+        });
 
         $this->assertEquals('/index', $routeCollection->getPath('index'));
 
         $routeCollection->addRoute('DELETE', '/posts', 'forum.posts.delete', function () {
-                echo 'delete posts';
-            });
+            echo 'delete posts';
+        });
 
         $this->assertEquals('/posts', $routeCollection->getPath('forum.posts.delete'));
     }
