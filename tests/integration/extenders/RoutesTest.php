@@ -51,24 +51,36 @@ class RoutesTest extends TestCase
     /**
      * @test
      */
+    public function existing_route_can_be_removed()
+    {
+        $this->extend(
+            (new Extend\Routes('api'))
+                ->remove('GET', 'forum.show')
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api')
+        );
+
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
     public function custom_route_can_override_existing_route_if_removed()
     {
         $this->extend(
             (new Extend\Routes('api'))
                 ->remove('GET', 'forum.show')
-                ->get('/overridenRoute', 'forum.show', CustomRoute::class)
+                ->get('/', 'forum.show', CustomRoute::class)
         );
 
         $response = $this->send(
-            $this->request('GET', '/api/')
+            $this->request('GET', '/api')
         );
 
-        $response2 = $this->send(
-            $this->request('GET', '/api/overridenRoute')
-        );
-
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('Hello Flarumites!', $response2->getBody());
+        $this->assertEquals('Hello Flarumites!', $response->getBody());
     }
 }
 
