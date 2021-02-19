@@ -60,8 +60,6 @@ export default class PostStreamScrubber extends Component {
     const classNames = ['PostStreamScrubber', 'Dropdown'];
     if (this.attrs.className) classNames.push(this.attrs.className);
 
-    console.log(showBackButton);
-
     return (
       <div className={classNames.join(' ')}>
         <button className="Button Dropdown-toggle" data-toggle="dropdown">
