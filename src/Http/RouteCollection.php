@@ -35,6 +35,11 @@ class RouteCollection
      */
     protected $routes = [];
 
+    /**
+     * @var array
+     */
+    protected $pendingRoutes = [];
+
     public function __construct()
     {
         $this->dataGenerator = new DataGenerator\GroupCountBased;
@@ -69,24 +74,24 @@ class RouteCollection
     public function addRoute($method, $path, $name, $handler)
     {
         if (isset($this->routes[$method][$name])) {
-            throw new \RuntimeException("Route $name already exists");
+            throw new \RuntimeException("Route $name on method $method already exists");
         }
 
-        $this->routes[$method][$name] = compact('path', 'handler');
+        $this->routes[$method][$name] = $this->pendingRoutes[$method][$name] = compact('path', 'handler');
 
         return $this;
     }
 
     public function removeRoute(string $method, string $name): self
     {
-        unset($this->routes[$method][$name]);
+        unset($this->routes[$method][$name], $this->pendingRoutes[$method][$name]);
 
         return $this;
     }
 
     protected function applyRoutes(): void
     {
-        foreach ($this->routes as $method => $routes) {
+        foreach ($this->pendingRoutes as $method => $routes) {
             foreach ($routes as $name => $route) {
                 $routeDatas = $this->routeParser->parse($route['path']);
 
@@ -97,6 +102,8 @@ class RouteCollection
                 $this->reverse[$name] = $routeDatas;
             }
         }
+
+        $this->pendingRoutes = [];
     }
 
     public function getRoutes(): array
@@ -106,7 +113,7 @@ class RouteCollection
 
     public function getRouteData()
     {
-        if (empty($this->reverse)) {
+        if (! empty($this->pendingRoutes)) {
             $this->applyRoutes();
         }
 
@@ -122,7 +129,7 @@ class RouteCollection
 
     public function getPath($name, array $parameters = [])
     {
-        if (empty($this->reverse)) {
+        if (! empty($this->pendingRoutes)) {
             $this->applyRoutes();
         }
 
