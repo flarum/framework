@@ -76,10 +76,17 @@ export default class PostStreamScrubber extends Component {
 
             <div className="Scrubber-scrollbar">
               {showBackButton ? (
-                <a style={'top: ' + this.percentPerPost().index * this.stream.previousIndex + '%'} className="Scrubber-back" onclick={this.returnToLastPosition.bind(this)} title={app.translator.trans('core.forum.post_scrubber.back_title')}>
+                <a
+                  style={'top: ' + this.percentPerPost().index * this.stream.previousIndex + '%'}
+                  className="Scrubber-back"
+                  onclick={this.returnToLastPosition.bind(this)}
+                  title={app.translator.trans('core.forum.post_scrubber.back_title')}
+                >
                   {icon('fas fa-chevron-left')}
                 </a>
-              ) : ''}
+              ) : (
+                ''
+              )}
               <div className="Scrubber-before" />
               <div className="Scrubber-handle">
                 <div className="Scrubber-bar" />

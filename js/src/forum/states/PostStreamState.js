@@ -138,7 +138,7 @@ class PostStreamState {
     this.needsScroll = true;
     this.targetPost = { index };
     this.animateScroll = !noAnimation;
-    this.previousIndex = (index === this.previousIndex) ? index : this.index;
+    this.previousIndex = index === this.previousIndex ? index : this.index;
     this.index = index;
 
     m.redraw();
