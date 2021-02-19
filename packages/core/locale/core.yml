@@ -28,7 +28,6 @@ core:
       favicon_text: Upload an image to be displayed as the forum's shortcut icon.
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
-      submit_button: => core.ref.save_changes
       title: Appearance
 
     # These translations are used in the Basics page.
@@ -43,11 +42,9 @@ core:
       forum_title_heading: Forum Title
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
-      saved_message: Your changes were saved.
       show_language_selector_label: Show language selector
       slug_driver_heading: "Slug Driver: {model}"
       slug_driver_text: Select a driver to be used for slugging this model.
-      submit_button: => core.ref.save_changes
       title: Basics
       welcome_banner_heading: Welcome Banner
       welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
@@ -113,11 +110,11 @@ core:
       send_test_mail_success: "Test mail sent successfully!"
       send_test_mail_text: "This will send an email using the above configuration to your email, {email}."
       smtp_heading: SMTP Settings
-      submit_button: => core.ref.save_changes
       title: => core.ref.email
 
     # These translations are used on default extension pages.
     extension:
+      configure_scopes: Configure Scopes
       confirm_uninstall: Uninstalling will remove all database entries and assets related to the extension. Are you sure you want to continue?
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
@@ -133,7 +130,6 @@ core:
       no_settings: This extension has no settings.
       open_modal: Open Settings
       permissions_title: Permissions
-      saved_message: Your changes were saved.
       uninstall_button: Uninstall
 
     # These translations are used in the secondary header.
@@ -209,8 +205,9 @@ core:
       signup_closed_button: Closed
       signup_open_button: Open
 
-    # These translations are used in the Settings modal dialog.
+    # These translations are used generically in setting fields.
     settings:
+      saved_message: Your changes were saved.
       submit_button: => core.ref.save_changes
 
     # These translations are used in image upload buttons.
