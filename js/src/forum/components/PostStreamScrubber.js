@@ -37,6 +37,10 @@ export default class PostStreamScrubber extends Component {
     const index = this.stream.index;
     const previousIndex = this.stream.previousIndex;
 
+    // We want to make sure the back button isn't crammed in.
+    // If the previous post index is less than 5% from the last/first post,
+    // or if the previous post index is less than 25% from the current post, we will
+    // hide the button. Additionally, this hides the button on very short screens.
     const showBackButton = previousIndex > count / 20 && previousIndex < count - count / 20 && 100 * Math.abs((index - previousIndex) / count) > 25;
 
     const unreadCount = this.stream.discussion.unreadCount();
