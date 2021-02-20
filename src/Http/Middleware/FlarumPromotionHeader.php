@@ -28,7 +28,7 @@ class FlarumPromotionHeader implements Middleware
         $response = $handler->handle($request);
 
         if (static::$enabled) {
-            $response->withAddedHeader('X-Powered-By', 'Flarum');
+            $response = $response->withAddedHeader('X-Powered-By', 'Flarum');
         }
 
         return $response;
