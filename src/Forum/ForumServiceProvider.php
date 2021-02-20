@@ -67,7 +67,8 @@ class ForumServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\SetLocale::class,
                 'flarum.forum.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
-                HttpMiddleware\ShareErrorsFromSession::class
+                HttpMiddleware\ShareErrorsFromSession::class,
+                HttpMiddleware\FlarumPromotionHeader::class,
             ];
         });
 
