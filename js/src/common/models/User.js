@@ -30,7 +30,6 @@ Object.assign(User.prototype, {
   commentCount: Model.attribute('commentCount'),
 
   canEditCredentials: Model.attribute('canEditCredentials'),
-  canEditUsername: Model.attribute('canEditUsername'),
   canEditGroups: Model.attribute('canEditGroups'),
   canDelete: Model.attribute('canDelete'),
 
