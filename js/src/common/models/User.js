@@ -29,12 +29,13 @@ Object.assign(User.prototype, {
   discussionCount: Model.attribute('discussionCount'),
   commentCount: Model.attribute('commentCount'),
 
+  canEditAttributes: Model.attribute('canEdit'),
   canEditCredentials: Model.attribute('canEditCredentials'),
   canEditGroups: Model.attribute('canEditGroups'),
   canDelete: Model.attribute('canDelete'),
 
-  canEdit: computed('canEditCredentials', 'canEditGroups', 'canEdit', function (canEdit, canEditCredentials, canEditGroups) {
-    return canEdit || canEditCredentials || canEditGroups;
+  canEdit: computed('canEditCredentials', 'canEditGroups', 'canEditAttributes', function (canEditAttributes, canEditCredentials, canEditGroups) {
+    return canEditAttributes || canEditCredentials || canEditGroups;
   }),
 
   avatarColor: null,
