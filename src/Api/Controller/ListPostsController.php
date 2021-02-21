@@ -53,7 +53,6 @@ class ListPostsController extends AbstractListController
 
     /**
      * @param PostFilterer $filterer
-     * @param PostRepository $posts
      * @param UrlGenerator $url
      */
     public function __construct(PostFilterer $filterer, UrlGenerator $url)
