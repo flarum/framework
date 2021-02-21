@@ -176,9 +176,9 @@ core:
       delete_posts_label: Delete posts
       description: Configure who can see and do what.
       edit_posts_label: Edit posts
+      edit_users_label: Edit users
       edit_users_credentials_label: Edit users credentials
       edit_users_groups_label: Edit users groups
-      edit_users_username_label: Edit users username
       global_heading: Global
       moderate_heading: Moderate
       new_group_button: New Group

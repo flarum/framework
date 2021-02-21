@@ -47,7 +47,7 @@ export default class EditUserModal extends Modal {
   fields() {
     const items = new ItemList();
 
-    if (app.session.user.canEditUsername()) {
+    if (app.session.user.canEditCredentials()) {
       items.add(
         'username',
         <div className="Form-group">
@@ -60,9 +60,7 @@ export default class EditUserModal extends Modal {
         </div>,
         40
       );
-    }
 
-    if (app.session.user.canEditCredentials()) {
       if (app.session.user !== this.attrs.user) {
         items.add(
           'email',

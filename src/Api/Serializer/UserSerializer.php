@@ -23,9 +23,9 @@ class UserSerializer extends BasicUserSerializer
             'joinTime'           => $this->formatDate($user->joined_at),
             'discussionCount'    => (int) $user->discussion_count,
             'commentCount'       => (int) $user->comment_count,
-            'canEditCredentials' => $this->actor->can('user.editCredentials'),
-            'canEditGroups'      => $this->actor->can('user.editGroups'),
-            'canEditUsername'    => $this->actor->can('user.editUsername'),
+            'canEdit'            => $this->actor->can('edit', $user),
+            'canEditCredentials' => $this->actor->can('editCredentials', $user),
+            'canEditGroups'      => $this->actor->can('editGroups', $user),
             'canDelete'          => $this->actor->can('delete', $user),
         ];
 
