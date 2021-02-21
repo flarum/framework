@@ -29,8 +29,14 @@ Object.assign(User.prototype, {
   discussionCount: Model.attribute('discussionCount'),
   commentCount: Model.attribute('commentCount'),
 
-  canEdit: Model.attribute('canEdit'),
+  canEditCredentials: Model.attribute('canEditCredentials'),
+  canEditUsername: Model.attribute('canEditUsername'),
+  canEditGroups: Model.attribute('canEditGroups'),
   canDelete: Model.attribute('canDelete'),
+
+  canEdit: computed('canEditCredentials', 'canEditGroups', 'canEditUsername', function (canEditCredentials, canEditGroups, canEditUsername) {
+    return canEditCredentials || canEditGroups || canEditUsername;
+  }),
 
   avatarColor: null,
   color: computed('username', 'avatarUrl', 'avatarColor', function (username, avatarUrl, avatarColor) {

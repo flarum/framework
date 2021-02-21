@@ -58,7 +58,6 @@ class EditUserHandler
 
         $user = $this->users->findOrFail($command->userId, $actor);
 
-        $canEdit = $actor->can('edit', $user);
         $isSelf = $actor->id === $user->id;
 
         $attributes = Arr::get($data, 'attributes', []);
@@ -66,7 +65,7 @@ class EditUserHandler
         $validate = [];
 
         if (isset($attributes['username'])) {
-            $actor->assertPermission($canEdit);
+            $actor->assertPermission($actor->can('editUsername'));
             $user->rename($attributes['username']);
         }
 
@@ -78,7 +77,7 @@ class EditUserHandler
                     $validate['email'] = $attributes['email'];
                 }
             } else {
-                $actor->assertPermission($canEdit);
+                $actor->assertPermission($actor->can('editCredentials'));
                 $user->changeEmail($attributes['email']);
             }
         }
@@ -88,7 +87,7 @@ class EditUserHandler
         }
 
         if (isset($attributes['password'])) {
-            $actor->assertPermission($canEdit);
+            $actor->assertPermission($actor->can('editCredentials'));
             $user->changePassword($attributes['password']);
 
             $validate['password'] = $attributes['password'];
@@ -108,7 +107,7 @@ class EditUserHandler
         }
 
         if (isset($relationships['groups']['data']) && is_array($relationships['groups']['data'])) {
-            $actor->assertPermission($canEdit);
+            $actor->assertPermission($actor->can('editGroups'));
 
             $newGroupIds = [];
             foreach ($relationships['groups']['data'] as $group) {

@@ -19,14 +19,14 @@ class UserSerializer extends BasicUserSerializer
     {
         $attributes = parent::getDefaultAttributes($user);
 
-        $canEdit = $this->actor->can('edit', $user);
-
         $attributes += [
-            'joinTime'         => $this->formatDate($user->joined_at),
-            'discussionCount'  => (int) $user->discussion_count,
-            'commentCount'     => (int) $user->comment_count,
-            'canEdit'          => $canEdit,
-            'canDelete'        => $this->actor->can('delete', $user),
+            'joinTime'           => $this->formatDate($user->joined_at),
+            'discussionCount'    => (int) $user->discussion_count,
+            'commentCount'       => (int) $user->comment_count,
+            'canEditCredentials' => $this->actor->can('user.editCredentials'),
+            'canEditGroups'      => $this->actor->can('user.editGroups'),
+            'canEditUsername'    => $this->actor->can('user.editUsername'),
+            'canDelete'          => $this->actor->can('delete', $user),
         ];
 
         if ($user->getPreference('discloseOnline') || $this->actor->can('viewLastSeenAt', $user)) {
@@ -35,7 +35,7 @@ class UserSerializer extends BasicUserSerializer
             ];
         }
 
-        if ($canEdit || $this->actor->id === $user->id) {
+        if ($attributes['canEditCredentials'] || $this->actor->id === $user->id) {
             $attributes += [
                 'isEmailConfirmed' => (bool) $user->is_email_confirmed,
                 'email'            => $user->email
