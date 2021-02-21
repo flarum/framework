@@ -65,7 +65,7 @@ class EditUserHandler
         $validate = [];
 
         if (isset($attributes['username'])) {
-            $actor->assertPermission($actor->can('editUsername'));
+            $actor->assertPermission($actor->can('user.editUsername'));
             $user->rename($attributes['username']);
         }
 
@@ -77,7 +77,7 @@ class EditUserHandler
                     $validate['email'] = $attributes['email'];
                 }
             } else {
-                $actor->assertPermission($actor->can('editCredentials'));
+                $actor->assertPermission($actor->can('user.editCredentials'));
                 $user->changeEmail($attributes['email']);
             }
         }
@@ -87,7 +87,7 @@ class EditUserHandler
         }
 
         if (isset($attributes['password'])) {
-            $actor->assertPermission($actor->can('editCredentials'));
+            $actor->assertPermission($actor->can('user.editCredentials'));
             $user->changePassword($attributes['password']);
 
             $validate['password'] = $attributes['password'];
@@ -107,7 +107,7 @@ class EditUserHandler
         }
 
         if (isset($relationships['groups']['data']) && is_array($relationships['groups']['data'])) {
-            $actor->assertPermission($actor->can('editGroups'));
+            $actor->assertPermission($actor->can('user.editGroups'));
 
             $newGroupIds = [];
             foreach ($relationships['groups']['data'] as $group) {
