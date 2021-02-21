@@ -419,7 +419,13 @@ class ExtensionManager
 
         foreach ($extensionList as $extension) {
             $extensionIdMapping[$extension->getId()] = $extension;
-            $extensionGraph[$extension->getId()] = array_merge($extension->getExtensionDependencyIds(), $extension->getOptionalDependencyIds());
+        }
+
+        foreach ($extensionList as $extension) {
+            $optionalDependencies = array_filter($extension->getOptionalDependencyIds(), function ($id) use ($extensionIdMapping) {
+                return array_key_exists($id, $extensionIdMapping);
+            });
+            $extensionGraph[$extension->getId()] = array_merge($extension->getExtensionDependencyIds(), $optionalDependencies);
 
             foreach ($extensionGraph[$extension->getId()] as $dependency) {
                 $inDegreeCount[$dependency] = array_key_exists($dependency, $inDegreeCount) ? $inDegreeCount[$dependency] + 1 : 1;

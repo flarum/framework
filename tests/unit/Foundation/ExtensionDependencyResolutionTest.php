@@ -96,6 +96,20 @@ class ExtensionDependencyResolutionTest extends TestCase
 
         $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
     }
+
+    /** @test */
+    public function works_with_optional_dependencies_if_optional_dependency_missing()
+    {
+        $exts = [$this->tags, $this->optionalDependencyCategories, $this->something, $this->help];
+
+        $expected = [
+            'valid' => [$this->tags, $this->help, $this->optionalDependencyCategories, $this->something],
+            'missingDependencies' => [],
+            'circularDependencies' => [],
+        ];
+
+        $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
+    }
 }
 
 class FakeExtension
