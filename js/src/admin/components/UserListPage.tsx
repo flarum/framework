@@ -1,14 +1,17 @@
-import GroupBadge from '../../common/components/GroupBadge';
 import EditUserModal from '../../common/components/EditUserModal';
-import Group from '../../common/models/Group';
-import icon from '../../common/helpers/icon';
-import type User from '../../common/models/User';
-import AdminPage from './AdminPage';
-import ItemList from '../../common/utils/ItemList';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
-import classList from '../../common/utils/classList';
 import Button from '../../common/components/Button';
+
+import icon from '../../common/helpers/icon';
 import listItems from '../../common/helpers/listItems';
+
+import type User from '../../common/models/User';
+
+import ItemList from '../../common/utils/ItemList';
+import classList from '../../common/utils/classList';
+import extractText from '../../common/utils/extractText';
+
+import AdminPage from './AdminPage';
 
 type ColumnData = {
   /**
