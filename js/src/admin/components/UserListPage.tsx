@@ -181,7 +181,7 @@ export default class UserListPage extends AdminPage {
     return [
       <section
         class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
-        style={`grid-template-columns: repeat(${columns.length}, minmax(max-content, 250px))`}
+        style={`grid-template-columns: repeat(${columns.length}, minmax(max-content, 300px))`}
       >
         {/* Render columns */}
         {columns.map((column) => (
