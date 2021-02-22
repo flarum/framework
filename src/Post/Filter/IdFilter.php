@@ -24,8 +24,6 @@ class IdFilter implements FilterInterface
         $idString = trim($filterValue, '"');
         $ids = explode(',', $idString);
 
-        $filterState
-            ->getQuery()
-            ->whereIn('posts.id', $ids, 'and', $negate);
+        $filterState->getQuery()->whereIn('posts.id', $ids, 'and', $negate);
     }
 }
