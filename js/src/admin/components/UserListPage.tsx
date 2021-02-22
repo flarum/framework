@@ -141,6 +141,24 @@ export default class UserListPage extends AdminPage {
       ),
     });
 
+    columns.add(
+      'profileLink',
+      {
+        name: '',
+        content: (user: User) => {
+          const profileUrl = `${app.forum.attribute('baseUrl')}/u/${user.slug()}`;
+
+          return (
+            <a target="_blank" href={profileUrl} title={app.translator.trans('core.admin.user_list.grid.default_columns.profile_link')}>
+              {icon('fas fa-link')}
+            </a>
+          );
+        },
+      },
+      // This should probably come last unless an ext really wants to be last
+      1000
+    );
+
     return columns;
   }
 
