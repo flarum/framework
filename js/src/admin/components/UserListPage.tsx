@@ -195,7 +195,7 @@ export default class UserListPage extends AdminPage {
 
             return (
               <div
-                class={classList(['UserListPage-grid--rowItem', rowIndex % 2 === 0 && 'UserListPage-grid--shadedRow'])}
+                class={classList(['UserListPage-grid--rowItem', rowIndex % 2 > 0 && 'UserListPage-grid--shadedRow'])}
                 data-user-id={user.id()}
                 data-column-name={col.name}
               >
