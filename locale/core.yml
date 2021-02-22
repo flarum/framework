@@ -163,6 +163,8 @@ core:
       email_title: => core.admin.email.description
       permissions_button: => core.admin.permissions.title
       permissions_title: => core.admin.permissions.description
+      userslist_button: => core.admin.userslist.title
+      userslist_title: => core.admin.userslist.description
       search_placeholder: Search Extensions
 
     # These translations are used in the Permissions page of the admin interface.
@@ -216,6 +218,16 @@ core:
     upload_image:
       remove_button: => core.ref.remove
       upload_button: Choose an Image...
+
+    userslist:
+      title: Users list
+      description: See a paginated list of all users on your forum.
+
+      grid:
+        default_columns:
+          id: ID
+          username: => core.ref.username
+          join_time: Joined
 
   # Translations in this namespace are used by the forum user interface.
   forum:
