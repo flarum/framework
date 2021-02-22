@@ -155,7 +155,7 @@ export default class UsersListPage extends AdminPage {
     console.log('moar', this.moreData);
 
     return [
-      <section class="UsersListPage-grid UsersListPage-grid--loaded" style={`grid-template-columns: repeat(${columns.length}, minmax(10px, auto))`}>
+      <section class="UsersListPage-grid UsersListPage-grid--loaded" style={`grid-template-columns: repeat(${columns.length}, minmax(max-content, 250px))`}>
         {/* Render columns */}
         {columns.map((column) => (
           <div class="UsersListPage-grid--header">{column.name}</div>
