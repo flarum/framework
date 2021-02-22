@@ -51,7 +51,6 @@ import PostPreview from './components/PostPreview';
 import EventPost from './components/EventPost';
 import DiscussionHero from './components/DiscussionHero';
 import PostMeta from './components/PostMeta';
-import EditUserModal from './components/EditUserModal';
 import SearchSource from './components/SearchSource';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import DiscussionComposer from './components/DiscussionComposer';

@@ -1,10 +1,10 @@
-import Modal from '../../common/components/Modal';
-import Button from '../../common/components/Button';
-import GroupBadge from '../../common/components/GroupBadge';
-import Group from '../../common/models/Group';
-import extractText from '../../common/utils/extractText';
-import ItemList from '../../common/utils/ItemList';
-import Stream from '../../common/utils/Stream';
+import Modal from './Modal';
+import Button from './Button';
+import GroupBadge from './GroupBadge';
+import Group from '../models/Group';
+import extractText from '../utils/extractText';
+import ItemList from '../utils/ItemList';
+import Stream from '../utils/Stream';
 
 /**
  * The `EditUserModal` component displays a modal dialog with a login form.
