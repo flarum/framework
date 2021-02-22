@@ -1,5 +1,5 @@
 import GroupBadge from '../../common/components/GroupBadge';
-import EditGroupModal from './EditGroupModal';
+import EditUserModal from '../../common/components/EditUserModal';
 import Group from '../../common/models/Group';
 import icon from '../../common/helpers/icon';
 import type User from '../../common/models/User';
@@ -140,6 +140,23 @@ export default class UserListPage extends AdminPage {
         </span>
       ),
     });
+
+    columns.add(
+      'editUser',
+      {
+        name: app.translator.trans('core.admin.user_list.grid.default_columns.edit_user'),
+        content: (user: User) => (
+          <Button
+            className="Button UserList-editModalBtn"
+            title={app.translator.trans('core.admin.user_list.grid.default_columns.edit_user_tooltip', { username: user.username() })}
+            onclick={() => app.modal.show(EditUserModal, { user })}
+          >
+            {app.translator.trans('core.admin.user_list.grid.default_columns.edit_user_button')}
+          </Button>
+        ),
+      },
+      -90
+    );
 
     columns.add(
       'profileLink',
