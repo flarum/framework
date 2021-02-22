@@ -173,7 +173,7 @@ export default class UserListPage extends AdminPage {
         },
       },
       // This should probably come last unless an ext really wants to be last
-      1000
+      -100
     );
 
     return columns;
