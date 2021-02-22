@@ -33,14 +33,14 @@ export default class EditUserModal extends Modal {
   }
 
   title() {
-    return app.translator.trans('core.forum.edit_user.title');
+    return app.translator.trans('core.lib.edit_user.title');
   }
 
   content() {
     const fields = this.fields().toArray();
     return (
       <div className="Modal-body">
-        {fields.length > 1 ? <div className="Form">{this.fields().toArray()}</div> : app.translator.trans('core.forum.edit_user.nothing_available')}
+        {fields.length > 1 ? <div className="Form">{this.fields().toArray()}</div> : app.translator.trans('core.lib.edit_user.nothing_available')}
       </div>
     );
   }
@@ -52,10 +52,10 @@ export default class EditUserModal extends Modal {
       items.add(
         'username',
         <div className="Form-group">
-          <label>{app.translator.trans('core.forum.edit_user.username_heading')}</label>
+          <label>{app.translator.trans('core.lib.edit_user.username_heading')}</label>
           <input
             className="FormControl"
-            placeholder={extractText(app.translator.trans('core.forum.edit_user.username_label'))}
+            placeholder={extractText(app.translator.trans('core.lib.edit_user.username_label'))}
             bidi={this.username}
             disabled={this.nonAdminEditingAdmin()}
           />
@@ -67,11 +67,11 @@ export default class EditUserModal extends Modal {
         items.add(
           'email',
           <div className="Form-group">
-            <label>{app.translator.trans('core.forum.edit_user.email_heading')}</label>
+            <label>{app.translator.trans('core.lib.edit_user.email_heading')}</label>
             <div>
               <input
                 className="FormControl"
-                placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
+                placeholder={extractText(app.translator.trans('core.lib.edit_user.email_label'))}
                 bidi={this.email}
                 disabled={this.nonAdminEditingAdmin()}
               />
@@ -84,7 +84,7 @@ export default class EditUserModal extends Modal {
                     loading: this.loading,
                     onclick: this.activate.bind(this),
                   },
-                  app.translator.trans('core.forum.edit_user.activate_button')
+                  app.translator.trans('core.lib.edit_user.activate_button')
                 )}
               </div>
             ) : (
@@ -97,7 +97,7 @@ export default class EditUserModal extends Modal {
         items.add(
           'password',
           <div className="Form-group">
-            <label>{app.translator.trans('core.forum.edit_user.password_heading')}</label>
+            <label>{app.translator.trans('core.lib.edit_user.password_heading')}</label>
             <div>
               <label className="checkbox">
                 <input
@@ -110,14 +110,14 @@ export default class EditUserModal extends Modal {
                   }}
                   disabled={this.nonAdminEditingAdmin()}
                 />
-                {app.translator.trans('core.forum.edit_user.set_password_label')}
+                {app.translator.trans('core.lib.edit_user.set_password_label')}
               </label>
               {this.setPassword() ? (
                 <input
                   className="FormControl"
                   type="password"
                   name="password"
-                  placeholder={extractText(app.translator.trans('core.forum.edit_user.password_label'))}
+                  placeholder={extractText(app.translator.trans('core.lib.edit_user.password_label'))}
                   bidi={this.password}
                   disabled={this.nonAdminEditingAdmin()}
                 />
@@ -135,7 +135,7 @@ export default class EditUserModal extends Modal {
       items.add(
         'groups',
         <div className="Form-group EditUserModal-groups">
-          <label>{app.translator.trans('core.forum.edit_user.groups_heading')}</label>
+          <label>{app.translator.trans('core.lib.edit_user.groups_heading')}</label>
           <div>
             {Object.keys(this.groups)
               .map((id) => app.store.getById('groups', id))
@@ -164,7 +164,7 @@ export default class EditUserModal extends Modal {
             type: 'submit',
             loading: this.loading,
           },
-          app.translator.trans('core.forum.edit_user.submit_button')
+          app.translator.trans('core.lib.edit_user.submit_button')
         )}
       </div>,
       -10
