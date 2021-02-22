@@ -228,10 +228,10 @@ core:
           id: ID
           username: => core.ref.username
           join_time: Joined
-          profile_link: Profile
           edit_user: => core.lib.edit_user.title
           edit_user_button: => core.ref.edit
           edit_user_tooltip: Edit {username}
+          profile_link_tooltip: Profile
 
       pagination:
         next_button: Next page
