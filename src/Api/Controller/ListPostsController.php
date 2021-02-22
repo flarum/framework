@@ -10,9 +10,9 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Search\SearchCriteria;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\Filter\PostFilterer;
+use Flarum\Search\SearchCriteria;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
