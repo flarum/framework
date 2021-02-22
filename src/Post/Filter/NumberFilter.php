@@ -10,7 +10,7 @@
 namespace Flarum\Post\Filter;
 
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 
 class NumberFilter implements FilterInterface
 {
@@ -19,10 +19,10 @@ class NumberFilter implements FilterInterface
         return 'number';
     }
 
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
     {
         $number = trim($filterValue, '"');
 
-        $wrappedFilter->getQuery()->where('posts.number', $negate ? '!=' : '=', $number);
+        $FilterState->getQuery()->where('posts.number', $negate ? '!=' : '=', $number);
     }
 }

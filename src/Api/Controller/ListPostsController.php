@@ -10,7 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Filter\FilterCriteria;
+use Flarum\Search\SearchCriteria;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\Filter\PostFilterer;
 use Illuminate\Support\Arr;
@@ -73,9 +73,9 @@ class ListPostsController extends AbstractListController
 
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
-        $load = $this->extractInclude($request);
+        $include = $this->extractInclude($request);
 
-        $results = $this->filterer->filter(new FilterCriteria($actor, $filters, $sort), $limit, $offset, $load);
+        $results = $this->filterer->filter(new SearchCriteria($actor, $filters, $sort), $limit, $offset);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('posts.index'),
@@ -85,7 +85,7 @@ class ListPostsController extends AbstractListController
             $results->areMoreResults() ? null : 0
         );
 
-        return $results->getResults();
+        return $results->getResults()->load($include);
     }
 
     /**

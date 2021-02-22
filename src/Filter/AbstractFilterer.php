@@ -72,7 +72,7 @@ abstract class AbstractFilterer
 
         // DEPRECATED BC LAYER, REMOVE BETA 17
         if (static::class === PostFilterer::class) {
-            event(new ConfigurePostsQuery($query, $criteria->queryParams));
+            event(new ConfigurePostsQuery($query, $criteria->query));
         }
         // END DEPRECATED BC LAYER
 

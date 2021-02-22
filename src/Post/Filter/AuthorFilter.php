@@ -10,7 +10,7 @@
 namespace Flarum\Post\Filter;
 
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 use Flarum\User\UserRepository;
 
 class AuthorFilter implements FilterInterface
@@ -33,13 +33,13 @@ class AuthorFilter implements FilterInterface
         return 'author';
     }
 
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
     {
         $usernames = trim($filterValue, '"');
         $usernames = explode(',', $usernames);
 
         $ids = $this->users->query()->whereIn('username', $usernames)->pluck('id');
 
-        $wrappedFilter->getQuery()->whereIn('posts.user_id', $ids, 'and', $negate);
+        $FilterState->getQuery()->whereIn('posts.user_id', $ids, 'and', $negate);
     }
 }

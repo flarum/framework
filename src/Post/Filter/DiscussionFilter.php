@@ -10,7 +10,7 @@
 namespace Flarum\Post\Filter;
 
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 
 class DiscussionFilter implements FilterInterface
 {
@@ -19,10 +19,10 @@ class DiscussionFilter implements FilterInterface
         return 'discussion';
     }
 
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
     {
         $discussionId = trim($filterValue, '"');
 
-        $wrappedFilter->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
+        $FilterState->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
     }
 }

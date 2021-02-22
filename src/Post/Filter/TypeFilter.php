@@ -10,7 +10,7 @@
 namespace Flarum\Post\Filter;
 
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 
 class TypeFilter implements FilterInterface
 {
@@ -19,10 +19,10 @@ class TypeFilter implements FilterInterface
         return 'type';
     }
 
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
     {
         $type = trim($filterValue, '"');
 
-        $wrappedFilter->getQuery()->where('posts.type', $negate ? '!=' : '=', $type);
+        $FilterState->getQuery()->where('posts.type', $negate ? '!=' : '=', $type);
     }
 }

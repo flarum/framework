@@ -10,7 +10,7 @@
 namespace Flarum\Post\Filter;
 
 use Flarum\Filter\FilterInterface;
-use Flarum\Filter\WrappedFilter;
+use Flarum\Filter\FilterState;
 
 class IdFilter implements FilterInterface
 {
@@ -19,12 +19,12 @@ class IdFilter implements FilterInterface
         return 'id';
     }
 
-    public function filter(WrappedFilter $wrappedFilter, string $filterValue, bool $negate)
+    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
     {
         $idString = trim($filterValue, '"');
         $ids = explode(',', $idString);
 
-        $wrappedFilter
+        $FilterState
             ->getQuery()
             ->whereIn('posts.id', $ids, 'and', $negate)
             ->orderByRaw("FIELD(id, $idString)");
