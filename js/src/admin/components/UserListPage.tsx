@@ -8,6 +8,7 @@ import ItemList from '../../common/utils/ItemList';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import classList from '../../common/utils/classList';
 import Button from '../../common/components/Button';
+import listItems from '../../common/helpers/listItems';
 
 type ColumnData = {
   /**
@@ -146,11 +147,28 @@ export default class UserListPage extends AdminPage {
         name: app.translator.trans('core.admin.user_list.grid.default_columns.join_time'),
         content: (user: User) => (
           <span class="UserList-joinDate" title={user.joinTime()}>
-          {dayjs(user.joinTime()).format('LLL')}
-        </span>
-      ),
+            {dayjs(user.joinTime()).format('LLL')}
+          </span>
+        ),
       },
       80
+    );
+
+    columns.add(
+      'groupBadges',
+      {
+        name: app.translator.trans('core.admin.user_list.grid.default_columns.group_badges'),
+        content: (user: User) => {
+          const badges = user.badges().toArray();
+
+          if (badges.length) {
+            return <ul className="DiscussionHero-badges badges">{listItems(badges)}</ul>;
+          } else {
+            return app.translator.trans('core.admin.user_list.grid.default_columns.group_badges_none');
+          }
+        },
+      },
+      70
     );
 
     columns.add(

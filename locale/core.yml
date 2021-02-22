@@ -228,6 +228,8 @@ core:
           id: ID
           username: => core.ref.username
           join_time: Joined
+          group_badges: Groups
+          group_badges_none: None
           edit_user: => core.lib.edit_user.title
           edit_user_button: => core.ref.edit
           edit_user_tooltip: Edit {username}
