@@ -33,13 +33,13 @@ class AuthorFilter implements FilterInterface
         return 'author';
     }
 
-    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
         $usernames = trim($filterValue, '"');
         $usernames = explode(',', $usernames);
 
         $ids = $this->users->query()->whereIn('username', $usernames)->pluck('id');
 
-        $FilterState->getQuery()->whereIn('posts.user_id', $ids, 'and', $negate);
+        $filterState->getQuery()->whereIn('posts.user_id', $ids, 'and', $negate);
     }
 }

@@ -19,10 +19,10 @@ class DiscussionFilter implements FilterInterface
         return 'discussion';
     }
 
-    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
         $discussionId = trim($filterValue, '"');
 
-        $FilterState->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
+        $filterState->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
     }
 }

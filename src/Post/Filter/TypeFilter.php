@@ -19,10 +19,10 @@ class TypeFilter implements FilterInterface
         return 'type';
     }
 
-    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
         $type = trim($filterValue, '"');
 
-        $FilterState->getQuery()->where('posts.type', $negate ? '!=' : '=', $type);
+        $filterState->getQuery()->where('posts.type', $negate ? '!=' : '=', $type);
     }
 }

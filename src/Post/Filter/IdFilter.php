@@ -19,12 +19,12 @@ class IdFilter implements FilterInterface
         return 'id';
     }
 
-    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
         $idString = trim($filterValue, '"');
         $ids = explode(',', $idString);
 
-        $FilterState
+        $filterState
             ->getQuery()
             ->whereIn('posts.id', $ids, 'and', $negate)
             ->orderByRaw("FIELD(id, $idString)");

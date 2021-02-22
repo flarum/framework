@@ -19,10 +19,10 @@ class NumberFilter implements FilterInterface
         return 'number';
     }
 
-    public function filter(FilterState $FilterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
         $number = trim($filterValue, '"');
 
-        $FilterState->getQuery()->where('posts.number', $negate ? '!=' : '=', $number);
+        $filterState->getQuery()->where('posts.number', $negate ? '!=' : '=', $number);
     }
 }
