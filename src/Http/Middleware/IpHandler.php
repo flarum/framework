@@ -15,11 +15,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class IpHandler implements Middleware {
-
+class IpHandler implements Middleware
+{
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
+
         return $handler->handle($request->withAttribute('ipAddress', $ipAddress));
     }
 }
