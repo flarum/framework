@@ -54,7 +54,7 @@ class CreateDiscussionController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
-        $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
+        $ipAddress = $request->getAttribute('ipAddress');
 
         $discussion = $this->bus->dispatch(
             new StartDiscussion($actor, Arr::get($request->getParsedBody(), 'data', []), $ipAddress)
