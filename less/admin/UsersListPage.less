@@ -2,6 +2,7 @@
   &-grid {
     width: 100%;
     position: relative;
+    border-radius: @border-radius;
 
     // Ensure mobile scrollbar isn't on top of content
     padding-bottom: 4px;
@@ -38,16 +39,19 @@
       font-weight: bold;
       border-bottom: 1px solid #999;
       padding: 8px;
-      background: #eee;
+      background: @control-bg;
     }
 
     &--rowItem {
       padding: 4px 8px;
-      background: whitesmoke;
     }
 
     &--shadedRow {
-      background: #fff;
+      background: darken(@body-bg, 3%);
+
+      & when (@config-dark-mode = true) {
+        background: lighten(@body-bg, 5%);
+      }
     }
   }
 
