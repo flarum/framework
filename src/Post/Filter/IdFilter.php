@@ -26,7 +26,6 @@ class IdFilter implements FilterInterface
 
         $filterState
             ->getQuery()
-            ->whereIn('posts.id', $ids, 'and', $negate)
-            ->orderByRaw("FIELD(id, $idString)");
+            ->whereIn('posts.id', $ids, 'and', $negate);
     }
 }
