@@ -196,7 +196,13 @@ export default class UserListPage extends AdminPage {
           const profileUrl = `${app.forum.attribute('baseUrl')}/u/${user.slug()}`;
 
           return (
-            <a target="_blank" href={profileUrl} title={app.translator.trans('core.admin.user_list.grid.default_columns.profile_link_tooltip')}>
+            <a
+              target="_blank"
+              href={profileUrl}
+              title={extractText(
+                app.translator.trans('core.admin.user_list.grid.default_columns.profile_link_tooltip', { username: user.username() })
+              )}
+            >
               {icon('fas fa-link')}
             </a>
           );
