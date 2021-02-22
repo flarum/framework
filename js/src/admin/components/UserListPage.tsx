@@ -122,24 +122,36 @@ export default class UserListPage extends AdminPage {
   columns(): ItemList {
     const columns = new ItemList();
 
-    columns.add('id', {
-      name: app.translator.trans('core.admin.user_list.grid.default_columns.id'),
-      content: (user: User) => user.id(),
-    });
+    columns.add(
+      'id',
+      {
+        name: app.translator.trans('core.admin.user_list.grid.default_columns.id'),
+        content: (user: User) => user.id(),
+      },
+      100
+    );
 
-    columns.add('username', {
-      name: app.translator.trans('core.admin.user_list.grid.default_columns.username'),
-      content: (user: User) => user.username(),
-    });
+    columns.add(
+      'username',
+      {
+        name: app.translator.trans('core.admin.user_list.grid.default_columns.username'),
+        content: (user: User) => user.username(),
+      },
+      90
+    );
 
-    columns.add('joinDate', {
-      name: app.translator.trans('core.admin.user_list.grid.default_columns.join_time'),
-      content: (user: User) => (
-        <span class="UserList-joinDate" title={user.joinTime()}>
+    columns.add(
+      'joinDate',
+      {
+        name: app.translator.trans('core.admin.user_list.grid.default_columns.join_time'),
+        content: (user: User) => (
+          <span class="UserList-joinDate" title={user.joinTime()}>
           {dayjs(user.joinTime()).format('LLL')}
         </span>
       ),
-    });
+      },
+      80
+    );
 
     columns.add(
       'editUser',
