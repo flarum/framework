@@ -1,0 +1,232 @@
+import GroupBadge from '../../common/components/GroupBadge';
+import EditGroupModal from './EditGroupModal';
+import Group from '../../common/models/Group';
+import icon from '../../common/helpers/icon';
+import type User from '../../common/models/User';
+import AdminPage from './AdminPage';
+import ItemList from '../../common/utils/ItemList';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import classList from '../../common/utils/classList';
+import Button from '../../common/components/Button';
+
+type ColumnData = {
+  /**
+   * Column title
+   */
+  name: String;
+  /**
+   * Component(s) to show for this column.
+   */
+  content: (user: User) => JSX.Element;
+};
+
+type ApiPayload = {
+  data: [];
+  included: [];
+  links: {
+    first: string;
+    next?: string;
+  };
+};
+
+type UsersApiResponse = User[] & { payload: ApiPayload };
+
+/**
+ * Admin page which displays a paginated list of all users on the forum.
+ */
+export default class UserListPage extends AdminPage {
+  /**
+   * Number of users to load per page.
+   */
+  private numPerPage: number = 3;
+
+  /**
+   * Current page number. Zero-indexed.
+   */
+  private pageNumber: number = 0;
+
+  /**
+   * This page's array of users.
+   *
+   * `undefined` when page loads as no data has been fetched.
+   */
+  private pageData: User[] | undefined = undefined;
+
+  /**
+   * Are there more users available?
+   */
+  private moreData: boolean = false;
+
+  private isLoadingPage: boolean = false;
+
+  headerInfo() {
+    return {
+      className: 'UserListPage',
+      icon: 'fas fa-users',
+      title: app.translator.trans('core.admin.user_list.title'),
+      description: app.translator.trans('core.admin.user_list.description'),
+    };
+  }
+
+  /**
+   * Asynchronously fetch the next set of users to be rendered.
+   *
+   * Returns an array of Users, plus the raw API payload.
+   *
+   * Uses the `this.numPerPage` as the response limit.
+   *
+   * @param offset Offset to pass to API
+   */
+  async loadNextUserSet(offset: number = 0, pageNumber) {
+    // You shouldn't ever be negative
+    if (offset < 0) offset = 0;
+
+    app.store
+      .find('users', {
+        page: {
+          limit: this.numPerPage,
+          offset,
+        },
+      })
+      .then((apiData) => {
+        // Next link won't be present if there's no more data
+        this.moreData = !!apiData.payload.links.next;
+
+        let data = apiData;
+
+        // @ts-ignore
+        delete data.payload;
+
+        this.pageData = data;
+        this.pageNumber = pageNumber;
+        this.isLoadingPage = false;
+
+        m.redraw();
+      })
+      .catch((err) => {
+        console.error(err);
+        this.pageData = [];
+      });
+  }
+
+  /**
+   * Build an item list of columns to show for each user.
+   *
+   * Each column in the list should be an object with keys `name` and `content`.
+   *
+   * `name` is a string that will be used as the column name.
+   * `content` is a function with the User model passed as the first and only argument.
+   *
+   * See `UserListPage.tsx` for examples.
+   */
+  columns(): ItemList {
+    const columns = new ItemList();
+
+    columns.add('id', {
+      name: app.translator.trans('core.admin.user_list.grid.default_columns.id'),
+      content: (user: User) => user.id(),
+    });
+
+    columns.add('username', {
+      name: app.translator.trans('core.admin.user_list.grid.default_columns.username'),
+      content: (user: User) => user.username(),
+    });
+
+    columns.add('joinDate', {
+      name: app.translator.trans('core.admin.user_list.grid.default_columns.join_time'),
+      content: (user: User) => (
+        <span class="UserList-joinDate" title={user.joinTime()}>
+          {dayjs(user.joinTime()).format('LLL')}
+        </span>
+      ),
+    });
+
+    return columns;
+  }
+
+  nextPage() {
+    console.log('NEXT');
+    this.isLoadingPage = true;
+    m.redraw.sync();
+
+    const newPageNum = this.pageNumber + 1;
+    this.loadNextUserSet(newPageNum * this.numPerPage, newPageNum);
+  }
+
+  previousPage() {
+    console.log('PREV');
+    this.isLoadingPage = true;
+    m.redraw.sync();
+
+    const newPageNum = this.pageNumber - 1;
+    this.loadNextUserSet(newPageNum * this.numPerPage, newPageNum);
+  }
+
+  /**
+   * Component to render.
+   */
+  content() {
+    if (typeof this.pageData === 'undefined') {
+      this.loadNextUserSet(0, 0);
+
+      return [
+        <section class="UserListPage-grid UserListPage-grid--loading">
+          <LoadingIndicator />
+        </section>,
+      ];
+    }
+
+    const columns: ColumnData[] = this.columns().toArray();
+
+    return [
+      <section
+        class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
+        style={`grid-template-columns: repeat(${columns.length}, minmax(max-content, 250px))`}
+      >
+        {/* Render columns */}
+        {columns.map((column) => (
+          <div class="UserListPage-grid--header">{column.name}</div>
+        ))}
+
+        {/* Render user data */}
+        {this.pageData.map((user, rowIndex) =>
+          columns.map((col) => {
+            const columnContent = col.content && col.content(user);
+
+            return (
+              <div
+                class={classList(['UserListPage-grid--rowItem', rowIndex % 2 === 0 && 'UserListPage-grid--shadedRow'])}
+                data-user-id={user.id()}
+                data-column-name={col.name}
+              >
+                {columnContent || 'Invalid'}
+              </div>
+            );
+          })
+        )}
+
+        {/* Loading spinner that shows when a new page is being loaded */}
+        {this.isLoadingPage && <LoadingIndicator />}
+      </section>,
+      <nav class="UserListPage-gridPagination">
+        <Button
+          disabled={this.pageNumber === 0}
+          title={app.translator.trans('core.admin.user_list.pagination.back_button')}
+          onclick={this.previousPage.bind(this)}
+          icon="fas fa-chevron-left"
+          className="Button UserListPage-backBtn"
+        />
+        <span class="UserListPage-pageNumber">
+          {app.translator.trans('core.admin.user_list.pagination.page_counter', { current: this.pageNumber + 1, total: 10 })}
+        </span>
+        <Button
+          disabled={!this.moreData}
+          title={app.translator.trans('core.admin.user_list.pagination.next_button')}
+          onclick={this.nextPage.bind(this)}
+          icon="fas fa-chevron-right"
+          className="Button UserListPage-nextBtn"
+        />
+      </nav>,
+    ];
+  }
+}

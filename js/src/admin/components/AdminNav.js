@@ -95,9 +95,9 @@ export default class AdminNav extends Component {
     );
 
     items.add(
-      'userslist',
-      <LinkButton href={app.route('userslist')} icon="fas fa-users" title={app.translator.trans('core.admin.nav.userslist_title')}>
-        {app.translator.trans('core.admin.nav.userslist_button')}
+      'userList',
+      <LinkButton href={app.route('userlist')} icon="fas fa-users" title={app.translator.trans('core.admin.nav.userlist_title')}>
+        {app.translator.trans('core.admin.nav.userlist_button')}
       </LinkButton>
     );
 

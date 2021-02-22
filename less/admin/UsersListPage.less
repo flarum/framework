@@ -1,8 +1,35 @@
-.UsersListPage {
+.UserListPage {
   &-grid {
     width: 100%;
+    position: relative;
 
-    &--loaded {
+    // Ensure mobile scrollbar isn't on top of content
+    padding-bottom: 4px;
+
+    &--loadingPage {
+      &::after {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(128, 128, 128, 0.2);
+      }
+    }
+
+    .LoadingIndicator {
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    &--loaded,
+    &--loadingPage {
       display: grid;
       overflow-x: auto;
     }
@@ -23,9 +50,20 @@
       background: #fff;
     }
   }
+
+  &-gridPagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+
+    button .Button-icon {
+      margin-right: 0;
+    }
+  }
 }
 
-.UsersList {
+.UserList {
   &-joinDate {
     cursor: help;
     text-decoration: underline;

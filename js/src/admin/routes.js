@@ -3,7 +3,7 @@ import BasicsPage from './components/BasicsPage';
 import PermissionsPage from './components/PermissionsPage';
 import AppearancePage from './components/AppearancePage';
 import MailPage from './components/MailPage';
-import UsersListPage from './components/UsersListPage';
+import UserListPage from './components/UserListPage';
 import ExtensionPage from './components/ExtensionPage';
 import ExtensionPageResolver from './resolvers/ExtensionPageResolver';
 
@@ -19,7 +19,7 @@ export default function (app) {
     permissions: { path: '/permissions', component: PermissionsPage },
     appearance: { path: '/appearance', component: AppearancePage },
     mail: { path: '/mail', component: MailPage },
-    userslist: { path: '/userslist', component: UsersListPage },
+    userlist: { path: '/userlist', component: UserListPage },
     extension: { path: '/extension/:id', component: ExtensionPage, resolverClass: ExtensionPageResolver },
   };
 }
