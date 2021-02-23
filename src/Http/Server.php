@@ -61,7 +61,7 @@ class Server
                 // If the application booted far enough for the config to be available, we will check for debug mode
                 // Since the config is loaded very early, it is very likely to be available from the container
                 echo $this->formatBootException($e);
-            } else if (app()->has(LoggerInterface::class)) {
+            } elseif (app()->has(LoggerInterface::class)) {
                 // If the application booted far enough for the logger to be available, we will log the error there
                 // Considering most boot errors are related to database or extensions, the logger will be available
                 // We check for LoggerInterface binding because it's a constructor dependency of LogReporter,
