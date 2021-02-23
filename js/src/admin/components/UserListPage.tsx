@@ -192,6 +192,70 @@ export default class UserListPage extends AdminPage {
     );
 
     columns.add(
+      'emailAddress',
+      {
+        name: app.translator.trans('core.admin.user_list.grid.default_columns.email'),
+        content: (user: User) => {
+          return (
+            <div class="UserList-email" data-user-id={user.id()} data-email-shown="false">
+              <span class="UserList-emailAddress">{app.translator.trans('core.admin.user_list.grid.default_columns.email_hidden')}</span>
+              <button
+                onclick={() => {
+                  // Get needed jQuery element refs
+                  const emailContainer = $(`.UserList-email[data-user-id=${user.id()}]`);
+                  const emailAddress = emailContainer.find('.UserList-emailAddress');
+                  const emailToggleButton = emailContainer.find('.UserList-emailIconBtn');
+                  const emailToggleButtonIcon = emailToggleButton.find('.icon');
+
+                  const emailShown = emailContainer.attr('data-email-shown') === 'true';
+
+                  if (emailShown) {
+                    //! Email currently shown, switching to hidden
+
+                    // Update tooltip
+                    emailToggleButton.attr(
+                      'title',
+                      extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_hide'))
+                    );
+
+                    // Replace real email with placeholder email
+                    emailAddress.text(app.translator.trans('core.admin.user_list.grid.default_columns.email_hidden'));
+
+                    // Change button icons
+                    emailToggleButtonIcon.addClass('fa-eye');
+                    emailToggleButtonIcon.removeClass('fa-eye-slash');
+                  } else {
+                    //! Email currently hidden, switching to shown
+
+                    // Update tooltip
+                    emailToggleButton.attr(
+                      'title',
+                      extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_show'))
+                    );
+
+                    // Replace placeholder email with real email
+                    emailAddress.text(user.email());
+
+                    // Change button icons
+                    emailToggleButtonIcon.removeClass('fa-eye');
+                    emailToggleButtonIcon.addClass('fa-eye-slash');
+                  }
+
+                  emailContainer.attr('data-email-shown', !emailShown);
+                }}
+                class="UserList-emailIconBtn"
+                title={app.translator.trans('core.admin.user_list.grid.default_columns.email_show')}
+              >
+                {icon('far fa-eye', { className: 'icon' })}
+              </button>
+            </div>
+          );
+        },
+      },
+      70
+    );
+
+    columns.add(
       'editUser',
       {
         name: app.translator.trans('core.admin.user_list.grid.default_columns.edit_user'),

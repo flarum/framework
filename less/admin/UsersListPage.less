@@ -80,6 +80,31 @@
     padding-bottom: 2px;
   }
 
+  &-email {
+    display: flex;
+
+    &[data-email-shown="false"] {
+      .UserList-emailAddress {
+        filter: blur(4px);
+      }
+    }
+
+    &Address {
+      flex-grow: 1;
+      padding-right: 2px;
+      transition: filter 0.2s ease-out;
+    }
+
+    &IconBtn {
+      appearance: none;
+      border: none;
+      padding: 2px;
+      margin: 0;
+      background: transparent;
+      outline: none;
+    }
+  }
+
   &-profileLink {
     display: block;
     text-align: center;
