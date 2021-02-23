@@ -53,6 +53,11 @@ export default class UserListPage extends AdminPage {
   private pageNumber: number = 0;
 
   /**
+   * Total number of user pages.
+   */
+  private pageCount: number = 0;
+
+  /**
    * This page's array of users.
    *
    * `undefined` when page loads as no data has been fetched.
@@ -98,10 +103,10 @@ export default class UserListPage extends AdminPage {
       .then((apiData) => {
         // Next link won't be present if there's no more data
         this.moreData = !!apiData.payload.links.next;
+        this.pageCount = Math.ceil(((apiData.payload.meta && apiData.payload.meta.totalCount) || -1) / this.numPerPage);
 
         let data = apiData;
 
-        // @ts-ignore
         delete data.payload;
 
         this.pageData = data;
@@ -294,7 +299,10 @@ export default class UserListPage extends AdminPage {
           className="Button UserListPage-backBtn"
         />
         <span class="UserListPage-pageNumber">
-          {app.translator.trans('core.admin.user_list.pagination.page_counter', { current: this.pageNumber + 1, total: 10 })}
+          {app.translator.trans('core.admin.user_list.pagination.page_counter', {
+            current: this.pageNumber + 1,
+            total: this.pageCount,
+          })}
         </span>
         <Button
           disabled={!this.moreData}
