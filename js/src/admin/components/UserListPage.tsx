@@ -198,7 +198,7 @@ export default class UserListPage extends AdminPage {
         content: (user: User) => {
           return (
             <div class="UserList-email" data-user-id={user.id()} data-email-shown="false">
-              <span class="UserList-emailAddress">{app.translator.trans('core.admin.user_list.grid.default_columns.email_hidden')}</span>
+              <span class="UserList-emailAddress">{app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_show')}</span>
               <button
                 onclick={() => {
                   // Get needed jQuery element refs
@@ -215,7 +215,7 @@ export default class UserListPage extends AdminPage {
                     // Update tooltip
                     emailToggleButton.attr(
                       'title',
-                      extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_hide'))
+                      extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_show'))
                     );
 
                     // Replace real email with placeholder email
@@ -230,7 +230,7 @@ export default class UserListPage extends AdminPage {
                     // Update tooltip
                     emailToggleButton.attr(
                       'title',
-                      extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_show'))
+                      extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_hide'))
                     );
 
                     // Replace placeholder email with real email
@@ -246,7 +246,7 @@ export default class UserListPage extends AdminPage {
                 class="UserList-emailIconBtn"
                 title={app.translator.trans('core.admin.user_list.grid.default_columns.email_show')}
               >
-                {icon('far fa-eye', { className: 'icon' })}
+                {icon('far fa-eye fa-fw', { className: 'icon' })}
               </button>
             </div>
           );
