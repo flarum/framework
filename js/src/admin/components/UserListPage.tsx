@@ -53,9 +53,18 @@ export default class UserListPage extends AdminPage {
   private pageNumber: number = 0;
 
   /**
-   * Total number of user pages.
+   * Total number of forum users.
    */
-  private pageCount: number = 0;
+  userCount: number = -1;
+
+  /**
+   * Get total number of user pages.
+   */
+  private getTotalPageCount(): number {
+    if (this.userCount === -1) return 0;
+
+    return Math.ceil(this.userCount / this.numPerPage);
+  }
 
   /**
    * This page's array of users.
@@ -103,7 +112,7 @@ export default class UserListPage extends AdminPage {
       .then((apiData) => {
         // Next link won't be present if there's no more data
         this.moreData = !!apiData.payload.links.next;
-        this.pageCount = Math.ceil(((apiData.payload.meta && apiData.payload.meta.totalCount) || -1) / this.numPerPage);
+        this.userCount = (apiData.payload.meta && apiData.payload.meta.totalCount) || -1;
 
         let data = apiData;
 
@@ -301,7 +310,7 @@ export default class UserListPage extends AdminPage {
         <span class="UserListPage-pageNumber">
           {app.translator.trans('core.admin.user_list.pagination.page_counter', {
             current: this.pageNumber + 1,
-            total: this.pageCount,
+            total: this.getTotalPageCount(),
           })}
         </span>
         <Button
