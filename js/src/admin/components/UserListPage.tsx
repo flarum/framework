@@ -227,8 +227,8 @@ export default class UserListPage extends AdminPage {
   }
 
   nextPage() {
-    console.log('NEXT');
     this.isLoadingPage = true;
+    // Make sure the render doesn't end up happening after the API refresh
     m.redraw.sync();
 
     const newPageNum = this.pageNumber + 1;
@@ -236,8 +236,8 @@ export default class UserListPage extends AdminPage {
   }
 
   previousPage() {
-    console.log('PREV');
     this.isLoadingPage = true;
+    // Make sure the render doesn't end up happening after the API refresh
     m.redraw.sync();
 
     const newPageNum = this.pageNumber - 1;
