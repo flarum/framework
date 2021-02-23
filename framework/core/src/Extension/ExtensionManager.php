@@ -115,6 +115,21 @@ class ExtensionManager
                 $extension->calculateDependencies($installedSet, $enabledIds);
             }
 
+            $needsReset = false;
+            $enabledExtensions = [];
+            foreach ($this->getEnabled() as $enabledKey) {
+                $extension = $extensions->get($enabledKey);
+                if (is_null($extension)) {
+                    $needsReset = true;
+                } else {
+                    $enabledExtensions[] = $extension;
+                }
+            }
+
+            if ($needsReset) {
+                $this->setEnabledExtensions($enabledExtensions);
+            }
+
             $this->extensions = $extensions->sortBy(function ($extension, $name) {
                 return $extension->getTitle();
             });
@@ -161,13 +176,13 @@ class ExtensionManager
 
         $this->dispatcher->dispatch(new Enabling($extension));
 
-        $enabledIds[] = $name;
-
         $this->migrate($extension);
 
         $this->publishAssets($extension);
 
-        $this->setEnabled($enabledIds);
+        $enabledExtensions = $this->getEnabledExtensions();
+        $enabledExtensions[] = $extension;
+        $this->setEnabledExtensions($enabledExtensions);
 
         $extension->enable($this->container);
 
@@ -181,17 +196,16 @@ class ExtensionManager
      */
     public function disable($name)
     {
-        $enabled = $this->getEnabled();
+        $extension = $this->getExtension($name);
+        $enabledExtensions = $this->getEnabledExtensions();
 
-        if (($k = array_search($name, $enabled)) === false) {
+        if (($k = array_search($extension, $enabledExtensions)) === false) {
             return;
         }
 
-        $extension = $this->getExtension($name);
-
         $dependentExtensions = [];
 
-        foreach ($this->getEnabledExtensions() as $possibleDependent) {
+        foreach ($enabledExtensions as $possibleDependent) {
             if (in_array($extension->getId(), $possibleDependent->getExtensionDependencyIds())) {
                 $dependentExtensions[] = $possibleDependent;
             }
@@ -203,9 +217,8 @@ class ExtensionManager
 
         $this->dispatcher->dispatch(new Disabling($extension));
 
-        unset($enabled[$k]);
-
-        $this->setEnabled($enabled);
+        unset($enabledExtensions[$k]);
+        $this->setEnabledExtensions($enabledExtensions);
 
         $extension->disable($this->container);
 
@@ -350,15 +363,11 @@ class ExtensionManager
     /**
      * Persist the currently enabled extensions.
      *
-     * @param array $enabledIds
+     * @param array $enabledExtensions
      */
-    protected function setEnabled(array $enabledIds)
+    protected function setEnabledExtensions(array $enabledExtensions)
     {
-        $enabled = array_map(function ($id) {
-            return $this->getExtension($id);
-        }, array_unique($enabledIds));
-
-        $sortedEnabled = static::resolveExtensionOrder($enabled)['valid'];
+        $sortedEnabled = static::resolveExtensionOrder($enabledExtensions)['valid'];
 
         $sortedEnabledIds = array_map(function (Extension $extension) {
             return $extension->getId();
