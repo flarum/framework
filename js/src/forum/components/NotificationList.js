@@ -114,11 +114,13 @@ export default class NotificationList extends Component {
   scrollHandler() {
     const state = this.attrs.state;
 
-    const notificationsElement = this.inPanel() ? this.$scrollParent[0] : document.querySelector('body');
+    // Whole-page scroll events are listened to on `window`, but we need to get the actual
+    // scrollHeight, scrollTop, and clientHeight from the document element.
+    const scrollParent = this.inPanel() ? this.$scrollParent[0] : document.documentElement;
 
     // On very short screens, the scrollHeight + scrollTop might not reach the clientHeight
     // by a fraction of a pixel, so we compensate for that.
-    const atBottom = Math.abs(notificationsElement.scrollHeight - notificationsElement.scrollTop - notificationsElement.clientHeight) <= 1;
+    const atBottom = Math.abs(scrollParent.scrollHeight - scrollParent.scrollTop - scrollParent.clientHeight) <= 1;
 
     if (state.hasMoreResults() && !state.isLoading() && atBottom) {
       state.loadMore();
