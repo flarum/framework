@@ -25,11 +25,14 @@ type ColumnData = {
 };
 
 type ApiPayload = {
-  data: [];
-  included: [];
+  data: Record<string, unknown>[];
+  included: Record<string, unknown>[];
   links: {
     first: string;
     next?: string;
+  };
+  meta: {
+    total: number;
   };
 };
 
