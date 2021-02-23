@@ -57,6 +57,8 @@ class Server
         try {
             return $this->site->bootApp()->getRequestHandler();
         } catch (Throwable $e) {
+            http_response_code(500);
+
             if (app()->has('flarum.config') && app('flarum.config')->inDebugMode()) {
                 // If the application booted far enough for the config to be available, we will check for debug mode
                 // Since the config is loaded very early, it is very likely to be available from the container
