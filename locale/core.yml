@@ -223,6 +223,8 @@ core:
       title: User list
       description: A paginated list of all users on your forum.
 
+      total_users: "Total users: {count}"
+
       grid:
         default_columns:
           id: ID
