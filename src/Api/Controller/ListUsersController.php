@@ -15,6 +15,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
 use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
+use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -98,6 +99,8 @@ class ListUsersController extends AbstractListController
         } else {
             $results = $this->filterer->filter($criteria, $limit, $offset);
         }
+
+        $document->addMeta('totalCount', User::count());
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),
