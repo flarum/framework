@@ -268,7 +268,7 @@ export default class UserListPage extends AdminPage {
       ];
     }
 
-    const columns: ColumnData[] = this.columns().toArray();
+    const columns: (ColumnData & { itemName: string })[] = this.columns().toArray();
 
     return [
       <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.user_list.total_users', { count: this.userCount })}</p>,
@@ -290,7 +290,7 @@ export default class UserListPage extends AdminPage {
               <div
                 class={classList(['UserListPage-grid--rowItem', rowIndex % 2 > 0 && 'UserListPage-grid--shadedRow'])}
                 data-user-id={user.id()}
-                data-column-name={col.name}
+                data-column-name={col.itemName}
               >
                 {columnContent || 'Invalid'}
               </div>
