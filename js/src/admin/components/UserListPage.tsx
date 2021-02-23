@@ -211,12 +211,13 @@ export default class UserListPage extends AdminPage {
     columns.add(
       'profileLink',
       {
-        name: '',
+        name: app.translator.trans('core.admin.user_list.grid.default_columns.profile_link'),
         content: (user: User) => {
           const profileUrl = `${app.forum.attribute('baseUrl')}/u/${user.slug()}`;
 
           return (
             <a
+              class="UserList-profileLink"
               target="_blank"
               href={profileUrl}
               title={extractText(
