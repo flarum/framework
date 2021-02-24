@@ -11,10 +11,10 @@ namespace Flarum\Discussion\Search;
 
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Event\Searching;
-use Flarum\Search\AbstractSearch;
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
 use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
@@ -50,15 +50,10 @@ class DiscussionSearcher extends AbstractSearcher
         return $this->discussions->query()->select('discussions.*')->whereVisibleTo($actor);
     }
 
-    protected function getSearch(Builder $query, User $actor): AbstractSearch
-    {
-        return new DiscussionSearch($query->getQuery(), $actor);
-    }
-
     /**
      * @deprecated along with the Searching event, remove in Beta 17.
      */
-    protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
+    protected function mutateSearch(SearchState $search, SearchCriteria $criteria)
     {
         parent::mutateSearch($search, $criteria);
 

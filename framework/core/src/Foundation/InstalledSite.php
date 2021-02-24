@@ -16,6 +16,7 @@ use Flarum\Console\ConsoleServiceProvider;
 use Flarum\Database\DatabaseServiceProvider;
 use Flarum\Discussion\DiscussionServiceProvider;
 use Flarum\Extension\ExtensionServiceProvider;
+use Flarum\Filter\FilterServiceProvider;
 use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Forum\ForumServiceProvider;
 use Flarum\Frontend\FrontendServiceProvider;
@@ -117,6 +118,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(ExtensionServiceProvider::class);
         $laravel->register(ErrorServiceProvider::class);
         $laravel->register(FilesystemServiceProvider::class);
+        $laravel->register(FilterServiceProvider::class);
         $laravel->register(FormatterServiceProvider::class);
         $laravel->register(ForumServiceProvider::class);
         $laravel->register(FrontendServiceProvider::class);
