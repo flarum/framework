@@ -56,16 +56,6 @@ class ListTest extends TestCase
     }
 
     /**
-     * Mark some discussions, but not others, as read to test that filter/gambit.
-     */
-    protected function read()
-    {
-        $user = User::find(2);
-        $user->marked_all_as_read_at = Carbon::createFromDate(1990, 0, 0)->toDateTimeString();
-        $user->save();
-    }
-
-    /**
      * @test
      */
     public function shows_index_for_guest()
