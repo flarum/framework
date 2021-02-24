@@ -9,8 +9,8 @@
 
 namespace Flarum\Discussion\Event;
 
-use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchState;
 
 /**
  * @deprecated beta 16, remove beta 17
@@ -18,7 +18,7 @@ use Flarum\Search\SearchCriteria;
 class Searching
 {
     /**
-     * @var DiscussionSearch
+     * @var SearchState
      */
     public $search;
 
@@ -28,10 +28,10 @@ class Searching
     public $criteria;
 
     /**
-     * @param DiscussionSearch $search
+     * @param SearchState $search
      * @param \Flarum\Search\SearchCriteria $criteria
      */
-    public function __construct(DiscussionSearch $search, SearchCriteria $criteria)
+    public function __construct(SearchState $search, SearchCriteria $criteria)
     {
         $this->search = $search;
         $this->criteria = $criteria;
