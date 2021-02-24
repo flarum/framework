@@ -205,7 +205,7 @@ class ListTests extends TestCase
     }
 
     /**
-     * @deprecated beta 15, remove beta 16
+     * @deprecated beta 16, remove beta 17
      * @test
      */
     public function deprecated_configure_posts_query_extension_still_works()
