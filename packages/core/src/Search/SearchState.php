@@ -7,10 +7,8 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\User\Search;
+namespace Flarum\Search;
 
-use Flarum\Search\AbstractSearch;
-
-class UserSearch extends AbstractSearch
+class SearchState extends AbstractSearch
 {
 }
