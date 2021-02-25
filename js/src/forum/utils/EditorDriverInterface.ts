@@ -43,7 +43,7 @@ export default interface EditorDriverInterface {
   replaceBeforeCursor(start: number, text: string, escape: boolean): void;
 
   /**
-   * Get left and top coordinates of the caret relative to the editor.
+   * Get left and top coordinates of the caret relative to the editor viewport.
    */
   getCaretCoordinates(position: number): { left: number; top: number };
 

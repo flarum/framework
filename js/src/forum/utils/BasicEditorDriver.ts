@@ -92,7 +92,12 @@ export default class BasicEditorDriver implements EditorDriverInterface {
   }
 
   getCaretCoordinates(position: number) {
-    return getCaretCoordinates(this.el, position);
+    const relCoords = getCaretCoordinates(this.el, position);
+
+    return {
+      top: relCoords.top - this.el.scrollTop,
+      left: relCoords.left,
+    };
   }
 
   // DOM Interactions
