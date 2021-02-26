@@ -635,4 +635,28 @@ class UpdateTest extends TestCase
         );
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function admins_cant_demote_self()
+    {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/1', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'relationships' => [
+                            'groups' => [
+                                'data' => [
+                                ]
+                            ]
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+    }
 }
