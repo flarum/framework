@@ -1,3 +1,44 @@
+export interface EditorDriverParams {
+  /**
+   * An array of HTML class names to apply to the editor's main DOM element.
+   */
+  classNames: string[];
+
+  /**
+   * Whether the editor should be initially disabled.
+   */
+  disabled: boolean;
+
+  /**
+   * An optional placeholder for the editor.
+   */
+  placeholder: string;
+
+  /**
+   * An optional initial value for the editor.
+   */
+  value: string;
+
+  /**
+   * This is separate from inputListeners since the full serialized content will be passed to it.
+   * It is considered private API, and should not be used/modified by extensions not implementing
+   * EditorDriverInterface.
+   */
+  oninput: Function;
+
+  /**
+   * Each of these functions will be called on click, input, and keyup.
+   * No arguments will be passed.
+   */
+  inputListeners: Function[];
+
+  /**
+   * This function will be called if submission is triggered programmatically via keybind.
+   * No arguments should be passed.
+   */
+  onsubmit: Function;
+}
+
 export default interface EditorDriverInterface {
   /**
    * Focus the editor and place the cursor at the given position.

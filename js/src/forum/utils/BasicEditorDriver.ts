@@ -1,17 +1,17 @@
 import getCaretCoordinates from 'textarea-caret';
-import EditorDriverInterface from './EditorDriverInterface';
+import EditorDriverInterface, { EditorDriverParams } from './EditorDriverInterface';
 
 export default class BasicEditorDriver implements EditorDriverInterface {
   onsubmit?: Function;
   el: HTMLTextAreaElement;
 
-  constructor(dom, params) {
+  constructor(dom: HTMLElement, params: EditorDriverParams) {
     this.el = document.createElement('textarea');
 
     this.build(dom, params);
   }
 
-  build(dom: HTMLElement, params) {
+  build(dom: HTMLElement, params: EditorDriverParams) {
     this.el.className = params.classNames.join(' ');
     this.el.disabled = params.disabled;
     this.el.placeholder = params.placeholder;
@@ -56,7 +56,7 @@ export default class BasicEditorDriver implements EditorDriverInterface {
     return [this.el.selectionStart, this.el.selectionEnd];
   }
 
-  getLastNChars(n: number) {
+  getLastNChars(n: number): string {
     const value = this.el.value;
 
     return value.slice(Math.max(0, this.el.selectionStart - n), this.el.selectionStart);
