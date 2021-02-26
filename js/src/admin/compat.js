@@ -24,6 +24,7 @@ import UploadImageButton from './components/UploadImageButton';
 import LoadingModal from './components/LoadingModal';
 import DashboardPage from './components/DashboardPage';
 import BasicsPage from './components/BasicsPage';
+import UserListPage from './components/UserListPage';
 import EditCustomHeaderModal from './components/EditCustomHeaderModal';
 import PermissionsPage from './components/PermissionsPage';
 import PermissionDropdown from './components/PermissionDropdown';
@@ -59,6 +60,7 @@ export default Object.assign(compat, {
   'components/LoadingModal': LoadingModal,
   'components/DashboardPage': DashboardPage,
   'components/BasicsPage': BasicsPage,
+  'components/UserListPage': UserListPage,
   'components/EditCustomHeaderModal': EditCustomHeaderModal,
   'components/PermissionsPage': PermissionsPage,
   'components/PermissionDropdown': PermissionDropdown,

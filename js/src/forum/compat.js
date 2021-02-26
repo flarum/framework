@@ -69,7 +69,6 @@ import Search from './components/Search';
 import DiscussionListItem from './components/DiscussionListItem';
 import LoadingPost from './components/LoadingPost';
 import PostsUserPage from './components/PostsUserPage';
-import EditUserModal from '../common/components/EditUserModal';
 import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 import BasicEditorDriver from '../common/utils/BasicEditorDriver';
 import routes from './routes';
@@ -128,7 +127,6 @@ export default Object.assign(compat, {
   'components/EventPost': EventPost,
   'components/DiscussionHero': DiscussionHero,
   'components/PostMeta': PostMeta,
-  'components/EditUserModal': EditUserModal,
   'components/SearchSource': SearchSource,
   'components/DiscussionRenamedPost': DiscussionRenamedPost,
   'components/DiscussionComposer': DiscussionComposer,
