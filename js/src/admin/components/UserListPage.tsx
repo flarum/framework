@@ -36,7 +36,7 @@ type ApiPayload = {
   };
 };
 
-type UsersApiResponse = User[] & { payload: ApiPayload; };
+type UsersApiResponse = User[] & { payload: ApiPayload };
 
 /**
  * Admin page which displays a paginated list of all users on the forum.
