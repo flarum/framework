@@ -1,5 +1,3 @@
-import getCaretCoordinates from 'textarea-caret';
-
 import { extend } from 'flarum/extend';
 import TextEditor from 'flarum/components/TextEditor';
 import TextEditorButton from 'flarum/components/TextEditorButton';
@@ -14,12 +12,28 @@ import { truncate } from 'flarum/utils/string';
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 
 export default function addComposerAutocomplete() {
-  extend(TextEditor.prototype, 'oncreate', function () {
-    const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
-    const dropdown = new AutocompleteDropdown();
-    const $textarea = this.$('textarea').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
+  const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
+  const dropdown = new AutocompleteDropdown();
+
+  extend(TextEditor.prototype, 'oncreate', function (params) {
+    const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
+
+    this.navigator = new KeyboardNavigatable();
+    this.navigator
+      .when(() => dropdown.active)
+      .onUp(() => dropdown.navigate(-1))
+      .onDown(() => dropdown.navigate(1))
+      .onSelect(dropdown.complete.bind(dropdown))
+      .onCancel(dropdown.hide.bind(dropdown))
+      .bindTo($editor);
+
+    $editor.after($container);
+  });
+
+  extend(TextEditor.prototype, 'buildEditorParams', function (params) {
     const searched = [];
-    let mentionStart;
+    let relMentionStart;
+    let absMentionStart;
     let typed;
     let searchTimeout;
 
@@ -30,38 +44,27 @@ export default function addComposerAutocomplete() {
     const returnedUserIds = new Set(returnedUsers.map(u => u.id()));
 
     const applySuggestion = (replacement) => {
-      app.composer.editor.replaceBeforeCursor(mentionStart - 1, replacement + ' ');
+      app.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
 
       dropdown.hide();
     };
 
-    this.navigator = new KeyboardNavigatable();
-    this.navigator
-      .when(() => dropdown.active)
-      .onUp(() => dropdown.navigate(-1))
-      .onDown(() => dropdown.navigate(1))
-      .onSelect(dropdown.complete.bind(dropdown))
-      .onCancel(dropdown.hide.bind(dropdown))
-      .bindTo($textarea);
+    params.inputListeners.push(function(e) {
+        const selection = app.composer.editor.getSelectionRange();
 
-    $textarea
-      .after($container)
-      .on('click keyup input', function(e) {
-        // Up, down, enter, tab, escape, left, right.
-        if ([9, 13, 27, 40, 38, 37, 39].indexOf(e.which) !== -1) return;
+        const cursor = selection[0];
 
-        const cursor = this.selectionStart;
-
-        if (this.selectionEnd - cursor > 0) return;
+        if (selection[1] - cursor > 0) return;
 
         // Search backwards from the cursor for an '@' symbol. If we find one,
         // we will want to show the autocomplete dropdown!
-        const value = this.value;
-        mentionStart = 0;
-        for (let i = cursor - 1; i >= cursor - 30; i--) {
-          const character = value.substr(i, 1);
-          if (character === '@') {
-            mentionStart = i + 1;
+        const lastChunk = app.composer.editor.getLastNChars(30);
+        absMentionStart = 0;
+        for (let i = lastChunk.length - 1; i >= 0; i--) {
+          const character = lastChunk.substr(i, 1);
+          if (character === '@' && (i == 0 || /\s/.test(lastChunk.substr(i - 1, 1)))) {
+            relMentionStart = i + 1;
+            absMentionStart = cursor - lastChunk.length + i + 1;
             break;
           }
         }
@@ -69,8 +72,8 @@ export default function addComposerAutocomplete() {
         dropdown.hide();
         dropdown.active = false;
 
-        if (mentionStart) {
-          typed = value.substring(mentionStart, cursor).toLowerCase();
+        if (absMentionStart) {
+          typed = lastChunk.substring(relMentionStart).toLowerCase();
 
           const makeSuggestion = function(user, replacement, content, className = '') {
             const username = usernameHelper(user);
@@ -100,7 +103,7 @@ export default function addComposerAutocomplete() {
               user.displayName()
             ];
 
-            return names.some(value => value.toLowerCase().substr(0, typed.length) === typed);
+            return names.some(name => name.toLowerCase().substr(0, typed.length) === typed);
           };
 
           const buildSuggestions = () => {
@@ -153,18 +156,25 @@ export default function addComposerAutocomplete() {
               m.render($container[0], dropdown.render());
 
               dropdown.show();
-              const coordinates = getCaretCoordinates(this, mentionStart);
+              const coordinates = app.composer.editor.getCaretCoordinates(absMentionStart);
               const width = dropdown.$().outerWidth();
               const height = dropdown.$().outerHeight();
               const parent = dropdown.$().offsetParent();
               let left = coordinates.left;
-              let top = coordinates.top - this.scrollTop + 15;
+              let top = coordinates.top + 15;
+
+              // Keep the dropdown inside the editor.
               if (top + height > parent.height()) {
-                top = coordinates.top - this.scrollTop - height - 15;
+                top = coordinates.top - height - 15;
               }
               if (left + width > parent.width()) {
                 left = parent.width() - width;
               }
+
+              // Prevent the dropdown from going off screen on mobile
+              top = Math.max(-parent.offset().top, top);
+              left = Math.max(-parent.offset().left, left);
+
               dropdown.show(left, top);
             } else {
               dropdown.active = false;
@@ -205,7 +215,7 @@ export default function addComposerAutocomplete() {
 
   extend(TextEditor.prototype, 'toolbarItems', function(items) {
     items.add('mention', (
-      <TextEditorButton onclick={() => this.attrs.composer.editor.insertAtCursor('@')} icon="fas fa-at">
+      <TextEditorButton onclick={() => this.attrs.composer.editor.insertAtCursor(' @')} icon="fas fa-at">
         {app.translator.trans('flarum-mentions.forum.composer.mention_tooltip')}
       </TextEditorButton>
     ));

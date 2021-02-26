@@ -20,7 +20,8 @@ function insertMention(post, composer, quote) {
     Array(precedingNewlines).join('\n') + // Insert up to two newlines, depending on preceding whitespace
     (quote
       ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n'
-      : mention)
+      : mention),
+    false
   );
 }
 
