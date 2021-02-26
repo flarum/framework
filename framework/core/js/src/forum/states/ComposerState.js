@@ -1,6 +1,7 @@
 import subclassOf from '../../common/utils/subclassOf';
 import Stream from '../../common/utils/Stream';
 import ReplyComposer from '../components/ReplyComposer';
+import EditorDriverInterface from '../utils/EditorDriverInterface';
 
 class ComposerState {
   constructor() {
@@ -29,7 +30,7 @@ class ComposerState {
     /**
      * A reference to the text editor that allows text manipulation.
      *
-     * @type {SuperTextArea|null}
+     * @type {EditorDriverInterface|null}
      */
     this.editor = null;
 
@@ -66,12 +67,16 @@ class ComposerState {
   clear() {
     this.position = ComposerState.Position.HIDDEN;
     this.body = { attrs: {} };
-    this.editor = null;
     this.onExit = null;
 
     this.fields = {
       content: Stream(''),
     };
+
+    if (this.editor) {
+      this.editor.destroy();
+    }
+    this.editor = null;
   }
 
   /**

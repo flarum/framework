@@ -16,6 +16,7 @@
     "mithril": "^2.0.4",
     "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
+    "textarea-caret": "^3.1.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.1.4"
