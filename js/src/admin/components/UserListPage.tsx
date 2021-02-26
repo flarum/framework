@@ -222,8 +222,8 @@ export default class UserListPage extends AdminPage {
                     emailAddress.text(app.translator.trans('core.admin.user_list.grid.default_columns.email_hidden'));
 
                     // Change button icons
-                    emailToggleButtonIcon.addClass('fa-eye');
-                    emailToggleButtonIcon.removeClass('fa-eye-slash');
+                    emailToggleButtonIcon.removeClass('fa-eye');
+                    emailToggleButtonIcon.addClass('fa-eye-slash');
                   } else {
                     //! Email currently hidden, switching to shown
 
@@ -237,8 +237,8 @@ export default class UserListPage extends AdminPage {
                     emailAddress.text(user.email());
 
                     // Change button icons
-                    emailToggleButtonIcon.removeClass('fa-eye');
-                    emailToggleButtonIcon.addClass('fa-eye-slash');
+                    emailToggleButtonIcon.addClass('fa-eye');
+                    emailToggleButtonIcon.removeClass('fa-eye-slash');
                   }
 
                   emailContainer.attr('data-email-shown', !emailShown);
@@ -246,7 +246,7 @@ export default class UserListPage extends AdminPage {
                 class="UserList-emailIconBtn"
                 title={app.translator.trans('core.admin.user_list.grid.default_columns.email_show')}
               >
-                {icon('far fa-eye fa-fw', { className: 'icon' })}
+                {icon('far fa-eye-slash fa-fw', { className: 'icon' })}
               </button>
             </div>
           );
