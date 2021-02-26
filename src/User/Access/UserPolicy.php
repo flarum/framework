@@ -24,4 +24,19 @@ class UserPolicy extends AbstractPolicy
             return $this->allow();
         }
     }
+
+    /**
+     * @param User $actor
+     * @param User $user
+     */
+    public function editCredentials(User $actor, User $user)
+    {
+        if ($user->isAdmin() && !$actor->isAdmin()) {
+            return $this->deny();
+        }
+
+        if ($actor->hasPermission('user.editCredentials')) {
+            return $this->allow();
+        }
+    }
 }

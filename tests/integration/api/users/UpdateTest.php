@@ -399,6 +399,46 @@ class UpdateTest extends TestCase
     /**
      * @test
      */
+    public function users_cant_update_admin_emails_with_permission() {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/1', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'email' => 'someOtherEmail@example.com',
+                        ]
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function users_cant_update_admin_usernames_with_permission() {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/1', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'username' => 'iCanChangeThis',
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
     public function users_can_update_others_groups_with_permission() {
         $this->giveNormalUsersEditPerms();
         $response = $this->send(
