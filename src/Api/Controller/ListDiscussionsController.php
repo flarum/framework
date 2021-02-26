@@ -110,9 +110,13 @@ class ListDiscussionsController extends AbstractListController
 
         Discussion::setStateUser($actor);
 
+        if (in_array('mostRelevantPost.user', $include)) {
+            $include[] = 'mostRelevantPost.user.groups';
+        }
+
         $results = $results->getResults()->load($include);
 
-        if ($relations = array_intersect($include, ['firstPost', 'lastPost'])) {
+        if ($relations = array_intersect($include, ['firstPost', 'lastPost', 'mostRelevantPost'])) {
             foreach ($results as $discussion) {
                 foreach ($relations as $relation) {
                     if ($discussion->$relation) {
