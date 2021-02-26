@@ -73,6 +73,7 @@ import DiscussionListItem from './components/DiscussionListItem';
 import LoadingPost from './components/LoadingPost';
 import PostsUserPage from './components/PostsUserPage';
 import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
+import BasicEditorDriver from './utils/BasicEditorDriver';
 import routes from './routes';
 import ForumApplication from './ForumApplication';
 
@@ -85,6 +86,8 @@ export default Object.assign(compat, {
   'utils/alertEmailConfirmation': alertEmailConfirmation,
   'utils/UserControls': UserControls,
   'utils/Pane': Pane,
+  'utils/BasicEditorDriver': BasicEditorDriver,
+  'utils/SuperTextarea': BasicEditorDriver, // @deprecated beta 16, remove beta 17
   'states/ComposerState': ComposerState,
   'states/DiscussionListState': DiscussionListState,
   'states/GlobalSearchState': GlobalSearchState,
