@@ -36,7 +36,7 @@ type ApiPayload = {
   };
 };
 
-type UsersApiResponse = User[] & { payload: ApiPayload };
+type UsersApiResponse = User[] & { payload: ApiPayload; meta: { totalCount: number } };
 
 /**
  * Admin page which displays a paginated list of all users on the forum.
@@ -109,7 +109,7 @@ export default class UserListPage extends AdminPage {
           offset,
         },
       })
-      .then((apiData) => {
+      .then((apiData: UsersApiResponse) => {
         // Next link won't be present if there's no more data
         this.moreData = !!apiData.payload.links.next;
         this.userCount = (apiData.payload.meta && apiData.payload.meta.totalCount) || -1;
