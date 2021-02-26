@@ -449,7 +449,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id'=> 1, 'type' => 'group']
+                                    ['id'=> 4, 'type' => 'group']
                                 ]
                             ]
                         ],
@@ -458,6 +458,76 @@ class UpdateTest extends TestCase
             ])
         );
         $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function regular_users_cant_demote_admins_even_with_permission() {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/1', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'relationships' => [
+                            'groups' => [
+                                'data' => []
+                            ]
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function regular_users_cant_promote_others_to_admin_even_with_permission() {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'relationships' => [
+                            'groups' => [
+                                'data' => [
+                                    ['id'=> 1, 'type' => 'group']
+                                ]
+                            ]
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function regular_users_cant_promote_self_to_admin_even_with_permission() {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/3', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'relationships' => [
+                            'groups' => [
+                                'data' => [
+                                    ['id'=> 1, 'type' => 'group']
+                                ]
+                            ]
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**

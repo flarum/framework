@@ -82,7 +82,8 @@ class EditUserHandler
             }
         }
 
-        if ($actor->isAdmin() && ! empty($attributes['isEmailConfirmed'])) {
+        if (!empty($attributes['isEmailConfirmed'])) {
+            $actor->assertAdmin();
             $user->activate();
         }
 
@@ -109,6 +110,9 @@ class EditUserHandler
         if (isset($relationships['groups']['data']) && is_array($relationships['groups']['data'])) {
             $actor->assertPermission($actor->can('editGroups', $user));
 
+            $oldGroups = $user->groups()->get()->all();
+            $oldGroupIds = Arr::pluck($oldGroups, 'id');
+
             $newGroupIds = [];
             foreach ($relationships['groups']['data'] as $group) {
                 if ($id = Arr::get($group, 'id')) {
@@ -116,8 +120,11 @@ class EditUserHandler
                 }
             }
 
+            $adminChanged = in_array('1', array_diff($oldGroupIds, $newGroupIds)) || in_array('1', array_diff($newGroupIds, $oldGroupIds));
+            $actor->assertPermission(!$adminChanged || $actor->isAdmin());
+
             $user->raise(
-                new GroupsChanged($user, $user->groups()->get()->all())
+                new GroupsChanged($user, $oldGroups)
             );
 
             $user->afterSave(function (User $user) use ($newGroupIds) {
