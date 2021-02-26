@@ -2,7 +2,6 @@ import getCaretCoordinates from 'textarea-caret';
 import EditorDriverInterface, { EditorDriverParams } from './EditorDriverInterface';
 
 export default class BasicEditorDriver implements EditorDriverInterface {
-  onsubmit?: Function;
   el: HTMLTextAreaElement;
 
   constructor(dom: HTMLElement, params: EditorDriverParams) {
