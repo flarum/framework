@@ -32,11 +32,11 @@ type ApiPayload = {
     next?: string;
   };
   meta: {
-    total: number;
+    totalCount: number;
   };
 };
 
-type UsersApiResponse = User[] & { payload: ApiPayload; meta: { totalCount: number } };
+type UsersApiResponse = User[] & { payload: ApiPayload; };
 
 /**
  * Admin page which displays a paginated list of all users on the forum.
@@ -45,7 +45,7 @@ export default class UserListPage extends AdminPage {
   /**
    * Number of users to load per page.
    */
-  private numPerPage: number = 3;
+  private numPerPage: number = 50;
 
   /**
    * Current page number. Zero-indexed.
@@ -55,7 +55,7 @@ export default class UserListPage extends AdminPage {
   /**
    * Total number of forum users.
    */
-  userCount: number = -1;
+  protected userCount: number = -1;
 
   /**
    * Get total number of user pages.
