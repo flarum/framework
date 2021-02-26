@@ -31,7 +31,7 @@ class UserPolicy extends AbstractPolicy
      */
     public function editCredentials(User $actor, User $user)
     {
-        if ($user->isAdmin() && !$actor->isAdmin()) {
+        if ($user->isAdmin() && ! $actor->isAdmin()) {
             return $this->deny();
         }
 

@@ -82,7 +82,7 @@ class EditUserHandler
             }
         }
 
-        if (!empty($attributes['isEmailConfirmed'])) {
+        if (! empty($attributes['isEmailConfirmed'])) {
             $actor->assertAdmin();
             $user->activate();
         }
@@ -121,7 +121,7 @@ class EditUserHandler
             }
 
             $adminChanged = in_array('1', array_diff($oldGroupIds, $newGroupIds)) || in_array('1', array_diff($newGroupIds, $oldGroupIds));
-            $actor->assertPermission(!$adminChanged || $actor->isAdmin());
+            $actor->assertPermission(! $adminChanged || $actor->isAdmin());
 
             $user->raise(
                 new GroupsChanged($user, $oldGroups)
