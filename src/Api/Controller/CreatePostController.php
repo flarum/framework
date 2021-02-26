@@ -55,7 +55,7 @@ class CreatePostController extends AbstractCreateController
         $actor = $request->getAttribute('actor');
         $data = Arr::get($request->getParsedBody(), 'data', []);
         $discussionId = Arr::get($data, 'relationships.discussion.data.id');
-        $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
+        $ipAddress = $request->getAttribute('ipAddress');
 
         $post = $this->bus->dispatch(
             new PostReply($discussionId, $actor, $data, $ipAddress)

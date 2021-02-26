@@ -55,6 +55,7 @@ class InstalledApp implements AppInterface
 
         $pipe = new MiddlewarePipe;
 
+        $pipe->pipe(new HttpMiddleware\ProcessIp());
         $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(new OriginalMessages);
         $pipe->pipe(
