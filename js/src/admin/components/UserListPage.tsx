@@ -31,9 +31,6 @@ type ApiPayload = {
     first: string;
     next?: string;
   };
-  meta: {
-    totalCount: number;
-  };
 };
 
 type UsersApiResponse = User[] & { payload: ApiPayload };
@@ -54,8 +51,12 @@ export default class UserListPage extends AdminPage {
 
   /**
    * Total number of forum users.
+   *
+   * Fetched from the active `AdminApplication` (`app`), with
+   * data provided by `AdminPayload.php`, or `flarum/statistics`
+   * if installed.
    */
-  protected userCount: number = -1;
+  readonly userCount: number = app.data.statistics.users.total;
 
   /**
    * Get total number of user pages.
@@ -112,7 +113,6 @@ export default class UserListPage extends AdminPage {
       .then((apiData: UsersApiResponse) => {
         // Next link won't be present if there's no more data
         this.moreData = !!apiData.payload.links.next;
-        this.userCount = (apiData.payload.meta && apiData.payload.meta.totalCount) || -1;
 
         let data = apiData;
 

@@ -100,8 +100,6 @@ class ListUsersController extends AbstractListController
             $results = $this->filterer->filter($criteria, $limit, $offset);
         }
 
-        $document->addMeta('totalCount', User::count());
-
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),
             $request->getQueryParams(),
