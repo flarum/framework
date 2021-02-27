@@ -9,11 +9,10 @@
 
 import { extend, override } from 'flarum/extend';
 import TextEditor from 'flarum/components/TextEditor';
-import BasicEditorDriver from 'flarum/utils/BasicEditorDriver';
-import MarkdownArea from 'mdarea';
 
 import MarkdownToolbar from './components/MarkdownToolbar';
 import MarkdownButton from './components/MarkdownButton';
+import MarkdownAreaEditorDriver from './util/MarkdownAreaEditorDriver';
 
 let shortcutHandler = () => { };
 
@@ -24,31 +23,13 @@ app.initializers.add('flarum-markdown', function (app) {
     this.textareaId = 'textarea' + (index++);
   });
 
+  override(TextEditor.prototype, 'buildEditor', function (_, dom) {
+    return new MarkdownAreaEditorDriver(dom, this.buildEditorParams());
+  });
+
   extend(TextEditor.prototype, 'buildEditorParams', function (params) {
     params.textareaId = this.textareaId;
-  });
-
-  extend(BasicEditorDriver.prototype, 'build', function (_, dom, params) {
-    this.el.id = params.textareaId;
-
-    // We can't bind shortcutHandler directly in case `build`
-    // runs before MarkdownToolbar's `oninit`.
-    this.el.addEventListener('keydown', function (e) {
-      return shortcutHandler(...arguments);
-    });
-
-    this.mdarea = new MarkdownArea(this.el, {
-      keyMap: {
-        indent: ['Ctrl+m'],
-        outdent: ['Ctrl+M'],
-        inline: []
-      }
-    });
-  });
-
-  override(BasicEditorDriver.prototype, 'destroy', function (original) {
-    this.mdarea.destroy();
-    original();
+    params.shortcutHandler = shortcutHandler;
   });
 
   extend(TextEditor.prototype, 'toolbarItems', function (items) {
