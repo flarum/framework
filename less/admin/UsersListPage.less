@@ -1,4 +1,7 @@
 .UserListPage {
+  // Pad bottom of page to make nav area look less squashed
+  margin-bottom: 24px;
+
   &-grid {
     width: 100%;
     position: relative;
@@ -7,6 +10,7 @@
     // Ensure mobile scrollbar isn't on top of content
     padding-bottom: 4px;
 
+    // Table refreshing overlay
     &--loadingPage {
       &::after {
         content: "";
@@ -67,6 +71,7 @@
   }
 }
 
+// Handles styling of default UserList columns
 .UserList {
   &-joinDate {
     cursor: help;
