@@ -116,6 +116,7 @@ export default class UserListPage extends AdminPage {
 
         let data = apiData;
 
+        // @ts-ignore
         delete data.payload;
 
         this.pageData = data;
