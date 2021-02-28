@@ -15,7 +15,6 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
 use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
-use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
