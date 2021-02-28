@@ -9,6 +9,8 @@
 
 namespace Flarum\Filter;
 
+use Flarum\Event\ConfigurePostsQuery;
+use Flarum\Post\Filter\PostFilterer;
 use Flarum\Search\ApplySearchParametersTrait;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchResults;
@@ -67,6 +69,12 @@ abstract class AbstractFilterer
         $this->applySort($filterState, $criteria->sort);
         $this->applyOffset($filterState, $offset);
         $this->applyLimit($filterState, $limit + 1);
+
+        // DEPRECATED BC LAYER, REMOVE BETA 17
+        if (static::class === PostFilterer::class) {
+            event(new ConfigurePostsQuery($query, $criteria->query));
+        }
+        // END DEPRECATED BC LAYER
 
         foreach ($this->filterMutators as $mutator) {
             $mutator($query, $actor, $criteria->query, $criteria->sort);
