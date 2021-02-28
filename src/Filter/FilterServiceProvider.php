@@ -9,15 +9,13 @@
 
 namespace Flarum\Filter;
 
-use Flarum\Discussion\Filter\AuthorFilterGambit;
-use Flarum\Discussion\Filter\CreatedFilterGambit;
+use Flarum\Discussion\Filter as DiscussionFilter;
 use Flarum\Discussion\Filter\DiscussionFilterer;
-use Flarum\Discussion\Filter\HiddenFilterGambit;
-use Flarum\Discussion\Filter\UnreadFilterGambit;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
-use Flarum\User\Filter\EmailFilterGambit;
-use Flarum\User\Filter\GroupFilterGambit;
+use Flarum\Post\Filter as PostFilter;
+use Flarum\Post\Filter\PostFilterer;
+use Flarum\User\Filter as UserFilter;
 use Flarum\User\Filter\UserFilterer;
 use Illuminate\Support\Arr;
 
@@ -33,15 +31,22 @@ class FilterServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.filter.filters', function () {
             return [
                 DiscussionFilterer::class => [
-                    AuthorFilterGambit::class,
-                    CreatedFilterGambit::class,
-                    HiddenFilterGambit::class,
-                    UnreadFilterGambit::class,
+                    DiscussionFilter\AuthorFilterGambit::class,
+                    DiscussionFilter\CreatedFilterGambit::class,
+                    DiscussionFilter\HiddenFilterGambit::class,
+                    DiscussionFilter\UnreadFilterGambit::class,
                 ],
                 UserFilterer::class => [
-                    EmailFilterGambit::class,
-                    GroupFilterGambit::class,
-                ]
+                    UserFilter\EmailFilterGambit::class,
+                    UserFilter\GroupFilterGambit::class,
+                ],
+                PostFilterer::class => [
+                    PostFilter\AuthorFilter::class,
+                    PostFilter\DiscussionFilter::class,
+                    PostFilter\IdFilter::class,
+                    PostFilter\NumberFilter::class,
+                    PostFilter\TypeFilter::class,
+                ],
             ];
         });
 
