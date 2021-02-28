@@ -31,6 +31,7 @@ class Frontend implements ExtenderInterface
     private $css = [];
     private $js;
     private $routes = [];
+    private $removedRoutes = [];
     private $content = [];
 
     public function __construct(string $frontend)
@@ -55,6 +56,13 @@ class Frontend implements ExtenderInterface
     public function route(string $path, string $name, $content = null)
     {
         $this->routes[] = compact('path', 'name', 'content');
+
+        return $this;
+    }
+
+    public function removeRoute(string $name)
+    {
+        $this->removedRoutes[] = compact('name');
 
         return $this;
     }
@@ -141,7 +149,7 @@ class Frontend implements ExtenderInterface
 
     private function registerRoutes(Container $container)
     {
-        if (empty($this->routes)) {
+        if (empty($this->routes) && empty($this->removedRoutes)) {
             return;
         }
 
@@ -150,6 +158,10 @@ class Frontend implements ExtenderInterface
             function (RouteCollection $collection, Container $container) {
                 /** @var RouteHandlerFactory $factory */
                 $factory = $container->make(RouteHandlerFactory::class);
+
+                foreach ($this->removedRoutes as $route) {
+                    $collection->removeRoute('GET', $route['name']);
+                }
 
                 foreach ($this->routes as $route) {
                     $collection->get(
