@@ -58,7 +58,6 @@ class EditUserHandler
 
         $user = $this->users->findOrFail($command->userId, $actor);
 
-        $canEdit = $actor->can('edit', $user);
         $isSelf = $actor->id === $user->id;
 
         $attributes = Arr::get($data, 'attributes', []);
@@ -66,7 +65,7 @@ class EditUserHandler
         $validate = [];
 
         if (isset($attributes['username'])) {
-            $actor->assertPermission($canEdit);
+            $actor->assertCan('editCredentials', $user);
             $user->rename($attributes['username']);
         }
 
@@ -78,17 +77,18 @@ class EditUserHandler
                     $validate['email'] = $attributes['email'];
                 }
             } else {
-                $actor->assertPermission($canEdit);
+                $actor->assertCan('editCredentials', $user);
                 $user->changeEmail($attributes['email']);
             }
         }
 
-        if ($actor->isAdmin() && ! empty($attributes['isEmailConfirmed'])) {
+        if (! empty($attributes['isEmailConfirmed'])) {
+            $actor->assertAdmin();
             $user->activate();
         }
 
         if (isset($attributes['password'])) {
-            $actor->assertPermission($canEdit);
+            $actor->assertCan('editCredentials', $user);
             $user->changePassword($attributes['password']);
 
             $validate['password'] = $attributes['password'];
@@ -108,7 +108,10 @@ class EditUserHandler
         }
 
         if (isset($relationships['groups']['data']) && is_array($relationships['groups']['data'])) {
-            $actor->assertPermission($canEdit);
+            $actor->assertCan('editGroups', $user);
+
+            $oldGroups = $user->groups()->get()->all();
+            $oldGroupIds = Arr::pluck($oldGroups, 'id');
 
             $newGroupIds = [];
             foreach ($relationships['groups']['data'] as $group) {
@@ -117,8 +120,12 @@ class EditUserHandler
                 }
             }
 
+            // Ensure non-admins aren't adding/removing admins
+            $adminChanged = in_array('1', array_diff($oldGroupIds, $newGroupIds)) || in_array('1', array_diff($newGroupIds, $oldGroupIds));
+            $actor->assertPermission(! $adminChanged || $actor->isAdmin());
+
             $user->raise(
-                new GroupsChanged($user, $user->groups()->get()->all())
+                new GroupsChanged($user, $oldGroups)
             );
 
             $user->afterSave(function (User $user) use ($newGroupIds) {
