@@ -65,7 +65,7 @@ class EditUserHandler
         $validate = [];
 
         if (isset($attributes['username'])) {
-            $actor->assertPermission($actor->can('editCredentials', $user));
+            $actor->assertCan('editCredentials', $user);
             $user->rename($attributes['username']);
         }
 
@@ -77,7 +77,7 @@ class EditUserHandler
                     $validate['email'] = $attributes['email'];
                 }
             } else {
-                $actor->assertPermission($actor->can('editCredentials', $user));
+                $actor->assertCan('editCredentials', $user);
                 $user->changeEmail($attributes['email']);
             }
         }
@@ -88,7 +88,7 @@ class EditUserHandler
         }
 
         if (isset($attributes['password'])) {
-            $actor->assertPermission($actor->can('editCredentials', $user));
+            $actor->assertCan('editCredentials', $user);
             $user->changePassword($attributes['password']);
 
             $validate['password'] = $attributes['password'];
@@ -108,7 +108,7 @@ class EditUserHandler
         }
 
         if (isset($relationships['groups']['data']) && is_array($relationships['groups']['data'])) {
-            $actor->assertPermission($actor->can('editGroups', $user));
+            $actor->assertCan('editGroups', $user);
 
             $oldGroups = $user->groups()->get()->all();
             $oldGroupIds = Arr::pluck($oldGroups, 'id');
@@ -120,6 +120,7 @@ class EditUserHandler
                 }
             }
 
+            // Ensure non-admins aren't adding/removing admins
             $adminChanged = in_array('1', array_diff($oldGroupIds, $newGroupIds)) || in_array('1', array_diff($newGroupIds, $oldGroupIds));
             $actor->assertPermission(! $adminChanged || $actor->isAdmin());
 
