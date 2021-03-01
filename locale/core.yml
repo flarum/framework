@@ -178,7 +178,7 @@ core:
       edit_posts_label: Edit posts
       edit_users_label: Edit user attributes
       edit_users_credentials_label: Edit user credentials
-      edit_users_groups_label: Edit users groups
+      edit_users_groups_label: Edit user groups
       global_heading: Global
       moderate_heading: Moderate
       new_group_button: New Group
