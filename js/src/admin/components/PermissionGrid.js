@@ -326,11 +326,15 @@ export default class PermissionGrid extends Component {
       60
     );
 
-    items.add('userEditCredentials', {
-      icon: 'fas fa-user-cog',
-      label: app.translator.trans('core.admin.permissions.edit_users_credentials_label'),
-      permission: 'user.editCredentials',
-    });
+    items.add(
+      'userEditCredentials',
+      {
+        icon: 'fas fa-user-cog',
+        label: app.translator.trans('core.admin.permissions.edit_users_credentials_label'),
+        permission: 'user.editCredentials',
+      },
+      60
+    );
 
     items.add(
       'userEditGroups',
