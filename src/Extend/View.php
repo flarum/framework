@@ -48,8 +48,6 @@ class View implements ExtenderInterface, LifecycleInterface
                 $view->addNamespace($namespace, $hints);
             }
         });
-
-
     }
 
     /**
