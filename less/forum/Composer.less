@@ -117,6 +117,7 @@
       position: fixed;
       top: 0;
       height: 350px !important;
+      max-height: 100%;
       padding-top: @header-height-phone;
 
       &:before {
@@ -292,7 +293,7 @@
     }
   }
   .ComposerBody-editor {
-    .fullScreen & textarea {
+    .fullScreen & .TextEditor-editor {
       font-size: 16px;
     }
   }
@@ -322,7 +323,7 @@
 // ------------------------------------
 // Text Editor
 
-.TextEditor textarea {
+.TextEditor .TextEditor-editor {
   border-radius: 0;
   padding: 0 0 10px;
   border: 0;

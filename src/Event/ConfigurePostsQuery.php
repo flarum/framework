@@ -11,6 +11,9 @@ namespace Flarum\Event;
 
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @deprecated beta 16, remove beta 17.
+ */
 class ConfigurePostsQuery
 {
     /**
