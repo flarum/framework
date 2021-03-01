@@ -11,4 +11,6 @@ namespace Flarum\Filter;
 
 use Flarum\Query\AbstractQueryState;
 
-class FilterState extends AbstractQueryState {}
+class FilterState extends AbstractQueryState
+{
+}
