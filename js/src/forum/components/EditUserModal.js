@@ -56,6 +56,7 @@ export default class EditUserModal extends Modal {
             className="FormControl"
             placeholder={extractText(app.translator.trans('core.forum.edit_user.username_label'))}
             bidi={this.username}
+            disabled={this.nonAdminEditingAdmin()}
           />
         </div>,
         40
@@ -67,9 +68,14 @@ export default class EditUserModal extends Modal {
           <div className="Form-group">
             <label>{app.translator.trans('core.forum.edit_user.email_heading')}</label>
             <div>
-              <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))} bidi={this.email} />
+              <input
+                className="FormControl"
+                placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
+                bidi={this.email}
+                disabled={this.nonAdminEditingAdmin()}
+              />
             </div>
-            {!this.isEmailConfirmed() ? (
+            {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) ? (
               <div>
                 {Button.component(
                   {
@@ -101,6 +107,7 @@ export default class EditUserModal extends Modal {
                     if (e.target.checked) this.$('[name=password]').select();
                     e.redraw = false;
                   }}
+                  disabled={this.nonAdminEditingAdmin()}
                 />
                 {app.translator.trans('core.forum.edit_user.set_password_label')}
               </label>
@@ -111,6 +118,7 @@ export default class EditUserModal extends Modal {
                   name="password"
                   placeholder={extractText(app.translator.trans('core.forum.edit_user.password_label'))}
                   bidi={this.password}
+                  disabled={this.nonAdminEditingAdmin()}
                 />
               ) : (
                 ''
@@ -135,7 +143,7 @@ export default class EditUserModal extends Modal {
                   <input
                     type="checkbox"
                     bidi={this.groups[group.id()]}
-                    disabled={this.attrs.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID}
+                    disabled={group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))}
                   />
                   {GroupBadge.component({ group, label: '' })} {group.nameSingular()}
                 </label>
@@ -184,21 +192,26 @@ export default class EditUserModal extends Modal {
   }
 
   data() {
-    const groups = Object.keys(this.groups)
-      .filter((id) => this.groups[id]())
-      .map((id) => app.store.getById('groups', id));
-
     const data = {
-      username: this.username(),
-      relationships: { groups },
+      relationships: {},
     };
 
-    if (app.session.user !== this.attrs.user) {
-      data.email = this.email();
+    if (this.attrs.user.canEditCredentials() && !this.nonAdminEditingAdmin()) {
+      data.username = this.username();
+
+      if (app.session.user !== this.attrs.user) {
+        data.email = this.email();
+      }
+
+      if (this.setPassword()) {
+        data.password = this.password();
+      }
     }
 
-    if (this.setPassword()) {
-      data.password = this.password();
+    if (this.attrs.user.canEditGroups()) {
+      data.relationships.groups = Object.keys(this.groups)
+        .filter((id) => this.groups[id]())
+        .map((id) => app.store.getById('groups', id));
     }
 
     return data;
@@ -216,5 +229,16 @@ export default class EditUserModal extends Modal {
         this.loading = false;
         m.redraw();
       });
+  }
+
+  nonAdminEditingAdmin() {
+    return this.userIsAdmin(this.attrs.user) && !this.userIsAdmin(app.session.user);
+  }
+
+  /**
+   * @internal @protected
+   */
+  userIsAdmin(user) {
+    return user.groups().some((g) => g.id() === Group.ADMINISTRATOR_ID);
   }
 }
