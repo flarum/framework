@@ -13,7 +13,7 @@ use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Event\Searching;
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
-use Flarum\Search\SearchCriteria;
+use Flarum\Query\QueryCriteria;
 use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -53,7 +53,7 @@ class DiscussionSearcher extends AbstractSearcher
     /**
      * @deprecated along with the Searching event, remove in Beta 17.
      */
-    protected function mutateSearch(SearchState $search, SearchCriteria $criteria)
+    protected function mutateSearch(SearchState $search, QueryCriteria $criteria)
     {
         parent::mutateSearch($search, $criteria);
 

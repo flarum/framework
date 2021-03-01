@@ -9,12 +9,15 @@
 
 namespace Flarum\Search;
 
+use Flarum\Query\ApplyQueryParametersTrait;
+use Flarum\Query\QueryCriteria;
+use Flarum\Query\QueryResults;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 abstract class AbstractSearcher
 {
-    use ApplySearchParametersTrait;
+    use ApplyQueryParametersTrait;
 
     /**
      * @var GambitManager
@@ -34,7 +37,7 @@ abstract class AbstractSearcher
 
     abstract protected function getQuery(User $actor): Builder;
 
-    protected function mutateSearch(SearchState $search, SearchCriteria $criteria)
+    protected function mutateSearch(SearchState $search, QueryCriteria $criteria)
     {
         foreach ($this->searchMutators as $mutator) {
             $mutator($search, $criteria);
@@ -42,14 +45,14 @@ abstract class AbstractSearcher
     }
 
     /**
-     * @param SearchCriteria $criteria
+     * @param QueryCriteria $criteria
      * @param int|null $limit
      * @param int $offset
      *
-     * @return SearchResults
+     * @return QueryResults
      * @throws InvalidArgumentException
      */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0): SearchResults
+    public function search(QueryCriteria $criteria, $limit = null, $offset = 0): QueryResults
     {
         $actor = $criteria->actor;
 
@@ -73,6 +76,6 @@ abstract class AbstractSearcher
             $results->pop();
         }
 
-        return new SearchResults($results, $areMoreResults);
+        return new QueryResults($results, $areMoreResults);
     }
 }
