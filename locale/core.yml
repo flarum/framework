@@ -293,6 +293,7 @@ core:
       email_heading: => core.ref.email
       email_label: => core.ref.email
       groups_heading: Groups
+      nothing_available: There is nothing available for you to edit at this time.
       password_heading: => core.ref.password
       password_label: => core.ref.password
       set_password_label: Set new password

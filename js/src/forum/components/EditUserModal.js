@@ -37,9 +37,10 @@ export default class EditUserModal extends Modal {
   }
 
   content() {
+    const fields = this.fields().toArray();
     return (
       <div className="Modal-body">
-        <div className="Form">{this.fields().toArray()}</div>
+        {fields.length > 1 ? <div className="Form">{this.fields().toArray()}</div> : app.translator.trans('core.forum.edit_user.nothing_available')}
       </div>
     );
   }
