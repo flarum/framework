@@ -19,10 +19,6 @@ use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 
-/**
- * Takes a UserQueryCriteria object, performs a search using gambits,
- * and spits out a UserQueryResults object.
- */
 class UserSearcher extends AbstractSearcher
 {
     /**
