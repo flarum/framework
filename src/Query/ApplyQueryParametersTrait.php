@@ -9,7 +9,6 @@
 
 namespace Flarum\Query;
 
-use Flarum\Filter\FilterState;
 use Illuminate\Support\Str;
 
 trait ApplyQueryParametersTrait
@@ -17,10 +16,10 @@ trait ApplyQueryParametersTrait
     /**
      * Apply sort criteria to a discussion query.
      *
-     * @param FilterState $query
+     * @param AbstractQueryState $query
      * @param array $sort
      */
-    protected function applySort(FilterState $query, array $sort = null)
+    protected function applySort(AbstractQueryState $query, array $sort = null)
     {
         $sort = $sort ?: $query->getDefaultSort();
 
@@ -40,10 +39,10 @@ trait ApplyQueryParametersTrait
     }
 
     /**
-     * @param FilterState $query
+     * @param AbstractQueryState $query
      * @param int $offset
      */
-    protected function applyOffset(FilterState $query, $offset)
+    protected function applyOffset(AbstractQueryState $query, $offset)
     {
         if ($offset > 0) {
             $query->getQuery()->skip($offset);
@@ -51,10 +50,10 @@ trait ApplyQueryParametersTrait
     }
 
     /**
-     * @param FilterState $query
+     * @param AbstractQueryState $query
      * @param int|null $limit
      */
-    protected function applyLimit(FilterState $query, $limit)
+    protected function applyLimit(AbstractQueryState $query, $limit)
     {
         if ($limit > 0) {
             $query->getQuery()->take($limit);
