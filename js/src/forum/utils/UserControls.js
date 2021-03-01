@@ -57,7 +57,7 @@ export default {
   moderationControls(user) {
     const items = new ItemList();
 
-    if (user.canEdit()) {
+    if (user.canEdit() || user.canEditCredentials() || user.canEditGroups()) {
       items.add(
         'edit',
         <Button icon="fas fa-pencil-alt" onclick={this.editAction.bind(this, user)}>
