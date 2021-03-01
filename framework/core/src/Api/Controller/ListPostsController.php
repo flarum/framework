@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\Filter\PostFilterer;
+use Flarum\Post\PostRepository;
 use Flarum\Search\SearchCriteria;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -47,17 +48,24 @@ class ListPostsController extends AbstractListController
     protected $filterer;
 
     /**
+     * @var PostRepository
+     */
+    protected $posts;
+
+    /**
      * @var UrlGenerator
      */
     protected $url;
 
     /**
      * @param PostFilterer $filterer
+     * @param PostRepository $posts
      * @param UrlGenerator $url
      */
-    public function __construct(PostFilterer $filterer, UrlGenerator $url)
+    public function __construct(PostFilterer $filterer, PostRepository $posts, UrlGenerator $url)
     {
         $this->filterer = $filterer;
+        $this->posts = $posts;
         $this->url = $url;
     }
 
