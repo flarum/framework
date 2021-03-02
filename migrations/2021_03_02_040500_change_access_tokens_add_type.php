@@ -19,9 +19,10 @@ return [
         $tokens = $schema->getConnection()->table('access_tokens')
             ->cursor();
 
-        // Insert initial value for our new primary key
         foreach ($tokens as $i => $token) {
-            $isRemember = $token->lifetime_seconds === 5 * 365 * 24 * 60 * 60; // 5 years
+            // This is the value that was hard-coded for remember tokens
+            // Everything else will default to normal session, even if it was customized
+            $isRemember = $token->lifetime_seconds === 5 * 365 * 24 * 60 * 60;
 
             $schema->getConnection()->table('access_tokens')
                 ->where('token', $token->token)
