@@ -84,7 +84,7 @@ class ListUsersController extends AbstractListController
         }
 
         $query = Arr::get($this->extractFilter($request), 'q');
-  
+
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
 

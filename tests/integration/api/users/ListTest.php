@@ -74,7 +74,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
     }
-  
+
     /**
      * @test
      */
@@ -150,7 +150,7 @@ class ListTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-    }  
+    }
 
     /**
      * @test
