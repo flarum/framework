@@ -172,7 +172,7 @@ export default function addComposerAutocomplete() {
               }
 
               // Prevent the dropdown from going off screen on mobile
-              top = Math.max(-parent.offset().top, top);
+              top = Math.max(-(parent.offset().top - $(document).scrollTop()), top);
               left = Math.max(-parent.offset().left, left);
 
               dropdown.show(left, top);
