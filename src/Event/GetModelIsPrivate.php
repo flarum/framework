@@ -12,6 +12,8 @@ namespace Flarum\Event;
 use Flarum\Database\AbstractModel;
 
 /**
+ * @deprecated beta 16, remove beta 17.
+ *
  * Determine whether or not a model should be marked as `is_private`.
  */
 class GetModelIsPrivate

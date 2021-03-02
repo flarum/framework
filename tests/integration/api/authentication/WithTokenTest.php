@@ -17,7 +17,10 @@ class WithTokenTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    public function setUp()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -43,7 +46,7 @@ class WithTokenTest extends TestCase
                         'password' => 'too-obscure'
                     ],
                 ]
-            )->withAttribute('bypassCsrfToken', true)
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -75,7 +78,7 @@ class WithTokenTest extends TestCase
                         'password' => 'too-incorrect'
                     ],
                 ]
-            )->withAttribute('bypassCsrfToken', true)
+            )
         );
 
         // HTTP 401 signals an authentication problem

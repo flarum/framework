@@ -11,6 +11,7 @@ namespace Flarum\Http;
 
 use FastRoute\DataGenerator;
 use FastRoute\RouteParser;
+use Illuminate\Support\Arr;
 
 class RouteCollection
 {
@@ -28,6 +29,16 @@ class RouteCollection
      * @var RouteParser
      */
     protected $routeParser;
+
+    /**
+     * @var array
+     */
+    protected $routes = [];
+
+    /**
+     * @var array
+     */
+    protected $pendingRoutes = [];
 
     public function __construct()
     {
@@ -62,19 +73,50 @@ class RouteCollection
 
     public function addRoute($method, $path, $name, $handler)
     {
-        $routeDatas = $this->routeParser->parse($path);
-
-        foreach ($routeDatas as $routeData) {
-            $this->dataGenerator->addRoute($method, $routeData, $handler);
+        if (isset($this->routes[$method][$name])) {
+            throw new \RuntimeException("Route $name on method $method already exists");
         }
 
-        $this->reverse[$name] = $routeDatas;
+        $this->routes[$method][$name] = $this->pendingRoutes[$method][$name] = compact('path', 'handler');
 
         return $this;
     }
 
+    public function removeRoute(string $method, string $name): self
+    {
+        unset($this->routes[$method][$name], $this->pendingRoutes[$method][$name]);
+
+        return $this;
+    }
+
+    protected function applyRoutes(): void
+    {
+        foreach ($this->pendingRoutes as $method => $routes) {
+            foreach ($routes as $name => $route) {
+                $routeDatas = $this->routeParser->parse($route['path']);
+
+                foreach ($routeDatas as $routeData) {
+                    $this->dataGenerator->addRoute($method, $routeData, ['name' => $name, 'handler' => $route['handler']]);
+                }
+
+                $this->reverse[$name] = $routeDatas;
+            }
+        }
+
+        $this->pendingRoutes = [];
+    }
+
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
     public function getRouteData()
     {
+        if (! empty($this->pendingRoutes)) {
+            $this->applyRoutes();
+        }
+
         return $this->dataGenerator->getData();
     }
 
@@ -87,11 +129,30 @@ class RouteCollection
 
     public function getPath($name, array $parameters = [])
     {
-        if (isset($this->reverse[$name])) {
-            $parts = $this->reverse[$name][0];
-            array_walk($parts, [$this, 'fixPathPart'], $parameters);
+        if (! empty($this->pendingRoutes)) {
+            $this->applyRoutes();
+        }
 
-            return '/'.ltrim(implode('', $parts), '/');
+        if (isset($this->reverse[$name])) {
+            $maxMatches = 0;
+            $matchingParts = $this->reverse[$name][0];
+
+            // For a given route name, we want to choose the option that best matches the given parameters.
+            // Each routing option is an array of parts. Each part is either a constant string
+            // (which we don't care about here), or an array where the first element is the parameter name
+            // and the second element is a regex into which the parameter value is inserted, if the parameter matches.
+            foreach ($this->reverse[$name] as $parts) {
+                foreach ($parts as $i => $part) {
+                    if (is_array($part) && Arr::exists($parameters, $part[0]) && $i > $maxMatches) {
+                        $maxMatches = $i;
+                        $matchingParts = $parts;
+                    }
+                }
+            }
+
+            array_walk($matchingParts, [$this, 'fixPathPart'], $parameters);
+
+            return '/'.ltrim(implode('', $matchingParts), '/');
         }
 
         throw new \RuntimeException("Route $name not found");

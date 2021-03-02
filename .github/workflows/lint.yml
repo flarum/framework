@@ -1,0 +1,31 @@
+name: Lint
+
+on:
+  push:
+    paths:
+      - 'js/src/**'
+  pull_request:
+    paths:
+      - 'js/src/**'
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    name: JS / Prettier
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12"
+
+      - name: Install JS dependencies
+        run: npm ci
+        working-directory: ./js
+
+      - name: Check JS code for formatting
+        run: node_modules/.bin/prettier --check src
+        working-directory: ./js

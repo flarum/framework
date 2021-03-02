@@ -34,7 +34,7 @@ export default {
    * @public
    */
   trigger(event, ...args) {
-    this.getHandlers(event).forEach(handler => handler.apply(this, args));
+    this.getHandlers(event).forEach((handler) => handler.apply(this, args));
   },
 
   /**
@@ -55,7 +55,7 @@ export default {
    * @param {function} handler The function to handle the event.
    */
   one(event, handler) {
-    const wrapper = function() {
+    const wrapper = function () {
       handler.apply(this, arguments);
 
       this.off(event, wrapper);
@@ -77,5 +77,5 @@ export default {
     if (index !== -1) {
       handlers.splice(index, 1);
     }
-  }
-}
+  },
+};

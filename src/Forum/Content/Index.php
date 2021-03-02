@@ -18,6 +18,7 @@ use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class Index
 {
@@ -42,17 +43,24 @@ class Index
     protected $url;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * @param Client $api
      * @param Factory $view
      * @param SettingsRepositoryInterface $settings
      * @param UrlGenerator $url
+     * @param TranslatorInterface $translator
      */
-    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings, UrlGenerator $url)
+    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->api = $api;
         $this->view = $view;
         $this->settings = $settings;
         $this->url = $url;
+        $this->translator = $translator;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -74,6 +82,7 @@ class Index
         $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
         $defaultRoute = $this->settings->get('default_route');
 
+        $document->title = $this->translator->trans('core.forum.index.meta_title_text');
         $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
         $document->canonicalUrl = $defaultRoute === '/all' ? $this->url->to('forum')->base() : $request->getUri()->withQuery('');

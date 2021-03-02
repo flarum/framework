@@ -1,8 +1,9 @@
 .AppearancePage {
+  padding-bottom: 30px;
+
   @media @desktop-up {
     .container {
       max-width: 600px;
-      padding: 30px;
       margin: 0;
     }
   }
@@ -14,8 +15,16 @@
 .AppearancePage-colors-input {
   overflow: hidden;
 
+  .Form-group {
+    display: inline-block;
+  }
+
+  .Form-group:last-child {
+    margin-bottom: 24px !important;
+    margin-left: 10px;
+  }
+
   input {
-    width: 49%;
     float: left;
 
     &:first-child {
@@ -23,7 +32,7 @@
     }
   }
 }
-.AppearancePage-colors-input,
+
 .AppearancePage-colors .Checkbox {
   margin-bottom: 15px;
 }

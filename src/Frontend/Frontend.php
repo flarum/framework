@@ -50,7 +50,7 @@ class Frontend
     {
         $forumDocument = $this->getForumDocument($request);
 
-        $document = new Document($this->view, $forumDocument);
+        $document = new Document($this->view, $forumDocument, $request);
 
         $this->populate($document, $request);
 

@@ -24,7 +24,6 @@ class MailServiceProvider extends AbstractServiceProvider
             return [
                 'mail' => SendmailDriver::class,
                 'mailgun' => MailgunDriver::class,
-                'mandrill' => MandrillDriver::class,
                 'log' => LogDriver::class,
                 'smtp' => SmtpDriver::class,
             ];

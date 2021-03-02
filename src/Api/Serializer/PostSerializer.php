@@ -10,23 +10,9 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Post\CommentPost;
-use Flarum\User\Gate;
 
 class PostSerializer extends BasicPostSerializer
 {
-    /**
-     * @var \Flarum\User\Gate
-     */
-    protected $gate;
-
-    /**
-     * @param \Flarum\User\Gate $gate
-     */
-    public function __construct(Gate $gate)
-    {
-        $this->gate = $gate;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -36,15 +22,13 @@ class PostSerializer extends BasicPostSerializer
 
         unset($attributes['content']);
 
-        $gate = $this->gate->forUser($this->actor);
-
-        $canEdit = $gate->allows('edit', $post);
+        $canEdit = $this->actor->can('edit', $post);
 
         if ($post instanceof CommentPost) {
             if ($canEdit) {
                 $attributes['content'] = $post->content;
             }
-            if ($gate->allows('viewIps', $post)) {
+            if ($this->actor->can('viewIps', $post)) {
                 $attributes['ipAddress'] = $post->ip_address;
             }
         } else {
@@ -62,8 +46,8 @@ class PostSerializer extends BasicPostSerializer
 
         $attributes += [
             'canEdit'   => $canEdit,
-            'canDelete' => $gate->allows('delete', $post),
-            'canHide'   => $gate->allows('hide', $post)
+            'canDelete' => $this->actor->can('delete', $post),
+            'canHide'   => $this->actor->can('hide', $post)
         ];
 
         return $attributes;

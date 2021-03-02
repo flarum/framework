@@ -25,11 +25,11 @@ export default function avatar(user, attrs = {}) {
     if (hasTitle) attrs.title = attrs.title || username;
 
     if (avatarUrl) {
-      return <img {...attrs} src={avatarUrl}/>;
+      return <img {...attrs} src={avatarUrl} alt="" />;
     }
 
     content = username.charAt(0).toUpperCase();
-    attrs.style = {background: user.color()};
+    attrs.style = { background: user.color() };
   }
 
   return <span {...attrs}>{content}</span>;

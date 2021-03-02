@@ -9,35 +9,31 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Laminas\Diactoros\Response\EmptyResponse;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteFaviconController extends AbstractDeleteController
 {
-    use AssertPermissionTrait;
-
     /**
      * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
-     * @var Application
+     * @var FilesystemInterface
      */
-    protected $app;
+    protected $uploadDir;
 
     /**
      * @param SettingsRepositoryInterface $settings
+     * @param FilesystemInterface $uploadDir
      */
-    public function __construct(SettingsRepositoryInterface $settings, Application $app)
+    public function __construct(SettingsRepositoryInterface $settings, FilesystemInterface $uploadDir)
     {
         $this->settings = $settings;
-        $this->app = $app;
+        $this->uploadDir = $uploadDir;
     }
 
     /**
@@ -45,16 +41,14 @@ class DeleteFaviconController extends AbstractDeleteController
      */
     protected function delete(ServerRequestInterface $request)
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $request->getAttribute('actor')->assertAdmin();
 
         $path = $this->settings->get('favicon_path');
 
         $this->settings->set('favicon_path', null);
 
-        $uploadDir = new Filesystem(new Local($this->app->publicPath().'/assets'));
-
-        if ($uploadDir->has($path)) {
-            $uploadDir->delete($path);
+        if ($this->uploadDir->has($path)) {
+            $this->uploadDir->delete($path);
         }
 
         return new EmptyResponse(204);

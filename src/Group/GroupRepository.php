@@ -42,19 +42,6 @@ class GroupRepository
     }
 
     /**
-     * Find a group by name.
-     *
-     * @param string $name
-     * @return User|null
-     */
-    public function findByName($name, User $actor = null)
-    {
-        $query = Group::where('name_singular', $name)->orWhere('name_plural', $name);
-
-        return $this->scopeVisibleTo($query, $actor)->first();
-    }
-
-    /**
      * Scope a query to only include records that are visible to a user.
      *
      * @param Builder $query

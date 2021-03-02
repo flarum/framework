@@ -17,7 +17,7 @@
       top: 0;
       bottom: 0;
       left: 0;
-      width: auto;
+      width: 100%;
       height: auto;
       z-index: 0;
       color: #fff !important;
@@ -36,12 +36,15 @@
     .Slidable-underneath--left {
       text-align: left;
     }
+    .Slidable-underneath--right {
+      left: unset;
+    }
     .Slidable-content {
       .transition(~"box-shadow 0.2s, border-radius 0.2s");
 
       .sliding& {
         position: relative;
-        background: #fff;
+        background: @control-bg;
         z-index: 2;
         border-radius: 2px;
         .box-shadow(0 2px 6px @shadow-color);

@@ -12,14 +12,12 @@ namespace Flarum\Discussion\Command;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Event\Deleting;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteDiscussionHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var \Flarum\Discussion\DiscussionRepository
@@ -47,7 +45,7 @@ class DeleteDiscussionHandler
 
         $discussion = $this->discussions->findOrFail($command->discussionId, $actor);
 
-        $this->assertCan($actor, 'delete', $discussion);
+        $actor->assertCan('delete', $discussion);
 
         $this->events->dispatch(
             new Deleting($discussion, $actor, $command->data)

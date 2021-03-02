@@ -1,5 +1,3 @@
-/*global s9e, hljs*/
-
 import Post from './Post';
 import classList from '../../common/utils/classList';
 import PostUser from './PostUser';
@@ -9,19 +7,20 @@ import EditPostComposer from './EditPostComposer';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
+import ComposerPostPreview from './ComposerPostPreview';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
  * includes a number of item lists (controls, header, and footer) surrounding
  * the post's HTML content.
  *
- * ### Props
+ * ### Attrs
  *
  * - `post`
  */
 export default class CommentPost extends Post {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     /**
      * If the post has been hidden, then this flag determines whether or not its
@@ -31,85 +30,82 @@ export default class CommentPost extends Post {
      */
     this.revealContent = false;
 
-    // Create an instance of the component that displays the post's author so
-    // that we can force the post to rerender when the user card is shown.
-    this.postUser = new PostUser({post: this.props.post});
+    /**
+     * Whether or not the user hover card inside of PostUser is visible.
+     * The property must be managed in CommentPost to be able to use it in the subtree check
+     *
+     * @type {Boolean}
+     */
+    this.cardVisible = false;
+
     this.subtree.check(
-      () => this.postUser.cardVisible,
-      () => this.isEditing()
+      () => this.cardVisible,
+      () => this.isEditing(),
+      () => this.revealContent
     );
   }
 
   content() {
-    // Note: we avoid using JSX for the <ul> below because it results in some
-    // weirdness in Mithril.js 0.1.x (see flarum/core#975). This workaround can
-    // be reverted when we upgrade to Mithril 1.0.
     return super.content().concat([
-      <header className="Post-header">{m('ul', listItems(this.headerItems().toArray()))}</header>,
+      <header className="Post-header">
+        <ul>{listItems(this.headerItems().toArray())}</ul>
+      </header>,
       <div className="Post-body">
-        {this.isEditing()
-          ? <div className="Post-preview" config={this.configPreview.bind(this)}/>
-          : m.trust(this.props.post.contentHtml())}
-      </div>
+        {this.isEditing() ? <ComposerPostPreview className="Post-preview" composer={app.composer} /> : m.trust(this.attrs.post.contentHtml())}
+      </div>,
     ]);
   }
 
-  config(isInitialized, context) {
-    super.config(...arguments);
-
-    const contentHtml = this.isEditing() ? '' : this.props.post.contentHtml();
+  refreshContent() {
+    const contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
 
     // If the post content has changed since the last render, we'll run through
     // all of the <script> tags in the content and evaluate them. This is
     // necessary because TextFormatter outputs them for e.g. syntax highlighting.
-    if (context.contentHtml !== contentHtml) {
-      this.$('.Post-body script').each(function() {
-        eval.call(window, $(this).text());
+    if (this.contentHtml !== contentHtml) {
+      this.$('.Post-body script').each(function () {
+        const script = document.createElement('script');
+        script.textContent = this.textContent;
+        Array.from(this.attributes).forEach((attr) => script.setAttribute(attr.name, attr.value));
+        this.parentNode.replaceChild(script, this);
       });
     }
 
-    context.contentHtml = contentHtml;
+    this.contentHtml = contentHtml;
+  }
+
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.refreshContent();
+  }
+
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
+    this.refreshContent();
   }
 
   isEditing() {
-    return app.composer.component instanceof EditPostComposer &&
-      app.composer.component.props.post === this.props.post;
+    return app.composer.bodyMatches(EditPostComposer, { post: this.attrs.post });
   }
 
-  attrs() {
-    const post = this.props.post;
-    const attrs = super.attrs();
+  elementAttrs() {
+    const post = this.attrs.post;
+    const attrs = super.elementAttrs();
 
-    attrs.className = (attrs.className || '') + ' ' + classList({
-      'CommentPost': true,
-      'Post--hidden': post.isHidden(),
-      'Post--edited': post.isEdited(),
-      'revealContent': this.revealContent,
-      'editing': this.isEditing()
-    });
+    attrs.className =
+      (attrs.className || '') +
+      ' ' +
+      classList({
+        CommentPost: true,
+        'Post--hidden': post.isHidden(),
+        'Post--edited': post.isEdited(),
+        revealContent: this.revealContent,
+        editing: this.isEditing(),
+      });
 
     return attrs;
-  }
-
-  configPreview(element, isInitialized, context) {
-    if (isInitialized) return;
-
-    // Every 50ms, if the composer content has changed, then update the post's
-    // body with a preview.
-    let preview;
-    const updatePreview = () => {
-      const content = app.composer.component.content();
-
-      if (preview === content) return;
-
-      preview = content;
-
-      s9e.TextFormatter.preview(preview || '', element);
-    };
-    updatePreview();
-
-    const updateInterval = setInterval(updatePreview, 50);
-    context.onunload = () => clearInterval(updateInterval);
   }
 
   /**
@@ -126,26 +122,41 @@ export default class CommentPost extends Post {
    */
   headerItems() {
     const items = new ItemList();
-    const post = this.props.post;
-    const props = {post};
+    const post = this.attrs.post;
 
-    items.add('user', this.postUser.render(), 100);
-    items.add('meta', PostMeta.component(props));
+    items.add(
+      'user',
+      PostUser.component({
+        post,
+        cardVisible: this.cardVisible,
+        oncardshow: () => {
+          this.cardVisible = true;
+          m.redraw();
+        },
+        oncardhide: () => {
+          this.cardVisible = false;
+          m.redraw();
+        },
+      }),
+      100
+    );
+    items.add('meta', PostMeta.component({ post }));
 
     if (post.isEdited() && !post.isHidden()) {
-      items.add('edited', PostEdited.component(props));
+      items.add('edited', PostEdited.component({ post }));
     }
 
     // If the post is hidden, add a button that allows toggling the visibility
     // of the post's content.
     if (post.isHidden()) {
-      items.add('toggle', (
+      items.add(
+        'toggle',
         Button.component({
           className: 'Button Button--default Button--more',
           icon: 'fas fa-ellipsis-h',
-          onclick: this.toggleContent.bind(this)
+          onclick: this.toggleContent.bind(this),
         })
-      ));
+      );
     }
 
     return items;

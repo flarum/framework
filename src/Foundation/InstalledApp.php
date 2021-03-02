@@ -9,13 +9,9 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Database\Console\GenerateMigrationCommand;
-use Flarum\Database\Console\MigrateCommand;
-use Flarum\Database\Console\ResetCommand;
-use Flarum\Foundation\Console\CacheClearCommand;
-use Flarum\Foundation\Console\InfoCommand;
-use Flarum\Http\Middleware\DispatchRoute;
+use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\Middleware\OriginalMessages;
 use Laminas\Stratigility\MiddlewarePipe;
@@ -31,11 +27,11 @@ class InstalledApp implements AppInterface
     protected $container;
 
     /**
-     * @var array
+     * @var Config
      */
     protected $config;
 
-    public function __construct(Container $container, array $config)
+    public function __construct(Container $container, Config $config)
     {
         $this->container = $container;
         $this->config = $config;
@@ -51,7 +47,7 @@ class InstalledApp implements AppInterface
      */
     public function getRequestHandler()
     {
-        if ($this->inMaintenanceMode()) {
+        if ($this->config->inMaintenanceMode()) {
             return new MaintenanceModeHandler();
         } elseif ($this->needsUpdate()) {
             return $this->getUpdaterHandler();
@@ -59,6 +55,7 @@ class InstalledApp implements AppInterface
 
         $pipe = new MiddlewarePipe;
 
+        $pipe->pipe(new HttpMiddleware\ProcessIp());
         $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(new OriginalMessages);
         $pipe->pipe(
@@ -73,12 +70,7 @@ class InstalledApp implements AppInterface
         return $pipe;
     }
 
-    private function inMaintenanceMode(): bool
-    {
-        return $this->config['offline'] ?? false;
-    }
-
-    private function needsUpdate(): bool
+    protected function needsUpdate(): bool
     {
         $settings = $this->container->make(SettingsRepositoryInterface::class);
         $version = $settings->get('version');
@@ -89,23 +81,24 @@ class InstalledApp implements AppInterface
     /**
      * @return \Psr\Http\Server\RequestHandlerInterface
      */
-    private function getUpdaterHandler()
+    protected function getUpdaterHandler()
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(
-            new DispatchRoute($this->container->make('flarum.update.routes'))
+            new HttpMiddleware\ResolveRoute($this->container->make('flarum.update.routes'))
         );
+        $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
         return $pipe;
     }
 
-    private function basePath(): string
+    protected function basePath(): string
     {
-        return parse_url($this->config['url'], PHP_URL_PATH) ?: '/';
+        return $this->config->url()->getPath() ?: '/';
     }
 
-    private function subPath($pathName): string
+    protected function subPath($pathName): string
     {
         return '/'.($this->config['paths'][$pathName] ?? $pathName);
     }
@@ -115,12 +108,14 @@ class InstalledApp implements AppInterface
      */
     public function getConsoleCommands()
     {
-        return [
-            $this->container->make(GenerateMigrationCommand::class),
-            $this->container->make(InfoCommand::class, ['config' => $this->config]),
-            $this->container->make(MigrateCommand::class),
-            $this->container->make(ResetCommand::class),
-            $this->container->make(CacheClearCommand::class),
-        ];
+        return array_map(function ($command) {
+            $command = $this->container->make($command);
+
+            if ($command instanceof Command) {
+                $command->setLaravel($this->container);
+            }
+
+            return $command;
+        }, $this->container->make('flarum.console.commands'));
     }
 }

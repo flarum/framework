@@ -12,6 +12,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
@@ -30,6 +31,7 @@ class Frontend implements ExtenderInterface
     private $css = [];
     private $js;
     private $routes = [];
+    private $removedRoutes = [];
     private $content = [];
 
     public function __construct(string $frontend)
@@ -54,6 +56,13 @@ class Frontend implements ExtenderInterface
     public function route(string $path, string $name, $content = null)
     {
         $this->routes[] = compact('path', 'name', 'content');
+
+        return $this;
+    }
+
+    public function removeRoute(string $name)
+    {
+        $this->removedRoutes[] = compact('name');
 
         return $this;
     }
@@ -140,7 +149,7 @@ class Frontend implements ExtenderInterface
 
     private function registerRoutes(Container $container)
     {
-        if (empty($this->routes)) {
+        if (empty($this->routes) && empty($this->removedRoutes)) {
             return;
         }
 
@@ -149,6 +158,10 @@ class Frontend implements ExtenderInterface
             function (RouteCollection $collection, Container $container) {
                 /** @var RouteHandlerFactory $factory */
                 $factory = $container->make(RouteHandlerFactory::class);
+
+                foreach ($this->removedRoutes as $route) {
+                    $collection->removeRoute('GET', $route['name']);
+                }
 
                 foreach ($this->routes as $route) {
                     $collection->get(
@@ -171,11 +184,7 @@ class Frontend implements ExtenderInterface
             "flarum.frontend.$this->frontend",
             function (ActualFrontend $frontend, Container $container) {
                 foreach ($this->content as $content) {
-                    if (is_string($content)) {
-                        $content = $container->make($content);
-                    }
-
-                    $frontend->content($content);
+                    $frontend->content(ContainerUtil::wrapCallback($content, $container));
                 }
             }
         );

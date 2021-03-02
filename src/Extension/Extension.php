@@ -15,6 +15,7 @@ use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
@@ -51,15 +52,24 @@ class Extension implements Arrayable
         'jpg' => 'image/jpeg',
     ];
 
+    protected static function nameToId($name)
+    {
+        list($vendor, $package) = explode('/', $name);
+        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
+
+        return "$vendor-$package";
+    }
+
     /**
      * Unique Id of the extension.
      *
      * @info    Identical to the directory in the extensions directory.
-     * @example flarum_suspend
+     * @example flarum-suspend
      *
      * @var string
      */
     protected $id;
+
     /**
      * The directory of this extension.
      *
@@ -73,6 +83,21 @@ class Extension implements Arrayable
      * @var array
      */
     protected $composerJson;
+
+    /**
+     * The IDs of all Flarum extensions that this extension depends on.
+     *
+     * @var string[]
+     */
+    protected $extensionDependencyIds;
+
+    /**
+     * The IDs of all Flarum extensions that this extension should be booted after
+     * if enabled.
+     *
+     * @var string[]
+     */
+    protected $optionalDependencyIds;
 
     /**
      * Whether the extension is installed.
@@ -104,9 +129,7 @@ class Extension implements Arrayable
      */
     protected function assignId()
     {
-        list($vendor, $package) = explode('/', $this->name);
-        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
-        $this->id = "$vendor-$package";
+        $this->id = static::nameToId($this->name);
     }
 
     public function extend(Container $app)
@@ -183,6 +206,37 @@ class Extension implements Arrayable
     }
 
     /**
+     * Get the list of flarum extensions that this extension depends on.
+     *
+     * @param array $extensionSet: An associative array where keys are the composer package names
+     *                             of installed extensions. Used to figure out which dependencies
+     *                             are flarum extensions.
+     * @param array $enabledIds:   An associative array where keys are the composer package names
+     *                             of enabled extensions. Used to figure out optional dependencies.
+     */
+    public function calculateDependencies($extensionSet, $enabledIds)
+    {
+        $this->extensionDependencyIds = (new Collection(Arr::get($this->composerJson, 'require', [])))
+            ->keys()
+            ->filter(function ($key) use ($extensionSet) {
+                return array_key_exists($key, $extensionSet);
+            })
+            ->map(function ($key) {
+                return static::nameToId($key);
+            })
+            ->toArray();
+
+        $this->optionalDependencyIds = (new Collection(Arr::get($this->composerJson, 'extra.flarum-extension.optional-dependencies', [])))
+            ->map(function ($key) {
+                return static::nameToId($key);
+            })
+            ->filter(function ($key) use ($enabledIds) {
+                return array_key_exists($key, $enabledIds);
+            })
+            ->toArray();
+    }
+
+    /**
      * @return string
      */
     public function getVersion()
@@ -248,9 +302,38 @@ class Extension implements Arrayable
     /**
      * @return string
      */
+    public function getTitle()
+    {
+        return $this->composerJsonAttribute('extra.flarum-extension.title');
+    }
+
+    /**
+     * @return string
+     */
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * The IDs of all Flarum extensions that this extension depends on.
+     *
+     * @return array
+     */
+    public function getExtensionDependencyIds(): array
+    {
+        return $this->extensionDependencyIds;
+    }
+
+    /**
+     * The IDs of all Flarum extensions that this extension should be booted after
+     * if enabled.
+     *
+     * @return array
+     */
+    public function getOptionalDependencyIds(): array
+    {
+        return $this->optionalDependencyIds;
     }
 
     private function getExtenders(): array
@@ -267,7 +350,7 @@ class Extension implements Arrayable
             $extenders = [$extenders];
         }
 
-        return array_flatten($extenders);
+        return Arr::flatten($extenders);
     }
 
     /**
@@ -291,16 +374,50 @@ class Extension implements Arrayable
             return $filename;
         }
 
-        // To give extension authors some time to migrate to the new extension
-        // format, we will also fallback to the old bootstrap.php name. Consider
-        // this feature deprecated.
-        $deprecatedFilename = "{$this->path}/bootstrap.php";
+        return null;
+    }
 
-        if (file_exists($deprecatedFilename)) {
-            return $deprecatedFilename;
+    /**
+     * Compile a list of links for this extension.
+     */
+    public function getLinks()
+    {
+        $links = [];
+
+        if (($sourceUrl = $this->composerJsonAttribute('source.url')) || ($sourceUrl = $this->composerJsonAttribute('support.source'))) {
+            $links['source'] = $sourceUrl;
         }
 
-        return null;
+        if (($discussUrl = $this->composerJsonAttribute('support.forum'))) {
+            $links['discuss'] = $discussUrl;
+        }
+
+        if (($documentationUrl = $this->composerJsonAttribute('support.docs'))) {
+            $links['documentation'] = $documentationUrl;
+        }
+
+        if (($websiteUrl = $this->composerJsonAttribute('homepage'))) {
+            $links['website'] = $websiteUrl;
+        }
+
+        if (($supportEmail = $this->composerJsonAttribute('support.email'))) {
+            $links['support'] = "mailto:$supportEmail";
+        }
+
+        if (($funding = $this->composerJsonAttribute('funding')) && count($funding)) {
+            $links['donate'] = $funding[0]['url'];
+        }
+
+        $links['authors'] = [];
+
+        foreach ((array) $this->composerJsonAttribute('authors') as $author) {
+            $links['authors'][] = [
+                'name' => Arr::get($author, 'name'),
+                'link' => Arr::get($author, 'homepage') ?? (Arr::get($author, 'email') ? 'mailto:'.Arr::get($author, 'email') : ''),
+            ];
+        }
+
+        return array_merge($links, $this->composerJsonAttribute('extra.flarum-extension.links') ?? []);
     }
 
     /**
@@ -363,12 +480,15 @@ class Extension implements Arrayable
     public function toArray()
     {
         return (array) array_merge([
-            'id'            => $this->getId(),
-            'version'       => $this->getVersion(),
-            'path'          => $this->path,
-            'icon'          => $this->getIcon(),
-            'hasAssets'     => $this->hasAssets(),
-            'hasMigrations' => $this->hasMigrations(),
+            'id'                     => $this->getId(),
+            'version'                => $this->getVersion(),
+            'path'                   => $this->getPath(),
+            'icon'                   => $this->getIcon(),
+            'hasAssets'              => $this->hasAssets(),
+            'hasMigrations'          => $this->hasMigrations(),
+            'extensionDependencyIds' => $this->getExtensionDependencyIds(),
+            'optionalDependencyIds'  => $this->getOptionalDependencyIds(),
+            'links'                  => $this->getLinks(),
         ], $this->composerJson);
     }
 }

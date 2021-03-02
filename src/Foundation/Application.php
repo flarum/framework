@@ -9,49 +9,33 @@
 
 namespace Flarum\Foundation;
 
-use Illuminate\Container\Container;
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 
-class Application extends Container implements ApplicationContract
+class Application
 {
     /**
      * The Flarum version.
      *
      * @var string
      */
-    const VERSION = '0.1.0-beta.13-dev';
+    const VERSION = '0.1.0-beta.15';
 
     /**
-     * The base path for the Flarum installation.
+     * The IoC container for the Flarum application.
      *
-     * @var string
+     * @var Container
      */
-    protected $basePath;
+    private $container;
 
     /**
-     * The public path for the Flarum installation.
+     * The paths for the Flarum installation.
      *
-     * @var string
+     * @var Paths
      */
-    protected $publicPath;
-
-    /**
-     * The custom storage path defined by the developer.
-     *
-     * @var string
-     */
-    protected $storagePath;
-
-    /**
-     * A custom vendor path to find dependencies in non-standard environments.
-     *
-     * @var string
-     */
-    protected $vendorPath;
+    protected $paths;
 
     /**
      * Indicates if the application has "booted".
@@ -89,33 +73,19 @@ class Application extends Container implements ApplicationContract
     protected $loadedProviders = [];
 
     /**
-     * The deferred services and their providers.
-     *
-     * @var array
-     */
-    protected $deferredServices = [];
-
-    /**
      * Create a new Flarum application instance.
      *
-     * @param string|null $basePath
-     * @param string|null $publicPath
+     * @param Container $container
+     * @param Paths $paths
      */
-    public function __construct($basePath = null, $publicPath = null)
+    public function __construct(Container $container, Paths $paths)
     {
+        $this->container = $container;
+        $this->paths = $paths;
+
         $this->registerBaseBindings();
-
         $this->registerBaseServiceProviders();
-
         $this->registerCoreContainerAliases();
-
-        if ($basePath) {
-            $this->setBasePath($basePath);
-        }
-
-        if ($publicPath) {
-            $this->setPublicPath($publicPath);
-        }
     }
 
     /**
@@ -125,7 +95,9 @@ class Application extends Container implements ApplicationContract
      */
     public function config($key, $default = null)
     {
-        return Arr::get($this->make('flarum.config'), $key, $default);
+        $config = $this->container->make('flarum.config');
+
+        return $config[$key] ?? $default;
     }
 
     /**
@@ -146,32 +118,14 @@ class Application extends Container implements ApplicationContract
      */
     public function url($path = null)
     {
-        $config = $this->make('flarum.config');
-        $url = Arr::get($config, 'url', Arr::get($_SERVER, 'REQUEST_URI'));
-
-        if (is_array($url)) {
-            if (isset($url[$path])) {
-                return $url[$path];
-            }
-
-            $url = $url['base'];
-        }
+        $config = $this->container->make('flarum.config');
+        $url = (string) $config->url();
 
         if ($path) {
-            $url .= '/'.Arr::get($config, "paths.$path", $path);
+            $url .= '/'.($config["paths.$path"] ?? $path);
         }
 
         return $url;
-    }
-
-    /**
-     * Get the version number of the application.
-     *
-     * @return string
-     */
-    public function version()
-    {
-        return static::VERSION;
     }
 
     /**
@@ -179,11 +133,16 @@ class Application extends Container implements ApplicationContract
      */
     protected function registerBaseBindings()
     {
-        static::setInstance($this);
+        \Illuminate\Container\Container::setInstance($this->container);
 
-        $this->instance('app', $this);
+        $this->container->instance('app', $this->container);
+        $this->container->alias('app', \Illluminate\Container\Container::class);
 
-        $this->instance(Container::class, $this);
+        $this->container->instance('flarum', $this);
+        $this->container->alias('flarum', self::class);
+
+        $this->container->instance('flarum.paths', $this->paths);
+        $this->container->alias('flarum.paths', Paths::class);
     }
 
     /**
@@ -191,171 +150,7 @@ class Application extends Container implements ApplicationContract
      */
     protected function registerBaseServiceProviders()
     {
-        $this->register(new EventServiceProvider($this));
-    }
-
-    /**
-     * Set the base path for the application.
-     *
-     * @param string $basePath
-     * @return $this
-     */
-    public function setBasePath($basePath)
-    {
-        $this->basePath = rtrim($basePath, '\/');
-
-        $this->bindPathsInContainer();
-
-        return $this;
-    }
-
-    /**
-     * Set the public path for the application.
-     *
-     * @param string $publicPath
-     * @return $this
-     */
-    public function setPublicPath($publicPath)
-    {
-        $this->publicPath = rtrim($publicPath, '\/');
-
-        $this->bindPathsInContainer();
-
-        return $this;
-    }
-
-    /**
-     * Bind all of the application paths in the container.
-     *
-     * @return void
-     */
-    protected function bindPathsInContainer()
-    {
-        foreach (['base', 'public', 'storage', 'vendor'] as $path) {
-            $this->instance('path.'.$path, $this->{$path.'Path'}());
-        }
-    }
-
-    /**
-     * Get the base path of the Laravel installation.
-     *
-     * @return string
-     */
-    public function basePath()
-    {
-        return $this->basePath;
-    }
-
-    /**
-     * Get the path to the public / web directory.
-     *
-     * @return string
-     */
-    public function publicPath()
-    {
-        return $this->publicPath;
-    }
-
-    /**
-     * Get the path to the storage directory.
-     *
-     * @return string
-     */
-    public function storagePath()
-    {
-        return $this->storagePath ?: $this->basePath.DIRECTORY_SEPARATOR.'storage';
-    }
-
-    /**
-     * Get the path to the vendor directory where dependencies are installed.
-     *
-     * @return string
-     */
-    public function vendorPath()
-    {
-        return $this->vendorPath ?: $this->basePath.DIRECTORY_SEPARATOR.'vendor';
-    }
-
-    /**
-     * Set the storage directory.
-     *
-     * @param string $path
-     * @return $this
-     */
-    public function useStoragePath($path)
-    {
-        $this->storagePath = $path;
-
-        $this->instance('path.storage', $path);
-
-        return $this;
-    }
-
-    /**
-     * Set the vendor directory.
-     *
-     * @param string $path
-     * @return $this
-     */
-    public function useVendorPath($path)
-    {
-        $this->vendorPath = $path;
-
-        $this->instance('path.vendor', $path);
-
-        return $this;
-    }
-
-    /**
-     * Get or check the current application environment.
-     *
-     * @param mixed
-     * @return string
-     */
-    public function environment()
-    {
-        if (func_num_args() > 0) {
-            $patterns = is_array(func_get_arg(0)) ? func_get_arg(0) : func_get_args();
-
-            foreach ($patterns as $pattern) {
-                if (Str::is($pattern, $this['env'])) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        return $this['env'];
-    }
-
-    /**
-     * Determine if we are running in the console.
-     *
-     * @return bool
-     */
-    public function runningInConsole()
-    {
-        return php_sapi_name() == 'cli';
-    }
-
-    /**
-     * Determine if we are running unit tests.
-     *
-     * @return bool
-     */
-    public function runningUnitTests()
-    {
-        return $this['env'] == 'testing';
-    }
-
-    /**
-     * Register all of the configured providers.
-     *
-     * @return void
-     */
-    public function registerConfiguredProviders()
-    {
+        $this->register(new EventServiceProvider($this->container));
     }
 
     /**
@@ -423,7 +218,7 @@ class Application extends Container implements ApplicationContract
      */
     public function resolveProviderClass($provider)
     {
-        return new $provider($this);
+        return new $provider($this->container);
     }
 
     /**
@@ -434,104 +229,11 @@ class Application extends Container implements ApplicationContract
      */
     protected function markAsRegistered($provider)
     {
-        $this['events']->fire($class = get_class($provider), [$provider]);
+        $this->container['events']->dispatch($class = get_class($provider), [$provider]);
 
         $this->serviceProviders[] = $provider;
 
         $this->loadedProviders[$class] = true;
-    }
-
-    /**
-     * Load and boot all of the remaining deferred providers.
-     */
-    public function loadDeferredProviders()
-    {
-        // We will simply spin through each of the deferred providers and register each
-        // one and boot them if the application has booted. This should make each of
-        // the remaining services available to this application for immediate use.
-        foreach ($this->deferredServices as $service => $provider) {
-            $this->loadDeferredProvider($service);
-        }
-
-        $this->deferredServices = [];
-    }
-
-    /**
-     * Load the provider for a deferred service.
-     *
-     * @param string $service
-     */
-    public function loadDeferredProvider($service)
-    {
-        if (! isset($this->deferredServices[$service])) {
-            return;
-        }
-
-        $provider = $this->deferredServices[$service];
-
-        // If the service provider has not already been loaded and registered we can
-        // register it with the application and remove the service from this list
-        // of deferred services, since it will already be loaded on subsequent.
-        if (! isset($this->loadedProviders[$provider])) {
-            $this->registerDeferredProvider($provider, $service);
-        }
-    }
-
-    /**
-     * Register a deferred provider and service.
-     *
-     * @param string $provider
-     * @param string $service
-     */
-    public function registerDeferredProvider($provider, $service = null)
-    {
-        // Once the provider that provides the deferred service has been registered we
-        // will remove it from our local list of the deferred services with related
-        // providers so that this container does not try to resolve it out again.
-        if ($service) {
-            unset($this->deferredServices[$service]);
-        }
-
-        $this->register($instance = new $provider($this));
-
-        if (! $this->booted) {
-            $this->booting(function () use ($instance) {
-                $this->bootProvider($instance);
-            });
-        }
-    }
-
-    /**
-     * Resolve the given type from the container.
-     *
-     * (Overriding Container::make)
-     *
-     * @param string $abstract
-     * @param array $parameters
-     * @return mixed
-     */
-    public function make($abstract, array $parameters = [])
-    {
-        $abstract = $this->getAlias($abstract);
-
-        if (isset($this->deferredServices[$abstract])) {
-            $this->loadDeferredProvider($abstract);
-        }
-
-        return parent::make($abstract, $parameters);
-    }
-
-    /**
-     * Determine if the given abstract type has been bound.
-     *
-     * (Overriding Container::bound)
-     *
-     * @param string $abstract
-     * @return bool
-     */
-    public function bound($abstract)
-    {
-        return isset($this->deferredServices[$abstract]) || parent::bound($abstract);
     }
 
     /**
@@ -578,7 +280,7 @@ class Application extends Container implements ApplicationContract
     protected function bootProvider(ServiceProvider $provider)
     {
         if (method_exists($provider, 'boot')) {
-            return $this->call([$provider, 'boot']);
+            return $this->container->call([$provider, 'boot']);
         }
     }
 
@@ -622,95 +324,12 @@ class Application extends Container implements ApplicationContract
     }
 
     /**
-     * Get the path to the cached "compiled.php" file.
-     *
-     * @return string
-     */
-    public function getCachedCompilePath()
-    {
-        return $this->basePath().'/bootstrap/cache/compiled.php';
-    }
-
-    /**
-     * Get the path to the cached services.json file.
-     *
-     * @return string
-     */
-    public function getCachedServicesPath()
-    {
-        return $this->basePath().'/bootstrap/cache/services.json';
-    }
-
-    /**
-     * Determine if the application is currently down for maintenance.
-     *
-     * @return bool
-     */
-    public function isDownForMaintenance()
-    {
-        return $this->config('offline');
-    }
-
-    /**
-     * Get the service providers that have been loaded.
-     *
-     * @return array
-     */
-    public function getLoadedProviders()
-    {
-        return $this->loadedProviders;
-    }
-
-    /**
-     * Get the application's deferred services.
-     *
-     * @return array
-     */
-    public function getDeferredServices()
-    {
-        return $this->deferredServices;
-    }
-
-    /**
-     * Set the application's deferred services.
-     *
-     * @param  array  $services
-     * @return void
-     */
-    public function setDeferredServices(array $services)
-    {
-        $this->deferredServices = $services;
-    }
-
-    /**
-     * Add an array of services to the application's deferred services.
-     *
-     * @param  array  $services
-     * @return void
-     */
-    public function addDeferredServices(array $services)
-    {
-        $this->deferredServices = array_merge($this->deferredServices, $services);
-    }
-
-    /**
-     * Determine if the given service is a deferred service.
-     *
-     * @param  string  $service
-     * @return bool
-     */
-    public function isDeferredService($service)
-    {
-        return isset($this->deferredServices[$service]);
-    }
-
-    /**
      * Register the core class aliases in the container.
      */
     public function registerCoreContainerAliases()
     {
         $aliases = [
-            'app'                  => [self::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
+            'app'                  => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
             'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
             'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
             'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
@@ -730,36 +349,8 @@ class Application extends Container implements ApplicationContract
 
         foreach ($aliases as $key => $aliases) {
             foreach ((array) $aliases as $alias) {
-                $this->alias($key, $alias);
+                $this->container->alias($key, $alias);
             }
         }
-    }
-
-    /**
-     * Flush the container of all bindings and resolved instances.
-     */
-    public function flush()
-    {
-        parent::flush();
-
-        $this->loadedProviders = [];
-    }
-
-    /**
-     * Get the path to the cached packages.php file.
-     *
-     * @return string
-     */
-    public function getCachedPackagesPath()
-    {
-        return storage_path('app/cache/packages.php');
-    }
-
-    /**
-     * @return string
-     */
-    public function resourcePath()
-    {
-        return storage_path('resources');
     }
 }

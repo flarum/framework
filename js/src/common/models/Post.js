@@ -17,13 +17,13 @@ Object.assign(Post.prototype, {
 
   editedAt: Model.attribute('editedAt', Model.transformDate),
   editedUser: Model.hasOne('editedUser'),
-  isEdited: computed('editedAt', editedAt => !!editedAt),
+  isEdited: computed('editedAt', (editedAt) => !!editedAt),
 
   hiddenAt: Model.attribute('hiddenAt', Model.transformDate),
   hiddenUser: Model.hasOne('hiddenUser'),
-  isHidden: computed('hiddenAt', hiddenAt => !!hiddenAt),
+  isHidden: computed('hiddenAt', (hiddenAt) => !!hiddenAt),
 
   canEdit: Model.attribute('canEdit'),
   canHide: Model.attribute('canHide'),
-  canDelete: Model.attribute('canDelete')
+  canDelete: Model.attribute('canDelete'),
 });

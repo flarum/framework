@@ -9,6 +9,8 @@
 
 namespace Flarum\Notification;
 
+use Symfony\Component\Translation\TranslatorInterface;
+
 interface MailableInterface
 {
     /**
@@ -23,5 +25,5 @@ interface MailableInterface
      *
      * @return string
      */
-    public function getEmailSubject();
+    public function getEmailSubject(TranslatorInterface $translator);
 }

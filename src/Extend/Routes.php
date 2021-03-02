@@ -19,6 +19,7 @@ class Routes implements ExtenderInterface
     private $appName;
 
     private $routes = [];
+    private $removedRoutes = [];
 
     public function __construct($appName)
     {
@@ -62,9 +63,16 @@ class Routes implements ExtenderInterface
         return $this;
     }
 
+    public function remove(string $method, string $name)
+    {
+        $this->removedRoutes[] = compact('method', 'name');
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
-        if (empty($this->routes)) {
+        if (empty($this->routes) && empty($this->removedRoutes)) {
             return;
         }
 
@@ -73,6 +81,10 @@ class Routes implements ExtenderInterface
             function (RouteCollection $collection, Container $container) {
                 /** @var RouteHandlerFactory $factory */
                 $factory = $container->make(RouteHandlerFactory::class);
+
+                foreach ($this->removedRoutes as $route) {
+                    $collection->removeRoute($route['method'], $route['name']);
+                }
 
                 foreach ($this->routes as $route) {
                     $collection->addRoute(

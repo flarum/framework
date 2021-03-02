@@ -1,5 +1,6 @@
 import ComposerBody from './ComposerBody';
 import extractText from '../../common/utils/extractText';
+import Stream from '../../common/utils/Stream';
 
 /**
  * The `DiscussionComposer` component displays the composer content for starting
@@ -7,31 +8,33 @@ import extractText from '../../common/utils/extractText';
  * enter the title of their discussion. It also overrides the `submit` and
  * `willExit` actions to account for the title.
  *
- * ### Props
+ * ### Attrs
  *
- * - All of the props for ComposerBody
+ * - All of the attrs for ComposerBody
  * - `titlePlaceholder`
  */
 export default class DiscussionComposer extends ComposerBody {
-  init() {
-    super.init();
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
+
+    attrs.placeholder = attrs.placeholder || extractText(app.translator.trans('core.forum.composer_discussion.body_placeholder'));
+    attrs.submitLabel = attrs.submitLabel || app.translator.trans('core.forum.composer_discussion.submit_button');
+    attrs.confirmExit = attrs.confirmExit || extractText(app.translator.trans('core.forum.composer_discussion.discard_confirmation'));
+    attrs.titlePlaceholder = attrs.titlePlaceholder || extractText(app.translator.trans('core.forum.composer_discussion.title_placeholder'));
+    attrs.className = 'ComposerBody--discussion';
+  }
+
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    this.composer.fields.title = this.composer.fields.title || Stream('');
 
     /**
      * The value of the title input.
      *
      * @type {Function}
      */
-    this.title = m.prop('');
-  }
-
-  static initProps(props) {
-    super.initProps(props);
-
-    props.placeholder = props.placeholder || extractText(app.translator.trans('core.forum.composer_discussion.body_placeholder'));
-    props.submitLabel = props.submitLabel || app.translator.trans('core.forum.composer_discussion.submit_button');
-    props.confirmExit = props.confirmExit || extractText(app.translator.trans('core.forum.composer_discussion.discard_confirmation'));
-    props.titlePlaceholder = props.titlePlaceholder || extractText(app.translator.trans('core.forum.composer_discussion.title_placeholder'));
-    props.className = 'ComposerBody--discussion';
+    this.title = this.composer.fields.title;
   }
 
   headerItems() {
@@ -39,16 +42,18 @@ export default class DiscussionComposer extends ComposerBody {
 
     items.add('title', <h3>{app.translator.trans('core.forum.composer_discussion.title')}</h3>, 100);
 
-    items.add('discussionTitle', (
+    items.add(
+      'discussionTitle',
       <h3>
-        <input className="FormControl"
-          value={this.title()}
-          oninput={m.withAttr('value', this.title)}
-          placeholder={this.props.titlePlaceholder}
-          disabled={!!this.props.disabled}
-          onkeydown={this.onkeydown.bind(this)}/>
+        <input
+          className="FormControl"
+          bidi={this.title}
+          placeholder={this.attrs.titlePlaceholder}
+          disabled={!!this.attrs.disabled}
+          onkeydown={this.onkeydown.bind(this)}
+        />
       </h3>
-    ));
+    );
 
     return items;
   }
@@ -60,16 +65,17 @@ export default class DiscussionComposer extends ComposerBody {
    * @param {Event} e
    */
   onkeydown(e) {
-    if (e.which === 13) { // Return
+    if (e.which === 13) {
+      // Return
       e.preventDefault();
-      this.editor.setSelectionRange(0, 0);
+      this.composer.editor.moveCursorTo(0);
     }
 
-    m.redraw.strategy('none');
+    e.redraw = false;
   }
 
-  preventExit() {
-    return (this.title() || this.content()) && this.props.confirmExit;
+  hasChanges() {
+    return this.title() || this.composer.fields.content();
   }
 
   /**
@@ -80,7 +86,7 @@ export default class DiscussionComposer extends ComposerBody {
   data() {
     return {
       title: this.title(),
-      content: this.content()
+      content: this.composer.fields.content(),
     };
   }
 
@@ -89,13 +95,13 @@ export default class DiscussionComposer extends ComposerBody {
 
     const data = this.data();
 
-    app.store.createRecord('discussions').save(data).then(
-      discussion => {
-        app.composer.hide();
-        app.cache.discussionList.addDiscussion(discussion);
-        m.route(app.route.discussion(discussion));
-      },
-      this.loaded.bind(this)
-    );
+    app.store
+      .createRecord('discussions')
+      .save(data)
+      .then((discussion) => {
+        this.composer.hide();
+        app.discussions.refresh({ deferClear: true });
+        m.route.set(app.route.discussion(discussion));
+      }, this.loaded.bind(this));
   }
 }

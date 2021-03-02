@@ -1,31 +1,10 @@
-import Page from './Page';
 import FieldSet from '../../common/components/FieldSet';
-import Select from '../../common/components/Select';
-import Button from '../../common/components/Button';
-import Alert from '../../common/components/Alert';
-import saveSettings from '../utils/saveSettings';
 import ItemList from '../../common/utils/ItemList';
-import Switch from '../../common/components/Switch';
+import AdminPage from './AdminPage';
 
-export default class BasicsPage extends Page {
-  init() {
-    super.init();
-
-    this.loading = false;
-
-    this.fields = [
-      'forum_title',
-      'forum_description',
-      'default_locale',
-      'show_language_selector',
-      'default_route',
-      'welcome_title',
-      'welcome_message'
-    ];
-    this.values = {};
-
-    const settings = app.data.settings;
-    this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
+export default class BasicsPage extends AdminPage {
+  oninit(vnode) {
+    super.oninit(vnode);
 
     this.localeOptions = {};
     const locales = app.data.locales;
@@ -33,94 +12,107 @@ export default class BasicsPage extends Page {
       this.localeOptions[i] = `${locales[i]} (${i})`;
     }
 
-    if (typeof this.values.show_language_selector() !== "number") this.values.show_language_selector(1);
+    this.displayNameOptions = {};
+    const displayNameDrivers = app.data.displayNameDrivers;
+    displayNameDrivers.forEach(function (identifier) {
+      this.displayNameOptions[identifier] = identifier;
+    }, this);
+
+    this.slugDriverOptions = {};
+    Object.keys(app.data.slugDrivers).forEach((model) => {
+      this.slugDriverOptions[model] = {};
+
+      app.data.slugDrivers[model].forEach((option) => {
+        this.slugDriverOptions[model][option] = option;
+      });
+    });
   }
 
-  view() {
-    return (
-      <div className="BasicsPage">
-        <div className="container">
-          <form onsubmit={this.onsubmit.bind(this)}>
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.basics.forum_title_heading'),
-              children: [
-                <input className="FormControl" value={this.values.forum_title()} oninput={m.withAttr('value', this.values.forum_title)}/>
-              ]
-            })}
+  headerInfo() {
+    return {
+      className: 'BasicsPage',
+      icon: 'fas fa-pencil-alt',
+      title: app.translator.trans('core.admin.basics.title'),
+      description: app.translator.trans('core.admin.basics.description'),
+    };
+  }
 
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.basics.forum_description_heading'),
-              children: [
-                <div className="helpText">
-                  {app.translator.trans('core.admin.basics.forum_description_text')}
-                </div>,
-                <textarea className="FormControl" value={this.values.forum_description()} oninput={m.withAttr('value', this.values.forum_description)}/>
-              ]
-            })}
+  content() {
+    return [
+      <div className="Form">
+        {this.buildSettingComponent({
+          type: 'text',
+          setting: 'forum_title',
+          label: app.translator.trans('core.admin.basics.forum_title_heading'),
+        })}
+        {this.buildSettingComponent({
+          type: 'text',
+          setting: 'forum_description',
+          label: app.translator.trans('core.admin.basics.forum_description_heading'),
+          help: app.translator.trans('core.admin.basics.forum_description_text'),
+        })}
 
-            {Object.keys(this.localeOptions).length > 1
-              ? FieldSet.component({
+        {Object.keys(this.localeOptions).length > 1
+          ? [
+              this.buildSettingComponent({
+                type: 'select',
+                setting: 'default_locale',
+                options: this.localeOptions,
                 label: app.translator.trans('core.admin.basics.default_language_heading'),
-                children: [
-                  Select.component({
-                    options: this.localeOptions,
-                    value: this.values.default_locale(),
-                    onchange: this.values.default_locale
-                  }),
-                  Switch.component({
-                    state: this.values.show_language_selector(),
-                    onchange: this.values.show_language_selector,
-                    children: app.translator.trans('core.admin.basics.show_language_selector_label'),
-                  })
-                ]
-              })
-              : ''}
+              }),
+              this.buildSettingComponent({
+                type: 'switch',
+                setting: 'show_language_selector',
+                label: app.translator.trans('core.admin.basics.show_language_selector_label'),
+              }),
+            ]
+          : ''}
 
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.basics.home_page_heading'),
-              className: 'BasicsPage-homePage',
-              children: [
-                <div className="helpText">
-                  {app.translator.trans('core.admin.basics.home_page_text')}
-                </div>,
-                this.homePageItems().toArray().map(({path, label}) =>
-                  <label className="checkbox">
-                    <input type="radio" name="homePage" value={path} checked={this.values.default_route() === path} onclick={m.withAttr('value', this.values.default_route)}/>
-                    {label}
-                  </label>
-                )
-              ]
-            })}
+        <FieldSet className="BasicsPage-homePage Form-group" label={app.translator.trans('core.admin.basics.home_page_heading')}>
+          <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>
+          {this.homePageItems()
+            .toArray()
+            .map(({ path, label }) => (
+              <label className="checkbox">
+                <input type="radio" name="homePage" value={path} bidi={this.setting('default_route')} />
+                {label}
+              </label>
+            ))}
+        </FieldSet>
 
-            {FieldSet.component({
-              label: app.translator.trans('core.admin.basics.welcome_banner_heading'),
-              className: 'BasicsPage-welcomeBanner',
-              children: [
-                <div className="helpText">
-                  {app.translator.trans('core.admin.basics.welcome_banner_text')}
-                </div>,
-                <div className="BasicsPage-welcomeBanner-input">
-                  <input className="FormControl" value={this.values.welcome_title()} oninput={m.withAttr('value', this.values.welcome_title)}/>
-                  <textarea className="FormControl" value={this.values.welcome_message()} oninput={m.withAttr('value', this.values.welcome_message)}/>
-                </div>
-              ]
-            })}
-
-            {Button.component({
-              type: 'submit',
-              className: 'Button Button--primary',
-              children: app.translator.trans('core.admin.basics.submit_button'),
-              loading: this.loading,
-              disabled: !this.changed()
-            })}
-          </form>
+        <div className="Form-group BasicsPage-welcomeBanner-input">
+          <label>{app.translator.trans('core.admin.basics.welcome_banner_heading')}</label>
+          <div className="helpText">{app.translator.trans('core.admin.basics.welcome_banner_text')}</div>
+          <input type="text" className="FormControl" bidi={this.setting('welcome_title')} />
+          <textarea className="FormControl" bidi={this.setting('welcome_message')} />
         </div>
-      </div>
-    );
-  }
 
-  changed() {
-    return this.fields.some(key => this.values[key]() !== app.data.settings[key]);
+        {Object.keys(this.displayNameOptions).length > 1
+          ? this.buildSettingComponent({
+              type: 'select',
+              setting: 'display_name_driver',
+              options: this.displayNameOptions,
+              label: app.translator.trans('core.admin.basics.display_name_heading'),
+              help: app.translator.trans('core.admin.basics.display_name_text'),
+            })
+          : ''}
+
+        {Object.keys(this.slugDriverOptions).map((model) => {
+          const options = this.slugDriverOptions[model];
+          if (Object.keys(options).length > 1) {
+            return this.buildSettingComponent({
+              type: 'select',
+              setting: `slug_driver_${model}`,
+              options,
+              label: app.translator.trans('core.admin.basics.slug_driver_heading', { model }),
+              help: app.translator.trans('core.admin.basics.slug_driver_text', { model }),
+            });
+          }
+        })}
+
+        {this.submitButton()}
+      </div>,
+    ];
   }
 
   /**
@@ -135,32 +127,9 @@ export default class BasicsPage extends Page {
 
     items.add('allDiscussions', {
       path: '/all',
-      label: app.translator.trans('core.admin.basics.all_discussions_label')
+      label: app.translator.trans('core.admin.basics.all_discussions_label'),
     });
 
     return items;
-  }
-
-  onsubmit(e) {
-    e.preventDefault();
-
-    if (this.loading) return;
-
-    this.loading = true;
-    app.alerts.dismiss(this.successAlert);
-
-    const settings = {};
-
-    this.fields.forEach(key => settings[key] = this.values[key]());
-
-    saveSettings(settings)
-      .then(() => {
-        app.alerts.show(this.successAlert = new Alert({type: 'success', children: app.translator.trans('core.admin.basics.saved_message')}));
-      })
-      .catch(() => {})
-      .then(() => {
-        this.loading = false;
-        m.redraw();
-      });
   }
 }

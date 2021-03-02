@@ -1,9 +1,10 @@
 import Modal from '../../common/components/Modal';
 
 export default class LoadingModal extends Modal {
-  isDismissible() {
-    return false;
-  }
+  /**
+   * @inheritdoc
+   */
+  static isDismissible = false;
 
   className() {
     return 'LoadingModal Modal--small';

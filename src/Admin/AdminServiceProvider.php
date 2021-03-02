@@ -12,7 +12,6 @@ namespace Flarum\Admin;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
@@ -50,31 +49,38 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.admin.middleware', function () {
             return [
+                'flarum.admin.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
-                HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\SetLocale::class,
-                Middleware\RequireAdministrateAbility::class,
+                'flarum.admin.route_resolver',
+                HttpMiddleware\CheckCsrfToken::class,
+                Middleware\RequireAdministrateAbility::class
             ];
         });
 
-        $this->app->singleton('flarum.admin.handler', function (Application $app) {
-            $pipe = new MiddlewarePipe;
+        $this->app->bind('flarum.admin.error_handler', function () {
+            return new HttpMiddleware\HandleErrors(
+                $this->app->make(Registry::class),
+                $this->app['flarum.config']->inDebugMode() ? $this->app->make(WhoopsFormatter::class) : $this->app->make(ViewFormatter::class),
+                $this->app->tagged(Reporter::class)
+            );
+        });
 
-            // All requests should first be piped through our global error handler
-            $pipe->pipe(new HttpMiddleware\HandleErrors(
-                $app->make(Registry::class),
-                $app->inDebugMode() ? $app->make(WhoopsFormatter::class) : $app->make(ViewFormatter::class),
-                $app->tagged(Reporter::class)
-            ));
+        $this->app->bind('flarum.admin.route_resolver', function () {
+            return new HttpMiddleware\ResolveRoute($this->app->make('flarum.admin.routes'));
+        });
+
+        $this->app->singleton('flarum.admin.handler', function () {
+            $pipe = new MiddlewarePipe;
 
             foreach ($this->app->make('flarum.admin.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
             }
 
-            $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.admin.routes')));
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });

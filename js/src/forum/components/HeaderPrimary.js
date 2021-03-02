@@ -8,18 +8,7 @@ import listItems from '../../common/helpers/listItems';
  */
 export default class HeaderPrimary extends Component {
   view() {
-    return (
-      <ul className="Header-controls">
-        {listItems(this.items().toArray())}
-      </ul>
-    );
-  }
-
-  config(isInitialized, context) {
-    // Since this component is 'above' the content of the page (that is, it is a
-    // part of the global UI that persists between routes), we will flag the DOM
-    // to be retained across route changes.
-    context.retain = true;
+    return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
   }
 
   /**

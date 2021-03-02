@@ -59,4 +59,15 @@ class ExceptionHandler implements ExceptionHandling
     {
         // TODO: Implement renderForConsole() method.
     }
+
+    /**
+     * Determine if the exception should be reported.
+     *
+     * @param  \Exception $e
+     * @return bool
+     */
+    public function shouldReport(Exception $e)
+    {
+        return true;
+    }
 }

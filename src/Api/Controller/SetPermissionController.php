@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Group\Permission;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -19,14 +18,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SetPermissionController implements RequestHandlerInterface
 {
-    use AssertPermissionTrait;
-
     /**
      * {@inheritdoc}
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $request->getAttribute('actor')->assertAdmin();
 
         $body = $request->getParsedBody();
         $permission = Arr::get($body, 'permission');

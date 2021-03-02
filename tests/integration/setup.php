@@ -7,6 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Flarum\Foundation\Paths;
 use Flarum\Install\AdminUser;
 use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
@@ -14,12 +15,12 @@ use Flarum\Install\Installation;
 
 require __DIR__.'/../../vendor/autoload.php';
 
-$host = env('DB_HOST', 'localhost');
-$port = intval(env('DB_PORT', 3306));
-$name = env('DB_DATABASE', 'flarum_test');
-$user = env('DB_USERNAME', 'root');
-$pass = env('DB_PASSWORD', '');
-$pref = env('DB_PREFIX', '');
+$host = getenv('DB_HOST') ?: 'localhost';
+$port = intval(getenv('DB_PORT') ?: 3306);
+$name = getenv('DB_DATABASE') ?: 'flarum_test';
+$user = getenv('DB_USERNAME') ?: 'root';
+$pass = getenv('DB_PASSWORD') ?: '';
+$pref = getenv('DB_PREFIX') ?: '';
 
 echo "Connecting to database $name at $host:$port.\n";
 echo "Logging in as $user with password '$pass'.\n";
@@ -38,29 +39,25 @@ echo "\nOff we go...\n";
  */
 
 $installation = new Installation(
-    __DIR__.'/tmp',
-    __DIR__.'/tmp/public',
-    __DIR__.'/tmp/storage',
-    __DIR__.'/../../vendor'
+    new Paths([
+        'base' => __DIR__.'/tmp',
+        'public' => __DIR__.'/tmp/public',
+        'storage' => __DIR__.'/tmp/storage',
+        'vendor' => __DIR__.'/../../vendor',
+    ])
 );
 
 $pipeline = $installation
     ->configPath('config.php')
     ->debugMode(true)
     ->baseUrl(BaseUrl::fromString('http://localhost'))
-    ->databaseConfig(new DatabaseConfig(
-        'mysql',
-        env('DB_HOST', 'localhost'),
-        intval(env('DB_PORT', 3306)),
-        env('DB_DATABASE', 'flarum_test'),
-        env('DB_USERNAME', 'root'),
-        env('DB_PASSWORD', ''),
-        env('DB_PREFIX', '')
-    ))
+    ->databaseConfig(
+        new DatabaseConfig('mysql', $host, $port, $name, $user, $pass, $pref)
+    )
     ->adminUser(new AdminUser(
         'admin',
-        'secret',
-        'admin@flarum.email'
+        'password',
+        'admin@machine.local'
     ))
     ->settings(['mail_driver' => 'log'])
     ->build();

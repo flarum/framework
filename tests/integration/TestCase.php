@@ -9,11 +9,11 @@
 
 namespace Flarum\Tests\integration;
 
-use Dflydev\FigCookies\SetCookie;
 use Flarum\Extend\ExtenderInterface;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\InstalledSite;
+use Flarum\Foundation\Paths;
 use Illuminate\Database\ConnectionInterface;
-use Laminas\Diactoros\CallbackStream;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,6 +21,18 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use BuildsHttpRequests;
+
+    /**
+     * @inheritDoc
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->database()->rollBack();
+    }
+
     /**
      * @var \Flarum\Foundation\InstalledApp
      */
@@ -33,18 +45,22 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         if (is_null($this->app)) {
             $site = new InstalledSite(
-                [
+                new Paths([
                     'base' => __DIR__.'/tmp',
                     'vendor' => __DIR__.'/../../vendor',
                     'public' => __DIR__.'/tmp/public',
                     'storage' => __DIR__.'/tmp/storage',
-                ],
-                include __DIR__.'/tmp/config.php'
+                ]),
+                new Config(include __DIR__.'/tmp/config.php')
             );
 
             $site->extendWith($this->extenders);
 
             $this->app = $site->bootApp();
+
+            $this->database()->beginTransaction();
+
+            $this->populateDatabase();
         }
 
         return $this->app;
@@ -55,9 +71,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected $extenders = [];
 
-    protected function extend(ExtenderInterface $extender)
+    protected function extend(ExtenderInterface ...$extenders)
     {
-        $this->extenders[] = $extender;
+        $this->extenders = array_merge($this->extenders, $extenders);
     }
 
     /**
@@ -87,20 +103,23 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return $this->database;
     }
 
+    protected $databaseContent = [];
+
     protected function prepareDatabase(array $tableData)
+    {
+        $this->databaseContent = array_merge_recursive(
+            $this->databaseContent,
+            $tableData
+        );
+    }
+
+    protected function populateDatabase()
     {
         // We temporarily disable foreign key checks to simplify this process.
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
 
-        // First, truncate all referenced tables so that they are empty.
-        foreach (array_keys($tableData) as $table) {
-            if ($table !== 'settings') {
-                $this->database()->table($table)->truncate();
-            }
-        }
-
         // Then, insert all rows required for this test case.
-        foreach ($tableData as $table => $rows) {
+        foreach ($this->databaseContent as $table => $rows) {
             foreach ($rows as $row) {
                 if ($table === 'settings') {
                     $this->database()->table($table)->updateOrInsert(
@@ -131,7 +150,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * Build a HTTP request that can be passed through middleware.
      *
-     * This method simplifies building HTTP request for use in our HTTP-level
+     * This method simplifies building HTTP requests for use in our HTTP-level
      * integration tests. It provides options for all features repeatedly being
      * used in those tests.
      *
@@ -143,6 +162,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      *   - "json" should point to a JSON-serializable object that will be
      *     serialized and used as request body. The corresponding Content-Type
      *     header will be set automatically.
+     *   - "authenticatedAs" should identify an *existing* user by ID. This will
+     *     cause an access token to be created for this user, which will be used
+     *     to authenticate the request via the "Authorization" header.
      *   - "cookiesFrom" should hold a response object from a previous HTTP
      *     interaction. All cookies returned from the server in that response
      *     (via the "Set-Cookie" header) will be copied to the cookie params of
@@ -155,32 +177,26 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         // Do we want a JSON request body?
         if (isset($options['json'])) {
-            $request = $request
-                ->withHeader('Content-Type', 'application/json')
-                ->withBody(
-                    new CallbackStream(function () use ($options) {
-                        return json_encode($options['json']);
-                    })
-                );
+            $request = $this->requestWithJsonBody(
+                $request,
+                $options['json']
+            );
+        }
+
+        // Authenticate as a given user
+        if (isset($options['authenticatedAs'])) {
+            $request = $this->requestAsUser(
+                $request,
+                $options['authenticatedAs']
+            );
         }
 
         // Let's copy the cookies from a previous response
         if (isset($options['cookiesFrom'])) {
-            /** @var ResponseInterface $previousResponse */
-            $previousResponse = $options['cookiesFrom'];
-
-            $cookies = array_reduce(
-                $previousResponse->getHeader('Set-Cookie'),
-                function ($memo, $setCookieString) {
-                    $setCookie = SetCookie::fromSetCookieString($setCookieString);
-                    $memo[$setCookie->getName()] = $setCookie->getValue();
-
-                    return $memo;
-                },
-                []
+            $request = $this->requestWithCookiesFrom(
+                $request,
+                $options['cookiesFrom']
             );
-
-            $request = $request->withCookieParams($cookies);
         }
 
         return $request;

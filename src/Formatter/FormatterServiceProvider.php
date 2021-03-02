@@ -10,6 +10,7 @@
 namespace Flarum\Formatter;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Paths;
 use Illuminate\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
 
@@ -23,8 +24,7 @@ class FormatterServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.formatter', function (Container $container) {
             return new Formatter(
                 new Repository($container->make('cache.filestore')),
-                $container->make('events'),
-                $this->app->storagePath().'/formatter'
+                $this->app[Paths::class]->storage.'/formatter'
             );
         });
 

@@ -13,14 +13,12 @@ use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\DiscussionValidator;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class EditDiscussionHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var DiscussionRepository
@@ -58,13 +56,13 @@ class EditDiscussionHandler
         $discussion = $this->discussions->findOrFail($command->discussionId, $actor);
 
         if (isset($attributes['title'])) {
-            $this->assertCan($actor, 'rename', $discussion);
+            $actor->assertCan('rename', $discussion);
 
             $discussion->rename($attributes['title']);
         }
 
         if (isset($attributes['isHidden'])) {
-            $this->assertCan($actor, 'hide', $discussion);
+            $actor->assertCan('hide', $discussion);
 
             if ($attributes['isHidden']) {
                 $discussion->hide($actor);

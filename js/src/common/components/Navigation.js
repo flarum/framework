@@ -11,7 +11,7 @@ import LinkButton from './LinkButton';
  * If the app has a pane, it will also include a 'pin' button which toggles the
  * pinned state of the pane.
  *
- * Accepts the following props:
+ * Accepts the following attrs:
  *
  * - `className` The name of a class to set on the root element.
  * - `drawer` Whether or not to show a button to toggle the app's drawer if
@@ -19,24 +19,17 @@ import LinkButton from './LinkButton';
  */
 export default class Navigation extends Component {
   view() {
-    const {history, pane} = app;
+    const { history, pane } = app;
 
     return (
-      <div className={'Navigation ButtonGroup ' + (this.props.className || '')}
+      <div
+        className={'Navigation ButtonGroup ' + (this.attrs.className || '')}
         onmouseenter={pane && pane.show.bind(pane)}
-        onmouseleave={pane && pane.onmouseleave.bind(pane)}>
-        {history.canGoBack()
-          ? [this.getBackButton(), this.getPaneButton()]
-          : this.getDrawerButton()}
+        onmouseleave={pane && pane.onmouseleave.bind(pane)}
+      >
+        {history.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton()}
       </div>
     );
-  }
-
-  config(isInitialized, context) {
-    // Since this component is 'above' the content of the page (that is, it is a
-    // part of the global UI that persists between routes), we will flag the DOM
-    // to be retained across route changes.
-    context.retain = true;
   }
 
   /**
@@ -46,7 +39,7 @@ export default class Navigation extends Component {
    * @protected
    */
   getBackButton() {
-    const {history} = app;
+    const { history } = app;
     const previous = history.getPrevious() || {};
 
     return LinkButton.component({
@@ -54,12 +47,11 @@ export default class Navigation extends Component {
       href: history.backUrl(),
       icon: 'fas fa-chevron-left',
       title: previous.title,
-      config: () => {},
-      onclick: e => {
+      onclick: (e) => {
         if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
         e.preventDefault();
         history.back();
-      }
+      },
     });
   }
 
@@ -70,14 +62,14 @@ export default class Navigation extends Component {
    * @protected
    */
   getPaneButton() {
-    const {pane} = app;
+    const { pane } = app;
 
     if (!pane || !pane.active) return '';
 
     return Button.component({
       className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
       onclick: pane.togglePinned.bind(pane),
-      icon: 'fas fa-thumbtack'
+      icon: 'fas fa-thumbtack',
     });
   }
 
@@ -88,19 +80,18 @@ export default class Navigation extends Component {
    * @protected
    */
   getDrawerButton() {
-    if (!this.props.drawer) return '';
+    if (!this.attrs.drawer) return '';
 
-    const {drawer} = app;
+    const { drawer } = app;
     const user = app.session.user;
 
     return Button.component({
-      className: 'Button Button--icon Navigation-drawer' +
-        (user && user.newNotificationCount() ? ' new' : ''),
-      onclick: e => {
+      className: 'Button Button--icon Navigation-drawer' + (user && user.newNotificationCount() ? ' new' : ''),
+      onclick: (e) => {
         e.stopPropagation();
         drawer.show();
       },
-      icon: 'fas fa-bars'
+      icon: 'fas fa-bars',
     });
   }
 }

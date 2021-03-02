@@ -1,6 +1,9 @@
 .PermissionsPage-groups {
   background: @control-bg;
-  padding: 20px 0;
+  border-radius: @border-radius;
+  display: block;
+  overflow-x: auto;
+  padding: 10px;
 }
 .Group {
   width: 90px;
@@ -63,6 +66,9 @@
       .icon {
         margin-right: 5px;
         font-size: 14px;
+        width: 18px;
+        text-align: center;
+        color: @muted-color;
       }
     }
     .Dropdown {
@@ -109,7 +115,7 @@
 }
 .PermissionGrid-section {
   td, th {
-    padding-top: 20px;
+    padding-top: 10px;
   }
 }
 .PermissionGrid-child {

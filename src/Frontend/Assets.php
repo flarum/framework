@@ -102,7 +102,7 @@ class Assets
 
     public function makeJs(): JsCompiler
     {
-        $compiler = new JsCompiler($this->assetsDir, $this->name.'.js');
+        $compiler = $this->makeJsCompiler($this->name.'.js');
 
         $this->populate($compiler, 'js');
 
@@ -120,7 +120,7 @@ class Assets
 
     public function makeLocaleJs(string $locale): JsCompiler
     {
-        $compiler = new JsCompiler($this->assetsDir, $this->name.'-'.$locale.'.js');
+        $compiler = $this->makeJsCompiler($this->name.'-'.$locale.'.js');
 
         $this->populate($compiler, 'localeJs', $locale);
 
@@ -134,6 +134,11 @@ class Assets
         $this->populate($compiler, 'localeCss', $locale);
 
         return $compiler;
+    }
+
+    protected function makeJsCompiler(string $filename)
+    {
+        return new JsCompiler($this->assetsDir, $filename);
     }
 
     protected function makeLessCompiler(string $filename): LessCompiler

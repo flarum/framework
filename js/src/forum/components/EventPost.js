@@ -2,43 +2,43 @@ import Post from './Post';
 import { ucfirst } from '../../common/utils/string';
 import usernameHelper from '../../common/helpers/username';
 import icon from '../../common/helpers/icon';
+import Link from '../../common/components/Link';
 
 /**
  * The `EventPost` component displays a post which indicating a discussion
  * event, like a discussion being renamed or stickied. Subclasses must implement
  * the `icon` and `description` methods.
  *
- * ### Props
+ * ### Attrs
  *
- * - All of the props for `Post`
+ * - All of the attrs for `Post`
  *
  * @abstract
  */
 export default class EventPost extends Post {
-  attrs() {
-    const attrs = super.attrs();
+  elementAttrs() {
+    const attrs = super.elementAttrs();
 
-    attrs.className = (attrs.className || '') + ' EventPost ' + ucfirst(this.props.post.contentType()) + 'Post';
+    attrs.className = (attrs.className || '') + ' EventPost ' + ucfirst(this.attrs.post.contentType()) + 'Post';
 
     return attrs;
   }
 
   content() {
-    const user = this.props.post.user();
+    const user = this.attrs.post.user();
     const username = usernameHelper(user);
     const data = Object.assign(this.descriptionData(), {
       user,
-      username: user
-        ? <a className="EventPost-user" href={app.route.user(user)} config={m.route}>{username}</a>
-        : username
+      username: user ? (
+        <Link className="EventPost-user" href={app.route.user(user)}>
+          {username}
+        </Link>
+      ) : (
+        username
+      ),
     });
 
-    return super.content().concat([
-      icon(this.icon(), {className: 'EventPost-icon'}),
-      <div class="EventPost-info">
-        {this.description(data)}
-      </div>
-    ]);
+    return super.content().concat([icon(this.icon(), { className: 'EventPost-icon' }), <div class="EventPost-info">{this.description(data)}</div>]);
   }
 
   /**

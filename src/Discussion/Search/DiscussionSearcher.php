@@ -11,21 +11,16 @@ namespace Flarum\Discussion\Search;
 
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Event\Searching;
-use Flarum\Search\ApplySearchParametersTrait;
+use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
 use Flarum\Search\SearchCriteria;
-use Flarum\Search\SearchResults;
+use Flarum\Search\SearchState;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Builder;
 
-class DiscussionSearcher
+class DiscussionSearcher extends AbstractSearcher
 {
-    use ApplySearchParametersTrait;
-
-    /**
-     * @var GambitManager
-     */
-    protected $gambits;
-
     /**
      * @var DiscussionRepository
      */
@@ -37,53 +32,31 @@ class DiscussionSearcher
     protected $events;
 
     /**
-     * @param GambitManager $gambits
      * @param DiscussionRepository $discussions
      * @param Dispatcher $events
+     * @param GambitManager $gambits
+     * @param array $searchMutators
      */
-    public function __construct(GambitManager $gambits, DiscussionRepository $discussions, Dispatcher $events)
+    public function __construct(DiscussionRepository $discussions, Dispatcher $events, GambitManager $gambits, array $searchMutators)
     {
-        $this->gambits = $gambits;
+        parent::__construct($gambits, $searchMutators);
+
         $this->discussions = $discussions;
         $this->events = $events;
     }
 
-    /**
-     * @param SearchCriteria $criteria
-     * @param int|null $limit
-     * @param int $offset
-     *
-     * @return SearchResults
-     */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0)
+    protected function getQuery(User $actor): Builder
     {
-        $actor = $criteria->actor;
+        return $this->discussions->query()->select('discussions.*')->whereVisibleTo($actor);
+    }
 
-        $query = $this->discussions->query()->select('discussions.*')->whereVisibleTo($actor);
-
-        // Construct an object which represents this search for discussions.
-        // Apply gambits to it, sort, and paging criteria. Also give extensions
-        // an opportunity to modify it.
-        $search = new DiscussionSearch($query->getQuery(), $actor);
-
-        $this->gambits->apply($search, $criteria->query);
-        $this->applySort($search, $criteria->sort);
-        $this->applyOffset($search, $offset);
-        $this->applyLimit($search, $limit + 1);
+    /**
+     * @deprecated along with the Searching event, remove in Beta 17.
+     */
+    protected function mutateSearch(SearchState $search, SearchCriteria $criteria)
+    {
+        parent::mutateSearch($search, $criteria);
 
         $this->events->dispatch(new Searching($search, $criteria));
-
-        // Execute the search query and retrieve the results. We get one more
-        // results than the user asked for, so that we can say if there are more
-        // results. If there are, we will get rid of that extra result.
-        $discussions = $query->get();
-
-        $areMoreResults = $limit > 0 && $discussions->count() > $limit;
-
-        if ($areMoreResults) {
-            $discussions->pop();
-        }
-
-        return new SearchResults($discussions, $areMoreResults);
     }
 }

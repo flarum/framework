@@ -11,11 +11,11 @@ import listItems from '../helpers/listItems';
  * The children should be an array of items to show in the fieldset.
  */
 export default class FieldSet extends Component {
-  view() {
+  view(vnode) {
     return (
-      <fieldset className={this.props.className}>
-        <legend>{this.props.label}</legend>
-        <ul>{listItems(this.props.children)}</ul>
+      <fieldset className={this.attrs.className}>
+        <legend>{this.attrs.label}</legend>
+        <ul>{listItems(vnode.children)}</ul>
       </fieldset>
     );
   }

@@ -30,12 +30,17 @@ export default class Session {
    * @return {Promise}
    * @public
    */
-  login(data, options = {}) {
-    return app.request(Object.assign({
-      method: 'POST',
-      url: app.forum.attribute('baseUrl') + '/login',
-      data
-    }, options));
+  login(body, options = {}) {
+    return app.request(
+      Object.assign(
+        {
+          method: 'POST',
+          url: `${app.forum.attribute('baseUrl')}/login`,
+          body,
+        },
+        options
+      )
+    );
   }
 
   /**
@@ -44,6 +49,6 @@ export default class Session {
    * @public
    */
   logout() {
-    window.location = app.forum.attribute('baseUrl') + '/logout?token=' + this.csrfToken;
+    window.location = `${app.forum.attribute('baseUrl')}/logout?token=${this.csrfToken}`;
   }
 }

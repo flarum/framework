@@ -20,12 +20,14 @@ export default class ChangePasswordModal extends Modal {
         <div className="Form Form--centered">
           <p className="helpText">{app.translator.trans('core.forum.change_password.text')}</p>
           <div className="Form-group">
-            {Button.component({
-              className: 'Button Button--primary Button--block',
-              type: 'submit',
-              loading: this.loading,
-              children: app.translator.trans('core.forum.change_password.send_button')
-            })}
+            {Button.component(
+              {
+                className: 'Button Button--primary Button--block',
+                type: 'submit',
+                loading: this.loading,
+              },
+              app.translator.trans('core.forum.change_password.send_button')
+            )}
           </div>
         </div>
       </div>
@@ -37,13 +39,12 @@ export default class ChangePasswordModal extends Modal {
 
     this.loading = true;
 
-    app.request({
-      method: 'POST',
-      url: app.forum.attribute('apiUrl') + '/forgot',
-      data: {email: app.session.user.email()}
-    }).then(
-      this.hide.bind(this),
-      this.loaded.bind(this)
-    );
+    app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/forgot',
+        body: { email: app.session.user.email() },
+      })
+      .then(this.hide.bind(this), this.loaded.bind(this));
   }
 }

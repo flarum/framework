@@ -3,12 +3,14 @@ export default function saveSettings(settings) {
 
   Object.assign(app.data.settings, settings);
 
-  return app.request({
-    method: 'POST',
-    url: app.forum.attribute('apiUrl') + '/settings',
-    data: settings
-  }).catch(error => {
-    app.data.settings = oldSettings;
-    throw error;
-  });
+  return app
+    .request({
+      method: 'POST',
+      url: app.forum.attribute('apiUrl') + '/settings',
+      body: settings,
+    })
+    .catch((error) => {
+      app.data.settings = oldSettings;
+      throw error;
+    });
 }

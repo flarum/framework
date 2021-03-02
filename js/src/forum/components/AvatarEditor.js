@@ -3,6 +3,7 @@ import avatar from '../../common/helpers/avatar';
 import icon from '../../common/helpers/icon';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
+import classList from '../../common/utils/classList';
 import Button from '../../common/components/Button';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 
@@ -10,13 +11,15 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
  * The `AvatarEditor` component displays a user's avatar along with a dropdown
  * menu which allows the user to upload/remove the avatar.
  *
- * ### Props
+ * ### Attrs
  *
  * - `className`
  * - `user`
  */
 export default class AvatarEditor extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     /**
      * Whether or not an avatar upload is in progress.
      *
@@ -32,19 +35,14 @@ export default class AvatarEditor extends Component {
     this.isDraggedOver = false;
   }
 
-  static initProps(props) {
-    super.initProps(props);
-
-    props.className = props.className || '';
-  }
-
   view() {
-    const user = this.props.user;
+    const user = this.attrs.user;
 
     return (
-      <div className={'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '') + (this.isDraggedOver ? ' dragover' : '')}>
+      <div className={classList(['AvatarEditor', 'Dropdown', this.attrs.className, this.loading && 'loading', this.isDraggedOver && 'dragover'])}>
         {avatar(user)}
-        <a className={ user.avatarUrl() ? "Dropdown-toggle" : "Dropdown-toggle AvatarEditor--noAvatar" }
+        <a
+          className={user.avatarUrl() ? 'Dropdown-toggle' : 'Dropdown-toggle AvatarEditor--noAvatar'}
           title={app.translator.trans('core.forum.user.avatar_upload_tooltip')}
           data-toggle="dropdown"
           onclick={this.quickUpload.bind(this)}
@@ -52,12 +50,11 @@ export default class AvatarEditor extends Component {
           ondragenter={this.enableDragover.bind(this)}
           ondragleave={this.disableDragover.bind(this)}
           ondragend={this.disableDragover.bind(this)}
-          ondrop={this.dropUpload.bind(this)}>
-          {this.loading ? LoadingIndicator.component() : (user.avatarUrl() ? icon('fas fa-pencil-alt') : icon('fas fa-plus-circle'))}
+          ondrop={this.dropUpload.bind(this)}
+        >
+          {this.loading ? <LoadingIndicator /> : user.avatarUrl() ? icon('fas fa-pencil-alt') : icon('fas fa-plus-circle')}
         </a>
-        <ul className="Dropdown-menu Menu">
-          {listItems(this.controlItems().toArray())}
-        </ul>
+        <ul className="Dropdown-menu Menu">{listItems(this.controlItems().toArray())}</ul>
       </div>
     );
   }
@@ -70,20 +67,18 @@ export default class AvatarEditor extends Component {
   controlItems() {
     const items = new ItemList();
 
-    items.add('upload',
-      Button.component({
-        icon: 'fas fa-upload',
-        children: app.translator.trans('core.forum.user.avatar_upload_button'),
-        onclick: this.openPicker.bind(this)
-      })
+    items.add(
+      'upload',
+      <Button icon="fas fa-upload" onclick={this.openPicker.bind(this)}>
+        {app.translator.trans('core.forum.user.avatar_upload_button')}
+      </Button>
     );
 
-    items.add('remove',
-      Button.component({
-        icon: 'fas fa-times',
-        children: app.translator.trans('core.forum.user.avatar_remove_button'),
-        onclick: this.remove.bind(this)
-      })
+    items.add(
+      'remove',
+      <Button icon="fas fa-times" onclick={this.remove.bind(this)}>
+        {app.translator.trans('core.forum.user.avatar_remove_button')}
+      </Button>
     );
 
     return items;
@@ -132,7 +127,7 @@ export default class AvatarEditor extends Component {
    * @param {Event} e
    */
   quickUpload(e) {
-    if (!this.props.user.avatarUrl()) {
+    if (!this.attrs.user.avatarUrl()) {
       e.preventDefault();
       e.stopPropagation();
       this.openPicker();
@@ -147,12 +142,15 @@ export default class AvatarEditor extends Component {
 
     // Create a hidden HTML input element and click on it so the user can select
     // an avatar file. Once they have, we will upload it via the API.
-    const user = this.props.user;
     const $input = $('<input type="file">');
 
-    $input.appendTo('body').hide().click().on('input', e => {
-      this.upload($(e.target)[0].files[0]);
-    });
+    $input
+      .appendTo('body')
+      .hide()
+      .click()
+      .on('input', (e) => {
+        this.upload($(e.target)[0].files[0]);
+      });
   }
 
   /**
@@ -163,40 +161,38 @@ export default class AvatarEditor extends Component {
   upload(file) {
     if (this.loading) return;
 
-    const user = this.props.user;
+    const user = this.attrs.user;
     const data = new FormData();
     data.append('avatar', file);
 
     this.loading = true;
     m.redraw();
 
-    app.request({
-      method: 'POST',
-      url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
-      serialize: raw => raw,
-      data
-    }).then(
-      this.success.bind(this),
-      this.failure.bind(this)
-    );
+    app
+      .request({
+        method: 'POST',
+        url: `${app.forum.attribute('apiUrl')}/users/${user.id()}/avatar`,
+        serialize: (raw) => raw,
+        body: data,
+      })
+      .then(this.success.bind(this), this.failure.bind(this));
   }
 
   /**
    * Remove the user's avatar.
    */
   remove() {
-    const user = this.props.user;
+    const user = this.attrs.user;
 
     this.loading = true;
     m.redraw();
 
-    app.request({
-      method: 'DELETE',
-      url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar'
-    }).then(
-      this.success.bind(this),
-      this.failure.bind(this)
-    );
+    app
+      .request({
+        method: 'DELETE',
+        url: `${app.forum.attribute('apiUrl')}/users/${user.id()}/avatar`,
+      })
+      .then(this.success.bind(this), this.failure.bind(this));
   }
 
   /**
@@ -208,7 +204,7 @@ export default class AvatarEditor extends Component {
    */
   success(response) {
     app.store.pushPayload(response);
-    delete this.props.user.avatarColor;
+    delete this.attrs.user.avatarColor;
 
     this.loading = false;
     m.redraw();

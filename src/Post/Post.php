@@ -12,7 +12,6 @@ namespace Flarum\Post;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
-use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
@@ -94,12 +93,6 @@ class Post extends AbstractModel
             $post->type = $post::$type;
             $post->number = ++$post->discussion->post_number_index;
             $post->discussion->save();
-        });
-
-        static::saving(function (self $post) {
-            $event = new GetModelIsPrivate($post);
-
-            $post->is_private = static::$dispatcher->until($event) === true;
         });
 
         static::deleted(function (self $post) {
@@ -218,7 +211,7 @@ class Post extends AbstractModel
      * @param string $model The class name of the model for that type.
      * @return void
      */
-    public static function setModel($type, $model)
+    public static function setModel(string $type, string $model)
     {
         static::$models[$type] = $model;
     }

@@ -2,14 +2,14 @@ import Separator from '../components/Separator';
 import classList from '../utils/classList';
 
 function isSeparator(item) {
-  return item && item.component === Separator;
+  return item.tag === Separator;
 }
 
 function withoutUnnecessarySeparators(items) {
   const newItems = [];
   let prevItem;
 
-  items.forEach((item, i) => {
+  items.filter(Boolean).forEach((item, i) => {
     if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
       prevItem = item;
       newItems.push(item);
@@ -29,25 +29,28 @@ function withoutUnnecessarySeparators(items) {
 export default function listItems(items) {
   if (!(items instanceof Array)) items = [items];
 
-  return withoutUnnecessarySeparators(items).map(item => {
-    const isListItem = item.component && item.component.isListItem;
-    const active = item.component && item.component.isActive && item.component.isActive(item.props);
-    const className = item.props ? item.props.itemClassName : item.itemClassName;
+  return withoutUnnecessarySeparators(items).map((item) => {
+    const isListItem = item.tag && item.tag.isListItem;
+    const active = item.tag && item.tag.isActive && item.tag.isActive(item.attrs);
+    const className = (item.attrs && item.attrs.itemClassName) || item.itemClassName;
 
     if (isListItem) {
       item.attrs = item.attrs || {};
       item.attrs.key = item.attrs.key || item.itemName;
+      item.key = item.attrs.key;
     }
 
-    return isListItem
-      ? item
-      : <li className={classList([
-          (item.itemName ? 'item-' + item.itemName : ''),
-          className,
-          (active ? 'active' : '')
-        ])}
-          key={item.itemName}>
-          {item}
-        </li>;
+    const node = isListItem ? (
+      item
+    ) : (
+      <li
+        className={classList([className, item.itemName && `item-${item.itemName}`, active && 'active'])}
+        key={(item.attrs && item.attrs.key) || item.itemName}
+      >
+        {item}
+      </li>
+    );
+
+    return node;
   });
 }

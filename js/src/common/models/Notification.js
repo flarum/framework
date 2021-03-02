@@ -11,5 +11,5 @@ Object.assign(Notification.prototype, {
 
   user: Model.hasOne('user'),
   fromUser: Model.hasOne('fromUser'),
-  subject: Model.hasOne('subject')
+  subject: Model.hasOne('subject'),
 });

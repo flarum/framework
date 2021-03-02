@@ -10,11 +10,11 @@
 namespace Flarum\User;
 
 use Flarum\Http\UrlGenerator;
+use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\EmailChangeRequested;
-use Illuminate\Contracts\Mail\Mailer;
-use Illuminate\Contracts\Translation\Translator;
-use Illuminate\Mail\Message;
+use Illuminate\Contracts\Queue\Queue;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class EmailConfirmationMailer
 {
@@ -24,9 +24,9 @@ class EmailConfirmationMailer
     protected $settings;
 
     /**
-     * @var Mailer
+     * @var Queue
      */
-    protected $mailer;
+    protected $queue;
 
     /**
      * @var UrlGenerator
@@ -34,14 +34,14 @@ class EmailConfirmationMailer
     protected $url;
 
     /**
-     * @var Translator
+     * @var TranslatorInterface
      */
     protected $translator;
 
-    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, Translator $translator)
+    public function __construct(SettingsRepositoryInterface $settings, Queue $queue, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->settings = $settings;
-        $this->mailer = $mailer;
+        $this->queue = $queue;
         $this->url = $url;
         $this->translator = $translator;
     }
@@ -52,11 +52,9 @@ class EmailConfirmationMailer
         $data = $this->getEmailData($event->user, $email);
 
         $body = $this->translator->trans('core.email.confirm_email.body', $data);
+        $subject = '['.$data['{forum}'].'] '.$this->translator->trans('core.email.confirm_email.subject');
 
-        $this->mailer->raw($body, function (Message $message) use ($email, $data) {
-            $message->to($email);
-            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.confirm_email.subject'));
-        });
+        $this->queue->push(new SendRawEmailJob($email, $subject, $body));
     }
 
     /**

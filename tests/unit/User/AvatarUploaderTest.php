@@ -24,7 +24,10 @@ class AvatarUploaderTest extends TestCase
     private $filesystem;
     private $uploader;
 
-    public function setUp()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
         $this->dispatcher = m::mock(Dispatcher::class);
         $this->dispatcher->shouldIgnoreMissing();

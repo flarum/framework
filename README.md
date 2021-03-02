@@ -1,11 +1,13 @@
-<p align="center"><img src="https://flarum.org/img/logo.png"></p>
+<p align="center"><img src="https://flarum.org/assets/img/logo.png"></p>
 
 <p align="center">
-<a href="https://travis-ci.org/flarum/core"><img src="https://travis-ci.org/flarum/core.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://poser.pugx.org/flarum/core/license.svg" alt="License"></a>
+<a href="https://github.com/flarum/core/actions?query=workflow%3ATests"><img src="https://github.com/flarum/core/workflows/Tests/badge.svg" alt="PHP Tests"></a>
+<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/dt/flarum/core" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/github/v/release/flarum/core?sort=semver" alt="Latest Version"></a>
+<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/l/flarum/core" alt="License"></a>
+<a href="https://github.styleci.io/repos/28257573"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="StyleCI"></a>
 </p>
+
 
 ## About Flarum
 
@@ -32,4 +34,3 @@ If you discover a security vulnerability within Flarum, please send an e-mail to
 ## License
 
 Flarum is open-source software licensed under the [MIT License](https://github.com/flarum/flarum/blob/master/LICENSE).
-

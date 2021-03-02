@@ -12,15 +12,20 @@ import anchorScroll from './utils/anchorScroll';
 import RequestError from './utils/RequestError';
 import abbreviateNumber from './utils/abbreviateNumber';
 import * as string from './utils/string';
+import Stream from './utils/Stream';
 import SubtreeRetainer from './utils/SubtreeRetainer';
+import setRouteWithForcedRefresh from './utils/setRouteWithForcedRefresh';
 import extract from './utils/extract';
 import ScrollListener from './utils/ScrollListener';
 import stringToColor from './utils/stringToColor';
+import subclassOf from './utils/subclassOf';
 import patchMithril from './utils/patchMithril';
+import proxifyCompat from './utils/proxifyCompat';
 import classList from './utils/classList';
 import extractText from './utils/extractText';
 import formatNumber from './utils/formatNumber';
 import mapRoutes from './utils/mapRoutes';
+import withAttr from './utils/withAttr';
 import Notification from './models/Notification';
 import User from './models/User';
 import Post from './models/Post';
@@ -30,6 +35,7 @@ import Forum from './models/Forum';
 import Component from './Component';
 import Translator from './Translator';
 import AlertManager from './components/AlertManager';
+import Page from './components/Page';
 import Switch from './components/Switch';
 import Badge from './components/Badge';
 import LoadingIndicator from './components/LoadingIndicator';
@@ -42,6 +48,7 @@ import FieldSet from './components/FieldSet';
 import Select from './components/Select';
 import Navigation from './components/Navigation';
 import Alert from './components/Alert';
+import Link from './components/Link';
 import LinkButton from './components/LinkButton';
 import Checkbox from './components/Checkbox';
 import SelectDropdown from './components/SelectDropdown';
@@ -60,11 +67,13 @@ import highlight from './helpers/highlight';
 import username from './helpers/username';
 import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
+import Fragment from './Fragment';
+import DefaultResolver from './resolvers/DefaultResolver';
 
 export default {
-  'extend': extend,
-  'Session': Session,
-  'Store': Store,
+  extend: extend,
+  Session: Session,
+  Store: Store,
   'utils/evented': evented,
   'utils/liveHumanTimes': liveHumanTimes,
   'utils/ItemList': ItemList,
@@ -80,20 +89,27 @@ export default {
   'utils/extract': extract,
   'utils/ScrollListener': ScrollListener,
   'utils/stringToColor': stringToColor,
+  'utils/Stream': Stream,
+  'utils/subclassOf': subclassOf,
+  'utils/setRouteWithForcedRefresh': setRouteWithForcedRefresh,
   'utils/patchMithril': patchMithril,
+  'utils/proxifyCompat': proxifyCompat,
   'utils/classList': classList,
   'utils/extractText': extractText,
   'utils/formatNumber': formatNumber,
   'utils/mapRoutes': mapRoutes,
+  'utils/withAttr': withAttr,
   'models/Notification': Notification,
   'models/User': User,
   'models/Post': Post,
   'models/Discussion': Discussion,
   'models/Group': Group,
   'models/Forum': Forum,
-  'Component': Component,
-  'Translator': Translator,
+  Component: Component,
+  Fragment: Fragment,
+  Translator: Translator,
   'components/AlertManager': AlertManager,
+  'components/Page': Page,
   'components/Switch': Switch,
   'components/Badge': Badge,
   'components/LoadingIndicator': LoadingIndicator,
@@ -106,6 +122,7 @@ export default {
   'components/Select': Select,
   'components/Navigation': Navigation,
   'components/Alert': Alert,
+  'components/Link': Link,
   'components/LinkButton': LinkButton,
   'components/Checkbox': Checkbox,
   'components/SelectDropdown': SelectDropdown,
@@ -113,8 +130,8 @@ export default {
   'components/Button': Button,
   'components/Modal': Modal,
   'components/GroupBadge': GroupBadge,
-  'Model': Model,
-  'Application': Application,
+  Model: Model,
+  Application: Application,
   'helpers/fullTime': fullTime,
   'helpers/avatar': avatar,
   'helpers/icon': icon,
@@ -123,5 +140,6 @@ export default {
   'helpers/highlight': highlight,
   'helpers/username': username,
   'helpers/userOnline': userOnline,
-  'helpers/listItems': listItems
+  'helpers/listItems': listItems,
+  'resolvers/DefaultResolver': DefaultResolver,
 };

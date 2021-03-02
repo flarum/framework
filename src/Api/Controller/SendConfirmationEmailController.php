@@ -10,12 +10,11 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\UrlGenerator;
+use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\EmailToken;
 use Flarum\User\Exception\PermissionDeniedException;
-use Illuminate\Contracts\Mail\Mailer;
-use Illuminate\Mail\Message;
+use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -25,17 +24,15 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class SendConfirmationEmailController implements RequestHandlerInterface
 {
-    use AssertPermissionTrait;
-
     /**
      * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
-     * @var Mailer
+     * @var Queue
      */
-    protected $mailer;
+    protected $queue;
 
     /**
      * @var UrlGenerator
@@ -49,14 +46,14 @@ class SendConfirmationEmailController implements RequestHandlerInterface
 
     /**
      * @param \Flarum\Settings\SettingsRepositoryInterface $settings
-     * @param Mailer $mailer
+     * @param Queue $queue
      * @param UrlGenerator $url
      * @param TranslatorInterface $translator
      */
-    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
+    public function __construct(SettingsRepositoryInterface $settings, Queue $queue, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->settings = $settings;
-        $this->mailer = $mailer;
+        $this->queue = $queue;
         $this->url = $url;
         $this->translator = $translator;
     }
@@ -69,7 +66,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
         $id = Arr::get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
 
-        $this->assertRegistered($actor);
+        $actor->assertRegistered();
 
         if ($actor->id != $id || $actor->is_email_confirmed) {
             throw new PermissionDeniedException;
@@ -85,11 +82,9 @@ class SendConfirmationEmailController implements RequestHandlerInterface
         ];
 
         $body = $this->translator->trans('core.email.activate_account.body', $data);
+        $subject = $this->translator->trans('core.email.activate_account.subject');
 
-        $this->mailer->raw($body, function (Message $message) use ($actor) {
-            $message->to($actor->email);
-            $message->subject($this->translator->trans('core.email.activate_account.subject'));
-        });
+        $this->queue->push(new SendRawEmailJob($actor->email, $subject, $body));
 
         return new EmptyResponse;
     }

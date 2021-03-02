@@ -9,12 +9,10 @@
 
 namespace Flarum\Forum;
 
-use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
@@ -60,32 +58,39 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.forum.middleware', function () {
             return [
+                'flarum.forum.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\CollectGarbage::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
-                HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\SetLocale::class,
+                'flarum.forum.route_resolver',
+                HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\ShareErrorsFromSession::class
             ];
         });
 
-        $this->app->singleton('flarum.forum.handler', function (Application $app) {
-            $pipe = new MiddlewarePipe;
+        $this->app->bind('flarum.forum.error_handler', function () {
+            return new HttpMiddleware\HandleErrors(
+                $this->app->make(Registry::class),
+                $this->app['flarum.config']->inDebugMode() ? $this->app->make(WhoopsFormatter::class) : $this->app->make(ViewFormatter::class),
+                $this->app->tagged(Reporter::class)
+            );
+        });
 
-            // All requests should first be piped through our global error handler
-            $pipe->pipe(new HttpMiddleware\HandleErrors(
-                $app->make(Registry::class),
-                $app->inDebugMode() ? $app->make(WhoopsFormatter::class) : $app->make(ViewFormatter::class),
-                $app->tagged(Reporter::class)
-            ));
+        $this->app->bind('flarum.forum.route_resolver', function () {
+            return new HttpMiddleware\ResolveRoute($this->app->make('flarum.forum.routes'));
+        });
+
+        $this->app->singleton('flarum.forum.handler', function () {
+            $pipe = new MiddlewarePipe;
 
             foreach ($this->app->make('flarum.forum.middleware') as $middleware) {
                 $pipe->pipe($this->app->make($middleware));
             }
 
-            $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.forum.routes')));
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
         });
@@ -186,10 +191,6 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
-
-        $this->app->make('events')->fire(
-            new ConfigureForumRoutes($routes, $factory)
-        );
     }
 
     /**
@@ -202,8 +203,8 @@ class ForumServiceProvider extends AbstractServiceProvider
         $factory = $this->app->make(RouteHandlerFactory::class);
         $defaultRoute = $this->app->make('flarum.settings')->get('default_route');
 
-        if (isset($routes->getRouteData()[0]['GET'][$defaultRoute])) {
-            $toDefaultController = $routes->getRouteData()[0]['GET'][$defaultRoute];
+        if (isset($routes->getRoutes()['GET'][$defaultRoute]['handler'])) {
+            $toDefaultController = $routes->getRoutes()['GET'][$defaultRoute]['handler'];
         } else {
             $toDefaultController = $factory->toForum(Content\Index::class);
         }

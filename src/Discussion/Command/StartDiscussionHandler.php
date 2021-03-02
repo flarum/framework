@@ -15,7 +15,6 @@ use Flarum\Discussion\DiscussionValidator;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Post\Command\PostReply;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Illuminate\Support\Arr;
@@ -23,7 +22,6 @@ use Illuminate\Support\Arr;
 class StartDiscussionHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var BusDispatcher
@@ -58,7 +56,7 @@ class StartDiscussionHandler
         $data = $command->data;
         $ipAddress = $command->ipAddress;
 
-        $this->assertCan($actor, 'startDiscussion');
+        $actor->assertCan('startDiscussion');
 
         // Create a new Discussion entity, persist it, and dispatch domain
         // events. Before persistence, though, fire an event to give plugins

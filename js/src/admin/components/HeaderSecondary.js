@@ -1,4 +1,5 @@
 import Component from '../../common/Component';
+import LinkButton from '../../common/components/LinkButton';
 import SessionDropdown from './SessionDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
@@ -8,18 +9,7 @@ import listItems from '../../common/helpers/listItems';
  */
 export default class HeaderSecondary extends Component {
   view() {
-    return (
-      <ul className="Header-controls">
-        {listItems(this.items().toArray())}
-      </ul>
-    );
-  }
-
-  config(isInitialized, context) {
-    // Since this component is 'above' the content of the page (that is, it is a
-    // part of the global UI that persists between routes), we will flag the DOM
-    // to be retained across route changes.
-    context.retain = true;
+    return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
   }
 
   /**
@@ -29,6 +19,13 @@ export default class HeaderSecondary extends Component {
    */
   items() {
     const items = new ItemList();
+
+    items.add(
+      'help',
+      <LinkButton href="https://docs.flarum.org/troubleshoot.html" icon="fas fa-question-circle" external={true} target="_blank">
+        {app.translator.trans('core.admin.header.get_help')}
+      </LinkButton>
+    );
 
     items.add('session', SessionDropdown.component());
 

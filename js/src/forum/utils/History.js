@@ -1,3 +1,5 @@
+import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
+
 /**
  * The `History` class keeps track and manages a stack of routes that the user
  * has navigated to in their session.
@@ -49,7 +51,7 @@ export default class History {
    *     not provided.
    * @public
    */
-  push(name, title, url = m.route()) {
+  push(name, title, url = m.route.get()) {
     // If we're pushing an item with the same name as second-to-top item in the
     // stack, we will assume that the user has clicked the 'back' button in
     // their browser. In this case, we don't want to push a new item, so we will
@@ -64,9 +66,9 @@ export default class History {
     // then we'll overwrite it with the new URL.
     const top = this.getCurrent();
     if (top && top.name === name) {
-      Object.assign(top, {url, title});
+      Object.assign(top, { url, title });
     } else {
-      this.stack.push({name, url, title});
+      this.stack.push({ name, url, title });
     }
   }
 
@@ -86,13 +88,13 @@ export default class History {
    * @public
    */
   back() {
-    if (! this.canGoBack()) {
+    if (!this.canGoBack()) {
       return this.home();
     }
 
     this.stack.pop();
 
-    m.route(this.getCurrent().url);
+    m.route.set(this.getCurrent().url);
   }
 
   /**
@@ -114,6 +116,6 @@ export default class History {
   home() {
     this.stack.splice(0);
 
-    m.route('/');
+    setRouteWithForcedRefresh('/');
   }
 }

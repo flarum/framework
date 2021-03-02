@@ -10,6 +10,7 @@ export default class User extends Model {}
 
 Object.assign(User.prototype, {
   username: Model.attribute('username'),
+  slug: Model.attribute('slug'),
   displayName: Model.attribute('displayName'),
   email: Model.attribute('email'),
   isEmailConfirmed: Model.attribute('isEmailConfirmed'),
@@ -29,10 +30,12 @@ Object.assign(User.prototype, {
   commentCount: Model.attribute('commentCount'),
 
   canEdit: Model.attribute('canEdit'),
+  canEditCredentials: Model.attribute('canEditCredentials'),
+  canEditGroups: Model.attribute('canEditGroups'),
   canDelete: Model.attribute('canDelete'),
 
   avatarColor: null,
-  color: computed('username', 'avatarUrl', 'avatarColor', function(username, avatarUrl, avatarColor) {
+  color: computed('username', 'avatarUrl', 'avatarColor', function (username, avatarUrl, avatarColor) {
     // If we've already calculated and cached the dominant color of the user's
     // avatar, then we can return that in RGB format. If we haven't, we'll want
     // to calculate it. Unless the user doesn't have an avatar, in which case
@@ -54,7 +57,7 @@ Object.assign(User.prototype, {
    * @public
    */
   isOnline() {
-    return this.lastSeenAt() > moment().subtract(5, 'minutes').toDate();
+    return dayjs().subtract(5, 'minutes').isBefore(this.lastSeenAt());
   },
 
   /**
@@ -67,8 +70,8 @@ Object.assign(User.prototype, {
     const groups = this.groups();
 
     if (groups) {
-      groups.forEach(group => {
-        items.add('group' + group.id(), GroupBadge.component({group}));
+      groups.forEach((group) => {
+        items.add('group' + group.id(), GroupBadge.component({ group }));
       });
     }
 
@@ -85,7 +88,7 @@ Object.assign(User.prototype, {
     const image = new Image();
     const user = this;
 
-    image.onload = function() {
+    image.onload = function () {
       const colorThief = new ColorThief();
       user.avatarColor = colorThief.getColor(this);
       user.freshness = new Date();
@@ -106,6 +109,6 @@ Object.assign(User.prototype, {
 
     Object.assign(preferences, newPreferences);
 
-    return this.save({preferences});
-  }
+    return this.save({ preferences });
+  },
 });

@@ -23,15 +23,6 @@ class InstallServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.install.routes', function () {
             return new RouteCollection;
         });
-
-        $this->app->singleton(Installation::class, function () {
-            return new Installation(
-                $this->app->basePath(),
-                $this->app->publicPath(),
-                $this->app->storagePath(),
-                $this->app->vendorPath()
-            );
-        });
     }
 
     /**

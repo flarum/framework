@@ -17,7 +17,10 @@ class ValidationExceptionHandlerTest extends TestCase
 {
     private $handler;
 
-    public function setUp()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
         $this->handler = new ValidationExceptionHandler;
     }

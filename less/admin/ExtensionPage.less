@@ -1,0 +1,158 @@
+.ExtensionPage {
+
+  .ExtensionPage-header {
+    .ExtensionTitle {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 20px 0 15px;
+    }
+
+    .helpText {
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      display: inline-block;
+      margin: 0;
+      vertical-align: middle;
+    }
+  }
+
+  .ExtensionPage-header,
+  .ExtensionPage-permissions-header {
+    background: @control-bg;
+
+    h2 {
+      color: @muted-color;
+
+      span {
+        font-size: 13px;
+        color: @muted-color;
+        font-weight: normal;
+      }
+    }
+
+    .Button-icon {
+      display: unset;
+    }
+
+    ul {
+      display: flex;
+      align-items: center;
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+
+      > li {
+        display: inline;
+        color: @muted-color;
+        margin-left: 13px;
+
+
+        > a {
+          color: @muted-color;
+        }
+
+        > .icon {
+          margin-right: 5px;
+        }
+      }
+    }
+
+    .ExtensionPage-headerItems {
+      padding: 15px 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .Checkbox {
+        margin: 5px 0 0 0;
+        display: inline-block;
+      }
+    }
+
+    .Checkbox.off {
+      .Checkbox-display {
+        background: @muted-more-color;
+      }
+    }
+
+    .ExtensionInfo {
+      margin-left: auto;
+
+      .item-authors {
+        a {
+          color: @muted-color;
+        }
+      }
+    }
+
+
+    .ExtensionName {
+      display: inline-block;
+      margin-left: 8px;
+    }
+
+    .ExtensionIcon {
+      width: 30px;
+      height: 30px;
+      font-size: 15px;
+      margin-left: 0;
+      vertical-align: middle;
+    }
+
+    .ExtensionPage-headerTopItems {
+      margin-left: auto;
+    }
+
+    @media (max-width: @screen-phone-max) {
+      .ExtensionPage-headerTopItems {
+        float: right;
+        position: relative;
+      }
+
+      .item-website, .item-source, .item-documentation {
+        display: none;
+      }
+    }
+  }
+
+  .ExtensionPage-settings, .ExtensionPage-permissions {
+    .ExtensionPage-subHeader {
+      margin: 5px 0px;
+    }
+  }
+
+  .ExtensionPage-settings {
+    margin-top: 20px;
+    padding: 10px 0;
+
+    input {
+      max-width: 400px;
+    }
+  }
+
+  .ExtensionPage-subHeader {
+    color: @muted-color;
+    font-weight: normal;
+  }
+
+
+  .ExtensionPage-permissions {
+
+    .PermissionGrid-removeScope {
+      display: none;
+    }
+
+    > .container {
+      overflow-x: auto;
+      padding-bottom: 25vh;
+    }
+
+    .ExtensionPage-permissions-header {
+      margin: 20px 0 20px;
+      padding: 5px 0;
+    }
+  }
+}

@@ -5,16 +5,14 @@ import Button from '../../common/components/Button';
  * editor toolbar.
  */
 export default class TextEditorButton extends Button {
-  static initProps(props) {
-    super.initProps(props);
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    props.className = props.className || 'Button Button--icon Button--link';
+    attrs.className = attrs.className || 'Button Button--icon Button--link';
   }
 
-  config(isInitialized, context) {
-    super.config(isInitialized, context);
-
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     this.$().tooltip();
   }

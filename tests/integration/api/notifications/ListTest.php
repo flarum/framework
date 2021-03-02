@@ -16,16 +16,16 @@ class ListTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    public function setUp()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
-            ],
-            'access_tokens' => [
-                ['token' => 'normaltoken', 'user_id' => 2],
             ],
         ]);
     }
@@ -48,8 +48,9 @@ class ListTest extends TestCase
     public function shows_index_for_user()
     {
         $response = $this->send(
-            $this->request('GET', '/api/notifications')
-                ->withHeader('Authorization', 'Token normaltoken')
+            $this->request('GET', '/api/notifications', [
+                'authenticatedAs' => 2,
+            ])
         );
 
         $this->assertEquals(200, $response->getStatusCode());

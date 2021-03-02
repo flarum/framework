@@ -1,20 +1,24 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
+import DiscussionListPane from './DiscussionListPane';
 import PostStream from './PostStream';
 import PostStreamScrubber from './PostStreamScrubber';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
+import PostStreamState from '../states/PostStreamState';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
 export default class DiscussionPage extends Page {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    this.useBrowserScrollRestoration = false;
 
     /**
      * The discussion that is being viewed.
@@ -26,24 +30,20 @@ export default class DiscussionPage extends Page {
     /**
      * The number of the first post that is currently visible in the viewport.
      *
-     * @type {Integer}
+     * @type {number}
      */
-    this.near = null;
+    this.near = m.route.param('near') || 0;
 
-    this.refresh();
+    this.load();
 
     // If the discussion list has been loaded, then we'll enable the pane (and
     // hide it by default). Also, if we've just come from another discussion
     // page, then we don't want Mithril to redraw the whole page – if it did,
-    // then the pane would which would be slow and would cause problems with
+    // then the pane would redraw which would be slow and would cause problems with
     // event handlers.
-    if (app.cache.discussionList) {
+    if (app.discussions.hasDiscussions()) {
       app.pane.enable();
       app.pane.hide();
-
-      if (app.previous instanceof DiscussionPage) {
-        m.redraw.strategy('diff');
-      }
     }
 
     app.history.push('discussion');
@@ -51,34 +51,15 @@ export default class DiscussionPage extends Page {
     this.bodyClass = 'App--discussion';
   }
 
-  onunload(e) {
-    // If we have routed to the same discussion as we were viewing previously,
-    // cancel the unloading of this controller and instead prompt the post
-    // stream to jump to the new 'near' param.
-    if (this.discussion) {
-      const idParam = m.route.param('id');
-
-      if (idParam && idParam.split('-')[0] === this.discussion.id()) {
-        e.preventDefault();
-
-        const near = m.route.param('near') || '1';
-
-        if (near !== String(this.near)) {
-          this.stream.goToNumber(near);
-        }
-
-        this.near = null;
-        return;
-      }
-    }
-
+  onremove() {
+    super.onremove();
     // If we are indeed navigating away from this discussion, then disable the
     // discussion list pane. Also, if we're composing a reply to this
     // discussion, minimize the composer – unless it's empty, in which case
     // we'll just close it.
     app.pane.disable();
 
-    if (app.composingReplyTo(this.discussion) && !app.composer.component.content()) {
+    if (app.composer.composingReplyTo(this.discussion) && !app.composer.fields.content()) {
       app.composer.hide();
     } else {
       app.composer.minimize();
@@ -90,46 +71,34 @@ export default class DiscussionPage extends Page {
 
     return (
       <div className="DiscussionPage">
-        {app.cache.discussionList
-          ? <div className="DiscussionPage-list" config={this.configPane.bind(this)}>
-              {!$('.App-navigation').is(':visible') ? app.cache.discussionList.render() : ''}
-            </div>
-          : ''}
-
+        <DiscussionListPane state={app.discussions} />
         <div className="DiscussionPage-discussion">
           {discussion
             ? [
-              DiscussionHero.component({discussion}),
-              <div className="container">
-                <nav className="DiscussionPage-nav">
-                  <ul>{listItems(this.sidebarItems().toArray())}</ul>
-                </nav>
-                <div className="DiscussionPage-stream">
-                  {this.stream.render()}
-                </div>
-              </div>
-            ]
-            : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
+                DiscussionHero.component({ discussion }),
+                <div className="container">
+                  <nav className="DiscussionPage-nav">
+                    <ul>{listItems(this.sidebarItems().toArray())}</ul>
+                  </nav>
+                  <div className="DiscussionPage-stream">
+                    {PostStream.component({
+                      discussion,
+                      stream: this.stream,
+                      onPositionChange: this.positionChanged.bind(this),
+                    })}
+                  </div>
+                </div>,
+              ]
+            : LoadingIndicator.component({ className: 'LoadingIndicator--block' })}
         </div>
       </div>
     );
   }
 
-  config(...args) {
-    super.config(...args);
-
-    if (this.discussion) {
-      app.setTitle(this.discussion.title());
-    }
-  }
-
   /**
-   * Clear and reload the discussion.
+   * Load the discussion from the API or use the preloaded one.
    */
-  refresh() {
-    this.near = m.route.param('near') || 0;
-    this.discussion = null;
-
+  load() {
     const preloadedDiscussion = app.preloadedApiDocument();
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this
@@ -140,11 +109,10 @@ export default class DiscussionPage extends Page {
     } else {
       const params = this.requestParams();
 
-      app.store.find('discussions', m.route.param('id').split('-')[0], params)
-        .then(this.show.bind(this));
+      app.store.find('discussions', m.route.param('id'), params).then(this.show.bind(this));
     }
 
-    m.lazyRedraw();
+    m.redraw();
   }
 
   /**
@@ -155,7 +123,8 @@ export default class DiscussionPage extends Page {
    */
   requestParams() {
     return {
-      page: {near: this.near}
+      bySlug: true,
+      page: { near: this.near },
     };
   }
 
@@ -165,9 +134,8 @@ export default class DiscussionPage extends Page {
    * @param {Discussion} discussion
    */
   show(discussion) {
-    this.discussion = discussion;
-
     app.history.push('discussion', discussion.title());
+    app.setTitle(discussion.title());
     app.setTitleCount(0);
 
     // When the API responds with a discussion, it will also include a number of
@@ -182,63 +150,28 @@ export default class DiscussionPage extends Page {
       const discussionId = discussion.id();
 
       includedPosts = discussion.payload.included
-        .filter(record => record.type === 'posts'
-          && record.relationships
-          && record.relationships.discussion
-          && record.relationships.discussion.data.id === discussionId)
-        .map(record => app.store.getById('posts', record.id))
-        .sort((a, b) => a.id() - b.id())
+        .filter(
+          (record) =>
+            record.type === 'posts' &&
+            record.relationships &&
+            record.relationships.discussion &&
+            record.relationships.discussion.data.id === discussionId
+        )
+        .map((record) => app.store.getById('posts', record.id))
+        .sort((a, b) => a.createdAt() - b.createdAt())
         .slice(0, 20);
     }
 
     // Set up the post stream for this discussion, along with the first page of
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
-    this.stream = new PostStream({discussion, includedPosts});
-    this.stream.on('positionChanged', this.positionChanged.bind(this));
-    this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
-  }
+    this.stream = new PostStreamState(discussion, includedPosts);
+    this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true).then(() => {
+      this.discussion = discussion;
 
-  /**
-   * Configure the discussion list pane.
-   *
-   * @param {DOMElement} element
-   * @param {Boolean} isInitialized
-   * @param {Object} context
-   */
-  configPane(element, isInitialized, context) {
-    if (isInitialized) return;
-
-    context.retain = true;
-
-    const $list = $(element);
-
-    // When the mouse enters and leaves the discussions pane, we want to show
-    // and hide the pane respectively. We also create a 10px 'hot edge' on the
-    // left of the screen to activate the pane.
-    const pane = app.pane;
-    $list.hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
-
-    const hotEdge = e => {
-      if (e.pageX < 10) pane.show();
-    };
-    $(document).on('mousemove', hotEdge);
-    context.onunload = () => $(document).off('mousemove', hotEdge);
-
-    // If the discussion we are viewing is listed in the discussion list, then
-    // we will make sure it is visible in the viewport – if it is not we will
-    // scroll the list down to it.
-    const $discussion = $list.find('.DiscussionListItem.active');
-    if ($discussion.length) {
-      const listTop = $list.offset().top;
-      const listBottom = listTop + $list.outerHeight();
-      const discussionTop = $discussion.offset().top;
-      const discussionBottom = discussionTop + $discussion.outerHeight();
-
-      if (discussionTop < listTop || discussionBottom > listBottom) {
-        $list.scrollTop($list.scrollTop() - listTop + discussionTop);
-      }
-    }
+      app.current.set('discussion', discussion);
+      app.current.set('stream', this.stream);
+    });
   }
 
   /**
@@ -249,19 +182,23 @@ export default class DiscussionPage extends Page {
   sidebarItems() {
     const items = new ItemList();
 
-    items.add('controls',
-      SplitDropdown.component({
-        children: DiscussionControls.controls(this.discussion, this).toArray(),
-        icon: 'fas fa-ellipsis-v',
-        className: 'App-primaryControl',
-        buttonClassName: 'Button--primary'
-      })
+    items.add(
+      'controls',
+      SplitDropdown.component(
+        {
+          icon: 'fas fa-ellipsis-v',
+          className: 'App-primaryControl',
+          buttonClassName: 'Button--primary',
+        },
+        DiscussionControls.controls(this.discussion, this).toArray()
+      )
     );
 
-    items.add('scrubber',
+    items.add(
+      'scrubber',
       PostStreamScrubber.component({
         stream: this.stream,
-        className: 'App-titleControl'
+        className: 'App-titleControl',
       }),
       -100
     );
@@ -281,17 +218,15 @@ export default class DiscussionPage extends Page {
 
     // Construct a URL to this discussion with the updated position, then
     // replace it into the window's history and our own history stack.
-    const url = app.route.discussion(discussion, this.near = startNumber);
+    const url = app.route.discussion(discussion, (this.near = startNumber));
 
-    m.route(url, true);
     window.history.replaceState(null, document.title, url);
-
     app.history.push('discussion', discussion.title());
 
     // If the user hasn't read past here before, then we'll update their read
     // state and redraw.
     if (app.session.user && endNumber > (discussion.lastReadPostNumber() || 0)) {
-      discussion.save({lastReadPostNumber: endNumber});
+      discussion.save({ lastReadPostNumber: endNumber });
       m.redraw();
     }
   }

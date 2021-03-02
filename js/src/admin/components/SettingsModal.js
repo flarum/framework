@@ -1,9 +1,12 @@
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
+import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 
 export default class SettingsModal extends Modal {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.settings = {};
     this.loading = false;
   }
@@ -18,9 +21,7 @@ export default class SettingsModal extends Modal {
         <div className="Form">
           {this.form()}
 
-          <div className="Form-group">
-            {this.submitButton()}
-          </div>
+          <div className="Form-group">{this.submitButton()}</div>
         </div>
       </div>
     );
@@ -28,18 +29,14 @@ export default class SettingsModal extends Modal {
 
   submitButton() {
     return (
-      <Button
-        type="submit"
-        className="Button Button--primary"
-        loading={this.loading}
-        disabled={!this.changed()}>
+      <Button type="submit" className="Button Button--primary" loading={this.loading} disabled={!this.changed()}>
         {app.translator.trans('core.admin.settings.submit_button')}
       </Button>
     );
   }
 
   setting(key, fallback = '') {
-    this.settings[key] = this.settings[key] || m.prop(app.data.settings[key] || fallback);
+    this.settings[key] = this.settings[key] || Stream(app.data.settings[key] || fallback);
 
     return this.settings[key];
   }
@@ -47,7 +44,7 @@ export default class SettingsModal extends Modal {
   dirty() {
     const dirty = {};
 
-    Object.keys(this.settings).forEach(key => {
+    Object.keys(this.settings).forEach((key) => {
       const value = this.settings[key]();
 
       if (value !== app.data.settings[key]) {
@@ -67,10 +64,7 @@ export default class SettingsModal extends Modal {
 
     this.loading = true;
 
-    saveSettings(this.dirty()).then(
-      this.onsaved.bind(this),
-      this.loaded.bind(this)
-    );
+    saveSettings(this.dirty()).then(this.onsaved.bind(this), this.loaded.bind(this));
   }
 
   onsaved() {
