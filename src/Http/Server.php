@@ -85,7 +85,8 @@ class Server
             $line = $error->getLine();
             $type = get_class($error);
 
-            $this->printMessageAndExit(<<<ERROR
+            $this->printMessageAndExit(
+                <<<ERROR
             Flarum encountered a boot error ($type)<br />
             <b>$message</b><br />
             thrown in <b>$file</b> on line <b>$line</b>
