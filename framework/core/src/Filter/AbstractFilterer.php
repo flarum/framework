@@ -11,9 +11,9 @@ namespace Flarum\Filter;
 
 use Flarum\Event\ConfigurePostsQuery;
 use Flarum\Post\Filter\PostFilterer;
-use Flarum\Search\ApplySearchParametersTrait;
-use Flarum\Search\SearchCriteria;
-use Flarum\Search\SearchResults;
+use Flarum\Query\ApplyQueryParametersTrait;
+use Flarum\Query\QueryCriteria;
+use Flarum\Query\QueryResults;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -21,7 +21,7 @@ use InvalidArgumentException;
 
 abstract class AbstractFilterer
 {
-    use ApplySearchParametersTrait;
+    use ApplyQueryParametersTrait;
 
     protected $filters;
 
@@ -40,14 +40,14 @@ abstract class AbstractFilterer
     abstract protected function getQuery(User $actor): Builder;
 
     /**
-     * @param SearchCriteria $criteria
+     * @param QueryCriteria $criteria
      * @param mixed|null $limit
      * @param int $offset
      *
-     * @return SearchResults
+     * @return QueryResults
      * @throws InvalidArgumentException
      */
-    public function filter(SearchCriteria $criteria, int $limit = null, int $offset = 0): SearchResults
+    public function filter(QueryCriteria $criteria, int $limit = null, int $offset = 0): QueryResults
     {
         $actor = $criteria->actor;
 
@@ -89,6 +89,6 @@ abstract class AbstractFilterer
             $results->pop();
         }
 
-        return new SearchResults($results, $areMoreResults);
+        return new QueryResults($results, $areMoreResults);
     }
 }

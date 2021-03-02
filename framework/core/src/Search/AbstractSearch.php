@@ -9,13 +9,13 @@
 
 namespace Flarum\Search;
 
-use Flarum\Filter\FilterState;
+use Flarum\Query\AbstractQueryState;
 
 /**
  * @deprecated, use SearchState instead.
  * These methods should be transferred over to SearchState in beta 17.
  */
-class AbstractSearch extends FilterState
+class AbstractSearch extends AbstractQueryState
 {
     /**
      * @var GambitInterface[]
