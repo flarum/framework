@@ -73,7 +73,7 @@ class AccessToken extends AbstractModel
      */
     public static function generate($userId, $lifetime = null)
     {
-        if (!is_null($lifetime)) {
+        if (! is_null($lifetime)) {
             trigger_error('Parameter $lifetime is deprecated in beta 16, will be removed in beta 17', E_USER_DEPRECATED);
         }
 
@@ -147,7 +147,7 @@ class AccessToken extends AbstractModel
     }
 
     /**
-     * Shortcut to find a valid token
+     * Shortcut to find a valid token.
      * @param string $token Token as sent by the user. We allow non-string values like null so we can directly feed any value from a request.
      * @return AccessToken|null
      */
@@ -207,9 +207,9 @@ class AccessToken extends AbstractModel
      */
     public function newFromBuilder($attributes = [], $connection = null)
     {
-        $attributes = (array)$attributes;
+        $attributes = (array) $attributes;
 
-        if (!empty($attributes['type'])
+        if (! empty($attributes['type'])
             && isset(static::$models[$attributes['type']])
             && class_exists($class = static::$models[$attributes['type']])
         ) {
