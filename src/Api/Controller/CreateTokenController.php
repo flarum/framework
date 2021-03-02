@@ -58,7 +58,6 @@ class CreateTokenController implements RequestHandlerInterface
 
         $identification = Arr::get($body, 'identification');
         $password = Arr::get($body, 'password');
-        $lifetime = Arr::get($body, 'lifetime', 3600);
 
         $user = $this->users->findByIdentification($identification);
 
@@ -66,7 +65,7 @@ class CreateTokenController implements RequestHandlerInterface
             throw new NotAuthenticatedException;
         }
 
-        $token = AccessToken::generate($user->id, $lifetime);
+        $token = AccessToken::generate($user->id);
         $token->save();
 
         return new JsonResponse([

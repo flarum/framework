@@ -31,15 +31,21 @@ class Rememberer
 
     public function remember(ResponseInterface $response, AccessToken $token)
     {
-        $token->lifetime_seconds = 5 * 365 * 24 * 60 * 60; // 5 years
+        $token->type = 'session_remember';
         $token->save();
 
         return FigResponseCookies::set(
             $response,
-            $this->cookie->make(self::COOKIE_NAME, $token->token, $token->lifetime_seconds)
+            $this->cookie->make(self::COOKIE_NAME, $token->token, RememberAccessToken::rememberCookieLifeTime())
         );
     }
 
+    /**
+     * @param ResponseInterface $response
+     * @param $userId
+     * @return ResponseInterface
+     * @deprecated beta 16, removed beta 17. Use remember() with a token
+     */
     public function rememberUser(ResponseInterface $response, $userId)
     {
         $token = AccessToken::generate($userId);

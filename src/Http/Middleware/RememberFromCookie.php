@@ -37,7 +37,7 @@ class RememberFromCookie implements Middleware
         $id = Arr::get($request->getCookieParams(), $this->cookie->getName('remember'));
 
         if ($id) {
-            $token = AccessToken::find($id);
+            $token = AccessToken::findValid($id);
 
             if ($token) {
                 $token->touch();
