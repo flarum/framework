@@ -51,13 +51,10 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Echo PHP version
-        run: |
-          echo $(which php7.3)
-
-      - name: Echo PHP version
-        run: |
-          sudo update-alternatives --set php $(which php${{ matrix.php }})
+      - name: Setup PHP
+        uses: nanasess/setup-php@master
+        with:
+          php-version: ${{ matrix.php }}
 
       - name: Create MySQL Database
         run: |
