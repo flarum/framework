@@ -51,9 +51,12 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Select PHP version
+      - name: Echo PHP version
         run: |
-          which php${{ matrix.php }}
+          echo $(which php7.3)
+
+      - name: Echo PHP version
+        run: |
           sudo update-alternatives --set php $(which php${{ matrix.php }})
 
       - name: Create MySQL Database
