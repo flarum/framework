@@ -24,8 +24,8 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton(Manager::class, function ($app) {
-            $manager = new Manager($app);
+        $this->container->singleton(Manager::class, function ($container) {
+            $manager = new Manager($container);
 
             $config = $this->container['flarum']->config('database');
             $config['engine'] = 'InnoDB';
@@ -36,8 +36,8 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             return $manager;
         });
 
-        $this->container->singleton(ConnectionResolverInterface::class, function ($app) {
-            $manager = $app->make(Manager::class);
+        $this->container->singleton(ConnectionResolverInterface::class, function ($container) {
+            $manager = $container->make(Manager::class);
             $manager->setAsGlobal();
             $manager->bootEloquent();
 
@@ -49,8 +49,8 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
         $this->container->alias(ConnectionResolverInterface::class, 'db');
 
-        $this->container->singleton(ConnectionInterface::class, function ($app) {
-            $resolver = $app->make(ConnectionResolverInterface::class);
+        $this->container->singleton(ConnectionInterface::class, function ($container) {
+            $resolver = $container->make(ConnectionResolverInterface::class);
 
             return $resolver->connection();
         });
@@ -58,8 +58,8 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->container->alias(ConnectionInterface::class, 'db.connection');
         $this->container->alias(ConnectionInterface::class, 'flarum.db');
 
-        $this->container->singleton(MigrationRepositoryInterface::class, function ($app) {
-            return new DatabaseMigrationRepository($app['flarum.db'], 'migrations');
+        $this->container->singleton(MigrationRepositoryInterface::class, function ($container) {
+            return new DatabaseMigrationRepository($container['flarum.db'], 'migrations');
         });
 
         $this->container->singleton('flarum.database.model_private_checkers', function () {

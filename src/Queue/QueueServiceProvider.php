@@ -49,25 +49,25 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
-        $this->container->singleton('flarum.queue.connection', function ($app) {
+        $this->container->singleton('flarum.queue.connection', function ($container) {
             $queue = new SyncQueue;
-            $queue->setContainer($app);
+            $queue->setContainer($container);
 
             return $queue;
         });
 
-        $this->container->singleton(ExceptionHandling::class, function ($app) {
-            return new ExceptionHandler($app['log']);
+        $this->container->singleton(ExceptionHandling::class, function ($container) {
+            return new ExceptionHandler($container['log']);
         });
 
-        $this->container->singleton(Worker::class, function ($app) {
+        $this->container->singleton(Worker::class, function ($container) {
             /** @var Config $config */
-            $config = $app->make(Config::class);
+            $config = $container->make(Config::class);
 
             return new Worker(
-                $app[Factory::class],
-                $app['events'],
-                $app[ExceptionHandling::class],
+                $container[Factory::class],
+                $container['events'],
+                $container[ExceptionHandling::class],
                 function () use ($config) {
                     return $config->inMaintenanceMode();
                 }
@@ -76,16 +76,16 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         // Override the Laravel native Listener, so that we can ignore the environment
         // option and force the binary to flarum.
-        $this->container->singleton(QueueListener::class, function ($app) {
-            return new Listener($app[Paths::class]->base);
+        $this->container->singleton(QueueListener::class, function ($container) {
+            return new Listener($container[Paths::class]->base);
         });
 
         // Bind a simple cache manager that returns the cache store.
-        $this->container->singleton('cache', function ($app) {
-            return new class($app) {
-                public function __construct($app)
+        $this->container->singleton('cache', function ($container) {
+            return new class($container) {
+                public function __construct($container)
                 {
-                    $this->container = $app;
+                    $this->container = $container;
                 }
 
                 public function driver()

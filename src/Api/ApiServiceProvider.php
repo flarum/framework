@@ -51,8 +51,8 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->bind(Middleware\ThrottleApi::class, function ($app) {
-            return new Middleware\ThrottleApi($app->make('flarum.api.throttlers'));
+        $this->container->bind(Middleware\ThrottleApi::class, function ($container) {
+            return new Middleware\ThrottleApi($container->make('flarum.api.throttlers'));
         });
 
         $this->container->singleton('flarum.api.middleware', function () {

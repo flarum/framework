@@ -20,11 +20,11 @@ class SessionServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('session.handler', function ($app) {
+        $this->container->singleton('session.handler', function ($container) {
             return new FileSessionHandler(
-                $app['files'],
-                $app['config']['session.files'],
-                $app['config']['session.lifetime']
+                $container['files'],
+                $container['config']['session.files'],
+                $container['config']['session.lifetime']
             );
         });
 

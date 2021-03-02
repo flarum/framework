@@ -28,8 +28,8 @@ class HttpServiceProvider extends AbstractServiceProvider
             return ['token'];
         });
 
-        $this->container->bind(Middleware\CheckCsrfToken::class, function ($app) {
-            return new Middleware\CheckCsrfToken($app->make('flarum.http.csrfExemptPaths'));
+        $this->container->bind(Middleware\CheckCsrfToken::class, function ($container) {
+            return new Middleware\CheckCsrfToken($container->make('flarum.http.csrfExemptPaths'));
         });
 
         $this->container->singleton('flarum.http.slugDrivers', function () {

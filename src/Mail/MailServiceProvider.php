@@ -53,26 +53,26 @@ class MailServiceProvider extends AbstractServiceProvider
                 : $this->container->make(NullDriver::class);
         });
 
-        $this->container->singleton('swift.mailer', function ($app) {
+        $this->container->singleton('swift.mailer', function ($container) {
             return new Swift_Mailer(
-                $app->make('mail.driver')->buildTransport(
-                    $app->make(SettingsRepositoryInterface::class)
+                $container->make('mail.driver')->buildTransport(
+                    $container->make(SettingsRepositoryInterface::class)
                 )
             );
         });
 
-        $this->container->singleton('mailer', function ($app) {
+        $this->container->singleton('mailer', function ($container) {
             $mailer = new Mailer(
-                $app['view'],
-                $app['swift.mailer'],
-                $app['events']
+                $container['view'],
+                $container['swift.mailer'],
+                $container['events']
             );
 
-            if ($app->bound('queue')) {
-                $mailer->setQueue($app->make('queue'));
+            if ($container->bound('queue')) {
+                $mailer->setQueue($container->make('queue'));
             }
 
-            $settings = $app->make(SettingsRepositoryInterface::class);
+            $settings = $container->make(SettingsRepositoryInterface::class);
             $mailer->alwaysFrom($settings->get('mail_from'), $settings->get('forum_title'));
 
             return $mailer;
