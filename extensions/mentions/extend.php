@@ -32,7 +32,9 @@ return [
         ->css(__DIR__.'/less/forum.less'),
 
     (new Extend\Formatter)
-        ->configure(ConfigureMentions::class),
+        ->configure(ConfigureMentions::class)
+        ->render(Formatter\FormatPostMentions::class)
+        ->render(Formatter\FormatUserMentions::class),
 
     (new Extend\Model(Post::class))
         ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
@@ -75,8 +77,4 @@ return [
         ->listen(Hidden::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
         ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
         ->listen(ConfigurePostsQuery::class, Listener\AddFilterByMentions::class),
-
-    (new Extend\Formatter())
-        ->render(Formatter\FormatPostMentions::class)
-        ->render(Formatter\FormatUserMentions::class),
 ];
