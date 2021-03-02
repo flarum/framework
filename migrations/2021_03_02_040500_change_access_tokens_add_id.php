@@ -13,33 +13,39 @@ use Illuminate\Database\Schema\Builder;
 return [
     'up' => function (Builder $schema) {
         $schema->table('access_tokens', function (Blueprint $table) {
-            $table->string('type')->index();
+            $table->unsignedInteger('id')->first();
         });
 
         $tokens = $schema->getConnection()->table('access_tokens')
             ->cursor();
 
+        // Insert initial value for our new primary key
+        // This migration runs after the "add type" migration, this ensures we have a minimal number of tokens remaining
         foreach ($tokens as $i => $token) {
-            // This is the value that was hard-coded for remember tokens
-            // Everything else will default to normal session, even if it was customized
-            $isRemember = $token->lifetime_seconds === 5 * 365 * 24 * 60 * 60;
-
             $schema->getConnection()->table('access_tokens')
                 ->where('token', $token->token)
                 ->update([
-                    'type' => $isRemember ? 'session_remember' : 'session',
+                    'id' => $i + 1
                 ]);
         }
 
         $schema->table('access_tokens', function (Blueprint $table) {
-            $table->dropColumn('lifetime_seconds');
+            $table->dropPrimary('token');
+            $table->unique('token');
+            $table->primary('id');
+        });
+
+        // This needs to be done in a second statement because of the order Laravel runs operations in
+        $schema->table('access_tokens', function (Blueprint $table) {
+            $table->increments('id')->change();
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('access_tokens', function (Blueprint $table) {
-            $table->dropColumn('type');
-            $table->integer('lifetime_seconds');
+            $table->dropColumn('id');
+            $table->dropIndex('token');
+            $table->primary('token');
         });
     }
 ];
