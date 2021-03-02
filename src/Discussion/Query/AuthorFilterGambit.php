@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Discussion\Filter;
+namespace Flarum\Discussion\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;

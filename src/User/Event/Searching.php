@@ -9,7 +9,7 @@
 
 namespace Flarum\User\Event;
 
-use Flarum\Search\SearchCriteria;
+use Flarum\Query\QueryCriteria;
 use Flarum\Search\SearchState;
 
 /**
@@ -23,15 +23,15 @@ class Searching
     public $search;
 
     /**
-     * @var SearchCriteria
+     * @var QueryCriteria
      */
     public $criteria;
 
     /**
      * @param SearchState $search
-     * @param SearchCriteria $criteria
+     * @param QueryCriteria $criteria
      */
-    public function __construct(SearchState $search, SearchCriteria $criteria)
+    public function __construct(SearchState $search, QueryCriteria $criteria)
     {
         $this->search = $search;
         $this->criteria = $criteria;
