@@ -59,4 +59,47 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function disallows_last_seen_sorting_without_permission()
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'viewUserList', 'group_id' => 2],
+            ],
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/users')
+                ->withQueryParams([
+                    'sort' => 'lastSeenAt',
+                ])
+        );
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function allows_last_seen_sorting_with_permission()
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'viewUserList', 'group_id' => 2],
+                ['permission' => 'user.viewLastSeenAt', 'group_id' => 2],
+            ],
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/users')
+                ->withQueryParams([
+                    'sort' => 'lastSeenAt',
+                ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }
