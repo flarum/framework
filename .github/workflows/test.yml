@@ -52,7 +52,9 @@ jobs:
       - uses: actions/checkout@master
 
       - name: Select PHP version
-        run: sudo update-alternatives --set php $(which php${{ matrix.php }})
+        run: |
+          which php${{ matrix.php }}
+          sudo update-alternatives --set php $(which php${{ matrix.php }})
 
       - name: Create MySQL Database
         run: |
