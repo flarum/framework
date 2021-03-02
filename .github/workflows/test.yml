@@ -55,7 +55,11 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          coverage: xdebug
           extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
+          tools: phpunit, composer:v2
+          update: true
+
 
       - name: Create MySQL Database
         run: |
