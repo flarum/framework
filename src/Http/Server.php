@@ -57,6 +57,9 @@ class Server
         try {
             return $this->site->bootApp()->getRequestHandler();
         } catch (Throwable $e) {
+            // Apply response code first so whatever happens, it's set before anything is printed
+            http_response_code(500);
+
             try {
                 $this->cleanBootExceptionLog($e);
             } catch (Throwable $e) {
@@ -85,15 +88,14 @@ class Server
             $line = $error->getLine();
             $type = get_class($error);
 
-            $this->printMessageAndExit(
-                <<<ERROR
+            echo <<<ERROR
             Flarum encountered a boot error ($type)<br />
             <b>$message</b><br />
             thrown in <b>$file</b> on line <b>$line</b>
 
 <pre>$error</pre>
-ERROR
-            );
+ERROR;
+            exit(1);
         } elseif (app()->has(LoggerInterface::class)) {
             // If the application booted far enough for the logger to be available, we will log the error there
             // Considering most boot errors are related to database or extensions, the logger should already be loaded
@@ -101,19 +103,9 @@ ERROR
             // then instantiate LogReporter through the container for automatic dependency injection
             app(LogReporter::class)->report($error);
 
-            $this->printMessageAndExit('Flarum encountered a boot error. Details have been logged to the Flarum log file.');
+            echo 'Flarum encountered a boot error. Details have been logged to the Flarum log file.';
+            exit(1);
         }
-    }
-
-    /**
-     * A simple and reliable way to stop the script and make sure the headers are set.
-     * @param string $message
-     */
-    private function printMessageAndExit(string $message)
-    {
-        http_response_code(500);
-        echo $message;
-        exit(1);
     }
 
     /**
