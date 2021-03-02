@@ -125,7 +125,7 @@ export default class UserListPage extends AdminPage {
 
         m.redraw();
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         console.error(err);
         this.pageData = [];
       });
