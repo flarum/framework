@@ -29,6 +29,7 @@ if (! function_exists('app')) {
 
 if (! function_exists('event')) {
     /**
+     * @deprecated beta 16, removed in beta 17
      * Fire an event and call the listeners.
      *
      * @param  string|object  $event
