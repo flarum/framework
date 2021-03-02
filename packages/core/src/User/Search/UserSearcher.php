@@ -9,9 +9,9 @@
 
 namespace Flarum\User\Search;
 
+use Flarum\Query\QueryCriteria;
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
-use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
 use Flarum\User\Event\Searching;
 use Flarum\User\User;
@@ -19,10 +19,6 @@ use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 
-/**
- * Takes a UserSearchCriteria object, performs a search using gambits,
- * and spits out a UserSearchResults object.
- */
 class UserSearcher extends AbstractSearcher
 {
     /**
@@ -57,7 +53,7 @@ class UserSearcher extends AbstractSearcher
     /**
      * @deprecated along with the Searching event, remove in Beta 17.
      */
-    protected function mutateSearch(SearchState $search, SearchCriteria $criteria)
+    protected function mutateSearch(SearchState $search, QueryCriteria $criteria)
     {
         parent::mutateSearch($search, $criteria);
 

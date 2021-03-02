@@ -45,7 +45,7 @@ class Filter implements ExtenderInterface
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - Flarum\Filter\FilterState $filter
-     * - Flarum\Search\SearchCriteria $criteria
+     * - Flarum\Query\QueryCriteria $criteria
      */
     public function addFilterMutator($callback)
     {

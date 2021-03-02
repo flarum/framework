@@ -12,9 +12,9 @@ namespace Flarum\Tests\integration\extenders;
 use Carbon\Carbon;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Query\QueryCriteria;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\GambitInterface;
-use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
@@ -64,7 +64,7 @@ class SimpleFlarumSearchTest extends TestCase
 
         $actor = User::find(1);
 
-        $criteria = new SearchCriteria($actor, ['q' => $query]);
+        $criteria = new QueryCriteria($actor, ['q' => $query]);
 
         return $this->app()->getContainer()->make(DiscussionSearcher::class)->search($criteria, $limit)->getResults();
     }
