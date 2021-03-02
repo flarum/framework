@@ -51,8 +51,7 @@ export default class SettingsPage extends UserPage {
       FieldSet.component({
         label: 'Sessions and tokens',
         className: 'Settings-tokens',
-        children: this.tokensItems().toArray()
-      })
+      }, this.tokensItems().toArray())
     );
 
     return items;

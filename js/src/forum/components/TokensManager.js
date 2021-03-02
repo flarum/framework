@@ -4,7 +4,9 @@ import Button from '../../common/components/Button';
 import humanTime from '../../common/helpers/humanTime';
 
 export default class TokensManager extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.refresh();
   }
 
@@ -54,8 +56,7 @@ export default class TokensManager extends Component {
             });
           },
           disabled: token.current(),
-          children: 'Revoke',
-        })),
+        }, 'Revoke')),
       ]))),
     ]);
   }

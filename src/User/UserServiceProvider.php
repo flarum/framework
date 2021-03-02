@@ -15,7 +15,8 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Group\Access\GroupPolicy;
 use Flarum\Group\Group;
-use Flarum\Http\AccessTokenPolicy;
+use Flarum\Http\Access\AccessTokenPolicy;
+use Flarum\Http\AccessToken;
 use Flarum\Post\Access\PostPolicy;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -48,6 +49,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.policies', function () {
             return [
                 Access\AbstractPolicy::GLOBAL => [],
+                AccessToken::class => [AccessTokenPolicy::class],
                 Discussion::class => [DiscussionPolicy::class],
                 Group::class => [GroupPolicy::class],
                 Post::class => [PostPolicy::class],
@@ -124,8 +126,6 @@ class UserServiceProvider extends AbstractServiceProvider
         $events->listen(EmailChangeRequested::class, EmailConfirmationMailer::class);
 
         $events->subscribe(UserMetadataUpdater::class);
-
-        $events->subscribe(AccessTokenPolicy::class);
 
         User::registerPreference('discloseOnline', 'boolval', true);
         User::registerPreference('indexProfile', 'boolval', true);

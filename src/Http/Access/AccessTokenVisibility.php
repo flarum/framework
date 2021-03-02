@@ -7,26 +7,18 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Http;
+namespace Flarum\Http\Access;
 
-use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class AccessTokenPolicy extends AbstractPolicy
+class AccessTokenVisibility
 {
-    protected $model = AccessToken::class;
-
-    public function delete(User $actor, AccessToken $token)
-    {
-        return $token->user_id === $actor->id;
-    }
-
     /**
      * @param User $actor
      * @param Builder $query
      */
-    public function find(User $actor, Builder $query)
+    public function __invoke(User $actor, $query)
     {
         if (! $actor->isAdmin()) {
             if ($actor->isGuest()) {
