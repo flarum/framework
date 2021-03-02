@@ -116,7 +116,8 @@ export default class Search extends Component {
 
     if (this.state.getValue() && this.hasFocus) {
       const resultsElementMargin = 14;
-      const maxHeight = window.innerHeight - this.element.querySelector('.Search-input>.FormControl').getBoundingClientRect().bottom - resultsElementMargin;
+      const maxHeight =
+        window.innerHeight - this.element.querySelector('.Search-input>.FormControl').getBoundingClientRect().bottom - resultsElementMargin;
       this.element.querySelector('.Search-results').style['max-height'] = `${maxHeight}px`;
     }
   }
