@@ -12,8 +12,8 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
+use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -41,6 +41,11 @@ class ListUsersController extends AbstractListController
     ];
 
     /**
+     * @var UserFilterer
+     */
+    protected $filterer;
+
+    /**
      * @var UserSearcher
      */
     protected $searcher;
@@ -51,11 +56,13 @@ class ListUsersController extends AbstractListController
     protected $url;
 
     /**
+     * @param UserFilterer $filterer
      * @param UserSearcher $searcher
      * @param UrlGenerator $url
      */
-    public function __construct(UserSearcher $searcher, UrlGenerator $url)
+    public function __construct(UserFilterer $filterer, UserSearcher $searcher, UrlGenerator $url)
     {
+        $this->filterer = $filterer;
         $this->searcher = $searcher;
         $this->url = $url;
     }
@@ -77,15 +84,20 @@ class ListUsersController extends AbstractListController
         }
 
         $query = Arr::get($this->extractFilter($request), 'q');
+  
+        $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
-
-        $criteria = new SearchCriteria($actor, $query, $sort);
 
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
-        $load = $this->extractInclude($request);
+        $include = $this->extractInclude($request);
 
-        $results = $this->searcher->search($criteria, $limit, $offset, $load);
+        $criteria = new SearchCriteria($actor, $filters, $sort);
+        if (array_key_exists('q', $filters)) {
+            $results = $this->searcher->search($criteria, $limit, $offset);
+        } else {
+            $results = $this->filterer->filter($criteria, $limit, $offset);
+        }
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),
@@ -95,6 +107,6 @@ class ListUsersController extends AbstractListController
             $results->areMoreResults() ? null : 0
         );
 
-        return $results->getResults();
+        return $results->getResults()->load($include);
     }
 }

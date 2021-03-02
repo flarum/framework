@@ -81,32 +81,6 @@ class PostRepository
     }
 
     /**
-     * Find posts by their IDs, optionally making sure they are visible to a
-     * certain user.
-     *
-     * @param array $ids
-     * @param \Flarum\User\User|null $actor
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function findByIds(array $ids, User $actor = null)
-    {
-        $posts = $this->queryIds($ids, $actor)->get();
-
-        $posts = $posts->sort(function ($a, $b) use ($ids) {
-            $aPos = array_search($a->id, $ids);
-            $bPos = array_search($b->id, $ids);
-
-            if ($aPos === $bPos) {
-                return 0;
-            }
-
-            return $aPos < $bPos ? -1 : 1;
-        });
-
-        return $posts;
-    }
-
-    /**
      * Filter a list of post IDs to only include posts that are visible to a
      * certain user.
      *

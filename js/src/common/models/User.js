@@ -30,6 +30,8 @@ Object.assign(User.prototype, {
   commentCount: Model.attribute('commentCount'),
 
   canEdit: Model.attribute('canEdit'),
+  canEditCredentials: Model.attribute('canEditCredentials'),
+  canEditGroups: Model.attribute('canEditGroups'),
   canDelete: Model.attribute('canDelete'),
 
   avatarColor: null,

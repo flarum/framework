@@ -10,14 +10,9 @@ export default class AdminApplication extends Application {
   extensionData = new ExtensionData();
 
   extensionCategories = {
-    discussion: 70,
-    moderation: 60,
-    feature: 50,
-    formatting: 40,
-    theme: 30,
-    authentication: 20,
+    feature: 30,
+    theme: 20,
     language: 10,
-    other: 0,
   };
 
   history = {

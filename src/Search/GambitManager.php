@@ -55,10 +55,10 @@ class GambitManager
     /**
      * Apply gambits to a search, given a search query.
      *
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param string $query
      */
-    public function apply(AbstractSearch $search, $query)
+    public function apply(SearchState $search, $query)
     {
         $query = $this->applyGambits($search, $query);
 
@@ -89,11 +89,11 @@ class GambitManager
     }
 
     /**
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param string $query
      * @return string
      */
-    protected function applyGambits(AbstractSearch $search, $query)
+    protected function applyGambits(SearchState $search, $query)
     {
         $bits = $this->explode($query);
 
@@ -121,10 +121,10 @@ class GambitManager
     }
 
     /**
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param string $query
      */
-    protected function applyFulltext(AbstractSearch $search, $query)
+    protected function applyFulltext(SearchState $search, $query)
     {
         if (! $this->fulltextGambit) {
             return;
