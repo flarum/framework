@@ -69,7 +69,7 @@ class ListUsersController extends AbstractListController
 
         $actor->assertCan('viewUserList');
 
-        if (!$actor->hasPermission('user.viewLastSeenAt')) {
+        if (! $actor->hasPermission('user.viewLastSeenAt')) {
             // If a user cannot see everyone's last online date, we prevent them from sorting by it
             // Otherwise this sort field would defeat the privacy setting discloseOnline
             // We use remove instead of add so that extensions can still completely disable the sort using the extender
