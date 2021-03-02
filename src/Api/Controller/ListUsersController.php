@@ -36,6 +36,7 @@ class ListUsersController extends AbstractListController
         'username',
         'commentCount',
         'discussionCount',
+        'lastSeenAt',
         'joinedAt'
     ];
 
@@ -68,10 +69,11 @@ class ListUsersController extends AbstractListController
 
         $actor->assertCan('viewUserList');
 
-        if ($actor->hasPermission('user.viewLastSeenAt')) {
-            // At the moment, only people able to see everyone's last online date can sort by it. Ref #2519
+        if (!$actor->hasPermission('user.viewLastSeenAt')) {
+            // If a user cannot see everyone's last online date, we prevent them from sorting by it
             // Otherwise this sort field would defeat the privacy setting discloseOnline
-            $this->addSortField('lastSeenAt');
+            // We use remove instead of add so that extensions can still completely disable the sort using the extender
+            $this->removeSortField('lastSeenAt');
         }
 
         $query = Arr::get($this->extractFilter($request), 'q');
