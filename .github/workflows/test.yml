@@ -58,13 +58,14 @@ jobs:
           coverage: xdebug
           extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
           tools: phpunit, composer:v2
-          update: true
 
-
+      # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
+      # which isn't supported prior to PHP7.4
+      # When we drop support for PHP7.3, we should remove this from the setup.
       - name: Create MySQL Database
         run: |
           sudo systemctl start mysql
-          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+          mysql -uroot -proot -e 'CREATE DATABASE flarum_test; ALTER USER root IDENTIFIED WITH mysql_native_password BY 'PASSWORD';' --port 13306
 
       - name: Install Composer dependencies
         run: composer install
