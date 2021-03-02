@@ -65,7 +65,8 @@ jobs:
       - name: Create MySQL Database
         run: |
           sudo systemctl start mysql
-          mysql -uroot -proot -e 'CREATE DATABASE flarum_test; ALTER USER root IDENTIFIED WITH mysql_native_password BY 'PASSWORD';' --port 13306
+          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+          mysql -uroot -proot -e "ALTER USER root IDENTIFIED WITH mysql_native_password BY 'PASSWORD';" --port 13306
 
       - name: Install Composer dependencies
         run: composer install
