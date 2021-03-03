@@ -1,15 +1,16 @@
+import * as Mithril from 'mithril';
 import Separator from '../components/Separator';
 import classList from '../utils/classList';
 
-function isSeparator(item) {
+function isSeparator(item): boolean {
   return item.tag === Separator;
 }
 
-function withoutUnnecessarySeparators(items) {
+function withoutUnnecessarySeparators(items: Array<Mithril.Vnode>): Array<Mithril.Vnode> {
   const newItems = [];
   let prevItem;
 
-  items.filter(Boolean).forEach((item, i) => {
+  items.filter(Boolean).forEach((item: Mithril.Vnode, i: number) => {
     if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
       prevItem = item;
       newItems.push(item);
@@ -22,14 +23,11 @@ function withoutUnnecessarySeparators(items) {
 /**
  * The `listItems` helper wraps a collection of components in <li> tags,
  * stripping out any unnecessary `Separator` components.
- *
- * @param {*} items
- * @return {Array}
  */
-export default function listItems(items) {
+export default function listItems(items: Mithril.Vnode | Array<Mithril.Vnode>): Array<Mithril.Vnode> {
   if (!(items instanceof Array)) items = [items];
 
-  return withoutUnnecessarySeparators(items).map((item) => {
+  return withoutUnnecessarySeparators(items).map((item: Mithril.Vnode) => {
     const isListItem = item.tag && item.tag.isListItem;
     const active = item.tag && item.tag.isActive && item.tag.isActive(item.attrs);
     const className = (item.attrs && item.attrs.itemClassName) || item.itemClassName;
@@ -40,7 +38,7 @@ export default function listItems(items) {
       item.key = item.attrs.key;
     }
 
-    const node = isListItem ? (
+    const node: Mithril.Vnode = isListItem ? (
       item
     ) : (
       <li
