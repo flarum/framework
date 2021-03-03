@@ -9,6 +9,7 @@
 
 namespace Flarum\Http\Middleware;
 
+use Flarum\Foundation\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -16,18 +17,18 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class FlarumPromotionHeader implements Middleware
 {
-    public static $enabled = true;
+    protected $enabled = true;
 
-    public static function disable()
+    public function __construct(Config $config)
     {
-        static::$enabled = false;
+        $this->enabled = $config['promote'] ?? true;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
 
-        if (static::$enabled) {
+        if ($this->enabled) {
             $response = $response->withAddedHeader('X-Powered-By', 'Flarum');
         }
 
