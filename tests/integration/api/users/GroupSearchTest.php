@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Tests\integration\api\users;
 
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
@@ -197,7 +204,6 @@ class GroupSearchTest extends TestCase
 
         $this->assertCount(0, $responseBodyContents->data, json_encode($responseBodyContents));
         $this->assertObjectNotHasAttribute('included', $responseBodyContents, json_encode($responseBodyContents));
-
     }
 
     /**
