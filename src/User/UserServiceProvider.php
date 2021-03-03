@@ -91,10 +91,10 @@ class UserServiceProvider extends AbstractServiceProvider
 
     protected function registerPasswordCheckers()
     {
-        $this->app->singleton('flarum.user.password_checkers', function () {
+        $this->container->singleton('flarum.user.password_checkers', function () {
             return [
                 'standard' => function (User $user, $password) {
-                    if ($this->app->make('hash')->check($password, $user->password)) {
+                    if ($this->container->make('hash')->check($password, $user->password)) {
                         return true;
                     }
                 }
@@ -112,6 +112,7 @@ class UserServiceProvider extends AbstractServiceProvider
         }
 
         User::setHasher($this->container->make('hash'));
+        User::setPasswordCheckers($this->container->make('flarum.user.password_checkers'));
         User::setGate($this->container->makeWith(Access\Gate::class, ['policyClasses' => $this->container->make('flarum.policies')]));
         User::setDisplayNameDriver($this->container->make('flarum.user.display_name.driver'));
 
