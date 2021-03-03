@@ -37,9 +37,10 @@ export default class EditUserModal extends Modal {
   }
 
   content() {
+    const fields = this.fields().toArray();
     return (
       <div className="Modal-body">
-        <div className="Form">{this.fields().toArray()}</div>
+        {fields.length > 1 ? <div className="Form">{this.fields().toArray()}</div> : app.translator.trans('core.forum.edit_user.nothing_available')}
       </div>
     );
   }
@@ -47,96 +48,112 @@ export default class EditUserModal extends Modal {
   fields() {
     const items = new ItemList();
 
-    items.add(
-      'username',
-      <div className="Form-group">
-        <label>{app.translator.trans('core.forum.edit_user.username_heading')}</label>
-        <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.username_label'))} bidi={this.username} />
-      </div>,
-      40
-    );
-
-    if (app.session.user !== this.attrs.user) {
+    if (app.session.user.canEditCredentials()) {
       items.add(
-        'email',
+        'username',
         <div className="Form-group">
-          <label>{app.translator.trans('core.forum.edit_user.email_heading')}</label>
-          <div>
-            <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))} bidi={this.email} />
-          </div>
-          {!this.isEmailConfirmed() ? (
-            <div>
-              {Button.component(
-                {
-                  className: 'Button Button--block',
-                  loading: this.loading,
-                  onclick: this.activate.bind(this),
-                },
-                app.translator.trans('core.forum.edit_user.activate_button')
-              )}
-            </div>
-          ) : (
-            ''
-          )}
+          <label>{app.translator.trans('core.forum.edit_user.username_heading')}</label>
+          <input
+            className="FormControl"
+            placeholder={extractText(app.translator.trans('core.forum.edit_user.username_label'))}
+            bidi={this.username}
+            disabled={this.nonAdminEditingAdmin()}
+          />
         </div>,
-        30
+        40
       );
 
-      items.add(
-        'password',
-        <div className="Form-group">
-          <label>{app.translator.trans('core.forum.edit_user.password_heading')}</label>
-          <div>
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                onchange={(e) => {
-                  this.setPassword(e.target.checked);
-                  m.redraw.sync();
-                  if (e.target.checked) this.$('[name=password]').select();
-                  e.redraw = false;
-                }}
-              />
-              {app.translator.trans('core.forum.edit_user.set_password_label')}
-            </label>
-            {this.setPassword() ? (
+      if (app.session.user !== this.attrs.user) {
+        items.add(
+          'email',
+          <div className="Form-group">
+            <label>{app.translator.trans('core.forum.edit_user.email_heading')}</label>
+            <div>
               <input
                 className="FormControl"
-                type="password"
-                name="password"
-                placeholder={extractText(app.translator.trans('core.forum.edit_user.password_label'))}
-                bidi={this.password}
+                placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
+                bidi={this.email}
+                disabled={this.nonAdminEditingAdmin()}
               />
+            </div>
+            {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) ? (
+              <div>
+                {Button.component(
+                  {
+                    className: 'Button Button--block',
+                    loading: this.loading,
+                    onclick: this.activate.bind(this),
+                  },
+                  app.translator.trans('core.forum.edit_user.activate_button')
+                )}
+              </div>
             ) : (
               ''
             )}
-          </div>
-        </div>,
-        20
-      );
-    }
+          </div>,
+          30
+        );
 
-    items.add(
-      'groups',
-      <div className="Form-group EditUserModal-groups">
-        <label>{app.translator.trans('core.forum.edit_user.groups_heading')}</label>
-        <div>
-          {Object.keys(this.groups)
-            .map((id) => app.store.getById('groups', id))
-            .map((group) => (
+        items.add(
+          'password',
+          <div className="Form-group">
+            <label>{app.translator.trans('core.forum.edit_user.password_heading')}</label>
+            <div>
               <label className="checkbox">
                 <input
                   type="checkbox"
-                  bidi={this.groups[group.id()]}
-                  disabled={this.attrs.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID}
+                  onchange={(e) => {
+                    this.setPassword(e.target.checked);
+                    m.redraw.sync();
+                    if (e.target.checked) this.$('[name=password]').select();
+                    e.redraw = false;
+                  }}
+                  disabled={this.nonAdminEditingAdmin()}
                 />
-                {GroupBadge.component({ group, label: '' })} {group.nameSingular()}
+                {app.translator.trans('core.forum.edit_user.set_password_label')}
               </label>
-            ))}
-        </div>
-      </div>,
-      10
-    );
+              {this.setPassword() ? (
+                <input
+                  className="FormControl"
+                  type="password"
+                  name="password"
+                  placeholder={extractText(app.translator.trans('core.forum.edit_user.password_label'))}
+                  bidi={this.password}
+                  disabled={this.nonAdminEditingAdmin()}
+                />
+              ) : (
+                ''
+              )}
+            </div>
+          </div>,
+          20
+        );
+      }
+    }
+
+    if (app.session.user.canEditGroups()) {
+      items.add(
+        'groups',
+        <div className="Form-group EditUserModal-groups">
+          <label>{app.translator.trans('core.forum.edit_user.groups_heading')}</label>
+          <div>
+            {Object.keys(this.groups)
+              .map((id) => app.store.getById('groups', id))
+              .map((group) => (
+                <label className="checkbox">
+                  <input
+                    type="checkbox"
+                    bidi={this.groups[group.id()]}
+                    disabled={group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))}
+                  />
+                  {GroupBadge.component({ group, label: '' })} {group.nameSingular()}
+                </label>
+              ))}
+          </div>
+        </div>,
+        10
+      );
+    }
 
     items.add(
       'submit',
@@ -176,21 +193,26 @@ export default class EditUserModal extends Modal {
   }
 
   data() {
-    const groups = Object.keys(this.groups)
-      .filter((id) => this.groups[id]())
-      .map((id) => app.store.getById('groups', id));
-
     const data = {
-      username: this.username(),
-      relationships: { groups },
+      relationships: {},
     };
 
-    if (app.session.user !== this.attrs.user) {
-      data.email = this.email();
+    if (this.attrs.user.canEditCredentials() && !this.nonAdminEditingAdmin()) {
+      data.username = this.username();
+
+      if (app.session.user !== this.attrs.user) {
+        data.email = this.email();
+      }
+
+      if (this.setPassword()) {
+        data.password = this.password();
+      }
     }
 
-    if (this.setPassword()) {
-      data.password = this.password();
+    if (this.attrs.user.canEditGroups()) {
+      data.relationships.groups = Object.keys(this.groups)
+        .filter((id) => this.groups[id]())
+        .map((id) => app.store.getById('groups', id));
     }
 
     return data;
@@ -208,5 +230,16 @@ export default class EditUserModal extends Modal {
         this.loading = false;
         m.redraw();
       });
+  }
+
+  nonAdminEditingAdmin() {
+    return this.userIsAdmin(this.attrs.user) && !this.userIsAdmin(app.session.user);
+  }
+
+  /**
+   * @internal @protected
+   */
+  userIsAdmin(user) {
+    return user.groups().some((g) => g.id() === Group.ADMINISTRATOR_ID);
   }
 }

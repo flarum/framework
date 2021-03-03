@@ -60,8 +60,8 @@ class SimpleFlarumSearch implements ExtenderInterface
      * @param callable|string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
-     * - Flarum\Search\AbstractSearch $search
-     * - Flarum\Search\SearchCriteria $criteria
+     * - Flarum\Search\SearchState $search
+     * - Flarum\Query\QueryCriteria $criteria
      */
     public function addSearchMutator($callback)
     {

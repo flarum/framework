@@ -12,10 +12,10 @@ namespace Flarum\Tests\integration\extenders;
 use Carbon\Carbon;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Query\QueryCriteria;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
 use Flarum\Search\GambitInterface;
-use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchState;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
@@ -64,7 +64,7 @@ class SimpleFlarumSearchTest extends TestCase
 
         $actor = User::find(1);
 
-        $criteria = new SearchCriteria($actor, $query);
+        $criteria = new QueryCriteria($actor, ['q' => $query]);
 
         return $this->app()->getContainer()->make(DiscussionSearcher::class)->search($criteria, $limit)->getResults();
     }
@@ -142,7 +142,7 @@ class NoResultFullTextGambit implements GambitInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(AbstractSearch $search, $searchValue)
+    public function apply(SearchState $search, $searchValue)
     {
         $search->getQuery()
             ->whereRaw('0=1');
@@ -151,12 +151,18 @@ class NoResultFullTextGambit implements GambitInterface
 
 class NoResultFilterGambit extends AbstractRegexGambit
 {
-    protected $pattern = 'noResult:(.+)';
+    /**
+     * {@inheritdoc}
+     */
+    public function getGambitPattern()
+    {
+        return 'noResult:(.+)';
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function conditions(AbstractSearch $search, array $matches, $negate)
+    public function conditions(SearchState $search, array $matches, $negate)
     {
         $noResults = trim($matches[1], ' ');
         if ($noResults == '1') {

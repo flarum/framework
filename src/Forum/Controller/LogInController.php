@@ -16,6 +16,7 @@ use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
 use Flarum\User\UserRepository;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -39,6 +40,11 @@ class LogInController implements RequestHandlerInterface
     protected $authenticator;
 
     /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
      * @var Rememberer
      */
     protected $rememberer;
@@ -49,11 +55,12 @@ class LogInController implements RequestHandlerInterface
      * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
      */
-    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Rememberer $rememberer)
+    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Dispatcher $events, Rememberer $rememberer)
     {
         $this->users = $users;
         $this->apiClient = $apiClient;
         $this->authenticator = $authenticator;
+        $this->events = $events;
         $this->rememberer = $rememberer;
     }
 
@@ -76,7 +83,7 @@ class LogInController implements RequestHandlerInterface
 
             $token = AccessToken::find($data->token);
 
-            event(new LoggedIn($this->users->findOrFail($data->userId), $token));
+            $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));
 
             if (Arr::get($body, 'remember')) {
                 $response = $this->rememberer->remember($response, $token);

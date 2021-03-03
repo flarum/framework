@@ -38,6 +38,7 @@ class UserServiceProvider extends AbstractServiceProvider
     {
         $this->registerAvatarsFilesystem();
         $this->registerDisplayNameDrivers();
+        $this->registerPasswordCheckers();
 
         $this->app->singleton('flarum.user.group_processors', function () {
             return [];
@@ -88,6 +89,19 @@ class UserServiceProvider extends AbstractServiceProvider
             ->give($avatarsFilesystem);
     }
 
+    protected function registerPasswordCheckers()
+    {
+        $this->app->singleton('flarum.user.password_checkers', function () {
+            return [
+                'standard' => function (User $user, $password) {
+                    if ($this->app->make('hash')->check($password, $user->password)) {
+                        return true;
+                    }
+                }
+            ];
+        });
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -97,11 +111,12 @@ class UserServiceProvider extends AbstractServiceProvider
             User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $this->app));
         }
 
-        $events = $this->app->make('events');
-
+        User::setPasswordCheckers($this->app->make('flarum.user.password_checkers'));
         User::setHasher($this->app->make('hash'));
         User::setGate($this->app->makeWith(Access\Gate::class, ['policyClasses' => $this->app->make('flarum.policies')]));
         User::setDisplayNameDriver($this->app->make('flarum.user.display_name.driver'));
+
+        $events = $this->app->make('events');
 
         $events->listen(Saving::class, SelfDemotionGuard::class);
         $events->listen(Registered::class, AccountActivationMailer::class);

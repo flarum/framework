@@ -10,10 +10,11 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
 
-class View implements ExtenderInterface
+class View implements ExtenderInterface, LifecycleInterface
 {
     private $namespaces = [];
 
@@ -47,5 +48,27 @@ class View implements ExtenderInterface
                 $view->addNamespace($namespace, $hints);
             }
         });
+    }
+
+    /**
+     * @param Container $container
+     * @param Extension $extension
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function onEnable(Container $container, Extension $extension)
+    {
+        $storagePath = $container->make(Paths::class)->storage;
+        array_map('unlink', glob($storagePath.'/views/*'));
+    }
+
+    /**
+     * @param Container $container
+     * @param Extension $extension
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function onDisable(Container $container, Extension $extension)
+    {
+        $storagePath = $container->make(Paths::class)->storage;
+        array_map('unlink', glob($storagePath.'/views/*'));
     }
 }

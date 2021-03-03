@@ -176,7 +176,9 @@ core:
       delete_posts_label: Delete posts
       description: Configure who can see and do what.
       edit_posts_label: Edit posts
-      edit_users_label: Edit users
+      edit_users_label: Edit user attributes
+      edit_users_credentials_label: Edit user credentials
+      edit_users_groups_label: Edit user groups
       global_heading: Global
       moderate_heading: Moderate
       new_group_button: New Group
@@ -291,6 +293,7 @@ core:
       email_heading: => core.ref.email
       email_label: => core.ref.email
       groups_heading: Groups
+      nothing_available: There is nothing available for you to edit at this time.
       password_heading: => core.ref.password
       password_label: => core.ref.password
       set_password_label: Set new password

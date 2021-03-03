@@ -9,19 +9,15 @@
 
 namespace Flarum\Search;
 
+use Flarum\Discussion\Query as DiscussionQuery;
 use Flarum\Discussion\Search\DiscussionSearcher;
-use Flarum\Discussion\Search\Gambit\AuthorGambit;
-use Flarum\Discussion\Search\Gambit\CreatedGambit;
 use Flarum\Discussion\Search\Gambit\FulltextGambit as DiscussionFulltextGambit;
-use Flarum\Discussion\Search\Gambit\HiddenGambit;
-use Flarum\Discussion\Search\Gambit\UnreadGambit;
 use Flarum\Event\ConfigureDiscussionGambits;
 use Flarum\Event\ConfigureUserGambits;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
-use Flarum\User\Search\Gambit\EmailGambit;
+use Flarum\User\Query as UserQuery;
 use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextGambit;
-use Flarum\User\Search\Gambit\GroupGambit;
 use Flarum\User\Search\UserSearcher;
 use Illuminate\Support\Arr;
 
@@ -42,14 +38,14 @@ class SearchServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.simple_search.gambits', function () {
             return [
                 DiscussionSearcher::class => [
-                    AuthorGambit::class,
-                    CreatedGambit::class,
-                    HiddenGambit::class,
-                    UnreadGambit::class
+                    DiscussionQuery\AuthorFilterGambit::class,
+                    DiscussionQuery\CreatedFilterGambit::class,
+                    DiscussionQuery\HiddenFilterGambit::class,
+                    DiscussionQuery\UnreadFilterGambit::class,
                 ],
                 UserSearcher::class => [
-                    EmailGambit::class,
-                    GroupGambit::class
+                    UserQuery\EmailFilterGambit::class,
+                    UserQuery\GroupFilterGambit::class,
                 ]
             ];
         });

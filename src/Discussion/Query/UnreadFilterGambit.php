@@ -7,21 +7,18 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Discussion\Search\Gambit;
+namespace Flarum\Discussion\Query;
 
 use Flarum\Discussion\DiscussionRepository;
-use Flarum\Discussion\Search\DiscussionSearch;
+use Flarum\Filter\FilterInterface;
+use Flarum\Filter\FilterState;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
-use LogicException;
+use Flarum\Search\SearchState;
+use Flarum\User\User;
+use Illuminate\Database\Query\Builder;
 
-class UnreadGambit extends AbstractRegexGambit
+class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $pattern = 'is:unread';
-
     /**
      * @var \Flarum\Discussion\DiscussionRepository
      */
@@ -38,18 +35,35 @@ class UnreadGambit extends AbstractRegexGambit
     /**
      * {@inheritdoc}
      */
-    protected function conditions(AbstractSearch $search, array $matches, $negate)
+    public function getGambitPattern()
     {
-        if (! $search instanceof DiscussionSearch) {
-            throw new LogicException('This gambit can only be applied on a DiscussionSearch');
-        }
+        return 'is:unread';
+    }
 
-        $actor = $search->getActor();
+    /**
+     * {@inheritdoc}
+     */
+    protected function conditions(SearchState $search, array $matches, $negate)
+    {
+        $this->constrain($search->getQuery(), $search->getActor(), $negate);
+    }
 
+    public function getFilterKey(): string
+    {
+        return 'unread';
+    }
+
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    {
+        $this->constrain($filterState->getQuery(), $filterState->getActor(), $negate);
+    }
+
+    protected function constrain(Builder $query, User $actor, bool $negate)
+    {
         if ($actor->exists) {
             $readIds = $this->discussions->getReadIds($actor);
 
-            $search->getQuery()->where(function ($query) use ($readIds, $negate, $actor) {
+            $query->where(function ($query) use ($readIds, $negate, $actor) {
                 if (! $negate) {
                     $query->whereNotIn('id', $readIds)->where('last_posted_at', '>', $actor->marked_all_as_read_at ?: 0);
                 } else {

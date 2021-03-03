@@ -9,12 +9,15 @@
 
 namespace Flarum\Search;
 
+use Flarum\Query\ApplyQueryParametersTrait;
+use Flarum\Query\QueryCriteria;
+use Flarum\Query\QueryResults;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 abstract class AbstractSearcher
 {
-    use ApplySearchParametersTrait;
+    use ApplyQueryParametersTrait;
 
     /**
      * @var GambitManager
@@ -34,9 +37,7 @@ abstract class AbstractSearcher
 
     abstract protected function getQuery(User $actor): Builder;
 
-    abstract protected function getSearch(Builder $query, User $actor): AbstractSearch;
-
-    protected function mutateSearch(AbstractSearch $search, SearchCriteria $criteria)
+    protected function mutateSearch(SearchState $search, QueryCriteria $criteria)
     {
         foreach ($this->searchMutators as $mutator) {
             $mutator($search, $criteria);
@@ -44,21 +45,22 @@ abstract class AbstractSearcher
     }
 
     /**
-     * @param SearchCriteria $criteria
+     * @param QueryCriteria $criteria
      * @param int|null $limit
      * @param int $offset
      *
-     * @return SearchResults
+     * @return QueryResults
+     * @throws InvalidArgumentException
      */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
+    public function search(QueryCriteria $criteria, $limit = null, $offset = 0): QueryResults
     {
         $actor = $criteria->actor;
 
         $query = $this->getQuery($actor);
 
-        $search = $this->getSearch($query, $actor);
+        $search = new SearchState($query->getQuery(), $actor);
 
-        $this->gambits->apply($search, $criteria->query);
+        $this->gambits->apply($search, $criteria->query['q']);
         $this->applySort($search, $criteria->sort);
         $this->applyOffset($search, $offset);
         $this->applyLimit($search, $limit + 1);
@@ -74,8 +76,6 @@ abstract class AbstractSearcher
             $results->pop();
         }
 
-        $results->load($load);
-
-        return new SearchResults($results, $areMoreResults);
+        return new QueryResults($results, $areMoreResults);
     }
 }
