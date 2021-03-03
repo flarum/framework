@@ -110,6 +110,7 @@ class ListDiscussionsController extends AbstractListController
 
         Discussion::setStateUser($actor);
 
+        // Needed for eager loading
         if (in_array('mostRelevantPost.user', $include)) {
             $include[] = 'mostRelevantPost.user.groups';
         }
