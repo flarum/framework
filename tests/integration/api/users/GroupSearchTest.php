@@ -233,6 +233,7 @@ class GroupSearchTest extends TestCase
     private function createRequest(array $group, int $userId = null)
     {
         $auth = $userId ? ['authenticatedAs' => $userId] : [];
+
         return $this->send(
             $this->request('GET', '/api/users', $auth)
                 ->withQueryParams(['filter' => ['q' => 'group:'.implode(',', $group)]])
