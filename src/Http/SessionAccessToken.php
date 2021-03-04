@@ -13,5 +13,5 @@ class SessionAccessToken extends AccessToken
 {
     public static $type = 'session';
 
-    protected static $lifetime = 3600;
+    protected static $lifetime = 60 * 60;  // 1 hour
 }
