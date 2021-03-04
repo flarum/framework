@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Http\SessionAccessToken;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\Command\ConfirmEmail;
@@ -61,7 +62,8 @@ class ConfirmEmailController implements RequestHandlerInterface
         );
 
         $session = $request->getAttribute('session');
-        $this->authenticator->logIn($session, $user->id);
+        $token = SessionAccessToken::generate($user->id);
+        $this->authenticator->logIn($session, $token);
 
         return new RedirectResponse($this->url->to('forum')->base());
     }

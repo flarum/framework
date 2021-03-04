@@ -60,7 +60,7 @@ class WithTokenTest extends TestCase
 
         // ...and an access token belonging to this user.
         $token = $data['token'];
-        $this->assertEquals(2, AccessToken::findOrFail($token)->user_id);
+        $this->assertEquals(2, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
 
     /**

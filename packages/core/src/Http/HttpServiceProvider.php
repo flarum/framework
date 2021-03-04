@@ -62,4 +62,25 @@ class HttpServiceProvider extends AbstractServiceProvider
             return new SlugManager($this->app->make('flarum.http.selectedSlugDrivers'));
         });
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function boot()
+    {
+        $this->setAccessTokenTypes();
+    }
+
+    protected function setAccessTokenTypes()
+    {
+        $models = [
+            DeveloperAccessToken::class,
+            RememberAccessToken::class,
+            SessionAccessToken::class
+        ];
+
+        foreach ($models as $model) {
+            AccessToken::setModel($model::$type, $model);
+        }
+    }
 }
