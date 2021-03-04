@@ -29,6 +29,8 @@ class Installation
     /** @var AdminUser */
     private $adminUser;
 
+    private $accessToken;
+
     // A few instance variables to persist objects between steps.
     // Could also be local variables in build(), but this way
     // access in closures is easier. :)
@@ -79,6 +81,13 @@ class Installation
     public function adminUser(AdminUser $admin)
     {
         $this->adminUser = $admin;
+
+        return $this;
+    }
+
+    public function accessToken(string $token)
+    {
+        $this->accessToken = $token;
 
         return $this;
     }
@@ -135,7 +144,7 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\CreateAdminUser($this->db, $this->adminUser);
+            return new Steps\CreateAdminUser($this->db, $this->adminUser, $this->accessToken);
         });
 
         $pipeline->pipe(function () {

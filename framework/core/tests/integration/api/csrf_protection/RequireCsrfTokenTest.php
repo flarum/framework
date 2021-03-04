@@ -193,7 +193,7 @@ class RequireCsrfTokenTest extends TestCase
     public function access_token_does_not_need_csrf_token()
     {
         $this->database()->table('access_tokens')->insert(
-            ['token' => 'myaccesstoken', 'user_id' => 1]
+            ['token' => 'myaccesstoken', 'user_id' => 1, 'type' => 'developer']
         );
 
         $response = $this->send(
