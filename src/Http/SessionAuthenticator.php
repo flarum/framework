@@ -22,9 +22,11 @@ class SessionAuthenticator
         // Backwards compatibility with $userId as parameter
         // Remove in beta 17
         if (! ($token instanceof AccessToken)) {
+            $userId = $token;
+
             trigger_error('Parameter $userId is deprecated in beta 16, will be replaced by $token in beta 17', E_USER_DEPRECATED);
 
-            $token = AccessToken::generate($token);
+            $token = AccessToken::generate($userId);
         }
 
         $session->regenerate(true);
