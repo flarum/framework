@@ -34,18 +34,23 @@ class AuthenticateWithSession implements Middleware
 
     private function getActor(Session $session, Request $request)
     {
-        $token = AccessToken::findValid($session->get('access_token'));
+        if ($session->has('access_token')) {
+            $token = AccessToken::findValid($session->get('access_token'));
 
-        $actor = $token ? $token->user : new Guest;
+            if ($token) {
+                $actor = $token->user;
+                $actor->updateLastSeen()->save();
 
-        if ($token) {
-            $token->touch($request);
+                $token->touch($request);
+
+                return $actor;
+            }
+
+            // If this session used to have a token which is no longer valid we properly refresh the session
+            $session->invalidate();
+            $session->regenerateToken();
         }
 
-        if ($actor->exists) {
-            $actor->updateLastSeen()->save();
-        }
-
-        return $actor;
+        return new Guest;
     }
 }
