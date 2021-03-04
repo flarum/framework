@@ -29,10 +29,20 @@ class Rememberer
         $this->cookie = $cookie;
     }
 
+    /**
+     * Sets the remember cookie on a response.
+     * @param ResponseInterface $response
+     * @param RememberAccessToken $token The remember token to set on the response. Use of non-remember token is deprecated in beta 16, removed eta 17.
+     * @return ResponseInterface
+     */
     public function remember(ResponseInterface $response, AccessToken $token)
     {
-        $token->type = 'session_remember';
-        $token->save();
+        if (! ($token instanceof RememberAccessToken)) {
+            trigger_error('Parameter $token of type AccessToken is deprecated in beta 16, must be instance of RememberAccessToken in beta 17', E_USER_DEPRECATED);
+
+            $token->type = 'session_remember';
+            $token->save();
+        }
 
         return FigResponseCookies::set(
             $response,
@@ -48,7 +58,7 @@ class Rememberer
      */
     public function rememberUser(ResponseInterface $response, $userId)
     {
-        $token = AccessToken::generate($userId);
+        $token = RememberAccessToken::generate($userId);
 
         return $this->remember($response, $token);
     }

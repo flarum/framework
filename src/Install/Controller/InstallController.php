@@ -9,6 +9,8 @@
 
 namespace Flarum\Install\Controller;
 
+use Flarum\Http\RememberAccessToken;
+use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Install\AdminUser;
 use Flarum\Install\BaseUrl;
@@ -36,14 +38,21 @@ class InstallController implements RequestHandlerInterface
     protected $authenticator;
 
     /**
+     * @var Rememberer
+     */
+    protected $rememberer;
+
+    /**
      * InstallController constructor.
      * @param Installation $installation
      * @param SessionAuthenticator $authenticator
+     * @param Rememberer $rememberer
      */
-    public function __construct(Installation $installation, SessionAuthenticator $authenticator)
+    public function __construct(Installation $installation, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
         $this->installation = $installation;
         $this->authenticator = $authenticator;
+        $this->rememberer = $rememberer;
     }
 
     /**
@@ -55,11 +64,15 @@ class InstallController implements RequestHandlerInterface
         $input = $request->getParsedBody();
         $baseUrl = BaseUrl::fromUri($request->getUri());
 
+        // An access token we will use to auto-login the admin at the end of installation
+        $accessToken = Str::random(40);
+
         try {
             $pipeline = $this->installation
                 ->baseUrl($baseUrl)
                 ->databaseConfig($this->makeDatabaseConfig($input))
                 ->adminUser($this->makeAdminUser($input))
+                ->accessToken($accessToken)
                 ->settings([
                     'forum_title' => Arr::get($input, 'forumTitle'),
                     'mail_from' => $baseUrl->toEmail('noreply'),
@@ -77,9 +90,13 @@ class InstallController implements RequestHandlerInterface
         }
 
         $session = $request->getAttribute('session');
-        $this->authenticator->logIn($session, 1);
+        // Because the Eloquent models cannot be used yet, we create a temporary in-memory object
+        // that won't interact with the database but can be passed to the authenticator and rememberer
+        $token = new RememberAccessToken();
+        $token->token = $accessToken;
+        $this->authenticator->logIn($session, $token);
 
-        return new Response\EmptyResponse;
+        return $this->rememberer->remember(new Response\EmptyResponse, $token);
     }
 
     private function makeDatabaseConfig(array $input): DatabaseConfig

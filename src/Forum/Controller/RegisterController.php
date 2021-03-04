@@ -11,7 +11,7 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
 use Flarum\Api\Controller\CreateUserController;
-use Flarum\Http\AccessToken;
+use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ResponseInterface;
@@ -63,7 +63,7 @@ class RegisterController implements RequestHandlerInterface
         if (isset($body->data)) {
             $userId = $body->data->id;
 
-            $token = AccessToken::generate($userId);
+            $token = RememberAccessToken::generate($userId);
 
             $session = $request->getAttribute('session');
             $this->authenticator->logIn($session, $token);

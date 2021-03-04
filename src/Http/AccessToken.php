@@ -79,11 +79,14 @@ class AccessToken extends AbstractModel
 
         $token = new static;
 
-        $token->type = 'session';
+        // Since this method can be called either on the base class or a child class, we need a default type value
+        // for when it's called on the base class
+        $token->type = static::$type ?: 'session';
         $token->token = Str::random(40);
         $token->user_id = $userId;
         $token->created_at = Carbon::now();
         $token->last_activity_at = Carbon::now();
+        $token->save();
 
         return $token;
     }
