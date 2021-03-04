@@ -11,6 +11,7 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\Http\AccessToken;
 use Flarum\Http\CookieFactory;
+use Flarum\Http\RememberAccessToken;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -37,14 +38,14 @@ class RememberFromCookie implements Middleware
         $id = Arr::get($request->getCookieParams(), $this->cookie->getName('remember'));
 
         if ($id) {
-            $token = AccessToken::find($id);
+            $token = AccessToken::findValid($id);
 
-            if ($token) {
+            if ($token && $token instanceof RememberAccessToken) {
                 $token->touch();
 
                 /** @var \Illuminate\Contracts\Session\Session $session */
                 $session = $request->getAttribute('session');
-                $session->put('user_id', $token->user_id);
+                $session->put('access_token', $token->token);
             }
         }
 

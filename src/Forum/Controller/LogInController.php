@@ -12,6 +12,7 @@ namespace Flarum\Forum\Controller;
 use Flarum\Api\Client;
 use Flarum\Api\Controller\CreateTokenController;
 use Flarum\Http\AccessToken;
+use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
@@ -71,21 +72,21 @@ class LogInController implements RequestHandlerInterface
     {
         $actor = $request->getAttribute('actor');
         $body = $request->getParsedBody();
-        $params = Arr::only($body, ['identification', 'password']);
+        $params = Arr::only($body, ['identification', 'password', 'remember']);
 
         $response = $this->apiClient->send(CreateTokenController::class, $actor, [], $params);
 
         if ($response->getStatusCode() === 200) {
             $data = json_decode($response->getBody());
 
-            $session = $request->getAttribute('session');
-            $this->authenticator->logIn($session, $data->userId);
+            $token = AccessToken::findValid($data->token);
 
-            $token = AccessToken::find($data->token);
+            $session = $request->getAttribute('session');
+            $this->authenticator->logIn($session, $token);
 
             $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));
 
-            if (Arr::get($body, 'remember')) {
+            if ($token instanceof RememberAccessToken) {
                 $response = $this->rememberer->remember($response, $token);
             }
         }
