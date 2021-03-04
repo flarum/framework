@@ -13,7 +13,7 @@ use Illuminate\Database\Schema\Builder;
 return [
     'up' => function (Builder $schema) {
         $schema->table('access_tokens', function (Blueprint $table) {
-            $table->string('type')->index();
+            $table->string('type', 100)->index();
         });
 
         // Since all active sessions will stop working on update due to switching from user_id to access_token

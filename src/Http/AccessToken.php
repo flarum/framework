@@ -88,22 +88,28 @@ class AccessToken extends AbstractModel
         return $token;
     }
 
-    public function touch()
+    /**
+     * Update the time of last usage of a token.
+     * If a request object is provided, the IP address and User Agent will also be logged.
+     * @param ServerRequestInterface|null $request
+     * @return bool
+     */
+    public function touch(ServerRequestInterface $request = null)
     {
         $this->last_activity_at = Carbon::now();
 
-        return $this->save();
-    }
-
-    public function updateLastActivity(ServerRequestInterface $request)
-    {
-        $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR');
-        // We truncate user agent so it fits in the database column
-        $userAgent = substr(Arr::get($request->getServerParams(), 'HTTP_USER_AGENT'), 0, SchemaBuilder::$defaultStringLength);
-
-        $this->last_activity_at = Carbon::now();
-        $this->last_ip_address = $ipAddress;
-        $this->last_user_agent = $userAgent;
+        if ($request) {
+            $this->last_ip_address = $request->getAttribute('ipAddress');
+            // We truncate user agent so it fits in the database column
+            // The length is hard-coded as the column length
+            // It seems like MySQL or Laravel already truncates values, but we'll play safe and do it ourselves
+            $this->last_user_agent = substr(Arr::get($request->getServerParams(), 'HTTP_USER_AGENT'), 0, 255);
+        } else {
+            // If no request is provided, we set the values back to null
+            // That way the values always match with the date logged in last_activity
+            $this->last_ip_address = null;
+            $this->last_user_agent = null;
+        }
 
         return $this->save();
     }

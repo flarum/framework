@@ -39,7 +39,7 @@ class AuthenticateWithSession implements Middleware
         $actor = $token ? $token->user : new Guest;
 
         if ($token) {
-            $token->updateLastActivity($request);
+            $token->touch($request);
         }
 
         if ($actor->exists) {

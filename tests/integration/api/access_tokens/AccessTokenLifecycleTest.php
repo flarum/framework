@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Http\AccessToken;
 use Flarum\Tests\integration\RetrievesAuthorizedUsers;
 use Flarum\Tests\integration\TestCase;
+use Laminas\Diactoros\ServerRequest;
 
 class AccessTokenLifecycleTest extends TestCase
 {
@@ -66,5 +67,77 @@ class AccessTokenLifecycleTest extends TestCase
 
         // 6 years after last activity
         $this->assertEquals(['c'], AccessToken::whereValid(Carbon::parse('2027-01-01 01:00:00'))->pluck('token')->all());
+    }
+
+    /**
+     * @test
+     */
+    public function touch_updates_lifetime()
+    {
+        $this->populateDatabase();
+
+        // 45 minutes after last activity
+        Carbon::setTestNow('2021-01-01 02:45:00');
+        $token = AccessToken::findValid('a');
+        $this->assertNotNull($token);
+        $token->touch();
+        Carbon::setTestNow();
+
+        // 1h30 after original last activity, 45 minutes after touch
+        $this->assertTrue(AccessToken::whereValid(Carbon::parse('2021-01-01 03:30:00'))->whereToken('a')->exists());
+    }
+
+    /**
+     * @test
+     */
+    public function touch_without_request()
+    {
+        $this->populateDatabase();
+
+        /** @var AccessToken $token */
+        $token = AccessToken::whereToken('a')->firstOrFail();
+        $token->touch();
+
+        /** @var AccessToken $token */
+        $token = AccessToken::whereToken('a')->firstOrFail();
+        $this->assertNull($token->last_ip_address);
+        $this->assertNull($token->last_user_agent);
+    }
+
+    /**
+     * @test
+     */
+    public function touch_with_request()
+    {
+        $this->populateDatabase();
+
+        /** @var AccessToken $token */
+        $token = AccessToken::whereToken('a')->firstOrFail();
+        $token->touch((new ServerRequest([
+            'HTTP_USER_AGENT' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36',
+        ]))->withAttribute('ipAddress', '8.8.8.8'));
+
+        /** @var AccessToken $token */
+        $token = AccessToken::whereToken('a')->firstOrFail();
+        $this->assertEquals('8.8.8.8', $token->last_ip_address);
+        $this->assertEquals('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36', $token->last_user_agent);
+    }
+
+    /**
+     * @test
+     */
+    public function long_user_agent_id_truncated()
+    {
+        $this->populateDatabase();
+
+        /** @var AccessToken $token */
+        $token = AccessToken::whereToken('a')->firstOrFail();
+        $token->touch(new ServerRequest([
+            'HTTP_USER_AGENT' => str_repeat('a', 500),
+        ]));
+
+        /** @var AccessToken $token */
+        $token = AccessToken::whereToken('a')->firstOrFail();
+        $this->assertEquals(255, strlen($token->last_user_agent));
     }
 }
