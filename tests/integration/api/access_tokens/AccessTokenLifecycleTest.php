@@ -49,7 +49,7 @@ class AccessTokenLifecycleTest extends TestCase
         $this->assertEquals(['a'], AccessToken::whereExpired(Carbon::parse('2021-01-01 03:30:00'))->pluck('token')->all());
 
         // 6 years after last activity
-        $this->assertEquals(['a', 'b'], AccessToken::whereExpired(Carbon::parse('2027-01-01 01:00:00'))->pluck('token')->all());
+        $this->assertEquals(['a', 'b'], AccessToken::whereExpired(Carbon::parse('2027-01-01 01:00:00'))->pluck('token')->sort()->all());
     }
 
     /**
@@ -60,10 +60,10 @@ class AccessTokenLifecycleTest extends TestCase
         $this->populateDatabase();
 
         // 30 minutes after last activity
-        $this->assertEquals(['a', 'b', 'c'], AccessToken::whereValid(Carbon::parse('2021-01-01 02:30:00'))->pluck('token')->all());
+        $this->assertEquals(['a', 'b', 'c'], AccessToken::whereValid(Carbon::parse('2021-01-01 02:30:00'))->pluck('token')->sort()->all());
 
         // 1h30 after last activity
-        $this->assertEquals(['b', 'c'], AccessToken::whereValid(Carbon::parse('2021-01-01 03:30:00'))->pluck('token')->all());
+        $this->assertEquals(['b', 'c'], AccessToken::whereValid(Carbon::parse('2021-01-01 03:30:00'))->pluck('token')->sort()->all());
 
         // 6 years after last activity
         $this->assertEquals(['c'], AccessToken::whereValid(Carbon::parse('2027-01-01 01:00:00'))->pluck('token')->all());
