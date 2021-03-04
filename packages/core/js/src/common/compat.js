@@ -1,6 +1,7 @@
 import * as extend from './extend';
 import Session from './Session';
 import Store from './Store';
+import BasicEditorDriver from './utils/BasicEditorDriver';
 import evented from './utils/evented';
 import liveHumanTimes from './utils/liveHumanTimes';
 import ItemList from './utils/ItemList';
@@ -56,6 +57,8 @@ import ModalManager from './components/ModalManager';
 import Button from './components/Button';
 import Modal from './components/Modal';
 import GroupBadge from './components/GroupBadge';
+import TextEditor from './components/TextEditor';
+import TextEditorButton from './components/TextEditorButton';
 import Model from './Model';
 import Application from './Application';
 import fullTime from './helpers/fullTime';
@@ -74,6 +77,7 @@ export default {
   extend: extend,
   Session: Session,
   Store: Store,
+  'utils/BasicEditorDriver': BasicEditorDriver,
   'utils/evented': evented,
   'utils/liveHumanTimes': liveHumanTimes,
   'utils/ItemList': ItemList,
@@ -130,6 +134,8 @@ export default {
   'components/Button': Button,
   'components/Modal': Modal,
   'components/GroupBadge': GroupBadge,
+  'components/TextEditor': TextEditor,
+  'components/TextEditorButton': TextEditorButton,
   Model: Model,
   Application: Application,
   'helpers/fullTime': fullTime,
