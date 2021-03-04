@@ -128,7 +128,7 @@ class AccessToken extends AbstractModel
 
     /**
      * Filters which tokens are valid at the given date for this particular token type.
-     * Uses the $lifetime value by default, can be overridden by children classes.
+     * Uses the static::$lifetime value by default, can be overridden by children classes.
      * @param Builder $query
      * @param Carbon $date
      */
@@ -141,7 +141,7 @@ class AccessToken extends AbstractModel
 
     /**
      * Filters which tokens are expired at the given date and ready for garbage collection.
-     * Uses the $lifetime value by default, can be overridden by children classes.
+     * Uses the static::$lifetime value by default, can be overridden by children classes.
      * @param Builder $query
      * @param Carbon $date
      */
