@@ -137,7 +137,7 @@ class AccessToken extends AbstractModel
      * @param Builder $query
      * @param Carbon $date
      */
-    public static function scopeValid(Builder $query, Carbon $date)
+    protected static function scopeValid(Builder $query, Carbon $date)
     {
         if (static::$lifetime > 0) {
             $query->where('last_activity_at', '>', $date->clone()->subSeconds(static::$lifetime));
@@ -150,7 +150,7 @@ class AccessToken extends AbstractModel
      * @param Builder $query
      * @param Carbon $date
      */
-    public static function scopeExpired(Builder $query, Carbon $date)
+    protected static function scopeExpired(Builder $query, Carbon $date)
     {
         if (static::$lifetime > 0) {
             $query->where('last_activity_at', '<', $date->clone()->subSeconds(static::$lifetime));
