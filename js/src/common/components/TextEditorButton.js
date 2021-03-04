@@ -1,4 +1,4 @@
-import Button from '../../common/components/Button';
+import Button from './Button';
 
 /**
  * The `TextEditorButton` component displays a button suitable for the text
