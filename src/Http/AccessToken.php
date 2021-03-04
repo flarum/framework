@@ -76,11 +76,16 @@ class AccessToken extends AbstractModel
             trigger_error('Parameter $lifetime is deprecated in beta 16, will be removed in beta 17', E_USER_DEPRECATED);
         }
 
-        $token = new static;
+        if (static::class === self::class) {
+            trigger_error('Use of AccessToken::generate() is deprecated in beta 16. Use SessionAccessToken::generate() or RememberAccessToken::generate()', E_USER_DEPRECATED);
 
-        // Since this method can be called either on the base class or a child class, we need a default type value
-        // for when it's called on the base class
-        $token->type = static::$type ?: 'session';
+            $token = new SessionAccessToken;
+            $token->type = 'session';
+        } else {
+            $token = new static;
+            $token->type = static::$type;
+        }
+
         $token->token = Str::random(40);
         $token->user_id = $userId;
         $token->created_at = Carbon::now();

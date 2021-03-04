@@ -26,7 +26,7 @@ class SessionAuthenticator
 
             trigger_error('Parameter $userId is deprecated in beta 16, will be replaced by $token in beta 17', E_USER_DEPRECATED);
 
-            $token = AccessToken::generate($userId);
+            $token = SessionAccessToken::generate($userId);
         }
 
         $session->regenerate(true);
