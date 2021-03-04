@@ -51,13 +51,19 @@ class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
 
         $groupQuery = Group::whereVisibleTo($actor);
 
+        $ids = [];
+        $names = [];
         foreach ($groupIdentifiers as $identifier) {
             if (is_numeric($identifier)) {
-                $groupQuery->orWhere('id', $identifier);
+                $ids[] = $identifier;
             } else {
-                $groupQuery->orWhere('name_singular', $identifier)->orWhere('name_plural', $identifier);
+                $names[] = $identifier;
             }
         }
+
+        $groupQuery->whereIn('id', $ids)
+            ->orWhereIn('name_singular', $names)
+            ->orWhereIn('name_plural', $names);
 
         $userIds = $groupQuery->join('group_user', 'groups.id', 'group_user.group_id')
             ->pluck('group_user.user_id')
