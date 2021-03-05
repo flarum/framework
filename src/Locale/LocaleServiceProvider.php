@@ -63,7 +63,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
             return $translator;
         });
-      
+
         $this->container->alias('translator', Translator::class);
         $this->container->alias('translator', TranslatorContract::class);
         $this->container->alias('translator', TranslatorInterface::class);
