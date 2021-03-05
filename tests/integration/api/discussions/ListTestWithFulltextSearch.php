@@ -75,7 +75,7 @@ class ListTest extends TestCase
         }, $data['data']);
 
         // Order-independent comparison
-        $this->assertEquals(['3'], $ids, 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['3'], $ids, 'IDs do not match');
     }
 
     /**
@@ -97,7 +97,7 @@ class ListTest extends TestCase
         }, $data['data']);
 
         // Order-independent comparison
-        $this->assertEquals(['3'], $ids, 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['3'], $ids, 'IDs do not match');
     }
 
     /**

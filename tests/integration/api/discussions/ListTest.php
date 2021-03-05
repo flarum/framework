@@ -86,7 +86,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -105,7 +105,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -124,7 +124,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -143,7 +143,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -162,7 +162,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -181,7 +181,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -200,7 +200,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['4'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['4'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -219,7 +219,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1', '2', '3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['1', '2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -241,7 +241,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -263,7 +263,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -282,7 +282,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -301,7 +301,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -320,7 +320,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -339,7 +339,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -358,7 +358,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -377,7 +377,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -396,7 +396,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['4'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['4'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -415,7 +415,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1', '2', '3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['1', '2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -437,7 +437,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     /**
@@ -459,6 +459,6 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
-        $this->assertEquals(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 }
