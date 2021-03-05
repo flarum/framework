@@ -341,12 +341,12 @@ class ExtensionManager
     /**
      * Call on all enabled extensions to extend the Flarum application.
      *
-     * @param Container $app
+     * @param Container $container
      */
-    public function extend(Container $app)
+    public function extend(Container $container)
     {
         foreach ($this->getEnabledExtensions() as $extension) {
-            $extension->extend($app);
+            $extension->extend($container);
         }
     }
 

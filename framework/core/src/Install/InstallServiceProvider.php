@@ -20,7 +20,7 @@ class InstallServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.install.routes', function () {
+        $this->container->singleton('flarum.install.routes', function () {
             return new RouteCollection;
         });
     }
@@ -32,7 +32,7 @@ class InstallServiceProvider extends AbstractServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
 
-        $this->populateRoutes($this->app->make('flarum.install.routes'));
+        $this->populateRoutes($this->container->make('flarum.install.routes'));
     }
 
     /**
@@ -40,7 +40,7 @@ class InstallServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $route = $this->app->make(RouteHandlerFactory::class);
+        $route = $this->container->make(RouteHandlerFactory::class);
 
         $routes->get(
             '/{path:.*}',

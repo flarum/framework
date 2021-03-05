@@ -20,7 +20,7 @@ class MailServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->app->singleton('mail.supported_drivers', function () {
+        $this->container->singleton('mail.supported_drivers', function () {
             return [
                 'mail' => SendmailDriver::class,
                 'mailgun' => MailgunDriver::class,
@@ -29,50 +29,50 @@ class MailServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('mail.driver', function () {
-            $configured = $this->app->make('flarum.mail.configured_driver');
-            $settings = $this->app->make(SettingsRepositoryInterface::class);
-            $validator = $this->app->make(Factory::class);
+        $this->container->singleton('mail.driver', function () {
+            $configured = $this->container->make('flarum.mail.configured_driver');
+            $settings = $this->container->make(SettingsRepositoryInterface::class);
+            $validator = $this->container->make(Factory::class);
 
             return $configured->validate($settings, $validator)->any()
-                ? $this->app->make(NullDriver::class)
+                ? $this->container->make(NullDriver::class)
                 : $configured;
         });
 
-        $this->app->alias('mail.driver', DriverInterface::class);
+        $this->container->alias('mail.driver', DriverInterface::class);
 
-        $this->app->singleton('flarum.mail.configured_driver', function () {
-            $drivers = $this->app->make('mail.supported_drivers');
-            $settings = $this->app->make(SettingsRepositoryInterface::class);
+        $this->container->singleton('flarum.mail.configured_driver', function () {
+            $drivers = $this->container->make('mail.supported_drivers');
+            $settings = $this->container->make(SettingsRepositoryInterface::class);
             $driverName = $settings->get('mail_driver');
 
             $driverClass = Arr::get($drivers, $driverName);
 
             return $driverClass
-                ? $this->app->make($driverClass)
-                : $this->app->make(NullDriver::class);
+                ? $this->container->make($driverClass)
+                : $this->container->make(NullDriver::class);
         });
 
-        $this->app->singleton('swift.mailer', function ($app) {
+        $this->container->singleton('swift.mailer', function ($container) {
             return new Swift_Mailer(
-                $app->make('mail.driver')->buildTransport(
-                    $app->make(SettingsRepositoryInterface::class)
+                $container->make('mail.driver')->buildTransport(
+                    $container->make(SettingsRepositoryInterface::class)
                 )
             );
         });
 
-        $this->app->singleton('mailer', function ($app) {
+        $this->container->singleton('mailer', function ($container) {
             $mailer = new Mailer(
-                $app['view'],
-                $app['swift.mailer'],
-                $app['events']
+                $container['view'],
+                $container['swift.mailer'],
+                $container['events']
             );
 
-            if ($app->bound('queue')) {
-                $mailer->setQueue($app->make('queue'));
+            if ($container->bound('queue')) {
+                $mailer->setQueue($container->make('queue'));
             }
 
-            $settings = $app->make(SettingsRepositoryInterface::class);
+            $settings = $container->make(SettingsRepositoryInterface::class);
             $mailer->alwaysFrom($settings->get('mail_from'), $settings->get('forum_title'));
 
             return $mailer;

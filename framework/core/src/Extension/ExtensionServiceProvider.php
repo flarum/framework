@@ -19,15 +19,15 @@ class ExtensionServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(ExtensionManager::class);
-        $this->app->alias(ExtensionManager::class, 'flarum.extensions');
+        $this->container->singleton(ExtensionManager::class);
+        $this->container->alias(ExtensionManager::class, 'flarum.extensions');
 
         // Boot extensions when the app is booting. This must be done as a boot
         // listener on the app rather than in the service provider's boot method
         // below, so that extensions have a chance to register things on the
         // container before the core boots up (and starts resolving services).
-        $this->app['flarum']->booting(function () {
-            $this->app->make('flarum.extensions')->extend($this->app);
+        $this->container['flarum']->booting(function () {
+            $this->container->make('flarum.extensions')->extend($this->container);
         });
     }
 
@@ -36,7 +36,7 @@ class ExtensionServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->app->make('events')->listen(
+        $this->container->make('events')->listen(
             Disabling::class,
             DefaultLanguagePackGuard::class
         );
