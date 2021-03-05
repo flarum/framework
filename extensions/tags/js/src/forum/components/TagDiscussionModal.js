@@ -10,18 +10,13 @@ import Stream from 'flarum/utils/Stream';
 import tagLabel from '../../common/helpers/tagLabel';
 import tagIcon from '../../common/helpers/tagIcon';
 import sortTags from '../../common/utils/sortTags';
+import getSelectableTags from '../utils/getSelectableTags';
 
 export default class TagDiscussionModal extends Modal {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.tags = app.store.all('tags');
-
-    if (this.attrs.discussion) {
-      this.tags = this.tags.filter(tag => tag.canAddToDiscussion() || this.attrs.discussion.tags().indexOf(tag) !== -1);
-    } else {
-      this.tags = this.tags.filter(tag => tag.canStartDiscussion());
-    }
+    this.tags = getSelectableTags(this.attrs.discussion);
 
     this.tags = sortTags(this.tags);
 
