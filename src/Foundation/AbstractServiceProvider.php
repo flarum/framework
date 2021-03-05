@@ -15,9 +15,15 @@ use Illuminate\Support\ServiceProvider;
 abstract class AbstractServiceProvider extends ServiceProvider
 {
     /**
+     * @deprecated beta 16, remove beta 17
      * @var Container
      */
     protected $app;
+
+    /**
+     * @var Container
+     */
+    protected $container;
 
     /**
      * @param Container $container
@@ -25,6 +31,7 @@ abstract class AbstractServiceProvider extends ServiceProvider
     public function __construct(Container $container)
     {
         $this->app = $container;
+        $this->container = $container;
     }
 
     /**

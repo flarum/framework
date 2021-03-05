@@ -23,7 +23,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.console.commands', function () {
+        $this->container->singleton('flarum.console.commands', function () {
             return [
                 CacheClearCommand::class,
                 GenerateMigrationCommand::class,
