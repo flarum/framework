@@ -18,7 +18,7 @@ use Flarum\Tests\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class EventTest extends TestCase
 {

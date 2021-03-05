@@ -49,7 +49,7 @@ class AvatarUploader
      */
     protected function removeFileAfterSave(User $user)
     {
-        $avatarPath = $user->getOriginal('avatar_url');
+        $avatarPath = $user->getRawOriginal('avatar_url');
 
         $user->afterSave(function () use ($avatarPath) {
             if ($this->uploadDir->has($avatarPath)) {

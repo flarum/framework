@@ -77,12 +77,12 @@ class SimpleFlarumSearchTest extends TestCase
         $this->prepDb();
 
         $searchForAll = json_encode($this->searchDiscussions('in text', 5));
-        $this->assertContains('DISCUSSION 1', $searchForAll);
-        $this->assertContains('DISCUSSION 2', $searchForAll);
+        $this->assertStringContainsString('DISCUSSION 1', $searchForAll);
+        $this->assertStringContainsString('DISCUSSION 2', $searchForAll);
 
         $searchForSecond = json_encode($this->searchDiscussions('lightsail', 5));
-        $this->assertNotContains('DISCUSSION 1', $searchForSecond);
-        $this->assertContains('DISCUSSION 2', $searchForSecond);
+        $this->assertStringNotContainsString('DISCUSSION 1', $searchForSecond);
+        $this->assertStringContainsString('DISCUSSION 2', $searchForSecond);
     }
 
     /**
@@ -105,8 +105,8 @@ class SimpleFlarumSearchTest extends TestCase
         $this->prepDb();
 
         $withResultSearch = json_encode($this->searchDiscussions('noResult:0', 5));
-        $this->assertContains('DISCUSSION 1', $withResultSearch);
-        $this->assertContains('DISCUSSION 2', $withResultSearch);
+        $this->assertStringContainsString('DISCUSSION 1', $withResultSearch);
+        $this->assertStringContainsString('DISCUSSION 2', $withResultSearch);
         $this->assertEquals('[]', json_encode($this->searchDiscussions('noResult:1', 5)));
     }
 
