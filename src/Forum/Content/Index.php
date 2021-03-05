@@ -18,7 +18,7 @@ use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Index
 {

@@ -60,8 +60,8 @@ class FilterTest extends TestCase
         $this->prepDb();
 
         $searchForAll = json_encode($this->filterDiscussions([], 5));
-        $this->assertContains('DISCUSSION 1', $searchForAll);
-        $this->assertContains('DISCUSSION 2', $searchForAll);
+        $this->assertStringContainsString('DISCUSSION 1', $searchForAll);
+        $this->assertStringContainsString('DISCUSSION 2', $searchForAll);
     }
 
     /**
@@ -74,8 +74,8 @@ class FilterTest extends TestCase
         $this->prepDb();
 
         $withResultSearch = json_encode($this->filterDiscussions(['noResult' => 0], 5));
-        $this->assertContains('DISCUSSION 1', $withResultSearch);
-        $this->assertContains('DISCUSSION 2', $withResultSearch);
+        $this->assertStringContainsString('DISCUSSION 1', $withResultSearch);
+        $this->assertStringContainsString('DISCUSSION 2', $withResultSearch);
         $this->assertEquals([], $this->filterDiscussions(['noResult' => 1], 5));
     }
 

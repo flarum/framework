@@ -91,7 +91,7 @@ class UserState extends AbstractModel
      * @param Builder $query
      * @return Builder
      */
-    protected function setKeysForSaveQuery(Builder $query)
+    protected function setKeysForSaveQuery($query)
     {
         $query->where('discussion_id', $this->discussion_id)
               ->where('user_id', $this->user_id);
