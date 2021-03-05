@@ -226,6 +226,8 @@ core:
       total_users: "Total users: {count}"
 
       grid:
+        invalid_column_content: Invalid
+
         default_columns:
           id: ID
 

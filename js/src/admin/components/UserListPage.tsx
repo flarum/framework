@@ -81,54 +81,76 @@ export default class UserListPage extends AdminPage {
 
   private isLoadingPage: boolean = false;
 
-  headerInfo() {
-    return {
-      className: 'UserListPage',
-      icon: 'fas fa-users',
-      title: app.translator.trans('core.admin.user_list.title'),
-      description: app.translator.trans('core.admin.user_list.description'),
-    };
-  }
-
   /**
-   * Asynchronously fetch the next set of users to be rendered.
-   *
-   * Returns an array of Users, plus the raw API payload.
-   *
-   * Uses the `this.numPerPage` as the response limit.
-   *
-   * @param offset Offset to pass to API
+   * Component to render.
    */
-  async loadNextUserSet(offset: number = 0, pageNumber) {
-    // You shouldn't ever be negative
-    if (offset < 0) offset = 0;
+  content() {
+    if (typeof this.pageData === 'undefined') {
+      this.loadPage(0);
 
-    app.store
-      .find('users', {
-        page: {
-          limit: this.numPerPage,
-          offset,
-        },
-      })
-      .then((apiData: UsersApiResponse) => {
-        // Next link won't be present if there's no more data
-        this.moreData = !!apiData.payload.links.next;
+      return [
+        <section class="UserListPage-grid UserListPage-grid--loading">
+          <LoadingIndicator />
+        </section>,
+      ];
+    }
 
-        let data = apiData;
+    const columns: (ColumnData & { itemName: string })[] = this.columns().toArray();
 
-        // @ts-ignore
-        delete data.payload;
+    return [
+      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.user_list.total_users', { count: this.userCount })}</p>,
+      <section
+        class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
+        style={`grid-template-columns: repeat(${columns.length}, minmax(max-content, 300px))`}
+      >
+        {/* Render columns */}
+        {columns.map((column) => (
+          <div class="UserListPage-grid--header">{column.name}</div>
+        ))}
 
-        this.pageData = data;
-        this.pageNumber = pageNumber;
-        this.isLoadingPage = false;
+        {/* Render user data */}
+        {this.pageData.map((user, rowIndex) =>
+          columns.map((col) => {
+            const columnContent = col.content && col.content(user);
 
-        m.redraw();
-      })
-      .catch((err: Error) => {
-        console.error(err);
-        this.pageData = [];
-      });
+            return (
+              <div
+                class={classList(['UserListPage-grid--rowItem', rowIndex % 2 > 0 && 'UserListPage-grid--shadedRow'])}
+                data-user-id={user.id()}
+                data-column-name={col.itemName}
+              >
+                {columnContent || app.translator.trans('core.admin.user_list.grid.invalid_column_content')}
+              </div>
+            );
+          })
+        )}
+
+        {/* Loading spinner that shows when a new page is being loaded */}
+        {this.isLoadingPage && <LoadingIndicator />}
+      </section>,
+      <nav class="UserListPage-gridPagination">
+        <Button
+          disabled={this.pageNumber === 0}
+          title={app.translator.trans('core.admin.user_list.pagination.back_button')}
+          onclick={this.previousPage.bind(this)}
+          icon="fas fa-chevron-left"
+          className="Button UserListPage-backBtn"
+        />
+        <span class="UserListPage-pageNumber">
+          {app.translator.trans('core.admin.user_list.pagination.page_counter', {
+            current: this.pageNumber + 1,
+            total: this.getTotalPageCount(),
+          })}
+        </span>
+        <Button
+          disabled={!this.moreData}
+          title={app.translator.trans('core.admin.user_list.pagination.next_button')}
+          onclick={this.nextPage.bind(this)}
+          icon="fas fa-chevron-right"
+          className="Button UserListPage-nextBtn"
+        />
+      </nav>,
+    ];
   }
 
   /**
@@ -197,53 +219,49 @@ export default class UserListPage extends AdminPage {
       {
         name: app.translator.trans('core.admin.user_list.grid.default_columns.email'),
         content: (user: User) => {
+          function toggleEmailVisibility() {
+            // Get needed jQuery element refs
+            const emailContainer = $(`.UserList-email[data-user-id=${user.id()}]`);
+            const emailAddress = emailContainer.find('.UserList-emailAddress');
+            const emailToggleButton = emailContainer.find('.UserList-emailIconBtn');
+            const emailToggleButtonIcon = emailToggleButton.find('.icon');
+
+            const emailShown = emailContainer.attr('data-email-shown') === 'true';
+
+            if (emailShown) {
+              //! Email currently shown, switching to hidden
+
+              // Update tooltip
+              emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_show')));
+
+              // Replace real email with placeholder email
+              emailAddress.text(app.translator.trans('core.admin.user_list.grid.default_columns.email_hidden'));
+
+              // Change button icons
+              emailToggleButtonIcon.removeClass('fa-eye');
+              emailToggleButtonIcon.addClass('fa-eye-slash');
+            } else {
+              //! Email currently hidden, switching to shown
+
+              // Update tooltip
+              emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_hide')));
+
+              // Replace placeholder email with real email
+              emailAddress.text(user.email());
+
+              // Change button icons
+              emailToggleButtonIcon.addClass('fa-eye');
+              emailToggleButtonIcon.removeClass('fa-eye-slash');
+            }
+
+            emailContainer.attr('data-email-shown', !emailShown);
+          }
+
           return (
-            <div class="UserList-email" data-user-id={user.id()} data-email-shown="false">
+            <div class="UserList-email" key={user.id()} data-user-id={user.id()} data-email-shown="false">
               <span class="UserList-emailAddress">{app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_show')}</span>
               <button
-                onclick={() => {
-                  // Get needed jQuery element refs
-                  const emailContainer = $(`.UserList-email[data-user-id=${user.id()}]`);
-                  const emailAddress = emailContainer.find('.UserList-emailAddress');
-                  const emailToggleButton = emailContainer.find('.UserList-emailIconBtn');
-                  const emailToggleButtonIcon = emailToggleButton.find('.icon');
-
-                  const emailShown = emailContainer.attr('data-email-shown') === 'true';
-
-                  if (emailShown) {
-                    //! Email currently shown, switching to hidden
-
-                    // Update tooltip
-                    emailToggleButton.attr(
-                      'title',
-                      extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_show'))
-                    );
-
-                    // Replace real email with placeholder email
-                    emailAddress.text(app.translator.trans('core.admin.user_list.grid.default_columns.email_hidden'));
-
-                    // Change button icons
-                    emailToggleButtonIcon.removeClass('fa-eye');
-                    emailToggleButtonIcon.addClass('fa-eye-slash');
-                  } else {
-                    //! Email currently hidden, switching to shown
-
-                    // Update tooltip
-                    emailToggleButton.attr(
-                      'title',
-                      extractText(app.translator.trans('core.admin.user_list.grid.default_columns.email_visibility_hide'))
-                    );
-
-                    // Replace placeholder email with real email
-                    emailAddress.text(user.email());
-
-                    // Change button icons
-                    emailToggleButtonIcon.addClass('fa-eye');
-                    emailToggleButtonIcon.removeClass('fa-eye-slash');
-                  }
-
-                  emailContainer.attr('data-email-shown', !emailShown);
-                }}
+                onclick={toggleEmailVisibility}
                 class="UserList-emailIconBtn"
                 title={app.translator.trans('core.admin.user_list.grid.default_columns.email_show')}
               >
@@ -301,93 +319,62 @@ export default class UserListPage extends AdminPage {
     return columns;
   }
 
+  headerInfo() {
+    return {
+      className: 'UserListPage',
+      icon: 'fas fa-users',
+      title: app.translator.trans('core.admin.user_list.title'),
+      description: app.translator.trans('core.admin.user_list.description'),
+    };
+  }
+
+  /**
+   * Asynchronously fetch the next set of users to be rendered.
+   *
+   * Returns an array of Users, plus the raw API payload.
+   *
+   * Uses the `this.numPerPage` as the response limit, and automatically calculates the offset required from `pageNumber`.
+   *
+   * @param pageNumber The page number to load and display
+   */
+  async loadPage(pageNumber: number) {
+    if (pageNumber < 0) pageNumber = 0;
+
+    app.store
+      .find('users', {
+        page: {
+          limit: this.numPerPage,
+          offset: pageNumber * this.numPerPage,
+        },
+      })
+      .then((apiData: UsersApiResponse) => {
+        // Next link won't be present if there's no more data
+        this.moreData = !!apiData.payload.links.next;
+
+        let data = apiData;
+
+        // @ts-ignore
+        delete data.payload;
+
+        this.pageData = data;
+        this.pageNumber = pageNumber;
+        this.isLoadingPage = false;
+
+        m.redraw();
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        this.pageData = [];
+      });
+  }
+
   nextPage() {
     this.isLoadingPage = true;
-    // Make sure the render doesn't end up happening after the API refresh
-    m.redraw.sync();
-
-    const newPageNum = this.pageNumber + 1;
-    this.loadNextUserSet(newPageNum * this.numPerPage, newPageNum);
+    this.loadPage(this.pageNumber + 1);
   }
 
   previousPage() {
     this.isLoadingPage = true;
-    // Make sure the render doesn't end up happening after the API refresh
-    m.redraw.sync();
-
-    const newPageNum = this.pageNumber - 1;
-    this.loadNextUserSet(newPageNum * this.numPerPage, newPageNum);
-  }
-
-  /**
-   * Component to render.
-   */
-  content() {
-    if (typeof this.pageData === 'undefined') {
-      this.loadNextUserSet(0, 0);
-
-      return [
-        <section class="UserListPage-grid UserListPage-grid--loading">
-          <LoadingIndicator />
-        </section>,
-      ];
-    }
-
-    const columns: (ColumnData & { itemName: string })[] = this.columns().toArray();
-
-    return [
-      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.user_list.total_users', { count: this.userCount })}</p>,
-      <section
-        class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
-        style={`grid-template-columns: repeat(${columns.length}, minmax(max-content, 300px))`}
-      >
-        {/* Render columns */}
-        {columns.map((column) => (
-          <div class="UserListPage-grid--header">{column.name}</div>
-        ))}
-
-        {/* Render user data */}
-        {this.pageData.map((user, rowIndex) =>
-          columns.map((col) => {
-            const columnContent = col.content && col.content(user);
-
-            return (
-              <div
-                class={classList(['UserListPage-grid--rowItem', rowIndex % 2 > 0 && 'UserListPage-grid--shadedRow'])}
-                data-user-id={user.id()}
-                data-column-name={col.itemName}
-              >
-                {columnContent || 'Invalid'}
-              </div>
-            );
-          })
-        )}
-
-        {/* Loading spinner that shows when a new page is being loaded */}
-        {this.isLoadingPage && <LoadingIndicator />}
-      </section>,
-      <nav class="UserListPage-gridPagination">
-        <Button
-          disabled={this.pageNumber === 0}
-          title={app.translator.trans('core.admin.user_list.pagination.back_button')}
-          onclick={this.previousPage.bind(this)}
-          icon="fas fa-chevron-left"
-          className="Button UserListPage-backBtn"
-        />
-        <span class="UserListPage-pageNumber">
-          {app.translator.trans('core.admin.user_list.pagination.page_counter', {
-            current: this.pageNumber + 1,
-            total: this.getTotalPageCount(),
-          })}
-        </span>
-        <Button
-          disabled={!this.moreData}
-          title={app.translator.trans('core.admin.user_list.pagination.next_button')}
-          onclick={this.nextPage.bind(this)}
-          icon="fas fa-chevron-right"
-          className="Button UserListPage-nextBtn"
-        />
-      </nav>,
-    ];
+    this.loadPage(this.pageNumber - 1);
   }
 }
