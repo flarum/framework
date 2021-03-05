@@ -5,9 +5,9 @@ export default function isSafariMobile(): boolean {
   return (
     'ontouchstart' in window &&
     navigator.vendor &&
-    navigator.vendor.indexOf('Apple') > -1 &&
+    navigator.vendor.includes('Apple') &&
     navigator.userAgent &&
-    navigator.userAgent.indexOf('CriOS') == -1 &&
-    navigator.userAgent.indexOf('FxiOS') == -1
+    !navigator.userAgent.includes('CriOS') &&
+    !navigator.userAgent.includes('FxiOS')
   );
 }
