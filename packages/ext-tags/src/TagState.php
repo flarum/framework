@@ -62,7 +62,7 @@ class TagState extends AbstractModel
      * @param Builder $query
      * @return Builder
      */
-    protected function setKeysForSaveQuery(Builder $query)
+    protected function setKeysForSaveQuery($query)
     {
         $query->where('tag_id', $this->tag_id)
               ->where('user_id', $this->user_id);
