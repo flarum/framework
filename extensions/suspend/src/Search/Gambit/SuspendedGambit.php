@@ -12,6 +12,7 @@ namespace Flarum\Suspend\Search\Gambit;
 use Carbon\Carbon;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
+use Flarum\User\Guest;
 use Flarum\User\Search\UserSearch;
 use Flarum\User\UserRepository;
 use LogicException;
@@ -41,7 +42,7 @@ class SuspendedGambit extends AbstractRegexGambit
      */
     public function apply(AbstractSearch $search, $bit)
     {
-        if (! $search->getActor()->can('suspend')) {
+        if (! $search->getActor()->can('suspend', new Guest())) {
             return false;
         }
 
