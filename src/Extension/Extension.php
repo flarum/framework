@@ -132,7 +132,7 @@ class Extension implements Arrayable
         $this->id = static::nameToId($this->name);
     }
 
-    public function extend(Container $app)
+    public function extend(Container $container)
     {
         foreach ($this->getExtenders() as $extender) {
             // If an extension has not yet switched to the new extend.php
@@ -142,7 +142,7 @@ class Extension implements Arrayable
                 $extender = new Compat($extender);
             }
 
-            $extender->extend($app, $this);
+            $extender->extend($container, $this);
         }
     }
 

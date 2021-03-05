@@ -9,13 +9,28 @@
 
 use Illuminate\Container\Container;
 
+if (! function_exists('resolve')) {
+    /**
+     * Resolve a service from the container.
+     *
+     * @param  string  $name
+     * @param  array  $parameters
+     * @return mixed
+     */
+    function resolve($name, $parameters = [])
+    {
+        return Container::getInstance()->make($name, $parameters);
+    }
+}
+
 if (! function_exists('app')) {
     /**
+     * @deprecated beta 16, remove beta 17. Use container() instead.
      * Get the available container instance.
      *
      * @param  string  $make
      * @param  array   $parameters
-     * @return mixed|\Illuminate\Foundation\Application
+     * @return mixed|\Illuminate\Container\Container
      */
     function app($make = null, $parameters = [])
     {
@@ -23,7 +38,7 @@ if (! function_exists('app')) {
             return Container::getInstance();
         }
 
-        return Container::getInstance()->make($make, $parameters);
+        return resolve($make, $parameters);
     }
 }
 

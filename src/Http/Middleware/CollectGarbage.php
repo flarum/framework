@@ -56,7 +56,7 @@ class CollectGarbage implements Middleware
 
         $time = Carbon::now()->timestamp;
 
-        AccessToken::whereRaw('last_activity_at <= ? - lifetime_seconds', [$time])->delete();
+        AccessToken::whereExpired()->delete();
 
         $earliestToKeep = date('Y-m-d H:i:s', $time - 24 * 60 * 60);
 
