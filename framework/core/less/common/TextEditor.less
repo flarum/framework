@@ -1,0 +1,49 @@
+.TextEditor .TextEditor-editor {
+  border-radius: 0;
+  padding: 0 0 10px;
+  border: 0;
+  resize: none;
+  color: @text-color;
+  font-size: 14px;
+  line-height: 1.7;
+
+  &, &:focus, &[disabled] {
+    background: none;
+    border: 0;
+  }
+
+  @media @phone {
+    font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
+  }
+}
+.TextEditor-controls {
+  margin: 0;
+  padding: 10px 0;
+  list-style-type: none;
+  overflow-x: auto;
+  white-space: nowrap;
+
+  li {
+    display: inline-block;
+    margin-right: 10px;
+  }
+}
+.TextEditor-toolbar {
+  .Button--icon {
+    width: 28px;
+  }
+}
+
+@media @tablet-up {
+  .TextEditor-controls {
+    margin: 0 -20px 0 -105px;
+    padding: 10px 20px;
+    border-top: 1px solid @control-bg;
+
+    .fullScreen & {
+      margin: 0;
+      border-top: 0;
+      padding: 20px 0;
+    }
+  }
+}
