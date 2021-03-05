@@ -34,7 +34,7 @@ class MailTest extends TestCase
             ])
         );
 
-        $fields = json_decode($response->getBody(), true)['data']['attributes']['fields'];
+        $fields = json_decode($response->getBody()->getContents(), true)['data']['attributes']['fields'];
 
         // The custom driver does not exist
         $this->assertArrayNotHasKey('custom', $fields);
@@ -65,7 +65,7 @@ class MailTest extends TestCase
             ])
         );
 
-        $fields = json_decode($response->getBody(), true)['data']['attributes']['fields'];
+        $fields = json_decode($response->getBody()->getContents(), true)['data']['attributes']['fields'];
 
         $this->assertArrayHasKey('custom', $fields);
         $this->assertEquals(['customSetting1' => ''], $fields['custom']);
@@ -87,7 +87,7 @@ class MailTest extends TestCase
             ])
         );
 
-        $requiredFields = json_decode($response->getBody(), true)['data']['attributes']['fields']['smtp'];
+        $requiredFields = json_decode($response->getBody()->getContents(), true)['data']['attributes']['fields']['smtp'];
 
         $this->assertEquals(['customSetting1' => ''], $requiredFields);
     }

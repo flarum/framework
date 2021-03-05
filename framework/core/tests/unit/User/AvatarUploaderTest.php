@@ -56,7 +56,7 @@ class AvatarUploaderTest extends TestCase
         }
         $user->syncOriginal();
 
-        $this->assertEquals(null, $user->getOriginal('avatar_url'));
+        $this->assertEquals(null, $user->getRawOriginal('avatar_url'));
     }
 
     public function test_removing_url_avatar_removes_no_file()
@@ -76,7 +76,7 @@ class AvatarUploaderTest extends TestCase
         }
         $user->syncOriginal();
 
-        $this->assertEquals(null, $user->getOriginal('avatar_url'));
+        $this->assertEquals(null, $user->getRawOriginal('avatar_url'));
     }
 
     public function test_changing_avatar_removes_file()
@@ -97,6 +97,6 @@ class AvatarUploaderTest extends TestCase
         }
         $user->syncOriginal();
 
-        $this->assertNotEquals('ABCDEFGHabcdefgh.png', $user->getOriginal('avatar_url'));
+        $this->assertNotEquals('ABCDEFGHabcdefgh.png', $user->getRawOriginal('avatar_url'));
     }
 }
