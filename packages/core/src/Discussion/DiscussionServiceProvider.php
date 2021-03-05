@@ -20,7 +20,7 @@ class DiscussionServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $events = $this->app->make('events');
+        $events = $this->container->make('events');
 
         $events->subscribe(DiscussionMetadataUpdater::class);
 

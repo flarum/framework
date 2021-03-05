@@ -30,18 +30,18 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->extend(UrlGenerator::class, function (UrlGenerator $url) {
-            return $url->addCollection('api', $this->app->make('flarum.api.routes'), 'api');
+        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url) {
+            return $url->addCollection('api', $this->container->make('flarum.api.routes'), 'api');
         });
 
-        $this->app->singleton('flarum.api.routes', function () {
+        $this->container->singleton('flarum.api.routes', function () {
             $routes = new RouteCollection;
             $this->populateRoutes($routes);
 
             return $routes;
         });
 
-        $this->app->singleton('flarum.api.throttlers', function () {
+        $this->container->singleton('flarum.api.throttlers', function () {
             return [
                 'bypassThrottlingAttribute' => function ($request) {
                     if ($request->getAttribute('bypassThrottling')) {
@@ -51,11 +51,11 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->bind(Middleware\ThrottleApi::class, function ($app) {
-            return new Middleware\ThrottleApi($app->make('flarum.api.throttlers'));
+        $this->container->bind(Middleware\ThrottleApi::class, function ($container) {
+            return new Middleware\ThrottleApi($container->make('flarum.api.throttlers'));
         });
 
-        $this->app->singleton('flarum.api.middleware', function () {
+        $this->container->singleton('flarum.api.middleware', function () {
             return [
                 'flarum.api.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
@@ -71,23 +71,23 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->bind('flarum.api.error_handler', function () {
+        $this->container->bind('flarum.api.error_handler', function () {
             return new HttpMiddleware\HandleErrors(
-                $this->app->make(Registry::class),
-                new JsonApiFormatter($this->app['flarum.config']->inDebugMode()),
-                $this->app->tagged(Reporter::class)
+                $this->container->make(Registry::class),
+                new JsonApiFormatter($this->container['flarum.config']->inDebugMode()),
+                $this->container->tagged(Reporter::class)
             );
         });
 
-        $this->app->bind('flarum.api.route_resolver', function () {
-            return new HttpMiddleware\ResolveRoute($this->app->make('flarum.api.routes'));
+        $this->container->bind('flarum.api.route_resolver', function () {
+            return new HttpMiddleware\ResolveRoute($this->container->make('flarum.api.routes'));
         });
 
-        $this->app->singleton('flarum.api.handler', function () {
+        $this->container->singleton('flarum.api.handler', function () {
             $pipe = new MiddlewarePipe;
 
-            foreach ($this->app->make('flarum.api.middleware') as $middleware) {
-                $pipe->pipe($this->app->make($middleware));
+            foreach ($this->container->make('flarum.api.middleware') as $middleware) {
+                $pipe->pipe($this->container->make($middleware));
             }
 
             $pipe->pipe(new HttpMiddleware\ExecuteRoute());
@@ -95,7 +95,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $pipe;
         });
 
-        $this->app->singleton('flarum.api.notification_serializers', function () {
+        $this->container->singleton('flarum.api.notification_serializers', function () {
             return [
                 'discussionRenamed' => BasicDiscussionSerializer::class
             ];
@@ -109,9 +109,9 @@ class ApiServiceProvider extends AbstractServiceProvider
     {
         $this->setNotificationSerializers();
 
-        AbstractSerializeController::setContainer($this->app);
+        AbstractSerializeController::setContainer($this->container);
 
-        AbstractSerializer::setContainer($this->app);
+        AbstractSerializer::setContainer($this->container);
     }
 
     /**
@@ -119,7 +119,7 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     protected function setNotificationSerializers()
     {
-        $serializers = $this->app->make('flarum.api.notification_serializers');
+        $serializers = $this->container->make('flarum.api.notification_serializers');
 
         foreach ($serializers as $type => $serializer) {
             NotificationSerializer::setSubjectSerializer($type, $serializer);
@@ -133,7 +133,7 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $factory = $this->app->make(RouteHandlerFactory::class);
+        $factory = $this->container->make(RouteHandlerFactory::class);
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);

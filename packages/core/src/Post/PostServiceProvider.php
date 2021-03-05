@@ -20,7 +20,7 @@ class PostServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->extend('flarum.api.throttlers', function ($throttlers) {
+        $this->container->extend('flarum.api.throttlers', function ($throttlers) {
             $throttlers['postTimeout'] = function ($request) {
                 if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) {
                     return;
@@ -46,7 +46,7 @@ class PostServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        CommentPost::setFormatter($this->app->make('flarum.formatter'));
+        CommentPost::setFormatter($this->container->make('flarum.formatter'));
 
         $this->setPostTypes();
 
