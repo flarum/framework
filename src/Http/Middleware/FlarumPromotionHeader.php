@@ -21,7 +21,7 @@ class FlarumPromotionHeader implements Middleware
 
     public function __construct(Config $config)
     {
-        $this->enabled = $config['promote'] ?? true;
+        $this->enabled = $config['poweredByHeader'] ?? true;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
