@@ -29,7 +29,12 @@ class LoadForumTagsRelationship
         // assign the tags data to it using an event listener.
         $data['tags'] = Tag::whereVisibleTo($actor)
             ->withStateFor($actor)
-            ->with(['parent', 'lastPostedDiscussion'])
+            ->with([
+                'parent',
+                'lastPostedDiscussion',
+                'lastPostedDiscussion.tags',
+                'lastPostedDiscussion.state'
+            ])
             ->get();
     }
 }
