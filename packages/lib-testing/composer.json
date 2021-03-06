@@ -5,7 +5,7 @@
     "homepage": "https://flarum.org/",
     "license": "MIT",
     "require": {
-        "mockery/mockery": "^1.0",
+        "mockery/mockery": "^1.4",
         "phpunit/phpunit": "^9.0"
     },
     "require-dev": {
