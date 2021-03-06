@@ -45,7 +45,7 @@ trait BuildsHttpRequests
             'user_id' => $userId,
             'created_at' => Carbon::now()->toDateTimeString(),
             'last_activity_at' => Carbon::now()->toDateTimeString(),
-            'lifetime_seconds' => 3600
+            'type' => 'session'
         ]);
 
         return $req->withAddedHeader('Authorization', "Token {$token}");
