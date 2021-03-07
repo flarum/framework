@@ -237,7 +237,8 @@ export default class EditUserModal extends Modal {
   }
 
   /**
-   * @internal @protected
+   * @internal
+   * @protected
    */
   userIsAdmin(user) {
     return user.groups().some((g) => g.id() === Group.ADMINISTRATOR_ID);
