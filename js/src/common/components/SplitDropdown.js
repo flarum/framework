@@ -24,7 +24,12 @@ export default class SplitDropdown extends Dropdown {
 
     return [
       Button.component(buttonAttrs, firstChild.children),
-      <button className={'Dropdown-toggle Button Button--icon ' + this.attrs.buttonClassName} data-toggle="dropdown">
+      <button
+        className={'Dropdown-toggle Button Button--icon ' + this.attrs.buttonClassName}
+        aria-haspopup="menu"
+        aria-label={this.attrs.accessibleToggleLabel}
+        data-toggle="dropdown"
+      >
         {icon(this.attrs.icon, { className: 'Button-icon' })}
         {icon('fas fa-caret-down', { className: 'Button-caret' })}
       </button>,

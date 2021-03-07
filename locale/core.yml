@@ -486,6 +486,10 @@ core:
     username:
       deleted_text: "[deleted]"
 
+    # These translations are used in the dropdown component.
+    dropdown:
+      toggle_dropdown_accessible_label: Toggle dropdown menu
+
   # Translations in this namespace are used in views other than Flarum's normal JS client.
   views:
 
