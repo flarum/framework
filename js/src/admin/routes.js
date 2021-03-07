@@ -19,7 +19,7 @@ export default function (app) {
     permissions: { path: '/permissions', component: PermissionsPage },
     appearance: { path: '/appearance', component: AppearancePage },
     mail: { path: '/mail', component: MailPage },
-    userlist: { path: '/userlist', component: UserListPage },
+    userlist: { path: '/users', component: UserListPage },
     extension: { path: '/extension/:id', component: ExtensionPage, resolverClass: ExtensionPageResolver },
   };
 }

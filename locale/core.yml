@@ -220,7 +220,7 @@ core:
       upload_button: Choose an Image...
 
     user_list:
-      title: User list
+      title: => core.ref.users
       description: A paginated list of all users on your forum.
 
       total_users: "Total users: {count}"
