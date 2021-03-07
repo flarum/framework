@@ -268,7 +268,7 @@ export default class Composer extends Component {
       // On safari fixed position doesn't properly work on mobile,
       // So we use absolute and set the top value.
       // https://github.com/flarum/core/issues/2652
-      this.$().css('top', $('.App.mobile-safari').length ? $(window).scrollTop() : 0);
+      this.$().css('top', $('.App').is('.mobile-safari') ? $(window).scrollTop() : 0);
       this.showBackdrop();
     }
   }
