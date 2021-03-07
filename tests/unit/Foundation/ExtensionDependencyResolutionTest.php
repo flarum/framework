@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 
 class ExtensionDependencyResolutionTest extends TestCase
 {

@@ -16,8 +16,8 @@ use Flarum\Query\QueryCriteria;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchState;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 
 class SimpleFlarumSearchTest extends TestCase

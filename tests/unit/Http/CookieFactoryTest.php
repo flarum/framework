@@ -12,7 +12,7 @@ namespace Flarum\Tests\unit\Http;
 use Carbon\Carbon;
 use Flarum\Foundation\Config;
 use Flarum\Http\CookieFactory;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 
 class CookieFactoryTest extends TestCase
 {

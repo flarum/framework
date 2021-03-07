@@ -22,8 +22,8 @@ use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 

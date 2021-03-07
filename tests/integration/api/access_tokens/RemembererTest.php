@@ -10,8 +10,8 @@
 namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 
 class RemembererTest extends TestCase
 {

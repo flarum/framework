@@ -11,7 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\TestCase;
 
 class ServiceProviderTest extends TestCase
 {

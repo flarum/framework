@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Http;
 
 use Flarum\Http\RouteCollection;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 
 class RouteCollectionTest extends TestCase
 {

@@ -11,7 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Group\GroupValidator;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\TestCase;
 use Flarum\User\UserValidator;
 use Illuminate\Validation\ValidationException;
 
