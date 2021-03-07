@@ -114,6 +114,8 @@ class ListDiscussionsController extends AbstractListController
         if (in_array('mostRelevantPost.user', $include)) {
             $include[] = 'mostRelevantPost.user.groups';
 
+            // If the first level of the relationship wasn't explicitly included,
+            // add it so the code below can look for it
             if (! in_array('mostRelevantPost', $include)) {
                 $include[] = 'mostRelevantPost';
             }
