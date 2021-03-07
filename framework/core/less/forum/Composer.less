@@ -120,6 +120,12 @@
       max-height: 100%;
       padding-top: @header-height-phone;
 
+      // Fixes a bug where fixed position doesn't properly work in Safari mobile
+      // https://github.com/flarum/core/issues/2652
+      .mobile-safari & {
+        position: absolute;
+      }
+
       &:before {
         content: " ";
         .header-background();

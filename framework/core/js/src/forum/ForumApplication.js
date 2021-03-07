@@ -16,6 +16,7 @@ import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
+import isSafariMobile from './utils/isSafariMobile';
 
 export default class ForumApplication extends Application {
   /**
@@ -138,6 +139,12 @@ export default class ForumApplication extends Application {
         m.redraw();
       }
     });
+
+    if (isSafariMobile()) {
+      $(() => {
+        $('.App').addClass('mobile-safari');
+      });
+    }
   }
 
   /**

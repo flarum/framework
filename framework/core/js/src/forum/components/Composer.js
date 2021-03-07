@@ -265,7 +265,10 @@ export default class Composer extends Component {
     this.animateHeightChange().then(() => this.focus());
 
     if (app.screen() === 'phone') {
-      this.$().css('top', 0);
+      // On safari fixed position doesn't properly work on mobile,
+      // So we use absolute and set the top value.
+      // https://github.com/flarum/core/issues/2652
+      this.$().css('top', $('.App').is('.mobile-safari') ? $(window).scrollTop() : 0);
       this.showBackdrop();
     }
   }
