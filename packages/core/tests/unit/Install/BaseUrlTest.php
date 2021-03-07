@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Install;
 
 use Flarum\Install\BaseUrl;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use Laminas\Diactoros\Uri;
 
 class BaseUrlTest extends TestCase

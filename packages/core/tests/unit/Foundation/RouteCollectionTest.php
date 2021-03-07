@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Http\RouteCollection;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use RuntimeException;
 
 class RouteCollectionTest extends TestCase

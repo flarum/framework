@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Foundation\Config;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use InvalidArgumentException;
 use RuntimeException;
 

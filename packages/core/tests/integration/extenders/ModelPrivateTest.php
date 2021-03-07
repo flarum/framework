@@ -11,8 +11,8 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 
 class ModelPrivateTest extends TestCase

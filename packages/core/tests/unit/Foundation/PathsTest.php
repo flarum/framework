@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Foundation\Paths;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use InvalidArgumentException;
 
 class PathsTest extends TestCase

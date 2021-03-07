@@ -11,7 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Extend;
-use Flarum\Tests\integration\ConsoleTestCase;
+use Flarum\Testing\integration\ConsoleTestCase;
 
 class ConsoleTest extends ConsoleTestCase
 {

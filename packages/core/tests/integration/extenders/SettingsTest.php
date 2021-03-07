@@ -10,9 +10,9 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
-use Flarum\Tests\integration\UsesSettings;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
+use Flarum\Testing\integration\UsesSettings;
 
 class SettingsTest extends TestCase
 {
