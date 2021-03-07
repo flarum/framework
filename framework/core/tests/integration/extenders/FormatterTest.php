@@ -11,7 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Formatter\Formatter;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\TestCase;
 
 class FormatterTest extends TestCase
 {

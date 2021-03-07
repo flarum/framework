@@ -11,8 +11,8 @@ namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
 use Flarum\Http\AccessToken;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Laminas\Diactoros\ServerRequest;
 
 class AccessTokenLifecycleTest extends TestCase

@@ -14,8 +14,8 @@ use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Extend;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 
 class FilterTest extends TestCase
 {
