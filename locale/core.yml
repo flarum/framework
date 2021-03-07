@@ -163,8 +163,8 @@ core:
       email_title: => core.admin.email.description
       permissions_button: => core.admin.permissions.title
       permissions_title: => core.admin.permissions.description
-      userlist_button: => core.admin.user_list.title
-      userlist_title: => core.admin.user_list.description
+      userlist_button: => core.admin.users.title
+      userlist_title: => core.admin.users.description
       search_placeholder: Search Extensions
 
     # These translations are used in the Permissions page of the admin interface.
@@ -219,7 +219,7 @@ core:
       remove_button: => core.ref.remove
       upload_button: Choose an Image...
 
-    user_list:
+    users:
       title: => core.ref.users
       description: A paginated list of all users on your forum.
 
