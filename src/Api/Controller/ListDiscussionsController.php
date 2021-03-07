@@ -110,9 +110,20 @@ class ListDiscussionsController extends AbstractListController
 
         Discussion::setStateUser($actor);
 
+        // Eager load groups for use in the policies (isAdmin check)
+        if (in_array('mostRelevantPost.user', $include)) {
+            $include[] = 'mostRelevantPost.user.groups';
+
+            // If the first level of the relationship wasn't explicitly included,
+            // add it so the code below can look for it
+            if (! in_array('mostRelevantPost', $include)) {
+                $include[] = 'mostRelevantPost';
+            }
+        }
+
         $results = $results->getResults()->load($include);
 
-        if ($relations = array_intersect($include, ['firstPost', 'lastPost'])) {
+        if ($relations = array_intersect($include, ['firstPost', 'lastPost', 'mostRelevantPost'])) {
             foreach ($results as $discussion) {
                 foreach ($relations as $relation) {
                     if ($discussion->$relation) {
