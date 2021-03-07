@@ -88,6 +88,7 @@ export default class Search extends Component {
             className="FormControl"
             type="search"
             placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
+            aria-label={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
             value={this.state.getValue()}
             oninput={(e) => this.state.setValue(e.target.value)}
             onfocus={() => (this.hasFocus = true)}
