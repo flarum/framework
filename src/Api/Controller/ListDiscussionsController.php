@@ -113,6 +113,10 @@ class ListDiscussionsController extends AbstractListController
         // Eager load groups for use in the policies (isAdmin check)
         if (in_array('mostRelevantPost.user', $include)) {
             $include[] = 'mostRelevantPost.user.groups';
+
+            if (! in_array('mostRelevantPost', $include)) {
+                $include[] = 'mostRelevantPost';
+            }
         }
 
         $results = $results->getResults()->load($include);
