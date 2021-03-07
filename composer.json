@@ -67,7 +67,7 @@
         "wikimedia/less.php": "^3.0"
     },
     "require-dev": {
-        "flarum/testing": "dev-main"
+        "flarum/testing": "^0.1.0-beta.16"
     },
     "autoload": {
         "psr-4": {
