@@ -269,6 +269,7 @@ core:
 
     # These translations are used by the discussion control buttons.
     discussion_controls:
+      toggle_dropdown_accessible_label: Toggle discussion actions dropdown menu
       cannot_reply_button: Can't Reply
       cannot_reply_text: You don't have permission to reply to this discussion.
       delete_button: => core.ref.delete
@@ -314,6 +315,8 @@ core:
 
     # These translations are used in the header and session dropdown menu.
     header:
+      locale_dropdown_accessible_label: Change forum locale
+      session_dropdown_accessible_label: Toggle session options dropdown menu
       admin_button: Administration
       back_to_index_tooltip: Back to Discussion List
       log_in_link: => core.ref.log_in
@@ -325,6 +328,7 @@ core:
 
     # These translations are used on the index page, peripheral to the discussion list.
     index:
+      toggle_sidenav_dropdown_accessible_label: Toggle navigation dropdown menu
       all_discussions_link: => core.ref.all_discussions
       cannot_start_discussion_button: Can't Start Discussion
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
@@ -335,6 +339,7 @@ core:
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
+      toggle_dropdown_accessible_label: Change discussion list sorting
       latest_button: Latest
       newest_button: Newest
       oldest_button: Oldest
@@ -354,6 +359,7 @@ core:
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
+      toggle_dropdown_accessible_label: View notifications
       discussion_renamed_text: "{username} changed the title"
       empty_text: No Notifications
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
@@ -369,6 +375,7 @@ core:
 
     # These translations are used by the post control buttons.
     post_controls:
+      toggle_dropdown_accessible_label: Toggle post controls dropdown menu
       delete_button: => core.ref.delete
       delete_confirmation: "Are you sure you want to delete this post forever? This action cannot be undone."
       delete_forever_button: => core.ref.delete_forever
@@ -442,6 +449,7 @@ core:
 
     # These translations are found on the user profile page (admin function).
     user_controls:
+      toggle_dropdown_accessible_label: Toggle user controls dropdown menu
       button: Controls
       delete_button: => core.ref.delete
       delete_confirmation: "Are you sure you want to delete this user? The user's posts will NOT be deleted."

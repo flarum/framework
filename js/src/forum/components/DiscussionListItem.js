@@ -87,6 +87,7 @@ export default class DiscussionListItem extends Component {
                 icon: 'fas fa-ellipsis-v',
                 className: 'DiscussionListItem-controls',
                 buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
+                accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
               },
               controls
             )

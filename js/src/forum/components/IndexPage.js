@@ -172,6 +172,7 @@ export default class IndexPage extends Page {
         {
           buttonClassName: 'Button',
           className: 'App-titleControl',
+          accessibleToggleLabel: app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label'),
         },
         this.navItems(this).toArray()
       )
@@ -227,6 +228,7 @@ export default class IndexPage extends Page {
         {
           buttonClassName: 'Button',
           label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
+          accessibleToggleLabel: app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label'),
         },
         Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];

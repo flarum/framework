@@ -57,6 +57,7 @@ export default class HeaderSecondary extends Component {
         SelectDropdown.component(
           {
             buttonClassName: 'Button Button--link',
+            accessibleToggleLabel: app.translator.trans('core.forum.header.locale_dropdown_accessible_label'),
           },
           locales
         ),

@@ -61,6 +61,7 @@ export default class Post extends Component {
                     icon="fas fa-ellipsis-h"
                     onshow={() => this.$('.Post-actions').addClass('open')}
                     onhide={() => this.$('.Post-actions').removeClass('open')}
+                    accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
                   >
                     {controls}
                   </Dropdown>

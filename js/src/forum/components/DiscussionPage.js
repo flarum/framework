@@ -189,6 +189,7 @@ export default class DiscussionPage extends Page {
           icon: 'fas fa-ellipsis-v',
           className: 'App-primaryControl',
           buttonClassName: 'Button--primary',
+          accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
         },
         DiscussionControls.controls(this.discussion, this).toArray()
       )
