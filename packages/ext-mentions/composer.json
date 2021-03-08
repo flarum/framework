@@ -30,7 +30,7 @@
         },
         "flarum-extension": {
             "title": "Mentions",
-            "category": "discussion",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-at",
                 "backgroundColor": "#539EC1",
