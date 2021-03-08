@@ -190,7 +190,7 @@ class Tag extends AbstractModel
         Permission::where('permission', 'like', "tag{$this->id}.%")->delete();
     }
 
-    protected static function getIdsWherePermission(User $user, string $permission, bool $condition = true, bool $includePrimary, bool $includeSecondary): array
+    protected static function getIdsWherePermission(User $user, string $permission, bool $condition = true, bool $includePrimary = true, bool $includeSecondary = true): array
     {
         static $tags;
 
