@@ -46,6 +46,7 @@ class FilterServiceProvider extends AbstractServiceProvider
                     PostFilter\IdFilter::class,
                     PostFilter\NumberFilter::class,
                     PostFilter\TypeFilter::class,
+                    PostFilter\UserFilter::class,
                 ],
             ];
         });
