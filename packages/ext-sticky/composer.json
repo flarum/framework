@@ -30,7 +30,7 @@
         },
         "flarum-extension": {
             "title": "Sticky",
-            "category": "moderation",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-thumbtack",
                 "backgroundColor": "#D13E32",
