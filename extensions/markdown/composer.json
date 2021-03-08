@@ -25,7 +25,7 @@
         },
         "flarum-extension": {
             "title": "Markdown",
-            "category": "formatting",
+            "category": "feature",
             "icon": {
                 "image": "icon.svg",
                 "backgroundColor": "#000",
