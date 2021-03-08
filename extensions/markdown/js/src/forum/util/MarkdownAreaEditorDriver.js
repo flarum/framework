@@ -40,12 +40,6 @@ export default class MarkdownAreaEditorDriver extends BasicEditorDriver {
 
     dom.append(this.el);
 
-    // We can't bind shortcutHandler directly in case `build`
-    // runs before MarkdownToolbar's `oninit`.
-    this.el.addEventListener('keydown', function (e) {
-      return params.shortcutHandler(...arguments);
-    });
-
     const callInputListeners = (e) => {
       params.inputListeners.forEach((listener) => {
         listener();
@@ -53,6 +47,21 @@ export default class MarkdownAreaEditorDriver extends BasicEditorDriver {
 
       e.redraw = false;
     };
+
+    // We can't bind shortcutHandler directly in case `build`
+    // runs before MarkdownToolbar's `oninit`.
+    this.el.addEventListener('keydown', function (e) {
+      return params.shortcutHandler(...arguments);
+    });
+
+    // Our mdarea extension won't detect programmatic changes via
+    // the `app.composer.editor api.
+    this.el.addEventListener('input', function (e) {
+      if (e instanceof CustomEvent) {
+        params.oninput(e.target.value);
+        callInputListeners(e);
+      }
+    });
 
     // This one can't be run through mdarea, but that doesn't matter
     // because mdarea doesn't change value in response to clicks.
