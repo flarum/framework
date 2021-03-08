@@ -30,7 +30,7 @@
         },
         "flarum-extension": {
             "title": "Subscriptions",
-            "category": "discussion",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-star",
                 "backgroundColor": "#ffea7b",
