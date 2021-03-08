@@ -30,7 +30,7 @@
         },
         "flarum-extension": {
             "title": "Flags",
-            "category": "moderation",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-flag",
                 "backgroundColor": "#D659B5",
