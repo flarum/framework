@@ -85,7 +85,7 @@ class Index
         $document->title = $this->translator->trans('core.forum.index.meta_title_text');
         $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
-        $document->canonicalUrl = $defaultRoute === '/all' ? $this->url->to('forum')->base() : $request->getUri()->withQuery('');
+        $document->canonicalUrl = $defaultRoute === '/all' ? $this->url->to('forum')->base() : $this->url->to('forum')->base().$request->getUri()->getPath();
 
         return $document;
     }
