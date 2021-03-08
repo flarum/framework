@@ -116,6 +116,44 @@ class ListTests extends TestCase
 
     /**
      * @test
+     * @deprecated
+     */
+    public function user_filter_works()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams([
+                    'filter' => ['user' => 'admin'],
+                ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals(['1', '2'], Arr::pluck($data['data'], 'id'));
+    }
+
+    /**
+     * @test
+     * @deprecated
+     */
+    public function user_filter_works_with_multiple_values()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams([
+                    'filter' => ['user' => 'admin,normal'],
+                ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals(['1', '2', '3', '4', '5'], Arr::pluck($data['data'], 'id'));
+    }
+
+    /**
+     * @test
      */
     public function discussion_filter_works()
     {
