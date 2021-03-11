@@ -19,7 +19,7 @@ export class MarkdownEditorFlarumExtension {
     // will be finished by then. At that time, `e.target.value` will represent
     // the updated value of the textarea in response to the keypress.
     // Unfortunately, this doesn't work without a value for mobile safari,
-    // so we need to set 10 seconds as an arbitrary timeout.
+    // so we need to set 25ms as an arbitrary timeout.
     setTimeout(() => {
       this.oninput(evt.target.value);
 
