@@ -14,10 +14,12 @@ export class MarkdownEditorFlarumExtension {
     postfix,
     evt
   ) {
-    // setTimeout without a time executes after the call stack has cleared,
+    // setTimeout executes after the call stack has cleared,
     // so any DOM changes originating from mdarea (e.g. executing an undo)
     // will be finished by then. At that time, `e.target.value` will represent
     // the updated value of the textarea in response to the keypress.
+    // Unfortunately, this doesn't work without a value for mobile safari,
+    // so we need to set 10 seconds as an arbitrary timeout.
     setTimeout(() => {
       this.oninput(evt.target.value);
 
@@ -26,7 +28,7 @@ export class MarkdownEditorFlarumExtension {
       }
 
       this.callInputListeners(evt);
-    });
+    }, 25);
   }
 }
 
