@@ -28,7 +28,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
             $current = new Extension($this->paths->vendor . '/../', $package);
             $current->setInstalled(true);
             $current->setVersion(Arr::get($package, 'version'));
-            $current->calculateDependencies([]);
+            $current->calculateDependencies([], []);
 
             $extensions->put($current->getId(), $current);
 
