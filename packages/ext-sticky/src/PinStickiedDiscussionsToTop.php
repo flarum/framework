@@ -7,48 +7,38 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Sticky\Listener;
+namespace Flarum\Sticky;
 
-use Flarum\Discussion\Event\Searching;
-use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Sticky\Gambit\StickyGambit;
-use Flarum\Tags\Gambit\TagGambit;
-use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Api\Controller\ListDiscussionsController;
+use Flarum\Filter\FilterState;
+use Flarum\Query\QueryCriteria;
+use Flarum\Tags\Query\TagFilterGambit;
 
 class PinStickiedDiscussionsToTop
 {
     /**
-     * @param Dispatcher $events
+     * Used to get the default sort.
+     *
+     * @var ListDiscussionsController
      */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(ConfigureDiscussionGambits::class, [$this, 'addStickyGambit']);
-        $events->listen(Searching::class, [$this, 'reorderSearch']);
+    protected $listDiscussionsController;
+
+    public function __construct(ListDiscussionsController $listDiscussionsController) {
+        $this->listDiscussionsController = $listDiscussionsController;
     }
 
-    /**
-     * @param ConfigureDiscussionGambits $event
-     */
-    public function addStickyGambit(ConfigureDiscussionGambits $event)
+    public function __invoke(FilterState $filterState, QueryCriteria $criteria)
     {
-        $event->gambits->add(StickyGambit::class);
-    }
-
-    /**
-     * @param Searching $event
-     */
-    public function reorderSearch(Searching $event)
-    {
-        if ($event->criteria->sort === null) {
-            $search = $event->search;
-            $query = $search->getQuery();
+        // TODO: This should take modifications by extensions into account.
+        if ($criteria->sort == $this->listDiscussionsController->sort) {
+            $query = $filterState->getQuery();
 
             // If we are viewing a specific tag, then pin all stickied
             // discussions to the top no matter what.
-            $gambits = $search->getActiveGambits();
+            $filters = $filterState->getActiveFilters();
 
-            if ($count = count($gambits)) {
-                if ($count === 1 && $gambits[0] instanceof TagGambit) {
+            if ($count = count($filters)) {
+                if ($count === 1 && $filters[0] instanceof TagFilterGambit) {
                     if (! is_array($query->orders)) {
                         $query->orders = [];
                     }
@@ -74,14 +64,14 @@ class PinStickiedDiscussionsToTop
                 ->selectRaw(1)
                 ->from('discussion_user as sticky')
                 ->whereColumn('sticky.discussion_id', 'id')
-                ->where('sticky.user_id', '=', $search->getActor()->id)
+                ->where('sticky.user_id', '=', $filterState->getActor()->id)
                 ->whereColumn('sticky.last_read_post_number', '>=', 'last_post_number');
 
             // Add the bindings manually (rather than as the second
             // argument in orderByRaw) for now due to a bug in Laravel which
             // would add the bindings in the wrong order.
             $query->orderByRaw('is_sticky and not exists ('.$read->toSql().') and last_posted_at > ? desc')
-                ->addBinding(array_merge($read->getBindings(), [$search->getActor()->read_time ?: 0]), 'union');
+                ->addBinding(array_merge($read->getBindings(), [$filterState->getActor()->read_time ?: 0]), 'union');
 
             $query->unionOrders = array_merge($query->unionOrders, $query->orders);
             $query->unionLimit = $query->limit;
