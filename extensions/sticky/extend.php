@@ -10,12 +10,16 @@
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Event\Saving;
+use Flarum\Discussion\Filter\DiscussionFilterer;
+use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Sticky\Event\DiscussionWasStickied;
 use Flarum\Sticky\Event\DiscussionWasUnstickied;
 use Flarum\Sticky\Listener;
 use Flarum\Sticky\Listener\SaveStickyToDatabase;
 use Flarum\Sticky\Post\DiscussionStickiedPost;
+use Flarum\Sticky\PinStickiedDiscussionsToTop;
+use Flarum\Sticky\Query\StickyFilterGambit;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
@@ -47,8 +51,10 @@ return [
         ->listen(DiscussionWasStickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasStickied'])
         ->listen(DiscussionWasUnstickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasUnstickied']),
 
-    function (Dispatcher $events) {
-        // Replace with Filter extender before stable
-        $events->subscribe(Listener\PinStickiedDiscussionsToTop::class);
-    },
+    (new Extend\Filter(DiscussionFilterer::class))
+        ->addFilter(StickyFilterGambit::class)
+        ->addFilterMutator(PinStickiedDiscussionsToTop::class),
+
+    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
+        ->addGambit(StickyFilterGambit::class),
 ];
