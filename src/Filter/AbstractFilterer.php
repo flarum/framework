@@ -77,7 +77,7 @@ abstract class AbstractFilterer
         // END DEPRECATED BC LAYER
 
         foreach ($this->filterMutators as $mutator) {
-            $mutator($query, $actor, $criteria->query, $criteria->sort);
+            $mutator($filterState, $criteria);
         }
 
         // Execute the filter query and retrieve the results. We get one more
