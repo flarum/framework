@@ -75,9 +75,13 @@ class Index
 
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
-            'filter' => compact('q'),
+            'filter' => [],
             'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
         ];
+
+        if ($q) {
+            $params['filter']['q'] = $q;
+        }
 
         $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
         $defaultRoute = $this->settings->get('default_route');
