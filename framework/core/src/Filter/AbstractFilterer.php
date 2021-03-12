@@ -62,6 +62,7 @@ abstract class AbstractFilterer
                 $filterKey = substr($filterKey, 1);
             }
             foreach (Arr::get($this->filters, $filterKey, []) as $filter) {
+                $filterState->addActiveFilter($filter);
                 $filter->filter($filterState, $filterValue, $negate);
             }
         }
