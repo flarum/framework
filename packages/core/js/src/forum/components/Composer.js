@@ -268,7 +268,14 @@ export default class Composer extends Component {
       // On safari fixed position doesn't properly work on mobile,
       // So we use absolute and set the top value.
       // https://github.com/flarum/core/issues/2652
-      this.$().css('top', $('.App').is('.mobile-safari') ? $(window).scrollTop() : 0);
+
+      // Due to another safari bug, `scrollTop` is unreliable when
+      // at the very bottom of the page AND opening the composer.
+      // So we fallback to a calculated version of scrollTop.
+      // https://github.com/flarum/core/issues/2683
+      const scrollElement = document.documentElement;
+      const topOfViewport = Math.min(scrollElement.scrollTop, scrollElement.scrollHeight - scrollElement.clientHeight);
+      this.$().css('top', $('.App').is('.mobile-safari') ? topOfViewport : 0);
       this.showBackdrop();
     }
   }
