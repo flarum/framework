@@ -8,7 +8,7 @@
 - Allow overriding routes [`#2577`](https://github.com/flarum/core/pull/2577)
 - Simple flarum search extender and tests [`#2483`](https://github.com/flarum/core/pull/2483)
 - Filterer extender [`#2454`](https://github.com/flarum/core/pull/2454)
-- Auth extender for password checking [`#2176`](https://github.com/flarum/core/pull/21F76)
+- Auth extender for password checking [`#2176`](https://github.com/flarum/core/pull/2176)
 - Add `subscribe` method to event extender [`#2535`](https://github.com/flarum/core/pull/2535)
 - Add default value to Settings extender [`#2495`](https://github.com/flarum/core/pull/2495)
 - Add notification extender beforeSending method [`#2533`](https://github.com/flarum/core/pull/2533)
