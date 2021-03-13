@@ -58,7 +58,7 @@ return [
         ->attribute('newFlagCount', AddNewFlagCountAttribute::class),
 
     (new Extend\ApiSerializer(ForumSerializer::class))
-        ->mutate(AddFlagsApiAttributes::class),
+        ->attributes(AddFlagsApiAttributes::class),
 
     (new Extend\ApiController(ShowDiscussionController::class))
         ->addInclude(['posts.flags', 'posts.flags.user']),
