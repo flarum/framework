@@ -11,12 +11,15 @@ namespace Flarum\Tests\unit\Foundation\ErrorHandling\ExceptionHandler;
 
 use Flarum\Foundation\ErrorHandling\ExceptionHandler\ValidationExceptionHandler;
 use Flarum\Foundation\ValidationException;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 
 class ValidationExceptionHandlerTest extends TestCase
 {
     private $handler;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         $this->handler = new ValidationExceptionHandler;

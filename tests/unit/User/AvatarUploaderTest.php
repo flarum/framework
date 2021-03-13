@@ -9,7 +9,7 @@
 
 namespace Flarum\Tests\unit\User;
 
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use Flarum\User\AvatarUploader;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -24,6 +24,9 @@ class AvatarUploaderTest extends TestCase
     private $filesystem;
     private $uploader;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         $this->dispatcher = m::mock(Dispatcher::class);
@@ -53,7 +56,7 @@ class AvatarUploaderTest extends TestCase
         }
         $user->syncOriginal();
 
-        $this->assertEquals(null, $user->getOriginal('avatar_url'));
+        $this->assertEquals(null, $user->getRawOriginal('avatar_url'));
     }
 
     public function test_removing_url_avatar_removes_no_file()
@@ -73,7 +76,7 @@ class AvatarUploaderTest extends TestCase
         }
         $user->syncOriginal();
 
-        $this->assertEquals(null, $user->getOriginal('avatar_url'));
+        $this->assertEquals(null, $user->getRawOriginal('avatar_url'));
     }
 
     public function test_changing_avatar_removes_file()
@@ -94,6 +97,6 @@ class AvatarUploaderTest extends TestCase
         }
         $user->syncOriginal();
 
-        $this->assertNotEquals('ABCDEFGHabcdefgh.png', $user->getOriginal('avatar_url'));
+        $this->assertNotEquals('ABCDEFGHabcdefgh.png', $user->getRawOriginal('avatar_url'));
     }
 }

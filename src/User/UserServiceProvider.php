@@ -9,17 +9,25 @@
 
 namespace Flarum\User;
 
-use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Event\GetPermission;
+use Flarum\Discussion\Access\DiscussionPolicy;
+use Flarum\Discussion\Discussion;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ContainerUtil;
+use Flarum\Group\Access\GroupPolicy;
+use Flarum\Group\Group;
+use Flarum\Post\Access\PostPolicy;
+use Flarum\Post\Post;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Access\ScopeUserVisibility;
+use Flarum\User\DisplayName\DriverInterface;
+use Flarum\User\DisplayName\UsernameDriver;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
-use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Support\Arr;
 use League\Flysystem\FilesystemInterface;
-use RuntimeException;
 
 class UserServiceProvider extends AbstractServiceProvider
 {
@@ -28,31 +36,70 @@ class UserServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->registerGate();
         $this->registerAvatarsFilesystem();
-    }
+        $this->registerDisplayNameDrivers();
+        $this->registerPasswordCheckers();
 
-    protected function registerGate()
-    {
-        $this->app->singleton('flarum.gate', function ($app) {
-            return new Gate($app, function () {
-                throw new RuntimeException('You must set the gate user with forUser()');
-            });
+        $this->container->singleton('flarum.user.group_processors', function () {
+            return [];
         });
 
-        $this->app->alias('flarum.gate', GateContract::class);
-        $this->app->alias('flarum.gate', Gate::class);
+        $this->container->singleton('flarum.policies', function () {
+            return [
+                Access\AbstractPolicy::GLOBAL => [],
+                Discussion::class => [DiscussionPolicy::class],
+                Group::class => [GroupPolicy::class],
+                Post::class => [PostPolicy::class],
+                User::class => [Access\UserPolicy::class],
+            ];
+        });
+    }
+
+    protected function registerDisplayNameDrivers()
+    {
+        $this->container->singleton('flarum.user.display_name.supported_drivers', function () {
+            return [
+                'username' => UsernameDriver::class,
+            ];
+        });
+
+        $this->container->singleton('flarum.user.display_name.driver', function () {
+            $drivers = $this->container->make('flarum.user.display_name.supported_drivers');
+            $settings = $this->container->make(SettingsRepositoryInterface::class);
+            $driverName = $settings->get('display_name_driver', '');
+
+            $driverClass = Arr::get($drivers, $driverName);
+
+            return $driverClass
+                ? $this->container->make($driverClass)
+                : $this->container->make(UsernameDriver::class);
+        });
+
+        $this->container->alias('flarum.user.display_name.driver', DriverInterface::class);
     }
 
     protected function registerAvatarsFilesystem()
     {
-        $avatarsFilesystem = function (Container $app) {
-            return $app->make(Factory::class)->disk('flarum-avatars')->getDriver();
+        $avatarsFilesystem = function (Container $container) {
+            return $container->make(Factory::class)->disk('flarum-avatars')->getDriver();
         };
 
-        $this->app->when(AvatarUploader::class)
+        $this->container->when(AvatarUploader::class)
             ->needs(FilesystemInterface::class)
             ->give($avatarsFilesystem);
+    }
+
+    protected function registerPasswordCheckers()
+    {
+        $this->container->singleton('flarum.user.password_checkers', function () {
+            return [
+                'standard' => function (User $user, $password) {
+                    if ($this->container->make('hash')->check($password, $user->password)) {
+                        return true;
+                    }
+                }
+            ];
+        });
     }
 
     /**
@@ -60,50 +107,27 @@ class UserServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->app->make('flarum.gate')->before(function (User $actor, $ability, $model = null) {
-            // Fire an event so that core and extension policies can hook into
-            // this permission query and explicitly grant or deny the
-            // permission.
-            $allowed = $this->app->make('events')->until(
-                new GetPermission($actor, $ability, $model)
-            );
+        foreach ($this->container->make('flarum.user.group_processors') as $callback) {
+            User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $this->container));
+        }
 
-            if (! is_null($allowed)) {
-                return $allowed;
-            }
+        User::setHasher($this->container->make('hash'));
+        User::setPasswordCheckers($this->container->make('flarum.user.password_checkers'));
+        User::setGate($this->container->makeWith(Access\Gate::class, ['policyClasses' => $this->container->make('flarum.policies')]));
+        User::setDisplayNameDriver($this->container->make('flarum.user.display_name.driver'));
 
-            // If no policy covered this permission query, we will only grant
-            // the permission if the actor's groups have it. Otherwise, we will
-            // not allow the user to perform this action.
-            if ($actor->isAdmin() || (! $model && $actor->hasPermission($ability))) {
-                return true;
-            }
-
-            return false;
-        });
-
-        User::setHasher($this->app->make('hash'));
-        User::setGate($this->app->make('flarum.gate'));
-
-        $events = $this->app->make('events');
+        $events = $this->container->make('events');
 
         $events->listen(Saving::class, SelfDemotionGuard::class);
         $events->listen(Registered::class, AccountActivationMailer::class);
         $events->listen(EmailChangeRequested::class, EmailConfirmationMailer::class);
 
         $events->subscribe(UserMetadataUpdater::class);
-        $events->subscribe(UserPolicy::class);
 
-        $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
-    }
+        User::registerPreference('discloseOnline', 'boolval', true);
+        User::registerPreference('indexProfile', 'boolval', true);
+        User::registerPreference('locale');
 
-    /**
-     * @param ConfigureUserPreferences $event
-     */
-    public function configureUserPreferences(ConfigureUserPreferences $event)
-    {
-        $event->add('discloseOnline', 'boolval', true);
-        $event->add('indexProfile', 'boolval', true);
-        $event->add('locale');
+        User::registerVisibilityScoper(new ScopeUserVisibility(), 'view');
     }
 }

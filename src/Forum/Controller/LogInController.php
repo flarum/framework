@@ -12,10 +12,12 @@ namespace Flarum\Forum\Controller;
 use Flarum\Api\Client;
 use Flarum\Api\Controller\CreateTokenController;
 use Flarum\Http\AccessToken;
+use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
 use Flarum\User\UserRepository;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -39,6 +41,11 @@ class LogInController implements RequestHandlerInterface
     protected $authenticator;
 
     /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
      * @var Rememberer
      */
     protected $rememberer;
@@ -49,11 +56,12 @@ class LogInController implements RequestHandlerInterface
      * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
      */
-    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Rememberer $rememberer)
+    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Dispatcher $events, Rememberer $rememberer)
     {
         $this->users = $users;
         $this->apiClient = $apiClient;
         $this->authenticator = $authenticator;
+        $this->events = $events;
         $this->rememberer = $rememberer;
     }
 
@@ -64,21 +72,21 @@ class LogInController implements RequestHandlerInterface
     {
         $actor = $request->getAttribute('actor');
         $body = $request->getParsedBody();
-        $params = Arr::only($body, ['identification', 'password']);
+        $params = Arr::only($body, ['identification', 'password', 'remember']);
 
         $response = $this->apiClient->send(CreateTokenController::class, $actor, [], $params);
 
         if ($response->getStatusCode() === 200) {
             $data = json_decode($response->getBody());
 
+            $token = AccessToken::findValid($data->token);
+
             $session = $request->getAttribute('session');
-            $this->authenticator->logIn($session, $data->userId);
+            $this->authenticator->logIn($session, $token);
 
-            $token = AccessToken::find($data->token);
+            $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));
 
-            event(new LoggedIn($this->users->findOrFail($data->userId), $token));
-
-            if (Arr::get($body, 'remember')) {
+            if ($token instanceof RememberAccessToken) {
                 $response = $this->rememberer->remember($response, $token);
             }
         }

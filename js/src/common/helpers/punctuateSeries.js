@@ -13,7 +13,7 @@ export default function punctuateSeries(items) {
   if (items.length === 2) {
     return app.translator.trans('core.lib.series.two_text', {
       first: items[0],
-      second: items[1]
+      second: items[1],
     });
   } else if (items.length >= 3) {
     // If there are three or more items, we will join all but the first and
@@ -27,7 +27,7 @@ export default function punctuateSeries(items) {
     return app.translator.trans('core.lib.series.three_text', {
       first: items[0],
       second,
-      third: items[items.length - 1]
+      third: items[items.length - 1],
     });
   }
 

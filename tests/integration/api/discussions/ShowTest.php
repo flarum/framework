@@ -10,16 +10,17 @@
 namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Event\ScopeModelVisibility;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
-use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
 
 class ShowTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -37,17 +38,6 @@ class ShowTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->guestGroup(),
-                $this->memberGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 2, 'group_id' => 3],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewDiscussions', 'group_id' => 2],
-                ['permission' => 'viewDiscussions', 'group_id' => 3],
             ]
         ]);
     }
@@ -60,6 +50,24 @@ class ShowTest extends TestCase
         $response = $this->send(
             $this->request('GET', '/api/discussions/1', [
                 'authenticatedAs' => 2,
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function author_can_see_discussion_via_slug()
+    {
+        // Note that here, the slug doesn't actually have to match the real slug
+        // since the default slugging strategy only takes the numerical part into account
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1-fdsafdsajfsakf', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams([
+                'bySlug' => true
             ])
         );
 
@@ -101,29 +109,6 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/discussions/4', [
                 'authenticatedAs' => 2,
             ])
-        );
-
-        $json = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertEquals(2, Arr::get($json, 'data.relationships.posts.data.0.id'));
-    }
-
-    /**
-     * @test
-     */
-    public function when_allowed_guests_can_see_hidden_posts()
-    {
-        /** @var Dispatcher $events */
-        $events = app(Dispatcher::class);
-
-        $events->listen(ScopeModelVisibility::class, function (ScopeModelVisibility $event) {
-            if ($event->ability === 'hidePosts') {
-                $event->query->whereRaw('1=1');
-            }
-        });
-
-        $response = $this->send(
-            $this->request('GET', '/api/discussions/4')
         );
 
         $json = json_decode($response->getBody()->getContents(), true);

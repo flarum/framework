@@ -9,34 +9,56 @@
 
 namespace Flarum\Post;
 
-use Flarum\Event\ConfigurePostTypes;
+use DateTime;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Post\Access\ScopePostVisibility;
 
 class PostServiceProvider extends AbstractServiceProvider
 {
     /**
      * {@inheritdoc}
      */
-    public function boot()
+    public function register()
     {
-        CommentPost::setFormatter($this->app->make('flarum.formatter'));
+        $this->container->extend('flarum.api.throttlers', function ($throttlers) {
+            $throttlers['postTimeout'] = function ($request) {
+                if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) {
+                    return;
+                }
 
-        $this->registerPostTypes();
+                $actor = $request->getAttribute('actor');
 
-        $events = $this->app->make('events');
-        $events->subscribe(PostPolicy::class);
+                if ($actor->can('postWithoutThrottle')) {
+                    return false;
+                }
+
+                if (Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime('-10 seconds'))->exists()) {
+                    return true;
+                }
+            };
+
+            return $throttlers;
+        });
     }
 
-    public function registerPostTypes()
+    /**
+     * {@inheritdoc}
+     */
+    public function boot()
+    {
+        CommentPost::setFormatter($this->container->make('flarum.formatter'));
+
+        $this->setPostTypes();
+
+        Post::registerVisibilityScoper(new ScopePostVisibility(), 'view');
+    }
+
+    protected function setPostTypes()
     {
         $models = [
             CommentPost::class,
             DiscussionRenamedPost::class
         ];
-
-        $this->app->make('events')->dispatch(
-            new ConfigurePostTypes($models)
-        );
 
         foreach ($models as $model) {
             Post::setModel($model::$type, $model);

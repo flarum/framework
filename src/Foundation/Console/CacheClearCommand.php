@@ -10,9 +10,10 @@
 namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Cache\Store;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class CacheClearCommand extends AbstractCommand
 {
@@ -22,18 +23,24 @@ class CacheClearCommand extends AbstractCommand
     protected $cache;
 
     /**
-     * @var Application
+     * @var Dispatcher
      */
-    protected $app;
+    protected $events;
+
+    /**
+     * @var Paths
+     */
+    protected $paths;
 
     /**
      * @param Store $cache
-     * @param Application $app
+     * @param Paths $paths
      */
-    public function __construct(Store $cache, Application $app)
+    public function __construct(Store $cache, Dispatcher $events, Paths $paths)
     {
         $this->cache = $cache;
-        $this->app = $app;
+        $this->events = $events;
+        $this->paths = $paths;
 
         parent::__construct();
     }
@@ -57,10 +64,11 @@ class CacheClearCommand extends AbstractCommand
 
         $this->cache->flush();
 
-        $storagePath = $this->app->storagePath();
+        $storagePath = $this->paths->storage;
         array_map('unlink', glob($storagePath.'/formatter/*'));
         array_map('unlink', glob($storagePath.'/locale/*'));
+        array_map('unlink', glob($storagePath.'/views/*'));
 
-        event(new ClearingCache);
+        $this->events->dispatch(new ClearingCache);
     }
 }

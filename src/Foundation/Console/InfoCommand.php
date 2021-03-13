@@ -12,6 +12,7 @@ namespace Flarum\Foundation\Console;
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\Config;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 
@@ -23,15 +24,15 @@ class InfoCommand extends AbstractCommand
     protected $extensions;
 
     /**
-     * @var array
+     * @var Config
      */
     protected $config;
 
     /**
      * @param ExtensionManager $extensions
-     * @param array $config
+     * @param Config config
      */
-    public function __construct(ExtensionManager $extensions, array $config)
+    public function __construct(ExtensionManager $extensions, Config $config)
     {
         $this->extensions = $extensions;
         $this->config = $config;
@@ -64,11 +65,11 @@ class InfoCommand extends AbstractCommand
 
         $this->getExtensionTable()->render();
 
-        $this->output->writeln('<info>Base URL:</info> '.$this->config['url']);
+        $this->output->writeln('<info>Base URL:</info> '.$this->config->url());
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
-        $this->output->writeln('<info>Debug mode:</info> '.($this->config['debug'] ? 'ON' : 'off'));
+        $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? 'ON' : 'off'));
 
-        if ($this->config['debug']) {
+        if ($this->config->inDebugMode()) {
             $this->error(
                 "Don't forget to turn off debug mode! It should never be turned on in a production system."
             );

@@ -13,9 +13,7 @@ use Flarum\Foundation\AppInterface;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
-use Flarum\Http\Middleware\DispatchRoute;
-use Flarum\Http\Middleware\HandleErrors;
-use Flarum\Http\Middleware\StartSession;
+use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Install\Console\InstallCommand;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
@@ -38,15 +36,16 @@ class Installer implements AppInterface
     public function getRequestHandler()
     {
         $pipe = new MiddlewarePipe;
-        $pipe->pipe(new HandleErrors(
+        $pipe->pipe(new HttpMiddleware\HandleErrors(
             $this->container->make(Registry::class),
             $this->container->make(WhoopsFormatter::class),
             $this->container->tagged(Reporter::class)
         ));
-        $pipe->pipe($this->container->make(StartSession::class));
+        $pipe->pipe($this->container->make(HttpMiddleware\StartSession::class));
         $pipe->pipe(
-            new DispatchRoute($this->container->make('flarum.install.routes'))
+            new HttpMiddleware\ResolveRoute($this->container->make('flarum.install.routes'))
         );
+        $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
         return $pipe;
     }

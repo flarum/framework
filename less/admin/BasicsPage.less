@@ -1,5 +1,5 @@
 .BasicsPage {
-  padding: 20px 0;
+  padding-bottom: 30px;
 
   @media @desktop-up {
     .container {
@@ -8,26 +8,27 @@
     }
   }
 
-  fieldset {
+  .Form-group {
     margin-bottom: 20px;
+  }
 
-    > ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 }
 
 .BasicsPage-welcomeBanner-input {
-  :first-child {
+  input {
     margin-bottom: 1px;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     font-weight: bold;
   }
-  :last-child {
+  textarea {
     border-top-right-radius: 0;
     border-top-left-radius: 0;
+    margin-bottom: 10px;
   }
 }

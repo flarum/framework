@@ -12,6 +12,7 @@ namespace Flarum\Notification;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NotificationMailer
 {
@@ -21,11 +22,18 @@ class NotificationMailer
     protected $mailer;
 
     /**
-     * @param Mailer $mailer
+     * @var TranslatorInterface
      */
-    public function __construct(Mailer $mailer)
+    protected $translator;
+
+    /**
+     * @param Mailer $mailer
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(Mailer $mailer, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
+        $this->translator = $translator;
     }
 
     /**
@@ -39,7 +47,7 @@ class NotificationMailer
             compact('blueprint', 'user'),
             function (Message $message) use ($blueprint, $user) {
                 $message->to($user->email, $user->username)
-                        ->subject($blueprint->getEmailSubject());
+                        ->subject($blueprint->getEmailSubject($this->translator));
             }
         );
     }

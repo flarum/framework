@@ -13,10 +13,7 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
-use Flarum\Event\ConfigureApiRoutes;
-use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
@@ -33,46 +30,75 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->extend(UrlGenerator::class, function (UrlGenerator $url) {
-            return $url->addCollection('api', $this->app->make('flarum.api.routes'), 'api');
+        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url) {
+            return $url->addCollection('api', $this->container->make('flarum.api.routes'), 'api');
         });
 
-        $this->app->singleton('flarum.api.routes', function () {
+        $this->container->singleton('flarum.api.routes', function () {
             $routes = new RouteCollection;
             $this->populateRoutes($routes);
 
             return $routes;
         });
 
-        $this->app->singleton('flarum.api.middleware', function () {
+        $this->container->singleton('flarum.api.throttlers', function () {
             return [
+                'bypassThrottlingAttribute' => function ($request) {
+                    if ($request->getAttribute('bypassThrottling')) {
+                        return false;
+                    }
+                }
+            ];
+        });
+
+        $this->container->bind(Middleware\ThrottleApi::class, function ($container) {
+            return new Middleware\ThrottleApi($container->make('flarum.api.throttlers'));
+        });
+
+        $this->container->singleton('flarum.api.middleware', function () {
+            return [
+                'flarum.api.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\AuthenticateWithHeader::class,
-                HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\SetLocale::class,
+                'flarum.api.route_resolver',
+                HttpMiddleware\CheckCsrfToken::class,
+                Middleware\ThrottleApi::class
             ];
         });
 
-        $this->app->singleton('flarum.api.handler', function (Application $app) {
+        $this->container->bind('flarum.api.error_handler', function () {
+            return new HttpMiddleware\HandleErrors(
+                $this->container->make(Registry::class),
+                new JsonApiFormatter($this->container['flarum.config']->inDebugMode()),
+                $this->container->tagged(Reporter::class)
+            );
+        });
+
+        $this->container->bind('flarum.api.route_resolver', function () {
+            return new HttpMiddleware\ResolveRoute($this->container->make('flarum.api.routes'));
+        });
+
+        $this->container->singleton('flarum.api.handler', function () {
             $pipe = new MiddlewarePipe;
 
-            $pipe->pipe(new HttpMiddleware\HandleErrors(
-                $app->make(Registry::class),
-                new JsonApiFormatter($app->inDebugMode()),
-                $app->tagged(Reporter::class)
-            ));
-
-            foreach ($this->app->make('flarum.api.middleware') as $middleware) {
-                $pipe->pipe($this->app->make($middleware));
+            foreach ($this->container->make('flarum.api.middleware') as $middleware) {
+                $pipe->pipe($this->container->make($middleware));
             }
 
-            $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.api.routes')));
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
+        });
+
+        $this->container->singleton('flarum.api.notification_serializers', function () {
+            return [
+                'discussionRenamed' => BasicDiscussionSerializer::class
+            ];
         });
     }
 
@@ -81,28 +107,19 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->registerNotificationSerializers();
+        $this->setNotificationSerializers();
 
-        AbstractSerializeController::setContainer($this->app);
-        AbstractSerializeController::setEventDispatcher($events = $this->app->make('events'));
+        AbstractSerializeController::setContainer($this->container);
 
-        AbstractSerializer::setContainer($this->app);
-        AbstractSerializer::setEventDispatcher($events);
+        AbstractSerializer::setContainer($this->container);
     }
 
     /**
      * Register notification serializers.
      */
-    protected function registerNotificationSerializers()
+    protected function setNotificationSerializers()
     {
-        $blueprints = [];
-        $serializers = [
-            'discussionRenamed' => BasicDiscussionSerializer::class
-        ];
-
-        $this->app->make('events')->dispatch(
-            new ConfigureNotificationTypes($blueprints, $serializers)
-        );
+        $serializers = $this->container->make('flarum.api.notification_serializers');
 
         foreach ($serializers as $type => $serializer) {
             NotificationSerializer::setSubjectSerializer($type, $serializer);
@@ -116,13 +133,9 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $factory = $this->app->make(RouteHandlerFactory::class);
+        $factory = $this->container->make(RouteHandlerFactory::class);
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
-
-        $this->app->make('events')->dispatch(
-            new ConfigureApiRoutes($routes, $factory)
-        );
     }
 }

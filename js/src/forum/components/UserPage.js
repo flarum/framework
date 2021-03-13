@@ -1,12 +1,12 @@
-import Page from './Page';
+import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
-import affixSidebar from '../utils/affixSidebar';
 import UserCard from './UserCard';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
 import listItems from '../../common/helpers/listItems';
+import AffixedSidebar from './AffixedSidebar';
 
 /**
  * The `UserPage` component shows a user's profile. It can be extended to show
@@ -16,8 +16,8 @@ import listItems from '../../common/helpers/listItems';
  * @abstract
  */
 export default class UserPage extends Page {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     /**
      * The user this page is for.
@@ -32,26 +32,26 @@ export default class UserPage extends Page {
   view() {
     return (
       <div className="UserPage">
-        {this.user ? [
-          UserCard.component({
-            user: this.user,
-            className: 'Hero UserHero',
-            editable: this.user.canEdit() || this.user === app.session.user,
-            controlsButtonClassName: 'Button'
-          }),
-          <div className="container">
-            <div className="sideNavContainer">
-              <nav className="sideNav UserPage-nav" config={affixSidebar}>
-                <ul>{listItems(this.sidebarItems().toArray())}</ul>
-              </nav>
-              <div className="sideNavOffset UserPage-content">
-                {this.content()}
-              </div>
-            </div>
-          </div>
-        ] : [
-          LoadingIndicator.component({className: 'LoadingIndicator--block'})
-        ]}
+        {this.user
+          ? [
+              <UserCard
+                user={this.user}
+                className="Hero UserHero"
+                editable={this.user.canEdit() || this.user === app.session.user}
+                controlsButtonClassName="Button"
+              />,
+              <div className="container">
+                <div className="sideNavContainer">
+                  <AffixedSidebar>
+                    <nav className="sideNav UserPage-nav">
+                      <ul>{listItems(this.sidebarItems().toArray())}</ul>
+                    </nav>
+                  </AffixedSidebar>
+                  <div className="sideNavOffset UserPage-content">{this.content()}</div>
+                </div>
+              </div>,
+            ]
+          : [<LoadingIndicator className="LoadingIndicator--block" />]}
       </div>
     );
   }
@@ -61,8 +61,7 @@ export default class UserPage extends Page {
    *
    * @return {VirtualElement}
    */
-  content() {
-  }
+  content() {}
 
   /**
    * Initialize the component with a user, and trigger the loading of their
@@ -73,6 +72,8 @@ export default class UserPage extends Page {
    */
   show(user) {
     this.user = user;
+
+    app.current.set('user', user);
 
     app.setTitle(user.displayName());
 
@@ -93,7 +94,7 @@ export default class UserPage extends Page {
     // instead of the parsed models
     app.preloadedApiDocument();
 
-    app.store.all('users').some(user => {
+    app.store.all('users').some((user) => {
       if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username) && user.joinTime()) {
         this.show(user);
         return true;
@@ -101,7 +102,7 @@ export default class UserPage extends Page {
     });
 
     if (!this.user) {
-      app.store.find('users', username).then(this.show.bind(this));
+      app.store.find('users', username, { bySlug: true }).then(this.show.bind(this));
     }
   }
 
@@ -113,12 +114,11 @@ export default class UserPage extends Page {
   sidebarItems() {
     const items = new ItemList();
 
-    items.add('nav',
-      SelectDropdown.component({
-        children: this.navItems().toArray(),
-        className: 'App-titleControl',
-        buttonClassName: 'Button'
-      })
+    items.add(
+      'nav',
+      <SelectDropdown className="App-titleControl" buttonClassName="Button">
+        {this.navItems().toArray()}
+      </SelectDropdown>
     );
 
     return items;
@@ -133,32 +133,29 @@ export default class UserPage extends Page {
     const items = new ItemList();
     const user = this.user;
 
-    items.add('posts',
-      LinkButton.component({
-        href: app.route('user.posts', {username: user.username()}),
-        children: [app.translator.trans('core.forum.user.posts_link'), <span className="Button-badge">{user.commentCount()}</span>],
-        icon: 'far fa-comment'
-      }),
+    items.add(
+      'posts',
+      <LinkButton href={app.route('user.posts', { username: user.username() })} icon="far fa-comment">
+        {app.translator.trans('core.forum.user.posts_link')} <span className="Button-badge">{user.commentCount()}</span>
+      </LinkButton>,
       100
     );
 
-    items.add('discussions',
-      LinkButton.component({
-        href: app.route('user.discussions', {username: user.username()}),
-        children: [app.translator.trans('core.forum.user.discussions_link'), <span className="Button-badge">{user.discussionCount()}</span>],
-        icon: 'fas fa-bars'
-      }),
+    items.add(
+      'discussions',
+      <LinkButton href={app.route('user.discussions', { username: user.username() })} icon="fas fa-bars">
+        {app.translator.trans('core.forum.user.discussions_link')} <span className="Button-badge">{user.discussionCount()}</span>
+      </LinkButton>,
       90
     );
 
     if (app.session.user === user) {
-      items.add('separator', Separator.component(), -90);
-      items.add('settings',
-        LinkButton.component({
-          href: app.route('settings'),
-          children: app.translator.trans('core.forum.user.settings_link'),
-          icon: 'fas fa-cog'
-        }),
+      items.add('separator', <Separator />, -90);
+      items.add(
+        'settings',
+        <LinkButton href={app.route('settings')} icon="fas fa-cog">
+          {app.translator.trans('core.forum.user.settings_link')}
+        </LinkButton>,
         -100
       );
     }

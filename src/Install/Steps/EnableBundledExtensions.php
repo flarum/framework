@@ -89,21 +89,29 @@ class EnableBundledExtensions implements Step
     private function loadExtensions()
     {
         $json = file_get_contents("$this->vendorPath/composer/installed.json");
+        $installed = json_decode($json, true);
 
-        return (new Collection(json_decode($json, true)))
+        // Composer 2.0 changes the structure of the installed.json manifest
+        $installed = $installed['packages'] ?? $installed;
+
+        return (new Collection($installed))
             ->filter(function ($package) {
                 return Arr::get($package, 'type') == 'flarum-extension';
             })->filter(function ($package) {
                 return ! empty(Arr::get($package, 'name'));
             })->map(function ($package) {
-                $extension = new Extension($this->vendorPath.'/'.Arr::get($package, 'name'), $package);
+                $path = isset($package['install-path'])
+                    ? "$this->vendorPath/composer/".$package['install-path']
+                    : $this->vendorPath.'/'.Arr::get($package, 'name');
+
+                $extension = new Extension($path, $package);
                 $extension->setVersion(Arr::get($package, 'version'));
 
                 return $extension;
             })->filter(function (Extension $extension) {
                 return in_array($extension->getId(), self::EXTENSION_WHITELIST);
             })->sortBy(function (Extension $extension) {
-                return $extension->composerJsonAttribute('extra.flarum-extension.title');
+                return $extension->getTitle();
             })->mapWithKeys(function (Extension $extension) {
                 return [$extension->getId() => $extension];
             });

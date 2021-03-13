@@ -14,6 +14,7 @@ use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\CacheClearCommand;
+use Flarum\Foundation\Console\InfoCommand;
 
 class ConsoleServiceProvider extends AbstractServiceProvider
 {
@@ -22,10 +23,11 @@ class ConsoleServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.console.commands', function () {
+        $this->container->singleton('flarum.console.commands', function () {
             return [
                 CacheClearCommand::class,
                 GenerateMigrationCommand::class,
+                InfoCommand::class,
                 MigrateCommand::class,
                 ResetCommand::class,
             ];

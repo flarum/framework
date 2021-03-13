@@ -1,6 +1,7 @@
 import Component from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
-import TextEditor from './TextEditor';
+import ConfirmDocumentUnload from '../../common/components/ConfirmDocumentUnload';
+import TextEditor from '../../common/components/TextEditor';
 import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
@@ -10,8 +11,9 @@ import ItemList from '../../common/utils/ItemList';
  * composer. Subclasses should implement the `onsubmit` method and override
  * `headerTimes`.
  *
- * ### Props
+ * ### Attrs
  *
+ * - `composer`
  * - `originalContent`
  * - `submitLabel`
  * - `placeholder`
@@ -22,7 +24,11 @@ import ItemList from '../../common/utils/ItemList';
  * @abstract
  */
 export default class ComposerBody extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
+    this.composer = this.attrs.composer;
+
     /**
      * Whether or not the component is loading.
      *
@@ -30,60 +36,51 @@ export default class ComposerBody extends Component {
      */
     this.loading = false;
 
-    /**
-     * The content of the text editor.
-     *
-     * @type {Function}
-     */
-    this.content = m.prop(this.props.originalContent);
+    // Let the composer state know to ask for confirmation under certain
+    // circumstances, if the body supports / requires it and has a corresponding
+    // confirmation question to ask.
+    if (this.attrs.confirmExit) {
+      this.composer.preventClosingWhen(() => this.hasChanges(), this.attrs.confirmExit);
+    }
 
-    /**
-     * The text editor component instance.
-     *
-     * @type {TextEditor}
-     */
-    this.editor = new TextEditor({
-      submitLabel: this.props.submitLabel,
-      placeholder: this.props.placeholder,
-      onchange: this.content,
-      onsubmit: this.onsubmit.bind(this),
-      value: this.content()
-    });
+    this.composer.fields.content(this.attrs.originalContent || '');
   }
 
   view() {
-    // If the component is loading, we should disable the text editor.
-    this.editor.props.disabled = this.loading;
-
     return (
-      <div className={'ComposerBody ' + (this.props.className || '')}>
-        {avatar(this.props.user, {className: 'ComposerBody-avatar'})}
-        <div className="ComposerBody-content">
-          <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
-          <div className="ComposerBody-editor">{this.editor.render()}</div>
+      <ConfirmDocumentUnload when={this.hasChanges.bind(this)}>
+        <div className={'ComposerBody ' + (this.attrs.className || '')}>
+          {avatar(this.attrs.user, { className: 'ComposerBody-avatar' })}
+          <div className="ComposerBody-content">
+            <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
+            <div className="ComposerBody-editor">
+              {TextEditor.component({
+                submitLabel: this.attrs.submitLabel,
+                placeholder: this.attrs.placeholder,
+                disabled: this.loading || this.attrs.disabled,
+                composer: this.composer,
+                preview: this.jumpToPreview && this.jumpToPreview.bind(this),
+                onchange: this.composer.fields.content,
+                onsubmit: this.onsubmit.bind(this),
+                value: this.composer.fields.content(),
+              })}
+            </div>
+          </div>
+          {LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })}
         </div>
-        {LoadingIndicator.component({className: 'ComposerBody-loading' + (this.loading ? ' active' : '')})}
-      </div>
+      </ConfirmDocumentUnload>
     );
   }
 
   /**
-   * Draw focus to the text editor.
-   */
-  focus() {
-    this.$(':input:enabled:visible:first').focus();
-  }
-
-  /**
-   * Check if there is any unsaved data – if there is, return a confirmation
-   * message to prompt the user with.
+   * Check if there is any unsaved data.
    *
    * @return {String}
    */
-  preventExit() {
-    const content = this.content();
+  hasChanges() {
+    const content = this.composer.fields.content();
 
-    return content && content !== this.props.originalContent && this.props.confirmExit;
+    return content && content !== this.attrs.originalContent;
   }
 
   /**
@@ -100,8 +97,7 @@ export default class ComposerBody extends Component {
    *
    * @abstract
    */
-  onsubmit() {
-  }
+  onsubmit() {}
 
   /**
    * Stop loading.

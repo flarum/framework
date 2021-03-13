@@ -93,3 +93,16 @@
   .animation(pulsate 0.2s ease-in-out);
   .animation-iteration-count(1);
 }
+
+@-webkit-keyframes fadeIn {
+  0% {opacity: 0}
+  100% {opacity: 1}
+}
+@keyframes fadeIn {
+  0% {opacity: 0}
+  100% {opacity: 1}
+}
+.fadeIn {
+  .animation(fadeIn 0.4s ease-in-out);
+  .animation-iteration-count(1);
+}

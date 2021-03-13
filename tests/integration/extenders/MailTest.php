@@ -12,8 +12,8 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Mail\DriverInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
 use Swift_NullTransport;
@@ -23,29 +23,18 @@ class MailTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function prepDb()
-    {
-        $this->prepareDatabase([
-            'users' => [
-                $this->adminUser(),
-            ],
-        ]);
-    }
-
     /**
      * @test
      */
     public function drivers_are_unchanged_by_default()
     {
-        $this->prepDb();
-
         $response = $this->send(
-            $this->request('GET', '/api/mail-settings', [
+            $this->request('GET', '/api/mail/settings', [
                 'authenticatedAs' => 1,
             ])
         );
 
-        $fields = json_decode($response->getBody(), true)['data']['attributes']['fields'];
+        $fields = json_decode($response->getBody()->getContents(), true)['data']['attributes']['fields'];
 
         // The custom driver does not exist
         $this->assertArrayNotHasKey('custom', $fields);
@@ -70,15 +59,13 @@ class MailTest extends TestCase
                 ->driver('custom', CustomDriver::class)
         );
 
-        $this->prepDb();
-
         $response = $this->send(
-            $this->request('GET', '/api/mail-settings', [
+            $this->request('GET', '/api/mail/settings', [
                 'authenticatedAs' => 1,
             ])
         );
 
-        $fields = json_decode($response->getBody(), true)['data']['attributes']['fields'];
+        $fields = json_decode($response->getBody()->getContents(), true)['data']['attributes']['fields'];
 
         $this->assertArrayHasKey('custom', $fields);
         $this->assertEquals(['customSetting1' => ''], $fields['custom']);
@@ -94,15 +81,13 @@ class MailTest extends TestCase
                 ->driver('smtp', CustomDriver::class)
         );
 
-        $this->prepDb();
-
         $response = $this->send(
-            $this->request('GET', '/api/mail-settings', [
+            $this->request('GET', '/api/mail/settings', [
                 'authenticatedAs' => 1,
             ])
         );
 
-        $requiredFields = json_decode($response->getBody(), true)['data']['attributes']['fields']['smtp'];
+        $requiredFields = json_decode($response->getBody()->getContents(), true)['data']['attributes']['fields']['smtp'];
 
         $this->assertEquals(['customSetting1' => ''], $requiredFields);
     }

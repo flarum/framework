@@ -1,9 +1,10 @@
-const later = window.requestAnimationFrame ||
+const later =
+  window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.mozRequestAnimationFrame ||
   window.msRequestAnimationFrame ||
   window.oRequestAnimationFrame ||
-  (callback => window.setTimeout(callback, 1000 / 60));
+  ((callback) => window.setTimeout(callback, 1000 / 60));
 
 /**
  * The `ScrollListener` class sets up a listener that handles window scroll
@@ -57,10 +58,7 @@ export default class ScrollListener {
    */
   start() {
     if (!this.active) {
-      window.addEventListener(
-        'scroll',
-        this.active = this.loop.bind(this)
-      );
+      window.addEventListener('scroll', (this.active = this.loop.bind(this)), { passive: true });
     }
   }
 

@@ -12,7 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\User\Command\EditUser;
-use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\Exception\NotAuthenticatedException;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -62,7 +62,7 @@ class UpdateUserController extends AbstractShowController
             $password = Arr::get($request->getParsedBody(), 'meta.password');
 
             if (! $actor->checkPassword($password)) {
-                throw new PermissionDeniedException;
+                throw new NotAuthenticatedException;
             }
         }
 

@@ -1,4 +1,3 @@
-import User from './models/User';
 import username from './helpers/username';
 import extract from './utils/extract';
 
@@ -67,27 +66,43 @@ export default class Translator {
     const hydrated = [];
     const open = [hydrated];
 
-    translation.forEach(part => {
+    translation.forEach((part) => {
       const match = part.match(new RegExp('{([a-z0-9_]+)}|<(/?)([a-z0-9_]+)>', 'i'));
 
       if (match) {
+        // Either an opening or closing tag.
         if (match[1]) {
           open[0].push(input[match[1]]);
         } else if (match[3]) {
           if (match[2]) {
+            // Closing tag. We start by removing all raw children (generally in the form of strings) from the temporary
+            // holding array, then run them through m.fragment to convert them to vnodes. Usually this will just give us a
+            // text vnode, but using m.fragment as opposed to an explicit conversion should be more flexible. This is necessary because
+            // otherwise, our generated vnode will have raw strings as its children, and mithril expects vnodes.
+            // Finally, we add the now-processed vnodes back onto the holding array (which is the same object in memory as the
+            // children array of the vnode we are currently processing), and remove the reference to the holding array so that
+            // further text will be added to the full set of returned elements.
+            const rawChildren = open[0].splice(0, open[0].length);
+            open[0].push(...m.fragment(rawChildren).children);
             open.shift();
           } else {
-            let tag = input[match[3]] || {tag: match[3], children: []};
+            // If a vnode with a matching tag was provided in the translator input, we use that. Otherwise, we create a new vnode
+            // with this tag, and an empty children array (since we're expecting to insert children, as that's the point of having this in translator)
+            let tag = input[match[3]] || { tag: match[3], children: [] };
             open[0].push(tag);
+            // Insert the tag's children array as the first element of open, so that text in between the opening
+            // and closing tags will be added to the tag's children, not to the full set of returned elements.
             open.unshift(tag.children || tag);
           }
         }
       } else {
+        // Not an html tag, we add it to open[0], which is either the full set of returned elements (vnodes and text),
+        // or if an html tag is currently being processed, the children attribute of that html tag's vnode.
         open[0].push(part);
       }
     });
 
-    return hydrated.filter(part => part);
+    return hydrated.filter((part) => part);
   }
 
   pluralize(translation, number) {
@@ -97,7 +112,7 @@ export default class Translator {
       standardRules = [],
       explicitRules = [];
 
-    translation.split('|').forEach(part => {
+    translation.split('|').forEach((part) => {
       if (cPluralRegex.test(part)) {
         const matches = part.match(cPluralRegex);
         explicitRules[matches[0]] = matches[matches.length - 1];
@@ -122,11 +137,13 @@ export default class Translator {
             }
           }
         } else {
-          var leftNumber  = this.convertNumber(matches[4]);
+          var leftNumber = this.convertNumber(matches[4]);
           var rightNumber = this.convertNumber(matches[5]);
 
-          if (('[' === matches[3] ? number >= leftNumber : number > leftNumber) &&
-            (']' === matches[6] ? number <= rightNumber : number < rightNumber)) {
+          if (
+            ('[' === matches[3] ? number >= leftNumber : number > leftNumber) &&
+            (']' === matches[6] ? number <= rightNumber : number < rightNumber)
+          ) {
             return explicitRules[e];
           }
         }
@@ -223,7 +240,7 @@ export default class Translator {
       case 'tr':
       case 'ur':
       case 'zu':
-        return (number == 1) ? 0 : 1;
+        return number == 1 ? 0 : 1;
 
       case 'am':
       case 'bh':
@@ -237,7 +254,7 @@ export default class Translator {
       case 'xbr':
       case 'ti':
       case 'wa':
-        return ((number === 0) || (number == 1)) ? 0 : 1;
+        return number === 0 || number == 1 ? 0 : 1;
 
       case 'be':
       case 'bs':
@@ -245,41 +262,41 @@ export default class Translator {
       case 'ru':
       case 'sr':
       case 'uk':
-        return ((number % 10 == 1) && (number % 100 != 11)) ? 0 : (((number % 10 >= 2) && (number % 10 <= 4) && ((number % 100 < 10) || (number % 100 >= 20))) ? 1 : 2);
+        return number % 10 == 1 && number % 100 != 11 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
 
       case 'cs':
       case 'sk':
-        return (number == 1) ? 0 : (((number >= 2) && (number <= 4)) ? 1 : 2);
+        return number == 1 ? 0 : number >= 2 && number <= 4 ? 1 : 2;
 
       case 'ga':
-        return (number == 1) ? 0 : ((number == 2) ? 1 : 2);
+        return number == 1 ? 0 : number == 2 ? 1 : 2;
 
       case 'lt':
-        return ((number % 10 == 1) && (number % 100 != 11)) ? 0 : (((number % 10 >= 2) && ((number % 100 < 10) || (number % 100 >= 20))) ? 1 : 2);
+        return number % 10 == 1 && number % 100 != 11 ? 0 : number % 10 >= 2 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
 
       case 'sl':
-        return (number % 100 == 1) ? 0 : ((number % 100 == 2) ? 1 : (((number % 100 == 3) || (number % 100 == 4)) ? 2 : 3));
+        return number % 100 == 1 ? 0 : number % 100 == 2 ? 1 : number % 100 == 3 || number % 100 == 4 ? 2 : 3;
 
       case 'mk':
-        return (number % 10 == 1) ? 0 : 1;
+        return number % 10 == 1 ? 0 : 1;
 
       case 'mt':
-        return (number == 1) ? 0 : (((number === 0) || ((number % 100 > 1) && (number % 100 < 11))) ? 1 : (((number % 100 > 10) && (number % 100 < 20)) ? 2 : 3));
+        return number == 1 ? 0 : number === 0 || (number % 100 > 1 && number % 100 < 11) ? 1 : number % 100 > 10 && number % 100 < 20 ? 2 : 3;
 
       case 'lv':
-        return (number === 0) ? 0 : (((number % 10 == 1) && (number % 100 != 11)) ? 1 : 2);
+        return number === 0 ? 0 : number % 10 == 1 && number % 100 != 11 ? 1 : 2;
 
       case 'pl':
-        return (number == 1) ? 0 : (((number % 10 >= 2) && (number % 10 <= 4) && ((number % 100 < 12) || (number % 100 > 14))) ? 1 : 2);
+        return number == 1 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 12 || number % 100 > 14) ? 1 : 2;
 
       case 'cy':
-        return (number == 1) ? 0 : ((number == 2) ? 1 : (((number == 8) || (number == 11)) ? 2 : 3));
+        return number == 1 ? 0 : number == 2 ? 1 : number == 8 || number == 11 ? 2 : 3;
 
       case 'ro':
-        return (number == 1) ? 0 : (((number === 0) || ((number % 100 > 0) && (number % 100 < 20))) ? 1 : 2);
+        return number == 1 ? 0 : number === 0 || (number % 100 > 0 && number % 100 < 20) ? 1 : 2;
 
       case 'ar':
-        return (number === 0) ? 0 : ((number == 1) ? 1 : ((number == 2) ? 2 : (((number >= 3) && (number <= 10)) ? 3 : (((number >= 11) && (number <= 99)) ? 4 : 5))));
+        return number === 0 ? 0 : number == 1 ? 1 : number == 2 ? 2 : number >= 3 && number <= 10 ? 3 : number >= 11 && number <= 99 ? 4 : 5;
 
       default:
         return 0;

@@ -1,4 +1,5 @@
 import Component from '../../common/Component';
+import Link from '../../common/components/Link';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import highlight from '../../common/helpers/highlight';
@@ -7,24 +8,23 @@ import highlight from '../../common/helpers/highlight';
  * The `PostPreview` component shows a link to a post containing the avatar and
  * username of the author, and a short excerpt of the post's content.
  *
- * ### Props
+ * ### Attrs
  *
  * - `post`
  */
 export default class PostPreview extends Component {
   view() {
-    const post = this.props.post;
+    const post = this.attrs.post;
     const user = post.user();
-    const excerpt = highlight(post.contentPlain(), this.props.highlight, 300);
+    const excerpt = highlight(post.contentPlain(), this.attrs.highlight, 300);
 
     return (
-      <a className="PostPreview" href={app.route.post(post)} config={m.route} onclick={this.props.onclick}>
+      <Link className="PostPreview" href={app.route.post(post)} onclick={this.attrs.onclick}>
         <span className="PostPreview-content">
           {avatar(user)}
-          {username(user)}{' '}
-          <span className="PostPreview-excerpt">{excerpt}</span>
+          {username(user)} <span className="PostPreview-excerpt">{excerpt}</span>
         </span>
-      </a>
+      </Link>
     );
   }
 }

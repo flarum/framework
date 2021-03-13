@@ -9,8 +9,8 @@
 
 namespace Flarum\Http\Middleware;
 
+use Flarum\Http\AccessToken;
 use Flarum\User\Guest;
-use Flarum\User\User;
 use Illuminate\Contracts\Session\Session;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,7 +23,7 @@ class AuthenticateWithSession implements Middleware
     {
         $session = $request->getAttribute('session');
 
-        $actor = $this->getActor($session);
+        $actor = $this->getActor($session, $request);
 
         $actor->setSession($session);
 
@@ -32,14 +32,25 @@ class AuthenticateWithSession implements Middleware
         return $handler->handle($request);
     }
 
-    private function getActor(Session $session)
+    private function getActor(Session $session, Request $request)
     {
-        $actor = User::find($session->get('user_id')) ?: new Guest;
+        if ($session->has('access_token')) {
+            $token = AccessToken::findValid($session->get('access_token'));
 
-        if ($actor->exists) {
-            $actor->updateLastSeen()->save();
+            if ($token) {
+                $actor = $token->user;
+                $actor->updateLastSeen()->save();
+
+                $token->touch($request);
+
+                return $actor;
+            }
+
+            // If this session used to have a token which is no longer valid we properly refresh the session
+            $session->invalidate();
+            $session->regenerateToken();
         }
 
-        return $actor;
+        return new Guest;
     }
 }

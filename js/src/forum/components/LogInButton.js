@@ -4,27 +4,30 @@ import Button from '../../common/components/Button';
  * The `LogInButton` component displays a social login button which will open
  * a popup window containing the specified path.
  *
- * ### Props
+ * ### Attrs
  *
-* - `path`
+ * - `path`
  */
 export default class LogInButton extends Button {
-  static initProps(props) {
-    props.className = (props.className || '') + ' LogInButton';
+  static initAttrs(attrs) {
+    attrs.className = (attrs.className || '') + ' LogInButton';
 
-    props.onclick = function() {
+    attrs.onclick = function () {
       const width = 580;
       const height = 400;
       const $window = $(window);
 
-      window.open(app.forum.attribute('baseUrl') + props.path, 'logInPopup',
+      window.open(
+        app.forum.attribute('baseUrl') + attrs.path,
+        'logInPopup',
         `width=${width},` +
-        `height=${height},` +
-        `top=${$window.height() / 2 - height / 2},` +
-        `left=${$window.width() / 2 - width / 2},` +
-        'status=no,scrollbars=yes,resizable=no');
+          `height=${height},` +
+          `top=${$window.height() / 2 - height / 2},` +
+          `left=${$window.width() / 2 - width / 2},` +
+          'status=no,scrollbars=yes,resizable=no'
+      );
     };
 
-    super.initProps(props);
+    super.initAttrs(attrs);
   }
 }

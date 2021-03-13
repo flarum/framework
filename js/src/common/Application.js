@@ -1,5 +1,4 @@
 import ItemList from './utils/ItemList';
-import Alert from './components/Alert';
 import Button from './components/Button';
 import ModalManager from './components/ModalManager';
 import AlertManager from './components/AlertManager';
@@ -12,6 +11,7 @@ import Drawer from './utils/Drawer';
 import mapRoutes from './utils/mapRoutes';
 import RequestError from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
+import liveHumanTimes from './utils/liveHumanTimes';
 import { extend } from './extend';
 
 import Forum from './models/Forum';
@@ -21,6 +21,9 @@ import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
 import { flattenDeep } from 'lodash-es';
+import PageState from './states/PageState';
+import ModalManagerState from './states/ModalManagerState';
+import AlertManagerState from './states/AlertManagerState';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -86,7 +89,7 @@ export default class Application {
     discussions: Discussion,
     posts: Post,
     groups: Group,
-    notifications: Notification
+    notifications: Notification,
   });
 
   /**
@@ -107,13 +110,49 @@ export default class Application {
   booted = false;
 
   /**
-   * An Alert that was shown as a result of an AJAX request error. If present,
-   * it will be dismissed on the next successful request.
+   * The key for an Alert that was shown as a result of an AJAX request error.
+   * If present, it will be dismissed on the next successful request.
    *
-   * @type {null|Alert}
+   * @type {int}
    * @private
    */
-  requestError = null;
+  requestErrorAlert = null;
+
+  /**
+   * The page the app is currently on.
+   *
+   * This object holds information about the type of page we are currently
+   * visiting, and sometimes additional arbitrary page state that may be
+   * relevant to lower-level components.
+   *
+   * @type {PageState}
+   */
+  current = new PageState(null);
+
+  /**
+   * The page the app was on before the current page.
+   *
+   * Once the application navigates to another page, the object previously
+   * assigned to this.current will be moved to this.previous, while this.current
+   * is re-initialized.
+   *
+   * @type {PageState}
+   */
+  previous = new PageState(null);
+
+  /*
+   * An object that manages modal state.
+   *
+   * @type {ModalManagerState}
+   */
+  modal = new ModalManagerState();
+
+  /**
+   * An object that manages the state of active alerts.
+   *
+   * @type {AlertManagerState}
+   */
+  alerts = new AlertManagerState();
 
   data;
 
@@ -126,22 +165,19 @@ export default class Application {
   }
 
   boot() {
-    this.initializers.toArray().forEach(initializer => initializer(this));
+    this.initializers.toArray().forEach((initializer) => initializer(this));
 
-    this.store.pushPayload({data: this.data.resources});
+    this.store.pushPayload({ data: this.data.resources });
 
     this.forum = this.store.getById('forums', 1);
 
-    this.session = new Session(
-        this.store.getById('users', this.data.session.userId),
-        this.data.session.csrfToken
-    );
+    this.session = new Session(this.store.getById('users', this.data.session.userId), this.data.session.csrfToken);
 
     this.mount();
   }
 
   bootExtensions(extensions) {
-    Object.keys(extensions).forEach(name => {
+    Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
       const extenders = flattenDeep(extension.extend);
@@ -153,31 +189,34 @@ export default class Application {
   }
 
   mount(basePath = '') {
-    this.modal = m.mount(document.getElementById('modal'), <ModalManager/>);
-    this.alerts = m.mount(document.getElementById('alerts'), <AlertManager/>);
+    // An object with a callable view property is used in order to pass arguments to the component; see https://mithril.js.org/mount.html
+    m.mount(document.getElementById('modal'), { view: () => ModalManager.component({ state: this.modal }) });
+    m.mount(document.getElementById('alerts'), { view: () => AlertManager.component({ state: this.alerts }) });
 
     this.drawer = new Drawer();
 
-    m.route(
-      document.getElementById('content'),
-      basePath + '/',
-      mapRoutes(this.routes, basePath)
-    );
+    m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
 
     // Add a class to the body which indicates that the page has been scrolled
-    // down.
-    new ScrollListener(top => {
+    // down. When this happens, we'll add classes to the header and app body
+    // which will set the navbar's position to fixed. We don't want to always
+    // have it fixed, as that could overlap with custom headers.
+    const scrollListener = new ScrollListener((top) => {
       const $app = $('#app');
       const offset = $app.offset().top;
 
-      $app
-        .toggleClass('affix', top >= offset)
-        .toggleClass('scrolled', top > offset);
-    }).start();
+      $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
+      $('.App-header').toggleClass('navbar-fixed-top', top >= offset);
+    });
+
+    scrollListener.start();
+    scrollListener.update();
 
     $(() => {
       $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
     });
+
+    liveHumanTimes();
   }
 
   /**
@@ -196,6 +235,16 @@ export default class Application {
     }
 
     return null;
+  }
+
+  /**
+   * Determine the current screen mode, based on our media queries.
+   *
+   * @returns {String} - one of "phone", "tablet", "desktop" or "desktop-hd"
+   */
+  screen() {
+    const styles = getComputedStyle(document.documentElement);
+    return styles.getPropertyValue('--flarum-screen');
   }
 
   /**
@@ -220,15 +269,16 @@ export default class Application {
   }
 
   updateTitle() {
-    document.title = (this.titleCount ? `(${this.titleCount}) ` : '') +
-      (this.title ? this.title + ' - ' : '') +
-      this.forum.attribute('title');
+    const count = this.titleCount ? `(${this.titleCount}) ` : '';
+    const pageTitleWithSeparator = this.title && m.route.get() !== this.forum.attribute('basePath') + '/' ? this.title + ' - ' : '';
+    const title = this.forum.attribute('title');
+    document.title = count + pageTitleWithSeparator + title;
   }
 
   /**
    * Make an AJAX request, handling any low-level errors that may occur.
    *
-   * @see https://lhorie.github.io/mithril/mithril.request.html
+   * @see https://mithril.js.org/request.html
    * @param {Object} options
    * @return {Promise}
    * @public
@@ -256,17 +306,19 @@ export default class Application {
     // When we deserialize JSON data, if for some reason the server has provided
     // a dud response, we don't want the application to crash. We'll show an
     // error message to the user instead.
-    options.deserialize = options.deserialize || (responseText => responseText);
+    options.deserialize = options.deserialize || ((responseText) => responseText);
 
-    options.errorHandler = options.errorHandler || (error => {
-      throw error;
-    });
+    options.errorHandler =
+      options.errorHandler ||
+      ((error) => {
+        throw error;
+      });
 
     // When extracting the data from the response, we can check the server
     // response code and show an error message to the user if something's gone
     // awry.
     const original = options.extract;
-    options.extract = xhr => {
+    options.extract = (xhr) => {
       let responseText;
 
       if (original) {
@@ -293,73 +345,88 @@ export default class Application {
       }
     };
 
-    if (this.requestError) this.alerts.dismiss(this.requestError.alert);
+    if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
-    const deferred = m.deferred();
+    return m.request(options).then(
+      (response) => response,
+      (error) => {
+        let content;
 
-    m.request(options).then(response => deferred.resolve(response), error => {
-      this.requestError = error;
+        switch (error.status) {
+          case 422:
+            content = error.response.errors
+              .map((error) => [error.detail, <br />])
+              .reduce((a, b) => a.concat(b), [])
+              .slice(0, -1);
+            break;
 
-      let children;
+          case 401:
+          case 403:
+            content = app.translator.trans('core.lib.error.permission_denied_message');
+            break;
 
-      switch (error.status) {
-        case 422:
-          children = error.response.errors
-            .map(error => [error.detail, <br/>])
-            .reduce((a, b) => a.concat(b), [])
-            .slice(0, -1);
-          break;
+          case 404:
+          case 410:
+            content = app.translator.trans('core.lib.error.not_found_message');
+            break;
 
-        case 401:
-        case 403:
-          children = app.translator.trans('core.lib.error.permission_denied_message');
-          break;
+          case 429:
+            content = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+            break;
 
-        case 404:
-        case 410:
-          children = app.translator.trans('core.lib.error.not_found_message');
-          break;
+          default:
+            content = app.translator.trans('core.lib.error.generic_message');
+        }
 
-        case 429:
-          children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
-          break;
+        const isDebug = app.forum.attribute('debug');
+        // contains a formatted errors if possible, response must be an JSON API array of errors
+        // the details property is decoded to transform escaped characters such as '\n'
+        const errors = error.response && error.response.errors;
+        const formattedError = Array.isArray(errors) && errors[0] && errors[0].detail && errors.map((e) => decodeURI(e.detail));
 
-        default:
-          children = app.translator.trans('core.lib.error.generic_message');
+        error.alert = {
+          type: 'error',
+          content,
+          controls: isDebug && [
+            <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
+              Debug
+            </Button>,
+          ],
+        };
+
+        try {
+          options.errorHandler(error);
+        } catch (error) {
+          if (isDebug && error.xhr) {
+            const { method, url } = error.options;
+            const { status = '' } = error.xhr;
+
+            console.group(`${method} ${url} ${status}`);
+
+            console.error(...(formattedError || [error]));
+
+            console.groupEnd();
+          }
+
+          this.requestErrorAlert = this.alerts.show(error.alert, error.alert.content);
+        }
+
+        return Promise.reject(error);
       }
-
-      const isDebug = app.forum.attribute('debug');
-
-      error.alert = new Alert({
-        type: 'error',
-        children,
-        controls: isDebug && [
-          <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>Debug</Button>
-        ]
-      });
-
-      try {
-        options.errorHandler(error);
-      } catch (error) {
-        this.alerts.show(error.alert);
-      }
-
-      deferred.reject(error);
-    });
-
-    return deferred.promise;
+    );
   }
 
   /**
    * @param {RequestError} error
+   * @param {string[]} [formattedError]
    * @private
    */
-  showDebug(error) {
-    this.alerts.dismiss(this.requestError.alert);
+  showDebug(error, formattedError) {
+    this.alerts.dismiss(this.requestErrorAlert);
 
-    this.modal.show(new RequestErrorModal({error}));
+    this.modal.show(RequestErrorModal, { error, formattedError });
   }
 
   /**
@@ -371,9 +438,19 @@ export default class Application {
    * @public
    */
   route(name, params = {}) {
-    const url = this.routes[name].path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
-    const queryString = m.route.buildQueryString(params);
-    const prefix = m.route.mode === 'pathname' ? app.forum.attribute('basePath') : '';
+    const route = this.routes[name];
+
+    if (!route) throw new Error(`Route '${name}' does not exist`);
+
+    const url = route.path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
+
+    // Remove falsy values in params to avoid having urls like '/?sort&q'
+    for (const key in params) {
+      if (params.hasOwnProperty(key) && !params[key]) delete params[key];
+    }
+
+    const queryString = m.buildQueryString(params);
+    const prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
 
     return prefix + url + (queryString ? '?' + queryString : '');
   }

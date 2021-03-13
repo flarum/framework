@@ -4,17 +4,24 @@ import routes from './routes';
 import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
+import ExtensionData from './utils/ExtensionData';
 
 export default class AdminApplication extends Application {
-  extensionSettings = {};
+  extensionData = new ExtensionData();
+
+  extensionCategories = {
+    feature: 30,
+    theme: 20,
+    language: 10,
+  };
 
   history = {
     canGoBack: () => true,
     getPrevious: () => {},
     backUrl: () => this.forum.attribute('baseUrl'),
-    back: function() {
+    back: function () {
       window.location = this.backUrl();
-    }
+    },
   };
 
   constructor() {
@@ -27,22 +34,24 @@ export default class AdminApplication extends Application {
    * @inheritdoc
    */
   mount() {
-    m.mount(document.getElementById('app-navigation'), Navigation.component({className: 'App-backControl', drawer: true}));
-    m.mount(document.getElementById('header-navigation'), Navigation.component());
-    m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
-    m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
-    m.mount(document.getElementById('admin-navigation'), AdminNav.component());
+    // Mithril does not render the home route on https://example.com/admin, so
+    // we need to go to https://example.com/admin#/ explicitly.
+    if (!document.location.hash) document.location.hash = '#/';
 
-    m.route.mode = 'hash';
+    m.route.prefix = '#';
     super.mount();
 
-    // If an extension has just been enabled, then we will run its settings
-    // callback.
-    const enabled = localStorage.getItem('enabledExtension');
-    if (enabled && this.extensionSettings[enabled]) {
-      this.extensionSettings[enabled]();
-      localStorage.removeItem('enabledExtension');
-    }
+    m.mount(document.getElementById('app-navigation'), {
+      view: () =>
+        Navigation.component({
+          className: 'App-backControl',
+          drawer: true,
+        }),
+    });
+    m.mount(document.getElementById('header-navigation'), Navigation);
+    m.mount(document.getElementById('header-primary'), HeaderPrimary);
+    m.mount(document.getElementById('header-secondary'), HeaderSecondary);
+    m.mount(document.getElementById('admin-navigation'), AdminNav);
   }
 
   getRequiredPermissions(permission) {
@@ -59,5 +68,5 @@ export default class AdminApplication extends Application {
     }
 
     return required;
-  };
+  }
 }

@@ -9,6 +9,10 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Extension\Exception\DependentExtensionsException;
+use Flarum\Extension\Exception\DependentExtensionsExceptionHandler;
+use Flarum\Extension\Exception\MissingDependenciesException;
+use Flarum\Extension\Exception\MissingDependenciesExceptionHandler;
 use Flarum\Foundation\ErrorHandling\ExceptionHandler;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\ErrorHandling\Registry;
@@ -21,7 +25,7 @@ class ErrorServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->app->singleton('flarum.error.statuses', function () {
+        $this->container->singleton('flarum.error.statuses', function () {
             return [
                 // 400 Bad Request
                 'csrf_token_mismatch' => 400,
@@ -46,28 +50,30 @@ class ErrorServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->app->singleton('flarum.error.classes', function () {
+        $this->container->singleton('flarum.error.classes', function () {
             return [
                 InvalidParameterException::class => 'invalid_parameter',
                 ModelNotFoundException::class => 'not_found',
             ];
         });
 
-        $this->app->singleton('flarum.error.handlers', function () {
+        $this->container->singleton('flarum.error.handlers', function () {
             return [
                 IlluminateValidationException::class => ExceptionHandler\IlluminateValidationExceptionHandler::class,
                 ValidationException::class => ExceptionHandler\ValidationExceptionHandler::class,
+                DependentExtensionsException::class => DependentExtensionsExceptionHandler::class,
+                MissingDependenciesException::class => MissingDependenciesExceptionHandler::class,
             ];
         });
 
-        $this->app->singleton(Registry::class, function () {
+        $this->container->singleton(Registry::class, function () {
             return new Registry(
-                $this->app->make('flarum.error.statuses'),
-                $this->app->make('flarum.error.classes'),
-                $this->app->make('flarum.error.handlers')
+                $this->container->make('flarum.error.statuses'),
+                $this->container->make('flarum.error.classes'),
+                $this->container->make('flarum.error.handlers')
             );
         });
 
-        $this->app->tag(LogReporter::class, Reporter::class);
+        $this->container->tag(LogReporter::class, Reporter::class);
     }
 }

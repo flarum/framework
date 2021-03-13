@@ -11,7 +11,7 @@ namespace Flarum\Tests\unit\Settings;
 
 use Flarum\Settings\MemoryCacheSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use Mockery as m;
 
 class MemoryCacheSettingsRepositoryTest extends TestCase
@@ -19,6 +19,9 @@ class MemoryCacheSettingsRepositoryTest extends TestCase
     private $baseRepository;
     private $repository;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         $this->baseRepository = m::mock(SettingsRepositoryInterface::class);

@@ -10,28 +10,24 @@
 namespace Flarum\Tests\integration\api\groups;
 
 use Flarum\Group\Group;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
 
 class CreateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->prepareDatabase([
             'users' => [
-                $this->adminUser(),
                 $this->normalUser(),
-            ],
-            'groups' => [
-                $this->adminGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
             ],
         ]);
     }

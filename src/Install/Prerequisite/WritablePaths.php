@@ -10,14 +10,20 @@
 namespace Flarum\Install\Prerequisite;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class WritablePaths implements PrerequisiteInterface
 {
-    protected $paths;
+    /**
+     * @var Collection
+     */
+    private $paths;
+
+    private $wildcards = [];
 
     public function __construct(array $paths)
     {
-        $this->paths = $paths;
+        $this->paths = $this->normalize($paths);
     }
 
     public function problems(): Collection
@@ -28,7 +34,7 @@ class WritablePaths implements PrerequisiteInterface
 
     private function getMissingPaths(): Collection
     {
-        return (new Collection($this->paths))
+        return $this->paths
             ->reject(function ($path) {
                 return file_exists($path);
             })->map(function ($path) {
@@ -41,13 +47,13 @@ class WritablePaths implements PrerequisiteInterface
 
     private function getNonWritablePaths(): Collection
     {
-        return (new Collection($this->paths))
+        return $this->paths
             ->filter(function ($path) {
                 return file_exists($path) && ! is_writable($path);
-            })->map(function ($path) {
+            })->map(function ($path, $index) {
                 return [
                     'message' => 'The '.$this->getAbsolutePath($path).' directory is not writable.',
-                    'detail' => 'Please chmod this directory'.($path !== public_path() ? ' and its contents' : '').' to 0775.'
+                    'detail' => 'Please make sure your web server/PHP user has write access to this directory'.(in_array($index, $this->wildcards) ? ' and its contents' : '').'. Read the <a href="https://docs.flarum.org/install.html#folder-ownership">installation documentation</a> for a detailed explanation and steps to resolve this error.'
                 ];
             });
     }
@@ -70,5 +76,18 @@ class WritablePaths implements PrerequisiteInterface
         }
 
         return (substr($path, 0, 1) == '/' ? '/' : '').implode(DIRECTORY_SEPARATOR, $absolutes);
+    }
+
+    private function normalize(array $paths): Collection
+    {
+        return (new Collection($paths))
+            ->map(function ($path, $index) {
+                if (Str::endsWith($path, '/*')) {
+                    $this->wildcards[] = $index;
+                    $path = substr($path, 0, -2);
+                }
+
+                return $path;
+            });
     }
 }

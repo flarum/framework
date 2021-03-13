@@ -10,6 +10,7 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Foundation\Application;
+use Flarum\Foundation\Config;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 
@@ -21,9 +22,9 @@ class ForumSerializer extends AbstractSerializer
     protected $type = 'forums';
 
     /**
-     * @var Application
+     * @var Config
      */
-    protected $app;
+    protected $config;
 
     /**
      * @var SettingsRepositoryInterface
@@ -36,13 +37,13 @@ class ForumSerializer extends AbstractSerializer
     protected $url;
 
     /**
-     * @param Application $app
+     * @param Config $config
      * @param SettingsRepositoryInterface $settings
      * @param UrlGenerator $url
      */
-    public function __construct(Application $app, SettingsRepositoryInterface $settings, UrlGenerator $url)
+    public function __construct(Config $config, SettingsRepositoryInterface $settings, UrlGenerator $url)
     {
-        $this->app = $app;
+        $this->config = $config;
         $this->settings = $settings;
         $this->url = $url;
     }
@@ -66,7 +67,7 @@ class ForumSerializer extends AbstractSerializer
             'showLanguageSelector' => (bool) $this->settings->get('show_language_selector', true),
             'baseUrl' => $url = $this->url->to('forum')->base(),
             'basePath' => parse_url($url, PHP_URL_PATH) ?: '',
-            'debug' => $this->app->inDebugMode(),
+            'debug' => $this->config->inDebugMode(),
             'apiUrl' => $this->url->to('api')->base(),
             'welcomeTitle' => $this->settings->get('welcome_title'),
             'welcomeMessage' => $this->settings->get('welcome_message'),
@@ -85,7 +86,7 @@ class ForumSerializer extends AbstractSerializer
 
         if ($this->actor->can('administrate')) {
             $attributes['adminUrl'] = $this->url->to('admin')->base();
-            $attributes['version'] = $this->app->version();
+            $attributes['version'] = Application::VERSION;
         }
 
         return $attributes;

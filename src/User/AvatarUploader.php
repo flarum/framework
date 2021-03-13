@@ -36,21 +36,34 @@ class AvatarUploader
 
         $avatarPath = Str::random().'.png';
 
-        $this->remove($user);
+        $this->removeFileAfterSave($user);
         $user->changeAvatarPath($avatarPath);
 
         $this->uploadDir->put($avatarPath, $encodedImage);
     }
 
-    public function remove(User $user)
+    /**
+     * Handle the removal of the old avatar file after a successful user save
+     * We don't place this in remove() because otherwise we would call changeAvatarPath 2 times when uploading.
+     * @param User $user
+     */
+    protected function removeFileAfterSave(User $user)
     {
-        $avatarPath = $user->getOriginal('avatar_url');
+        $avatarPath = $user->getRawOriginal('avatar_url');
 
         $user->afterSave(function () use ($avatarPath) {
             if ($this->uploadDir->has($avatarPath)) {
                 $this->uploadDir->delete($avatarPath);
             }
         });
+    }
+
+    /**
+     * @param User $user
+     */
+    public function remove(User $user)
+    {
+        $this->removeFileAfterSave($user);
 
         $user->changeAvatarPath(null);
     }

@@ -2,16 +2,17 @@ import Component from '../Component';
 import { Spinner } from 'spin.js';
 
 /**
- * The `LoadingIndicator` component displays a loading spinner with spin.js. It
- * may have the following special props:
+ * The `LoadingIndicator` component displays a loading spinner with spin.js.
+ *
+ * ### Attrs
  *
  * - `size` The spin.js size preset to use. Defaults to 'small'.
  *
- * All other props will be assigned as attributes on the element.
+ * All other attrs will be assigned as attributes on the DOM element.
  */
 export default class LoadingIndicator extends Component {
   view() {
-    const attrs = Object.assign({}, this.props);
+    const attrs = Object.assign({}, this.attrs);
 
     attrs.className = 'LoadingIndicator ' + (attrs.className || '');
     delete attrs.size;
@@ -19,12 +20,12 @@ export default class LoadingIndicator extends Component {
     return <div {...attrs}>{m.trust('&nbsp;')}</div>;
   }
 
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     const options = { zIndex: 'auto', color: this.$().css('color') };
 
-    switch (this.props.size) {
+    switch (this.attrs.size) {
       case 'large':
         Object.assign(options, { lines: 10, length: 8, width: 4, radius: 8 });
         break;

@@ -9,6 +9,7 @@
 
 namespace Flarum\Discussion;
 
+use Flarum\Discussion\Access\ScopeDiscussionVisibility;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Foundation\AbstractServiceProvider;
 
@@ -19,14 +20,15 @@ class DiscussionServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $events = $this->app->make('events');
+        $events = $this->container->make('events');
 
         $events->subscribe(DiscussionMetadataUpdater::class);
-        $events->subscribe(DiscussionPolicy::class);
 
         $events->listen(
             Renamed::class,
             DiscussionRenamedLogger::class
         );
+
+        Discussion::registerVisibilityScoper(new ScopeDiscussionVisibility(), 'view');
     }
 }

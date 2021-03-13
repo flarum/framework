@@ -5,7 +5,7 @@ import listItems from '../../common/helpers/listItems';
 /**
  * The `DiscussionHero` component displays the hero on a discussion page.
  *
- * ### Props
+ * ### attrs
  *
  * - `discussion`
  */
@@ -27,7 +27,7 @@ export default class DiscussionHero extends Component {
    */
   items() {
     const items = new ItemList();
-    const discussion = this.props.discussion;
+    const discussion = this.attrs.discussion;
     const badges = discussion.badges().toArray();
 
     if (badges.length) {

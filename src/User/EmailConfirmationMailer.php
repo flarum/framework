@@ -14,7 +14,7 @@ use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\EmailChangeRequested;
 use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Contracts\Translation\Translator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class EmailConfirmationMailer
 {
@@ -34,11 +34,11 @@ class EmailConfirmationMailer
     protected $url;
 
     /**
-     * @var Translator
+     * @var TranslatorInterface
      */
     protected $translator;
 
-    public function __construct(SettingsRepositoryInterface $settings, Queue $queue, UrlGenerator $url, Translator $translator)
+    public function __construct(SettingsRepositoryInterface $settings, Queue $queue, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->settings = $settings;
         $this->queue = $queue;

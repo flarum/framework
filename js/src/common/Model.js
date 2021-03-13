@@ -88,7 +88,7 @@ export default class Model {
         // relationship data object.
         for (const innerKey in data[key]) {
           if (data[key][innerKey] instanceof Model) {
-            data[key][innerKey] = {data: Model.getIdentifier(data[key][innerKey])};
+            data[key][innerKey] = { data: Model.getIdentifier(data[key][innerKey]) };
           }
           this.data[key][innerKey] = data[key][innerKey];
         }
@@ -109,7 +109,7 @@ export default class Model {
    * @public
    */
   pushAttributes(attributes) {
-    this.pushData({attributes});
+    this.pushData({ attributes });
   }
 
   /**
@@ -125,7 +125,7 @@ export default class Model {
     const data = {
       type: this.data.type,
       id: this.data.id,
-      attributes
+      attributes,
     };
 
     // If a 'relationships' key exists, extract it from the attributes hash and
@@ -138,9 +138,7 @@ export default class Model {
         const model = attributes.relationships[key];
 
         data.relationships[key] = {
-          data: model instanceof Array
-            ? model.map(Model.getIdentifier)
-            : Model.getIdentifier(model)
+          data: model instanceof Array ? model.map(Model.getIdentifier) : Model.getIdentifier(model),
         };
       }
 
@@ -154,52 +152,66 @@ export default class Model {
 
     this.pushData(data);
 
-    const request = {data};
+    const request = { data };
     if (options.meta) request.meta = options.meta;
 
-    return app.request(Object.assign({
-      method: this.exists ? 'PATCH' : 'POST',
-      url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-      data: request
-    }, options)).then(
-      // If everything went well, we'll make sure the store knows that this
-      // model exists now (if it didn't already), and we'll push the data that
-      // the API returned into the store.
-      payload => {
-        this.store.data[payload.data.type] = this.store.data[payload.data.type] || {};
-        this.store.data[payload.data.type][payload.data.id] = this;
-        return this.store.pushPayload(payload);
-      },
+    return app
+      .request(
+        Object.assign(
+          {
+            method: this.exists ? 'PATCH' : 'POST',
+            url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
+            body: request,
+          },
+          options
+        )
+      )
+      .then(
+        // If everything went well, we'll make sure the store knows that this
+        // model exists now (if it didn't already), and we'll push the data that
+        // the API returned into the store.
+        (payload) => {
+          this.store.data[payload.data.type] = this.store.data[payload.data.type] || {};
+          this.store.data[payload.data.type][payload.data.id] = this;
+          return this.store.pushPayload(payload);
+        },
 
-      // If something went wrong, though... good thing we backed up our model's
-      // old data! We'll revert to that and let others handle the error.
-      response => {
-        this.pushData(oldData);
-        m.lazyRedraw();
-        throw response;
-      }
-    );
+        // If something went wrong, though... good thing we backed up our model's
+        // old data! We'll revert to that and let others handle the error.
+        (response) => {
+          this.pushData(oldData);
+          m.redraw();
+          throw response;
+        }
+      );
   }
 
   /**
    * Send a request to delete the resource.
    *
-   * @param {Object} data Data to send along with the DELETE request.
+   * @param {Object} body Data to send along with the DELETE request.
    * @param {Object} [options]
    * @return {Promise}
    * @public
    */
-  delete(data, options = {}) {
-    if (!this.exists) return m.deferred().resolve().promise;
+  delete(body, options = {}) {
+    if (!this.exists) return Promise.resolve();
 
-    return app.request(Object.assign({
-      method: 'DELETE',
-      url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-      data
-    }, options)).then(() => {
-      this.exists = false;
-      this.store.remove(this);
-    });
+    return app
+      .request(
+        Object.assign(
+          {
+            method: 'DELETE',
+            url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
+            body,
+          },
+          options
+        )
+      )
+      .then(() => {
+        this.exists = false;
+        this.store.remove(this);
+      });
   }
 
   /**
@@ -225,7 +237,7 @@ export default class Model {
    * @public
    */
   static attribute(name, transform) {
-    return function() {
+    return function () {
       const value = this.data.attributes && this.data.attributes[name];
 
       return transform ? transform(value) : value;
@@ -243,7 +255,7 @@ export default class Model {
    * @public
    */
   static hasOne(name) {
-    return function() {
+    return function () {
       if (this.data.relationships) {
         const relationship = this.data.relationships[name];
 
@@ -267,12 +279,12 @@ export default class Model {
    * @public
    */
   static hasMany(name) {
-    return function() {
+    return function () {
       if (this.data.relationships) {
         const relationship = this.data.relationships[name];
 
         if (relationship) {
-          return relationship.data.map(data => app.store.getById(data.type, data.id));
+          return relationship.data.map((data) => app.store.getById(data.type, data.id));
         }
       }
 
@@ -301,7 +313,7 @@ export default class Model {
   static getIdentifier(model) {
     return {
       type: model.data.type,
-      id: model.data.id
+      id: model.data.id,
     };
   }
 }

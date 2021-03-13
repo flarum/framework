@@ -18,7 +18,6 @@ return Migration::createTable(
         $table->string('email', 150)->unique();
         $table->boolean('is_activated')->default(0);
         $table->string('password', 100);
-        $table->text('bio')->nullable();
         $table->string('avatar_path', 100)->nullable();
         $table->binary('preferences')->nullable();
         $table->dateTime('join_time')->nullable();

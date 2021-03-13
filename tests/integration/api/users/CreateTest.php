@@ -10,28 +10,22 @@
 namespace Flarum\Tests\integration\api\users;
 
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 
 class CreateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
-                $this->adminUser(),
-            ],
-            'groups' => [
-                $this->adminGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
-            ],
             'settings' => [
                 ['key' => 'mail_driver', 'value' => 'log'],
             ],
@@ -63,19 +57,19 @@ class CreateTest extends TestCase
                 [
                     'status' => '422',
                     'code' => 'validation_error',
-                    'detail' => 'validation.required',
+                    'detail' => 'The username field is required.',
                     'source' => ['pointer' => '/data/attributes/username'],
                 ],
                 [
                     'status' => '422',
                     'code' => 'validation_error',
-                    'detail' => 'validation.required',
+                    'detail' => 'The email field is required.',
                     'source' => ['pointer' => '/data/attributes/email'],
                 ],
                 [
                     'status' => '422',
                     'code' => 'validation_error',
-                    'detail' => 'validation.required',
+                    'detail' => 'The password field is required.',
                     'source' => ['pointer' => '/data/attributes/password'],
                 ],
             ],
@@ -154,7 +148,7 @@ class CreateTest extends TestCase
     public function disabling_sign_up_prevents_user_creation()
     {
         /** @var SettingsRepositoryInterface $settings */
-        $settings = app(SettingsRepositoryInterface::class);
+        $settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
         $settings->set('allow_sign_up', false);
 
         $response = $this->send(

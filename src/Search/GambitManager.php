@@ -9,7 +9,6 @@
 
 namespace Flarum\Search;
 
-use Illuminate\Contracts\Container\Container;
 use LogicException;
 
 /**
@@ -23,27 +22,14 @@ class GambitManager
     protected $gambits = [];
 
     /**
-     * @var string
+     * @var GambitInterface
      */
     protected $fulltextGambit;
 
     /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
-     * @param Container $container
-     */
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
      * Add a gambit.
      *
-     * @param string $gambit
+     * @param GambitInterface $gambit
      */
     public function add($gambit)
     {
@@ -51,12 +37,28 @@ class GambitManager
     }
 
     /**
+     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 17.
+     */
+    public function getFullTextGambit()
+    {
+        return $this->fulltextGambit;
+    }
+
+    /**
+     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 17.
+     */
+    public function getGambits()
+    {
+        return $this->gambits;
+    }
+
+    /**
      * Apply gambits to a search, given a search query.
      *
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param string $query
      */
-    public function apply(AbstractSearch $search, $query)
+    public function apply(SearchState $search, $query)
     {
         $query = $this->applyGambits($search, $query);
 
@@ -68,7 +70,7 @@ class GambitManager
     /**
      * Set the gambit to handle fulltext searching.
      *
-     * @param string $gambit
+     * @param GambitInterface $gambit
      */
     public function setFulltextGambit($gambit)
     {
@@ -87,11 +89,11 @@ class GambitManager
     }
 
     /**
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param string $query
      * @return string
      */
-    protected function applyGambits(AbstractSearch $search, $query)
+    protected function applyGambits(SearchState $search, $query)
     {
         $bits = $this->explode($query);
 
@@ -99,10 +101,8 @@ class GambitManager
             return '';
         }
 
-        $gambits = array_map([$this->container, 'make'], $this->gambits);
-
         foreach ($bits as $k => $bit) {
-            foreach ($gambits as $gambit) {
+            foreach ($this->gambits as $gambit) {
                 if (! $gambit instanceof GambitInterface) {
                     throw new LogicException(
                         'Gambit '.get_class($gambit).' does not implement '.GambitInterface::class
@@ -121,18 +121,16 @@ class GambitManager
     }
 
     /**
-     * @param AbstractSearch $search
+     * @param SearchState $search
      * @param string $query
      */
-    protected function applyFulltext(AbstractSearch $search, $query)
+    protected function applyFulltext(SearchState $search, $query)
     {
         if (! $this->fulltextGambit) {
             return;
         }
 
-        $gambit = $this->container->make($this->fulltextGambit);
-
-        $search->addActiveGambit($gambit);
-        $gambit->apply($search, $query);
+        $search->addActiveGambit($this->fulltextGambit);
+        $this->fulltextGambit->apply($search, $query);
     }
 }

@@ -50,16 +50,12 @@ class JsCompiler extends RevisionCompiler
         }
 
         // Add a comment to the end of our file to point to the sourcemap
-        // we just constructed. We will then write the JS file, save the
-        // map to a temporary location, and then move it to the asset dir.
+        // we just constructed. We will then store the JS file and the map
+        // in our asset directory.
         $output[] = '//# sourceMappingURL='.$this->assetsDir->url($mapFile);
 
         $this->assetsDir->put($file, implode("\n", $output));
-
-        $mapTemp = @tempnam(storage_path('tmp'), $mapFile);
-        $map->save($mapTemp);
-        $this->assetsDir->put($mapFile, file_get_contents($mapTemp));
-        @unlink($mapTemp);
+        $this->assetsDir->put($mapFile, json_encode($map, JSON_UNESCAPED_SLASHES));
 
         return true;
     }
@@ -69,7 +65,7 @@ class JsCompiler extends RevisionCompiler
      */
     protected function format(string $string): string
     {
-        return preg_replace('~//# sourceMappingURL.*$~m', '', $string).";\n";
+        return preg_replace('~//# sourceMappingURL.*$~m', '', $string)."\n";
     }
 
     /**

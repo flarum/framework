@@ -5,9 +5,9 @@ import Button from '../../common/components/Button';
  * controls.
  */
 export default class ComposerButton extends Button {
-  static initProps(props) {
-    super.initProps(props);
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    props.className = props.className || 'Button Button--icon Button--link';
+    attrs.className = attrs.className || 'Button Button--icon Button--link';
   }
 }

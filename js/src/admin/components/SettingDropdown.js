@@ -3,23 +3,30 @@ import Button from '../../common/components/Button';
 import saveSettings from '../utils/saveSettings';
 
 export default class SettingDropdown extends SelectDropdown {
-  static initProps(props) {
-    super.initProps(props);
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    props.className = 'SettingDropdown';
-    props.buttonClassName = 'Button Button--text';
-    props.caretIcon = 'fas fa-caret-down';
-    props.defaultLabel = 'Custom';
+    attrs.className = 'SettingDropdown';
+    attrs.buttonClassName = 'Button Button--text';
+    attrs.caretIcon = 'fas fa-caret-down';
+    attrs.defaultLabel = 'Custom';
+  }
 
-    props.children = props.options.map(({value, label}) => {
-      const active = app.data.settings[props.key] === value;
+  view(vnode) {
+    return super.view({
+      ...vnode,
+      children: this.attrs.options.map(({ value, label }) => {
+        const active = app.data.settings[this.attrs.key] === value;
 
-      return Button.component({
-        children: label,
-        icon: active ? 'fas fa-check' : true,
-        onclick: saveSettings.bind(this, {[props.key]: value}),
-        active
-      });
+        return Button.component(
+          {
+            icon: active ? 'fas fa-check' : true,
+            onclick: saveSettings.bind(this, { [this.attrs.key]: value }),
+            active,
+          },
+          label
+        );
+      }),
     });
   }
 }

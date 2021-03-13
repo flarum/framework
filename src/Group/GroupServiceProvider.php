@@ -10,6 +10,7 @@
 namespace Flarum\Group;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Group\Access\ScopeGroupVisibility;
 
 class GroupServiceProvider extends AbstractServiceProvider
 {
@@ -18,7 +19,6 @@ class GroupServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $events = $this->app->make('events');
-        $events->subscribe(GroupPolicy::class);
+        Group::registerVisibilityScoper(new ScopeGroupVisibility(), 'view');
     }
 }

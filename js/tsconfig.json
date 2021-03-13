@@ -1,0 +1,21 @@
+{
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "files": ["shims.d.ts"],
+  "compilerOptions": {
+    "allowUmdGlobalAccess": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitReturns": false,
+    "noImplicitAny": false,
+    "module": "es2015",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "target": "es6",
+    "jsx": "preserve",
+    "lib": ["es2015", "es2017", "dom"],
+    "allowSyntheticDefaultImports": true
+  }
+}

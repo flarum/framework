@@ -10,40 +10,24 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Discussion\Discussion;
-use Flarum\User\Gate;
 
 class DiscussionSerializer extends BasicDiscussionSerializer
 {
-    /**
-     * @var \Flarum\User\Gate
-     */
-    protected $gate;
-
-    /**
-     * @param \Flarum\User\Gate $gate
-     */
-    public function __construct(Gate $gate)
-    {
-        $this->gate = $gate;
-    }
-
     /**
      * {@inheritdoc}
      */
     protected function getDefaultAttributes($discussion)
     {
-        $gate = $this->gate->forUser($this->actor);
-
         $attributes = parent::getDefaultAttributes($discussion) + [
             'commentCount'      => (int) $discussion->comment_count,
             'participantCount'  => (int) $discussion->participant_count,
             'createdAt'         => $this->formatDate($discussion->created_at),
             'lastPostedAt'      => $this->formatDate($discussion->last_posted_at),
             'lastPostNumber'    => (int) $discussion->last_post_number,
-            'canReply'          => $gate->allows('reply', $discussion),
-            'canRename'         => $gate->allows('rename', $discussion),
-            'canDelete'         => $gate->allows('delete', $discussion),
-            'canHide'           => $gate->allows('hide', $discussion)
+            'canReply'          => $this->actor->can('reply', $discussion),
+            'canRename'         => $this->actor->can('rename', $discussion),
+            'canDelete'         => $this->actor->can('delete', $discussion),
+            'canHide'           => $this->actor->can('hide', $discussion)
         ];
 
         if ($discussion->hidden_at) {

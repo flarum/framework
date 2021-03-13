@@ -12,7 +12,6 @@ namespace Flarum\Api\Controller;
 use Flarum\Http\UrlGenerator;
 use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\EmailToken;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Queue\Queue;
@@ -21,12 +20,10 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SendConfirmationEmailController implements RequestHandlerInterface
 {
-    use AssertPermissionTrait;
-
     /**
      * @var SettingsRepositoryInterface
      */
@@ -69,7 +66,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
         $id = Arr::get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
 
-        $this->assertRegistered($actor);
+        $actor->assertRegistered();
 
         if ($actor->id != $id || $actor->is_email_confirmed) {
             throw new PermissionDeniedException;

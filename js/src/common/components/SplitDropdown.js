@@ -7,29 +7,27 @@ import icon from '../helpers/icon';
  * is displayed as its own button prior to the toggle button.
  */
 export default class SplitDropdown extends Dropdown {
-  static initProps(props) {
-    super.initProps(props);
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    props.className += ' Dropdown--split';
-    props.menuClassName += ' Dropdown-menu--right';
+    attrs.className += ' Dropdown--split';
+    attrs.menuClassName += ' Dropdown-menu--right';
   }
 
-  getButton() {
-    // Make a copy of the props of the first child component. We will assign
-    // these props to a new button, so that it has exactly the same behaviour as
+  getButton(children) {
+    // Make a copy of the attrs of the first child component. We will assign
+    // these attrs to a new button, so that it has exactly the same behaviour as
     // the first child.
-    const firstChild = this.getFirstChild();
-    const buttonProps = Object.assign({}, firstChild.props);
-    buttonProps.className = (buttonProps.className || '') + ' SplitDropdown-button Button ' + this.props.buttonClassName;
+    const firstChild = this.getFirstChild(children);
+    const buttonAttrs = Object.assign({}, firstChild.attrs);
+    buttonAttrs.className = (buttonAttrs.className || '') + ' SplitDropdown-button Button ' + this.attrs.buttonClassName;
 
     return [
-      Button.component(buttonProps),
-      <button
-        className={'Dropdown-toggle Button Button--icon ' + this.props.buttonClassName}
-        data-toggle="dropdown">
-        {icon(this.props.icon, {className: 'Button-icon'})}
-        {icon('fas fa-caret-down', {className: 'Button-caret'})}
-      </button>
+      Button.component(buttonAttrs, firstChild.children),
+      <button className={'Dropdown-toggle Button Button--icon ' + this.attrs.buttonClassName} data-toggle="dropdown">
+        {icon(this.attrs.icon, { className: 'Button-icon' })}
+        {icon('fas fa-caret-down', { className: 'Button-caret' })}
+      </button>,
     ];
   }
 
@@ -40,8 +38,8 @@ export default class SplitDropdown extends Dropdown {
    * @return {*}
    * @protected
    */
-  getFirstChild() {
-    let firstChild = this.props.children;
+  getFirstChild(children) {
+    let firstChild = children;
 
     while (firstChild instanceof Array) firstChild = firstChild[0];
 

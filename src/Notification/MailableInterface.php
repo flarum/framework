@@ -9,6 +9,8 @@
 
 namespace Flarum\Notification;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 interface MailableInterface
 {
     /**
@@ -21,7 +23,11 @@ interface MailableInterface
     /**
      * Get the subject line for a notification email.
      *
+     * @param TranslatorInterface $translator
+     *
      * @return string
      */
-    public function getEmailSubject();
+    // Uncomment beta 17. Commented as temporary BC layer since Symfony changed
+    // the namespace of their translator interface
+    // public function getEmailSubject(TranslatorInterface $translator);
 }

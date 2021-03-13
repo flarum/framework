@@ -1,33 +1,31 @@
 .DashboardPage {
-  background: @control-bg;
+  background: @body-bg;
   color: @control-color;
   min-height: 100vh;
-
-  @media @desktop-up {
-    .container {
-      padding: 30px;
-      margin: 0;
-    }
-  }
+  padding-bottom: 30px;
 }
 
 .Widget {
-  background: @body-bg;
+  background: @control-bg;
   color: @text-color;
   border-radius: @border-radius;
   padding: 20px;
   margin-bottom: 20px;
+
+  .Button {
+    .Button--color(@control-color, @body-bg)
+  }
 }
 
 .StatusWidget {
   color: @muted-color;
 
-  > ul {
+  >ul {
     margin: 0;
     padding: 0;
     list-style-type: none;
 
-    > li {
+    >li {
       display: inline-block;
       margin-right: 30px;
       vertical-align: middle;
@@ -38,6 +36,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       &.item-tools {
         float: right;
         margin-right: 0;

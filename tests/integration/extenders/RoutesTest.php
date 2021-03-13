@@ -10,7 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\TestCase;
 use Laminas\Diactoros\Response\TextResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -45,6 +45,41 @@ class RoutesTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('Hello Flarumites!', $response->getBody());
+    }
+
+    /**
+     * @test
+     */
+    public function existing_route_can_be_removed()
+    {
+        $this->extend(
+            (new Extend\Routes('api'))
+                ->remove('GET', 'forum.show')
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api')
+        );
+
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_route_can_override_existing_route_if_removed()
+    {
+        $this->extend(
+            (new Extend\Routes('api'))
+                ->remove('GET', 'forum.show')
+                ->get('/', 'forum.show', CustomRoute::class)
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api')
+        );
+
         $this->assertEquals('Hello Flarumites!', $response->getBody());
     }
 }

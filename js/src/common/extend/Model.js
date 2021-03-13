@@ -1,4 +1,4 @@
-export default class Routes {
+export default class Model {
   type;
   attributes = [];
   hasOnes = [];
@@ -31,11 +31,11 @@ export default class Routes {
     if (this.model) {
       app.store.models[this.type] = this.model;
     }
-    
+
     const model = app.store.models[this.type];
 
-    this.attributes.forEach(name => model.prototype[name] = model.attribute(name));
-    this.hasOnes.forEach(name => model.prototype[name] = model.hasOne(name));
-    this.hasManys.forEach(name => model.prototype[name] = model.hasMany(name));
+    this.attributes.forEach((name) => (model.prototype[name] = model.attribute(name)));
+    this.hasOnes.forEach((name) => (model.prototype[name] = model.hasOne(name)));
+    this.hasManys.forEach((name) => (model.prototype[name] = model.hasMany(name)));
   }
 }

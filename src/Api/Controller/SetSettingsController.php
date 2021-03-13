@@ -11,7 +11,6 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Settings\Event;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -20,8 +19,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SetSettingsController implements RequestHandlerInterface
 {
-    use AssertPermissionTrait;
-
     /**
      * @var \Flarum\Settings\SettingsRepositoryInterface
      */
@@ -46,7 +43,7 @@ class SetSettingsController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $request->getAttribute('actor')->assertAdmin();
 
         $settings = $request->getParsedBody();
 

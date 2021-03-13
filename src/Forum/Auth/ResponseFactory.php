@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum\Auth;
 
+use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\User\LoginProvider;
 use Flarum\User\RegistrationToken;
@@ -75,6 +76,8 @@ class ResponseFactory
     {
         $response = $this->makeResponse(['loggedIn' => true]);
 
-        return $this->rememberer->rememberUser($response, $user->id);
+        $token = RememberAccessToken::generate($user->id);
+
+        return $this->rememberer->remember($response, $token);
     }
 }

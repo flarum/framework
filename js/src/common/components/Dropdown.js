@@ -6,7 +6,7 @@ import listItems from '../helpers/listItems';
  * The `Dropdown` component displays a button which, when clicked, shows a
  * dropdown menu beneath it.
  *
- * ### Props
+ * ### Attrs
  *
  * - `buttonClassName` A class name to apply to the dropdown toggle button.
  * - `menuClassName` A class name to apply to the dropdown menu.
@@ -19,33 +19,33 @@ import listItems from '../helpers/listItems';
  * The children will be displayed as a list inside of the dropdown menu.
  */
 export default class Dropdown extends Component {
-  static initProps(props) {
-    super.initProps(props);
-
-    props.className = props.className || '';
-    props.buttonClassName = props.buttonClassName || '';
-    props.menuClassName = props.menuClassName || '';
-    props.label = props.label || '';
-    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fas fa-caret-down';
+  static initAttrs(attrs) {
+    attrs.className = attrs.className || '';
+    attrs.buttonClassName = attrs.buttonClassName || '';
+    attrs.menuClassName = attrs.menuClassName || '';
+    attrs.label = attrs.label || '';
+    attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-caret-down';
   }
 
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.showing = false;
   }
 
-  view() {
-    const items = this.props.children ? listItems(this.props.children) : [];
+  view(vnode) {
+    const items = vnode.children ? listItems(vnode.children) : [];
 
     return (
-      <div className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
-        {this.getButton()}
+      <div className={'ButtonGroup Dropdown dropdown ' + this.attrs.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
+        {this.getButton(vnode.children)}
         {this.getMenu(items)}
       </div>
     );
   }
 
-  config(isInitialized) {
-    if (isInitialized) return;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     // When opening the dropdown menu, work out if the menu goes beyond the
     // bottom of the viewport. If it does, we will apply class to make it show
@@ -53,8 +53,8 @@ export default class Dropdown extends Component {
     this.$().on('shown.bs.dropdown', () => {
       this.showing = true;
 
-      if (this.props.onshow) {
-        this.props.onshow();
+      if (this.attrs.onshow) {
+        this.attrs.onshow();
       }
 
       m.redraw();
@@ -64,26 +64,20 @@ export default class Dropdown extends Component {
 
       $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
-      $menu.toggleClass(
-        'Dropdown-menu--top',
-        $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height()
-      );
+      $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
 
       if ($menu.offset().top < 0) {
         $menu.removeClass('Dropdown-menu--top');
       }
 
-      $menu.toggleClass(
-        'Dropdown-menu--right',
-        isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width()
-      );
+      $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
     });
 
     this.$().on('hidden.bs.dropdown', () => {
       this.showing = false;
 
-      if (this.props.onhide) {
-        this.props.onhide();
+      if (this.attrs.onhide) {
+        this.attrs.onhide();
       }
 
       m.redraw();
@@ -96,13 +90,10 @@ export default class Dropdown extends Component {
    * @return {*}
    * @protected
    */
-  getButton() {
+  getButton(children) {
     return (
-      <button
-        className={'Dropdown-toggle ' + this.props.buttonClassName}
-        data-toggle="dropdown"
-        onclick={this.props.onclick}>
-        {this.getButtonContent()}
+      <button className={'Dropdown-toggle ' + this.attrs.buttonClassName} data-toggle="dropdown" onclick={this.attrs.onclick}>
+        {this.getButtonContent(children)}
       </button>
     );
   }
@@ -113,19 +104,15 @@ export default class Dropdown extends Component {
    * @return {*}
    * @protected
    */
-  getButtonContent() {
+  getButtonContent(children) {
     return [
-      this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}) : '',
-      <span className="Button-label">{this.props.label}</span>,
-      this.props.caretIcon ? icon(this.props.caretIcon, {className: 'Button-caret'}) : ''
+      this.attrs.icon ? icon(this.attrs.icon, { className: 'Button-icon' }) : '',
+      <span className="Button-label">{this.attrs.label}</span>,
+      this.attrs.caretIcon ? icon(this.attrs.caretIcon, { className: 'Button-caret' }) : '',
     ];
   }
 
   getMenu(items) {
-    return (
-      <ul className={'Dropdown-menu dropdown-menu ' + this.props.menuClassName}>
-        {items}
-      </ul>
-    );
+    return <ul className={'Dropdown-menu dropdown-menu ' + this.attrs.menuClassName}>{items}</ul>;
   }
 }

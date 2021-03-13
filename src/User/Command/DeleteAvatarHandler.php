@@ -10,7 +10,6 @@
 namespace Flarum\User\Command;
 
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\AvatarUploader;
 use Flarum\User\Event\AvatarDeleting;
 use Flarum\User\UserRepository;
@@ -19,7 +18,6 @@ use Illuminate\Contracts\Events\Dispatcher;
 class DeleteAvatarHandler
 {
     use DispatchEventsTrait;
-    use AssertPermissionTrait;
 
     /**
      * @var UserRepository
@@ -55,7 +53,7 @@ class DeleteAvatarHandler
         $user = $this->users->findOrFail($command->userId);
 
         if ($actor->id !== $user->id) {
-            $this->assertCan($actor, 'edit', $user);
+            $actor->assertCan('edit', $user);
         }
 
         $this->uploader->remove($user);

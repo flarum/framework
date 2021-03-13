@@ -13,6 +13,7 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * A view which renders a HTML skeleton for Flarum's frontend app.
@@ -132,13 +133,19 @@ class Document implements Renderable
     protected $forumApiDocument;
 
     /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
      * @param Factory $view
      * @param array $forumApiDocument
      */
-    public function __construct(Factory $view, array $forumApiDocument)
+    public function __construct(Factory $view, array $forumApiDocument, Request $request)
     {
         $this->view = $view;
         $this->forumApiDocument = $forumApiDocument;
+        $this->request = $request;
     }
 
     /**
@@ -173,7 +180,9 @@ class Document implements Renderable
      */
     protected function makeTitle(): string
     {
-        return ($this->title ? $this->title.' - ' : '').Arr::get($this->forumApiDocument, 'data.attributes.title');
+        $onHomePage = rtrim($this->request->getUri()->getPath(), '/') === '';
+
+        return ($this->title && ! $onHomePage ? $this->title.' - ' : '').Arr::get($this->forumApiDocument, 'data.attributes.title');
     }
 
     /**

@@ -1,20 +1,25 @@
 /**
- * The `SubtreeRetainer` class represents a Mithril virtual DOM subtree. It
- * keeps track of a number of pieces of data, allowing the subtree to be
- * retained if none of them have changed.
+ * The `SubtreeRetainer` class keeps track of a number of pieces of data,
+ * comparing the values of these pieces at every iteration.
+ *
+ * This is useful for preventing redraws to relatively static (or huge)
+ * components whose VDOM only depends on very few values, when none of them
+ * have changed.
  *
  * @example
- * // constructor
+ * // Check two callbacks for changes on each update
  * this.subtree = new SubtreeRetainer(
- *   () => this.props.post.freshness,
+ *   () => this.attrs.post.freshness,
  *   () => this.showing
  * );
- * this.subtree.check(() => this.props.user.freshness);
  *
- * // view
- * this.subtree.retain() || 'expensive expression'
+ * // Add more callbacks to be checked for updates
+ * this.subtree.check(() => this.attrs.user.freshness);
  *
- * @see https://lhorie.github.io/mithril/mithril.html#persisting-dom-elements-across-route-changes
+ * // In a component's onbeforeupdate() method:
+ * return this.subtree.needsRebuild()
+ *
+ * @see https://mithril.js.org/lifecycle-methods.html#onbeforeupdate
  */
 export default class SubtreeRetainer {
   /**
@@ -23,16 +28,19 @@ export default class SubtreeRetainer {
   constructor(...callbacks) {
     this.callbacks = callbacks;
     this.data = {};
+    // Build the initial data, so it is available when calling
+    // needsRebuild from the onbeforeupdate hook.
+    this.needsRebuild();
   }
 
   /**
-   * Return a virtual DOM directive that will retain a subtree if no data has
-   * changed since the last check.
+   * Return whether any data has changed since the last check.
+   * If so, Mithril needs to re-diff the vnode and its children.
    *
-   * @return {Object|false}
+   * @return {boolean}
    * @public
    */
-  retain() {
+  needsRebuild() {
     let needsRebuild = false;
 
     this.callbacks.forEach((callback, i) => {
@@ -44,7 +52,7 @@ export default class SubtreeRetainer {
       }
     });
 
-    return needsRebuild ? false : {subtree: 'retain'};
+    return needsRebuild;
   }
 
   /**
@@ -55,6 +63,8 @@ export default class SubtreeRetainer {
    */
   check(...callbacks) {
     this.callbacks = this.callbacks.concat(callbacks);
+    // Update the data cache when new checks are added.
+    this.needsRebuild();
   }
 
   /**

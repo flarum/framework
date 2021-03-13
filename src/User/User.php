@@ -14,8 +14,6 @@ use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
-use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Event\PrepareUserGroups;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
@@ -23,16 +21,18 @@ use Flarum\Http\AccessToken;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
+use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\CheckingPassword;
 use Flarum\User\Event\Deleted;
 use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\EmailChangeRequested;
-use Flarum\User\Event\GetDisplayName;
 use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
+use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Arr;
@@ -83,6 +83,12 @@ class User extends AbstractModel
     protected $session;
 
     /**
+     * An array of callables, through each of which the user's list of groups is passed
+     * before being returned.
+     */
+    protected static $groupProcessors = [];
+
+    /**
      * An array of registered user preferences. Each preference is defined with
      * a key, and its value is an array containing the following keys:.
      *
@@ -92,6 +98,13 @@ class User extends AbstractModel
      * @var array
      */
     protected static $preferences = [];
+
+    /**
+     * A driver for getting display names.
+     *
+     * @var DriverInterface
+     */
+    protected static $displayNameDriver;
 
     /**
      * The hasher with which to hash passwords.
@@ -106,6 +119,13 @@ class User extends AbstractModel
      * @var Gate
      */
     protected static $gate;
+
+    /**
+     * Callbacks to check passwords.
+     *
+     * @var array
+     */
+    protected static $passwordCheckers;
 
     /**
      * Boot the model.
@@ -128,10 +148,6 @@ class User extends AbstractModel
 
             Notification::whereSubject($user)->delete();
         });
-
-        static::$dispatcher->dispatch(
-            new ConfigureUserPreferences
-        );
     }
 
     /**
@@ -157,19 +173,26 @@ class User extends AbstractModel
     }
 
     /**
-     * @return Gate
-     */
-    public static function getGate()
-    {
-        return static::$gate;
-    }
-
-    /**
      * @param Gate $gate
      */
     public static function setGate($gate)
     {
         static::$gate = $gate;
+    }
+
+    /**
+     * Set the display name driver.
+     *
+     * @param DriverInterface $driver
+     */
+    public static function setDisplayNameDriver(DriverInterface $driver)
+    {
+        static::$displayNameDriver = $driver;
+    }
+
+    public static function setPasswordCheckers(array $checkers)
+    {
+        static::$passwordCheckers = $checkers;
     }
 
     /**
@@ -309,7 +332,7 @@ class User extends AbstractModel
      */
     public function getDisplayNameAttribute()
     {
-        return static::$dispatcher->until(new GetDisplayName($this)) ?: $this->username;
+        return static::$displayNameDriver->displayName($this);
     }
 
     /**
@@ -322,11 +345,17 @@ class User extends AbstractModel
     {
         $valid = static::$dispatcher->until(new CheckingPassword($this, $password));
 
-        if ($valid !== null) {
-            return $valid;
+        foreach (static::$passwordCheckers as $checker) {
+            $result = $checker($this, $password);
+
+            if ($result === false) {
+                return false;
+            } elseif ($result === true) {
+                $valid = true;
+            }
         }
 
-        return static::$hasher->check($password, $this->password);
+        return $valid || false;
     }
 
     /**
@@ -567,6 +596,60 @@ class User extends AbstractModel
     }
 
     /**
+     * Ensure the current user is allowed to do something.
+     *
+     * If the condition is not met, an exception will be thrown that signals the
+     * lack of permissions. This is about *authorization*, i.e. retrying such a
+     * request / operation without a change in permissions (or using another
+     * user account) is pointless.
+     *
+     * @param bool $condition
+     * @throws PermissionDeniedException
+     */
+    public function assertPermission($condition)
+    {
+        if (! $condition) {
+            throw new PermissionDeniedException;
+        }
+    }
+
+    /**
+     * Ensure the given actor is authenticated.
+     *
+     * This will throw an exception for guest users, signaling that
+     * *authorization* failed. Thus, they could retry the operation after
+     * logging in (or using other means of authentication).
+     *
+     * @throws NotAuthenticatedException
+     */
+    public function assertRegistered()
+    {
+        if ($this->isGuest()) {
+            throw new NotAuthenticatedException;
+        }
+    }
+
+    /**
+     * @param string $ability
+     * @param mixed $arguments
+     * @throws PermissionDeniedException
+     */
+    public function assertCan($ability, $arguments = null)
+    {
+        $this->assertPermission(
+            $this->can($ability, $arguments)
+        );
+    }
+
+    /**
+     * @throws PermissionDeniedException
+     */
+    public function assertAdmin()
+    {
+        $this->assertCan($this, 'administrate');
+    }
+
+    /**
      * Define the relationship with the user's posts.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -604,6 +687,11 @@ class User extends AbstractModel
     public function groups()
     {
         return $this->belongsToMany(Group::class);
+    }
+
+    public function visibleGroups()
+    {
+        return $this->belongsToMany(Group::class)->where('is_hidden', false);
     }
 
     /**
@@ -644,7 +732,9 @@ class User extends AbstractModel
             $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->pluck('id')->all());
         }
 
-        event(new PrepareUserGroups($this, $groupIds));
+        foreach (static::$groupProcessors as $processor) {
+            $groupIds = $processor($this, $groupIds);
+        }
 
         return Permission::whereIn('group_id', $groupIds);
     }
@@ -682,9 +772,9 @@ class User extends AbstractModel
      * @param array|mixed $arguments
      * @return bool
      */
-    public function can($ability, $arguments = [])
+    public function can($ability, $arguments = null)
     {
-        return static::$gate->forUser($this)->allows($ability, $arguments);
+        return static::$gate->allows($this, $ability, $arguments);
     }
 
     /**
@@ -692,7 +782,7 @@ class User extends AbstractModel
      * @param array|mixed $arguments
      * @return bool
      */
-    public function cannot($ability, $arguments = [])
+    public function cannot($ability, $arguments = null)
     {
         return ! $this->can($ability, $arguments);
     }
@@ -730,9 +820,20 @@ class User extends AbstractModel
      * @param callable $transformer
      * @param mixed $default
      */
-    public static function addPreference($key, callable $transformer = null, $default = null)
+    public static function registerPreference($key, callable $transformer = null, $default = null)
     {
         static::$preferences[$key] = compact('transformer', 'default');
+    }
+
+    /**
+     * Register a callback that processes a user's list of groups.
+     *
+     * @param callable $callback
+     * @return array $groupIds
+     */
+    public static function addGroupProcessor($callback)
+    {
+        static::$groupProcessors[] = $callback;
     }
 
     /**

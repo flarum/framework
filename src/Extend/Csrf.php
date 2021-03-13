@@ -14,11 +14,16 @@ use Illuminate\Contracts\Container\Container;
 
 class Csrf implements ExtenderInterface
 {
-    protected $csrfExemptPaths = [];
+    protected $csrfExemptRoutes = [];
 
-    public function exemptPath(string $path)
+    /**
+     * Exempt a named route from CSRF checks.
+     *
+     * @param string $routeName
+     */
+    public function exemptRoute(string $routeName)
     {
-        $this->csrfExemptPaths[] = $path;
+        $this->csrfExemptRoutes[] = $routeName;
 
         return $this;
     }
@@ -26,7 +31,7 @@ class Csrf implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend('flarum.http.csrfExemptPaths', function ($existingExemptPaths) {
-            return array_merge($existingExemptPaths, $this->csrfExemptPaths);
+            return array_merge($existingExemptPaths, $this->csrfExemptRoutes);
         });
     }
 }

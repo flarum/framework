@@ -13,10 +13,11 @@ import listItems from '../../common/helpers/listItems';
  * the context of their user profile.
  */
 export default class SettingsPage extends UserPage {
-  init() {
-    super.init();
+  oninit(vnode) {
+    super.oninit(vnode);
 
     this.show(app.session.user);
+
     app.setTitle(app.translator.trans('core.forum.settings.title'));
   }
 
@@ -36,29 +37,14 @@ export default class SettingsPage extends UserPage {
   settingsItems() {
     const items = new ItemList();
 
-    items.add('account',
-      FieldSet.component({
-        label: app.translator.trans('core.forum.settings.account_heading'),
-        className: 'Settings-account',
-        children: this.accountItems().toArray()
-      })
-    );
-
-    items.add('notifications',
-      FieldSet.component({
-        label: app.translator.trans('core.forum.settings.notifications_heading'),
-        className: 'Settings-notifications',
-        children: this.notificationsItems().toArray()
-      })
-    );
-
-    items.add('privacy',
-      FieldSet.component({
-        label: app.translator.trans('core.forum.settings.privacy_heading'),
-        className: 'Settings-privacy',
-        children: this.privacyItems().toArray()
-      })
-    );
+    ['account', 'notifications', 'privacy'].forEach((section) => {
+      items.add(
+        section,
+        <FieldSet className={`Settings-${section}`} label={app.translator.trans(`core.forum.settings.${section}_heading`)}>
+          {this[`${section}Items`]().toArray()}
+        </FieldSet>
+      );
+    });
 
     return items;
   }
@@ -71,20 +57,18 @@ export default class SettingsPage extends UserPage {
   accountItems() {
     const items = new ItemList();
 
-    items.add('changePassword',
-      Button.component({
-        children: app.translator.trans('core.forum.settings.change_password_button'),
-        className: 'Button',
-        onclick: () => app.modal.show(new ChangePasswordModal())
-      })
+    items.add(
+      'changePassword',
+      <Button className="Button" onclick={() => app.modal.show(ChangePasswordModal)}>
+        {app.translator.trans('core.forum.settings.change_password_button')}
+      </Button>
     );
 
-    items.add('changeEmail',
-      Button.component({
-        children: app.translator.trans('core.forum.settings.change_email_button'),
-        className: 'Button',
-        onclick: () => app.modal.show(new ChangeEmailModal())
-      })
+    items.add(
+      'changeEmail',
+      <Button className="Button" onclick={() => app.modal.show(ChangeEmailModal)}>
+        {app.translator.trans('core.forum.settings.change_email_button')}
+      </Button>
     );
 
     return items;
@@ -98,27 +82,9 @@ export default class SettingsPage extends UserPage {
   notificationsItems() {
     const items = new ItemList();
 
-    items.add('notificationGrid', NotificationGrid.component({user: this.user}));
+    items.add('notificationGrid', <NotificationGrid user={this.user} />);
 
     return items;
-  }
-
-  /**
-   * Generate a callback that will save a value to the given preference.
-   *
-   * @param {String} key
-   * @return {Function}
-   */
-  preferenceSaver(key) {
-    return (value, component) => {
-      if (component) component.loading = true;
-      m.redraw();
-
-      this.user.savePreferences({[key]: value}).then(() => {
-        if (component) component.loading = false;
-        m.redraw();
-      });
-    };
   }
 
   /**
@@ -129,15 +95,22 @@ export default class SettingsPage extends UserPage {
   privacyItems() {
     const items = new ItemList();
 
-    items.add('discloseOnline',
-      Switch.component({
-        children: app.translator.trans('core.forum.settings.privacy_disclose_online_label'),
-        state: this.user.preferences().discloseOnline,
-        onchange: (value, component) => {
-          this.user.pushAttributes({lastSeenAt: null});
-          this.preferenceSaver('discloseOnline')(value, component);
-        }
-      })
+    items.add(
+      'discloseOnline',
+      <Switch
+        state={this.user.preferences().discloseOnline}
+        onchange={(value) => {
+          this.discloseOnlineLoading = true;
+
+          this.user.savePreferences({ discloseOnline: value }).then(() => {
+            this.discloseOnlineLoading = false;
+            m.redraw();
+          });
+        }}
+        loading={this.discloseOnlineLoading}
+      >
+        {app.translator.trans('core.forum.settings.privacy_disclose_online_label')}
+      </Switch>
     );
 
     return items;

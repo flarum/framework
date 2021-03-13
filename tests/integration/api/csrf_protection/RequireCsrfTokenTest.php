@@ -9,30 +9,21 @@
 
 namespace Flarum\Tests\integration\api\csrf_protection;
 
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 
 class RequireCsrfTokenTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
-                $this->adminUser(),
-            ],
-            'groups' => [
-                $this->adminGroup(),
-            ],
-            'group_user' => [
-                ['user_id' => 1, 'group_id' => 1],
-            ],
-            'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 3],
-            ],
             'api_keys' => [
                 ['user_id' => 1, 'key' => 'superadmin'],
             ],
@@ -202,7 +193,7 @@ class RequireCsrfTokenTest extends TestCase
     public function access_token_does_not_need_csrf_token()
     {
         $this->database()->table('access_tokens')->insert(
-            ['token' => 'myaccesstoken', 'user_id' => 1]
+            ['token' => 'myaccesstoken', 'user_id' => 1, 'type' => 'developer']
         );
 
         $response = $this->send(

@@ -12,10 +12,21 @@ namespace Flarum\Locale;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as BaseTranslator;
+use Symfony\Component\Translation\TranslatorInterface;  // Defined locally as BC layer
 
-class Translator extends BaseTranslator implements TranslatorContract
+class Translator extends BaseTranslator implements TranslatorContract, TranslatorInterface
 {
     const REFERENCE_REGEX = '/^=>\s*([a-z0-9_\-\.]+)$/i';
+
+    public function get($key, array $replace = [], $locale = null)
+    {
+        return $this->trans($key, $replace, null, $locale);
+    }
+
+    public function choice($key, $number, array $replace = [], $locale = null)
+    {
+        return $this->transChoice($key, $number, $replace, nil, $locale);
+    }
 
     /**
      * {@inheritdoc}
@@ -73,5 +84,10 @@ class Translator extends BaseTranslator implements TranslatorContract
         }
 
         return $translation;
+    }
+
+    public function setLocale($locale)
+    {
+        parent::setLocale($locale);
     }
 }

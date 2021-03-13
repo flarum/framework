@@ -11,15 +11,12 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\MailSettingsSerializer;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Validation\Factory;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ShowMailSettingsController extends AbstractShowController
 {
-    use AssertPermissionTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -30,7 +27,7 @@ class ShowMailSettingsController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $request->getAttribute('actor')->assertAdmin();
 
         $drivers = array_map(function ($driver) {
             return self::$container->make($driver);

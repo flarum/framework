@@ -1,16 +1,16 @@
 import Badge from './Badge';
 
 export default class GroupBadge extends Badge {
-  static initProps(props) {
-    super.initProps(props);
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    if (props.group) {
-      props.icon = props.group.icon();
-      props.style = {backgroundColor: props.group.color()};
-      props.label = typeof props.label === 'undefined' ? props.group.nameSingular() : props.label;
-      props.type = 'group--' + props.group.id();
+    if (attrs.group) {
+      attrs.icon = attrs.group.icon();
+      attrs.style = { backgroundColor: attrs.group.color() };
+      attrs.label = typeof attrs.label === 'undefined' ? attrs.group.nameSingular() : attrs.label;
+      attrs.type = 'group--' + attrs.group.id();
 
-      delete props.group;
+      delete attrs.group;
     }
   }
 }

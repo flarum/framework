@@ -14,7 +14,7 @@ use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Contracts\Translation\Translator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccountActivationMailer
 {
@@ -34,7 +34,7 @@ class AccountActivationMailer
     protected $url;
 
     /**
-     * @var Translator
+     * @var TranslatorInterface
      */
     protected $translator;
 
@@ -42,9 +42,9 @@ class AccountActivationMailer
      * @param \Flarum\Settings\SettingsRepositoryInterface $settings
      * @param Queue $queue
      * @param UrlGenerator $url
-     * @param Translator $translator
+     * @param TranslatorInterface $translator
      */
-    public function __construct(SettingsRepositoryInterface $settings, Queue $queue, UrlGenerator $url, Translator $translator)
+    public function __construct(SettingsRepositoryInterface $settings, Queue $queue, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->settings = $settings;
         $this->queue = $queue;

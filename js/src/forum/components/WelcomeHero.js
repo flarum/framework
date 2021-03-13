@@ -6,12 +6,14 @@ import Button from '../../common/components/Button';
  * forum.
  */
 export default class WelcomeHero extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.hidden = localStorage.getItem('welcomeHidden');
   }
 
   view() {
-    if (this.hidden) return <div/>;
+    if (this.hidden) return <div />;
 
     const slideUp = () => {
       this.$().slideUp(this.hide.bind(this));
@@ -23,7 +25,7 @@ export default class WelcomeHero extends Component {
           {Button.component({
             icon: 'fas fa-times',
             onclick: slideUp,
-            className: 'Hero-close Button Button--icon Button--link'
+            className: 'Hero-close Button Button--icon Button--link',
           })}
 
           <div className="containerNarrow">

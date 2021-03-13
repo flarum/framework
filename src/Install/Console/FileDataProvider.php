@@ -44,7 +44,7 @@ class FileDataProvider implements DataProviderInterface
 
             // Define configuration variables
             $this->debug = $configuration['debug'] ?? false;
-            $this->baseUrl = $configuration['baseUrl'] ?? 'http://flarum.local';
+            $this->baseUrl = $configuration['baseUrl'] ?? 'http://flarum.localhost';
             $this->databaseConfiguration = $configuration['databaseConfiguration'] ?? [];
             $this->adminUser = $configuration['adminUser'] ?? [];
             $this->settings = $configuration['settings'] ?? [];

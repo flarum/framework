@@ -10,13 +10,16 @@
 namespace Flarum\Tests\integration\api\authentication;
 
 use Flarum\Http\AccessToken;
-use Flarum\Tests\integration\RetrievesAuthorizedUsers;
-use Flarum\Tests\integration\TestCase;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 
 class WithTokenTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -57,7 +60,7 @@ class WithTokenTest extends TestCase
 
         // ...and an access token belonging to this user.
         $token = $data['token'];
-        $this->assertEquals(2, AccessToken::findOrFail($token)->user_id);
+        $this->assertEquals(2, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
 
     /**

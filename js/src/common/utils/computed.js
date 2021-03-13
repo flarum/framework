@@ -14,12 +14,12 @@ export default function computed(...dependentKeys) {
   const dependentValues = {};
   let computedValue;
 
-  return function() {
+  return function () {
     let recompute = false;
 
     // Read all of the dependent values. If any of them have changed since last
     // time, then we'll want to recompute our output.
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const value = typeof this[key] === 'function' ? this[key]() : this[key];
 
       if (dependentValues[key] !== value) {
@@ -29,7 +29,10 @@ export default function computed(...dependentKeys) {
     });
 
     if (recompute) {
-      computedValue = compute.apply(this, keys.map(key => dependentValues[key]));
+      computedValue = compute.apply(
+        this,
+        keys.map((key) => dependentValues[key])
+      );
     }
 
     return computedValue;

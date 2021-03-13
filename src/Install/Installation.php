@@ -9,12 +9,14 @@
 
 namespace Flarum\Install;
 
+use Flarum\Foundation\Paths;
+
 class Installation
 {
-    private $basePath;
-    private $publicPath;
-    private $storagePath;
-    private $vendorPath;
+    /**
+     * @var Paths
+     */
+    private $paths;
 
     private $configPath;
     private $debug = false;
@@ -27,6 +29,8 @@ class Installation
     /** @var AdminUser */
     private $adminUser;
 
+    private $accessToken;
+
     // A few instance variables to persist objects between steps.
     // Could also be local variables in build(), but this way
     // access in closures is easier. :)
@@ -34,12 +38,9 @@ class Installation
     /** @var \Illuminate\Database\ConnectionInterface */
     private $db;
 
-    public function __construct($basePath, $publicPath, $storagePath, $vendorPath)
+    public function __construct(Paths $paths)
     {
-        $this->basePath = $basePath;
-        $this->publicPath = $publicPath;
-        $this->storagePath = $storagePath;
-        $this->vendorPath = $vendorPath;
+        $this->paths = $paths;
     }
 
     public function configPath($path)
@@ -84,6 +85,13 @@ class Installation
         return $this;
     }
 
+    public function accessToken(string $token)
+    {
+        $this->accessToken = $token;
+
+        return $this;
+    }
+
     public function prerequisites(): Prerequisite\PrerequisiteInterface
     {
         return new Prerequisite\Composite(
@@ -98,9 +106,9 @@ class Installation
                 'tokenizer',
             ]),
             new Prerequisite\WritablePaths([
-                $this->basePath,
-                $this->getAssetPath(),
-                $this->storagePath,
+                $this->paths->base,
+                $this->getAssetPath().'/*',
+                $this->paths->storage,
             ])
         );
     }
@@ -136,15 +144,15 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\CreateAdminUser($this->db, $this->adminUser);
+            return new Steps\CreateAdminUser($this->db, $this->adminUser, $this->accessToken);
         });
 
         $pipeline->pipe(function () {
-            return new Steps\PublishAssets($this->vendorPath, $this->getAssetPath());
+            return new Steps\PublishAssets($this->paths->vendor, $this->getAssetPath());
         });
 
         $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->db, $this->vendorPath, $this->getAssetPath());
+            return new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath());
         });
 
         return $pipeline;
@@ -152,12 +160,12 @@ class Installation
 
     private function getConfigPath()
     {
-        return $this->basePath.'/'.($this->configPath ?? 'config.php');
+        return $this->paths->base.'/'.($this->configPath ?? 'config.php');
     }
 
     private function getAssetPath()
     {
-        return "$this->publicPath/assets";
+        return $this->paths->public.'/assets';
     }
 
     private function getMigrationPath()

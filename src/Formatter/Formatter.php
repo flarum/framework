@@ -9,26 +9,23 @@
 
 namespace Flarum\Formatter;
 
-use Flarum\Formatter\Event\Configuring;
-use Flarum\Formatter\Event\Parsing;
-use Flarum\Formatter\Event\Rendering;
 use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Unparser;
 
 class Formatter
 {
+    protected $configurationCallbacks = [];
+
+    protected $parsingCallbacks = [];
+
+    protected $renderingCallbacks = [];
+
     /**
      * @var Repository
      */
     protected $cache;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
 
     /**
      * @var string
@@ -37,14 +34,27 @@ class Formatter
 
     /**
      * @param Repository $cache
-     * @param Dispatcher $events
      * @param string $cacheDir
      */
-    public function __construct(Repository $cache, Dispatcher $events, $cacheDir)
+    public function __construct(Repository $cache, $cacheDir)
     {
         $this->cache = $cache;
-        $this->events = $events;
         $this->cacheDir = $cacheDir;
+    }
+
+    public function addConfigurationCallback($callback)
+    {
+        $this->configurationCallbacks[] = $callback;
+    }
+
+    public function addParsingCallback($callback)
+    {
+        $this->parsingCallbacks[] = $callback;
+    }
+
+    public function addRenderingCallback($callback)
+    {
+        $this->renderingCallbacks[] = $callback;
     }
 
     /**
@@ -58,7 +68,9 @@ class Formatter
     {
         $parser = $this->getParser($context);
 
-        $this->events->dispatch(new Parsing($parser, $context, $text));
+        foreach ($this->parsingCallbacks as $callback) {
+            $text = $callback($parser, $context, $text);
+        }
 
         return $parser->parse($text);
     }
@@ -75,7 +87,9 @@ class Formatter
     {
         $renderer = $this->getRenderer();
 
-        $this->events->dispatch(new Rendering($renderer, $context, $xml, $request));
+        foreach ($this->renderingCallbacks as $callback) {
+            $xml = $callback($renderer, $context, $xml, $request);
+        }
 
         return $renderer->render($xml);
     }
@@ -122,7 +136,9 @@ class Formatter
         $configurator->Autolink;
         $configurator->tags->onDuplicate('replace');
 
-        $this->events->dispatch(new Configuring($configurator));
+        foreach ($this->configurationCallbacks as $callback) {
+            $callback($configurator);
+        }
 
         $this->configureExternalLinks($configurator);
 

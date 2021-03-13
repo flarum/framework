@@ -8,12 +8,11 @@
             <div id="header-navigation" class="Header-navigation"></div>
             <div class="container">
                 <h1 class="Header-title">
-                    <a href="{{ array_get($forum, 'baseUrl') }}">
-                        <?php $title = array_get($forum, 'title'); ?>
-                        @if ($logo = array_get($forum, 'logoUrl'))
-                            <img src="{{ $logo }}" alt="{{ $title }}" class="Header-logo">
+                    <a href="{{ $forum['baseUrl'] }}">
+                        @if ($forum['logoUrl'])
+                            <img src="{{ $forum['logoUrl'] }}" alt="{{ $forum['title'] }}" class="Header-logo">
                         @else
-                            {{ $title }}
+                            {{ $forum['title'] }}
                         @endif
                     </a>
                 </h1>

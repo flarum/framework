@@ -10,14 +10,16 @@ import ItemList from '../../common/utils/ItemList';
  * includes a controls dropdown; subclasses must implement `content` and `attrs`
  * methods.
  *
- * ### Props
+ * ### Attrs
  *
  * - `post`
  *
  * @abstract
  */
 export default class Post extends Component {
-  init() {
+  oninit(vnode) {
+    super.oninit(vnode);
+
     this.loading = false;
 
     /**
@@ -27,9 +29,9 @@ export default class Post extends Component {
      * @type {SubtreeRetainer}
      */
     this.subtree = new SubtreeRetainer(
-      () => this.props.post.freshness,
+      () => this.attrs.post.freshness,
       () => {
-        const user = this.props.post.user();
+        const user = this.attrs.post.user();
         return user && user.freshness;
       },
       () => this.controlsOpen
@@ -37,43 +39,52 @@ export default class Post extends Component {
   }
 
   view() {
-    const attrs = this.attrs();
+    const attrs = this.elementAttrs();
 
     attrs.className = this.classes(attrs.className).join(' ');
 
+    const controls = PostControls.controls(this.attrs.post, this).toArray();
+
     return (
       <article {...attrs}>
-        {this.subtree.retain() || (() => {
-          const controls = PostControls.controls(this.props.post, this).toArray();
-
-          return (
-            <div>
-              {this.content()}
-              <aside className="Post-actions">
-                <ul>
-                  {listItems(this.actionItems().toArray())}
-                  {controls.length ? <li>
-                    <Dropdown
-                      className="Post-controls"
-                      buttonClassName="Button Button--icon Button--flat"
-                      menuClassName="Dropdown-menu--right"
-                      icon="fas fa-ellipsis-h"
-                      onshow={() => this.$('.Post-actions').addClass('open')}
-                      onhide={() => this.$('.Post-actions').removeClass('open')}>
-                      {controls}
-                    </Dropdown>
-                  </li> : ''}
-                </ul>
-              </aside>
-              <footer className="Post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></footer>
-            </div>
-          );
-        })()}
+        <div>
+          {this.content()}
+          <aside className="Post-actions">
+            <ul>
+              {listItems(this.actionItems().toArray())}
+              {controls.length ? (
+                <li>
+                  <Dropdown
+                    className="Post-controls"
+                    buttonClassName="Button Button--icon Button--flat"
+                    menuClassName="Dropdown-menu--right"
+                    icon="fas fa-ellipsis-h"
+                    onshow={() => this.$('.Post-actions').addClass('open')}
+                    onhide={() => this.$('.Post-actions').removeClass('open')}
+                  >
+                    {controls}
+                  </Dropdown>
+                </li>
+              ) : (
+                ''
+              )}
+            </ul>
+          </aside>
+          <footer className="Post-footer">
+            <ul>{listItems(this.footerItems().toArray())}</ul>
+          </footer>
+        </div>
       </article>
     );
   }
 
-  config(isInitialized) {
+  onbeforeupdate(vnode) {
+    super.onbeforeupdate(vnode);
+
+    return this.subtree.needsRebuild();
+  }
+
+  onupdate() {
     const $actions = this.$('.Post-actions');
     const $controls = this.$('.Post-controls');
 
@@ -85,7 +96,7 @@ export default class Post extends Component {
    *
    * @return {Object}
    */
-  attrs() {
+  elementAttrs() {
     return {};
   }
 
@@ -107,7 +118,8 @@ export default class Post extends Component {
   classes(existing) {
     let classes = (existing || '').split(' ').concat(['Post']);
 
-    const user = this.props.post.user();
+    const user = this.attrs.post.user();
+    const discussion = this.attrs.post.discussion();
 
     if (this.loading) {
       classes.push('Post--loading');
@@ -117,8 +129,8 @@ export default class Post extends Component {
       classes.push('Post--by-actor');
     }
 
-    if (user && app.current.discussion && app.current.discussion.attribute('startUserId') == user.id()) {
-      classes.push('Post--by-start-user')
+    if (user && user === discussion.user()) {
+      classes.push('Post--by-start-user');
     }
 
     return classes;

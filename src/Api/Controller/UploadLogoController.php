@@ -9,75 +9,27 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Foundation\Application;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\AssertPermissionTrait;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use League\Flysystem\MountManager;
-use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
+use Psr\Http\Message\UploadedFileInterface;
 
-class UploadLogoController extends ShowForumController
+class UploadLogoController extends UploadImageController
 {
-    use AssertPermissionTrait;
+    protected $filePathSettingKey = 'logo_path';
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Application
-     */
-    protected $app;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Application $app)
-    {
-        $this->settings = $settings;
-        $this->app = $app;
-    }
+    protected $filenamePrefix = 'logo';
 
     /**
      * {@inheritdoc}
      */
-    public function data(ServerRequestInterface $request, Document $document)
+    protected function makeImage(UploadedFileInterface $file): Image
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $manager = new ImageManager();
 
-        $file = Arr::get($request->getUploadedFiles(), 'logo');
-
-        $tmpFile = tempnam($this->app->storagePath().'/tmp', 'logo');
-        $file->moveTo($tmpFile);
-
-        $manager = new ImageManager;
-
-        $encodedImage = $manager->make($tmpFile)->heighten(60, function ($constraint) {
+        $encodedImage = $manager->make($file->getStream())->heighten(60, function ($constraint) {
             $constraint->upsize();
         })->encode('png');
-        file_put_contents($tmpFile, $encodedImage);
 
-        $mount = new MountManager([
-            'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
-            'target' => new Filesystem(new Local($this->app->publicPath().'/assets')),
-        ]);
-
-        if (($path = $this->settings->get('logo_path')) && $mount->has($file = "target://$path")) {
-            $mount->delete($file);
-        }
-
-        $uploadName = 'logo-'.Str::lower(Str::random(8)).'.png';
-
-        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
-
-        $this->settings->set('logo_path', $uploadName);
-
-        return parent::data($request, $document);
+        return $encodedImage;
     }
 }

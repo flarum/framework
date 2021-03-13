@@ -5,9 +5,9 @@ import extractText from '../../common/utils/extractText';
  * The `DiscussionRenamedPost` component displays a discussion event post
  * indicating that the discussion has been renamed.
  *
- * ### Props
+ * ### Attrs
  *
- * - All of the props for EventPost
+ * - All of the attrs for EventPost
  */
 export default class DiscussionRenamedPost extends EventPost {
   icon() {
@@ -22,13 +22,13 @@ export default class DiscussionRenamedPost extends EventPost {
   }
 
   descriptionData() {
-    const post = this.props.post;
+    const post = this.attrs.post;
     const oldTitle = post.content()[0];
     const newTitle = post.content()[1];
 
     return {
-      'old': oldTitle,
-      'new': <strong className="DiscussionRenamedPost-new">{newTitle}</strong>
+      old: oldTitle,
+      new: <strong className="DiscussionRenamedPost-new">{newTitle}</strong>,
     };
   }
 }

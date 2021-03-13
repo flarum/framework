@@ -10,6 +10,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Foundation\DispatchEventsTrait;
+use Flarum\Http\SessionAccessToken;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\PasswordToken;
@@ -99,7 +100,8 @@ class SavePasswordController implements RequestHandlerInterface
         $token->delete();
 
         $session = $request->getAttribute('session');
-        $this->authenticator->logIn($session, $token->user->id);
+        $accessToken = SessionAccessToken::generate($token->user->id);
+        $this->authenticator->logIn($session, $accessToken);
 
         return new RedirectResponse($this->url->to('forum')->base());
     }

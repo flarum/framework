@@ -10,6 +10,7 @@
 namespace Flarum\Frontend;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -19,16 +20,18 @@ class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->app->singleton('flarum.assets.factory', function () {
+        $this->container->singleton('flarum.assets.factory', function () {
             return function (string $name) {
+                $paths = $this->container[Paths::class];
+
                 $assets = new Assets(
                     $name,
-                    $this->app->make('filesystem')->disk('flarum-assets'),
-                    $this->app->storagePath()
+                    $this->container->make('filesystem')->disk('flarum-assets'),
+                    $paths->storage
                 );
 
                 $assets->setLessImportDirs([
-                    $this->app->vendorPath().'/components/font-awesome/less' => ''
+                    $paths->vendor.'/components/font-awesome/less' => ''
                 ]);
 
                 $assets->css([$this, 'addBaseCss']);
@@ -38,17 +41,17 @@ class FrontendServiceProvider extends AbstractServiceProvider
             };
         });
 
-        $this->app->singleton('flarum.frontend.factory', function () {
+        $this->container->singleton('flarum.frontend.factory', function () {
             return function (string $name) {
-                $frontend = $this->app->make(Frontend::class);
+                $frontend = $this->container->make(Frontend::class);
 
                 $frontend->content(function (Document $document) use ($name) {
                     $document->layoutView = 'flarum::frontend.'.$name;
                 });
 
-                $frontend->content($this->app->make(Content\Assets::class)->forFrontend($name));
-                $frontend->content($this->app->make(Content\CorePayload::class));
-                $frontend->content($this->app->make(Content\Meta::class));
+                $frontend->content($this->container->make(Content\Assets::class)->forFrontend($name));
+                $frontend->content($this->container->make(Content\CorePayload::class));
+                $frontend->content($this->container->make(Content\Meta::class));
 
                 return $frontend;
             };
@@ -62,9 +65,9 @@ class FrontendServiceProvider extends AbstractServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
-        $this->app->make(ViewFactory::class)->share([
-            'translator' => $this->app->make('translator'),
-            'url' => $this->app->make(UrlGenerator::class)
+        $this->container->make(ViewFactory::class)->share([
+            'translator' => $this->container->make('translator'),
+            'url' => $this->container->make(UrlGenerator::class)
         ]);
     }
 
@@ -79,7 +82,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
     private function addLessVariables(SourceCollector $sources)
     {
         $sources->addString(function () {
-            $settings = $this->app->make(SettingsRepositoryInterface::class);
+            $settings = $this->container->make(SettingsRepositoryInterface::class);
 
             $vars = [
                 'config-primary-color'   => $settings->get('theme_primary_color', '#000'),

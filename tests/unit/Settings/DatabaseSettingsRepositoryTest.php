@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Settings;
 
 use Flarum\Settings\DatabaseSettingsRepository;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use Illuminate\Database\ConnectionInterface;
 use Mockery as m;
 
@@ -19,6 +19,9 @@ class DatabaseSettingsRepositoryTest extends TestCase
     private $connection;
     private $repository;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         $this->connection = m::mock(ConnectionInterface::class);

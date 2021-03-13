@@ -3,28 +3,23 @@ import ItemList from '../../common/utils/ItemList';
 import ComposerButton from './ComposerButton';
 import listItems from '../../common/helpers/listItems';
 import classList from '../../common/utils/classList';
+import ComposerState from '../states/ComposerState';
 
 /**
  * The `Composer` component displays the composer. It can be loaded with a
  * content component with `load` and then its position/state can be altered with
  * `show`, `hide`, `close`, `minimize`, `fullScreen`, and `exitFullScreen`.
  */
-class Composer extends Component {
-  init() {
-    /**
-     * The composer's current position.
-     *
-     * @type {Composer.PositionEnum}
-     */
-    this.position = Composer.PositionEnum.HIDDEN;
+export default class Composer extends Component {
+  oninit(vnode) {
+    super.oninit(vnode);
 
     /**
-     * The composer's intended height, which can be modified by the user
-     * (by dragging the composer handle).
+     * The composer's "state".
      *
-     * @type {Integer}
+     * @type {ComposerState}
      */
-    this.height = null;
+    this.state = this.attrs.state;
 
     /**
      * Whether or not the composer currently has focus.
@@ -32,98 +27,91 @@ class Composer extends Component {
      * @type {Boolean}
      */
     this.active = false;
+
+    // Store the initial position so that we can trigger animations correctly.
+    this.prevPosition = this.state.position;
   }
 
   view() {
+    const body = this.state.body;
     const classes = {
-      'normal': this.position === Composer.PositionEnum.NORMAL,
-      'minimized': this.position === Composer.PositionEnum.MINIMIZED,
-      'fullScreen': this.position === Composer.PositionEnum.FULLSCREEN,
-      'active': this.active
+      normal: this.state.position === ComposerState.Position.NORMAL,
+      minimized: this.state.position === ComposerState.Position.MINIMIZED,
+      fullScreen: this.state.position === ComposerState.Position.FULLSCREEN,
+      active: this.active,
+      visible: this.state.isVisible(),
     };
-    classes.visible = classes.normal || classes.minimized || classes.fullScreen;
 
-    // If the composer is minimized, tell the composer's content component that
-    // it shouldn't let the user interact with it. Set up a handler so that if
-    // the content IS clicked, the composer will be shown.
-    if (this.component) this.component.props.disabled = classes.minimized;
-
-    const showIfMinimized = this.position === Composer.PositionEnum.MINIMIZED ? this.show.bind(this) : undefined;
+    // Set up a handler so that clicks on the content will show the composer.
+    const showIfMinimized = this.state.position === ComposerState.Position.MINIMIZED ? this.state.show.bind(this.state) : undefined;
 
     return (
       <div className={'Composer ' + classList(classes)}>
-        <div className="Composer-handle" config={this.configHandle.bind(this)}/>
+        <div className="Composer-handle" oncreate={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
-          {this.component ? this.component.render() : ''}
+          {body.componentClass ? body.componentClass.component({ ...body.attrs, composer: this.state, disabled: classes.minimized }) : ''}
         </div>
       </div>
     );
   }
 
-  config(isInitialized, context) {
-    // Set the height of the Composer element and its contents on each redraw,
-    // so that they do not lose it if their DOM elements are recreated.
-    this.updateHeight();
+  onupdate() {
+    if (this.state.position === this.prevPosition) {
+      // Set the height of the Composer element and its contents on each redraw,
+      // so that they do not lose it if their DOM elements are recreated.
+      this.updateHeight();
+    } else {
+      this.animatePositionChange();
 
-    if (isInitialized) return;
+      this.prevPosition = this.state.position;
+    }
+  }
 
-    // Since this component is a part of the global UI that persists between
-    // routes, we will flag the DOM to be retained across route changes.
-    context.retain = true;
+  oncreate(vnode) {
+    super.oncreate(vnode);
 
     this.initializeHeight();
-    this.$().hide().css('bottom', -this.computedHeight());
+    this.$().hide().css('bottom', -this.state.computedHeight());
 
     // Whenever any of the inputs inside the composer are have focus, we want to
     // add a class to the composer to draw attention to it.
-    this.$().on('focus blur', ':input', e => {
+    this.$().on('focus blur', ':input,.TextEditor-editorContainer', (e) => {
       this.active = e.type === 'focusin';
       m.redraw();
     });
 
     // When the escape key is pressed on any inputs, close the composer.
-    this.$().on('keydown', ':input', 'esc', () => this.close());
+    this.$().on('keydown', ':input,.TextEditor-editorContainer', 'esc', () => this.state.close());
 
-    // Don't let the user leave the page without first giving the composer's
-    // component a chance to scream at the user to make sure they don't
-    // unintentionally lose any contnet.
-    window.onbeforeunload = () => {
-      return (this.component && this.component.preventExit()) || undefined;
-    };
+    this.handlers = {};
 
-    const handlers = {};
-
-    $(window).on('resize', handlers.onresize = this.updateHeight.bind(this)).resize();
+    $(window)
+      .on('resize', (this.handlers.onresize = this.updateHeight.bind(this)))
+      .resize();
 
     $(document)
-      .on('mousemove', handlers.onmousemove = this.onmousemove.bind(this))
-      .on('mouseup', handlers.onmouseup = this.onmouseup.bind(this));
+      .on('mousemove', (this.handlers.onmousemove = this.onmousemove.bind(this)))
+      .on('mouseup', (this.handlers.onmouseup = this.onmouseup.bind(this)));
+  }
 
-    context.onunload = () => {
-      $(window).off('resize', handlers.onresize);
+  onremove() {
+    $(window).off('resize', this.handlers.onresize);
 
-      $(document)
-        .off('mousemove', handlers.onmousemove)
-        .off('mouseup', handlers.onmouseup);
-    };
+    $(document).off('mousemove', this.handlers.onmousemove).off('mouseup', this.handlers.onmouseup);
   }
 
   /**
    * Add the necessary event handlers to the composer's handle so that it can
    * be used to resize the composer.
-   *
-   * @param {DOMElement} element
-   * @param {Boolean} isInitialized
    */
-  configHandle(element, isInitialized) {
-    if (isInitialized) return;
-
+  configHandle(vnode) {
     const composer = this;
 
-    $(element).css('cursor', 'row-resize')
-      .bind('dragstart mousedown', e => e.preventDefault())
-      .mousedown(function(e) {
+    $(vnode.dom)
+      .css('cursor', 'row-resize')
+      .bind('dragstart mousedown', (e) => e.preventDefault())
+      .mousedown(function (e) {
         composer.mouseStart = e.clientY;
         composer.heightStart = composer.$().height();
         composer.handle = $(this);
@@ -166,12 +154,19 @@ class Composer extends Component {
   }
 
   /**
+   * Draw focus to the first focusable content element (the text editor).
+   */
+  focus() {
+    this.$('.Composer-content :input:enabled:visible, .TextEditor-editor').first().focus();
+  }
+
+  /**
    * Update the DOM to reflect the composer's current height. This involves
    * setting the height of the composer's root element, and adjusting the height
    * of any flexible elements inside the composer's body.
    */
   updateHeight() {
-    const height = this.computedHeight();
+    const height = this.state.computedHeight();
     const $flexible = this.$('.Composer-flexible');
 
     this.$().height(height);
@@ -191,122 +186,67 @@ class Composer extends Component {
    * scrolled right to the bottom.
    */
   updateBodyPadding() {
-    const visible = this.position !== Composer.PositionEnum.HIDDEN &&
-      this.position !== Composer.PositionEnum.MINIMIZED &&
-      this.$().css('position') !== 'absolute';
+    const visible =
+      this.state.position !== ComposerState.Position.HIDDEN && this.state.position !== ComposerState.Position.MINIMIZED && app.screen() !== 'phone';
 
-    const paddingBottom = visible
-      ? this.computedHeight() - parseInt($('#app').css('padding-bottom'), 10)
-      : 0;
+    const paddingBottom = visible ? this.state.computedHeight() - parseInt($('#app').css('padding-bottom'), 10) : 0;
 
-    $('#content').css({paddingBottom});
+    $('#content').css({ paddingBottom });
   }
 
   /**
-   * Determine whether or not the Composer is covering the screen.
-   *
-   * This will be true if the Composer is in full-screen mode on desktop, or
-   * if the Composer is positioned absolutely as on mobile devices.
-   *
-   * @return {Boolean}
-   * @public
+   * Trigger the right animation depending on the desired new position.
    */
-  isFullScreen() {
-    return this.position === Composer.PositionEnum.FULLSCREEN || this.$().css('position') === 'absolute';
-  }
+  animatePositionChange() {
+    // When exiting full-screen mode: focus content
+    if (this.prevPosition === ComposerState.Position.FULLSCREEN && this.state.position === ComposerState.Position.NORMAL) {
+      this.focus();
+      return;
+    }
 
-  /**
-   * Confirm with the user that they want to close the composer and lose their
-   * content.
-   *
-   * @return {Boolean} Whether or not the exit was cancelled.
-   */
-  preventExit() {
-    if (this.component) {
-      const preventExit = this.component.preventExit();
-
-      if (preventExit) {
-        return !confirm(preventExit);
-      }
+    switch (this.state.position) {
+      case ComposerState.Position.HIDDEN:
+        return this.hide();
+      case ComposerState.Position.MINIMIZED:
+        return this.minimize();
+      case ComposerState.Position.FULLSCREEN:
+        return this.focus();
+      case ComposerState.Position.NORMAL:
+        return this.show();
     }
   }
 
   /**
-   * Load a content component into the composer.
-   *
-   * @param {Component} component
-   * @public
+   * Animate the Composer into the new position by changing the height.
    */
-  load(component) {
-    if (this.preventExit()) return;
-
-    // If we load a similar component into the composer, then Mithril will be
-    // able to diff the old/new contents and some DOM-related state from the
-    // old composer will remain. To prevent this from happening, we clear the
-    // component and force a redraw, so that the new component will be working
-    // on a blank slate.
-    if (this.component) {
-      this.clear();
-      m.redraw(true);
-    }
-
-    this.component = component;
-  }
-
-  /**
-   * Clear the composer's content component.
-   *
-   * @public
-   */
-  clear() {
-    this.component = null;
-  }
-
-  /**
-   * Animate the Composer into the given position.
-   *
-   * @param {Composer.PositionEnum} position
-   */
-  animateToPosition(position) {
-    // Before we redraw the composer to its new state, we need to save the
-    // current height of the composer, as well as the page's scroll position, so
-    // that we can smoothly transition from the old to the new state.
-    const oldPosition = this.position;
+  animateHeightChange() {
     const $composer = this.$().stop(true);
     const oldHeight = $composer.outerHeight();
     const scrollTop = $(window).scrollTop();
 
-    this.position = position;
-
-    m.redraw(true);
-
-    // Now that we've redrawn and the composer's DOM has been updated, we want
-    // to update the composer's height. Once we've done that, we'll capture the
-    // real value to use as the end point for our animation later on.
     $composer.show();
     this.updateHeight();
 
     const newHeight = $composer.outerHeight();
 
-    if (oldPosition === Composer.PositionEnum.HIDDEN) {
-      $composer.css({bottom: -newHeight, height: newHeight});
+    if (this.prevPosition === ComposerState.Position.HIDDEN) {
+      $composer.css({ bottom: -newHeight, height: newHeight });
     } else {
-      $composer.css({height: oldHeight});
+      $composer.css({ height: oldHeight });
     }
 
-    $composer.animate({bottom: 0, height: newHeight}, 'fast', () => this.component.focus());
+    const animation = $composer.animate({ bottom: 0, height: newHeight }, 'fast').promise();
 
     this.updateBodyPadding();
     $(window).scrollTop(scrollTop);
+    return animation;
   }
 
   /**
    * Show the Composer backdrop.
    */
   showBackdrop() {
-    this.$backdrop = $('<div/>')
-      .addClass('composer-backdrop')
-      .appendTo('body');
+    this.$backdrop = $('<div/>').addClass('composer-backdrop').appendTo('body');
   }
 
   /**
@@ -317,40 +257,40 @@ class Composer extends Component {
   }
 
   /**
-   * Show the composer.
+   * Animate the composer sliding up from the bottom to take its normal height.
    *
-   * @public
+   * @private
    */
   show() {
-    if (this.position === Composer.PositionEnum.NORMAL || this.position === Composer.PositionEnum.FULLSCREEN) {
-      return;
-    }
+    this.animateHeightChange().then(() => this.focus());
 
-    this.animateToPosition(Composer.PositionEnum.NORMAL);
+    if (app.screen() === 'phone') {
+      // On safari fixed position doesn't properly work on mobile,
+      // So we use absolute and set the top value.
+      // https://github.com/flarum/core/issues/2652
 
-    if (this.isFullScreen()) {
-      this.$().css('top', $(window).scrollTop());
+      // Due to another safari bug, `scrollTop` is unreliable when
+      // at the very bottom of the page AND opening the composer.
+      // So we fallback to a calculated version of scrollTop.
+      // https://github.com/flarum/core/issues/2683
+      const scrollElement = document.documentElement;
+      const topOfViewport = Math.min(scrollElement.scrollTop, scrollElement.scrollHeight - scrollElement.clientHeight);
+      this.$().css('top', $('.App').is('.mobile-safari') ? topOfViewport : 0);
       this.showBackdrop();
-      this.component.focus();
     }
   }
 
   /**
-   * Close the composer.
+   * Animate closing the composer.
    *
-   * @public
+   * @private
    */
   hide() {
     const $composer = this.$();
 
     // Animate the composer sliding down off the bottom edge of the viewport.
-    // Only when the animation is completed, update the Composer state flag and
-    // other elements on the page.
-    $composer.stop(true).animate({bottom: -$composer.height()}, 'fast', () => {
-      this.position = Composer.PositionEnum.HIDDEN;
-      this.clear();
-      m.redraw();
-
+    // Only when the animation is completed, update other elements on the page.
+    $composer.stop(true).animate({ bottom: -$composer.height() }, 'fast', () => {
       $composer.hide();
       this.hideBackdrop();
       this.updateBodyPadding();
@@ -358,58 +298,15 @@ class Composer extends Component {
   }
 
   /**
-   * Confirm with the user so they don't lose their content, then close the
-   * composer.
+   * Shrink the composer until only its title is visible.
    *
-   * @public
-   */
-  close() {
-    if (!this.preventExit()) {
-      this.hide();
-    }
-  }
-
-  /**
-   * Minimize the composer. Has no effect if the composer is hidden.
-   *
-   * @public
+   * @private
    */
   minimize() {
-    if (this.position === Composer.PositionEnum.HIDDEN) return;
-
-    this.animateToPosition(Composer.PositionEnum.MINIMIZED);
+    this.animateHeightChange();
 
     this.$().css('top', 'auto');
     this.hideBackdrop();
-  }
-
-  /**
-   * Take the composer into fullscreen mode. Has no effect if the composer is
-   * hidden.
-   *
-   * @public
-   */
-  fullScreen() {
-    if (this.position !== Composer.PositionEnum.HIDDEN) {
-      this.position = Composer.PositionEnum.FULLSCREEN;
-      m.redraw();
-      this.updateHeight();
-      this.component.focus();
-    }
-  }
-
-  /**
-   * Exit fullscreen mode.
-   *
-   * @public
-   */
-  exitFullScreen() {
-    if (this.position === Composer.PositionEnum.FULLSCREEN) {
-      this.position = Composer.PositionEnum.NORMAL;
-      m.redraw();
-      this.updateHeight();
-      this.component.focus();
-    }
   }
 
   /**
@@ -420,33 +317,45 @@ class Composer extends Component {
   controlItems() {
     const items = new ItemList();
 
-    if (this.position === Composer.PositionEnum.FULLSCREEN) {
-      items.add('exitFullScreen', ComposerButton.component({
-        icon: 'fas fa-compress',
-        title: app.translator.trans('core.forum.composer.exit_full_screen_tooltip'),
-        onclick: this.exitFullScreen.bind(this)
-      }));
+    if (this.state.position === ComposerState.Position.FULLSCREEN) {
+      items.add(
+        'exitFullScreen',
+        ComposerButton.component({
+          icon: 'fas fa-compress',
+          title: app.translator.trans('core.forum.composer.exit_full_screen_tooltip'),
+          onclick: this.state.exitFullScreen.bind(this.state),
+        })
+      );
     } else {
-      if (this.position !== Composer.PositionEnum.MINIMIZED) {
-        items.add('minimize', ComposerButton.component({
-          icon: 'fas fa-minus minimize',
-          title: app.translator.trans('core.forum.composer.minimize_tooltip'),
-          onclick: this.minimize.bind(this),
-          itemClassName: 'App-backControl'
-        }));
+      if (this.state.position !== ComposerState.Position.MINIMIZED) {
+        items.add(
+          'minimize',
+          ComposerButton.component({
+            icon: 'fas fa-minus minimize',
+            title: app.translator.trans('core.forum.composer.minimize_tooltip'),
+            onclick: this.state.minimize.bind(this.state),
+            itemClassName: 'App-backControl',
+          })
+        );
 
-        items.add('fullScreen', ComposerButton.component({
-          icon: 'fas fa-expand',
-          title: app.translator.trans('core.forum.composer.full_screen_tooltip'),
-          onclick: this.fullScreen.bind(this)
-        }));
+        items.add(
+          'fullScreen',
+          ComposerButton.component({
+            icon: 'fas fa-expand',
+            title: app.translator.trans('core.forum.composer.full_screen_tooltip'),
+            onclick: this.state.fullScreen.bind(this.state),
+          })
+        );
       }
 
-      items.add('close', ComposerButton.component({
-        icon: 'fas fa-times',
-        title: app.translator.trans('core.forum.composer.close_tooltip'),
-        onclick: this.close.bind(this)
-      }));
+      items.add(
+        'close',
+        ComposerButton.component({
+          icon: 'fas fa-times',
+          title: app.translator.trans('core.forum.composer.close_tooltip'),
+          onclick: this.state.close.bind(this.state),
+        })
+      );
     }
 
     return items;
@@ -456,10 +365,10 @@ class Composer extends Component {
    * Initialize default Composer height.
    */
   initializeHeight() {
-    this.height = localStorage.getItem('composerHeight');
+    this.state.height = localStorage.getItem('composerHeight');
 
-    if (!this.height) {
-      this.height = this.defaultHeight();
+    if (!this.state.height) {
+      this.state.height = this.defaultHeight();
     }
   }
 
@@ -472,59 +381,13 @@ class Composer extends Component {
   }
 
   /**
-   * Minimum height of the Composer.
-   * @returns {Integer}
-   */
-  minimumHeight() {
-    return 200;
-  }
-
-  /**
-   * Maxmimum height of the Composer.
-   * @returns {Integer}
-   */
-  maximumHeight() {
-    return $(window).height() - $('#header').outerHeight();
-  }
-
-  /**
-   * Computed the composer's current height, based on the intended height, and
-   * the composer's current state. This will be applied to the composer's
-   * content's DOM element.
-   * @returns {Integer|String}
-   */
-  computedHeight() {
-    // If the composer is minimized, then we don't want to set a height; we'll
-    // let the CSS decide how high it is. If it's fullscreen, then we need to
-    // make it as high as the window.
-    if (this.position === Composer.PositionEnum.MINIMIZED) {
-      return '';
-    } else if (this.position === Composer.PositionEnum.FULLSCREEN) {
-      return $(window).height();
-    }
-
-    // Otherwise, if it's normal or hidden, then we use the intended height.
-    // We don't let the composer get too small or too big, though.
-    return Math.max(this.minimumHeight(), Math.min(this.height, this.maximumHeight()));
-  }
-
-  /**
    * Save a new Composer height and update the DOM.
    * @param {Integer} height
    */
   changeHeight(height) {
-    this.height = height;
+    this.state.height = height;
     this.updateHeight();
 
-    localStorage.setItem('composerHeight', this.height);
+    localStorage.setItem('composerHeight', this.state.height);
   }
 }
-
-Composer.PositionEnum = {
-  HIDDEN: 'hidden',
-  NORMAL: 'normal',
-  MINIMIZED: 'minimized',
-  FULLSCREEN: 'fullScreen'
-};
-
-export default Composer;

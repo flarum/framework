@@ -1,3 +1,14 @@
+// Store the current responsive screen mode in a CSS variable, to make it
+// available to the JS code.
+:root {
+  --flarum-screen: none;
+
+  @media @phone { --flarum-screen: phone; }
+  @media @tablet { --flarum-screen: tablet; }
+  @media @desktop { --flarum-screen: desktop; }
+  @media @desktop-hd { --flarum-screen: desktop-hd; }
+}
+
 * {
   &,
   &:before,

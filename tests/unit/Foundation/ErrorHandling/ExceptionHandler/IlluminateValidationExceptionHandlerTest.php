@@ -10,7 +10,7 @@
 namespace Flarum\Tests\unit\Foundation\ErrorHandling\ExceptionHandler;
 
 use Flarum\Foundation\ErrorHandling\ExceptionHandler\IlluminateValidationExceptionHandler;
-use Flarum\Tests\unit\TestCase;
+use Flarum\Testing\unit\TestCase;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
@@ -20,6 +20,9 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
 {
     private $handler;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         $this->handler = new IlluminateValidationExceptionHandler;

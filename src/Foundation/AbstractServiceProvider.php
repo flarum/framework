@@ -9,21 +9,29 @@
 
 namespace Flarum\Foundation;
 
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 
 abstract class AbstractServiceProvider extends ServiceProvider
 {
     /**
-     * @var Application
+     * @deprecated beta 16, remove beta 17
+     * @var Container
      */
     protected $app;
 
     /**
-     * @param Application $app
+     * @var Container
      */
-    public function __construct(Application $app)
+    protected $container;
+
+    /**
+     * @param Container $container
+     */
+    public function __construct(Container $container)
     {
-        parent::__construct($app);
+        $this->app = $container;
+        $this->container = $container;
     }
 
     /**

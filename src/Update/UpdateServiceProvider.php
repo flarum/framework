@@ -20,7 +20,7 @@ class UpdateServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.update.routes', function () {
+        $this->container->singleton('flarum.update.routes', function () {
             $routes = new RouteCollection;
             $this->populateRoutes($routes);
 
@@ -41,16 +41,16 @@ class UpdateServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $route = $this->app->make(RouteHandlerFactory::class);
+        $route = $this->container->make(RouteHandlerFactory::class);
 
         $routes->get(
-            '/',
+            '/{path:.*}',
             'index',
             $route->toController(Controller\IndexController::class)
         );
 
         $routes->post(
-            '/',
+            '/{path:.*}',
             'update',
             $route->toController(Controller\UpdateController::class)
         );

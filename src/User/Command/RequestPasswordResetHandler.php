@@ -15,10 +15,10 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RequestPasswordResetHandler
 {
@@ -43,7 +43,7 @@ class RequestPasswordResetHandler
     protected $url;
 
     /**
-     * @var Translator
+     * @var TranslatorInterface
      */
     protected $translator;
 
@@ -57,7 +57,7 @@ class RequestPasswordResetHandler
      * @param SettingsRepositoryInterface $settings
      * @param Queue $queue
      * @param UrlGenerator $url
-     * @param Translator $translator
+     * @param TranslatorInterface $translator
      * @param Factory $validatorFactory
      */
     public function __construct(
@@ -65,7 +65,7 @@ class RequestPasswordResetHandler
         SettingsRepositoryInterface $settings,
         Queue $queue,
         UrlGenerator $url,
-        Translator $translator,
+        TranslatorInterface $translator,
         Factory $validatorFactory
     ) {
         $this->users = $users;

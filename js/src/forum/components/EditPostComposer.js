@@ -1,4 +1,6 @@
 import ComposerBody from './ComposerBody';
+import Button from '../../common/components/Button';
+import Link from '../../common/components/Link';
 import icon from '../../common/helpers/icon';
 
 function minimizeComposerIfFullScreen(e) {
@@ -13,53 +15,47 @@ function minimizeComposerIfFullScreen(e) {
  * post. It sets the initial content to the content of the post that is being
  * edited, and adds a header control to indicate which post is being edited.
  *
- * ### Props
+ * ### Attrs
  *
- * - All of the props for ComposerBody
+ * - All of the attrs for ComposerBody
  * - `post`
  */
 export default class EditPostComposer extends ComposerBody {
-  init() {
-    super.init();
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    this.editor.props.preview = e => {
-      minimizeComposerIfFullScreen(e);
+    attrs.submitLabel = attrs.submitLabel || app.translator.trans('core.forum.composer_edit.submit_button');
+    attrs.confirmExit = attrs.confirmExit || app.translator.trans('core.forum.composer_edit.discard_confirmation');
+    attrs.originalContent = attrs.originalContent || attrs.post.content();
+    attrs.user = attrs.user || attrs.post.user();
 
-      m.route(app.route.post(this.props.post));
-    };
-  }
-
-  static initProps(props) {
-    super.initProps(props);
-
-    props.submitLabel = props.submitLabel || app.translator.trans('core.forum.composer_edit.submit_button');
-    props.confirmExit = props.confirmExit || app.translator.trans('core.forum.composer_edit.discard_confirmation');
-    props.originalContent = props.originalContent || props.post.content();
-    props.user = props.user || props.post.user();
-
-    props.post.editedContent = props.originalContent;
+    attrs.post.editedContent = attrs.originalContent;
   }
 
   headerItems() {
     const items = super.headerItems();
-    const post = this.props.post;
+    const post = this.attrs.post;
 
-    const routeAndMinimize = function(element, isInitialized) {
-      if (isInitialized) return;
-      $(element).on('click', minimizeComposerIfFullScreen);
-      m.route.apply(this, arguments);
-    };
-
-    items.add('title', (
+    items.add(
+      'title',
       <h3>
-        {icon('fas fa-pencil-alt')} {' '}
-        <a href={app.route.discussion(post.discussion(), post.number())} config={routeAndMinimize}>
-          {app.translator.trans('core.forum.composer_edit.post_link', {number: post.number(), discussion: post.discussion().title()})}
-        </a>
+        {icon('fas fa-pencil-alt')}{' '}
+        <Link href={app.route.discussion(post.discussion(), post.number())} onclick={minimizeComposerIfFullScreen}>
+          {app.translator.trans('core.forum.composer_edit.post_link', { number: post.number(), discussion: post.discussion().title() })}
+        </Link>
       </h3>
-    ));
+    );
 
     return items;
+  }
+
+  /**
+   * Jump to the preview when triggered by the text editor.
+   */
+  jumpToPreview(e) {
+    minimizeComposerIfFullScreen(e);
+
+    m.route.set(app.route.post(this.attrs.post));
   }
 
   /**
@@ -69,18 +65,47 @@ export default class EditPostComposer extends ComposerBody {
    */
   data() {
     return {
-      content: this.content()
+      content: this.composer.fields.content(),
     };
   }
 
   onsubmit() {
+    const discussion = this.attrs.post.discussion();
+
     this.loading = true;
 
     const data = this.data();
 
-    this.props.post.save(data).then(
-      () => app.composer.hide(),
-      this.loaded.bind(this)
-    );
+    this.attrs.post.save(data).then((post) => {
+      // If we're currently viewing the discussion which this edit was made
+      // in, then we can scroll to the post.
+      if (app.viewingDiscussion(discussion)) {
+        app.current.get('stream').goToNumber(post.number());
+      } else {
+        // Otherwise, we'll create an alert message to inform the user that
+        // their edit has been made, containing a button which will
+        // transition to their edited post when clicked.
+        let alert;
+        const viewButton = Button.component(
+          {
+            className: 'Button Button--link',
+            onclick: () => {
+              m.route.set(app.route.post(post));
+              app.alerts.dismiss(alert);
+            },
+          },
+          app.translator.trans('core.forum.composer_edit.view_button')
+        );
+        alert = app.alerts.show(
+          {
+            type: 'success',
+            controls: [viewButton],
+          },
+          app.translator.trans('core.forum.composer_edit.edited_message')
+        );
+      }
+
+      this.composer.hide();
+    }, this.loaded.bind(this));
   }
 }

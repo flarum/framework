@@ -5,13 +5,13 @@ import Checkbox from './Checkbox';
  * a tick/cross one.
  */
 export default class Switch extends Checkbox {
-  static initProps(props) {
-    super.initProps(props);
+  static initAttrs(attrs) {
+    super.initAttrs(attrs);
 
-    props.className = (props.className || '') + ' Checkbox--switch';
+    attrs.className = (attrs.className || '') + ' Checkbox--switch';
   }
 
   getDisplay() {
-    return this.loading ? super.getDisplay() : '';
+    return this.attrs.loading ? super.getDisplay() : '';
   }
 }
