@@ -17,10 +17,10 @@ use Flarum\Extend;
 use Flarum\Lock\Access;
 use Flarum\Lock\Event\DiscussionWasLocked;
 use Flarum\Lock\Event\DiscussionWasUnlocked;
-use Flarum\Lock\Query\LockedFilterGambit;
 use Flarum\Lock\Listener;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
+use Flarum\Lock\Query\LockedFilterGambit;
 
 return [
     (new Extend\Frontend('forum'))

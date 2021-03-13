@@ -17,7 +17,8 @@ use Illuminate\Database\Query\Builder;
 
 class LockedFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    protected function getGambitPattern() {
+    protected function getGambitPattern()
+    {
         return 'is:locked';
     }
 
@@ -26,7 +27,8 @@ class LockedFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->constrain($searchState->getQuery(), $negate);
     }
 
-    public function getFilterKey(): string {
+    public function getFilterKey(): string
+    {
         return 'locked';
     }
 
