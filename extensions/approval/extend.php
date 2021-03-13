@@ -13,12 +13,11 @@ use Flarum\Approval\Access;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Approval\Listener;
 use Flarum\Discussion\Discussion;
-use Flarum\Event\GetModelIsPrivate;
 use Flarum\Extend;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
-use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
@@ -64,7 +63,9 @@ return [
     (new Extend\ModelVisibility(Discussion::class))
         ->scope(Access\ScopePrivateDiscussionVisibility::class, 'viewPrivate'),
 
-    function (Dispatcher $events) {
-        $events->listen(GetModelIsPrivate::class, [Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']);
-    },
+    (new Extend\ModelPrivate(Discussion::class))
+        ->checker([Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']),
+
+    (new Extend\ModelPrivate(CommentPost::class))
+        ->checker([Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']),
 ];

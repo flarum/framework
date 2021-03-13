@@ -10,10 +10,9 @@
 namespace Flarum\Approval\Listener;
 
 use Flarum\Discussion\Discussion;
-use Flarum\Event\GetModelIsPrivate;
 use Flarum\Flags\Flag;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Saving;
-use Flarum\Post\Post;
 
 class UnapproveNewContent
 {
@@ -55,15 +54,13 @@ class UnapproveNewContent
     }
 
     /**
-     * @param GetModelIsPrivate $event
+     * @param Discussion|CommentPost $instance
      * @return bool|null
      */
-    public static function markUnapprovedContentAsPrivate(GetModelIsPrivate $event)
+    public static function markUnapprovedContentAsPrivate($instance)
     {
-        if ($event->model instanceof Post || $event->model instanceof Discussion) {
-            if (! $event->model->is_approved) {
-                return true;
-            }
+        if (! $instance->is_approved) {
+            return true;
         }
     }
 }
