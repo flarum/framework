@@ -30,7 +30,7 @@ export default function addSubscriptionFilter() {
 
   extend(DiscussionListState.prototype, 'requestParams', function (params) {
     if (this.params.onFollowing) {
-      params.filter.q = (params.filter.q || '') + ' is:following';
+      params.filter.subscription = 'following';
     }
   });
 }
