@@ -7,23 +7,19 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Suspend\Search\Gambit;
+namespace Flarum\Suspend\Query;
 
 use Carbon\Carbon;
+use Flarum\Filter\FilterInterface;
+use Flarum\Filter\FilterState;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Flarum\User\Guest;
-use Flarum\User\Search\UserSearch;
 use Flarum\User\UserRepository;
-use LogicException;
+use Illuminate\Database\Query\Builder;
 
-class SuspendedGambit extends AbstractRegexGambit
+class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $pattern = 'is:suspended';
-
     /**
      * @var \Flarum\User\UserRepository
      */
@@ -37,10 +33,14 @@ class SuspendedGambit extends AbstractRegexGambit
         $this->users = $users;
     }
 
+    protected function getGambitPattern() {
+        return 'is:suspended';
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function apply(AbstractSearch $search, $bit)
+    public function apply(SearchState $search, $bit)
     {
         if (! $search->getActor()->can('suspend', new Guest())) {
             return false;
@@ -52,13 +52,27 @@ class SuspendedGambit extends AbstractRegexGambit
     /**
      * {@inheritdoc}
      */
-    protected function conditions(AbstractSearch $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, $negate)
     {
-        if (! $search instanceof UserSearch) {
-            throw new LogicException('This gambit can only be applied on a DiscussionSearch');
+        $this->constrain($search->getQuery(), $negate);
+    }
+
+    public function getFilterKey(): string {
+        return 'suspended';
+    }
+
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    {
+        if (! $filterState->getActor()->can('suspend', new Guest())) {
+            return false;
         }
 
-        $search->getQuery()->where(function ($query) use ($negate) {
+        $this->constrain($filterState->getQuery(), $negate);
+    }
+
+    protected function constrain(Builder $query, bool $negate)
+    {
+        $query->where(function ($query) use ($negate) {
             if ($negate) {
                 $query->where('suspended_until', null)->orWhere('suspended_until', '<', Carbon::now());
             } else {
