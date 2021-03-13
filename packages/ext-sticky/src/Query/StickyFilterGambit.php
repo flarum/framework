@@ -17,10 +17,10 @@ use Illuminate\Database\Query\Builder;
 
 class StickyFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    protected function getGambitPattern() {
+    protected function getGambitPattern()
+    {
         return 'is:sticky';
     }
-
 
     protected function conditions(SearchState $search, array $matches, $negate)
     {
@@ -37,7 +37,8 @@ class StickyFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->constrain($filterState->getQuery(), $negate);
     }
 
-    protected function constrain(Builder $query, bool $negate) {
-        $query->where('is_sticky', !$negate);
+    protected function constrain(Builder $query, bool $negate)
+    {
+        $query->where('is_sticky', ! $negate);
     }
 }
