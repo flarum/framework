@@ -84,8 +84,8 @@ class FilterTest extends TestCase
      */
     public function filter_mutator_has_effect_if_added()
     {
-        $this->extend((new Extend\Filter(DiscussionFilterer::class))->addFilterMutator(function ($query, $actor, $filters, $sort) {
-            $query->getQuery()->whereRaw('1=0');
+        $this->extend((new Extend\Filter(DiscussionFilterer::class))->addFilterMutator(function ($filterState, $criteria) {
+            $filterState->getQuery()->whereRaw('1=0');
         }));
 
         $this->prepDb();
@@ -127,8 +127,8 @@ class NoResultFilter implements FilterInterface
 
 class CustomFilterMutator
 {
-    public function __invoke($query, $actor, $filters, $sort)
+    public function __invoke($filterState, $criteria)
     {
-        $query->getQuery()->whereRaw('1=0');
+        $filterState->getQuery()->whereRaw('1=0');
     }
 }
