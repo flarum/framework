@@ -37,7 +37,7 @@ return [
         ->dateAttribute('suspended_until'),
 
     (new Extend\ApiSerializer(UserSerializer::class))
-        ->mutate(AddUserSuspendAttributes::class),
+        ->attributes(AddUserSuspendAttributes::class),
 
     new Extend\Locales(__DIR__.'/locale'),
 
