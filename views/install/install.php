@@ -179,7 +179,7 @@ $trans = array (
   </div>
 </form>
 
-<script src="cdn.jsdelivr.net/npm/jquery@2.1.4/dist/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script>
 $(function() {
   $('form :input:first').select();
