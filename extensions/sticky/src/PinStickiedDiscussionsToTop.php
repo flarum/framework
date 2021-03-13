@@ -23,7 +23,8 @@ class PinStickiedDiscussionsToTop
      */
     protected $listDiscussionsController;
 
-    public function __construct(ListDiscussionsController $listDiscussionsController) {
+    public function __construct(ListDiscussionsController $listDiscussionsController)
+    {
         $this->listDiscussionsController = $listDiscussionsController;
     }
 

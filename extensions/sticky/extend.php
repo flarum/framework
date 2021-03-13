@@ -17,10 +17,9 @@ use Flarum\Sticky\Event\DiscussionWasStickied;
 use Flarum\Sticky\Event\DiscussionWasUnstickied;
 use Flarum\Sticky\Listener;
 use Flarum\Sticky\Listener\SaveStickyToDatabase;
-use Flarum\Sticky\Post\DiscussionStickiedPost;
 use Flarum\Sticky\PinStickiedDiscussionsToTop;
+use Flarum\Sticky\Post\DiscussionStickiedPost;
 use Flarum\Sticky\Query\StickyFilterGambit;
-use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
