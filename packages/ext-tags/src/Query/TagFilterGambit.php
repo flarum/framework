@@ -31,7 +31,8 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->tags = $tags;
     }
 
-    protected function getGambitPattern() {
+    protected function getGambitPattern()
+    {
         return 'tag:(.+)';
     }
 
