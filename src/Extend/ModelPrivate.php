@@ -14,7 +14,7 @@ use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 
 /**
- * Some models, in particular Discussion and Post, are intended to
+ * Some models, in particular Discussion and CommentPost, are intended to
  * support a "private" mode, wherein they aren't visible unless some
  * criteria is met. This can be used to implement anything from
  * private discussions to post approvals.
@@ -25,7 +25,7 @@ use Illuminate\Contracts\Container\Container;
  * `false`. Accordingly, this is only available for models with an `is_private`
  * field.
  *
- * In Flarum core, the Discussion and Post models come with private support.
+ * In Flarum core, the Discussion and CommentPost models come with private support.
  * Core also contains visibility scopers that hide instances of these models
  * with `is_private = true` from queries. Extensions can register custom scopers
  * for these classes with the `viewPrivate` ability to grant access to view some
@@ -37,7 +37,7 @@ class ModelPrivate implements ExtenderInterface
     private $checkers = [];
 
     /**
-     * @param string $modelClass The ::class attribute of the model you are applying scopers to.
+     * @param string $modelClass The ::class attribute of the model you are applying private checkers to.
      *                           This model must have a `is_private` field.
      */
     public function __construct(string $modelClass)
@@ -51,8 +51,7 @@ class ModelPrivate implements ExtenderInterface
      * @param callable|string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
-     * - \Flarum\User\User $actor
-     * - \Illuminate\Database\Eloquent\Builder $query
+     * - \Flarum\Database\AbstractModel $instance: An instance of the model.
      *
      * It should return `true` if the model instance should be made private.
      *
