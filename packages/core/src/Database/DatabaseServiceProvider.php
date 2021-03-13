@@ -12,7 +12,7 @@ namespace Flarum\Database;
 use Flarum\Discussion\Discussion;
 use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Post\Post;
+use Flarum\Post\CommentPost;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
@@ -63,11 +63,11 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.database.model_private_checkers', function () {
-            // Discussion and Post are explicitly listed here to trigger the deprecated
+            // Discussion and CommentPost are explicitly listed here to trigger the deprecated
             // event-based model privacy system. They should be removed in beta 17.
             return [
                 Discussion::class => [],
-                Post::class => []
+                CommentPost::class => []
             ];
         });
     }
