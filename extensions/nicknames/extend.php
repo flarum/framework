@@ -41,10 +41,8 @@ return [
             return $actor->id === $user->id && $serializer->getActor()->can('editOwnNickname', $user);
         }),
 
-    (new Extend\ApiSerializer(ForumSerializer::class))
-        ->attribute('displayNameDriver', function ($serializer, $user) {
-            return app(SettingsRepositoryInterface::class)->get('display_name_driver', 'username');
-        }),
+    (new Extend\Settings())
+        ->serializeToForum('displayNameDriver', 'display_name_driver', null, 'username'),
 
     (new Extend\Validator(UserValidator::class))
         ->configure(AddNicknameValidation::class),
