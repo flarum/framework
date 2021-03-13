@@ -16,7 +16,7 @@ use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Validation\Factory;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SaveTagsToDatabase
 {
