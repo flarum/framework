@@ -20,9 +20,9 @@ return [
                 // Add the discussion content to the document so that the
                 // payload will be included on the page and the JS app will be
                 // able to render the discussion immediately.
-                app(Flarum\Forum\Content\Discussion::class)($document, $request);
+                resolve(Flarum\Forum\Content\Discussion::class)($document, $request);
 
-                app(Flarum\Frontend\Content\Assets::class)->forFrontend('embed')($document, $request);
+                resolve(Flarum\Frontend\Content\Assets::class)->forFrontend('embed')($document, $request);
             }
         ),
 
