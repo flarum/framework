@@ -17,7 +17,6 @@ use Flarum\Event\ConfigureUserGambits;
 use Flarum\Extend;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Saving;
-use Flarum\User\User;
 use Flarum\User\UserValidator;
 
 return [
