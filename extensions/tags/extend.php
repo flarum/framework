@@ -12,6 +12,8 @@ use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
+use Flarum\Discussion\Filter\DiscussionFilterer;
+use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Flags\Flag;
 use Flarum\Tags\Access;
@@ -19,11 +21,13 @@ use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Content;
 use Flarum\Tags\Event\DiscussionWasTagged;
+use Flarum\Tags\Filter\HideHiddenTagsFromAllDiscussionsPage;
+use Flarum\Tags\Filter\PostTagFilter;
 use Flarum\Tags\Listener;
 use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
+use Flarum\Tags\Query\TagFilterGambit;
 use Flarum\Tags\Tag;
-use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
@@ -102,11 +106,16 @@ return [
 
     (new Extend\Event())
         ->listen(Saving::class, Listener\SaveTagsToDatabase::class)
-        ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class),
+        ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
+        ->subscribe(Listener\UpdateTagMetadata::class),
 
-    function (Dispatcher $events) {
-        $events->subscribe(Listener\FilterDiscussionListByTags::class);
-        $events->subscribe(Listener\FilterPostsQueryByTag::class);
-        $events->subscribe(Listener\UpdateTagMetadata::class);
-    },
+    (new Extend\Filter(PostFilterer::class))
+        ->addFilter(PostTagFilter::class),
+
+    (new Extend\Filter(DiscussionFilterer::class))
+        ->addFilter(TagFilterGambit::class)
+        ->addFilterMutator(HideHiddenTagsFromAllDiscussionsPage::class),
+
+    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
+        ->addGambit(TagFilterGambit::class),
 ];
