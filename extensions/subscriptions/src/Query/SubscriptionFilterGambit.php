@@ -18,7 +18,8 @@ use Illuminate\Database\Query\Builder;
 
 class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    protected function getGambitPattern() {
+    protected function getGambitPattern()
+    {
         return 'is:(follow|ignor)(?:ing|ed)';
     }
 
@@ -34,7 +35,7 @@ class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInte
 
     public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
-        preg_match('/^' . $this->getGambitPattern().'$/i', 'is:'.$filterValue, $matches);
+        preg_match('/^'.$this->getGambitPattern().'$/i', 'is:'.$filterValue, $matches);
 
         $this->constrain($filterState->getQuery(), $filterState->getActor(), $matches[1], $negate);
     }

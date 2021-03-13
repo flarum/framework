@@ -19,9 +19,9 @@ use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
-use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
 use Flarum\Subscriptions\Listener;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
+use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
 
 return [
     (new Extend\Frontend('forum'))
