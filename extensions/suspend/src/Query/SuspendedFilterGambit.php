@@ -33,7 +33,8 @@ class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterfa
         $this->users = $users;
     }
 
-    protected function getGambitPattern() {
+    protected function getGambitPattern()
+    {
         return 'is:suspended';
     }
 
@@ -57,7 +58,8 @@ class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterfa
         $this->constrain($search->getQuery(), $negate);
     }
 
-    public function getFilterKey(): string {
+    public function getFilterKey(): string
+    {
         return 'suspended';
     }
 
