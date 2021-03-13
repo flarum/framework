@@ -64,7 +64,7 @@ export default function() {
     params.include.push('tags');
 
     if (this.params.tags) {
-      params.filter.q = (params.filter.q || '') + ' tag:' + this.params.tags;
+      params.filter.tag = this.params.tags;
     }
   });
 }

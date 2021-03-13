@@ -7,20 +7,17 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Gambit;
+namespace Flarum\Tags\Query;
 
+use Flarum\Filter\FilterInterface;
+use Flarum\Filter\FilterState;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Flarum\Tags\TagRepository;
 use Illuminate\Database\Query\Builder;
 
-class TagGambit extends AbstractRegexGambit
+class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $pattern = 'tag:(.+)';
-
     /**
      * @var TagRepository
      */
@@ -34,14 +31,30 @@ class TagGambit extends AbstractRegexGambit
         $this->tags = $tags;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(AbstractSearch $search, array $matches, $negate)
-    {
-        $slugs = explode(',', trim($matches[1], '"'));
+    protected function getGambitPattern() {
+        return 'tag:(.+)';
+    }
 
-        $search->getQuery()->where(function (Builder $query) use ($slugs, $negate) {
+    protected function conditions(SearchState $search, array $matches, $negate)
+    {
+        $this->constrain($search->getQuery(), $matches[1], $negate);
+    }
+
+    public function getFilterKey(): string
+    {
+        return 'tag';
+    }
+
+    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    {
+        $this->constrain($filterState->getQuery(), $filterValue, $negate);
+    }
+
+    protected function constrain(Builder $query, $rawSlugs, $negate)
+    {
+        $slugs = explode(',', trim($rawSlugs, '"'));
+
+        $query->where(function (Builder $query) use ($slugs, $negate) {
             foreach ($slugs as $slug) {
                 if ($slug === 'untagged') {
                     $query->whereIn('discussions.id', function (Builder $query) {
