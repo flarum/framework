@@ -62,7 +62,7 @@
 - Fix DiscussionListPane jumping around [`#2402`](https://github.com/flarum/core/pull/2402)
 - Fix deleting posts/discussions by deleted user [`#2521`](https://github.com/flarum/core/pull/2521)
 - Fixes model visibility [`#2580`](https://github.com/flarum/core/pull/2580)
-- PostStream: Fix minor load more issue [`#2388`](https://github.com/flarum/core/pull/2388)
+- PostStream: fix minor load more issue [`#2388`](https://github.com/flarum/core/pull/2388)
 - BasicsPage: fix "show language selector" default [`#2574`](https://github.com/flarum/core/issues/2574)
 - Correct non-existent cursor value (disallowed -&gt; not-allowed) [`#2585`](https://github.com/flarum/core/pull/2585)
 
@@ -86,7 +86,7 @@
 - `Post\Event\CheckingForFlooding` event [`#2557`](https://github.com/flarum/core/pull/2557)
 - `Post\Floodgate` class [`#2557`](https://github.com/flarum/core/pull/2557)
 - `User\AbstractPolicy` class [`#2557`](https://github.com/flarum/core/pull/2557)
-- `exemptPath` method from Csrf extender [`#2557`](https://github.com/flarum/core/pull/2557)
+- `exemptPath` method from CSRF extender [`#2557`](https://github.com/flarum/core/pull/2557)
 - `bootstrap.php` support [`#2557`](https://github.com/flarum/core/pull/2557)
 
 ### Deprecated
