@@ -486,6 +486,10 @@ core:
     username:
       deleted_text: "[deleted]"
 
+    # These translations are used for modals
+    modal:
+      close_confirmation: Are you sure you want to close this modal? You may lose any changes you've made.
+
   # Translations in this namespace are used in views other than Flarum's normal JS client.
   views:
 
