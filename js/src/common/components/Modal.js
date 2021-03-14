@@ -11,27 +11,28 @@ import Button from './Button';
 export default class Modal extends Component {
   /**
    * Determine whether or not the modal should be dismissible.
-   *
-   * Setting to `false` will override `doesBackdropClickDismiss` and
-   * `doesEscKeyDismiss`.
    */
   static isDismissible = true;
 
   /**
-   * Determine whether a click on the modal backdrop should dismiss the modal.
+   * Require the user to confirm they wish to close the modal **after clicking
+   * on the backdrop or pressing Escape**.
    *
-   * Clicking and dragging from certain elements onto the backdrop can sometimes
-   * inadvertantly trigger this.
+   * It's recommended to keep this enabled for modals which contain forms that
+   * may take a user a longer amount of time to complete to prevent frustration.
    *
-   * It's recommended to disable this for modals which contain forms that may
-   * take a user a longer amount of time to complete to prevent frustration.
+   * This does not affect closure via the close button.
    */
-  static dismissOnBackdropClick = false;
+  static requireImplicitCloseConfirmation = true;
 
   /**
-   * Determine whether pressing the Escape key should dismiss the modal.
+   * Require the user to confirm they wish to close the modal **after clicking
+   * the top close button, or when calling `hide()`**.
+   *
+   * This does not affect closure via an Esc key press, or a click on the
+   * backdrop.
    */
-  static dismissOnEscapeKeyPress = true;
+  static requireExplicitCloseConfirmation = false;
 
   /**
    * Attributes for an alert component to show below the header.
@@ -67,16 +68,10 @@ export default class Modal extends Component {
     return (
       <div className={'Modal modal-dialog ' + this.className()}>
         <div className="Modal-content">
-          {this.constructor.isDismissible ? (
+          {this.constructor.isDismissible && (
             <div className="Modal-close App-backControl">
-              {Button.component({
-                icon: 'fas fa-times',
-                onclick: this.hide.bind(this),
-                className: 'Button Button--icon Button--link',
-              })}
+              <Button icon="fas fa-times" onclick={() => this.hide.bind(this)()} className="Button Button--icon Button--link" />
             </div>
-          ) : (
-            ''
           )}
 
           <form onsubmit={this.onsubmit.bind(this)}>
@@ -96,7 +91,7 @@ export default class Modal extends Component {
   /**
    * Get the class name to apply to the modal.
    *
-   * @return {String}
+   * @return {string}
    * @abstract
    */
   className() {}
@@ -104,7 +99,7 @@ export default class Modal extends Component {
   /**
    * Get the title of the modal dialog.
    *
-   * @return {String}
+   * @return {string}
    * @abstract
    */
   title() {}
@@ -120,7 +115,7 @@ export default class Modal extends Component {
   /**
    * Handle the modal form's submit event.
    *
-   * @param {Event} e
+   * @param {SubmitEvent} e
    */
   onsubmit() {}
 
@@ -133,9 +128,18 @@ export default class Modal extends Component {
 
   /**
    * Hide the modal.
+   *
+   * @param {boolean} [noConfirm=false] Whether to skip the user confirmation check before hiding the modal. No effect if `requireExplicitCloseConfirmation` is `false`.
    */
-  hide() {
-    this.attrs.state.close();
+  hide(noConfirm = false) {
+    // `requireExplicitCloseConfirmation` is static, so we need to access it like this
+    // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static#calling_static_members_from_a_class_constructor_and_other_methods
+    if (noConfirm || !this.constructor.requireExplicitCloseConfirmation) {
+      this.attrs.state.close();
+    } else {
+      // We need the user to confirm the modal closure before we actually do it
+      this.attrs.closeWithConfirmation(null, true);
+    }
   }
 
   /**

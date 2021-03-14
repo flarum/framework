@@ -1,4 +1,5 @@
 import Component from '../Component';
+import extractText from '../utils/extractText';
 
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog
@@ -16,6 +17,7 @@ export default class ModalManager extends Component {
               ...modal.attrs,
               animateShow: this.animateShow.bind(this),
               animateHide: this.animateHide.bind(this),
+              closeWithConfirmation: this.closeWithConfirmation.bind(this),
               state: this.attrs.state,
             })
           : ''}
@@ -33,11 +35,8 @@ export default class ModalManager extends Component {
   }
 
   animateShow(readyCallback) {
-    const isDismissible = !!this.attrs.state.modal.componentClass.isDismissible;
-
-    // If the modal isn't dismissible, set these options to false.
-    const backdropDismissible = isDismissible && !!this.attrs.state.modal.componentClass.dismissOnBackdropClick;
-    const keyboardDismissible = isDismissible && !!this.attrs.state.modal.componentClass.dismissOnEscapeKeyPress;
+    const requireCloseConfirmation = !!this.attrs.state.modal.componentClass.requireImplicitCloseConfirmation;
+    const isDismissible = !requireCloseConfirmation && !!this.attrs.state.modal.componentClass.isDismissible;
 
     // If we are opening this modal while another modal is already open,
     // the shown event will not run, because the modal is already open.
@@ -51,25 +50,73 @@ export default class ModalManager extends Component {
       .one('shown.bs.modal', readyCallback)
       .modal({
         // 'static' means that a backdrop click doesn't dismiss the modal
-        backdrop: backdropDismissible || 'static',
-        keyboard: keyboardDismissible,
+        backdrop: isDismissible || 'static',
+        keyboard: isDismissible,
+        focus: true,
       })
       .modal('show');
 
-    // Disabling backdrop dismissal also disables keyboard dismissibility
-    // but we want to be able to provide key-based dismissal while having
-    // backdrop-based disabled. To do this, we set up our own event
-    // handler to hide the modal if we press Escape.
-    if (!backdropDismissible && keyboardDismissible) {
-      this.$().on('keypress', function (e) {
-        if (e.key === 'Escape') {
-          this.animateHide();
-        }
-      });
+    if (requireCloseConfirmation) {
+      // We need to watch `body` for keypress
+      $('body').on('keydown.flarum-core.modal-close', (e) => this.closeWithConfirmation(e));
+      this.$().on('click.flarum-core.modal-close', (e) => this.closeWithConfirmation(e));
     }
   }
 
   animateHide() {
     this.$().modal('hide');
+
+    // Remove event handlers
+    $('body').off('keydown.flarum-core.modal-close');
+    this.$().off('click.flarum-core.modal-close');
+  }
+
+  /**
+   * Asks user to confirm they wish to close the modal before
+   * actually closing the modal.
+   *
+   * @param {*} e jQuery event
+   * @param {*} forceRun force-run the confirmation code, even if the event doesn't match
+   */
+  closeWithConfirmation(e, forceRun) {
+    /**
+     * Show native dialog to confirm modal closure, and closes it if confirmed.
+     *
+     * @returns {boolean} Whether the modal was closed
+     */
+    function confirmClose() {
+      const result = confirm(extractText(app.translator.trans('core.lib.modal.close_confirmation')));
+
+      if (result) this.animateHide();
+      return result;
+    }
+
+    if (forceRun) {
+      // Used within the Modal class to execute this
+      // on a close button click, if desired.
+      confirmClose.bind(this)();
+    } else if (e.originalEvent instanceof KeyboardEvent) {
+      /**
+       * @type {KeyboardEvent}
+       */
+      const event = e.originalEvent;
+
+      // If ESC pressed
+      if (event.key === 'Escape') {
+        e.stopPropagation();
+        confirmClose.bind(this)();
+      }
+    } else if (e.originalEvent instanceof MouseEvent) {
+      /**
+       * @type {MouseEvent}
+       */
+      const event = e.originalEvent;
+
+      // If left click, and is actually on the backdrop
+      if (event.button === 0 && this.$().is(event.target)) {
+        e.stopPropagation();
+        confirmClose.bind(this)();
+      }
+    }
   }
 }
