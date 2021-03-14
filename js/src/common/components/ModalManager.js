@@ -110,7 +110,7 @@ export default class ModalManager extends Component {
    * actually closing the modal.
    *
    * @param {*} e jQuery event
-   * @param {*} forceRun force-run the confirmation code, even if the event doesn't match
+   * @param {boolean} forceRun Force-run the confirmation code, even if the event doesn't match
    */
   closeWithConfirmation(e, forceRun) {
     /**
