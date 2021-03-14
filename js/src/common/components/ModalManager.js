@@ -38,8 +38,6 @@ export default class ModalManager extends Component {
     const requireCloseConfirmation = !!this.attrs.state.modal.componentClass.requireImplicitCloseConfirmation;
     const isDismissible = !requireCloseConfirmation && !!this.attrs.state.modal.componentClass.isDismissible;
 
-    console.log(requireCloseConfirmation, isDismissible);
-
     // If we are opening this modal while another modal is already open,
     // the shown event will not run, because the modal is already open.
     // So, we need to manually trigger the readyCallback.
