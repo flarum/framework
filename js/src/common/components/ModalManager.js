@@ -38,6 +38,8 @@ export default class ModalManager extends Component {
     const requireCloseConfirmation = !!this.attrs.state.modal.componentClass.requireImplicitCloseConfirmation;
     const isDismissible = !requireCloseConfirmation && !!this.attrs.state.modal.componentClass.isDismissible;
 
+    console.log(requireCloseConfirmation, isDismissible);
+
     // If we are opening this modal while another modal is already open,
     // the shown event will not run, because the modal is already open.
     // So, we need to manually trigger the readyCallback.
@@ -49,17 +51,17 @@ export default class ModalManager extends Component {
     this.$()
       .one('shown.bs.modal', readyCallback)
       .modal({
-        // 'static' means that a backdrop click doesn't dismiss the modal
-        backdrop: isDismissible || 'static',
-        keyboard: isDismissible,
-        focus: true,
+        backdrop: 'static',
+        keyboard: false,
       })
       .modal('show');
 
     if (requireCloseConfirmation) {
-      // We need to watch `body` for keypress
       $('body').on('keydown.flarum-core.modal-close', (e) => this.closeWithConfirmation(e));
       this.$().on('click.flarum-core.modal-close', (e) => this.closeWithConfirmation(e));
+    } else if (isDismissible) {
+      $('body').on('keydown.flarum-core.modal-close', (e) => this.isModalClosingEvent(e) && this.animateHide());
+      this.$().on('click.flarum-core.modal-close', (e) => this.isModalClosingEvent(e) && this.animateHide());
     }
   }
 
@@ -69,6 +71,40 @@ export default class ModalManager extends Component {
     // Remove event handlers
     $('body').off('keydown.flarum-core.modal-close');
     this.$().off('click.flarum-core.modal-close');
+  }
+
+  /**
+   * Determines if a click or keydown event is one that should close the modal.
+   *
+   * @param {*} e jQuery event
+   * @returns {boolean} Whether this event should close the modal
+   */
+  isModalClosingEvent(e) {
+    if (e.originalEvent instanceof KeyboardEvent) {
+      /**
+       * @type {KeyboardEvent}
+       */
+      const event = e.originalEvent;
+
+      // If ESC pressed
+      if (event.key === 'Escape') {
+        e.stopPropagation();
+        return true;
+      }
+    } else if (e.originalEvent instanceof MouseEvent) {
+      /**
+       * @type {MouseEvent}
+       */
+      const event = e.originalEvent;
+
+      // If left click, and is actually on the backdrop
+      if (event.button === 0 && this.$().is(event.target)) {
+        e.stopPropagation();
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -91,32 +127,8 @@ export default class ModalManager extends Component {
       return result;
     }
 
-    if (forceRun) {
-      // Used within the Modal class to execute this
-      // on a close button click, if desired.
+    if (forceRun || this.isModalClosingEvent(e)) {
       confirmClose.bind(this)();
-    } else if (e.originalEvent instanceof KeyboardEvent) {
-      /**
-       * @type {KeyboardEvent}
-       */
-      const event = e.originalEvent;
-
-      // If ESC pressed
-      if (event.key === 'Escape') {
-        e.stopPropagation();
-        confirmClose.bind(this)();
-      }
-    } else if (e.originalEvent instanceof MouseEvent) {
-      /**
-       * @type {MouseEvent}
-       */
-      const event = e.originalEvent;
-
-      // If left click, and is actually on the backdrop
-      if (event.button === 0 && this.$().is(event.target)) {
-        e.stopPropagation();
-        confirmClose.bind(this)();
-      }
     }
   }
 }
