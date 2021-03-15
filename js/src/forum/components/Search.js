@@ -73,6 +73,7 @@ export default class Search extends Component {
 
     return (
       <div
+        role="search"
         className={
           'Search ' +
           classList({
