@@ -1,3 +1,10 @@
+# Changelog
+
+## [0.1.0-beta.16](https://github.com/flarum/bbcode/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Changed
+- Updated admin category from formatting to feature (https://github.com/flarum/bbcode/pull/11)
+
 ## [0.1.0-beta.15](https://github.com/flarum/bbcode/compare/v0.1.0-beta.12...v0.1.0-beta.15)
 
 ### Changed
