@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/approval/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Changed
+- Updated admin category from moderation to feature (https://github.com/flarum/approval/pull/24)
+- Moved locale files from translation pack to extension (https://github.com/flarum/approval/pull/22).
+
+### Fixed
+- Comment and discussion count not updated after post approval (https://github.com/flarum/approval/pull/16)
+
 ## [0.1.0-beta.15](https://github.com/flarum/approval/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Changed
