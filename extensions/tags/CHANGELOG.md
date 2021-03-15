@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/tags/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Added
+- Permission to allow bypassing tag requirements (https://github.com/flarum/tags/pull/111)
+- `.Taglabel--child` added to tagLabel to allow styling (https://github.com/flarum/tags/pull/114)
+
+### Changed
+- Updated admin category from discussion to feature (https://github.com/flarum/tags/pull/118)
+- Moved locale files from translation pack to extension (https://github.com/flarum/tags/pull/99)
+- Compatibility with Illuminate 8 (https://github.com/flarum/tags/pull/121)
+- Eager load relations lastPostedDiscussion requires (https://github.com/flarum/tags/pull/120)
+
+### Fixed
+- Prevent page creep with long list of tags (https://github.com/flarum/tags/pull/116)
+- Enter key does not submit tag selection modal ([617fc4d](https://github.com/flarum/tags/commit/617fc4d4419fe4d3ef7b388d14965acc83b319ce))
+- Editing a tag does not work (https://github.com/flarum/tags/pull/117)
+- Tags link not wrapped inside `Button-label` (https://github.com/flarum/tags/pull/113)
+- Without selectable tags the tag selection modal errors (https://github.com/flarum/tags/pull/112)
+
 ## [0.1.0-beta.15](https://github.com/flarum/tags/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Added
