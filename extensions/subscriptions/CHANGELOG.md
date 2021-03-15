@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/subscriptions/compare/v0.1.0-beta.145...v0.1.0-beta.16)
+
+### Changed
+- Updated admin category from discussion to feature (https://github.com/flarum/subscriptions/pull/39)
+- Moved locale files from translation pack to extension (https://github.com/flarum/subscriptions/pull/34)
+
+### Fixed
+- User state for discussion list persists across different discussion pages (https://github.com/flarum/subscriptions/pull/38)
+
 ## [0.1.0-beta.15](https://github.com/flarum/subscriptions/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Changed
