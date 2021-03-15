@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/suspend/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Changed
+- Updated admin category from moderation to feature (https://github.com/flarum/suspend/pull/33)
+- Moved locale files from translation pack to extension (https://github.com/flarum/suspend/pull/28)
+
+### Fixes
+- Incorrect suspension length in suspended notification (https://github.com/flarum/suspend/pull/32)
+- Unable to view suspended users with permission granted (https://github.com/flarum/suspend/pull/35)
+
 ## [0.1.0-beta.15](https://github.com/flarum/suspend/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Changed
