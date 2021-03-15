@@ -12,7 +12,7 @@
 - Typo in uninstall confirmation string (https://github.com/flarum/lang-english/pull/181)
 - Date format validation string (https://github.com/flarum/lang-english/pull/152)
 
-### Deleted
+### Removed
 - Moved all translation strings to their respective extensions (https://github.com/flarum/lang-english/pull/175)
 
 ## [0.1.0-beta.15](https://github.com/flarum/lang-english/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
