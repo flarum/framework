@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/mentions/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Changed
+- Editor Driver implementation (https://github.com/flarum/mentions/pull/61)
+- Updated admin category from discussion to feature (https://github.com/flarum/mentions/pull/62)
+- Moved locale files from translation pack to extension (https://github.com/flarum/mentions/pull/56)
+
+### Fixed
+- Reply notifications showing post author instead of replying author (https://github.com/flarum/mentions/pull/59)
+- Dropdown going off top of screen ([e39c798](https://github.com/flarum/mentions/commit/e39c798298ba2b3130ed97945aefeff6af14a5d4))
+
 ## [0.1.0-beta.15](https://github.com/flarum/mentions/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
 
 ### Changed
