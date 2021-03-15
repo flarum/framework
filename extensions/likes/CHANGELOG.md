@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/likes/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Changed
+- Updated admin category from discussion to feature (https://github.com/flarum/likes/pull/26)
+- Moved locale files from translation pack to extension (https://github.com/flarum/likes/pull/23)
+
 ## [0.1.0-beta.15](https://github.com/flarum/likes/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Changed
