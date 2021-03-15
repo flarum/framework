@@ -1,5 +1,118 @@
 # Changelog
 
+## [v0.1.0-beta.16](https://github.com/flarum/core/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Added
+
+- PHP 8 support [`#2507`](https://github.com/flarum/core/pull/2507)
+- Allow overriding routes [`#2577`](https://github.com/flarum/core/pull/2577)
+- Simple flarum search extender and tests [`#2483`](https://github.com/flarum/core/pull/2483)
+- Filterer extender [`#2454`](https://github.com/flarum/core/pull/2454)
+- Auth extender for password checking [`#2176`](https://github.com/flarum/core/pull/2176)
+- Add `subscribe` method to event extender [`#2535`](https://github.com/flarum/core/pull/2535)
+- Add default value to Settings extender [`#2495`](https://github.com/flarum/core/pull/2495)
+- Add notification extender beforeSending method [`#2533`](https://github.com/flarum/core/pull/2533)
+- Optional dependencies [`#2579`](https://github.com/flarum/core/pull/2579)
+- Editor driver abstraction [`#2594`](https://github.com/flarum/core/pull/2594)
+- Add user badges to post preview [`#2555`](https://github.com/flarum/core/pull/2555)
+- Added optional powered-by header [`#2618`](https://github.com/flarum/core/pull/2618)
+- Add missing a11y attributes [`#2564`](https://github.com/flarum/core/pull/2564)
+- Use flarum/testing for test infrastructure [`#2545`](https://github.com/flarum/core/pull/2545)
+
+### Changed
+
+- Refactor access tokens [`#2651`](https://github.com/flarum/core/pull/2651)
+- Search filter split, use same controller [`#2454`](https://github.com/flarum/core/pull/2454)
+- Use filterer for ListPostsController [`#2479`](https://github.com/flarum/core/pull/2479)
+- Query namespace [`#2645`](https://github.com/flarum/core/pull/2645)
+- Laravel components v8 [`#2576`](https://github.com/flarum/core/pull/2576)
+- Convert some helpers to Typescript [`#2541`](https://github.com/flarum/core/pull/2541) [`#2532`](https://github.com/flarum/core/pull/2532)
+- Don't push bidi function to DOM [`#2602`](https://github.com/flarum/core/pull/2602)
+- Policies: treat `true` as `allow`, and `false` as `deny` [`#2534`](https://github.com/flarum/core/pull/2534)
+- Centralized IP handler [`#2624`](https://github.com/flarum/core/pull/2624)
+- AdminUX improvements [`#2593`](https://github.com/flarum/core/pull/2593)
+- Simplify extension categories [`#2604`](https://github.com/flarum/core/pull/2604)
+- Broader support for callables in ContainerUtil [`#2596`](https://github.com/flarum/core/pull/2596)
+- Move locale files from language pack to core [`#2408`](https://github.com/flarum/core/pull/2408)
+- Run backend tests in transactions [`#2304`](https://github.com/flarum/core/pull/2304)
+- Make disabled extension dot a red border instead of red background [`#2562`](https://github.com/flarum/core/pull/2562)
+- Bring `m.attrs.bidi` in as a util [`fae79ea`](https://github.com/flarum/core/commit/fae79ea910e3082db97be80592dfa0094bb42a00)
+- Eagerload some needed relations in ListDiscussionsController [`#2639`](https://github.com/flarum/core/pull/2639)
+- Move TextEditor to common [`#2649`](https://github.com/flarum/core/pull/2649)
+- Export DiscussionListPane in compat [`#2591`](https://github.com/flarum/core/issues/2591)
+- Use extension names instead of IDs when erroring on enable/disable reqs [`#2563`](https://github.com/flarum/core/pull/2563)
+- Set this.changingState back to false in ExtensionPage if an error occurs [`#2558`](https://github.com/flarum/core/pull/2558)
+- Use new `author` key for filtering posts [`#2671`](https://github.com/flarum/core/issues/2671)
+
+### Fixed
+
+- User edit permission tightening [`#2620`](https://github.com/flarum/core/pull/2620)
+- Hide boot error [`#2633`](https://github.com/flarum/core/pull/2633)
+- Updated GroupFilterGambit to prevent hidden groups being visible wher… [`#2657`](https://github.com/flarum/core/pull/2657)
+- Restrict who can use the lastSeenAt user sort [`#2634`](https://github.com/flarum/core/pull/2634)
+- Clear cache files from storage/views [`#2648`](https://github.com/flarum/core/pull/2648)
+- Fix search box out of screen [`#2650`](https://github.com/flarum/core/pull/2650)
+- Fix having to double tap on mobile to open discussions [`#2607`](https://github.com/flarum/core/pull/2607)
+- Navigate to dashboard page if extension ID not found [`#2584`](https://github.com/flarum/core/pull/2584)
+- Fix composer header hidden by mobile browser [`#2279`](https://github.com/flarum/core/pull/2279)
+- Fix iOS scroll menu bug [`#2527`](https://github.com/flarum/core/pull/2527)
+- Various iOS scroll improvements [`#2548`](https://github.com/flarum/core/pull/2548)
+- Fix keyboard on small mobile screens hiding composer [`#2631`](https://github.com/flarum/core/pull/2631)
+- Fix notification panel infinite scroll [`#2524`](https://github.com/flarum/core/pull/2524)
+- Fix DiscussionListPane jumping around [`#2402`](https://github.com/flarum/core/pull/2402)
+- Fix deleting posts/discussions by deleted user [`#2521`](https://github.com/flarum/core/pull/2521)
+- Fixes model visibility [`#2580`](https://github.com/flarum/core/pull/2580)
+- PostStream: fix minor load more issue [`#2388`](https://github.com/flarum/core/pull/2388)
+- BasicsPage: fix "show language selector" default [`#2574`](https://github.com/flarum/core/issues/2574)
+- Correct non-existent cursor value (disallowed -&gt; not-allowed) [`#2585`](https://github.com/flarum/core/pull/2585)
+
+### Removed
+
+- Support for PHP 7.2 [`#2576`](https://github.com/flarum/core/pull/2576)
+- `Api\Event\Serializing` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Api\Event\WillGetData` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Api\Event\WillSerializeData` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Database\ScopeVisibilityTrait` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Event\ConfigureNotificationTypes` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Event\ConfigurePostTypes` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Event\ConfigureUserPreferences` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Event\GetApiRelationship` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Event\GetPermission` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Formatter\Event\Configuring` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Formatter\Event\Parsing` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Formatter\Event\Rendering` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Foundation\Event\Validating` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Notification\Event\Sending` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Post\Event\CheckingForFlooding` event [`#2557`](https://github.com/flarum/core/pull/2557)
+- `Post\Floodgate` class [`#2557`](https://github.com/flarum/core/pull/2557)
+- `User\AbstractPolicy` class [`#2557`](https://github.com/flarum/core/pull/2557)
+- `exemptPath` method from CSRF extender [`#2557`](https://github.com/flarum/core/pull/2557)
+- `bootstrap.php` support [`#2557`](https://github.com/flarum/core/pull/2557)
+
+### Deprecated
+
+- `app` helper, use `container` instead [`#2609`](https://github.com/flarum/core/pull/2609)
+- `event` helper [`#2608`](https://github.com/flarum/core/pull/2608)
+- `Discussion\Event\Searching` [`#2454`](https://github.com/flarum/core/pull/2454)
+- `User\Event\Searching` [`#2454`](https://github.com/flarum/core/pull/2454)
+- `Event\AbstractConfigureGambits` [`#2454`](https://github.com/flarum/core/pull/2454)
+- `Event\ConfigureDiscussionGambits` [`#2454`](https://github.com/flarum/core/pull/2454)
+- `Event\ConfigurePostsQuery` [`#2454`](https://github.com/flarum/core/pull/2454)
+- `Event\ConfigureUserGambits` [`#2454`](https://github.com/flarum/core/pull/2454)
+- `Event\ConfigureUserGambits` [`#2454`](https://github.com/flarum/core/pull/2454)
+- `Event\GetModelIsPrivate` event, use `ModelIsPrivate` extender [`#2587`](https://github.com/flarum/core/pull/2587)
+- ApiSerializer's `mutate` method [`#2578`](https://github.com/flarum/core/pull/2578)
+- Service provider `$app` attribute [`#2609`](https://github.com/flarum/core/pull/2609)
+- `$lifetime` parameter of `Http\AccessToken::generate()` method [`#2651`](https://github.com/flarum/core/pull/2651)
+- `$userId` parameter of `Http\SessionAuthenticator::logIn()` method [`#2651`](https://github.com/flarum/core/pull/2651)
+- `Http\AccessToken::generate()` method [`#2651`](https://github.com/flarum/core/pull/2651)
+- `Search\AbstractSearch` [`#2454`](https://github.com/flarum/core/pull/2454)
+- Attribute `$pattern` of `Search\AbstractRegexGambit` [`#2454`](https://github.com/flarum/core/pull/2454)
+- Methods `getGambits` and `getFullTextSearch` `Search\GambitManager` [`#2454`](https://github.com/flarum/core/pull/2454)
+- `Search\SearchCriteria` class [`#2454`](https://github.com/flarum/core/pull/2454)
+- `Search\SearchResults` class [`#2454`](https://github.com/flarum/core/pull/2454)
+- `User\Event\CheckingPassword` event [`#2176`](https://github.com/flarum/core/pull/2176)
+
 ## [0.1.0-beta.15](https://github.com/flarum/core/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
 
 ### Added
@@ -210,7 +323,7 @@
 - SES mail support (#2011)
 - Backward compatibility layer for `Flarum\Mail\DriverInterface`, new methods from beta.12 are now required
 - `Flarum\Util\Str` helper class
-- `Flarum\Event\ConfigureMiddleware` event 
+- `Flarum\Event\ConfigureMiddleware` event
 
 ### Deprecated
 - `Flarum\Event\AbstractConfigureRoutes` event class
