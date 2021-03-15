@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/pusher/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Changed
+- Moved locale files from translation pack to extension (https://github.com/flarum/pusher/pull/26)
+
 ## [0.1.0-beta.15](https://github.com/flarum/pusher/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
 
 ### Changed
