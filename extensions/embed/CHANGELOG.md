@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/embed/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Changed
+- Replaced `app()` helper with `resolve()`.
+
 ## [0.1.0-beta.15](https://github.com/flarum/embed/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Changed
