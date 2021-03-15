@@ -4,8 +4,12 @@ import type Mithril from 'mithril';
 export interface TooltipAttrs extends ComponentAttrs {
   /** Tooltip text */
   text: string;
-  /** If inline, uses a `<span>` container, else uses a `<div>` */
-  inline: boolean;
+  /** If inline, uses a `<span>` container, else uses a `<div>`. Default: `false`. */
+  inline?: boolean;
+  /** Manually show tooltip. `false` will show based on cursor events. Default: `false`. */
+  tooltipVisible?: boolean;
+  /** Whether to show on focus. Default: `true`. */
+  showOnFocus?: boolean;
 }
 
 /**
@@ -35,13 +39,16 @@ export default class Tooltip extends Component<TooltipAttrs> {
   view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
     const { children } = vnode;
 
-    const { inline, text } = this.attrs;
+    const { text, inline, tooltipVisible, showOnFocus } = this.attrs;
 
     const attrs = {
       ...this.attrs,
       'data-tooltip': true,
       'aria-label': text,
     };
+
+    if (tooltipVisible) attrs['data-tooltip-visible'] = true
+    if (!showOnFocus) attrs['data-tooltip-nofocus'] = true
 
     if (inline) {
       return <span {...attrs}>{children}</span>;
