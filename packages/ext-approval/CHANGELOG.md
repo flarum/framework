@@ -4,7 +4,7 @@
 
 ### Changed
 - Updated admin category from moderation to feature (https://github.com/flarum/approval/pull/24)
-- Moved locale files from translation pack to extension (https://github.com/flarum/approval/pull/22).
+- Moved locale files from translation pack to extension (https://github.com/flarum/approval/pull/22)
 
 ### Fixed
 - Comment and discussion count not updated after post approval (https://github.com/flarum/approval/pull/16)
