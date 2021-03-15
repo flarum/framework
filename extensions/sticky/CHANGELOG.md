@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/sticky/compare/v0.1.0-beta.15.1...v0.1.0-beta.16)
+
+### Changed
+- Updated admin category from moderation to feature (https://github.com/flarum/sticky/pull/27)
+- Moved locale files from translation pack to extension (https://github.com/flarum/sticky/pull/21)
+- Make `is_sticky` and `last_posted_at` columns an index for improved performance (https://github.com/flarum/sticky/pull/23)
+
+### Fixed
+- Rendering of excerpts failing (https://github.com/flarum/sticky/pull/24)
+- Excerpts showing on user profile page for stickied discussions looks erratic (https://github.com/flarum/sticky/pull/25)
+
 ## [0.1.0-beta.15.1](https://github.com/flarum/sticky/compare/v0.1.0-beta.14...v0.1.0-beta.15.1)
 
 ### Fixed
