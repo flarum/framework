@@ -1,6 +1,21 @@
 # Changelog
 
-## [0.1.0-beta.14.1](https://github.com/flarum/lang-english/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
+## [0.1.0-beta.16](https://github.com/flarum/lang-english/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Added
+- Bypass tag requirement label (https://github.com/flarum/lang-english/pull/182)
+
+### Changed
+- Alphabetical order of strings (https://github.com/flarum/lang-english/pull/184)
+
+### Fixed
+- Typo in uninstall confirmation string (https://github.com/flarum/lang-english/pull/181)
+- Date format validation string (https://github.com/flarum/lang-english/pull/152)
+
+### Deleted
+- Moved all translation strings to their respective extensions (https://github.com/flarum/lang-english/pull/175)
+
+## [0.1.0-beta.15](https://github.com/flarum/lang-english/compare/v0.1.0-beta.14.1...v0.1.0-beta.15)
 
 ### Added
 - Keys for new admin interface (#176)
