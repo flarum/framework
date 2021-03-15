@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-beta.16](https://github.com/flarum/markdown/compare/v0.1.0-beta.15...v0.1.0-beta.16)
+
+### Added
+- Editor Driver support ([ba3e1fb](https://github.com/flarum/markdown/commit/ba3e1fb528ce7e85bde27753f6c1cce3b03fe9d3))
+
+### Changed
+- Updated admin category from formatting to feature (https://github.com/flarum/markdown/pull/25)
+- Moved locale files from translation pack to extension (https://github.com/flarum/markdown/pull/21)
+
+### Fixed
+- Double quote marks cause inconvenience typing ([6d8ea34](https://github.com/flarum/markdown/commit/6d8ea342061fdd2ab267cee93b9f5ade69149123))
+
 ## [0.1.0-beta.15](https://github.com/flarum/markdown/compare/v0.1.0-beta.14...v0.1.0-beta.15)
 
 ### Changed
