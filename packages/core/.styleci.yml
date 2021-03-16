@@ -12,7 +12,3 @@ disabled:
   - phpdoc_order
   - phpdoc_separation
   - phpdoc_types
-
-finder:
-  exclude:
-    - "stubs"
