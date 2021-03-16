@@ -94,7 +94,7 @@ class Tags
         $document->title = $this->translator->trans('flarum-tags.forum.all_tags.meta_title_text');
         $document->meta['description'] = $this->translator->trans('flarum-tags.forum.all_tags.meta_description_text');
         $document->content = $this->view->make('tags::frontend.content.tags', compact('primaryTags', 'secondaryTags', 'children'));
-        $document->canonicalUrl = $defaultRoute === '/tags' ? $this->url->to('forum')->base() : $request->getUri()->withQuery('');
+        $document->canonicalUrl = $this->url->to('forum')->base().($defaultRoute === '/tags' ? '' : $request->getUri()->getPath());
 
         return $document;
     }
