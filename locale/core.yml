@@ -269,7 +269,6 @@ core:
 
     # These translations are used by the discussion control buttons.
     discussion_controls:
-      toggle_dropdown_accessible_label: Toggle discussion actions dropdown menu
       cannot_reply_button: Can't Reply
       cannot_reply_text: You don't have permission to reply to this discussion.
       delete_button: => core.ref.delete
@@ -279,6 +278,7 @@ core:
       rename_button: => core.ref.rename
       reply_button: => core.ref.reply
       restore_button: => core.ref.restore
+      toggle_dropdown_accessible_label: Toggle discussion actions dropdown menu
 
     # These translations are used in the discussion list.
     discussion_list:
@@ -315,20 +315,19 @@ core:
 
     # These translations are used in the header and session dropdown menu.
     header:
-      locale_dropdown_accessible_label: Change forum locale
-      session_dropdown_accessible_label: Toggle session options dropdown menu
       admin_button: Administration
       back_to_index_tooltip: Back to Discussion List
+      locale_dropdown_accessible_label: Change forum locale
       log_in_link: => core.ref.log_in
       log_out_button: => core.ref.log_out
       profile_button: Profile
       search_placeholder: Search Forum
+      session_dropdown_accessible_label: Toggle session options dropdown menu
       settings_button: => core.ref.settings
       sign_up_link: => core.ref.sign_up
 
     # These translations are used on the index page, peripheral to the discussion list.
     index:
-      toggle_sidenav_dropdown_accessible_label: Toggle navigation dropdown menu
       all_discussions_link: => core.ref.all_discussions
       cannot_start_discussion_button: Can't Start Discussion
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
@@ -336,14 +335,15 @@ core:
       meta_title_text: => core.ref.all_discussions
       refresh_tooltip: Refresh
       start_discussion_button: => core.ref.start_a_discussion
+      toggle_sidenav_dropdown_accessible_label: Toggle navigation dropdown menu
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
-      toggle_dropdown_accessible_label: Change discussion list sorting
       latest_button: Latest
       newest_button: Newest
       oldest_button: Oldest
       relevance_button: Relevance
+      toggle_dropdown_accessible_label: Change discussion list sorting
       top_button: Top
 
     # These translations are used in the Log In modal dialog.
@@ -359,12 +359,12 @@ core:
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
-      toggle_dropdown_accessible_label: View notifications
       discussion_renamed_text: "{username} changed the title"
       empty_text: No Notifications
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       mark_as_read_tooltip: Mark as Read
       title: => core.ref.notifications
+      toggle_dropdown_accessible_label: View notifications
       tooltip: => core.ref.notifications
 
     # These translations are used by tooltips displayed for individual posts.
@@ -375,13 +375,13 @@ core:
 
     # These translations are used by the post control buttons.
     post_controls:
-      toggle_dropdown_accessible_label: Toggle post controls dropdown menu
       delete_button: => core.ref.delete
       delete_confirmation: "Are you sure you want to delete this post forever? This action cannot be undone."
       delete_forever_button: => core.ref.delete_forever
       edit_button: => core.ref.edit
       hide_confirmation: "Are you sure you want to delete this post?"
       restore_button: => core.ref.restore
+      toggle_dropdown_accessible_label: Toggle post controls dropdown menu
 
     # These translations are used in the scrubber to the right of the post stream.
     post_scrubber:
@@ -449,13 +449,13 @@ core:
 
     # These translations are found on the user profile page (admin function).
     user_controls:
-      toggle_dropdown_accessible_label: Toggle user controls dropdown menu
       button: Controls
       delete_button: => core.ref.delete
       delete_confirmation: "Are you sure you want to delete this user? The user's posts will NOT be deleted."
       delete_error_message: "Deletion of user <i>{username} ({email})</i> failed"
       delete_success_message: "User <i>{username} ({email})</i> was deleted"
       edit_button: => core.ref.edit
+      toggle_dropdown_accessible_label: Toggle user controls dropdown menu
 
     # These translations are used in the alert that is shown when a new user has not confirmed their email address.
     user_email_confirmation:
@@ -469,6 +469,10 @@ core:
     # These translations are displayed as tooltips for discussion badges.
     badge:
       hidden_tooltip: Hidden
+
+    # These translations are used in the dropdown component.
+    dropdown:
+      toggle_dropdown_accessible_label: Toggle dropdown menu
 
     # These translations are displayed as error messages.
     error:
@@ -493,10 +497,6 @@ core:
     # These translations are used to modify usernames.
     username:
       deleted_text: "[deleted]"
-
-    # These translations are used in the dropdown component.
-    dropdown:
-      toggle_dropdown_accessible_label: Toggle dropdown menu
 
   # Translations in this namespace are used in views other than Flarum's normal JS client.
   views:
