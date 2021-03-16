@@ -30,7 +30,6 @@ class FulltextGambit implements GambitInterface
         $query = $search->getQuery();
         $grammar = $query->getGrammar();
 
-
         $discussionSubquery = Discussion::select('id')
             ->selectRaw('NULL as score')
             ->selectRaw('first_post_id as most_relevant_post_id')
