@@ -49,7 +49,7 @@ export default class RenameDiscussionModal extends Modal {
 
     this.loading = true;
 
-    const title = this.newTitle;
+    const title = this.newTitle();
     const currentTitle = this.currentTitle;
 
     // If the title is different to what it was before, then save it. After the
