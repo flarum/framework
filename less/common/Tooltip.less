@@ -1,72 +1,84 @@
 // ------------------------------------
 // Tooltips
+// ------------------------------------
 
-// Base class
-.tooltip {
-  position: absolute;
-  z-index: @zindex-tooltip;
-  display: block;
-  font-size: 12px;
-  font-weight: normal;
-  line-height: 1.4;
-  opacity: 0;
-  .transition(0.15s opacity linear);
-
-  &.in     { opacity: 1; }
-  &.top    { margin-top:  -3px; padding: @tooltip-arrow-width 0; }
-  &.right  { margin-left:  3px; padding: 0 @tooltip-arrow-width; }
-  &.bottom { margin-top:   3px; padding: @tooltip-arrow-width 0; }
-  &.left   { margin-left: -3px; padding: 0 @tooltip-arrow-width; }
+// This fixes an issue in iOS where `:hover` is not handled
+[data-device-os="iOS"] {
+  [data-tooltip][aria-label]:not([aria-label=""]) {
+    // Remember that the cursor won't be visible on iOS!
+    cursor: pointer;
+  }
 }
 
-// Wrapper for the tooltip content
-.tooltip-inner {
-  max-width: 200px;
-  padding: 7px 12px;
-  color: @tooltip-color;
-  text-align: center;
-  text-decoration: none;
-  background-color: @tooltip-bg;
-  border-radius: @border-radius;
-}
+// General tooltip selector
+[data-tooltip][aria-label]:not([aria-label=""]) {
+  @tooltip-arrow-width: 8px;
+  @tooltip-arrow-height: 6px;
 
-// Arrows
-@tooltip-arrow-width: 5px;
+  position: relative;
 
-.tooltip-arrow {
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-color: transparent;
-  border-style: solid;
-}
-.tooltip {
-  &.top .tooltip-arrow {
-    bottom: 0;
+  // Tooltip text
+  &::before {
+    display: block;
+    content: attr(aria-label);
+
+    font-size: 12px;
+
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: @tooltip-color;
+    max-width: 200px;
+    height: auto;
+
     left: 50%;
-    margin-left: -@tooltip-arrow-width;
-    border-width: @tooltip-arrow-width @tooltip-arrow-width 0;
-    border-top-color: @tooltip-bg;
+    bottom: ~"calc(100% + @{tooltip-arrow-height})";
   }
-  &.right .tooltip-arrow {
-    top: 50%;
-    left: 0;
-    margin-top: -@tooltip-arrow-width;
-    border-width: @tooltip-arrow-width @tooltip-arrow-width @tooltip-arrow-width 0;
-    border-right-color: @tooltip-bg;
-  }
-  &.left .tooltip-arrow {
-    top: 50%;
-    right: 0;
-    margin-top: -@tooltip-arrow-width;
-    border-width: @tooltip-arrow-width 0 @tooltip-arrow-width @tooltip-arrow-width;
-    border-left-color: @tooltip-bg;
-  }
-  &.bottom .tooltip-arrow {
-    top: 0;
+
+  // Tooltip arrow
+  &::after {
+    display: block;
+    content: "";
+
+    width: @tooltip-arrow-width;
+    height: @tooltip-arrow-height;
+
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+
+    // Center arrow horizontally over component
     left: 50%;
-    margin-left: -@tooltip-arrow-width;
-    border-width: 0 @tooltip-arrow-width @tooltip-arrow-width;
-    border-bottom-color: @tooltip-bg;
+    bottom: 100%;
+  }
+
+  &::before,
+  &::after {
+    position: absolute;
+    background: @tooltip-bg;
+    z-index: @zindex-tooltip;
+
+    // Prevent tooltip showing when hovering over pseudoelement
+    pointer-events: none;
+    opacity: 0;
+
+    transition: opacity 0.18s ease-out 0.18s, transform 0.18s ease-out 0.18s;
+
+    // Don't do slide animation if user has selected reduced motion
+    // in their OS
+    @media not all and (prefers-reduced-motion: reduce) {
+      transform: translate(-50%, 8px);
+    }
+  }
+
+  // Tooltip is visible
+  &:hover,
+  &:not([data-tooltip-nofocus]):focus,
+  &[data-tooltip-visible] {
+    &::before,
+    &::after {
+      // Prevent tooltip showing when hovering over pseudoelement
+      pointer-events: none;
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
   }
 }
