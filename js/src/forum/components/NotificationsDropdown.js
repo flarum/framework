@@ -9,6 +9,8 @@ export default class NotificationsDropdown extends Dropdown {
     attrs.menuClassName = attrs.menuClassName || 'Dropdown-menu--right';
     attrs.label = attrs.label || app.translator.trans('core.forum.notifications.tooltip');
     attrs.icon = attrs.icon || 'fas fa-bell';
+    // For best a11y support, both `title` and `aria-label` should be used
+    attrs.accessibleToggleLabel = attrs.accessibleToggleLabel || app.translator.trans('core.forum.notifications.toggle_dropdown_accessible_label');
 
     super.initAttrs(attrs);
   }

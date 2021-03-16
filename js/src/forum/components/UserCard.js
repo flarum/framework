@@ -40,6 +40,7 @@ export default class UserCard extends Component {
                     menuClassName: 'Dropdown-menu--right',
                     buttonClassName: this.attrs.controlsButtonClassName,
                     label: app.translator.trans('core.forum.user_controls.button'),
+                    accessibleToggleLabel: app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label'),
                     icon: 'fas fa-ellipsis-v',
                   },
                   controls

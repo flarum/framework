@@ -13,6 +13,7 @@ import listItems from '../helpers/listItems';
  * - `icon` The name of an icon to show in the dropdown toggle button.
  * - `caretIcon` The name of an icon to show on the right of the button.
  * - `label` The label of the dropdown toggle button. Defaults to 'Controls'.
+ * - `accessibleToggleLabel` The label used to describe the dropdown toggle button to assistive readers. Defaults to 'Toggle dropdown menu'.
  * - `onhide`
  * - `onshow`
  *
@@ -25,6 +26,7 @@ export default class Dropdown extends Component {
     attrs.menuClassName = attrs.menuClassName || '';
     attrs.label = attrs.label || '';
     attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-caret-down';
+    attrs.accessibleToggleLabel = attrs.accessibleToggleLabel || app.translator.trans('core.lib.dropdown.toggle_dropdown_accessible_label');
   }
 
   oninit(vnode) {
@@ -92,7 +94,13 @@ export default class Dropdown extends Component {
    */
   getButton(children) {
     return (
-      <button className={'Dropdown-toggle ' + this.attrs.buttonClassName} data-toggle="dropdown" onclick={this.attrs.onclick}>
+      <button
+        className={'Dropdown-toggle ' + this.attrs.buttonClassName}
+        aria-haspopup="menu"
+        aria-label={this.attrs.accessibleToggleLabel}
+        data-toggle="dropdown"
+        onclick={this.attrs.onclick}
+      >
         {this.getButtonContent(children)}
       </button>
     );
