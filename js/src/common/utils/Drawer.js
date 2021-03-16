@@ -35,7 +35,7 @@ export default class Drawer {
      * As part of hiding the drawer, this function also ensures that the drawer
      * correctly animates out, while ensuring it is not part of the navigation
      * tree while off-screen.
-     * 
+     *
      * More info: https://github.com/flarum/core/pull/2666#discussion_r595381014
      */
 
