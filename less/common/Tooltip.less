@@ -15,7 +15,76 @@
   @tooltip-arrow-width: 8px;
   @tooltip-arrow-height: 6px;
 
+  // Transform while tooltip not shown
+  .preVisibleTransform(@x: -50%, @y: 8px) {
+    &::before,
+    &::after {
+      // Don't do slide animation if user has selected reduced motion
+      // in their OS
+      @media not all and (prefers-reduced-motion: reduce) {
+        transform: translate(@x, @y);
+      }
+    }
+  }
+
+  // Transform while tooltip shown
+  .visibleTransform(@x: -50%, @y: 0) {
+    // Tooltip is visible
+    &:hover,
+    &:not([data-tooltip-nofocus]):focus,
+    &:not([data-tooltip-nofocus]):focus-within,
+    &[data-tooltip-visible] {
+      &::before,
+      &::after {
+        transform: translate(@x, @y);
+      }
+    }
+  }
+
+  //#region ARROWS
+
+  .arrow() {
+    width: @tooltip-arrow-width;
+    height: @tooltip-arrow-height;
+
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  }
+
+  .arrow(@direction) when (@direction = "right") {
+    width: @tooltip-arrow-height;
+    height: @tooltip-arrow-width;
+
+    clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+  }
+
+  .arrow(@direction) when (@direction = "left") {
+    width: @tooltip-arrow-height;
+    height: @tooltip-arrow-width;
+
+    clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
+  }
+
+  .arrow(@direction) when (@direction = "up") {
+    width: @tooltip-arrow-width;
+    height: @tooltip-arrow-height;
+
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  }
+
+  //#endregion
+
   position: relative;
+
+  // Tooltip is visible
+  &:hover,
+  &:not([data-tooltip-nofocus]):focus,
+  &:not([data-tooltip-nofocus]):focus-within,
+  &[data-tooltip-visible] {
+    &::before,
+    &::after {
+      opacity: 1;
+    }
+  }
 
   // Tooltip text
   &::before {
@@ -28,11 +97,23 @@
     padding: 4px 8px;
     border-radius: 4px;
     color: @tooltip-color;
-    max-width: 200px;
     height: auto;
+
+    // Make as wide as possible
+    width: max-content;
+    // Max 200px
+    max-width: 200px;
+    // Or use 300px/100% of viewport width, whichever is smaller
+    max-width: ~"min(300px, 100vw)";
 
     left: 50%;
     bottom: ~"calc(100% + @{tooltip-arrow-height})";
+
+    // Nicely handle tooltips that would be wider than 200px
+    overflow-wrap: normal;
+    overflow: hidden;
+    white-space: normal;
+    text-align: center;
   }
 
   // Tooltip arrow
@@ -40,10 +121,7 @@
     display: block;
     content: "";
 
-    width: @tooltip-arrow-width;
-    height: @tooltip-arrow-height;
-
-    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+    .arrow();
 
     // Center arrow horizontally over component
     left: 50%;
@@ -61,24 +139,71 @@
     opacity: 0;
 
     transition: opacity 0.18s ease-out 0.18s, transform 0.18s ease-out 0.18s;
-
-    // Don't do slide animation if user has selected reduced motion
-    // in their OS
-    @media not all and (prefers-reduced-motion: reduce) {
-      transform: translate(-50%, 8px);
-    }
   }
 
-  // Tooltip is visible
-  &:hover,
-  &:not([data-tooltip-nofocus]):focus,
-  &[data-tooltip-visible] {
-    &::before,
-    &::after {
-      // Prevent tooltip showing when hovering over pseudoelement
-      pointer-events: none;
-      opacity: 1;
-      transform: translate(-50%, 0);
+  .preVisibleTransform();
+  .visibleTransform();
+
+  &[data-tooltip-position="left"] {
+    &::before {
+      right: 100%;
+      top: 50%;
+      left: initial;
+      bottom: initial;
     }
+
+    &::after {
+      right: ~"calc(100% - @{tooltip-arrow-height})";
+      top: 50%;
+      left: initial;
+      bottom: initial;
+
+      .arrow("right");
+    }
+
+    .preVisibleTransform(0, -50%);
+    .visibleTransform(-8px, -50%);
+  }
+
+  &[data-tooltip-position="right"] {
+    &::before {
+      left: 100%;
+      top: 50%;
+      // left: initial;
+      bottom: initial;
+    }
+
+    &::after {
+      left: ~"calc(100% - @{tooltip-arrow-height})";
+      top: 50%;
+      // left: initial;
+      bottom: initial;
+
+      .arrow("left");
+    }
+
+    .preVisibleTransform(0, -50%);
+    .visibleTransform(8px, -50%);
+  }
+
+  &[data-tooltip-position="bottom"] {
+    &::before {
+      top: ~"calc(100% + @{tooltip-arrow-height})";
+      // top: 100%;
+      // top: 50%;
+      // left: initial;
+      bottom: initial;
+    }
+
+    &::after {
+      top: ~"calc(100%)";
+      // left: initial;
+      bottom: initial;
+
+      .arrow("up");
+    }
+
+    .preVisibleTransform(-50%, -8px);
+    .visibleTransform(-50%, 0);
   }
 }

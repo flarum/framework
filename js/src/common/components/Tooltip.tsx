@@ -10,6 +10,8 @@ export interface TooltipAttrs extends ComponentAttrs {
   tooltipVisible?: boolean;
   /** Whether to show on focus. Default: `true`. */
   showOnFocus?: boolean;
+  /** Tooltip position around element */
+  position?: 'top' | 'bottom' | 'left' | 'right';
 }
 
 /**
@@ -39,13 +41,14 @@ export default class Tooltip extends Component<TooltipAttrs> {
   view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
     const { children } = vnode;
 
-    const { text, inline, tooltipVisible, showOnFocus, ...attrs } = this.attrs;
+    const { text, inline, tooltipVisible, showOnFocus, position, ...attrs } = this.attrs;
 
     attrs['data-tooltip'] = true;
     attrs['aria-label'] = text;
 
     if (tooltipVisible) attrs['data-tooltip-visible'] = true;
     if (!showOnFocus) attrs['data-tooltip-nofocus'] = true;
+    if (position) attrs['data-tooltip-position'] = position;
 
     if (inline) {
       return <span {...attrs}>{children}</span>;
