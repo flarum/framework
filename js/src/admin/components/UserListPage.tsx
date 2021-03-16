@@ -303,9 +303,7 @@ export default class UserListPage extends AdminPage {
               class="UserList-profileLink"
               target="_blank"
               href={profileUrl}
-              title={extractText(
-                app.translator.trans('core.admin.users.grid.default_columns.profile_link_tooltip', { username: user.username() })
-              )}
+              title={extractText(app.translator.trans('core.admin.users.grid.default_columns.profile_link_tooltip', { username: user.username() }))}
             >
               {icon('fas fa-link')}
             </a>
