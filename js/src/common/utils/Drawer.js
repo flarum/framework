@@ -31,16 +31,22 @@ export default class Drawer {
    * @public
    */
   hide() {
+    /**
+     * As part of hiding the drawer, this function also ensures that the drawer
+     * correctly animates out, while ensuring it is not part of the navigation
+     * tree while off-screen.
+     * 
+     * More info: https://github.com/flarum/core/pull/2666#discussion_r595381014
+     */
+
     const $app = $('#app');
 
-    // If the drawer isn't open, stop execution
     if (!$app.hasClass('drawerOpen')) return;
 
     const $drawer = $('#drawer');
 
     // Used to prevent `visibility: hidden` from breaking the exit animation
-    $drawer.one('transitionend', () => $drawer.css('visibility', ''));
-    $drawer.css('visibility', 'visible');
+    $drawer.css('visibility', 'visible').one('transitionend', () => $drawer.css('visibility', ''));
 
     $app.removeClass('drawerOpen');
 
