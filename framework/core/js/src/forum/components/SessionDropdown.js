@@ -17,6 +17,8 @@ export default class SessionDropdown extends Dropdown {
     attrs.className = 'SessionDropdown';
     attrs.buttonClassName = 'Button Button--user Button--flat';
     attrs.menuClassName = 'Dropdown-menu--right';
+
+    attrs.accessibleToggleLabel = app.translator.trans('core.forum.header.session_dropdown_accessible_label');
   }
 
   view(vnode) {
