@@ -71,6 +71,8 @@ export default class Search extends Component {
     // Hide the search view if no sources were loaded
     if (!this.sources.length) return <div></div>;
 
+    const searchCtaText = extractText(app.translator.trans('core.forum.header.search_placeholder'));
+
     return (
       <div
         role="search"
@@ -86,10 +88,10 @@ export default class Search extends Component {
       >
         <div className="Search-input">
           <input
+            aria-label={searchCtaText}
             className="FormControl"
             type="search"
-            placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
-            aria-label={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
+            placeholder={searchCtaText}
             value={this.state.getValue()}
             oninput={(e) => this.state.setValue(e.target.value)}
             onfocus={() => (this.hasFocus = true)}
