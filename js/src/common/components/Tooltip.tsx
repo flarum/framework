@@ -44,17 +44,13 @@ export default class Tooltip extends Component<TooltipAttrs> {
     attrs['data-tooltip'] = true;
     attrs['aria-label'] = text;
 
-    if (tooltipVisible) attrs['data-tooltip-visible'] = true
-    if (!showOnFocus) attrs['data-tooltip-nofocus'] = true
+    if (tooltipVisible) attrs['data-tooltip-visible'] = true;
+    if (!showOnFocus) attrs['data-tooltip-nofocus'] = true;
 
     if (inline) {
       return <span {...attrs}>{children}</span>;
     }
 
-    return (
-      <div {...attrs}>
-        {children}
-      </div>
-    );
+    return <div {...attrs}>{children}</div>;
   }
 }
