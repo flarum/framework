@@ -31,7 +31,18 @@ export default class Drawer {
    * @public
    */
   hide() {
-    $('#app').removeClass('drawerOpen');
+    const $app = $('#app');
+
+    // If the drawer isn't open, stop execution
+    if (!$app.hasClass('drawerOpen')) return;
+
+    const $drawer = $('#drawer');
+
+    // Used to prevent `visibility: hidden` from breaking the exit animation
+    $drawer.one('transitionend', () => $drawer.css('visibility', ''));
+    $drawer.css('visibility', 'visible');
+
+    $app.removeClass('drawerOpen');
 
     if (this.$backdrop) this.$backdrop.remove();
   }
