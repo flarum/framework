@@ -9,7 +9,6 @@
 
 namespace Flarum\Console;
 
-use Flarum\Database\Console\GenerateMigrationCommand;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\AbstractServiceProvider;
@@ -26,7 +25,6 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.console.commands', function () {
             return [
                 CacheClearCommand::class,
-                GenerateMigrationCommand::class,
                 InfoCommand::class,
                 MigrateCommand::class,
                 ResetCommand::class,
