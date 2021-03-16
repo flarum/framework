@@ -39,13 +39,10 @@ export default class Tooltip extends Component<TooltipAttrs> {
   view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
     const { children } = vnode;
 
-    const { text, inline, tooltipVisible, showOnFocus } = this.attrs;
+    const { text, inline, tooltipVisible, showOnFocus, ...attrs } = this.attrs;
 
-    const attrs = {
-      ...this.attrs,
-      'data-tooltip': true,
-      'aria-label': text,
-    };
+    attrs['data-tooltip'] = true;
+    attrs['aria-label'] = text;
 
     if (tooltipVisible) attrs['data-tooltip-visible'] = true
     if (!showOnFocus) attrs['data-tooltip-nofocus'] = true
