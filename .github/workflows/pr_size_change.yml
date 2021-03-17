@@ -1,0 +1,40 @@
+name: Bundle size checker
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - "js/**"
+  pull_request:
+    paths:
+      - "js/**"
+
+jobs:
+  bundlewatch:
+    runs-on: ubuntu-latest
+
+    name: Bundlewatch
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12"
+
+      - name: Install JS dependencies
+        run: npm ci
+        working-directory: ./js
+
+      - name: Build production assets
+        run: npm run build
+        working-directory: ./js
+
+      - name: Check bundle size change
+        run: node_modules/.bin/bundlewatch --config .bundlewatch.config.json
+        working-directory: ./js
+        env:
+          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
+          CI_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
