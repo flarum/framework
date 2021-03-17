@@ -12,7 +12,7 @@ namespace Flarum\Subscriptions\Query;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
 use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\AbstractSearch;
+use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
@@ -23,7 +23,7 @@ class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInte
         return 'is:(follow|ignor)(?:ing|ed)';
     }
 
-    protected function conditions(AbstractSearch $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, $negate)
     {
         $this->constrain($search->getQuery(), $search->getActor(), $matches[1], $negate);
     }
