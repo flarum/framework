@@ -9,6 +9,7 @@
 
 use Flarum\Foundation\Paths;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Config\Repository;
 
 if (! function_exists('resolve')) {
     /**
@@ -23,7 +24,6 @@ if (! function_exists('resolve')) {
         return Container::getInstance()->make($name, $parameters);
     }
 }
-
 
 // The following are all deprecated perpetually.
 // They are needed by some laravel components we use (e.g. task scheduling)
@@ -47,7 +47,7 @@ if (! function_exists('app')) {
     }
 }
 
-if (!function_exists('base_path')) {
+if (! function_exists('base_path')) {
     /**
      * @deprecated perpetually.
      *
@@ -62,7 +62,7 @@ if (!function_exists('base_path')) {
     }
 }
 
-if (!function_exists('public_path')) {
+if (! function_exists('public_path')) {
     /**
      * @deprecated perpetually.
      *
@@ -77,7 +77,7 @@ if (!function_exists('public_path')) {
     }
 }
 
-if (!function_exists('storage_path')) {
+if (! function_exists('storage_path')) {
     /**
      * @deprecated perpetually.
      *
@@ -106,5 +106,15 @@ if (! function_exists('event')) {
     function event($event, $payload = [], $halt = false)
     {
         return resolve('events')->dispatch($event, $payload, $halt);
+    }
+}
+
+if (! function_exists('config')) {
+    /**
+     * @deprecated do not use, will be transferred to flarum/laravel-helpers.
+     */
+    function config(string $key, $default = null)
+    {
+        return resolve(Repository::class)->get($key, $default);
     }
 }
