@@ -135,14 +135,9 @@ class Application
     {
         \Illuminate\Container\Container::setInstance($this->container);
 
-        /**
-         * @deprecated beta 16, remove beta 17
-         */
-        $this->container->instance('app', $this->container);
-        $this->container->alias('app', \Illluminate\Container\Container::class);
-
         $this->container->instance('container', $this->container);
         $this->container->alias('container', \Illluminate\Container\Container::class);
+        $this->container->alias('app', 'container');
 
         $this->container->instance('flarum', $this);
         $this->container->alias('flarum', self::class);

@@ -14,9 +14,7 @@ abstract class AbstractRegexGambit implements GambitInterface
     /**
      * The regex pattern to match the bit against.
      */
-    protected function getGambitPattern()
-    {
-    }
+    abstract protected function getGambitPattern();
 
     /**
      * {@inheritdoc}
@@ -40,8 +38,7 @@ abstract class AbstractRegexGambit implements GambitInterface
      */
     protected function match($bit)
     {
-        // @deprecated, remove use of $this->pattern during beta 17.
-        if (preg_match('/^(-?)'.($this->pattern ?? $this->getGambitPattern()).'$/i', $bit, $matches)) {
+        if (preg_match('/^(-?)'.$this->getGambitPattern().'$/i', $bit, $matches)) {
             return $matches;
         }
     }
@@ -55,6 +52,5 @@ abstract class AbstractRegexGambit implements GambitInterface
      *     or not the conditions should be negated.
      * @return mixed
      */
-    // Uncomment for beta 17
-    // abstract protected function conditions(SearchState $search, array $matches, $negate);
+    abstract protected function conditions(SearchState $search, array $matches, $negate);
 }

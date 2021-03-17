@@ -37,22 +37,6 @@ class GambitManager
     }
 
     /**
-     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 17.
-     */
-    public function getFullTextGambit()
-    {
-        return $this->fulltextGambit;
-    }
-
-    /**
-     * @deprecated Do not use. Added temporarily to provide support for ConfigureUserGambits and ConfigureDiscussionGambits until they are removed in beta 17.
-     */
-    public function getGambits()
-    {
-        return $this->gambits;
-    }
-
-    /**
      * Apply gambits to a search, given a search query.
      *
      * @param SearchState $search

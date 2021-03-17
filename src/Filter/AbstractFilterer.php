@@ -71,12 +71,6 @@ abstract class AbstractFilterer
         $this->applyOffset($filterState, $offset);
         $this->applyLimit($filterState, $limit + 1);
 
-        // DEPRECATED BC LAYER, REMOVE BETA 17
-        if (static::class === PostFilterer::class) {
-            event(new ConfigurePostsQuery($query, $criteria->query));
-        }
-        // END DEPRECATED BC LAYER
-
         foreach ($this->filterMutators as $mutator) {
             $mutator($filterState, $criteria);
         }
