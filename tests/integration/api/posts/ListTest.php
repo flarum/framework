@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\api\posts;
 
 use Carbon\Carbon;
-use Flarum\Event\ConfigurePostsQuery;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;

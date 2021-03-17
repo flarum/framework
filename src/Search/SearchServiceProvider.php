@@ -12,8 +12,6 @@ namespace Flarum\Search;
 use Flarum\Discussion\Query as DiscussionQuery;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\Gambit\FulltextGambit as DiscussionFulltextGambit;
-use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigureUserGambits;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\User\Query as UserQuery;

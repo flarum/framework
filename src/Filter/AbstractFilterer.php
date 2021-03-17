@@ -9,8 +9,6 @@
 
 namespace Flarum\Filter;
 
-use Flarum\Event\ConfigurePostsQuery;
-use Flarum\Post\Filter\PostFilterer;
 use Flarum\Query\ApplyQueryParametersTrait;
 use Flarum\Query\QueryCriteria;
 use Flarum\Query\QueryResults;
