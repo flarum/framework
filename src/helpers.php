@@ -7,6 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Flarum\Foundation\Paths;
 use Illuminate\Container\Container;
 
 if (! function_exists('resolve')) {
@@ -23,10 +24,14 @@ if (! function_exists('resolve')) {
     }
 }
 
+
+// The following are all deprecated perpetually.
+// They are needed by some laravel components we use (e.g. task scheduling)
+// They should NOT be used in extension code.
+
 if (! function_exists('app')) {
     /**
-     * @deprecated beta 16, remove beta 17. Use container() instead.
-     * Get the available container instance.
+     * @deprecated perpetually.
      *
      * @param  string  $make
      * @param  array   $parameters
@@ -42,9 +47,55 @@ if (! function_exists('app')) {
     }
 }
 
+if (!function_exists('base_path')) {
+    /**
+     * @deprecated perpetually.
+     *
+     * Get the path to the base of the install.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function base_path($path = '')
+    {
+        return resolve(Paths::class)->base.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+}
+
+if (!function_exists('public_path')) {
+    /**
+     * @deprecated perpetually.
+     *
+     * Get the path to the public folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function public_path($path = '')
+    {
+        return resolve(Paths::class)->public.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+}
+
+if (!function_exists('storage_path')) {
+    /**
+     * @deprecated perpetually.
+     *
+     * Get the path to the storage folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function storage_path($path = '')
+    {
+        return resolve(Paths::class)->storage.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+}
+
 if (! function_exists('event')) {
     /**
-     * @deprecated beta 16, removed in beta 17
+     * @deprecated perpetually.
+     *
      * Fire an event and call the listeners.
      *
      * @param  string|object  $event
@@ -54,6 +105,6 @@ if (! function_exists('event')) {
      */
     function event($event, $payload = [], $halt = false)
     {
-        return app('events')->dispatch($event, $payload, $halt);
+        return resolve('events')->dispatch($event, $payload, $halt);
     }
 }
