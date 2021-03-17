@@ -56,7 +56,7 @@ class ShowUserController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $id = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
 
         if (Arr::get($request->getQueryParams(), 'bySlug', false)) {
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
