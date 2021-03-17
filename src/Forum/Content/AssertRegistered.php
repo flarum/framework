@@ -10,12 +10,13 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Frontend\Document;
+use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AssertRegistered
 {
     public function __invoke(Document $document, Request $request)
     {
-        $request->getAttribute('actor')->assertRegistered();
+        User::fromRequest($request)->assertRegistered();
     }
 }

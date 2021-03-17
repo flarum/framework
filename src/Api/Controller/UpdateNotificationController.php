@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Notification\Command\ReadNotification;
+use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -42,7 +43,7 @@ class UpdateNotificationController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $id = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
 
         return $this->bus->dispatch(
             new ReadNotification($id, $actor)

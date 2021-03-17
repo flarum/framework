@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Group\Command\CreateGroup;
+use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -42,7 +43,7 @@ class CreateGroupController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new CreateGroup($request->getAttribute('actor'), Arr::get($request->getParsedBody(), 'data', []))
+            new CreateGroup(User::fromRequest($request), Arr::get($request->getParsedBody(), 'data', []))
         );
     }
 }

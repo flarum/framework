@@ -43,7 +43,7 @@ class User
     public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
-        $actor = $request->getAttribute('actor');
+        $actor = FlarumUser::fromRequest($request);
         $userId = Arr::get($queryParams, 'username');
 
         $params = [

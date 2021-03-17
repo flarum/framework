@@ -13,6 +13,7 @@ use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\NotificationRepository;
+use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -62,7 +63,7 @@ class ListNotificationsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
 
         $actor->assertRegistered();
 

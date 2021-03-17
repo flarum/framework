@@ -16,6 +16,7 @@ use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
@@ -70,7 +71,7 @@ class LogInController implements RequestHandlerInterface
      */
     public function handle(Request $request): ResponseInterface
     {
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
         $body = $request->getParsedBody();
         $params = Arr::only($body, ['identification', 'password', 'remember']);
 

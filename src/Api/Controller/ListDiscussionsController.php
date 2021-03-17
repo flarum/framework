@@ -15,6 +15,7 @@ use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
+use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -85,7 +86,7 @@ class ListDiscussionsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
 

@@ -10,6 +10,7 @@
 namespace Flarum\Http\Middleware;
 
 use Flarum\Locale\LocaleManager;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -33,7 +34,7 @@ class SetLocale implements Middleware
 
     public function process(Request $request, Handler $handler): Response
     {
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
 
         if ($actor->exists) {
             $locale = $actor->getPreference('locale');

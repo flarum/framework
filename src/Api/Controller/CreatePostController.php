@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Post\Command\PostReply;
+use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -52,7 +53,7 @@ class CreatePostController extends AbstractCreateController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
         $data = Arr::get($request->getParsedBody(), 'data', []);
         $discussionId = Arr::get($data, 'relationships.discussion.data.id');
         $ipAddress = $request->getAttribute('ipAddress');

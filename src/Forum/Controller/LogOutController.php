@@ -14,6 +14,7 @@ use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\Event\LoggedOut;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
@@ -79,7 +80,7 @@ class LogOutController implements RequestHandlerInterface
     public function handle(Request $request): ResponseInterface
     {
         $session = $request->getAttribute('session');
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
 
         $url = Arr::get($request->getQueryParams(), 'return', $this->url->to('forum')->base());
 

@@ -13,6 +13,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AccountActivationMailerTrait;
 use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -65,7 +66,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $id = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
 
         $actor->assertRegistered();
 

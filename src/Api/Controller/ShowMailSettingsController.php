@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\MailSettingsSerializer;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Illuminate\Contracts\Validation\Factory;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -27,7 +28,7 @@ class ShowMailSettingsController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        User::fromRequest($request)->assertAdmin();
 
         $drivers = array_map(function ($driver) {
             return self::$container->make($driver);

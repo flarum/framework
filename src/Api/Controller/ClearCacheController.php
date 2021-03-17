@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Foundation\Console\CacheClearCommand;
+use Flarum\User\User;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -35,7 +36,7 @@ class ClearCacheController extends AbstractDeleteController
      */
     protected function delete(ServerRequestInterface $request)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        User::fromRequest($request)->assertAdmin();
 
         $this->command->run(
             new ArrayInput([]),

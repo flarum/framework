@@ -83,7 +83,7 @@ class Index
             $params['filter']['q'] = $q;
         }
 
-        $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
+        $apiDocument = $this->getApiDocument(User::fromRequest($request), $params);
         $defaultRoute = $this->settings->get('default_route');
 
         $document->title = $this->translator->trans('core.forum.index.meta_title_text');

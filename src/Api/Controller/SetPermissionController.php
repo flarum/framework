@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Group\Permission;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -23,7 +24,7 @@ class SetPermissionController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $request->getAttribute('actor')->assertAdmin();
+        User::fromRequest($request)->assertAdmin();
 
         $body = $request->getParsedBody();
         $permission = Arr::get($body, 'permission');

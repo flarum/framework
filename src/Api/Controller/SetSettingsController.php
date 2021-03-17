@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Settings\Event;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -43,7 +44,7 @@ class SetSettingsController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $request->getAttribute('actor')->assertAdmin();
+        User::fromRequest($request)->assertAdmin();
 
         $settings = $request->getParsedBody();
 

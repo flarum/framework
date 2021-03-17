@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Laminas\Diactoros\Response\EmptyResponse;
 use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -41,7 +42,7 @@ class DeleteFaviconController extends AbstractDeleteController
      */
     protected function delete(ServerRequestInterface $request)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        User::fromRequest($request)->assertAdmin();
 
         $path = $this->settings->get('favicon_path');
 

@@ -64,7 +64,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     public function setRequest(Request $request)
     {
         $this->request = $request;
-        $this->actor = $request->getAttribute('actor');
+        $this->actor = User::fromRequest($request);
     }
 
     /**

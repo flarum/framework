@@ -14,6 +14,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\PostRepository;
 use Flarum\Query\QueryCriteria;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -74,7 +75,7 @@ class ListPostsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
 
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
@@ -116,7 +117,7 @@ class ListPostsController extends AbstractListController
      */
     protected function extractOffset(ServerRequestInterface $request)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
         $queryParams = $request->getQueryParams();
         $sort = $this->extractSort($request);
         $limit = $this->extractLimit($request);

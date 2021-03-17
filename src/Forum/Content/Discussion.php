@@ -61,7 +61,7 @@ class Discussion
             ]
         ];
 
-        $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
+        $apiDocument = $this->getApiDocument(User::fromRequest($request), $params);
 
         $getResource = function ($link) use ($apiDocument) {
             return Arr::first($apiDocument->included, function ($value) use ($link) {

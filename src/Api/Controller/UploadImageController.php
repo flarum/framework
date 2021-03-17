@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
@@ -60,7 +61,7 @@ abstract class UploadImageController extends ShowForumController
      */
     public function data(ServerRequestInterface $request, Document $document)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        User::fromRequest($request)->assertAdmin();
 
         $file = Arr::get($request->getUploadedFiles(), $this->filenamePrefix);
 

@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\User\User;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
@@ -35,7 +36,7 @@ class SendTestMailController implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
         $actor->assertAdmin();
 
         $body = $this->translator->trans('core.email.send_test.body', ['{username}' => $actor->username]);

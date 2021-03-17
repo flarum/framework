@@ -51,7 +51,7 @@ class CorePayload
     {
         $data = $this->getDataFromApiDocument($document->getForumApiDocument());
 
-        $actor = $request->getAttribute('actor');
+        $actor = User::fromRequest($request);
 
         if ($actor->exists) {
             $user = $this->getUserApiDocument($actor);

@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\User\Command\DeleteUser;
+use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -35,7 +36,7 @@ class DeleteUserController extends AbstractDeleteController
     protected function delete(ServerRequestInterface $request)
     {
         $this->bus->dispatch(
-            new DeleteUser(Arr::get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
+            new DeleteUser(Arr::get($request->getQueryParams(), 'id'), User::fromRequest($request))
         );
     }
 }
