@@ -35,6 +35,7 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Arr;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * @property int $id
@@ -875,5 +876,16 @@ class User extends AbstractModel
             ->count();
 
         return $this;
+    }
+
+    /**
+     * Get the current user from a request instance.
+     *
+     * @param Request $request
+     * @return static
+     */
+    public static function fromRequest(Request $request)
+    {
+        return $request->getAttribute('actor');
     }
 }
