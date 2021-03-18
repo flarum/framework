@@ -2,8 +2,7 @@ name: JavaScript
 
 on:
   push:
-    branches:
-      - master
+  pull_request:
 
 jobs:
   build:
@@ -18,9 +17,21 @@ jobs:
         with:
           path: ./js/node_modules
           key: ${{ runner.os }}-node-modules-${{ github.sha }}-${{ hashFiles('**/package-lock.json') }}
+          # Keys to restore with if main `key` not found
           restore-keys: |
             ${{ runner.os }}-node-modules-${{ github.sha }}-
 
-      - uses: flarum/action-build@master
+      - name: Build and commit transpiled JS
+        uses: flarum/action-build@master
+        # Only build and commit on pushes to master branch
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Transpile JS
+        working-directory: ./js
+        run: |
+          npm ci
+          npm run build
+        # Only run when the above build step does not
+        if: github.ref != 'refs/heads/master' || github.event_name != 'push'
