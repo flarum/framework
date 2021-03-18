@@ -17,7 +17,7 @@ jobs:
         id: module-cache
         with:
           path: ./js/node_modules
-          key: ${{ runner.os }}-node-modules-${{ github.sha }}-${{ hashFiles('**/package-lock.lock') }}
+          key: ${{ runner.os }}-node-modules-${{ github.sha }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-${{ github.sha }}-
 
