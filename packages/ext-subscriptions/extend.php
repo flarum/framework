@@ -40,7 +40,7 @@ return [
     (new Extend\ApiSerializer(DiscussionSerializer::class))
         ->attribute('subscription', function (DiscussionSerializer $serializer, Discussion $discussion) {
             if ($state = $discussion->state) {
-                return $state->subscription ?: false;
+                return $state->subscription;
             }
         }),
 

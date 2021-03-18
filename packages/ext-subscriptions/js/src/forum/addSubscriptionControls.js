@@ -10,8 +10,8 @@ export default function addSubscriptionControls() {
     if (app.session.user && !(context instanceof DiscussionPage)) {
       const states = {
         none: {label: app.translator.trans('flarum-subscriptions.forum.discussion_controls.follow_button'), icon: 'fas fa-star', save: 'follow'},
-        follow: {label: app.translator.trans('flarum-subscriptions.forum.discussion_controls.unfollow_button'), icon: 'far fa-star', save: false},
-        ignore: {label: app.translator.trans('flarum-subscriptions.forum.discussion_controls.unignore_button'), icon: 'fas fa-eye', save: false}
+        follow: {label: app.translator.trans('flarum-subscriptions.forum.discussion_controls.unfollow_button'), icon: 'far fa-star', save: null},
+        ignore: {label: app.translator.trans('flarum-subscriptions.forum.discussion_controls.unignore_button'), icon: 'fas fa-eye', save: null}
       };
 
       const subscription = discussion.subscription() || 'none';

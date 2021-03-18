@@ -18,7 +18,7 @@ class SaveSubscriptionToDatabase
         $discussion = $event->discussion;
         $data = $event->data;
 
-        if (isset($data['attributes']['subscription'])) {
+        if (array_key_exists('subscription', $data['attributes'])) {
             $actor = $event->actor;
             $subscription = $data['attributes']['subscription'];
 
