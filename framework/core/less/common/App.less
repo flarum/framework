@@ -123,6 +123,9 @@
 // the left side of the screen. On other devices, the drawer has no specific
 // appearance.
 @media @phone {
+  .App:not(.drawerOpen) .App-drawer {
+    visibility: hidden;
+  }
   .drawerOpen {
     overflow: hidden;
   }
