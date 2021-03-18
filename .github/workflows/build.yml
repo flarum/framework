@@ -11,6 +11,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@master
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: module-cache
+        with:
+          path: ./js/node_modules
+          key: ${{ runner.os }}-node-modules-${{ github.sha }}-${{ hashFiles('**/package-lock.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-${{ github.sha }}-
+
       - uses: flarum/action-build@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
