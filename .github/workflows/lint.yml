@@ -11,7 +11,7 @@ on:
 
 jobs:
   prettier:
-    name: Validate JS formatting
+    name: JS / Prettier
     runs-on: ubuntu-latest
 
     steps:
