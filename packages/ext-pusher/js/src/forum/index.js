@@ -9,7 +9,7 @@ import Button from 'flarum/components/Button';
 
 app.initializers.add('flarum-pusher', () => {
   const loadPusher = new Promise((resolve) => {
-    $.getScript('//cdn.jsdelivr.net/npm/pusher-js@3.0.0/dist/pusher.min.js', () => {
+    $.getScript('//cdn.jsdelivr.net/npm/pusher-js@7.0.3/dist/web/pusher.min.js', () => {
       const socket = new Pusher(app.forum.attribute('pusherKey'), {
         authEndpoint: app.forum.attribute('apiUrl') + '/pusher/auth',
         cluster: app.forum.attribute('pusherCluster'),
@@ -21,8 +21,11 @@ app.initializers.add('flarum-pusher', () => {
       });
 
       return resolve({
-        main: socket.subscribe('public'),
-        user: app.session.user ? socket.subscribe('private-user' + app.session.user.id()) : null
+        channels: {
+          main: socket.subscribe('public'),
+          user: app.session.user ? socket.subscribe('private-user' + app.session.user.id()) : null
+        },
+        pusher: socket
       });
     });
   });
@@ -31,8 +34,10 @@ app.initializers.add('flarum-pusher', () => {
   app.pushedUpdates = [];
 
   extend(DiscussionList.prototype, 'oncreate', function() {
-    app.pusher.then(channels => {
-      channels.main.bind('newPost', data => {
+    app.pusher.then(binding => {
+      const pusher = binding.pusher;
+
+      pusher.bind('newPost', data => {
         const params = app.discussions.getParams();
 
         if (!params.q && !params.sort && !params.filter) {
@@ -59,8 +64,8 @@ app.initializers.add('flarum-pusher', () => {
   });
 
   extend(DiscussionList.prototype, 'onremove', function () {
-    app.pusher.then(channels => {
-      channels.main.unbind('newPost');
+    app.pusher.then(binding => {
+      binding.pusher.unbind('newPost');
     });
   });
 
@@ -107,8 +112,10 @@ app.initializers.add('flarum-pusher', () => {
   });
 
   extend(DiscussionPage.prototype, 'oncreate', function() {
-    app.pusher.then(channels => {
-      channels.main.bind('newPost', data => {
+    app.pusher.then(binding => {
+      const pusher = binding.pusher;
+
+      pusher.bind('newPost', data => {
         const id = String(data.discussionId);
 
         if (this.discussion && this.discussion.id() === id && this.stream) {
@@ -129,8 +136,8 @@ app.initializers.add('flarum-pusher', () => {
   });
 
   extend(DiscussionPage.prototype, 'onremove', function () {
-    app.pusher.then(channels => {
-      channels.main.unbind('newPost')
+    app.pusher.then(binding => {
+      binding.pusher.unbind('newPost');
     });
   });
 
@@ -138,7 +145,9 @@ app.initializers.add('flarum-pusher', () => {
     items.remove('refresh');
   });
 
-  app.pusher.then(channels => {
+  app.pusher.then(binding => {
+    const channels = binding.channels;
+
     if (channels.user) {
       channels.user.bind('notification', () => {
         app.session.user.pushAttributes({
