@@ -11,7 +11,7 @@ export default class SubscriptionMenu extends Dropdown {
 
     this.options = [
       {
-        subscription: false,
+        subscription: null,
         icon: 'far fa-star',
         label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
         description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text')
@@ -64,11 +64,11 @@ export default class SubscriptionMenu extends Dropdown {
     const buttonAttrs = {
       className: 'Button SubscriptionMenu-button ' + buttonClass,
       icon: buttonIcon,
-      onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow'),
+      onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? null : 'follow'),
       title: title
     };
 
-    if ((notifyEmail || notifyAlert) && subscription === false) {
+    if ((notifyEmail || notifyAlert) && subscription === null) {
       buttonAttrs.oncreate = buttonAttrs.onupdate = vnode => {
         $(vnode.dom).tooltip({
           container: '.SubscriptionMenu',
