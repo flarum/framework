@@ -6,10 +6,17 @@ on:
 
 jobs:
   build:
+    name: Build JS
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
 
       - name: Cache node_modules
         uses: actions/cache@v2
@@ -30,8 +37,8 @@ jobs:
 
       - name: Transpile JS
         working-directory: ./js
+        # Only run when the above build step does not
+        if: github.ref != 'refs/heads/master' || github.event_name != 'push'
         run: |
           npm ci
           npm run build
-        # Only run when the above build step does not
-        if: github.ref != 'refs/heads/master' || github.event_name != 'push'
