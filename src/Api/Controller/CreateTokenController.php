@@ -59,7 +59,6 @@ class CreateTokenController implements RequestHandlerInterface
 
         $identification = Arr::get($body, 'identification');
         $password = Arr::get($body, 'password');
-        $lifetime = Arr::get($body, 'lifetime', 3600);
 
         $user = $this->users->findByIdentification($identification);
 
@@ -67,13 +66,7 @@ class CreateTokenController implements RequestHandlerInterface
             throw new NotAuthenticatedException;
         }
 
-        // Use of lifetime attribute is deprecated in beta 16, removed in beta 17
-        // For backward compatibility with custom integrations, longer lifetimes will be interpreted as remember tokens
-        if ($lifetime > 3600 || Arr::get($body, 'remember')) {
-            if ($lifetime > 3600) {
-                trigger_error('Use of parameter lifetime is deprecated in beta 16, will be removed in beta 17. Use remember parameter to start a remember session', E_USER_DEPRECATED);
-            }
-
+        if (Arr::get($body, 'remember')) {
             $token = RememberAccessToken::generate($user->id);
         } else {
             $token = SessionAccessToken::generate($user->id);

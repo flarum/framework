@@ -9,7 +9,6 @@
 
 namespace Flarum\Query;
 
-use Flarum\Search\SearchCriteria;
 use Flarum\User\User;
 
 /**
@@ -17,7 +16,7 @@ use Flarum\User\User;
  * query. The limit and offset are not included because they only determine
  * which part of the entire result set will be returned.
  */
-class QueryCriteria extends SearchCriteria
+class QueryCriteria
 {
     /**
      * The user performing the query.

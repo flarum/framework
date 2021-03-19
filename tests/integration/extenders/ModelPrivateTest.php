@@ -31,7 +31,7 @@ class ModelPrivateTest extends TestCase
         $discussion = Discussion::start('Some Discussion', $user);
         $discussion->save();
 
-        $this->assertFalse($discussion->is_private);
+        $this->assertNull($discussion->is_private);
     }
 
     /**

@@ -9,10 +9,9 @@
 
 namespace Flarum\Query;
 
-use Flarum\Search\SearchResults;
 use Illuminate\Database\Eloquent\Collection;
 
-class QueryResults extends SearchResults
+class QueryResults
 {
     /**
      * @var Collection

@@ -28,7 +28,7 @@ class FilterServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.filter.filters', function () {
+        $this->container->singleton('flarum.filter.filters', function () {
             return [
                 DiscussionFilterer::class => [
                     DiscussionQuery\AuthorFilterGambit::class,
@@ -45,13 +45,12 @@ class FilterServiceProvider extends AbstractServiceProvider
                     PostFilter\DiscussionFilter::class,
                     PostFilter\IdFilter::class,
                     PostFilter\NumberFilter::class,
-                    PostFilter\TypeFilter::class,
-                    PostFilter\UserFilter::class,
+                    PostFilter\TypeFilter::class
                 ],
             ];
         });
 
-        $this->app->singleton('flarum.filter.filter_mutators', function () {
+        $this->container->singleton('flarum.filter.filter_mutators', function () {
             return [];
         });
     }
@@ -61,30 +60,30 @@ class FilterServiceProvider extends AbstractServiceProvider
         // We can resolve the filter mutators in the when->needs->give callback,
         // but we need to resolve at least one regardless so we know which
         // filterers we need to register filters for.
-        $filters = $this->app->make('flarum.filter.filters');
+        $filters = $this->container->make('flarum.filter.filters');
 
         foreach ($filters as $filterer => $filterClasses) {
-            $this->app
+            $this->container
                 ->when($filterer)
                 ->needs('$filters')
                 ->give(function () use ($filterClasses) {
                     $compiled = [];
 
                     foreach ($filterClasses as $filterClass) {
-                        $filter = $this->app->make($filterClass);
+                        $filter = $this->container->make($filterClass);
                         $compiled[$filter->getFilterKey()][] = $filter;
                     }
 
                     return $compiled;
                 });
 
-            $this->app
+            $this->container
                 ->when($filterer)
                 ->needs('$filterMutators')
                 ->give(function () use ($filterer) {
                     return array_map(function ($filterMutatorClass) {
-                        return ContainerUtil::wrapCallback($filterMutatorClass, $this->app);
-                    }, Arr::get($this->app->make('flarum.filter.filter_mutators'), $filterer, []));
+                        return ContainerUtil::wrapCallback($filterMutatorClass, $this->container);
+                    }, Arr::get($this->container->make('flarum.filter.filter_mutators'), $filterer, []));
                 });
         }
     }

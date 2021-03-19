@@ -12,8 +12,6 @@ namespace Flarum\Search;
 use Flarum\Discussion\Query as DiscussionQuery;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\Gambit\FulltextGambit as DiscussionFulltextGambit;
-use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigureUserGambits;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\User\Query as UserQuery;
@@ -75,33 +73,6 @@ class SearchServiceProvider extends AbstractServiceProvider
                     foreach (Arr::get($this->container->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
                         $gambitManager->add($this->container->make($gambit));
                     }
-
-                    // Temporary BC Layer
-                    // @deprecated beta 16, remove beta 17.
-
-                    $oldEvents = [
-                        DiscussionSearcher::class => ConfigureDiscussionGambits::class,
-                        UserSearcher::class => ConfigureUserGambits::class
-                    ];
-
-                    foreach ($oldEvents as $oldSearcher => $event) {
-                        if ($searcher === $oldSearcher) {
-                            $tempGambits = new GambitManager;
-                            $this->container->make('events')->dispatch(
-                                new $event($tempGambits)
-                            );
-
-                            if (! is_null($fullTextGambit = $tempGambits->getFullTextGambit())) {
-                                $gambitManager->setFullTextGambit($this->container->make($fullTextGambit));
-                            }
-
-                            foreach ($tempGambits->getGambits() as $gambit) {
-                                $gambitManager->add($this->container->make($gambit));
-                            }
-                        }
-                    }
-
-                    // End BC Layer
 
                     return $gambitManager;
                 });
