@@ -67,20 +67,12 @@ class AccessToken extends AbstractModel
      * Generate an access token for the specified user.
      *
      * @param int $userId
-     * @param int $lifetime Does nothing. Deprecated in beta 16, removed in beta 17
      * @return static
      */
-    public static function generate($userId, $lifetime = null)
+    public static function generate($userId)
     {
-        if (! is_null($lifetime)) {
-            trigger_error('Parameter $lifetime is deprecated in beta 16, will be removed in beta 17', E_USER_DEPRECATED);
-        }
-
         if (static::class === self::class) {
-            trigger_error('Use of AccessToken::generate() is deprecated in beta 16. Use SessionAccessToken::generate() or RememberAccessToken::generate()', E_USER_DEPRECATED);
-
-            $token = new SessionAccessToken;
-            $token->type = 'session';
+            throw new \Exception('Use of AccessToken::generate() is not allowed: use the `generate` method on one of the subclasses.');
         } else {
             $token = new static;
             $token->type = static::$type;

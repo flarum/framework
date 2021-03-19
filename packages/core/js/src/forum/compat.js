@@ -36,8 +36,6 @@ import HeaderSecondary from './components/HeaderSecondary';
 import ComposerButton from './components/ComposerButton';
 import DiscussionList from './components/DiscussionList';
 import ReplyPlaceholder from './components/ReplyPlaceholder';
-import TextEditor from '../common/components/TextEditor'; // @deprecated beta 16, remove beta 17. Moved to common.
-import TextEditorButton from '../common/components/TextEditorButton'; // @deprecated beta 16, remove beta 17. Moved to common.
 import AvatarEditor from './components/AvatarEditor';
 import Post from './components/Post';
 import SettingsPage from './components/SettingsPage';
@@ -87,7 +85,6 @@ export default Object.assign(compat, {
   'utils/UserControls': UserControls,
   'utils/Pane': Pane,
   'utils/BasicEditorDriver': BasicEditorDriver,
-  'utils/SuperTextarea': BasicEditorDriver, // @deprecated beta 16, remove beta 17
   'states/ComposerState': ComposerState,
   'states/DiscussionListState': DiscussionListState,
   'states/GlobalSearchState': GlobalSearchState,
@@ -116,8 +113,6 @@ export default Object.assign(compat, {
   'components/ComposerButton': ComposerButton,
   'components/DiscussionList': DiscussionList,
   'components/ReplyPlaceholder': ReplyPlaceholder,
-  'components/TextEditor': TextEditor, // @deprecated beta 16, remove beta 17. Moved to common.
-  'components/TextEditorButton': TextEditorButton, // @deprecated beta 16, remove beta 17. Moved to common.
   'components/AvatarEditor': AvatarEditor,
   'components/Post': Post,
   'components/SettingsPage': SettingsPage,

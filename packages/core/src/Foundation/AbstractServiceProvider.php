@@ -15,7 +15,7 @@ use Illuminate\Support\ServiceProvider;
 abstract class AbstractServiceProvider extends ServiceProvider
 {
     /**
-     * @deprecated beta 16, remove beta 17
+     * @deprecated perpetually, not removed because Laravel needs it.
      * @var Container
      */
     protected $app;
