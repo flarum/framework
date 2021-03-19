@@ -24,7 +24,6 @@ use Flarum\Post\Post;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
-use Flarum\User\Event\CheckingPassword;
 use Flarum\User\Event\Deleted;
 use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\EmailChangeRequested;
@@ -343,7 +342,7 @@ class User extends AbstractModel
      */
     public function checkPassword($password)
     {
-        $valid = static::$dispatcher->until(new CheckingPassword($this, $password));
+        $valid = false;
 
         foreach (static::$passwordCheckers as $checker) {
             $result = $checker($this, $password);
@@ -355,7 +354,7 @@ class User extends AbstractModel
             }
         }
 
-        return $valid || false;
+        return $valid;
     }
 
     /**

@@ -10,7 +10,6 @@
 namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
-use Flarum\Extend\Compat;
 use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
@@ -135,13 +134,6 @@ class Extension implements Arrayable
     public function extend(Container $container)
     {
         foreach ($this->getExtenders() as $extender) {
-            // If an extension has not yet switched to the new extend.php
-            // format, it might return a function (or more of them). We wrap
-            // these in a Compat extender to enjoy an unique interface.
-            if ($extender instanceof \Closure || is_string($extender)) {
-                $extender = new Compat($extender);
-            }
-
             $extender->extend($container, $this);
         }
     }

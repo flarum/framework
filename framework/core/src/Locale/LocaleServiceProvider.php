@@ -15,7 +15,6 @@ use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
-use Symfony\Component\Translation\TranslatorInterface as DeprecatedTranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LocaleServiceProvider extends AbstractServiceProvider
@@ -67,7 +66,6 @@ class LocaleServiceProvider extends AbstractServiceProvider
         $this->container->alias('translator', Translator::class);
         $this->container->alias('translator', TranslatorContract::class);
         $this->container->alias('translator', TranslatorInterface::class);
-        $this->container->alias('translator', DeprecatedTranslatorInterface::class);
     }
 
     private function getDefaultLocale(): string
