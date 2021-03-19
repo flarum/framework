@@ -10,7 +10,6 @@
 namespace Flarum\User;
 
 use Flarum\Http\UrlGenerator;
-use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Queue\Queue;
@@ -18,6 +17,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccountActivationMailer
 {
+    use AccountActivationMailerTrait;
+
     /**
      * @var SettingsRepositoryInterface
      */
@@ -60,42 +61,9 @@ class AccountActivationMailer
             return;
         }
 
-        $data = $this->getEmailData($user, $user->email);
+        $token = $this->generateToken($user, $user->email);
+        $data = $this->getEmailData($user, $token);
 
-        $body = $this->translator->trans('core.email.activate_account.body', $data);
-        $subject = '['.$data['{forum}'].'] '.$this->translator->trans('core.email.activate_account.subject');
-
-        $this->queue->push(new SendRawEmailJob($user->email, $subject, $body));
-    }
-
-    /**
-     * @param User $user
-     * @param string $email
-     * @return EmailToken
-     */
-    protected function generateToken(User $user, $email)
-    {
-        $token = EmailToken::generate($email, $user->id);
-        $token->save();
-
-        return $token;
-    }
-
-    /**
-     * Get the data that should be made available to email templates.
-     *
-     * @param User $user
-     * @param string $email
-     * @return array
-     */
-    protected function getEmailData(User $user, $email)
-    {
-        $token = $this->generateToken($user, $email);
-
-        return [
-            '{username}' => $user->display_name,
-            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
-            '{forum}' => $this->settings->get('forum_title')
-        ];
+        $this->sendConfirmationEmail($user, $data);
     }
 }

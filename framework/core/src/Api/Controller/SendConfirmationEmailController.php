@@ -10,9 +10,8 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\UrlGenerator;
-use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\EmailToken;
+use Flarum\User\AccountActivationMailerTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;
@@ -24,6 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SendConfirmationEmailController implements RequestHandlerInterface
 {
+    use AccountActivationMailerTrait;
+
     /**
      * @var SettingsRepositoryInterface
      */
@@ -72,19 +73,10 @@ class SendConfirmationEmailController implements RequestHandlerInterface
             throw new PermissionDeniedException;
         }
 
-        $token = EmailToken::generate($actor->email, $actor->id);
-        $token->save();
+        $token = $this->generateToken($actor, $actor->email);
+        $data = $this->getEmailData($actor, $token);
 
-        $data = [
-            '{username}' => $actor->username,
-            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
-            '{forum}' => $this->settings->get('forum_title')
-        ];
-
-        $body = $this->translator->trans('core.email.activate_account.body', $data);
-        $subject = $this->translator->trans('core.email.activate_account.subject');
-
-        $this->queue->push(new SendRawEmailJob($actor->email, $subject, $body));
+        $this->sendConfirmationEmail($actor, $data);
 
         return new EmptyResponse;
     }
