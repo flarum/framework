@@ -32,7 +32,7 @@ class SetupScript
      *
      * @var int
      */
-    protected $post;
+    protected $port;
 
     /**
      * Test database name.
@@ -60,7 +60,7 @@ class SetupScript
      *
      * @var string
      */
-    protected $prefix;
+    protected $pref;
 
     public function __construct()
     {
