@@ -93,6 +93,14 @@ class ListPostsController extends AbstractListController
             $results->areMoreResults() ? null : 0
         );
 
+        if (! in_array('discussion', $include)) {
+            $include[] = 'discussion';
+        }
+
+        if (in_array('user', $include)) {
+            $include[] = 'user.groups';
+        }
+
         return $results->getResults()->load($include);
     }
 
