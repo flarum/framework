@@ -59,7 +59,10 @@ class AdminServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\SetLocale::class,
                 'flarum.admin.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
-                Middleware\RequireAdministrateAbility::class
+                Middleware\RequireAdministrateAbility::class,
+                HttpMiddleware\ReferrerPolicyHeader::class,
+                HttpMiddleware\XssProtectionHeader::class,
+                HttpMiddleware\ContentTypeOptionsHeader::class
             ];
         });
 

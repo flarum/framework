@@ -73,6 +73,9 @@ class ForumServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\ShareErrorsFromSession::class,
                 HttpMiddleware\FlarumPromotionHeader::class,
+                HttpMiddleware\ReferrerPolicyHeader::class,
+                HttpMiddleware\XssProtectionHeader::class,
+                HttpMiddleware\ContentTypeOptionsHeader::class
             ];
         });
 
