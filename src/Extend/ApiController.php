@@ -29,6 +29,7 @@ class ApiController implements ExtenderInterface
     private $addSortFields = [];
     private $removeSortFields = [];
     private $sort;
+    private $load = [];
 
     /**
      * @param string $controllerClass The ::class attribute of the controller you are modifying.
@@ -216,6 +217,27 @@ class ApiController implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Eager loads relationships.
+     *
+     * First level relationships will be loaded regardless of them being included in the request.
+     * Sublevel relationships will only be loaded if the upper level was included or manually loaded.
+     *
+     * @example If a relationship such as: 'relation.subRelation' is specified,
+     * it will only be loaded if 'relation' is or has been loaded.
+     * To force load the relationship, both levels have to be specified,
+     * example: ['relation', 'relation.subRelation'].
+     *
+     * @param string|array
+     * @return self
+     */
+    public function load($relations)
+    {
+        $this->load = array_merge($this->load, (array) $relations);
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $this->beforeDataCallbacks[] = function (AbstractSerializeController $controller) use ($container) {
@@ -281,6 +303,8 @@ class ApiController implements ExtenderInterface
             $beforeSerializationCallback = ContainerUtil::wrapCallback($beforeSerializationCallback, $container);
             AbstractSerializeController::addSerializationPreparationCallback($this->controllerClass, $beforeSerializationCallback);
         }
+
+        AbstractSerializeController::setLoadRelations($this->controllerClass, $this->load);
     }
 
     /**

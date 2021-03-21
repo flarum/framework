@@ -93,7 +93,11 @@ class ListPostsController extends AbstractListController
             $results->areMoreResults() ? null : 0
         );
 
-        return $results->getResults()->load($include);
+        $results = $results->getResults();
+
+        $this->loadRelations($results, $include);
+
+        return $results;
     }
 
     /**
