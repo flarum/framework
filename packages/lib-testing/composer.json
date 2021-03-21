@@ -1,10 +1,14 @@
 {
     "name": "flarum/testing",
     "description": "Automated testing infrastructure for Flarum core and extensions.",
-    "keywords": ["forum", "discussion"],
+    "keywords": [
+        "forum",
+        "discussion"
+    ],
     "homepage": "https://flarum.org/",
     "license": "MIT",
     "require": {
+        "ext-json": "*",
         "mockery/mockery": "^1.4",
         "phpunit/phpunit": "^9.0"
     },

@@ -16,7 +16,7 @@ use Illuminate\Support\Arr;
 class ExtensionManagerIncludeCurrent extends ExtensionManager
 {
     /**
-     * @return Collection
+     * @{@inheritDoc}
      */
     public function getExtensions()
     {
