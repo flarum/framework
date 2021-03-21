@@ -93,6 +93,9 @@ class ListPostsController extends AbstractListController
             $results->areMoreResults() ? null : 0
         );
 
+        // Eager load discussion for use in the policies,
+        // eager loading does not affect the JSON response,
+        // the response only includes relations included in the request.
         if (! in_array('discussion', $include)) {
             $include[] = 'discussion';
         }
