@@ -14,6 +14,7 @@ use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Filesystem\Factory;
 use InvalidArgumentException;
 use RuntimeException;
 use SplFileInfo;
@@ -66,19 +67,21 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
     {
         $locales->addLocale($locale, $title);
 
+        $vendorFilesystem = $container->make(Factory::class)->disk('flarum-vendor');
+
         $directory = $extension->getPath().$this->path;
 
-        if (! is_dir($directory)) {
+        if (! $vendorFilesystem->exists($directory)) {
             throw new RuntimeException(
                 'Expected to find "'.$this->path.'" directory in language pack.'
             );
         }
 
-        if (file_exists($file = $directory.'/config.js')) {
+        if ($vendorFilesystem->exists($file = $directory.'/config.js')) {
             $locales->addJsFile($locale, $file);
         }
 
-        if (file_exists($file = $directory.'/config.css')) {
+        if ($vendorFilesystem->exists($file = $directory.'/config.css')) {
             $locales->addCssFile($locale, $file);
         }
 
