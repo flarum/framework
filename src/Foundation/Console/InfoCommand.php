@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
+use Flarum\Foundation\Paths;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 
@@ -29,13 +30,19 @@ class InfoCommand extends AbstractCommand
     protected $config;
 
     /**
+     * @var Paths
+     */
+    protected $paths;
+
+    /**
      * @param ExtensionManager $extensions
      * @param Config config
      */
-    public function __construct(ExtensionManager $extensions, Config $config)
+    public function __construct(ExtensionManager $extensions, Config $config, Paths $paths)
     {
         $this->extensions = $extensions;
         $this->config = $config;
+        $this->paths = $paths;
 
         parent::__construct();
     }
@@ -109,9 +116,10 @@ class InfoCommand extends AbstractCommand
      */
     private function findPackageVersion($path, $fallback = null)
     {
-        if (file_exists("$path/.git")) {
+        $fullPath = "{$this->paths->vendor}/$path";
+        if (file_exists("$fullPath/.git")) {
             $cwd = getcwd();
-            chdir($path);
+            chdir($fullPath);
 
             $output = [];
             $status = null;

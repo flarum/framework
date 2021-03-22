@@ -12,15 +12,11 @@ namespace Flarum\Extension;
 use Flarum\Database\Migrator;
 use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemInterface;
-use League\Flysystem\MountManager;
-use League\Flysystem\Plugin\ListFiles;
 
 /**
  * @property string $name
@@ -113,13 +109,19 @@ class Extension implements Arrayable
     protected $version;
 
     /**
+     * @var Filesystem
+     */
+    protected $vendorFilesystem;
+
+    /**
      * @param       $path
      * @param array $composerJson
      */
-    public function __construct($path, $composerJson)
+    public function __construct($path, $composerJson, $vendorFilesystem)
     {
         $this->path = $path;
         $this->composerJson = $composerJson;
+        $this->vendorFilesystem = $vendorFilesystem;
         $this->assignId();
     }
 
@@ -250,16 +252,16 @@ class Extension implements Arrayable
             return $icon;
         }
 
-        $file = $this->path.'/'.$file;
+        $file = "$this->path/$file";
 
-        if (file_exists($file)) {
+        if ($this->vendorFilesystem->exists($file)) {
             $extension = pathinfo($file, PATHINFO_EXTENSION);
             if (! array_key_exists($extension, self::LOGO_MIMETYPES)) {
                 throw new \RuntimeException('Invalid image type');
             }
 
             $mimetype = self::LOGO_MIMETYPES[$extension];
-            $data = base64_encode(file_get_contents($file));
+            $data = base64_encode($this->vendorFilesystem->get($file));
 
             $icon['backgroundImage'] = "url('data:$mimetype;base64,$data')";
         }
@@ -330,13 +332,13 @@ class Extension implements Arrayable
 
     private function getExtenders(): array
     {
-        $extenderFile = $this->getExtenderFile();
+        $extenderPath = "$this->path/extend.php";
 
-        if (! $extenderFile) {
+        if (! $this->vendorFilesystem->exists($extenderPath)) {
             return [];
         }
 
-        $extenders = require $extenderFile;
+        $extenders = eval('?>' . $this->vendorFilesystem->get($extenderPath));
 
         if (! is_array($extenders)) {
             $extenders = [$extenders];
@@ -356,17 +358,6 @@ class Extension implements Arrayable
                 return $extender instanceof LifecycleInterface;
             }
         );
-    }
-
-    private function getExtenderFile(): ?string
-    {
-        $filename = "{$this->path}/extend.php";
-
-        if (file_exists($filename)) {
-            return $filename;
-        }
-
-        return null;
     }
 
     /**
@@ -419,25 +410,19 @@ class Extension implements Arrayable
      */
     public function hasAssets()
     {
-        return realpath($this->path.'/assets/') !== false;
+        return $this->vendorFilesystem->exists("$this->path/assets");
     }
 
-    public function copyAssetsTo(FilesystemInterface $target)
+    public function copyAssetsTo(Filesystem $assetsFilesystem)
     {
         if (! $this->hasAssets()) {
             return;
         }
 
-        $mount = new MountManager([
-            'source' => $source = new Filesystem(new Local($this->getPath().'/assets')),
-            'target' => $target,
-        ]);
-
-        $source->addPlugin(new ListFiles);
-        $assetFiles = $source->listFiles('/', true);
+        $assetFiles = $this->vendorFilesystem->allFiles("$this->path/assets");
 
         foreach ($assetFiles as $file) {
-            $mount->copy("source://$file[path]", "target://extensions/$this->id/$file[path]");
+            $assetsFilesystem->put("extensions/$this->id/$file", $this->vendorFilesystem->get("$this->path/assets/$file"));
         }
     }
 
@@ -448,7 +433,7 @@ class Extension implements Arrayable
      */
     public function hasMigrations()
     {
-        return realpath($this->path.'/migrations/') !== false;
+        return $this->vendorFilesystem->exists("$this->path/migrations");
     }
 
     public function migrate(Migrator $migrator, $direction = 'up')

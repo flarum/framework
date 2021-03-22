@@ -9,15 +9,8 @@
 
 namespace Flarum\Settings;
 
-use Flarum\Api\Controller\DeleteFaviconController;
-use Flarum\Api\Controller\DeleteLogoController;
-use Flarum\Api\Controller\UploadFaviconController;
-use Flarum\Api\Controller\UploadLogoController;
 use Flarum\Foundation\AbstractServiceProvider;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Database\ConnectionInterface;
-use League\Flysystem\FilesystemInterface;
 
 class SettingsServiceProvider extends AbstractServiceProvider
 {
@@ -35,18 +28,5 @@ class SettingsServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->alias(SettingsRepositoryInterface::class, 'flarum.settings');
-
-        $assets = function (Container $container) {
-            return $container->make(Factory::class)->disk('flarum-assets')->getDriver();
-        };
-
-        $this->container->when([
-            DeleteFaviconController::class,
-            DeleteLogoController::class,
-            UploadFaviconController::class,
-            UploadLogoController::class,
-        ])
-            ->needs(FilesystemInterface::class)
-            ->give($assets);
     }
 }

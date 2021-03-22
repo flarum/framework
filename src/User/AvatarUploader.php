@@ -9,17 +9,21 @@
 
 namespace Flarum\User;
 
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
-use League\Flysystem\FilesystemInterface;
 
 class AvatarUploader
 {
+    /**
+     * @var Filesystem
+     */
     protected $uploadDir;
 
-    public function __construct(FilesystemInterface $uploadDir)
+    public function __construct(Factory $filesystemFactory)
     {
-        $this->uploadDir = $uploadDir;
+        $this->uploadDir = $filesystemFactory->disk('flarum-avatars');
     }
 
     /**
@@ -52,7 +56,7 @@ class AvatarUploader
         $avatarPath = $user->getRawOriginal('avatar_url');
 
         $user->afterSave(function () use ($avatarPath) {
-            if ($this->uploadDir->has($avatarPath)) {
+            if ($this->uploadDir->exists($avatarPath)) {
                 $this->uploadDir->delete($avatarPath);
             }
         });

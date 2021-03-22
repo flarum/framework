@@ -79,6 +79,7 @@ class EnableBundledExtensions implements Step
         foreach ($extensions as $extension) {
             $extension->migrate($this->getMigrator());
             $extension->copyAssetsTo(
+                new Filesystem(new Local($this->vendorPath)),
                 new Filesystem(new Local($this->assetPath))
             );
         }
@@ -110,7 +111,7 @@ class EnableBundledExtensions implements Step
                     ? "$this->vendorPath/composer/".$package['install-path']
                     : $this->vendorPath.'/'.Arr::get($package, 'name');
 
-                $extension = new Extension($path, $package);
+                $extension = new Extension($path, $package, new Filesystem(new Local($this->vendorPath)));
                 $extension->setVersion(Arr::get($package, 'version'));
 
                 return $extension;
