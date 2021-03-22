@@ -15,7 +15,6 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
-use Illuminate\Contracts\Filesystem\Filesystem;
 
 class ForumSerializer extends AbstractSerializer
 {
@@ -40,7 +39,7 @@ class ForumSerializer extends AbstractSerializer
     protected $url;
 
     /**
-     * @var Filesystem
+     * @var Cloud
      */
     protected $assetsFilesystem;
 
@@ -132,10 +131,6 @@ class ForumSerializer extends AbstractSerializer
 
     public function getAssetUrl($assetPath): string
     {
-        if ($this->assetsFilesystem instanceof Cloud) {
-            return $this->assetsFilesystem->url($assetPath);
-        }
-
-        return $this->url->to('forum')->path("assets/$assetPath");
+        return $this->assetsFilesystem->url($assetPath);
     }
 }
