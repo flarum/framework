@@ -12,8 +12,9 @@ namespace Flarum\Extension;
 use Flarum\Database\Migrator;
 use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Contracts\Filesystem\Filesystem as FilesystemInterface;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -109,19 +110,13 @@ class Extension implements Arrayable
     protected $version;
 
     /**
-     * @var Filesystem
-     */
-    protected $vendorFilesystem;
-
-    /**
      * @param       $path
      * @param array $composerJson
      */
-    public function __construct($path, $composerJson, $vendorFilesystem)
+    public function __construct($path, $composerJson)
     {
         $this->path = $path;
         $this->composerJson = $composerJson;
-        $this->vendorFilesystem = $vendorFilesystem;
         $this->assignId();
     }
 
@@ -252,16 +247,16 @@ class Extension implements Arrayable
             return $icon;
         }
 
-        $file = "$this->path/$file";
+        $file = $this->path.'/'.$file;
 
-        if ($this->vendorFilesystem->exists($file)) {
+        if (file_exists($file)) {
             $extension = pathinfo($file, PATHINFO_EXTENSION);
             if (! array_key_exists($extension, self::LOGO_MIMETYPES)) {
                 throw new \RuntimeException('Invalid image type');
             }
 
             $mimetype = self::LOGO_MIMETYPES[$extension];
-            $data = base64_encode($this->vendorFilesystem->get($file));
+            $data = base64_encode(file_get_contents($file));
 
             $icon['backgroundImage'] = "url('data:$mimetype;base64,$data')";
         }
@@ -332,13 +327,13 @@ class Extension implements Arrayable
 
     private function getExtenders(): array
     {
-        $extenderPath = "$this->path/extend.php";
+        $extenderFile = $this->getExtenderFile();
 
-        if (! $this->vendorFilesystem->exists($extenderPath)) {
+        if (! $extenderFile) {
             return [];
         }
 
-        $extenders = eval('?>'.$this->vendorFilesystem->get($extenderPath));
+        $extenders = require $extenderFile;
 
         if (! is_array($extenders)) {
             $extenders = [$extenders];
@@ -358,6 +353,17 @@ class Extension implements Arrayable
                 return $extender instanceof LifecycleInterface;
             }
         );
+    }
+
+    private function getExtenderFile(): ?string
+    {
+        $filename = "{$this->path}/extend.php";
+
+        if (file_exists($filename)) {
+            return $filename;
+        }
+
+        return null;
     }
 
     /**
@@ -410,19 +416,22 @@ class Extension implements Arrayable
      */
     public function hasAssets()
     {
-        return $this->vendorFilesystem->exists("$this->path/assets");
+        return realpath($this->path.'/assets/') !== false;
     }
 
-    public function copyAssetsTo(Filesystem $assetsFilesystem)
+    public function copyAssetsTo(FilesystemInterface $target)
     {
         if (! $this->hasAssets()) {
             return;
         }
 
-        $assetFiles = $this->vendorFilesystem->allFiles("$this->path/assets");
+        $source = new Filesystem();
 
-        foreach ($assetFiles as $file) {
-            $assetsFilesystem->put("extensions/$this->id/$file", $this->vendorFilesystem->get("$this->path/assets/$file"));
+        $assetFiles = $source->allFiles("$this->path/assets");
+
+        foreach ($assetFiles as $fullPath) {
+            $relPath = substr($fullPath, strlen("$this->path/assets"));
+            $target->put("extensions/$this->id/$relPath", $source->get($fullPath));
         }
     }
 
@@ -433,7 +442,7 @@ class Extension implements Arrayable
      */
     public function hasMigrations()
     {
-        return $this->vendorFilesystem->exists("$this->path/migrations");
+        return realpath($this->path.'/migrations/') !== false;
     }
 
     public function migrate(Migrator $migrator, $direction = 'up')
