@@ -338,7 +338,7 @@ class Extension implements Arrayable
             return [];
         }
 
-        $extenders = eval('?>' . $this->vendorFilesystem->get($extenderPath));
+        $extenders = eval('?>'.$this->vendorFilesystem->get($extenderPath));
 
         if (! is_array($extenders)) {
             $extenders = [$extenders];
