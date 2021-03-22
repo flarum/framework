@@ -18,11 +18,12 @@ use Flarum\Extension\Event\Uninstalled;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Filesystem\Factory;
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Contracts\Filesystem\Filesystem as FilesystemInterface;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
@@ -47,10 +48,10 @@ class ExtensionManager
     /**
      * @var Filesystem
      */
-    protected $vendorFilesystem;
+    protected $filesystem;
 
     /**
-     * @var Filesystem
+     * @var FilesystemInterface
      */
     protected $assetsFilesystem;
 
@@ -65,6 +66,7 @@ class ExtensionManager
         Container $container,
         Migrator $migrator,
         Dispatcher $dispatcher,
+        Filesystem $filesystem,
         Factory $filesystemFactory
     ) {
         $this->config = $config;
@@ -72,7 +74,7 @@ class ExtensionManager
         $this->container = $container;
         $this->migrator = $migrator;
         $this->dispatcher = $dispatcher;
-        $this->vendorFilesystem = $filesystemFactory->disk('flarum-vendor');
+        $this->filesystem = $filesystem;
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
     }
 
@@ -81,11 +83,11 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->vendorFilesystem->exists('composer/installed.json')) {
+        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->vendorFilesystem->get('composer/installed.json'), true);
+            $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
 
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
@@ -105,11 +107,11 @@ class ExtensionManager
                 $installedSet[Arr::get($package, 'name')] = true;
 
                 $path = isset($package['install-path'])
-                    ? '/composer/'.$package['install-path']
-                    : '/'.Arr::get($package, 'name');
+                    ? $this->paths->vendor.'/composer/'.$package['install-path']
+                    : $this->paths->vendor.'/'.Arr::get($package, 'name');
 
                 // Instantiates an Extension object using the package path and composer.json file.
-                $extension = new Extension($path, $package, $this->vendorFilesystem);
+                $extension = new Extension($path, $package);
 
                 // Per default all extensions are installed if they are registered in composer.
                 $extension->setInstalled(true);
@@ -259,7 +261,7 @@ class ExtensionManager
      */
     protected function publishAssets(Extension $extension)
     {
-        return $extension->copyAssetsTo($this->vendorFilesystem, $this->assetsFilesystem);
+        $extension->copyAssetsTo($this->assetsFilesystem);
     }
 
     /**
@@ -270,18 +272,6 @@ class ExtensionManager
     protected function unpublishAssets(Extension $extension)
     {
         $this->assetsFilesystem->deleteDirectory('extensions/'.$extension->getId());
-    }
-
-    /**
-     * Get the path to an extension's published asset.
-     *
-     * @param Extension $extension
-     * @param string    $path
-     * @return string
-     */
-    public function getAsset(Extension $extension, $path)
-    {
-        return $this->paths->public.'/assets/extensions/'.$extension->getId().$path;
     }
 
     /**
