@@ -18,7 +18,6 @@ use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Http\AccessToken;
-use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\User\DisplayName\DriverInterface;
