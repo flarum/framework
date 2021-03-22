@@ -13,6 +13,9 @@ use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Filesystem\Cloud;
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 
 class ForumSerializer extends AbstractSerializer
 {
@@ -37,13 +40,20 @@ class ForumSerializer extends AbstractSerializer
     protected $url;
 
     /**
+     * @var Filesystem
+     */
+    protected $assetsFilesystem;
+
+    /**
      * @param Config $config
+     * @param Factory $filesystemFactory
      * @param SettingsRepositoryInterface $settings
      * @param UrlGenerator $url
      */
-    public function __construct(Config $config, SettingsRepositoryInterface $settings, UrlGenerator $url)
+    public function __construct(Config $config, Factory $filesystemFactory, SettingsRepositoryInterface $settings, UrlGenerator $url)
     {
         $this->config = $config;
+        $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
         $this->settings = $settings;
         $this->url = $url;
     }
@@ -107,7 +117,7 @@ class ForumSerializer extends AbstractSerializer
     {
         $logoPath = $this->settings->get('logo_path');
 
-        return $logoPath ? $this->url->to('forum')->path('assets/'.$logoPath) : null;
+        return $logoPath ? $this->getAssetUrl($logoPath) : null;
     }
 
     /**
@@ -117,6 +127,15 @@ class ForumSerializer extends AbstractSerializer
     {
         $faviconPath = $this->settings->get('favicon_path');
 
-        return $faviconPath ? $this->url->to('forum')->path('assets/'.$faviconPath) : null;
+        return $faviconPath ? $this->getAssetUrl($faviconPath) : null;
+    }
+
+    public function getAssetUrl($assetPath): string
+    {
+        if ($this->assetsFilesystem instanceof Cloud) {
+            return $this->assetsFilesystem->url($assetPath);
+        }
+
+        return $this->url->to('forum')->path("assets/$assetPath");
     }
 }
