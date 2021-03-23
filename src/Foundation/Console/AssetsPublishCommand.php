@@ -54,7 +54,6 @@ class AssetsPublishCommand extends AbstractCommand
      */
     protected function fire()
     {
-
         $this->info('Publishing core assets...');
 
         $target = $this->container->make('filesystem')->disk('flarum-assets');
@@ -75,7 +74,7 @@ class AssetsPublishCommand extends AbstractCommand
 
         foreach ($extensions->getEnabledExtensions() as $name => $extension) {
             if ($extension->hasAssets()) {
-                $this->info('Publishing for extension: ' . $name);
+                $this->info('Publishing for extension: '.$name);
                 $extension->copyAssetsTo($target);
             }
         }
