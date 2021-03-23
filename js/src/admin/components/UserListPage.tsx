@@ -102,15 +102,23 @@ export default class UserListPage extends AdminPage {
       <section
         class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
         style={{ '--columns': columns.length }}
+        role="table"
+        // +1 to account for header
+        aria-rowcount={this.pageData.length + 1}
+        aria-colcount={this.columns.length}
+        aria-live="polite"
+        aria-busy={this.isLoadingPage ? 'true' : 'false'}
       >
         {/* Render columns */}
-        {columns.map((column) => (
-          <div class="UserListPage-grid--header">{column.name}</div>
+        {columns.map((column, colIndex) => (
+          <div class="UserListPage-grid--header" role="columnheader" aria-colindex={colIndex + 1} aria-rowindex={1}>
+            {column.name}
+          </div>
         ))}
 
         {/* Render user data */}
         {this.pageData.map((user, rowIndex) =>
-          columns.map((col) => {
+          columns.map((col, colIndex) => {
             const columnContent = col.content && col.content(user);
 
             return (
@@ -118,6 +126,10 @@ export default class UserListPage extends AdminPage {
                 class={classList(['UserListPage-grid--rowItem', rowIndex % 2 > 0 && 'UserListPage-grid--shadedRow'])}
                 data-user-id={user.id()}
                 data-column-name={col.itemName}
+                aria-colindex={colIndex + 1}
+                // +2 to account for 0-based index, and for the header row
+                aria-rowindex={rowIndex + 2}
+                role="cell"
               >
                 {columnContent || app.translator.trans('core.admin.users.grid.invalid_column_content')}
               </div>
@@ -221,7 +233,7 @@ export default class UserListPage extends AdminPage {
         content: (user: User) => {
           function toggleEmailVisibility() {
             // Get needed jQuery element refs
-            const emailContainer = $(`.UserList-email[data-user-id=${user.id()}]`);
+            const emailContainer = $(`[data-column-name=emailAddress][data-user-id=${user.id()}] .UserList-email`);
             const emailAddress = emailContainer.find('.UserList-emailAddress');
             const emailToggleButton = emailContainer.find('.UserList-emailIconBtn');
             const emailToggleButtonIcon = emailToggleButton.find('.icon');
@@ -236,6 +248,7 @@ export default class UserListPage extends AdminPage {
 
               // Replace real email with placeholder email
               emailAddress.text(app.translator.trans('core.admin.users.grid.default_columns.email_hidden'));
+              emailAddress.attr('aria-hidden', 'true');
 
               // Change button icons
               emailToggleButtonIcon.removeClass('fa-eye');
@@ -248,6 +261,7 @@ export default class UserListPage extends AdminPage {
 
               // Replace placeholder email with real email
               emailAddress.text(user.email());
+              emailAddress.removeAttr('aria-hidden');
 
               // Change button icons
               emailToggleButtonIcon.addClass('fa-eye');
@@ -258,12 +272,14 @@ export default class UserListPage extends AdminPage {
           }
 
           return (
-            <div class="UserList-email" key={user.id()} data-user-id={user.id()} data-email-shown="false">
-              <span class="UserList-emailAddress">{app.translator.trans('core.admin.users.grid.default_columns.email_visibility_show')}</span>
+            <div class="UserList-email" key={user.id()} data-email-shown="false">
+              <span class="UserList-emailAddress" aria-hidden>
+                {app.translator.trans('core.admin.users.grid.default_columns.email_hidden')}
+              </span>
               <button
                 onclick={toggleEmailVisibility}
                 class="UserList-emailIconBtn"
-                title={app.translator.trans('core.admin.users.grid.default_columns.email_show')}
+                title={app.translator.trans('core.admin.users.grid.default_columns.email_visibility_show')}
               >
                 {icon('far fa-eye-slash fa-fw', { className: 'icon' })}
               </button>
