@@ -220,7 +220,7 @@ class ApiController implements ExtenderInterface
     /**
      * Eager loads relationships.
      *
-     * First level relationships will be loaded regardless of them being included in the request.
+     * First level relationships will be loaded regardless of whether they are included in the response.
      * Sublevel relationships will only be loaded if the upper level was included or manually loaded.
      *
      * @example If a relationship such as: 'relation.subRelation' is specified,
