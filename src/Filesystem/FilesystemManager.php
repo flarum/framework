@@ -31,9 +31,9 @@ class FilesystemManager extends LaravelFilesystemManager
         $this->drivers = $drivers;
     }
 
-   /**
-    * @inheritDoc
-    */
+    /**
+     * @inheritDoc
+     */
     protected function resolve($name)
     {
         $driver = $this->getDriver($name);
@@ -50,6 +50,7 @@ class FilesystemManager extends LaravelFilesystemManager
 
         $settings = $this->app->make(SettingsRepositoryInterface::class);
         $config = $this->app->make(Config::class);
+
         return new FilesystemAdapter($driver->build($name, $settings, $config, $localConfig));
     }
 
@@ -57,6 +58,7 @@ class FilesystemManager extends LaravelFilesystemManager
     {
         $settings = $this->app->make(SettingsRepositoryInterface::class);
         $configuredDriver = $settings->get("disk_driver.$name", 'local');
+
         return Arr::get($this->drivers, $configuredDriver, 'local');
     }
 
@@ -65,7 +67,9 @@ class FilesystemManager extends LaravelFilesystemManager
      */
     protected function getLocalConfig($name)
     {
-        if (!array_key_exists($name, $this->diskLocalConfig)) return [];
+        if (! array_key_exists($name, $this->diskLocalConfig)) {
+            return [];
+        }
 
         return $this->diskLocalConfig[$name](
             $this->app->make(Paths::class),

@@ -83,10 +83,8 @@ class FilesystemTest extends TestCase
 
 class NullFilesystemDriver implements DriverInterface
 {
-
     public function build(string $diskName, SettingsRepositoryInterface $settings, Config $config, array $localConfig): LeagueFilesystem
     {
         return new LeagueFilesystem(new NullAdapter());
     }
-    
 }

@@ -21,19 +21,19 @@ class Filesystem implements ExtenderInterface
      * Declare a new filesystem disk.
      * Disks represent storage locations, and are backed by storage drivers.
      * Flarum core uses disks for storing assets and avatars.
-     * 
+     *
      * By default, the "local" driver will be used for disks.
      * The "local" driver represents the filesystem where your Flarum installation is running.
-     * 
+     *
      * To declare a new disk, you must provide default configuration a "local" driver.
-     * 
+     *
      * @param string $disk: The name of the disk
      * @param string|callable: A callback with parameters:
      *                           - \Flarum\Foundation\Paths $paths
      *                           - \Flarum\Http\UrlGenerator $url
      *                         which returns a Laravel disk config array.
      *                         The `driver` key is not necessary for this array, and will be ignored.
-     * 
+     *
      * @example
      * ```
      * ->disk('flarum-uploads', function (Paths $paths, UrlGenerator $url) {
@@ -43,7 +43,7 @@ class Filesystem implements ExtenderInterface
      *       ];
      *   });
      * ```
-     * 
+     *
      * @see https://laravel.com/docs/8.x/filesystem#configuration
      */
     public function disk(string $name, $callback)
@@ -56,7 +56,7 @@ class Filesystem implements ExtenderInterface
     /**
      * Register a new filesystem driver.
      * Drivers must implement `\Flarum\Filesystem\DriverInterface`.
-     * 
+     *
      * @param string $name: The name of the driver
      * @param string $driverClass: The ::class attribute of the driver.
      */

@@ -19,12 +19,12 @@ interface DriverInterface
      * Construct a Flysystem filesystem adapter for this filesystem driver.
      * Settings and configuration can either be pulled from the Flarum settings repository
      * or the config.php file.
-     * 
+     *
      * You should ensure that the Flysystem adapter you use has a `getUrl` method.
      * If it doesn't, you should create a subclass implementing that method.
      * Otherwise, this driver won't work for public-facing disks
      * like `flarum-assets` or `flarum-avatars`.
-     * 
+     *
      * @param string $diskName: The name of a disk this driver is being used for.
      *                   This is generally used to locate disk-specific settings.
      * @param SettingsRepositoryInterface $settings: An instance of the Flarum settings repository.
