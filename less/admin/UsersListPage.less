@@ -7,6 +7,9 @@
     position: relative;
     border-radius: @border-radius;
 
+    // Use CSS custom properties to define the number of columns in the grid
+    grid-template-columns: repeat(var(--columns), minmax(max-content, 300px));
+
     // Ensure mobile scrollbar isn't on top of content
     padding-bottom: 4px;
 

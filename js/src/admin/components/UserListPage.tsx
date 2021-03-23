@@ -101,7 +101,7 @@ export default class UserListPage extends AdminPage {
       <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
       <section
         class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
-        style={`grid-template-columns: repeat(${columns.length}, minmax(max-content, 300px))`}
+        style={{ '--columns': columns.length }}
       >
         {/* Render columns */}
         {columns.map((column) => (
