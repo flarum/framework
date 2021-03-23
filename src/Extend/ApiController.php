@@ -218,7 +218,7 @@ class ApiController implements ExtenderInterface
     }
 
     /**
-     * Eager loads relationships.
+     * Eager loads relationships needed for serializer logic.
      *
      * First level relationships will be loaded regardless of whether they are included in the response.
      * Sublevel relationships will only be loaded if the upper level was included or manually loaded.
