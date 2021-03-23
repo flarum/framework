@@ -7,19 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Database\Console;
+namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
-use Flarum\Database\Migrator;
 use Flarum\Extension\ExtensionManager;
-use Flarum\Foundation\Application;
 use Flarum\Foundation\Paths;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Schema\Builder;
+use Illuminate\Filesystem\Filesystem;
 
-class MigrateCommand extends AbstractCommand
+class AssetsPublishCommand extends AbstractCommand
 {
     /**
      * @var Container
@@ -49,8 +45,8 @@ class MigrateCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->setName('migrate')
-            ->setDescription('Run outstanding migrations');
+            ->setName('assets:publish')
+            ->setDescription('Publish core and extension assets.');
     }
 
     /**
@@ -58,35 +54,30 @@ class MigrateCommand extends AbstractCommand
      */
     protected function fire()
     {
-        $this->info('Migrating Flarum...');
 
-        $this->upgrade();
+        $this->info('Publishing core assets...');
 
-        $this->info('DONE.');
-    }
+        $target = $this->container->make('filesystem')->disk('flarum-assets');
+        $local = new Filesystem();
 
-    public function upgrade()
-    {
-        $this->container->bind(Builder::class, function ($container) {
-            return $container->make(ConnectionInterface::class)->getSchemaBuilder();
-        });
+        $pathPrefix = $this->paths->vendor.'/components/font-awesome/webfonts';
+        $assetFiles = $local->allFiles($pathPrefix);
 
-        $migrator = $this->container->make(Migrator::class);
-        $migrator->setOutput($this->output);
+        foreach ($assetFiles as $fullPath) {
+            $relPath = substr($fullPath, strlen($pathPrefix));
+            $target->put("fonts/$relPath", $local->get($fullPath));
+        }
 
-        $migrator->run(__DIR__.'/../../../migrations');
+        $this->info('Publishing extension assets...');
 
         $extensions = $this->container->make(ExtensionManager::class);
         $extensions->getMigrator()->setOutput($this->output);
 
         foreach ($extensions->getEnabledExtensions() as $name => $extension) {
-            if ($extension->hasMigrations()) {
-                $this->info('Migrating extension: '.$name);
-
-                $extensions->migrate($extension);
+            if ($extension->hasAssets()) {
+                $this->info('Publishing for extension: ' . $name);
+                $extension->copyAssetsTo($target);
             }
         }
-
-        $this->container->make(SettingsRepositoryInterface::class)->set('version', Application::VERSION);
     }
 }
