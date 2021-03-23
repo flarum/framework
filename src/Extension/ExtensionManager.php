@@ -19,8 +19,8 @@ use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Cloud as FilesystemInterface;
+use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
@@ -273,7 +273,7 @@ class ExtensionManager
     {
         $this->assetsFilesystem->deleteDirectory('extensions/'.$extension->getId());
     }
-    
+
     /**
      * Get the path to an extension's published asset.
      *
