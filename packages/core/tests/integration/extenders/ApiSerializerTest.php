@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
+use Flarum\Api\Controller\ShowUserController;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
@@ -323,26 +324,50 @@ class ApiSerializerTest extends TestCase
     /**
      * @test
      */
+    public function custom_relations_dont_exist_by_default()
+    {
+        $this->extend(
+            (new Extend\ApiController(ShowUserController::class))
+                ->addInclude(['customSerializerRelation', 'postCustomRelation', 'anotherCustomRelation'])
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $responseJson = json_decode($response->getBody(), true);
+
+        $this->assertArrayNotHasKey('customSerializerRelation', $responseJson['data']['relationships']);
+        $this->assertArrayNotHasKey('postCustomRelation', $responseJson['data']['relationships']);
+        $this->assertArrayNotHasKey('anotherCustomRelation', $responseJson['data']['relationships']);
+    }
+
+    /**
+     * @test
+     */
     public function custom_hasMany_relationship_exists_if_added()
     {
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasMany('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->hasMany('customSerializerRelation', DiscussionSerializer::class)
+                ->hasMany('customSerializerRelation', DiscussionSerializer::class),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addInclude('customSerializerRelation')
         );
 
-        $request = $this->request('GET', '/api/users/2', [
-            'authenticatedAs' => 1,
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
-        $serializer = $this->app()->getContainer()->make(UserSerializer::class);
-        $serializer->setRequest($request);
+        $responseJson = json_decode($response->getBody(), true);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'customSerializerRelation');
-
-        $this->assertNotEmpty($relationship);
-        $this->assertCount(3, $relationship->toArray()['data']);
+        $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
+        $this->assertCount(3, $responseJson['data']['relationships']['customSerializerRelation']['data']);
     }
 
     /**
@@ -354,20 +379,21 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->hasOne('customSerializerRelation', DiscussionSerializer::class)
+                ->hasOne('customSerializerRelation', DiscussionSerializer::class),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addInclude('customSerializerRelation')
         );
 
-        $request = $this->request('GET', '/api/users/2', [
-            'authenticatedAs' => 1,
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
-        $serializer = $this->app()->getContainer()->make(UserSerializer::class);
-        $serializer->setRequest($request);
+        $responseJson = json_decode($response->getBody(), true);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'customSerializerRelation');
-
-        $this->assertNotEmpty($relationship);
-        $this->assertEquals('discussions', $relationship->toArray()['data']['type']);
+        $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
+        $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
     }
 
     /**
@@ -381,20 +407,21 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->relationship('customSerializerRelation', function (AbstractSerializer $serializer, $model) {
                     return $serializer->hasOne($model, DiscussionSerializer::class, 'customSerializerRelation');
-                })
+                }),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addInclude('customSerializerRelation')
         );
 
-        $request = $this->request('GET', '/api/users/2', [
-            'authenticatedAs' => 1,
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
-        $serializer = $this->app()->getContainer()->make(UserSerializer::class);
-        $serializer->setRequest($request);
+        $responseJson = json_decode($response->getBody(), true);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'customSerializerRelation');
-
-        $this->assertNotEmpty($relationship);
-        $this->assertEquals('discussions', $relationship->toArray()['data']['type']);
+        $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
+        $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
     }
 
     /**
@@ -406,20 +433,21 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('customSerializerRelation', CustomRelationshipInvokableClass::class)
+                ->relationship('customSerializerRelation', CustomRelationshipInvokableClass::class),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addInclude('customSerializerRelation')
         );
 
-        $request = $this->request('GET', '/api/users/2', [
-            'authenticatedAs' => 1,
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
-        $serializer = $this->app()->getContainer()->make(UserSerializer::class);
-        $serializer->setRequest($request);
+        $responseJson = json_decode($response->getBody(), true);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'customSerializerRelation');
-
-        $this->assertNotEmpty($relationship);
-        $this->assertEquals('discussions', $relationship->toArray()['data']['type']);
+        $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
+        $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
     }
 
     /**
@@ -431,20 +459,21 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasMany('anotherCustomRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->hasMany('anotherCustomRelation', DiscussionSerializer::class)
+                ->hasMany('anotherCustomRelation', DiscussionSerializer::class),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addInclude('anotherCustomRelation')
         );
 
-        $request = $this->request('GET', '/api/users/2', [
-            'authenticatedAs' => 1,
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
-        $serializer = $this->app()->getContainer()->make(UserSerializer::class);
-        $serializer->setRequest($request);
+        $responseJson = json_decode($response->getBody(), true);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'anotherCustomRelation');
-
-        $this->assertNotEmpty($relationship);
-        $this->assertCount(3, $relationship->toArray()['data']);
+        $this->assertArrayHasKey('anotherCustomRelation', $responseJson['data']['relationships']);
+        $this->assertCount(3, $responseJson['data']['relationships']['anotherCustomRelation']['data']);
     }
 
     /**
@@ -462,20 +491,21 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->relationship('postCustomRelation', function (AbstractSerializer $serializer, $model) {
                     return $serializer->hasOne($model, DiscussionSerializer::class, 'discussionCustomRelation');
-                })
+                }),
+            (new Extend\ApiController(ShowUserController::class))
+                ->addInclude('postCustomRelation')
         );
 
-        $request = $this->request('GET', '/api/users/2', [
-            'authenticatedAs' => 1,
-        ]);
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
-        $serializer = $this->app()->getContainer()->make(UserSerializer::class);
-        $serializer->setRequest($request);
+        $responseJson = json_decode($response->getBody(), true);
 
-        $relationship = $serializer->getRelationship(User::find(2), 'postCustomRelation');
-
-        $this->assertNotEmpty($relationship);
-        $this->assertEquals('discussions', $relationship->toArray()['data']['type']);
+        $this->assertArrayHasKey('postCustomRelation', $responseJson['data']['relationships']);
+        $this->assertEquals('discussions', $responseJson['data']['relationships']['postCustomRelation']['data']['type']);
     }
 }
 
