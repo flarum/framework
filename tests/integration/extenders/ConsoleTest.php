@@ -43,6 +43,37 @@ class ConsoleTest extends ConsoleTestCase
 
         $this->assertEquals('Custom Command.', $this->runCommand($input));
     }
+
+    /**
+     * @test
+     */
+    public function scheduled_command_doesnt_exist_by_default()
+    {
+        $input = [
+            'command' => 'schedule:list'
+        ];
+
+        $this->assertStringNotContainsString('cache:clear', $this->runCommand($input));
+    }
+
+    /**
+     * @test
+     */
+    public function scheduled_command_exists_when_added()
+    {
+        $this->extend(
+            (new Extend\Console())
+                ->schedule('cache:clear', function ($event) {
+                    $event->everyMinute();
+                })
+        );
+
+        $input = [
+            'command' => 'schedule:list'
+        ];
+
+        $this->assertStringContainsString('cache:clear', $this->runCommand($input));
+    }
 }
 
 class CustomCommand extends AbstractCommand
