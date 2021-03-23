@@ -242,7 +242,7 @@ core:
           email_visibility_show: Show email address
           email_visibility_hide: Hide email address
           # Fake email address which is blurred before being replaced by the real email
-          email_hidden: "abc123@gmail.com"
+          email_hidden: "abcdefg12345@gmail.com"
 
           edit_user: => core.lib.edit_user.title
           edit_user_button: => core.ref.edit
