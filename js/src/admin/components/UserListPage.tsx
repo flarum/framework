@@ -134,7 +134,7 @@ export default class UserListPage extends AdminPage {
           title={app.translator.trans('core.admin.users.pagination.back_button')}
           onclick={this.previousPage.bind(this)}
           icon="fas fa-chevron-left"
-          className="Button UserListPage-backBtn"
+          className="Button Button--icon UserListPage-backBtn"
         />
         <span class="UserListPage-pageNumber">
           {app.translator.trans('core.admin.users.pagination.page_counter', {
@@ -147,7 +147,7 @@ export default class UserListPage extends AdminPage {
           title={app.translator.trans('core.admin.users.pagination.next_button')}
           onclick={this.nextPage.bind(this)}
           icon="fas fa-chevron-right"
-          className="Button UserListPage-nextBtn"
+          className="Button Button--icon UserListPage-nextBtn"
         />
       </nav>,
     ];
