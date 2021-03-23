@@ -19,8 +19,7 @@ use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Filesystem\Cloud as FilesystemInterface;
-use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
@@ -51,11 +50,6 @@ class ExtensionManager
     protected $filesystem;
 
     /**
-     * @var FilesystemInterface
-     */
-    protected $assetsFilesystem;
-
-    /**
      * @var Collection|null
      */
     protected $extensions;
@@ -66,8 +60,7 @@ class ExtensionManager
         Container $container,
         Migrator $migrator,
         Dispatcher $dispatcher,
-        Filesystem $filesystem,
-        Factory $filesystemFactory
+        Filesystem $filesystem
     ) {
         $this->config = $config;
         $this->paths = $paths;
@@ -75,7 +68,6 @@ class ExtensionManager
         $this->migrator = $migrator;
         $this->dispatcher = $dispatcher;
         $this->filesystem = $filesystem;
-        $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
     }
 
     /**
@@ -261,7 +253,7 @@ class ExtensionManager
      */
     protected function publishAssets(Extension $extension)
     {
-        $extension->copyAssetsTo($this->assetsFilesystem);
+        $extension->copyAssetsTo($this->getAssetsFilesystem());
     }
 
     /**
@@ -271,7 +263,7 @@ class ExtensionManager
      */
     protected function unpublishAssets(Extension $extension)
     {
-        $this->assetsFilesystem->deleteDirectory('extensions/'.$extension->getId());
+        $this->getAssetsFilesystem()->deleteDirectory('extensions/'.$extension->getId());
     }
 
     /**
@@ -283,7 +275,17 @@ class ExtensionManager
      */
     public function getAsset(Extension $extension, $path)
     {
-        return $this->assetsFilesystem->url($extension->getId()."/$path");
+        return $this->getAssetsFilesystem()->url($extension->getId()."/$path");
+    }
+
+    /**
+     * Get an instance of the assets filesystem.
+     * This is resolved dynamically because Flarum's filesystem configuration
+     * might not be booted yet when the ExtensionManager singleton initializes.
+     */
+    protected function getAssetsFilesystem(): Cloud
+    {
+        return resolve('filesystem')->disk('flarum-assets');
     }
 
     /**
