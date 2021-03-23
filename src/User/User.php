@@ -882,9 +882,9 @@ class User extends AbstractModel
      * Get the current user from a request instance.
      *
      * @param Request $request
-     * @return static
+     * @return self
      */
-    public static function fromRequest(Request $request)
+    public static function fromRequest(Request $request): self
     {
         return $request->getAttribute('actor');
     }
