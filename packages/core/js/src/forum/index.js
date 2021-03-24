@@ -1,12 +1,7 @@
 import 'expose-loader?punycode!punycode';
 import 'expose-loader?ColorThief!color-thief-browser';
 
-import ForumApplication from './ForumApplication';
-
-const app = new ForumApplication();
-
-// Backwards compatibility
-window.app = app;
+import app from './app';
 
 export { app };
 
