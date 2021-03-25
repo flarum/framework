@@ -76,9 +76,11 @@ class ListNotificationsController extends AbstractListController
             $include[] = 'subject';
         }
 
-        $notifications = $this->notifications->findByUser($actor, $limit + 1, $offset)
-            ->load(array_diff($include, ['subject.discussion']))
-            ->all();
+        $notifications = $this->notifications->findByUser($actor, $limit + 1, $offset);
+
+        $this->loadRelations($notifications, array_diff($include, ['subject.discussion']));
+
+        $notifications = $notifications->all();
 
         $areMoreResults = false;
 
