@@ -15,6 +15,7 @@ use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Flags\Flag;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
@@ -62,8 +63,15 @@ return [
             return $serializer->getActor()->can('tag', $model);
         }),
 
+    (new Extend\ApiController(FlarumController\ListPostsController::class))
+        ->load('discussion.tags'),
+
+    (new Extend\ApiController(ListFlagsController::class))
+        ->load('post.discussion.tags'),
+
     (new Extend\ApiController(FlarumController\ListDiscussionsController::class))
-        ->addInclude(['tags', 'tags.state']),
+        ->addInclude(['tags', 'tags.state'])
+        ->load('tags'),
 
     (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
         ->addInclude(['tags', 'tags.state']),
