@@ -1,4 +1,5 @@
 import Mithril from 'mithril';
+import ErrorPage from '../components/ErrorPage';
 
 /**
  * Generates a route resolver for a given component.
@@ -32,6 +33,13 @@ export default class DefaultResolver {
   }
 
   onmatch(args, requestedPath, route) {
+    const errorCode = app.data.errorCode;
+    const currRoute = m.route.get();
+    if (errorCode) {
+      delete app.data.errorCode;
+      return { view: () => ErrorPage.component({ errorCode, currRoute }) };
+    }
+
     return this.component;
   }
 

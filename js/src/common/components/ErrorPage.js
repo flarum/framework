@@ -1,4 +1,4 @@
-import Page from '../../common/components/Page';
+import Page from './Page';
 
 export default class ErrorPage extends Page {
   view() {
