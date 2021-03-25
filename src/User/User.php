@@ -880,9 +880,9 @@ class User extends AbstractModel
 
     /**
      * Set a user as the actor on a request instance.
-     * 
+     *
      * @param Request $request
-     * @return 
+     * @return
      */
     public static function setRequestActor(self $actor, Request $request): Request
     {
