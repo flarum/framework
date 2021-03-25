@@ -56,7 +56,7 @@ class Client
     {
         $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
 
-        $request = $request->withAttribute('actor', $actor);
+        $request = User::setRequestActor($actor, $request);
 
         if (is_string($controller)) {
             $controller = $this->container->make($controller);

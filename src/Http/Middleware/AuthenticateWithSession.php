@@ -11,6 +11,7 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\Http\AccessToken;
 use Flarum\User\Guest;
+use Flarum\User\User;
 use Illuminate\Contracts\Session\Session;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -27,7 +28,7 @@ class AuthenticateWithSession implements Middleware
 
         $actor->setSession($session);
 
-        $request = $request->withAttribute('actor', $actor);
+        $request = User::setRequestActor($actor, $request);
 
         return $handler->handle($request);
     }
