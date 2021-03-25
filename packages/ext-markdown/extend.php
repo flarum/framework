@@ -11,6 +11,9 @@ use Flarum\Extend;
 use s9e\TextFormatter\Configurator;
 
 return [
+    (new Extend\Frontend('admin'))
+        ->js(__DIR__.'/js/dist/admin.js'),
+
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less'),
@@ -24,5 +27,7 @@ return [
             $config->tags['ispoiler']->template = '<span class="spoiler" data-s9e-livepreview-ignore-attrs="class" onclick="removeAttribute(\'class\')"><xsl:apply-templates/></span>';
         }),
 
-    new Extend\Locales(__DIR__.'/locale')
+    new Extend\Locales(__DIR__.'/locale'),
+
+    (new Extend\Settings)->serializeToForum('flarum-markdown.mdarea', 'flarum-markdown.mdarea', 'boolval', true)
 ];
