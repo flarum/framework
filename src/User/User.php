@@ -879,6 +879,17 @@ class User extends AbstractModel
     }
 
     /**
+     * Set a user as the actor on a request instance.
+     * 
+     * @param Request $request
+     * @return 
+     */
+    public static function setRequestActor(self $actor, Request $request): Request
+    {
+        return $request->withAttribute('actor', $actor);
+    }
+
+    /**
      * Get the current user from a request instance.
      *
      * @param Request $request
