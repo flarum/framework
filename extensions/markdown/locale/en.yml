@@ -1,13 +1,10 @@
 flarum-markdown:
+  admin:
+    settings:
+      mdarea_help: mdarea is a textarea util that auto-continues lists, helps with code formatting, and assists with indentation.
+      mdarea_label: Enable mdarea?
 
-  ##
-  # UNIQUE KEYS - The following keys are used in only one location each.
-  ##
-
-  # Translations in this namespace are used by the forum user interface.
   forum:
-
-    # These translations are used by the composer (emoji autocompletion function).
     composer:
       bold_tooltip: Add bold text
       code_tooltip: Insert code

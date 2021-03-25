@@ -12,7 +12,7 @@ import TextEditor from 'flarum/components/TextEditor';
 
 import MarkdownToolbar from './components/MarkdownToolbar';
 import MarkdownButton from './components/MarkdownButton';
-import MarkdownAreaEditorDriver from './util/MarkdownAreaEditorDriver';
+import MarkdownEditorDriver from './util/MarkdownEditorDriver';
 
 let shortcutHandler = () => { };
 
@@ -24,7 +24,7 @@ app.initializers.add('flarum-markdown', function (app) {
   });
 
   override(TextEditor.prototype, 'buildEditor', function (_, dom) {
-    return new MarkdownAreaEditorDriver(dom, this.buildEditorParams());
+    return new MarkdownEditorDriver(dom, this.buildEditorParams());
   });
 
   extend(TextEditor.prototype, 'buildEditorParams', function (params) {
