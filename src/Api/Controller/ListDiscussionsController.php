@@ -121,7 +121,9 @@ class ListDiscussionsController extends AbstractListController
             }
         }
 
-        $results = $results->getResults()->load($include);
+        $results = $results->getResults();
+
+        $this->loadRelations($results, $include);
 
         if ($relations = array_intersect($include, ['firstPost', 'lastPost', 'mostRelevantPost'])) {
             foreach ($results as $discussion) {

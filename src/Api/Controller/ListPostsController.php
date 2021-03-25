@@ -104,7 +104,11 @@ class ListPostsController extends AbstractListController
             $include[] = 'user.groups';
         }
 
-        return $results->getResults()->load($include);
+        $results = $results->getResults();
+
+        $this->loadRelations($results, $include);
+
+        return $results;
     }
 
     /**

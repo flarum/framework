@@ -11,6 +11,8 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -85,6 +87,11 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     protected static $beforeSerializationCallbacks = [];
 
     /**
+     * @var array
+     */
+    protected static $loadRelations = [];
+
+    /**
      * {@inheritdoc}
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -138,6 +145,47 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      * @return \Tobscure\JsonApi\ElementInterface
      */
     abstract protected function createElement($data, SerializerInterface $serializer);
+
+    /**
+     * Eager loads the required relationships.
+     *
+     * @param Collection $models
+     * @param array $relations
+     * @return void
+     */
+    protected function loadRelations(Collection $models, array $relations): void
+    {
+        $addedRelations = [];
+
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
+            if (isset(static::$loadRelations[$class])) {
+                $addedRelations = array_merge($addedRelations, static::$loadRelations[$class]);
+            }
+        }
+
+        if (! empty($addedRelations)) {
+            usort($addedRelations, function ($a, $b) {
+                return substr_count($a, '.') - substr_count($b, '.');
+            });
+
+            foreach ($addedRelations as $relation) {
+                if (strpos($relation, '.') !== false) {
+                    $parentRelation = Str::beforeLast($relation, '.');
+
+                    if (! in_array($parentRelation, $relations, true)) {
+                        continue;
+                    }
+                }
+
+                $relations[] = $relation;
+            }
+        }
+
+        if (! empty($relations)) {
+            $relations = array_unique($relations);
+            $models->loadMissing($relations);
+        }
+    }
 
     /**
      * @param ServerRequestInterface $request
@@ -347,5 +395,14 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         }
 
         static::$beforeSerializationCallbacks[$controllerClass][] = $callback;
+    }
+
+    public static function setLoadRelations(string $controllerClass, array $relations)
+    {
+        if (! isset(static::$loadRelations[$controllerClass])) {
+            static::$loadRelations[$controllerClass] = [];
+        }
+
+        static::$loadRelations[$controllerClass] = array_merge(static::$loadRelations[$controllerClass], $relations);
     }
 }
