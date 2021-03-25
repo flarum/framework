@@ -56,9 +56,9 @@ class AdminServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\SetLocale::class,
+                'flarum.http.frontend_handler',
                 'flarum.admin.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
-                'flarum.http.frontend_handler',
                 Middleware\RequireAdministrateAbility::class
             ];
         });

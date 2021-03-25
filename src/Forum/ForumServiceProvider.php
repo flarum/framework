@@ -66,10 +66,10 @@ class ForumServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\SetLocale::class,
+                'flarum.http.frontend_handler',
                 'flarum.forum.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\ShareErrorsFromSession::class,
-                'flarum.http.frontend_handler',
                 HttpMiddleware\FlarumPromotionHeader::class,
             ];
         });
