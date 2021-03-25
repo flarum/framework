@@ -897,6 +897,6 @@ class User extends AbstractModel
      */
     public static function fromRequest(Request $request): self
     {
-        return $request->getAttribute('actor');
+        return $request->getAttribute('actor', new Guest());
     }
 }
