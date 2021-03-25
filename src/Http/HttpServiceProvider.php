@@ -20,6 +20,7 @@ use Flarum\Foundation\ErrorHandling\FrontendFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
+use Flarum\Frontend\Frontend;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
@@ -88,6 +89,12 @@ class HttpServiceProvider extends AbstractServiceProvider
                 $this->container->make('flarum.http.frontend_exceptions')
             );
         });
+
+        $this->container->when(FrontendFormatter::class)
+            ->needs(Frontend::class)
+            ->give(function () {
+                return $this->container->make('flarum.frontend.forum');
+            });
     }
 
     /**

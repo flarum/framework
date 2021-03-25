@@ -10,6 +10,7 @@
 namespace Flarum\Foundation\ErrorHandling;
 
 use Flarum\Frontend\Controller;
+use Flarum\Frontend\Frontend;
 use Flarum\Http\Content\NotAuthenticated;
 use Flarum\Http\Content\NotFound;
 use Flarum\Http\Content\PermissionDenied;
@@ -20,38 +21,18 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * A formatter for turning caught exceptions into "pretty" HTML error pages.
- *
- * For certain known error types, we display pages with dedicated information
- * relevant to this class of error, e.g. a page with a search form for HTTP 404
- * "Not Found" errors. We look for templates in the `views/error` directory.
- *
- * If no specific template exists, a generic "Something went wrong" page will be
- * displayed, optionally enriched with a more specific error message if found in
- * the translation files.
+ * This formatter will route certain errors to the SPA frontend.
  */
 class FrontendFormatter implements HttpFormatter
 {
     /**
-     * @var Container
+     * @var Frontend
      */
-    protected $container;
+    protected $frontend;
 
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    public function __construct(Container $container, TranslatorInterface $translator, SettingsRepositoryInterface $settings)
+    public function __construct(Frontend $frontend)
     {
-        $this->container = $container;
-        $this->translator = $translator;
-        $this->settings = $settings;
+        $this->frontend = $frontend;
     }
 
     public function format(HandledError $error, Request $request): Response

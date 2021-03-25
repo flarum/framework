@@ -25,7 +25,7 @@ export default function (app) {
 
     settings: { path: '/settings', component: SettingsPage },
     notifications: { path: '/notifications', component: NotificationsPage },
-  
+
     error: { path: '/:error', component: ErrorPage },
   };
 

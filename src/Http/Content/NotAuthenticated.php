@@ -17,7 +17,7 @@ class NotAuthenticated
     public function __invoke(Document $document, Request $request)
     {
         $document->title = 'Not Authenticated';
-        $document->payload['errorCode'] = 103;
+        $document->payload['errorCode'] = 401;
 
         return $document;
     }
