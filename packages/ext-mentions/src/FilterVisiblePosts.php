@@ -66,7 +66,7 @@ class FilterVisiblePosts
             // Load all of the users that these posts mention. This way the data
             // will be ready to go when we need to sub in current usernames
             // during the rendering process.
-            $posts->load(['mentionsUsers', 'mentionsPosts.user']);
+            $posts->loadMissing(['mentionsUsers', 'mentionsPosts.user', 'mentionedBy']);
 
             // Construct a list of the IDs of all of the posts that these posts
             // have been mentioned in. We can then filter this list of IDs to
