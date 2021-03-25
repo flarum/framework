@@ -28,6 +28,10 @@ class ListGroupsController extends AbstractListController
     {
         $actor = $request->getAttribute('actor');
 
-        return Group::whereVisibleTo($actor)->get();
+        $results = Group::whereVisibleTo($actor)->get();
+
+        $this->loadRelations($results, []);
+
+        return $results;
     }
 }
