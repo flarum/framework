@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-beta.16.1](https://github.com/flarum/markdown/compare/v0.1.0-beta.16...v0.1.0-beta.16.1)
+
+### Added
+- Admin setting to disable mdarea (https://github.com/flarum/markdown/pull/27)
+
 ## [0.1.0-beta.16](https://github.com/flarum/markdown/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Added
