@@ -112,4 +112,11 @@ class LocaleManager
     {
         $this->translator = $translator;
     }
+
+    public function clearCache()
+    {
+        if ($this->cacheDir) {
+            array_map('unlink', glob($this->cacheDir.'/*'));
+        }
+    }
 }
