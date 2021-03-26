@@ -53,8 +53,8 @@ class ErrorServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.error.handlers', function () {
             return [
-                IlluminateValidationException::class => ExceptionHandler\IlluminateValidationExceptionHandler::class,
-                ValidationException::class => ExceptionHandler\ValidationExceptionHandler::class,
+                IlluminateValidationException::class => Handling\ExceptionHandler\IlluminateValidationExceptionHandler::class,
+                ValidationException::class => Handling\ExceptionHandler\ValidationExceptionHandler::class,
                 ExtensionException\DependentExtensionsException::class => ExtensionException\DependentExtensionsExceptionHandler::class,
                 ExtensionException\MissingDependenciesException::class => ExtensionException\MissingDependenciesExceptionHandler::class,
                 ExtensionException\ExtendingFailedException::class => ExtensionException\ExtendingFailedExceptionHandler::class,
