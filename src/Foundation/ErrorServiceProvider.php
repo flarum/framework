@@ -9,14 +9,8 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Extension\Exception\DependentExtensionsException;
-use Flarum\Extension\Exception\DependentExtensionsExceptionHandler;
-use Flarum\Extension\Exception\MissingDependenciesException;
-use Flarum\Extension\Exception\MissingDependenciesExceptionHandler;
-use Flarum\Foundation\ErrorHandling\ExceptionHandler;
-use Flarum\Foundation\ErrorHandling\LogReporter;
-use Flarum\Foundation\ErrorHandling\Registry;
-use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Extension\Exception as ExtensionException;
+use Flarum\Foundation\ErrorHandling as Handling;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException as IlluminateValidationException;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
@@ -61,19 +55,20 @@ class ErrorServiceProvider extends AbstractServiceProvider
             return [
                 IlluminateValidationException::class => ExceptionHandler\IlluminateValidationExceptionHandler::class,
                 ValidationException::class => ExceptionHandler\ValidationExceptionHandler::class,
-                DependentExtensionsException::class => DependentExtensionsExceptionHandler::class,
-                MissingDependenciesException::class => MissingDependenciesExceptionHandler::class,
+                ExtensionException\DependentExtensionsException::class => ExtensionException\DependentExtensionsExceptionHandler::class,
+                ExtensionException\MissingDependenciesException::class => ExtensionException\MissingDependenciesExceptionHandler::class,
+                ExtensionException\ExtendingFailedException::class => ExtensionException\ExtendingFailedExceptionHandler::class,
             ];
         });
 
-        $this->container->singleton(Registry::class, function () {
-            return new Registry(
+        $this->container->singleton(Handling\Registry::class, function () {
+            return new Handling\Registry(
                 $this->container->make('flarum.error.statuses'),
                 $this->container->make('flarum.error.classes'),
                 $this->container->make('flarum.error.handlers')
             );
         });
 
-        $this->container->tag(LogReporter::class, Reporter::class);
+        $this->container->tag(Handling\LogReporter::class, Handling\Reporter::class);
     }
 }
