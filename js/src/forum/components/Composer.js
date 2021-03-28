@@ -173,10 +173,10 @@ export default class Composer extends Component {
 
     if ($flexible.length) {
       const headerHeight = $flexible.offset().top - this.$().offset().top;
-      const paddingBottom = parseInt($flexible.css('padding-bottom'), 10);
       const footerHeight = this.$('.Composer-footer').outerHeight(true);
 
-      $flexible.height(this.$().outerHeight() - headerHeight - paddingBottom - footerHeight);
+      const height = this.$().outerHeight() - headerHeight - footerHeight;
+      $flexible.css('height', `calc(${height}px + var(--toolbar-offset))`);
     }
   }
 
