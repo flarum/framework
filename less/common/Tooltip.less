@@ -2,8 +2,8 @@
 // Tooltips
 // ------------------------------------
 
-// This fixes an issue in iOS where `:hover` is not handled
-[data-device-os="iOS"] {
+// This fixes an issue in iOS where `:hover` is not handled on a tap
+@media (any-hover: none) {
   [data-tooltip][aria-label]:not([aria-label=""]) {
     // Remember that the cursor won't be visible on iOS!
     cursor: pointer;

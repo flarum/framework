@@ -219,7 +219,6 @@ export default class Application {
 
     $(() => {
       $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
-      $('body').attr('data-device-os', getOperatingSystem());
     });
 
     liveHumanTimes();
