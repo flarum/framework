@@ -24,7 +24,6 @@ import { flattenDeep } from 'lodash-es';
 import PageState from './states/PageState';
 import ModalManagerState from './states/ModalManagerState';
 import AlertManagerState from './states/AlertManagerState';
-import getOperatingSystem from './utils/getOperatingSystem';
 
 /**
  * The `App` class provides a container for an application, as well as various
