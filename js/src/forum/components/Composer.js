@@ -189,7 +189,7 @@ export default class Composer extends Component {
     const visible =
       this.state.position !== ComposerState.Position.HIDDEN && this.state.position !== ComposerState.Position.MINIMIZED && app.screen() !== 'phone';
 
-    const paddingBottom = visible ? this.state.computedHeight() - parseInt($('#app').css('padding-bottom'), 10) : 0;
+    const paddingBottom = visible ? this.state.computedHeight() - parseInt($('#app').css('padding-bottom')) + 16 : 0;
 
     $('#content').css({ paddingBottom });
   }
