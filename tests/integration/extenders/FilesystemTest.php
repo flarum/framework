@@ -107,7 +107,6 @@ class FilesystemTest extends TestCase
 
         $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), NullAdapter::class);
     }
-    
 
     protected function overrideConfigWithDiskDriver()
     {
