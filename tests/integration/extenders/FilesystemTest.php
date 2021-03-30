@@ -67,6 +67,18 @@ class FilesystemTest extends TestCase
     /**
      * @test
      */
+    public function disk_uses_local_adapter_if_configured_adapter_from_config_file_unavailable()
+    {
+        $this->overrideConfigWithDiskDriver();
+
+        $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
+
+        $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), Local::class);
+    }
+
+    /**
+     * @test
+     */
     public function disk_uses_custom_adapter_if_configured_and_available()
     {
         $this->extend(
@@ -78,6 +90,36 @@ class FilesystemTest extends TestCase
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
         $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), NullAdapter::class);
+    }
+
+    /**
+     * @test
+     */
+    public function disk_uses_custom_adapter_from_config_file_if_configured_and_available()
+    {
+        $this->extend(
+            (new Extend\Filesystem)->driver('null', NullFilesystemDriver::class)
+        );
+
+        $this->overrideConfigWithDiskDriver();
+
+        $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
+
+        $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), NullAdapter::class);
+    }
+    
+
+    protected function overrideConfigWithDiskDriver()
+    {
+        $tmp = $this->tmpDir();
+        $configArr = include "$tmp/config.php";
+        $configArr = array_merge($configArr, ['disk_driver' => [
+            'flarum-assets' => 'null'
+        ]]);
+
+        $config = new Config($configArr);
+
+        $this->app()->getContainer()->instance('flarum.config', $config);
     }
 }
 

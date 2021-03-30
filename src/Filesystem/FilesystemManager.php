@@ -56,8 +56,11 @@ class FilesystemManager extends LaravelFilesystemManager
 
     protected function getDriver($name)
     {
+        $config = $this->app->make(Config::class);
         $settings = $this->app->make(SettingsRepositoryInterface::class);
-        $configuredDriver = $settings->get("disk_driver.$name", 'local');
+
+        $key = "disk_driver.$name";
+        $configuredDriver = Arr::get($config, $key, $settings->get($key, 'local'));
 
         return Arr::get($this->drivers, $configuredDriver, 'local');
     }
