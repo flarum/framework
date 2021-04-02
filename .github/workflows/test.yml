@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@master
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@0b9d33cd0782337377999751fc10ea079fdd7104 # pin@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: xdebug
