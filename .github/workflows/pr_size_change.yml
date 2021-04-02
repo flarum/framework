@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "12"
+          node-version: "14"
 
       - name: Install JS dependencies
         run: npm ci
