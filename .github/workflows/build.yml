@@ -7,10 +7,14 @@ on:
 
 jobs:
   build:
+    name: JS / Build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
-      - uses: flarum/action-build@master
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build production JS
+        uses: flarum/action-build@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

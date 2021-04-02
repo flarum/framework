@@ -43,7 +43,8 @@ jobs:
     name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
 
     steps:
-      - uses: actions/checkout@master
+      - name: Check out code
+        uses: actions/checkout@v2
 
       - name: Setup PHP
         uses: shivammathur/setup-php@0b9d33cd0782337377999751fc10ea079fdd7104 # pin@v2
