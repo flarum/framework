@@ -11,12 +11,21 @@
 #
 name: "CodeQL"
 
+# Run on:
+# - pushes to master, or
+# - PRs with a base of `master`
+# - which do not **only** consist of changes to .md or .less files
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.less'
   pull_request:
-    # The branches below must be a subset of the branches above
     branches: [ master ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.less'
   schedule:
     - cron: '44 4 * * 3'
 
