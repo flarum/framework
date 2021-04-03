@@ -25,6 +25,9 @@ jobs:
         with:
           node-version: "14"
 
+      - name: Use npm v7
+        run: sudo npm install -g npm@7.x.x
+
       - name: Install JS dependencies
         run: npm ci
         working-directory: ./js
