@@ -27,7 +27,7 @@ on:
       - '**/*.md'
       - '**/*.less'
   schedule:
-    - cron: '44 4 * * 3'
+    - cron: '0 0 * * 1,3,5'
 
 jobs:
   analyze:
