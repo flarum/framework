@@ -31,7 +31,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze
+    name: Analyze / ${{ matrix.language }}
     runs-on: ubuntu-latest
 
     strategy:
