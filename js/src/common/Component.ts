@@ -77,12 +77,12 @@ export default abstract class Component<T extends ComponentAttrs = ComponentAttr
    * containing all of the `li` elements inside the DOM element of this
    * component.
    *
-   * @param {String} [selector] a jQuery-compatible selector string
-   * @returns {jQuery} the jQuery object for the DOM node
+   * @param [selector] a jQuery-compatible selector string
+   * @returns the jQuery object for the DOM node
    * @final
    */
-  protected $(selector) {
-    const $element = $(this.element);
+  protected $(selector: string): JQuery {
+    const $element = $(this.element) as JQuery<HTMLElement>;
 
     return selector ? $element.find(selector) : $element;
   }
@@ -94,7 +94,7 @@ export default abstract class Component<T extends ComponentAttrs = ComponentAttr
    * @see https://mithril.js.org/hyperscript.html#mselector,-attributes,-children
    */
   static component(attrs = {}, children = null): Mithril.Vnode {
-    const componentAttrs = Object.assign({}, attrs);
+    const componentAttrs = Object.assign({}, attrs) as Record<string, unknown>;
 
     return m(this as any, componentAttrs, children);
   }
