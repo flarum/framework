@@ -10,8 +10,8 @@ namespace Flarum\Nicknames;
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Search\AbstractSearch;
 use Flarum\Search\GambitInterface;
+use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
 
 
@@ -46,7 +46,7 @@ class NicknameFullTextGambit implements GambitInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(AbstractSearch $search, $searchValue)
+    public function apply(SearchState $search, $searchValue)
     {
         $search->getQuery()
             ->whereIn(
