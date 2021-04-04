@@ -11,6 +11,7 @@ namespace Flarum\Post;
 
 use DateTime;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Http\RequestUtil;
 use Flarum\Post\Access\ScopePostVisibility;
 
 class PostServiceProvider extends AbstractServiceProvider
@@ -26,7 +27,7 @@ class PostServiceProvider extends AbstractServiceProvider
                     return;
                 }
 
-                $actor = $request->getAttribute('actor');
+                $actor = RequestUtil::getActor($request);
 
                 if ($actor->can('postWithoutThrottle')) {
                     return false;

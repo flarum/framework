@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Group\Command\DeleteGroup;
+use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -35,7 +36,7 @@ class DeleteGroupController extends AbstractDeleteController
     protected function delete(ServerRequestInterface $request)
     {
         $this->bus->dispatch(
-            new DeleteGroup(Arr::get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
+            new DeleteGroup(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request))
         );
     }
 }

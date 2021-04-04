@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Group\Group;
+use Flarum\Http\RequestUtil;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -32,7 +33,7 @@ class ShowForumController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return [
-            'groups' => Group::whereVisibleTo($request->getAttribute('actor'))->get()
+            'groups' => Group::whereVisibleTo(RequestUtil::getActor($request))->get()
         ];
     }
 }
