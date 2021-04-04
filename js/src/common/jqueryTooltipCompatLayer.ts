@@ -12,7 +12,19 @@ interface TooltipOptions {
  * attributes to create a tooltip, or use the `<Tooltip>` component from core if the
  * element already has styles on its `::before` or `::after`.**
  *
- * @deprecated Backwards compatibility layer for Bootstrap tooltips.
+ * **Limitations**
+ *
+ * As this is a simple back-compat layer, it does not implement all features of the original
+ * `$.tooltip`. These include:
+ *
+ * - custom containers (CSS Tooltips do not have this feature)
+ * - custom delay
+ * - supplying the tooltip text as an option
+ * - destroying tooltips (meaningless with the CSS tooltips method)
+ *
+ * This back-compat layer may be removed in future versions of Flarum.
+ *
+ * @deprecated
  * @param options Tooltip options
  */
 export default function jqueryTooltipCompatLayer(this: JQuery, options: TooltipOptions | 'destroy'): JQuery {
