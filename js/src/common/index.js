@@ -1,6 +1,8 @@
-import 'expose-loader?$!expose-loader?jQuery!jquery';
-import 'expose-loader?m!mithril';
-import 'expose-loader?dayjs!dayjs';
+// Expose jQuery, mithril and dayjs to the window browser object
+import 'expose-loader?exposes[]=$&exposes[]=jQuery!jquery';
+import 'expose-loader?exposes=m!mithril';
+import 'expose-loader?exposes=dayjs!dayjs';
+
 import 'bootstrap/js/affix';
 import 'bootstrap/js/dropdown';
 import 'bootstrap/js/modal';
