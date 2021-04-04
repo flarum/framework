@@ -37,11 +37,17 @@ class EnableBundledExtensions implements Step
      */
     private $assetPath;
 
-    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath)
+    /**
+     * @var string[]
+     */
+    private $enabledExtensions;
+
+    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath, $enabledExtensions = null)
     {
         $this->database = $database;
         $this->vendorPath = $vendorPath;
         $this->assetPath = $assetPath;
+        $this->enabledExtensions = $enabledExtensions ?? self::EXTENSION_WHITELIST;
     }
 
     public function getMessage()
@@ -109,7 +115,7 @@ class EnableBundledExtensions implements Step
 
                 return $extension;
             })->filter(function (Extension $extension) {
-                return in_array($extension->getId(), self::EXTENSION_WHITELIST);
+                return in_array($extension->getId(), $this->enabledExtensions);
             })->sortBy(function (Extension $extension) {
                 return $extension->getTitle();
             })->mapWithKeys(function (Extension $extension) {

@@ -22,6 +22,7 @@ class Installation
     private $debug = false;
     private $baseUrl;
     private $customSettings = [];
+    private $enabledExtensions = null;
 
     /** @var DatabaseConfig */
     private $dbConfig;
@@ -74,6 +75,13 @@ class Installation
     public function settings($settings)
     {
         $this->customSettings = $settings;
+
+        return $this;
+    }
+
+    public function extensions($enabledExtensions)
+    {
+        $this->enabledExtensions = $enabledExtensions;
 
         return $this;
     }
@@ -152,7 +160,7 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath());
+            return new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath(), $this->enabledExtensions);
         });
 
         return $pipeline;
