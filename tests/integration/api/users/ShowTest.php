@@ -101,11 +101,17 @@ class ShowTest extends TestCase
      */
     public function guest_can_see_user_by_id_if_allowed()
     {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'viewUserList', 'group_id' => 2],
+            ]
+        ]);
+
         $response = $this->send(
             $this->request('GET', '/api/users/2')
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     /**
