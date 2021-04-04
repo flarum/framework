@@ -64,8 +64,9 @@ class CacheClearCommand extends AbstractCommand
 
         $succeeded = $this->cache->flush();
 
-        if (!$succeeded) {
+        if (! $succeeded) {
             $this->error('Could not clear contents of `storage/cache`. Please adjust file permissions and try again. This can frequently be fixed by clearing cache via the `Tools` dropdown on the Administration Dashboard page.');
+
             return 1;
         }
 
