@@ -62,7 +62,12 @@ class CacheClearCommand extends AbstractCommand
     {
         $this->info('Clearing the cache...');
 
-        $this->cache->flush();
+        $succeeded = $this->cache->flush();
+
+        if (!$succeeded) {
+            $this->error('Could not clear contents of `storage/cache`. Please adjust file permissions and try again. This can frequently be fixed by clearing cache via the `Tools` dropdown on the Administration Dashboard page.');
+            return 1;
+        }
 
         $storagePath = $this->paths->storage;
         array_map('unlink', glob($storagePath.'/formatter/*'));
