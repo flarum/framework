@@ -18,9 +18,17 @@ export interface TooltipAttrs extends ComponentAttrs {
  * The `Tooltip` component is used to create a tooltip for an element which
  * already has pseudo-elements as part of its styles, or text vnodes.
  *
- * If your element does not use pseudo-elements on its first direct child,
+ * **If your element does not use pseudo-elements on its first direct child,
  * instead use the attributes `data-tooltip` and `aria-label="tooltip text"`
- * wherever possible.
+ * wherever possible.**
+ *
+ * @example <caption>Correct use of Tooltip component</caption>
+ * // div has ::before or ::after
+ * <Tooltip text="You wish!">
+ *   <Button>
+ *     Click for free money!
+ *   </Button>
+ * </Tooltip>
  *
  * @example <caption>Correct use of Tooltip component</caption>
  * // div has ::before or ::after
@@ -31,11 +39,11 @@ export interface TooltipAttrs extends ComponentAttrs {
  * @example <caption>INCORRECT use of Tooltip component</caption>
  * // Do not use this!
  * <Tooltip text="This is wrong!">
- *   <span>0 replies</span>
+ *   <div>0 replies</div>
  * </Tooltip>
  *
  * // Use this instead
- * <span data-tooltip aria-label="This is correct!" />
+ * <div data-tooltip aria-label="This is correct!" />
  */
 export default class Tooltip extends Component<TooltipAttrs> {
   view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
