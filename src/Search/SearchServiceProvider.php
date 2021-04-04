@@ -58,19 +58,24 @@ class SearchServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        // The rest of these we can resolve in the when->needs->give callback,
-        // but we need to resolve at least one regardless so we know which
-        // searchers we need to register gambits for.
         $fullTextGambits = $this->container->make('flarum.simple_search.fulltext_gambits');
+        $gambits = $this->container->make('flarum.simple_search.gambits');
 
-        foreach ($fullTextGambits as $searcher => $fullTextGambitClass) {
+        $searchers = array_merge([], array_keys($fullTextGambits), array_keys($gambits));
+
+        foreach ($searchers as $searcher) {
             $this->container
                 ->when($searcher)
                 ->needs(GambitManager::class)
-                ->give(function () use ($searcher, $fullTextGambitClass) {
+                ->give(function () use ($searcher, $fullTextGambits, $gambits) {
                     $gambitManager = new GambitManager();
-                    $gambitManager->setFulltextGambit($this->container->make($fullTextGambitClass));
-                    foreach (Arr::get($this->container->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
+
+                    $fullTextGambitClass = Arr::get($fullTextGambits, $searcher);
+                    if (isset($fullTextGambitClass)) {
+                        $gambitManager->setFulltextGambit($this->container->make($fullTextGambitClass));
+                    }
+
+                    foreach (Arr::get($gambits, $searcher, []) as $gambit) {
                         $gambitManager->add($this->container->make($gambit));
                     }
 
