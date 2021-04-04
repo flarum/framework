@@ -19,7 +19,7 @@ import Application from './src/common/Application';
  * to (and should not) bundle these themselves.
  */
 declare global {
-  const $: typeof _$;
+  // $ is already defined by `@types/jquery`
   const m: Mithril.Static;
   const dayjs: typeof _dayjs;
 }
