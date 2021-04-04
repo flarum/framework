@@ -237,12 +237,15 @@ class CustomSearchMutator
 class CustomSearcher extends AbstractSearcher
 {
     // This isn't actually used, we just need it to implement the abstract method.
-    protected function getQuery(User $actor): Builder {
+    protected function getQuery(User $actor): Builder
+    {
         return Group::query();
     }
 }
 
 class CustomGambit implements GambitInterface
 {
-    public function apply(SearchState $search, $bit) {}
+    public function apply(SearchState $search, $bit)
+    {
+    }
 }
