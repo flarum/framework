@@ -12,13 +12,17 @@ namespace Flarum\Tests\integration\extenders;
 use Carbon\Carbon;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Group\Group;
 use Flarum\Query\QueryCriteria;
 use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Builder;
 
 class SimpleFlarumSearchTest extends TestCase
 {
@@ -135,6 +139,36 @@ class SimpleFlarumSearchTest extends TestCase
 
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
+
+    /**
+     * @test
+     */
+    public function cant_resolve_custom_searcher_without_fulltext_gambit()
+    {
+        $this->expectException(BindingResolutionException::class);
+
+        $this->app()->getContainer()->make(CustomSearcher::class);
+    }
+
+    /**
+     * @test
+     */
+    public function can_resolve_custom_searcher_with_fulltext_gambit()
+    {
+        $this->extend(
+            (new Extend\SimpleFlarumSearch(CustomSearcher::class))->setFullTextGambit(CustomFullTextGambit::class)
+        );
+
+        $anExceptionWasThrown = false;
+
+        try {
+            $this->app()->getContainer()->make(CustomSearcher::class);
+        } catch (BindingResolutionException $e) {
+            $anExceptionWasThrown = true;
+        }
+
+        $this->assertFalse($anExceptionWasThrown);
+    }
 }
 
 class NoResultFullTextGambit implements GambitInterface
@@ -177,5 +211,20 @@ class CustomSearchMutator
     public function __invoke($search, $criteria)
     {
         $search->getQuery()->whereRaw('1=0');
+    }
+}
+
+class CustomSearcher extends AbstractSearcher
+{
+    // This isn't actually used, we just need it to implement the abstract method.
+    protected function getQuery(User $actor): Builder {
+        return Group::query();
+    }
+}
+
+class CustomFullTextGambit implements GambitInterface
+{
+    public function apply(SearchState $search, $bit) {
+
     }
 }
