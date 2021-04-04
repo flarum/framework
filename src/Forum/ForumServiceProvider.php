@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum;
 
+use FastRoute\Dispatcher;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
@@ -204,8 +205,11 @@ class ForumServiceProvider extends AbstractServiceProvider
         $factory = $this->container->make(RouteHandlerFactory::class);
         $defaultRoute = $this->container->make('flarum.settings')->get('default_route');
 
-        if (isset($routes->getRoutes()['GET'][$defaultRoute]['handler'])) {
-            $toDefaultController = $routes->getRoutes()['GET'][$defaultRoute]['handler'];
+        $dispatcher = new Dispatcher\GroupCountBased($routes->getRouteData());
+        $routeInfo = $dispatcher->dispatch('GET', $defaultRoute);
+
+        if ($routeInfo[0] === Dispatcher::FOUND) {
+            $toDefaultController = $routeInfo[1]['handler'];
         } else {
             $toDefaultController = $factory->toForum(Content\Index::class);
         }
