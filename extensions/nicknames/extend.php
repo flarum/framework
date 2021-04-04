@@ -11,12 +11,10 @@
 
 namespace Flarum\Nicknames;
 
-use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\UserSerializer;
-use Flarum\Event\ConfigureUserGambits;
 use Flarum\Extend;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Saving;
+use Flarum\User\Search\UserSearcher;
 use Flarum\User\UserValidator;
 
 return [
@@ -32,8 +30,7 @@ return [
         ->displayNameDriver('nickname', NicknameDriver::class),
 
     (new Extend\Event())
-        ->listen(Saving::class, SaveNicknameToDatabase::class)
-        ->listen(ConfigureUserGambits::class, SetUserNicknameGambit::class),
+        ->listen(Saving::class, SaveNicknameToDatabase::class),
 
     (new Extend\ApiSerializer(UserSerializer::class))
         ->attribute('canEditOwnNickname', function ($serializer, $user) {
@@ -47,4 +44,6 @@ return [
     (new Extend\Validator(UserValidator::class))
         ->configure(AddNicknameValidation::class),
 
+    (new Extend\SimpleFlarumSearch(UserSearcher::class))
+        ->setFullTextGambit(NicknameFullTextGambit::class)
 ];
