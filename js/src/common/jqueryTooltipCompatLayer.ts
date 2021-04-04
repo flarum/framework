@@ -15,7 +15,12 @@ interface TooltipOptions {
  * @deprecated Backwards compatibility layer for Bootstrap tooltips.
  * @param options Tooltip options
  */
-export default function jqueryTooltipCompatLayer(this: JQuery, options: TooltipOptions): JQuery {
+export default function jqueryTooltipCompatLayer(this: JQuery, options: TooltipOptions | 'destroy'): JQuery {
+  if (options === 'destroy') {
+    // Destroying tooltips is meaningless using the CSS method
+    return this;
+  }
+
   const tooltipText = this.attr('title') || this.attr('aria-label');
 
   if (typeof tooltipText === 'undefined' || tooltipText === '') {
