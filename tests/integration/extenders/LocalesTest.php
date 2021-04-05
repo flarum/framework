@@ -44,7 +44,7 @@ class LocalesTest extends TestCase
         $this->extend(
             (new Extend\Locales(dirname(__FILE__, 3).'/fixtures/locales'))
         );
-    
+
         $this->app()->getContainer()->make('flarum.locales');
         $translator = $this->app()->getContainer()->make(Translator::class);
 
@@ -57,7 +57,7 @@ class LocalesTest extends TestCase
     public function custom_translation_exists_if_added_via_intl_file()
     {
         $this->extend(
-            (new Extend\Locales(dirname(__FILE__, 3) . '/fixtures/locales'))
+            (new Extend\Locales(dirname(__FILE__, 3).'/fixtures/locales'))
         );
 
         $this->app()->getContainer()->make('flarum.locales');
@@ -66,20 +66,19 @@ class LocalesTest extends TestCase
         $this->assertEquals('World-intl ACME', $translator->trans('test.hello-intl', ['name' => 'ACME']));
     }
 
-
     /**
      * @test
      */
     public function messageformat_doesnt_work_in_regular_file()
     {
         $this->extend(
-            (new Extend\Locales(dirname(__FILE__, 3) . '/fixtures/locales'))
+            (new Extend\Locales(dirname(__FILE__, 3).'/fixtures/locales'))
         );
 
         $this->app()->getContainer()->make('flarum.locales');
         $translator = $this->app()->getContainer()->make(Translator::class);
 
-        $templateStringWithVars = "{female, select,
+        $templateStringWithVars = '{female, select,
     female {{2, plural, offset:1
         =0    {{ACME} does not give a party.}
         =1    {{ACME} invites {ACME2} to her party.}
@@ -98,7 +97,7 @@ class LocalesTest extends TestCase
         =2    {{ACME} invites {ACME2} and one other person to their party.}
         other {{ACME} invites {ACME2} and # other people to their party.}
     }}
-    }";
+    }';
         $this->assertEquals($templateStringWithVars, $translator->trans('test.party-invitation', ['gender_of_host' => 'female', 'host' => 'ACME', 'num_guests' => 2, 'guest' => 'ACME2']));
     }
 
@@ -108,7 +107,7 @@ class LocalesTest extends TestCase
     public function messageformat_works_in_intl_icu_file()
     {
         $this->extend(
-            (new Extend\Locales(dirname(__FILE__, 3) . '/fixtures/locales'))
+            (new Extend\Locales(dirname(__FILE__, 3).'/fixtures/locales'))
         );
 
         $this->app()->getContainer()->make('flarum.locales');
@@ -123,7 +122,7 @@ class LocalesTest extends TestCase
     public function laravel_interface_methods_work()
     {
         $this->extend(
-            (new Extend\Locales(dirname(__FILE__, 3) . '/fixtures/locales'))
+            (new Extend\Locales(dirname(__FILE__, 3).'/fixtures/locales'))
         );
 
         $this->app()->getContainer()->make('flarum.locales');

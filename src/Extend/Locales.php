@@ -41,7 +41,7 @@ class Locales implements ExtenderInterface, LifecycleInterface
 
                     $intlIcu = false;
                     $locale = $file->getBasename(".$extension");
-            
+
                     if (strpos($file->getPathname(), MessageCatalogueInterface::INTL_DOMAIN_SUFFIX) !== false) {
                         $intlIcu = true;
                         // Ignore ICU MessageFormat suffixes.

@@ -68,7 +68,7 @@ class LocaleManager
         $domain = null;
 
         if ($intlIcu) {
-            $domain = 'messages'. MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
+            $domain = 'messages'.MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
         }
 
         $this->translator->addResource('prefixed_yaml', compact('file', 'prefix'), $locale, $domain);
