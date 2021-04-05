@@ -27,7 +27,7 @@ interface Attrs {
  *
  * To increase spacing around the spinner, use the CSS `height` property on the
  * spinner's **container**.
- * 
+ *
  * To apply a custom size to the loading indicator, set the `--size` and
  * `--thickness` custom properties on the loading indicator itself.
  *
