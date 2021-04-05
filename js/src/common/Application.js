@@ -163,7 +163,7 @@ export default class Application {
 
   load(payload) {
     this.data = payload;
-    this.translator.locale = payload.locale;
+    this.translator.setLocale(payload.locale);
   }
 
   boot() {
