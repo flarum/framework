@@ -13,6 +13,7 @@ use DirectoryIterator;
 use Flarum\Extension\Extension;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
+use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class Locales implements ExtenderInterface, LifecycleInterface
 {
@@ -38,9 +39,20 @@ class Locales implements ExtenderInterface, LifecycleInterface
                         continue;
                     }
 
+                    $intlIcu = false;
+                    $locale = $file->getBasename(".$extension");
+            
+                    if (strpos($file->getPathname(), MessageCatalogueInterface::INTL_DOMAIN_SUFFIX) !== false) {
+                        $intlIcu = true;
+                        // Ignore ICU MessageFormat suffixes.
+                        $locale = str_replace(MessageCatalogueInterface::INTL_DOMAIN_SUFFIX, '', $locale);
+                    }
+
                     $locales->addTranslations(
-                        $file->getBasename(".$extension"),
-                        $file->getPathname()
+                        $locale,
+                        $file->getPathname(),
+                        null,
+                        $intlIcu
                     );
                 }
             }

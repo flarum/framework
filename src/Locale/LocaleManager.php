@@ -10,6 +10,7 @@
 namespace Flarum\Locale;
 
 use Illuminate\Support\Arr;
+use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class LocaleManager
 {
@@ -60,11 +61,17 @@ class LocaleManager
         return isset($this->locales[$locale]);
     }
 
-    public function addTranslations(string $locale, $file, string $module = null)
+    public function addTranslations(string $locale, $file, string $module = null, bool $intlIcu = false)
     {
         $prefix = $module ? $module.'::' : '';
 
-        $this->translator->addResource('prefixed_yaml', compact('file', 'prefix'), $locale);
+        $domain = null;
+
+        if ($intlIcu) {
+            $domain = 'messages'. MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
+        }
+
+        $this->translator->addResource('prefixed_yaml', compact('file', 'prefix'), $locale, $domain);
     }
 
     public function addJsFile(string $locale, string $js)

@@ -24,7 +24,8 @@ class Translator extends BaseTranslator implements TranslatorContract
 
     public function choice($key, $number, array $replace = [], $locale = null)
     {
-        return $this->transChoice($key, $number, $replace, nil, $locale);
+        // Symfony's translator uses ICU MessageFormat, which pluralizes based on arguments.
+        return $this->trans($key, $replace, null, $locale);
     }
 
     /**
