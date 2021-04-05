@@ -5,7 +5,7 @@
     "@babel/preset-typescript": "^7.10.1",
     "@types/mithril": "^2.0.3",
     "bootstrap": "^3.4.1",
-    "classnames": "^2.2.5",
+    "clsx": "^1.1.1",
     "color-thief-browser": "^2.0.2",
     "dayjs": "^1.8.28",
     "expose-loader": "^0.7.5",
