@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.0-beta.16.1](https://github.com/flarum/nicknames/compare/v0.1.0-beta.16...v0.1.0-beta.16.1)
+
+- Update for beta 16 search API changes
+
 ## [0.1.0-beta.16](https://github.com/flarum/nicknames/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Changed
@@ -15,4 +19,3 @@
 
 ### Fixed
 - Usernames can take the value of nicknames (#1)
-
