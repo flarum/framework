@@ -22,6 +22,23 @@ use League\Flysystem\Filesystem;
 
 class EnableBundledExtensions implements Step
 {
+    const EXTENSION_WHITELIST = [
+        'flarum-approval',
+        'flarum-bbcode',
+        'flarum-emoji',
+        'flarum-lang-english',
+        'flarum-flags',
+        'flarum-likes',
+        'flarum-lock',
+        'flarum-markdown',
+        'flarum-mentions',
+        'flarum-statistics',
+        'flarum-sticky',
+        'flarum-subscriptions',
+        'flarum-suspend',
+        'flarum-tags',
+    ];
+
     /**
      * @var ConnectionInterface
      */
@@ -38,7 +55,7 @@ class EnableBundledExtensions implements Step
     private $assetPath;
 
     /**
-     * @var string[]
+     * @var string[]|null
      */
     private $enabledExtensions;
 
@@ -71,23 +88,6 @@ class EnableBundledExtensions implements Step
             $extensions->keys()->toJson()
         );
     }
-
-    const EXTENSION_WHITELIST = [
-        'flarum-approval',
-        'flarum-bbcode',
-        'flarum-emoji',
-        'flarum-lang-english',
-        'flarum-flags',
-        'flarum-likes',
-        'flarum-lock',
-        'flarum-markdown',
-        'flarum-mentions',
-        'flarum-statistics',
-        'flarum-sticky',
-        'flarum-subscriptions',
-        'flarum-suspend',
-        'flarum-tags',
-    ];
 
     /**
      * @return \Illuminate\Support\Collection
