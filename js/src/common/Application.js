@@ -159,6 +159,8 @@ export default class Application {
   title = '';
   titleCount = 0;
 
+  initialRoute;
+
   load(payload) {
     this.data = payload;
     this.translator.locale = payload.locale;
@@ -174,6 +176,8 @@ export default class Application {
     this.session = new Session(this.store.getById('users', this.data.session.userId), this.data.session.csrfToken);
 
     this.mount();
+
+    this.initialRoute = window.location.href;
   }
 
   bootExtensions(extensions) {
@@ -226,7 +230,8 @@ export default class Application {
    * @public
    */
   preloadedApiDocument() {
-    if (this.data.apiDocument) {
+    // If the URL has changed, the preloaded Api document is invalid.
+    if (this.data.apiDocument && window.location.href === this.initialRoute) {
       const results = this.store.pushPayload(this.data.apiDocument);
 
       this.data.apiDocument = null;
