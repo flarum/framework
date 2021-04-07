@@ -262,7 +262,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      */
     protected function sortIsDefault(ServerRequestInterface $request)
     {
-        return !Arr::get($request->getQueryParams(), 'sort');
+        return ! Arr::get($request->getQueryParams(), 'sort');
     }
 
     /**
