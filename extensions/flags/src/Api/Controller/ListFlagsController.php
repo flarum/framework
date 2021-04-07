@@ -38,16 +38,24 @@ class ListFlagsController extends AbstractListController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
+        $include = $this->extractInclude($request);
 
         $actor->assertRegistered();
 
         $actor->read_flags_at = time();
         $actor->save();
 
-        return Flag::whereVisibleTo($actor)
-            ->with($this->extractInclude($request))
+        $flags = Flag::whereVisibleTo($actor)
             ->latest('flags.created_at')
             ->groupBy('post_id')
             ->get();
+
+        if (in_array('post.user', $include)) {
+            $include[] = 'post.user.groups';
+        }
+
+        $this->loadRelations($flags, $include);
+
+        return $flags;
     }
 }
