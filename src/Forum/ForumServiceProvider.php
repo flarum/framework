@@ -9,7 +9,6 @@
 
 namespace Flarum\Forum;
 
-use FastRoute\Dispatcher;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
