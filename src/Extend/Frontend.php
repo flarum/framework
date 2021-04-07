@@ -62,7 +62,7 @@ class Frontend implements ExtenderInterface
 
     public function removeRoute(string $name)
     {
-        $this->removedRoutes[] = compact('name');
+        $this->removedRoutes[] = $name;
 
         return $this;
     }
@@ -159,8 +159,8 @@ class Frontend implements ExtenderInterface
                 /** @var RouteHandlerFactory $factory */
                 $factory = $container->make(RouteHandlerFactory::class);
 
-                foreach ($this->removedRoutes as $route) {
-                    $collection->removeRoute('GET', $route['name']);
+                foreach ($this->removedRoutes as $routeName) {
+                    $collection->removeRoute($routeName);
                 }
 
                 foreach ($this->routes as $route) {

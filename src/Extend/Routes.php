@@ -63,9 +63,9 @@ class Routes implements ExtenderInterface
         return $this;
     }
 
-    public function remove(string $method, string $name)
+    public function remove(string $name)
     {
-        $this->removedRoutes[] = compact('method', 'name');
+        $this->removedRoutes[] = $name;
 
         return $this;
     }
@@ -82,8 +82,8 @@ class Routes implements ExtenderInterface
                 /** @var RouteHandlerFactory $factory */
                 $factory = $container->make(RouteHandlerFactory::class);
 
-                foreach ($this->removedRoutes as $route) {
-                    $collection->removeRoute($route['method'], $route['name']);
+                foreach ($this->removedRoutes as $routeName) {
+                    $collection->removeRoute($routeName);
                 }
 
                 foreach ($this->routes as $route) {
