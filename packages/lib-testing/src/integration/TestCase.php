@@ -14,6 +14,7 @@ use Flarum\Foundation\Config;
 use Flarum\Foundation\InstalledSite;
 use Flarum\Foundation\Paths;
 use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
+use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
 use Illuminate\Database\ConnectionInterface;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
@@ -59,7 +60,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             );
 
             $extenders = array_merge([
-                new OverrideExtensionManagerForTests($this->extensions)
+                new OverrideExtensionManagerForTests($this->extensions),
+                new SetSettingsBeforeBoot($this->settings),
             ], $this->extenders);
 
             $site->extendWith($extenders);
@@ -79,6 +81,13 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected $extenders = [];
 
+    /**
+     * Each argument should be an instance of an extender that should
+     * be applied at application boot.
+     * 
+     * Note that this method will have no effect if called after the
+     * application is booted.
+     */
     protected function extend(ExtenderInterface ...$extenders)
     {
         $this->extenders = array_merge($this->extenders, $extenders);
@@ -89,9 +98,38 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected $extensions = [];
 
+    /**
+     * Each argument should be an ID of an extension to be enabled.
+     * Extensions other than the one currently being tested must be
+     * listed in this extension's `composer.json` under `require` or
+     * `require-dev`.
+     * 
+     * Note that this method will have no effect if called after the
+     * application is booted.
+     */
     protected function extension(string ...$extensions)
     {
         $this->extensions = array_merge($this->extensions, $extensions);
+    }
+
+    /**
+     * @var string[]
+     */
+    protected $settings = [];
+
+    /**
+     * Some settings are used during application boot, so setting
+     * them via `prepareDatabase` will be too late for the desired
+     * effect. For instance, in core the active display name driver
+     * is configured based on the `display_name_driver` setting.
+     * That setting should be registered using this method.
+     * 
+     * Note that this method will have no effect if called after the
+     * application is booted.
+     */
+    protected function setting(string $key, string $value)
+    {
+        $this->settings[$key] = $value;
     }
 
     /**

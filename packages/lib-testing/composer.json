@@ -20,6 +20,11 @@
             "Flarum\\Testing\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Testing\\Tests\\": "src/tests/"
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "0.1.x-dev"
