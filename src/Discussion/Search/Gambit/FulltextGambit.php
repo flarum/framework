@@ -58,7 +58,7 @@ class FulltextGambit implements GambitInterface
                 '=',
                 'discussions.id'
             )
-            ->distinct('posts_ft.discussion_id')
+            ->groupBy('discussions.id')
             ->addBinding($subquery->getBindings(), 'join');
 
         $search->setDefaultSort(function ($query) use ($grammar, $bit) {
