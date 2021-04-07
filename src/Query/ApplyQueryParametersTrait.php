@@ -25,7 +25,7 @@ trait ApplyQueryParametersTrait
      */
     protected function applySort(AbstractQueryState $query, array $sort = null, bool $sortIsDefault = false)
     {
-        if ($sortIsDefault && !empty($query->getDefaultSort())) {
+        if ($sortIsDefault && ! empty($query->getDefaultSort())) {
             $sort = $query->getDefaultSort();
         }
 

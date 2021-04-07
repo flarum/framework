@@ -44,7 +44,7 @@ class QueryCriteria
     /**
      * Is the sort for this request the default sort from the controller?
      * If false, the current request specifies a sort.
-     * 
+     *
      * @var bool
      */
     public $sortIsDefault;

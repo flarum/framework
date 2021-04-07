@@ -84,7 +84,7 @@ class ListPostsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $results = $this->filterer->filter(new QueryCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset,);
+        $results = $this->filterer->filter(new QueryCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset, );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('posts.index'),
