@@ -10,25 +10,13 @@
 namespace Flarum\Locale;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Dispatcher $events)
-    {
-        $events->listen(ClearingCache::class, function () {
-            $this->container->make('flarum.locales')->clearCache();
-        });
-    }
-
     /**
      * {@inheritdoc}
      */
