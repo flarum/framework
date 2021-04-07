@@ -47,7 +47,7 @@ class DatabaseConfig implements Arrayable
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => $this->prefix,
             'strict'    => false,
-            'engine'    => NULL,
+            'engine'    => null,
             'prefix_indexes' => true
         ];
     }
