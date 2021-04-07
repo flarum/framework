@@ -1,0 +1,1 @@
+C:37:"PHPUnit\Runner\DefaultTestResultCache":219:{a:2:{s:7:"defects";a:1:{s:74:"Flarum\Testing\Tests\integration\TestCaseTest::can_add_settings_via_method";i:4;}s:5:"times";a:1:{s:74:"Flarum\Testing\Tests\integration\TestCaseTest::can_add_settings_via_method";d:0.09;}}}
