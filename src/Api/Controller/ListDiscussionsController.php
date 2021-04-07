@@ -15,6 +15,7 @@ use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -88,12 +89,13 @@ class ListDiscussionsController extends AbstractListController
         $actor = $request->getAttribute('actor');
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
+        $sortIsDefault = $this->sortIsDefault($request);
 
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
         $include = array_merge($this->extractInclude($request), ['state']);
 
-        $criteria = new QueryCriteria($actor, $filters, $sort);
+        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
         if (array_key_exists('q', $filters)) {
             $results = $this->searcher->search($criteria, $limit, $offset);
         } else {

@@ -256,6 +256,15 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
+     * @param ServerRequestInterface $request
+     * @return bool
+     */
+    protected function sortIsDefault(ServerRequestInterface $request)
+    {
+        return !array_key_exists('sort', $request->getQueryParams());
+    }
+
+    /**
      * Set the serializer that will serialize data for the endpoint.
      *
      * @param string $serializer
