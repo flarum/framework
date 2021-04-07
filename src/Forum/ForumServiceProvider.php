@@ -205,11 +205,8 @@ class ForumServiceProvider extends AbstractServiceProvider
         $factory = $this->container->make(RouteHandlerFactory::class);
         $defaultRoute = $this->container->make('flarum.settings')->get('default_route');
 
-        $dispatcher = new Dispatcher\GroupCountBased($routes->getRouteData());
-        $routeInfo = $dispatcher->dispatch('GET', $defaultRoute);
-
-        if ($routeInfo[0] === Dispatcher::FOUND) {
-            $toDefaultController = $routeInfo[1]['handler'];
+        if (isset($routes->getRouteData()[0]['GET'][$defaultRoute]['handler'])) {
+            $toDefaultController = $routes->getRoutes()['GET'][$defaultRoute]['handler'];
         } else {
             $toDefaultController = $factory->toForum(Content\Index::class);
         }
