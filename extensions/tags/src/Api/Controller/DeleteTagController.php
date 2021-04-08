@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Api\Controller;
 
 use Flarum\Api\Controller\AbstractDeleteController;
+use Flarum\Http\RequestUtil;
 use Flarum\Tags\Command\DeleteTag;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
@@ -36,7 +37,7 @@ class DeleteTagController extends AbstractDeleteController
     protected function delete(ServerRequestInterface $request)
     {
         $this->bus->dispatch(
-            new DeleteTag(Arr::get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
+            new DeleteTag(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request))
         );
     }
 }

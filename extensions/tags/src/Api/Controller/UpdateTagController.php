@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Api\Controller;
 
 use Flarum\Api\Controller\AbstractShowController;
+use Flarum\Http\RequestUtil;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Command\EditTag;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -43,7 +44,7 @@ class UpdateTagController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $id = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $data = Arr::get($request->getParsedBody(), 'data', []);
 
         return $this->bus->dispatch(

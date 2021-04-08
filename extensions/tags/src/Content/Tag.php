@@ -12,6 +12,7 @@ namespace Flarum\Tags\Content;
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
+use Flarum\Http\RequestUtil;
 use Flarum\Tags\TagRepository;
 use Flarum\User\User;
 use Illuminate\Contracts\Translation\Translator;
@@ -58,7 +59,7 @@ class Tag
     public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         $slug = Arr::pull($queryParams, 'slug');
         $sort = Arr::pull($queryParams, 'sort');
