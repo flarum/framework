@@ -10,6 +10,7 @@
 namespace Flarum\Tags;
 
 use Flarum\Api\Controller\ShowForumController;
+use Flarum\Http\RequestUtil;
 use Psr\Http\Message\ServerRequestInterface;
 
 class LoadForumTagsRelationship
@@ -21,7 +22,7 @@ class LoadForumTagsRelationship
      */
     public function __invoke(ShowForumController $controller, &$data, ServerRequestInterface $request)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         // Expose the complete tag list to clients by adding it as a
         // relationship to the /api endpoint. Since the Forum model

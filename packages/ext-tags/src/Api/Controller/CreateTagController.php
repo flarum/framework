@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Api\Controller;
 
 use Flarum\Api\Controller\AbstractCreateController;
+use Flarum\Http\RequestUtil;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Command\CreateTag;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -48,7 +49,7 @@ class CreateTagController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new CreateTag($request->getAttribute('actor'), Arr::get($request->getParsedBody(), 'data', []))
+            new CreateTag(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))
         );
     }
 }

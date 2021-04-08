@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Api\Controller;
 
 use Flarum\Api\Controller\AbstractListController;
+use Flarum\Http\RequestUtil;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Tag;
 use Psr\Http\Message\ServerRequestInterface;
@@ -54,7 +55,7 @@ class ListTagsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
 
         $tags = $this->tags->whereVisibleTo($actor)->withStateFor($actor)->get();
