@@ -17,6 +17,8 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Contracts\Filesystem\Cloud;
+use Illuminate\Filesystem\FilesystemAdapter;
 use InvalidArgumentException;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Adapter\NullAdapter;
@@ -124,8 +126,8 @@ class FilesystemTest extends TestCase
 
 class NullFilesystemDriver implements DriverInterface
 {
-    public function build(string $diskName, SettingsRepositoryInterface $settings, Config $config, array $localConfig): LeagueFilesystem
+    public function build(string $diskName, SettingsRepositoryInterface $settings, Config $config, array $localConfig): Cloud
     {
-        return new LeagueFilesystem(new NullAdapter());
+        return new FilesystemAdapter(new LeagueFilesystem(new NullAdapter()));
     }
 }

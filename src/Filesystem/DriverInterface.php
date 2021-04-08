@@ -11,7 +11,7 @@ namespace Flarum\Filesystem;
 
 use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
-use League\Flysystem\Filesystem;
+use Illuminate\Contracts\Filesystem\Cloud;
 
 interface DriverInterface
 {
@@ -33,5 +33,5 @@ interface DriverInterface
      *                            if this disk were using the 'local' filesystem driver.
      *                            Some of these settings might be useful (e.g. visibility, )
      */
-    public function build(string $diskName, SettingsRepositoryInterface $settings, Config $config, array $localConfig): Filesystem;
+    public function build(string $diskName, SettingsRepositoryInterface $settings, Config $config, array $localConfig): Cloud;
 }
