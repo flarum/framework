@@ -22,6 +22,23 @@ use League\Flysystem\Filesystem;
 
 class EnableBundledExtensions implements Step
 {
+    const EXTENSION_WHITELIST = [
+        'flarum-approval',
+        'flarum-bbcode',
+        'flarum-emoji',
+        'flarum-lang-english',
+        'flarum-flags',
+        'flarum-likes',
+        'flarum-lock',
+        'flarum-markdown',
+        'flarum-mentions',
+        'flarum-statistics',
+        'flarum-sticky',
+        'flarum-subscriptions',
+        'flarum-suspend',
+        'flarum-tags',
+    ];
+
     /**
      * @var ConnectionInterface
      */
@@ -37,11 +54,17 @@ class EnableBundledExtensions implements Step
      */
     private $assetPath;
 
-    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath)
+    /**
+     * @var string[]|null
+     */
+    private $enabledExtensions;
+
+    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath, $enabledExtensions = null)
     {
         $this->database = $database;
         $this->vendorPath = $vendorPath;
         $this->assetPath = $assetPath;
+        $this->enabledExtensions = $enabledExtensions ?? self::EXTENSION_WHITELIST;
     }
 
     public function getMessage()
@@ -65,23 +88,6 @@ class EnableBundledExtensions implements Step
             $extensions->keys()->toJson()
         );
     }
-
-    const EXTENSION_WHITELIST = [
-        'flarum-approval',
-        'flarum-bbcode',
-        'flarum-emoji',
-        'flarum-lang-english',
-        'flarum-flags',
-        'flarum-likes',
-        'flarum-lock',
-        'flarum-markdown',
-        'flarum-mentions',
-        'flarum-statistics',
-        'flarum-sticky',
-        'flarum-subscriptions',
-        'flarum-suspend',
-        'flarum-tags',
-    ];
 
     /**
      * @return \Illuminate\Support\Collection
@@ -109,7 +115,7 @@ class EnableBundledExtensions implements Step
 
                 return $extension;
             })->filter(function (Extension $extension) {
-                return in_array($extension->getId(), self::EXTENSION_WHITELIST);
+                return in_array($extension->getId(), $this->enabledExtensions);
             })->sortBy(function (Extension $extension) {
                 return $extension->getTitle();
             })->mapWithKeys(function (Extension $extension) {
