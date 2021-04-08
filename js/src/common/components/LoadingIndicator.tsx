@@ -31,6 +31,11 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  * To apply a custom size to the loading indicator, set the `--size` and
  * `--thickness` custom properties on the loading indicator itself.
  *
+ * If you really want to change how this looks as part of your custom theme,
+ * you can override the `border-radius` and `border` then set either a
+ * background image, or use `content: "\<glyph>"` (e.g. `content: "\f1ce"`)
+ * and `font-family: 'Font Awesome 5 Free'` to set an FA icon if you'd rather.
+ *
  * ### Attrs
  *
  * - `containerClassName` Class name(s) to apply to the indicator's parent
