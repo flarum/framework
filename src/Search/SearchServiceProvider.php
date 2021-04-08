@@ -66,7 +66,12 @@ class SearchServiceProvider extends AbstractServiceProvider
         if (count($searchersWithGambitsWithoutFulltext)) {
             $affectedGambits = [];
             foreach ($searchersWithGambitsWithoutFulltext as $searcher) {
-                $affectedGambits += $gambits[$searcher];
+                // This check is in place to support adding gambits to searchers
+                // registered in extensions that are optional dependencies of the
+                // current extension.
+                if (class_exists($searcher)) {
+                    $affectedGambits += $gambits[$searcher];
+                }
             }
 
             throw new \RuntimeException('You cannot add gambits to searchers that do not have fulltext gambits. The following searchers have this issue: '.implode(', ', $affectedGambits));

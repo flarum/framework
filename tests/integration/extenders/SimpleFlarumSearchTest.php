@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
+use Carbon\Exceptions\RuntimeException;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Group\Group;
@@ -170,12 +171,31 @@ class SimpleFlarumSearchTest extends TestCase
         $this->assertFalse($anExceptionWasThrown);
     }
 
+
     /**
      * @test
      */
-    public function cant_add_gambit_to_searcher_without_fulltext()
+    public function can_add_gambit_to_nonexistent_searcher_class_without_fulltext()
     {
         $this->extend((new Extend\SimpleFlarumSearch(NonexistentClass::class))->addGambit(NoResultFilterGambit::class));
+
+        $anExceptionWasThrown = false;
+
+        try {
+            $this->app();
+        } catch (RuntimeException $e) {
+            $anExceptionWasThrown = true;
+        }
+
+        $this->assertFalse($anExceptionWasThrown);
+    }
+
+    /**
+     * @test
+     */
+    public function cant_add_gambit_to_existent_searcher_class_without_fulltext()
+    {
+        $this->extend((new Extend\SimpleFlarumSearch(AbstractSearcher::class))->addGambit(NoResultFilterGambit::class));
 
         $this->expectException(\RuntimeException::class);
         $this->app();
