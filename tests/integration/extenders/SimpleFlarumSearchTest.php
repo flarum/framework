@@ -156,27 +156,7 @@ class SimpleFlarumSearchTest extends TestCase
     public function can_resolve_custom_searcher_with_fulltext_gambit()
     {
         $this->extend(
-            (new Extend\SimpleFlarumSearch(CustomSearcher::class))->setFullTextGambit(CustomGambit::class)
-        );
-
-        $anExceptionWasThrown = false;
-
-        try {
-            $this->app()->getContainer()->make(CustomSearcher::class);
-        } catch (BindingResolutionException $e) {
-            $anExceptionWasThrown = true;
-        }
-
-        $this->assertFalse($anExceptionWasThrown);
-    }
-
-    /**
-     * @test
-     */
-    public function can_resolve_custom_searcher_with_regular_gambit()
-    {
-        $this->extend(
-            (new Extend\SimpleFlarumSearch(CustomSearcher::class))->addGambit(CustomGambit::class)
+            (new Extend\SimpleFlarumSearch(CustomSearcher::class))->setFullTextGambit(CustomFullTextGambit::class)
         );
 
         $anExceptionWasThrown = false;
@@ -243,7 +223,7 @@ class CustomSearcher extends AbstractSearcher
     }
 }
 
-class CustomGambit implements GambitInterface
+class CustomFullTextGambit implements GambitInterface
 {
     public function apply(SearchState $search, $bit)
     {
