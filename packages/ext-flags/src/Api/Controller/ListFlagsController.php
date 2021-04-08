@@ -12,6 +12,7 @@ namespace Flarum\Flags\Api\Controller;
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Flag;
+use Flarum\Http\RequestUtil;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -37,7 +38,7 @@ class ListFlagsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
 
         $actor->assertRegistered();

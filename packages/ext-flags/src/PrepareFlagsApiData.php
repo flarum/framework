@@ -11,6 +11,7 @@ namespace Flarum\Flags;
 
 use Flarum\Api\Controller;
 use Flarum\Flags\Api\Controller\CreateFlagController;
+use Flarum\Http\RequestUtil;
 use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -41,7 +42,7 @@ class PrepareFlagsApiData
         }
 
         if (isset($posts)) {
-            $actor = $request->getAttribute('actor');
+            $actor = RequestUtil::getActor($request);
             $postsWithPermission = [];
 
             foreach ($posts as $post) {

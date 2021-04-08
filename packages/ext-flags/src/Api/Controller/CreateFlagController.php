@@ -12,6 +12,7 @@ namespace Flarum\Flags\Api\Controller;
 use Flarum\Api\Controller\AbstractCreateController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Command\CreateFlag;
+use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -51,7 +52,7 @@ class CreateFlagController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new CreateFlag($request->getAttribute('actor'), Arr::get($request->getParsedBody(), 'data', []))
+            new CreateFlag(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))
         );
     }
 }
