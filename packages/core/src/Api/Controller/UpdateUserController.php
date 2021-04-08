@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Http\RequestUtil;
 use Flarum\User\Command\EditUser;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -49,7 +50,7 @@ class UpdateUserController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $id = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $data = Arr::get($request->getParsedBody(), 'data', []);
 
         if ($actor->id == $id) {

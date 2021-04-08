@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AccountActivationMailerTrait;
@@ -65,7 +66,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $id = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         $actor->assertRegistered();
 

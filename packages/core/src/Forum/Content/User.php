@@ -12,6 +12,7 @@ namespace Flarum\Forum\Content;
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Frontend\Document;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User as FlarumUser;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -43,7 +44,7 @@ class User
     public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $userId = Arr::get($queryParams, 'username');
 
         $params = [

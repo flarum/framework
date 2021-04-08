@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
@@ -56,7 +57,7 @@ class ShowUserController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $id = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         if (Arr::get($request->getQueryParams(), 'bySlug', false)) {
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);

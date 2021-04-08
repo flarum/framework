@@ -13,6 +13,7 @@ use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
 use Psr\Http\Message\ServerRequestInterface;
@@ -85,7 +86,7 @@ class ListDiscussionsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
 

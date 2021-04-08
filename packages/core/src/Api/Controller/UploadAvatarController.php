@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Http\RequestUtil;
 use Flarum\User\Command\UploadAvatar;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
@@ -42,7 +43,7 @@ class UploadAvatarController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $id = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $file = Arr::get($request->getUploadedFiles(), 'avatar');
 
         return $this->bus->dispatch(

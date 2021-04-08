@@ -12,6 +12,7 @@ namespace Flarum\Api;
 use Exception;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
+use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
@@ -56,7 +57,7 @@ class Client
     {
         $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
 
-        $request = $request->withAttribute('actor', $actor);
+        $request = RequestUtil::withActor($request, $actor);
 
         if (is_string($controller)) {
             $controller = $this->container->make($controller);

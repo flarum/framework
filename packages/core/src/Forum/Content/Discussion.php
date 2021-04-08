@@ -12,6 +12,7 @@ namespace Flarum\Forum\Content;
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
@@ -61,7 +62,7 @@ class Discussion
             ]
         ];
 
-        $apiDocument = $this->getApiDocument($request->getAttribute('actor'), $params);
+        $apiDocument = $this->getApiDocument(RequestUtil::getActor($request), $params);
 
         $getResource = function ($link) use ($apiDocument) {
             return Arr::first($apiDocument->included, function ($value) use ($link) {
