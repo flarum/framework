@@ -1,5 +1,6 @@
-import 'expose-loader?punycode!punycode';
-import 'expose-loader?ColorThief!color-thief-browser';
+// Expose punycode and ColorThief to the window browser object
+import 'expose-loader?exposes=punycode!punycode';
+import 'expose-loader?exposes=ColorThief!color-thief-browser';
 
 import app from './app';
 
