@@ -18,7 +18,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class CreateFlagHandler
