@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Extension\ExtensionManager;
+use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -30,7 +31,7 @@ class UninstallExtensionController extends AbstractDeleteController
 
     protected function delete(ServerRequestInterface $request)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        RequestUtil::getActor($request)->assertAdmin();
 
         $name = Arr::get($request->getQueryParams(), 'name');
 

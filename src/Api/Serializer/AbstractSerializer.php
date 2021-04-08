@@ -11,6 +11,7 @@ namespace Flarum\Api\Serializer;
 
 use Closure;
 use DateTime;
+use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
@@ -64,7 +65,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     public function setRequest(Request $request)
     {
         $this->request = $request;
-        $this->actor = $request->getAttribute('actor');
+        $this->actor = RequestUtil::getActor($request);
     }
 
     /**

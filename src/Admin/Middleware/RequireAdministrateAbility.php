@@ -9,6 +9,7 @@
 
 namespace Flarum\Admin\Middleware;
 
+use Flarum\Http\RequestUtil;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -18,7 +19,7 @@ class RequireAdministrateAbility implements Middleware
 {
     public function process(Request $request, Handler $handler): Response
     {
-        $request->getAttribute('actor')->assertAdmin();
+        RequestUtil::getActor($request)->assertAdmin();
 
         return $handler->handle($request);
     }
