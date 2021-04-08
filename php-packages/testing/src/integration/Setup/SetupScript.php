@@ -115,6 +115,7 @@ class SetupScript
                 'admin@machine.local'
             ))
             ->settings(['mail_driver' => 'log'])
+            ->extensions([])
             ->build();
 
         // Run the actual configuration
