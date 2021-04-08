@@ -18,6 +18,8 @@
   height: 300px;
   min-height: 50px; // JavaScript sets a max-height
   position: relative;
+  cursor: pointer;
+  .user-select(none);
 }
 .Scrubber-before, .Scrubber-after {
   border-left: 1px solid @control-bg;
@@ -42,6 +44,7 @@
   background: transparent;
   width: 100%;
   padding: 5px 0;
+  cursor: move;
 }
 .Scrubber-bar {
   height: 100%;

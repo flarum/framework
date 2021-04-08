@@ -24,7 +24,7 @@ jobs:
 
       # Our action will install npm, cd into `./js`, run `npm run build`,
       # then commit and upload any changes
-      - name: Build and commit transpiled JS
+      - name: Build production JS
         uses: flarum/action-build@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

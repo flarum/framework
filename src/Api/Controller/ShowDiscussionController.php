@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
@@ -82,7 +83,7 @@ class ShowDiscussionController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $discussionId = Arr::get($request->getQueryParams(), 'id');
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
 
         if (Arr::get($request->getQueryParams(), 'bySlug', false)) {
@@ -111,7 +112,7 @@ class ShowDiscussionController extends AbstractShowController
      */
     private function includePosts(Discussion $discussion, ServerRequestInterface $request, array $include)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $limit = $this->extractLimit($request);
         $offset = $this->getPostsOffset($request, $discussion, $limit);
 
@@ -160,7 +161,7 @@ class ShowDiscussionController extends AbstractShowController
     private function getPostsOffset(ServerRequestInterface $request, Discussion $discussion, $limit)
     {
         $queryParams = $request->getQueryParams();
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         if (($near = Arr::get($queryParams, 'page.near')) > 1) {
             $offset = $this->posts->getIndexForNumber($discussion->id, $near, $actor);

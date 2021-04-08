@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\PostRepository;
@@ -74,7 +75,7 @@ class ListPostsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
@@ -116,7 +117,7 @@ class ListPostsController extends AbstractListController
      */
     protected function extractOffset(ServerRequestInterface $request)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $queryParams = $request->getQueryParams();
         $sort = $this->extractSort($request);
         $limit = $this->extractLimit($request);
