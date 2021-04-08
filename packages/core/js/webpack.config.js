@@ -3,7 +3,7 @@ const merge = require('webpack-merge');
 
 module.exports = merge(config(), {
   output: {
-    library: 'flarum.core'
+    library: 'flarum.core',
   },
 
   // temporary TS configuration
