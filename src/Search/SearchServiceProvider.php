@@ -68,8 +68,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 ->when($searcher)
                 ->needs(GambitManager::class)
                 ->give(function () use ($searcher, $fullTextGambitClass) {
-                    $gambitManager = new GambitManager();
-                    $gambitManager->setFulltextGambit($this->container->make($fullTextGambitClass));
+                    $gambitManager = new GambitManager($this->container->make($fullTextGambitClass));
                     foreach (Arr::get($this->container->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
                         $gambitManager->add($this->container->make($gambit));
                     }
