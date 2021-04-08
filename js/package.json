@@ -28,6 +28,7 @@
     "husky": "^4.3.8",
     "prettier": "^2.2.1",
     "webpack": "^4.46.0",
+    "webpack-bundle-analyzer": "^4.4.0",
     "webpack-cli": "^3.3.12",
     "webpack-merge": "^4.2.2"
   },
