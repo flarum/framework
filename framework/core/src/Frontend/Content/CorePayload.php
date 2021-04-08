@@ -12,6 +12,7 @@ namespace Flarum\Frontend\Content;
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Frontend\Document;
+use Flarum\Http\RequestUtil;
 use Flarum\Locale\LocaleManager;
 use Flarum\User\User;
 use Psr\Http\Message\ResponseInterface;
@@ -51,7 +52,7 @@ class CorePayload
     {
         $data = $this->getDataFromApiDocument($document->getForumApiDocument());
 
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         if ($actor->exists) {
             $user = $this->getUserApiDocument($actor);

@@ -11,6 +11,7 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Http\Exception\TokenMismatchException;
 use Flarum\Http\Rememberer;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\Event\LoggedOut;
@@ -79,7 +80,7 @@ class LogOutController implements RequestHandlerInterface
     public function handle(Request $request): ResponseInterface
     {
         $session = $request->getAttribute('session');
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         $url = Arr::get($request->getQueryParams(), 'return', $this->url->to('forum')->base());
 

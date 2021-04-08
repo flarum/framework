@@ -13,6 +13,7 @@ use Flarum\Api\Client;
 use Flarum\Api\Controller\CreateUserController;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -53,7 +54,7 @@ class RegisterController implements RequestHandlerInterface
     public function handle(Request $request): ResponseInterface
     {
         $controller = CreateUserController::class;
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $body = ['data' => ['attributes' => $request->getParsedBody()]];
 
         $response = $this->api->send($controller, $actor, [], $body);
