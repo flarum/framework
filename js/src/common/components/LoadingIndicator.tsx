@@ -1,7 +1,7 @@
 import Component, { ComponentAttrs } from '../Component';
 import classList from '../utils/classList';
 
-interface Attrs {
+export interface LoadingIndicatorAttrs extends ComponentAttrs {
   /**
    * Custom classes fro the loading indicator's container.
    */
@@ -17,7 +17,7 @@ interface Attrs {
   /**
    * Optional attributes to apply to the loading indicator's container.
    */
-  containerAttrs?: ComponentAttrs;
+  containerAttrs?: Partial<ComponentAttrs>;
 }
 
 /**
@@ -40,7 +40,7 @@ interface Attrs {
  *
  * All other attrs will be assigned as attributes on the DOM element.
  */
-export default class LoadingIndicator extends Component<Attrs> {
+export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
   view() {
     const { size, ...attrs } = this.attrs;
 
