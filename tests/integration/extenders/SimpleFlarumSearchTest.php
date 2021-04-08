@@ -169,6 +169,17 @@ class SimpleFlarumSearchTest extends TestCase
 
         $this->assertFalse($anExceptionWasThrown);
     }
+
+    /**
+     * @test
+     */
+    public function cant_add_gambit_to_searcher_without_fulltext()
+    {
+        $this->extend((new Extend\SimpleFlarumSearch(NonexistentClass::class))->addGambit(NoResultFilterGambit::class));
+
+        $this->expectException(\RuntimeException::class);
+        $this->app();
+    }
 }
 
 class NoResultFullTextGambit implements GambitInterface
