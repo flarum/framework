@@ -10,6 +10,7 @@
 namespace Flarum\Mentions;
 
 use Flarum\Api\Controller;
+use Flarum\Http\RequestUtil;
 use Flarum\Post\CommentPost;
 use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -57,7 +58,7 @@ class FilterVisiblePosts
 
         if (isset($posts)) {
             $posts = new Collection($posts);
-            $actor = $request->getAttribute('actor');
+            $actor = RequestUtil::getActor($request);
 
             $posts = $posts->filter(function ($post) {
                 return $post instanceof CommentPost;
