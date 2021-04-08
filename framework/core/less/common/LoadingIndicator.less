@@ -2,13 +2,58 @@
 // Loading Indicators
 
 .LoadingIndicator {
-  position: relative;
-  color: @muted-color;
+  @spin-time: 750ms;
+  --size: 24px;
+  --thickness: 2px;
+
+  &-container[data-size="large"] & {
+    --size: 32px;
+    --thickness: 3px;
+  }
+
+  &-container[data-size="tiny"] & {
+    --size: 18px;
+  }
+
+  // Use the value of `color` to maintain backwards compatibility
+  border-color: currentColor;
+  border-width: var(--thickness);
+  border-style: solid;
+  border-top-color: transparent;
+  border-radius: 50%;
+
+  width: var(--size);
+  height: var(--size);
+
+  animation: spin @spin-time linear infinite;
+
+  // <div> container around the spinner
+  // Used for positioning
+  &-container {
+    color: @muted-color;
+
+    // Center vertically and horizontally
+    // Allows people to set `height` and it'll stay centered within the new height
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--block {
+      height: 100px;
+    }
+
+    &--inline {
+      display: inline-block;
+    }
+  }
 }
-.LoadingIndicator--inline {
-  display: inline-block;
-  width: 25px;
-}
-.LoadingIndicator--block {
-  height: 100px;
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(1turn);
+  }
 }
