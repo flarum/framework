@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
-use Carbon\Exceptions\RuntimeException;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Group\Group;
