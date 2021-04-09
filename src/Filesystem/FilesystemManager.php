@@ -13,7 +13,6 @@ use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Filesystem\FilesystemManager as LaravelFilesystemManager;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
