@@ -51,7 +51,7 @@ class FilesystemManager extends LaravelFilesystemManager
         $settings = $this->app->make(SettingsRepositoryInterface::class);
         $config = $this->app->make(Config::class);
 
-        return new FilesystemAdapter($driver->build($name, $settings, $config, $localConfig));
+        return $driver->build($name, $settings, $config, $localConfig);
     }
 
     protected function getDriver($name)
