@@ -74,7 +74,9 @@ class SearchServiceProvider extends AbstractServiceProvider
                 }
             }
 
-            throw new \RuntimeException('You cannot add gambits to searchers that do not have fulltext gambits. The following searchers have this issue: '.implode(', ', $affectedGambits));
+            if (count($affectedGambits)) {
+                throw new \RuntimeException('You cannot add gambits to searchers that do not have fulltext gambits. The following searchers have this issue: '.implode(', ', $affectedGambits));
+            }
         }
 
         foreach ($fullTextGambits as $searcher => $fullTextGambitClass) {

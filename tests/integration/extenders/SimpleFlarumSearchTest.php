@@ -183,7 +183,7 @@ class SimpleFlarumSearchTest extends TestCase
 
         try {
             $this->app();
-        } catch (RuntimeException $e) {
+        } catch (\RuntimeException $e) {
             $anExceptionWasThrown = true;
         }
 
@@ -195,9 +195,9 @@ class SimpleFlarumSearchTest extends TestCase
      */
     public function cant_add_gambit_to_existent_searcher_class_without_fulltext()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(AbstractSearcher::class))->addGambit(NoResultFilterGambit::class));
-
         $this->expectException(\RuntimeException::class);
+        
+        $this->extend((new Extend\SimpleFlarumSearch(AbstractSearcher::class))->addGambit(NoResultFilterGambit::class));
         $this->app();
     }
 }
