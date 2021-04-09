@@ -30,8 +30,6 @@ return [
             $table->integer('hide_user_id')->unsigned()->nullable();
 
             $table->unique(['discussion_id', 'number']);
-
-
         });
 
         $connection = $schema->getConnection();
