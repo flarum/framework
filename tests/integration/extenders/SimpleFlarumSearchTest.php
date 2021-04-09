@@ -170,36 +170,6 @@ class SimpleFlarumSearchTest extends TestCase
 
         $this->assertFalse($anExceptionWasThrown);
     }
-
-
-    /**
-     * @test
-     */
-    public function can_add_gambit_to_nonexistent_searcher_class_without_fulltext()
-    {
-        $this->extend((new Extend\SimpleFlarumSearch(NonexistentClass::class))->addGambit(NoResultFilterGambit::class));
-
-        $anExceptionWasThrown = false;
-
-        try {
-            $this->app();
-        } catch (\RuntimeException $e) {
-            $anExceptionWasThrown = true;
-        }
-
-        $this->assertFalse($anExceptionWasThrown);
-    }
-
-    /**
-     * @test
-     */
-    public function cant_add_gambit_to_existent_searcher_class_without_fulltext()
-    {
-        $this->expectException(\RuntimeException::class);
-        
-        $this->extend((new Extend\SimpleFlarumSearch(AbstractSearcher::class))->addGambit(NoResultFilterGambit::class));
-        $this->app();
-    }
 }
 
 class NoResultFullTextGambit implements GambitInterface

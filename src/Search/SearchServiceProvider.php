@@ -59,33 +59,14 @@ class SearchServiceProvider extends AbstractServiceProvider
     public function boot()
     {
         $fullTextGambits = $this->container->make('flarum.simple_search.fulltext_gambits');
-        $gambits = $this->container->make('flarum.simple_search.gambits');
-
-        $searchersWithGambitsWithoutFulltext = array_diff(array_keys($gambits), array_keys($fullTextGambits));
-
-        if (count($searchersWithGambitsWithoutFulltext)) {
-            $affectedGambits = [];
-            foreach ($searchersWithGambitsWithoutFulltext as $searcher) {
-                // This check is in place to support adding gambits to searchers
-                // registered in extensions that are optional dependencies of the
-                // current extension.
-                if (class_exists($searcher)) {
-                    $affectedGambits += $gambits[$searcher];
-                }
-            }
-
-            if (count($affectedGambits)) {
-                throw new \RuntimeException('You cannot add gambits to searchers that do not have fulltext gambits. The following searchers have this issue: '.implode(', ', $affectedGambits));
-            }
-        }
 
         foreach ($fullTextGambits as $searcher => $fullTextGambitClass) {
             $this->container
                 ->when($searcher)
                 ->needs(GambitManager::class)
-                ->give(function () use ($searcher, $fullTextGambitClass, $gambits) {
+                ->give(function () use ($searcher, $fullTextGambitClass) {
                     $gambitManager = new GambitManager($this->container->make($fullTextGambitClass));
-                    foreach (Arr::get($gambits, $searcher, []) as $gambit) {
+                    foreach (Arr::get($this->container->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
                         $gambitManager->add($this->container->make($gambit));
                     }
 
