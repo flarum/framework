@@ -28,7 +28,7 @@ class ProcessIp implements Middleware
         return $handler->handle($request->withAttribute('ipAddress', $ipAddress));
     }
 
-    private function processProxyHeaders(ServerRequestInterface $request) : string|null {
+    private function processProxyHeaders(ServerRequestInterface $request) : ?string {
         $ipAddress = null;
         $xForwardedFor = $request->getHeader('X-Forwarded-For');
         if ($xForwardedFor) {
