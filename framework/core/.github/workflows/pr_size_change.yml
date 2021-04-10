@@ -25,8 +25,12 @@ jobs:
         with:
           node-version: "14"
 
+      - name: Use npm v7
+        run: sudo npm install -g npm@7.x.x
+
       - name: Install JS dependencies
-        run: npm ci
+        # We need to use `npm install` here. If we don't, the workflow will fail.
+        run: npm install
         working-directory: ./js
 
       - name: Build production assets
