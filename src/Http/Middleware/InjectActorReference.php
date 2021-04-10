@@ -9,13 +9,12 @@
 
 namespace Flarum\Http\Middleware;
 
-use Flarum\Http\ActorReference;
 use Flarum\Http\RequestUtil;
+use Flarum\User\Guest;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
-use Flarum\User\Guest;
 
 class InjectActorReference implements Middleware
 {
