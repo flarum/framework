@@ -30,8 +30,6 @@ class AuthenticateWithSession implements Middleware
 
         $request = RequestUtil::withActor($request, $actor);
 
-        $request->getAttribute('actorReference')->setActor($actor);
-
         return $handler->handle($request);
     }
 

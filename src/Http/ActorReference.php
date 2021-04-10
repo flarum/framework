@@ -18,17 +18,11 @@ class ActorReference
      */
     private $actor;
 
-    /**
-     * @param User $actor
-     */
     public function setActor(User $actor)
     {
         $this->actor = $actor;
     }
 
-    /**
-     * @return User
-     */
     public function getActor(): User
     {
         return $this->actor;
