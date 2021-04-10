@@ -55,7 +55,7 @@ class RoutesTest extends TestCase
     {
         $this->extend(
             (new Extend\Routes('api'))
-                ->remove('GET', 'forum.show')
+                ->remove('forum.show')
         );
 
         $response = $this->send(
@@ -72,7 +72,7 @@ class RoutesTest extends TestCase
     {
         $this->extend(
             (new Extend\Routes('api'))
-                ->remove('GET', 'forum.show')
+                ->remove('forum.show')
                 ->get('/', 'forum.show', CustomRoute::class)
         );
 
