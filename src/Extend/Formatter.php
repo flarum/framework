@@ -18,6 +18,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
 {
     private $configurationCallbacks = [];
     private $parsingCallbacks = [];
+    private $unparsingCallbacks = [];
     private $renderingCallbacks = [];
 
     /**
@@ -59,6 +60,28 @@ class Formatter implements ExtenderInterface, LifecycleInterface
     }
 
     /**
+     * Prepare the system for unparsing. This can be used to modify the text that was parsed.
+     * Please note that the parsed text must be returned, regardless of whether it's changed.
+     *
+     * @param callable|string $callback
+     *
+     * The callback can be a closure or invokable class, and should accept:
+     * - mixed $context
+     * - string $xml: The parsed text.
+     *
+     * The callback should return:
+     * - string $xml: The text to be unparsed.
+     *
+     * @return self
+     */
+    public function unparse($callback)
+    {
+        $this->unparsingCallbacks[] = $callback;
+
+        return $this;
+    }
+
+    /**
      * Prepare the system for rendering. This can be used to modify the xml that will be rendered, or to modify the renderer.
      * Please note that the xml to be rendered must be returned, regardless of whether it's changed.
      *
@@ -89,6 +112,10 @@ class Formatter implements ExtenderInterface, LifecycleInterface
 
             foreach ($this->parsingCallbacks as $callback) {
                 $formatter->addParsingCallback(ContainerUtil::wrapCallback($callback, $container));
+            }
+
+            foreach ($this->unparsingCallbacks as $callback) {
+                $formatter->addUnparsingCallback(ContainerUtil::wrapCallback($callback, $container));
             }
 
             foreach ($this->renderingCallbacks as $callback) {
