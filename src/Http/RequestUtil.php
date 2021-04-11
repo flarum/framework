@@ -30,7 +30,7 @@ class RequestUtil
 
         $actorReference->setActor($actor);
 
-        // BC Layer
+        // @deprecated in 1.0
         $request = $request->withAttribute('actor', $actor);
 
         return $request;
