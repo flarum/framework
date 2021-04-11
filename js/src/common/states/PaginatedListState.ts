@@ -31,13 +31,14 @@ export default abstract class PaginatedListState<T extends Model> {
   protected offset: number;
 
   protected pages: Page<T>[] = [];
+  protected params: any = {};
 
   protected initialLoading: boolean = false;
   protected loadingPrev: boolean = false;
   protected loadingNext: boolean = false;
 
-  protected hasPrev: boolean = false;
-  protected hasNext: boolean = false;
+  hasPrev: boolean = false;
+  hasNext: boolean = false;
 
   // TODO: this constructor is for class that implements
   // what data do we want passed?
@@ -53,7 +54,7 @@ export default abstract class PaginatedListState<T extends Model> {
     };
 
     // TODO: is this how we were thinking of treating this.pages ?
-    if (this.isEmpty() || pageNum > this.pages[this.pages.length - 1].number) {
+    if (this.isEmpty() || pageNum > this.getNextPageNumber() - 1) {
       this.pages.push(page);
     } else {
       this.pages.unshift(page);
@@ -62,14 +63,19 @@ export default abstract class PaginatedListState<T extends Model> {
     this.hasNext = !!results.payload?.links?.next;
     this.hasPrev = !!results.payload?.links?.prev;
 
+    // TODO move loading logic to better place
+    this.initialLoading = false;
+    this.loadingNext = false;
+    this.loadingPrev = false;
+
     m.redraw();
   }
 
   /**
    * Load a new page of results.
    */
-  protected loadPage(page = 1) {
-    const params = this.defaultParams();
+  protected loadPage(page = 1): Promise<T[]> {
+    const params = this.requestParams();
     params.page = { offset: this.offset * (page - 1) };
     params.include = params.include.join(',');
 
@@ -77,7 +83,7 @@ export default abstract class PaginatedListState<T extends Model> {
   }
 
   public isEmpty(): boolean {
-    return this.pages.length === 0;
+    return !this.isInitialLoading() && !this.pages.length;
   }
   public getLocation(): PaginationLocation {
     return this.location;
@@ -93,15 +99,23 @@ export default abstract class PaginatedListState<T extends Model> {
     return this.loadingNext;
   }
 
-  defaultParams(): any {
+  // TODO revise params implementation
+  /**
+   * @abstract
+   */
+  requestParams(): any {
     return {};
   }
 
+  public getParams(): any {
+    return this.params;
+  }
+
   public refreshParams(newParams) {
-    if (this.isEmpty() || Object.keys(newParams).some((key) => this.getParams()[key] !== newParams[key])) {
+    if (this.isEmpty() || Object.keys(newParams).some((key) => this.requestParams()[key] !== newParams[key])) {
       this.params = newParams;
 
-      this.refresh();
+      return this.refresh();
     }
   }
 
@@ -110,6 +124,9 @@ export default abstract class PaginatedListState<T extends Model> {
     this.loadingPrev = false;
     this.loadingNext = false;
 
+    m.redraw();
+
+    // TODO: this needs to be replaced, as refresh() is called on page load
     this.location = { page: 1 };
 
     return this.loadPage().then(
@@ -125,7 +142,30 @@ export default abstract class PaginatedListState<T extends Model> {
     );
   }
 
+  public clear() {
+    this.pages = [];
+    m.redraw();
+  }
+
+  public loadMore() {
+    this.loadingNext = true;
+
+    const page: number = this.getNextPageNumber();
+
+    return this.loadPage(page).then(this.parseResults.bind(this, page));
+  }
+
+  public getPages() {
+    return this.pages;
+  }
+
   public loadPrev() {
     // return
+  }
+
+  protected getNextPageNumber(): number {
+    const pg = this.pages.length && this.pages[this.pages.length - 1];
+
+    return pg ? pg.number + 1 : this.location.page;
   }
 }
