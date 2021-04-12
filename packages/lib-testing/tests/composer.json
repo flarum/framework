@@ -3,7 +3,7 @@
   "description": "Minimal extension to test the flarum/testing package",
   "type": "flarum-extension",
   "require": {
-    "flarum/core": "^0.1.0-beta.16"
+    "flarum/core": "^0.1.0@dev"
   },
   "require-dev": {
     "flarum/testing": "*@dev"
