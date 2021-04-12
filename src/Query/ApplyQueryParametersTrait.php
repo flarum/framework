@@ -11,6 +11,9 @@ namespace Flarum\Query;
 
 use Illuminate\Support\Str;
 
+/**
+ * @internal
+ */
 trait ApplyQueryParametersTrait
 {
     /**
@@ -18,15 +21,18 @@ trait ApplyQueryParametersTrait
      *
      * @param AbstractQueryState $query
      * @param array $sort
+     * @param bool $sortIsDefault
      */
-    protected function applySort(AbstractQueryState $query, array $sort = null)
+    protected function applySort(AbstractQueryState $query, array $sort = null, bool $sortIsDefault = false)
     {
-        $sort = $sort ?: $query->getDefaultSort();
+        if ($sortIsDefault && ! empty($query->getDefaultSort())) {
+            $sort = $query->getDefaultSort();
+        }
 
         if (is_callable($sort)) {
             $sort($query->getQuery());
         } else {
-            foreach ($sort as $field => $order) {
+            foreach ((array) $sort as $field => $order) {
                 if (is_array($order)) {
                     foreach ($order as $value) {
                         $query->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
