@@ -16,22 +16,9 @@ use Flarum\Tags\Query\TagFilterGambit;
 
 class PinStickiedDiscussionsToTop
 {
-    /**
-     * Used to get the default sort.
-     *
-     * @var ListDiscussionsController
-     */
-    protected $listDiscussionsController;
-
-    public function __construct(ListDiscussionsController $listDiscussionsController)
-    {
-        $this->listDiscussionsController = $listDiscussionsController;
-    }
-
     public function __invoke(FilterState $filterState, QueryCriteria $criteria)
     {
-        // TODO: This should take modifications by extensions into account.
-        if ($criteria->sort == $this->listDiscussionsController->sort) {
+        if ($criteria->sortIsDefault) {
             $query = $filterState->getQuery();
 
             // If we are viewing a specific tag, then pin all stickied
