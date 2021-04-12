@@ -13,6 +13,7 @@ use Flarum\Extend\ExtenderInterface;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\InstalledSite;
 use Flarum\Foundation\Paths;
+use Flarum\Testing\integration\Extend\BeginTransactionAndSetDatabase;
 use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
 use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
 use Illuminate\Database\ConnectionInterface;
@@ -61,6 +62,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
             $extenders = array_merge([
                 new OverrideExtensionManagerForTests($this->extensions),
+                new BeginTransactionAndSetDatabase(function (ConnectionInterface $db) {
+                    $this->database = $db;
+                }),
                 new SetSettingsBeforeBoot($this->settings),
             ], $this->extenders);
 
@@ -150,12 +154,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function database(): ConnectionInterface
     {
-        if (is_null($this->database)) {
-            $this->database = $this->app()->getContainer()->make(
-                ConnectionInterface::class
-            );
-        }
-
+        // Set in `BeginTransactionAndSetDatabase` extender.
         return $this->database;
     }
 

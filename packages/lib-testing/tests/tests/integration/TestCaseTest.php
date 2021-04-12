@@ -49,6 +49,17 @@ class TestCaseTest extends TestCase
     /**
      * @test
      */
+    public function settings_cleaned_up_from_previous_method()
+    {
+        $settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
+
+        $this->assertEquals(null, $settings->get('hello'));
+        $this->assertEquals(null, $settings->get('display_name_driver'));
+    }
+
+    /**
+     * @test
+     */
     public function current_extension_not_applied_by_default()
     {
         $response = $this->send(
