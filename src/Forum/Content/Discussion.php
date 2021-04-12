@@ -106,7 +106,7 @@ class Discussion
     protected function getApiDocument(User $actor, array $params)
     {
         $params['bySlug'] = true;
-        $response = $this->api->send('Flarum\Api\Controller\ShowDiscussionController', $actor, $params);
+        $response = $this->api->send('discussions.show', $actor, $params);
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {

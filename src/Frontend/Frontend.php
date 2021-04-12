@@ -70,7 +70,7 @@ class Frontend
         $actor = RequestUtil::getActor($request);
 
         return $this->getResponseBody(
-            $this->api->send(ShowForumController::class, $actor)
+            $this->api->send('forum.show', $actor)
         );
     }
 

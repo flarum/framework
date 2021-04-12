@@ -72,7 +72,7 @@ class User
     protected function getApiDocument(FlarumUser $actor, array $params)
     {
         $params['bySlug'] = true;
-        $response = $this->api->send(ShowUserController::class, $actor, $params);
+        $response = $this->api->send('users.show', $actor, $params);
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {

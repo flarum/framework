@@ -10,7 +10,6 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
-use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
@@ -119,6 +118,6 @@ class Index
      */
     private function getApiDocument(User $actor, array $params)
     {
-        return json_decode($this->api->send(ListDiscussionsController::class, $actor, $params)->getBody());
+        return json_decode($this->api->send('discussions.index', $actor, $params)->getBody());
     }
 }
