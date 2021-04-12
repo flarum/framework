@@ -22,7 +22,7 @@ class FlarumPromotionHeader implements Middleware
 
     public function __construct(Config $config)
     {
-        $this->enabled = Arr::get($config,'headers.poweredByHeader') ?? true;
+        $this->enabled = Arr::get($config, 'headers.poweredByHeader') ?? true;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
