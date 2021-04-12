@@ -95,11 +95,11 @@ class LocalesTest extends TestCase
 
         $args = ['gender_of_host' => 'female', 'host' => 'ACME', 'num_guests' => 2, 'guest' => 'ACME2'];
 
-        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->get('test.party-invitation-intl', $args));
+        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->get('test.party-invitation', $args));
         // Number doesn't matter
-        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation-intl', 2, $args));
-        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation-intl', 50, $args));
-        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation-intl', -1000, $args));
-        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation-intl', null, $args));
+        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation', 2, $args));
+        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation', 50, $args));
+        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation', -1000, $args));
+        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation', null, $args));
     }
 }
