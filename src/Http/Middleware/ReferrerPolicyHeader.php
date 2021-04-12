@@ -10,6 +10,7 @@
 namespace Flarum\Http\Middleware;
 
 use Flarum\Foundation\Config;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -21,7 +22,7 @@ class ReferrerPolicyHeader implements Middleware
 
     public function __construct(Config $config)
     {
-        $this->policy = $config['headers']['referrerPolicy'] ?? 'same-origin';
+        $this->policy = Arr::get($config, 'headers.referrerPolicy') ?? 'same-origin';
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
