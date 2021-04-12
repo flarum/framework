@@ -16,11 +16,23 @@ class RequestUtil
 {
     public static function getActor(Request $request): User
     {
-        return $request->getAttribute('actor');
+        return $request->getAttribute('actorReference')->getActor();
     }
 
     public static function withActor(Request $request, User $actor): Request
     {
-        return $request->withAttribute('actor', $actor);
+        $actorReference = $request->getAttribute('actorReference');
+
+        if (! $actorReference) {
+            $actorReference = new ActorReference;
+            $request = $request->withAttribute('actorReference', $actorReference);
+        }
+
+        $actorReference->setActor($actor);
+
+        // @deprecated in 1.0
+        $request = $request->withAttribute('actor', $actor);
+
+        return $request;
     }
 }

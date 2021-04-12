@@ -58,6 +58,7 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.forum.middleware', function () {
             return [
+                HttpMiddleware\InjectActorReference::class,
                 'flarum.forum.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\CollectGarbage::class,
