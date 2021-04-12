@@ -29,8 +29,6 @@ class ReferrerPolicyHeader implements Middleware
     {
         $response = $handler->handle($request);
 
-        $response = $response->withAddedHeader('Referrer-Policy', $this->policy);
-
-        return $response;
+        return $response->withAddedHeader('Referrer-Policy', $this->policy);;
     }
 }
