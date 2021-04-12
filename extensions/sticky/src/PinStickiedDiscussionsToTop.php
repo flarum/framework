@@ -9,7 +9,6 @@
 
 namespace Flarum\Sticky;
 
-use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Filter\FilterState;
 use Flarum\Query\QueryCriteria;
 use Flarum\Tags\Query\TagFilterGambit;
