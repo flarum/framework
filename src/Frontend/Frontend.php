@@ -10,7 +10,6 @@
 namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
-use Flarum\Api\Controller\ShowForumController;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ResponseInterface as Response;

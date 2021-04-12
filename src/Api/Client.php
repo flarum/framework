@@ -46,7 +46,7 @@ class Client
         $middlewareStack = $container->make('flarum.api.middleware');
 
         $middlewareStack = array_filter($middlewareStack, function ($middlewareClass) {
-            return !in_array($middlewareClass, [
+            return ! in_array($middlewareClass, [
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\AuthenticateWithSession::class,
@@ -58,8 +58,7 @@ class Client
         $routeCollection = $container->make('flarum.api.routes');
 
         $pipe = new MiddlewarePipe;
-        $pipe->pipe(new class($routeCollection) implements MiddlewareInterface
-        {
+        $pipe->pipe(new class($routeCollection) implements MiddlewareInterface {
             public function __construct(RouteCollection $routeCollection)
             {
                 $this->routeCollection = $routeCollection;

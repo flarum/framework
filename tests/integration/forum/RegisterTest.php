@@ -21,7 +21,7 @@ class RegisterTest extends TestCase
     protected function setUp(): void
     {
         $this->extend(
-           (new Extend\Csrf)->exemptRoute('register')
+            (new Extend\Csrf)->exemptRoute('register')
         );
     }
 
