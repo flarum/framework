@@ -14,7 +14,5 @@ namespace Flarum\Testing;
 use Flarum\Extend;
 
 return [
-    
-    
-    
+    (new Extend\Settings)->serializeToForum('notARealSetting', 'not.a.real.setting')
 ];
