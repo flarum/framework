@@ -13,7 +13,7 @@
         "phpunit/phpunit": "^9.0"
     },
     "require-dev": {
-        "flarum/core": "^0.1.0-beta"
+        "flarum/core": "*@dev"
     },
     "autoload": {
         "psr-4": {
