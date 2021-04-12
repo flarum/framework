@@ -65,7 +65,7 @@ abstract class AbstractFilterer
             }
         }
 
-        $this->applySort($filterState, $criteria->sort);
+        $this->applySort($filterState, $criteria->sort, $criteria->sortIsDefault);
         $this->applyOffset($filterState, $offset);
         $this->applyLimit($filterState, $limit + 1);
 
