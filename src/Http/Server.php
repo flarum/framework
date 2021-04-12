@@ -58,7 +58,7 @@ class Server
             return $this->site->bootApp()->getRequestHandler();
         } catch (Throwable $e) {
             // Apply response code first so whatever happens, it's set before anything is printed
-            http_response_code(500);
+            // http_response_code(500);
 
             try {
                 $this->cleanBootExceptionLog($e);

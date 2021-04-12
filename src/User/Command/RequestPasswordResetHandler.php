@@ -104,13 +104,13 @@ class RequestPasswordResetHandler
         $token->save();
 
         $data = [
-            '{username}' => $user->display_name,
-            '{url}' => $this->url->to('forum')->route('resetPassword', ['token' => $token->token]),
-            '{forum}' => $this->settings->get('forum_title'),
+            'username' => $user->display_name,
+            'url' => $this->url->to('forum')->route('resetPassword', ['token' => $token->token]),
+            'forum' => $this->settings->get('forum_title'),
         ];
 
         $body = $this->translator->trans('core.email.reset_password.body', $data);
-        $subject = '['.$data['{forum}'].'] '.$this->translator->trans('core.email.reset_password.subject');
+        $subject = '['.$data['forum'].'] '.$this->translator->trans('core.email.reset_password.subject');
 
         $this->queue->push(new SendRawEmailJob($user->email, $subject, $body));
 

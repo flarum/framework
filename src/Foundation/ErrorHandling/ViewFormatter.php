@@ -83,7 +83,7 @@ class ViewFormatter implements HttpFormatter
     private function getTranslationIfExists(string $errorType)
     {
         $key = "core.views.error.$errorType";
-        $translation = $this->translator->trans($key, ['{forum}' => $this->settings->get('forum_title')]);
+        $translation = $this->translator->trans($key, ['forum' => $this->settings->get('forum_title')]);
 
         return $translation === $key ? null : $translation;
     }
