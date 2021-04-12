@@ -55,10 +55,13 @@ class StoreConfig implements Step, ReversibleStep
     {
         return [
             'debug'    => $this->debugMode,
-            'poweredByHeader'  => true,
             'database' => $this->dbConfig->toArray(),
             'url'      => (string) $this->baseUrl,
             'paths'    => $this->getPathsConfig(),
+            'headers'  => [
+                'poweredByHeader'  => true,
+                'referrerPolicy'
+            ]
         ];
     }
 
