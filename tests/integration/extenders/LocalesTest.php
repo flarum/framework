@@ -48,13 +48,13 @@ class LocalesTest extends TestCase
         $this->app()->getContainer()->make('flarum.locales');
         $translator = $this->app()->getContainer()->make(Translator::class);
 
-        $this->assertEquals('World {ACME}', $translator->trans('test.hello', ['name' => 'ACME']));
+        $this->assertEquals('World ACME', $translator->trans('test.hello', ['name' => 'ACME']));
     }
 
     /**
      * @test
      */
-    public function custom_translation_exists_if_added_via_intl_file()
+    public function custom_translation_exists_if_added_with_intl_suffix()
     {
         $this->extend(
             (new Extend\Locales(dirname(__FILE__, 3).'/fixtures/locales'))
@@ -69,7 +69,7 @@ class LocalesTest extends TestCase
     /**
      * @test
      */
-    public function messageformat_doesnt_work_in_regular_file()
+    public function messageformat_works_in_translations()
     {
         $this->extend(
             (new Extend\Locales(dirname(__FILE__, 3).'/fixtures/locales'))
@@ -78,42 +78,7 @@ class LocalesTest extends TestCase
         $this->app()->getContainer()->make('flarum.locales');
         $translator = $this->app()->getContainer()->make(Translator::class);
 
-        $templateStringWithVars = '{female, select,
-    female {{2, plural, offset:1
-        =0    {{ACME} does not give a party.}
-        =1    {{ACME} invites {ACME2} to her party.}
-        =2    {{ACME} invites {ACME2} and one other person to her party.}
-        other {{ACME} invites {ACME2} and # other people to her party.}
-    }}
-    male {{2, plural, offset:1
-        =0    {{ACME} does not give a party.}
-        =1    {{ACME} invites {ACME2} to his party.}
-        =2    {{ACME} invites {ACME2} and one other person to his party.}
-        other {{ACME} invites {ACME2} and # other people to his party.}
-    }}
-    other {{2, plural, offset:1
-        =0    {{ACME} does not give a party.}
-        =1    {{ACME} invites {ACME2} to their party.}
-        =2    {{ACME} invites {ACME2} and one other person to their party.}
-        other {{ACME} invites {ACME2} and # other people to their party.}
-    }}
-    }';
-        $this->assertEquals($templateStringWithVars, $translator->trans('test.party-invitation', ['gender_of_host' => 'female', 'host' => 'ACME', 'num_guests' => 2, 'guest' => 'ACME2']));
-    }
-
-    /**
-     * @test
-     */
-    public function messageformat_works_in_intl_icu_file()
-    {
-        $this->extend(
-            (new Extend\Locales(dirname(__FILE__, 3).'/fixtures/locales'))
-        );
-
-        $this->app()->getContainer()->make('flarum.locales');
-        $translator = $this->app()->getContainer()->make(Translator::class);
-
-        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->trans('test.party-invitation-intl', ['gender_of_host' => 'female', 'host' => 'ACME', 'num_guests' => 2, 'guest' => 'ACME2']));
+        $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->trans('test.party-invitation', ['gender_of_host' => 'female', 'host' => 'ACME', 'num_guests' => 2, 'guest' => 'ACME2']));
     }
 
     /**

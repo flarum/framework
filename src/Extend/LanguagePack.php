@@ -85,8 +85,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
 
         foreach (new DirectoryIterator($directory) as $file) {
             if ($this->shouldLoad($file, $container)) {
-                $intlIcu = strpos($file->getPathname(), MessageCatalogueInterface::INTL_DOMAIN_SUFFIX) !== false;
-                $locales->addTranslations($locale, $file->getPathname(), null, $intlIcu);
+                $locales->addTranslations($locale, $file->getPathname(), null);
             }
         }
     }

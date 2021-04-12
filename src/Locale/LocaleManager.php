@@ -61,15 +61,13 @@ class LocaleManager
         return isset($this->locales[$locale]);
     }
 
-    public function addTranslations(string $locale, $file, string $module = null, bool $intlIcu = false)
+    public function addTranslations(string $locale, $file, string $module = null)
     {
         $prefix = $module ? $module.'::' : '';
 
-        $domain = null;
-
-        if ($intlIcu) {
-            $domain = 'messages'.MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
-        }
+        // `messages` is the default domain, and we want to support MessageFormat
+        // for all translations.
+        $domain = 'messages'.MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
 
         $this->translator->addResource('prefixed_yaml', compact('file', 'prefix'), $locale, $domain);
     }
