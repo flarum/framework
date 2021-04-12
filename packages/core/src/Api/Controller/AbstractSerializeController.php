@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -253,6 +254,11 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     protected function buildParameters(ServerRequestInterface $request)
     {
         return new Parameters($request->getQueryParams());
+    }
+
+    protected function sortIsDefault(ServerRequestInterface $request): bool
+    {
+        return ! Arr::get($request->getQueryParams(), 'sort');
     }
 
     /**
