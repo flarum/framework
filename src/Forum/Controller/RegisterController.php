@@ -53,11 +53,10 @@ class RegisterController implements RequestHandlerInterface
      */
     public function handle(Request $request): ResponseInterface
     {
-        $controller = CreateUserController::class;
         $actor = RequestUtil::getActor($request);
         $body = ['data' => ['attributes' => $request->getParsedBody()]];
 
-        $response = $this->api->send($controller, $actor, [], $body);
+        $response = $this->api->send('users.create', $actor, [], $body);
 
         $body = json_decode($response->getBody());
 
