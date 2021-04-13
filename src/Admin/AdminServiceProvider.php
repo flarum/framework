@@ -56,7 +56,6 @@ class AdminServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\SetLocale::class,
-                'flarum.http.frontend_handler',
                 'flarum.admin.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 Middleware\RequireAdministrateAbility::class
@@ -67,6 +66,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             return new HttpMiddleware\HandleErrors(
                 $this->container->make(Registry::class),
                 $this->container['flarum.config']->inDebugMode() ? $this->container->make(WhoopsFormatter::class) : $this->container->make(ViewFormatter::class),
+                $this->container->make(FrontendFormatter::class),
                 $this->container->tagged(Reporter::class)
             );
         });

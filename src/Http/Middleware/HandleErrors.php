@@ -37,21 +37,21 @@ class HandleErrors implements Middleware
     protected $formatter;
 
     /**
+     * @var HttpFormatter
+     */
+    protected $frontendFormatter;
+
+    /**
      * @var \Flarum\Foundation\ErrorHandling\Reporter[]
      */
     protected $reporters;
 
-    /**
-     * @var array
-     */
-    protected $errorClasses;
-
-    public function __construct(Registry $registry, HttpFormatter $formatter, iterable $reporters, $errorClasses = null)
+    public function __construct(Registry $registry, HttpFormatter $formatter, HttpFormatter $frontendFormatter, iterable $reporters)
     {
         $this->registry = $registry;
         $this->formatter = $formatter;
+        $this->frontendFormatter = $frontendFormatter;
         $this->reporters = $reporters;
-        $this->errorClasses = $errorClasses;
     }
 
     /**
@@ -62,30 +62,16 @@ class HandleErrors implements Middleware
         try {
             return $handler->handle($request);
         } catch (Throwable $e) {
-            // If an array of allowlisted exception classes has been provided
-            // (such as when we only want to handle frontend errors), we check
-            // that the error inherits one of these classes. If not, we throw it
-            // to let other handlers up in the middleware pipe handle it.
-            if (is_array($this->errorClasses)) {
-                $handled = false;
-
-                foreach ($this->errorClasses as $errorClass) {
-                    if ($e instanceof $errorClass) {
-                        $handled = true;
-                        break;
-                    }
-                }
-
-                if (! $handled) {
-                    throw $e;
-                }
-            }
             $error = $this->registry->handle($e);
 
             if ($error->shouldBeReported()) {
                 foreach ($this->reporters as $reporter) {
                     $reporter->report($error->getException());
                 }
+            }
+
+            if ($error->contentClass()) {
+                return $this->frontendFormatter->format($error, $request);
             }
 
             return $this->formatter->format($error, $request);
