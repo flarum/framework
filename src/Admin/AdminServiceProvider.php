@@ -12,6 +12,7 @@ namespace Flarum\Admin;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ErrorHandling\FrontendFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;

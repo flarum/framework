@@ -9,8 +9,7 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
-use Flarum\Frontend\Controller;
-use Flarum\Frontend\Frontend;
+use Laminas\Stratigility\MiddlewarePipeInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -20,22 +19,17 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class FrontendFormatter implements HttpFormatter
 {
     /**
-     * @var Frontend
+     * @var MiddlewarePipeInterface
      */
-    protected $frontend;
+    protected $pipe;
 
-    public function __construct(Frontend $frontend)
+    public function __construct(MiddlewarePipeInterface $pipe)
     {
-        $this->frontend = $frontend;
+        $this->pipe = $pipe;
     }
 
     public function format(HandledError $error, Request $request): Response
     {
-        $contentClass = $error->contentClass();
-        /** @var callable */
-        $content = new $contentClass;
-        $this->frontend->content($content);
-
-        return (new Controller($this->frontend))->handle($request)->withStatus($error->getStatusCode());
+        return $this->pipe->handle($request->withAttribute('error', $error));
     }
 }
