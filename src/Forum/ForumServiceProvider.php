@@ -35,7 +35,6 @@ use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Laminas\Stratigility\MiddlewarePipe;
 use Laminas\Stratigility\MiddlewarePipeInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ForumServiceProvider extends AbstractServiceProvider
@@ -132,13 +131,13 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->container->when(FrontendFormatter::class)
         ->needs(MiddlewarePipeInterface::class)
-        ->give(function() {
+        ->give(function () {
             $middleware = $this->container->make('flarum.forum.middleware');
 
             $pipe = new MiddlewarePipe;
 
             foreach ($middleware as $middlewareClass) {
-                if (!in_array($middlewareClass, [
+                if (! in_array($middlewareClass, [
                     'flarum.forum.error_handler',
                     HttpMiddleware\InjectActorReference::class,
                     HttpMiddleware\RememberFromCookie::class,

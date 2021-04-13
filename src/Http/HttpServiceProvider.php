@@ -12,17 +12,9 @@ namespace Flarum\Http;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\ErrorHandling\FrontendFormatter;
-use Flarum\Foundation\ErrorHandling\Registry;
-use Flarum\Foundation\ErrorHandling\Reporter;
-use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
-use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\Exception\NotAuthenticatedException;
-use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 
 class HttpServiceProvider extends AbstractServiceProvider

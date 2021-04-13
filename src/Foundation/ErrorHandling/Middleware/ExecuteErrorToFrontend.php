@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Foundation\ErrorHandling\Middleware;
 
 use Flarum\Http\RouteHandlerFactory;
@@ -20,7 +27,8 @@ class ExecuteErrorToFrontend implements MiddlewareInterface
      */
     protected $handlerFactory;
 
-    public function __construct(string $frontend, RouteHandlerFactory $handlerFactory) {
+    public function __construct(string $frontend, RouteHandlerFactory $handlerFactory)
+    {
         $this->frontend = $frontend;
         $this->handlerFactory = $handlerFactory;
     }

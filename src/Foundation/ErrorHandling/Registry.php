@@ -66,7 +66,7 @@ class Registry
                 $errorType = $this->classMap[$errorClass];
             }
         }
-        
+
         $errorContent = Arr::get($this->contentMap, $errorClass);
 
         if ($errorType) {
