@@ -34,10 +34,9 @@ export default class DefaultResolver {
 
   onmatch(args, requestedPath, route) {
     const errorCode = app.data.errorCode;
-    const currRoute = m.route.get();
     if (errorCode) {
       delete app.data.errorCode;
-      return { view: () => ErrorPage.component({ errorCode, currRoute }) };
+      return { view: () => ErrorPage.component({ errorCode }) };
     }
 
     return this.component;
