@@ -11,11 +11,17 @@ use Psr\Http\Server\RequestHandlerInterface;
 class ExecuteErrorToFrontend implements MiddlewareInterface
 {
     /**
+     * @var string
+     */
+    protected $frontend;
+
+    /**
      * @var RouteHandlerFactory
      */
     protected $handlerFactory;
 
-    public function __construct(RouteHandlerFactory $handlerFactory) {
+    public function __construct(string $frontend, RouteHandlerFactory $handlerFactory) {
+        $this->frontend = $frontend;
         $this->handlerFactory = $handlerFactory;
     }
 
@@ -24,7 +30,7 @@ class ExecuteErrorToFrontend implements MiddlewareInterface
         $error = $request->getAttribute('error');
 
         $contentClass = $error->contentClass();
-        $controller = $this->handlerFactory->toFrontend('forum', new $contentClass);
+        $controller = $this->handlerFactory->toFrontend($this->frontend, new $contentClass);
 
         return $controller($request, [])->withStatus($error->getStatusCode());
     }

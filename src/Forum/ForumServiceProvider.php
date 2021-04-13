@@ -149,7 +149,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 }
             }
 
-            $pipe->pipe(new ExecuteErrorToFrontend($this->container->make(RouteHandlerFactory::class)));
+            $pipe->pipe(new ExecuteErrorToFrontend('forum', $this->container->make(RouteHandlerFactory::class)));
 
             return $pipe;
         });
