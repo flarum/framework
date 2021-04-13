@@ -14,7 +14,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * This formatter will route certain errors to the SPA frontend.
+ * This formatter will route errors to the SPA frontend.
  */
 class FrontendFormatter implements HttpFormatter
 {
