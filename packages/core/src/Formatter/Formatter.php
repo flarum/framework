@@ -20,6 +20,8 @@ class Formatter
 
     protected $parsingCallbacks = [];
 
+    protected $unparsingCallbacks = [];
+
     protected $renderingCallbacks = [];
 
     /**
@@ -50,6 +52,11 @@ class Formatter
     public function addParsingCallback($callback)
     {
         $this->parsingCallbacks[] = $callback;
+    }
+
+    public function addUnparsingCallback($callback)
+    {
+        $this->unparsingCallbacks[] = $callback;
     }
 
     public function addRenderingCallback($callback)
@@ -98,10 +105,15 @@ class Formatter
      * Unparse XML.
      *
      * @param string $xml
+     * @param mixed $context
      * @return string
      */
-    public function unparse($xml)
+    public function unparse($xml, $context = null)
     {
+        foreach ($this->unparsingCallbacks as $callback) {
+            $xml = $callback($context, $xml);
+        }
+
         return Unparser::unparse($xml);
     }
 
