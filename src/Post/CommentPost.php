@@ -128,7 +128,7 @@ class CommentPost extends Post
      */
     public function getContentAttribute($value)
     {
-        return static::$formatter->unparse($value);
+        return static::$formatter->unparse($value, $this);
     }
 
     /**
