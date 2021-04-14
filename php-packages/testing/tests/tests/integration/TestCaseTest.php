@@ -10,6 +10,7 @@
 namespace Flarum\Testing\Tests\integration;
 
 use Flarum\Extend;
+use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -55,6 +56,34 @@ class TestCaseTest extends TestCase
 
         $this->assertEquals(null, $settings->get('hello'));
         $this->assertEquals(null, $settings->get('display_name_driver'));
+    }
+
+    /**
+     * @test
+     */
+    public function can_add_config_via_method()
+    {
+        $this->config('hello', 'world');
+        $this->config('url', 'https://flarum.org');
+        $this->config('level1.level2', 'value');
+
+        $config = $this->app()->getContainer()->make(Config::class);
+
+        $this->assertEquals('world', $config['hello']);
+        $this->assertEquals('https://flarum.org', $config['url']);
+        $this->assertEquals('value', $config['level1']['level2']);
+    }
+
+    /**
+     * @test
+     */
+    public function config_cleaned_up_from_previous_method()
+    {
+        $config = $this->app()->getContainer()->make(Config::class);
+
+        $this->assertEquals(null, $config['hello']);
+        $this->assertEquals('http://localhost', $config['url']);
+        $this->assertFalse(isset($config['level1']['level2']));
     }
 
     /**
