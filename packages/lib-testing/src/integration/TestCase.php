@@ -17,6 +17,7 @@ use Flarum\Testing\integration\Extend\BeginTransactionAndSetDatabase;
 use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
 use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -50,6 +51,12 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         if (is_null($this->app)) {
             $tmp = $this->tmpDir();
 
+            $config = include "$tmp/config.php";
+
+            foreach ($this->config as $key => $value) {
+                Arr::set($config, $key, $value);
+            }
+
             $site = new InstalledSite(
                 new Paths([
                     'base' => $tmp,
@@ -57,7 +64,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'storage' => "$tmp/storage",
                     'vendor' => getcwd().'/vendor',
                 ]),
-                new Config(include "$tmp/config.php")
+                new Config($config)
             );
 
             $extenders = array_merge([
@@ -117,7 +124,37 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @var string[]
+     * @var array
+     */
+    protected $config = [];
+
+    /**
+     * Some Flarum code depends on config.php values. Flarum doesn't
+     * offer a way to set them at runtime, so this method lets you
+     * add/override them before boot.
+     * 
+     * You can use dot-separated syntax to assign values to subarrays.
+     * 
+     * For example:
+     * 
+     * `$this->config('a.b.c', 'value');` will result in the following:
+     * 
+     * [
+     *     'a' => [
+     *         'b' => ['c' => 'value']
+     *     ]
+     * ]
+     * 
+     * Note that this method will have no effect if called after the
+     * application is booted.
+     */
+    protected function config(string $key, $value)
+    {
+        $this->config[$key] = $value;
+    }
+
+    /**
+     * @var array
      */
     protected $settings = [];
 
@@ -131,7 +168,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * Note that this method will have no effect if called after the
      * application is booted.
      */
-    protected function setting(string $key, string $value)
+    protected function setting(string $key, $value)
     {
         $this->settings[$key] = $value;
     }
