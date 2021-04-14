@@ -92,6 +92,36 @@ class FormatterTest extends TestCase
     /**
      * @test
      */
+    public function custom_formatter_unparsing_doesnt_work_by_default()
+    {
+        $this->assertEquals('Text<a>', $this->getFormatter()->unparse('<t>Text&lt;a&gt;</t>'));
+    }
+
+    /**
+     * @test
+     */
+    public function custom_formatter_unparsing_works_if_added_with_closure()
+    {
+        $this->extend((new Extend\Formatter)->unparse(function ($context, $xml) {
+            return '<t>ReplacedText&lt;a&gt;</t>';
+        }));
+
+        $this->assertEquals('ReplacedText<a>', $this->getFormatter()->unparse('<t>Text&lt;a&gt;</t>'));
+    }
+
+    /**
+     * @test
+     */
+    public function custom_formatter_unparsing_works_if_added_with_invokable_class()
+    {
+        $this->extend((new Extend\Formatter)->unparse(InvokableUnparsing::class));
+
+        $this->assertEquals('ReplacedText<a>', $this->getFormatter()->unparse('<t>Text&lt;a&gt;</t>'));
+    }
+
+    /**
+     * @test
+     */
     public function custom_formatter_rendering_doesnt_work_by_default()
     {
         $this->assertEquals('Text', $this->getFormatter()->render('<p>Text</p>'));
@@ -133,6 +163,14 @@ class InvokableParsing
     public function __invoke($parser, $context, $text)
     {
         return 'ReplacedText<a>';
+    }
+}
+
+class InvokableUnparsing
+{
+    public function __invoke($context, $xml)
+    {
+        return '<t>ReplacedText&lt;a&gt;</t>';
     }
 }
 
