@@ -27,8 +27,8 @@ class Filesystem implements ExtenderInterface
      *
      * To declare a new disk, you must provide default configuration a "local" driver.
      *
-     * @param string $disk: The name of the disk
-     * @param string|callable: A callback with parameters:
+     * @param string $name: The name of the disk
+     * @param string|callable $callback: A callback with parameters:
      *                           - \Flarum\Foundation\Paths $paths
      *                           - \Flarum\Http\UrlGenerator $url
      *                         which returns a Laravel disk config array.

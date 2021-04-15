@@ -13,6 +13,8 @@ use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager as LaravelFilesystemManager;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
@@ -22,7 +24,7 @@ class FilesystemManager extends LaravelFilesystemManager
     protected $diskLocalConfig = [];
     protected $drivers = [];
 
-    public function __construct($app, $diskLocalConfig, $drivers)
+    public function __construct(Container $app, array $diskLocalConfig, array $drivers)
     {
         parent::__construct($app);
 
@@ -33,7 +35,7 @@ class FilesystemManager extends LaravelFilesystemManager
     /**
      * @inheritDoc
      */
-    protected function resolve($name)
+    protected function resolve($name): Filesystem
     {
         $driver = $this->getDriver($name);
 
@@ -53,7 +55,10 @@ class FilesystemManager extends LaravelFilesystemManager
         return $driver->build($name, $settings, $config, $localConfig);
     }
 
-    protected function getDriver($name)
+    /**
+     * @return string|DriverInterface
+     */
+    protected function getDriver(string $name)
     {
         $config = $this->app->make(Config::class);
         $settings = $this->app->make(SettingsRepositoryInterface::class);
@@ -64,10 +69,7 @@ class FilesystemManager extends LaravelFilesystemManager
         return Arr::get($this->drivers, $configuredDriver, 'local');
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function getLocalConfig($name)
+    protected function getLocalConfig(string $name): array
     {
         if (! array_key_exists($name, $this->diskLocalConfig)) {
             return [];

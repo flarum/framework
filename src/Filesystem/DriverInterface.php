@@ -16,10 +16,12 @@ use Illuminate\Contracts\Filesystem\Cloud;
 interface DriverInterface
 {
     /**
-     * Construct a Flysystem filesystem adapter for this filesystem driver.
+     * Construct a Laravel Cloud filesystem for this filesystem driver.
      * Settings and configuration can either be pulled from the Flarum settings repository
      * or the config.php file.
      *
+     * Typically, this is done by wrapping a Flysystem adapter in Laravel's
+     * `Illuminate\Filesystem\FilesystemAdapter` class.
      * You should ensure that the Flysystem adapter you use has a `getUrl` method.
      * If it doesn't, you should create a subclass implementing that method.
      * Otherwise, this driver won't work for public-facing disks
