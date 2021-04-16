@@ -8,7 +8,7 @@
     border-radius: @border-radius;
 
     // Use CSS custom properties to define the number of columns in the grid
-    grid-template-columns: repeat(var(--columns), minmax(max-content, 300px));
+    grid-template-columns: repeat(var(--columns), max-content);
 
     // Ensure mobile scrollbar isn't on top of content
     padding-bottom: 4px;
@@ -44,12 +44,12 @@
     &--header {
       font-weight: bold;
       border-bottom: 1px solid @muted-more-color;
-      padding: 8px;
+      padding: 8px 16px;
       background: @control-bg;
     }
 
     &--rowItem {
-      padding: 4px 8px;
+      padding: 4px 16px;
     }
 
     &--shadedRow {
