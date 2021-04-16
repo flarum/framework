@@ -90,7 +90,7 @@ export default class UserListPage extends AdminPage {
 
       return [
         <section class="UserListPage-grid UserListPage-grid--loading">
-          <LoadingIndicator />
+          <LoadingIndicator containerClassName="LoadingIndicator--block" size="large" />
         </section>,
       ];
     }
@@ -138,7 +138,7 @@ export default class UserListPage extends AdminPage {
         )}
 
         {/* Loading spinner that shows when a new page is being loaded */}
-        {this.isLoadingPage && <LoadingIndicator />}
+        {this.isLoadingPage && <LoadingIndicator size="large" />}
       </section>,
       <nav class="UserListPage-gridPagination">
         <Button
