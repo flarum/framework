@@ -42,7 +42,7 @@ class Event implements ExtenderInterface
      * Event subscribers are classes that may subscribe to multiple events from within the subscriber class itself,
      * allowing you to define several event handlers within a single class.
      *
-     * @see https://laravel.com/docs/6.x/events#writing-event-subscribers
+     * @see https://laravel.com/docs/8.x/events#writing-event-subscribers
      *
      * @param string $subscriber: The class attribute of the subscriber class
      */
