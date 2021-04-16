@@ -10,6 +10,7 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 
 class Filesystem implements ExtenderInterface
@@ -28,7 +29,7 @@ class Filesystem implements ExtenderInterface
      * To declare a new disk, you must provide default configuration a "local" driver.
      *
      * @param string $name: The name of the disk
-     * @param string|callable $callback: A callback with parameters:
+     * @param string|callable $callback: A callback or invokable class name with parameters:
      *                           - \Flarum\Foundation\Paths $paths
      *                           - \Flarum\Http\UrlGenerator $url
      *                         which returns a Laravel disk config array.
@@ -69,8 +70,12 @@ class Filesystem implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('flarum.filesystem.disks', function ($existingDisks) {
-            return array_merge($existingDisks, $this->disks);
+        $container->extend('flarum.filesystem.disks', function ($existingDisks) use ($container) {
+            foreach ($this->disks as $name => $disk) {
+                $existingDisks[$name] = ContainerUtil::wrapCallback($disk, $container);
+            }
+            
+            return $existingDisks;
         });
 
         $container->extend('flarum.filesystem.drivers', function ($existingDrivers) {

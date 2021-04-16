@@ -57,6 +57,18 @@ class FilesystemTest extends TestCase
     /**
      * @test
      */
+    public function custom_disk_exists_if_added_via_invokable_class_and_uses_local_adapter_by_default()
+    {
+        $this->extend((new Extend\Filesystem)->disk('flarum-uploads', UploadsDisk::class));
+
+        $uploadsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
+
+        $this->assertEquals(get_class($uploadsDisk->getDriver()->getAdapter()), Local::class);
+    }
+
+    /**
+     * @test
+     */
     public function disk_uses_local_adapter_if_configured_adapter_unavailable()
     {
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('disk_driver.flarum-assets', 'nonexistent_driver');
@@ -129,5 +141,16 @@ class NullFilesystemDriver implements DriverInterface
     public function build(string $diskName, SettingsRepositoryInterface $settings, Config $config, array $localConfig): Cloud
     {
         return new FilesystemAdapter(new LeagueFilesystem(new NullAdapter()));
+    }
+}
+
+class UploadsDisk
+{
+    public function __invoke(Paths $paths, UrlGenerator $url)
+    {
+        return [
+            'root' => "$paths->public/assets/uploads",
+            'url'  => $url->to('forum')->path('assets/uploads')
+        ];
     }
 }
