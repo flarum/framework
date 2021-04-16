@@ -33,7 +33,6 @@ use Flarum\User\Event\Renamed;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Hashing\Hasher;
-use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Arr;
 
 /**
@@ -75,11 +74,6 @@ class User extends AbstractModel
      * @var string[]|null
      */
     protected $permissions = null;
-
-    /**
-     * @var Session
-     */
-    protected $session;
 
     /**
      * An array of callables, through each of which the user's list of groups is passed
@@ -784,22 +778,6 @@ class User extends AbstractModel
     public function cannot($ability, $arguments = null)
     {
         return ! $this->can($ability, $arguments);
-    }
-
-    /**
-     * @return Session
-     */
-    public function getSession()
-    {
-        return $this->session;
-    }
-
-    /**
-     * @param Session $session
-     */
-    public function setSession(Session $session)
-    {
-        $this->session = $session;
     }
 
     /**
