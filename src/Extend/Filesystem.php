@@ -74,7 +74,7 @@ class Filesystem implements ExtenderInterface
             foreach ($this->disks as $name => $disk) {
                 $existingDisks[$name] = ContainerUtil::wrapCallback($disk, $container);
             }
-            
+
             return $existingDisks;
         });
 
