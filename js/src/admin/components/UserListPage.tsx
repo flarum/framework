@@ -191,7 +191,19 @@ export default class UserListPage extends AdminPage {
       'username',
       {
         name: app.translator.trans('core.admin.users.grid.default_columns.username'),
-        content: (user: User) => user.username(),
+        content: (user: User) => {
+          const profileUrl = `${app.forum.attribute('baseUrl')}/u/${user.slug()}`;
+
+          return (
+            <a
+              target="_blank"
+              href={profileUrl}
+              title={extractText(app.translator.trans('core.admin.users.grid.default_columns.profile_link_tooltip', { username: user.username() }))}
+            >
+              {user.username()}
+            </a>
+          );
+        },
       },
       90
     );
@@ -305,29 +317,6 @@ export default class UserListPage extends AdminPage {
         ),
       },
       -90
-    );
-
-    columns.add(
-      'profileLink',
-      {
-        name: app.translator.trans('core.admin.users.grid.default_columns.profile_link'),
-        content: (user: User) => {
-          const profileUrl = `${app.forum.attribute('baseUrl')}/u/${user.slug()}`;
-
-          return (
-            <a
-              class="UserList-profileLink"
-              target="_blank"
-              href={profileUrl}
-              title={extractText(app.translator.trans('core.admin.users.grid.default_columns.profile_link_tooltip', { username: user.username() }))}
-            >
-              {icon('fas fa-link')}
-            </a>
-          );
-        },
-      },
-      // This should probably come last unless an ext really wants to be last
-      -100
     );
 
     return columns;

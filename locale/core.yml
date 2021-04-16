@@ -232,6 +232,7 @@ core:
           id: ID
 
           username: => core.ref.username
+          profile_link_tooltip: Visit {username}'s profile
 
           join_time: Joined
 
@@ -247,9 +248,6 @@ core:
           edit_user: => core.lib.edit_user.title
           edit_user_button: => core.ref.edit
           edit_user_tooltip: Edit {username}
-
-          profile_link: Profile
-          profile_link_tooltip: Visit {username}'s profile
 
       pagination:
         next_button: Next page
