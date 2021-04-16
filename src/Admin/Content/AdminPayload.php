@@ -90,7 +90,7 @@ class AdminPayload
          * This allows the front-end code to be simpler and use one single source of truth to pull the
          * total user count from.
          */
-        $document->payload['statistics'] = [
+        $document->payload['modelStatistics'] = [
             'users' => [
                 'total' => User::count()
             ]
