@@ -1,6 +1,6 @@
 .ExtensionPage {
 
-  .ExtensionPage-header {
+  &-header {
     .ExtensionTitle {
       display: flex;
       align-items: center;
@@ -17,10 +17,28 @@
       margin: 0;
       vertical-align: middle;
     }
+
+    &Items {
+      padding: 15px 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .Checkbox {
+        margin: 5px 0 0 0;
+        display: inline-block;
+      }
+
+      .Checkbox.off {
+        .Checkbox-display {
+          background: @muted-more-color;
+        }
+      }
+    }
   }
 
-  .ExtensionPage-header,
-  .ExtensionPage-permissions-header {
+  &-header,
+  &-permissions-header {
     background: @control-bg;
 
     h2 {
@@ -60,24 +78,6 @@
       }
     }
 
-    .ExtensionPage-headerItems {
-      padding: 15px 0;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-
-      .Checkbox {
-        margin: 5px 0 0 0;
-        display: inline-block;
-      }
-    }
-
-    .Checkbox.off {
-      .Checkbox-display {
-        background: @muted-more-color;
-      }
-    }
-
     .ExtensionInfo {
       margin-left: auto;
 
@@ -102,12 +102,12 @@
       vertical-align: middle;
     }
 
-    .ExtensionPage-headerTopItems {
+    &TopItems {
       margin-left: auto;
     }
 
     @media (max-width: @screen-phone-max) {
-      .ExtensionPage-headerTopItems {
+      &TopItems {
         float: right;
         position: relative;
       }
@@ -118,13 +118,13 @@
     }
   }
 
-  .ExtensionPage-settings, .ExtensionPage-permissions {
+  &-settings, &-permissions {
     .ExtensionPage-subHeader {
       margin: 5px 0px;
     }
   }
 
-  .ExtensionPage-settings {
+  &-settings {
     margin-top: 20px;
     padding: 10px 0;
 
@@ -133,13 +133,12 @@
     }
   }
 
-  .ExtensionPage-subHeader {
+  &-subHeader {
     color: @muted-color;
     font-weight: normal;
   }
 
-
-  .ExtensionPage-permissions {
+  &-permissions {
 
     .PermissionGrid-removeScope {
       display: none;
@@ -150,7 +149,7 @@
       padding-bottom: 25vh;
     }
 
-    .ExtensionPage-permissions-header {
+    &-header {
       margin: 20px 0 20px;
       padding: 5px 0;
     }
