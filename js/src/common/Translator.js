@@ -1,4 +1,4 @@
-import { RichMessageFormatter } from '@askvortsov/rich-icu-message-formatter';
+import { RichMessageFormatter, mithrilRichHandler } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
 import username from './helpers/username';
 import extract from './utils/extract';
@@ -13,7 +13,7 @@ export default class Translator {
      */
     this.translations = {};
 
-    this.formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), fillTags);
+    this.formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), mithrilRichHandler);
   }
 
   formatterTypeHandlers() {
