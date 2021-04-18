@@ -1,15 +1,7 @@
-import { MessageFormatter, pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
+import { RichMessageFormatter } from '@askvortsov/rich-icu-message-formatter';
+import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
 import username from './helpers/username';
 import extract from './utils/extract';
-
-const fillTags = (tag, tags, children) => {
-  if (tag in tags) {
-    tags[tag].children = m.fragment(children).children;
-    return tags[tag];
-  }
-
-  return children;
-};
 
 export default class Translator {
   constructor() {
@@ -21,7 +13,7 @@ export default class Translator {
      */
     this.translations = {};
 
-    this.formatter = new MessageFormatter(null, this.formatterTypeHandlers(), fillTags);
+    this.formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), fillTags);
   }
 
   formatterTypeHandlers() {
