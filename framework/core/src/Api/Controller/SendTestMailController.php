@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\RequestUtil;
-use Illuminate\Container\Container;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -21,15 +20,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SendTestMailController implements RequestHandlerInterface
 {
-    protected $container;
-
     protected $mailer;
 
     protected $translator;
 
-    public function __construct(Container $container, Mailer $mailer, TranslatorInterface $translator)
+    public function __construct(Mailer $mailer, TranslatorInterface $translator)
     {
-        $this->container = $container;
         $this->mailer = $mailer;
         $this->translator = $translator;
     }
