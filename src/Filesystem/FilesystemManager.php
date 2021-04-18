@@ -75,9 +75,9 @@ class FilesystemManager extends LaravelFilesystemManager
             return [];
         }
 
-        return $this->diskLocalConfig[$name](
-            $this->app->make(Paths::class),
-            $this->app->make(UrlGenerator::class)
-        );
+        $paths = $this->app->make(Paths::class);
+        $url = $this->app->make(UrlGenerator::class);
+
+        return $this->diskLocalConfig[$name]($paths, $url);
     }
 }
