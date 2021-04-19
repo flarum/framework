@@ -73,23 +73,25 @@ export default class DiscussionPage extends Page {
       <div className="DiscussionPage">
         <DiscussionListPane state={app.discussions} />
         <div className="DiscussionPage-discussion">
-          {discussion
-            ? [
-                DiscussionHero.component({ discussion }),
-                <div className="container">
-                  <nav className="DiscussionPage-nav">
-                    <ul>{listItems(this.sidebarItems().toArray())}</ul>
-                  </nav>
-                  <div className="DiscussionPage-stream">
-                    {PostStream.component({
-                      discussion,
-                      stream: this.stream,
-                      onPositionChange: this.positionChanged.bind(this),
-                    })}
-                  </div>
-                </div>,
-              ]
-            : LoadingIndicator.component({ className: 'LoadingIndicator--block' })}
+          {discussion ? (
+            [
+              DiscussionHero.component({ discussion }),
+              <div className="container">
+                <nav className="DiscussionPage-nav">
+                  <ul>{listItems(this.sidebarItems().toArray())}</ul>
+                </nav>
+                <div className="DiscussionPage-stream">
+                  {PostStream.component({
+                    discussion,
+                    stream: this.stream,
+                    onPositionChange: this.positionChanged.bind(this),
+                  })}
+                </div>
+              </div>,
+            ]
+          ) : (
+            <LoadingIndicator block />
+          )}
         </div>
       </div>
     );
