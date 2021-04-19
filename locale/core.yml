@@ -242,7 +242,7 @@ core:
 
           email:
             # Fake email address which is blurred before being replaced by the real email
-            hidden_placeholder: "abcdefg12345@gmail.com"
+            hidden_placeholder: "abcdefg12345@example.com"
             title: => core.ref.email
             visibility_hide: Hide email address
             visibility_show: Show email address
