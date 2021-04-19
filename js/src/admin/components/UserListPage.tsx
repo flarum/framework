@@ -253,34 +253,29 @@ export default class UserListPage extends AdminPage {
             const emailShown = emailContainer.attr('data-email-shown') === 'true';
 
             if (emailShown) {
-              //! Email currently shown, switching to hidden
+              // Email currently shown, switching to hidden
 
-              // Update tooltip
               emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.default_columns.email_visibility_show')));
 
-              // Replace real email with placeholder email
               emailAddress.text(app.translator.trans('core.admin.users.grid.default_columns.email_hidden'));
               emailAddress.attr('aria-hidden', 'true');
 
-              // Change button icons
               emailToggleButtonIcon.removeClass('fa-eye');
               emailToggleButtonIcon.addClass('fa-eye-slash');
             } else {
-              //! Email currently hidden, switching to shown
+              // Email currently hidden, switching to shown
 
-              // Update tooltip
               emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.default_columns.email_visibility_hide')));
 
-              // Replace placeholder email with real email
               emailAddress.text(user.email());
               emailAddress.removeAttr('aria-hidden');
 
-              // Change button icons
               emailToggleButtonIcon.addClass('fa-eye');
               emailToggleButtonIcon.removeClass('fa-eye-slash');
             }
 
-            emailContainer.attr('data-email-shown', !emailShown);
+            // Need the string interpolation to prevent TS error.
+            emailContainer.attr('data-email-shown', `${!emailShown}`);
           }
 
           return (
