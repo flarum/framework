@@ -220,39 +220,45 @@ core:
       upload_button: Choose an Image...
 
     users:
-      title: => core.ref.users
       description: A paginated list of all users on your forum.
-
-      total_users: "Total users: {count}"
 
       grid:
         invalid_column_content: Invalid
 
-        default_columns:
-          id: ID
+        columns:
+          user_id:
+            title: ID
 
-          username: => core.ref.username
-          profile_link_tooltip: Visit {username}'s profile
+          username:
+            profile_link_tooltip: Visit {username}'s profile
+            title: => core.ref.username
 
-          join_time: Joined
+          join_time:
+            title: Joined
 
-          group_badges: Groups
-          group_badges_none: None
+          group_badges:
+            no_badges: None
+            title: Groups
 
-          email: Email
-          email_visibility_show: Show email address
-          email_visibility_hide: Hide email address
-          # Fake email address which is blurred before being replaced by the real email
-          email_hidden: "abcdefg12345@gmail.com"
+          email:
+            # Fake email address which is blurred before being replaced by the real email
+            hidden_placeholder: "abcdefg12345@gmail.com"
+            title: => core.ref.email
+            visibility_hide: Hide email address
+            visibility_show: Show email address
 
-          edit_user: => core.lib.edit_user.title
-          edit_user_button: => core.ref.edit
-          edit_user_tooltip: Edit {username}
+          edit_user:
+            button: => core.ref.edit
+            title: => core.ref.edit_user
+            tooltip: Edit {username}
 
       pagination:
-        next_button: Next page
         back_button: Previous page
+        next_button: Next page
         page_counter: Page {current} of {total}
+
+      title: => core.ref.users
+      total_users: "Total users: {count}"
 
   # Translations in this namespace are used by the forum user interface.
   forum:
@@ -530,7 +536,7 @@ core:
       password_label: => core.ref.password
       set_password_label: Set new password
       submit_button: => core.ref.save_changes
-      title: Edit User
+      title: => core.ref.edit_user
       username_heading: => core.ref.username
       username_label: => core.ref.username
 
@@ -656,6 +662,7 @@ core:
     delete_forever: Delete Forever
     discussions: Discussions                     # Referenced by flarum-statistics.yml
     edit: Edit
+    edit_user: Edit User
     email: Email
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."

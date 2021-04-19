@@ -181,7 +181,7 @@ export default class UserListPage extends AdminPage {
     columns.add(
       'id',
       {
-        name: app.translator.trans('core.admin.users.grid.default_columns.id'),
+        name: app.translator.trans('core.admin.users.grid.columns.user_id.title'),
         content: (user: User) => user.id(),
       },
       100
@@ -190,7 +190,7 @@ export default class UserListPage extends AdminPage {
     columns.add(
       'username',
       {
-        name: app.translator.trans('core.admin.users.grid.default_columns.username'),
+        name: app.translator.trans('core.admin.users.grid.columns.username.title'),
         content: (user: User) => {
           const profileUrl = `${app.forum.attribute('baseUrl')}/u/${user.slug()}`;
 
@@ -198,7 +198,7 @@ export default class UserListPage extends AdminPage {
             <a
               target="_blank"
               href={profileUrl}
-              title={extractText(app.translator.trans('core.admin.users.grid.default_columns.profile_link_tooltip', { username: user.username() }))}
+              title={extractText(app.translator.trans('core.admin.users.grid.columns.username.profile_link_tooltip', { username: user.username() }))}
             >
               {user.username()}
             </a>
@@ -211,7 +211,7 @@ export default class UserListPage extends AdminPage {
     columns.add(
       'joinDate',
       {
-        name: app.translator.trans('core.admin.users.grid.default_columns.join_time'),
+        name: app.translator.trans('core.admin.users.grid.columns.join_time.title'),
         content: (user: User) => (
           <span class="UserList-joinDate" title={user.joinTime()}>
             {dayjs(user.joinTime()).format('LLL')}
@@ -224,14 +224,14 @@ export default class UserListPage extends AdminPage {
     columns.add(
       'groupBadges',
       {
-        name: app.translator.trans('core.admin.users.grid.default_columns.group_badges'),
+        name: app.translator.trans('core.admin.users.grid.columns.group_badges.title'),
         content: (user: User) => {
           const badges = user.badges().toArray();
 
           if (badges.length) {
             return <ul className="DiscussionHero-badges badges">{listItems(badges)}</ul>;
           } else {
-            return app.translator.trans('core.admin.users.grid.default_columns.group_badges_none');
+            return app.translator.trans('core.admin.users.grid.columns.group_badges.no_badges');
           }
         },
       },
@@ -241,7 +241,7 @@ export default class UserListPage extends AdminPage {
     columns.add(
       'emailAddress',
       {
-        name: app.translator.trans('core.admin.users.grid.default_columns.email'),
+        name: app.translator.trans('core.admin.users.grid.columns.email.title'),
         content: (user: User) => {
           function toggleEmailVisibility() {
             // Get needed jQuery element refs
@@ -255,9 +255,9 @@ export default class UserListPage extends AdminPage {
             if (emailShown) {
               // Email currently shown, switching to hidden
 
-              emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.default_columns.email_visibility_show')));
+              emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.columns.email.visibility_show')));
 
-              emailAddress.text(app.translator.trans('core.admin.users.grid.default_columns.email_hidden'));
+              emailAddress.text(app.translator.trans('core.admin.users.grid.columns.email.hidden_placeholder'));
               emailAddress.attr('aria-hidden', 'true');
 
               emailToggleButtonIcon.removeClass('fa-eye');
@@ -265,7 +265,7 @@ export default class UserListPage extends AdminPage {
             } else {
               // Email currently hidden, switching to shown
 
-              emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.default_columns.email_visibility_hide')));
+              emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.columns.email.visibility_hide')));
 
               emailAddress.text(user.email());
               emailAddress.removeAttr('aria-hidden');
@@ -281,12 +281,12 @@ export default class UserListPage extends AdminPage {
           return (
             <div class="UserList-email" key={user.id()} data-email-shown="false">
               <span class="UserList-emailAddress" aria-hidden>
-                {app.translator.trans('core.admin.users.grid.default_columns.email_hidden')}
+                {app.translator.trans('core.admin.users.grid.columns.email.hidden_placeholder')}
               </span>
               <button
                 onclick={toggleEmailVisibility}
                 class="UserList-emailIconBtn"
-                title={app.translator.trans('core.admin.users.grid.default_columns.email_visibility_show')}
+                title={app.translator.trans('core.admin.users.grid.columns.email.visibility_show')}
               >
                 {icon('far fa-eye-slash fa-fw', { className: 'icon' })}
               </button>
@@ -300,14 +300,14 @@ export default class UserListPage extends AdminPage {
     columns.add(
       'editUser',
       {
-        name: app.translator.trans('core.admin.users.grid.default_columns.edit_user'),
+        name: app.translator.trans('core.admin.users.grid.columns.edit_user.title'),
         content: (user: User) => (
           <Button
             className="Button UserList-editModalBtn"
-            title={app.translator.trans('core.admin.users.grid.default_columns.edit_user_tooltip', { username: user.username() })}
+            title={app.translator.trans('core.admin.users.grid.columns.edit_user.tooltip', { username: user.username() })}
             onclick={() => app.modal.show(EditUserModal, { user })}
           >
-            {app.translator.trans('core.admin.users.grid.default_columns.edit_user_button')}
+            {app.translator.trans('core.admin.users.grid.columns.edit_user.button')}
           </Button>
         ),
       },
