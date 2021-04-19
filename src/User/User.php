@@ -18,7 +18,6 @@ use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Http\AccessToken;
-use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\User\DisplayName\DriverInterface;
@@ -32,6 +31,7 @@ use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
+use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Support\Arr;
 
@@ -312,7 +312,7 @@ class User extends AbstractModel
     public function getAvatarUrlAttribute(string $value = null)
     {
         if ($value && strpos($value, '://') === false) {
-            return app(UrlGenerator::class)->to('forum')->path('assets/avatars/'.$value);
+            return resolve(Factory::class)->disk('flarum-avatars')->url($value);
         }
 
         return $value;
