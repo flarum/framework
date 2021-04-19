@@ -257,7 +257,6 @@ export default class UserListPage extends AdminPage {
 
               emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.columns.email.visibility_show')));
 
-              emailAddress.text(app.translator.trans('core.admin.users.grid.columns.email.hidden_placeholder'));
               emailAddress.attr('aria-hidden', 'true');
 
               emailToggleButtonIcon.removeClass('fa-eye');
@@ -267,7 +266,6 @@ export default class UserListPage extends AdminPage {
 
               emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.columns.email.visibility_hide')));
 
-              emailAddress.text(user.email());
               emailAddress.removeAttr('aria-hidden');
 
               emailToggleButtonIcon.addClass('fa-eye');
@@ -281,7 +279,7 @@ export default class UserListPage extends AdminPage {
           return (
             <div class="UserList-email" key={user.id()} data-email-shown="false">
               <span class="UserList-emailAddress" aria-hidden>
-                {app.translator.trans('core.admin.users.grid.columns.email.hidden_placeholder')}
+                {user.email()}
               </span>
               <button
                 onclick={toggleEmailVisibility}
