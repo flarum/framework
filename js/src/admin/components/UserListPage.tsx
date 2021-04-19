@@ -111,7 +111,7 @@ export default class UserListPage extends AdminPage {
       >
         {/* Render columns */}
         {columns.map((column, colIndex) => (
-          <div class="UserListPage-grid--header" role="columnheader" aria-colindex={colIndex + 1} aria-rowindex={1}>
+          <div class="UserListPage-grid-header" role="columnheader" aria-colindex={colIndex + 1} aria-rowindex={1}>
             {column.name}
           </div>
         ))}
