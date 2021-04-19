@@ -50,6 +50,11 @@ class ExtensionManager
     protected $filesystem;
 
     /**
+     * @var FilesystemInterface
+     */
+    protected $assetsFilesystem;
+
+    /**
      * @var Collection|null
      */
     protected $extensions;
@@ -60,7 +65,8 @@ class ExtensionManager
         Container $container,
         Migrator $migrator,
         Dispatcher $dispatcher,
-        Filesystem $filesystem
+        Filesystem $filesystem,
+        Factory $filesystemFactory
     ) {
         $this->config = $config;
         $this->paths = $paths;
@@ -68,6 +74,7 @@ class ExtensionManager
         $this->migrator = $migrator;
         $this->dispatcher = $dispatcher;
         $this->filesystem = $filesystem;
+        $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
     }
 
     /**

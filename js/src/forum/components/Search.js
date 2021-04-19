@@ -114,6 +114,15 @@ export default class Search extends Component {
     );
   }
 
+  updateMaxHeight() {
+    // Since extensions might add elements above the search box on mobile,
+    // we need to calculate and set the max height dynamically.
+    const resultsElementMargin = 14;
+    const maxHeight =
+      window.innerHeight - this.element.querySelector('.Search-input>.FormControl').getBoundingClientRect().bottom - resultsElementMargin;
+    this.element.querySelector('.Search-results').style['max-height'] = `${maxHeight}px`;
+  }
+
   onupdate() {
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
@@ -121,12 +130,7 @@ export default class Search extends Component {
     // If there are no sources, the search view is not shown.
     if (!this.sources.length) return;
 
-    // Since extensions might add elements above the search box on mobile,
-    // we need to calculate and set the max height dynamically.
-    const resultsElementMargin = 14;
-    const maxHeight =
-      window.innerHeight - this.element.querySelector('.Search-input>.FormControl').getBoundingClientRect().bottom - resultsElementMargin;
-    this.element.querySelector('.Search-results').style['max-height'] = `${maxHeight}px`;
+    this.updateMaxHeight();
   }
 
   oncreate(vnode) {
@@ -191,6 +195,13 @@ export default class Search extends Component {
           .one('mouseup', (e) => e.preventDefault())
           .select();
       });
+
+    this.updateMaxHeightHandler = this.updateMaxHeight.bind(this);
+    window.addEventListener('resize', this.updateMaxHeightHandler);
+  }
+
+  onremove() {
+    window.removeEventListener('resize', this.updateMaxHeightHandler);
   }
 
   /**
