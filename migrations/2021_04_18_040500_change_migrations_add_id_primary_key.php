@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        if (!$schema->hasColumn('migrations', 'id')) {
+        if (! $schema->hasColumn('migrations', 'id')) {
             $schema->table('migrations', function (Blueprint $table) {
                 $table->increments('id')->first();
             });
