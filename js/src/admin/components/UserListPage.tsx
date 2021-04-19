@@ -243,42 +243,50 @@ export default class UserListPage extends AdminPage {
       {
         name: app.translator.trans('core.admin.users.grid.columns.email.title'),
         content: (user: User) => {
-          function toggleEmailVisibility() {
+          function setEmailVisibility(visible: boolean) {
             // Get needed jQuery element refs
             const emailContainer = $(`[data-column-name=emailAddress][data-user-id=${user.id()}] .UserList-email`);
             const emailAddress = emailContainer.find('.UserList-emailAddress');
             const emailToggleButton = emailContainer.find('.UserList-emailIconBtn');
             const emailToggleButtonIcon = emailToggleButton.find('.icon');
 
-            const emailShown = emailContainer.attr('data-email-shown') === 'true';
+            emailToggleButton.attr(
+              'title',
+              extractText(
+                visible
+                  ? app.translator.trans('core.admin.users.grid.columns.email.visibility_hide')
+                  : app.translator.trans('core.admin.users.grid.columns.email.visibility_show')
+              )
+            );
 
-            if (emailShown) {
-              // Email currently shown, switching to hidden
+            emailAddress.attr('aria-hidden', visible ? 'false' : 'true');
 
-              emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.columns.email.visibility_show')));
-
-              emailAddress.attr('aria-hidden', 'true');
-
-              emailToggleButtonIcon.removeClass('fa-eye');
-              emailToggleButtonIcon.addClass('fa-eye-slash');
-            } else {
-              // Email currently hidden, switching to shown
-
-              emailToggleButton.attr('title', extractText(app.translator.trans('core.admin.users.grid.columns.email.visibility_hide')));
-
-              emailAddress.removeAttr('aria-hidden');
-
+            if (visible) {
               emailToggleButtonIcon.addClass('fa-eye');
               emailToggleButtonIcon.removeClass('fa-eye-slash');
+            } else {
+              emailToggleButtonIcon.removeClass('fa-eye');
+              emailToggleButtonIcon.addClass('fa-eye-slash');
             }
 
             // Need the string interpolation to prevent TS error.
-            emailContainer.attr('data-email-shown', `${!emailShown}`);
+            emailContainer.attr('data-email-shown', `${visible}`);
+          }
+
+          function toggleEmailVisibility() {
+            const emailContainer = $(`[data-column-name=emailAddress][data-user-id=${user.id()}] .UserList-email`);
+            const emailShown = emailContainer.attr('data-email-shown') === 'true';
+
+            if (emailShown) {
+              setEmailVisibility(false);
+            } else {
+              setEmailVisibility(true);
+            }
           }
 
           return (
             <div class="UserList-email" key={user.id()} data-email-shown="false">
-              <span class="UserList-emailAddress" aria-hidden>
+              <span class="UserList-emailAddress" aria-hidden onclick={() => setEmailVisibility(true)}>
                 {user.email()}
               </span>
               <button
