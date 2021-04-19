@@ -50,6 +50,11 @@
 
     &--rowItem {
       padding: 4px 16px;
+
+      &[data-column-name="editUser"] {
+        padding: 0;
+        position: relative;
+      }
     }
 
     &--shadedRow {
@@ -78,11 +83,18 @@
   }
 
   &-editModalBtn {
-    // Shrink grid row height
-    padding-top: 2px;
-    padding-bottom: 2px;
-    display: block;
-    margin: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 0;
   }
 
   &-email {
