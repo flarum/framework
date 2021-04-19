@@ -50,6 +50,8 @@
 
     &--rowItem {
       padding: 4px 16px;
+      display: flex;
+      align-items: center;
 
       &[data-column-name="editUser"] {
         padding: 0;
@@ -96,6 +98,7 @@
 
   &-email {
     display: flex;
+    flex-grow: 1;
 
     &[data-email-shown="false"] {
       .UserList-emailAddress {
