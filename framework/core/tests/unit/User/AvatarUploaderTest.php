@@ -13,15 +13,17 @@ use Flarum\Testing\unit\TestCase;
 use Flarum\User\AvatarUploader;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
 use Intervention\Image\ImageManagerStatic;
-use League\Flysystem\FilesystemInterface;
 use Mockery as m;
 
 class AvatarUploaderTest extends TestCase
 {
     private $dispatcher;
     private $filesystem;
+    private $filesystemFactory;
     private $uploader;
 
     /**
@@ -33,13 +35,15 @@ class AvatarUploaderTest extends TestCase
         $this->dispatcher->shouldIgnoreMissing();
         Model::setEventDispatcher($this->dispatcher);
 
-        $this->filesystem = m::mock(FilesystemInterface::class);
-        $this->uploader = new AvatarUploader($this->filesystem);
+        $this->filesystem = m::mock(Filesystem::class);
+        $this->filesystemFactory = m::mock(Factory::class);
+        $this->filesystemFactory->shouldReceive('disk')->with('flarum-avatars')->andReturn($this->filesystem);
+        $this->uploader = new AvatarUploader($this->filesystemFactory);
     }
 
     public function test_removing_avatar_removes_file()
     {
-        $this->filesystem->shouldReceive('has')->with('ABCDEFGHabcdefgh.png')->andReturn(true);
+        $this->filesystem->shouldReceive('exists')->with('ABCDEFGHabcdefgh.png')->andReturn(true);
         $this->filesystem->shouldReceive('delete')->with('ABCDEFGHabcdefgh.png')->once();
 
         $user = new User();
@@ -61,7 +65,7 @@ class AvatarUploaderTest extends TestCase
 
     public function test_removing_url_avatar_removes_no_file()
     {
-        $this->filesystem->shouldReceive('has')->with('https://example.com/avatar.png')->andReturn(false)->once();
+        $this->filesystem->shouldReceive('exists')->with('https://example.com/avatar.png')->andReturn(false)->once();
         $this->filesystem->shouldNotReceive('delete');
 
         $user = new User();
@@ -82,7 +86,7 @@ class AvatarUploaderTest extends TestCase
     public function test_changing_avatar_removes_file()
     {
         $this->filesystem->shouldReceive('put')->once();
-        $this->filesystem->shouldReceive('has')->with('ABCDEFGHabcdefgh.png')->andReturn(true);
+        $this->filesystem->shouldReceive('exists')->with('ABCDEFGHabcdefgh.png')->andReturn(true);
         $this->filesystem->shouldReceive('delete')->with('ABCDEFGHabcdefgh.png')->once();
 
         $user = new User();

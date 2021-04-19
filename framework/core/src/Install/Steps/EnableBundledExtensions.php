@@ -15,6 +15,7 @@ use Flarum\Extension\Extension;
 use Flarum\Install\Step;
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use League\Flysystem\Adapter\Local;
@@ -79,7 +80,7 @@ class EnableBundledExtensions implements Step
         foreach ($extensions as $extension) {
             $extension->migrate($this->getMigrator());
             $extension->copyAssetsTo(
-                new Filesystem(new Local($this->assetPath))
+                new FilesystemAdapter(new Filesystem(new Local($this->assetPath)))
             );
         }
 
