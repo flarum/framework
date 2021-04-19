@@ -105,7 +105,7 @@ export default class UserListPage extends AdminPage {
         role="table"
         // +1 to account for header
         aria-rowcount={this.pageData.length + 1}
-        aria-colcount={this.columns.length}
+        aria-colcount={columns.length}
         aria-live="polite"
         aria-busy={this.isLoadingPage ? 'true' : 'false'}
       >
