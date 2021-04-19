@@ -225,19 +225,10 @@ core:
 
       grid:
         columns:
-          user_id:
-            title: ID
-
-          username:
-            profile_link_tooltip: Visit {username}'s profile
-            title: => core.ref.username
-
-          join_time:
-            title: Joined
-
-          group_badges:
-            no_badges: None
-            title: Groups
+          edit_user:
+            button: => core.ref.edit
+            title: => core.ref.edit_user
+            tooltip: Edit {username}
 
           email:
             # Fake email address which is blurred before being replaced by the real email
@@ -246,10 +237,19 @@ core:
             visibility_hide: Hide email address
             visibility_show: Show email address
 
-          edit_user:
-            button: => core.ref.edit
-            title: => core.ref.edit_user
-            tooltip: Edit {username}
+          group_badges:
+            no_badges: None
+            title: Groups
+
+          join_time:
+            title: Joined
+
+          user_id:
+            title: ID
+
+          username:
+            profile_link_tooltip: Visit {username}'s profile
+            title: => core.ref.username
 
         invalid_column_content: Invalid
 
