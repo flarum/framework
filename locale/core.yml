@@ -219,12 +219,11 @@ core:
       remove_button: => core.ref.remove
       upload_button: Choose an Image...
 
+    # These translations are used for the users list on the admin dashboard.
     users:
       description: A paginated list of all users on your forum.
 
       grid:
-        invalid_column_content: Invalid
-
         columns:
           user_id:
             title: ID
@@ -251,6 +250,8 @@ core:
             button: => core.ref.edit
             title: => core.ref.edit_user
             tooltip: Edit {username}
+
+        invalid_column_content: Invalid
 
       pagination:
         back_button: Previous page
