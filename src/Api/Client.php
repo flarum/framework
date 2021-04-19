@@ -10,19 +10,12 @@
 namespace Flarum\Api;
 
 use Exception;
-use Flarum\Foundation\ErrorHandling\Registry;
-use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RequestUtil;
-use Flarum\Http\RouteCollection;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
-use Laminas\Stratigility\MiddlewarePipe;
 use Laminas\Stratigility\MiddlewarePipeInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
 class Client
 {
