@@ -12,6 +12,7 @@ namespace Flarum\Console;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Illuminate\Console\Scheduling\Schedule as LaravelSchedule;
@@ -37,6 +38,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.console.commands', function () {
             return [
+                AssetsPublishCommand::class,
                 CacheClearCommand::class,
                 InfoCommand::class,
                 MigrateCommand::class,
