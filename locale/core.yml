@@ -501,6 +501,20 @@ core:
     dropdown:
       toggle_dropdown_accessible_label: Toggle dropdown menu
 
+    # These translations are used in the Edit User modal dialog (admin function).
+    edit_user:
+      activate_button: Activate User
+      email_heading: => core.ref.email
+      email_label: => core.ref.email
+      groups_heading: Groups
+      password_heading: => core.ref.password
+      password_label: => core.ref.password
+      set_password_label: Set new password
+      submit_button: => core.ref.save_changes
+      title: => core.ref.edit_user
+      username_heading: => core.ref.username
+      username_label: => core.ref.username
+
     # These translations are displayed as error messages.
     error:
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
@@ -524,20 +538,6 @@ core:
     # These translations are used to modify usernames.
     username:
       deleted_text: "[deleted]"
-
-    # These translations are used in the Edit User modal dialog (admin function).
-    edit_user:
-      activate_button: Activate User
-      email_heading: => core.ref.email
-      email_label: => core.ref.email
-      groups_heading: Groups
-      password_heading: => core.ref.password
-      password_label: => core.ref.password
-      set_password_label: Set new password
-      submit_button: => core.ref.save_changes
-      title: => core.ref.edit_user
-      username_heading: => core.ref.username
-      username_label: => core.ref.username
 
   # Translations in this namespace are used in views other than Flarum's normal JS client.
   views:
