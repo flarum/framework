@@ -98,7 +98,7 @@ export default class Search extends Component {
             onblur={() => (this.hasFocus = false)}
           />
           {this.loadingSources ? (
-            LoadingIndicator.component({ size: 'tiny', className: 'Button Button--icon Button--link' })
+            <LoadingIndicator size="small" inline containerClassName="Button Button--icon Button--link" />
           ) : currentSearch ? (
             <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>
               {icon('fas fa-times-circle')}
