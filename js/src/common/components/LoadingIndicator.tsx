@@ -18,6 +18,8 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
    * Optional attributes to apply to the loading indicator's container.
    */
   containerAttrs?: Partial<ComponentAttrs>;
+  inline?: boolean;
+  block?: boolean;
 }
 
 /**
@@ -26,7 +28,7 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  * To set a custom color, use the CSS `color` property.
  *
  * To increase spacing around the spinner, use the CSS `height` property on the
- * spinner's **container**.
+ * spinner's **container**. Applying the `block` attribute handles this for you.
  *
  * To apply a custom size to the loading indicator, set the `--size` and
  * `--thickness` custom properties on the loading indicator itself.
@@ -40,17 +42,26 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  *
  * - `containerClassName` Class name(s) to apply to the indicator's parent
  * - `className` Class name(s) to apply to the indicator itself
- * - `size` Size of the loading indicator
+ * - `size` Size of the loading indicator (small, medium or large)
  * - `containerAttrs` Optional attrs to be applied to the container DOM element
+ * - `block` Displays the spinner as a block element with a height of 100px
+ * - `inline` Displays the spinner as an inline element, centrally aligned vertically.
  *
  * All other attrs will be assigned as attributes on the DOM element.
  */
 export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
   view() {
-    const { size, ...attrs } = this.attrs;
+    const { inline, block, size, containerClassName, className, ...attrs } = this.attrs;
 
-    attrs.className = classList({ LoadingIndicator: true, [attrs.className || '']: true });
-    attrs.containerClassName = classList({ 'LoadingIndicator-container': true, [attrs.containerClassName || '']: true });
+    if (inline && block) throw new Error('LoadingIndicator cannot have both `inline` and `block` attributes.');
+
+    const completeClassName = classList('LoadingIndicator', className);
+    const completeContainerClassName = classList(
+      'LoadingIndicator-container',
+      block && 'LoadingIndicator--block',
+      inline && 'LoadingIndicator--inline',
+      containerClassName
+    );
 
     return (
       <div
@@ -58,9 +69,9 @@ export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
         role="status"
         {...attrs.containerAttrs}
         data-size={size}
-        className={attrs.containerClassName}
+        className={completeContainerClassName}
       >
-        <div aria-hidden {...attrs} />
+        <div aria-hidden className={completeClassName} {...attrs} />
       </div>
     );
   }
