@@ -20,18 +20,23 @@ class ScopePrivateDiscussionVisibility
      */
     public function __invoke(User $actor, Builder $query)
     {
-        // Show empty/private discussions if they require approval and they are
-        // authored by the current user, or the current user has permission to
-        // approve posts.
-        $query->where('discussions.is_approved', 0);
+        // All statements need to be wrapped in an orWhere, since we're adding a
+        // subset of private discussions that should be visible, not restricting the visible
+        // set.
+        $query->orWhere(function ($query) use ($actor) {
+            // Show empty/private discussions if they require approval and they are
+            // authored by the current user, or the current user has permission to
+            // approve posts.
+            $query->where('discussions.is_approved', 0);
 
-        if (! $actor->hasPermission('discussion.approvePosts')) {
-            $query->where(function (Builder $query) use ($actor) {
-                $query->where('discussions.user_id', $actor->id)
-                    ->orWhere(function ($query) use ($actor) {
-                        $query->whereVisibleTo($actor, 'approvePosts');
-                    });
-            });
-        }
+            if (! $actor->hasPermission('discussion.approvePosts')) {
+                $query->where(function (Builder $query) use ($actor) {
+                    $query->where('discussions.user_id', $actor->id)
+                        ->orWhere(function ($query) use ($actor) {
+                            $query->whereVisibleTo($actor, 'approvePosts');
+                        });
+                });
+            }
+        });
     }
 }

@@ -21,17 +21,22 @@ class ScopePrivatePostVisibility
      */
     public function __invoke(User $actor, Builder $query)
     {
-        // Show private posts if they require approval and they are
-        // authored by the current user, or the current user has permission to
-        // approve posts.
-        $query->where('posts.is_approved', 0);
+        // All statements need to be wrapped in an orWhere, since we're adding a
+        // subset of private posts that should be visible, not restricting the visible
+        // set.
+        $query->orWhere(function ($query) use ($actor) {
+            // Show private posts if they require approval and they are
+            // authored by the current user, or the current user has permission to
+            // approve posts.
+            $query->where('posts.is_approved', 0);
 
-        if (! $actor->hasPermission('discussion.approvePosts')) {
-            $query->where(function (Builder $query) use ($actor) {
-                $query->where('posts.user_id', $actor->id)
-                    ->orWhereExists($this->discussionWhereCanApprovePosts($actor));
-            });
-        }
+            if (! $actor->hasPermission('discussion.approvePosts')) {
+                $query->where(function (Builder $query) use ($actor) {
+                    $query->where('posts.user_id', $actor->id)
+                        ->orWhereExists($this->discussionWhereCanApprovePosts($actor));
+                });
+            }
+        });
     }
 
     private function discussionWhereCanApprovePosts(User $actor)
