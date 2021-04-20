@@ -59,7 +59,7 @@ class IndexTest extends TestCase
                 ]
             ])
         );
-    
+
         $response = $this->send(
             $this->request('GET', '/', [
                 'cookiesFrom' => $login
