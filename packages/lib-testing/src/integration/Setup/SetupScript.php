@@ -14,6 +14,7 @@ use Flarum\Install\AdminUser;
 use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
+use Flarum\Install\Steps\ConnectToDatabase;
 use Flarum\Testing\integration\UsesTmpDir;
 
 class SetupScript
@@ -62,6 +63,11 @@ class SetupScript
      */
     protected $pref;
 
+    /**
+     * @var DatabaseConfig
+     */
+    private $dbConfig;
+
     public function __construct()
     {
         $this->host = getenv('DB_HOST') ?: 'localhost';
@@ -77,6 +83,7 @@ class SetupScript
         $tmp = $this->tmpDir();
 
         echo "Connecting to database $this->name at $this->host:$this->port.\n";
+        echo "Warning: all tables will be dropped to ensure clean state. DO NOT use your production database!\n";
         echo "Logging in as $this->user with password '$this->pass'.\n";
         echo "Table prefix: '$this->pref'\n";
         echo "\nStoring test config in '$tmp'\n";
@@ -91,6 +98,12 @@ class SetupScript
 
         echo "\nOff we go...\n";
 
+        $this->dbConfig = new DatabaseConfig('mysql', $this->host, $this->port, $this->name, $this->user, $this->pass, $this->pref);
+
+        echo "\nWiping DB to ensure clean state\n";
+        $this->wipeDb();
+        echo "Success! Proceeding to installation...\n";
+
         $this->setupTmpDir();
 
         $installation = new Installation(
@@ -98,7 +111,7 @@ class SetupScript
                 'base' => $tmp,
                 'public' => "$tmp/public",
                 'storage' => "$tmp/storage",
-                'vendor' => getcwd().'/vendor',
+                'vendor' => getcwd() . '/vendor',
             ])
         );
 
@@ -106,9 +119,7 @@ class SetupScript
             ->configPath('config.php')
             ->debugMode(true)
             ->baseUrl(BaseUrl::fromString('http://localhost'))
-            ->databaseConfig(
-                new DatabaseConfig('mysql', $this->host, $this->port, $this->name, $this->user, $this->pass, $this->pref)
-            )
+            ->databaseConfig($this->dbConfig)
             ->adminUser(new AdminUser(
                 'admin',
                 'password',
@@ -122,5 +133,17 @@ class SetupScript
         $pipeline->run();
 
         echo "Installation complete\n";
+    }
+
+    protected function wipeDb()
+    {
+        // Reuse the connection step to include version checks
+        (new ConnectToDatabase($this->dbConfig, function ($db) {
+            // Inspired by Laravel's db:wipe
+            $builder = $db->getSchemaBuilder();
+
+            $builder->dropAllTables();
+            $builder->dropAllViews();
+        }))->run();
     }
 }
