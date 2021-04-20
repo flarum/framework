@@ -52,7 +52,7 @@ export default class AvatarEditor extends Component {
           ondragend={this.disableDragover.bind(this)}
           ondrop={this.dropUpload.bind(this)}
         >
-          {this.loading ? <LoadingIndicator /> : user.avatarUrl() ? icon('fas fa-pencil-alt') : icon('fas fa-plus-circle')}
+          {this.loading ? <LoadingIndicator size="large" /> : user.avatarUrl() ? icon('fas fa-pencil-alt') : icon('fas fa-plus-circle')}
         </a>
         <ul className="Dropdown-menu Menu">{listItems(this.controlItems().toArray())}</ul>
       </div>
