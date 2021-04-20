@@ -53,8 +53,14 @@ export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
     attrs.containerClassName = classList({ 'LoadingIndicator-container': true, [attrs.containerClassName || '']: true });
 
     return (
-      <div {...attrs.containerAttrs} data-size={size} className={attrs.containerClassName}>
-        <div {...attrs}></div>
+      <div
+        aria-label={app.translator.trans('core.lib.loading_indicator.accessible_label')}
+        role="status"
+        {...attrs.containerAttrs}
+        data-size={size}
+        className={attrs.containerClassName}
+      >
+        <div aria-hidden {...attrs} />
       </div>
     );
   }
