@@ -18,11 +18,19 @@ class SourceCollector
 
     /**
      * @param string $file
+     * @param string|null $moduleName
      * @return $this
      */
-    public function addFile(string $file)
+    public function addFile(string $file, string $moduleName = null)
     {
-        $this->sources[] = new FileSource($file);
+        $this->sources[] = new FileSource($file, $moduleName);
+
+        return $this;
+    }
+
+    public function addDirectory(string $directory, string $moduleName = null)
+    {
+        $this->sources[] = new FolderSource($directory, $moduleName);
 
         return $this;
     }

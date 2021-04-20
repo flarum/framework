@@ -3,7 +3,6 @@ import classList from '../../common/utils/classList';
 import PostUser from './PostUser';
 import PostMeta from './PostMeta';
 import PostEdited from './PostEdited';
-import EditPostComposer from './EditPostComposer';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
@@ -87,7 +86,9 @@ export default class CommentPost extends Post {
   }
 
   isEditing() {
-    return app.composer.bodyMatches(EditPostComposer, { post: this.attrs.post });
+    import(/* webpackChunkName: "forum/components/EditPostComposer" */ './EditPostComposer').then((EditPostComposer) => {
+      return app.composer.bodyMatches(EditPostComposer.default, { post: this.attrs.post });
+    });
   }
 
   elementAttrs() {

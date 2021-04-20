@@ -46,7 +46,7 @@ class AddTranslations
             $sources->addString(function () use ($locale) {
                 $translations = $this->getTranslations($locale);
 
-                return 'flarum.core.app.translator.addTranslations('.json_encode($translations).')';
+                return 'app.translator.addTranslations('.json_encode($translations).')';
             });
         });
     }

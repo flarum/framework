@@ -12,9 +12,9 @@ namespace Flarum\Frontend\Compiler\Source;
 interface SourceInterface
 {
     /**
-     * @return string
+     * @return string|array
      */
-    public function getContent(): string;
+    public function getContent();
 
     /**
      * @return mixed

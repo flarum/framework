@@ -4,8 +4,6 @@ import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import DiscussionList from './DiscussionList';
 import WelcomeHero from './WelcomeHero';
-import DiscussionComposer from './DiscussionComposer';
-import LogInModal from './LogInModal';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
@@ -295,6 +293,9 @@ export default class IndexPage extends Page {
    * @return {Promise}
    */
   newDiscussionAction() {
+    const LogInModal = () => import(/* webpackChunkName: "forum/components/LogInModal" */ './LogInModal');
+    const DiscussionComposer = () => import(/* webpackChunkName: "forum/components/DiscussionComposer" */ './DiscussionComposer');
+
     return new Promise((resolve, reject) => {
       if (app.session.user) {
         app.composer.load(DiscussionComposer, { user: app.session.user });

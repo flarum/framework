@@ -57,8 +57,7 @@ import ModalManager from './components/ModalManager';
 import Button from './components/Button';
 import Modal from './components/Modal';
 import GroupBadge from './components/GroupBadge';
-import TextEditor from './components/TextEditor';
-import TextEditorButton from './components/TextEditorButton';
+//import TextEditorButton from './components/TextEditorButton';
 import Model from './Model';
 import Application from './Application';
 import fullTime from './helpers/fullTime';
@@ -134,8 +133,8 @@ export default {
   'components/Button': Button,
   'components/Modal': Modal,
   'components/GroupBadge': GroupBadge,
-  'components/TextEditor': TextEditor,
-  'components/TextEditorButton': TextEditorButton,
+  //'components/TextEditor': TextEditor,
+  //'components/TextEditorButton': TextEditorButton,
   Model: Model,
   Application: Application,
   'helpers/fullTime': fullTime,

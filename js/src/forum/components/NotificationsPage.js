@@ -1,5 +1,4 @@
 import Page from '../../common/components/Page';
-import NotificationList from './NotificationList';
 
 /**
  * The `NotificationsPage` component shows the notifications list. It is only
@@ -11,16 +10,19 @@ export default class NotificationsPage extends Page {
 
     app.history.push('notifications');
 
+    import(/* webpackChunkName: "forum/components/NotificationList" */ './NotificationList').then((NotificationList) => {
+      this.NotificationList = NotificationList.default;
+      m.redraw();
+    });
+
     app.notifications.load();
 
     this.bodyClass = 'App--notifications';
   }
 
   view() {
-    return (
-      <div className="NotificationsPage">
-        <NotificationList state={app.notifications}></NotificationList>
-      </div>
-    );
+    const NotificationList = this.NotificationList;
+
+    return <div className="NotificationsPage">{NotificationList ? <NotificationList state={app.notifications} /> : ''}</div>;
   }
 }

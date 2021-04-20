@@ -10,12 +10,17 @@ export default class ModalManagerState {
    *
    * @public
    */
-  show(componentClass, attrs) {
+  async show(componentClass, attrs) {
     // Breaking Change Compliance Warning, Remove in Beta 15.
     if (!(componentClass.prototype instanceof Modal)) {
-      // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
-      console.error('The ModalManager can only show Modals');
-      throw new Error('The ModalManager can only show Modals');
+      if (typeof componentClass === 'function') {
+        const componentResolver = await componentClass();
+        componentClass = componentResolver.default;
+      } else {
+        // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
+        console.error('The ModalManager can only show Modals');
+        throw new Error('The ModalManager can only show Modals');
+      }
     }
     if (componentClass.init) {
       // This is duplicated so that if the error is caught, an error message still shows up in the debug console.

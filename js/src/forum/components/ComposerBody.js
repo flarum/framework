@@ -1,7 +1,6 @@
 import Component from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import ConfirmDocumentUnload from '../../common/components/ConfirmDocumentUnload';
-import TextEditor from '../../common/components/TextEditor';
 import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
@@ -34,7 +33,13 @@ export default class ComposerBody extends Component {
      *
      * @type {Boolean}
      */
-    this.loading = false;
+    this.loading = true;
+
+    import(/* webpackChunkName: "common/components/TextEditor" */ '../../common/components/TextEditor').then((TextEditor) => {
+      this.TextEditor = TextEditor.default;
+      this.loading = false;
+      m.redraw();
+    });
 
     // Let the composer state know to ask for confirmation under certain
     // circumstances, if the body supports / requires it and has a corresponding
@@ -47,6 +52,8 @@ export default class ComposerBody extends Component {
   }
 
   view() {
+    const TextEditor = this.TextEditor;
+
     return (
       <ConfirmDocumentUnload when={this.hasChanges.bind(this)}>
         <div className={'ComposerBody ' + (this.attrs.className || '')}>
@@ -54,16 +61,18 @@ export default class ComposerBody extends Component {
           <div className="ComposerBody-content">
             <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
             <div className="ComposerBody-editor">
-              {TextEditor.component({
-                submitLabel: this.attrs.submitLabel,
-                placeholder: this.attrs.placeholder,
-                disabled: this.loading || this.attrs.disabled,
-                composer: this.composer,
-                preview: this.jumpToPreview && this.jumpToPreview.bind(this),
-                onchange: this.composer.fields.content,
-                onsubmit: this.onsubmit.bind(this),
-                value: this.composer.fields.content(),
-              })}
+              {TextEditor
+                ? TextEditor.component({
+                    submitLabel: this.attrs.submitLabel,
+                    placeholder: this.attrs.placeholder,
+                    disabled: this.loading || this.attrs.disabled,
+                    composer: this.composer,
+                    preview: this.jumpToPreview && this.jumpToPreview.bind(this),
+                    onchange: this.composer.fields.content,
+                    onsubmit: this.onsubmit.bind(this),
+                    value: this.composer.fields.content(),
+                  })
+                : ''}
             </div>
           </div>
           {LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })}

@@ -8,7 +8,7 @@
     "strict": true,
     "noImplicitReturns": false,
     "noImplicitAny": false,
-    "module": "es2015",
+    "module": "esnext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,

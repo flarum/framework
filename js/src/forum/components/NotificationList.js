@@ -4,6 +4,7 @@ import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Discussion from '../../common/models/Discussion';
+import DiscussionRenamedNotification from './DiscussionRenamedNotification';
 
 /**
  * The `NotificationList` component displays a list of the logged-in user's
@@ -74,7 +75,7 @@ export default class NotificationList extends Component {
 
                       <ul className="NotificationGroup-content">
                         {group.notifications.map((notification) => {
-                          const NotificationComponent = app.notificationComponents[notification.contentType()];
+                          const NotificationComponent = this.notificationComponents()[notification.contentType()];
                           return NotificationComponent ? <li>{NotificationComponent.component({ notification })}</li> : '';
                         })}
                       </ul>
@@ -93,6 +94,17 @@ export default class NotificationList extends Component {
         </div>
       </div>
     );
+  }
+
+  /**
+   * A map of notification types to their components.
+   *
+   * @type {Object}
+   */
+  notificationComponents() {
+    return {
+      discussionRenamed: DiscussionRenamedNotification,
+    };
   }
 
   oncreate(vnode) {

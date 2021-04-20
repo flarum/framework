@@ -14,12 +14,12 @@ interface CompilerInterface
     /**
      * @return string
      */
-    public function getFilename(): string;
+    public function getName(): string;
 
     /**
-     * @param string $filename
+     * @param string $name
      */
-    public function setFilename(string $filename);
+    public function setName(string $name);
 
     /**
      * @param callable $callback
@@ -29,9 +29,9 @@ interface CompilerInterface
     public function commit();
 
     /**
-     * @return string|null
+     * @return array
      */
-    public function getUrl(): ?string;
+    public function getUrls(): array;
 
     public function flush();
 }

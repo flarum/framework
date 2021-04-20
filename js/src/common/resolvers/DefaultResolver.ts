@@ -1,4 +1,4 @@
-import Mithril from 'mithril';
+import Component from '../Component';
 
 /**
  * Generates a route resolver for a given component.
@@ -7,7 +7,7 @@ import Mithril from 'mithril';
  * - It sets a key on the component so a rerender will be triggered on route change.
  */
 export default class DefaultResolver {
-  component: Mithril.Component;
+  component: Component | Function;
   routeName: string;
 
   constructor(component, routeName) {
@@ -31,8 +31,13 @@ export default class DefaultResolver {
     };
   }
 
-  onmatch(args, requestedPath, route) {
-    return this.component;
+  async onmatch(args, requestedPath, route) {
+    if (typeof this.component.component === 'function') {
+      return this.component;
+    } else {
+      const component = await this.component();
+      return component.default;
+    }
   }
 
   render(vnode) {

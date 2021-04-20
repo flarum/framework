@@ -3,6 +3,8 @@ import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
+import CommentPost from './CommentPost';
+import DiscussionRenamedPost from './DiscussionRenamedPost';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -25,6 +27,18 @@ export default class PostStream extends Component {
     this.scrollListener = new ScrollListener(this.onscroll.bind(this));
   }
 
+  /**
+   * A map of post types to their components.
+   *
+   * @type {Object}
+   */
+  postComponents() {
+    return {
+      comment: CommentPost,
+      discussionRenamed: DiscussionRenamedPost,
+    };
+  }
+
   view() {
     let lastTime;
 
@@ -45,7 +59,7 @@ export default class PostStream extends Component {
 
       if (post) {
         const time = post.createdAt();
-        const PostComponent = app.postComponents[post.contentType()];
+        const PostComponent = this.postComponents()[post.contentType()];
         content = PostComponent ? PostComponent.component({ post }) : '';
 
         attrs.key = 'post' + post.id();

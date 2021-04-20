@@ -2,7 +2,6 @@ import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
 import DiscussionListPane from './DiscussionListPane';
-import PostStream from './PostStream';
 import PostStreamScrubber from './PostStreamScrubber';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
@@ -69,6 +68,8 @@ export default class DiscussionPage extends Page {
   view() {
     const discussion = this.discussion;
 
+    const PostStream = this.PostStream;
+
     return (
       <div className="DiscussionPage">
         <DiscussionListPane state={app.discussions} />
@@ -81,11 +82,11 @@ export default class DiscussionPage extends Page {
                     <ul>{listItems(this.sidebarItems().toArray())}</ul>
                   </nav>
                   <div className="DiscussionPage-stream">
-                    {PostStream.component({
-                      discussion,
-                      stream: this.stream,
-                      onPositionChange: this.positionChanged.bind(this),
-                    })}
+                    {PostStream ? (
+                      <PostStream discussion={discussion} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
+                    ) : (
+                      LoadingIndicator.component({ className: 'LoadingIndicator--block' })
+                    )}
                   </div>
                 </div>,
               ]
@@ -99,6 +100,11 @@ export default class DiscussionPage extends Page {
    * Load the discussion from the API or use the preloaded one.
    */
   load() {
+    import(/* webpackChunkName: "forum/components/PostStream" */ './PostStream').then((PostStream) => {
+      this.PostStream = PostStream.default;
+      m.redraw();
+    });
+
     const preloadedDiscussion = app.preloadedApiDocument();
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this

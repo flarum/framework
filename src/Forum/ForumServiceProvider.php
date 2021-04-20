@@ -101,14 +101,26 @@ class ForumServiceProvider extends AbstractServiceProvider
             $assets = $this->container->make('flarum.assets.factory')('forum');
 
             $assets->js(function (SourceCollector $sources) {
-                $sources->addFile(__DIR__.'/../../js/dist/forum.js');
+                /**$sources->addFile(__DIR__ . '/../../js/dist/common/common.js');
+
+                $files = glob(__DIR__ . '/../../js/dist/forum/' . '*.js', GLOB_BRACE);
+
+                foreach ($files as $filename) {
+                    if (substr($filename,-4) !== '.map') {
+                        $sources->addFile($filename);
+                    }
+                }**/
+
+                $sources->addDirectory(__DIR__ . '/../../js/dist/forum');
+                $sources->addDirectory(__DIR__ . '/../../js/dist/common');
+
                 $sources->addString(function () {
                     return $this->container->make(Formatter::class)->getJs();
                 });
             });
 
             $assets->css(function (SourceCollector $sources) {
-                $sources->addFile(__DIR__.'/../../less/forum.less');
+                $sources->addFile(__DIR__ . '/../../less/forum.less');
                 $sources->addString(function () {
                     return $this->container->make(SettingsRepositoryInterface::class)->get('custom_less', '');
                 });
@@ -130,7 +142,7 @@ class ForumServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
+        $this->loadViewsFrom(__DIR__ . '/../../views', 'flarum.forum');
 
         $this->container->make('view')->share([
             'translator' => $this->container->make(TranslatorInterface::class),
@@ -190,7 +202,7 @@ class ForumServiceProvider extends AbstractServiceProvider
     {
         $factory = $this->container->make(RouteHandlerFactory::class);
 
-        $callback = include __DIR__.'/routes.php';
+        $callback = include __DIR__ . '/routes.php';
         $callback($routes, $factory);
     }
 

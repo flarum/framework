@@ -1,3 +1,4 @@
+import Component from '../../common/Component';
 import subclassOf from '../../common/utils/subclassOf';
 import Stream from '../../common/utils/Stream';
 import ReplyComposer from '../components/ReplyComposer';
@@ -40,10 +41,15 @@ class ComposerState {
   /**
    * Load a content component into the composer.
    *
-   * @param {ComposerBody} componentClass
+   * @param {ComposerBody|Function} componentClass
    * @public
    */
-  load(componentClass, attrs) {
+  async load(componentClass, attrs) {
+    if (!(componentClass instanceof Component)) {
+      const componentResolver = await componentClass();
+      componentClass = componentResolver.default;
+    }
+
     const body = { componentClass, attrs };
 
     if (this.preventExit()) return;

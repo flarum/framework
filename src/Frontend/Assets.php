@@ -102,7 +102,7 @@ class Assets
 
     public function makeJs(): JsCompiler
     {
-        $compiler = $this->makeJsCompiler($this->name.'.js');
+        $compiler = $this->makeJsCompiler($this->name, 'js');
 
         $this->populate($compiler, 'js');
 
@@ -111,7 +111,7 @@ class Assets
 
     public function makeCss(): LessCompiler
     {
-        $compiler = $this->makeLessCompiler($this->name.'.css');
+        $compiler = $this->makeLessCompiler($this->name, 'css');
 
         $this->populate($compiler, 'css');
 
@@ -120,7 +120,7 @@ class Assets
 
     public function makeLocaleJs(string $locale): JsCompiler
     {
-        $compiler = $this->makeJsCompiler($this->name.'-'.$locale.'.js');
+        $compiler = $this->makeJsCompiler($this->name, 'js-'.$locale);
 
         $this->populate($compiler, 'localeJs', $locale);
 
@@ -129,21 +129,21 @@ class Assets
 
     public function makeLocaleCss(string $locale): LessCompiler
     {
-        $compiler = $this->makeLessCompiler($this->name.'-'.$locale.'.css');
+        $compiler = $this->makeLessCompiler($this->name, 'css-'.$locale);
 
         $this->populate($compiler, 'localeCss', $locale);
 
         return $compiler;
     }
 
-    protected function makeJsCompiler(string $filename)
+    protected function makeJsCompiler(string $name, string $type): JsCompiler
     {
-        return new JsCompiler($this->assetsDir, $filename);
+        return new JsCompiler($this->assetsDir, $name, $type);
     }
 
-    protected function makeLessCompiler(string $filename): LessCompiler
+    protected function makeLessCompiler(string $name, string $type): LessCompiler
     {
-        $compiler = new LessCompiler($this->assetsDir, $filename);
+        $compiler = new LessCompiler($this->assetsDir, $name, $type);
 
         if ($this->cacheDir) {
             $compiler->setCacheDir($this->cacheDir.'/less');

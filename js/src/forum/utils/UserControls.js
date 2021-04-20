@@ -1,6 +1,5 @@
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
-import EditUserModal from '../components/EditUserModal';
 import UserPage from '../components/UserPage';
 import ItemList from '../../common/utils/ItemList';
 
@@ -138,6 +137,8 @@ export default {
    * @param {User} user
    */
   editAction(user) {
+    const EditUserModal = () => import(/* webpackChunkName: "forum/components/EditUserModal" */ '../components/EditUserModal');
+
     app.modal.show(EditUserModal, { user });
   },
 };

@@ -96,13 +96,10 @@ class Frontend implements ExtenderInterface
         $container->resolving($abstract, function (Assets $assets) use ($moduleName) {
             if ($this->js) {
                 $assets->js(function (SourceCollector $sources) use ($moduleName) {
-                    $sources->addString(function () {
-                        return 'var module={}';
-                    });
-                    $sources->addFile($this->js);
-                    $sources->addString(function () use ($moduleName) {
+                    /**$sources->addString(function () use ($moduleName) {
                         return "flarum.extensions['$moduleName']=module.exports";
-                    });
+                    });**/
+                    $sources->addFile($this->js, $moduleName);
                 });
             }
 

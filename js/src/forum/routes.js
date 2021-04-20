@@ -1,10 +1,6 @@
-import IndexPage from './components/IndexPage';
-import DiscussionPage from './components/DiscussionPage';
-import PostsUserPage from './components/PostsUserPage';
-import DiscussionsUserPage from './components/DiscussionsUserPage';
-import SettingsPage from './components/SettingsPage';
-import NotificationsPage from './components/NotificationsPage';
 import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
+import DiscussionPage from './components/DiscussionPage';
+import NotificationsPage from './components/NotificationsPage';
 
 /**
  * The `routes` initializer defines the forum app's routes.
@@ -12,6 +8,11 @@ import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
  * @param {App} app
  */
 export default function (app) {
+  const IndexPage = () => import(/* webpackChunkName: "forum/components/IndexPage" */ './components/IndexPage');
+  const PostsUserPage = () => import(/* webpackChunkName: "forum/components/PostsUserPage" */ './components/PostsUserPage');
+  const DiscussionsUserPage = () => import(/* webpackChunkName: "forum/components/DiscussionsUserPage" */ './components/DiscussionsUserPage');
+  const SettingsPage = () => import(/* webpackChunkName: "forum/components/SettingsPage" */ './components/SettingsPage');
+
   app.routes = {
     index: { path: '/all', component: IndexPage },
 

@@ -1,6 +1,5 @@
 import Dropdown from '../../common/components/Dropdown';
 import icon from '../../common/helpers/icon';
-import NotificationList from './NotificationList';
 
 export default class NotificationsDropdown extends Dropdown {
   static initAttrs(attrs) {
@@ -38,14 +37,21 @@ export default class NotificationsDropdown extends Dropdown {
   }
 
   getMenu() {
+    const NotificationList = this.NotificationList;
+
     return (
       <div className={'Dropdown-menu ' + this.attrs.menuClassName} onclick={this.menuClick.bind(this)}>
-        {this.showing ? NotificationList.component({ state: this.attrs.state }) : ''}
+        {this.showing && NotificationList ? <NotificationList state={this.attrs.state} /> : ''}
       </div>
     );
   }
 
   onclick() {
+    import(/* webpackChunkName: "forum/components/NotificationList" */ './NotificationList').then((NotificationList) => {
+      this.NotificationList = NotificationList.default;
+      m.redraw();
+    });
+
     if (app.drawer.isOpen()) {
       this.goToRoute();
     } else {

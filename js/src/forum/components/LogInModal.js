@@ -1,6 +1,4 @@
 import Modal from '../../common/components/Modal';
-import ForgotPasswordModal from './ForgotPasswordModal';
-import SignUpModal from './SignUpModal';
 import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
@@ -142,6 +140,8 @@ export default class LogInModal extends Modal {
    * @public
    */
   forgotPassword() {
+    const ForgotPasswordModal = () => import(/* webpackChunkName: "forum/components/ForgotPasswordModal" */ './ForgotPasswordModal');
+
     const email = this.identification();
     const attrs = email.indexOf('@') !== -1 ? { email } : undefined;
 
@@ -155,6 +155,8 @@ export default class LogInModal extends Modal {
    * @public
    */
   signUp() {
+    const SignUpModal = () => import(/* webpackChunkName: "forum/components/SignUpModal" */ './SignUpModal');
+
     const attrs = { password: this.password() };
     const identification = this.identification();
     attrs[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;

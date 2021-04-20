@@ -1,6 +1,4 @@
 import DiscussionPage from '../components/DiscussionPage';
-import ReplyComposer from '../components/ReplyComposer';
-import LogInModal from '../components/LogInModal';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import RenameDiscussionModal from '../components/RenameDiscussionModal';
@@ -181,15 +179,19 @@ export default {
    * @return {Promise}
    */
   replyAction(goToLast, forceRefresh) {
-    return new Promise((resolve, reject) => {
+    const LogInModal = () => import(/* webpackChunkName: "forum/components/LogInModal" */ '../components/LogInModal');
+    const ReplyComposer = () => import(/* webpackChunkName: "forum/components/ReplyComposer" */ '../components/ReplyComposer');
+
+    return new Promise(async (resolve, reject) => {
       if (app.session.user) {
         if (this.canReply()) {
           if (!app.composer.composingReplyTo(this) || forceRefresh) {
-            app.composer.load(ReplyComposer, {
+            await app.composer.load(ReplyComposer, {
               user: app.session.user,
               discussion: this,
             });
           }
+          console.log('hi');
           app.composer.show();
 
           if (goToLast && app.viewingDiscussion(this) && !app.composer.isFullScreen()) {

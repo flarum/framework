@@ -1,5 +1,4 @@
 import Modal from '../../common/components/Modal';
-import LogInModal from './LogInModal';
 import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
@@ -138,6 +137,8 @@ export default class SignUpModal extends Modal {
    * @public
    */
   logIn() {
+    const LogInModal = () => import(/* webpackChunkName: "forum/components/LogInModal" */ './LogInModal');
+
     const attrs = {
       identification: this.email() || this.username(),
       password: this.password(),

@@ -19,15 +19,22 @@ class FileSource implements SourceInterface
     protected $path;
 
     /**
-     * @param string $path
+     * @var string|null
      */
-    public function __construct(string $path)
+    protected $moduleName;
+
+    /**
+     * @param string $path
+     * @param string|null $moduleName
+     */
+    public function __construct(string $path, ?string $moduleName)
     {
         if (! file_exists($path)) {
             throw new InvalidArgumentException("File not found at path: $path");
         }
 
         $this->path = $path;
+        $this->moduleName = $moduleName;
     }
 
     /**
@@ -52,5 +59,15 @@ class FileSource implements SourceInterface
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    public function getFilename(): string
+    {
+        return pathinfo($this->path)['basename'];
+    }
+
+    public function getModuleName(): string
+    {
+        return $this->moduleName ?: 'core';
     }
 }

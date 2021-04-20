@@ -1,13 +1,9 @@
 import History from './utils/History';
 import Pane from './utils/Pane';
 import DiscussionPage from './components/DiscussionPage';
-import SignUpModal from './components/SignUpModal';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import Composer from './components/Composer';
-import DiscussionRenamedNotification from './components/DiscussionRenamedNotification';
-import CommentPost from './components/CommentPost';
-import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import routes from './routes';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import Application from '../common/Application';
@@ -19,24 +15,6 @@ import ComposerState from './states/ComposerState';
 import isSafariMobile from './utils/isSafariMobile';
 
 export default class ForumApplication extends Application {
-  /**
-   * A map of notification types to their components.
-   *
-   * @type {Object}
-   */
-  notificationComponents = {
-    discussionRenamed: DiscussionRenamedNotification,
-  };
-  /**
-   * A map of post types to their components.
-   *
-   * @type {Object}
-   */
-  postComponents = {
-    comment: CommentPost,
-    discussionRenamed: DiscussionRenamedPost,
-  };
-
   /**
    * An object which controls the state of the page's side pane.
    *
@@ -153,8 +131,8 @@ export default class ForumApplication extends Application {
    * @param {Discussion} discussion
    * @return {Boolean}
    */
-  viewingDiscussion(discussion) {
-    return this.current.matches(DiscussionPage, { discussion });
+  async viewingDiscussion(discussion) {
+    return this.current.matches(DiscussionPage.default, { discussion });
   }
 
   /**
@@ -174,6 +152,8 @@ export default class ForumApplication extends Application {
     if (payload.loggedIn) {
       window.location.reload();
     } else {
+      const SignUpModal = () => import(/* webpackChunkName: "forum/components/SignUpModal" */ './components/SignUpModal');
+
       this.modal.show(SignUpModal, payload);
     }
   }

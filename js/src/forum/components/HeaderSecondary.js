@@ -1,7 +1,5 @@
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
-import LogInModal from './LogInModal';
-import SignUpModal from './SignUpModal';
 import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import NotificationsDropdown from './NotificationsDropdown';
@@ -26,6 +24,9 @@ export default class HeaderSecondary extends Component {
    */
   items() {
     const items = new ItemList();
+
+    const LogInModal = () => import(/* webpackChunkName: "forum/components/LogInModal" */ './LogInModal');
+    const SignUpModal = () => import(/* webpackChunkName: "forum/components/SignUpModal" */ './SignUpModal');
 
     items.add('search', Search.component({ state: app.search }), 30);
 

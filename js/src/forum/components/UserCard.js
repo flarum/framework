@@ -92,7 +92,10 @@ export default class UserCard extends Component {
       );
     }
 
-    items.add('joined', app.translator.trans('core.forum.user.joined_date_text', { ago: humanTime(user.joinTime()) }));
+    items.add(
+      'joined',
+      <span className="UserCard-joinedAt">{app.translator.trans('core.forum.user.joined_date_text', { ago: humanTime(user.joinTime()) })}</span>
+    );
 
     return items;
   }

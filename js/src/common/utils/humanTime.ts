@@ -29,7 +29,7 @@ export default function humanTime(time: Date): string {
       ago = d.format('ll');
     }
   } else {
-    ago = d.fromNow();
+    ago = '5 days';
   }
 
   return ago;
