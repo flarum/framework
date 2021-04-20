@@ -110,9 +110,11 @@ class ApiServiceProvider extends AbstractServiceProvider
 
             $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) {
                 return ! in_array($middlewareClass, [
+                    HttpMiddleware\InjectActorReference::class,
                     HttpMiddleware\ParseJsonBody::class,
                     HttpMiddleware\StartSession::class,
                     HttpMiddleware\AuthenticateWithSession::class,
+                    HttpMiddleware\AuthenticateWithHeader::class,
                     'flarum.api.route_resolver',
                     HttpMiddleware\CheckCsrfToken::class
                 ]);

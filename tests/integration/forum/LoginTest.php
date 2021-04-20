@@ -13,7 +13,6 @@ use Flarum\Extend;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\User;
 
 class LoginTest extends TestCase
 {
