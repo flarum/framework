@@ -3,15 +3,13 @@
 
 .LoadingIndicator {
   @spin-time: 750ms;
-  --size: 24px;
-  --thickness: 2px;
 
-  &-container[data-size="large"] & {
+  &-container[data-size="large"] {
     --size: 32px;
     --thickness: 3px;
   }
 
-  &-container[data-size="small"] & {
+  &-container[data-size="small"] {
     --size: 18px;
   }
 
@@ -30,6 +28,9 @@
   // <div> container around the spinner
   // Used for positioning
   &-container {
+    --size: 24px;
+    --thickness: 2px;
+
     color: @muted-color;
 
     // Center vertically and horizontally

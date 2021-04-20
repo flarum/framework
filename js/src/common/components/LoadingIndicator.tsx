@@ -31,7 +31,7 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  * spinner's **container**. Applying the `block` attribute handles this for you.
  *
  * To apply a custom size to the loading indicator, set the `--size` and
- * `--thickness` custom properties on the loading indicator itself.
+ * `--thickness` custom properties on the loading indicator container.
  *
  * If you really want to change how this looks as part of your custom theme,
  * you can override the `border-radius` and `border` then set either a
