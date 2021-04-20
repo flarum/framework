@@ -4,15 +4,6 @@
 .LoadingIndicator {
   @spin-time: 750ms;
 
-  &-container[data-size="large"] {
-    --size: 32px;
-    --thickness: 3px;
-  }
-
-  &-container[data-size="small"] {
-    --size: 18px;
-  }
-
   // Use the value of `color` to maintain backwards compatibility
   border-color: currentColor;
   border-width: var(--thickness);
@@ -39,15 +30,26 @@
     align-items: center;
     justify-content: center;
 
-    &.LoadingIndicator {
-      &--block {
-        height: 100px;
-      }
+    // Size
 
-      &--inline {
-        display: inline-block;
-        vertical-align: middle;
-      }
+    &--large {
+      --size: 32px;
+      --thickness: 3px;
+    }
+
+    &--small {
+      --size: 18px;
+    }
+
+    // Display types
+
+    &--block {
+      height: 100px;
+    }
+
+    &--inline {
+      display: inline-block;
+      vertical-align: middle;
     }
   }
 }
