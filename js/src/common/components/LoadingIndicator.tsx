@@ -20,8 +20,10 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
   containerAttrs?: Partial<ComponentAttrs>;
   /**
    * Display type of the spinner.
+   *
+   * @default 'block'
    */
-  display?: 'block' | 'inline' | undefined;
+  display?: 'block' | 'inline' | 'unset';
 }
 
 /**
@@ -45,7 +47,7 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  *
  * - `containerClassName` Class name(s) to apply to the indicator's parent
  * - `className` Class name(s) to apply to the indicator itself
- * - `display` Determines how the spinner should be displayed (`inline` or `block`)
+ * - `display` Determines how the spinner should be displayed (`inline`, `block` (default) or `unset`)
  * - `size` Size of the loading indicator (`small`, `medium` or `large`)
  * - `containerAttrs` Optional attrs to be applied to the container DOM element
  *
@@ -53,12 +55,12 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  */
 export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
   view() {
-    const { display = undefined, size = 'medium', containerClassName, className, ...attrs } = this.attrs;
+    const { display = 'block', size = 'medium', containerClassName, className, ...attrs } = this.attrs;
 
     const completeClassName = classList('LoadingIndicator', className);
     const completeContainerClassName = classList(
       'LoadingIndicator-container',
-      display && `LoadingIndicator-container--${display}`,
+      display !== 'unset' && `LoadingIndicator-container--${display}`,
       size && `LoadingIndicator-container--${size}`,
       containerClassName
     );

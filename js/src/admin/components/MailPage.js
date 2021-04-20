@@ -43,7 +43,7 @@ export default class MailPage extends AdminPage {
 
   content() {
     if (this.loading) {
-      return <LoadingIndicator display="block" />;
+      return <LoadingIndicator />;
     }
 
     const fields = this.driverFields[this.setting('mail_driver')()];

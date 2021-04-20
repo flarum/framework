@@ -67,7 +67,7 @@ export default class ComposerBody extends Component {
               })}
             </div>
           </div>
-          <LoadingIndicator containerClassName={classList('ComposerBody-loading', this.loading && 'active')} size="large" />
+          <LoadingIndicator display="unset" containerClassName={classList('ComposerBody-loading', this.loading && 'active')} size="large" />
         </div>
       </ConfirmDocumentUnload>
     );
