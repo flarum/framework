@@ -84,7 +84,7 @@ export default class NotificationList extends Component {
               })
             : ''}
           {state.isLoading() ? (
-            <LoadingIndicator block />
+            <LoadingIndicator display="block" />
           ) : pages.length ? (
             ''
           ) : (

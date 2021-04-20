@@ -90,7 +90,7 @@ export default class DiscussionPage extends Page {
               </div>,
             ]
           ) : (
-            <LoadingIndicator block />
+            <LoadingIndicator display="block" />
           )}
         </div>
       </div>

@@ -51,7 +51,7 @@ export default class UserPage extends Page {
                 </div>
               </div>,
             ]
-          : [<LoadingIndicator block />]}
+          : [<LoadingIndicator display="block" />]}
       </div>
     );
   }

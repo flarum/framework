@@ -56,7 +56,7 @@ export default class PostsUserPage extends UserPage {
     let footer;
 
     if (this.loading) {
-      footer = <LoadingIndicator block />;
+      footer = <LoadingIndicator display="block" />;
     } else if (this.moreResults) {
       footer = (
         <div className="PostsUserPage-loadMore">

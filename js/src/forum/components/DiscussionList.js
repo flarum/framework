@@ -19,7 +19,7 @@ export default class DiscussionList extends Component {
     let loading;
 
     if (state.isLoading()) {
-      loading = <LoadingIndicator block />;
+      loading = <LoadingIndicator display="block" />;
     } else if (state.moreResults) {
       loading = Button.component(
         {
