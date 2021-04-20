@@ -13,6 +13,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\IdSlugDriver;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
 use Illuminate\Support\Arr;
@@ -38,7 +39,8 @@ class HttpServiceProvider extends AbstractServiceProvider
                     'default' => IdWithTransliteratedSlugDriver::class
                 ],
                 User::class => [
-                    'default' => UsernameSlugDriver::class
+                    'default' => UsernameSlugDriver::class,
+                    'id' => IdSlugDriver::class
                 ],
             ];
         });
