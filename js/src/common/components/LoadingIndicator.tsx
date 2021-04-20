@@ -51,7 +51,7 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  */
 export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
   view() {
-    const { inline, block, size, containerClassName, className, ...attrs } = this.attrs;
+    const { inline = false, block = false, size = 'medium', containerClassName, className, ...attrs } = this.attrs;
 
     if (inline && block) throw new Error('LoadingIndicator cannot have both `inline` and `block` attributes.');
 
