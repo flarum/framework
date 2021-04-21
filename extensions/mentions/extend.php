@@ -31,10 +31,15 @@ return [
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less'),
 
+    (new Extend\Frontend('admin'))
+        ->js(__DIR__.'/js/dist/admin.js'),
+
     (new Extend\Formatter)
         ->configure(ConfigureMentions::class)
         ->render(Formatter\FormatPostMentions::class)
-        ->render(Formatter\FormatUserMentions::class),
+        ->render(Formatter\FormatUserMentions::class)
+        ->unparse(Formatter\UnparsePostMentions::class)
+        ->unparse(Formatter\UnparseUserMentions::class),
 
     (new Extend\Model(Post::class))
         ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
@@ -69,6 +74,9 @@ return [
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))
         ->prepareDataForSerialization(FilterVisiblePosts::class),
+
+    (new Extend\Settings)
+        ->serializeToForum('allowUsernameMentionFormat', 'flarum-mentions.allow_username_format', 'boolval'),
 
     (new Extend\Event())
         ->listen(Posted::class, Listener\UpdateMentionsMetadataWhenVisible::class)

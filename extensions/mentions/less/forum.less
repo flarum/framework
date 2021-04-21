@@ -4,6 +4,7 @@
   border-radius: @border-radius;
   padding: 2px 5px;
   border: 0 !important;
+  font-weight: 600;
 
   blockquote & {
     background: @body-bg;
@@ -11,6 +12,12 @@
   &:hover,
   &:active {
     color: @link-color;
+  }
+}
+.UserMention, .PostMention {
+  &--deleted {
+    opacity: 0.8;
+    filter: grayscale(1);
   }
 }
 .PostMention {

@@ -10,6 +10,7 @@ import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 import { truncate } from 'flarum/utils/string';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
+import cleanDisplayName from './utils/cleanDisplayName';
 
 export default function addComposerAutocomplete() {
   const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
@@ -35,6 +36,7 @@ export default function addComposerAutocomplete() {
     let relMentionStart;
     let absMentionStart;
     let typed;
+    let matchTyped;
     let searchTimeout;
 
     // We store users returned from an API here to preserve order in which they are returned
@@ -74,6 +76,8 @@ export default function addComposerAutocomplete() {
 
         if (absMentionStart) {
           typed = lastChunk.substring(relMentionStart).toLowerCase();
+          matchTyped = typed.match(/^"((?:(?!"#).)+)$/);
+          typed = (matchTyped && matchTyped[1]) || typed;
 
           const makeSuggestion = function(user, replacement, content, className = '') {
             const username = usernameHelper(user);
@@ -116,7 +120,7 @@ export default function addComposerAutocomplete() {
                 if (!userMatches(user)) return;
 
                 suggestions.push(
-                  makeSuggestion(user, '@' + user.username(), '', 'MentionsDropdown-user')
+                  makeSuggestion(user, `@"${cleanDisplayName(user)}"#${user.id()}`, '', 'MentionsDropdown-user')
                 );
               });
             }
@@ -142,7 +146,7 @@ export default function addComposerAutocomplete() {
                   .forEach(post => {
                     const user = post.user();
                     suggestions.push(
-                      makeSuggestion(user, '@' + user.username() + '#' + post.id(), [
+                      makeSuggestion(user, `@"${cleanDisplayName(user)}"#p${post.id()}`, [
                         app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', {number: post.number()}), ' — ',
                         truncate(post.contentPlain(), 200)
                       ], 'MentionsDropdown-post')

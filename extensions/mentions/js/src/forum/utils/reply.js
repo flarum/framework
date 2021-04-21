@@ -1,9 +1,10 @@
 import DiscussionControls from 'flarum/utils/DiscussionControls';
 import EditPostComposer from 'flarum/components/EditPostComposer';
+import cleanDisplayName from './cleanDisplayName';
 
 function insertMention(post, composer, quote) {
   const user = post.user();
-  const mention = '@' + (user ? user.username() : post.number()) + '#' + post.id() + ' ';
+  const mention = `@"${(user && cleanDisplayName(user)) || app.translator.trans('core.lib.username.deleted_text')}"#p${post.id()}`;
 
   // If the composer is empty, then assume we're starting a new reply.
   // In which case we don't want the user to have to confirm if they
