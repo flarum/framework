@@ -12,9 +12,20 @@ namespace Flarum\Mentions\Formatter;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FormatPostMentions
 {
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
+
     /**
      * Configure rendering for post mentions.
      *
@@ -32,6 +43,17 @@ class FormatPostMentions
             $post = $post->mentionsPosts->find($attributes['id']);
             if ($post && $post->user) {
                 $attributes['displayname'] = $post->user->display_name;
+            }
+
+            $attributes['deleted'] = false;
+
+            if (! $post) {
+                $attributes['displayname'] = $this->translator->trans('flarum-mentions.forum.post_mention.deleted_text');
+                $attributes['deleted'] = true;
+            }
+
+            if ($post && ! $post->user) {
+                $attributes['displayname'] = $this->translator->trans('core.lib.username.deleted_text');
             }
 
             return $attributes;
