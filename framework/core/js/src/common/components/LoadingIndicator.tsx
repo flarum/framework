@@ -18,6 +18,12 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
    * Optional attributes to apply to the loading indicator's container.
    */
   containerAttrs?: Partial<ComponentAttrs>;
+  /**
+   * Display type of the spinner.
+   *
+   * @default 'block'
+   */
+  display?: 'block' | 'inline' | 'unset';
 }
 
 /**
@@ -26,12 +32,13 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  * To set a custom color, use the CSS `color` property.
  *
  * To increase spacing around the spinner, use the CSS `height` property on the
- * spinner's **container**.
+ * spinner's **container**. Setting the `display` attribute to `block` will set
+ * a height of `100px` by default.
  *
  * To apply a custom size to the loading indicator, set the `--size` and
- * `--thickness` custom properties on the loading indicator itself.
+ * `--thickness` CSS custom properties on the loading indicator container.
  *
- * If you really want to change how this looks as part of your custom theme,
+ * If you *really* want to change how this looks as part of your custom theme,
  * you can override the `border-radius` and `border` then set either a
  * background image, or use `content: "\<glyph>"` (e.g. `content: "\f1ce"`)
  * and `font-family: 'Font Awesome 5 Free'` to set an FA icon if you'd rather.
@@ -40,17 +47,23 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  *
  * - `containerClassName` Class name(s) to apply to the indicator's parent
  * - `className` Class name(s) to apply to the indicator itself
- * - `size` Size of the loading indicator
+ * - `display` Determines how the spinner should be displayed (`inline`, `block` (default) or `unset`)
+ * - `size` Size of the loading indicator (`small`, `medium` or `large`)
  * - `containerAttrs` Optional attrs to be applied to the container DOM element
  *
  * All other attrs will be assigned as attributes on the DOM element.
  */
 export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
   view() {
-    const { size, ...attrs } = this.attrs;
+    const { display = 'block', size = 'medium', containerClassName, className, ...attrs } = this.attrs;
 
-    attrs.className = classList({ LoadingIndicator: true, [attrs.className || '']: true });
-    attrs.containerClassName = classList({ 'LoadingIndicator-container': true, [attrs.containerClassName || '']: true });
+    const completeClassName = classList('LoadingIndicator', className);
+    const completeContainerClassName = classList(
+      'LoadingIndicator-container',
+      display !== 'unset' && `LoadingIndicator-container--${display}`,
+      size && `LoadingIndicator-container--${size}`,
+      containerClassName
+    );
 
     return (
       <div
@@ -58,9 +71,9 @@ export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
         role="status"
         {...attrs.containerAttrs}
         data-size={size}
-        className={attrs.containerClassName}
+        className={completeContainerClassName}
       >
-        <div aria-hidden {...attrs} />
+        <div aria-hidden className={completeClassName} {...attrs} />
       </div>
     );
   }

@@ -46,7 +46,7 @@ export default class Checkbox extends Component {
    * @protected
    */
   getDisplay() {
-    return this.attrs.loading ? <LoadingIndicator size="tiny" /> : icon(this.attrs.state ? 'fas fa-check' : 'fas fa-times');
+    return this.attrs.loading ? <LoadingIndicator display="unset" size="small" /> : icon(this.attrs.state ? 'fas fa-check' : 'fas fa-times');
   }
 
   /**
