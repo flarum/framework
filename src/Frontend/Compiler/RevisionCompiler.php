@@ -111,7 +111,7 @@ class RevisionCompiler implements CompilerInterface
     {
         $revision = $this->getRevision();
 
-        if (!$revision) {
+        if (! $revision) {
             $this->commit();
 
             $revision = $this->getRevision();
@@ -131,10 +131,10 @@ class RevisionCompiler implements CompilerInterface
 
         $urls = [];
 
-        if (!empty($appResources[$this->type])) {
+        if (! empty($appResources[$this->type])) {
             foreach ($appResources[$this->type] as $revision => $target) {
                 $ext = pathinfo($target, PATHINFO_EXTENSION);
-                $file = substr_replace($target, '-' . $revision, -strlen($ext) - 1, 0);
+                $file = substr_replace($target, '-'.$revision, -strlen($ext) - 1, 0);
                 $urls[] = $this->assetsDir->url($file);
             }
         }
@@ -203,25 +203,24 @@ class RevisionCompiler implements CompilerInterface
      */
     protected function putFile(string $location, $cacheDifferentiator, $content)
     {
-
         if ($this->assetsDir->has(static::REV_MANIFEST)) {
             $manifest = json_decode($this->assetsDir->read(static::REV_MANIFEST), true);
         } else {
             $manifest = [];
         }
 
-        if (!isset($manifest[$this->name])) {
+        if (! isset($manifest[$this->name])) {
             $manifest[$this->name] = [];
         }
 
-        if (!isset($manifest[$this->name][$this->type])) {
+        if (! isset($manifest[$this->name][$this->type])) {
             $manifest[$this->name][$this->type] = [];
         }
 
         if ($location) {
             $ext = pathinfo($location, PATHINFO_EXTENSION);
 
-            $filename =  substr_replace($location, '-'.$cacheDifferentiator, -strlen($ext) - 1, 0);
+            $filename = substr_replace($location, '-'.$cacheDifferentiator, -strlen($ext) - 1, 0);
 
             $this->assetsDir->put($filename, $content);
             $manifest[$this->name][$this->type][$cacheDifferentiator] = $location;
@@ -262,9 +261,9 @@ class RevisionCompiler implements CompilerInterface
         $path = $this->assetsDir->getAdapter()->getPathPrefix();
         $files = array_diff(scandir($path), ['.', '..']);
 
-        foreach($files as $file) {
-            if (!in_array($file, $this->ignoredItems)) {
-                $filePath = $this->assetsDir->getAdapter()->getPathPrefix() . '/' . $file;
+        foreach ($files as $file) {
+            if (! in_array($file, $this->ignoredItems)) {
+                $filePath = $this->assetsDir->getAdapter()->getPathPrefix().'/'.$file;
                 if (is_dir($filePath)) {
                     $this->assetsDir->deleteDirectory($file);
                 } else {
