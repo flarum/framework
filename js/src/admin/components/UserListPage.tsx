@@ -291,7 +291,7 @@ export default class UserListPage extends AdminPage {
               </span>
               <button
                 onclick={toggleEmailVisibility}
-                class="UserList-emailIconBtn"
+                class="Button Button--text UserList-emailIconBtn"
                 title={app.translator.trans('core.admin.users.grid.columns.email.visibility_show')}
               >
                 {icon('far fa-eye-slash fa-fw', { className: 'icon' })}
