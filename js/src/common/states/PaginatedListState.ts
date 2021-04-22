@@ -1,16 +1,8 @@
-import * as Mithril from 'mithril';
-
 import Model from '../Model';
 
 export interface Page<TModel> {
   number: number;
   items: TModel[];
-
-  // // maybe we can put page links here?
-  // links: {[name: string]: string},
-  // // or
-  // previousPage?: string;
-  // nextPage?: string;
 }
 
 export interface PaginationLocation {
@@ -20,14 +12,12 @@ export interface PaginationLocation {
 }
 
 export default abstract class PaginatedListState<T extends Model> {
-  // TODO:
-  //  - what does this page track? last page request? last page that is loaded
-  //      (e.g. pg 7 if u have 3-7 loaded)
-  //  - When do we set it?
-  protected location!: PaginationLocation;
+  /**
+   * @abstract
+   */
+  public static TYPE: string;
 
-  // TODO: might want interface so pagination can work w/o model-specific stuff
-  protected type: string;
+  protected location!: PaginationLocation;
   protected offset: number;
 
   protected pages: Page<T>[] = [];
@@ -40,10 +30,7 @@ export default abstract class PaginatedListState<T extends Model> {
   hasPrev: boolean = false;
   hasNext: boolean = false;
 
-  // TODO: this constructor is for class that implements
-  // what data do we want passed?
-  protected constructor(type: string, offset: number = 20) {
-    this.type = type;
+  protected constructor(offset: number = 20) {
     this.offset = offset;
   }
 
@@ -53,7 +40,6 @@ export default abstract class PaginatedListState<T extends Model> {
       items: results,
     };
 
-    // TODO: is this how we were thinking of treating this.pages ?
     if (this.isEmpty() || pageNum > this.getNextPageNumber() - 1) {
       this.pages.push(page);
     } else {
@@ -63,7 +49,6 @@ export default abstract class PaginatedListState<T extends Model> {
     this.hasNext = !!results.payload?.links?.next;
     this.hasPrev = !!results.payload?.links?.prev;
 
-    // TODO move loading logic to better place
     this.initialLoading = false;
     this.loadingNext = false;
     this.loadingPrev = false;
@@ -79,7 +64,7 @@ export default abstract class PaginatedListState<T extends Model> {
     params.page = { offset: this.offset * (page - 1) };
     params.include = params.include.join(',');
 
-    return app.store.find(this.type, params);
+    return app.store.find(this.constructor.TYPE, params);
   }
 
   public isEmpty(): boolean {
@@ -119,15 +104,14 @@ export default abstract class PaginatedListState<T extends Model> {
     }
   }
 
-  public refresh() {
+  public refresh(page: number = 1) {
     this.initialLoading = true;
     this.loadingPrev = false;
     this.loadingNext = false;
 
     m.redraw();
 
-    // TODO: this needs to be replaced, as refresh() is called on page load
-    this.location = { page: 1 };
+    this.location = { page };
 
     return this.loadPage().then(
       (results: T[]) => {
@@ -160,12 +144,16 @@ export default abstract class PaginatedListState<T extends Model> {
   }
 
   public loadPrev() {
-    // return
+    // TODO
   }
 
   protected getNextPageNumber(): number {
     const pg = this.pages.length && this.pages[this.pages.length - 1];
 
-    return pg ? pg.number + 1 : this.location.page;
+    if (pg) {
+      return pg.number + 1;
+    } else {
+      return this.location.page;
+    }
   }
 }
