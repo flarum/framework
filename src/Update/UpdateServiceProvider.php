@@ -12,7 +12,6 @@ namespace Flarum\Update;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
-use Illuminate\Contracts\Container\Container;
 
 class UpdateServiceProvider extends AbstractServiceProvider
 {
