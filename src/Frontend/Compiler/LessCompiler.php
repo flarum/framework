@@ -24,33 +24,21 @@ class LessCompiler extends RevisionCompiler
      */
     protected $importDirs = [];
 
-    /**
-     * @return string
-     */
     public function getCacheDir(): string
     {
         return $this->cacheDir;
     }
 
-    /**
-     * @param string $cacheDir
-     */
     public function setCacheDir(string $cacheDir)
     {
         $this->cacheDir = $cacheDir;
     }
 
-    /**
-     * @return array
-     */
     public function getImportDirs(): array
     {
         return $this->importDirs;
     }
 
-    /**
-     * @param array $importDirs
-     */
     public function setImportDirs(array $importDirs)
     {
         $this->importDirs = $importDirs;
@@ -84,9 +72,6 @@ class LessCompiler extends RevisionCompiler
         return $parser->getCss();
     }
 
-    /**
-     * @return mixed
-     */
     protected function getCacheDifferentiator()
     {
         return time();
