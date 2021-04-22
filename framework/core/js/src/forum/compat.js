@@ -51,7 +51,6 @@ import PostPreview from './components/PostPreview';
 import EventPost from './components/EventPost';
 import DiscussionHero from './components/DiscussionHero';
 import PostMeta from './components/PostMeta';
-import EditUserModal from './components/EditUserModal';
 import SearchSource from './components/SearchSource';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import DiscussionComposer from './components/DiscussionComposer';
@@ -70,6 +69,10 @@ import Search from './components/Search';
 import DiscussionListItem from './components/DiscussionListItem';
 import LoadingPost from './components/LoadingPost';
 import PostsUserPage from './components/PostsUserPage';
+/**
+ * @deprecated
+ */
+import EditUserModal from '../common/components/EditUserModal';
 import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 import BasicEditorDriver from '../common/utils/BasicEditorDriver';
 import routes from './routes';
@@ -128,6 +131,9 @@ export default Object.assign(compat, {
   'components/EventPost': EventPost,
   'components/DiscussionHero': DiscussionHero,
   'components/PostMeta': PostMeta,
+  /**
+   * @deprecated Used for backwards compatibility now that the EditUserModal has moved to common. Remove in beta 17.
+   */
   'components/EditUserModal': EditUserModal,
   'components/SearchSource': SearchSource,
   'components/DiscussionRenamedPost': DiscussionRenamedPost,

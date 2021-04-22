@@ -95,6 +95,13 @@ export default class AdminNav extends Component {
     );
 
     items.add(
+      'userList',
+      <LinkButton href={app.route('users')} icon="fas fa-users" title={app.translator.trans('core.admin.nav.userlist_title')}>
+        {app.translator.trans('core.admin.nav.userlist_button')}
+      </LinkButton>
+    );
+
+    items.add(
       'search',
       <div className="Search-input">
         <input
