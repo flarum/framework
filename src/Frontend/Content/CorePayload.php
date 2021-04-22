@@ -55,7 +55,7 @@ class CorePayload
         $actor = RequestUtil::getActor($request);
 
         if ($actor->exists) {
-            $user = $this->getUserApiDocument($actor);
+            $user = $this->getUserApiDocument($request, $actor);
             $data = array_merge($data, $this->getDataFromApiDocument($user));
         }
 
@@ -81,13 +81,13 @@ class CorePayload
         return $data;
     }
 
-    private function getUserApiDocument(User $user): array
+    private function getUserApiDocument(Request $request, User $actor): array
     {
         // TODO: to avoid an extra query, something like
         // $controller = new ShowUserController(new PreloadedUserRepository($user));
 
         return $this->getResponseBody(
-            $this->api->send('users.show', $user, ['id' => $user->id])
+            $this->api->send('users.show', null, $request, ['id' => $actor->id])
         );
     }
 

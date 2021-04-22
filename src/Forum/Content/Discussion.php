@@ -62,7 +62,7 @@ class Discussion
             ]
         ];
 
-        $apiDocument = $this->getApiDocument(RequestUtil::getActor($request), $params);
+        $apiDocument = $this->getApiDocument($request, $params);
 
         $getResource = function ($link) use ($apiDocument) {
             return Arr::first($apiDocument->included, function ($value) use ($link) {
@@ -98,15 +98,15 @@ class Discussion
     /**
      * Get the result of an API request to show a discussion.
      *
-     * @param User $actor
+     * @param Request $request
      * @param array $params
      * @return object
      * @throws RouteNotFoundException
      */
-    protected function getApiDocument(User $actor, array $params)
+    private function getApiDocument(Request $request, array $params)
     {
         $params['bySlug'] = true;
-        $response = $this->api->send('discussions.show', $actor, $params);
+        $response = $this->api->send('discussions.show', null, $request, $params);
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {

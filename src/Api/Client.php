@@ -15,7 +15,8 @@ use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Stratigility\MiddlewarePipeInterface;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Client
 {
@@ -37,16 +38,28 @@ class Client
      *
      * @param string $routeName
      * @param User|null $actor
+     * @param Request|null $parent
      * @param array $queryParams
      * @param array $body
      * @return ResponseInterface
      * @throws Exception
      */
-    public function send(string $routeName, User $actor = null, array $queryParams = [], array $body = []): ResponseInterface
+    public function send(string $routeName, User $actor = null, Request $parent = null, array $queryParams = [], array $body = []): Response
     {
         $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
-        $request = RequestUtil::withActor($request, $actor);
+
+        if ($parent) {
+            $request = $request->withAttribute('session', $parent->getAttribute('session'));
+            $request = RequestUtil::withActor($request, RequestUtil::getActor($parent));
+        }
+
+        // This should override the actor from the parent request, if one exists.
+        if ($actor) {
+            $request = RequestUtil::withActor($request, $actor);
+        }
+
         $request = $request->withAttribute('routeName', $routeName);
+
 
         return $this->pipe->handle($request);
     }

@@ -83,7 +83,7 @@ class Index
             $params['filter']['q'] = $q;
         }
 
-        $apiDocument = $this->getApiDocument(RequestUtil::getActor($request), $params);
+        $apiDocument = $this->getApiDocument($request, $params);
         $defaultRoute = $this->settings->get('default_route');
 
         $document->title = $this->translator->trans('core.forum.index.meta_title_text');
@@ -112,12 +112,12 @@ class Index
     /**
      * Get the result of an API request to list discussions.
      *
-     * @param User $actor
+     * @param Request $request
      * @param array $params
      * @return object
      */
-    private function getApiDocument(User $actor, array $params)
+    private function getApiDocument(Request $request, array $params)
     {
-        return json_decode($this->api->send('discussions.index', $actor, $params)->getBody());
+        return json_decode($this->api->send('discussions.index', null, $request, $params)->getBody());
     }
 }

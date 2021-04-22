@@ -112,6 +112,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 return ! in_array($middlewareClass, [
                     HttpMiddleware\InjectActorReference::class,
                     HttpMiddleware\ParseJsonBody::class,
+                    Middleware\FakeHttpMethods::class,
                     HttpMiddleware\StartSession::class,
                     HttpMiddleware\AuthenticateWithSession::class,
                     HttpMiddleware\AuthenticateWithHeader::class,
