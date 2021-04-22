@@ -11,10 +11,8 @@ namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
-use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;

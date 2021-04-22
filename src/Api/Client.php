@@ -60,7 +60,6 @@ class Client
 
         $request = $request->withAttribute('routeName', $routeName);
 
-
         return $this->pipe->handle($request);
     }
 }

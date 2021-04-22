@@ -13,7 +13,6 @@ use Flarum\Api\Client;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
-use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
 use Flarum\User\UserRepository;
