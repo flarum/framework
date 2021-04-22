@@ -161,19 +161,6 @@ class RevisionCompiler implements CompilerInterface
         return $string;
     }
 
-    /**
-     * Get the filename for the given revision.
-     *
-     * @param string $revision
-     * @return string
-     */
-    protected function getFilenameForRevision(string $revision): string
-    {
-        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
-
-        return substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
-    }
-
     protected function getRevision(): ?string
     {
         if ($this->assetsDir->has(static::REV_MANIFEST)) {
@@ -217,8 +204,9 @@ class RevisionCompiler implements CompilerInterface
         return hash('crc32b', serialize($cacheDifferentiator));
     }
 
-    protected function getCacheDifferentiator()
+    protected function getCacheDifferentiator(): ?array
     {
+        return null;
     }
 
     public function flush()
