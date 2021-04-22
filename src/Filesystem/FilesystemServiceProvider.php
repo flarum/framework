@@ -12,6 +12,7 @@ namespace Flarum\Filesystem;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 
 class FilesystemServiceProvider extends AbstractServiceProvider
@@ -46,17 +47,17 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             return [];
         });
 
-        $this->container->singleton('flarum.filesystem.resolved_drivers', function () {
-            return array_map(function ($driverClass) {
-                return $this->container->make($driverClass);
-            }, $this->container->make('flarum.filesystem.drivers'));
+        $this->container->singleton('flarum.filesystem.resolved_drivers', function (Container $container) {
+            return array_map(function ($driverClass) use ($container) {
+                return $container->make($driverClass);
+            }, $container->make('flarum.filesystem.drivers'));
         });
 
-        $this->container->singleton('filesystem', function () {
+        $this->container->singleton('filesystem', function (Container $container) {
             return new FilesystemManager(
-                $this->container,
-                $this->container->make('flarum.filesystem.disks'),
-                $this->container->make('flarum.filesystem.resolved_drivers')
+                $container,
+                $container->make('flarum.filesystem.disks'),
+                $container->make('flarum.filesystem.resolved_drivers')
             );
         });
     }

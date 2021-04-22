@@ -12,16 +12,12 @@ namespace Flarum\Discussion;
 use Flarum\Discussion\Access\ScopeDiscussionVisibility;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(Dispatcher $events)
     {
-        $events = $this->container->make('events');
-
         $events->subscribe(DiscussionMetadataUpdater::class);
 
         $events->listen(
