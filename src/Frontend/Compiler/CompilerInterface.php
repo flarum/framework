@@ -17,7 +17,7 @@ interface CompilerInterface
 
     public function addSources(callable $callback);
 
-    public function commit();
+    public function commit(bool $force = false);
 
     public function getUrl(): ?string;
 

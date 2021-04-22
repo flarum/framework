@@ -48,6 +48,7 @@ class Assets
             'css' => [$this->assets->makeCss(), $this->assets->makeLocaleCss($locale)]
         ];
 
+        // In debug we force a recompilation of assets.
         if ($this->config->inDebugMode()) {
             $this->commit(Arr::flatten($compilers));
         }
@@ -58,8 +59,9 @@ class Assets
 
     private function commit(array $compilers)
     {
+        /** @var CompilerInterface $compiler */
         foreach ($compilers as $compiler) {
-            $compiler->commit();
+            $compiler->commit(true);
         }
     }
 

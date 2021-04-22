@@ -55,7 +55,7 @@ class RevisionCompiler implements CompilerInterface
         $this->filename = $filename;
     }
 
-    public function commit()
+    public function commit(bool $force = false)
     {
         $sources = $this->getSources();
 
@@ -65,7 +65,7 @@ class RevisionCompiler implements CompilerInterface
 
         // In case the previous and current revisions do not match
         // Or no file was written yet, let's save the file to disk.
-        if ($oldRevision !== $newRevision || ! $this->assetsDir->has($this->filename)) {
+        if ($force || $oldRevision !== $newRevision || ! $this->assetsDir->has($this->filename)) {
             if (! $this->save($this->filename, $sources)) {
                 // If no file was written (because the sources were empty), we
                 // will set the revision to a special value so that we can tell
