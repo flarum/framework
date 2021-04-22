@@ -253,16 +253,20 @@ class Formatter extends RevisionCompiler
 
     protected function ensureRendererExists()
     {
-        if (! static::$formatter) return;
+        if (! static::$formatter) {
+            return;
+        }
 
         $revision = $this->getRevision();
 
-        if (file_exists($this->cacheDir . "/Renderer_$revision.php")) return;
+        if (file_exists($this->cacheDir."/Renderer_$revision.php")) {
+            return;
+        }
 
         $renderer = Arr::get(static::$formatter, 'renderer');
 
         if (! empty($renderer)) {
-            file_put_contents($this->cacheDir . "/Renderer_$revision.php", $renderer);
+            file_put_contents($this->cacheDir."/Renderer_$revision.php", $renderer);
         } else {
             $this->finalize();
         }
@@ -272,7 +276,7 @@ class Formatter extends RevisionCompiler
 
         if ($renderer && static::$formatter['renderer'] instanceof __PHP_Incomplete_Class) {
             // Autoload the file from disk using a simple include, while suppressing errors.
-            @include $this->cacheDir . "/Renderer_$revision.php";
+            @include $this->cacheDir."/Renderer_$revision.php";
 
             // Reload the formatter again from cache to resolve the __PHP_Incomplete_Class
             static::$formatter = $this->cache->get('flarum.formatter');
@@ -293,9 +297,13 @@ class Formatter extends RevisionCompiler
 
     protected function requiresRefresh(): bool
     {
-        if (! $this->getRevision()) return true;
+        if (! $this->getRevision()) {
+            return true;
+        }
 
-        if (! Arr::get(static::$formatter, 'renderer')) return true;
+        if (! Arr::get(static::$formatter, 'renderer')) {
+            return true;
+        }
 
         $renderer = static::$formatter['renderer'] instanceof __PHP_Incomplete_Class
             ? (new ArrayObject(static::$formatter['renderer']))['__PHP_Incomplete_Class_Name']
