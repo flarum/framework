@@ -106,7 +106,7 @@ class Discussion
     private function getApiDocument(Request $request, array $params)
     {
         $params['bySlug'] = true;
-        $response = $this->api->send('discussions.show', null, $request, $params);
+        $response = $this->api->send('discussions.show', $request, null, $params);
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {

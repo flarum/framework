@@ -37,14 +37,14 @@ class Client
      * Execute the given API action class, pass the input and return its response.
      *
      * @param string $routeName
-     * @param User|null $actor
      * @param Request|null $parent
+     * @param User|null $actor
      * @param array $queryParams
      * @param array $body
      * @return ResponseInterface
      * @throws Exception
      */
-    public function send(string $routeName, User $actor = null, Request $parent = null, array $queryParams = [], array $body = []): Response
+    public function send(string $routeName, Request $parent = null, User $actor = null, array $queryParams = [], array $body = []): Response
     {
         $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
 

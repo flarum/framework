@@ -87,7 +87,7 @@ class CorePayload
         // $controller = new ShowUserController(new PreloadedUserRepository($user));
 
         return $this->getResponseBody(
-            $this->api->send('users.show', null, $request, ['id' => $actor->id])
+            $this->api->send('users.show', $request, null, ['id' => $actor->id])
         );
     }
 

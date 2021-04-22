@@ -68,7 +68,7 @@ class User
     private function getApiDocument(Request $request, array $params)
     {
         $params['bySlug'] = true;
-        $response = $this->api->send('users.show', null, $request, $params);
+        $response = $this->api->send('users.show', $request, null, $params);
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {
