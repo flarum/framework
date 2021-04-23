@@ -9,7 +9,7 @@ import extractText from '../../common/utils/extractText';
  * The `DiscussionControls` utility constructs a list of buttons for a
  * discussion which perform actions on it.
  */
-export default {
+export default class DiscussionControls {
   /**
    * Get a list of controls for a discussion.
    *
@@ -31,7 +31,7 @@ export default {
     });
 
     return items;
-  },
+  }
 
   /**
    * Get controls for a discussion pertaining to the current user (e.g. reply,
@@ -80,7 +80,7 @@ export default {
     }
 
     return items;
-  },
+  }
 
   /**
    * Get controls for a discussion pertaining to moderation (e.g. rename, lock).
@@ -108,7 +108,7 @@ export default {
     }
 
     return items;
-  },
+  }
 
   /**
    * Get controls for a discussion which are destructive (e.g. delete).
@@ -164,7 +164,7 @@ export default {
     }
 
     return items;
-  },
+  }
 
   /**
    * Open the reply composer for the discussion. A promise will be returned,
@@ -208,7 +208,7 @@ export default {
 
       return reject();
     });
-  },
+  }
 
   /**
    * Hide a discussion.
@@ -219,7 +219,7 @@ export default {
     this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
 
     return this.save({ isHidden: true });
-  },
+  }
 
   /**
    * Restore a discussion.
@@ -230,7 +230,7 @@ export default {
     this.pushAttributes({ hiddenAt: null, hiddenUser: null });
 
     return this.save({ isHidden: false });
-  },
+  }
 
   /**
    * Delete the discussion after confirming with the user.
@@ -247,7 +247,7 @@ export default {
 
       return this.delete().then(() => app.discussions.removeDiscussion(this));
     }
-  },
+  }
 
   /**
    * Rename the discussion.
@@ -259,5 +259,5 @@ export default {
       currentTitle: this.title(),
       discussion: this,
     });
-  },
-};
+  }
+}

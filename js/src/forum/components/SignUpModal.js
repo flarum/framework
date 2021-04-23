@@ -193,3 +193,4 @@ export default class SignUpModal extends Modal {
     return data;
   }
 }
+//Flarum Asynchronous Module

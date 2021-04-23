@@ -7,5 +7,7 @@
  * file that was distributed with this source code.
  */
 
+flarum.exports = [];
+
 export * from './src/common';
 export * from './src/admin';

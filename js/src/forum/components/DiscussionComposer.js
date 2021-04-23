@@ -105,3 +105,4 @@ export default class DiscussionComposer extends ComposerBody {
       }, this.loaded.bind(this));
   }
 }
+//Flarum Asynchronous Module

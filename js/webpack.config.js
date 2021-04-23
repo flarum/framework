@@ -3,18 +3,26 @@ const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require("terser-webpack-plugin");
 
-module.exports = function(options = {}) {
+process.traceDeprecation = true;
+
+module.exports = function (options = {}) {
   return {
     // Set up entry points for each of the forum + admin apps, but only
     // if they exist.
-    entry: function() {
+    entry: function () {
       const entries = {};
 
       for (const app of ['forum', 'admin']) {
-        const file = path.resolve(process.cwd(), app+'.js');
+        const file = path.resolve(process.cwd(), app + '.js');
         if (fs.existsSync(file)) {
-          const entry = `/${app}/${require(path.resolve(process.cwd(), 'package.json')).name.replace('@', '').replace('/', '-')}`
-          entries[entry] = file;
+          entries[app] = {
+            import: file,
+            filename: `${app}/${require(path.resolve(process.cwd(), 'package.json')).name.replace('@', '').replace('/', '-')}.js`,
+            library: {
+              name: `flarum.core`,
+              type: 'assign',
+            }
+          };
         }
       }
 
@@ -25,10 +33,13 @@ module.exports = function(options = {}) {
       extensions: ['.ts', '.tsx', '.js', '.json'],
     },
 
+    experiments: {
+      topLevelAwait: true
+    },
 
-  optimization: {
+    optimization: {
       runtimeChunk: {
-        name: entrypoint => `${entrypoint.name}~runtime`
+        name: entrypoint => `${entrypoint.name}/runtime`
       },
       splitChunks: {
         chunks: 'all',
@@ -39,14 +50,14 @@ module.exports = function(options = {}) {
             test: /[\\/]node_modules[\\/]/,
             priority: -10,
             name(module, entry) {
-              return `${entry[0].name.match(/[^\/]*\/[^\/]*/)[0]}/vendor`;
+              return `${entry[0].name}/vendor`;
             }
           },
           common: {
             test: /[\\/]common[\\/]/,
             priority: -20,
             reuseExistingChunk: true,
-            name: '/common/common'
+            name: 'common/common'
           },
         },
       },
@@ -87,34 +98,37 @@ module.exports = function(options = {}) {
         {
           test: /\.(tsx?|js)$/,
           exclude: /node_modules/,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              presets: [
-                ['@babel/preset-env', {modules: false, loose: true}],
-                ['@babel/preset-react'],
-                ['@babel/preset-typescript']
-              ],
-              plugins: [
-                ['@babel/plugin-transform-runtime', {useESModules: true}],
-                ['@babel/plugin-proposal-class-properties'],
-                ['@babel/plugin-transform-react-jsx', {pragma: 'm'}],
-                ['@babel/plugin-transform-object-assign'],
-                ['@babel/plugin-syntax-dynamic-import']
-              ]
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  ['@babel/preset-env', {modules: false, loose: true}],
+                  ['@babel/preset-react'],
+                  ['@babel/preset-typescript']
+                ],
+                plugins: [
+                  ['@babel/plugin-transform-runtime', {useESModules: true}],
+                  ['@babel/plugin-proposal-class-properties'],
+                  ['@babel/plugin-transform-react-jsx', {pragma: 'm'}],
+                  ['@babel/plugin-transform-object-assign'],
+                  ['@babel/plugin-syntax-dynamic-import'],
+                  ['@babel/plugin-proposal-export-default-from']
+                ]
+              }
+            },
+            {
+              loader: path.resolve(__dirname, 'CustomLoader.js')
             }
-          }
-        }
+          ]
+        },
       ]
     },
 
     output: {
       path: path.resolve(process.cwd(), 'dist'),
-      library: 'flarum.core',
-      libraryTarget: 'assign',
       chunkFilename: '[name].js',
       publicPath: "/assets/",
-      filename: '[name].js',
       devtoolNamespace: require(path.resolve(process.cwd(), 'package.json')).name
     },
 
@@ -125,14 +139,14 @@ module.exports = function(options = {}) {
         'jquery': 'jQuery'
       },
 
-      function() {
+      function () {
         const externals = {};
 
         if (options.useExtensions) {
           for (const extension of options.useExtensions) {
-            externals['@'+extension] =
-              externals['@'+extension+'/forum'] =
-                externals['@'+extension+'/admin'] = "flarum.extensions['"+extension+"']";
+            externals['@' + extension] =
+              externals['@' + extension + '/forum'] =
+                externals['@' + extension + '/admin'] = "flarum.extensions['" + extension + "']";
           }
         }
 
@@ -140,12 +154,12 @@ module.exports = function(options = {}) {
       }(),
 
       // Support importing old-style core modules.
-      function(context, request, callback) {
+      function ({context, request}, cb) {
         let matches;
         if ((matches = /^flarum\/(.+)$/.exec(request))) {
-          return callback(null, 'root flarum.core.compat[\'' + matches[1] + '\']');
+          return cb(null, `window.flreg.get('${matches[1]}')`);
         }
-        callback();
+        cb();
       }
     ],
 

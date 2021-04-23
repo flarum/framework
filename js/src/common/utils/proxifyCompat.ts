@@ -1,4 +1,4 @@
-export default (compat: { [key: string]: any }, namespace: string) => {
+export default function proxifyCompat(compat: { [key: string]: any }, namespace: string) {
   // regex to replace common/ and NAMESPACE/ for core & core extensions
   // e.g. admin/utils/extract --> utils/extract
   // e.g. tags/common/utils/sortTags --> tags/utils/sortTags
@@ -7,4 +7,4 @@ export default (compat: { [key: string]: any }, namespace: string) => {
   return new Proxy(compat, {
     get: (obj, prop: string) => obj[prop] || obj[prop.replace(regex, '$1')],
   });
-};
+}

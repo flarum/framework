@@ -244,3 +244,4 @@ export default class EditUserModal extends Modal {
     return user.groups().some((g) => g.id() === Group.ADMINISTRATOR_ID);
   }
 }
+//Flarum Asynchronous Module

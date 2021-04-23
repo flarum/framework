@@ -1,4 +1,4 @@
-import UserPage from './UserPage';
+import UserPage from 'flarum/components/UserPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
@@ -156,3 +156,4 @@ export default class PostsUserPage extends UserPage {
     return results;
   }
 }
+//Flarum Asynchronous Module

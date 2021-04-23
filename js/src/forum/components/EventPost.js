@@ -1,8 +1,9 @@
-import Post from './Post';
 import { ucfirst } from '../../common/utils/string';
 import usernameHelper from '../../common/helpers/username';
 import icon from '../../common/helpers/icon';
 import Link from '../../common/components/Link';
+
+const Post = await import(/* webpackChunkName: "forum/components/Post" */ './Post');
 
 /**
  * The `EventPost` component displays a post which indicating a discussion
@@ -15,7 +16,7 @@ import Link from '../../common/components/Link';
  *
  * @abstract
  */
-export default class EventPost extends Post {
+export default class EventPost extends Post.default {
   elementAttrs() {
     const attrs = super.elementAttrs();
 

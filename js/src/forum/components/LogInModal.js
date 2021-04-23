@@ -190,3 +190,4 @@ export default class LogInModal extends Modal {
     super.onerror(error);
   }
 }
+//Flarum Asynchronous Module

@@ -8,6 +8,8 @@ import * as _$ from 'jquery';
 // Globals from flarum/core
 import Application from './src/common/Application';
 
+import FlarumRegistry from './src/common/FlarumRegistry';
+
 /**
  * flarum/core exposes several extensions globally:
  *
@@ -41,4 +43,5 @@ declare global {
  */
 declare global {
   const app: Application;
+  const flreg: FlarumRegistry;
 }

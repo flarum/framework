@@ -45,15 +45,16 @@ class JsCompiler extends RevisionCompiler
             if ($source instanceof FolderSource) {
                 foreach ($content as $file) {
                     $filepath = $source->getPath().'/'.$file;
+                    $destination = $source->getDirectoryName().'/'.$file;
                     if (is_dir($filepath)) {
                         $this->levelN($filepath, $source, $file);
                     } else {
                         if (pathinfo($filepath, PATHINFO_EXTENSION) !== 'js') {
-                            $this->assetsDir->put($source->getDirectoryName().'/'.$file, file_get_contents($filepath));
+                            $this->assetsDir->put($destination, file_get_contents($filepath));
                         } else {
                             $content = file_get_contents($filepath);
                             $cacheDifferentiator = hash('crc32b', serialize(array_merge($source->getCacheDifferentiator(), [$content])));
-                            $this->putFile($source->getDirectoryName().'/'.$file, $cacheDifferentiator, $content);
+                            $this->putFile($destination, $cacheDifferentiator, $content);
                         }
                     }
                 }
@@ -64,6 +65,7 @@ class JsCompiler extends RevisionCompiler
                     if (file_exists($sourceMap)) {
                         $map->concat($sourceMap, $line);
                     }
+                    $output[] = 'var module={};';
                 }
 
                 $content = $this->format($content);
@@ -88,7 +90,7 @@ class JsCompiler extends RevisionCompiler
 
     private function levelN($filepath, $source, $file)
     {
-        $this->assetsDir->makeDirectory($file);
+        $this->assetsDir->makeDirectory($source->getDirectoryName().'/'.$file);
         foreach (array_diff(scandir($filepath), ['.', '..']) as $levelNFile) {
             $filepath2 = $filepath.'/'.$levelNFile;
             if (is_dir($filepath2)) {

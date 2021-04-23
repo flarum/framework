@@ -43,7 +43,7 @@ export default class Post extends Component {
 
     attrs.className = this.classes(attrs.className).join(' ');
 
-    const controls = PostControls.controls(this.attrs.post, this).toArray();
+    const controls = new PostControls().controls(this.attrs.post, this).toArray();
 
     return (
       <article {...attrs}>

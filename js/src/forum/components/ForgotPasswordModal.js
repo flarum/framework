@@ -111,3 +111,4 @@ export default class ForgotPasswordModal extends Modal {
     super.onerror(error);
   }
 }
+//Flarum Asynchronous Module

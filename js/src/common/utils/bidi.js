@@ -1,5 +1,5 @@
 function bidi(node, prop) {
-  var type = node.tag === 'select' ? (node.attrs.multi ? 'multi' : 'select') : node.attrs.type;
+  let type = node.tag === 'select' ? (node.attrs.multi ? 'multi' : 'select') : node.attrs.type;
 
   // Setup: bind listeners
   if (type === 'multi') {
@@ -46,5 +46,5 @@ function bidi(node, prop) {
 bidi.view = function (ctrl, node, prop) {
   return bidi(node, node.attrs.bidi);
 };
-
+window.flreg = new (require('../FlarumRegistry').default)();
 export default bidi;

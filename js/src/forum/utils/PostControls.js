@@ -8,7 +8,7 @@ import extractText from '../../common/utils/extractText';
  * The `PostControls` utility constructs a list of buttons for a post which
  * perform actions on it.
  */
-export default {
+export default class PostControls {
   /**
    * Get a list of controls for a post.
    *
@@ -30,7 +30,7 @@ export default {
     });
 
     return items;
-  },
+  }
 
   /**
    * Get controls for a post pertaining to the current user (e.g. report).
@@ -43,7 +43,7 @@ export default {
    */
   userControls(post, context) {
     return new ItemList();
-  },
+  }
 
   /**
    * Get controls for a post pertaining to moderation (e.g. edit).
@@ -73,7 +73,7 @@ export default {
     }
 
     return items;
-  },
+  }
 
   /**
    * Get controls for a post that are destructive (e.g. delete).
@@ -128,7 +128,7 @@ export default {
     }
 
     return items;
-  },
+  }
 
   /**
    * Open the composer to edit a post.
@@ -142,7 +142,7 @@ export default {
 
       return resolve();
     });
-  },
+  }
 
   /**
    * Hide a post.
@@ -154,7 +154,7 @@ export default {
     this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
 
     return this.save({ isHidden: true }).then(() => m.redraw());
-  },
+  }
 
   /**
    * Restore a post.
@@ -165,7 +165,7 @@ export default {
     this.pushAttributes({ hiddenAt: null, hiddenUser: null });
 
     return this.save({ isHidden: false }).then(() => m.redraw());
-  },
+  }
 
   /**
    * Delete a post.
@@ -197,5 +197,5 @@ export default {
         if (context) context.loading = false;
         m.redraw();
       });
-  },
-};
+  }
+}

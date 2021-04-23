@@ -64,7 +64,7 @@ export default class DiscussionListItem extends Component {
     const isRead = discussion.isRead();
     const showUnread = !this.showRepliesCount() && isUnread;
     let jumpTo = 0;
-    const controls = DiscussionControls.controls(discussion, this).toArray();
+    const controls = new DiscussionControls().controls(discussion, this).toArray();
     const attrs = this.elementAttrs();
 
     if (this.attrs.params.q) {

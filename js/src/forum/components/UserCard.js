@@ -25,7 +25,7 @@ import listItems from '../../common/helpers/listItems';
 export default class UserCard extends Component {
   view() {
     const user = this.attrs.user;
-    const controls = UserControls.controls(user, this).toArray();
+    const controls = new UserControls().controls(user, this).toArray();
     const color = user.color();
     const badges = user.badges().toArray();
 

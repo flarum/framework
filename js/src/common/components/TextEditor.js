@@ -146,3 +146,4 @@ export default class TextEditor extends Component {
     this.attrs.onsubmit(this.value);
   }
 }
+// Flarum Asynchronous Module

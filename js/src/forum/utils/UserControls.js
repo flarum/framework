@@ -7,7 +7,7 @@ import ItemList from '../../common/utils/ItemList';
  * The `UserControls` utility constructs a list of buttons for a user which
  * perform actions on it.
  */
-export default {
+export default class UserControls {
   /**
    * Get a list of controls for a user.
    *
@@ -29,7 +29,7 @@ export default {
     });
 
     return items;
-  },
+  }
 
   /**
    * Get controls for a user pertaining to the current user (e.g. poke, follow).
@@ -42,7 +42,7 @@ export default {
    */
   userControls() {
     return new ItemList();
-  },
+  }
 
   /**
    * Get controls for a user pertaining to moderation (e.g. suspend, edit).
@@ -66,7 +66,7 @@ export default {
     }
 
     return items;
-  },
+  }
 
   /**
    * Get controls for a user which are destructive (e.g. delete).
@@ -90,7 +90,7 @@ export default {
     }
 
     return items;
-  },
+  }
 
   /**
    * Delete the user.
@@ -113,7 +113,7 @@ export default {
         }
       })
       .catch(() => this.showDeletionAlert(user, 'error'));
-  },
+  }
 
   /**
    * Show deletion alert of user.
@@ -129,7 +129,7 @@ export default {
     }[type];
 
     app.alerts.show({ type }, app.translator.trans(message, { username, email }));
-  },
+  }
 
   /**
    * Edit the user.
@@ -140,5 +140,5 @@ export default {
     const EditUserModal = () => import(/* webpackChunkName: "forum/components/EditUserModal" */ '../components/EditUserModal');
 
     app.modal.show(EditUserModal, { user });
-  },
-};
+  }
+}

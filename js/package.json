@@ -6,7 +6,6 @@
     "clsx": "^1.1.1",
     "color-thief-browser": "^2.0.2",
     "dayjs": "^1.10.4",
-    "expose-loader": "^1.0.3",
     "jquery": "^3.6.0",
     "jquery.hotkeys": "^0.1.0",
     "lodash-es": "^4.17.21",
@@ -16,6 +15,7 @@
     "textarea-caret": "^3.1.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-export-default-from": "^7.12.13",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-syntax-top-level-await": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
@@ -26,10 +26,13 @@
     "@types/textarea-caret": "^3.0.0",
     "babel-plugin-add-module-exports": "^1.0.4",
     "bundlewatch": "^0.3.2",
+    "expose-loader": "^2.0.0",
     "flarum-webpack-config": "0.1.0-beta.10",
     "husky": "^4.3.8",
+    "loader-utils": "^1.4.0",
     "prettier": "^2.2.1",
     "terser-webpack-plugin": "~5.1.1",
+    "ts-loader": "^9.1.0",
     "webpack": "~5.33.2",
     "webpack-cli": "~4.6.0",
     "webpack-merge": "~5.7.3"

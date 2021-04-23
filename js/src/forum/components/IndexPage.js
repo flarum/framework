@@ -323,3 +323,4 @@ export default class IndexPage extends Page {
     }
   }
 }
+//Flarum Asynchronous Module

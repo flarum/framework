@@ -147,3 +147,4 @@ export default class NotificationList extends Component {
     return this.$notifications.css('overflow') === 'auto';
   }
 }
+//Flarum Asynchronous Module

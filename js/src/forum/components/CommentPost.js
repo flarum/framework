@@ -1,12 +1,13 @@
-import Post from './Post';
 import classList from '../../common/utils/classList';
-import PostUser from './PostUser';
 import PostMeta from './PostMeta';
 import PostEdited from './PostEdited';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 import ComposerPostPreview from './ComposerPostPreview';
+
+const Post = await import(/* webpackChunkName: "forum/components/Post" */ './Post');
+const PostUser = await import(/* webpackChunkName: "forum/components/PostUser" */ './PostUser');
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -17,7 +18,7 @@ import ComposerPostPreview from './ComposerPostPreview';
  *
  * - `post`
  */
-export default class CommentPost extends Post {
+export default class CommentPost extends Post.default {
   oninit(vnode) {
     super.oninit(vnode);
 
@@ -127,7 +128,7 @@ export default class CommentPost extends Post {
 
     items.add(
       'user',
-      PostUser.component({
+      PostUser.default.component({
         post,
         cardVisible: this.cardVisible,
         oncardshow: () => {

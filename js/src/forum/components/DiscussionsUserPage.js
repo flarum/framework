@@ -1,4 +1,4 @@
-import UserPage from './UserPage';
+import UserPage from 'flarum/components/UserPage';
 import DiscussionList from './DiscussionList';
 import DiscussionListState from '../states/DiscussionListState';
 
@@ -28,3 +28,4 @@ export default class DiscussionsUserPage extends UserPage {
     return <div className="DiscussionsUserPage">{DiscussionList.component({ state: this.state })}</div>;
   }
 }
+//Flarum Asynchronous Module

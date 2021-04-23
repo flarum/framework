@@ -1,4 +1,4 @@
-import UserPage from './UserPage';
+import UserPage from 'flarum/components/UserPage';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 import Button from '../../common/components/Button';
@@ -116,3 +116,4 @@ export default class SettingsPage extends UserPage {
     return items;
   }
 }
+//Flarum Asynchronous Module

@@ -20,7 +20,7 @@ class RevisionCompiler implements CompilerInterface
 
     const EMPTY_REVISION = 'empty';
 
-    protected $ignoredDirectories = [
+    protected $ignoredItems = [
         'fonts'
     ];
 
