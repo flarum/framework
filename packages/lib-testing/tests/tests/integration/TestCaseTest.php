@@ -127,4 +127,61 @@ class TestCaseTest extends TestCase
 
         $this->assertStringContainsString('notARealSetting', $response->getBody()->getContents());
     }
+
+    /**
+     * @test
+     */
+    public function can_apply_route_extenders()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))->route('/arbitrary', 'arbitrary')
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/arbitrary')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function routes_added_by_current_extension_not_accessible_by_default()
+    {
+        $response = $this->send(
+            $this->request('GET', '/added-by-extension')
+        );
+
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function routes_added_by_current_extension_accessible()
+    {
+        $this->extension('flarum-testing-tests');
+    
+        $response = $this->send(
+            $this->request('GET', '/added-by-extension')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function extension_url_correct()
+    {
+        $this->extension('flarum-testing-tests');
+        $expected = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->url('/flarum-testing-tests/');
+        // We need to test this since we override it.
+        $extensions = $this->app()->getContainer()->make('flarum.extensions');
+        $currExtension = $extensions->getExtension('flarum-testing-tests');
+        $baseAssetsUrl = $extensions->getAsset($currExtension, '');
+
+        $this->assertEquals($expected, $baseAssetsUrl);
+    }
 }

@@ -11,7 +11,11 @@ namespace Flarum\Testing\integration\Extension;
 
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
+use Illuminate\Contracts\Filesystem\Cloud;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 
 class ExtensionManagerIncludeCurrent extends ExtensionManager
 {
@@ -38,5 +42,15 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
         }
 
         return $this->extensions;
+    }
+
+    /**
+     * Get an instance of the assets filesystem.
+     * This is resolved dynamically because Flarum's filesystem configuration
+     * might not be booted yet when the ExtensionManager singleton initializes.
+     */
+    protected function getAssetsFilesystem(): Cloud
+    {
+        return new FilesystemAdapter(new Filesystem(new Local($this->paths->public.'/assets'), ['url' => resolve('flarum.config')->url().'/assets']));
     }
 }
