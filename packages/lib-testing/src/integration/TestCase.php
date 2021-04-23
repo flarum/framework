@@ -191,6 +191,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function database(): ConnectionInterface
     {
+        $this->app();
         // Set in `BeginTransactionAndSetDatabase` extender.
         return $this->database;
     }
