@@ -101,10 +101,12 @@
 
     // Make as wide as possible
     width: max-content;
-    // Max 200px
-    max-width: 200px;
     // Or use 300px/100% of viewport width, whichever is smaller
-    max-width: ~"min(300px, 100vw)";
+    max-width: 300px;
+
+    @media (max-width: 320px) {
+      max-width: 100vw;
+    }
 
     left: 50%;
     bottom: ~"calc(100% + @{tooltip-arrow-height})";
