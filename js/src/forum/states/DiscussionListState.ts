@@ -2,14 +2,16 @@ import PaginatedListState from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 
 export default class DiscussionListState extends PaginatedListState<Discussion> {
-  public static TYPE: string = 'discussions';
-
   constructor(params: any, page: number) {
     super(20);
 
     this.params = params;
 
     this.location = { page };
+  }
+
+  get type(): string {
+    return 'discussions';
   }
 
   requestParams() {

@@ -12,11 +12,6 @@ export interface PaginationLocation {
 }
 
 export default abstract class PaginatedListState<T extends Model> {
-  /**
-   * @abstract
-   */
-  public static TYPE: string;
-
   protected location!: PaginationLocation;
   protected offset: number;
 
@@ -33,6 +28,8 @@ export default abstract class PaginatedListState<T extends Model> {
   protected constructor(offset: number = 20) {
     this.offset = offset;
   }
+
+  abstract get type(): string;
 
   protected parseResults(pageNum, results: T[]) {
     const page = {
@@ -58,9 +55,12 @@ export default abstract class PaginatedListState<T extends Model> {
   protected loadPage(page = 1): Promise<T[]> {
     const params = this.requestParams();
     params.page = { offset: this.offset * (page - 1) };
-    params.include = params.include.join(',');
 
-    return app.store.find(this.constructor.TYPE, params);
+    if (Array.isArray(params.include)) {
+      params.include = params.include.join(',');
+    }
+
+    return app.store.find(this.type, params);
   }
 
   public isEmpty(): boolean {
