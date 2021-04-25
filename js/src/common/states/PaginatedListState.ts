@@ -80,18 +80,31 @@ export default abstract class PaginatedListState<T extends Model> {
     return this.loadingNext;
   }
 
-  // TODO revise params implementation
   /**
+   * Get the parameters that should be passed in the API request.
+   * Do not include page offset unless subclass overrides loadPage.
+   *
    * @abstract
+   * @see loadPage
    */
-  requestParams(): any {
+  protected requestParams(): any {
     return {};
   }
 
+  /**
+   * Stored state parameters.
+   */
   public getParams(): any {
     return this.params;
   }
 
+  /**
+   * Update the `this.params` object, calling `refresh` if they have changed.
+   * Use `requestParams` for converting `this.params` into API parameters
+   *
+   * @param newParams
+   * @see requestParams
+   */
   public refreshParams(newParams) {
     if (this.isEmpty() || Object.keys(newParams).some((key) => this.requestParams()[key] !== newParams[key])) {
       this.params = newParams;
