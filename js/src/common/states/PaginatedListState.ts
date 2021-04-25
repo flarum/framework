@@ -49,10 +49,6 @@ export default abstract class PaginatedListState<T extends Model> {
     this.hasNext = !!results.payload?.links?.next;
     this.hasPrev = !!results.payload?.links?.prev;
 
-    this.initialLoading = false;
-    this.loadingNext = false;
-    this.loadingPrev = false;
-
     m.redraw();
   }
 
@@ -113,17 +109,12 @@ export default abstract class PaginatedListState<T extends Model> {
 
     this.location = { page };
 
-    return this.loadPage().then(
-      (results: T[]) => {
+    return this.loadPage()
+      .then((results: T[]) => {
         this.pages = [];
         this.parseResults(this.location.page, results);
-      },
-      () => {
-        this.initialLoading = false;
-
-        m.redraw();
-      }
-    );
+      })
+      .finally(() => (this.initialLoading = false));
   }
 
   public clear() {
@@ -132,26 +123,38 @@ export default abstract class PaginatedListState<T extends Model> {
   }
 
   public loadMore() {
+    if (this.loadingNext) return Promise.resolve();
+
     this.loadingNext = true;
 
     const page: number = this.getNextPageNumber();
 
-    return this.loadPage(page).then(this.parseResults.bind(this, page));
+    return this.loadPage(page)
+      .then(this.parseResults.bind(this, page))
+      .finally(() => (this.loadingNext = false));
   }
 
   public getPages() {
     return this.pages;
   }
 
-  public loadPrev() {
-    // TODO
+  protected getNextPageNumber(): number {
+    const pg = this.pages[this.pages.length - 1]?.number;
+
+    if (pg && !isNaN(pg)) {
+      return pg + 1;
+    } else {
+      return this.location.page;
+    }
   }
 
-  protected getNextPageNumber(): number {
-    const pg = this.pages.length && this.pages[this.pages.length - 1];
+  protected getPrevPageNumber() {
+    const pg = this.pages[0]?.number;
 
-    if (pg) {
-      return pg.number + 1;
+    if (pg && !isNaN(pg)) {
+      // If the calculated page number is less than 1,
+      // return 1 as the prev page (first possible page number)
+      return Math.max(pg - 1, 1);
     } else {
       return this.location.page;
     }

@@ -15,7 +15,7 @@
     "moduleResolution": "node",
     "target": "es6",
     "jsx": "preserve",
-    "lib": ["es2015", "es2017", "dom"],
+    "lib": ["es2015", "es2017", "es2018.promise", "dom"],
     "allowSyntheticDefaultImports": true
   }
 }
