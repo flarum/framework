@@ -63,11 +63,20 @@ export default abstract class PaginatedListState<T extends Model> {
     return app.store.find(this.type, params);
   }
 
-  public isEmpty(): boolean {
-    return !this.isInitialLoading() && !this.pages.length;
+  public hasItems(): boolean {
+    return !!this.getAllItems().length;
   }
+
+  public isEmpty(): boolean {
+    return !this.isInitialLoading() && !this.hasItems();
+  }
+
   public getLocation(): PaginationLocation {
     return this.location;
+  }
+
+  protected getAllItems(): T[] {
+    return this.pages.map((pg) => pg.items).flat();
   }
 
   public isInitialLoading(): boolean {
