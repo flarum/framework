@@ -134,6 +134,18 @@ export default abstract class PaginatedListState<T extends Model> {
       .finally(() => (this.loadingNext = false));
   }
 
+  public loadPrev() {
+    if (this.loadingPrev || this.getLocation().page === 1) return Promise.resolve();
+
+    this.loadingPrev = true;
+
+    const page: number = this.getPrevPageNumber();
+
+    return this.loadPage(page)
+      .then(this.parseResults.bind(this, page))
+      .finally(() => (this.loadingPrev = false));
+  }
+
   public getPages() {
     return this.pages;
   }
