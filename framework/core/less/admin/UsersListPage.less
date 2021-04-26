@@ -48,7 +48,7 @@
       background: @control-bg;
     }
 
-    &--rowItem {
+    &-rowItem {
       padding: 4px 16px;
       display: flex;
       align-items: center;
@@ -57,13 +57,13 @@
         padding: 0;
         position: relative;
       }
-    }
 
-    &--shadedRow {
-      background: darken(@body-bg, 3%);
+      &--shaded {
+        background: darken(@body-bg, 3%);
 
-      & when (@config-dark-mode = true) {
-        background: lighten(@body-bg, 5%);
+        & when (@config-dark-mode = true) {
+          background: lighten(@body-bg, 5%);
+        }
       }
     }
   }
