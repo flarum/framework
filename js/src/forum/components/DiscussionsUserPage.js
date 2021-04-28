@@ -1,6 +1,7 @@
-import UserPage from 'flarum/components/UserPage';
 import DiscussionList from './DiscussionList';
 import DiscussionListState from '../states/DiscussionListState';
+
+const UserPage = (await import(/* webpackChunkName: "forum/components/UserPage" */ './UserPage')).default;
 
 /**
  * The `DiscussionsUserPage` component shows a discussion list inside of a user
@@ -28,4 +29,3 @@ export default class DiscussionsUserPage extends UserPage {
     return <div className="DiscussionsUserPage">{DiscussionList.component({ state: this.state })}</div>;
   }
 }
-//Flarum Asynchronous Module

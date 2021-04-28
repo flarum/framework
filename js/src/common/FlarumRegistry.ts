@@ -48,6 +48,8 @@ export default class FlarumRegistry implements ExportRegistry {
   }
 
   get(id: string): any {
-    return this.moduleExports[id];
+    if (this.moduleExports[id]) {
+      return this.moduleExports[id];
+    }
   }
 }

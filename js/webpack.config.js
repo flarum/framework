@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require("terser-webpack-plugin");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 process.traceDeprecation = true;
 
@@ -61,36 +62,15 @@ module.exports = function (options = {}) {
           },
         },
       },
-      /**minimizer: [new TerserPlugin({
-        test: /\.(tsx?|js)$/,
+      minimize: true,
+      minimizer: [new TerserPlugin({
         parallel: true,
         terserOptions: {
-          ecma: 8,
-          warnings: false,
-          parse: {
-            ecma: 8,
-          },
-          compress: {
-            warnings: false,
-            comparisons: false,
-          },
-          mangle: {
-            safari10: true,
-          },
-          module: false,
-          output: {
-            ecma: 5,
-            comments: false,
-            ascii_only: true,
-          },
-          toplevel: false,
-          nameCache: null,
-          ie8: false,
-          keep_classnames: undefined,
-          keep_fnames: false,
-          safari10: false,
-        },
-      })],**/
+          module: true,
+          sourceMap: true,
+          safari10: true
+        }
+      })],
     },
 
     module: {

@@ -1,9 +1,10 @@
-import UserPage from 'flarum/components/UserPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import Placeholder from '../../common/components/Placeholder';
 import CommentPost from './CommentPost';
+
+const UserPage = (await import(/* webpackChunkName: "forum/components/UserPage" */ './UserPage')).default;
 
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their
@@ -156,4 +157,3 @@ export default class PostsUserPage extends UserPage {
     return results;
   }
 }
-//Flarum Asynchronous Module

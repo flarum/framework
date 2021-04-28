@@ -6,7 +6,7 @@ import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 import ComposerPostPreview from './ComposerPostPreview';
 
-const Post = await import(/* webpackChunkName: "forum/components/Post" */ './Post');
+const Post = (await import(/* webpackChunkName: "forum/components/Post" */ './Post')).default;
 const PostUser = await import(/* webpackChunkName: "forum/components/PostUser" */ './PostUser');
 
 /**
@@ -18,7 +18,7 @@ const PostUser = await import(/* webpackChunkName: "forum/components/PostUser" *
  *
  * - `post`
  */
-export default class CommentPost extends Post.default {
+export default class CommentPost extends Post {
   oninit(vnode) {
     super.oninit(vnode);
 

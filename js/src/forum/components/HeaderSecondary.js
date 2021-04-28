@@ -1,8 +1,6 @@
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
-import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
-import NotificationsDropdown from './NotificationsDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Search from '../components/Search';
@@ -28,7 +26,7 @@ export default class HeaderSecondary extends Component {
     const LogInModal = () => import(/* webpackChunkName: "forum/components/LogInModal" */ './LogInModal');
     const SignUpModal = () => import(/* webpackChunkName: "forum/components/SignUpModal" */ './SignUpModal');
 
-    items.add('search', Search.component({ state: app.search }), 30);
+    items.add('search', Search.component({state: app.search}), 30);
 
     if (app.forum.attribute('showLanguageSelector') && Object.keys(app.data.locales).length > 1) {
       const locales = [];
@@ -41,7 +39,7 @@ export default class HeaderSecondary extends Component {
               icon: app.data.locale === locale ? 'fas fa-check' : true,
               onclick: () => {
                 if (app.session.user) {
-                  app.session.user.savePreferences({ locale }).then(() => window.location.reload());
+                  app.session.user.savePreferences({locale}).then(() => window.location.reload());
                 } else {
                   document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
                   window.location.reload();
@@ -67,8 +65,24 @@ export default class HeaderSecondary extends Component {
     }
 
     if (app.session.user) {
-      items.add('notifications', NotificationsDropdown.component({ state: app.notifications }), 10);
-      items.add('session', SessionDropdown.component(), 0);
+      if (!this.NotificationsDropdown) {
+        import(/* webpackChunkName: "forum/components/NotificationsDropdown" */ './NotificationsDropdown').then(NotificationsDropdown => {
+          this.NotificationsDropdown = NotificationsDropdown.default;
+          m.redraw();
+        });
+      } else {
+        items.add('notifications', this.NotificationsDropdown.component({state: app.notifications}), 10);
+      }
+
+      if (!this.SessionDropdown) {
+        import(/* webpackChunkName: "forum/components/SessionDropdown" */ './SessionDropdown').then(SessionDropdown => {
+          this.SessionDropdown = SessionDropdown.default;
+          m.redraw();
+        });
+      } else {
+        items.add('session', this.SessionDropdown.component(), 0);
+      }
+
     } else {
       if (app.forum.attribute('allowSignUp')) {
         items.add(

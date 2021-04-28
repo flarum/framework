@@ -126,7 +126,7 @@ export default function slidable(element) {
       // other side, or back to its original position, depending on whether or
       // not the side is 'elastic'.
       const activate = ($underneath) => {
-        $underneath.click();
+        $underneath.trigger('click');
 
         if ($underneath.hasClass('Slidable-underneath--elastic')) {
           reset();

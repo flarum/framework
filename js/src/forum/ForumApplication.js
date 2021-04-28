@@ -106,7 +106,7 @@ export default class ForumApplication extends Application {
 
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
-    $('#home-link').click((e) => {
+    $('#home-link').on('click tap', e => {
       if (e.ctrlKey || e.metaKey || e.which === 2) return;
       e.preventDefault();
       app.history.home();

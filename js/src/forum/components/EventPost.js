@@ -3,7 +3,7 @@ import usernameHelper from '../../common/helpers/username';
 import icon from '../../common/helpers/icon';
 import Link from '../../common/components/Link';
 
-const Post = await import(/* webpackChunkName: "forum/components/Post" */ './Post');
+const Post = (await import(/* webpackChunkName: "forum/components/Post" */ './Post')).default;
 
 /**
  * The `EventPost` component displays a post which indicating a discussion
@@ -16,7 +16,7 @@ const Post = await import(/* webpackChunkName: "forum/components/Post" */ './Pos
  *
  * @abstract
  */
-export default class EventPost extends Post.default {
+export default class EventPost extends Post {
   elementAttrs() {
     const attrs = super.elementAttrs();
 

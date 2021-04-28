@@ -1,7 +1,6 @@
 import DiscussionPage from '../components/DiscussionPage';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
-import RenameDiscussionModal from '../components/RenameDiscussionModal';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
 
@@ -255,6 +254,8 @@ export default class DiscussionControls {
    * @return {Promise}
    */
   renameAction() {
+    const RenameDiscussionModal = () => import(/* webpackChunkName: "forum/components/RenameDiscussionModal" */ '../components/RenameDiscussionModal');
+
     return app.modal.show(RenameDiscussionModal, {
       currentTitle: this.title(),
       discussion: this,

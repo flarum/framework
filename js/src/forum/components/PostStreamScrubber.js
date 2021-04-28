@@ -123,10 +123,10 @@ export default class PostStreamScrubber extends Component {
     this.indexStart = 0;
 
     this.$('.Scrubber-handle')
-      .bind('mousedown touchstart', this.onmousedown.bind(this))
+      .on('mousedown touchstart', this.onmousedown.bind(this))
 
       // Exempt the scrollbar handle from the 'jump to' click event.
-      .click((e) => e.stopPropagation());
+      .on('click', e => e.stopPropagation());
 
     // When the mouse moves and when it is released, we pass the
     // information that we captured when the mouse was first pressed onto

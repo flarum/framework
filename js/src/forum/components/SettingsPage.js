@@ -1,12 +1,11 @@
-import UserPage from 'flarum/components/UserPage';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 import Button from '../../common/components/Button';
 import FieldSet from '../../common/components/FieldSet';
 import NotificationGrid from './NotificationGrid';
-import ChangePasswordModal from './ChangePasswordModal';
-import ChangeEmailModal from './ChangeEmailModal';
 import listItems from '../../common/helpers/listItems';
+
+const UserPage = (await import(/* webpackChunkName: "forum/components/UserPage" */ './UserPage')).default;
 
 /**
  * The `SettingsPage` component displays the user's settings control panel, in
@@ -56,6 +55,9 @@ export default class SettingsPage extends UserPage {
    */
   accountItems() {
     const items = new ItemList();
+
+    const ChangeEmailModal = () => import(/* webpackChunkName: "forum/components/ChangeEmailModal" */ './ChangeEmailModal');
+    const ChangePasswordModal = () => import(/* webpackChunkName: "forum/components/ChangePasswordModal" */ './ChangePasswordModal');
 
     items.add(
       'changePassword',
@@ -116,4 +118,3 @@ export default class SettingsPage extends UserPage {
     return items;
   }
 }
-//Flarum Asynchronous Module

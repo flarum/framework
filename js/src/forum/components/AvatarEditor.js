@@ -147,7 +147,7 @@ export default class AvatarEditor extends Component {
     $input
       .appendTo('body')
       .hide()
-      .click()
+      .trigger('click')
       .on('input', (e) => {
         this.upload($(e.target)[0].files[0]);
       });

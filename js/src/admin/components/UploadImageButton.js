@@ -36,7 +36,7 @@ export default class UploadImageButton extends Button {
     $input
       .appendTo('body')
       .hide()
-      .click()
+      .trigger('click')
       .on('change', (e) => {
         const body = new FormData();
         body.append(this.attrs.name, $(e.target)[0].files[0]);
