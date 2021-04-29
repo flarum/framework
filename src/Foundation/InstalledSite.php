@@ -153,18 +153,14 @@ class InstalledSite implements SiteInterface
     }
 
     /**
-     * @param Application $app
      * @return ConfigRepository
      */
-    protected function getIlluminateConfig(Application $app)
+    protected function getIlluminateConfig()
     {
         return new ConfigRepository([
             'view' => [
                 'paths' => [],
                 'compiled' => $this->paths->storage.'/views',
-            ],
-            'mail' => [
-                'driver' => 'mail',
             ],
             'session' => [
                 'lifetime' => 120,
