@@ -79,18 +79,30 @@ function childListMutationHandler(mutation: MutationRecord) {
  * If it does, we apply an appropriate `transformX` to prevent this.
  */
 function checkAndHandlePossibleOffScreenTooltip(node: HTMLElement) {
+  const placement: 'top' | 'bottom' | 'left' | 'right' = node.getAttribute('data-tooltip-position') || 'top';
+
   // VERY WIP AND NOT WORKING CODE BELOW
   const rect = node.getClientRects()[0];
   const pseudoStyles = window.getComputedStyle(node, ':before');
 
-  const { left: pseudoLeft, right: pseudoRight } = pseudoStyles;
+  const { left: tooltipRelativeLeft, right: tooltipRelativeRight, width: tooltipWidth, transform: tooltipTransform } = pseudoStyles;
+  const translateX = -(parseInt(tooltipWidth) / 2);
 
-  const leftOffScreen =
-    parseInt(pseudoStyles.width) / 2 - (rect.left + window.pageXOffset - document.documentElement.clientLeft + parseInt(pseudoLeft));
-  const rightOffScreen =
-    parseInt(pseudoStyles.width) / 2 - (rect.right + window.pageXOffset - document.documentElement.clientLeft + parseInt(pseudoRight));
+  const tooltipRelativeLeftAfterTransform = tooltipRelativeLeft + translateX;
+  const tooltip;
+
+  console.log(tooltipRelativeLeftAfterTransform);
 
   // Tooltip is not off-screen
-  if (leftOffScreen < 0 && rightOffScreen < 0) return;
-  if (leftOffScreen && rightOffScreen) console.log(leftOffScreen, rightOffScreen, node);
+  // if (leftOffScreen < 0 && rightOffScreen < 0) return;
+  // if (leftOffScreen && rightOffScreen) console.log(leftOffScreen, rightOffScreen, node);
 }
+
+// function getTransform(transformMatrixIn: string) {
+//   const transformMatrix = new DOMMatrixReadOnly(transformMatrixIn)
+
+//   return {
+//     translateX: transformMatrix.m41,
+//     translateY: transformMatrix.m42
+//   }
+// }

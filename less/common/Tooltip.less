@@ -15,13 +15,18 @@
   @tooltip-arrow-width: 8px;
   @tooltip-arrow-height: 6px;
 
+  --x-offset: 0px;
+
   // Transform while tooltip not shown
   .preVisibleTransform(@x: -50%, @y: 8px) {
-    &::before,
-    &::after {
-      // Don't do slide animation if user has selected reduced motion
-      // in their OS
-      @media not all and (prefers-reduced-motion: reduce) {
+    // Don't do slide animation if user has selected reduced motion
+    // in their OS
+    @media not all and (prefers-reduced-motion: reduce) {
+      &::before {
+        transform: translate(~"calc(@{x} + var(--x-offset))", @y);
+      }
+
+      &::after {
         transform: translate(@x, @y);
       }
     }
@@ -34,7 +39,10 @@
     &:not([data-tooltip-nofocus]):focus,
     &:not([data-tooltip-nofocus]):focus-within,
     &[data-tooltip-visible] {
-      &::before,
+      &::before {
+        transform: translate(~"calc(@{x} + var(--x-offset))", @y);
+      }
+
       &::after {
         transform: translate(@x, @y);
       }
