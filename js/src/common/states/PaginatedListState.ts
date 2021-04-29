@@ -13,7 +13,7 @@ export interface PaginationLocation {
 
 export default abstract class PaginatedListState<T extends Model> {
   protected location!: PaginationLocation;
-  protected offset: number;
+  protected pageSize: number;
 
   protected pages: Page<T>[] = [];
   protected params: any = {};
@@ -25,8 +25,8 @@ export default abstract class PaginatedListState<T extends Model> {
   hasPrev: boolean = false;
   hasNext: boolean = false;
 
-  protected constructor(offset: number = 20) {
-    this.offset = offset;
+  protected constructor(pageSize: number = 20) {
+    this.pageSize = pageSize;
   }
 
   abstract get type(): string;
@@ -54,7 +54,7 @@ export default abstract class PaginatedListState<T extends Model> {
    */
   protected loadPage(page = 1): Promise<T[]> {
     const params = this.requestParams();
-    params.page = { offset: this.offset * (page - 1) };
+    params.page = { offset: this.pageSize * (page - 1) };
 
     if (Array.isArray(params.include)) {
       params.include = params.include.join(',');
