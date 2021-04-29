@@ -57,7 +57,6 @@ class ErrorServiceProvider extends AbstractServiceProvider
                 ValidationException::class => Handling\ExceptionHandler\ValidationExceptionHandler::class,
                 ExtensionException\DependentExtensionsException::class => ExtensionException\DependentExtensionsExceptionHandler::class,
                 ExtensionException\MissingDependenciesException::class => ExtensionException\MissingDependenciesExceptionHandler::class,
-                ExtensionException\ExtendingFailedException::class => ExtensionException\ExtendingFailedExceptionHandler::class,
             ];
         });
 

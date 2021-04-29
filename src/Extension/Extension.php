@@ -55,7 +55,7 @@ class Extension implements Arrayable
 
     protected static function nameToId($name)
     {
-        [$vendor, $package] = explode('/', $name);
+        list($vendor, $package) = explode('/', $name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
 
         return "$vendor-$package";

@@ -23,6 +23,8 @@ class ExtendingFailedException extends Exception
         $this->extension = $extension;
         $this->extender = $extender;
 
-        parent::__construct($extension->getTitle().' has an invalid extend.php: '.get_class($extender), null, $previous);
+        $extenderClass = get_class($extender);
+
+        parent::__construct("Experienced an error while booting extension: {$extension->getTitle()}.\n\nError occurred while applying an extender of type: $extenderClass.", null, $previous);
     }
 }
