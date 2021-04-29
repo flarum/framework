@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Extension\ExtensionManager;
+use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -36,7 +37,7 @@ class UpdateExtensionController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $request->getAttribute('actor')->assertAdmin();
+        RequestUtil::getActor($request)->assertAdmin();
 
         $enabled = Arr::get($request->getParsedBody(), 'enabled');
         $name = Arr::get($request->getQueryParams(), 'name');

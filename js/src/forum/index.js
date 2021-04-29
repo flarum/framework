@@ -1,12 +1,8 @@
-import 'expose-loader?punycode!punycode';
-import 'expose-loader?ColorThief!color-thief-browser';
+// Expose punycode and ColorThief to the window browser object
+import 'expose-loader?exposes=punycode!punycode';
+import 'expose-loader?exposes=ColorThief!color-thief-browser';
 
-import ForumApplication from './ForumApplication';
-
-const app = new ForumApplication();
-
-// Backwards compatibility
-window.app = app;
+import app from './app';
 
 export { app };
 

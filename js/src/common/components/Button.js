@@ -69,7 +69,7 @@ export default class Button extends Component {
     return [
       iconName && iconName !== true ? icon(iconName, { className: 'Button-icon' }) : '',
       children ? <span className="Button-label">{children}</span> : '',
-      this.attrs.loading ? <LoadingIndicator size="tiny" className="LoadingIndicator--inline" /> : '',
+      this.attrs.loading ? <LoadingIndicator size="small" display="inline" /> : '',
     ];
   }
 }

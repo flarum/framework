@@ -15,6 +15,7 @@ use Flarum\Extension\Extension;
 use Flarum\Install\Step;
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use League\Flysystem\Adapter\Local;
@@ -22,50 +23,6 @@ use League\Flysystem\Filesystem;
 
 class EnableBundledExtensions implements Step
 {
-    /**
-     * @var ConnectionInterface
-     */
-    private $database;
-
-    /**
-     * @var string
-     */
-    private $vendorPath;
-
-    /**
-     * @var string
-     */
-    private $assetPath;
-
-    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath)
-    {
-        $this->database = $database;
-        $this->vendorPath = $vendorPath;
-        $this->assetPath = $assetPath;
-    }
-
-    public function getMessage()
-    {
-        return 'Enabling bundled extensions';
-    }
-
-    public function run()
-    {
-        $extensions = $this->loadExtensions();
-
-        foreach ($extensions as $extension) {
-            $extension->migrate($this->getMigrator());
-            $extension->copyAssetsTo(
-                new Filesystem(new Local($this->assetPath))
-            );
-        }
-
-        (new DatabaseSettingsRepository($this->database))->set(
-            'extensions_enabled',
-            $extensions->keys()->toJson()
-        );
-    }
-
     const EXTENSION_WHITELIST = [
         'flarum-approval',
         'flarum-bbcode',
@@ -82,6 +39,56 @@ class EnableBundledExtensions implements Step
         'flarum-suspend',
         'flarum-tags',
     ];
+
+    /**
+     * @var ConnectionInterface
+     */
+    private $database;
+
+    /**
+     * @var string
+     */
+    private $vendorPath;
+
+    /**
+     * @var string
+     */
+    private $assetPath;
+
+    /**
+     * @var string[]|null
+     */
+    private $enabledExtensions;
+
+    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath, $enabledExtensions = null)
+    {
+        $this->database = $database;
+        $this->vendorPath = $vendorPath;
+        $this->assetPath = $assetPath;
+        $this->enabledExtensions = $enabledExtensions ?? self::EXTENSION_WHITELIST;
+    }
+
+    public function getMessage()
+    {
+        return 'Enabling bundled extensions';
+    }
+
+    public function run()
+    {
+        $extensions = $this->loadExtensions();
+
+        foreach ($extensions as $extension) {
+            $extension->migrate($this->getMigrator());
+            $extension->copyAssetsTo(
+                new FilesystemAdapter(new Filesystem(new Local($this->assetPath)))
+            );
+        }
+
+        (new DatabaseSettingsRepository($this->database))->set(
+            'extensions_enabled',
+            $extensions->keys()->toJson()
+        );
+    }
 
     /**
      * @return \Illuminate\Support\Collection
@@ -109,7 +116,7 @@ class EnableBundledExtensions implements Step
 
                 return $extension;
             })->filter(function (Extension $extension) {
-                return in_array($extension->getId(), self::EXTENSION_WHITELIST);
+                return in_array($extension->getId(), $this->enabledExtensions);
             })->sortBy(function (Extension $extension) {
                 return $extension->getTitle();
             })->mapWithKeys(function (Extension $extension) {

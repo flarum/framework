@@ -18,7 +18,6 @@ use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Http\AccessToken;
-use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\User\DisplayName\DriverInterface;
@@ -32,8 +31,8 @@ use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
+use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Hashing\Hasher;
-use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Arr;
 
 /**
@@ -75,11 +74,6 @@ class User extends AbstractModel
      * @var string[]|null
      */
     protected $permissions = null;
-
-    /**
-     * @var Session
-     */
-    protected $session;
 
     /**
      * An array of callables, through each of which the user's list of groups is passed
@@ -318,7 +312,7 @@ class User extends AbstractModel
     public function getAvatarUrlAttribute(string $value = null)
     {
         if ($value && strpos($value, '://') === false) {
-            return app(UrlGenerator::class)->to('forum')->path('assets/avatars/'.$value);
+            return resolve(Factory::class)->disk('flarum-avatars')->url($value);
         }
 
         return $value;
@@ -784,22 +778,6 @@ class User extends AbstractModel
     public function cannot($ability, $arguments = null)
     {
         return ! $this->can($ability, $arguments);
-    }
-
-    /**
-     * @return Session
-     */
-    public function getSession()
-    {
-        return $this->session;
-    }
-
-    /**
-     * @param Session $session
-     */
-    public function setSession(Session $session)
-    {
-        $this->session = $session;
     }
 
     /**

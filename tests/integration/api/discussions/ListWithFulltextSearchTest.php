@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 
-class ListTest extends TestCase
+class ListWithFulltextSearchTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -31,12 +31,17 @@ class ListTest extends TestCase
         // We clean it up explcitly at the end.
         $this->database()->table('discussions')->insert([
             ['id' => 1, 'title' => 'lightsail in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
-            ['id' => 2, 'title' => 'not in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 2, 'title' => 'lightsail in title too', 'created_at' => Carbon::createFromDate(2020, 01, 01)->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 3, 'title' => 'not in title either', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 4, 'title' => 'not in title or text', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
         ]);
 
         $this->database()->table('posts')->insert([
             ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
             ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
+            ['id' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>another lightsail for discussion 2!</p></t>'],
+            ['id' => 4, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>just one lightsail for discussion 3.</p></t>'],
+            ['id' => 5, 'discussion_id' => 4, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>not in title or text</p></t>'],
         ]);
 
         // We need to call these again, since we rolled back the transaction started by `::app()`.
@@ -52,14 +57,14 @@ class ListTest extends TestCase
     {
         parent::tearDown();
 
-        $this->database()->table('discussions')->whereIn('id', [1, 2])->delete();
-        $this->database()->table('posts')->whereIn('id', [1, 2])->delete();
+        $this->database()->table('discussions')->delete();
+        $this->database()->table('posts')->delete();
     }
 
     /**
      * @test
      */
-    public function can_search_for_word_in_post()
+    public function can_search_for_word_or_title_in_post()
     {
         $response = $this->send(
             $this->request('GET', '/api/discussions')
@@ -74,8 +79,7 @@ class ListTest extends TestCase
             return $row['id'];
         }, $data['data']);
 
-        // Order-independent comparison
-        $this->assertEquals(['3'], $ids, 'IDs do not match');
+        $this->assertEquals(['2', '1', '3'], $ids, 'IDs do not match');
     }
 
     /**
@@ -96,8 +100,7 @@ class ListTest extends TestCase
             return $row['id'];
         }, $data['data']);
 
-        // Order-independent comparison
-        $this->assertEquals(['3'], $ids, 'IDs do not match');
+        $this->assertEquals(['2', '1', '3'], $ids, 'IDs do not match');
     }
 
     /**

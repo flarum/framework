@@ -1,9 +1,4 @@
-import AdminApplication from './AdminApplication';
-
-const app = new AdminApplication();
-
-// Backwards compatibility
-window.app = app;
+import app from './app';
 
 export { app };
 

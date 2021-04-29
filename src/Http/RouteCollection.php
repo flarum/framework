@@ -73,34 +73,32 @@ class RouteCollection
 
     public function addRoute($method, $path, $name, $handler)
     {
-        if (isset($this->routes[$method][$name])) {
-            throw new \RuntimeException("Route $name on method $method already exists");
+        if (isset($this->routes[$name])) {
+            throw new \RuntimeException("Route $name already exists");
         }
 
-        $this->routes[$method][$name] = $this->pendingRoutes[$method][$name] = compact('path', 'handler');
+        $this->routes[$name] = $this->pendingRoutes[$name] = compact('method', 'path', 'handler');
 
         return $this;
     }
 
-    public function removeRoute(string $method, string $name): self
+    public function removeRoute(string $name): self
     {
-        unset($this->routes[$method][$name], $this->pendingRoutes[$method][$name]);
+        unset($this->routes[$name], $this->pendingRoutes[$name]);
 
         return $this;
     }
 
     protected function applyRoutes(): void
     {
-        foreach ($this->pendingRoutes as $method => $routes) {
-            foreach ($routes as $name => $route) {
-                $routeDatas = $this->routeParser->parse($route['path']);
+        foreach ($this->pendingRoutes as $name => $route) {
+            $routeDatas = $this->routeParser->parse($route['path']);
 
-                foreach ($routeDatas as $routeData) {
-                    $this->dataGenerator->addRoute($method, $routeData, ['name' => $name, 'handler' => $route['handler']]);
-                }
-
-                $this->reverse[$name] = $routeDatas;
+            foreach ($routeDatas as $routeData) {
+                $this->dataGenerator->addRoute($route['method'], $routeData, ['name' => $name, 'handler' => $route['handler']]);
             }
+
+            $this->reverse[$name] = $routeDatas;
         }
 
         $this->pendingRoutes = [];

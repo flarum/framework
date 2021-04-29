@@ -23,6 +23,7 @@ class Auth implements ExtenderInterface
      *
      * @param string $identifier: Unique identifier for password checker.
      * @param callable|string $callback: A closure or invokable class that contains the logic of the password checker.
+     *                                 Arguments are a User $object and string $password.
      *                                 It should return:
      *                                   - `true` if the given password is valid.
      *                                   - `null` (or not return anything) if the given password is invalid, or this checker does not apply.

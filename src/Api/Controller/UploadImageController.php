@@ -9,11 +9,13 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
-use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Tobscure\JsonApi\Document;
@@ -26,7 +28,7 @@ abstract class UploadImageController extends ShowForumController
     protected $settings;
 
     /**
-     * @var FilesystemInterface
+     * @var Filesystem
      */
     protected $uploadDir;
 
@@ -47,12 +49,12 @@ abstract class UploadImageController extends ShowForumController
 
     /**
      * @param SettingsRepositoryInterface $settings
-     * @param FilesystemInterface $uploadDir
+     * @param Factory $filesystemFactory
      */
-    public function __construct(SettingsRepositoryInterface $settings, FilesystemInterface $uploadDir)
+    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {
         $this->settings = $settings;
-        $this->uploadDir = $uploadDir;
+        $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
     /**
@@ -60,7 +62,7 @@ abstract class UploadImageController extends ShowForumController
      */
     public function data(ServerRequestInterface $request, Document $document)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        RequestUtil::getActor($request)->assertAdmin();
 
         $file = Arr::get($request->getUploadedFiles(), $this->filenamePrefix);
 
@@ -72,7 +74,7 @@ abstract class UploadImageController extends ShowForumController
 
         $uploadName = $this->filenamePrefix.'-'.Str::lower(Str::random(8)).'.'.$this->fileExtension;
 
-        $this->uploadDir->write($uploadName, $encodedImage);
+        $this->uploadDir->put($uploadName, $encodedImage);
 
         $this->settings->set($this->filePathSettingKey, $uploadName);
 

@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\NotificationRepository;
 use Psr\Http\Message\ServerRequestInterface;
@@ -62,7 +63,7 @@ class ListNotificationsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         $actor->assertRegistered();
 

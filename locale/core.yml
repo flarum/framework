@@ -163,6 +163,8 @@ core:
       email_title: => core.admin.email.description
       permissions_button: => core.admin.permissions.title
       permissions_title: => core.admin.permissions.description
+      userlist_button: => core.admin.users.title
+      userlist_title: => core.admin.users.description
       search_placeholder: Search Extensions
 
     # These translations are used in the Permissions page of the admin interface.
@@ -216,6 +218,46 @@ core:
     upload_image:
       remove_button: => core.ref.remove
       upload_button: Choose an Image...
+
+    # These translations are used for the users list on the admin dashboard.
+    users:
+      description: A paginated list of all users on your forum.
+
+      grid:
+        columns:
+          edit_user:
+            button: => core.ref.edit
+            title: => core.ref.edit_user
+            tooltip: Edit {username}
+
+          email:
+            title: => core.ref.email
+            visibility_hide: Hide email address
+            visibility_show: Show email address
+
+          group_badges:
+            no_badges: None
+            title: Groups
+
+          join_time:
+            title: Joined
+
+          user_id:
+            title: ID
+
+          username:
+            profile_link_tooltip: Visit {username}'s profile
+            title: => core.ref.username
+
+        invalid_column_content: Invalid
+
+      pagination:
+        back_button: Previous page
+        next_button: Next page
+        page_counter: Page {current} of {total}
+
+      title: => core.ref.users
+      total_users: "Total users: {count}"
 
   # Translations in this namespace are used by the forum user interface.
   forum:
@@ -287,21 +329,6 @@ core:
       mark_as_read_tooltip: Mark as Read
       replied_text: "{username} replied {ago}"
       started_text: "{username} started {ago}"
-
-    # These translations are used in the Edit User modal dialog (admin function).
-    edit_user:
-      activate_button: Activate User
-      email_heading: => core.ref.email
-      email_label: => core.ref.email
-      groups_heading: Groups
-      nothing_available: There is nothing available for you to edit at this time.
-      password_heading: => core.ref.password
-      password_label: => core.ref.password
-      set_password_label: Set new password
-      submit_button: => core.ref.save_changes
-      title: Edit User
-      username_heading: => core.ref.username
-      username_label: => core.ref.username
 
     # These translations are used in the Forgot Password modal dialog.
     forgot_password:
@@ -474,6 +501,20 @@ core:
     dropdown:
       toggle_dropdown_accessible_label: Toggle dropdown menu
 
+    # These translations are used in the Edit User modal dialog (admin function).
+    edit_user:
+      activate_button: Activate User
+      email_heading: => core.ref.email
+      email_label: => core.ref.email
+      groups_heading: Groups
+      password_heading: => core.ref.password
+      password_label: => core.ref.password
+      set_password_label: Set new password
+      submit_button: => core.ref.save_changes
+      title: => core.ref.edit_user
+      username_heading: => core.ref.username
+      username_label: => core.ref.username
+
     # These translations are displayed as error messages.
     error:
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
@@ -482,6 +523,10 @@ core:
       not_found_message: The requested resource was not found.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
+
+    # These translations are used in the loading indicator component.
+    loading_indicator:
+      accessible_label: => core.ref.loading
 
     # These translations are used as suffixes when abbreviating numbers.
     number_suffix:
@@ -505,7 +550,7 @@ core:
     content:
       javascript_disabled_message: This site is best viewed in a modern browser with JavaScript enabled.
       load_error_message: Something went wrong while trying to load the full version of this site. Try hard-refreshing this page to fix the error.
-      loading_text: Loading...
+      loading_text: => core.ref.loading
 
     # Translations in this namespace are displayed in the basic HTML discussion view.
     discussion:
@@ -620,10 +665,12 @@ core:
     delete_forever: Delete Forever
     discussions: Discussions                     # Referenced by flarum-statistics.yml
     edit: Edit
+    edit_user: Edit User
     email: Email
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     load_more: Load More
+    loading: Loading...
     log_in: Log In
     log_out: Log Out
     mark_all_as_read: Mark All as Read

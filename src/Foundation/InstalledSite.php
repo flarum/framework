@@ -16,6 +16,7 @@ use Flarum\Console\ConsoleServiceProvider;
 use Flarum\Database\DatabaseServiceProvider;
 use Flarum\Discussion\DiscussionServiceProvider;
 use Flarum\Extension\ExtensionServiceProvider;
+use Flarum\Filesystem\FilesystemServiceProvider;
 use Flarum\Filter\FilterServiceProvider;
 use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Forum\ForumServiceProvider;
@@ -39,7 +40,6 @@ use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Hashing\HashServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
@@ -165,21 +165,6 @@ class InstalledSite implements SiteInterface
             ],
             'mail' => [
                 'driver' => 'mail',
-            ],
-            'filesystems' => [
-                'default' => 'local',
-                'cloud' => 's3',
-                'disks' => [
-                    'flarum-assets' => [
-                        'driver' => 'local',
-                        'root'   => $this->paths->public.'/assets',
-                        'url'    => $app->url('assets')
-                    ],
-                    'flarum-avatars' => [
-                        'driver' => 'local',
-                        'root'   => $this->paths->public.'/assets/avatars'
-                    ]
-                ]
             ],
             'session' => [
                 'lifetime' => 120,

@@ -58,6 +58,7 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.forum.middleware', function () {
             return [
+                HttpMiddleware\InjectActorReference::class,
                 'flarum.forum.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\CollectGarbage::class,
@@ -204,8 +205,8 @@ class ForumServiceProvider extends AbstractServiceProvider
         $factory = $this->container->make(RouteHandlerFactory::class);
         $defaultRoute = $this->container->make('flarum.settings')->get('default_route');
 
-        if (isset($routes->getRoutes()['GET'][$defaultRoute]['handler'])) {
-            $toDefaultController = $routes->getRoutes()['GET'][$defaultRoute]['handler'];
+        if (isset($routes->getRouteData()[0]['GET'][$defaultRoute]['handler'])) {
+            $toDefaultController = $routes->getRouteData()[0]['GET'][$defaultRoute]['handler'];
         } else {
             $toDefaultController = $factory->toForum(Content\Index::class);
         }

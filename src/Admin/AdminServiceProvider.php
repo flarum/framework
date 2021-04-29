@@ -49,6 +49,7 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.admin.middleware', function () {
             return [
+                HttpMiddleware\InjectActorReference::class,
                 'flarum.admin.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\StartSession::class,

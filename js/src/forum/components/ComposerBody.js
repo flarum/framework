@@ -5,6 +5,7 @@ import TextEditor from '../../common/components/TextEditor';
 import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
+import classList from '../../common/utils/classList';
 
 /**
  * The `ComposerBody` component handles the body, or the content, of the
@@ -66,7 +67,7 @@ export default class ComposerBody extends Component {
               })}
             </div>
           </div>
-          {LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })}
+          <LoadingIndicator display="unset" containerClassName={classList('ComposerBody-loading', this.loading && 'active')} size="large" />
         </div>
       </ConfirmDocumentUnload>
     );

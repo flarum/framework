@@ -9,9 +9,11 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Laminas\Diactoros\Response\EmptyResponse;
-use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteLogoController extends AbstractDeleteController
@@ -22,18 +24,18 @@ class DeleteLogoController extends AbstractDeleteController
     protected $settings;
 
     /**
-     * @var FilesystemInterface
+     * @var Filesystem
      */
     protected $uploadDir;
 
     /**
      * @param SettingsRepositoryInterface $settings
-     * @param FilesystemInterface $uploadDir
+     * @param Factory $filesystemFactory
      */
-    public function __construct(SettingsRepositoryInterface $settings, FilesystemInterface $uploadDir)
+    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {
         $this->settings = $settings;
-        $this->uploadDir = $uploadDir;
+        $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
     /**
@@ -41,13 +43,13 @@ class DeleteLogoController extends AbstractDeleteController
      */
     protected function delete(ServerRequestInterface $request)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        RequestUtil::getActor($request)->assertAdmin();
 
         $path = $this->settings->get('logo_path');
 
         $this->settings->set('logo_path', null);
 
-        if ($this->uploadDir->has($path)) {
+        if ($this->uploadDir->exists($path)) {
             $this->uploadDir->delete($path);
         }
 

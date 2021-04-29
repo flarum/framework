@@ -95,6 +95,13 @@ export default class AdminNav extends Component {
     );
 
     items.add(
+      'userList',
+      <LinkButton href={app.route('users')} icon="fas fa-users" title={app.translator.trans('core.admin.nav.userlist_title')}>
+        {app.translator.trans('core.admin.nav.userlist_button')}
+      </LinkButton>
+    );
+
+    items.add(
       'search',
       <div className="Search-input">
         <input
@@ -126,16 +133,17 @@ export default class AdminNav extends Component {
 
       categorizedExtensions[category].map((extension) => {
         const query = this.query().toUpperCase();
-        const title = extension.extra['flarum-extension'].title;
+        const title = extension.extra['flarum-extension'].title || '';
+        const description = extension.description || '';
 
-        if (!query || title.toUpperCase().includes(query) || extension.description.toUpperCase().includes(query)) {
+        if (!query || title.toUpperCase().includes(query) || description.toUpperCase().includes(query)) {
           items.add(
             `extension-${extension.id}`,
             <ExtensionLinkButton
               href={app.route('extension', { id: extension.id })}
               extensionId={extension.id}
               className="ExtensionNavButton"
-              title={extension.description}
+              title={description}
             >
               {title}
             </ExtensionLinkButton>,

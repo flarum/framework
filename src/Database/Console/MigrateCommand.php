@@ -88,12 +88,5 @@ class MigrateCommand extends AbstractCommand
         }
 
         $this->container->make(SettingsRepositoryInterface::class)->set('version', Application::VERSION);
-
-        $this->info('Publishing assets...');
-
-        $this->container->make('files')->copyDirectory(
-            $this->paths->vendor.'/components/font-awesome/webfonts',
-            $this->paths->public.'/assets/fonts'
-        );
     }
 }

@@ -24,10 +24,7 @@ use Flarum\User\DisplayName\UsernameDriver;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Support\Arr;
-use League\Flysystem\FilesystemInterface;
 
 class UserServiceProvider extends AbstractServiceProvider
 {
@@ -36,7 +33,6 @@ class UserServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->registerAvatarsFilesystem();
         $this->registerDisplayNameDrivers();
         $this->registerPasswordCheckers();
 
@@ -76,17 +72,6 @@ class UserServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->alias('flarum.user.display_name.driver', DriverInterface::class);
-    }
-
-    protected function registerAvatarsFilesystem()
-    {
-        $avatarsFilesystem = function (Container $container) {
-            return $container->make(Factory::class)->disk('flarum-avatars')->getDriver();
-        };
-
-        $this->container->when(AvatarUploader::class)
-            ->needs(FilesystemInterface::class)
-            ->give($avatarsFilesystem);
     }
 
     protected function registerPasswordCheckers()
