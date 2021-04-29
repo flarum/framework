@@ -10,6 +10,7 @@
 namespace Flarum\Post;
 
 use DateTime;
+use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Access\ScopePostVisibility;
@@ -42,12 +43,9 @@ class PostServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(Formatter $formatter)
     {
-        CommentPost::setFormatter($this->container->make('flarum.formatter'));
+        CommentPost::setFormatter($formatter);
 
         $this->setPostTypes();
 

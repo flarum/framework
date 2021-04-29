@@ -14,19 +14,20 @@ use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->container->singleton('flarum.assets.factory', function () {
-            return function (string $name) {
-                $paths = $this->container[Paths::class];
+        $this->container->singleton('flarum.assets.factory', function (Container $container) {
+            return function (string $name) use ($container) {
+                $paths = $container[Paths::class];
 
                 $assets = new Assets(
                     $name,
-                    $this->container->make('filesystem')->disk('flarum-assets'),
+                    $container->make('filesystem')->disk('flarum-assets'),
                     $paths->storage
                 );
 
@@ -41,17 +42,17 @@ class FrontendServiceProvider extends AbstractServiceProvider
             };
         });
 
-        $this->container->singleton('flarum.frontend.factory', function () {
-            return function (string $name) {
-                $frontend = $this->container->make(Frontend::class);
+        $this->container->singleton('flarum.frontend.factory', function (Container $container) {
+            return function (string $name) use ($container) {
+                $frontend = $container->make(Frontend::class);
 
                 $frontend->content(function (Document $document) use ($name) {
                     $document->layoutView = 'flarum::frontend.'.$name;
                 });
 
-                $frontend->content($this->container->make(Content\Assets::class)->forFrontend($name));
-                $frontend->content($this->container->make(Content\CorePayload::class));
-                $frontend->content($this->container->make(Content\Meta::class));
+                $frontend->content($container->make(Content\Assets::class)->forFrontend($name));
+                $frontend->content($container->make(Content\CorePayload::class));
+                $frontend->content($container->make(Content\Meta::class));
 
                 return $frontend;
             };
@@ -61,13 +62,13 @@ class FrontendServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
-    public function boot()
+    public function boot(Container $container, ViewFactory $views)
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
-        $this->container->make(ViewFactory::class)->share([
-            'translator' => $this->container->make('translator'),
-            'url' => $this->container->make(UrlGenerator::class)
+        $views->share([
+            'translator' => $container->make('translator'),
+            'url' => $container->make(UrlGenerator::class)
         ]);
     }
 
