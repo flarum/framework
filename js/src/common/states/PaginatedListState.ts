@@ -100,7 +100,7 @@ export default abstract class PaginatedListState<T extends Model> {
    * @see loadPage
    */
   protected requestParams(): any {
-    return {};
+    return this.params;
   }
 
   /**
