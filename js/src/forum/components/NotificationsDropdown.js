@@ -34,7 +34,7 @@ export default class NotificationsDropdown extends Dropdown {
 
     return [
       icon(this.attrs.icon, { className: 'Button-icon' }),
-      unread && <span className="NotificationsDropdown-unread">{unread}</span>,
+      unread !== 0 && <span className="NotificationsDropdown-unread">{unread}</span>,
       <span className="Button-label">{this.attrs.label}</span>,
     ];
   }
