@@ -168,7 +168,8 @@
 
     grid-area: button;
 
-    & when (@config-colored-header = true) {
+    // Needs more specificity to fix hover/focus styles not applying in dropdown
+    .Notification & when (@config-colored-header = true) {
       color: @control-color;
 
       &:hover,
