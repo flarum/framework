@@ -18,6 +18,7 @@ export default class NotificationListState extends PaginatedListState<Notificati
   load(): Promise<void> {
     if (app.session.user.newNotificationCount()) {
       this.pages = [];
+      this.location = { page: 1 };
     }
 
     if (this.pages.length > 0) {
