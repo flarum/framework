@@ -30,8 +30,11 @@ export default class Notification extends Component {
       >
         {avatar(notification.fromUser())}
         {icon(this.icon(), { className: 'Notification-icon' })}
-        <span className="Notification-content">{this.content()}</span>
-        {humanTime(notification.createdAt())}
+        <span className="Notification-title">
+          <span className="Notification-content">{this.content()}</span>
+          <span className="Notification-title-spring" />
+          {humanTime(notification.createdAt())}
+        </span>
         {!notification.isRead() && (
           <Button
             className="Notification-action Button Button--link"
