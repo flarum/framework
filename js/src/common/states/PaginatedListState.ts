@@ -115,7 +115,7 @@ export default abstract class PaginatedListState<T extends Model> {
    * @see requestParams
    */
   public refreshParams(newParams) {
-    if (this.isEmpty() || Object.keys(newParams).some((key) => this.requestParams()[key] !== newParams[key])) {
+    if (this.isEmpty() || this.paramsChanged(newParams)) {
       this.params = newParams;
 
       return this.refresh();
@@ -192,5 +192,9 @@ export default abstract class PaginatedListState<T extends Model> {
     } else {
       return this.location.page;
     }
+  }
+
+  protected paramsChanged(newParams): boolean {
+    return Object.keys(newParams).some((key) => this.requestParams()[key] !== newParams[key]);
   }
 }
