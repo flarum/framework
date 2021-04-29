@@ -73,6 +73,9 @@
 
     display: flex;
     align-items: center;
+
+    // Prevent outline overflowing parent
+    .add-keyboard-focus-ring-offset(-1px);
   }
 
   &-badges {
@@ -110,6 +113,9 @@
   align-items: baseline;
   row-gap: 1px;
   column-gap: 6px;
+
+  // Prevent outline overflowing parent
+  .add-keyboard-focus-ring-offset(-1px);
 
   &.unread {
     background: @control-bg;
