@@ -22,9 +22,9 @@ export default class DiscussionList extends Component {
     const params = state.getParams();
     let loading;
 
-    if (state.isInitialLoading() || state.isLoadingNext()) {
+    if (state.isLoading()) {
       loading = <LoadingIndicator />;
-    } else if (state.hasNext) {
+    } else if (state.hasNext()) {
       loading = Button.component(
         {
           className: 'Button',

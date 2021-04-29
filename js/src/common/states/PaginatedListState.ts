@@ -22,14 +22,43 @@ export default abstract class PaginatedListState<T extends Model> {
   protected loadingPrev: boolean = false;
   protected loadingNext: boolean = false;
 
-  hasPrev: boolean = false;
-  hasNext: boolean = false;
+  protected _hasPrev: boolean = false;
+  protected _hasNext: boolean = false;
 
   protected constructor(pageSize: number = 20) {
     this.pageSize = pageSize;
   }
 
   abstract get type(): string;
+
+  public clear() {
+    this.pages = [];
+    m.redraw();
+  }
+
+  public loadPrev(): Promise<void> {
+    if (this.loadingPrev || this.getLocation().page === 1) return Promise.resolve();
+
+    this.loadingPrev = true;
+
+    const page: number = this.getPrevPageNumber();
+
+    return this.loadPage(page)
+      .then(this.parseResults.bind(this, page))
+      .finally(() => (this.loadingPrev = false));
+  }
+
+  public loadNext(): Promise<void> {
+    if (this.loadingNext) return Promise.resolve();
+
+    this.loadingNext = true;
+
+    const page: number = this.getNextPageNumber();
+
+    return this.loadPage(page)
+      .then(this.parseResults.bind(this, page))
+      .finally(() => (this.loadingNext = false));
+  }
 
   protected parseResults(pageNum, results: T[]) {
     const page = {
@@ -43,8 +72,8 @@ export default abstract class PaginatedListState<T extends Model> {
       this.pages.unshift(page);
     }
 
-    this.hasNext = !!results.payload?.links?.next;
-    this.hasPrev = !!results.payload?.links?.prev;
+    this._hasNext = !!results.payload?.links?.next;
+    this._hasPrev = !!results.payload?.links?.prev;
 
     m.redraw();
   }
@@ -63,32 +92,6 @@ export default abstract class PaginatedListState<T extends Model> {
     return app.store.find(this.type, params);
   }
 
-  public hasItems(): boolean {
-    return !!this.getAllItems().length;
-  }
-
-  public isEmpty(): boolean {
-    return !this.isInitialLoading() && !this.hasItems();
-  }
-
-  public getLocation(): PaginationLocation {
-    return this.location;
-  }
-
-  protected getAllItems(): T[] {
-    return this.pages.map((pg) => pg.items).flat();
-  }
-
-  public isInitialLoading(): boolean {
-    return this.initialLoading;
-  }
-  public isLoadingPrev(): boolean {
-    return this.loadingPrev;
-  }
-  public isLoadingNext(): boolean {
-    return this.loadingNext;
-  }
-
   /**
    * Get the parameters that should be passed in the API request.
    * Do not include page offset unless subclass overrides loadPage.
@@ -98,13 +101,6 @@ export default abstract class PaginatedListState<T extends Model> {
    */
   protected requestParams(): any {
     return {};
-  }
-
-  /**
-   * Stored state parameters.
-   */
-  public getParams(): any {
-    return this.params;
   }
 
   /**
@@ -139,37 +135,45 @@ export default abstract class PaginatedListState<T extends Model> {
       .finally(() => (this.initialLoading = false));
   }
 
-  public clear() {
-    this.pages = [];
-    m.redraw();
-  }
-
-  public loadMore() {
-    if (this.loadingNext) return Promise.resolve();
-
-    this.loadingNext = true;
-
-    const page: number = this.getNextPageNumber();
-
-    return this.loadPage(page)
-      .then(this.parseResults.bind(this, page))
-      .finally(() => (this.loadingNext = false));
-  }
-
-  public loadPrev() {
-    if (this.loadingPrev || this.getLocation().page === 1) return Promise.resolve();
-
-    this.loadingPrev = true;
-
-    const page: number = this.getPrevPageNumber();
-
-    return this.loadPage(page)
-      .then(this.parseResults.bind(this, page))
-      .finally(() => (this.loadingPrev = false));
-  }
-
   public getPages() {
     return this.pages;
+  }
+  public getLocation(): PaginationLocation {
+    return this.location;
+  }
+
+  public isLoading(): boolean {
+    return this.initialLoading || this.loadingNext;
+  }
+  public isInitialLoading(): boolean {
+    return this.initialLoading;
+  }
+  public isLoadingPrev(): boolean {
+    return this.loadingPrev;
+  }
+  public isLoadingNext(): boolean {
+    return this.loadingNext;
+  }
+
+  public hasItems(): boolean {
+    return !!this.getAllItems().length;
+  }
+  public isEmpty(): boolean {
+    return !this.isInitialLoading() && !this.hasItems();
+  }
+
+  public hasPrev(): boolean {
+    return this._hasPrev;
+  }
+  public hasNext(): boolean {
+    return this._hasNext;
+  }
+
+  /**
+   * Stored state parameters.
+   */
+  public getParams(): any {
+    return this.params;
   }
 
   protected getNextPageNumber(): number {
@@ -181,8 +185,7 @@ export default abstract class PaginatedListState<T extends Model> {
       return this.location.page;
     }
   }
-
-  protected getPrevPageNumber() {
+  protected getPrevPageNumber(): number {
     const pg = this.pages[0]?.number;
 
     if (pg && !isNaN(pg)) {
@@ -196,5 +199,9 @@ export default abstract class PaginatedListState<T extends Model> {
 
   protected paramsChanged(newParams): boolean {
     return Object.keys(newParams).some((key) => this.requestParams()[key] !== newParams[key]);
+  }
+
+  protected getAllItems(): T[] {
+    return this.pages.map((pg) => pg.items).flat();
   }
 }

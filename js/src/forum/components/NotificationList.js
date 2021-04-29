@@ -124,8 +124,8 @@ export default class NotificationList extends Component {
     // by a fraction of a pixel, so we compensate for that.
     const atBottom = Math.abs(scrollParent.scrollHeight - scrollParent.scrollTop - scrollParent.clientHeight) <= 1;
 
-    if (state.hasNext && !state.isLoading() && atBottom) {
-      state.loadMore();
+    if (state.hasNext() && !state.isLoading() && atBottom) {
+      state.loadNext();
     }
   }
 

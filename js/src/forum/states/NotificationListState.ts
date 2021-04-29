@@ -12,10 +12,6 @@ export default class NotificationListState extends PaginatedListState<Notificati
     return 'notifications';
   }
 
-  public isLoading(): boolean {
-    return this.isInitialLoading() || this.isLoadingNext();
-  }
-
   /**
    * Load the next page of notification results.
    */
@@ -30,7 +26,7 @@ export default class NotificationListState extends PaginatedListState<Notificati
 
     app.session.user.pushAttributes({ newNotificationCount: 0 });
 
-    return super.loadMore();
+    return super.loadNext();
   }
 
   /**
