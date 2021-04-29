@@ -66,20 +66,23 @@
   &-header {
     font-weight: bold;
     color: @heading-color !important;
-    padding: 6px 15px;
-    display: block;
+    padding: 8px 16px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    display: flex;
+    align-items: center;
   }
 
   &-badges {
-    margin-left: -2px;
-    margin-right: 18px;
-    vertical-align: 1px;
+    @overlap: 13px;
+
+    margin-right: 8px;
+    padding-right: @overlap;
 
     .Badge {
-      margin-right: -13px;
+      margin-right: -@overlap;
       position: relative;
       .Badge--size(21px);
     }
