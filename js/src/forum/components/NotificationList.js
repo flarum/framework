@@ -43,7 +43,7 @@ export default class NotificationList extends Component {
                   // Get the discussion that this notification is related to. If it's not
                   // directly related to a discussion, it may be related to a post or
                   // other entity which is related to a discussion.
-                  let discussion = false;
+                  let discussion = null;
                   if (subject instanceof Discussion) discussion = subject;
                   else if (subject && subject.discussion) discussion = subject.discussion();
 
