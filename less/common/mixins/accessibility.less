@@ -1,11 +1,15 @@
-// This mixin should **only** be used in this file.
-.__priv-focus-ring-styles() {
-  // This uses the browser's default outline styles, rather than
-  // using custom ones, which could introduce more issues
-  //
-  // Source: https://css-tricks.com/copy-the-browsers-native-focus-styles
-  outline: 5px auto Highlight;
-  outline: 5px auto -webkit-focus-ring-color;
+// This mixin should **only** be used in this file. If you want to define your own
+// custom outline style(s), override this mixin in your own theme extension, or in
+// the Custom Less section of the Admin dashboard.
+#private {
+  .__focus-ring-styles() {
+    // This uses the browser's default outline styles, rather than
+    // using custom ones, which could introduce more issues
+
+    // Source: https://css-tricks.com/copy-the-browsers-native-focus-styles
+    outline: 5px auto Highlight;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
 }
 
 /**
@@ -21,11 +25,11 @@
 
   // These are the keyboard-only versions of :focus
   &:-moz-focusring {
-    .focusRingStyles();
+    #private.__focus-ring-styles();
   }
 
   &:focus-visible {
-    .focusRingStyles();
+    #private.__focus-ring-styles();
   }
 }
 
@@ -49,7 +53,7 @@
   @realFocusSelector: ~"@{customFocusSelector}";
 
   &@{realFocusSelector} {
-    .focusRingStyles();
+    #private.__focus-ring-styles();
   }
 }
 
