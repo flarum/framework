@@ -17,16 +17,16 @@ export default class NotificationList extends Component {
     return (
       <div className="NotificationList">
         <div className="NotificationList-header">
-          <div className="App-primaryControl">
-            {Button.component({
-              className: 'Button Button--icon Button--link',
-              icon: 'fas fa-check',
-              title: app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip'),
-              onclick: state.markAllAsRead.bind(state),
-            })}
-          </div>
-
           <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('core.forum.notifications.title')}</h4>
+
+          <div className="App-primaryControl">
+            <Button
+              className="Button Button--link"
+              icon="fas fa-check"
+              title={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}
+              onclick={state.markAllAsRead.bind(state)}
+            />
+          </div>
         </div>
 
         <div className="NotificationList-content">
