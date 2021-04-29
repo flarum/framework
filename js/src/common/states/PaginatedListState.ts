@@ -108,13 +108,14 @@ export default abstract class PaginatedListState<T extends Model> {
    * Use `requestParams` for converting `this.params` into API parameters
    *
    * @param newParams
+   * @param page
    * @see requestParams
    */
-  public refreshParams(newParams) {
+  public refreshParams(newParams, page: number) {
     if (this.isEmpty() || this.paramsChanged(newParams)) {
       this.params = newParams;
 
-      return this.refresh();
+      return this.refresh(page);
     }
   }
 
