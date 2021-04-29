@@ -10,6 +10,7 @@
 namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
@@ -21,10 +22,10 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton(Manager::class, function ($container) {
+        $this->container->singleton(Manager::class, function (Container $container) {
             $manager = new Manager($container);
 
-            $config = $this->container['flarum']->config('database');
+            $config = $container['flarum']->config('database');
             $config['engine'] = 'InnoDB';
             $config['prefix_indexes'] = true;
 
@@ -33,7 +34,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             return $manager;
         });
 
-        $this->container->singleton(ConnectionResolverInterface::class, function ($container) {
+        $this->container->singleton(ConnectionResolverInterface::class, function (Container $container) {
             $manager = $container->make(Manager::class);
             $manager->setAsGlobal();
             $manager->bootEloquent();
@@ -46,7 +47,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
         $this->container->alias(ConnectionResolverInterface::class, 'db');
 
-        $this->container->singleton(ConnectionInterface::class, function ($container) {
+        $this->container->singleton(ConnectionInterface::class, function (Container $container) {
             $resolver = $container->make(ConnectionResolverInterface::class);
 
             return $resolver->connection();
@@ -55,7 +56,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->container->alias(ConnectionInterface::class, 'db.connection');
         $this->container->alias(ConnectionInterface::class, 'flarum.db');
 
-        $this->container->singleton(MigrationRepositoryInterface::class, function ($container) {
+        $this->container->singleton(MigrationRepositoryInterface::class, function (Container $container) {
             return new DatabaseMigrationRepository($container['flarum.db'], 'migrations');
         });
 
@@ -64,15 +65,12 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(Container $container)
     {
-        AbstractModel::setConnectionResolver($this->container->make(ConnectionResolverInterface::class));
-        AbstractModel::setEventDispatcher($this->container->make('events'));
+        AbstractModel::setConnectionResolver($container->make(ConnectionResolverInterface::class));
+        AbstractModel::setEventDispatcher($container->make('events'));
 
-        foreach ($this->container->make('flarum.database.model_private_checkers') as $modelClass => $checkers) {
+        foreach ($container->make('flarum.database.model_private_checkers') as $modelClass => $checkers) {
             $modelClass::saving(function ($instance) use ($checkers) {
                 foreach ($checkers as $checker) {
                     if ($checker($instance) === true) {

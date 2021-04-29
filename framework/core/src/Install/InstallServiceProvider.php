@@ -12,6 +12,7 @@ namespace Flarum\Install;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Illuminate\Contracts\Container\Container;
 
 class InstallServiceProvider extends AbstractServiceProvider
 {
@@ -28,20 +29,19 @@ class InstallServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
-    public function boot()
+    public function boot(Container $container, RouteHandlerFactory $route)
     {
         $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
 
-        $this->populateRoutes($this->container->make('flarum.install.routes'));
+        $this->populateRoutes($container->make('flarum.install.routes'), $route);
     }
 
     /**
-     * @param RouteCollection $routes
+     * @param RouteCollection     $routes
+     * @param RouteHandlerFactory $route
      */
-    protected function populateRoutes(RouteCollection $routes)
+    protected function populateRoutes(RouteCollection $routes, RouteHandlerFactory $route)
     {
-        $route = $this->container->make(RouteHandlerFactory::class);
-
         $routes->get(
             '/{path:.*}',
             'index',

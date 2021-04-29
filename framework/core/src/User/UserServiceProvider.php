@@ -24,6 +24,8 @@ use Flarum\User\DisplayName\UsernameDriver;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class UserServiceProvider extends AbstractServiceProvider
@@ -59,16 +61,16 @@ class UserServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.user.display_name.driver', function () {
-            $drivers = $this->container->make('flarum.user.display_name.supported_drivers');
-            $settings = $this->container->make(SettingsRepositoryInterface::class);
+        $this->container->singleton('flarum.user.display_name.driver', function (Container $container) {
+            $drivers = $container->make('flarum.user.display_name.supported_drivers');
+            $settings = $container->make(SettingsRepositoryInterface::class);
             $driverName = $settings->get('display_name_driver', '');
 
             $driverClass = Arr::get($drivers, $driverName);
 
             return $driverClass
-                ? $this->container->make($driverClass)
-                : $this->container->make(UsernameDriver::class);
+                ? $container->make($driverClass)
+                : $container->make(UsernameDriver::class);
         });
 
         $this->container->alias('flarum.user.display_name.driver', DriverInterface::class);
@@ -76,10 +78,10 @@ class UserServiceProvider extends AbstractServiceProvider
 
     protected function registerPasswordCheckers()
     {
-        $this->container->singleton('flarum.user.password_checkers', function () {
+        $this->container->singleton('flarum.user.password_checkers', function (Container $container) {
             return [
-                'standard' => function (User $user, $password) {
-                    if ($this->container->make('hash')->check($password, $user->password)) {
+                'standard' => function (User $user, $password) use ($container) {
+                    if ($container->make('hash')->check($password, $user->password)) {
                         return true;
                     }
                 }
@@ -90,18 +92,16 @@ class UserServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
-    public function boot()
+    public function boot(Container $container, Dispatcher $events)
     {
-        foreach ($this->container->make('flarum.user.group_processors') as $callback) {
-            User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $this->container));
+        foreach ($container->make('flarum.user.group_processors') as $callback) {
+            User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $container));
         }
 
-        User::setHasher($this->container->make('hash'));
-        User::setPasswordCheckers($this->container->make('flarum.user.password_checkers'));
-        User::setGate($this->container->makeWith(Access\Gate::class, ['policyClasses' => $this->container->make('flarum.policies')]));
-        User::setDisplayNameDriver($this->container->make('flarum.user.display_name.driver'));
-
-        $events = $this->container->make('events');
+        User::setHasher($container->make('hash'));
+        User::setPasswordCheckers($container->make('flarum.user.password_checkers'));
+        User::setGate($container->makeWith(Access\Gate::class, ['policyClasses' => $container->make('flarum.policies')]));
+        User::setDisplayNameDriver($container->make('flarum.user.display_name.driver'));
 
         $events->listen(Saving::class, SelfDemotionGuard::class);
         $events->listen(Registered::class, AccountActivationMailer::class);

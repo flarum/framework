@@ -11,6 +11,7 @@ namespace Flarum\Notification;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
+use Illuminate\Contracts\Container\Container;
 
 class NotificationServiceProvider extends AbstractServiceProvider
 {
@@ -36,28 +37,28 @@ class NotificationServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
-    public function boot()
+    public function boot(Container $container)
     {
-        $this->setNotificationDrivers();
-        $this->setNotificationTypes();
+        $this->setNotificationDrivers($container);
+        $this->setNotificationTypes($container);
     }
 
     /**
      * Register notification drivers.
      */
-    protected function setNotificationDrivers()
+    protected function setNotificationDrivers(Container $container)
     {
-        foreach ($this->container->make('flarum.notification.drivers') as $driverName => $driver) {
-            NotificationSyncer::addNotificationDriver($driverName, $this->container->make($driver));
+        foreach ($container->make('flarum.notification.drivers') as $driverName => $driver) {
+            NotificationSyncer::addNotificationDriver($driverName, $container->make($driver));
         }
     }
 
     /**
      * Register notification types.
      */
-    protected function setNotificationTypes()
+    protected function setNotificationTypes(Container $container)
     {
-        $blueprints = $this->container->make('flarum.notification.blueprints');
+        $blueprints = $container->make('flarum.notification.blueprints');
 
         foreach ($blueprints as $blueprint => $driversEnabledByDefault) {
             $this->addType($blueprint, $driversEnabledByDefault);
