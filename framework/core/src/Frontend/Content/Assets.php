@@ -49,17 +49,23 @@ class Assets
         ];
 
         if ($this->config->inDebugMode()) {
-            $this->commit(Arr::flatten($compilers));
+            $this->forceCommit(Arr::flatten($compilers));
         }
 
         $document->js = array_merge($document->js, $this->getUrls($compilers['js']));
         $document->css = array_merge($document->css, $this->getUrls($compilers['css']));
     }
 
-    private function commit(array $compilers)
+    /**
+     * Force compilation of assets when in debug mode.
+     *
+     * @param array $compilers
+     */
+    private function forceCommit(array $compilers)
     {
+        /** @var CompilerInterface $compiler */
         foreach ($compilers as $compiler) {
-            $compiler->commit();
+            $compiler->commit(true);
         }
     }
 
