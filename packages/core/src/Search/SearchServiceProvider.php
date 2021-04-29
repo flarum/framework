@@ -17,6 +17,7 @@ use Flarum\Foundation\ContainerUtil;
 use Flarum\User\Query as UserQuery;
 use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextGambit;
 use Flarum\User\Search\UserSearcher;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 
 class SearchServiceProvider extends AbstractServiceProvider
@@ -53,31 +54,28 @@ class SearchServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(Container $container)
     {
-        $fullTextGambits = $this->container->make('flarum.simple_search.fulltext_gambits');
+        $fullTextGambits = $container->make('flarum.simple_search.fulltext_gambits');
 
         foreach ($fullTextGambits as $searcher => $fullTextGambitClass) {
-            $this->container
+            $container
                 ->when($searcher)
                 ->needs(GambitManager::class)
-                ->give(function () use ($searcher, $fullTextGambitClass) {
-                    $gambitManager = new GambitManager($this->container->make($fullTextGambitClass));
-                    foreach (Arr::get($this->container->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
-                        $gambitManager->add($this->container->make($gambit));
+                ->give(function () use ($container, $searcher, $fullTextGambitClass) {
+                    $gambitManager = new GambitManager($container->make($fullTextGambitClass));
+                    foreach (Arr::get($container->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
+                        $gambitManager->add($container->make($gambit));
                     }
 
                     return $gambitManager;
                 });
 
-            $this->container
+            $container
                 ->when($searcher)
                 ->needs('$searchMutators')
-                ->give(function () use ($searcher) {
-                    $searchMutators = Arr::get($this->container->make('flarum.simple_search.search_mutators'), $searcher, []);
+                ->give(function () use ($container, $searcher) {
+                    $searchMutators = Arr::get($container->make('flarum.simple_search.search_mutators'), $searcher, []);
 
                     return array_map(function ($mutator) {
                         return ContainerUtil::wrapCallback($mutator, $this->container);

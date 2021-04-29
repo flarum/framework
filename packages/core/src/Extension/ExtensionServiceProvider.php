@@ -11,6 +11,7 @@ namespace Flarum\Extension;
 
 use Flarum\Extension\Event\Disabling;
 use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class ExtensionServiceProvider extends AbstractServiceProvider
 {
@@ -34,9 +35,9 @@ class ExtensionServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
-    public function boot()
+    public function boot(Dispatcher $events)
     {
-        $this->container->make('events')->listen(
+        $events->listen(
             Disabling::class,
             DefaultLanguagePackGuard::class
         );
