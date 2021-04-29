@@ -11,7 +11,7 @@ namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
 use Flarum\Extend\LifecycleInterface;
-use Flarum\Extension\Exception\ExtendingFailedException;
+use Flarum\Extension\Exception\ExtensionBootError;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
@@ -55,7 +55,7 @@ class Extension implements Arrayable
 
     protected static function nameToId($name)
     {
-        list($vendor, $package) = explode('/', $name);
+        [$vendor, $package] = explode('/', $name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
 
         return "$vendor-$package";
@@ -139,7 +139,7 @@ class Extension implements Arrayable
             try {
                 $extender->extend($container, $this);
             } catch (Throwable $e) {
-                throw new ExtendingFailedException($this, $extender, $e);
+                throw new ExtensionBootError($this, $extender, $e);
             }
         }
     }

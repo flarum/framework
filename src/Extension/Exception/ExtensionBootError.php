@@ -13,7 +13,7 @@ use Exception;
 use Flarum\Extension\Extension;
 use Throwable;
 
-class ExtendingFailedException extends Exception
+class ExtensionBootError extends Exception
 {
     public $extension;
     public $extender;
