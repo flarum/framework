@@ -97,6 +97,7 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
    * Are there discussions stored in the discussion list state?
    *
    * @see isEmpty
+   * @deprecated
    */
   hasDiscussions(): boolean {
     return this.hasItems();
@@ -104,6 +105,7 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
 
   /**
    * Have the search results come up empty?
+   * @deprecated
    */
   empty(): boolean {
     return this.isEmpty();
