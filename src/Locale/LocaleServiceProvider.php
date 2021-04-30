@@ -28,7 +28,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
                 $container->make('translator'),
                 $this->getCacheDir($container)
             );
-          
+
             $locales->addLocale($this->getDefaultLocale($container), 'Default');
             $locales->addTranslations('en', __DIR__.'/../../locale/core.yml');
             $locales->addTranslations('en', __DIR__.'/../../locale/validation.yml');
