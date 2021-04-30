@@ -57,7 +57,7 @@ export default class EventPost extends Post {
    * @return {String|Object} The description to render in the DOM
    */
   description(data) {
-    return app.translator.transChoice(this.descriptionKey(), data.count, data);
+    return app.translator.trans(this.descriptionKey(), data);
   }
 
   /**

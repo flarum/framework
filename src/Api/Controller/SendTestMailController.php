@@ -35,7 +35,7 @@ class SendTestMailController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertAdmin();
 
-        $body = $this->translator->trans('core.email.send_test.body', ['{username}' => $actor->username]);
+        $body = $this->translator->trans('core.email.send_test.body', ['username' => $actor->username]);
 
         $this->mailer->raw($body, function (Message $message) use ($actor) {
             $message->to($actor->email);

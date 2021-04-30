@@ -17,6 +17,7 @@ use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use RuntimeException;
 use SplFileInfo;
+use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class LanguagePack implements ExtenderInterface, LifecycleInterface
 {
@@ -106,6 +107,9 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
         // To identify them, we compare the filename (without the YAML
         // extension) with the list of known names and all extension IDs.
         $slug = $file->getBasename(".{$file->getExtension()}");
+
+        // Ignore ICU MessageFormat suffixes.
+        $slug = str_replace(MessageCatalogueInterface::INTL_DOMAIN_SUFFIX, '', $slug);
 
         if (in_array($slug, self::CORE_LOCALE_FILES, true)) {
             return true;

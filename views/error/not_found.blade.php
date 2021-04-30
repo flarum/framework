@@ -6,7 +6,7 @@
   </p>
   <p>
     <a href="{{ $url->to('forum')->base() }}">
-      {{ $translator->trans('core.views.error.not_found_return_link', ['{forum}' => $settings->get('forum_title')]) }}
+      {{ $translator->trans('core.views.error.not_found_return_link', ['forum' => $settings->get('forum_title')]) }}
     </a>
   </p>
 @endsection

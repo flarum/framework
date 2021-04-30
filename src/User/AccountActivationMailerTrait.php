@@ -36,9 +36,9 @@ trait AccountActivationMailerTrait
     protected function getEmailData(User $user, EmailToken $token)
     {
         return [
-            '{username}' => $user->display_name,
-            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
-            '{forum}' => $this->settings->get('forum_title')
+            'username' => $user->display_name,
+            'url' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
+            'forum' => $this->settings->get('forum_title')
         ];
     }
 
