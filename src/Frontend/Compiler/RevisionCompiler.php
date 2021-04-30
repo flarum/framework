@@ -45,26 +45,17 @@ class RevisionCompiler implements CompilerInterface
         $this->filename = $filename;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getFilename(): string
     {
         return $this->filename;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setFilename(string $filename)
     {
         $this->filename = $filename;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
+    public function commit(bool $force = false)
     {
         $sources = $this->getSources();
 
@@ -72,12 +63,10 @@ class RevisionCompiler implements CompilerInterface
 
         $newRevision = $this->calculateRevision($sources);
 
-        $oldFile = $oldRevision ? $this->getFilenameForRevision($oldRevision) : null;
-
-        if ($oldRevision !== $newRevision || ($oldFile && ! $this->assetsDir->has($oldFile))) {
-            $newFile = $this->getFilenameForRevision($newRevision);
-
-            if (! $this->save($newFile, $sources)) {
+        // In case the previous and current revisions do not match
+        // Or no file was written yet, let's save the file to disk.
+        if ($force || $oldRevision !== $newRevision || ! $this->assetsDir->has($this->filename)) {
+            if (! $this->save($this->filename, $sources)) {
                 // If no file was written (because the sources were empty), we
                 // will set the revision to a special value so that we can tell
                 // that this file does not have a URL.
@@ -85,16 +74,9 @@ class RevisionCompiler implements CompilerInterface
             }
 
             $this->putRevision($newRevision);
-
-            if ($oldFile && $oldFile !== $newFile) {
-                $this->delete($oldFile);
-            }
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addSources(callable $callback)
     {
         $this->sourcesCallbacks[] = $callback;
@@ -103,7 +85,7 @@ class RevisionCompiler implements CompilerInterface
     /**
      * @return SourceInterface[]
      */
-    protected function getSources()
+    protected function getSources(): array
     {
         $sources = new SourceCollector;
 
@@ -114,9 +96,6 @@ class RevisionCompiler implements CompilerInterface
         return $sources->getSources();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getUrl(): ?string
     {
         $revision = $this->getRevision();
@@ -135,9 +114,11 @@ class RevisionCompiler implements CompilerInterface
             return null;
         }
 
-        $file = $this->getFilenameForRevision($revision);
+        $url = $this->assetsDir->url($this->filename);
 
-        return $this->assetsDir->url($file);
+        // Append revision as GET param to signify that there's been
+        // a change to the file and it should be refreshed.
+        return "$url?v=$revision";
     }
 
     /**
@@ -180,22 +161,6 @@ class RevisionCompiler implements CompilerInterface
         return $string;
     }
 
-    /**
-     * Get the filename for the given revision.
-     *
-     * @param string $revision
-     * @return string
-     */
-    protected function getFilenameForRevision(string $revision): string
-    {
-        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
-
-        return substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
-    }
-
-    /**
-     * @return string|null
-     */
     protected function getRevision(): ?string
     {
         if ($this->assetsDir->has(static::REV_MANIFEST)) {
@@ -207,9 +172,6 @@ class RevisionCompiler implements CompilerInterface
         return null;
     }
 
-    /**
-     * @param string|null $revision
-     */
     protected function putRevision(?string $revision)
     {
         if ($this->assetsDir->has(static::REV_MANIFEST)) {
@@ -242,22 +204,15 @@ class RevisionCompiler implements CompilerInterface
         return hash('crc32b', serialize($cacheDifferentiator));
     }
 
-    /**
-     * @return mixed
-     */
-    protected function getCacheDifferentiator()
+    protected function getCacheDifferentiator(): ?array
     {
+        return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function flush()
     {
-        if ($revision = $this->getRevision()) {
-            $file = $this->getFilenameForRevision($revision);
-
-            $this->delete($file);
+        if ($this->getRevision() !== null) {
+            $this->delete($this->filename);
 
             $this->putRevision(null);
         }

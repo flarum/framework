@@ -27,6 +27,7 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
+use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
@@ -36,8 +37,8 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url) {
-            return $url->addCollection('admin', $this->container->make('flarum.admin.routes'), 'admin');
+        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
+            return $url->addCollection('admin', $container->make('flarum.admin.routes'), 'admin');
         });
 
         $this->container->singleton('flarum.admin.routes', function () {
@@ -62,23 +63,23 @@ class AdminServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->bind('flarum.admin.error_handler', function () {
+        $this->container->bind('flarum.admin.error_handler', function (Container $container) {
             return new HttpMiddleware\HandleErrors(
-                $this->container->make(Registry::class),
-                $this->container['flarum.config']->inDebugMode() ? $this->container->make(WhoopsFormatter::class) : $this->container->make(ViewFormatter::class),
-                $this->container->tagged(Reporter::class)
+                $container->make(Registry::class),
+                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                $container->tagged(Reporter::class)
             );
         });
 
-        $this->container->bind('flarum.admin.route_resolver', function () {
-            return new HttpMiddleware\ResolveRoute($this->container->make('flarum.admin.routes'));
+        $this->container->bind('flarum.admin.route_resolver', function (Container $container) {
+            return new HttpMiddleware\ResolveRoute($container->make('flarum.admin.routes'));
         });
 
-        $this->container->singleton('flarum.admin.handler', function () {
+        $this->container->singleton('flarum.admin.handler', function (Container $container) {
             $pipe = new MiddlewarePipe;
 
-            foreach ($this->container->make('flarum.admin.middleware') as $middleware) {
-                $pipe->pipe($this->container->make($middleware));
+            foreach ($container->make('flarum.admin.middleware') as $middleware) {
+                $pipe->pipe($container->make($middleware));
             }
 
             $pipe->pipe(new HttpMiddleware\ExecuteRoute());
@@ -86,9 +87,9 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $pipe;
         });
 
-        $this->container->bind('flarum.assets.admin', function () {
+        $this->container->bind('flarum.assets.admin', function (Container $container) {
             /** @var \Flarum\Frontend\Assets $assets */
-            $assets = $this->container->make('flarum.assets.factory')('admin');
+            $assets = $container->make('flarum.assets.factory')('admin');
 
             $assets->js(function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../js/dist/admin.js');
@@ -98,17 +99,17 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $sources->addFile(__DIR__.'/../../less/admin.less');
             });
 
-            $this->container->make(AddTranslations::class)->forFrontend('admin')->to($assets);
-            $this->container->make(AddLocaleAssets::class)->to($assets);
+            $container->make(AddTranslations::class)->forFrontend('admin')->to($assets);
+            $container->make(AddLocaleAssets::class)->to($assets);
 
             return $assets;
         });
 
-        $this->container->bind('flarum.frontend.admin', function () {
+        $this->container->bind('flarum.frontend.admin', function (Container $container) {
             /** @var \Flarum\Frontend\Frontend $frontend */
-            $frontend = $this->container->make('flarum.frontend.factory')('admin');
+            $frontend = $container->make('flarum.frontend.factory')('admin');
 
-            $frontend->content($this->container->make(Content\AdminPayload::class));
+            $frontend->content($container->make(Content\AdminPayload::class));
 
             return $frontend;
         });

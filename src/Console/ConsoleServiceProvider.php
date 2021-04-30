@@ -12,11 +12,13 @@ namespace Flarum\Console;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Illuminate\Console\Scheduling\Schedule as LaravelSchedule;
 use Illuminate\Console\Scheduling\ScheduleListCommand;
 use Illuminate\Console\Scheduling\ScheduleRunCommand;
+use Illuminate\Contracts\Container\Container;
 
 class ConsoleServiceProvider extends AbstractServiceProvider
 {
@@ -31,12 +33,13 @@ class ConsoleServiceProvider extends AbstractServiceProvider
             define('ARTISAN_BINARY', 'flarum');
         }
 
-        $this->container->singleton(LaravelSchedule::class, function () {
-            return $this->container->make(Schedule::class);
+        $this->container->singleton(LaravelSchedule::class, function (Container $container) {
+            return $container->make(Schedule::class);
         });
 
         $this->container->singleton('flarum.console.commands', function () {
             return [
+                AssetsPublishCommand::class,
                 CacheClearCommand::class,
                 InfoCommand::class,
                 MigrateCommand::class,
@@ -54,11 +57,11 @@ class ConsoleServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritDoc}
      */
-    public function boot()
+    public function boot(Container $container)
     {
-        $schedule = $this->container->make(LaravelSchedule::class);
+        $schedule = $container->make(LaravelSchedule::class);
 
-        foreach ($this->container->make('flarum.console.scheduled') as $scheduled) {
+        foreach ($container->make('flarum.console.scheduled') as $scheduled) {
             $event = $schedule->command($scheduled['command'], $scheduled['args']);
             $scheduled['callback']($event);
         }

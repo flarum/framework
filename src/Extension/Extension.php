@@ -11,16 +11,15 @@ namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
 use Flarum\Extend\LifecycleInterface;
+use Flarum\Extension\Exception\ExtensionBootError;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Filesystem\Filesystem as FilesystemInterface;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemInterface;
-use League\Flysystem\MountManager;
-use League\Flysystem\Plugin\ListFiles;
+use Throwable;
 
 /**
  * @property string $name
@@ -53,7 +52,7 @@ class Extension implements Arrayable
 
     protected static function nameToId($name)
     {
-        list($vendor, $package) = explode('/', $name);
+        [$vendor, $package] = explode('/', $name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
 
         return "$vendor-$package";
@@ -134,7 +133,11 @@ class Extension implements Arrayable
     public function extend(Container $container)
     {
         foreach ($this->getExtenders() as $extender) {
-            $extender->extend($container, $this);
+            try {
+                $extender->extend($container, $this);
+            } catch (Throwable $e) {
+                throw new ExtensionBootError($this, $extender, $e);
+            }
         }
     }
 
@@ -428,16 +431,13 @@ class Extension implements Arrayable
             return;
         }
 
-        $mount = new MountManager([
-            'source' => $source = new Filesystem(new Local($this->getPath().'/assets')),
-            'target' => $target,
-        ]);
+        $source = new Filesystem();
 
-        $source->addPlugin(new ListFiles);
-        $assetFiles = $source->listFiles('/', true);
+        $assetFiles = $source->allFiles("$this->path/assets");
 
-        foreach ($assetFiles as $file) {
-            $mount->copy("source://$file[path]", "target://extensions/$this->id/$file[path]");
+        foreach ($assetFiles as $fullPath) {
+            $relPath = substr($fullPath, strlen("$this->path/assets"));
+            $target->put("extensions/$this->id/$relPath", $source->get($fullPath));
         }
     }
 

@@ -8,7 +8,8 @@
     &.focused {
       margin-left: -400px;
 
-      input, .Search-results {
+      input,
+      .Search-results {
         width: 400px;
       }
     }
@@ -61,11 +62,21 @@
     .transition(all 0.4s);
     box-sizing: inherit !important;
   }
+
+  .LoadingIndicator-container {
+    height: 36px;
+  }
+
   .Button {
     float: left;
     margin-left: -36px;
-    width: 36px !important;
     outline: none;
+    width: 36px !important;
+
+    &.LoadingIndicator {
+      width: var(--size) !important;
+      padding: 0;
+    }
   }
 }
 

@@ -13,8 +13,10 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\IdSlugDriver;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 
 class HttpServiceProvider extends AbstractServiceProvider
@@ -28,7 +30,7 @@ class HttpServiceProvider extends AbstractServiceProvider
             return ['token'];
         });
 
-        $this->container->bind(Middleware\CheckCsrfToken::class, function ($container) {
+        $this->container->bind(Middleware\CheckCsrfToken::class, function (Container $container) {
             return new Middleware\CheckCsrfToken($container->make('flarum.http.csrfExemptPaths'));
         });
 
@@ -38,28 +40,29 @@ class HttpServiceProvider extends AbstractServiceProvider
                     'default' => IdWithTransliteratedSlugDriver::class
                 ],
                 User::class => [
-                    'default' => UsernameSlugDriver::class
+                    'default' => UsernameSlugDriver::class,
+                    'id' => IdSlugDriver::class
                 ],
             ];
         });
 
-        $this->container->singleton('flarum.http.selectedSlugDrivers', function () {
-            $settings = $this->container->make(SettingsRepositoryInterface::class);
+        $this->container->singleton('flarum.http.selectedSlugDrivers', function (Container $container) {
+            $settings = $container->make(SettingsRepositoryInterface::class);
 
             $compiledDrivers = [];
 
-            foreach ($this->container->make('flarum.http.slugDrivers') as $resourceClass => $resourceDrivers) {
+            foreach ($container->make('flarum.http.slugDrivers') as $resourceClass => $resourceDrivers) {
                 $driverKey = $settings->get("slug_driver_$resourceClass", 'default');
 
                 $driverClass = Arr::get($resourceDrivers, $driverKey, $resourceDrivers['default']);
 
-                $compiledDrivers[$resourceClass] = $this->container->make($driverClass);
+                $compiledDrivers[$resourceClass] = $container->make($driverClass);
             }
 
             return $compiledDrivers;
         });
-        $this->container->bind(SlugManager::class, function () {
-            return new SlugManager($this->container->make('flarum.http.selectedSlugDrivers'));
+        $this->container->bind(SlugManager::class, function (Container $container) {
+            return new SlugManager($container->make('flarum.http.selectedSlugDrivers'));
         });
     }
 
