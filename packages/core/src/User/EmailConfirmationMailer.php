@@ -52,7 +52,7 @@ class EmailConfirmationMailer
         $data = $this->getEmailData($event->user, $email);
 
         $body = $this->translator->trans('core.email.confirm_email.body', $data);
-        $subject = '['.$data['{forum}'].'] '.$this->translator->trans('core.email.confirm_email.subject');
+        $subject = '['.$data['forum'].'] '.$this->translator->trans('core.email.confirm_email.subject');
 
         $this->queue->push(new SendRawEmailJob($email, $subject, $body));
     }
@@ -82,9 +82,9 @@ class EmailConfirmationMailer
         $token = $this->generateToken($user, $email);
 
         return [
-            '{username}' => $user->display_name,
-            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
-            '{forum}' => $this->settings->get('forum_title')
+            'username' => $user->display_name,
+            'url' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
+            'forum' => $this->settings->get('forum_title')
         ];
     }
 }

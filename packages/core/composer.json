@@ -63,6 +63,7 @@
         "symfony/console": "^5.2.2",
         "symfony/event-dispatcher": "^5.2.2",
         "symfony/mime": "^5.2.0",
+        "symfony/polyfill-intl-messageformatter": "^1.22.0",
         "symfony/translation": "^5.1.5",
         "symfony/yaml": "^5.2.2",
         "tobscure/json-api": "^0.3.0",

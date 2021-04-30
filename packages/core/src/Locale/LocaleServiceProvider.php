@@ -30,6 +30,8 @@ class LocaleServiceProvider extends AbstractServiceProvider
             );
 
             $locales->addLocale($this->getDefaultLocale($container), 'Default');
+            $locales->addTranslations('en', __DIR__.'/../../locale/core.yml');
+            $locales->addTranslations('en', __DIR__.'/../../locale/validation.yml');
 
             return $locales;
         });
@@ -46,8 +48,6 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
             $translator->setFallbackLocales(['en']);
             $translator->addLoader('prefixed_yaml', new PrefixedYamlFileLoader());
-            $translator->addResource('prefixed_yaml', ['file' => __DIR__.'/../../locale/core.yml', 'prefix' => null], 'en');
-            $translator->addResource('prefixed_yaml', ['file' => __DIR__.'/../../locale/validation.yml', 'prefix' => null], 'en');
 
             return $translator;
         });
