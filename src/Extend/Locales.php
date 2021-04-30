@@ -47,8 +47,7 @@ class Locales implements ExtenderInterface, LifecycleInterface
 
                     $locales->addTranslations(
                         $locale,
-                        $file->getPathname(),
-                        null
+                        $file->getPathname()
                     );
                 }
             }
