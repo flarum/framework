@@ -3,9 +3,7 @@ import Notification from '../../common/models/Notification';
 
 export default class NotificationListState extends PaginatedListState<Notification> {
   constructor() {
-    super(10);
-
-    this.location = { page: 1 };
+    super({}, 1, 10);
   }
 
   get type(): string {

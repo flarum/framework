@@ -3,11 +3,7 @@ import Discussion from '../../common/models/Discussion';
 
 export default class DiscussionListState extends PaginatedListState<Discussion> {
   constructor(params: any, page: number) {
-    super(20);
-
-    this.params = params;
-
-    this.location = { page };
+    super(params, page, 20);
   }
 
   get type(): string {

@@ -25,7 +25,10 @@ export default abstract class PaginatedListState<T extends Model> {
   protected _hasPrev: boolean = false;
   protected _hasNext: boolean = false;
 
-  protected constructor(pageSize: number = 20) {
+  protected constructor(params: any = {}, page: number = 1, pageSize: number = 20) {
+    this.params = params;
+
+    this.location = { page };
     this.pageSize = pageSize;
   }
 
