@@ -60,7 +60,7 @@ class StoreConfig implements Step, ReversibleStep
             'paths'    => $this->getPathsConfig(),
             'headers'  => [
                 'poweredByHeader'  => true,
-                'referrerPolicy'
+                'referrerPolicy' => 'same-origin',
             ]
         ];
     }
