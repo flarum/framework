@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Tests\integration\middleware;
 
@@ -10,7 +16,8 @@ class ContentTypeOptionsTest extends TestCase
     /**
      * @test
      */
-    public function has_content_type_options_header() {
+    public function has_content_type_options_header()
+    {
         $response = $this->send(
             $this->request('GET', '/')
         );

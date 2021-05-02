@@ -1,14 +1,23 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Tests\integration\middleware;
 
 use Flarum\Testing\integration\TestCase;
 
-class ReferrerPolicyTest extends TestCase {
+class ReferrerPolicyTest extends TestCase
+{
     /**
      * @test
      */
-    public function has_referer_header() {
+    public function has_referer_header()
+    {
         $response = $this->send(
             $this->request('GET', '/')
         );
@@ -19,7 +28,8 @@ class ReferrerPolicyTest extends TestCase {
     /**
      * @test
      */
-    public function has_default_referer_policy() {
+    public function has_default_referer_policy()
+    {
         $response = $this->send(
             $this->request('GET', '/')
         );
