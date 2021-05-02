@@ -1,4 +1,4 @@
-import { throttle } from 'lodash-es';
+import { throttle } from 'throttle-debounce';
 import anchorScroll from '../../common/utils/anchorScroll';
 
 class PostStreamState {
@@ -50,8 +50,8 @@ class PostStreamState {
      */
     this.forceUpdateScrubber = false;
 
-    this.loadNext = throttle(this._loadNext, 300);
-    this.loadPrevious = throttle(this._loadPrevious, 300);
+    this.loadNext = throttle(300, this._loadNext);
+    this.loadPrevious = throttle(300, this._loadPrevious);
 
     this.show(includedPosts);
   }

@@ -14,7 +14,8 @@
     "mithril": "^2.0.4",
     "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
-    "textarea-caret": "^3.1.0"
+    "textarea-caret": "^3.1.0",
+    "throttle-debounce": "^3.0.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
