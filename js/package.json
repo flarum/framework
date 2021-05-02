@@ -11,7 +11,6 @@
     "expose-loader": "^1.0.3",
     "jquery": "^3.6.0",
     "jquery.hotkeys": "^0.1.0",
-    "lodash-es": "^4.17.21",
     "mithril": "^2.0.4",
     "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
@@ -20,7 +19,6 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
     "@types/jquery": "^3.5.5",
-    "@types/lodash-es": "^4.17.4",
     "@types/mithril": "^2.0.7",
     "@types/punycode": "^2.1.0",
     "@types/textarea-caret": "^3.0.0",
