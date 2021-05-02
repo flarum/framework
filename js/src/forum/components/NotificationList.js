@@ -17,16 +17,16 @@ export default class NotificationList extends Component {
     return (
       <div className="NotificationList">
         <div className="NotificationList-header">
-          <div className="App-primaryControl">
-            {Button.component({
-              className: 'Button Button--icon Button--link',
-              icon: 'fas fa-check',
-              title: app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip'),
-              onclick: state.markAllAsRead.bind(state),
-            })}
-          </div>
-
           <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('core.forum.notifications.title')}</h4>
+
+          <div className="App-primaryControl">
+            <Button
+              className="Button Button--link"
+              icon="fas fa-check"
+              title={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}
+              onclick={state.markAllAsRead.bind(state)}
+            />
+          </div>
         </div>
 
         <div className="NotificationList-content">
@@ -43,7 +43,7 @@ export default class NotificationList extends Component {
                   // Get the discussion that this notification is related to. If it's not
                   // directly related to a discussion, it may be related to a post or
                   // other entity which is related to a discussion.
-                  let discussion = false;
+                  let discussion = null;
                   if (subject instanceof Discussion) discussion = subject;
                   else if (subject && subject.discussion) discussion = subject.discussion();
 
@@ -65,8 +65,8 @@ export default class NotificationList extends Component {
                     <div className="NotificationGroup">
                       {group.discussion ? (
                         <Link className="NotificationGroup-header" href={app.route.discussion(group.discussion)}>
-                          {badges && badges.length ? <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul> : ''}
-                          {group.discussion.title()}
+                          {badges && badges.length && <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul>}
+                          <span>{group.discussion.title()}</span>
                         </Link>
                       ) : (
                         <div className="NotificationGroup-header">{app.forum.attribute('title')}</div>

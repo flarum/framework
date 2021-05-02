@@ -4,6 +4,7 @@ import icon from '../../common/helpers/icon';
 import humanTime from '../../common/helpers/humanTime';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
+import classList from '../../common/utils/classList';
 
 /**
  * The `Notification` component abstract displays a single notification.
@@ -22,27 +23,31 @@ export default class Notification extends Component {
 
     return (
       <Link
-        className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
+        className={classList('Notification', `Notification--${notification.contentType()}`, [!notification.isRead() && 'unread'])}
         href={href}
         external={href.includes('://')}
         onclick={this.markAsRead.bind(this)}
       >
-        {!notification.isRead() &&
-          Button.component({
-            className: 'Notification-action Button Button--icon Button--link',
-            icon: 'fas fa-check',
-            title: app.translator.trans('core.forum.notifications.mark_as_read_tooltip'),
-            onclick: (e) => {
+        {avatar(notification.fromUser())}
+        {icon(this.icon(), { className: 'Notification-icon' })}
+        <span className="Notification-title">
+          <span className="Notification-content">{this.content()}</span>
+          <span className="Notification-title-spring" />
+          {humanTime(notification.createdAt())}
+        </span>
+        {!notification.isRead() && (
+          <Button
+            className="Notification-action Button Button--link"
+            icon="fas fa-check"
+            title={app.translator.trans('core.forum.notifications.mark_as_read_tooltip')}
+            onclick={(e) => {
               e.preventDefault();
               e.stopPropagation();
 
               this.markAsRead();
-            },
-          })}
-        {avatar(notification.fromUser())}
-        {icon(this.icon(), { className: 'Notification-icon' })}
-        <span className="Notification-content">{this.content()}</span>
-        {humanTime(notification.createdAt())}
+            }}
+          />
+        )}
         <div className="Notification-excerpt">{this.excerpt()}</div>
       </Link>
     );

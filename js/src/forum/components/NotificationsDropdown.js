@@ -1,5 +1,6 @@
 import Dropdown from '../../common/components/Dropdown';
 import icon from '../../common/helpers/icon';
+import classList from '../../common/utils/classList';
 import NotificationList from './NotificationList';
 
 export default class NotificationsDropdown extends Dropdown {
@@ -9,6 +10,7 @@ export default class NotificationsDropdown extends Dropdown {
     attrs.menuClassName = attrs.menuClassName || 'Dropdown-menu--right';
     attrs.label = attrs.label || app.translator.trans('core.forum.notifications.tooltip');
     attrs.icon = attrs.icon || 'fas fa-bell';
+
     // For best a11y support, both `title` and `aria-label` should be used
     attrs.accessibleToggleLabel = attrs.accessibleToggleLabel || app.translator.trans('core.forum.notifications.toggle_dropdown_accessible_label');
 
@@ -21,7 +23,7 @@ export default class NotificationsDropdown extends Dropdown {
 
     vdom.attrs.title = this.attrs.label;
 
-    vdom.attrs.className += newNotifications ? ' new' : '';
+    vdom.attrs.className = classList(vdom.attrs.className, [newNotifications && 'new']);
     vdom.attrs.onclick = this.onclick.bind(this);
 
     return vdom;
@@ -32,15 +34,15 @@ export default class NotificationsDropdown extends Dropdown {
 
     return [
       icon(this.attrs.icon, { className: 'Button-icon' }),
-      unread ? <span className="NotificationsDropdown-unread">{unread}</span> : '',
+      unread !== 0 && <span className="NotificationsDropdown-unread">{unread}</span>,
       <span className="Button-label">{this.attrs.label}</span>,
     ];
   }
 
   getMenu() {
     return (
-      <div className={'Dropdown-menu ' + this.attrs.menuClassName} onclick={this.menuClick.bind(this)}>
-        {this.showing ? NotificationList.component({ state: this.attrs.state }) : ''}
+      <div className={classList('Dropdown-menu', this.attrs.menuClassName)} onclick={this.menuClick.bind(this)}>
+        {this.showing && NotificationList.component({ state: this.attrs.state })}
       </div>
     );
   }
