@@ -3,20 +3,24 @@
   "version": "0.1.0-beta.10",
   "description": "Webpack config for Flarum JavaScript compilation.",
   "main": "index.js",
-  "author": "Toby Zerner",
+  "author": "Flarum Team",
   "license": "MIT",
   "peerDependencies": {
     "webpack": "^4.0.0"
   },
   "dependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.0.0",
-    "@babel/plugin-transform-object-assign": "^7.0.0",
-    "@babel/plugin-transform-react-jsx": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/runtime": "^7.0.0",
-    "babel-loader": "^8.0.0"
+    "@babel/core": "^7.14.0",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-proposal-private-methods": "^7.13.0",
+    "@babel/plugin-transform-object-assign": "^7.12.13",
+    "@babel/plugin-transform-react-jsx": "^7.13.12",
+    "@babel/plugin-transform-runtime": "^7.13.15",
+    "@babel/preset-env": "^7.14.0",
+    "@babel/preset-react": "^7.13.13",
+    "@babel/runtime": "^7.14.0",
+    "babel-loader": "^8.2.2"
+  },
+  "devDependencies": {
+    "prettier": "^2.2.1"
   }
 }
