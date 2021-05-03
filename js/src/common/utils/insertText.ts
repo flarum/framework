@@ -27,11 +27,6 @@ export default function insertText(textarea: HTMLTextAreaElement, { text, select
   }
 
   if (!canInsertText) {
-    try {
-      document.execCommand('ms-beginUndoUnit');
-    } catch (e) {
-      // Do nothing.
-    }
     textarea.value = before + text + after;
     textarea.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
   }
