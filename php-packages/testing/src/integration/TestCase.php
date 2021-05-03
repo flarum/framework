@@ -79,8 +79,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
             $this->app = $site->bootApp();
 
-            $this->database()->beginTransaction();
-
             $this->populateDatabase();
         }
 
