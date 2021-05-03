@@ -33,11 +33,6 @@ export default function insertText(textarea: HTMLTextAreaElement, { text, select
       // Do nothing.
     }
     textarea.value = before + text + after;
-    try {
-      document.execCommand('ms-endUndoUnit');
-    } catch (e) {
-      // Do nothing.
-    }
     textarea.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
   }
 
