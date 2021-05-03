@@ -1,21 +1,21 @@
-import DiscussionPage from './DiscussionPage';
-import TerminalPost from './TerminalPost';
-import DiscussionControls from '../utils/DiscussionControls';
-import slidable from '../utils/slidable';
 import Component from '../../common/Component';
 import Link from '../../common/components/Link';
-import Dropdown from '../../common/components/Dropdown';
-import abbreviateNumber from '../../common/utils/abbreviateNumber';
-import classList from '../../common/utils/classList';
-import extractText from '../../common/utils/extractText';
-import escapeRegExp from '../../common/utils/escapeRegExp';
-import humanTime from '../../common/utils/humanTime';
-import ItemList from '../../common/utils/ItemList';
-import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import highlight from '../../common/helpers/highlight';
 import icon from '../../common/helpers/icon';
+import humanTime from '../../common/utils/humanTime';
+import ItemList from '../../common/utils/ItemList';
+import abbreviateNumber from '../../common/utils/abbreviateNumber';
+import Dropdown from '../../common/components/Dropdown';
+import TerminalPost from './TerminalPost';
+import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
+import DiscussionControls from '../utils/DiscussionControls';
+import slidable from '../utils/slidable';
+import extractText from '../../common/utils/extractText';
+import classList from '../../common/utils/classList';
+import DiscussionPage from './DiscussionPage';
+import escapeRegExp from '../../common/utils/escapeRegExp';
 
 /**
  * The `DiscussionListItem` component shows a single discussion in the
