@@ -18,11 +18,7 @@ export default function insertText(textarea: HTMLTextAreaElement, { text, select
 
   if (canInsertText === null || canInsertText === true) {
     textarea.contentEditable = 'true';
-    try {
-      canInsertText = document.execCommand('insertText', false, text);
-    } catch (error) {
-      canInsertText = false;
-    }
+    canInsertText = document.execCommand('insertText', false, text);
     textarea.contentEditable = 'false';
   }
 
