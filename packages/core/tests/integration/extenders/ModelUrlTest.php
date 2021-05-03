@@ -31,7 +31,7 @@ class ModelUrlTest extends TestCase
         $userClass = User::class;
 
         $this->setting("slug_driver_$userClass", 'testDriver');
-    
+
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
