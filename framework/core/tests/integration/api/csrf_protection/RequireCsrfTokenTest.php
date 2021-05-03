@@ -26,11 +26,10 @@ class RequireCsrfTokenTest extends TestCase
         $this->prepareDatabase([
             'api_keys' => [
                 ['user_id' => 1, 'key' => 'superadmin'],
-            ],
-            'settings' => [
-                ['key' => 'csrf_test', 'value' => 1],
-            ],
+            ]
         ]);
+
+        $this->setting('csrf_test', 1);
     }
 
     /**

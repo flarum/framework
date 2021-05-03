@@ -83,7 +83,7 @@ class FilesystemTest extends TestCase
      */
     public function disk_uses_local_adapter_if_configured_adapter_from_config_file_unavailable()
     {
-        $this->overrideConfigWithDiskDriver();
+        $this->config('disk_driver.flarum-assets', 'null');
 
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
@@ -115,24 +115,11 @@ class FilesystemTest extends TestCase
             (new Extend\Filesystem)->driver('null', NullFilesystemDriver::class)
         );
 
-        $this->overrideConfigWithDiskDriver();
+        $this->config('disk_driver.flarum-assets', 'null');
 
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
         $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), NullAdapter::class);
-    }
-
-    protected function overrideConfigWithDiskDriver()
-    {
-        $tmp = $this->tmpDir();
-        $configArr = include "$tmp/config.php";
-        $configArr = array_merge($configArr, ['disk_driver' => [
-            'flarum-assets' => 'null'
-        ]]);
-
-        $config = new Config($configArr);
-
-        $this->app()->getContainer()->instance('flarum.config', $config);
     }
 }
 

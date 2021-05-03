@@ -12,7 +12,6 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\Testing\integration\UsesSettings;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -20,7 +19,6 @@ use Illuminate\Support\Arr;
 class UserTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-    use UsesSettings;
 
     /**
      * @inheritDoc
@@ -32,22 +30,10 @@ class UserTest extends TestCase
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
-            ],
-            'settings' => [
-                ['key' => 'display_name_driver', 'value' => 'custom'],
             ]
         ]);
-    }
 
-    /**
-     * Purge the settings cache and reset the new display name driver.
-     */
-    protected function recalculateDisplayNameDriver()
-    {
-        $this->purgeSettingsCache();
-        $container = $this->app()->getContainer();
-        $container->forgetInstance('flarum.user.display_name.driver');
-        User::setDisplayNameDriver($container->make('flarum.user.display_name.driver'));
+        $this->setting('display_name_driver', 'custom');
     }
 
     protected function registerTestPreference()
@@ -64,7 +50,6 @@ class UserTest extends TestCase
     public function username_display_name_driver_used_by_default()
     {
         $this->app();
-        $this->recalculateDisplayNameDriver();
 
         $user = User::find(1);
 
@@ -82,7 +67,6 @@ class UserTest extends TestCase
         );
 
         $this->app();
-        $this->recalculateDisplayNameDriver();
 
         $user = User::find(1);
 
