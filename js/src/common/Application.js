@@ -20,7 +20,6 @@ import Discussion from './models/Discussion';
 import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
-import { flattenDeep } from 'lodash-es';
 import PageState from './states/PageState';
 import ModalManagerState from './states/ModalManagerState';
 import AlertManagerState from './states/AlertManagerState';
@@ -184,7 +183,7 @@ export default class Application {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
-      const extenders = flattenDeep(extension.extend);
+      const extenders = extension.extend.flat(Infinity);
 
       for (const extender of extenders) {
         extender.extend(this, { name, exports: extension });
