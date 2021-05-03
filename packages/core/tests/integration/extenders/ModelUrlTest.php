@@ -15,13 +15,11 @@ use Flarum\Http\SlugDriverInterface;
 use Flarum\Http\SlugManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\Testing\integration\UsesSettings;
 use Flarum\User\User;
 
 class ModelUrlTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-    use UsesSettings;
 
     /**
      * @inheritDoc
@@ -31,12 +29,12 @@ class ModelUrlTest extends TestCase
         parent::setUp();
 
         $userClass = User::class;
+
+        $this->setting("slug_driver_$userClass", 'testDriver');
+    
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
-            ],
-            'settings' => [
-                ['key' => "slug_driver_$userClass", 'value' => 'testDriver'],
             ]
         ]);
     }
@@ -46,8 +44,6 @@ class ModelUrlTest extends TestCase
      */
     public function uses_default_driver_by_default()
     {
-        $this->purgeSettingsCache();
-
         $slugManager = $this->app()->getContainer()->make(SlugManager::class);
 
         $testUser = User::find(1);
@@ -62,8 +58,6 @@ class ModelUrlTest extends TestCase
     public function custom_slug_driver_has_effect_if_added()
     {
         $this->extend((new Extend\ModelUrl(User::class))->addSlugDriver('testDriver', TestSlugDriver::class));
-
-        $this->purgeSettingsCache();
 
         $slugManager = $this->app()->getContainer()->make(SlugManager::class);
 

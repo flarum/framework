@@ -25,11 +25,7 @@ class CreateTest extends TestCase
     {
         parent::setUp();
 
-        $this->prepareDatabase([
-            'settings' => [
-                ['key' => 'mail_driver', 'value' => 'log'],
-            ],
-        ]);
+        $this->setting('mail_driver', 'log');
     }
 
     /**
