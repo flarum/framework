@@ -1,4 +1,4 @@
-// Based of the CC-0 polyfill at https://github.com/jonathantneal/array-flat-polyfill
+// Based off of the CC-0 polyfill at https://github.com/jonathantneal/array-flat-polyfill
 //
 // Needed to provide support for Safari on iOS < 12
 
