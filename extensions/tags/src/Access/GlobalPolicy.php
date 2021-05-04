@@ -37,9 +37,8 @@ class GlobalPolicy extends AbstractPolicy
             if ($actor->hasPermission($ability) && $actor->hasPermission('bypassTagCounts')) {
                 return $this->allow();
             }
-
-            $enoughPrimary = count(Tag::getIdsWhereCan($actor, $ability, true, false)) >= $this->settings->get('flarum-tags.min_primary_tags');
-            $enoughSecondary = count(Tag::getIdsWhereCan($actor, $ability, false, true)) >= $this->settings->get('flarum-tags.min_secondary_tags');
+            $enoughPrimary = Tag::queryIdsWhereCan(Tag::query()->getQuery(), $actor, $ability, true, false)->count() >= $this->settings->get('flarum-tags.min_primary_tags');
+            $enoughSecondary = Tag::queryIdsWhereCan(Tag::query()->getQuery(), $actor, $ability, false, true)->count() >= $this->settings->get('flarum-tags.min_secondary_tags');
 
             if ($enoughPrimary && $enoughSecondary) {
                 return $this->allow();

@@ -27,7 +27,9 @@ class ScopeDiscussionVisibility
                 ->whereNotIn('discussions.id', function ($query) use ($actor) {
                     return $query->select('discussion_id')
                         ->from('discussion_tag')
-                        ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'));
+                        ->whereNotIn('tag_id', function ($query) use ($actor) {
+                            Tag::queryIdsWhereCan($query->from('tags'), $actor, 'viewDiscussions');
+                        });
                 })
                 ->orWhere(function ($query) use ($actor) {
                     $query->whereVisibleTo($actor, 'viewDiscussionsInRestrictedTags');

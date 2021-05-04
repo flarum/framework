@@ -28,7 +28,9 @@ class ScopeFlagVisibility
             ->whereNotExists(function ($query) use ($actor) {
                 return $query->selectRaw('1')
                     ->from('discussion_tag')
-                    ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'discussion.viewFlags'))
+                    ->whereNotIn('tag_id', function ($query) use ($actor) {
+                        Tag::queryIdsWhereCan($query->from('tags'), $actor, 'discussion.viewFlags');
+                    })
                     ->whereColumn('discussions.id', 'discussion_id');
             });
     }
