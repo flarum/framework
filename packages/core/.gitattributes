@@ -11,5 +11,6 @@ phpunit.xml export-ignore
 tests export-ignore
 
 js/dist/* -diff
+js/dist/* linguist-generated
 
 * text=auto eol=lf
