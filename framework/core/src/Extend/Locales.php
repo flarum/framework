@@ -39,7 +39,6 @@ class Locales implements ExtenderInterface, LifecycleInterface
                         continue;
                     }
 
-                    $intlIcu = false;
                     $locale = $file->getBasename(".$extension");
 
                     // Ignore ICU MessageFormat suffixes.
