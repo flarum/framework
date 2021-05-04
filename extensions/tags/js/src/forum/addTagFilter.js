@@ -7,9 +7,33 @@ import TagHero from './components/TagHero';
 
 export default function() {
   IndexPage.prototype.currentTag = function() {
-    const slug = app.search.params().tags;
+    if (this.currentActiveTag) {
+      return this.currentActiveTag;
+    }
 
-    if (slug) return app.store.getBy('tags', 'slug', slug);
+    const slug = app.search.params().tags;
+    let tag = null;
+
+    if (slug) {
+      tag = app.store.getBy('tags', 'slug', slug);
+    }
+
+    if (slug && !tag || (tag && !tag.isChild() && !tag.children())) {
+      // Unlike the backend, no need to fetch parent.children because if we're on
+      // a child tag page, then either:
+      //    - We loaded in that child tag (and its siblings) in the API document
+      //    - We first navigated to the current tag's parent, which would have loaded in the current tag's siblings.
+      app.store.find('tags', slug, { include: 'children,children.parent,parent,state'}).then(() => {
+        this.currentActiveTag = app.store.getBy('tags', 'slug', slug);
+
+        m.redraw();
+      });
+    }
+
+    if (tag) {
+      this.currentActiveTag = tag;
+      return this.currentActiveTag;
+    }
   };
 
   // If currently viewing a tag, insert a tag hero at the top of the view.

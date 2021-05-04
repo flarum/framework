@@ -1,6 +1,7 @@
 import Page from 'flarum/components/Page';
 import IndexPage from 'flarum/components/IndexPage';
 import Link from 'flarum/components/Link';
+import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import listItems from 'flarum/helpers/listItems';
 import humanTime from 'flarum/helpers/humanTime';
 
@@ -12,12 +13,33 @@ export default class TagsPage extends Page {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.tags = sortTags(app.store.all('tags').filter(tag => !tag.parent()));
-
     app.history.push('tags', app.translator.trans('flarum-tags.forum.header.back_to_tags_tooltip'));
+
+    this.tags = [];
+
+    const preloaded = app.preloadedApiDocument();
+
+    if (preloaded) {
+      this.tags = sortTags(preloaded.filter(tag => !tag.isChild()));
+      return;
+    }    
+
+    this.loading = true;
+
+    app.tagList.load(['children', 'lastPostedDiscussion']).then(() => {
+      this.tags = sortTags(app.store.all('tags').filter(tag => !tag.isChild()));
+
+      this.loading = false;
+
+      m.redraw();
+    });
   }
 
   view() {
+    if (this.loading) {
+      return <LoadingIndicator />;
+    }
+
     const pinned = this.tags.filter(tag => tag.position() !== null);
     const cloud = this.tags.filter(tag => tag.position() === null);
 
@@ -33,7 +55,7 @@ export default class TagsPage extends Page {
             <ul className="TagTiles">
               {pinned.map(tag => {
                 const lastPostedDiscussion = tag.lastPostedDiscussion();
-                const children = sortTags(app.store.all('tags').filter(child => child.parent() === tag));
+                const children = sortTags(tag.children() || []);
 
                 return (
                   <li className={'TagTile ' + (tag.color() ? 'colored' : '')}

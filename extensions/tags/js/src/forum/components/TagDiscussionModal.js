@@ -1,6 +1,7 @@
 import Modal from 'flarum/components/Modal';
 import DiscussionPage from 'flarum/components/DiscussionPage';
 import Button from 'flarum/components/Button';
+import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import highlight from 'flarum/helpers/highlight';
 import classList from 'flarum/utils/classList';
 import extractText from 'flarum/utils/extractText';
@@ -16,20 +17,11 @@ export default class TagDiscussionModal extends Modal {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.tags = getSelectableTags(this.attrs.discussion);
-
-    this.tags = sortTags(this.tags);
+    this.tagsLoading = true;
 
     this.selected = [];
     this.filter = Stream('');
-    this.index = this.tags[0].id();
     this.focused = false;
-
-    if (this.attrs.selectedTags) {
-      this.attrs.selectedTags.map(this.addTag.bind(this));
-    } else if (this.attrs.discussion) {
-      this.attrs.discussion.tags().map(this.addTag.bind(this));
-    }
 
     this.minPrimary = app.forum.attribute('minPrimaryTags');
     this.maxPrimary = app.forum.attribute('maxPrimaryTags');
@@ -42,6 +34,22 @@ export default class TagDiscussionModal extends Modal {
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
       .onSelect(this.select.bind(this))
       .onRemove(() => this.selected.splice(this.selected.length - 1, 1));
+
+    app.tagList.load(['parent']).then(() => {
+      this.tagsLoading = false;
+
+      this.tags = sortTags(getSelectableTags(this.attrs.discussion));
+
+      if (this.attrs.selectedTags) {
+        this.attrs.selectedTags.map(this.addTag.bind(this));
+      } else if (this.attrs.discussion) {
+        this.attrs.discussion.tags().map(this.addTag.bind(this));
+      }
+
+      this.index = this.tags[0].id();
+
+      m.redraw();
+    });
   }
 
   primaryCount() {
@@ -113,6 +121,10 @@ export default class TagDiscussionModal extends Modal {
   }
 
   content() {
+    if (this.tagsLoading) {
+      return <LoadingIndicator />;
+    }
+  
     let tags = this.tags;
     const filter = this.filter().toLowerCase();
     const primaryCount = this.primaryCount();

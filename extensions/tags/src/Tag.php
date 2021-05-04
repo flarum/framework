@@ -94,6 +94,11 @@ class Tag extends AbstractModel
         return $this->belongsTo(self::class);
     }
 
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
     public function lastPostedDiscussion()
     {
         return $this->belongsTo(Discussion::class, 'last_posted_discussion_id');

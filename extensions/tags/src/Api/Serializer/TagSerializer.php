@@ -57,6 +57,11 @@ class TagSerializer extends AbstractSerializer
         return $this->hasOne($tag, self::class);
     }
 
+    protected function children($tag)
+    {
+        return $this->hasMany($tag, self::class);
+    }
+
     /**
      * @return \Tobscure\JsonApi\Relationship
      */

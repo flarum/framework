@@ -9,44 +9,32 @@
 
 namespace Flarum\Tags\Api\Controller;
 
-use Flarum\Api\Controller\AbstractListController;
-use Flarum\Http\RequestUtil;
+use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Tag;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListTagsController extends AbstractListController
+class ShowTagController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
     public $serializer = TagSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
-        'parent'
-    ];
-
-    /**
-     * {@inheritdoc}
-     */
     public $optionalInclude = [
         'children',
+        'children.parent',
         'lastPostedDiscussion',
+        'parent',
+        'parent.children',
+        'parent.children.parent',
         'state'
     ];
 
     /**
-     * @var \Flarum\Tags\Tag
+     * @var Tag
      */
-    protected $tags;
+    private $tags;
 
-    /**
-     * @param \Flarum\Tags\Tag $tags
-     */
     public function __construct(Tag $tags)
     {
         $this->tags = $tags;
@@ -57,15 +45,14 @@ class ListTagsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = RequestUtil::getActor($request);
+        $slug = Arr::get($request->getQueryParams(), 'slug');
+        $actor = $request->getAttribute('actor');
         $include = $this->extractInclude($request);
 
-        if (in_array('lastPostedDiscussion', $include)) {
-            $include = array_merge($include, ['lastPostedDiscussion.tags', 'lastPostedDiscussion.state']);
-        }
-
-        $tags = $this->tags->whereVisibleTo($actor)->withStateFor($actor)->get();
-
-        return $tags->load($include);
+        return $this->tags
+            ->whereVisibleTo($actor)
+            ->with($include)
+            ->where('slug', $slug)
+            ->firstOrFail();
     }
 }
