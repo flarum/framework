@@ -734,7 +734,7 @@ class User extends AbstractModel
         if (is_null($this->permissions)) {
             $this->permissions = $this->permissions()->pluck('permission')->all();
         }
-    
+
         return $this->permissions;
     }
 
