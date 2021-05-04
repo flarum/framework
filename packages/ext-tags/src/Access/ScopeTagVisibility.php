@@ -21,6 +21,8 @@ class ScopeTagVisibility
      */
     public function __invoke(User $actor, Builder $query)
     {
-        $query->whereNotIn('id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'));
+        $query->whereIn('id', function ($query) use ($actor) {
+            Tag::queryIdsWhereCan($query, $actor, 'viewDiscussions');
+        });
     }
 }

@@ -1,0 +1,78 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [7.3, 7.4, '8.0']
+        service: ['mysql:5.7', mariadb]
+        prefix: ['', flarum_]
+
+        include:
+          - service: 'mysql:5.7'
+            db: MySQL
+          - service: mariadb
+            db: MariaDB
+          - prefix: flarum_
+            prefixStr: (prefix)
+
+        exclude:
+          - php: 7.3
+            service: 'mysql:5.7'
+            prefix: flarum_
+          - php: 7.3
+            service: mariadb
+            prefix: flarum_
+          - php: 8.0
+            service: 'mysql:5.7'
+            prefix: flarum_
+          - php: 8.0
+            service: mariadb
+            prefix: flarum_
+
+    services:
+      mysql:
+        image: ${{ matrix.service }}
+        ports:
+          - 13306:3306
+
+    name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+          extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
+          tools: phpunit, composer:v2
+
+      # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
+      # which isn't supported prior to PHP7.4
+      # When we drop support for PHP7.3, we should remove this from the setup.
+      - name: Create MySQL Database
+        run: |
+          sudo systemctl start mysql
+          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+          mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';" --port 13306
+
+      - name: Install Composer dependencies
+        run: composer install
+
+      - name: Setup Composer tests
+        run: composer test:setup
+        env:
+          DB_PORT: 13306
+          DB_PASSWORD: root
+          DB_PREFIX: ${{ matrix.prefix }}
+
+      - name: Run Composer tests
+        run: composer test
+        env:
+          COMPOSER_PROCESS_TIMEOUT: 600
