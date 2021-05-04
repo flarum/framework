@@ -6,6 +6,8 @@ import Tag from '../common/models/Tag';
 import TagsPage from './components/TagsPage';
 import DiscussionTaggedPost from './components/DiscussionTaggedPost';
 
+import TagListState from './states/TagListState';
+
 import addTagList from './addTagList';
 import addTagFilter from './addTagFilter';
 import addTagLabels from './addTagLabels';
@@ -21,6 +23,8 @@ app.initializers.add('flarum-tags', function(app) {
   app.postComponents.discussionTagged = DiscussionTaggedPost;
 
   app.store.models.tags = Tag;
+
+  app.tagList = new TagListState();
 
   Discussion.prototype.tags = Model.hasMany('tags');
   Discussion.prototype.canTag = Model.attribute('canTag');

@@ -9,7 +9,8 @@ import getSelectableTags from './utils/getSelectableTags';
 
 export default function () {
   extend(IndexPage.prototype, 'newDiscussionAction', function (promise) {
-    const tag = app.store.getBy('tags', 'slug', app.search.params().tags);
+    // From `addTagFilter
+    const tag = this.currentTag();
 
     if (tag) {
       const parent = tag.parent();
@@ -18,6 +19,11 @@ export default function () {
     } else {
       app.composer.fields.tags = [];
     }
+  });
+
+
+  extend(DiscussionComposer.prototype, 'oninit', function () {
+    app.tagList.load(['parent']).then(() => m.redraw())
   });
 
   // Add tag-selection abilities to the discussion composer.

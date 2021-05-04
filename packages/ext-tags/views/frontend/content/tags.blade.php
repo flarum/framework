@@ -18,9 +18,9 @@
                             @foreach ($children->get($id) as $child)
                                 <li>
                                     <a href="{{ $url->to('forum')->route('tag', [
-                                                'slug' => $child['slug']
+                                                'slug' => $child['attributes']['slug']
                                             ]) }}">
-                                        {{ $child['name'] }}
+                                        {{ $child['attributes']['name'] }}
                                     </a>
                                 </li>
                             @endforeach

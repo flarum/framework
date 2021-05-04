@@ -45,6 +45,7 @@ return [
         ->get('/tags', 'tags.index', Controller\ListTagsController::class)
         ->post('/tags', 'tags.create', Controller\CreateTagController::class)
         ->post('/tags/order', 'tags.order', Controller\OrderTagsController::class)
+        ->get('/tags/{slug}', 'tags.show', Controller\ShowTagController::class)
         ->patch('/tags/{id}', 'tags.update', Controller\UpdateTagController::class)
         ->delete('/tags/{id}', 'tags.delete', Controller\DeleteTagController::class),
 
@@ -80,7 +81,7 @@ return [
         ->addInclude(['tags', 'tags.state']),
 
     (new Extend\ApiController(FlarumController\ShowForumController::class))
-        ->addInclude(['tags', 'tags.lastPostedDiscussion', 'tags.parent'])
+        ->addInclude(['tags', 'tags.parent'])
         ->prepareDataForSerialization(LoadForumTagsRelationship::class),
 
     (new Extend\Settings())

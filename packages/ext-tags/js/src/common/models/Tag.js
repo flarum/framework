@@ -14,6 +14,7 @@ export default class Tag extends mixin(Model, {
 
   position: Model.attribute('position'),
   parent: Model.hasOne('parent'),
+  children: Model.hasMany('children'),
   defaultSort: Model.attribute('defaultSort'),
   isChild: Model.attribute('isChild'),
   isHidden: Model.attribute('isHidden'),
