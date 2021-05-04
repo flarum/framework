@@ -379,11 +379,7 @@ class User extends AbstractModel
             return true;
         }
 
-        if (is_null($this->permissions)) {
-            $this->permissions = $this->getPermissions();
-        }
-
-        return in_array($permission, $this->permissions);
+        return in_array($permission, $this->getPermissions());
     }
 
     /**
@@ -399,11 +395,7 @@ class User extends AbstractModel
             return true;
         }
 
-        if (is_null($this->permissions)) {
-            $this->permissions = $this->getPermissions();
-        }
-
-        foreach ($this->permissions as $permission) {
+        foreach ($this->getPermissions() as $permission) {
             if (substr($permission, -strlen($match)) === $match) {
                 return true;
             }
@@ -739,7 +731,11 @@ class User extends AbstractModel
      */
     public function getPermissions()
     {
-        return $this->permissions()->pluck('permission')->all();
+        if (is_null($this->permissions)) {
+            $this->permissions = $this->permissions()->pluck('permission')->all();
+        }
+    
+        return $this->permissions;
     }
 
     /**
