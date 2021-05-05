@@ -68,7 +68,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         }
 
         $this->container->make('flarum.locales')->getTranslator()->getCatalogue(
-            $this->container->make(SettingsRepositoryInterface::class)->get('default_locale', 'en')
+            $container->make(SettingsRepositoryInterface::class)->get('default_locale', 'en')
         );
     }
 }
