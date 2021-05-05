@@ -3,7 +3,7 @@
 // Needed to provide support for Safari on iOS < 12
 
 if (!Array.prototype['flat']) {
-  Array.prototype['flat'] = function flat(depth?: number) {
+  Array.prototype['flat'] = function flat(this: any, depth?: number) {
     const realDepth = isNaN(depth as any) ? 1 : depth;
 
     return realDepth
@@ -11,15 +11,17 @@ if (!Array.prototype['flat']) {
           this,
           function (acc, cur) {
             if (Array.isArray(cur)) {
-              acc.push.apply(acc, flat.call(cur, realDepth - 1));
+              (acc as Array<any>).push.apply(acc, flat.call(cur, realDepth - 1));
             } else {
-              acc.push(cur);
+              (acc as Array<any>).push(cur);
             }
 
             return acc;
           },
-          []
+          [] as Array<any>
         )
-      : Array.prototype.slice.call(this);
+      : // If no depth is provided, or depth is 0, just return a copy of
+        // the array. Spread is supported in all major browsers (iOS 8+)
+        [...this];
   };
 }
