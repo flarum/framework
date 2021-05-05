@@ -100,8 +100,6 @@ export default class AdminPage extends Page {
 
     const { setting, help, ...componentAttrs } = entry;
 
-    delete componentAttrs.help;
-
     const value = this.setting([setting])();
     if (['bool', 'checkbox', 'switch', 'boolean'].includes(componentAttrs.type)) {
       return (
