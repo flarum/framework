@@ -15,8 +15,8 @@ import slidable from '../utils/slidable';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
 import DiscussionPage from './DiscussionPage';
+import escapeRegExp from '../../common/utils/escapeRegExp';
 
-import { escapeRegExp } from 'lodash-es';
 /**
  * The `DiscussionListItem` component shows a single discussion in the
  * discussion list.

@@ -12,7 +12,9 @@ import Drawer from './utils/Drawer';
 import anchorScroll from './utils/anchorScroll';
 import RequestError from './utils/RequestError';
 import abbreviateNumber from './utils/abbreviateNumber';
+import escapeRegExp from './utils/escapeRegExp';
 import * as string from './utils/string';
+import * as ThrottleDebounce from './utils/throttleDebounce';
 import Stream from './utils/Stream';
 import SubtreeRetainer from './utils/SubtreeRetainer';
 import setRouteWithForcedRefresh from './utils/setRouteWithForcedRefresh';
@@ -91,6 +93,7 @@ export default {
   'utils/abbreviateNumber': abbreviateNumber,
   'utils/string': string,
   'utils/SubtreeRetainer': SubtreeRetainer,
+  'utils/escapeRegExp': escapeRegExp,
   'utils/extract': extract,
   'utils/ScrollListener': ScrollListener,
   'utils/stringToColor': stringToColor,
@@ -104,6 +107,7 @@ export default {
   'utils/formatNumber': formatNumber,
   'utils/mapRoutes': mapRoutes,
   'utils/withAttr': withAttr,
+  'utils/throttleDebounce': ThrottleDebounce,
   'models/Notification': Notification,
   'models/User': User,
   'models/Post': Post,
