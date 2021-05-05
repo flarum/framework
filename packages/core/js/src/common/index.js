@@ -23,3 +23,5 @@ patchMithril(window);
 import * as Extend from './extend/index';
 
 export { Extend };
+
+import './utils/arrayFlatPolyfill';
