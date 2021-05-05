@@ -67,7 +67,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
             $scheduled['callback']($event);
         }
 
-        $this->container->make('flarum.locales')->getTranslator()->getCatalogue(
+        $container->make('flarum.locales')->getTranslator()->getCatalogue(
             $container->make(SettingsRepositoryInterface::class)->get('default_locale', 'en')
         );
     }
