@@ -179,9 +179,13 @@ export default class Application {
     this.initialRoute = window.location.href;
   }
 
+  // TODO: This entire system needs a do-over for v2
   bootExtensions(extensions) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
+
+      // If an extension doesn't define extenders, there's nothing more to do here.
+      if (!extension.extend) return;
 
       const extenders = extension.extend.flat(Infinity);
 
