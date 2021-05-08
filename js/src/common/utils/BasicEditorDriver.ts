@@ -43,7 +43,7 @@ export default class BasicEditorDriver implements EditorDriverInterface {
     dom.append(this.el);
   }
 
-  keyHandlers(params): ItemList {
+  keyHandlers(params: EditorDriverParams): ItemList {
     const items = new ItemList();
 
     items.add('submit', function (e) {
