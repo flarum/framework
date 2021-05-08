@@ -103,7 +103,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.api_client.exclude_middleware', function() {
+        $this->container->singleton('flarum.api_client.exclude_middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
                 HttpMiddleware\ParseJsonBody::class,
