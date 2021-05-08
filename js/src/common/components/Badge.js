@@ -1,5 +1,5 @@
+import Tooltip from './Tooltip';
 import Component from '../Component';
-import Tooltip from '../Tooltip';
 import icon from '../helpers/icon';
 
 /**
