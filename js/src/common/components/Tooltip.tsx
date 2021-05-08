@@ -74,13 +74,6 @@ export interface TooltipAttrs extends ComponentAttrs {
  *          </Tooltip>
  */
 export default class Tooltip extends Component<TooltipAttrs> {
-  /**
-   * Contains the old tooltip text.
-   *
-   * Used to determine whether the tooltip should be recreated.
-   */
-  private oldText: string = '';
-
   view(vnode) {
     const { children } = vnode;
 
@@ -88,33 +81,28 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const { text, inline, tooltipVisible, showOnFocus, position, html, delay, ...attrs } = this.attrs;
 
     if (inline) {
-      return <span {...attrs}>{children}</span>;
+      return (
+        <span title={text} {...attrs}>
+          {children}
+        </span>
+      );
     }
 
-    return <div {...attrs}>{children}</div>;
+    return (
+      <div title={text} {...attrs}>
+        {children}
+      </div>
+    );
   }
 
   oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.oncreate(vnode);
 
-    this.oldText = this.attrs.text;
-
     this.createTooltip();
-  }
-
-  onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
-    // In case the `text` attr was updated, we need to recreate the tooltip
-    if (this.attrs.text !== this.oldText) {
-      this.oldText = this.attrs.text;
-
-      this.$().tooltip('destroy');
-      this.createTooltip();
-    }
   }
 
   private createTooltip() {
     const {
-      text,
       showOnFocus = true,
       position = 'top',
       delay,
@@ -122,14 +110,11 @@ export default class Tooltip extends Component<TooltipAttrs> {
       html = false,
     } = this.attrs;
 
-    this.attrs['aria-label'] = text;
-
     // https://getbootstrap.com/docs/3.3/javascript/#tooltips-options
     this.$().tooltip({
       html,
       delay,
       placement: position,
-      title: text,
       // Fancy "hack" to assemble the trigger string
       trigger: classList('hover', [showOnFocus && 'focus']) as TooltipCreationOptions['trigger'],
     });
