@@ -8,7 +8,7 @@ import * as _$ from 'jquery';
 // Globals from flarum/core
 import Application from './src/common/Application';
 
-import type { TooltipJQueryFunction } from './@types/tooltips/index';
+import type { TooltipJQueryFunction } from './@types/tooltips';
 
 /**
  * flarum/core exposes several extensions globally:
