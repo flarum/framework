@@ -63,9 +63,30 @@ export interface TooltipAttrs extends ComponentAttrs {
  *          </Tooltip>
  */
 export default class Tooltip extends Component<TooltipAttrs> {
-  view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
+  view(vnode) {
     const { children } = vnode;
 
+    // We remove these to get the remaining attrs to pass to the DOM element
+    const { text, inline, tooltipVisible, showOnFocus, position, html, ...attrs } = this.attrs;
+
+    if (inline) {
+      return <span {...attrs}>{children}</span>;
+    }
+
+    return <div {...attrs}>{children}</div>;
+  }
+
+  oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
+    super.oncreate(vnode);
+
+    this.createTooltip();
+  }
+
+  onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
+    this.createTooltip();
+  }
+
+  private createTooltip() {
     const {
       text,
       inline,
@@ -77,7 +98,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
       ...attrs
     } = this.attrs;
 
-    attrs['aria-label'] = text;
+    this.attrs['aria-label'] = text;
 
     // https://getbootstrap.com/docs/3.3/javascript/#tooltips-options
     this.$.tooltip({
@@ -87,11 +108,5 @@ export default class Tooltip extends Component<TooltipAttrs> {
       // Fancy "hack" to assemble the trigger string
       trigger: classList('hover', [showOnFocus && 'focus']),
     });
-
-    if (inline) {
-      return <span {...attrs}>{children}</span>;
-    }
-
-    return <div {...attrs}>{children}</div>;
   }
 }

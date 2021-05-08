@@ -1,6 +1,6 @@
 import Component from '../Component';
+import Tooltip from '../Tooltip';
 import icon from '../helpers/icon';
-import extract from '../utils/extract';
 
 /**
  * The `Badge` component represents a user/discussion badge, indicating some
@@ -18,13 +18,16 @@ import extract from '../utils/extract';
 export default class Badge extends Component {
   view() {
     const attrs = Object.assign({}, this.attrs);
-    const type = extract(attrs, 'type');
-    const iconName = extract(attrs, 'icon');
 
-    attrs.className = 'Badge ' + (type ? 'Badge--' + type : '') + ' ' + (attrs.className || '');
-    attrs.title = extract(attrs, 'label') || '';
+    const { type, icon: iconName, title = '' } = attrs;
 
-    return <span {...attrs}>{iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;')}</span>;
+    const className = classList('Badge', [type && `Badge--${type}`], attrs.className);
+
+    return (
+      <Tooltip text={title} {...attrs} className={className}>
+        {iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;')}
+      </Tooltip>
+    );
   }
 
   oncreate(vnode) {
