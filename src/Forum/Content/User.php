@@ -65,7 +65,7 @@ class User
      * @return object
      * @throws ModelNotFoundException
      */
-    private function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, array $params)
     {
         $params['bySlug'] = true;
         $response = $this->api->send('users.show', $request, null, $params);

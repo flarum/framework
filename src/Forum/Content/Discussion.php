@@ -101,7 +101,7 @@ class Discussion
      * @return object
      * @throws RouteNotFoundException
      */
-    private function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, array $params)
     {
         $params['bySlug'] = true;
         $response = $this->api->send('discussions.show', $request, null, $params);

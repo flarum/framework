@@ -114,7 +114,7 @@ class Index
      * @param array $params
      * @return object
      */
-    private function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, array $params)
     {
         return json_decode($this->api->send('discussions.index', $request, null, $params)->getBody());
     }
