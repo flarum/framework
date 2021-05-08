@@ -1,7 +1,7 @@
 import Component, { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
-import { TooltipOptions } from '../../../@types/tooltips';
+import { TooltipCreationOptions } from '../../../@types/tooltips';
 
 export interface TooltipAttrs extends ComponentAttrs {
   /**
@@ -119,7 +119,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
       placement: position,
       title: text,
       // Fancy "hack" to assemble the trigger string
-      trigger: classList('hover', [showOnFocus && 'focus']) as TooltipOptions['trigger'],
+      trigger: classList('hover', [showOnFocus && 'focus']) as TooltipCreationOptions['trigger'],
     });
   }
 }
