@@ -11,7 +11,7 @@
  *
  * @see https://getbootstrap.com/docs/3.3/javascript/#tooltips-options
  */
-export interface TooltipOptions {
+export interface TooltipCreationOptions {
   /**
    * Whether HTML content is allowed in the tooltip.
    *
@@ -65,4 +65,4 @@ export interface TooltipOptions {
  *
  * Returns the same jQuery reference to allow for method chaining.
  */
-export type TooltipJQueryFunction = (tooltipOptions?: TooltipOptions) => JQuery;
+export type TooltipJQueryFunction = (tooltipOptions?: TooltipCreationOptions | 'destroy') => JQuery;
