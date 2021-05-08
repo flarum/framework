@@ -12,8 +12,11 @@ namespace Flarum\Database;
 use Exception;
 use Flarum\Extension\Extension;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\MySqlConnection;
 use Illuminate\Database\Schema\Builder;
+use Illuminate\Database\Schema\SchemaState;
 use Illuminate\Filesystem\Filesystem;
+use InvalidArgumentException;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Migrator
@@ -40,6 +43,18 @@ class Migrator
     protected $schemaBuilder;
 
     /**
+     * The DB table prefix.
+     */
+    protected $tablePrefix;
+
+    /**
+     * The database schema builder instance.
+     *
+     * @var SchemaState
+     */
+    protected $schemaState;
+
+    /**
      * The output interface implementation.
      *
      * @var OutputInterface
@@ -61,7 +76,13 @@ class Migrator
         $this->files = $files;
         $this->repository = $repository;
 
+        if (! ($connection instanceof MySqlConnection)) {
+            throw new InvalidArgumentException('Only MySQL connections are supported');
+        }
+
+        $this->tablePrefix = $connection->getTablePrefix();
         $this->schemaBuilder = $connection->getSchemaBuilder();
+        $this->schemaState = $connection->getSchemaState();
 
         // Workaround for https://github.com/laravel/framework/issues/1186
         $connection->getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
@@ -243,6 +264,32 @@ class Migrator
     }
 
     /**
+     * Initialize the Flarum database from a schema dump.
+     *
+     * @param string $path to the directory containing the dump.
+     */
+    public function installFromSchema(string $path)
+    {
+        $schemaPath = "$path/install.dump";
+
+        $currDumpFile = file_get_contents($schemaPath);
+
+        file_put_contents($schemaPath, str_replace('db_prefix_', $this->tablePrefix, $currDumpFile));
+
+        $this->note('<info>Loading stored database schema:</info>');
+        $startTime = microtime(true);
+
+        $this->schemaState->handleOutputUsing(function ($type, $buffer) {
+            $this->output->write($buffer);
+        })->load($schemaPath);
+
+        $runTime = number_format((microtime(true) - $startTime) * 1000, 2);
+        $this->note('<info>Loaded stored database schema.</info> ('.$runTime.'ms)');
+
+        file_put_contents($schemaPath, $currDumpFile);
+    }
+
+    /**
      * Set the output implementation that should be used by the console.
      *
      * @param OutputInterface $output
@@ -269,16 +316,6 @@ class Migrator
     }
 
     /**
-     * Get the migration repository instance.
-     *
-     * @return MigrationRepositoryInterface
-     */
-    public function getRepository()
-    {
-        return $this->repository;
-    }
-
-    /**
      * Determine if the migration repository exists.
      *
      * @return bool
@@ -286,15 +323,5 @@ class Migrator
     public function repositoryExists()
     {
         return $this->repository->repositoryExists();
-    }
-
-    /**
-     * Get the file system instance.
-     *
-     * @return \Illuminate\Filesystem\Filesystem
-     */
-    public function getFilesystem()
-    {
-        return $this->files;
     }
 }
