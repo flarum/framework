@@ -74,8 +74,16 @@ export interface TooltipAttrs extends ComponentAttrs {
  *          </Tooltip>
  */
 export default class Tooltip extends Component<TooltipAttrs> {
+  /**
+   * Contains the old tooltip text.
+   *
+   * Used to determine whether the tooltip should be recreated.
+   */
+  private oldText: string = '';
+
   view(vnode) {
     const { children } = vnode;
+    console.log(this.attrs);
 
     // We remove these to get the remaining attrs to pass to the DOM element
     const { text, inline, tooltipVisible, showOnFocus, position, html, delay, ...attrs } = this.attrs;
@@ -90,24 +98,29 @@ export default class Tooltip extends Component<TooltipAttrs> {
   oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.oncreate(vnode);
 
+    this.oldText = this.attrs.text;
+
     this.createTooltip();
   }
 
   onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
-    this.createTooltip();
+    // In case the `text` attr was updated, we need to recreate the tooltip
+    if (this.attrs.text !== this.oldText) {
+      this.oldText = this.attrs.text;
+
+      this.$().tooltip('destroy');
+      this.createTooltip();
+    }
   }
 
   private createTooltip() {
     const {
       text,
-      inline,
-      tooltipVisible,
       showOnFocus = true,
       position = 'top',
       delay,
       // This will have no effect when switching to CSS tooltips
       html = false,
-      ...attrs
     } = this.attrs;
 
     this.attrs['aria-label'] = text;
