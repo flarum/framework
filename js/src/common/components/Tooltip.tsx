@@ -83,7 +83,6 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
   view(vnode) {
     const { children } = vnode;
-    console.log(this.attrs);
 
     // We remove these to get the remaining attrs to pass to the DOM element
     const { text, inline, tooltipVisible, showOnFocus, position, html, delay, ...attrs } = this.attrs;

@@ -2,6 +2,7 @@ import Tooltip from './Tooltip';
 import Component from '../Component';
 import icon from '../helpers/icon';
 import classList from '../utils/classList';
+import extractText from '../utils/extractText';
 
 /**
  * The `Badge` component represents a user/discussion badge, indicating some
@@ -18,22 +19,27 @@ import classList from '../utils/classList';
  */
 export default class Badge extends Component {
   view() {
-    const attrs = Object.assign({}, this.attrs);
-
-    const { type, icon: iconName, title = '' } = attrs;
+    const { type, icon: iconName, label, ...attrs } = this.attrs;
 
     const className = classList('Badge', [type && `Badge--${type}`], attrs.className);
+    const tooltipText = extractText(label);
+
+    const iconChild = iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;');
+
+    const badgeAttrs = {
+      className,
+      ...attrs,
+    };
+
+    // If we don't have a tooltip label, don't render the tooltip component.
+    if (typeof tooltipText !== 'string') {
+      return <div {...badgeAttrs}>{iconChild}</div>;
+    }
 
     return (
-      <Tooltip text={title} {...attrs} className={className}>
-        {iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;')}
+      <Tooltip text={tooltipText} {...badgeAttrs}>
+        {iconChild}
       </Tooltip>
     );
-  }
-
-  oncreate(vnode) {
-    super.oncreate(vnode);
-
-    if (this.attrs.label) this.$().tooltip();
   }
 }
