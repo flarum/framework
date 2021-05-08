@@ -15,8 +15,8 @@ use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Stratigility\MiddlewarePipeInterface;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Client
 {
@@ -44,7 +44,7 @@ class Client
      * @return ResponseInterface
      * @throws Exception
      */
-    public function send(string $routeName, Request $parent = null, User $actor = null, array $queryParams = [], array $body = []): Response
+    public function send(string $routeName, ServerRequestInterface $parent = null, User $actor = null, array $queryParams = [], array $body = []): ResponseInterface
     {
         $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
 
