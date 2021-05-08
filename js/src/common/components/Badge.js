@@ -1,6 +1,7 @@
 import Tooltip from './Tooltip';
 import Component from '../Component';
 import icon from '../helpers/icon';
+import classList from '../utils/classList';
 
 /**
  * The `Badge` component represents a user/discussion badge, indicating some
