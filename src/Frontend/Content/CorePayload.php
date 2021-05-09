@@ -10,7 +10,6 @@
 namespace Flarum\Frontend\Content;
 
 use Flarum\Api\Client;
-use Flarum\Api\Controller\ShowUserController;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\LocaleManager;
@@ -83,8 +82,7 @@ class CorePayload
 
     private function getUserApiDocument(Request $request, User $actor): array
     {
-        $id =$actor->id;
-        
+        $id = $actor->id;
 
         return $this->getResponseBody(
             $this->api->withParentRequest($request)->get("/users/$id")

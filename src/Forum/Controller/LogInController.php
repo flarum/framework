@@ -72,7 +72,7 @@ class LogInController implements RequestHandlerInterface
         $body = $request->getParsedBody();
         $params = Arr::only($body, ['identification', 'password', 'remember']);
 
-        $response = $this-> apiClient->withParentRequest($request)->withBody($params)->post('/token');
+        $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
 
         if ($response->getStatusCode() === 200) {
             $data = json_decode($response->getBody());
