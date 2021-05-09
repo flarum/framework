@@ -30,7 +30,7 @@ export default class Badge extends Component {
     };
 
     // If we don't have a tooltip label, don't render the tooltip component.
-    if (typeof tooltipText !== 'string') {
+    if (typeof label !== 'string' && !Array.isArray(label)) {
       return <div {...badgeAttrs}>{iconChild}</div>;
     }
 
