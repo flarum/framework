@@ -16,7 +16,7 @@ export default class TextEditorButton extends Button {
     delete originalView.attrs.title;
 
     return (
-      <Tooltip inline text={tooltipText}>
+      <Tooltip containerType="inline-block" text={tooltipText}>
         {originalView}
       </Tooltip>
     );
