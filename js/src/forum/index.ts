@@ -6,10 +6,6 @@ import app from './app';
 
 export { app };
 
-// Export public API
-// export { default as Extend } from './Extend';
-// export { IndexPage, DicsussionList } from './components';
-
 // Export compat API
 import compatObj from './compat';
 import proxifyCompat from '../common/utils/proxifyCompat';
