@@ -99,6 +99,7 @@ export default class Composer extends Component {
 
   onremove(vnode) {
     super.onremove(vnode);
+
     $(window).off('resize', this.handlers.onresize);
 
     $(document).off('mousemove', this.handlers.onmousemove).off('mouseup', this.handlers.onmouseup);
