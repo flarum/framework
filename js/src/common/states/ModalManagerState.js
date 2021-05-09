@@ -11,22 +11,11 @@ export default class ModalManagerState {
    * @public
    */
   show(componentClass, attrs) {
-    // Breaking Change Compliance Warning, Remove in Beta 15.
     if (!(componentClass.prototype instanceof Modal)) {
       // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
       console.error('The ModalManager can only show Modals');
       throw new Error('The ModalManager can only show Modals');
     }
-    if (componentClass.init) {
-      // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
-      console.error(
-        'The componentClass parameter must be a modal class, not a modal instance. Whichever extension triggered this modal should be updated to comply with beta 14.'
-      );
-      throw new Error(
-        'The componentClass parameter must be a modal class, not a modal instance. Whichever extension triggered this modal should be updated to comply with beta 14.'
-      );
-    }
-    // End Change Compliance Warning, Remove in Beta 15
 
     clearTimeout(this.closeTimeout);
 
