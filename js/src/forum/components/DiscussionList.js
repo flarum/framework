@@ -28,7 +28,7 @@ export default class DiscussionList extends Component {
       loading = Button.component(
         {
           className: 'Button',
-          onclick: state.loadMore.bind(state),
+          onclick: state.loadNext.bind(state),
         },
         app.translator.trans('core.forum.discussion_list.load_more_button')
       );
