@@ -3,16 +3,17 @@ import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-format
 import username from './helpers/username';
 import extract from './utils/extract';
 
+type Translations = Record<string, string>;
+type TranslatorParameters = Record<string, unknown>;
+
 export default class Translator {
   /**
    * A map of translation keys to their translated values.
    */
-  translations = {};
+  translations: Translations = {};
 
   /**
    * The underlying ICU MessageFormatter util.
-   *
-   * @ts-ignore
    */
   protected formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), mithrilRichHandler);
 
@@ -20,7 +21,7 @@ export default class Translator {
     this.formatter.locale = locale;
   }
 
-  addTranslations(translations: Record<string, string>) {
+  addTranslations(translations: Translations) {
     Object.assign(this.translations, translations);
   }
 
@@ -41,7 +42,7 @@ export default class Translator {
    *
    * @internal
    */
-  protected preprocessParameters(parameters) {
+  protected preprocessParameters(parameters: TranslatorParameters) {
     // If we've been given a user model as one of the input parameters, then
     // we'll extract the username and use that for the translation. In the
     // future there should be a hook here to inspect the user and change the
@@ -55,7 +56,7 @@ export default class Translator {
     return parameters;
   }
 
-  trans(id: string, parameters: any) {
+  trans(id: string, parameters: TranslatorParameters = {}) {
     const translation = this.translations[id];
 
     if (translation) {
