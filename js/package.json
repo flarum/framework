@@ -3,7 +3,7 @@
   "name": "@flarum/core",
   "dependencies": {
     "@askvortsov/rich-icu-message-formatter": "^0.1.0",
-    "@ultraq/icu-message-formatter": "^0.10.0",
+    "@ultraq/icu-message-formatter": "^0.10.1",
     "bootstrap": "^3.4.1",
     "clsx": "^1.1.1",
     "color-thief-browser": "^2.0.2",
@@ -13,7 +13,6 @@
     "jquery.hotkeys": "^0.1.0",
     "mithril": "^2.0.4",
     "punycode": "^2.1.1",
-    "spin.js": "^3.1.0",
     "textarea-caret": "^3.1.0",
     "throttle-debounce": "^3.0.1"
   },
@@ -27,9 +26,9 @@
     "cross-env": "^7.0.3",
     "flarum-webpack-config": "0.1.0-beta.10",
     "husky": "^4.3.8",
-    "prettier": "^2.2.1",
+    "prettier": "^2.3.0",
     "webpack": "^4.46.0",
-    "webpack-bundle-analyzer": "^4.4.0",
+    "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^3.3.12",
     "webpack-merge": "^4.2.2"
   },
