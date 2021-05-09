@@ -36,6 +36,10 @@ export default abstract class PaginatedListState<T extends Model> {
 
   public clear() {
     this.pages = [];
+
+    this._hasPrev = false;
+    this._hasNext = false;
+
     m.redraw();
   }
 
