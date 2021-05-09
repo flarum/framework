@@ -69,10 +69,6 @@ import Search from './components/Search';
 import DiscussionListItem from './components/DiscussionListItem';
 import LoadingPost from './components/LoadingPost';
 import PostsUserPage from './components/PostsUserPage';
-/**
- * @deprecated
- */
-import EditUserModal from '../common/components/EditUserModal';
 import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 import BasicEditorDriver from '../common/utils/BasicEditorDriver';
 import routes from './routes';
