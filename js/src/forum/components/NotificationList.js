@@ -30,7 +30,7 @@ export default class NotificationList extends Component {
         </div>
 
         <div className="NotificationList-content">
-          {pages.length
+          {state.hasItems()
             ? pages.map((page) => {
                 const groups = [];
                 const discussions = {};
@@ -84,7 +84,7 @@ export default class NotificationList extends Component {
               })
             : ''}
           {state.isLoading() ? (
-            <LoadingIndicator />
+            <LoadingIndicator className="LoadingIndicator--block" />
           ) : pages.length ? (
             ''
           ) : (
@@ -124,7 +124,7 @@ export default class NotificationList extends Component {
     // by a fraction of a pixel, so we compensate for that.
     const atBottom = Math.abs(scrollParent.scrollHeight - scrollParent.scrollTop - scrollParent.clientHeight) <= 1;
 
-    if (state.hasNext() && !state.isLoading() && atBottom) {
+    if (state.hasNext() && !state.isLoadingNext() && atBottom) {
       state.loadNext();
     }
   }
