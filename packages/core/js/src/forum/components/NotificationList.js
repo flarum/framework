@@ -107,7 +107,9 @@ export default class NotificationList extends Component {
     this.$scrollParent.on('scroll', this.boundScrollHandler);
   }
 
-  onremove() {
+  onremove(vnode) {
+    super.onremove(vnode);
+
     this.$scrollParent.off('scroll', this.boundScrollHandler);
   }
 

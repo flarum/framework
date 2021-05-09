@@ -69,6 +69,21 @@ export default abstract class Component<T extends ComponentAttrs = ComponentAttr
   }
 
   /**
+   * @inheritdoc
+   */
+  onupdate(vnode: Mithril.VnodeDOM<T, this>) {}
+
+  /**
+   * @inheritdoc
+   */
+  onbeforeremove(vnode: Mithril.VnodeDOM<T, this>) {}
+
+  /**
+   * @inheritdoc
+   */
+  onremove(vnode: Mithril.VnodeDOM<T, this>) {}
+
+  /**
    * Returns a jQuery object for this component's element. If you pass in a
    * selector string, this method will return a jQuery object, using the current
    * element as its buffer.

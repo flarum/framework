@@ -28,7 +28,9 @@ export default class ConfirmDocumentUnload extends Component {
     $(window).on('beforeunload', this.boundHandler);
   }
 
-  onremove() {
+  onremove(vnode) {
+    super.onremove(vnode);
+
     $(window).off('beforeunload', this.boundHandler);
   }
 

@@ -106,7 +106,9 @@ export default class PostStream extends Component {
     return <div className="PostStream">{items}</div>;
   }
 
-  onupdate() {
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
     this.triggerScroll();
   }
 
@@ -120,7 +122,9 @@ export default class PostStream extends Component {
     setTimeout(() => this.scrollListener.start());
   }
 
-  onremove() {
+  onremove(vnode) {
+    super.onremove(vnode);
+
     this.scrollListener.stop();
     clearTimeout(this.calculatePositionTimeout);
   }
