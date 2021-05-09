@@ -1,3 +1,5 @@
+import Mithril from 'mithril';
+
 /**
  * The `SearchSource` interface defines a section of search results in the
  * search dropdown.
@@ -7,24 +9,16 @@
  * query, each search source will be prompted to load search results via the
  * `search` method. When the dropdown is redrawn, it will be constructed by
  * putting together the output from the `view` method of each source.
- *
- * @interface
  */
-export default class SearchSource {
+export default interface SearchSource {
   /**
    * Make a request to get results for the given query.
-   *
-   * @param {String} query
-   * @return {Promise}
    */
-  search() {}
+  search(query: string);
 
   /**
    * Get an array of virtual <li>s that list the search results for the given
    * query.
-   *
-   * @param {String} query
-   * @return {Object}
    */
-  view() {}
+  view(query: string): Array<Mithril.Vnode>;
 }
