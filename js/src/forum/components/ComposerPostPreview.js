@@ -48,7 +48,9 @@ export default class ComposerPostPreview extends Component {
     this.updateInterval = setInterval(updatePreview, 50);
   }
 
-  onremove() {
+  onremove(vnode) {
+    super.onremove(vnode);
+
     clearInterval(this.updateInterval);
   }
 }

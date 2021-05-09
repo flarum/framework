@@ -56,7 +56,8 @@ export default class Composer extends Component {
     );
   }
 
-  onupdate() {
+  onupdate(vnode) {
+    super.onupdate(vnode);
     if (this.state.position === this.prevPosition) {
       // Set the height of the Composer element and its contents on each redraw,
       // so that they do not lose it if their DOM elements are recreated.
@@ -95,7 +96,8 @@ export default class Composer extends Component {
       .on('mouseup', (this.handlers.onmouseup = this.onmouseup.bind(this)));
   }
 
-  onremove() {
+  onremove(vnode) {
+    super.onremove(vnode);
     $(window).off('resize', this.handlers.onresize);
 
     $(document).off('mousemove', this.handlers.onmousemove).off('mouseup', this.handlers.onmouseup);

@@ -54,7 +54,9 @@ export default class Page extends Component {
     }
   }
 
-  onremove() {
+  onremove(vnode) {
+    super.onremove(vnode);
+
     if (this.bodyClass) {
       $('#app').removeClass(this.bodyClass);
     }

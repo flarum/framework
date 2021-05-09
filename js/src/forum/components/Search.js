@@ -123,7 +123,9 @@ export default class Search extends Component {
     this.element.querySelector('.Search-results').style['max-height'] = `${maxHeight}px`;
   }
 
-  onupdate() {
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
 
@@ -200,7 +202,8 @@ export default class Search extends Component {
     window.addEventListener('resize', this.updateMaxHeightHandler);
   }
 
-  onremove() {
+  onremove(vnode) {
+    super.onremove(vnode);
     window.removeEventListener('resize', this.updateMaxHeightHandler);
   }
 
