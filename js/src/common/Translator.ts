@@ -20,7 +20,7 @@ export default class Translator {
     this.formatter.locale = locale;
   }
 
-  addTranslations(translations: { [key: string]: string }) {
+  addTranslations(translations: Record<string, string>) {
     Object.assign(this.translations, translations);
   }
 
