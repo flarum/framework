@@ -55,11 +55,4 @@ export default class Translator {
 
     return id;
   }
-
-  /**
-   * @deprecated, remove before stable
-   */
-  transChoice(id, number, parameters) {
-    return this.trans(id, parameters);
-  }
 }
