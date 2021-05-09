@@ -3,7 +3,7 @@ import classList from '../utils/classList';
 
 export interface LoadingIndicatorAttrs extends ComponentAttrs {
   /**
-   * Custom classes fro the loading indicator's container.
+   * Custom classes for the loading indicator's container.
    */
   className?: string;
   /**
@@ -11,7 +11,7 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
    */
   containerClassName?: string;
   /**
-   * Optional size to specify for the loading indicator.
+   * Optional size for the loading indicator.
    */
   size?: 'large' | 'medium' | 'small';
   /**
