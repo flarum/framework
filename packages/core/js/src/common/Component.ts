@@ -81,7 +81,7 @@ export default abstract class Component<T extends ComponentAttrs = ComponentAttr
    * @returns the jQuery object for the DOM node
    * @final
    */
-  protected $(selector: string): JQuery {
+  protected $(selector?: string): JQuery {
     const $element = $(this.element) as JQuery<HTMLElement>;
 
     return selector ? $element.find(selector) : $element;
