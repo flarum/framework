@@ -83,11 +83,11 @@ class CorePayload
 
     private function getUserApiDocument(Request $request, User $actor): array
     {
-        // TODO: to avoid an extra query, something like
-        // $controller = new ShowUserController(new PreloadedUserRepository($user));
+        $id =$actor->id;
+        
 
         return $this->getResponseBody(
-            $this->api->send('users.show', $request, null, ['id' => $actor->id])
+            $this->api->withParentRequest($request)->get("/users/$id")
         );
     }
 

@@ -9,11 +9,11 @@
 
 namespace Flarum\Api;
 
-use Exception;
 use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
+use Laminas\Diactoros\Uri;
 use Laminas\Stratigility\MiddlewarePipeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -26,6 +26,26 @@ class Client
     protected $pipe;
 
     /**
+     * @var User
+     */
+    protected $actor;
+
+    /**
+     * @var ServerRequestInterface
+     */
+    protected $parent;
+
+    /**
+     * @var array
+     */
+    protected $queryParams = [];
+
+    /**
+     * @var array
+     */
+    protected $body = [];
+
+    /**
      * @param Container $container
      */
     public function __construct(MiddlewarePipeInterface $pipe)
@@ -33,32 +53,84 @@ class Client
         $this->pipe = $pipe;
     }
 
+    public function withActor(User $actor): Client
+    {
+        $new = clone $this;
+        $new->actor = $actor;
+
+        return $new;
+    }
+
+    public function withParentRequest(ServerRequestInterface $parent): Client
+    {
+        $new = clone $this;
+        $new->parent = $parent;
+
+        return $new;
+    }
+
+    public function withQueryParams(array $queryParams): Client
+    {
+        $new = clone $this;
+        $new->queryParams = $queryParams;
+
+        return $new;
+    }
+
+    public function withBody(array $body): Client
+    {
+        $new = clone $this;
+        $new->body = $body;
+
+        return $new;
+    }
+
+    public function get(string $path): ResponseInterface
+    {
+        return $this->send('GET', $path);
+    }
+
+    public function post(string $path): ResponseInterface
+    {
+        return $this->send('POST', $path);
+    }
+
+    public function put(string $path): ResponseInterface
+    {
+        return $this->send('PUT', $path);
+    }
+
+    public function patch(string $path): ResponseInterface
+    {
+        return $this->send('PATCH', $path);
+    }
+
+    public function delete(string $path): ResponseInterface
+    {
+        return $this->send('DELETE', $path);
+    }
+
     /**
      * Execute the given API action class, pass the input and return its response.
      *
      * @param string $routeName
-     * @param Request|null $parent
-     * @param User|null $actor
-     * @param array $queryParams
-     * @param array $body
      * @return ResponseInterface
-     * @throws Exception
      */
-    public function send(string $routeName, ServerRequestInterface $parent = null, User $actor = null, array $queryParams = [], array $body = []): ResponseInterface
+    protected function send(string $method, string $path): ResponseInterface
     {
-        $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
+        $request = ServerRequestFactory::fromGlobals(null, $this->queryParams, $this->body)
+            ->withMethod($method)
+            ->withUri(new Uri($path));
 
-        if ($parent) {
-            $request = $request->withAttribute('session', $parent->getAttribute('session'));
-            $request = RequestUtil::withActor($request, RequestUtil::getActor($parent));
+        if ($this->parent) {
+            $request = $request->withAttribute('session', $this->parent->getAttribute('session'));
+            $request = RequestUtil::withActor($request, RequestUtil::getActor($this->parent));
         }
 
         // This should override the actor from the parent request, if one exists.
-        if ($actor) {
-            $request = RequestUtil::withActor($request, $actor);
+        if ($this->actor) {
+            $request = RequestUtil::withActor($request, $this->actor);
         }
-
-        $request = $request->withAttribute('routeName', $routeName);
 
         return $this->pipe->handle($request);
     }

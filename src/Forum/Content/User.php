@@ -47,7 +47,7 @@ class User
             'id' => $userId,
         ];
 
-        $apiDocument = $this->getApiDocument($request, $params);
+        $apiDocument = $this->getApiDocument($request, $userId, $params);
         $user = $apiDocument->data->attributes;
 
         $document->title = $user->displayName;
@@ -60,15 +60,12 @@ class User
     /**
      * Get the result of an API request to show a user.
      *
-     * @param Request $request
-     * @param array $params
-     * @return object
      * @throws ModelNotFoundException
      */
-    protected function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, int $id, array $params)
     {
         $params['bySlug'] = true;
-        $response = $this->api->send('users.show', $request, null, $params);
+        $response = $this->api->withParentRequest($request)->withBody($params)->send("/users/$id");
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {

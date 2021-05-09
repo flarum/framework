@@ -48,11 +48,12 @@ class Discussion
 
     public function __invoke(Document $document, Request $request)
     {
+        $id = (int) Arr::get($queryParams, 'id');
         $queryParams = $request->getQueryParams();
         $page = max(1, intval(Arr::get($queryParams, 'page')));
 
         $params = [
-            'id' => (int) Arr::get($queryParams, 'id'),
+            'id' => $id,
             'page' => [
                 'near' => Arr::get($queryParams, 'near'),
                 'offset' => ($page - 1) * 20,
@@ -60,7 +61,7 @@ class Discussion
             ]
         ];
 
-        $apiDocument = $this->getApiDocument($request, $params);
+        $apiDocument = $this->getApiDocument($request, $id, $params);
 
         $getResource = function ($link) use ($apiDocument) {
             return Arr::first($apiDocument->included, function ($value) use ($link) {
@@ -96,15 +97,15 @@ class Discussion
     /**
      * Get the result of an API request to show a discussion.
      *
-     * @param Request $request
-     * @param array $params
-     * @return object
      * @throws RouteNotFoundException
      */
-    protected function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, number $id, array $params)
     {
         $params['bySlug'] = true;
-        $response = $this->api->send('discussions.show', $request, null, $params);
+        $response = $this->api
+            ->withParentRequest($request)
+            ->withBody($params)
+            ->get("/discussions/$id");
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {

@@ -66,7 +66,7 @@ class Frontend
     private function getForumDocument(Request $request): array
     {
         return $this->getResponseBody(
-            $this->api->send('forum.show', $request, null)
+            $this->api->withParentRequest($request)->get('/')
         );
     }
 

@@ -111,16 +111,13 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\AuthenticateWithHeader::class,
-                'flarum.api.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class
             ];
         });
 
         $this->container->singleton(Client::class, function ($container) {
             $pipe = new MiddlewarePipe;
-
-            $pipe->pipe(new Middleware\ResolveRouteFromName($container->make('flarum.api.routes')));
-
+            
             $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($container) {
                 return ! in_array($middlewareClass, $container->make('flarum.api_client.exclude_middleware'));
             });
