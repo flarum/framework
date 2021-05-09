@@ -106,7 +106,6 @@ class Client
         $new->csrfExempt = $csrfExempt;
 
         return $new;
-
     }
 
     public function get(string $path): ResponseInterface
@@ -139,7 +138,7 @@ class Client
      *
      * @param string $routeName
      * @return ResponseInterface
-     * 
+     *
      * @internal
      */
     public function send(string $method, string $path): ResponseInterface
