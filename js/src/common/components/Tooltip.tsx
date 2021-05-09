@@ -82,6 +82,12 @@ export default class Tooltip extends Component<TooltipAttrs> {
   view(vnode) {
     const { children } = vnode;
 
+    if (this.attrs.title) {
+      console.warn(
+        '`title` attribute was passed to Tooltip component. Was this intentional? Tooltip content should be passed to the `text` attr instead.'
+      );
+    }
+
     // We remove these to get the remaining attrs to pass to the DOM element
     const { text, containerType = 'block', tooltipVisible, showOnFocus, position, html, delay, className, class: classes, ...attrs } = this.attrs;
 
