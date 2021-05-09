@@ -110,7 +110,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\AuthenticateWithSession::class,
-                HttpMiddleware\AuthenticateWithHeader::class
+                HttpMiddleware\AuthenticateWithHeader::class,
+                HttpMiddleware\CheckCsrfToken::class
             ];
         });
 
