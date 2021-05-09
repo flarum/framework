@@ -150,7 +150,9 @@ class Client
             ->withAttribute('csrfExempt', $this->csrfExempt);
 
         if ($this->parent) {
-            $request = $request->withAttribute('session', $this->parent->getAttribute('session'));
+            $request = $request
+                ->withAttribute('session', $this->parent->getAttribute('session'))
+                ->withHeader('X-CSRF-Token', $this->parent->getHeaderLine('X-CSRF-Token'));
             $request = RequestUtil::withActor($request, RequestUtil::getActor($this->parent));
         }
 
