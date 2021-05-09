@@ -204,6 +204,7 @@ export default class Search extends Component {
 
   onremove(vnode) {
     super.onremove(vnode);
+
     window.removeEventListener('resize', this.updateMaxHeightHandler);
   }
 
