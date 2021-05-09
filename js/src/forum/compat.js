@@ -131,10 +131,6 @@ export default Object.assign(compat, {
   'components/EventPost': EventPost,
   'components/DiscussionHero': DiscussionHero,
   'components/PostMeta': PostMeta,
-  /**
-   * @deprecated Used for backwards compatibility now that the EditUserModal has moved to common. Remove in beta 17.
-   */
-  'components/EditUserModal': EditUserModal,
   'components/SearchSource': SearchSource,
   'components/DiscussionRenamedPost': DiscussionRenamedPost,
   'components/DiscussionComposer': DiscussionComposer,
