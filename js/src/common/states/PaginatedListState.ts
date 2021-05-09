@@ -163,9 +163,21 @@ export default abstract class PaginatedListState<T extends Model> {
     return this.loadingNext;
   }
 
+  /**
+   * Returns true when the number of items across all loaded pages is not 0.
+   *
+   * @see isEmpty
+   */
   public hasItems(): boolean {
     return !!this.getAllItems().length;
   }
+
+  /**
+   * Returns true when there aren't any items *and* the state has already done its initial loading.
+   * If you want to know whether there are items regardless of load state, use `hasItems()` instead
+   *
+   * @see hasItems
+   */
   public isEmpty(): boolean {
     return !this.isInitialLoading() && !this.hasItems();
   }
