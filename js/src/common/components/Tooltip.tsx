@@ -33,6 +33,8 @@ export interface TooltipAttrs extends ComponentAttrs {
   showOnFocus?: boolean;
   /**
    * Tooltip position around element.
+   *
+   * Default: `'top'`.
    */
   position?: 'top' | 'bottom' | 'left' | 'right';
   /**
@@ -41,6 +43,8 @@ export interface TooltipAttrs extends ComponentAttrs {
    * **Warning:** this is a possible XSS attack vector. This option shouldn't
    * be used wherever possible, and will not work when we migrate to CSS-only
    * tooltips.
+   *
+   * Default: `false`.
    *
    * @deprecated
    */
@@ -51,6 +55,8 @@ export interface TooltipAttrs extends ComponentAttrs {
    *
    * **Warning:** this option will be removed when we switch to CSS-only
    * tooltips.
+   *
+   * Default: `0`.
    *
    * @deprecated
    */
@@ -92,7 +98,18 @@ export default class Tooltip extends Component<TooltipAttrs> {
     }
 
     // We remove these to get the remaining attrs to pass to the DOM element
-    const { text, containerType = 'block', tooltipVisible, showOnFocus, position, html, delay, className, class: classes, ...attrs } = this.attrs;
+    const {
+      text,
+      containerType = 'block',
+      tooltipVisible,
+      showOnFocus = true,
+      position = 'top',
+      html = false,
+      delay = 0,
+      className,
+      class: classes,
+      ...attrs
+    } = this.attrs;
 
     const realText = Array.isArray(text) ? extractText(text) : text;
 
