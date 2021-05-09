@@ -11,6 +11,8 @@ export default class Translator {
 
   /**
    * The underlying ICU MessageFormatter util.
+   * 
+   * @ts-ignore
    */
   protected formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), mithrilRichHandler);
 
@@ -18,7 +20,7 @@ export default class Translator {
     this.formatter.locale = locale;
   }
 
-  addTranslations(translations: {[key: string]: string}) {
+  addTranslations(translations: { [key: string]: string }) {
     Object.assign(this.translations, translations);
   }
 
