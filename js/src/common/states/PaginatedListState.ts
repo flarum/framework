@@ -224,6 +224,8 @@ export default abstract class PaginatedListState<T extends Model> {
   }
 
   protected getAllItems(): T[] {
-    return this.pages.map((pg) => pg.items).flat();
+    return this.getPages()
+      .map((pg) => pg.items)
+      .flat();
   }
 }

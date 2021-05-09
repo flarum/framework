@@ -1,7 +1,9 @@
-import PaginatedListState from '../../common/states/PaginatedListState';
+import PaginatedListState, { Page } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 
 export default class DiscussionListState extends PaginatedListState<Discussion> {
+  protected extraDiscussions: Discussion[] = [];
+
   constructor(params: any, page: number) {
     super(params, page, 20);
   }
@@ -33,6 +35,12 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
     }
 
     return super.loadPage(page);
+  }
+
+  clear() {
+    super.clear();
+
+    this.extraDiscussions = [];
   }
 
   /**
@@ -70,6 +78,12 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
       }
     }
 
+    const index = this.extraDiscussions.indexOf(discussion);
+
+    if (index !== -1) {
+      this.extraDiscussions.splice(index);
+    }
+
     m.redraw();
   }
 
@@ -77,16 +91,30 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
    * Add a discussion to the top of the list.
    */
   addDiscussion(discussion: Discussion) {
-    // TODO: do we want an extra field for the added discussions that is cleared on refresh?
-    // that way we don't do weird stuff with pagination.
-    // We can have an extra method that adds the extra field to the array of discussions returned.
-    const page = this.pages[0];
+    this.removeDiscussion(discussion);
+    this.extraDiscussions.unshift(discussion);
 
-    if (page) {
-      page.items.unshift(discussion);
+    m.redraw();
+  }
 
-      m.redraw();
+  protected getAllItems(): Discussion[] {
+    return this.extraDiscussions.concat(super.getAllItems());
+  }
+
+  public getPages(): Page<Discussion>[] {
+    const pages = super.getPages();
+
+    if (this.extraDiscussions.length) {
+      return [
+        {
+          number: -1,
+          items: this.extraDiscussions,
+        },
+        ...pages,
+      ];
     }
+
+    return pages;
   }
 
   /**
