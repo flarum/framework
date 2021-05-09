@@ -13,11 +13,12 @@ export interface TooltipAttrs extends ComponentAttrs {
    */
   text: string | string[];
   /**
-   * If inline, uses a `<span>` container, else uses a `<div>`.
+   * Defines the type of container to use. Chosen option defines the `display`
+   * property of the container element in CSS.
    *
-   * Default: `false`.
+   * Default: `'block'`.
    */
-  inline?: boolean;
+  containerType?: 'block' | 'inline' | 'inline-block';
   /**
    * Manually show tooltip. `false` will show based on cursor events.
    *
@@ -82,12 +83,12 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const { children } = vnode;
 
     // We remove these to get the remaining attrs to pass to the DOM element
-    const { text, inline, tooltipVisible, showOnFocus, position, html, delay, className, class: classes, ...attrs } = this.attrs;
+    const { text, containerType = 'block', tooltipVisible, showOnFocus, position, html, delay, className, class: classes, ...attrs } = this.attrs;
 
     const realText = Array.isArray(text) ? extractText(text) : text;
 
     return (
-      <div title={realText} className={classList('tooltip-container', [inline && 'tooltip-container--inline'], className, classes)} {...attrs}>
+      <div title={realText} className={classList('tooltip-container', `tooltip-container--${containerType}`, className, classes)} {...attrs}>
         {children}
       </div>
     );
