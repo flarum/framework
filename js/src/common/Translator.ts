@@ -11,7 +11,7 @@ export default class Translator {
 
   /**
    * The underlying ICU MessageFormatter util.
-   * 
+   *
    * @ts-ignore
    */
   protected formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), mithrilRichHandler);
