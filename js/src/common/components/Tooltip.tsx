@@ -158,7 +158,6 @@ export default class Tooltip extends Component<TooltipAttrs> {
     if (this.shouldChangeTooltipVisibility) {
       this.shouldChangeTooltipVisibility = false;
       this.updateVisibility();
-
     }
   }
 
