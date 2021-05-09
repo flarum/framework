@@ -22,7 +22,7 @@ export default class DiscussionList extends Component {
     const params = state.getParams();
     let loading;
 
-    if (state.isLoading()) {
+    if (state.isInitialLoading() || state.isLoadingNext()) {
       loading = <LoadingIndicator />;
     } else if (state.hasNext()) {
       loading = Button.component(

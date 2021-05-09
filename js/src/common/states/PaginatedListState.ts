@@ -147,7 +147,7 @@ export default abstract class PaginatedListState<T extends Model> {
   }
 
   public isLoading(): boolean {
-    return this.initialLoading || this.loadingNext;
+    return this.initialLoading || this.loadingNext || this.loadingPrev;
   }
   public isInitialLoading(): boolean {
     return this.initialLoading;
