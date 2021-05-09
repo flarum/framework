@@ -141,6 +141,8 @@ export default class Tooltip extends Component<TooltipAttrs> {
   }
 
   onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
+    super.onupdate(vnode);
+
     this.recreateTooltip();
   }
 
