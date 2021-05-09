@@ -61,6 +61,12 @@ export interface TooltipAttrs extends ComponentAttrs {
    * @deprecated
    */
   delay?: number;
+  /**
+   * Used to disable the warning for passing text to the `title` attribute.
+   *
+   * Tooltip text should be passed to the `text` attribute.
+   */
+  ignoreTitleWarning?: boolean;
 }
 
 /**
@@ -94,25 +100,14 @@ export default class Tooltip extends Component<TooltipAttrs> {
   view(vnode) {
     const { children } = vnode;
 
-    if (this.attrs.title) {
+    // We remove these to get the remaining attrs to pass to the DOM element
+    const { text, tooltipVisible, showOnFocus = true, position = 'top', ignoreTitleWarning = false, html = false, delay = 0, ...attrs } = this.attrs;
+
+    if (this.attrs.title && !ignoreTitleWarning) {
       console.warn(
         '`title` attribute was passed to Tooltip component. Was this intentional? Tooltip content should be passed to the `text` attr instead.'
       );
     }
-
-    // We remove these to get the remaining attrs to pass to the DOM element
-    const {
-      text,
-      containerType = 'block',
-      tooltipVisible,
-      showOnFocus = true,
-      position = 'top',
-      html = false,
-      delay = 0,
-      className,
-      class: classes,
-      ...attrs
-    } = this.attrs;
 
     const realText = Array.isArray(text) ? extractText(text) : text;
 
