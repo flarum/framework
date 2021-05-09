@@ -79,6 +79,9 @@ export interface TooltipAttrs extends ComponentAttrs {
  *          </Tooltip>
  */
 export default class Tooltip extends Component<TooltipAttrs> {
+  private oldText: string = '';
+  private shouldRecreateTooltip: boolean = false;
+
   view(vnode) {
     const { children } = vnode;
 
@@ -93,6 +96,12 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
     const realText = Array.isArray(text) ? extractText(text) : text;
 
+    // We need to recreate the tooltip if the text has changed
+    if (realText !== this.oldText) {
+      this.oldText = realText;
+      this.shouldRecreateTooltip = true;
+    }
+
     return (
       <div title={realText} className={classList('tooltip-container', `tooltip-container--${containerType}`, className, classes)} {...attrs}>
         {children}
@@ -103,7 +112,18 @@ export default class Tooltip extends Component<TooltipAttrs> {
   oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.oncreate(vnode);
 
-    this.createTooltip();
+    this.recreateTooltip();
+  }
+
+  onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
+    this.recreateTooltip();
+  }
+
+  private recreateTooltip() {
+    if (this.shouldRecreateTooltip) {
+      this.$().tooltip('destroy');
+      this.createTooltip();
+    }
   }
 
   private createTooltip() {
