@@ -82,20 +82,12 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const { children } = vnode;
 
     // We remove these to get the remaining attrs to pass to the DOM element
-    const { text, inline, tooltipVisible, showOnFocus, position, html, delay, ...attrs } = this.attrs;
+    const { text, inline, tooltipVisible, showOnFocus, position, html, delay, className, class: classes, ...attrs } = this.attrs;
 
     const realText = Array.isArray(text) ? extractText(text) : text;
 
-    if (inline) {
-      return (
-        <span title={realText} {...attrs}>
-          {children}
-        </span>
-      );
-    }
-
     return (
-      <div title={realText} {...attrs}>
+      <div title={realText} className={classList('tooltip-container', [inline && 'tooltip-container--inline'], className, classes)} {...attrs}>
         {children}
       </div>
     );
