@@ -2,7 +2,6 @@ import Tooltip from './Tooltip';
 import Component from '../Component';
 import icon from '../helpers/icon';
 import classList from '../utils/classList';
-import extractText from '../utils/extractText';
 
 /**
  * The `Badge` component represents a user/discussion badge, indicating some
@@ -22,7 +21,6 @@ export default class Badge extends Component {
     const { type, icon: iconName, label, ...attrs } = this.attrs;
 
     const className = classList('Badge', [type && `Badge--${type}`], attrs.className);
-    const tooltipText = extractText(label);
 
     const iconChild = iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;');
 
@@ -37,7 +35,7 @@ export default class Badge extends Component {
     }
 
     return (
-      <Tooltip text={tooltipText} {...badgeAttrs}>
+      <Tooltip text={label} {...badgeAttrs}>
         {iconChild}
       </Tooltip>
     );

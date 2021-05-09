@@ -2,12 +2,16 @@ import Component, { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
 import { TooltipCreationOptions } from '../../../@types/tooltips';
+import extractText from '../utils/extractText';
 
 export interface TooltipAttrs extends ComponentAttrs {
   /**
    * Tooltip textual content.
+   *
+   * String arrays, like those provided by the translator, will be flattened
+   * into strings.
    */
-  text: string;
+  text: string | string[];
   /**
    * If inline, uses a `<span>` container, else uses a `<div>`.
    *
@@ -80,16 +84,18 @@ export default class Tooltip extends Component<TooltipAttrs> {
     // We remove these to get the remaining attrs to pass to the DOM element
     const { text, inline, tooltipVisible, showOnFocus, position, html, delay, ...attrs } = this.attrs;
 
+    const realText = Array.isArray(text) ? extractText(text) : text;
+
     if (inline) {
       return (
-        <span title={text} {...attrs}>
+        <span title={realText} {...attrs}>
           {children}
         </span>
       );
     }
 
     return (
-      <div title={text} {...attrs}>
+      <div title={realText} {...attrs}>
         {children}
       </div>
     );
