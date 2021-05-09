@@ -13,8 +13,9 @@ export default class ModalManagerState {
   show(componentClass, attrs) {
     if (!(componentClass.prototype instanceof Modal)) {
       // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
-      console.error('The ModalManager can only show Modals');
-      throw new Error('The ModalManager can only show Modals');
+      const invalidModalWarning = 'The ModalManager can only show Modals.';
+      console.error(invalidModalWarning);
+      throw new Error(invalidModalWarning);
     }
 
     clearTimeout(this.closeTimeout);
