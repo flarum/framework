@@ -27,7 +27,9 @@ export default class Modal extends Component {
     this.attrs.animateShow(() => this.onready());
   }
 
-  onbeforeremove() {
+  onbeforeremove(vnode) {
+    super.onbeforeremove(vnode);
+
     // If the global modal state currently contains a modal,
     // we've just opened up a new one, and accordingly,
     // we don't need to show a hide animation.

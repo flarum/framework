@@ -24,7 +24,9 @@ export default class AffixedSidebar extends Component {
     $(window).on('resize', this.boundOnresize).resize();
   }
 
-  onremove() {
+  onremove(vnode) {
+    super.onremove(vnode);
+
     $(window).off('resize', this.boundOnresize);
   }
 

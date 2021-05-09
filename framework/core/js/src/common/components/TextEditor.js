@@ -54,7 +54,9 @@ export default class TextEditor extends Component {
     this.attrs.composer.editor = this.buildEditor(this.$('.TextEditor-editorContainer')[0]);
   }
 
-  onupdate() {
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
     const newDisabled = !!this.attrs.disabled;
 
     if (this.disabled !== newDisabled) {

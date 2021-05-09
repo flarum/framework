@@ -51,8 +51,9 @@ export default class DiscussionPage extends Page {
     this.bodyClass = 'App--discussion';
   }
 
-  onremove() {
-    super.onremove();
+  onremove(vnode) {
+    super.onremove(vnode);
+
     // If we are indeed navigating away from this discussion, then disable the
     // discussion list pane. Also, if we're composing a reply to this
     // discussion, minimize the composer – unless it's empty, in which case
