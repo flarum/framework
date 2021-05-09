@@ -99,7 +99,7 @@ class Discussion
      *
      * @throws RouteNotFoundException
      */
-    protected function getApiDocument(Request $request, number $id, array $params)
+    protected function getApiDocument(Request $request, int $id, array $params)
     {
         $params['bySlug'] = true;
         $response = $this->api
