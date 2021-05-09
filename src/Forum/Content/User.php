@@ -41,13 +41,9 @@ class User
     public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
-        $userId = Arr::get($queryParams, 'username');
+        $username = Arr::get($queryParams, 'username');
 
-        $params = [
-            'id' => $userId,
-        ];
-
-        $apiDocument = $this->getApiDocument($request, $userId, $params);
+        $apiDocument = $this->getApiDocument($request, $username);
         $user = $apiDocument->data->attributes;
 
         $document->title = $user->displayName;
@@ -62,10 +58,9 @@ class User
      *
      * @throws ModelNotFoundException
      */
-    protected function getApiDocument(Request $request, int $id, array $params)
+    protected function getApiDocument(Request $request, string $username)
     {
-        $params['bySlug'] = true;
-        $response = $this->api->withParentRequest($request)->withBody($params)->send("/users/$id");
+        $response = $this->api->withParentRequest($request)->withQueryParams(['bySlug' => true])->get("/users/$username");
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {

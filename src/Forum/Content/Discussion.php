@@ -48,8 +48,8 @@ class Discussion
 
     public function __invoke(Document $document, Request $request)
     {
-        $id = (int) Arr::get($queryParams, 'id');
         $queryParams = $request->getQueryParams();
+        $id = (int) Arr::get($queryParams, 'id');
         $page = max(1, intval(Arr::get($queryParams, 'page')));
 
         $params = [
@@ -104,7 +104,7 @@ class Discussion
         $params['bySlug'] = true;
         $response = $this->api
             ->withParentRequest($request)
-            ->withBody($params)
+            ->withQueryParams($params)
             ->get("/discussions/$id");
         $statusCode = $response->getStatusCode();
 
