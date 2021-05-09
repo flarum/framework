@@ -79,6 +79,8 @@ export default abstract class PaginatedListState<T extends Model> {
       this.pages.unshift(page);
     }
 
+    this.location = { page: pageNum };
+
     this._hasNext = !!results.payload?.links?.next;
     this._hasPrev = !!results.payload?.links?.prev;
 
