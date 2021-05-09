@@ -146,6 +146,7 @@ export default class PostStreamScrubber extends Component {
 
   onremove(vnode) {
     super.onremove(vnode);
+
     this.scrollListener.stop();
     $(window).off('resize', this.handlers.onresize);
 
