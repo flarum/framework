@@ -60,7 +60,7 @@ export default class Translator {
     const translation = this.translations[id];
 
     if (translation) {
-      parameters = this.preprocessParameters(parameters || {});
+      parameters = this.preprocessParameters(parameters);
       return this.formatter.rich(translation, parameters);
     }
 
