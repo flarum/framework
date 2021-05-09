@@ -58,6 +58,7 @@ export default class Composer extends Component {
 
   onupdate(vnode) {
     super.onupdate(vnode);
+
     if (this.state.position === this.prevPosition) {
       // Set the height of the Composer element and its contents on each redraw,
       // so that they do not lose it if their DOM elements are recreated.
