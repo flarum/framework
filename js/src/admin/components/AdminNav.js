@@ -27,7 +27,9 @@ export default class AdminNav extends Component {
     this.scrollToActive();
   }
 
-  onupdate() {
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
     this.scrollToActive();
   }
 

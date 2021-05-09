@@ -40,7 +40,9 @@ export default class PostEdited extends Component {
     this.rebuildTooltip();
   }
 
-  onupdate() {
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
     this.rebuildTooltip();
   }
 
