@@ -86,7 +86,10 @@ export interface TooltipAttrs extends ComponentAttrs {
  */
 export default class Tooltip extends Component<TooltipAttrs> {
   private oldText: string = '';
+  private oldVisibility: boolean | undefined;
+
   private shouldRecreateTooltip: boolean = false;
+  private shouldChangeTooltipVisibility: boolean = false;
 
   view(vnode) {
     const { children } = vnode;
@@ -119,6 +122,11 @@ export default class Tooltip extends Component<TooltipAttrs> {
       this.shouldRecreateTooltip = true;
     }
 
+    if (tooltipVisible !== this.oldVisibility) {
+      this.oldVisibility = this.attrs.tooltipVisible;
+      this.shouldChangeTooltipVisibility = true;
+    }
+
     return (
       <div title={realText} className={classList('tooltip-container', `tooltip-container--${containerType}`, className, classes)} {...attrs}>
         {children}
@@ -138,14 +146,35 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
   private recreateTooltip() {
     if (this.shouldRecreateTooltip) {
-      this.$().tooltip('destroy');
+      this.$().tooltip(
+        'destroy',
+        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
+        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
+      );
       this.createTooltip();
+      this.shouldRecreateTooltip = false;
     }
 
+    if (this.shouldChangeTooltipVisibility) {
+      this.shouldChangeTooltipVisibility = false;
+      this.updateVisibility();
+
+    }
+  }
+
+  private updateVisibility() {
     if (this.attrs.tooltipVisible === true) {
-      this.$().tooltip('show');
+      this.$().tooltip(
+        'show',
+        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
+        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
+      );
     } else if (this.attrs.tooltipVisible === false) {
-      this.$().tooltip('hide');
+      this.$().tooltip(
+        'hide',
+        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
+        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
+      );
     }
   }
 
