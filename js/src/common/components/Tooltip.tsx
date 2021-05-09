@@ -141,6 +141,12 @@ export default class Tooltip extends Component<TooltipAttrs> {
       this.$().tooltip('destroy');
       this.createTooltip();
     }
+
+    if (this.attrs.tooltipVisible === true) {
+      this.$().tooltip('show');
+    } else if (this.attrs.tooltipVisible === false) {
+      this.$().tooltip('hide');
+    }
   }
 
   private createTooltip() {
@@ -150,7 +156,12 @@ export default class Tooltip extends Component<TooltipAttrs> {
       delay,
       // This will have no effect when switching to CSS tooltips
       html = false,
+      tooltipVisible,
     } = this.attrs;
+
+    const trigger = (typeof tooltipVisible === 'boolean'
+      ? 'manual'
+      : classList('hover', [showOnFocus && 'focus'])) as TooltipCreationOptions['trigger'];
 
     // https://getbootstrap.com/docs/3.3/javascript/#tooltips-options
     this.$().tooltip(
@@ -159,7 +170,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
         delay,
         placement: position,
         // Fancy "hack" to assemble the trigger string
-        trigger: classList('hover', [showOnFocus && 'focus']) as TooltipCreationOptions['trigger'],
+        trigger,
       },
       // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
       'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'

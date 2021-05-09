@@ -65,4 +65,4 @@ export interface TooltipCreationOptions {
  *
  * Returns the same jQuery reference to allow for method chaining.
  */
-export type TooltipJQueryFunction = (tooltipOptions?: TooltipCreationOptions | 'destroy') => JQuery;
+export type TooltipJQueryFunction = (tooltipOptions?: TooltipCreationOptions | 'destroy' | 'show' | 'hide') => JQuery;
