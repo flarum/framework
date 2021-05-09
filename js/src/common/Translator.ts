@@ -4,34 +4,42 @@ import username from './helpers/username';
 import extract from './utils/extract';
 
 export default class Translator {
-  constructor() {
-    /**
-     * A map of translation keys to their translated values.
-     *
-     * @type {Object}
-     * @public
-     */
-    this.translations = {};
+  /**
+   * A map of translation keys to their translated values.
+   */
+  translations = {};
 
-    this.formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), mithrilRichHandler);
+  /**
+   * The underlying ICU MessageFormatter util.
+   */
+  protected formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), mithrilRichHandler);
+
+  setLocale(locale: string) {
+    this.formatter.locale = locale;
   }
 
-  formatterTypeHandlers() {
+  addTranslations(translations: {[key: string]: string}) {
+    Object.assign(this.translations, translations);
+  }
+
+  /**
+   * An extensible entrypoint for extenders to register type handlers for translations.
+   */
+  protected formatterTypeHandlers() {
     return {
       plural: pluralTypeHandler,
       select: selectTypeHandler,
     };
   }
 
-  setLocale(locale) {
-    this.formatter.locale = locale;
-  }
-
-  addTranslations(translations) {
-    Object.assign(this.translations, translations);
-  }
-
-  preprocessParameters(parameters) {
+  /**
+   * A temporary system to preprocess parameters.
+   * Should not be used by extensions.
+   * TODO: An extender will be added in v1.x.
+   *
+   * @internal
+   */
+  protected preprocessParameters(parameters) {
     // If we've been given a user model as one of the input parameters, then
     // we'll extract the username and use that for the translation. In the
     // future there should be a hook here to inspect the user and change the
@@ -45,7 +53,7 @@ export default class Translator {
     return parameters;
   }
 
-  trans(id, parameters) {
+  trans(id: string, parameters: any) {
     const translation = this.translations[id];
 
     if (translation) {
