@@ -46,6 +46,11 @@ class Client
     protected $body = [];
 
     /**
+     * @var bool
+     */
+    protected $csrfExempt = false;
+
+    /**
      * @param Container $container
      */
     public function __construct(MiddlewarePipeInterface $pipe)
@@ -53,6 +58,11 @@ class Client
         $this->pipe = $pipe;
     }
 
+    /**
+     * Set the request actor.
+     * This is not needed if a parent request is provided.
+     * It can, however, override the parent request's actor.
+     */
     public function withActor(User $actor): Client
     {
         $new = clone $this;
@@ -85,6 +95,20 @@ class Client
         return $new;
     }
 
+    /**
+     * Mark a client as csrf exempt.
+     * This is not needed if a parent request is provided,
+     * and the parent request's session has a csrf token attached.
+     */
+    public function withCsrfExempt(bool $csrfExempt)
+    {
+        $new = clone $this;
+        $new->csrfExempt = $csrfExempt;
+
+        return $new;
+
+    }
+
     public function get(string $path): ResponseInterface
     {
         return $this->send('GET', $path);
@@ -115,12 +139,16 @@ class Client
      *
      * @param string $routeName
      * @return ResponseInterface
+     * 
+     * @internal
      */
-    protected function send(string $method, string $path): ResponseInterface
+    public function send(string $method, string $path): ResponseInterface
     {
         $request = ServerRequestFactory::fromGlobals(null, $this->queryParams, $this->body)
+            ->withParsedBody($this->body)
             ->withMethod($method)
-            ->withUri(new Uri($path));
+            ->withUri(new Uri($path))
+            ->withAttribute('csrfExempt', $this->csrfExempt);
 
         if ($this->parent) {
             $request = $request->withAttribute('session', $this->parent->getAttribute('session'));
