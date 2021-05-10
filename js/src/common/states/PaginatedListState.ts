@@ -132,7 +132,7 @@ export default abstract class PaginatedListState<T extends Model> {
     this.loadingPrev = false;
     this.loadingNext = false;
 
-    m.redraw();
+    this.clear();
 
     this.location = { page };
 
