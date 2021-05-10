@@ -271,23 +271,28 @@ class Migrator
     public function installFromSchema(string $path)
     {
         $schemaPath = "$path/install.dump";
-        $prefixedSchemaPath = "$path/install_prefixed.dump.tmp";
+
+        // If we can't create a tmp file, fall back to the vendor directory.
+        $schemaWithPrefixes = tempnam(sys_get_temp_dir(), 'install');
+        if (!$schemaWithPrefixes) {
+            $schemaWithPrefixes = "$path/install_dump.dump.tmp";
+        }
 
         $currDumpFile = file_get_contents($schemaPath);
 
-        file_put_contents($prefixedSchemaPath, str_replace('db_prefix_', $this->tablePrefix, $currDumpFile));
+        file_put_contents($schemaWithPrefixes, str_replace('db_prefix_', $this->tablePrefix, $currDumpFile));
 
         $this->note('<info>Loading stored database schema:</info>');
         $startTime = microtime(true);
 
         $this->schemaState->handleOutputUsing(function ($type, $buffer) {
             $this->output->write($buffer);
-        })->load($prefixedSchemaPath);
+        })->load($schemaWithPrefixes);
 
         $runTime = number_format((microtime(true) - $startTime) * 1000, 2);
         $this->note('<info>Loaded stored database schema.</info> ('.$runTime.'ms)');
 
-        unlink($prefixedSchemaPath);
+        unlink($schemaWithPrefixes);
     }
 
     /**
