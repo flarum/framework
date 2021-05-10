@@ -10,11 +10,8 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
-use Flarum\Api\Controller\ShowUserController;
 use Flarum\Frontend\Document;
-use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\User\User as FlarumUser;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -44,14 +41,9 @@ class User
     public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
-        $actor = RequestUtil::getActor($request);
-        $userId = Arr::get($queryParams, 'username');
+        $username = Arr::get($queryParams, 'username');
 
-        $params = [
-            'id' => $userId,
-        ];
-
-        $apiDocument = $this->getApiDocument($actor, $params);
+        $apiDocument = $this->getApiDocument($request, $username);
         $user = $apiDocument->data->attributes;
 
         $document->title = $user->displayName;
@@ -64,15 +56,11 @@ class User
     /**
      * Get the result of an API request to show a user.
      *
-     * @param FlarumUser $actor
-     * @param array $params
-     * @return object
      * @throws ModelNotFoundException
      */
-    protected function getApiDocument(FlarumUser $actor, array $params)
+    protected function getApiDocument(Request $request, string $username)
     {
-        $params['bySlug'] = true;
-        $response = $this->api->send(ShowUserController::class, $actor, $params);
+        $response = $this->api->withParentRequest($request)->withQueryParams(['bySlug' => true])->get("/users/$username");
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {

@@ -79,4 +79,20 @@ class ThrottleApiTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function throttling_applies_to_api_client()
+    {
+        $this->extend((new Extend\ThrottleApi)->set('blockRegistration', function ($request) {
+            if ($request->getAttribute('routeName') === 'users.create') {
+                return true;
+            }
+        }));
+
+        $response = $this->send($this->request('POST', '/register')->withAttribute('bypassCsrfToken', true));
+
+        $this->assertEquals(429, $response->getStatusCode());
+    }
 }

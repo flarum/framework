@@ -8,6 +8,8 @@ import ItemList from './utils/ItemList';
 import mixin from './utils/mixin';
 import humanTime from './utils/humanTime';
 import computed from './utils/computed';
+import insertText from './utils/insertText';
+import styleSelectedText from './utils/styleSelectedText';
 import Drawer from './utils/Drawer';
 import anchorScroll from './utils/anchorScroll';
 import RequestError from './utils/RequestError';
@@ -62,6 +64,7 @@ import GroupBadge from './components/GroupBadge';
 import TextEditor from './components/TextEditor';
 import TextEditorButton from './components/TextEditorButton';
 import EditUserModal from './components/EditUserModal';
+import Tooltip from './components/Tooltip';
 import Model from './Model';
 import Application from './Application';
 import fullTime from './helpers/fullTime';
@@ -87,6 +90,8 @@ export default {
   'utils/mixin': mixin,
   'utils/humanTime': humanTime,
   'utils/computed': computed,
+  'utils/insertText': insertText,
+  'utils/styleSelectedText': styleSelectedText,
   'utils/Drawer': Drawer,
   'utils/anchorScroll': anchorScroll,
   'utils/RequestError': RequestError,
@@ -141,6 +146,7 @@ export default {
   'components/GroupBadge': GroupBadge,
   'components/TextEditor': TextEditor,
   'components/TextEditorButton': TextEditorButton,
+  'components/Tooltip': Tooltip,
   'components/EditUserModal': EditUserModal,
   Model: Model,
   Application: Application,

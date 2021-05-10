@@ -8,6 +8,8 @@ import * as _$ from 'jquery';
 // Globals from flarum/core
 import Application from './src/common/Application';
 
+import type { TooltipJQueryFunction } from './@types/tooltips';
+
 /**
  * flarum/core exposes several extensions globally:
  *
@@ -25,14 +27,7 @@ declare global {
 
   // Extend JQuery with our custom functions, defined with $.fn
   interface JQuery {
-    /**
-     * Creates a tooltip on a jQuery element reference.
-     *
-     * Optionally accepts placement and delay options.
-     *
-     * Returns the same reference to allow for method chaining.
-     */
-    tooltip: (tooltipOptions?: { placement?: 'top' | 'bottom' | 'left' | 'right'; delay?: number }) => JQuery;
+    tooltip: TooltipJQueryFunction;
   }
 }
 

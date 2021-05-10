@@ -102,6 +102,34 @@ class ApiServiceProvider extends AbstractServiceProvider
                 'discussionRenamed' => BasicDiscussionSerializer::class
             ];
         });
+
+        $this->container->singleton('flarum.api_client.exclude_middleware', function () {
+            return [
+                HttpMiddleware\InjectActorReference::class,
+                HttpMiddleware\ParseJsonBody::class,
+                Middleware\FakeHttpMethods::class,
+                HttpMiddleware\StartSession::class,
+                HttpMiddleware\AuthenticateWithSession::class,
+                HttpMiddleware\AuthenticateWithHeader::class,
+                HttpMiddleware\CheckCsrfToken::class
+            ];
+        });
+
+        $this->container->singleton(Client::class, function ($container) {
+            $pipe = new MiddlewarePipe;
+
+            $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($container) {
+                return ! in_array($middlewareClass, $container->make('flarum.api_client.exclude_middleware'));
+            });
+
+            foreach ($middlewareStack as $middleware) {
+                $pipe->pipe($container->make($middleware));
+            }
+
+            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
+
+            return new Client($pipe);
+        });
     }
 
     /**
