@@ -9,76 +9,138 @@
 
 namespace Flarum\Api;
 
-use Exception;
-use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
-use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
-use InvalidArgumentException;
 use Laminas\Diactoros\ServerRequestFactory;
+use Laminas\Diactoros\Uri;
+use Laminas\Stratigility\MiddlewarePipeInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Throwable;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Client
 {
     /**
-     * @var Container
+     * @var MiddlewarePipeInterface
      */
-    protected $container;
+    protected $pipe;
 
     /**
-     * @var Registry
+     * @var User
      */
-    protected $registry;
+    protected $actor;
+
+    /**
+     * @var ServerRequestInterface
+     */
+    protected $parent;
+
+    /**
+     * @var array
+     */
+    protected $queryParams = [];
+
+    /**
+     * @var array
+     */
+    protected $body = [];
 
     /**
      * @param Container $container
-     * @param Registry $registry
      */
-    public function __construct(Container $container, Registry $registry)
+    public function __construct(MiddlewarePipeInterface $pipe)
     {
-        $this->container = $container;
-        $this->registry = $registry;
+        $this->pipe = $pipe;
+    }
+
+    /**
+     * Set the request actor.
+     * This is not needed if a parent request is provided.
+     * It can, however, override the parent request's actor.
+     */
+    public function withActor(User $actor): Client
+    {
+        $new = clone $this;
+        $new->actor = $actor;
+
+        return $new;
+    }
+
+    public function withParentRequest(ServerRequestInterface $parent): Client
+    {
+        $new = clone $this;
+        $new->parent = $parent;
+
+        return $new;
+    }
+
+    public function withQueryParams(array $queryParams): Client
+    {
+        $new = clone $this;
+        $new->queryParams = $queryParams;
+
+        return $new;
+    }
+
+    public function withBody(array $body): Client
+    {
+        $new = clone $this;
+        $new->body = $body;
+
+        return $new;
+    }
+
+    public function get(string $path): ResponseInterface
+    {
+        return $this->send('GET', $path);
+    }
+
+    public function post(string $path): ResponseInterface
+    {
+        return $this->send('POST', $path);
+    }
+
+    public function put(string $path): ResponseInterface
+    {
+        return $this->send('PUT', $path);
+    }
+
+    public function patch(string $path): ResponseInterface
+    {
+        return $this->send('PATCH', $path);
+    }
+
+    public function delete(string $path): ResponseInterface
+    {
+        return $this->send('DELETE', $path);
     }
 
     /**
      * Execute the given API action class, pass the input and return its response.
      *
-     * @param string|RequestHandlerInterface $controller
-     * @param User|null $actor
-     * @param array $queryParams
-     * @param array $body
+     * @param string $method
+     * @param string $path
      * @return ResponseInterface
-     * @throws Exception
+     *
+     * @internal
      */
-    public function send($controller, User $actor = null, array $queryParams = [], array $body = []): ResponseInterface
+    public function send(string $method, string $path): ResponseInterface
     {
-        $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
+        $request = ServerRequestFactory::fromGlobals(null, $this->queryParams, $this->body)
+            ->withMethod($method)
+            ->withUri(new Uri($path));
 
-        $request = RequestUtil::withActor($request, $actor);
-
-        if (is_string($controller)) {
-            $controller = $this->container->make($controller);
+        if ($this->parent) {
+            $request = $request
+                ->withAttribute('session', $this->parent->getAttribute('session'));
+            $request = RequestUtil::withActor($request, RequestUtil::getActor($this->parent));
         }
 
-        if (! ($controller instanceof RequestHandlerInterface)) {
-            throw new InvalidArgumentException(
-                'Endpoint must be an instance of '.RequestHandlerInterface::class
-            );
+        // This should override the actor from the parent request, if one exists.
+        if ($this->actor) {
+            $request = RequestUtil::withActor($request, $this->actor);
         }
 
-        try {
-            return $controller->handle($request);
-        } catch (Throwable $e) {
-            $error = $this->registry->handle($e);
-
-            if ($error->shouldBeReported()) {
-                throw $e;
-            }
-
-            return (new JsonApiFormatter)->format($error, $request);
-        }
+        return $this->pipe->handle($request);
     }
 }

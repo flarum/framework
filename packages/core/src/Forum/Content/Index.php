@@ -10,12 +10,9 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
-use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
-use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -84,7 +81,7 @@ class Index
             $params['filter']['q'] = $q;
         }
 
-        $apiDocument = $this->getApiDocument(RequestUtil::getActor($request), $params);
+        $apiDocument = $this->getApiDocument($request, $params);
         $defaultRoute = $this->settings->get('default_route');
 
         $document->title = $this->translator->trans('core.forum.index.meta_title_text');
@@ -113,12 +110,12 @@ class Index
     /**
      * Get the result of an API request to list discussions.
      *
-     * @param User $actor
+     * @param Request $request
      * @param array $params
      * @return object
      */
-    private function getApiDocument(User $actor, array $params)
+    protected function getApiDocument(Request $request, array $params)
     {
-        return json_decode($this->api->send(ListDiscussionsController::class, $actor, $params)->getBody());
+        return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
     }
 }
