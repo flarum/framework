@@ -16,6 +16,7 @@ import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
 import DiscussionPage from './DiscussionPage';
 import escapeRegExp from '../../common/utils/escapeRegExp';
+import Tooltip from '../../common/components/Tooltip';
 
 /**
  * The `DiscussionListItem` component shows a single discussion in the
@@ -101,18 +102,14 @@ export default class DiscussionListItem extends Component {
         </span>
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
-          <Link
-            href={user ? app.route.user(user) : '#'}
-            className="DiscussionListItem-author"
-            title={extractText(
-              app.translator.trans('core.forum.discussion_list.started_text', { user: user, ago: humanTime(discussion.createdAt()) })
-            )}
-            oncreate={function (vnode) {
-              $(vnode.dom).tooltip({ placement: 'right' });
-            }}
+          <Tooltip
+            text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
+            position="right"
           >
-            {avatar(user, { title: '' })}
-          </Link>
+            <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
+              {avatar(user, { title: '' })}
+            </Link>
+          </Tooltip>
 
           <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>
 
