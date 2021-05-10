@@ -2,7 +2,7 @@ import highlight from '../../common/helpers/highlight';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import Link from '../../common/components/Link';
-import SearchSource from './SearchSource';
+import { SearchSource } from './Search';
 import Mithril from 'mithril';
 
 /**

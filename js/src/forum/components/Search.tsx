@@ -9,7 +9,29 @@ import SearchState from '../states/SearchState';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
 import Mithril from 'mithril';
-import SearchSource from './SearchSource';
+
+/**
+ * The `SearchSource` interface defines a section of search results in the
+ * search dropdown.
+ *
+ * Search sources should be registered with the `Search` component class
+ * by extending the `sourceItems` method. When the user types a
+ * query, each search source will be prompted to load search results via the
+ * `search` method. When the dropdown is redrawn, it will be constructed by
+ * putting together the output from the `view` method of each source.
+ */
+export interface SearchSource {
+  /**
+   * Make a request to get results for the given query.
+   */
+  search(query: string);
+
+  /**
+   * Get an array of virtual <li>s that list the search results for the given
+   * query.
+   */
+  view(query: string): Array<Mithril.Vnode>;
+}
 
 export interface SearchAttrs extends ComponentAttrs {
   /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */

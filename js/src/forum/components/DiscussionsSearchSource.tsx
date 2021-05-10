@@ -1,7 +1,7 @@
 import highlight from '../../common/helpers/highlight';
 import LinkButton from '../../common/components/LinkButton';
 import Link from '../../common/components/Link';
-import SearchSource from './SearchSource';
+import { SearchSource } from './Search';
 import Mithril from 'mithril';
 
 /**
