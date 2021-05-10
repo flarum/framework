@@ -56,7 +56,7 @@ class Discussion
         $params = [
             'id' => $id,
             'page' => [
-                'near' => Arr::get($queryParams, 'near'),
+                'near' => $near,
                 'offset' => ($page - 1) * 20,
                 'limit' => 20
             ]
