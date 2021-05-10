@@ -29,15 +29,11 @@ export default class Badge extends Component {
       ...attrs,
     };
 
-    // If we don't have a tooltip label, don't render the tooltip component.
-    if (typeof label !== 'string' && !Array.isArray(label)) {
-      return <div {...badgeAttrs}>{iconChild}</div>;
-    }
+    const badgeNode = <div {...badgeAttrs}>{iconChild}</div>;
 
-    return (
-      <Tooltip text={label} {...badgeAttrs}>
-        {iconChild}
-      </Tooltip>
-    );
+    // If we don't have a tooltip label, don't render the tooltip component.
+    if (!label) return badgeNode;
+
+    return <Tooltip text={label}>{badgeNode}</Tooltip>;
   }
 }
