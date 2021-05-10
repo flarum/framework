@@ -50,12 +50,13 @@ class Discussion
     {
         $queryParams = $request->getQueryParams();
         $id = Arr::get($queryParams, 'id');
-        $page = max(1, intval(Arr::get($queryParams, 'page')));
+        $near = intval(Arr::get($queryParams, 'near'));
+        $page = max(1, intval(Arr::get($queryParams, 'page')), 1 + intdiv($near, 20));
 
         $params = [
             'id' => $id,
             'page' => [
-                'near' => Arr::get($queryParams, 'near'),
+                'near' => $near,
                 'offset' => ($page - 1) * 20,
                 'limit' => 20
             ]
@@ -72,10 +73,16 @@ class Discussion
         $url = function ($newQueryParams) use ($queryParams, $apiDocument) {
             $newQueryParams = array_merge($queryParams, $newQueryParams);
             unset($newQueryParams['id']);
+            unset($newQueryParams['near']);
+
+            if (Arr::get($newQueryParams, 'page') == 1) {
+                unset($newQueryParams['page']);
+            }
+
             $queryString = http_build_query($newQueryParams);
 
             return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->attributes->slug]).
-            ($queryString ? '?'.$queryString : '');
+                ($queryString ? '?'.$queryString : '');
         };
 
         $posts = [];
@@ -86,9 +93,12 @@ class Discussion
             }
         }
 
+        $hasPrevPage = $page > 1;
+        $hasNextPage = $page < 1 + intval($apiDocument->data->attributes->commentCount / 20);
+
         $document->title = $apiDocument->data->attributes->title;
-        $document->canonicalUrl = $url([]);
-        $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'getResource', 'posts', 'url'));
+        $document->canonicalUrl = $url(['page' => $page]);
+        $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'hasPrevPage', 'hasNextPage', 'getResource', 'posts', 'url'));
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;
