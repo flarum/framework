@@ -49,7 +49,7 @@ class Discussion
     public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
-        $id = (int) Arr::get($queryParams, 'id');
+        $id = Arr::get($queryParams, 'id');
         $page = max(1, intval(Arr::get($queryParams, 'page')));
 
         $params = [
@@ -99,7 +99,7 @@ class Discussion
      *
      * @throws RouteNotFoundException
      */
-    protected function getApiDocument(Request $request, int $id, array $params)
+    protected function getApiDocument(Request $request, string $id, array $params)
     {
         $params['bySlug'] = true;
         $response = $this->api
