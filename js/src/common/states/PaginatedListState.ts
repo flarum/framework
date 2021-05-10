@@ -64,7 +64,9 @@ export default abstract class PaginatedListState<T extends Model> {
       .finally(() => (this.loadingNext = false));
   }
 
-  protected parseResults(pageNum, results: T[]) {
+  protected parseResults(pg: number, results: T[]) {
+    const pageNum = Number(pg);
+
     const links = results.payload?.links || {};
     const page = {
       number: pageNum,
