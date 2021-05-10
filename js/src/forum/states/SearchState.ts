@@ -45,7 +45,7 @@ export default class SearchState {
   /**
    * Check if this query has been searched before.
    */
-  isCached(query: string) {
+  isCached(query: string): boolean {
     return this.cachedSearches.has(query);
   }
 }
