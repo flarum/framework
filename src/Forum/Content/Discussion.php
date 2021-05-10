@@ -51,7 +51,7 @@ class Discussion
         $queryParams = $request->getQueryParams();
         $id = Arr::get($queryParams, 'id');
         $near = intval(Arr::get($queryParams, 'near'));
-        $page = max(1, intval(Arr::get($queryParams, 'page')), 1 + intdiv($near,20));
+        $page = max(1, intval(Arr::get($queryParams, 'page')), 1 + intdiv($near, 20));
 
         $params = [
             'id' => $id,
@@ -75,7 +75,7 @@ class Discussion
             unset($newQueryParams['id']);
             unset($newQueryParams['near']);
 
-            if (!Arr::has($newQueryParams, 'page')) {
+            if (! Arr::has($newQueryParams, 'page')) {
                 $newQueryParams['page'] = $page;
             }
 
