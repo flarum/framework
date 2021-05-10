@@ -12,9 +12,7 @@ namespace Flarum\Forum\Content;
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
-use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -51,10 +49,11 @@ class Discussion
     public function __invoke(Document $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
+        $id = Arr::get($queryParams, 'id');
         $page = max(1, intval(Arr::get($queryParams, 'page')));
 
         $params = [
-            'id' => (int) Arr::get($queryParams, 'id'),
+            'id' => $id,
             'page' => [
                 'near' => Arr::get($queryParams, 'near'),
                 'offset' => ($page - 1) * 20,
@@ -62,7 +61,7 @@ class Discussion
             ]
         ];
 
-        $apiDocument = $this->getApiDocument(RequestUtil::getActor($request), $params);
+        $apiDocument = $this->getApiDocument($request, $id, $params);
 
         $getResource = function ($link) use ($apiDocument) {
             return Arr::first($apiDocument->included, function ($value) use ($link) {
@@ -98,15 +97,15 @@ class Discussion
     /**
      * Get the result of an API request to show a discussion.
      *
-     * @param User $actor
-     * @param array $params
-     * @return object
      * @throws RouteNotFoundException
      */
-    protected function getApiDocument(User $actor, array $params)
+    protected function getApiDocument(Request $request, string $id, array $params)
     {
         $params['bySlug'] = true;
-        $response = $this->api->send('Flarum\Api\Controller\ShowDiscussionController', $actor, $params);
+        $response = $this->api
+            ->withParentRequest($request)
+            ->withQueryParams($params)
+            ->get("/discussions/$id");
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {
