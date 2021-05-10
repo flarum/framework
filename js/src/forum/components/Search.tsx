@@ -1,12 +1,20 @@
-import Component from '../../common/Component';
+import Component, { ComponentAttrs } from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import icon from '../../common/helpers/icon';
+import SearchState from '../states/SearchState';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
+import Mithril from 'mithril';
+import SearchSource from './SearchSource';
+
+export interface SearchAttrs extends ComponentAttrs {
+  /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
+  state: SearchState;
+}
 
 /**
  * The `Search` component displays a menu of as-you-type results from a variety
@@ -20,43 +28,44 @@ import UsersSearchSource from './UsersSearchSource';
  *
  * - state: SearchState instance.
  */
-export default class Search extends Component {
+export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T> {
   static MIN_SEARCH_LEN = 3;
 
-  oninit(vnode) {
+  protected state!: SearchState;
+
+  /**
+   * Whether or not the search input has focus.
+   */
+  protected hasFocus = false;
+
+  /**
+   * An array of SearchSources.
+   */
+  protected sources!: SearchSource[];
+
+  /**
+   * The number of sources that are still loading results.
+   */
+  protected loadingSources = 0;
+
+  /**
+   * The index of the currently-selected <li> in the results list. This can be
+   * a unique string (to account for the fact that an item's position may jump
+   * around as new results load), but otherwise it will be numeric (the
+   * sequential position within the list).
+   */
+  protected index: number = 0;
+
+  protected navigator!: KeyboardNavigatable;
+
+  protected searchTimeout?: number;
+
+  private updateMaxHeightHandler?: () => void;
+
+  oninit(vnode: Mithril.Vnode<T, this>) {
     super.oninit(vnode);
+
     this.state = this.attrs.state;
-
-    /**
-     * Whether or not the search input has focus.
-     *
-     * @type {Boolean}
-     */
-    this.hasFocus = false;
-
-    /**
-     * An array of SearchSources.
-     *
-     * @type {SearchSource[]}
-     */
-    this.sources = null;
-
-    /**
-     * The number of sources that are still loading results.
-     *
-     * @type {Integer}
-     */
-    this.loadingSources = 0;
-
-    /**
-     * The index of the currently-selected <li> in the results list. This can be
-     * a unique string (to account for the fact that an item's position may jump
-     * around as new results load), but otherwise it will be numeric (the
-     * sequential position within the list).
-     *
-     * @type {String|Integer}
-     */
-    this.index = 0;
   }
 
   view() {
@@ -64,9 +73,7 @@ export default class Search extends Component {
 
     // Initialize search sources in the view rather than the constructor so
     // that we have access to app.forum.
-    if (!this.sources) {
-      this.sources = this.sourceItems().toArray();
-    }
+    if (!this.sources) this.sources = this.sourceItems().toArray();
 
     // Hide the search view if no sources were loaded
     if (!this.sources.length) return <div></div>;
@@ -76,15 +83,13 @@ export default class Search extends Component {
     return (
       <div
         role="search"
-        className={
-          'Search ' +
-          classList({
-            open: this.state.getValue() && this.hasFocus,
-            focused: this.hasFocus,
-            active: !!currentSearch,
-            loading: !!this.loadingSources,
-          })
-        }
+        className={classList({
+          Search: true,
+          open: this.state.getValue() && this.hasFocus,
+          focused: this.hasFocus,
+          active: !!currentSearch,
+          loading: !!this.loadingSources,
+        })}
       >
         <div className="Search-input">
           <input
@@ -153,7 +158,7 @@ export default class Search extends Component {
         search.setIndex(search.selectableItems().index(this));
       });
 
-    const $input = this.$('input');
+    const $input = this.$('input') as JQuery<HTMLInputElement>;
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
@@ -233,10 +238,8 @@ export default class Search extends Component {
 
   /**
    * Build an item list of SearchSources.
-   *
-   * @return {ItemList}
    */
-  sourceItems() {
+  sourceItems(): ItemList {
     const items = new ItemList();
 
     if (app.forum.attribute('canViewDiscussions')) items.add('discussions', new DiscussionsSearchSource());
@@ -247,29 +250,22 @@ export default class Search extends Component {
 
   /**
    * Get all of the search result items that are selectable.
-   *
-   * @return {jQuery}
    */
-  selectableItems() {
+  selectableItems(): JQuery {
     return this.$('.Search-results > li:not(.Dropdown-header)');
   }
 
   /**
    * Get the position of the currently selected search result item.
-   *
-   * @return {Integer}
    */
-  getCurrentNumericIndex() {
+  getCurrentNumericIndex(): number {
     return this.selectableItems().index(this.getItem(this.index));
   }
 
   /**
    * Get the <li> in the search results with the given index (numeric or named).
-   *
-   * @param {String} index
-   * @return {DOMElement}
    */
-  getItem(index) {
+  getItem(index: number): JQuery {
     const $items = this.selectableItems();
     let $item = $items.filter(`[data-index="${index}"]`);
 
@@ -283,12 +279,8 @@ export default class Search extends Component {
   /**
    * Set the currently-selected search result item to the one with the given
    * index.
-   *
-   * @param {Integer} index
-   * @param {Boolean} scrollToItem Whether or not to scroll the dropdown so that
-   *     the item is in view.
    */
-  setIndex(index, scrollToItem) {
+  setIndex(index: number, scrollToItem = false) {
     const $items = this.selectableItems();
     const $dropdown = $items.parent();
 
@@ -301,7 +293,7 @@ export default class Search extends Component {
 
     const $item = $items.removeClass('active').eq(fixedIndex).addClass('active');
 
-    this.index = $item.attr('data-index') || fixedIndex;
+    this.index = parseInt($item.attr('data-index') as string) || fixedIndex;
 
     if (scrollToItem) {
       const dropdownScroll = $dropdown.scrollTop();
