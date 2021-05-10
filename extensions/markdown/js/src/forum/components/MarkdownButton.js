@@ -1,8 +1,5 @@
 import Component from 'flarum/Component';
 import icon from 'flarum/helpers/icon';
-import apply from '../util/apply';
-
-const modifierKey = navigator.userAgent.match(/Macintosh/) ? '⌘' : 'ctrl';
 
 export default class MarkdownButton extends Component {
   oncreate(vnode) {
@@ -13,8 +10,8 @@ export default class MarkdownButton extends Component {
 
   view() {
     return (
-      <button className="Button Button--icon Button--link" title={this.title()} data-hotkey={this.attrs.hotkey}
-        onclick={this.click.bind(this)} onkeydown={this.keydown.bind(this)}>
+      <button className="Button Button--icon Button--link" title={this.attrs.title} data-hotkey={this.attrs.hotkey}
+        onkeydown={this.keydown.bind(this)} onclick={this.attrs.onclick}>
         {icon(this.attrs.icon)}
       </button>
     );
@@ -23,19 +20,7 @@ export default class MarkdownButton extends Component {
   keydown(event) {
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
-      this.click();
+      this.element.click();
     }
-  }
-
-  click() {
-    return apply(this.element, this.attrs.style);
-  }
-
-  title() {
-    let tooltip = this.attrs.title;
-
-    if (this.attrs.hotkey) tooltip += ` <${modifierKey}-${this.attrs.hotkey}>`;
-
-    return tooltip;
   }
 }
