@@ -103,11 +103,12 @@ export default class DiscussionListItem extends Component {
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
           <Tooltip
-            className="DiscussionListItem-author"
             text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
             position="right"
           >
-            <Link href={user ? app.route.user(user) : '#'}>{avatar(user, { title: '' })}</Link>
+            <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
+              {avatar(user, { title: '' })}
+            </Link>
           </Tooltip>
 
           <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>

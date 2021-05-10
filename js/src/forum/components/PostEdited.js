@@ -21,8 +21,8 @@ export default class PostEdited extends Component {
     const editedInfo = app.translator.trans('core.forum.post.edited_tooltip', { user: editedUser, ago: humanTime(post.editedAt()) });
 
     return (
-      <Tooltip containerType="inline" className="PostEdited" text={editedInfo}>
-        {app.translator.trans('core.forum.post.edited_text')}
+      <Tooltip text={editedInfo}>
+        <span class="PostEdited">{app.translator.trans('core.forum.post.edited_text')}</span>
       </Tooltip>
     );
   }

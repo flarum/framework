@@ -9,17 +9,11 @@ export default class TextEditorButton extends Button {
   view(vnode) {
     const originalView = super.view(vnode);
 
-    console.log(originalView);
-
     // Steal tooltip label from the Button superclass
     const tooltipText = originalView.attrs.title;
     delete originalView.attrs.title;
 
-    return (
-      <Tooltip containerType="inline-block" text={tooltipText}>
-        {originalView}
-      </Tooltip>
-    );
+    return <Tooltip text={tooltipText}>{originalView}</Tooltip>;
   }
 
   static initAttrs(attrs) {
