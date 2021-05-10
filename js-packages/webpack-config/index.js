@@ -40,7 +40,11 @@ module.exports = function (options = {}) {
                 ['@babel/plugin-transform-runtime', { useESModules: true }],
                 ['@babel/plugin-proposal-class-properties', { loose: true }],
                 ['@babel/plugin-proposal-private-methods', { loose: true }],
-                ['@babel/plugin-transform-react-jsx', { pragma: 'm' }],
+                ['@babel/plugin-transform-react-jsx', {
+                  pragma: 'm',
+                  pragmaFrag: "'['",
+                  useBuiltIns: true,
+                }],
               ],
             },
           },
