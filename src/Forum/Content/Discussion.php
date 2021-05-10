@@ -79,6 +79,10 @@ class Discussion
                 $newQueryParams['page'] = $page;
             }
 
+            if ($page == 1) {
+                unset($newQueryParams['page']);
+            }
+
             $queryString = http_build_query($newQueryParams);
 
             return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->attributes->slug]).
@@ -93,9 +97,12 @@ class Discussion
             }
         }
 
+        $hasPrevPage = $page > 1;
+        $hasNextPage = $page < 1 + intval($apiDocument->data->attributes->commentCount / 20);
+
         $document->title = $apiDocument->data->attributes->title;
         $document->canonicalUrl = $url([]);
-        $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'getResource', 'posts', 'url'));
+        $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'hasPrevPage', 'hasNextPage', 'getResource', 'posts', 'url'));
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;
