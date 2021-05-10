@@ -44,7 +44,6 @@ export default class DiscussionList extends Component {
         <ul className="DiscussionList-discussions">
           {state.getPages().map((pg) => {
             return [
-              <hr key={`page-${pg.number}`} data-page={pg.number} />,
               ...pg.items.map((discussion) => (
                 <li key={discussion.id()} data-id={discussion.id()}>
                   {DiscussionListItem.component({ discussion, params })}
