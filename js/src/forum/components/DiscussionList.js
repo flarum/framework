@@ -43,13 +43,11 @@ export default class DiscussionList extends Component {
       <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
         <ul className="DiscussionList-discussions">
           {state.getPages().map((pg) => {
-            return [
-              ...pg.items.map((discussion) => (
-                <li key={discussion.id()} data-id={discussion.id()}>
-                  {DiscussionListItem.component({ discussion, params })}
-                </li>
-              )),
-            ];
+            return pg.items.map((discussion) => (
+              <li key={discussion.id()} data-id={discussion.id()}>
+                {DiscussionListItem.component({ discussion, params })}
+              </li>
+            ));
           })}
         </ul>
         <div className="DiscussionList-loadMore">{loading}</div>
