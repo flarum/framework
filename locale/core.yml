@@ -189,14 +189,14 @@ core:
       read_heading: Read
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
+      search_users_label: Search users
       sign_up_label: Sign up
       start_discussions_label: Start discussions
       title: Permissions
-      view_discussions_label: View discussions
+      view_forum_label: View forum (discussions and users)
       view_hidden_groups_label: View hidden group badges
       view_last_seen_at_label: Always view user last seen time
       view_post_ips_label: View post IP addresses
-      view_user_list_label: View user list
 
     # These translations are used in the dropdown menus on the Permissions page.
     permissions_controls:

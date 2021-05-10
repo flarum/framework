@@ -404,6 +404,15 @@ class User extends AbstractModel
         return false;
     }
 
+    private function checkForDeprecatedPermissions($permission)
+    {
+        foreach (['viewDiscussions', 'viewUserList'] as $deprecated) {
+            if (strpos($permission, $deprecated) !== false) {
+                trigger_error('The `viewDiscussions` and `viewUserList` permissions have been renamed to `viewForum` and `searchUsers` respectively. Please use those instead.', E_USER_DEPRECATED);
+            }
+        }
+    }
+
     /**
      * Get the notification types that should be alerted to this user, according
      * to their preferences.

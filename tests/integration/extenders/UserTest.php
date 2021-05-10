@@ -82,7 +82,7 @@ class UserTest extends TestCase
 
         $user = User::find(2);
 
-        $this->assertContains('viewUserList', $user->getPermissions());
+        $this->assertContains('searchUsers', $user->getPermissions());
     }
 
     /**
@@ -100,7 +100,7 @@ class UserTest extends TestCase
 
         $user = User::find(2);
 
-        $this->assertNotContains('viewUserList', $user->getPermissions());
+        $this->assertNotContains('searchUsers', $user->getPermissions());
     }
 
     /**
@@ -114,7 +114,7 @@ class UserTest extends TestCase
 
         $user = User::find(2);
 
-        $this->assertNotContains('viewUserList', $user->getPermissions());
+        $this->assertNotContains('searchUsers', $user->getPermissions());
     }
 
     /**
