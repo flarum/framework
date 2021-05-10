@@ -1,5 +1,7 @@
 import getCaretCoordinates from 'textarea-caret';
+import insertText from './insertText';
 import EditorDriverInterface, { EditorDriverParams } from './EditorDriverInterface';
+import ItemList from './ItemList';
 
 export default class BasicEditorDriver implements EditorDriverInterface {
   el: HTMLTextAreaElement;
@@ -32,19 +34,25 @@ export default class BasicEditorDriver implements EditorDriverInterface {
     this.el.onclick = callInputListeners;
     this.el.onkeyup = callInputListeners;
 
-    this.el.addEventListener('keydown', function (e) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-        params.onsubmit();
-      }
+    this.el.addEventListener('keydown', (e) => {
+      this.keyHandlers(params)
+        .toArray()
+        .forEach((handler) => handler(e));
     });
 
     dom.append(this.el);
   }
 
-  protected setValue(value: string) {
-    $(this.el).val(value).trigger('input');
+  keyHandlers(params: EditorDriverParams): ItemList {
+    const items = new ItemList();
 
-    this.el.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
+    items.add('submit', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        params.onsubmit();
+      }
+    });
+
+    return items;
   }
 
   moveCursorTo(position: number) {
@@ -69,16 +77,11 @@ export default class BasicEditorDriver implements EditorDriverInterface {
     this.insertBetween(pos, pos, text);
   }
 
-  insertBetween(start: number, end: number, text: string) {
-    const value = this.el.value;
-
-    const before = value.slice(0, start);
-    const after = value.slice(end);
-
-    this.setValue(`${before}${text}${after}`);
+  insertBetween(selectionStart: number, selectionEnd: number, text: string) {
+    insertText(this.el, { text, selectionStart, selectionEnd });
 
     // Move the textarea cursor to the end of the content we just inserted.
-    this.moveCursorTo(start + text.length);
+    this.moveCursorTo(selectionStart + text.length);
   }
 
   replaceBeforeCursor(start: number, text: string) {
