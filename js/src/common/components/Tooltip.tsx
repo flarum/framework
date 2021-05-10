@@ -174,26 +174,14 @@ export default class Tooltip extends Component<TooltipAttrs> {
   oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.oncreate(vnode);
 
-    const domNode = (this.firstChild as Mithril.VnodeDOM<any, any>).dom as HTMLElement;
-
-    if (!domNode.isSameNode(this.childDomNode)) {
-      this.childDomNode = domNode;
-      this.shouldRecreateTooltip = true;
-    }
-
+    this.checkDomNodeChanged();
     this.recreateTooltip();
   }
 
   onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.onupdate(vnode);
 
-    const domNode = (this.firstChild as Mithril.VnodeDOM<any, any>).dom as HTMLElement;
-
-    if (!domNode.isSameNode(this.childDomNode)) {
-      this.childDomNode = domNode;
-      this.shouldRecreateTooltip = true;
-    }
-
+    this.checkDomNodeChanged();
     this.recreateTooltip();
   }
 
@@ -271,5 +259,20 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const { text } = this.attrs;
 
     return Array.isArray(text) ? extractText(text) : text;
+  }
+
+  /**
+   * Checks if the tooltip DOM node has changed.
+   *
+   * If it has, it updates `this.childDomNode` to the new node, and sets
+   * `shouldRecreateTooltip` to `true`.
+   */
+  private checkDomNodeChanged() {
+    const domNode = (this.firstChild as Mithril.VnodeDOM<any, any>).dom as HTMLElement;
+
+    if (domNode && !domNode.isSameNode(this.childDomNode)) {
+      this.childDomNode = domNode;
+      this.shouldRecreateTooltip = true;
+    }
   }
 }
