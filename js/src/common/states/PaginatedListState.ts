@@ -220,7 +220,7 @@ export default abstract class PaginatedListState<T extends Model> {
   }
 
   protected paramsChanged(newParams): boolean {
-    return Object.keys(newParams).some((key) => this.requestParams()[key] !== newParams[key]);
+    return Object.keys(newParams).some((key) => this.getParams()[key] !== newParams[key]);
   }
 
   protected getAllItems(): T[] {
