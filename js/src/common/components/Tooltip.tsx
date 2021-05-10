@@ -74,6 +74,10 @@ export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Too
  * If you need to pass multiple children, surround them with another element,
  * such as a `<span>` or `<div>`.
  *
+ * **Note:** this component will overwrite the `title` attribute of the first
+ * child you pass to it, as this is how the current tooltip system works in
+ * Flarum. This shouldn't be an issue if you're using this component correctly.
+ *
  * @example <caption>Basic usage</caption>
  *          <Tooltip text="You wish!">
  *            <Button>
