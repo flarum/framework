@@ -3,6 +3,9 @@ import Model from '../Model';
 export interface Page<TModel> {
   number: number;
   items: TModel[];
+
+  hasPrev?: boolean;
+  hasNext?: boolean;
 }
 
 export interface PaginationLocation {
@@ -22,9 +25,6 @@ export default abstract class PaginatedListState<T extends Model> {
   protected loadingPrev: boolean = false;
   protected loadingNext: boolean = false;
 
-  protected _hasPrev: boolean = false;
-  protected _hasNext: boolean = false;
-
   protected constructor(params: any = {}, page: number = 1, pageSize: number = 20) {
     this.params = params;
 
@@ -36,9 +36,6 @@ export default abstract class PaginatedListState<T extends Model> {
 
   public clear() {
     this.pages = [];
-
-    this._hasPrev = false;
-    this._hasNext = false;
 
     m.redraw();
   }
@@ -68,9 +65,12 @@ export default abstract class PaginatedListState<T extends Model> {
   }
 
   protected parseResults(pageNum, results: T[]) {
+    const links = results.payload?.links || {};
     const page = {
       number: pageNum,
       items: results,
+      hasNext: !!links.next,
+      hasPrev: !!links.prev,
     };
 
     if (this.isEmpty() || pageNum > this.getNextPageNumber() - 1) {
@@ -80,9 +80,6 @@ export default abstract class PaginatedListState<T extends Model> {
     }
 
     this.location = { page: pageNum };
-
-    this._hasNext = !!results.payload?.links?.next;
-    this._hasPrev = !!results.payload?.links?.prev;
 
     m.redraw();
   }
@@ -185,10 +182,10 @@ export default abstract class PaginatedListState<T extends Model> {
   }
 
   public hasPrev(): boolean {
-    return this._hasPrev;
+    return !!this.pages[0]?.hasPrev;
   }
   public hasNext(): boolean {
-    return this._hasNext;
+    return !!this.pages[this.pages.length - 1]?.hasNext;
   }
 
   /**
