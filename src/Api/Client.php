@@ -118,7 +118,8 @@ class Client
     /**
      * Execute the given API action class, pass the input and return its response.
      *
-     * @param string $routeName
+     * @param string $method
+     * @param string $path
      * @return ResponseInterface
      *
      * @internal
