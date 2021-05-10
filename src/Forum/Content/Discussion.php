@@ -70,23 +70,19 @@ class Discussion
             });
         };
 
-        $url = function ($newQueryParams) use ($page, $queryParams, $apiDocument) {
+        $url = function ($newQueryParams) use ($queryParams, $apiDocument) {
             $newQueryParams = array_merge($queryParams, $newQueryParams);
             unset($newQueryParams['id']);
             unset($newQueryParams['near']);
 
-            if (! Arr::has($newQueryParams, 'page')) {
-                $newQueryParams['page'] = $page;
-            }
-
-            if ($page == 1) {
+            if (Arr::get($newQueryParams, 'page') == 1) {
                 unset($newQueryParams['page']);
             }
 
             $queryString = http_build_query($newQueryParams);
 
-            return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->attributes->slug]).
-            ($queryString ? '?'.$queryString : '');
+            return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->attributes->slug]) .
+                ($queryString ? '?'.$queryString : '');
         };
 
         $posts = [];
@@ -101,7 +97,7 @@ class Discussion
         $hasNextPage = $page < 1 + intval($apiDocument->data->attributes->commentCount / 20);
 
         $document->title = $apiDocument->data->attributes->title;
-        $document->canonicalUrl = $url([]);
+        $document->canonicalUrl = $url(['page' => $page]);
         $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'hasPrevPage', 'hasNextPage', 'getResource', 'posts', 'url'));
         $document->payload['apiDocument'] = $apiDocument;
 
