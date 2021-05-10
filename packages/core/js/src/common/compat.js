@@ -62,6 +62,7 @@ import GroupBadge from './components/GroupBadge';
 import TextEditor from './components/TextEditor';
 import TextEditorButton from './components/TextEditorButton';
 import EditUserModal from './components/EditUserModal';
+import Tooltip from './components/Tooltip';
 import Model from './Model';
 import Application from './Application';
 import fullTime from './helpers/fullTime';
@@ -141,6 +142,7 @@ export default {
   'components/GroupBadge': GroupBadge,
   'components/TextEditor': TextEditor,
   'components/TextEditorButton': TextEditorButton,
+  'components/Tooltip': Tooltip,
   'components/EditUserModal': EditUserModal,
   Model: Model,
   Application: Application,
