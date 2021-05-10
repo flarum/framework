@@ -10,7 +10,7 @@ export default class GlobalSearchState extends SearchState {
     super(cachedSearches);
   }
 
-  getValue() {
+  getValue(): string {
     // If we are on a search results page, we should initialize the value
     // from the current search, if one is present.
     // We can't do this in the constructor, as this class is instantiated

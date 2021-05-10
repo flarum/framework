@@ -19,7 +19,7 @@ export default class SearchState {
     return '';
   }
 
-  getValue() {
+  getValue(): string {
     return this.value;
   }
 
