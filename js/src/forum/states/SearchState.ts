@@ -15,7 +15,7 @@ export default class SearchState {
    *
    * @see Search
    */
-  getInitialSearch() {
+  getInitialSearch(): string {
     return '';
   }
 
