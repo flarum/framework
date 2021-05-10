@@ -50,7 +50,8 @@ class Discussion
     {
         $queryParams = $request->getQueryParams();
         $id = Arr::get($queryParams, 'id');
-        $page = max(1, intval(Arr::get($queryParams, 'page')));
+        $near = intval(Arr::get($queryParams, 'near'));
+        $page = max(1, intval(Arr::get($queryParams, 'page')), 1 + intdiv($near,20));
 
         $params = [
             'id' => $id,
@@ -69,9 +70,15 @@ class Discussion
             });
         };
 
-        $url = function ($newQueryParams) use ($queryParams, $apiDocument) {
+        $url = function ($newQueryParams) use ($page, $queryParams, $apiDocument) {
             $newQueryParams = array_merge($queryParams, $newQueryParams);
             unset($newQueryParams['id']);
+            unset($newQueryParams['near']);
+
+            if (!Arr::has($newQueryParams, 'page')) {
+                $newQueryParams['page'] = $page;
+            }
+
             $queryString = http_build_query($newQueryParams);
 
             return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->attributes->slug]).

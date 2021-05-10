@@ -15,11 +15,11 @@
         @endforeach
     </div>
 
-    @if (isset($apiDocument->links->prev))
+    @if ($page > 1)
         <a href="{{ $url(['page' => $page - 1]) }}">&laquo; {{ $translator->trans('core.views.discussion.previous_page_button') }}</a>
     @endif
 
-    @if (isset($apiDocument->links->next))
+    @if (1 + intval($apiDocument->data->attributes->commentCount / 20) > $page)
         <a href="{{ $url(['page' => $page + 1]) }}">{{ $translator->trans('core.views.discussion.next_page_button') }} &raquo;</a>
     @endif
 </div>
