@@ -126,7 +126,6 @@ class Client
     public function send(string $method, string $path): ResponseInterface
     {
         $request = ServerRequestFactory::fromGlobals(null, $this->queryParams, $this->body)
-            ->withParsedBody($this->body)
             ->withMethod($method)
             ->withUri(new Uri($path));
 
