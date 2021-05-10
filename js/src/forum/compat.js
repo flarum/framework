@@ -51,7 +51,6 @@ import PostPreview from './components/PostPreview';
 import EventPost from './components/EventPost';
 import DiscussionHero from './components/DiscussionHero';
 import PostMeta from './components/PostMeta';
-import SearchSource from './components/SearchSource';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import DiscussionComposer from './components/DiscussionComposer';
 import LogInButtons from './components/LogInButtons';
@@ -135,7 +134,6 @@ export default Object.assign(compat, {
    * @deprecated Used for backwards compatibility now that the EditUserModal has moved to common. Remove in beta 17.
    */
   'components/EditUserModal': EditUserModal,
-  'components/SearchSource': SearchSource,
   'components/DiscussionRenamedPost': DiscussionRenamedPost,
   'components/DiscussionComposer': DiscussionComposer,
   'components/LogInButtons': LogInButtons,
