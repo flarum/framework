@@ -302,7 +302,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    * Set the currently-selected search result item to the one with the given
    * index.
    */
-  setIndex(index: number, scrollToItem = false) {
+  setIndex(index: number, scrollToItem: boolean = false) {
     const $items = this.selectableItems();
     const $dropdown = $items.parent();
 
