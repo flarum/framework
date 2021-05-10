@@ -41,6 +41,18 @@ export default class DiscussionList extends Component {
 
     return (
       <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
+        {state.hasPrev() && (
+          <div className="DiscussionList-loadPrev">
+            {state.isLoadingPrev() ? (
+              <LoadingIndicator />
+            ) : (
+              <Button className="Button" onclick={state.loadPrev.bind(state)}>
+                {app.translator.trans('core.forum.discussion_list.load_prev_button')}
+              </Button>
+            )}
+          </div>
+        )}
+
         <ul className="DiscussionList-discussions">
           {state.getPages().map((pg) => {
             return [
