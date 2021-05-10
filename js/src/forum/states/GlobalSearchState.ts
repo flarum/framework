@@ -23,7 +23,7 @@ export default class GlobalSearchState extends SearchState {
   }
 
   protected intializeValue() {
-    this.setValue(this.getInitialSearch() || '');
+    this.setValue(this.getInitialSearch());
     this.initialValueSet = true;
   }
 
