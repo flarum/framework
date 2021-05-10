@@ -274,7 +274,7 @@ class Migrator
 
         // If we can't create a tmp file, fall back to the vendor directory.
         $schemaWithPrefixes = tempnam(sys_get_temp_dir(), 'install');
-        if (!$schemaWithPrefixes) {
+        if (! $schemaWithPrefixes) {
             $schemaWithPrefixes = "$path/install_dump.dump.tmp";
         }
 
