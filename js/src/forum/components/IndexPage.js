@@ -37,7 +37,7 @@ export default class IndexPage extends Page {
       app.discussions.clear();
     }
 
-    app.discussions.refreshParams(app.search.params());
+    app.discussions.refreshParams(app.search.params(), m.route.param('page'));
 
     app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
