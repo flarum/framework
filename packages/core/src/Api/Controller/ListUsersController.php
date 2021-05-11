@@ -75,7 +75,7 @@ class ListUsersController extends AbstractListController
     {
         $actor = RequestUtil::getActor($request);
 
-        $actor->assertCan('viewUserList');
+        $actor->assertCan('searchUsers');
 
         if (! $actor->hasPermission('user.viewLastSeenAt')) {
             // If a user cannot see everyone's last online date, we prevent them from sorting by it

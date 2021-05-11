@@ -32,12 +32,12 @@ class ShowTest extends TestCase
 
     private function forbidGuestsFromSeeingForum()
     {
-        $this->database()->table('group_permission')->where('permission', 'viewDiscussions')->where('group_id', 2)->delete();
+        $this->database()->table('group_permission')->where('permission', 'viewForum')->where('group_id', 2)->delete();
     }
 
     private function forbidMembersFromSearchingUsers()
     {
-        $this->database()->table('group_permission')->where('permission', 'viewUserList')->where('group_id', 3)->delete();
+        $this->database()->table('group_permission')->where('permission', 'searchUsers')->where('group_id', 3)->delete();
     }
 
     /**
