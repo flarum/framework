@@ -32,7 +32,8 @@ export default function() {
         render: item => {
           if (item.permission === 'viewDiscussions'
             || item.permission === 'startDiscussion'
-            || (item.permission && item.permission.indexOf('discussion.') === 0)) {
+            || (item.permission && item.permission.indexOf('discussion.') === 0 && item.tagScoped !== false)
+            || item.tagScoped) {
             return PermissionDropdown.component({
               permission: 'tag' + tag.id() + '.' + item.permission,
               allowGuest: item.allowGuest
