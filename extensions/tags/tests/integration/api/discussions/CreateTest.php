@@ -90,6 +90,34 @@ class CreateTest extends TestCase
     /**
      * @test
      */
+    public function user_can_create_discussion_without_tags_if_bypass_permission_granted()
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'bypassTagCounts'],
+            ]
+        ]);
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'title' => 'test - too-obscure',
+                            'content' => 'predetermined content for automated testing - too-obscure',
+                        ],
+                    ]
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
     public function user_can_create_discussion_in_primary_tag()
     {
         $response = $this->send(
@@ -121,6 +149,41 @@ class CreateTest extends TestCase
      */
     public function user_cant_create_discussion_in_primary_tag_where_can_view_but_cant_start()
     {
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'title' => 'test - too-obscure',
+                            'content' => 'predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'tags' => [
+                                'data' => [
+                                    ['type' => 'tags', 'id' => 5]
+                                ]
+                            ]
+                        ]
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function user_cant_create_discussion_in_primary_tag_where_can_view_but_cant_start_with_bypass_permission_granted()
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'bypassTagCounts'],
+            ]
+        ]);
+
         $response = $this->send(
             $this->request('POST', '/api/discussions', [
                 'authenticatedAs' => 2,
