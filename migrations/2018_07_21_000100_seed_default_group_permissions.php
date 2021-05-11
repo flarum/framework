@@ -12,12 +12,12 @@ use Illuminate\Database\Schema\Builder;
 
 $rows = [
     // Guests can view the forum
-    ['permission' => 'viewDiscussions', 'group_id' => Group::GUEST_ID],
+    ['permission' => 'viewForum', 'group_id' => Group::GUEST_ID],
 
-    // Members can create and reply to discussions, and view the user list
+    // Members can create and reply to discussions, and search users
     ['permission' => 'startDiscussion', 'group_id' => Group::MEMBER_ID],
     ['permission' => 'discussion.reply', 'group_id' => Group::MEMBER_ID],
-    ['permission' => 'viewUserList', 'group_id' => Group::MEMBER_ID],
+    ['permission' => 'searchUsers', 'group_id' => Group::MEMBER_ID],
 
     // Moderators can edit + delete stuff
     ['permission' => 'discussion.hide', 'group_id' => Group::MODERATOR_ID],

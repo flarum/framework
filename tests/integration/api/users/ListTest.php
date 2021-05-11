@@ -50,7 +50,7 @@ class ListTest extends TestCase
     {
         $this->prepareDatabase([
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 2],
+                ['permission' => 'searchUsers', 'group_id' => 2],
             ],
         ]);
 
@@ -98,7 +98,7 @@ class ListTest extends TestCase
     {
         $this->prepareDatabase([
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 2],
+                ['permission' => 'searchUsers', 'group_id' => 2],
                 ['permission' => 'user.viewLastSeenAt', 'group_id' => 2],
             ],
         ]);
@@ -120,7 +120,7 @@ class ListTest extends TestCase
     {
         $this->prepareDatabase([
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 2],
+                ['permission' => 'searchUsers', 'group_id' => 2],
             ],
         ]);
 

@@ -54,7 +54,7 @@ class GroupSearchTest extends TestCase
     {
         $this->prepareDatabase([
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 2],
+                ['permission' => 'searchUsers', 'group_id' => 2],
             ],
         ]);
         $response = $this->createRequest(['admin'], 2);
@@ -69,7 +69,7 @@ class GroupSearchTest extends TestCase
     {
         $this->prepareDatabase([
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 2],
+                ['permission' => 'searchUsers', 'group_id' => 2],
             ],
         ]);
 
@@ -120,7 +120,7 @@ class GroupSearchTest extends TestCase
     {
         $this->prepareDatabase([
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 2],
+                ['permission' => 'searchUsers', 'group_id' => 2],
             ],
         ]);
 
@@ -139,7 +139,7 @@ class GroupSearchTest extends TestCase
     {
         $this->prepareDatabase([
             'group_permission' => [
-                ['permission' => 'viewUserList', 'group_id' => 2],
+                ['permission' => 'searchUsers', 'group_id' => 2],
             ],
         ]);
         $this->createMultipleUsersAndGroups();

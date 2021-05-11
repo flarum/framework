@@ -42,7 +42,7 @@ class ListTests extends TestCase
 
     private function forbidGuestsFromSeeingForum()
     {
-        $this->database()->table('group_permission')->where('permission', 'viewDiscussions')->where('group_id', 2)->delete();
+        $this->database()->table('group_permission')->where('permission', 'viewForum')->where('group_id', 2)->delete();
     }
 
     /**
