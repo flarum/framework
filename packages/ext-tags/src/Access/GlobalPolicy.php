@@ -36,11 +36,13 @@ class GlobalPolicy extends AbstractPolicy
         static $enoughPrimary;
         static $enoughSecondary;
 
-        if (in_array($ability, ['viewDiscussions', 'startDiscussion'])) {
-            if ($actor->hasPermission($ability) && $actor->hasPermission('bypassTagCounts')) {
-                return $this->allow();
-            }
+        if ($ability === 'startDiscussion'
+            && $actor->hasPermission($ability)
+            && $actor->hasPermission('bypassTagCounts')) {
+            return $this->allow();
+        }
 
+        if (in_array($ability, ['viewDiscussions', 'startDiscussion'])) {
             if (! isset($enoughPrimary[$actor->id][$ability])) {
                 $enoughPrimary[$actor->id][$ability] = Tag::whereHasPermission($actor, $ability)
                     ->where('tags.position', '!=', null)
