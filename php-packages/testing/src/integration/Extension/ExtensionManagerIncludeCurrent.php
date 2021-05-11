@@ -30,6 +30,11 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     protected $enabledIds;
 
+    /**
+     * @var bool
+     */
+    public $booted = false;
+
     public function __construct(
         SettingsRepositoryInterface $config,
         Paths $paths,
@@ -70,11 +75,15 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     }
 
     /**
-     * Since we enable every time, we always assume it's not enabled.
+     * We assume it's not enabled during boot.
+     * However, since some logic needs this, as soon as we enable extensions
+     * we'll switch booted to on.
      */
     public function isEnabled($extension)
     {
-        return false;
+        if (!$this->booted) return false;
+
+        return parent::isEnabled($extension);
     }
 
     /**
