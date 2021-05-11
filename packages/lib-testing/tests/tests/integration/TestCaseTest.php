@@ -128,6 +128,17 @@ class TestCaseTest extends TestCase
     /**
      * @test
      */
+    public function current_extension_considered_enabled_after_boot()
+    {
+        $this->extension('flarum-testing-tests');
+
+        $enabled = $this->app()->getContainer()->make('flarum.extensions')->isEnabled('flarum-testing-tests');
+        $this->assertTrue($enabled);
+    }
+
+    /**
+     * @test
+     */
     public function can_apply_extenders()
     {
         $this->extend(
