@@ -90,7 +90,7 @@ export default class ForumApplication extends Application {
      *
      * @type {DiscussionListState}
      */
-    this.discussions = new DiscussionListState({}, this);
+    this.discussions = new DiscussionListState({});
   }
 
   /**
