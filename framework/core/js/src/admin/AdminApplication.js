@@ -58,7 +58,7 @@ export default class AdminApplication extends Application {
     const required = [];
 
     if (permission === 'startDiscussion' || permission.indexOf('discussion.') === 0) {
-      required.push('viewDiscussions');
+      required.push('viewForum');
     }
     if (permission === 'discussion.delete') {
       required.push('discussion.hide');

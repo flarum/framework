@@ -20,7 +20,7 @@ class ScopeDiscussionVisibility
      */
     public function __invoke(User $actor, $query)
     {
-        if ($actor->cannot('viewDiscussions')) {
+        if ($actor->cannot('viewForum')) {
             $query->whereRaw('FALSE');
 
             return;

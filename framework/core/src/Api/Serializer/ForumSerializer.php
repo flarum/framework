@@ -88,9 +88,9 @@ class ForumSerializer extends AbstractSerializer
             'footerHtml' => $this->settings->get('custom_footer'),
             'allowSignUp' => (bool) $this->settings->get('allow_sign_up'),
             'defaultRoute'  => $this->settings->get('default_route'),
-            'canViewDiscussions' => $this->actor->can('viewDiscussions'),
+            'canViewForum' => $this->actor->can('viewForum'),
             'canStartDiscussion' => $this->actor->can('startDiscussion'),
-            'canViewUserList' => $this->actor->can('viewUserList')
+            'canSearchUsers' => $this->actor->can('searchUsers')
         ];
 
         if ($this->actor->can('administrate')) {
