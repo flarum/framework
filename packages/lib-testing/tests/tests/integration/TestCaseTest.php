@@ -14,6 +14,8 @@ use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
 class TestCaseTest extends TestCase
 {
@@ -110,6 +112,17 @@ class TestCaseTest extends TestCase
         );
 
         $this->assertStringContainsString('notARealSetting', $response->getBody()->getContents());
+    }
+
+    /**
+     * @test
+     */
+    public function current_extension_migrations_applied_if_specified()
+    {
+        $this->extension('flarum-testing-tests');
+
+        $tableExists = $this->app()->getContainer()->make(Builder::class)->hasTable('testing_table');
+        $this->assertTrue($tableExists);
     }
 
     /**
