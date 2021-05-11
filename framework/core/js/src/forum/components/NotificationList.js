@@ -12,7 +12,7 @@ import Discussion from '../../common/models/Discussion';
 export default class NotificationList extends Component {
   view() {
     const state = this.attrs.state;
-    const pages = state.getNotificationPages();
+    const pages = state.getPages();
 
     return (
       <div className="NotificationList">
@@ -30,12 +30,12 @@ export default class NotificationList extends Component {
         </div>
 
         <div className="NotificationList-content">
-          {pages.length
-            ? pages.map((notifications) => {
+          {state.hasItems()
+            ? pages.map((page) => {
                 const groups = [];
                 const discussions = {};
 
-                notifications.forEach((notification) => {
+                page.items.forEach((notification) => {
                   const subject = notification.subject();
 
                   if (typeof subject === 'undefined') return;
@@ -84,7 +84,7 @@ export default class NotificationList extends Component {
               })
             : ''}
           {state.isLoading() ? (
-            <LoadingIndicator />
+            <LoadingIndicator className="LoadingIndicator--block" />
           ) : pages.length ? (
             ''
           ) : (
@@ -124,8 +124,8 @@ export default class NotificationList extends Component {
     // by a fraction of a pixel, so we compensate for that.
     const atBottom = Math.abs(scrollParent.scrollHeight - scrollParent.scrollTop - scrollParent.clientHeight) <= 1;
 
-    if (state.hasMoreResults() && !state.isLoading() && atBottom) {
-      state.loadMore();
+    if (state.hasNext() && !state.isLoadingNext() && atBottom) {
+      state.loadNext();
     }
   }
 
