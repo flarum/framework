@@ -22,7 +22,7 @@ class ScopeTagVisibility
     public function __invoke(User $actor, Builder $query)
     {
         $query->whereIn('id', function ($query) use ($actor) {
-            Tag::queryIdsWhereCan($query, $actor, 'viewDiscussions');
+            Tag::query()->setQuery($query->from('tags'))->whereHasPermission($actor, 'viewDiscussions')->select('tags.id');
         });
     }
 }

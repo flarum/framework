@@ -15,7 +15,6 @@ use Flarum\Discussion\Discussion;
 use Flarum\Group\Permission;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
  * @property int $id
@@ -219,7 +218,7 @@ class Tag extends AbstractModel
         }
     }
 
-    public static function queryIdsWhereCan(QueryBuilder $base, User $user, string $currPermission, bool $includePrimary = true, bool $includeSecondary = true): QueryBuilder
+    public function scopeWhereHasPermission(Builder $query, User $user, string $currPermission): Builder
     {
         $hasGlobalPermission = $user->hasPermission($currPermission);
         $isAdmin = $user->isAdmin();
@@ -236,30 +235,19 @@ class Tag extends AbstractModel
             })
             ->values();
 
-        $validTags = $base
-            ->from('tags as s_tags')
+        return $query
             ->where(function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
                 $query
-                    ->whereIn('s_tags.id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
+                    ->whereIn('tags.id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
                         static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
                     })
                     ->where(function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
                         $query
-                            ->whereIn('s_tags.parent_id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
+                            ->whereIn('tags.parent_id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
                                 static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
                             })
-                            ->orWhere('s_tags.parent_id', null);
+                            ->orWhere('tags.parent_id', null);
                     });
-            })
-            ->where(function ($query) use ($includePrimary, $includeSecondary) {
-                if (! $includePrimary) {
-                    $query->where('s_tags.position', '=', null);
-                }
-                if (! $includeSecondary) {
-                    $query->where('s_tags.position', '!=', null);
-                }
             });
-
-        return $validTags->select('s_tags.id');
     }
 }
