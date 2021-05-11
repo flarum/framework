@@ -51,7 +51,6 @@ import PostPreview from './components/PostPreview';
 import EventPost from './components/EventPost';
 import DiscussionHero from './components/DiscussionHero';
 import PostMeta from './components/PostMeta';
-import SearchSource from './components/SearchSource';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import DiscussionComposer from './components/DiscussionComposer';
 import LogInButtons from './components/LogInButtons';
@@ -127,7 +126,6 @@ export default Object.assign(compat, {
   'components/EventPost': EventPost,
   'components/DiscussionHero': DiscussionHero,
   'components/PostMeta': PostMeta,
-  'components/SearchSource': SearchSource,
   'components/DiscussionRenamedPost': DiscussionRenamedPost,
   'components/DiscussionComposer': DiscussionComposer,
   'components/LogInButtons': LogInButtons,

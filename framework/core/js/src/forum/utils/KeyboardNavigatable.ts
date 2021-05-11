@@ -1,3 +1,6 @@
+type KeyboardEventHandler = (event: KeyboardEvent) => void;
+type ShouldHandle = (event: KeyboardEvent) => boolean;
+
 /**
  * The `KeyboardNavigatable` class manages lists that can be navigated with the
  * keyboard, calling callbacks for each actions.
@@ -6,41 +9,27 @@
  * API for use.
  */
 export default class KeyboardNavigatable {
-  constructor() {
-    /**
-     * Callback to be executed for a specified input.
-     *
-     * @callback KeyboardNavigatable~keyCallback
-     * @param {KeyboardEvent} event
-     * @returns {boolean}
-     */
-    this.callbacks = {};
+  /**
+   * Callback to be executed for a specified input.
+   */
+  protected callbacks = new Map<number, KeyboardEventHandler>();
 
-    /**
-     * Callback that determines whether keyboard input should be handled.
-     * By default, always handle keyboard navigation.
-     *
-     * @callback whenCallback
-     * @param {KeyboardEvent} event
-     * @returns {boolean}
-     */
-    this.whenCallback = (event) => true;
-  }
+  /**
+   * Callback that determines whether keyboard input should be handled.
+   * By default, always handle keyboard navigation.
+   */
+  protected whenCallback: ShouldHandle = (event: KeyboardEvent) => true;
 
   /**
    * Provide a callback to be executed when navigating upwards.
    *
    * This will be triggered by the Up key.
-   *
-   * @public
-   * @param {KeyboardNavigatable~keyCallback} callback
-   * @return {KeyboardNavigatable}
    */
-  onUp(callback) {
-    this.callbacks[38] = (e) => {
+  onUp(callback: KeyboardEventHandler): KeyboardNavigatable {
+    this.callbacks.set(38, (e) => {
       e.preventDefault();
       callback(e);
-    };
+    });
 
     return this;
   }
@@ -49,16 +38,12 @@ export default class KeyboardNavigatable {
    * Provide a callback to be executed when navigating downwards.
    *
    * This will be triggered by the Down key.
-   *
-   * @public
-   * @param {KeyboardNavigatable~keyCallback} callback
-   * @return {KeyboardNavigatable}
    */
-  onDown(callback) {
-    this.callbacks[40] = (e) => {
+  onDown(callback: KeyboardEventHandler): KeyboardNavigatable {
+    this.callbacks.set(40, (e) => {
       e.preventDefault();
       callback(e);
-    };
+    });
 
     return this;
   }
@@ -67,16 +52,15 @@ export default class KeyboardNavigatable {
    * Provide a callback to be executed when the current item is selected..
    *
    * This will be triggered by the Return and Tab keys..
-   *
-   * @public
-   * @param {KeyboardNavigatable~keyCallback} callback
-   * @return {KeyboardNavigatable}
    */
-  onSelect(callback) {
-    this.callbacks[9] = this.callbacks[13] = (e) => {
+  onSelect(callback: KeyboardEventHandler): KeyboardNavigatable {
+    const handler: KeyboardEventHandler = (e) => {
       e.preventDefault();
       callback(e);
     };
+
+    this.callbacks.set(9, handler);
+    this.callbacks.set(13, handler);
 
     return this;
   }
@@ -85,17 +69,13 @@ export default class KeyboardNavigatable {
    * Provide a callback to be executed when the navigation is canceled.
    *
    * This will be triggered by the Escape key.
-   *
-   * @public
-   * @param {KeyboardNavigatable~keyCallback} callback
-   * @return {KeyboardNavigatable}
    */
-  onCancel(callback) {
-    this.callbacks[27] = (e) => {
+  onCancel(callback: KeyboardEventHandler): KeyboardNavigatable {
+    this.callbacks.set(27, (e) => {
       e.stopPropagation();
       e.preventDefault();
       callback(e);
-    };
+    });
 
     return this;
   }
@@ -109,52 +89,40 @@ export default class KeyboardNavigatable {
    * @param {KeyboardNavigatable~keyCallback} callback
    * @return {KeyboardNavigatable}
    */
-  onRemove(callback) {
-    this.callbacks[8] = (e) => {
+  onRemove(callback: KeyboardEventHandler): KeyboardNavigatable {
+    this.callbacks.set(8, (e) => {
       if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
         callback(e);
         e.preventDefault();
       }
-    };
+    });
 
     return this;
   }
 
   /**
    * Provide a callback that determines whether keyboard input should be handled.
-   *
-   * @public
-   * @param {KeyboardNavigatable~whenCallback} callback
-   * @return {KeyboardNavigatable}
    */
-  when(callback) {
-    this.whenCallback = callback;
-
-    return this;
+  when(callback: ShouldHandle): KeyboardNavigatable {
+    return { ...this, whenCallback: callback };
   }
 
   /**
    * Set up the navigation key bindings on the given jQuery element.
-   *
-   * @public
-   * @param {jQuery} $element
    */
-  bindTo($element) {
+  bindTo($element: JQuery) {
     // Handle navigation key events on the navigatable element.
     $element.on('keydown', this.navigate.bind(this));
   }
 
   /**
    * Interpret the given keyboard event as navigation commands.
-   *
-   * @public
-   * @param {KeyboardEvent} event
    */
-  navigate(event) {
+  navigate(event: KeyboardEvent) {
     // This callback determines whether keyboard should be handled or ignored.
     if (!this.whenCallback(event)) return;
 
-    const keyCallback = this.callbacks[event.which];
+    const keyCallback = this.callbacks.get(event.which);
     if (keyCallback) {
       keyCallback(event);
     }
