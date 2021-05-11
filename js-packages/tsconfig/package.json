@@ -1,0 +1,9 @@
+{
+  "name": "flarum-tsconfig",
+  "version": "0.1.0-beta.16",
+  "description": "Flarum's official Typescript config file",
+  "main": "tsconfig.json",
+  "repository": "https://github.com/flarum/flarum-tsconfig",
+  "author": "Flarum Team",
+  "license": "MIT"
+}
