@@ -20,7 +20,7 @@ A baseline `tsconfig.json` is provided below that you can modify as needed. This
   // Use Flarum's tsconfig as a starting point
   "extends": "flarum-tsconfig",
   // This will match all .ts, .tsx, .d.ts, .js, .jsx files
-  "includes": ["src/**/*"],
+  "include": ["src/**/*"],
   "compilerOptions": {
     // This will output typings to `dist-typings`
     "declarationDir": "./dist-typings"
