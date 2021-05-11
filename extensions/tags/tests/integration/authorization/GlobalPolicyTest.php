@@ -15,7 +15,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 
-class PolicyTest extends TestCase
+class GlobalPolicyTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
     use RetrievesRepresentativeTags;

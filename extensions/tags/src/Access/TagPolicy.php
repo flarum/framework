@@ -15,25 +15,21 @@ use Flarum\User\User;
 
 class TagPolicy extends AbstractPolicy
 {
-    /**
-     * @param User $actor
-     * @param Tag $tag
-     * @return bool|null
-     */
-    public function startDiscussion(User $actor, Tag $tag)
+    public function can(User $actor, string $ability, Tag $tag)
     {
+        if ($tag->parent_id !== null && ! $actor->can($ability, $tag->parent)) {
+            return $this->deny();
+        }
+
         if ($tag->is_restricted) {
-            return $actor->hasPermission('tag'.$tag->id.'.startDiscussion') ? $this->allow() : $this->deny();
+            $id = $tag->id;
+
+            return $actor->hasPermission("tag$id.$ability");
         }
     }
 
-    /**
-     * @param User $actor
-     * @param Tag $tag
-     * @return bool|null
-     */
     public function addToDiscussion(User $actor, Tag $tag)
     {
-        return $actor->can('startDiscussion', $tag) ? $this->allow() : $this->deny();
+        return $actor->can('startDiscussion', $tag);
     }
 }

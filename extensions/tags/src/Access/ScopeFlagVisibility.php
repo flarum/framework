@@ -29,7 +29,7 @@ class ScopeFlagVisibility
                 return $query->selectRaw('1')
                     ->from('discussion_tag')
                     ->whereNotIn('tag_id', function ($query) use ($actor) {
-                        Tag::queryIdsWhereCan($query->from('tags'), $actor, 'discussion.viewFlags');
+                        Tag::query()->setQuery($query->from('tags'))->whereHasPermission($actor, 'viewFlags')->select('tags.id');
                     })
                     ->whereColumn('discussions.id', 'discussion_id');
             });

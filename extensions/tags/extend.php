@@ -71,7 +71,7 @@ return [
         ->load('post.discussion.tags'),
 
     (new Extend\ApiController(FlarumController\ListDiscussionsController::class))
-        ->addInclude(['tags', 'tags.state'])
+        ->addInclude(['tags', 'tags.state', 'tags.parent'])
         ->load('tags'),
 
     (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
@@ -96,7 +96,6 @@ return [
         ->globalPolicy(Access\GlobalPolicy::class),
 
     (new Extend\ModelVisibility(Discussion::class))
-        ->scope(Access\ScopeDiscussionVisibility::class)
         ->scopeAll(Access\ScopeDiscussionVisibilityForAbility::class),
 
     (new Extend\ModelVisibility(Flag::class))
