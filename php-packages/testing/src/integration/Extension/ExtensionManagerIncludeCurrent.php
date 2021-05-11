@@ -70,6 +70,14 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     }
 
     /**
+     * Since we enable every time, we always assume it's not enabled.
+     */
+    public function isEnabled($extension)
+    {
+        return false;
+    }
+
+    /**
      * In test cases, enabled extensions are determined by the test case, not the database.
      */
     public function getEnabled()
