@@ -34,11 +34,20 @@ class Frontend implements ExtenderInterface
     private $removedRoutes = [];
     private $content = [];
 
+    /**
+     * @param string $frontend: The name of the frontend.
+     */
     public function __construct(string $frontend)
     {
         $this->frontend = $frontend;
     }
 
+    /**
+     * Add a CSS file to load in the frontend.
+     *
+     * @param string $path: The path to the CSS file.
+     * @return self
+     */
     public function css(string $path)
     {
         $this->css[] = $path;
@@ -46,6 +55,12 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Add a JavaScript file to load in the frontend.
+     *
+     * @param string $path: The path to the JavaScript file.
+     * @return self
+     */
     public function js(string $path)
     {
         $this->js = $path;
@@ -53,6 +68,21 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Add a route to the frontend.
+     *
+     * @param string $path: The path of the route.
+     * @param string $name: The name of the route, must be unique.
+     * @param callable|string|null $content
+     *
+     * The content can be a closure or an invokable class, and should accept:
+     * - \Flarum\Frontend\Document $document
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * The callable should return void.
+     *
+     * @return self
+     */
     public function route(string $path, string $name, $content = null)
     {
         $this->routes[] = compact('path', 'name', 'content');
@@ -60,6 +90,13 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Remove a route from the frontend.
+     * This is necessary before overriding a route.
+     *
+     * @param string $name: The name of the route.     *
+     * @return self
+     */
     public function removeRoute(string $name)
     {
         $this->removedRoutes[] = $name;
@@ -68,8 +105,17 @@ class Frontend implements ExtenderInterface
     }
 
     /**
-     * @param callable|string $callback
-     * @return $this
+     * Modify the content of the frontend.
+     *
+     * @param callable|string|null $content
+     *
+     * The content can be a closure or an invokable class, and should accept:
+     * - \Flarum\Frontend\Document $document
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * The callable should return void.
+     *
+     * @return self
      */
     public function content($callback)
     {

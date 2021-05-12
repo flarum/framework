@@ -21,6 +21,7 @@ class Console implements ExtenderInterface
      * Add a command to the console.
      *
      * @param string $command ::class attribute of command class, which must extend Flarum\Console\AbstractCommand
+     * @return self
      */
     public function command($command)
     {
@@ -45,6 +46,7 @@ class Console implements ExtenderInterface
      * for more information on available methods and what they do.
      *
      * @param array $args An array of args to call the command with.
+     * @return self
      */
     public function schedule(string $command, $callback, $args = [])
     {

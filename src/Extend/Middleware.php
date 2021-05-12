@@ -21,11 +21,21 @@ class Middleware implements ExtenderInterface
     private $insertAfterMiddlewares = [];
     private $frontend;
 
+    /**
+     * @param string $frontend: The name of the frontend.
+     */
     public function __construct(string $frontend)
     {
         $this->frontend = $frontend;
     }
 
+    /**
+     * Adds a new middleware to the frontend.
+     *
+     * @param string $middleware: ::class attribute of the middleware class.
+     *                            Must implement \Psr\Http\Server\MiddlewareInterface.
+     * @return self
+     */
     public function add($middleware)
     {
         $this->addMiddlewares[] = $middleware;
@@ -33,6 +43,14 @@ class Middleware implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Replaces an existing middleware of the frontend.
+     *
+     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     * @param string $middleware: ::class attribute of the middleware class.
+     *                            Must implement \Psr\Http\Server\MiddlewareInterface.
+     * @return self
+     */
     public function replace($originalMiddleware, $newMiddleware)
     {
         $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
@@ -40,6 +58,12 @@ class Middleware implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Removes a middleware from the frontend.
+     *
+     * @param string $middleware: ::class attribute of the middleware class.
+     * @return self
+     */
     public function remove($middleware)
     {
         $this->removeMiddlewares[] = $middleware;
@@ -47,6 +71,14 @@ class Middleware implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Inserts a middleware before an existing middleware.
+     *
+     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     * @param string $middleware: ::class attribute of the middleware class.
+     *                            Must implement \Psr\Http\Server\MiddlewareInterface.
+     * @return self
+     */
     public function insertBefore($originalMiddleware, $newMiddleware)
     {
         $this->insertBeforeMiddlewares[$originalMiddleware] = $newMiddleware;
@@ -54,6 +86,14 @@ class Middleware implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Inserts a middleware after an existing middleware.
+     *
+     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     * @param string $middleware: ::class attribute of the middleware class.
+     *                            Must implement \Psr\Http\Server\MiddlewareInterface.
+     * @return self
+     */
     public function insertAfter($originalMiddleware, $newMiddleware)
     {
         $this->insertAfterMiddlewares[$originalMiddleware] = $newMiddleware;

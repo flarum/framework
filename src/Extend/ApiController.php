@@ -82,6 +82,13 @@ class ApiController implements ExtenderInterface
      *
      * @param string $serializerClass
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function setSerializer(string $serializerClass, $callback = null)
@@ -96,6 +103,13 @@ class ApiController implements ExtenderInterface
      *
      * @param string|array $name
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function addInclude($name, $callback = null)
@@ -110,6 +124,13 @@ class ApiController implements ExtenderInterface
      *
      * @param string|array $name
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function removeInclude($name, $callback = null)
@@ -124,6 +145,13 @@ class ApiController implements ExtenderInterface
      *
      * @param string|array $name
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function addOptionalInclude($name, $callback = null)
@@ -138,6 +166,13 @@ class ApiController implements ExtenderInterface
      *
      * @param string|array $name
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function removeOptionalInclude($name, $callback = null)
@@ -152,6 +187,13 @@ class ApiController implements ExtenderInterface
      *
      * @param int $limit
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function setLimit(int $limit, $callback = null)
@@ -166,6 +208,13 @@ class ApiController implements ExtenderInterface
      *
      * @param int $max
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function setMaxLimit(int $max, $callback = null)
@@ -180,6 +229,13 @@ class ApiController implements ExtenderInterface
      *
      * @param string|array $field
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function addSortField($field, $callback = null)
@@ -194,6 +250,13 @@ class ApiController implements ExtenderInterface
      *
      * @param string|array $field
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function removeSortField($field, $callback = null)
@@ -208,6 +271,13 @@ class ApiController implements ExtenderInterface
      *
      * @param array $sort
      * @param callable|string|null $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - $controller: An instance of this controller.
+     *
+     * The callable should return:
+     * - A boolean value to determine if this applies.
+     *
      * @return self
      */
     public function setSort(array $sort, $callback = null)

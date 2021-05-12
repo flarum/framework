@@ -26,8 +26,15 @@ class Settings implements ExtenderInterface
      * @param string $attributeName: The attribute name to be used in the ForumSerializer attributes array.
      * @param string $key: The key of the setting.
      * @param string|callable|null $callback: Optional callback to modify the value before serialization.
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - mixed $value: The value of the setting.
+     *
+     * The callable should return:
+     * - mixed $value: The modified value.
+     *
      * @param mixed $default: Optional default serialized value. Will be run through the optional callback.
-     * @return $this
+     * @return self
      */
     public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null)
     {

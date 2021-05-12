@@ -31,6 +31,8 @@ class ApiSerializer implements ExtenderInterface
     }
 
     /**
+     * Add a single attribute to this serializer.
+     *
      * @param string $name: The name of the attribute.
      * @param callable|string $callback
      *

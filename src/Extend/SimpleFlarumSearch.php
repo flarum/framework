@@ -33,6 +33,7 @@ class SimpleFlarumSearch implements ExtenderInterface
      *
      * @param string $gambitClass: The ::class attribute of the gambit you are adding.
      *                             This gambit must extend \Flarum\Search\AbstractRegexGambit
+     * @return self
      */
     public function addGambit($gambitClass)
     {
@@ -46,6 +47,7 @@ class SimpleFlarumSearch implements ExtenderInterface
      *
      * @param string $gambitClass: The ::class attribute of the full test gambit you are adding.
      *                             This gambit must implement \Flarum\Search\GambitInterface
+     * @return self
      */
     public function setFullTextGambit($gambitClass)
     {
@@ -60,8 +62,12 @@ class SimpleFlarumSearch implements ExtenderInterface
      * @param callable|string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
-     * - Flarum\Search\SearchState $search
-     * - Flarum\Query\QueryCriteria $criteria
+     * - \Flarum\Search\SearchState $search
+     * - \Flarum\Query\QueryCriteria $criteria
+     *
+     * The callback should return void.
+     *
+     * @return self
      */
     public function addSearchMutator($callback)
     {

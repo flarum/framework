@@ -56,6 +56,14 @@ class Notification implements ExtenderInterface
 
     /**
      * @param callable|string $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
+     * - \Flarum\User\User[] $newRecipients
+     *
+     * The callable should return an array of recipients.
+     * - \Flarum\User\User[] $newRecipients
+     *
      * @return self
      */
     public function beforeSending($callback)

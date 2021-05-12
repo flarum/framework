@@ -32,7 +32,7 @@ class View implements ExtenderInterface, LifecycleInterface
      * @param  string  $namespace: The name of the namespace.
      * @param  string|array  $hints: This is a path (or an array of paths) to the folder(s)
      *                               where view files are stored, relative to the extend.php file.
-     * @return $this
+     * @return self
      */
     public function namespace($namespace, $hints)
     {

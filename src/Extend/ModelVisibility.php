@@ -59,6 +59,8 @@ class ModelVisibility implements ExtenderInterface
      * - \Flarum\User\User $actor
      * - \Illuminate\Database\Eloquent\Builder $query
      *
+     * The callback should return void.
+     *
      * @return self
      */
     public function scope($callback, $ability = 'view')
@@ -77,6 +79,8 @@ class ModelVisibility implements ExtenderInterface
      * - \Flarum\User\User $actor
      * - \Illuminate\Database\Eloquent\Builder $query
      * - string $ability
+     *
+     * The callback should return void.
      *
      * @return self
      */

@@ -29,11 +29,15 @@ class Filesystem implements ExtenderInterface
      * To declare a new disk, you must provide default configuration a "local" driver.
      *
      * @param string $name: The name of the disk
-     * @param string|callable $callback: A callback or invokable class name with parameters:
-     *                           - \Flarum\Foundation\Paths $paths
-     *                           - \Flarum\Http\UrlGenerator $url
-     *                         which returns a Laravel disk config array.
-     *                         The `driver` key is not necessary for this array, and will be ignored.
+     * @param string|callable $callback
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     *  - \Flarum\Foundation\Paths $paths
+     *  - \Flarum\Http\UrlGenerator $url
+     *
+     * The callable should return:
+     * - A Laravel disk config array,
+     *   The `driver` key is not necessary for this array, and will be ignored.
      *
      * @example
      * ```
@@ -46,6 +50,8 @@ class Filesystem implements ExtenderInterface
      * ```
      *
      * @see https://laravel.com/docs/8.x/filesystem#configuration
+     *
+     * @return self
      */
     public function disk(string $name, $callback)
     {
@@ -56,10 +62,11 @@ class Filesystem implements ExtenderInterface
 
     /**
      * Register a new filesystem driver.
-     * Drivers must implement `\Flarum\Filesystem\DriverInterface`.
      *
      * @param string $name: The name of the driver
      * @param string $driverClass: The ::class attribute of the driver.
+     *                             Driver must implement `\Flarum\Filesystem\DriverInterface`.
+     * @return self
      */
     public function driver(string $name, string $driverClass)
     {

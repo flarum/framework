@@ -18,6 +18,9 @@ class ServiceProvider implements ExtenderInterface
 
     /**
      * Register a service provider.
+     * There are no backwards compatibility guarantees for service providers.
+     *
+     * @see https://docs.flarum.org/extend/service-provider.html
      *
      * @param string $serviceProviderClass The ::class attribute of the service provider class.
      * @return self
