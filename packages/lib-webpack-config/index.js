@@ -1,52 +1,72 @@
 const fs = require('fs');
 const path = require('path');
-const webpack = require('webpack');
+
+const entryPointNames = ['forum', 'admin'];
+const entryPointExts = ['js', 'ts'];
+
+function getEntryPoints() {
+  const entries = {};
+
+  appLoop: for (const app of entryPointNames) {
+    for (const ext of entryPointExts) {
+      const file = path.resolve(process.cwd(), `${app}.${ext}`);
+
+      if (fs.existsSync(file)) {
+        entries[app] = file;
+        continue appLoop;
+      }
+    }
+  }
+
+  if (Object.keys(entries).length === 0) {
+    console.error('ERROR: No JS entrypoints could be found.');
+  }
+
+  return entries;
+}
 
 module.exports = function (options = {}) {
   return {
     // Set up entry points for each of the forum + admin apps, but only
     // if they exist.
-    entry: (function () {
-      const entries = {};
+    entry: getEntryPoints(),
 
-      for (const app of ['forum', 'admin']) {
-        const file = path.resolve(process.cwd(), app + '.js');
-        if (fs.existsSync(file)) {
-          entries[app] = file;
-        }
-      }
-
-      return entries;
-    })(),
+    resolve: {
+      extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+    },
 
     module: {
       rules: [
         {
-          test: /\.js$/,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              presets: [
-                [
-                  '@babel/preset-env',
-                  {
-                    modules: false,
-                    loose: true,
-                  },
-                ],
-                ['@babel/preset-react'],
+          // Matches .js, .jsx, .ts, .tsx
+          // See: https://regexr.com/5snjd
+          test: /\.(j|t)sx?$/,
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              '@babel/preset-react',
+              '@babel/preset-typescript',
+              [
+                '@babel/preset-env',
+                {
+                  modules: false,
+                  loose: true,
+                },
               ],
-              plugins: [
-                ['@babel/plugin-transform-runtime', { useESModules: true }],
-                ['@babel/plugin-proposal-class-properties', { loose: true }],
-                ['@babel/plugin-proposal-private-methods', { loose: true }],
-                ['@babel/plugin-transform-react-jsx', {
+            ],
+            plugins: [
+              ['@babel/plugin-transform-runtime', { useESModules: true }],
+              ['@babel/plugin-proposal-class-properties', { loose: true }],
+              ['@babel/plugin-proposal-private-methods', { loose: true }],
+              [
+                '@babel/plugin-transform-react-jsx',
+                {
                   pragma: 'm',
                   pragmaFrag: "'['",
                   useBuiltIns: true,
-                }],
+                },
               ],
-            },
+            ],
           },
         },
       ],

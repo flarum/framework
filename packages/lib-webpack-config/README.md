@@ -14,6 +14,12 @@ module.exports = config(options);
 
 To merge in custom Webpack config options, use [webpack-merge](https://www.npmjs.com/package/webpack-merge).
 
+## Typescript
+
+You'll need to configure a `tsconfig.json` file to ensure your IDE sets up Typescript support correctly.
+
+For details about this, see the [`flarum/flarum-tsconfig` repository](https://github.com/flarum/flarum-tsconfig)
+
 ## Options
 
 ### `useExtensions`
@@ -34,6 +40,6 @@ import { Tag } from '@flarum/tags/forum';
 
 ```js
 module.exports = config({
-  useExtensions: ['flarum/tags']
+  useExtensions: ['flarum/tags'],
 });
 ```
