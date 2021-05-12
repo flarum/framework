@@ -1,6 +1,6 @@
 import { extend } from 'flarum/common/extend';
 import Button from 'flarum/common/components/Button';
-import EditUserModal from 'flarum/forum/components/EditUserModal';
+import EditUserModal from 'flarum/common/components/EditUserModal';
 import SettingsPage from 'flarum/forum/components/SettingsPage';
 import Model from 'flarum/common/Model';
 import User from 'flarum/common/models/User';
