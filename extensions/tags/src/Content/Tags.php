@@ -11,6 +11,7 @@ namespace Flarum\Tags\Content;
 
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Api\Controller\ListTagsController;
@@ -79,7 +80,7 @@ class Tags
 
     public function __invoke(Document $document, Request $request)
     {
-        $apiDocument = $this->getTagsDocument($request->getAttribute('actor'));
+        $apiDocument = $this->getTagsDocument(RequestUtil::getActor($request));
         $tags = collect(Arr::get($apiDocument, 'data', []));
 
         $childTags = $tags->where('attributes.isChild', true);
