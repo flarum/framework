@@ -15,6 +15,7 @@ use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
+use Flarum\Flags\Access\ScopeFlagVisibility;
 use Flarum\Flags\AddCanFlagAttribute;
 use Flarum\Flags\AddFlagsApiAttributes;
 use Flarum\Flags\AddNewFlagCountAttribute;
@@ -77,6 +78,9 @@ return [
 
     (new Extend\Event())
         ->listen(Deleted::class, Listener\DeleteFlags::class),
+
+    (new Extend\ModelVisibility(Flag::class))
+        ->scope(ScopeFlagVisibility::class),
 
     new Extend\Locales(__DIR__.'/locale'),
 ];
