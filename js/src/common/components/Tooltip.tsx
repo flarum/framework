@@ -233,9 +233,8 @@ export default class Tooltip extends Component<TooltipAttrs> {
       text,
     } = this.attrs;
 
-    const trigger = (typeof tooltipVisible === 'boolean'
-      ? 'manual'
-      : classList('hover', [showOnFocus && 'focus'])) as TooltipCreationOptions['trigger'];
+    // Fancy "hack" to assemble the trigger string
+    const trigger = typeof tooltipVisible === 'boolean' ? 'manual' : classList('hover', [showOnFocus && 'focus']);
 
     const realText = this.getRealText();
     this.childDomNode.setAttribute('title', realText);
@@ -247,7 +246,6 @@ export default class Tooltip extends Component<TooltipAttrs> {
         html,
         delay,
         placement: position,
-        // Fancy "hack" to assemble the trigger string
         trigger,
       },
       // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
