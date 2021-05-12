@@ -80,9 +80,9 @@ class Tag
             'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
         ];
 
-        $apiDocument = $this->getApiDocument($actor, $params);
+        $apiDocument = $this->getApiDocument($request, $params);
 
-        $tagsDocument = $this->getTagsDocument($actor, $slug);
+        $tagsDocument = $this->getTagsDocument($request, $slug);
 
         $apiDocument->included[] = $tagsDocument->data;
         foreach ((array) $tagsDocument->included as $tag) {
@@ -118,21 +118,16 @@ class Tag
 
     /**
      * Get the result of an API request to list discussions.
-     *
-     * @param User $actor
-     * @param array $params
-     * @return object
      */
-    private function getApiDocument(User $actor, array $params)
+    private function getApiDocument(Request $request, array $params)
     {
-        return json_decode($this->api->send(ListDiscussionsController::class, $actor, $params)->getBody());
+        return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
     }
 
-    private function getTagsDocument(User $actor, string $slug)
+    private function getTagsDocument(Request $request, string $slug)
     {
-        return json_decode($this->api->send(ShowTagController::class, $actor, [
-            'slug' => $slug,
+        return json_decode($this->api->withParentRequest($request)->withQueryParams([
             'include' => 'children,children.parent,parent,parent.children.parent,state'
-        ])->getBody());
+        ])->get("/tags/$slug")->getBody());
     }
 }
