@@ -40,7 +40,8 @@
     "analyze": "cross-env ANALYZER=true npm run build",
     "format": "prettier --write src",
     "format-check": "prettier --check src",
-    "build-typings": "tsc"
+    "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
+    "build-typings": "npm run clean-typings && cp -r @types dist-typings/@types && tsc"
   },
   "husky": {
     "hooks": {
