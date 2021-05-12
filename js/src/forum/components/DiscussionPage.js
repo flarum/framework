@@ -41,7 +41,7 @@ export default class DiscussionPage extends Page {
     // page, then we don't want Mithril to redraw the whole page – if it did,
     // then the pane would redraw which would be slow and would cause problems with
     // event handlers.
-    if (app.discussions.hasDiscussions()) {
+    if (app.discussions.hasItems()) {
       app.pane.enable();
       app.pane.hide();
     }
