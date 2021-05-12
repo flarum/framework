@@ -16,20 +16,10 @@ use Flarum\User\User;
 class TagPolicy extends AbstractPolicy
 {
     /**
-     * @param User $actor
-     * @param Tag $tag
      * @return bool|null
      */
     public function addToDiscussion(User $actor, Tag $tag)
     {
-        static $disallowedTags;
-
-        if (! isset($disallowedTags[$actor->id])) {
-            $disallowedTags[$actor->id] = Tag::getIdsWhereCannot($actor, 'discussion.startWithoutApproval');
-        }
-
-        if (in_array($tag->id, $disallowedTags)) {
-            return $this->deny();
-        }
+        return $actor->can('discussion.startWithoutApproval', $tag);
     }
 }
