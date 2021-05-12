@@ -38,14 +38,14 @@ export default class DiscussionTaggedPost extends EventPost {
     const data = {};
 
     if (this.attrs.tagsAdded.length) {
-      data.tagsAdded = app.translator.transChoice('flarum-tags.forum.post_stream.tags_text', this.attrs.tagsAdded.length, {
+      data.tagsAdded = app.translator.trans('flarum-tags.forum.post_stream.tags_text', {
         tags: tagsLabel(this.attrs.tagsAdded, {link: true}),
         count: this.attrs.tagsAdded.length
       });
     }
 
     if (this.attrs.tagsRemoved.length) {
-      data.tagsRemoved = app.translator.transChoice('flarum-tags.forum.post_stream.tags_text', this.attrs.tagsRemoved.length, {
+      data.tagsRemoved = app.translator.trans('flarum-tags.forum.post_stream.tags_text', {
         tags: tagsLabel(this.attrs.tagsRemoved, {link: true}),
         count: this.attrs.tagsRemoved.length
       });
