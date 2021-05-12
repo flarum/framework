@@ -71,7 +71,7 @@ class WriteSettings implements Step
             'theme_dark_mode' => '0',
             'theme_primary_color' => '#4D698E',
             'theme_secondary_color' => '#4D698E',
-            'welcome_message' => 'Have a look around, and get used to your new forum!',
+            'welcome_message' => 'Enjoy your new forum! Hop over to https://discuss.flarum.org if you have any questions, or to join our community!',
             'welcome_title' => 'Welcome to Flarum',
         ];
     }

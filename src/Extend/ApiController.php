@@ -83,7 +83,7 @@ class ApiController implements ExtenderInterface
      * @param string $serializerClass: The ::class attribute of the serializer.
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -104,7 +104,7 @@ class ApiController implements ExtenderInterface
      * @param string|array $name: The name of the relation.
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -125,7 +125,7 @@ class ApiController implements ExtenderInterface
      * @param string|array $name: The name of the relation.
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -146,7 +146,7 @@ class ApiController implements ExtenderInterface
      * @param string|array $name: The name of the relation.
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -167,7 +167,7 @@ class ApiController implements ExtenderInterface
      * @param string|array $name: The name of the relation.
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -188,7 +188,7 @@ class ApiController implements ExtenderInterface
      * @param int $limit
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -209,7 +209,7 @@ class ApiController implements ExtenderInterface
      * @param int $max
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -230,7 +230,7 @@ class ApiController implements ExtenderInterface
      * @param string|array $field
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -251,7 +251,7 @@ class ApiController implements ExtenderInterface
      * @param string|array $field
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
@@ -272,7 +272,7 @@ class ApiController implements ExtenderInterface
      * @param array $sort
      * @param callable|string|null $callback
      *
-     * The callback can be a closure or an invokable class, and should accept:
+     * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
