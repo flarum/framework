@@ -42,8 +42,8 @@ class ScopeFlagVisibility
                         ->whereColumn('discussions.id', 'discussion_id');
                 });
 
-            if (!$actor->hasPermission('discussion.viewFlags')) {
-                $query->whereExists(function ($query) use ($actor) {
+            if (! $actor->hasPermission('discussion.viewFlags')) {
+                $query->whereExists(function ($query) {
                     return $query->selectRaw('1')
                         ->from('discussion_tag')
                         ->whereColumn('discussions.id', 'discussion_id');
@@ -51,8 +51,7 @@ class ScopeFlagVisibility
             }
         }
 
-
-        if (!$actor->hasPermission('discussion.viewFlags')) {
+        if (! $actor->hasPermission('discussion.viewFlags')) {
             $query->orWhere('flags.user_id', $actor->id);
         }
     }
