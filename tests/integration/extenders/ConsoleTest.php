@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Console\AbstractCommand;
 use Flarum\Extend;
 use Flarum\Testing\integration\ConsoleTestCase;
+use Illuminate\Console\Scheduling\Event;
 
 class ConsoleTest extends ConsoleTestCase
 {
@@ -63,7 +64,7 @@ class ConsoleTest extends ConsoleTestCase
     {
         $this->extend(
             (new Extend\Console())
-                ->schedule('cache:clear', function ($event) {
+                ->schedule('cache:clear', function (Event $event) {
                     $event->everyMinute();
                 })
         );
