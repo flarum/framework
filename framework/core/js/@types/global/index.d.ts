@@ -6,9 +6,9 @@ import * as _dayjs from 'dayjs';
 import * as _$ from 'jquery';
 
 // Globals from flarum/core
-import Application from './src/common/Application';
+import Application from '../../src/common/Application';
 
-import type { TooltipJQueryFunction } from './@types/tooltips';
+import type { TooltipJQueryFunction } from '../tooltips';
 
 /**
  * flarum/core exposes several extensions globally:
