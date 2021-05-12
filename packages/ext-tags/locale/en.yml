@@ -66,8 +66,8 @@ flarum-tags:
 
     # These translations are used by the Choose Tags modal dialog.
     choose_tags:
-      choose_primary_placeholder: "Choose a primary tag|Choose {count} primary tags"
-      choose_secondary_placeholder: "Choose 1 more tag|Choose {count} more tags"
+      choose_primary_placeholder: "{count, plural, one {Choose a primary tag} other {Choose # primary tags}}"
+      choose_secondary_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
       edit_title: "Edit Tags for {title}"
       submit_button: => core.ref.okay
       title: Choose Tags for Your Discussion
@@ -94,7 +94,7 @@ flarum-tags:
       added_and_removed_tags_text: "{username} added the {tagsAdded} and removed the {tagsRemoved}."
       added_tags_text: "{username} added the {tagsAdded}."
       removed_tags_text: "{username} removed the {tagsRemoved}."
-      tags_text: "{tags} tag|{tags} tags"
+      tags_text: "{count, plural, one {# tag} other {# tags}}"
 
     # These translations are used when visiting a single tag's discussion list.
     tag:

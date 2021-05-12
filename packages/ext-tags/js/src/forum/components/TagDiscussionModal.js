@@ -111,10 +111,10 @@ export default class TagDiscussionModal extends Modal {
   getInstruction(primaryCount, secondaryCount) {
     if (primaryCount < this.minPrimary) {
       const remaining = this.minPrimary - primaryCount;
-      return app.translator.transChoice('flarum-tags.forum.choose_tags.choose_primary_placeholder', remaining, {count: remaining});
+      return app.translator.trans('flarum-tags.forum.choose_tags.choose_primary_placeholder', {count: remaining});
     } else if (secondaryCount < this.minSecondary) {
       const remaining = this.minSecondary - secondaryCount;
-      return app.translator.transChoice('flarum-tags.forum.choose_tags.choose_secondary_placeholder', remaining, {count: remaining});
+      return app.translator.trans('flarum-tags.forum.choose_tags.choose_secondary_placeholder', {count: remaining});
     }
 
     return '';
