@@ -16,7 +16,6 @@ use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Flags\Api\Controller\ListFlagsController;
-use Flarum\Flags\Flag;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
