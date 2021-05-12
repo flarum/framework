@@ -130,6 +130,9 @@ class Extension implements Arrayable
         $this->id = static::nameToId($this->name);
     }
 
+    /**
+     * @internal
+     */
     public function extend(Container $container)
     {
         foreach ($this->getExtenders() as $extender) {
@@ -173,6 +176,8 @@ class Extension implements Arrayable
     /**
      * @param bool $installed
      * @return Extension
+     *
+     * @internal
      */
     public function setInstalled($installed)
     {
@@ -192,6 +197,8 @@ class Extension implements Arrayable
     /**
      * @param string $version
      * @return Extension
+     *
+     * @internal
      */
     public function setVersion($version)
     {
@@ -208,6 +215,8 @@ class Extension implements Arrayable
      *                             are flarum extensions.
      * @param array $enabledIds:   An associative array where keys are the composer package names
      *                             of enabled extensions. Used to figure out optional dependencies.
+     *
+     * @internal
      */
     public function calculateDependencies($extensionSet, $enabledIds)
     {
@@ -270,6 +279,9 @@ class Extension implements Arrayable
         return $icon;
     }
 
+    /**
+     * @internal
+     */
     public function enable(Container $container)
     {
         foreach ($this->getLifecycleExtenders() as $extender) {
@@ -277,6 +289,9 @@ class Extension implements Arrayable
         }
     }
 
+    /**
+     * @internal
+     */
     public function disable(Container $container)
     {
         foreach ($this->getLifecycleExtenders() as $extender) {
@@ -425,6 +440,9 @@ class Extension implements Arrayable
         return realpath($this->path.'/assets/') !== false;
     }
 
+    /**
+     * @internal
+     */
     public function copyAssetsTo(FilesystemInterface $target)
     {
         if (! $this->hasAssets()) {
@@ -451,6 +469,9 @@ class Extension implements Arrayable
         return realpath($this->path.'/migrations/') !== false;
     }
 
+    /**
+     * @internal
+     */
     public function migrate(Migrator $migrator, $direction = 'up')
     {
         if (! $this->hasMigrations()) {
