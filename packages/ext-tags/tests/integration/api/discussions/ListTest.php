@@ -35,10 +35,10 @@ class ListTest extends TestCase
                 $this->normalUser(),
             ],
             'group_permission' => [
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag5.viewDiscussions'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.viewDiscussions'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewDiscussions'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag13.viewDiscussions'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag5.viewForum'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.viewForum'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag13.viewForum'],
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
