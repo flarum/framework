@@ -26,7 +26,7 @@ class Event implements ExtenderInterface
      *
      * The listener can either be:
      *  - A callback function that accepts an instance of the event as a parameter.
-     *  - The class attribute of a class with a public `handle` method, which accepts an instance of the event as a parameter.
+     *  - The ::class attribute of a class with a public `handle` method, which accepts an instance of the event as a parameter.
      *  - An array, where the first argument is an object or class name, and the second argument is the method on the
      *    first argument that should be executed as the listener.
      *
@@ -46,7 +46,7 @@ class Event implements ExtenderInterface
      *
      * @see https://laravel.com/docs/8.x/events#writing-event-subscribers
      *
-     * @param string $subscriber: The class attribute of the subscriber class.
+     * @param string $subscriber: The ::class attribute of the subscriber class.
      * @return self
      */
     public function subscribe(string $subscriber): self
