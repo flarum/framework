@@ -38,8 +38,8 @@ class ScopeDiscussionVisibilityForAbility
             return;
         }
 
-        // `view` is a special case where the permission string is represented by `viewDiscussions`.
-        $permission = $ability === 'view' ? 'viewDiscussions' : $ability;
+        // `view` is a special case where the permission string is represented by `viewForum`.
+        $permission = $ability === 'view' ? 'viewForum' : $ability;
 
         // Restrict discussions where users don't have necessary permissions in all tags.
         // We use a double notIn instead of a doubleIn because the permission must be present in ALL tags,

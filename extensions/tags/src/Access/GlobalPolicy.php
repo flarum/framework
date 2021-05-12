@@ -42,7 +42,7 @@ class GlobalPolicy extends AbstractPolicy
             return $this->allow();
         }
 
-        if (in_array($ability, ['viewDiscussions', 'startDiscussion'])) {
+        if (in_array($ability, ['viewForum', 'startDiscussion'])) {
             if (! isset($enoughPrimary[$actor->id][$ability])) {
                 $enoughPrimary[$actor->id][$ability] = Tag::whereHasPermission($actor, $ability)
                     ->where('tags.position', '!=', null)

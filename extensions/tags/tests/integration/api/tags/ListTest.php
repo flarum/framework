@@ -35,8 +35,8 @@ class ListTest extends TestCase
                 $this->normalUser(),
             ],
             'group_permission' => [
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.viewDiscussions'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewDiscussions']
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.viewForum'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum']
             ]
         ]);
     }
