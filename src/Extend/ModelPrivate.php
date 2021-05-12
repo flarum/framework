@@ -57,7 +57,7 @@ class ModelPrivate implements ExtenderInterface
      *
      * @return self
      */
-    public function checker($callback)
+    public function checker($callback): self
     {
         $this->checkers[] = $callback;
 

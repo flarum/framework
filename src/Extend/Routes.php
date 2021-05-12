@@ -53,7 +53,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function get($path, $name, $handler)
+    public function get(string $path, string $name, $handler): self
     {
         return $this->route('GET', $path, $name, $handler);
     }
@@ -82,7 +82,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function post($path, $name, $handler)
+    public function post(string $path, string $name, $handler): self
     {
         return $this->route('POST', $path, $name, $handler);
     }
@@ -111,7 +111,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function put($path, $name, $handler)
+    public function put(string $path, string $name, $handler): self
     {
         return $this->route('PUT', $path, $name, $handler);
     }
@@ -140,7 +140,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function patch($path, $name, $handler)
+    public function patch(string $path, string $name, $handler): self
     {
         return $this->route('PATCH', $path, $name, $handler);
     }
@@ -169,12 +169,12 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function delete($path, $name, $handler)
+    public function delete(string $path, string $name, $handler): self
     {
         return $this->route('DELETE', $path, $name, $handler);
     }
 
-    private function route($httpMethod, $path, $name, $handler)
+    private function route(string $httpMethod, string $path, string $name, $handler): self
     {
         $this->routes[] = [
             'method' => $httpMethod,
@@ -193,7 +193,7 @@ class Routes implements ExtenderInterface
      * @param string $name: The name of the route.
      * @return self
      */
-    public function remove(string $name)
+    public function remove(string $name): self
     {
         $this->removedRoutes[] = $name;
 

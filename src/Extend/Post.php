@@ -24,7 +24,7 @@ class Post implements ExtenderInterface
      * @param string $postType: The ::class attribute of the custom Post type that is being added.
      * @return self
      */
-    public function type(string $postType)
+    public function type(string $postType): self
     {
         $this->postTypes[] = $postType;
 

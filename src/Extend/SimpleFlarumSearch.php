@@ -23,7 +23,7 @@ class SimpleFlarumSearch implements ExtenderInterface
      * @param string $searcherClass: The ::class attribute of the Searcher you are modifying.
      *                               This searcher must extend \Flarum\Search\AbstractSearcher.
      */
-    public function __construct($searcherClass)
+    public function __construct(string $searcherClass)
     {
         $this->searcher = $searcherClass;
     }
@@ -35,7 +35,7 @@ class SimpleFlarumSearch implements ExtenderInterface
      *                             This gambit must extend \Flarum\Search\AbstractRegexGambit
      * @return self
      */
-    public function addGambit($gambitClass)
+    public function addGambit(string $gambitClass): self
     {
         $this->gambits[] = $gambitClass;
 
@@ -49,7 +49,7 @@ class SimpleFlarumSearch implements ExtenderInterface
      *                             This gambit must implement \Flarum\Search\GambitInterface
      * @return self
      */
-    public function setFullTextGambit($gambitClass)
+    public function setFullTextGambit(string $gambitClass): self
     {
         $this->fullTextGambit = $gambitClass;
 
@@ -69,7 +69,7 @@ class SimpleFlarumSearch implements ExtenderInterface
      *
      * @return self
      */
-    public function addSearchMutator($callback)
+    public function addSearchMutator($callback): self
     {
         $this->searchMutators[] = $callback;
 

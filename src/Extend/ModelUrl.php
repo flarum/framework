@@ -34,7 +34,7 @@ class ModelUrl implements ExtenderInterface
      * @param string $driver ::class attribute of driver class, which must implement Flarum\Http\SlugDriverInterface.
      * @return self
      */
-    public function addSlugDriver(string $identifier, string $driver)
+    public function addSlugDriver(string $identifier, string $driver): self
     {
         $this->slugDrivers[$identifier] = $driver;
 

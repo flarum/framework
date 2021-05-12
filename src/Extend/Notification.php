@@ -31,7 +31,7 @@ class Notification implements ExtenderInterface
      *                                       (example: alert, email).
      * @return self
      */
-    public function type(string $blueprint, string $serializer, array $driversEnabledByDefault = [])
+    public function type(string $blueprint, string $serializer, array $driversEnabledByDefault = []): self
     {
         $this->blueprints[$blueprint] = $driversEnabledByDefault;
         $this->serializers[$blueprint::getType()] = $serializer;
@@ -46,7 +46,7 @@ class Notification implements ExtenderInterface
      * @param string[] $typesEnabledByDefault The names of blueprint classes of types enabled by default for this driver.
      * @return self
      */
-    public function driver(string $driverName, string $driver, array $typesEnabledByDefault = [])
+    public function driver(string $driverName, string $driver, array $typesEnabledByDefault = []): self
     {
         $this->drivers[$driverName] = $driver;
         $this->typesEnabledByDefault[$driverName] = $typesEnabledByDefault;
@@ -66,7 +66,7 @@ class Notification implements ExtenderInterface
      *
      * @return self
      */
-    public function beforeSending($callback)
+    public function beforeSending($callback): self
     {
         $this->beforeSendingCallbacks[] = $callback;
 

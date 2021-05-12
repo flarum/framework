@@ -48,7 +48,7 @@ class Frontend implements ExtenderInterface
      * @param string $path: The path to the CSS file.
      * @return self
      */
-    public function css(string $path)
+    public function css(string $path): self
     {
         $this->css[] = $path;
 
@@ -61,7 +61,7 @@ class Frontend implements ExtenderInterface
      * @param string $path: The path to the JavaScript file.
      * @return self
      */
-    public function js(string $path)
+    public function js(string $path): self
     {
         $this->js = $path;
 
@@ -83,7 +83,7 @@ class Frontend implements ExtenderInterface
      *
      * @return self
      */
-    public function route(string $path, string $name, $content = null)
+    public function route(string $path, string $name, $content = null): self
     {
         $this->routes[] = compact('path', 'name', 'content');
 
@@ -94,10 +94,10 @@ class Frontend implements ExtenderInterface
      * Remove a route from the frontend.
      * This is necessary before overriding a route.
      *
-     * @param string $name: The name of the route.     *
+     * @param string $name: The name of the route.
      * @return self
      */
-    public function removeRoute(string $name)
+    public function removeRoute(string $name): self
     {
         $this->removedRoutes[] = $name;
 
@@ -117,7 +117,7 @@ class Frontend implements ExtenderInterface
      *
      * @return self
      */
-    public function content($callback)
+    public function content($callback): self
     {
         $this->content[] = $callback;
 
@@ -131,7 +131,7 @@ class Frontend implements ExtenderInterface
         $this->registerContent($container);
     }
 
-    private function registerAssets(Container $container, string $moduleName)
+    private function registerAssets(Container $container, string $moduleName): void
     {
         if (empty($this->css) && empty($this->js)) {
             return;
@@ -193,7 +193,7 @@ class Frontend implements ExtenderInterface
         }
     }
 
-    private function registerRoutes(Container $container)
+    private function registerRoutes(Container $container): void
     {
         if (empty($this->routes) && empty($this->removedRoutes)) {
             return;
@@ -220,7 +220,7 @@ class Frontend implements ExtenderInterface
         );
     }
 
-    private function registerContent(Container $container)
+    private function registerContent(Container $container): void
     {
         if (empty($this->content)) {
             return;

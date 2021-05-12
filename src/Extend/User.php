@@ -26,7 +26,7 @@ class User implements ExtenderInterface
      * @param string $driver ::class attribute of driver class, which must implement Flarum\User\DisplayName\DriverInterface
      * @return self
      */
-    public function displayNameDriver(string $identifier, $driver)
+    public function displayNameDriver(string $identifier, string $driver): self
     {
         $this->displayNameDrivers[$identifier] = $driver;
 
@@ -49,7 +49,7 @@ class User implements ExtenderInterface
      *
      * @return self
      */
-    public function permissionGroups($callback)
+    public function permissionGroups($callback): self
     {
         $this->groupProcessors[] = $callback;
 
@@ -64,7 +64,7 @@ class User implements ExtenderInterface
      * @param mixed|null $default
      * @return self
      */
-    public function registerPreference(string $key, callable $transformer = null, $default = null)
+    public function registerPreference(string $key, callable $transformer = null, $default = null): self
     {
         $this->preferences[$key] = compact('transformer', 'default');
 

@@ -63,7 +63,7 @@ class ModelVisibility implements ExtenderInterface
      *
      * @return self
      */
-    public function scope($callback, $ability = 'view')
+    public function scope($callback, string $ability = 'view'): self
     {
         $this->scopers[$ability][] = $callback;
 
@@ -84,7 +84,7 @@ class ModelVisibility implements ExtenderInterface
      *
      * @return self
      */
-    public function scopeAll($callback)
+    public function scopeAll($callback): self
     {
         $this->allScopers[] = $callback;
 

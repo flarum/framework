@@ -32,7 +32,7 @@ class Event implements ExtenderInterface
      *
      * @return self
      */
-    public function listen(string $event, $listener)
+    public function listen(string $event, $listener): self
     {
         $this->listeners[] = [$event, $listener];
 
@@ -49,7 +49,7 @@ class Event implements ExtenderInterface
      * @param string $subscriber: The class attribute of the subscriber class.
      * @return self
      */
-    public function subscribe(string $subscriber)
+    public function subscribe(string $subscriber): self
     {
         $this->subscribers[] = $subscriber;
 

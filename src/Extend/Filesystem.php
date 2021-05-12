@@ -53,7 +53,7 @@ class Filesystem implements ExtenderInterface
      *
      * @return self
      */
-    public function disk(string $name, $callback)
+    public function disk(string $name, $callback): self
     {
         $this->disks[$name] = $callback;
 
@@ -68,7 +68,7 @@ class Filesystem implements ExtenderInterface
      *                             Driver must implement `\Flarum\Filesystem\DriverInterface`.
      * @return self
      */
-    public function driver(string $name, string $driverClass)
+    public function driver(string $name, string $driverClass): self
     {
         $this->drivers[$name] = $driverClass;
 

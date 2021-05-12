@@ -25,7 +25,7 @@ class ServiceProvider implements ExtenderInterface
      * @param string $serviceProviderClass The ::class attribute of the service provider class.
      * @return self
      */
-    public function register(string $serviceProviderClass)
+    public function register(string $serviceProviderClass): self
     {
         $this->providers[] = $serviceProviderClass;
 

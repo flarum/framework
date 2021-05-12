@@ -22,7 +22,7 @@ class Validator implements ExtenderInterface
      * @param string $validatorClass: The ::class attribute of the validator you are modifying.
      *                                The validator should inherit from \Flarum\Foundation\AbstractValidator.
      */
-    public function __construct($validatorClass)
+    public function __construct(string $validatorClass)
     {
         $this->validator = $validatorClass;
     }
@@ -41,7 +41,7 @@ class Validator implements ExtenderInterface
      *
      * @return self
      */
-    public function configure($callback)
+    public function configure($callback): self
     {
         $this->configurationCallbacks[] = $callback;
 

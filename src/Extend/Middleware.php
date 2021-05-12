@@ -36,7 +36,7 @@ class Middleware implements ExtenderInterface
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
-    public function add($middleware)
+    public function add(string $middleware): self
     {
         $this->addMiddlewares[] = $middleware;
 
@@ -51,7 +51,7 @@ class Middleware implements ExtenderInterface
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
-    public function replace($originalMiddleware, $newMiddleware)
+    public function replace(string $originalMiddleware, string $newMiddleware): self
     {
         $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
 
@@ -64,7 +64,7 @@ class Middleware implements ExtenderInterface
      * @param string $middleware: ::class attribute of the middleware class.
      * @return self
      */
-    public function remove($middleware)
+    public function remove(string $middleware): self
     {
         $this->removeMiddlewares[] = $middleware;
 
@@ -79,7 +79,7 @@ class Middleware implements ExtenderInterface
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
-    public function insertBefore($originalMiddleware, $newMiddleware)
+    public function insertBefore(string $originalMiddleware, string $newMiddleware): self
     {
         $this->insertBeforeMiddlewares[$originalMiddleware] = $newMiddleware;
 
@@ -94,7 +94,7 @@ class Middleware implements ExtenderInterface
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
-    public function insertAfter($originalMiddleware, $newMiddleware)
+    public function insertAfter(string $originalMiddleware, string $newMiddleware): self
     {
         $this->insertAfterMiddlewares[$originalMiddleware] = $newMiddleware;
 

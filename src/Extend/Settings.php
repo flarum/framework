@@ -36,7 +36,7 @@ class Settings implements ExtenderInterface
      * @param mixed $default: Optional default serialized value. Will be run through the optional callback.
      * @return self
      */
-    public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null)
+    public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null): self
     {
         $this->settings[$key] = compact('attributeName', 'callback', 'default');
 

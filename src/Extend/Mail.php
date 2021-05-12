@@ -23,7 +23,7 @@ class Mail implements ExtenderInterface
      * @param string $driver ::class attribute of driver class, which must implement Flarum\Mail\DriverInterface.
      * @return self
      */
-    public function driver(string $identifier, $driver)
+    public function driver(string $identifier, string $driver): self
     {
         $this->drivers[$identifier] = $driver;
 

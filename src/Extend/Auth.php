@@ -38,7 +38,7 @@ class Auth implements ExtenderInterface
      *
      * @return self
      */
-    public function addPasswordChecker(string $identifier, $callback)
+    public function addPasswordChecker(string $identifier, $callback): self
     {
         $this->addPasswordCheckers[$identifier] = $callback;
 
@@ -51,7 +51,7 @@ class Auth implements ExtenderInterface
      * @param string $identifier: The unique identifier of the password checker to remove.
      * @return self
      */
-    public function removePasswordChecker(string $identifier)
+    public function removePasswordChecker(string $identifier): self
     {
         $this->removePasswordCheckers[] = $identifier;
 

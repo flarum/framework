@@ -22,7 +22,7 @@ class Csrf implements ExtenderInterface
      * @param string $routeName
      * @return self
      */
-    public function exemptRoute(string $routeName)
+    public function exemptRoute(string $routeName): self
     {
         $this->csrfExemptRoutes[] = $routeName;
 

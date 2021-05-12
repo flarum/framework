@@ -48,7 +48,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function prepareDataQuery($callback)
+    public function prepareDataQuery($callback): self
     {
         $this->beforeDataCallbacks[] = $callback;
 
@@ -70,7 +70,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function prepareDataForSerialization($callback)
+    public function prepareDataForSerialization($callback): self
     {
         $this->beforeSerializationCallbacks[] = $callback;
 
@@ -91,7 +91,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function setSerializer(string $serializerClass, $callback = null)
+    public function setSerializer(string $serializerClass, $callback = null): self
     {
         $this->serializer = [$serializerClass, $callback];
 
@@ -112,7 +112,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function addInclude($name, $callback = null)
+    public function addInclude($name, $callback = null): self
     {
         $this->addIncludes[] = [$name, $callback];
 
@@ -133,7 +133,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function removeInclude($name, $callback = null)
+    public function removeInclude($name, $callback = null): self
     {
         $this->removeIncludes[] = [$name, $callback];
 
@@ -154,7 +154,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function addOptionalInclude($name, $callback = null)
+    public function addOptionalInclude($name, $callback = null): self
     {
         $this->addOptionalIncludes[] = [$name, $callback];
 
@@ -175,7 +175,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function removeOptionalInclude($name, $callback = null)
+    public function removeOptionalInclude($name, $callback = null): self
     {
         $this->removeOptionalIncludes[] = [$name, $callback];
 
@@ -196,7 +196,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function setLimit(int $limit, $callback = null)
+    public function setLimit(int $limit, $callback = null): self
     {
         $this->limit = [$limit, $callback];
 
@@ -217,7 +217,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function setMaxLimit(int $max, $callback = null)
+    public function setMaxLimit(int $max, $callback = null): self
     {
         $this->maxLimit = [$max, $callback];
 
@@ -238,7 +238,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function addSortField($field, $callback = null)
+    public function addSortField($field, $callback = null): self
     {
         $this->addSortFields[] = [$field, $callback];
 
@@ -259,7 +259,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function removeSortField($field, $callback = null)
+    public function removeSortField($field, $callback = null): self
     {
         $this->removeSortFields[] = [$field, $callback];
 
@@ -280,7 +280,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function setSort(array $sort, $callback = null)
+    public function setSort(array $sort, $callback = null): self
     {
         $this->sort = [$sort, $callback];
 
@@ -298,10 +298,10 @@ class ApiController implements ExtenderInterface
      * To force load the relationship, both levels have to be specified,
      * example: ['relation', 'relation.subRelation'].
      *
-     * @param string|array
+     * @param string[]
      * @return self
      */
-    public function load($relations)
+    public function load($relations): self
     {
         $this->load = array_merge($this->load, (array) $relations);
 

@@ -32,7 +32,7 @@ class Filter implements ExtenderInterface
      * @param string $filterClass: The ::class attribute of the filter you are adding.
      * @return self
      */
-    public function addFilter(string $filterClass)
+    public function addFilter(string $filterClass): self
     {
         $this->filters[] = $filterClass;
 
@@ -52,7 +52,7 @@ class Filter implements ExtenderInterface
      *
      * @return self
      */
-    public function addFilterMutator($callback)
+    public function addFilterMutator($callback): self
     {
         $this->filterMutators[] = $callback;
 

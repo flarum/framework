@@ -24,7 +24,7 @@ class Policy implements ExtenderInterface
      * @param string $policy ::class attribute of policy class, which must extend Flarum\User\Access\AbstractPolicy
      * @return self
      */
-    public function globalPolicy(string $policy)
+    public function globalPolicy(string $policy): self
     {
         $this->globalPolicies[] = $policy;
 
@@ -39,7 +39,7 @@ class Policy implements ExtenderInterface
      * @param string $policy ::class attribute of policy class, which must extend Flarum\User\Access\AbstractPolicy
      * @return self
      */
-    public function modelPolicy(string $modelClass, string $policy)
+    public function modelPolicy(string $modelClass, string $policy): self
     {
         if (! array_key_exists($modelClass, $this->modelPolicies)) {
             $this->modelPolicies[$modelClass] = [];

@@ -34,7 +34,7 @@ class ErrorHandling implements ExtenderInterface
      * @param int $httpStatus: The status code for this error.
      * @return self
      */
-    public function status(string $errorType, int $httpStatus)
+    public function status(string $errorType, int $httpStatus): self
     {
         $this->statuses[$errorType] = $httpStatus;
 
@@ -54,7 +54,7 @@ class ErrorHandling implements ExtenderInterface
      * @param string $errorType: Type of the error.
      * @return self
      */
-    public function type(string $exceptionClass, string $errorType)
+    public function type(string $exceptionClass, string $errorType): self
     {
         $this->types[$exceptionClass] = $errorType;
 
@@ -79,7 +79,7 @@ class ErrorHandling implements ExtenderInterface
      * @param string $errorType: The ::class attribute of the handler class.
      * @return self
      */
-    public function handler(string $exceptionClass, string $handlerClass)
+    public function handler(string $exceptionClass, string $handlerClass): self
     {
         $this->handlers[$exceptionClass] = $handlerClass;
 
@@ -101,7 +101,7 @@ class ErrorHandling implements ExtenderInterface
      * @param string $reporterClass: The ::class attribute of the reporter class.
      * @return self
      */
-    public function reporter(string $reporterClass)
+    public function reporter(string $reporterClass): self
     {
         $this->reporters[] = $reporterClass;
 
