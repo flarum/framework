@@ -50,14 +50,6 @@ class Extension implements Arrayable
         'jpg' => 'image/jpeg',
     ];
 
-    protected static function nameToId($name)
-    {
-        [$vendor, $package] = explode('/', $name);
-        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
-
-        return "$vendor-$package";
-    }
-
     /**
      * Unique Id of the extension.
      *
@@ -120,6 +112,14 @@ class Extension implements Arrayable
         $this->path = $path;
         $this->composerJson = $composerJson;
         $this->assignId();
+    }
+
+    protected static function nameToId($name)
+    {
+        [$vendor, $package] = explode('/', $name);
+        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
+
+        return "$vendor-$package";
     }
 
     /**
