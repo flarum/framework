@@ -30,7 +30,6 @@
     "prettier": "^2.3.0",
     "typescript": "^4.2.4",
     "webpack": "^4.46.0",
-    "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^3.3.12",
     "webpack-merge": "^4.2.2"
   },
