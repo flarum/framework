@@ -98,9 +98,6 @@ return [
     (new Extend\ModelVisibility(Discussion::class))
         ->scopeAll(Access\ScopeDiscussionVisibilityForAbility::class),
 
-    (new Extend\ModelVisibility(Flag::class))
-        ->scope(Access\ScopeFlagVisibility::class),
-
     (new Extend\ModelVisibility(Tag::class))
         ->scope(Access\ScopeTagVisibility::class),
 
