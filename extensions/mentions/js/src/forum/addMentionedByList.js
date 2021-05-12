@@ -116,7 +116,7 @@ export default function addMentionedByList() {
         const count = repliers.length - names.length;
 
         names.push(
-          app.translator.transChoice('flarum-mentions.forum.post.others_text', count, {count})
+          app.translator.trans('flarum-mentions.forum.post.others_text', {count})
         );
       }
 
@@ -124,7 +124,7 @@ export default function addMentionedByList() {
         <div className="Post-mentionedBy">
           <span className="Post-mentionedBy-summary">
             {icon('fas fa-reply')}
-            {app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (repliers[0].user() === app.session.user ? '_self' : '') + '_text', names.length, {
+            {app.translator.trans('flarum-mentions.forum.post.mentioned_by' + (repliers[0].user() === app.session.user ? '_self' : '') + '_text', {
               count: names.length,
               users: punctuateSeries(names)
             })}
