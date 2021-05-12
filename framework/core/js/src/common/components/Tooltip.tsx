@@ -233,9 +233,9 @@ export default class Tooltip extends Component<TooltipAttrs> {
       text,
     } = this.attrs;
 
-    const trigger = (
-      typeof tooltipVisible === 'boolean' ? 'manual' : classList('hover', [showOnFocus && 'focus'])
-    ) as TooltipCreationOptions['trigger'];
+    const trigger = (typeof tooltipVisible === 'boolean'
+      ? 'manual'
+      : classList('hover', [showOnFocus && 'focus'])) as TooltipCreationOptions['trigger'];
 
     const realText = this.getRealText();
     this.childDomNode.setAttribute('title', realText);
