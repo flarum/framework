@@ -1,4 +1,5 @@
 const config = require('flarum-webpack-config');
+
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const merge = require('webpack-merge');
 
@@ -15,13 +16,5 @@ module.exports = merge(config(), {
     library: 'flarum.core',
   },
 
-  // temporary TS configuration
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
-  },
-
   plugins,
 });
-
-module.exports['module'].rules[0].test = /\.(tsx?|js)$/;
-module.exports['module'].rules[0].use.options.presets.push('@babel/preset-typescript');

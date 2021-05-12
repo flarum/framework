@@ -1,21 +1,11 @@
 {
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  // Use Flarum's tsconfig as a starting point
+  "extends": "flarum-tsconfig",
+  // This will match all .ts, .tsx, .d.ts, .js, .jsx files
+  "include": ["src/**/*"],
   "files": ["shims.d.ts"],
   "compilerOptions": {
-    "allowUmdGlobalAccess": true,
-    "outDir": "dist",
-    "sourceMap": true,
-    "strict": true,
-    "noImplicitReturns": false,
-    "noImplicitAny": false,
-    "module": "es2015",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "target": "es6",
-    "jsx": "preserve",
-    "lib": ["es2015", "es2017", "es2018.promise", "dom"],
-    "allowSyntheticDefaultImports": true
+    // This will output typings to `dist-typings`
+    "declarationDir": "./dist-typings"
   }
 }
