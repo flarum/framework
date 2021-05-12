@@ -20,7 +20,8 @@
     "@babel/preset-typescript": "^7.13.0",
     "@babel/runtime": "^7.14.0",
     "babel-loader": "^8.2.2",
-    "typescript": "^4.2.4"
+    "typescript": "^4.2.4",
+    "webpack-bundle-analyzer": "^4.4.1"
   },
   "devDependencies": {
     "prettier": "^2.3.0"

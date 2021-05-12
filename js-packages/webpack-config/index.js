@@ -25,11 +25,20 @@ function getEntryPoints() {
   return entries;
 }
 
+const useBundleAnalyzer = process.env.ANALYZER === 'true';
+const plugins = [];
+
+if (useBundleAnalyzer) {
+  plugins.push(new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)());
+}
+
 module.exports = function (options = {}) {
   return {
     // Set up entry points for each of the forum + admin apps, but only
     // if they exist.
     entry: getEntryPoints(),
+
+    plugins,
 
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
@@ -91,8 +100,10 @@ module.exports = function (options = {}) {
 
         if (options.useExtensions) {
           for (const extension of options.useExtensions) {
-            externals['@' + extension] = externals['@' + extension + '/forum'] = externals['@' + extension + '/admin'] =
-              "flarum.extensions['" + extension + "']";
+            externals['@' + extension] =
+              externals['@' + extension + '/forum'] =
+              externals['@' + extension + '/admin'] =
+                "flarum.extensions['" + extension + "']";
           }
         }
 
