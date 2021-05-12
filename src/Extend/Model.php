@@ -21,7 +21,7 @@ class Model implements ExtenderInterface
     private $customRelations = [];
 
     /**
-     * @param string $modelClass The ::class attribute of the model you are modifying.
+     * @param string $modelClass: The ::class attribute of the model you are modifying.
      *                           This model should extend from \Flarum\Database\AbstractModel.
      */
     public function __construct(string $modelClass)

@@ -22,8 +22,8 @@ class User implements ExtenderInterface
     /**
      * Add a display name driver.
      *
-     * @param string $identifier Identifier for display name driver. E.g. 'username' for UserNameDriver
-     * @param string $driver ::class attribute of driver class, which must implement Flarum\User\DisplayName\DriverInterface
+     * @param string $identifier: Identifier for display name driver. E.g. 'username' for UserNameDriver
+     * @param string $driver: ::class attribute of driver class, which must implement Flarum\User\DisplayName\DriverInterface
      * @return self
      */
     public function displayNameDriver(string $identifier, string $driver): self

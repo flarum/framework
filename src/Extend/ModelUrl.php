@@ -19,7 +19,7 @@ class ModelUrl implements ExtenderInterface
     private $slugDrivers = [];
 
     /**
-     * @param string $modelClass The ::class attribute of the model you are modifying.
+     * @param string $modelClass: The ::class attribute of the model you are modifying.
      *                           This model should extend from \Flarum\Database\AbstractModel.
      */
     public function __construct(string $modelClass)
@@ -30,8 +30,8 @@ class ModelUrl implements ExtenderInterface
     /**
      * Add a slug driver.
      *
-     * @param string $identifier Identifier for slug driver.
-     * @param string $driver ::class attribute of driver class, which must implement Flarum\Http\SlugDriverInterface.
+     * @param string $identifier: Identifier for slug driver.
+     * @param string $driver: ::class attribute of driver class, which must implement Flarum\Http\SlugDriverInterface.
      * @return self
      */
     public function addSlugDriver(string $identifier, string $driver): self

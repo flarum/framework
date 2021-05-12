@@ -28,7 +28,7 @@ class Filesystem implements ExtenderInterface
      *
      * To declare a new disk, you must provide default configuration a "local" driver.
      *
-     * @param string $name: The name of the disk
+     * @param string $name: The name of the disk.
      * @param string|callable $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
@@ -63,7 +63,7 @@ class Filesystem implements ExtenderInterface
     /**
      * Register a new filesystem driver.
      *
-     * @param string $name: The name of the driver
+     * @param string $name: The name of the driver.
      * @param string $driverClass: The ::class attribute of the driver.
      *                             Driver must implement `\Flarum\Filesystem\DriverInterface`.
      * @return self

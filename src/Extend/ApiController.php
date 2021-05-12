@@ -32,7 +32,7 @@ class ApiController implements ExtenderInterface
     private $load = [];
 
     /**
-     * @param string $controllerClass The ::class attribute of the controller you are modifying.
+     * @param string $controllerClass: The ::class attribute of the controller you are modifying.
      *                                This controller should extend from \Flarum\Api\Controller\AbstractSerializeController.
      */
     public function __construct(string $controllerClass)
@@ -80,7 +80,7 @@ class ApiController implements ExtenderInterface
     /**
      * Set the serializer that will serialize data for the endpoint.
      *
-     * @param string $serializerClass
+     * @param string $serializerClass: The ::class attribute of the serializer.
      * @param callable|string|null $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
@@ -101,7 +101,7 @@ class ApiController implements ExtenderInterface
     /**
      * Include the given relationship by default.
      *
-     * @param string|array $name
+     * @param string|array $name: The name of the relation.
      * @param callable|string|null $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
@@ -122,7 +122,7 @@ class ApiController implements ExtenderInterface
     /**
      * Don't include the given relationship by default.
      *
-     * @param string|array $name
+     * @param string|array $name: The name of the relation.
      * @param callable|string|null $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
@@ -143,7 +143,7 @@ class ApiController implements ExtenderInterface
     /**
      * Make the given relationship available for inclusion.
      *
-     * @param string|array $name
+     * @param string|array $name: The name of the relation.
      * @param callable|string|null $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
@@ -164,7 +164,7 @@ class ApiController implements ExtenderInterface
     /**
      * Don't allow the given relationship to be included.
      *
-     * @param string|array $name
+     * @param string|array $name: The name of the relation.
      * @param callable|string|null $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
@@ -298,7 +298,7 @@ class ApiController implements ExtenderInterface
      * To force load the relationship, both levels have to be specified,
      * example: ['relation', 'relation.subRelation'].
      *
-     * @param string[]
+     * @param string|string[] $relations
      * @return self
      */
     public function load($relations): self

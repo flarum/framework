@@ -24,7 +24,7 @@ class Routes implements ExtenderInterface
     /**
      * @param string $appName: Name of the app (api, forum, admin).
      */
-    public function __construct($appName)
+    public function __construct(string $appName)
     {
         $this->appName = $appName;
     }
@@ -37,12 +37,7 @@ class Routes implements ExtenderInterface
      * @param callable|string $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
-     * or extend one of the Flarum Api controllers:
-     * - \Flarum\Api\Controller\AbstractSerializeController
-     * - \Flarum\Api\Controller\AbstractShowController
-     * - \Flarum\Api\Controller\AbstractCreateController
-     * - \Flarum\Api\Controller\AbstractListController
-     * - \Flarum\Api\Controller\AbstractDeleteController
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
@@ -66,12 +61,7 @@ class Routes implements ExtenderInterface
      * @param callable|string $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
-     * or extend one of the Flarum Api controllers:
-     * - \Flarum\Api\Controller\AbstractSerializeController
-     * - \Flarum\Api\Controller\AbstractShowController
-     * - \Flarum\Api\Controller\AbstractCreateController
-     * - \Flarum\Api\Controller\AbstractListController
-     * - \Flarum\Api\Controller\AbstractDeleteController
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
@@ -95,12 +85,7 @@ class Routes implements ExtenderInterface
      * @param callable|string $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
-     * or extend one of the Flarum Api controllers:
-     * - \Flarum\Api\Controller\AbstractSerializeController
-     * - \Flarum\Api\Controller\AbstractShowController
-     * - \Flarum\Api\Controller\AbstractCreateController
-     * - \Flarum\Api\Controller\AbstractListController
-     * - \Flarum\Api\Controller\AbstractDeleteController
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
@@ -124,12 +109,7 @@ class Routes implements ExtenderInterface
      * @param callable|string $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
-     * or extend one of the Flarum Api controllers:
-     * - \Flarum\Api\Controller\AbstractSerializeController
-     * - \Flarum\Api\Controller\AbstractShowController
-     * - \Flarum\Api\Controller\AbstractCreateController
-     * - \Flarum\Api\Controller\AbstractListController
-     * - \Flarum\Api\Controller\AbstractDeleteController
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
@@ -153,12 +133,7 @@ class Routes implements ExtenderInterface
      * @param callable|string $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
-     * or extend one of the Flarum Api controllers:
-     * - \Flarum\Api\Controller\AbstractSerializeController
-     * - \Flarum\Api\Controller\AbstractShowController
-     * - \Flarum\Api\Controller\AbstractCreateController
-     * - \Flarum\Api\Controller\AbstractListController
-     * - \Flarum\Api\Controller\AbstractDeleteController
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
