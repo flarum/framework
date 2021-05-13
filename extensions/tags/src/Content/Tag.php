@@ -10,12 +10,9 @@
 namespace Flarum\Tags\Content;
 
 use Flarum\Api\Client;
-use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
-use Flarum\Tags\Api\Controller\ShowTagController;
 use Flarum\Tags\TagRepository;
-use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
