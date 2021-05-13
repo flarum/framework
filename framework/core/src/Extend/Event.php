@@ -21,16 +21,18 @@ class Event implements ExtenderInterface
     /**
      * Add a listener to a domain event dispatched by flarum or a flarum extension.
      *
-     * The listener can either be:
-     *  - a callback function
-     *  - the class attribute of a class with a public `handle` method, which accepts an instance of the event as a parameter
-     *  - an array, where the first argument is an object or class name, and the second argument is the method on the
-     *    first argument that should be executed as the listener
-     *
-     * @param string $event
+     * @param string $event: Name of the event, can be the ::class attribute of the event class.
      * @param callable|string $listener
+     *
+     * The listener can either be:
+     *  - A callback function that accepts an instance of the event as a parameter.
+     *  - The ::class attribute of a class with a public `handle` method, which accepts an instance of the event as a parameter.
+     *  - An array, where the first argument is an object or class name, and the second argument is the method on the
+     *    first argument that should be executed as the listener.
+     *
+     * @return self
      */
-    public function listen(string $event, $listener)
+    public function listen(string $event, $listener): self
     {
         $this->listeners[] = [$event, $listener];
 
@@ -44,9 +46,10 @@ class Event implements ExtenderInterface
      *
      * @see https://laravel.com/docs/8.x/events#writing-event-subscribers
      *
-     * @param string $subscriber: The class attribute of the subscriber class
+     * @param string $subscriber: The ::class attribute of the subscriber class.
+     * @return self
      */
-    public function subscribe(string $subscriber)
+    public function subscribe(string $subscriber): self
     {
         $this->subscribers[] = $subscriber;
 

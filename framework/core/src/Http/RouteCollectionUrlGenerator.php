@@ -9,6 +9,9 @@
 
 namespace Flarum\Http;
 
+/**
+ * @internal
+ */
 class RouteCollectionUrlGenerator
 {
     /**

@@ -14,6 +14,9 @@ use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 
+/**
+ * @internal
+ */
 class Gate
 {
     protected const EVALUATION_CRITERIA_PRIORITY = [

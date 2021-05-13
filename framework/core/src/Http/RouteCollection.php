@@ -13,6 +13,9 @@ use FastRoute\DataGenerator;
 use FastRoute\RouteParser;
 use Illuminate\Support\Arr;
 
+/**
+ * @internal
+ */
 class RouteCollection
 {
     /**

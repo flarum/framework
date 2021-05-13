@@ -23,7 +23,7 @@ class SimpleFlarumSearch implements ExtenderInterface
      * @param string $searcherClass: The ::class attribute of the Searcher you are modifying.
      *                               This searcher must extend \Flarum\Search\AbstractSearcher.
      */
-    public function __construct($searcherClass)
+    public function __construct(string $searcherClass)
     {
         $this->searcher = $searcherClass;
     }
@@ -33,8 +33,9 @@ class SimpleFlarumSearch implements ExtenderInterface
      *
      * @param string $gambitClass: The ::class attribute of the gambit you are adding.
      *                             This gambit must extend \Flarum\Search\AbstractRegexGambit
+     * @return self
      */
-    public function addGambit($gambitClass)
+    public function addGambit(string $gambitClass): self
     {
         $this->gambits[] = $gambitClass;
 
@@ -46,8 +47,9 @@ class SimpleFlarumSearch implements ExtenderInterface
      *
      * @param string $gambitClass: The ::class attribute of the full test gambit you are adding.
      *                             This gambit must implement \Flarum\Search\GambitInterface
+     * @return self
      */
-    public function setFullTextGambit($gambitClass)
+    public function setFullTextGambit(string $gambitClass): self
     {
         $this->fullTextGambit = $gambitClass;
 
@@ -60,10 +62,14 @@ class SimpleFlarumSearch implements ExtenderInterface
      * @param callable|string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
-     * - Flarum\Search\SearchState $search
-     * - Flarum\Query\QueryCriteria $criteria
+     * - \Flarum\Search\SearchState $search
+     * - \Flarum\Query\QueryCriteria $criteria
+     *
+     * The callback should return void.
+     *
+     * @return self
      */
-    public function addSearchMutator($callback)
+    public function addSearchMutator($callback): self
     {
         $this->searchMutators[] = $callback;
 

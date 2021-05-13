@@ -371,6 +371,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
     /**
      * @param Container $container
+     *
+     * @internal
      */
     public static function setContainer(Container $container)
     {
@@ -380,6 +382,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * @param string $controllerClass
      * @param callable $callback
+     *
+     * @internal
      */
     public static function addDataPreparationCallback(string $controllerClass, callable $callback)
     {
@@ -393,6 +397,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * @param string $controllerClass
      * @param callable $callback
+     *
+     * @internal
      */
     public static function addSerializationPreparationCallback(string $controllerClass, callable $callback)
     {
@@ -403,6 +409,9 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         static::$beforeSerializationCallbacks[$controllerClass][] = $callback;
     }
 
+    /**
+     * @internal
+     */
     public static function setLoadRelations(string $controllerClass, array $relations)
     {
         if (! isset(static::$loadRelations[$controllerClass])) {

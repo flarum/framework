@@ -31,6 +31,8 @@ class ApiSerializer implements ExtenderInterface
     }
 
     /**
+     * Add a single attribute to this serializer.
+     *
      * @param string $name: The name of the attribute.
      * @param callable|string $callback
      *
@@ -44,7 +46,7 @@ class ApiSerializer implements ExtenderInterface
      *
      * @return self
      */
-    public function attribute(string $name, $callback)
+    public function attribute(string $name, $callback): self
     {
         $this->attribute[$name] = $callback;
 
@@ -67,7 +69,7 @@ class ApiSerializer implements ExtenderInterface
      *
      * @return self
      */
-    public function attributes($callback)
+    public function attributes($callback): self
     {
         $this->attributes[] = $callback;
 
@@ -84,7 +86,7 @@ class ApiSerializer implements ExtenderInterface
      *                                 This serializer should extend from \Flarum\Api\Serializer\AbstractSerializer.
      * @return self
      */
-    public function hasOne(string $name, string $serializerClass)
+    public function hasOne(string $name, string $serializerClass): self
     {
         return $this->relationship($name, function (AbstractSerializer $serializer, $model) use ($serializerClass, $name) {
             return $serializer->hasOne($model, $serializerClass, $name);
@@ -101,7 +103,7 @@ class ApiSerializer implements ExtenderInterface
      *                                 This serializer should extend from \Flarum\Api\Serializer\AbstractSerializer.
      * @return self
      */
-    public function hasMany(string $name, string $serializerClass)
+    public function hasMany(string $name, string $serializerClass): self
     {
         return $this->relationship($name, function (AbstractSerializer $serializer, $model) use ($serializerClass, $name) {
             return $serializer->hasMany($model, $serializerClass, $name);
@@ -124,7 +126,7 @@ class ApiSerializer implements ExtenderInterface
      *
      * @return self
      */
-    public function relationship(string $name, $callback)
+    public function relationship(string $name, $callback): self
     {
         $this->relationships[$this->serializerClass][$name] = $callback;
 

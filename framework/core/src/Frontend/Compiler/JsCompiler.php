@@ -12,6 +12,9 @@ namespace Flarum\Frontend\Compiler;
 use axy\sourcemap\SourceMap;
 use Flarum\Frontend\Compiler\Source\FileSource;
 
+/**
+ * @internal
+ */
 class JsCompiler extends RevisionCompiler
 {
     protected function save(string $file, array $sources): bool

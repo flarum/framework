@@ -14,6 +14,9 @@ use Flarum\Frontend\Compiler\Source\SourceInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 
+/**
+ * @internal
+ */
 class RevisionCompiler implements CompilerInterface
 {
     const REV_MANIFEST = 'rev-manifest.json';

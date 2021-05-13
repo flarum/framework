@@ -166,8 +166,10 @@ class NotificationSyncer
      *
      * @param string $driverName
      * @param NotificationDriverInterface $driver
+     *
+     * @internal
      */
-    public static function addNotificationDriver(string $driverName, NotificationDriverInterface $driver)
+    public static function addNotificationDriver(string $driverName, NotificationDriverInterface $driver): void
     {
         static::$notificationDrivers[$driverName] = $driver;
     }
@@ -182,6 +184,8 @@ class NotificationSyncer
 
     /**
      * @param callable|string $callback
+     *
+     * @internal
      */
     public static function beforeSending($callback): void
     {

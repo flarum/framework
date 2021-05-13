@@ -44,21 +44,33 @@ class Formatter
         $this->cacheDir = $cacheDir;
     }
 
+    /**
+     * @internal
+     */
     public function addConfigurationCallback($callback)
     {
         $this->configurationCallbacks[] = $callback;
     }
 
+    /**
+     * @internal
+     */
     public function addParsingCallback($callback)
     {
         $this->parsingCallbacks[] = $callback;
     }
 
+    /**
+     * @internal
+     */
     public function addUnparsingCallback($callback)
     {
         $this->unparsingCallbacks[] = $callback;
     }
 
+    /**
+     * @internal
+     */
     public function addRenderingCallback($callback)
     {
         $this->renderingCallbacks[] = $callback;

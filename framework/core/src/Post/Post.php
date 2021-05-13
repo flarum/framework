@@ -210,6 +210,8 @@ class Post extends AbstractModel
      * @param string $type The post type.
      * @param string $model The class name of the model for that type.
      * @return void
+     *
+     * @internal
      */
     public static function setModel(string $type, string $model)
     {

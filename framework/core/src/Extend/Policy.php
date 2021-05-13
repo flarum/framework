@@ -21,9 +21,10 @@ class Policy implements ExtenderInterface
     /**
      * Add a custom policy for when an ability check is ran without a model instance.
      *
-     * @param string $policy ::class attribute of policy class, which must extend Flarum\User\Access\AbstractPolicy
+     * @param string $policy: ::class attribute of policy class, which must extend Flarum\User\Access\AbstractPolicy
+     * @return self
      */
-    public function globalPolicy(string $policy)
+    public function globalPolicy(string $policy): self
     {
         $this->globalPolicies[] = $policy;
 
@@ -33,11 +34,12 @@ class Policy implements ExtenderInterface
     /**
      * Add a custom policy for when an ability check is ran on an instance of a model.
      *
-     * @param string $modelClass The ::class attribute of the model you are applying policies to.
+     * @param string $modelClass: The ::class attribute of the model you are applying policies to.
      *                           This model should extend from \Flarum\Database\AbstractModel.
-     * @param string $policy ::class attribute of policy class, which must extend Flarum\User\Access\AbstractPolicy
+     * @param string $policy: ::class attribute of policy class, which must extend Flarum\User\Access\AbstractPolicy
+     * @return self
      */
-    public function modelPolicy(string $modelClass, string $policy)
+    public function modelPolicy(string $modelClass, string $policy): self
     {
         if (! array_key_exists($modelClass, $this->modelPolicies)) {
             $this->modelPolicies[$modelClass] = [];

@@ -13,6 +13,9 @@ use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Support\Arr;
 
+/**
+ * @internal
+ */
 class AddTranslations
 {
     /**
