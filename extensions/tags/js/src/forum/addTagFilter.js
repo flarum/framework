@@ -91,7 +91,9 @@ export default function() {
       params.filter.tag = this.params.tags;
       // TODO: replace this with a more robust system.
       const q = params.filter.q;
-      params.filter.q = q ? `${q} tag:${this.params.tags}` : '';
+      if (q) {
+        params.filter.q = `${q} tag:${this.params.tags}`;
+      }
     }
   });
 }
