@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-During the beta phase, we will only patch security vulnerabilities in the latest beta release.
+We will only patch security vulnerabilities in the stable 1.x release.
 
 ## Reporting a Vulnerability
 

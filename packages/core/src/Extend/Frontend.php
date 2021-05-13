@@ -34,33 +34,70 @@ class Frontend implements ExtenderInterface
     private $removedRoutes = [];
     private $content = [];
 
+    /**
+     * @param string $frontend: The name of the frontend.
+     */
     public function __construct(string $frontend)
     {
         $this->frontend = $frontend;
     }
 
-    public function css(string $path)
+    /**
+     * Add a CSS file to load in the frontend.
+     *
+     * @param string $path: The path to the CSS file.
+     * @return self
+     */
+    public function css(string $path): self
     {
         $this->css[] = $path;
 
         return $this;
     }
 
-    public function js(string $path)
+    /**
+     * Add a JavaScript file to load in the frontend.
+     *
+     * @param string $path: The path to the JavaScript file.
+     * @return self
+     */
+    public function js(string $path): self
     {
         $this->js = $path;
 
         return $this;
     }
 
-    public function route(string $path, string $name, $content = null)
+    /**
+     * Add a route to the frontend.
+     *
+     * @param string $path: The path of the route.
+     * @param string $name: The name of the route, must be unique.
+     * @param callable|string|null $content
+     *
+     * The content can be a closure or an invokable class, and should accept:
+     * - \Flarum\Frontend\Document $document
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * The callable should return void.
+     *
+     * @return self
+     */
+    public function route(string $path, string $name, $content = null): self
     {
         $this->routes[] = compact('path', 'name', 'content');
 
         return $this;
     }
 
-    public function removeRoute(string $name)
+    /**
+     * Remove a route from the frontend.
+     * This is necessary before overriding a route.
+     *
+     * @param string $name: The name of the route.
+     * @return self
+     */
+    public function removeRoute(string $name): self
     {
         $this->removedRoutes[] = $name;
 
@@ -68,10 +105,19 @@ class Frontend implements ExtenderInterface
     }
 
     /**
-     * @param callable|string $callback
-     * @return $this
+     * Modify the content of the frontend.
+     *
+     * @param callable|string|null $content
+     *
+     * The content can be a closure or an invokable class, and should accept:
+     * - \Flarum\Frontend\Document $document
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * The callable should return void.
+     *
+     * @return self
      */
-    public function content($callback)
+    public function content($callback): self
     {
         $this->content[] = $callback;
 
@@ -85,7 +131,7 @@ class Frontend implements ExtenderInterface
         $this->registerContent($container);
     }
 
-    private function registerAssets(Container $container, string $moduleName)
+    private function registerAssets(Container $container, string $moduleName): void
     {
         if (empty($this->css) && empty($this->js)) {
             return;
@@ -147,7 +193,7 @@ class Frontend implements ExtenderInterface
         }
     }
 
-    private function registerRoutes(Container $container)
+    private function registerRoutes(Container $container): void
     {
         if (empty($this->routes) && empty($this->removedRoutes)) {
             return;
@@ -174,7 +220,7 @@ class Frontend implements ExtenderInterface
         );
     }
 
-    private function registerContent(Container $container)
+    private function registerContent(Container $container): void
     {
         if (empty($this->content)) {
             return;

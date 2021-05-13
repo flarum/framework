@@ -9,6 +9,9 @@
 
 namespace Flarum\Frontend\Compiler\Source;
 
+/**
+ * @internal
+ */
 class SourceCollector
 {
     /**

@@ -19,7 +19,7 @@ class Filter implements ExtenderInterface
     private $filterMutators = [];
 
     /**
-     * @param string $filtererClass: The ::class attribute of the filterer to extend
+     * @param string $filtererClass: The ::class attribute of the filterer to extend.
      */
     public function __construct($filtererClass)
     {
@@ -30,8 +30,9 @@ class Filter implements ExtenderInterface
      * Add a filter to run when the filtererClass is filtered.
      *
      * @param string $filterClass: The ::class attribute of the filter you are adding.
+     * @return self
      */
-    public function addFilter(string $filterClass)
+    public function addFilter(string $filterClass): self
     {
         $this->filters[] = $filterClass;
 
@@ -46,8 +47,12 @@ class Filter implements ExtenderInterface
      * The callback can be a closure or an invokable class, and should accept:
      * - Flarum\Filter\FilterState $filter
      * - Flarum\Query\QueryCriteria $criteria
+     *
+     * The callable should return void.
+     *
+     * @return self
      */
-    public function addFilterMutator($callback)
+    public function addFilterMutator($callback): self
     {
         $this->filterMutators[] = $callback;
 

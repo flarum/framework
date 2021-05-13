@@ -19,10 +19,14 @@ class ServiceProvider implements ExtenderInterface
     /**
      * Register a service provider.
      *
+     * Service providers are an advanced feature and might give access to Flarum internals that do not come with backward compatibility.
+     * Please read our documentation about service providers for recommendations.
+     * @see https://docs.flarum.org/extend/service-provider.html
+     *
      * @param string $serviceProviderClass The ::class attribute of the service provider class.
      * @return self
      */
-    public function register(string $serviceProviderClass)
+    public function register(string $serviceProviderClass): self
     {
         $this->providers[] = $serviceProviderClass;
 

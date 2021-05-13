@@ -12,6 +12,9 @@ namespace Flarum\Frontend;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Locale\LocaleManager;
 
+/**
+ * @internal
+ */
 class AddLocaleAssets
 {
     /**

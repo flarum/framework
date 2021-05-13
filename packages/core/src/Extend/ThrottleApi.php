@@ -38,7 +38,7 @@ class ThrottleApi implements ExtenderInterface
      *
      * @return self
      */
-    public function set(string $name, $callback)
+    public function set(string $name, $callback): self
     {
         $this->setThrottlers[$name] = $callback;
 
@@ -49,10 +49,9 @@ class ThrottleApi implements ExtenderInterface
      * Remove a throttler registered with this name.
      *
      * @param string $name: The name of the throttler to remove.
-     *
      * @return self
      */
-    public function remove(string $name)
+    public function remove(string $name): self
     {
         $this->removeThrottlers[] = $name;
 

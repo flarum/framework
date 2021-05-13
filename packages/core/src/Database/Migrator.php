@@ -19,6 +19,9 @@ use Illuminate\Filesystem\Filesystem;
 use InvalidArgumentException;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @internal
+ */
 class Migrator
 {
     /**

@@ -21,40 +21,83 @@ class Middleware implements ExtenderInterface
     private $insertAfterMiddlewares = [];
     private $frontend;
 
+    /**
+     * @param string $frontend: The name of the frontend.
+     */
     public function __construct(string $frontend)
     {
         $this->frontend = $frontend;
     }
 
-    public function add($middleware)
+    /**
+     * Adds a new middleware to the frontend.
+     *
+     * @param string $middleware: ::class attribute of the middleware class.
+     *                            Must implement \Psr\Http\Server\MiddlewareInterface.
+     * @return self
+     */
+    public function add(string $middleware): self
     {
         $this->addMiddlewares[] = $middleware;
 
         return $this;
     }
 
-    public function replace($originalMiddleware, $newMiddleware)
+    /**
+     * Replaces an existing middleware of the frontend.
+     *
+     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     *                                    Or container binding name.
+     * @param string $middleware: ::class attribute of the middleware class.
+     *                            Must implement \Psr\Http\Server\MiddlewareInterface.
+     * @return self
+     */
+    public function replace(string $originalMiddleware, string $newMiddleware): self
     {
         $this->replaceMiddlewares[$originalMiddleware] = $newMiddleware;
 
         return $this;
     }
 
-    public function remove($middleware)
+    /**
+     * Removes a middleware from the frontend.
+     *
+     * @param string $middleware: ::class attribute of the middleware class.
+     * @return self
+     */
+    public function remove(string $middleware): self
     {
         $this->removeMiddlewares[] = $middleware;
 
         return $this;
     }
 
-    public function insertBefore($originalMiddleware, $newMiddleware)
+    /**
+     * Inserts a middleware before an existing middleware.
+     *
+     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     *                                    Or container binding name.
+     * @param string $middleware: ::class attribute of the middleware class.
+     *                            Must implement \Psr\Http\Server\MiddlewareInterface.
+     * @return self
+     */
+    public function insertBefore(string $originalMiddleware, string $newMiddleware): self
     {
         $this->insertBeforeMiddlewares[$originalMiddleware] = $newMiddleware;
 
         return $this;
     }
 
-    public function insertAfter($originalMiddleware, $newMiddleware)
+    /**
+     * Inserts a middleware after an existing middleware.
+     *
+     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     *                                    Or container binding name.
+     * @param string $middleware: ::class attribute of the middleware class.
+     *                            Must implement \Psr\Http\Server\MiddlewareInterface.
+     * @return self
+     */
+    public function insertAfter(string $originalMiddleware, string $newMiddleware): self
     {
         $this->insertAfterMiddlewares[$originalMiddleware] = $newMiddleware;
 

@@ -22,6 +22,9 @@ use League\Flysystem\Adapter\NullAdapter;
 use League\Flysystem\Filesystem;
 use Less_Exception_Parser;
 
+/**
+ * @internal
+ */
 class ValidateCustomLess
 {
     /**

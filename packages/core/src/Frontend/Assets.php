@@ -17,6 +17,8 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 
 /**
  * A factory class for creating frontend asset compilers.
+ *
+ * @internal
  */
 class Assets
 {

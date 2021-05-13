@@ -31,7 +31,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
     /**
      * LanguagePack constructor.
      *
-     * @param string|null $path Path to yaml language files.
+     * @param string|null $path: Path to yaml language files.
      */
     public function __construct(string $path = '/locale')
     {
