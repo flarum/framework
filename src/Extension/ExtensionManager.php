@@ -154,6 +154,8 @@ class ExtensionManager
      * Enables the extension.
      *
      * @param string $name
+     *
+     * @internal
      */
     public function enable($name)
     {
@@ -194,6 +196,8 @@ class ExtensionManager
      * Disables an extension.
      *
      * @param string $name
+     *
+     * @internal
      */
     public function disable($name)
     {
@@ -230,6 +234,7 @@ class ExtensionManager
      * Uninstalls an extension.
      *
      * @param string $name
+     * @internal
      */
     public function uninstall($name)
     {
@@ -294,6 +299,8 @@ class ExtensionManager
      * @param Extension $extension
      * @param string $direction
      * @return void
+     *
+     * @internal
      */
     public function migrate(Extension $extension, $direction = 'up')
     {
@@ -309,6 +316,8 @@ class ExtensionManager
      *
      * @param Extension $extension
      * @return array Notes from the migrator.
+     *
+     * @internal
      */
     public function migrateDown(Extension $extension)
     {
@@ -419,6 +428,8 @@ class ExtensionManager
      *                                to missing dependencies, in the format extension id => array of missing dependency IDs.
      *                            'circularDependencies' points to an array of extensions ids of extensions
      *                                that cannot be processed due to circular dependencies
+     *
+     * @internal
      */
     public static function resolveExtensionOrder($extensionList)
     {

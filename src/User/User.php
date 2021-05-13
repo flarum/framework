@@ -789,6 +789,8 @@ class User extends AbstractModel
      * Set the hasher with which to hash passwords.
      *
      * @param Hasher $hasher
+     *
+     * @internal
      */
     public static function setHasher(Hasher $hasher)
     {
@@ -801,6 +803,8 @@ class User extends AbstractModel
      * @param string $key
      * @param callable $transformer
      * @param mixed $default
+     *
+     * @internal
      */
     public static function registerPreference($key, callable $transformer = null, $default = null)
     {
@@ -812,6 +816,8 @@ class User extends AbstractModel
      *
      * @param callable $callback
      * @return array $groupIds
+     *
+     * @internal
      */
     public static function addGroupProcessor($callback)
     {

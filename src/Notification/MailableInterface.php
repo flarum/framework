@@ -27,7 +27,5 @@ interface MailableInterface
      *
      * @return string
      */
-    // Uncomment beta 17. Commented as temporary BC layer since Symfony changed
-    // the namespace of their translator interface
-    // public function getEmailSubject(TranslatorInterface $translator);
+    public function getEmailSubject(TranslatorInterface $translator);
 }

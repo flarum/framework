@@ -21,37 +21,135 @@ class Routes implements ExtenderInterface
     private $routes = [];
     private $removedRoutes = [];
 
-    public function __construct($appName)
+    /**
+     * @param string $appName: Name of the app (api, forum, admin).
+     */
+    public function __construct(string $appName)
     {
         $this->appName = $appName;
     }
 
-    public function get($path, $name, $handler)
+    /**
+     * Add a GET route.
+     *
+     * @param string $path: The path of the route
+     * @param string $name: The name of the route, must be unique.
+     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     *
+     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
+     *
+     * The handler should accept:
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
+     *
+     * The handler should return:
+     * - \Psr\Http\Message\ResponseInterface $response
+     *
+     * @return self
+     */
+    public function get(string $path, string $name, $handler): self
     {
         return $this->route('GET', $path, $name, $handler);
     }
 
-    public function post($path, $name, $handler)
+    /**
+     * Add a POST route.
+     *
+     * @param string $path: The path of the route
+     * @param string $name: The name of the route, must be unique.
+     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     *
+     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
+     *
+     * The handler should accept:
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
+     *
+     * The handler should return:
+     * - \Psr\Http\Message\ResponseInterface $response
+     *
+     * @return self
+     */
+    public function post(string $path, string $name, $handler): self
     {
         return $this->route('POST', $path, $name, $handler);
     }
 
-    public function put($path, $name, $handler)
+    /**
+     * Add a PUT route.
+     *
+     * @param string $path: The path of the route
+     * @param string $name: The name of the route, must be unique.
+     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     *
+     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
+     *
+     * The handler should accept:
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
+     *
+     * The handler should return:
+     * - \Psr\Http\Message\ResponseInterface $response
+     *
+     * @return self
+     */
+    public function put(string $path, string $name, $handler): self
     {
         return $this->route('PUT', $path, $name, $handler);
     }
 
-    public function patch($path, $name, $handler)
+    /**
+     * Add a PATCH route.
+     *
+     * @param string $path: The path of the route
+     * @param string $name: The name of the route, must be unique.
+     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     *
+     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
+     *
+     * The handler should accept:
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
+     *
+     * The handler should return:
+     * - \Psr\Http\Message\ResponseInterface $response
+     *
+     * @return self
+     */
+    public function patch(string $path, string $name, $handler): self
     {
         return $this->route('PATCH', $path, $name, $handler);
     }
 
-    public function delete($path, $name, $handler)
+    /**
+     * Add a DELETE route.
+     *
+     * @param string $path: The path of the route
+     * @param string $name: The name of the route, must be unique.
+     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     *
+     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
+     *
+     * The handler should accept:
+     * - \Psr\Http\Message\ServerRequestInterface $request
+     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
+     *
+     * The handler should return:
+     * - \Psr\Http\Message\ResponseInterface $response
+     *
+     * @return self
+     */
+    public function delete(string $path, string $name, $handler): self
     {
         return $this->route('DELETE', $path, $name, $handler);
     }
 
-    private function route($httpMethod, $path, $name, $handler)
+    private function route(string $httpMethod, string $path, string $name, $handler): self
     {
         $this->routes[] = [
             'method' => $httpMethod,
@@ -63,7 +161,14 @@ class Routes implements ExtenderInterface
         return $this;
     }
 
-    public function remove(string $name)
+    /**
+     * Remove an existing route.
+     * Necessary before overriding a route.
+     *
+     * @param string $name: The name of the route.
+     * @return self
+     */
+    public function remove(string $name): self
     {
         $this->removedRoutes[] = $name;
 

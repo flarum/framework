@@ -12,6 +12,9 @@ namespace Flarum\Frontend\Compiler;
 use Flarum\Frontend\Compiler\Source\FileSource;
 use Less_Parser;
 
+/**
+ * @internal
+ */
 class LessCompiler extends RevisionCompiler
 {
     /**

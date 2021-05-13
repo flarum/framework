@@ -11,6 +11,9 @@ namespace Flarum\Frontend\Compiler\Source;
 
 use InvalidArgumentException;
 
+/**
+ * @internal
+ */
 class FileSource implements SourceInterface
 {
     /**

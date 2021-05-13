@@ -29,8 +29,12 @@ class ErrorHandling implements ExtenderInterface
      * itself (if it implements {@see \Flarum\Foundation\KnownError}), or
      * explicitly defined by using the {@see type} method (useful for exception
      * classes not under your control).
+     *
+     * @param string $errorType: Type of the error.
+     * @param int $httpStatus: The status code for this error.
+     * @return self
      */
-    public function status(string $errorType, int $httpStatus)
+    public function status(string $errorType, int $httpStatus): self
     {
         $this->statuses[$errorType] = $httpStatus;
 
@@ -45,8 +49,12 @@ class ErrorHandling implements ExtenderInterface
      * interface and define the type there. This method should only be used for
      * third-party exceptions, e.g. when integrating another package that
      * already defines its own exception classes.
+     *
+     * @param string $exceptionClass: The ::class attribute of the exception class.
+     * @param string $errorType: Type of the error.
+     * @return self
      */
-    public function type(string $exceptionClass, string $errorType)
+    public function type(string $exceptionClass, string $errorType): self
     {
         $this->types[$exceptionClass] = $errorType;
 
@@ -66,8 +74,12 @@ class ErrorHandling implements ExtenderInterface
      * returns a {@see \Flarum\Foundation\ErrorHandling\HandledError} instance.
      * Besides the usual type and HTTP status code, such an object can also
      * contain "details" - arbitrary data with more context for to the error.
+     *
+     * @param string $exceptionClass: The ::class attribute of the exception class.
+     * @param string $errorType: The ::class attribute of the handler class.
+     * @return self
      */
-    public function handler(string $exceptionClass, string $handlerClass)
+    public function handler(string $exceptionClass, string $handlerClass): self
     {
         $this->handlers[$exceptionClass] = $handlerClass;
 
@@ -85,8 +97,11 @@ class ErrorHandling implements ExtenderInterface
      *
      * When passing in a reporter class, make sure that it implements the
      * {@see \Flarum\Foundation\ErrorHandling\Reporter} interface.
+     *
+     * @param string $reporterClass: The ::class attribute of the reporter class.
+     * @return self
      */
-    public function reporter(string $reporterClass)
+    public function reporter(string $reporterClass): self
     {
         $this->reporters[] = $reporterClass;
 

@@ -30,11 +30,11 @@ class View implements ExtenderInterface, LifecycleInterface
      * You can also pass variables into a view: for more information, see https://laravel.com/api/8.x/Illuminate/View/Factory.html#method_make
      *
      * @param  string  $namespace: The name of the namespace.
-     * @param  string|array  $hints: This is a path (or an array of paths) to the folder(s)
+     * @param  string|string[]  $hints: This is a path (or an array of paths) to the folder(s)
      *                               where view files are stored, relative to the extend.php file.
-     * @return $this
+     * @return self
      */
-    public function namespace($namespace, $hints)
+    public function namespace(string $namespace, $hints): self
     {
         $this->namespaces[$namespace] = $hints;
 

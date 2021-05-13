@@ -36,7 +36,7 @@ class ModelVisibility implements ExtenderInterface
     private $allScopers = [];
 
     /**
-     * @param string $modelClass The ::class attribute of the model you are applying scopers to.
+     * @param string $modelClass: The ::class attribute of the model you are applying scopers to.
      *                           This model must extend from \Flarum\Database\AbstractModel,
      *                           and use \Flarum\Database\ScopeVisibilityTrait.
      */
@@ -53,15 +53,17 @@ class ModelVisibility implements ExtenderInterface
      * Add a scoper for a given ability.
      *
      * @param callable|string $callback
-     * @param string $ability, defaults to 'view'
+     * @param string $ability: Defaults to 'view'.
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\User\User $actor
      * - \Illuminate\Database\Eloquent\Builder $query
      *
+     * The callback should return void.
+     *
      * @return self
      */
-    public function scope($callback, $ability = 'view')
+    public function scope($callback, string $ability = 'view'): self
     {
         $this->scopers[$ability][] = $callback;
 
@@ -78,9 +80,11 @@ class ModelVisibility implements ExtenderInterface
      * - \Illuminate\Database\Eloquent\Builder $query
      * - string $ability
      *
+     * The callback should return void.
+     *
      * @return self
      */
-    public function scopeAll($callback)
+    public function scopeAll($callback): self
     {
         $this->allScopers[] = $callback;
 

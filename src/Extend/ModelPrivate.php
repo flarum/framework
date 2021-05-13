@@ -37,7 +37,7 @@ class ModelPrivate implements ExtenderInterface
     private $checkers = [];
 
     /**
-     * @param string $modelClass The ::class attribute of the model you are applying private checkers to.
+     * @param string $modelClass: The ::class attribute of the model you are applying private checkers to.
      *                           This model must have a `is_private` field.
      */
     public function __construct(string $modelClass)
@@ -57,7 +57,7 @@ class ModelPrivate implements ExtenderInterface
      *
      * @return self
      */
-    public function checker($callback)
+    public function checker($callback): self
     {
         $this->checkers[] = $callback;
 

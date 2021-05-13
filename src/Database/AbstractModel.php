@@ -44,10 +44,19 @@ abstract class AbstractModel extends Eloquent
      */
     protected $afterDeleteCallbacks = [];
 
+    /**
+     * @internal
+     */
     public static $customRelations = [];
 
+    /**
+     * @internal
+     */
     public static $dateAttributes = [];
 
+    /**
+     * @internal
+     */
     public static $defaults = [];
 
     /**

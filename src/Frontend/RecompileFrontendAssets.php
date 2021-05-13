@@ -12,6 +12,9 @@ namespace Flarum\Frontend;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 
+/**
+ * @internal
+ */
 class RecompileFrontendAssets
 {
     /**

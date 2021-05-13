@@ -22,8 +22,9 @@ class Post implements ExtenderInterface
      * such as those that appear when a discussion is renamed.
      *
      * @param string $postType: The ::class attribute of the custom Post type that is being added.
+     * @return self
      */
-    public function type(string $postType)
+    public function type(string $postType): self
     {
         $this->postTypes[] = $postType;
 
