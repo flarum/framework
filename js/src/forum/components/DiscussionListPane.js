@@ -17,7 +17,7 @@ const hotEdge = (e) => {
  */
 export default class DiscussionListPane extends Component {
   view() {
-    if (!this.attrs.state.hasDiscussions()) {
+    if (!this.attrs.state.hasItems()) {
       return;
     }
 
