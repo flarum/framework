@@ -12,6 +12,7 @@ namespace Flarum\Update;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Illuminate\Contracts\Container\Container;
 
 class UpdateServiceProvider extends AbstractServiceProvider
 {
@@ -20,9 +21,10 @@ class UpdateServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('flarum.update.routes', function (RouteHandlerFactory $route) {
+        $this->container->singleton('flarum.update.routes', function (Container $container) {
             $routes = new RouteCollection;
-            $this->populateRoutes($routes, $route);
+            $factory = $container->make(RouteHandlerFactory::class);
+            $this->populateRoutes($routes, $factory);
 
             return $routes;
         });
