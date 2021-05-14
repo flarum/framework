@@ -135,7 +135,7 @@ export default class UserPage extends Page {
 
     items.add(
       'posts',
-      <LinkButton href={app.route('user.posts', { username: user.username() })} icon="far fa-comment">
+      <LinkButton href={app.route('user.posts', { username: user.slug() })} icon="far fa-comment">
         {app.translator.trans('core.forum.user.posts_link')} <span className="Button-badge">{user.commentCount()}</span>
       </LinkButton>,
       100
@@ -143,7 +143,7 @@ export default class UserPage extends Page {
 
     items.add(
       'discussions',
-      <LinkButton href={app.route('user.discussions', { username: user.username() })} icon="fas fa-bars">
+      <LinkButton href={app.route('user.discussions', { username: user.slug() })} icon="fas fa-bars">
         {app.translator.trans('core.forum.user.discussions_link')} <span className="Button-badge">{user.discussionCount()}</span>
       </LinkButton>,
       90
