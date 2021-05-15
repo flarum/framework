@@ -104,7 +104,9 @@ export default class KeyboardNavigatable {
    * Provide a callback that determines whether keyboard input should be handled.
    */
   when(callback: ShouldHandle): KeyboardNavigatable {
-    return { ...this, whenCallback: callback };
+    this.whenCallback = callback;
+
+    return this;
   }
 
   /**
