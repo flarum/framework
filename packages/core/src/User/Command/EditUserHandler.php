@@ -130,6 +130,7 @@ class EditUserHandler
 
             $user->afterSave(function (User $user) use ($newGroupIds) {
                 $user->groups()->sync($newGroupIds);
+                $user->unsetRelation('groups');
             });
         }
 
