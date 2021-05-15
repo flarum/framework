@@ -61,7 +61,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/core": "0.1.x-dev#b2d053f6865e685ebf005e457d970385377bbb28",
+        "flarum/core": "0.1.x-dev",
         "flarum/testing": "*@dev"
     }
 }
