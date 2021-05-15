@@ -73,7 +73,7 @@ export default class NotificationList extends Component {
             <div className="NotificationGroup">
               {group.discussion ? (
                 <Link className="NotificationGroup-header" href={app.route.discussion(group.discussion)}>
-                  {badges && badges.length && <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul>}
+                  {badges && !!badges.length && <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul>}
                   <span>{group.discussion.title()}</span>
                 </Link>
               ) : (
