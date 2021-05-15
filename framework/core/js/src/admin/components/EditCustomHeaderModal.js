@@ -2,7 +2,7 @@ import SettingsModal from './SettingsModal';
 
 export default class EditCustomHeaderModal extends SettingsModal {
   className() {
-    return 'EditCustomHeaderModal Modal--large';
+    return 'EditCustomHeaderModal TextareaCodeModal Modal--large';
   }
 
   title() {
