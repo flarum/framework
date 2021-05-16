@@ -46,14 +46,6 @@ export default class AlertManagerState {
       children = arg3;
     }
 
-    // Breaking Change Compliance Warning, Remove in Beta 15.
-    // This is applied to the first argument (attrs) because previously, the alert was passed as the first argument.
-    if (attrs === Alert || attrs instanceof Alert) {
-      // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
-      console.error('The AlertManager can only show Alerts. Whichever extension triggered this alert should be updated to comply with beta 14.');
-      throw new Error('The AlertManager can only show Alerts. Whichever extension triggered this alert should be updated to comply with beta 14.');
-    }
-    // End Change Compliance Warning, Remove in Beta 15
     this.activeAlerts[++this.alertId] = { children, attrs, componentClass };
     m.redraw();
 
