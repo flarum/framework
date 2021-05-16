@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^0.1.0-beta.16"
+        "flarum/core": "^1.0.0"
     },
     "autoload": {
         "psr-4": {
@@ -33,7 +33,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.1.x-dev"
+            "dev-master": "1.x.x-dev"
         },
         "flarum-extension": {
             "title": "Tags",
@@ -61,7 +61,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/core": "0.1.x-dev",
+        "flarum/core": "*@dev",
         "flarum/testing": "*@dev"
     }
 }
