@@ -98,7 +98,7 @@ class Registration
      */
     public function suggestUsername(string $username): self
     {
-        $username = preg_replace('/[^a-z0-9-_]/i', '', $username);
+        //$username = preg_replace('/[^a-z0-9-_]/i', '', $username);
 
         return $this->suggest('username', $username);
     }
