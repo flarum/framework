@@ -19,8 +19,8 @@
         }
     ],
     "require": {
-        "flarum/core": "^0.1.0-beta.16",
-        "flarum/approval": "^0.1.0-beta.16",
+        "flarum/core": "^1.0.0",
+        "flarum/approval": "^1.0.0",
         "tijsverkoyen/akismet": "^1.1"
     },
     "autoload": {
@@ -30,7 +30,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.1.x-dev"
+            "dev-master": "1.x.x-dev"
         },
         "flarum-extension": {
             "title": "Akismet",
