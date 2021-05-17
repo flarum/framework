@@ -8,7 +8,7 @@
  */
 
 import { extend } from 'flarum/extend';
-import TextEditor from 'flarum/components/TextEditor';
+import TextEditor from 'flarum/common/components/TextEditor';
 import BasicEditorDriver from 'flarum/common/utils/BasicEditorDriver';
 import styleSelectedText from 'flarum/common/utils/styleSelectedText';
 

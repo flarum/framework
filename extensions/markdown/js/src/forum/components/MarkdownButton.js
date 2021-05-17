@@ -1,5 +1,5 @@
-import Component from 'flarum/Component';
-import icon from 'flarum/helpers/icon';
+import Component from 'flarum/common/Component';
+import icon from 'flarum/common/helpers/icon';
 
 export default class MarkdownButton extends Component {
   oncreate(vnode) {
