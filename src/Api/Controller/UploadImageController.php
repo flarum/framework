@@ -68,7 +68,7 @@ abstract class UploadImageController extends ShowForumController
 
         $encodedImage = $this->makeImage($file);
 
-        if (($path = $this->settings->get($this->filePathSettingKey)) && $this->uploadDir->has($path)) {
+        if (($path = $this->settings->get($this->filePathSettingKey)) && $this->uploadDir->exists($path)) {
             $this->uploadDir->delete($path);
         }
 
