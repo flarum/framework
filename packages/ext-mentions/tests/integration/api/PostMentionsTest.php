@@ -14,14 +14,12 @@ use Flarum\Extend;
 use Flarum\Post\CommentPost;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\Testing\integration\UsesSettings;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
 
 class PostMentionsTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-    use UsesSettings;
 
     /**
      * @inheritDoc
@@ -56,10 +54,9 @@ class PostMentionsTest extends TestCase
                 ['post_id' => 6, 'mentions_post_id' => 7],
                 ['post_id' => 10, 'mentions_post_id' => 9]
             ],
-            'settings' => [
-                ['key' => 'display_name_driver', 'value' => 'custom_display_name_driver'],
-            ],
         ]);
+
+        $this->setting('display_name_driver', 'custom_display_name_driver');
 
         $this->extend(
             (new Extend\User)
@@ -68,24 +65,10 @@ class PostMentionsTest extends TestCase
     }
 
     /**
-     * Purge the settings cache and reset the new display name driver.
-     */
-    protected function recalculateDisplayNameDriver()
-    {
-        $this->purgeSettingsCache();
-        $container = $this->app()->getContainer();
-        $container->forgetInstance('flarum.user.display_name.driver');
-        User::setDisplayNameDriver($container->make('flarum.user.display_name.driver'));
-    }
-
-    /**
      * @test
      */
     public function mentioning_a_valid_post_with_old_format_doesnt_work()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -117,9 +100,6 @@ class PostMentionsTest extends TestCase
      */
     public function mentioning_a_valid_post_with_new_format_works()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -151,9 +131,6 @@ class PostMentionsTest extends TestCase
      */
     public function mentioning_an_invalid_post_doesnt_work()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -185,9 +162,6 @@ class PostMentionsTest extends TestCase
      */
     public function mentioning_multiple_posts_works()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -221,9 +195,6 @@ class PostMentionsTest extends TestCase
      */
     public function post_mentions_render_with_fresh_data()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('GET', '/api/posts/4', [
                 'authenticatedAs' => 1,
@@ -244,9 +215,6 @@ class PostMentionsTest extends TestCase
      */
     public function post_mentions_unparse_with_fresh_data()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('GET', '/api/posts/4', [
                 'authenticatedAs' => 1,
@@ -266,8 +234,6 @@ class PostMentionsTest extends TestCase
      */
     public function deleted_post_mentions_s_user_unparse_and_render_without_user_data()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
         $deleted_text = $this->app()->getContainer()->make('translator')->trans('core.lib.username.deleted_text');
 
         $response = $this->send(
@@ -293,8 +259,6 @@ class PostMentionsTest extends TestCase
      */
     public function deleted_post_mentions_unparse_and_render_without_user_data()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
         $deleted_text = $this->app()->getContainer()->make('translator')->trans('flarum-mentions.forum.post_mention.deleted_text');
 
         $response = $this->send(
@@ -320,8 +284,6 @@ class PostMentionsTest extends TestCase
      */
     public function deleted_post_mentions_and_deleted_user_unparse_and_render_without_user_data()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
         $deleted_text = $this->app()->getContainer()->make('translator')->trans('flarum-mentions.forum.post_mention.deleted_text');
 
         $response = $this->send(
@@ -347,9 +309,6 @@ class PostMentionsTest extends TestCase
      */
     public function post_mentions_with_unremoved_bad_string_from_display_names_doesnt_work()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -381,9 +340,6 @@ class PostMentionsTest extends TestCase
      */
     public function post_mentions_unparsing_removes_bad_display_name_string()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('GET', '/api/posts/10', [
                 'authenticatedAs' => 1,
@@ -405,9 +361,6 @@ class PostMentionsTest extends TestCase
      */
     public function post_mentions_with_removed_bad_string_from_display_names_works()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,

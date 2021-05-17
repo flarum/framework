@@ -14,14 +14,12 @@ use Flarum\Extend;
 use Flarum\Post\CommentPost;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\Testing\integration\UsesSettings;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
 
 class UserMentionsTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-    use UsesSettings;
 
     /**
      * @inheritDoc
@@ -51,10 +49,9 @@ class UserMentionsTest extends TestCase
                 ['post_id' => 4, 'mentions_user_id' => 4],
                 ['post_id' => 10, 'mentions_user_id' => 5]
             ],
-            'settings' => [
-                ['key' => 'display_name_driver', 'value' => 'custom_display_name_driver'],
-            ],
         ]);
+
+        $this->setting('display_name_driver', 'custom_display_name_driver');
 
         $this->extend(
             (new Extend\User)
@@ -63,29 +60,11 @@ class UserMentionsTest extends TestCase
     }
 
     /**
-     * Purge the settings cache and reset the new display name driver.
-     */
-    protected function recalculateDisplayNameDriver()
-    {
-        $this->purgeSettingsCache();
-        $container = $this->app()->getContainer();
-        $container->forgetInstance('flarum.user.display_name.driver');
-        User::setDisplayNameDriver($container->make('flarum.user.display_name.driver'));
-    }
-
-    /**
      * @test
      */
     public function mentioning_a_valid_user_with_old_format_doesnt_work_if_off()
     {
-        $this->prepareDatabase([
-            'settings' => [
-                ['key' => 'flarum-mentions.allow_username_format', 'value' => '0']
-            ]
-        ]);
-
-        $this->app();
-        $this->recalculateDisplayNameDriver();
+        $this->setting('flarum-mentions.allow_username_format', '0');
 
         $response = $this->send(
             $this->request('POST', '/api/posts', [
@@ -118,14 +97,7 @@ class UserMentionsTest extends TestCase
      */
     public function mentioning_a_valid_user_with_old_format_works_if_on()
     {
-        $this->prepareDatabase([
-            'settings' => [
-                ['key' => 'flarum-mentions.allow_username_format', 'value' => '1']
-            ]
-        ]);
-
-        $this->app();
-        $this->recalculateDisplayNameDriver();
+        $this->setting('flarum-mentions.allow_username_format', '1');
 
         $response = $this->send(
             $this->request('POST', '/api/posts', [
@@ -158,9 +130,6 @@ class UserMentionsTest extends TestCase
      */
     public function mentioning_a_valid_user_with_new_format_works()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -192,9 +161,6 @@ class UserMentionsTest extends TestCase
      */
     public function mentioning_an_invalid_user_doesnt_work()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -226,9 +192,6 @@ class UserMentionsTest extends TestCase
      */
     public function mentioning_multiple_users_works()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -262,9 +225,6 @@ class UserMentionsTest extends TestCase
      */
     public function old_user_mentions_still_render()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('GET', '/api/posts/4', [
                 'authenticatedAs' => 1,
@@ -285,9 +245,6 @@ class UserMentionsTest extends TestCase
      */
     public function user_mentions_render_with_fresh_data()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -318,9 +275,6 @@ class UserMentionsTest extends TestCase
      */
     public function user_mentions_unparse_with_fresh_data()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -350,8 +304,6 @@ class UserMentionsTest extends TestCase
      */
     public function deleted_user_mentions_unparse_and_render_without_user_data()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
         $deleted_text = $this->app()->getContainer()->make('translator')->trans('core.lib.username.deleted_text');
 
         $response = $this->send(
@@ -378,9 +330,6 @@ class UserMentionsTest extends TestCase
      */
     public function user_mentions_with_unremoved_bad_string_from_display_names_doesnt_work()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
@@ -412,9 +361,6 @@ class UserMentionsTest extends TestCase
      */
     public function user_mentions_unparsing_removes_bad_display_name_string()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('GET', '/api/posts/10', [
                 'authenticatedAs' => 1,
@@ -436,9 +382,6 @@ class UserMentionsTest extends TestCase
      */
     public function user_mentions_with_removed_bad_string_from_display_names_works()
     {
-        $this->app();
-        $this->recalculateDisplayNameDriver();
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 1,
