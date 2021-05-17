@@ -11,7 +11,7 @@ export default class TagListState {
         }
 
         return app.store
-            .find('tags', { include: 'parent,lastPostedDiscussion' })
+            .find('tags', { include: unloadedIncludes.join(',') })
             .then(val => {
                 unloadedIncludes.forEach(include => this.loadedIncludes.add(include));
                 return val;
