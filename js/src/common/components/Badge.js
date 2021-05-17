@@ -25,8 +25,8 @@ export default class Badge extends Component {
     const iconChild = iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;');
 
     const badgeAttrs = {
-      className,
       ...attrs,
+      className,
     };
 
     const badgeNode = <div {...badgeAttrs}>{iconChild}</div>;
