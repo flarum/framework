@@ -118,6 +118,7 @@ class SaveTagsToDatabase
 
             $discussion->afterSave(function ($discussion) use ($newTagIds) {
                 $discussion->tags()->sync($newTagIds);
+                $discussion->unsetRelation('tags');
             });
         }
     }
