@@ -35,11 +35,11 @@ Object.assign(User.prototype, {
   canDelete: Model.attribute('canDelete'),
 
   avatarColor: null,
-  color: computed('username', 'avatarUrl', 'avatarColor', function (username, avatarUrl, avatarColor) {
+  color: computed('displayName', 'avatarUrl', 'avatarColor', function (displayName, avatarUrl, avatarColor) {
     // If we've already calculated and cached the dominant color of the user's
     // avatar, then we can return that in RGB format. If we haven't, we'll want
     // to calculate it. Unless the user doesn't have an avatar, in which case
-    // we generate a color from their username.
+    // we generate a color from their display name.
     if (avatarColor) {
       return 'rgb(' + avatarColor.join(', ') + ')';
     } else if (avatarUrl) {
@@ -47,7 +47,7 @@ Object.assign(User.prototype, {
       return '';
     }
 
-    return '#' + stringToColor(username);
+    return '#' + stringToColor(displayName);
   }),
 
   /**
