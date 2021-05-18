@@ -11,6 +11,7 @@ export default class MarkdownButton extends Component {
     const button = (
       <button
         className="Button Button--icon Button--link"
+        type="button"
         data-hotkey={this.attrs.hotkey}
         onkeydown={this.keydown.bind(this)}
         onclick={this.attrs.onclick}
