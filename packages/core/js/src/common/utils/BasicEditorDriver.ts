@@ -78,10 +78,10 @@ export default class BasicEditorDriver implements EditorDriverInterface {
   }
 
   insertBetween(selectionStart: number, selectionEnd: number, text: string) {
-    insertText(this.el, { text, selectionStart, selectionEnd });
+    this.setSelectionRange(selectionStart, selectionEnd);
 
-    // Move the textarea cursor to the end of the content we just inserted.
-    this.moveCursorTo(selectionStart + text.length);
+    const cursorPos = selectionStart + text.length;
+    insertText(this.el, { text, selectionStart: cursorPos, selectionEnd: cursorPos });
   }
 
   replaceBeforeCursor(start: number, text: string) {

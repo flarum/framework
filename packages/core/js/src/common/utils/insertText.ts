@@ -16,16 +16,13 @@ export default function insertText(textarea: HTMLTextAreaElement, { text, select
   const before = textarea.value.slice(0, originalSelectionStart);
   const after = textarea.value.slice(textarea.selectionEnd);
 
-  if (selectionStart != null && selectionEnd != null) {
-    textarea.setSelectionRange(selectionStart, selectionEnd + 1);
-  } else {
-    textarea.setSelectionRange(originalSelectionStart, textarea.selectionEnd);
-  }
-  textarea.focus();
-
   if (canInsertText === null || canInsertText === true) {
     textarea.contentEditable = 'true';
-    canInsertText = document.execCommand('insertText', false, text);
+    try {
+      canInsertText = document.execCommand('insertText', false, text);
+    } catch (error) {
+      canInsertText = false;
+    }
     textarea.contentEditable = 'false';
   }
 
@@ -36,5 +33,11 @@ export default function insertText(textarea: HTMLTextAreaElement, { text, select
   if (!canInsertText) {
     textarea.value = before + text + after;
     textarea.dispatchEvent(new CustomEvent('input', { bubbles: true, cancelable: true }));
+  }
+
+  if (selectionStart != null && selectionEnd != null) {
+    textarea.setSelectionRange(selectionStart, selectionEnd);
+  } else {
+    textarea.setSelectionRange(originalSelectionStart, textarea.selectionEnd);
   }
 }
