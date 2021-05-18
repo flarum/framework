@@ -9,15 +9,20 @@
 
 namespace Flarum\Console;
 
+use Flarum\Console\Cache\Factory;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
+use Illuminate\Console\Scheduling\CacheEventMutex;
+use Illuminate\Console\Scheduling\CacheSchedulingMutex;
+use Illuminate\Console\Scheduling\EventMutex;
 use Illuminate\Console\Scheduling\Schedule as LaravelSchedule;
 use Illuminate\Console\Scheduling\ScheduleListCommand;
 use Illuminate\Console\Scheduling\ScheduleRunCommand;
+use Illuminate\Console\Scheduling\SchedulingMutex;
 use Illuminate\Contracts\Container\Container;
 
 class ConsoleServiceProvider extends AbstractServiceProvider
@@ -32,6 +37,19 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         if (! defined('ARTISAN_BINARY')) {
             define('ARTISAN_BINARY', 'flarum');
         }
+
+        // Flarum doesn't fully use Laravel's cache system, but rather
+        // creates and binds a single cache store.
+        // See \Flarum\Foundation\InstalledSite::registerCache
+        // Since certain config options (e.g. withoutOverlapping, onOneServer)
+        // need the cache, we must override the cache factory we give to the scheduling
+        // mutexes so it returns our single custom cache.
+        $this->container->bind(EventMutex::class, function ($container) {
+            return new CacheEventMutex($container->make(Factory::class));
+        });
+        $this->container->bind(SchedulingMutex::class, function ($container) {
+            return new CacheSchedulingMutex($container->make(Factory::class));
+        });
 
         $this->container->singleton(LaravelSchedule::class, function (Container $container) {
             return $container->make(Schedule::class);
