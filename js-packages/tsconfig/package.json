@@ -1,9 +1,14 @@
 {
   "name": "flarum-tsconfig",
-  "version": "0.1.0-beta.16.1",
+  "version": "0.1.0-beta.16.2",
   "description": "Flarum's official Typescript config file",
   "main": "tsconfig.json",
   "repository": "https://github.com/flarum/flarum-tsconfig",
   "author": "Flarum Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@types/jquery": "^3.5.5",
+    "@types/mithril": "^2.0.7",
+    "dayjs": "^1.10.4"
+  }
 }
