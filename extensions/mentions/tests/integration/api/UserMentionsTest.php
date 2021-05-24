@@ -159,7 +159,7 @@ class UserMentionsTest extends TestCase
     /**
      * @test
      */
-    public function mentioning_a_valid_user_with_new_format_with_smart_quotes_works()
+    public function mentioning_a_valid_user_with_new_format_with_smart_quotes_works_and_falls_back_to_normal_quotes()
     {
         $response = $this->send(
             $this->request('POST', '/api/posts', [
