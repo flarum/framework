@@ -58,7 +58,7 @@ class ConfigureMentions
         $tag->filterChain->prepend([static::class, 'addUserId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterUserMentions(tag); }');
 
-        $config->Preg->match('/\B@"(?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)"#(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#(?<id>[0-9]+)\b/', $tagName);
         $config->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
     }
 
@@ -114,7 +114,7 @@ class ConfigureMentions
             ->prepend([static::class, 'addPostId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }');
 
-        $config->Preg->match('/\B@"(?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)"#p(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#p(?<id>[0-9]+)\b/', $tagName);
     }
 
     /**
