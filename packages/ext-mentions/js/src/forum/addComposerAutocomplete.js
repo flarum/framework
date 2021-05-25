@@ -76,7 +76,7 @@ export default function addComposerAutocomplete() {
 
         if (absMentionStart) {
           typed = lastChunk.substring(relMentionStart).toLowerCase();
-          matchTyped = typed.match(/^"((?:(?!"#).)+)$/);
+          matchTyped = typed.match(/^["|“]((?:(?!"#).)+)$/);
           typed = (matchTyped && matchTyped[1]) || typed;
 
           const makeSuggestion = function(user, replacement, content, className = '') {
