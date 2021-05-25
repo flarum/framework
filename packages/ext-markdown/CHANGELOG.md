@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/markdown/compare/v0.1.0-beta.16.1...v1.0.0)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+- GitHub markdown toolbar moves to flarum/core (https://github.com/flarum/markdown/pull/28)
+- Simplification of toolbar and button system (https://github.com/flarum/markdown/pull/28)
+
+### Fixed
+- Toolbar buttons submits the form
+- Tooltips generate a deprecation warning
+
+### Removed
+- Dropped mdarea (https://github.com/flarum/markdown/pull/28)
+
 ## [0.1.0-beta.16.1](https://github.com/flarum/markdown/compare/v0.1.0-beta.16...v0.1.0-beta.16.1)
 
 ### Added
