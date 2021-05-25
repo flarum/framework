@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/likes/compare/v0.1.0-beta.16...v1.0.0)
+
+### Added
+- Creation time stored for likes in the database (https://github.com/flarum/likes/pull/28)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+
 ## [0.1.0-beta.16](https://github.com/flarum/likes/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Changed
