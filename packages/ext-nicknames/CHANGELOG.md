@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/nicknames/compare/v0.1.0-beta.16.1...v1.0.0)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+
 ## [0.1.0-beta.16.1](https://github.com/flarum/nicknames/compare/v0.1.0-beta.16...v0.1.0-beta.16.1)
 
 - Update for beta 16 search API changes
