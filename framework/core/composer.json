@@ -70,7 +70,7 @@
         "wikimedia/less.php": "^3.0"
     },
     "require-dev": {
-        "flarum/testing": "dev-main#81e25f034e2b6dceaea753ad7579b5c61d641993"
+        "flarum/testing": "1.0@dev"
     },
     "autoload": {
         "psr-4": {
@@ -90,7 +90,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x.x-dev"
+            "dev-master": "1.x-dev"
         }
     },
     "scripts": {
