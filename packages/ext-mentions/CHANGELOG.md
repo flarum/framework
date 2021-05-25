@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/mentions/compare/v0.1.0-beta.16...v1.0.0)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+- Eager load the mentionedBy relation as well to improve performance (https://github.com/flarum/mentions/pull/64)
+- Introduced a new mentions format, decoupling mentions from usernames (https://github.com/flarum/mentions/pull/66)
+- Rewrite mentioned filter (https://github.com/flarum/mentions/pull/67)
+- User profile mentions page now uses the slug instead of the username 
+
+### Fixed
+- Replies preview dropdown is awkwardly sized and rendered (https://github.com/flarum/mentions/pull/55)
+
 ## [0.1.0-beta.16](https://github.com/flarum/mentions/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Changed
