@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/bbcode/compare/v0.1.0-beta.16...v1.0.0)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+
 ## [0.1.0-beta.16](https://github.com/flarum/bbcode/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Changed
