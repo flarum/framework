@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/tags/compare/v0.1.0-beta.16...v1.0.0)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+- Eager loading additional relations to improve performance (https://github.com/flarum/tags/pull/125)
+- Optimize tag permissions querying to improve performance (https://github.com/flarum/tags/pull/126)
+- Remove loading all tags on request to improve performance (https://github.com/flarum/tags/pull/87)
+
+### Fixed
+- Tags page uses incorrect canonical URL due to reusing the request object (https://github.com/flarum/tags/pull/122)
+- Searching while on a tag page causes the search to affect everything and not the subset (https://github.com/flarum/tags/pull/129)
+- Sometimes tag pages show the wrong tag information if it had children
+- The API returns outdated tag information when saving discussions (https://github.com/flarum/tags/pull/131)
+
 ## [0.1.0-beta.16](https://github.com/flarum/tags/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Added
