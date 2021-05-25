@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/approval/compare/v0.1.0-beta.16...v1.0.0)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+- Simplified TagPolicy.
+
+### Fixed
+- Unpredictable behaviour existed with discussions marked `is_private` (https://github.com/flarum/approval/pull/26)
+
 ## [0.1.0-beta.16](https://github.com/flarum/approval/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Changed
