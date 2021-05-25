@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/sticky/compare/v0.1.0-beta.16...v1.0.0)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+- List controller now takes into account default sort, even if it is changed from an extension 
+
 ## [0.1.0-beta.16](https://github.com/flarum/sticky/compare/v0.1.0-beta.15.1...v0.1.0-beta.16)
 
 ### Changed
