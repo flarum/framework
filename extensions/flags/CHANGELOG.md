@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.0](https://github.com/flarum/flags/compare/v0.1.0-beta.16...v1.0.0)
+
+### Changed
+- Compatibility with Flarum v1.0.0.
+- Improvements to performance by eager loading relations (#38)
+
+### Fixes
+- Incorrectly esolving the deprecated Symfony translator implementation instead of the contract 
+
 ## [0.1.0-beta.16](https://github.com/flarum/flags/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Added
