@@ -159,6 +159,37 @@ class UserMentionsTest extends TestCase
     /**
      * @test
      */
+    public function mentioning_a_valid_user_with_new_format_with_smart_quotes_works_and_falls_back_to_normal_quotes()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => '@“POTATO$”#3',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString('@POTATO$', $response['data']['attributes']['contentHtml']);
+        $this->assertStringContainsString('@"POTATO$"#3', $response['data']['attributes']['content']);
+        $this->assertStringContainsString('UserMention', $response['data']['attributes']['contentHtml']);
+        $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsUsers->find(3));
+    }
+
+    /**
+     * @test
+     */
     public function mentioning_an_invalid_user_doesnt_work()
     {
         $response = $this->send(
