@@ -27,7 +27,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x.x-dev"
+            "dev-master": "1.x-dev"
         },
         "flarum-extension": {
             "title": "Pusher",
