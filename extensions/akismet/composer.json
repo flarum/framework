@@ -19,8 +19,8 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.0.0",
-        "flarum/approval": "^1.0.0",
+        "flarum/core": "^1.0",
+        "flarum/approval": "^1.0",
         "tijsverkoyen/akismet": "^1.1"
     },
     "autoload": {
