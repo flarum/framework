@@ -3,7 +3,7 @@
 ## [1.0.0](https://github.com/flarum/pusher/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Added
-- Make non public disucssions realtime (https://github.com/flarum/pusher/pull/17)
+- Make non public discussions realtime (https://github.com/flarum/pusher/pull/17)
 
 ### Changed
 - Compatibility with Flarum v1.0.0.
