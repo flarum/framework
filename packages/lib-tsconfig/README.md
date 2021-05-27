@@ -23,7 +23,12 @@ A baseline `tsconfig.json` is provided below that you can modify as needed. This
   "include": ["src/**/*"],
   "compilerOptions": {
     // This will output typings to `dist-typings`
-    "declarationDir": "./dist-typings"
+    "declarationDir": "./dist-typings",
+    "paths": {
+      "flarum/*": ["../vendor/flarum/core/js/dist-typings/*"]
+    }
   }
 }
 ```
+
+You'll also need to ensure that you run `composer update` in your extension's root directory to ensure that a copy of core is downloaded to your `vendor` folder. Remember that `vendor` should **not** be committed to git repositories.
