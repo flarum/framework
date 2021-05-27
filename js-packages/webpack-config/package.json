@@ -9,19 +9,19 @@
     "webpack": "^4.46.0"
   },
   "dependencies": {
-    "@babel/core": "^7.14.0",
+    "@babel/core": "^7.14.3",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/plugin-proposal-private-methods": "^7.13.0",
     "@babel/plugin-transform-object-assign": "^7.12.13",
-    "@babel/plugin-transform-react-jsx": "^7.13.12",
-    "@babel/plugin-transform-runtime": "^7.13.15",
-    "@babel/preset-env": "^7.14.1",
+    "@babel/plugin-transform-react-jsx": "^7.14.3",
+    "@babel/plugin-transform-runtime": "^7.14.3",
+    "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/preset-typescript": "^7.13.0",
     "@babel/runtime": "^7.14.0",
     "babel-loader": "^8.2.2",
-    "typescript": "^4.2.4",
-    "webpack-bundle-analyzer": "^4.4.1"
+    "typescript": "^4.3.2",
+    "webpack-bundle-analyzer": "^4.4.2"
   },
   "devDependencies": {
     "prettier": "^2.3.0"
