@@ -42,7 +42,7 @@ class RunMigrations implements Step
     {
         $migrator = $this->getMigrator();
 
-        $migrator->installFromSchema($this->path);
+        $migrator->getRepository()->createRepository();
         $migrator->run($this->path);
     }
 
