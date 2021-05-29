@@ -89,6 +89,22 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     }
 
     /**
+     * Create the migration repository data store.
+     *
+     * @return void
+     */
+    public function createRepository()
+    {
+        $schema = $this->connection->getSchemaBuilder();
+
+        $schema->create($this->table, function ($table) {
+            $table->increments('id');
+            $table->string('migration');
+            $table->string('extension')->nullable();
+        });
+    }
+
+    /**
      * Determine if the migration repository exists.
      *
      * @return bool
