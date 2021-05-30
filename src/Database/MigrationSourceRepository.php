@@ -1,11 +1,17 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Database;
 
 use Flarum\Extension\Extension;
 use Flarum\Foundation\Application;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Support\Collection;
 
 class MigrationSourceRepository
 {
@@ -27,7 +33,9 @@ class MigrationSourceRepository
 
     public function extension(Extension $extension): ?array
     {
-        if (! $extension->hasMigrations()) return [];
+        if (! $extension->hasMigrations()) {
+            return [];
+        }
 
         return $extension->getMigrations();
     }
@@ -36,12 +44,12 @@ class MigrationSourceRepository
     {
         // We read every file from the latest major/minor version migrations directory.
         // Including the create_<table>_table statements.
-        $files = glob(__DIR__ . '/../../migrations/' . $this->installedVersion(true) . '/[0-9_]{15}_*.php');
+        $files = glob(__DIR__.'/../../migrations/'.$this->installedVersion(true).'/[0-9_]{15}_*.php');
 
         // Sort by timestamp.
         sort($files);
 
-        $create = glob(__DIR__ . '/../../migrations/' . $this->installedVersion(true) . '/create_*.php');
+        $create = glob(__DIR__.'/../../migrations/'.$this->installedVersion(true).'/create_*.php');
 
         return array_merge($create, $files);
     }
@@ -51,7 +59,7 @@ class MigrationSourceRepository
         $files = [];
         $add = false;
 
-        $directories = glob(__DIR__ . '/../../migrations/', GLOB_ONLYDIR);
+        $directories = glob(__DIR__.'/../../migrations/', GLOB_ONLYDIR);
         sort($directories, SORT_NATURAL);
 
         // Upgrade
@@ -65,7 +73,7 @@ class MigrationSourceRepository
             if ($add) {
                 // Selectively add files, but only include those matching the format YYYY_MM_DD_HHIISS_<something>.php
                 // This excludes the create_<table>_table.
-                $files = array_merge($files, glob(__DIR__ . "/../../migrations/$directory/[0-9_]{15}_*.php"));
+                $files = array_merge($files, glob(__DIR__."/../../migrations/$directory/[0-9_]{15}_*.php"));
             }
 
             // Once we found the version that is installed, we can quit.

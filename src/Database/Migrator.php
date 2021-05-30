@@ -212,7 +212,8 @@ class Migrator
     public function getMigrationFiles(string $path, Extension $extension = null): array
     {
         $files = $extension ? $this->source->extension($extension) : $this->source->flarum();
-dd($files);
+        dd($files);
+
         return array_map(function ($file) {
             return str_replace('.php', '', basename($file));
         }, $files);
