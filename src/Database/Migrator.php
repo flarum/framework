@@ -11,6 +11,7 @@ namespace Flarum\Database;
 
 use Exception;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\Application;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
@@ -48,6 +49,10 @@ class Migrator
      * @var OutputInterface
      */
     protected $output;
+    /**
+     * @var MigrationSourceRepository
+     */
+    protected $source;
 
     /**
      * Create a new migrator instance.
@@ -64,6 +69,7 @@ class Migrator
         $this->files = $files;
         $this->repository = $repository;
 
+        $this->source = new MigrationSourceRepository($connection);
         $this->schemaBuilder = $connection->getSchemaBuilder();
 
         // Workaround for https://github.com/laravel/framework/issues/1186
@@ -79,7 +85,7 @@ class Migrator
      */
     public function run($path, Extension $extension = null)
     {
-        $files = $this->getMigrationFiles($path);
+        $files = $this->getMigrationFiles($path, $extension);
 
         $ran = $this->repository->getRan($extension ? $extension->getId() : null);
 
@@ -203,30 +209,13 @@ class Migrator
         }
     }
 
-    /**
-     * Get all of the migration files in a given path.
-     *
-     * @param  string $path
-     * @return array
-     */
-    public function getMigrationFiles($path)
+    public function getMigrationFiles(string $path, Extension $extension = null): array
     {
-        $files = $this->files->glob($path.'/*_*.php');
-
-        if ($files === false) {
-            return [];
-        }
-
-        $files = array_map(function ($file) {
+        $files = $extension ? $this->source->extension($extension) : $this->source->flarum();
+dd($files);
+        return array_map(function ($file) {
             return str_replace('.php', '', basename($file));
         }, $files);
-
-        // Once we have all of the formatted file names we will sort them and since
-        // they all start with a timestamp this should give us the migrations in
-        // the order they were actually created by the application developers.
-        sort($files);
-
-        return $files;
     }
 
     /**

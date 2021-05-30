@@ -460,6 +460,17 @@ class Extension implements Arrayable
     }
 
     /**
+     * Retrieves the list of migrations of this extension.
+     *
+     * @return array
+     * @internal
+     */
+    public function getMigrations(): array
+    {
+        return glob($this->path.'/migrations/*_*.php');
+    }
+
+    /**
      * Tests whether the extension has migrations.
      *
      * @return bool
@@ -467,22 +478,6 @@ class Extension implements Arrayable
     public function hasMigrations()
     {
         return realpath($this->path.'/migrations/') !== false;
-    }
-
-    /**
-     * @internal
-     */
-    public function migrate(Migrator $migrator, $direction = 'up')
-    {
-        if (! $this->hasMigrations()) {
-            return;
-        }
-
-        if ($direction == 'up') {
-            return $migrator->run($this->getPath().'/migrations', $this);
-        } else {
-            return $migrator->reset($this->getPath().'/migrations', $this);
-        }
     }
 
     /**
