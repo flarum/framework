@@ -64,6 +64,8 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 ResetCommand::class,
                 ScheduleListCommand::class,
                 ScheduleRunCommand::class
+                // Used internally to create DB dumps before major releases.
+                // \Flarum\Database\Console\GenerateDumpCommand::class
             ];
         });
 
