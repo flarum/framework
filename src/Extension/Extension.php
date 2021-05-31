@@ -9,7 +9,6 @@
 
 namespace Flarum\Extension;
 
-use Flarum\Database\MigrationSourceRepository;
 use Flarum\Database\Migrator;
 use Flarum\Extend\LifecycleInterface;
 use Flarum\Extension\Exception\ExtensionBootError;

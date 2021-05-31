@@ -77,7 +77,7 @@ class MigrationSourceRepository
             if ($add) {
                 // Selectively add files, but only include those matching the format YYYY_MM_DD_HHIISS_<something>.php
                 // This excludes the create_<table>_table.
-                $files = array_merge($files, glob(realpath($directory) . "/[0-9_]**.php"));
+                $files = array_merge($files, glob(realpath($directory).'/[0-9_]**.php'));
             }
 
             // Once we found the version that is installed, we can quit.
@@ -133,6 +133,7 @@ class MigrationSourceRepository
                 $path = realpath($path);
                 $path = Str::after($path, 'migrations/');
                 $basename = Str::before($path, '.php');
+
                 return [$path => $basename];
             })
             ->toArray();
