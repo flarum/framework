@@ -13,8 +13,6 @@ use Exception;
 use Flarum\Extension\Extension;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\MySqlConnection;
-use Illuminate\Database\Schema\Builder;
-use Illuminate\Database\Schema\SchemaState;
 use Illuminate\Filesystem\Filesystem;
 use InvalidArgumentException;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -39,30 +37,15 @@ class Migrator
     protected $files;
 
     /**
-     * The database schema builder instance.
-     *
-     * @var Builder
-     */
-    protected $schemaBuilder;
-
-    /**
-     * The DB table prefix.
-     */
-    protected $tablePrefix;
-
-    /**
-     * The database schema builder instance.
-     *
-     * @var SchemaState
-     */
-    protected $schemaState;
-
-    /**
      * The output interface implementation.
      *
      * @var OutputInterface
      */
     protected $output;
+    /**
+     * @var ConnectionInterface|MySqlConnection
+     */
+    protected $connection;
 
     /**
      * Create a new migrator instance.
@@ -83,9 +66,7 @@ class Migrator
             throw new InvalidArgumentException('Only MySQL connections are supported');
         }
 
-        $this->tablePrefix = $connection->getTablePrefix();
-        $this->schemaBuilder = $connection->getSchemaBuilder();
-        $this->schemaState = $connection->getSchemaState();
+        $this->connection = $connection;
 
         // Workaround for https://github.com/laravel/framework/issues/1186
         $connection->getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
@@ -218,7 +199,7 @@ class Migrator
     protected function runClosureMigration($migration, $direction = 'up')
     {
         if (is_array($migration) && array_key_exists($direction, $migration)) {
-            call_user_func($migration[$direction], $this->schemaBuilder);
+            call_user_func($migration[$direction], $this->connection->getSchemaBuilder());
         } else {
             throw new Exception('Migration file should contain an array with up/down.');
         }
@@ -275,27 +256,29 @@ class Migrator
     {
         $schemaPath = "$path/install.dump";
 
-        // If we can't create a tmp file, fall back to the vendor directory.
-        $schemaWithPrefixes = tempnam(sys_get_temp_dir(), 'install');
-        if (! $schemaWithPrefixes) {
-            $schemaWithPrefixes = "$path/install_dump.dump.tmp";
-        }
-
-        $currDumpFile = file_get_contents($schemaPath);
-
-        file_put_contents($schemaWithPrefixes, str_replace('db_prefix_', $this->tablePrefix, $currDumpFile));
-
-        $this->note('<info>Loading stored database schema:</info>');
         $startTime = microtime(true);
 
-        $this->schemaState->handleOutputUsing(function ($type, $buffer) {
-            $this->output->write($buffer);
-        })->load($schemaWithPrefixes);
+        $dump = file_get_contents($schemaPath);
+
+        $this->connection->getSchemaBuilder()->disableForeignKeyConstraints();
+
+        foreach (explode(';', $dump) as $statement) {
+            $statement = trim($statement);
+
+            if (empty($statement) || substr($statement, 0, 2) === '/*') continue;
+
+            $statement = str_replace(
+                'db_prefix_',
+                $this->connection->getTablePrefix(),
+                $statement
+            );
+            $this->connection->statement($statement);
+        }
+
+        $this->connection->getSchemaBuilder()->enableForeignKeyConstraints();
 
         $runTime = number_format((microtime(true) - $startTime) * 1000, 2);
         $this->note('<info>Loaded stored database schema.</info> ('.$runTime.'ms)');
-
-        unlink($schemaWithPrefixes);
     }
 
     /**
