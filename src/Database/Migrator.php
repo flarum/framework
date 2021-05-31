@@ -265,7 +265,9 @@ class Migrator
         foreach (explode(';', $dump) as $statement) {
             $statement = trim($statement);
 
-            if (empty($statement) || substr($statement, 0, 2) === '/*') continue;
+            if (empty($statement) || substr($statement, 0, 2) === '/*') {
+                continue;
+            }
 
             $statement = str_replace(
                 'db_prefix_',
