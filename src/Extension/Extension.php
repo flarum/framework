@@ -9,6 +9,8 @@
 
 namespace Flarum\Extension;
 
+use Flarum\Database\MigrationSourceRepository;
+use Flarum\Database\Migrator;
 use Flarum\Extend\LifecycleInterface;
 use Flarum\Extension\Exception\ExtensionBootError;
 use Illuminate\Contracts\Container\Container;
@@ -458,15 +460,17 @@ class Extension implements Arrayable
         }
     }
 
-    /**
-     * Retrieves the list of migrations of this extension.
-     *
-     * @return array
-     * @internal
-     */
-    public function getMigrations(): array
+    public function migrate(Migrator $migrator, string $direction)
     {
-        return glob($this->path.'/migrations/*_*.php');
+        if (! $this->hasMigrations()) {
+            return;
+        }
+
+        if ($direction == 'up') {
+            return $migrator->run($this->getPath().'/migrations', $this);
+        } else {
+            return $migrator->reset($this->getPath().'/migrations', $this);
+        }
     }
 
     /**

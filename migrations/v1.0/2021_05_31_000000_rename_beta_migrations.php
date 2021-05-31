@@ -22,7 +22,7 @@ return [
         $db = $schema->getConnection();
 
         $db->table('migrations')
-            ->where('permission', 'LIKE', 'viewForum')
-            ->update(['permission' => $db->raw("REPLACE(migration,  'v0.1/', '')")]);
+            ->whereNull('extension')
+            ->update(['migration' => $db->raw("REPLACE('v0.1/', '')")]);
     }
 ];

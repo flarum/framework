@@ -11,7 +11,6 @@ namespace Flarum\Database;
 
 use Exception;
 use Flarum\Extension\Extension;
-use Flarum\Foundation\Application;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
@@ -79,13 +78,13 @@ class Migrator
     /**
      * Run the outstanding migrations at a given path.
      *
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param string         $path
+     * @param Extension|null $extension
      * @return void
      */
-    public function run($path, Extension $extension = null)
+    public function run(string $path, Extension $extension = null)
     {
-        $files = $this->getMigrationFiles($path, $extension);
+        $files = $this->getMigrationFiles($extension);
 
         $ran = $this->repository->getRan($extension ? $extension->getId() : null);
 
@@ -97,12 +96,12 @@ class Migrator
     /**
      * Run an array of migrations.
      *
-     * @param  string    $path
-     * @param  array     $migrations
-     * @param  Extension $extension
+     * @param string         $path
+     * @param array          $migrations
+     * @param Extension|null $extension
      * @return void
      */
-    public function runMigrationList($path, $migrations, Extension $extension = null)
+    public function runMigrationList(string $path, array $migrations, Extension $extension = null)
     {
         // First we will just make sure that there are any migrations to run. If there
         // aren't, we will just make a note of it to the developer so they're aware
@@ -124,13 +123,13 @@ class Migrator
     /**
      * Run "up" a migration instance.
      *
-     * @param  string    $path
-     * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param string         $path
+     * @param string         $file
+     * @param Extension|null $extension
      * @return void
+     * @throws Exception
      */
-    protected function runUp($path, $file, Extension $extension = null)
+    protected function runUp(string $path, string $file, Extension $extension = null)
     {
         $migration = $this->resolve($path, $file);
 
@@ -209,14 +208,9 @@ class Migrator
         }
     }
 
-    public function getMigrationFiles(string $path, Extension $extension = null): array
+    public function getMigrationFiles(Extension $extension = null): array
     {
-        $files = $extension ? $this->source->extension($extension) : $this->source->flarum();
-        dd($files);
-
-        return array_map(function ($file) {
-            return str_replace('.php', '', basename($file));
-        }, $files);
+        return $extension ? $this->source->extension($extension) : $this->source->flarum();
     }
 
     /**
