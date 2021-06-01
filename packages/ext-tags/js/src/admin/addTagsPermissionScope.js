@@ -3,12 +3,33 @@ import PermissionGrid from 'flarum/components/PermissionGrid';
 import PermissionDropdown from 'flarum/components/PermissionDropdown';
 import Dropdown from 'flarum/components/Dropdown';
 import Button from 'flarum/components/Button';
+import LoadingIndicator from 'flarum/components/LoadingIndicator';
 
 import tagLabel from '../common/helpers/tagLabel';
 import tagIcon from '../common/helpers/tagIcon';
 import sortTags from '../common/utils/sortTags';
 
 export default function() {
+  extend(PermissionGrid.prototype, 'oninit', function () {
+    this.loading = true;
+  })
+
+  extend(PermissionGrid.prototype, 'oncreate', function () {
+    app.store.find('tags').then(() => {
+      this.loading = false;
+
+      m.redraw();
+    });
+  });
+
+  override(PermissionGrid.prototype, 'view', function (original, vnode) {
+    if (this.loading) {
+      return <LoadingIndicator />;
+    }
+
+    return original(vnode);
+  })
+
   override(app, 'getRequiredPermissions', (original, permission) => {
     const tagPrefix = permission.match(/^tag\d+\./);
 
