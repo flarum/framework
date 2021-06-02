@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1](https://github.com/flarum/core/compare/v1.0.0...v1.0.1)
+
+### Fixed
+- Installation fails on environments without proc_* functions enabled or mysql client binary (https://github.com/flarum/core/issues/2890)
+
 ## [1.0.0](https://github.com/flarum/core/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Added
