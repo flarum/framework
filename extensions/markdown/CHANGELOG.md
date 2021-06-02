@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1](https://github.com/flarum/markdown/compare/v1.0.0...v1.0.1)
+
+### Fixed
+- Link button is not visible on the markdown toolbar (https://github.com/flarum/markdown/pull/29)
+
 ## [1.0.0](https://github.com/flarum/markdown/compare/v0.1.0-beta.16.1...v1.0.0)
 
 ### Changed
