@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1](https://github.com/flarum/tags/compare/v1.0.0...v1.0.1)
+
+### Fixed
+- Permission grid does not lazy load secondary tags (https://github.com/flarum/tags/pull/133)
+
 ## [1.0.0](https://github.com/flarum/tags/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Changed
