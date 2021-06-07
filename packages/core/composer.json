@@ -14,10 +14,26 @@
             "homepage": "https://flarum.org/team"
         }
     ],
+    "funding": [
+        {
+            "type": "opencollective",
+            "url": "https://opencollective.com/flarum"
+        },
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/flarum"
+        },
+        {
+            "type": "other",
+            "url": "https://flarum.org/donate"
+        }
+    ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
         "source": "https://github.com/flarum/core",
-        "docs": "https://flarum.org/docs/"
+        "docs": "https://docs.flarum.org",
+        "forum": "https://discuss.flarum.org",
+        "chat": "https://flarum.org/chat"
     },
     "require": {
         "php": ">=7.3",
