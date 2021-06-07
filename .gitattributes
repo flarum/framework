@@ -12,5 +12,6 @@ tests export-ignore
 
 js/dist/* -diff
 js/dist/* linguist-generated
+js/dist-typings/* linguist-generated
 
 * text=auto eol=lf
