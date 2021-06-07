@@ -127,7 +127,7 @@ class RouteCollection
         // the route needs. This isn't always the case.
         if (is_array($part) && array_key_exists($part[0], $parameters)) {
             $part = $parameters[$part[0]];
-        } elseif(is_array($part) && ! array_key_exists($part[0], $parameters)) {
+        } elseif (is_array($part) && ! array_key_exists($part[0], $parameters)) {
             throw new \InvalidArgumentException("Route is missing argument for part $part[0].");
         }
     }
