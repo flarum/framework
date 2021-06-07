@@ -52,7 +52,7 @@ class EmailConfirmationMailer
         $data = $this->getEmailData($event->user, $email);
 
         $body = $this->translator->trans('core.email.confirm_email.body', $data);
-        $subject = '['.$data['forum'].'] '.$this->translator->trans('core.email.confirm_email.subject');
+        $subject = $this->translator->trans('core.email.confirm_email.subject');
 
         $this->queue->push(new SendRawEmailJob($email, $subject, $body));
     }
