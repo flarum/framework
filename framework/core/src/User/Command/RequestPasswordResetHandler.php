@@ -110,7 +110,7 @@ class RequestPasswordResetHandler
         ];
 
         $body = $this->translator->trans('core.email.reset_password.body', $data);
-        $subject = '['.$data['forum'].'] '.$this->translator->trans('core.email.reset_password.subject');
+        $subject = $this->translator->trans('core.email.reset_password.subject');
 
         $this->queue->push(new SendRawEmailJob($user->email, $subject, $body));
 
