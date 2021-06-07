@@ -22,11 +22,11 @@ export default class TagsPage extends Page {
     if (preloaded) {
       this.tags = sortTags(preloaded.filter(tag => !tag.isChild()));
       return;
-    }    
+    }
 
     this.loading = true;
 
-    app.tagList.load(['children', 'lastPostedDiscussion']).then(() => {
+    app.tagList.load(['children', 'lastPostedDiscussion', 'parent']).then(() => {
       this.tags = sortTags(app.store.all('tags').filter(tag => !tag.isChild()));
 
       this.loading = false;
