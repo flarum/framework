@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.2](https://github.com/flarum/tags/compare/v1.0.1...v1.0.2)
+
+### Fixed
+- All sub tags are open for each primary tag (https://github.com/flarum/tags/pull/134)
+
 ## [1.0.1](https://github.com/flarum/tags/compare/v1.0.0...v1.0.1)
 
 ### Fixed
