@@ -48,12 +48,23 @@ export default class Translator {
     // future there should be a hook here to inspect the user and change the
     // translation key. This will allow a gender property to determine which
     // translation key is used.
+
     if ('user' in parameters) {
       const user = extract(parameters, 'user');
 
       if (!parameters.username) parameters.username = username(user);
     }
-    return parameters;
+
+    const escapedParameters: TranslatorParameters = {};
+
+    for (const param in parameters) {
+      const paramValue = parameters[param];
+
+      if (typeof paramValue === 'string') escapedParameters[param] = <>{parameters[param]}</>;
+      else escapedParameters[param] = parameters[param];
+    }
+
+    return escapedParameters;
   }
 
   trans(id: string, parameters: TranslatorParameters = {}) {
