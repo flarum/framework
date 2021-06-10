@@ -85,7 +85,7 @@ export default function() {
 
   // Translate that parameter into a gambit appended to the search query.
   extend(DiscussionListState.prototype, 'requestParams', function(params) {
-    params.include.push('tags');
+    params.include.push('tags', 'tags.parent');
 
     if (this.params.tags) {
       params.filter.tag = this.params.tags;
