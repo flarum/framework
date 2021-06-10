@@ -5,6 +5,7 @@
 <a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/dt/flarum/core" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/github/v/release/flarum/core?sort=semver" alt="Latest Version"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/l/flarum/core" alt="License"></a>
+<a href="https://huntr.dev/bounties/disclose/?target=https://github.com/flarum/core"><img src="https://cdn.huntr.dev/huntr_security_badge_mono.svg" alt="huntr"></a>
 <a href="https://github.styleci.io/repos/28257573"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="StyleCI"></a>
 </p>
 
