@@ -74,10 +74,10 @@ return [
         ->load('tags'),
 
     (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
-        ->addInclude(['tags', 'tags.state']),
+        ->addInclude(['tags', 'tags.state', 'tags.parent']),
 
     (new Extend\ApiController(FlarumController\CreateDiscussionController::class))
-        ->addInclude(['tags', 'tags.state']),
+        ->addInclude(['tags', 'tags.state', 'tags.parent']),
 
     (new Extend\ApiController(FlarumController\ShowForumController::class))
         ->addInclude(['tags', 'tags.parent'])
