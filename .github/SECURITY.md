@@ -1,10 +1,12 @@
 # Security Policy
 
-## Supported Versions
+## Versions
 
-**We only patch security vulnerabilities in the latest major release (1.x).**
+Due to the nature of our project - being open source - we have decided to patch only the latest major release (currently v1.x) for security vulnerabilities.
 
-We use [huntr.dev](https://huntr.dev/) for security issues that affect our project. If you believe you have found a vulnerability, please disclose it via [this form](https://huntr.dev/bounties/disclose/?target=https://github.com/flarum/core).
+## How to disclose
+
+Please use [huntr.dev](https://huntr.dev/) for security issues that affect our project. If you believe you have found a vulnerability, please disclose it via [this form](https://huntr.dev/bounties/disclose/?target=https://github.com/flarum/core).
 
 This will enable us to **review** the vulnerability, **fix** it promptly, and **reward** you for your efforts.
 
