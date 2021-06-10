@@ -2,12 +2,10 @@
 
 ## Supported Versions
 
-We will only patch security vulnerabilities in the stable 1.x release.
+**We only patch security vulnerabilities in the latest major release (1.x).**
 
-## Reporting a Vulnerability
+We use [huntr.dev](https://huntr.dev/) for security issues that affect our project. If you believe you have found a vulnerability, please disclose it via [this form](https://huntr.dev/bounties/disclose/?target=https://github.com/flarum/core).
 
-If you discover a security vulnerability within Flarum, please send an email to security@flarum.org so we can address it promptly.
+This will enable us to **review** the vulnerability, **fix** it promptly, and **reward** you for your efforts.
 
-We will get back to you as time allows.
-Discussions may commence internally, so you may not hear back immediately.
-When reporting a vulnerability, please provide your GitHub username (if available), so that we can invite you to collaborate on a [security advisory on GitHub](https://help.github.com/en/articles/about-maintainer-security-advisories).
+If you have any questions about the process, feel free to reach out to security@huntr.dev or security@flarum.org.
