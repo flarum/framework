@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.3](https://github.com/flarum/tags/compare/v1.0.2...v1.0.3)
+
+### Fixed
+- Sub tags that were previously loaded are visible when visiting the index from another page (https://github.com/flarum/tags/pull/135)
+- Discussion pages are showing parent tags after child tags
+
 ## [1.0.2](https://github.com/flarum/tags/compare/v1.0.1...v1.0.2)
 
 ### Fixed
