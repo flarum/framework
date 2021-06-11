@@ -20,9 +20,11 @@ use Flarum\User\User;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\ImageManager;
+use InvalidArgumentException;
 
 class RegisterUserHandler
 {
@@ -134,8 +136,25 @@ class RegisterUserHandler
         );
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function uploadAvatarFromUrl(User $user, string $url)
     {
+        $urlValidator = Validator::make(compact('url'), [
+            'url' => 'required|url',
+        ]);
+
+        if ($urlValidator->fails()) {
+            throw new InvalidArgumentException('Provided avatar URL must be a valid URI.', 503);
+        };
+
+        $parsed_url = parse_url($url);
+
+        if (!($parsed_url['scheme'] === 'http' || $parsed_url['scheme'] === 'https')) {
+            throw new InvalidArgumentException('Provided avatar URL must have scheme http or https. Scheme provided was "' . $parsed_url['scheme'] . '".', 503);
+        }
+
         $image = (new ImageManager)->make($url);
 
         $this->avatarUploader->upload($user, $image);
