@@ -105,6 +105,7 @@ class InstalledSite implements SiteInterface
         $container->alias('flarum.config', Config::class);
         $container->instance('flarum.debug', $this->config->inDebugMode());
         $container->instance('config', $config = $this->getIlluminateConfig($laravel));
+        $container->instance('flarum.maintenance.handler', new MaintenanceModeHandler);
 
         $this->registerLogger($container);
         $this->registerCache($container);

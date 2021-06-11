@@ -48,7 +48,7 @@ class InstalledApp implements AppInterface
     public function getRequestHandler()
     {
         if ($this->config->inMaintenanceMode()) {
-            return new MaintenanceModeHandler();
+            return $this->container->make('flarum.maintenance.handler');
         } elseif ($this->needsUpdate()) {
             return $this->getUpdaterHandler();
         }
