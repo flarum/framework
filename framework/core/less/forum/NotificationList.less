@@ -136,6 +136,14 @@
     .Avatar--size(24px);
     grid-area: avatar;
   }
+  
+  // Since images don't have baselines, aligning against the baseline won't work.
+  // Instead we need to do some manual hackery to fix then, otherwise they won't
+  // be correctly vertically aligned.
+  img.Avatar {
+    align-self: flex-start;
+    margin-top: -2px;
+  }
 
   &-icon {
     font-size: 14px;
