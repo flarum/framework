@@ -142,7 +142,7 @@ class RegisterUserHandler
     private function uploadAvatarFromUrl(User $user, string $url)
     {
         $urlValidator = Validator::make(compact('url'), [
-            'url' => 'required|url',
+            'url' => 'required|active_url',
         ]);
 
         if ($urlValidator->fails()) {
