@@ -149,10 +149,10 @@ class RegisterUserHandler
             throw new InvalidArgumentException('Provided avatar URL must be a valid URI.', 503);
         };
 
-        $parsed_url = parse_url($url);
+        $scheme = parse_url($url, PHP_URL_SCHEME);
 
-        if (!($parsed_url['scheme'] === 'http' || $parsed_url['scheme'] === 'https')) {
-            throw new InvalidArgumentException('Provided avatar URL must have scheme http or https. Scheme provided was "' . $parsed_url['scheme'] . '".', 503);
+        if (! in_array($scheme, ['http', 'https'])) {
+            throw new InvalidArgumentException("Provided avatar URL must have scheme http or https. Scheme provided was $scheme.", 503);
         }
 
         $image = (new ImageManager)->make($url);
