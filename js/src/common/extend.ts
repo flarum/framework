@@ -36,9 +36,9 @@ export function extend<T extends object, K extends KeyOfType<T, Function>>(objec
   const allMethods = Array.isArray(methods) ? methods : [methods];
 
   allMethods.forEach((method: K) => {
-    const original: Function|undefined = object[method];
+    const original: Function | undefined = object[method];
 
-    object[method] = <T[K]> function (this: T, ...args: any[]) {
+    object[method] = <T[K]>function (this: T, ...args: any[]) {
       const value = original ? original.apply(this, args) : undefined;
 
       callback.apply(this, [value, ...args]);
@@ -77,13 +77,17 @@ export function extend<T extends object, K extends KeyOfType<T, Function>>(objec
  * @param methods The name or names of the method(s) to override
  * @param newMethod The method to replace it with
  */
-export function override<T extends object, K extends KeyOfType<T, Function>> (object: T, methods: K|K[], newMethod: (orig: T[K], ...args: any) => void) {
+export function override<T extends object, K extends KeyOfType<T, Function>>(
+  object: T,
+  methods: K | K[],
+  newMethod: (orig: T[K], ...args: any) => void
+) {
   const allMethods = Array.isArray(methods) ? methods : [methods];
 
   allMethods.forEach((method) => {
     const original: Function = object[method];
 
-    object[method] = <T[K]> function (this: T, ...args: any[]) {
+    object[method] = <T[K]>function (this: T, ...args: any[]) {
       return newMethod.apply(this, [original.bind(this), ...args]);
     };
 
