@@ -44,6 +44,7 @@ export default class Post extends Component {
     attrs.className = this.classes(attrs.className).join(' ');
 
     const controls = PostControls.controls(this.attrs.post, this).toArray();
+    const footerItems = this.footerItems().toArray();
 
     return (
       <article {...attrs}>
@@ -71,8 +72,8 @@ export default class Post extends Component {
               )}
             </ul>
           </aside>
-          <footer className="Post-footer">
-            <ul>{listItems(this.footerItems().toArray())}</ul>
+          <footer className={classList('Post-footer', !footerItems.length && 'Post-footer--empty')}>
+            <ul>{listItems(footerItems)}</ul>
           </footer>
         </div>
       </article>
