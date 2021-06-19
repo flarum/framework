@@ -147,7 +147,7 @@ class RegisterUserHandler
 
         if ($urlValidator->fails()) {
             throw new InvalidArgumentException('Provided avatar URL must be a valid URI.', 503);
-        };
+        }
 
         $scheme = parse_url($url, PHP_URL_SCHEME);
 
