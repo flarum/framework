@@ -350,9 +350,9 @@ class CreateTest extends TestCase
         ], []);
 
         /**
-         * Test each reg token
+         * Test each reg token.
          *
-         * @var RegistrationToken $regToken 
+         * @var RegistrationToken $regToken
          */
         foreach ($regTokens as $regToken) {
             $regToken->saveOrFail();
