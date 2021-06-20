@@ -40,13 +40,13 @@ export function extend<T extends object, K extends KeyOfType<T, Function>>(
   allMethods.forEach((method: K) => {
     const original: Function | undefined = object[method];
 
-    object[method] = <T[K]>function (this: T, ...args: any[]) {
+    object[method] = function (this: T, ...args: Parameters<T[K]>) {
       const value = original ? original.apply(this, args) : undefined;
 
       callback.apply(this, [value, ...args]);
 
       return value;
-    };
+    } as T[K];
 
     Object.assign(object[method], original);
   });
@@ -89,9 +89,9 @@ export function override<T extends object, K extends KeyOfType<T, Function>>(
   allMethods.forEach((method) => {
     const original: Function = object[method];
 
-    object[method] = <T[K]>function (this: T, ...args: any[]) {
+    object[method] = function (this: T, ...args: Parameters<T[K]>) {
       return newMethod.apply(this, [original.bind(this), ...args]);
-    };
+    } as T[K];
 
     Object.assign(object[method], original);
   });
