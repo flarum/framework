@@ -33,7 +33,7 @@ export type KeyOfType<T extends object, Type> = Exclude<
 export function extend<T extends object, K extends KeyOfType<T, Function>>(
   object: T,
   methods: K | K[],
-  callback: (val: ReturnType<T[K]>, ...args: any[]) => void
+  callback: (val: ReturnType<T[K]>, ...args: Parameters<T[K]>) => void
 ) {
   const allMethods = Array.isArray(methods) ? methods : [methods];
 
@@ -82,7 +82,7 @@ export function extend<T extends object, K extends KeyOfType<T, Function>>(
 export function override<T extends object, K extends KeyOfType<T, Function>>(
   object: T,
   methods: K | K[],
-  newMethod: (orig: T[K], ...args: any) => void
+  newMethod: (orig: T[K], ...args: Parameters<T[K]>) => void
 ) {
   const allMethods = Array.isArray(methods) ? methods : [methods];
 
