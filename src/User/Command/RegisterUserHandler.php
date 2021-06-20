@@ -20,7 +20,6 @@ use Flarum\User\User;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\ImageManager;
@@ -141,7 +140,7 @@ class RegisterUserHandler
      */
     private function uploadAvatarFromUrl(User $user, string $url)
     {
-        $urlValidator = Validator::make(compact('url'), [
+        $urlValidator = resolve('validator')->make(compact('url'), [
             'url' => 'required|active_url',
         ]);
 
