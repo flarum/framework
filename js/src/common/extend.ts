@@ -5,8 +5,6 @@ export type KeyOfType<T extends object, Type> = Exclude<
   undefined
 >;
 
-export type ExtendCallback<T extends (...args: any) => any> = (val: ReturnType<T>, ...args: any[]) => void;
-
 /**
  * Extend an object's method by running its output through a mutating callback
  * every time it is called.
@@ -32,7 +30,11 @@ export type ExtendCallback<T extends (...args: any) => any> = (val: ReturnType<T
  * @param methods The name or names of the method(s) to extend
  * @param callback A callback which mutates the method's output
  */
-export function extend<T extends object, K extends KeyOfType<T, Function>>(object: T, methods: K | K[], callback: ExtendCallback<T[K]>) {
+export function extend<T extends object, K extends KeyOfType<T, Function>>(
+  object: T,
+  methods: K | K[],
+  callback: (val: ReturnType<T[K]>, ...args: any[]) => void
+) {
   const allMethods = Array.isArray(methods) ? methods : [methods];
 
   allMethods.forEach((method: K) => {
