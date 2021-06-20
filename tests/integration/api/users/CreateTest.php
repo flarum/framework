@@ -182,7 +182,7 @@ class CreateTest extends TestCase
 
         // Add registration tokens that should cause a failure
         $regTokens[] = [
-            'token' => RegistrationToken::generate("flarum", "1", [
+            'token' => RegistrationToken::generate('flarum', '1', [
                 'username' => 'test',
                 'email' => 'test@machine.local',
                 'is_email_confirmed' => 1,
@@ -192,7 +192,7 @@ class CreateTest extends TestCase
         ];
 
         $regTokens[] = [
-            'token' => RegistrationToken::generate("flarum", "1", [
+            'token' => RegistrationToken::generate('flarum', '1', [
                 'username' => 'test',
                 'email' => 'test@machine.local',
                 'is_email_confirmed' => 1,
@@ -232,7 +232,7 @@ class CreateTest extends TestCase
             $firstError = $decodedBody['errors'][0];
 
             // Check that the error is an invalid URI
-            $this->assertStringStartsWith('InvalidArgumentException: Provided avatar URL must have scheme http or https. Scheme provided was ' . $regToken['scheme'] . '.', $firstError['detail']);
+            $this->assertStringStartsWith('InvalidArgumentException: Provided avatar URL must have scheme http or https. Scheme provided was '.$regToken['scheme'].'.', $firstError['detail']);
         }
     }
 
@@ -247,28 +247,28 @@ class CreateTest extends TestCase
         $regTokens = [];
 
         // Add registration tokens that should cause a failure
-        $regTokens[] = RegistrationToken::generate("flarum", "1", [
+        $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
             'avatar_url' =>  'https://127.0.0.1/image.png'
         ], []);
 
-        $regTokens[] = RegistrationToken::generate("flarum", "1", [
+        $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
             'avatar_url' =>  'https://192.168.0.1/image.png'
         ], []);
 
-        $regTokens[] = RegistrationToken::generate("flarum", "1", [
+        $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
             'avatar_url' =>  '../image.png'
         ], []);
 
-        $regTokens[] = RegistrationToken::generate("flarum", "1", [
+        $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
@@ -321,28 +321,28 @@ class CreateTest extends TestCase
         $regTokens = [];
 
         // Add registration tokens that should work fine
-        $regTokens[] = RegistrationToken::generate("flarum", "1", [
+        $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test1',
             'email' => 'test1@machine.local',
             'is_email_confirmed' => 1,
             'avatar_url' =>  'https://via.placeholder.com/150.png'
         ], []);
 
-        $regTokens[] = RegistrationToken::generate("flarum", "2", [
+        $regTokens[] = RegistrationToken::generate('flarum', '2', [
             'username' => 'test2',
             'email' => 'test2@machine.local',
             'is_email_confirmed' => 1,
             'avatar_url' =>  'https://via.placeholder.com/150.jpg'
         ], []);
 
-        $regTokens[] = RegistrationToken::generate("flarum", "3", [
+        $regTokens[] = RegistrationToken::generate('flarum', '3', [
             'username' => 'test3',
             'email' => 'test3@machine.local',
             'is_email_confirmed' => 1,
             'avatar_url' =>  'https://via.placeholder.com/150.gif'
         ], []);
 
-        $regTokens[] = RegistrationToken::generate("flarum", "4", [
+        $regTokens[] = RegistrationToken::generate('flarum', '4', [
             'username' => 'test4',
             'email' => 'test4@machine.local',
             'is_email_confirmed' => 1,
@@ -351,7 +351,7 @@ class CreateTest extends TestCase
 
         /**
          * Test each reg token
-         * 
+         *
          * @var RegistrationToken $regToken 
          */
         foreach ($regTokens as $regToken) {
@@ -373,9 +373,6 @@ class CreateTest extends TestCase
                     ]
                 )->withAttribute('bypassCsrfToken', true)
             );
-
-            // The response body should contain details about the invalid URI
-            $body = (string) $response->getBody();
 
             $this->assertEquals(201, $response->getStatusCode());
 
