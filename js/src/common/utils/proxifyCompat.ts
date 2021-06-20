@@ -3,7 +3,7 @@ export default (compat: { [key: string]: any }, namespace: string) => {
   // and remove .js, .ts and .tsx extensions
   // e.g. admin/utils/extract --> utils/extract
   // e.g. tags/common/utils/sortTags --> tags/utils/sortTags
-  const regex = new RegExp(`^(?:\w+\/)?(?:${namespace}|common)\/(.+?)(?:\.(?:js|tsx?))?$`);
+  const regex = new RegExp(`^(?:\\w+\/)?(?:${namespace}|common)\/(.+?)(?:\\.(?:js|tsx?))?$`);
 
   return new Proxy(compat, {
     get: (obj, prop: string) => {
