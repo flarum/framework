@@ -74,7 +74,7 @@ class SetupScript
         $this->port = intval(getenv('DB_PORT') ?: 3306);
         $this->name = getenv('DB_DATABASE') ?: 'flarum_test';
         $this->user = getenv('DB_USERNAME') ?: 'root';
-        $this->pass = getenv('DB_PASSWORD') ?: 'root';
+        $this->pass = getenv('DB_PASSWORD') ?? 'root';
         $this->pref = getenv('DB_PREFIX') ?: '';
     }
 
