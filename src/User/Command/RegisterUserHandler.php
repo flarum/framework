@@ -21,6 +21,7 @@ use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\ImageManager;
 use InvalidArgumentException;
@@ -37,12 +38,16 @@ class RegisterUserHandler
     /**
      * @var UserValidator
      */
-    protected $validator;
+    protected $userValidator;
 
     /**
      * @var AvatarUploader
      */
     protected $avatarUploader;
+    /**
+     * @var Factory
+     */
+    private $validator;
 
     /**
      * @param Dispatcher $events
@@ -50,12 +55,13 @@ class RegisterUserHandler
      * @param UserValidator $validator
      * @param AvatarUploader $avatarUploader
      */
-    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, AvatarUploader $avatarUploader)
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $userValidator, AvatarUploader $avatarUploader, Factory $validator)
     {
         $this->events = $events;
         $this->settings = $settings;
-        $this->validator = $validator;
+        $this->userValidator = $userValidator;
         $this->avatarUploader = $avatarUploader;
+        $this->validator = $validator;
     }
 
     /**
@@ -102,7 +108,7 @@ class RegisterUserHandler
             new Saving($user, $actor, $data)
         );
 
-        $this->validator->assertValid(array_merge($user->getAttributes(), compact('password')));
+        $this->userValidator->assertValid(array_merge($user->getAttributes(), compact('password')));
 
         $user->save();
 
@@ -140,7 +146,7 @@ class RegisterUserHandler
      */
     private function uploadAvatarFromUrl(User $user, string $url)
     {
-        $urlValidator = resolve('validator')->make(compact('url'), [
+        $urlValidator = $this->validator->make(compact('url'), [
             'url' => 'required|active_url',
         ]);
 
