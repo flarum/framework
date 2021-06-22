@@ -12,6 +12,7 @@
 ### Fixed
 
 - Avatar in notifications list are incorrectly aligned (https://github.com/flarum/core/pull/2906) 
+- FilesystemManager is not compatible with upstream Laravel implementation (https://github.com/flarum/core/pull/2936)
 
 ## [1.0.2](https://github.com/flarum/core/compare/v1.0.1...v1.0.2)
 
