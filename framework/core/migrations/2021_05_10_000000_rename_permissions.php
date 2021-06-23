@@ -14,7 +14,7 @@ return [
         $db = $schema->getConnection();
 
         $db->table('group_permission')
-            ->where('permission', 'LIKE', 'viewDiscussions')
+            ->where('permission', 'LIKE', '%viewDiscussions')
             ->update(['permission' => $db->raw("REPLACE(permission,  'viewDiscussions', 'viewForum')")]);
 
         $db->table('group_permission')
@@ -26,7 +26,7 @@ return [
         $db = $schema->getConnection();
 
         $db->table('group_permission')
-            ->where('permission', 'LIKE', 'viewForum')
+            ->where('permission', 'LIKE', '%viewForum')
             ->update(['permission' => $db->raw("REPLACE(permission,  'viewForum', 'viewDiscussions')")]);
 
         $db->table('group_permission')
