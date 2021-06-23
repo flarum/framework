@@ -1,5 +1,81 @@
 # Changelog
 
+## [1.0.2](https://github.com/flarum/core/compare/v1.0.1...v1.0.2)
+
+### Fixed
+- Critical XSS vulnerability
+
+## [1.0.1](https://github.com/flarum/core/compare/v1.0.0...v1.0.1)
+
+### Fixed
+- Installation fails on environments without proc_* functions enabled or mysql client binary (https://github.com/flarum/core/issues/2890)
+
+## [1.0.0](https://github.com/flarum/core/compare/v0.1.0-beta.16...v1.0.0)
+
+### Added
+- Task scheduling
+- `load()` method on `ApiController` extender to allow eager loading of relations (https://github.com/flarum/core/pull/2724)
+- Installation supports enabling a set of extensions (https://github.com/flarum/core/pull/2757)
+- RequestUtil helper class added to abstract the logic of the actor, session, locale and route name from the request (https://github.com/flarum/core/pull/2449)
+- Code scanning action with GitHub CodeQL (https://github.com/flarum/core/pull/2744)
+- The Formatter extender now has an `unparse` method to allow extensions to hook into the unparsing of content (https://github.com/flarum/core/pull/2780)
+- A Filesystem extender allows direct modification and addition of filesystem disks (https://github.com/flarum/core/pull/2732)
+- A slug driver based on the User ID was introduced (https://github.com/flarum/core/pull/2787)
+- An extensible users list was added to the admin area (https://github.com/flarum/core/pull/2626)
+- Headers hardened by adding Referer Policy, Xss Protection and Content type (https://github.com/flarum/core/pull/2721)
+- Tooltip component (https://github.com/flarum/core/pull/2843)
+- Moved `insertText` and `styleSelectedText` from markdown to core (https://github.com/flarum/core/pull/2826)
+- A squashed database schema install dump to speed up new installs (https://github.com/flarum/core/pull/2842)
+- Pagination in the canonical URL for discussion pages (https://github.com/flarum/core/pull/2853)
+- PaginatedListState for the DiscussionList and to support paginated lists in the frontend (https://github.com/flarum/core/pull/2781)
+- Introduce the new webpack config and flarum-tsconfig for typehinting (https://github.com/flarum/core/pull/2856)
+
+### Changed
+- Now tracking bundle sizes to keep an eye on web performance (https://github.com/flarum/core/pull/2695)
+- Eager load relations on ListPostsController to improve performance (https://github.com/flarum/core/pull/2717)
+- Replace classList with clsx library (https://github.com/flarum/core/pull/2760)
+- Replaced the javascript based loading spinner with a pure CSS version (https://github.com/flarum/core/pull/2764)
+- Route names now have to be unique (https://github.com/flarum/core/pull/2771)
+- ActorReference is now available from the error handler middleware (https://github.com/flarum/core/pull/2410)
+- The `migrations` table now has an Auto Increment ID (https://github.com/flarum/core/pull/2794)
+- Assets and avatars are now managed using Laravel filesystem disks (https://github.com/flarum/core/pull/2729)
+- Extracted asset publishing (`php flarum assets:publish`) from migrating (https://github.com/flarum/core/pull/2731)
+- Assets were compiled in the format `<asset>-<revision>.<js|css>`, this is now `<asset>.<js|css>?v=<revision>` (https://github.com/flarum/core/pull/2805)
+- The powered by header can now be configured in the config under `headers` (https://github.com/flarum/core/pull/2777)
+- Switched to the ICU format for translation files (https://github.com/flarum/core/pull/2759)
+- Allow extend and override to apply to multiple methods in one call
+- Notifications dropdown and list refactored (https://github.com/flarum/core/pull/2822)
+- Updated validation locale strings based on Laravel 8 changes (https://github.com/flarum/core/pull/2829)
+- Caching of permissions is now taken care of centrally, reducing code duplication (https://github.com/flarum/core/pull/2832)
+- Replaced lodash-es by throttle-debounce to reduce bundle size (https://github.com/flarum/core/pull/2827)
+- Internal API requests are now executed through middleware (https://github.com/flarum/core/pull/2783)
+- Permission changes: `viewDiscussions` to `viewForum` and `viewUserList` to `searchUsers` (https://github.com/flarum/core/pull/2854)
+
+### Fixes
+- Javascript is shown when editing the title of a discussion (https://github.com/flarum/core/pull/2693)
+- Canonical url logic uses request object which causes wrong URL's when a different page is default (https://github.com/flarum/core/pull/2674)
+- Dropdown toggle has no aria label (https://github.com/flarum/core/pull/2668)
+- Nav drawer is focusable when off-screen on small viewports (https://github.com/flarum/core/pull/2666)
+- Search input has no aria-label and no role (https://github.com/flarum/core/pull/2669)
+- Code duplication exists between SendConfirmationEmailController and AccountActivationMailer (https://github.com/flarum/core/pull/2493)
+- When setting tags as homepage default, visiting a tag will show all posts (https://github.com/flarum/core/pull/2754)
+- Locale cache is cleared twice when cache clearing (https://github.com/flarum/core/pull/2738)
+- When cache clearing fails an exception can be thrown due to a partial flush (https://github.com/flarum/core/pull/2756)
+- Database migrations rely on MyISAM even though the eventual migrated database does not use it (https://github.com/flarum/core/pull/2442)
+- Discussion search result is not sorted by relevance by default (https://github.com/flarum/core/pull/2773)
+- Extensions cannot register custom searcher classes (https://github.com/flarum/core/pull/2755)
+- Searching discussion titles is not possible (https://github.com/flarum/core/pull/2698)
+- Boot errors due to failing extenders throw a generic error (https://github.com/flarum/core/pull/2740)
+- Required argument to `Component.$()` isn't really required (https://github.com/flarum/core/pull/2844)
+- Component does not allows use of all mithril lifecycle functionality (https://github.com/flarum/core/pull/2847)
+
+### Removed
+- The `make:migration` command has been removed (https://github.com/flarum/core/pull/2686)
+- Background fade on the header has been removed (https://github.com/flarum/core/pull/2685)
+- Remove vendor prefixes in less (https://github.com/flarum/core/pull/2766)
+- The session is no longer available from the User class (https://github.com/flarum/core/pull/2790)
+- The `mail` key is removed from the laravel related config (https://github.com/flarum/core/pull/2796)
+
 ## [0.1.0-beta.16](https://github.com/flarum/core/compare/v0.1.0-beta.15...v0.1.0-beta.16)
 
 ### Added
