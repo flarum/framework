@@ -18,8 +18,8 @@ return [
             ->update(['permission' => $db->raw("REPLACE(permission,  'viewDiscussions', 'viewForum')")]);
 
         $db->table('group_permission')
-            ->where('permission', 'LIKE', 'viewUserList')
-            ->update(['permission' => $db->raw("REPLACE(permission,  'viewUserList', 'searchUsers')")]);
+            ->where('permission', 'viewUserList')
+            ->update(['permission' => 'searchUsers']);
     },
 
     'down' => function (Builder $schema) {
@@ -30,7 +30,7 @@ return [
             ->update(['permission' => $db->raw("REPLACE(permission,  'viewForum', 'viewDiscussions')")]);
 
         $db->table('group_permission')
-            ->where('permission', 'LIKE', 'searchUsers')
-            ->update(['permission' => $db->raw("REPLACE(permission,  'searchUsers', 'viewUserList')")]);
+            ->where('permission', 'searchUsers')
+            ->update(['permission' => 'viewUserList']);
     }
 ];
