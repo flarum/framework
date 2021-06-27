@@ -73,7 +73,10 @@ class AvatarValidator extends AbstractValidator
     protected function raise($error, array $parameters = [], $rule = null)
     {
         $message = $this->laravelValidator->makeReplacements(
-            $this->translator->trans("validation.$error"), 'avatar', $rule ?? $error, array_values($parameters)
+            $this->translator->trans("validation.$error"),
+            'avatar',
+            $rule ?? $error,
+            array_values($parameters)
         );
 
         throw new ValidationException(['avatar' => $message]);
