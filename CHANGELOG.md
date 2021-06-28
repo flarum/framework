@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.4](https://github.com/flarum/core/compare/v1.0.3...v1.0.4)
+
+### Fixed
+
+- Upgrade to v1.0 resets the "view" permission on all tags (https://github.com/flarum/core/pull/2941)
+
 ## [1.0.3](https://github.com/flarum/core/compare/v1.0.2...v1.0.3)
 
 ### Changed
