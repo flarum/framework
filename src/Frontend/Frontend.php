@@ -49,7 +49,9 @@ class Frontend
     {
         $forumDocument = $this->getForumDocument($request);
 
-        $document = new Document($this->view, $forumDocument, $request);
+        $responseDocument = resolve('flarum.frontend.document');
+
+        $document = $responseDocument($forumDocument, $request);
 
         $this->populate($document, $request);
 

@@ -16,6 +16,8 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\View\Factory;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
@@ -55,6 +57,16 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content($container->make(Content\Meta::class));
 
                 return $frontend;
+            };
+        });
+
+        $this->container->singleton('flarum.frontend.document', function (Container $container) {
+            return function (array $apiDocument, Request $request) use ($container){
+                return new Document(
+                    $container->make(Factory::class),
+                    $apiDocument,
+                    $request
+                );
             };
         });
     }
