@@ -61,7 +61,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.frontend.document', function (Container $container) {
-            return function (array $apiDocument, Request $request) use ($container){
+            return function (array $apiDocument, Request $request) use ($container) {
                 return new Document(
                     $container->make(Factory::class),
                     $apiDocument,
