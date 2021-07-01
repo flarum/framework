@@ -23,7 +23,7 @@ flarum-likes:
     post:
       like_link: Like
       liked_by_self_text: "{users} like this."  # Can be pluralized to agree with the number of users!
-      liked_by_text: "{count, plural, one {{users} likes this} other {{users} like this}}"
+      liked_by_text: "{count, plural, one {{users} likes this} other {{users} like this}}."
       others_link: => core.ref.some_others
       unlike_link: Unlike
       you_text: => core.ref.you
