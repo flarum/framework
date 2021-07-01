@@ -9,7 +9,6 @@
 
 namespace Flarum\Api\Controller;
 
-use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
 
