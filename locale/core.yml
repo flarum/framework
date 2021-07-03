@@ -221,6 +221,7 @@ core:
 
     # These translations are used for the users list on the admin dashboard.
     users:
+      title: => core.ref.users    
       description: A paginated list of all users on your forum.
 
       grid:
@@ -256,7 +257,6 @@ core:
         next_button: Next page
         page_counter: Page {current} of {total}
 
-      title: => core.ref.users
       total_users: "Total users: {count}"
 
   # Translations in this namespace are used by the forum user interface.
