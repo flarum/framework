@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import 'dayjs/plugin/relativeTime';
 
 /**
  * The `humanTime` utility converts a date to a localized, human-readable time-
