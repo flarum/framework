@@ -3,6 +3,7 @@ import Mithril from 'mithril';
 
 // Other third-party libs
 import * as _dayjs from 'dayjs';
+import 'dayjs/plugin/relativeTime';
 import * as _$ from 'jquery';
 
 // Globals from flarum/core
