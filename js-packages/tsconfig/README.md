@@ -1,12 +1,12 @@
 # Flarum Typescript Config
 
-A standardised `tsconfig.json` for use in Typescript Flarum extensions.
+A standardised `tsconfig.json` for use in Flarum extensions.
 
 ## Usage
 
 You'll need to configure a `tsconfig.json` file to ensure your IDE sets up Typescript support correctly.
 
-You need to install this package as a dev dependency:
+You need to install this package as a dev dependency to your extension JS:
 
 ```properties
 npm install --save-dev flarum-tsconfig
@@ -32,4 +32,4 @@ A baseline `tsconfig.json` is provided below that you can modify as needed. This
 }
 ```
 
-You'll also need to ensure that you run `composer update` in your extension's root directory to ensure that a copy of core is downloaded to your `vendor` folder. Remember that `vendor` should **not** be committed to git repositories.
+You'll also need to ensure that you run `composer update` in your extension's root directory to ensure that a copy of Flarum core is downloaded to your `vendor` folder. Remember that `vendor` should **not** be committed to Git repositories.
