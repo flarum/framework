@@ -24,6 +24,7 @@ A baseline `tsconfig.json` is provided below that you can modify as needed. This
   "compilerOptions": {
     // This will output typings to `dist-typings`
     "declarationDir": "./dist-typings",
+    "baseUrl": ".",
     "paths": {
       "flarum/*": ["../vendor/flarum/core/js/dist-typings/*"]
     }
