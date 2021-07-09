@@ -131,7 +131,7 @@
   // Code blocks
   pre {
     border: 0;
-    padding: 15px;
+    padding: 0;
     background: @code-bg;
     color: #666;
     font-size: 90%;
@@ -139,12 +139,14 @@
     overflow-wrap: normal;
 
     code {
-      padding: 0;
+      padding: 1em;
       background: none;
       color: inherit;
       line-height: inherit;
       font-size: 100%;
       border-radius: 0;
+      display: block;
+      overflow-x: auto;
     }
   }
   h1, h2, h3, h4, h5, h6 {
