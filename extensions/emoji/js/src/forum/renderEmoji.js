@@ -15,7 +15,7 @@ const options = {
 };
 
 export default function renderEmoji() {
-  override(Post.prototype, 'contentHtml', function(original) {
+  override(Post.prototype, 'contentHtml', function (original) {
     const contentHtml = original();
 
     if (this.oldContentHtml !== contentHtml) {

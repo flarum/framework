@@ -27,7 +27,6 @@ export default function addComposerAutocomplete() {
       .bindTo($editor);
 
     $editor.after($container);
-
   });
 
   extend(TextEditor.prototype, 'buildEditorParams', function (params) {
@@ -79,7 +78,8 @@ export default function addComposerAutocomplete() {
               onclick={() => applySuggestion(emoji)}
               onmouseenter={function () {
                 dropdown.setIndex($(this).parent().index() - 1);
-              }}>
+              }}
+            >
               <img alt={emoji} class="emoji" draggable="false" loading="lazy" src={`${cdn}72x72/${code}.png`} />
               {name}
             </button>
@@ -91,14 +91,14 @@ export default function addComposerAutocomplete() {
 
           // Build a regular expression to do a fuzzy match of the given input string
           const fuzzyRegexp = function (str) {
-            const reEscape = new RegExp('\\(([' + ('+.*?[]{}()^$|\\'.replace(/(.)/g, '\\$1')) + '])\\)', 'g');
-            return new RegExp('(.*)' + (str.toLowerCase().replace(/(.)/g, '($1)(.*?)')).replace(reEscape, '(\\$1)') + '$', 'i');
+            const reEscape = new RegExp('\\(([' + '+.*?[]{}()^$|\\'.replace(/(.)/g, '\\$1') + '])\\)', 'g');
+            return new RegExp('(.*)' + str.toLowerCase().replace(/(.)/g, '($1)(.*?)').replace(reEscape, '(\\$1)') + '$', 'i');
           };
           const regTyped = fuzzyRegexp(typed);
 
           let maxSuggestions = 7;
 
-          const findMatchingEmojis = matcher => {
+          const findMatchingEmojis = (matcher) => {
             for (let i = 0; i < emojiKeys.length && maxSuggestions > 0; i++) {
               const curEmoji = emojiKeys[i];
 
@@ -116,16 +116,18 @@ export default function addComposerAutocomplete() {
           };
 
           // First, try to find all emojis starting with the given string
-          findMatchingEmojis(emoji => emoji.indexOf(typed) === 0);
+          findMatchingEmojis((emoji) => emoji.indexOf(typed) === 0);
 
           // If there are still suggestions left, try for some fuzzy matches
-          findMatchingEmojis(emoji => regTyped.test(emoji));
+          findMatchingEmojis((emoji) => regTyped.test(emoji));
 
-          const suggestions = similarEmoji.map(emoji => ({
-            emoji,
-            name: emojiMap[emoji][0],
-            code: getEmojiIconCode(emoji),
-          })).map(makeSuggestion);
+          const suggestions = similarEmoji
+            .map((emoji) => ({
+              emoji,
+              name: emojiMap[emoji][0],
+              code: getEmojiIconCode(emoji),
+            }))
+            .map(makeSuggestion);
 
           if (suggestions.length) {
             dropdown.items = suggestions;
@@ -165,10 +167,11 @@ export default function addComposerAutocomplete() {
   });
 
   extend(TextEditor.prototype, 'toolbarItems', function (items) {
-    items.add('emoji', (
+    items.add(
+      'emoji',
       <TextEditorButton onclick={() => this.attrs.composer.editor.insertAtCursor(' :')} icon="far fa-smile">
         {app.translator.trans('flarum-emoji.forum.composer.emoji_tooltip')}
       </TextEditorButton>
-    ));
+    );
   });
 }

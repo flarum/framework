@@ -10,16 +10,20 @@ export default class AutocompleteDropdown extends Fragment {
     return (
       <ul className="Dropdown-menu EmojiDropdown">
         <li className="Dropdown-header">{app.translator.trans('flarum-emoji.forum.composer.type_to_search_text')}</li>
-        {this.items.map(item => <li key={item.attrs.key}>{item}</li>)}
+        {this.items.map((item) => (
+          <li key={item.attrs.key}>{item}</li>
+        ))}
       </ul>
     );
   }
 
   show(left, top) {
-    this.$().show().css({
-      left: left + 'px',
-      top: top + 'px'
-    });
+    this.$()
+      .show()
+      .css({
+        left: left + 'px',
+        top: top + 'px',
+      });
     this.active = true;
   }
 
@@ -32,7 +36,7 @@ export default class AutocompleteDropdown extends Fragment {
     this.keyWasJustPressed = true;
     this.setIndex(this.index + delta, true);
     clearTimeout(this.keyWasJustPressedTimeout);
-    this.keyWasJustPressedTimeout = setTimeout(() => this.keyWasJustPressed = false, 500);
+    this.keyWasJustPressedTimeout = setTimeout(() => (this.keyWasJustPressed = false), 500);
   }
 
   complete() {
