@@ -25,10 +25,7 @@ export default class Select extends Component {
 
       // Destructure the `wrapperAttrs` object to extract the `className` for passing to `classList()`
       // `= {}` prevents errors when `wrapperAttrs` is undefined
-      wrapperAttrs: {
-        className: wrapperClassName,
-        ...wrapperAttrs
-      } = {},
+      wrapperAttrs: { className: wrapperClassName, ...wrapperAttrs } = {},
 
       ...domAttrs
     } = this.attrs;
