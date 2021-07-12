@@ -111,7 +111,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\AuthenticateWithHeader::class,
-                HttpMiddleware\CheckCsrfToken::class
+                HttpMiddleware\CheckCsrfToken::class,
+                HttpMiddleware\RememberFromCookie::class,
             ];
         });
 
