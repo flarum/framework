@@ -30,6 +30,19 @@ declare global {
   interface JQuery {
     tooltip: TooltipJQueryFunction;
   }
+
+  /**
+   * For more info, see: https://www.typescriptlang.org/docs/handbook/jsx.html#attribute-type-checking
+   *
+   * In a nutshell, we need to add `ElementAttributesProperty` to tell Typescript
+   * what property on component classes to look at for attribute typings. For our
+   * Component class, this would be `attrs` (e.g. `this.attrs...`)
+   */
+  namespace JSX {
+    interface ElementAttributesProperty {
+      attrs: Record<string, unknown>;
+    }
+  }
 }
 
 /**
