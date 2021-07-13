@@ -131,6 +131,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(NotificationServiceProvider::class);
         $laravel->register(PostServiceProvider::class);
         $laravel->register(QueueServiceProvider::class);
+        $laravel->register(ScalabilityServiceProvider::class);
         $laravel->register(SearchServiceProvider::class);
         $laravel->register(SessionServiceProvider::class);
         $laravel->register(SettingsServiceProvider::class);

@@ -1,4 +1,5 @@
 import DashboardPage from './components/DashboardPage';
+import AdvancedPage from './components/AdvancedPage';
 import BasicsPage from './components/BasicsPage';
 import PermissionsPage from './components/PermissionsPage';
 import AppearancePage from './components/AppearancePage';
@@ -16,6 +17,7 @@ export default function (app) {
   app.routes = {
     dashboard: { path: '/', component: DashboardPage },
     basics: { path: '/basics', component: BasicsPage },
+    advanced: { path: '/advanced', component: AdvancedPage },
     permissions: { path: '/permissions', component: PermissionsPage },
     appearance: { path: '/appearance', component: AppearancePage },
     mail: { path: '/mail', component: MailPage },

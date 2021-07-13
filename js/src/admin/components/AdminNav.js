@@ -75,6 +75,15 @@ export default class AdminNav extends Component {
       </LinkButton>
     );
 
+    if (app.data.settings['advanced_settings_pane_enabled']) {
+      items.add(
+        'advanced',
+        <LinkButton href={app.route('advanced')} icon="fas fa-rocket" title={app.translator.trans('core.admin.nav.advanced_title')}>
+          {app.translator.trans('core.admin.nav.advanced_button')}
+        </LinkButton>
+      );
+    }
+
     items.add(
       'mail',
       <LinkButton href={app.route('mail')} icon="fas fa-envelope" title={app.translator.trans('core.admin.nav.email_title')}>
