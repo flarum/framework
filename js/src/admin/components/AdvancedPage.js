@@ -21,7 +21,6 @@ export default class AdvancedPage extends AdminPage {
   content() {
     return [
       <div className="Form">
-
         {Object.keys(this.queueOptions).length > 1
           ? [
               this.buildSettingComponent({
@@ -29,7 +28,7 @@ export default class AdvancedPage extends AdminPage {
                 setting: 'default_locale',
                 options: this.localeOptions,
                 label: app.translator.trans('core.admin.advanced.queue_driver_heading'),
-              })
+              }),
             ]
           : ''}
 
@@ -37,5 +36,4 @@ export default class AdvancedPage extends AdminPage {
       </div>,
     ];
   }
-
 }

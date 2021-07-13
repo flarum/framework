@@ -56,7 +56,7 @@ class ScalabilityServiceProvider extends AbstractServiceProvider
 
         // Toggles the advanced pane for admins.
         $event->settings['advanced_settings_pane_enabled'] = $event->settings['flarum.scalability.queue-recommended']
-            ?? $config->offsetGet('advanced-settings')
+            ?? $config->offsetGet('advancedSettings')
             ?? false;
     }
 }
