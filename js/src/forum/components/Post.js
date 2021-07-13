@@ -72,7 +72,7 @@ export default class Post extends Component {
               )}
             </ul>
           </aside>
-          <footer className="Post-footer">{(footerItems.length && <ul>{listItems(footerItems)}</ul>) || null}</footer>
+          <footer className="Post-footer">{(footerItems.length ? <ul>{listItems(footerItems)}</ul>) : null}</footer>
         </div>
       </article>
     );
