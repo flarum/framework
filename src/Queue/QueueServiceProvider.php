@@ -69,7 +69,6 @@ class QueueServiceProvider extends AbstractServiceProvider
             return $driver->build();
         });
 
-
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
         $this->container->singleton(Factory::class, function (Container $container) {
