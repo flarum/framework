@@ -14,6 +14,8 @@ use Flarum\Foundation\Config;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\Paths;
+use Flarum\Queue\Driver\DriverInterface;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
@@ -22,11 +24,13 @@ use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Console as Commands;
+use Illuminate\Queue\DatabaseQueue;
 use Illuminate\Queue\Events\JobFailed;
-use Illuminate\Queue\Failed\NullFailedJobProvider;
+use Illuminate\Queue\Failed\DatabaseFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
 use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
+use Illuminate\Support\Arr;
 
 class QueueServiceProvider extends AbstractServiceProvider
 {
@@ -42,21 +46,36 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     public function register()
     {
+        $this->container->singleton('queue.supported_drivers', function () {
+            return [
+                'sync' => SyncQueue::class,
+                'database' => DatabaseQueue::class,
+            ];
+        });
+
+        $this->container->singleton('flarum.queue.connection', function (Container $container) {
+            /** @var array $drivers */
+            $drivers = $container->make('queue.supported_drivers');
+            /** @var SettingsRepositoryInterface $settings */
+            $settings = $container->make(SettingsRepositoryInterface::class);
+            $driverName = $settings->get('queue_driver', 'sync');
+
+            $driverClass = Arr::get($drivers, $driverName);
+
+            /** @var DriverInterface $driver */
+            $driver = $container->make($driverClass);
+            $driver->setContainer($container);
+
+            return $driver->build();
+        });
+
+
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
         $this->container->singleton(Factory::class, function (Container $container) {
             return new QueueFactory(function () use ($container) {
                 return $container->make('flarum.queue.connection');
             });
-        });
-
-        // Extensions can override this binding if they want to make Flarum use
-        // a different queuing backend.
-        $this->container->singleton('flarum.queue.connection', function (Container $container) {
-            $queue = new SyncQueue;
-            $queue->setContainer($container);
-
-            return $queue;
         });
 
         $this->container->singleton(ExceptionHandling::class, function (Container $container) {
@@ -110,8 +129,15 @@ class QueueServiceProvider extends AbstractServiceProvider
             };
         });
 
-        $this->container->singleton('queue.failer', function () {
-            return new NullFailedJobProvider();
+        $this->container->singleton('queue.failer', function (Container $container) {
+            /** @var Config $config */
+            $config = $container->make(Config::class);
+
+            return new DatabaseFailedJobProvider(
+                $container->make('db'),
+                $config->offsetGet('database.database'),
+                'queue_failed_jobs'
+            );
         });
 
         $this->container->alias('flarum.queue.connection', Queue::class);

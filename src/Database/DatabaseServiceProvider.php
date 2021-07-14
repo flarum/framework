@@ -14,6 +14,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
+use Illuminate\Database\DatabaseTransactionsManager;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
 {
@@ -62,6 +63,10 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.database.model_private_checkers', function () {
             return [];
+        });
+
+        $this->container->singleton('db.transactions', function () {
+            return new DatabaseTransactionsManager;
         });
     }
 
