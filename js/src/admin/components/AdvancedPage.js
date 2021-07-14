@@ -1,12 +1,13 @@
 import FieldSet from '../../common/components/FieldSet';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
+import Alert from "../../common/components/Alert";
 
 export default class AdvancedPage extends AdminPage {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.queueOptions = [];
+    this.queueDrivers = app.data.queueDrivers ?? [];
   }
 
   headerInfo() {
@@ -21,17 +22,26 @@ export default class AdvancedPage extends AdminPage {
   content() {
     return [
       <div className="Form">
-        {Object.keys(this.queueOptions).length > 1
-          ? [
-              this.buildSettingComponent({
-                type: 'select',
-                setting: 'default_locale',
-                options: this.localeOptions,
-                label: app.translator.trans('core.admin.advanced.queue_driver_heading'),
-              }),
-            ]
-          : ''}
-
+        {this.buildSettingComponent({
+          type: 'text',
+          setting: 'mail_from',
+          label: app.translator.trans('core.admin.advanced.queue_driver_heading'),
+          className: 'AdvancedPage-QueueSettings',
+        })}
+        {this.buildSettingComponent({
+          type: 'select',
+          setting: 'queue_driver',
+          options: Object.keys(this.driverFields).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
+          label: app.translator.trans('core.admin.queue.driver_heading'),
+          className: 'AdvancedPage-QueueSettings',
+        })}
+        {this.status.sending ||
+        Alert.component(
+          {
+            dismissible: false,
+          },
+          app.translator.trans('core.admin.email.not_sending_message')
+        )}
         {this.submitButton()}
       </div>,
     ];

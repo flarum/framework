@@ -46,7 +46,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     public function register()
     {
-        $this->container->singleton('queue.supported_drivers', function () {
+        $this->container->singleton('flarum.queue.supported_drivers', function () {
             return [
                 'sync' => SyncQueue::class,
                 'database' => DatabaseQueue::class,
@@ -55,7 +55,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.queue.connection', function (Container $container) {
             /** @var array $drivers */
-            $drivers = $container->make('queue.supported_drivers');
+            $drivers = $container->make('flarum.queue.supported_drivers');
             /** @var SettingsRepositoryInterface $settings */
             $settings = $container->make(SettingsRepositoryInterface::class);
             $driverName = $settings->get('queue_driver', 'sync');

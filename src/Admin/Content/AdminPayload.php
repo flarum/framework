@@ -79,6 +79,7 @@ class AdminPayload
         $document->payload['slugDrivers'] = array_map(function ($resourceDrivers) {
             return array_keys($resourceDrivers);
         }, $this->container->make('flarum.http.slugDrivers'));
+        $document->payload['queueDrivers'] = array_keys($this->container->make('flarum.queue.supported_drivers'));
 
         $document->payload['phpVersion'] = PHP_VERSION;
         $document->payload['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
