@@ -103,7 +103,7 @@ class Tags
     private function getTagsDocument(Request $request)
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams([
-            'include' => 'children,lastPostedDiscussion'
+            'include' => 'children,lastPostedDiscussion,parent'
         ])->get('/tags')->getBody(), true);
     }
 }
