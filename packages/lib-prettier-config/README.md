@@ -6,14 +6,21 @@ For more info about shared Prettier configurations, [check out the Prettier docu
 
 ## Usage
 
-Add the `prettier` key to your `package.json`:
+1. Install `@flarum/prettier-config` as a dev dependency:
+
+```
+npm i -D @flarum/prettier-config
+yarn add -D @flarum/prettier-config
+```
+
+2. Add the `prettier` key to your `package.json`:
 
 ```jsonc
 // package.json
 {
   "name": "my-cool-package",
   "version": "1.0.0",
-  "prettier": "@flarum/prettier-config"
+  "prettier": "@flarum/prettier-config",
   // ...
 }
 ```
@@ -22,12 +29,7 @@ Add the `prettier` key to your `package.json`:
 
 You can extend our config with your own custom options, too. Import our config, then spread its require in a `.prettierrc.js` file.
 
-Make sure your `package.json` doesn't have the `prettier` key, and that it has `@flarum/prettier-config` as a dev dependency.
-
-```
-npm i -D @flarum/prettier-config
-yarn add -D @flarum/prettier-config
-```
+> :warning: Make sure your `package.json` doesn't have the `prettier` key.
 
 ```js
 // .prettierrc.js
