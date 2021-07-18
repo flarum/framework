@@ -1,0 +1,3 @@
+# Flarum Prettier Config
+
+
