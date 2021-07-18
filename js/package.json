@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
-    "@flarum/prettier-config": "^1.0.0-beta.1",
+    "@flarum/prettier-config": "^1.0.0",
     "@types/jquery": "^3.5.5",
     "@types/mithril": "^2.0.7",
     "@types/punycode": "^2.1.0",
