@@ -31,7 +31,7 @@ class SendNotificationWhenUserIsUnsuspended
     public function handle(Unsuspended $event)
     {
         $this->notifications->sync(
-            new UserUnsuspendedBlueprint($event->user, $event->actor),
+            new UserUnsuspendedBlueprint($event->user),
             [$event->user]
         );
     }

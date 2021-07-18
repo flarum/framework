@@ -15,7 +15,6 @@ export default class UserSuspendedNotification extends Notification {
     const timeReadable = dayjs(suspendedUntil).from(notification.createdAt(), true);
 
     return app.translator.trans('flarum-suspend.forum.notifications.user_suspended_text', {
-      user: notification.fromUser(),
       timeReadable,
     });
   }
