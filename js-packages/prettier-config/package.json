@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/flarum/prettier-config/issues"
   },
-  "homepage": "https://github.com/flarum/prettier-config#readme"
+  "homepage": "https://github.com/flarum/prettier-config#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }
