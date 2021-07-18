@@ -24,9 +24,9 @@ jobs:
           node-version: "14"
 
       - name: Install JS dependencies
-        run: npm i
+        run: npm ci
         working-directory: ./js
 
       - name: Check JS formatting
-        run: ./node_modules/.bin/prettier --check src
+        run: npm run format-check
         working-directory: ./js
