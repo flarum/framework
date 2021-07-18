@@ -20,7 +20,14 @@ Add the `prettier` key to your `package.json`:
 
 ## Extending
 
-You can extend our config with your own custom options, too. Import our config, then spread its require in a `.prettierrc.js` file:
+You can extend our config with your own custom options, too. Import our config, then spread its require in a `.prettierrc.js` file.
+
+Make sure your `package.json` doesn't have the `prettier` key, and that it has `@flarum/prettier-config` as a dev dependency.
+
+```
+npm i -D @flarum/prettier-config
+yarn add -D @flarum/prettier-config
+```
 
 ```js
 // .prettierrc.js
