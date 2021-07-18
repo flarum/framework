@@ -1,0 +1,22 @@
+{
+  "name": "@flarum/prettier-config",
+  "version": "1.0.0",
+  "description": "",
+  "main": "prettierrc.json",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flarum/prettier-config.git"
+  },
+  "keywords": [
+    "flarum"
+  ],
+  "author": "Flarum Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/flarum/prettier-config/issues"
+  },
+  "homepage": "https://github.com/flarum/prettier-config#readme"
+}
