@@ -1,7 +1,7 @@
 {
   "name": "@flarum/prettier-config",
   "version": "1.0.0",
-  "description": "",
+  "description": "Flarum's configuration for the Prettier code formatter.",
   "main": "prettierrc.json",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
