@@ -31,7 +31,7 @@ class SendNotificationWhenUserIsSuspended
     public function handle(Suspended $event)
     {
         $this->notifications->sync(
-            new UserSuspendedBlueprint($event->user, $event->actor),
+            new UserSuspendedBlueprint($event->user),
             [$event->user]
         );
     }
