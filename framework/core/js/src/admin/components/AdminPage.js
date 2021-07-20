@@ -98,39 +98,37 @@ export default class AdminPage extends Page {
       return entry.call(this);
     }
 
-    const { setting, help, ...componentAttrs } = entry;
+    const { setting, help, type, label, ...componentAttrs } = entry;
 
-    const value = this.setting([setting])();
-    if (['bool', 'checkbox', 'switch', 'boolean'].includes(componentAttrs.type)) {
+    const value = this.setting(setting)();
+
+    if (['bool', 'checkbox', 'switch', 'boolean'].includes(type)) {
       return (
         <div className="Form-group">
           <Switch state={!!value && value !== '0'} onchange={this.settings[setting]} {...componentAttrs}>
-            {componentAttrs.label}
+            {label}
           </Switch>
           <div className="helpText">{help}</div>
         </div>
       );
-    } else if (['select', 'dropdown', 'selectdropdown'].includes(componentAttrs.type)) {
+    } else if (['select', 'dropdown', 'selectdropdown'].includes(type)) {
+      const { default: defaultValue, options } = componentAttrs;
+
       return (
         <div className="Form-group">
-          <label>{componentAttrs.label}</label>
+          <label>{label}</label>
           <div className="helpText">{help}</div>
-          <Select
-            value={value || componentAttrs.default}
-            options={componentAttrs.options}
-            buttonClassName="Button"
-            onchange={this.settings[setting]}
-            {...componentAttrs}
-          />
+          <Select value={value || defaultValue} options={options} onchange={this.settings[setting]} {...componentAttrs} />
         </div>
       );
     } else {
       componentAttrs.className = classList(['FormControl', componentAttrs.className]);
+
       return (
         <div className="Form-group">
-          {componentAttrs.label ? <label>{componentAttrs.label}</label> : ''}
+          {label ? <label>{label}</label> : ''}
           <div className="helpText">{help}</div>
-          <input type={componentAttrs.type} bidi={this.setting(setting)} {...componentAttrs} />
+          <input type={type} bidi={this.setting(setting)} {...componentAttrs} />
         </div>
       );
     }
