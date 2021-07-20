@@ -1,8 +1,8 @@
 import type Mithril from 'mithril';
 import Component, { ComponentAttrs } from '../Component';
+import fireDebugWarning from '../helpers/fireDebugWarning';
 import icon from '../helpers/icon';
 import classList from '../utils/classList';
-import extract from '../utils/extract';
 import extractText from '../utils/extractText';
 import LoadingIndicator from './LoadingIndicator';
 
@@ -28,12 +28,24 @@ export interface ButtonAttrs extends ComponentAttrs {
    */
   loading?: boolean;
   /**
+   * **DEPRECATED:** Please use the `aria-label` attribute instead. For tooltips, use
+   * the `<Tooltip>` component.
+   *
+   * Accessible text for the button. This should always be present if the button only
+   * contains an icon.
+   *
+   * The textual content of this attribute is passed to the DOM element as `aria-label`.
+   *
+   * @deprecated
+   */
+  title?: string | Mithril.ChildArray;
+  /**
    * Accessible text for the button. This should always be present if the button only
    * contains an icon.
    *
    * The textual content of this attribute is passed to the DOM element as `aria-label`.
    */
-  title?: string | Mithril.ChildArray;
+  'aria-label'?: string | Mithril.ChildArray;
   /**
    * Button type.
    *
@@ -56,36 +68,45 @@ export interface ButtonAttrs extends ComponentAttrs {
  */
 export default class Button extends Component<ButtonAttrs> {
   view(vnode: Mithril.Vnode<ButtonAttrs, never>) {
-    const attrs = Object.assign({}, this.attrs);
+    let { type, title, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
 
-    attrs.type = attrs.type || 'button';
+    // If no `type` attr provided, set to "button"
+    type ||= 'button';
 
-    // If a tooltip was provided for buttons without additional content, we also
-    // use this tooltip as text for screen readers
-    if (attrs.title && !vnode.children) {
-      attrs['aria-label'] = attrs.title;
-    }
+    // Use `title` attribute as `aria-label` if none provided
+    ariaLabel ||= title;
 
     // If given a translation object, extract the text.
-    if (typeof attrs.title === 'object') {
-      attrs.title = extractText(attrs.title);
+    if (typeof ariaLabel === 'object') {
+      ariaLabel = extractText(ariaLabel);
     }
 
-    // If nothing else is provided, we use the textual button content as tooltip
-    if (!attrs.title && vnode.children) {
-      attrs.title = extractText(vnode.children);
-    }
-
-    const iconName = extract(attrs, 'icon');
-
-    const loading = extract(attrs, 'loading');
-    if (attrs.disabled || loading) {
+    if (disabled || loading) {
       delete attrs.onclick;
     }
 
-    attrs.className = classList([attrs.className, iconName && 'hasIcon', (attrs.disabled || loading) && 'disabled', loading && 'loading']);
+    className = classList(_class, className, {
+      hasIcon: iconName,
+      disabled: disabled || loading,
+      loading: loading,
+    });
 
-    return <button {...attrs}>{this.getButtonContent(vnode.children)}</button>;
+    if (!ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
+      fireDebugWarning(
+        '[Flarum Accessibility Warning] This button has no content but does not have any accessible label. This means that screen-readers will not be able to interpret its meaning. Consider providing accessible text via the `aria-label` attribute.\n\nLearn more: https://web.dev/button-name',
+        this.element
+      );
+    }
+
+    const buttonAttrs = {
+      disabled,
+      className,
+      type,
+      'aria-label': ariaLabel,
+      ...attrs,
+    };
+
+    return <button {...buttonAttrs}>{this.getButtonContent(vnode.children)}</button>;
   }
 
   /**
