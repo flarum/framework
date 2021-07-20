@@ -1,30 +1,61 @@
-import Component from '../Component';
+import type Mithril from 'mithril';
+import Component, { ComponentAttrs } from '../Component';
 import icon from '../helpers/icon';
 import classList from '../utils/classList';
 import extract from '../utils/extract';
 import extractText from '../utils/extractText';
 import LoadingIndicator from './LoadingIndicator';
 
+export interface ButtonAttrs extends ComponentAttrs {
+  /**
+   * Class(es) of an optional icon to be rendered within the button.
+   *
+   * If provided, the button will gain a `has-icon` class.
+   */
+  icon?: string;
+  /**
+   * Disables button from user input.
+   *
+   * Default: `false`
+   */
+  disabled?: boolean;
+  /**
+   * Show a loading spinner within the button.
+   *
+   * If `true`, also disables the button.
+   *
+   * Default: `false`
+   */
+  loading?: boolean;
+  /**
+   * Accessible text for the button. This should always be present if the button only
+   * contains an icon.
+   *
+   * The textual content of this attribute is passed to the DOM element as `aria-label`.
+   */
+  title?: string | Mithril.ChildArray;
+  /**
+   * Button type.
+   *
+   * Default: `"button"`
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
+   */
+  type?: string;
+}
+
 /**
  * The `Button` component defines an element which, when clicked, performs an
  * action.
  *
- * ### Attrs
- *
- * - `icon` The name of the icon class. If specified, the button will be given a
- *   'has-icon' class name.
- * - `disabled` Whether or not the button is disabled. If truthy, the button
- *   will be given a 'disabled' class name, and any `onclick` handler will be
- *   removed.
- * - `loading` Whether or not the button should be in a disabled loading state.
- *
- * All other attrs will be assigned as attributes on the button element.
+ * Other attrs will be assigned as attributes on the `<button>` element.
  *
  * Note that a Button has no default class names. This is because a Button can
- * be used to represent any generic clickable control, like a menu item.
+ * be used to represent any generic clickable control, like a menu item. Common
+ * styles can be applied by providing `className="Button"` to the Button component.
  */
-export default class Button extends Component {
-  view(vnode) {
+export default class Button extends Component<ButtonAttrs> {
+  view(vnode: Mithril.Vnode<ButtonAttrs, never>) {
     const attrs = Object.assign({}, this.attrs);
 
     attrs.type = attrs.type || 'button';
@@ -59,11 +90,8 @@ export default class Button extends Component {
 
   /**
    * Get the template for the button's content.
-   *
-   * @return {*}
-   * @protected
    */
-  getButtonContent(children) {
+  protected getButtonContent(children: Mithril.Children): Mithril.ChildArray {
     const iconName = this.attrs.icon;
 
     return [
