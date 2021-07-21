@@ -22,18 +22,20 @@ export default class Select extends Component {
       onchange,
       value,
       disabled,
+      className,
+      class: _class,
 
       // Destructure the `wrapperAttrs` object to extract the `className` for passing to `classList()`
       // `= {}` prevents errors when `wrapperAttrs` is undefined
-      wrapperAttrs: { className: wrapperClassName, ...wrapperAttrs } = {},
+      wrapperAttrs: { className: wrapperClassName, class: wrapperClass, ...wrapperAttrs } = {},
 
       ...domAttrs
     } = this.attrs;
 
     return (
-      <span className={classList('Select', wrapperClassName)} {...wrapperAttrs}>
+      <span className={classList('Select', wrapperClassName, wrapperClass)} {...wrapperAttrs}>
         <select
-          className="Select-input FormControl"
+          className={classList("Select-input FormControl", className, _class)}
           onchange={onchange ? withAttr('value', onchange.bind(this)) : undefined}
           value={value}
           disabled={disabled}
