@@ -62,7 +62,6 @@ export default class MailPage extends AdminPage {
           setting: 'mail_driver',
           options: Object.keys(this.driverFields).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
           label: app.translator.trans('core.admin.email.driver_heading'),
-          className: 'MailPage-MailSettings',
         })}
         {this.status.sending ||
           Alert.component(
