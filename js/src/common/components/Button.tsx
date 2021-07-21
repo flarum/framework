@@ -93,7 +93,7 @@ export default class Button extends Component<ButtonAttrs> {
 
     if (!ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
       fireDebugWarning(
-        '[Flarum Accessibility Warning] This button has no content but does not have any accessible label. This means that screen-readers will not be able to interpret its meaning. Consider providing accessible text via the `aria-label` attribute.\n\nLearn more: https://web.dev/button-name',
+        '[Flarum Accessibility Warning] This button has no content and does not have any accessible label. This means that screen-readers will not be able to interpret its meaning. Consider providing accessible text via the `aria-label` attribute.\n\nLearn more: https://web.dev/button-name',
         this.element
       );
     }
