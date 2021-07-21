@@ -35,7 +35,7 @@ export default class Select extends Component {
     return (
       <span className={classList('Select', wrapperClassName, wrapperClass)} {...wrapperAttrs}>
         <select
-          className={classList("Select-input FormControl", className, _class)}
+          className={classList('Select-input FormControl', className, _class)}
           onchange={onchange ? withAttr('value', onchange.bind(this)) : undefined}
           value={value}
           disabled={disabled}
