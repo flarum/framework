@@ -55,7 +55,6 @@ export default class MailPage extends AdminPage {
           type: 'text',
           setting: 'mail_from',
           label: app.translator.trans('core.admin.email.addresses_heading'),
-          className: 'MailPage-MailSettings',
         })}
         {this.buildSettingComponent({
           type: 'select',
