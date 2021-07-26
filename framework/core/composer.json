@@ -59,7 +59,7 @@
         "illuminate/support": "^8.0",
         "illuminate/validation": "^8.0",
         "illuminate/view": "^8.0",
-        "intervention/image": "^2.6.1 || 2.5.*",
+        "intervention/image": "2.5.* || ^2.6.1",
         "laminas/laminas-diactoros": "^2.4.1",
         "laminas/laminas-httphandlerrunner": "^1.2.0",
         "laminas/laminas-stratigility": "^3.2.2",
