@@ -1,4 +1,4 @@
-import app from '../../forum/app';
+import app from '../../admin/app';
 import DashboardWidget from './DashboardWidget';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
