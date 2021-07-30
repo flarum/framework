@@ -53,8 +53,7 @@ class InfoCommand extends AbstractCommand
         SettingsRepositoryInterface $settings,
         ConnectionInterface $db,
         Queue $queue
-    )
-    {
+    ) {
         $this->extensions = $extensions;
         $this->config = $config;
         $this->settings = $settings;
