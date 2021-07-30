@@ -16,8 +16,8 @@ use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\MySqlConnection;
 use Illuminate\Support\Str;
+use PDO;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 
@@ -38,11 +38,28 @@ class InfoCommand extends AbstractCommand
      */
     protected $settings;
 
-    public function __construct(ExtensionManager $extensions, Config $config, SettingsRepositoryInterface $settings)
+    /**
+     * @var ConnectionInterface
+     */
+    protected $db;
+    /**
+     * @var Queue
+     */
+    private $queue;
+
+    public function __construct(
+        ExtensionManager $extensions,
+        Config $config,
+        SettingsRepositoryInterface $settings,
+        ConnectionInterface $db,
+        Queue $queue
+    )
     {
         $this->extensions = $extensions;
         $this->config = $config;
         $this->settings = $settings;
+        $this->db = $db;
+        $this->queue = $queue;
 
         parent::__construct();
     }
@@ -113,12 +130,8 @@ class InfoCommand extends AbstractCommand
      *
      * If the package seems to be a Git version, we extract the currently
      * checked out commit using the command line.
-     *
-     * @param string $path
-     * @param string $fallback
-     * @return string
      */
-    private function findPackageVersion($path, $fallback = null)
+    private function findPackageVersion(string $path, string $fallback = null): ?string
     {
         if (file_exists("$path/.git")) {
             $cwd = getcwd();
@@ -140,10 +153,8 @@ class InfoCommand extends AbstractCommand
 
     private function identifyQueueDriver(): string
     {
-        // Get instantiated queue class
-        $queue = resolve(Queue::class);
         // Get class name
-        $queue = get_class($queue);
+        $queue = get_class($this->queue);
         // Drop the namespace
         $queue = Str::afterLast($queue, '\\');
         // Lowercase the class name
@@ -156,9 +167,6 @@ class InfoCommand extends AbstractCommand
 
     private function identifyDatabaseVersion(): string
     {
-        /** @var MySqlConnection $connection */
-        $connection = resolve(ConnectionInterface::class);
-
-        return $connection->getPdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
+        return $this->db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 }
