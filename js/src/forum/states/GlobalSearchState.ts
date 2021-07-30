@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
 import SearchState from './SearchState';
 

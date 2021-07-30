@@ -1,3 +1,5 @@
+import app from '../../common/app';
+
 /**
  * The `abbreviateNumber` utility converts a number to a shorter localized form.
  *

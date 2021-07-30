@@ -1,4 +1,4 @@
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * The `icon` helper displays an icon.

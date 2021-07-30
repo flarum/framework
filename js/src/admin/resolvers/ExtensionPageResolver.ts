@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import DefaultResolver from '../../common/resolvers/DefaultResolver';
 
 /**

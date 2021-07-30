@@ -1,3 +1,4 @@
+import app from '../../common/app';
 import Component, { ComponentAttrs } from '../Component';
 import classList from '../utils/classList';
 

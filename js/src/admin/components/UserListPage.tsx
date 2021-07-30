@@ -1,3 +1,5 @@
+import app from '../../admin/app';
+
 import EditUserModal from '../../common/components/EditUserModal';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
