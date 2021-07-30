@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
 import ItemList from '../../common/utils/ItemList';

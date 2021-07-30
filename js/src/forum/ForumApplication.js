@@ -1,3 +1,4 @@
+import app from '../forum/app';
 import History from './utils/History';
 import Pane from './utils/Pane';
 import DiscussionPage from './components/DiscussionPage';

@@ -1,3 +1,5 @@
+import app from '../../admin/app';
+
 export default function saveSettings(settings) {
   const oldSettings = JSON.parse(JSON.stringify(app.data.settings));
 

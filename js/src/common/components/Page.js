@@ -1,3 +1,4 @@
+import app from '../../common/app';
 import Component from '../Component';
 import PageState from '../states/PageState';
 

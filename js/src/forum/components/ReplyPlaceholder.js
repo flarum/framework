@@ -1,5 +1,4 @@
-/*global s9e*/
-
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';

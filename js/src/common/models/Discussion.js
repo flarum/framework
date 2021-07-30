@@ -1,3 +1,4 @@
+import app from '../../common/app';
 import Model from '../Model';
 import computed from '../utils/computed';
 import ItemList from '../utils/ItemList';

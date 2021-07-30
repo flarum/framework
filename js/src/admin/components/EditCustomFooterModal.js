@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import SettingsModal from './SettingsModal';
 
 export default class EditCustomFooterModal extends SettingsModal {

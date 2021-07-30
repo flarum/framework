@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import UserPage from './UserPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';

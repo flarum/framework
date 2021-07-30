@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Post from './Post';
 import { ucfirst } from '../../common/utils/string';
 import usernameHelper from '../../common/helpers/username';

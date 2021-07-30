@@ -1,4 +1,4 @@
-import { extend } from '../../common/extend';
+import app from '../../forum/app';
 import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
