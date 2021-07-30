@@ -13,6 +13,11 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\MySqlConnection;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 
@@ -29,13 +34,15 @@ class InfoCommand extends AbstractCommand
     protected $config;
 
     /**
-     * @param ExtensionManager $extensions
-     * @param Config config
+     * @var SettingsRepositoryInterface
      */
-    public function __construct(ExtensionManager $extensions, Config $config)
+    protected $settings;
+
+    public function __construct(ExtensionManager $extensions, Config $config, SettingsRepositoryInterface $settings)
     {
         $this->extensions = $extensions;
         $this->config = $config;
+        $this->settings = $settings;
 
         parent::__construct();
     }
@@ -59,6 +66,7 @@ class InfoCommand extends AbstractCommand
         $this->output->writeln("<info>Flarum core $coreVersion</info>");
 
         $this->output->writeln('<info>PHP version:</info> '.PHP_VERSION);
+        $this->output->writeln('<info>MySQL version:</info> '.$this->identifyDatabaseVersion());
 
         $phpExtensions = implode(', ', get_loaded_extensions());
         $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");
@@ -67,9 +75,12 @@ class InfoCommand extends AbstractCommand
 
         $this->output->writeln('<info>Base URL:</info> '.$this->config->url());
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
-        $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? 'ON' : 'off'));
+        $this->output->writeln('<info>Queue driver:</info> '.$this->identifyQueueDriver());
+        $this->output->writeln('<info>Mail driver:</info> '.$this->settings->get('mail_driver', 'unknown'));
+        $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? '<error>ON</error>' : 'off'));
 
         if ($this->config->inDebugMode()) {
+            $this->output->writeln('');
             $this->error(
                 "Don't forget to turn off debug mode! It should never be turned on in a production system."
             );
@@ -125,5 +136,28 @@ class InfoCommand extends AbstractCommand
         }
 
         return $fallback;
+    }
+
+    private function identifyQueueDriver(): string
+    {
+        // Get instantiated queue class
+        $queue = resolve(Queue::class);
+        // Get class name
+        $queue = get_class($queue);
+        // Drop the namespace
+        $queue = Str::afterLast($queue, '\\');
+        // Lowercase the class name
+        $queue = strtolower($queue);
+        // Drop everything like queue SyncQueue, RedisQueue
+        $queue = str_replace('queue', null, $queue);
+
+        return $queue;
+    }
+
+    private function identifyDatabaseVersion(): string
+    {
+        /** @var MySqlConnection $connection */
+        $connection = resolve(ConnectionInterface::class);
+        return $connection->getPdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
     }
 }
