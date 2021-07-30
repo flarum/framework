@@ -23,6 +23,10 @@ jobs:
         with:
           node-version: "14"
 
+      - name: Install JS dependencies
+        run: npm ci
+        working-directory: ./js
+
       - name: Check JS formatting
-        run: npx prettier --check src
+        run: npm run format-check
         working-directory: ./js
