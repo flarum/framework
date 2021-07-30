@@ -16,7 +16,7 @@
     "target": "es6",
     "jsx": "preserve",
     "allowJs": true,
-    "lib": ["es2015", "es2017", "dom"],
+    "lib": ["es2015", "es2017", "dom", "es2018.promise"],
     "allowSyntheticDefaultImports": true
   }
 }
