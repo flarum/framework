@@ -158,6 +158,7 @@ class InfoCommand extends AbstractCommand
     {
         /** @var MySqlConnection $connection */
         $connection = resolve(ConnectionInterface::class);
+
         return $connection->getPdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
     }
 }
