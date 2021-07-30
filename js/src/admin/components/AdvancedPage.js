@@ -1,7 +1,7 @@
 import FieldSet from '../../common/components/FieldSet';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
-import Alert from "../../common/components/Alert";
+import Alert from '../../common/components/Alert';
 
 export default class AdvancedPage extends AdminPage {
   oninit(vnode) {
@@ -36,12 +36,12 @@ export default class AdvancedPage extends AdminPage {
           className: 'AdvancedPage-QueueSettings',
         })}
         {this.status.sending ||
-        Alert.component(
-          {
-            dismissible: false,
-          },
-          app.translator.trans('core.admin.email.not_sending_message')
-        )}
+          Alert.component(
+            {
+              dismissible: false,
+            },
+            app.translator.trans('core.admin.email.not_sending_message')
+          )}
         {this.submitButton()}
       </div>,
     ];
