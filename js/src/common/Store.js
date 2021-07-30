@@ -1,4 +1,4 @@
-import app from '../../common/app';
+import app from '../common/app';
 /**
  * The `Store` class defines a local data store, and provides methods to
  * retrieve data from the API.
