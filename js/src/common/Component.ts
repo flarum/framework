@@ -29,9 +29,7 @@ export interface ComponentAttrs extends Mithril.Attributes {}
  *
  * @see https://mithril.js.org/components.html
  */
-export default abstract class Component<Attrs extends ComponentAttrs = ComponentAttrs, State = undefined>
-  implements Mithril.ClassComponent<Attrs>
-{
+export default abstract class Component<Attrs extends ComponentAttrs = ComponentAttrs, State = undefined> implements Mithril.ClassComponent<Attrs> {
   /**
    * The root DOM element for the component.
    */
@@ -52,6 +50,8 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
    *
    * This is different to Vnode state, which is always an instance of your
    * class component.
+   *
+   * This is `undefined` by default.
    */
   protected state!: State;
 
