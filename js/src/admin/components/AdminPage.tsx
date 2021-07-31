@@ -51,18 +51,27 @@ interface CommonSettingsItemOptions extends Mithril.Attributes {
   className?: string;
 }
 
-interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOptions {
+/**
+ * Valid options for the setting component builder to generate an HTML input element.
+ */
+export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOptions {
   /**
    * Any valid HTML input `type` value.
    */
   type: HTMLInputTypes;
 }
 
-interface SwitchSettingComponentOptions extends CommonSettingsItemOptions {
+/**
+ * Valid options for the setting component builder to generate a Switch.
+ */
+export interface SwitchSettingComponentOptions extends CommonSettingsItemOptions {
   type: 'bool' | 'checkbox' | 'switch' | 'boolean';
 }
 
-interface SelectSettingComponentOptions extends CommonSettingsItemOptions {
+/**
+ * Valid options for the setting component builder to generate a Select dropdown.
+ */
+export interface SelectSettingComponentOptions extends CommonSettingsItemOptions {
   type: 'select' | 'dropdown' | 'selectdropdown';
   /**
    * Map of values to their labels
@@ -71,8 +80,14 @@ interface SelectSettingComponentOptions extends CommonSettingsItemOptions {
   default: string;
 }
 
+/**
+ * All valid options for the setting component builder.
+ */
 export type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions;
 
+/**
+ * Valid attrs that can be returned by the `headerInfo` function
+ */
 export type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
 
 export default class AdminPage extends Page {
