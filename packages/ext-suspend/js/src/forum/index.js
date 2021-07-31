@@ -19,22 +19,31 @@ app.initializers.add('flarum-suspend', () => {
 
   extend(UserControls, 'moderationControls', (items, user) => {
     if (user.canSuspend()) {
-      items.add('suspend', Button.component({
-        icon: 'fas fa-ban',
-        onclick: () => app.modal.show(SuspendUserModal, {user})
-      }, app.translator.trans('flarum-suspend.forum.user_controls.suspend_button')));
+      items.add(
+        'suspend',
+        Button.component(
+          {
+            icon: 'fas fa-ban',
+            onclick: () => app.modal.show(SuspendUserModal, { user }),
+          },
+          app.translator.trans('flarum-suspend.forum.user_controls.suspend_button')
+        )
+      );
     }
   });
 
-  extend(User.prototype, 'badges', function(items) {
+  extend(User.prototype, 'badges', function (items) {
     const until = this.suspendedUntil();
 
     if (new Date() < until) {
-      items.add('suspended', Badge.component({
-        icon: 'fas fa-ban',
-        type: 'suspended',
-        label: app.translator.trans('flarum-suspend.forum.user_badge.suspended_tooltip')
-      }));
+      items.add(
+        'suspended',
+        Badge.component({
+          icon: 'fas fa-ban',
+          type: 'suspended',
+          label: app.translator.trans('flarum-suspend.forum.user_badge.suspended_tooltip'),
+        })
+      );
     }
   });
 });
