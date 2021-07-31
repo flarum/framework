@@ -79,7 +79,17 @@ export default class UserListPage extends AdminPage {
    */
   content() {
     if (typeof this.pageData === 'undefined') {
-      this.loadPage(0);
+      const indexOfSearch = location.hash.indexOf('?') + 1;
+      const search = indexOfSearch >= 0 ? location.hash.substr(indexOfSearch) : '';
+
+      const params = new URLSearchParams(search);
+      const num = parseInt(params.get('page') || 'NaN');
+
+      if (num >= 1 && num <= this.getTotalPageCount()) {
+        this.loadPage(num - 1);
+      } else {
+        this.goToPage(0);
+      }
 
       return [
         <section class="UserListPage-grid UserListPage-grid--loading">
@@ -141,6 +151,21 @@ export default class UserListPage extends AdminPage {
     return (
       <aside class="UserListPage-infoHeader">
         <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>
+        <Button
+          icon="fas fa-link"
+          class="Button"
+          onclick={() => {
+            try {
+              navigator.clipboard.writeText(`${app.forum.attribute('baseUrl')}/admin#/users?page=${this.pageNumber + 1}`).then(() => {
+                const key = app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.users.info_header.copy_page_url.copied'));
+
+                setTimeout(() => app.alerts.dismiss(key), 5000);
+              });
+            } catch {}
+          }}
+        >
+          Copy link to page {this.pageNumber + 1}
+        </Button>
       </aside>
     );
   }

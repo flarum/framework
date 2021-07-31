@@ -255,6 +255,10 @@ core:
 
         invalid_column_content: Invalid
 
+      info_header:
+        copy_page_url:
+          copied: => core.ref.copied
+
       pagination:
         back_button: Previous page
         first_button: First page
@@ -708,6 +712,7 @@ core:
     confirm_password: Confirm Password
     confirm_email: Confirm Email
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
+    copied: Copied
     custom_footer_text: Add HTML to be displayed at the very bottom of the page.
     custom_footer_title: Edit Custom Footer
     custom_header_text: "Add HTML to be displayed at the very top of the page, above Flarum's own header."
