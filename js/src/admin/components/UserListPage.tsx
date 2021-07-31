@@ -16,6 +16,7 @@ import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 
 import AdminPage from './AdminPage';
+import Checkbox from '../../common/components/Checkbox';
 
 type ColumnData = {
   /**
@@ -299,6 +300,26 @@ export default class UserListPage extends AdminPage {
         ),
       },
       80
+    );
+
+    columns.add(
+      'emailConfirmed',
+      {
+        name: app.translator.trans('core.admin.users.grid.columns.email_confirmed.title'),
+        content: (user: User) => {
+          return (
+            <span class="UserList-emailConfirmed">
+              <Checkbox
+                state={user.isEmailConfirmed()}
+                onchange={(newVal) => {
+                  user.save({ isEmailConfirmed: newVal }).then(m.redraw);
+                }}
+              />
+            </span>
+          );
+        },
+      },
+      75
     );
 
     columns.add(

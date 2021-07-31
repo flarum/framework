@@ -242,6 +242,9 @@ core:
             visibility_hide: Hide email address
             visibility_show: Show email address
 
+          email_confirmed:
+            title: Email confirmed
+
           group_badges:
             no_badges: None
             title: Groups
