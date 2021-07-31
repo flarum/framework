@@ -380,7 +380,7 @@ class UpdateTest extends TestCase
     public function users_cant_deactivate_others_without_permission()
     {
         $response = $this->send(
-            $this->request('PATCH', '/api/users/2', [
+            $this->request('PATCH', '/api/users/3', [
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
@@ -621,7 +621,7 @@ class UpdateTest extends TestCase
     {
         $this->giveNormalUsersEditPerms();
         $response = $this->send(
-            $this->request('PATCH', '/api/users/2', [
+            $this->request('PATCH', '/api/users/3', [
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
