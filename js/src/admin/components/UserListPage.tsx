@@ -143,6 +143,13 @@ export default class UserListPage extends AdminPage {
         <div class="UserListPage-gridPagination">
           <Button
             disabled={this.pageNumber === 0}
+            title={app.translator.trans('core.admin.users.pagination.first_button')}
+            onclick={this.goToPage.bind(this, 0)}
+            icon="fas fa-step-backward"
+            className="Button Button--icon UserListPage-nextBtn"
+          />
+          <Button
+            disabled={this.pageNumber === 0}
             title={app.translator.trans('core.admin.users.pagination.back_button')}
             onclick={this.previousPage.bind(this)}
             icon="fas fa-chevron-left"
@@ -159,6 +166,13 @@ export default class UserListPage extends AdminPage {
             title={app.translator.trans('core.admin.users.pagination.next_button')}
             onclick={this.nextPage.bind(this)}
             icon="fas fa-chevron-right"
+            className="Button Button--icon UserListPage-nextBtn"
+          />
+          <Button
+            disabled={!this.moreData}
+            title={app.translator.trans('core.admin.users.pagination.last_button')}
+            onclick={this.goToPage.bind(this, this.getTotalPageCount() - 1)}
+            icon="fas fa-step-forward"
             className="Button Button--icon UserListPage-nextBtn"
           />
         </div>

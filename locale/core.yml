@@ -257,8 +257,10 @@ core:
 
       pagination:
         back_button: Previous page
+        first_button: First page
         go: Go
         go_to_page: Go to page
+        last_button: Last page
         next_button: Next page
         page_counter: Page {current} of {total}
 
