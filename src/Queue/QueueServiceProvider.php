@@ -14,7 +14,6 @@ use Flarum\Foundation\Config;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\Paths;
-use Flarum\Queue\Driver\DriverInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Container\Container;
@@ -62,7 +61,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
             $driverClass = Arr::get($drivers, $driverName);
 
-            /** @var DriverInterface $driver */
+            /** @var Queue $driver */
             $driver = $container->make($driverClass);
             $driver->setContainer($container);
 
