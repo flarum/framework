@@ -82,9 +82,14 @@ class EditUserHandler
             }
         }
 
-        if (! empty($attributes['isEmailConfirmed'])) {
+        if (isset($attributes['isEmailConfirmed'])) {
             $actor->assertAdmin();
-            $user->activate();
+
+            if ($attributes['isEmailConfirmed'] === false) {
+                $user->is_email_confirmed = false;
+            } else {
+                $user->activate();
+            }
         }
 
         if (isset($attributes['password'])) {
