@@ -253,6 +253,26 @@ class UpdateTest extends TestCase
 
     /**
      * @test
+     */
+    public function users_cant_deactivate_themselves()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'isEmailConfirmed' => false
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
      *
      * This tests the generic user.edit permission used for non-credential/group attributes
      */
@@ -346,6 +366,26 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'isEmailConfirmed' => true
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function users_cant_deactivate_others_without_permission()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'isEmailConfirmed' => false
                         ],
                     ]
                 ],
@@ -577,6 +617,27 @@ class UpdateTest extends TestCase
     /**
      * @test
      */
+    public function users_cant_deactivate_others_even_with_permissions()
+    {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'isEmailConfirmed' => false
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
     public function admins_cant_update_others_preferences()
     {
         $response = $this->send(
@@ -628,6 +689,26 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'isEmailConfirmed' => true
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function admins_can_deactivate_others()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'isEmailConfirmed' => false
                         ],
                     ]
                 ],
