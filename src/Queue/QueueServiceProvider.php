@@ -63,9 +63,14 @@ class QueueServiceProvider extends AbstractServiceProvider
 
             /** @var Queue $driver */
             $driver = $container->make($driverClass);
-            $driver->setContainer($container);
 
-            return $driver->build();
+            // This method only exists on the Laravel abstract Queue implementation, not the contract,
+            // for simplicity we will try to inject the container if the method is available on the driver.
+            if (method_exists($driver, 'setContainer')) {
+                $driver->setContainer($container);
+            }
+
+            return $driver;
         });
 
         // Register a simple connection factory that always returns the same
@@ -95,7 +100,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         });
 
         // Override the Laravel native Listener, so that we can ignore the environment
-        // option and force the binary to flarum.
+        // option and force the binary to Flarum.
         $this->container->singleton(QueueListener::class, function (Container $container) {
             return new Listener($container->make(Paths::class)->base);
         });
@@ -137,6 +142,10 @@ class QueueServiceProvider extends AbstractServiceProvider
                 'queue_failed_jobs'
             );
         });
+
+        $this->container->when(DatabaseQueue::class)
+            ->needs('$table')
+            ->give('queue_jobs');
 
         $this->container->alias('flarum.queue.connection', Queue::class);
 

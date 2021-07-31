@@ -75,6 +75,7 @@ export default class AdminNav extends Component {
       </LinkButton>
     );
 
+    // We only display the advanced pane when a certain threshold is reached or it is manually activated.
     if (app.data.settings['advanced_settings_pane_enabled']) {
       items.add(
         'advanced',

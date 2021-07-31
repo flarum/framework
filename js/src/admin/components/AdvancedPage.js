@@ -7,7 +7,11 @@ export default class AdvancedPage extends AdminPage {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.queueDrivers = app.data.queueDrivers ?? [];
+    this.queueDrivers = {};
+
+    (app.data.queueDrivers).forEach(driver => {
+      this.queueDrivers[driver] = app.translator.trans('core.admin.queue.' + driver);
+    });
   }
 
   headerInfo() {
@@ -23,25 +27,12 @@ export default class AdvancedPage extends AdminPage {
     return [
       <div className="Form">
         {this.buildSettingComponent({
-          type: 'text',
-          setting: 'mail_from',
-          label: app.translator.trans('core.admin.advanced.queue_driver_heading'),
-          className: 'AdvancedPage-QueueSettings',
-        })}
-        {this.buildSettingComponent({
           type: 'select',
           setting: 'queue_driver',
-          options: Object.keys(this.driverFields).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
+          options: Object.keys(this.queueDrivers).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
           label: app.translator.trans('core.admin.queue.driver_heading'),
           className: 'AdvancedPage-QueueSettings',
         })}
-        {this.status.sending ||
-          Alert.component(
-            {
-              dismissible: false,
-            },
-            app.translator.trans('core.admin.email.not_sending_message')
-          )}
         {this.submitButton()}
       </div>,
     ];
