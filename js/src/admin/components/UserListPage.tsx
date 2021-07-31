@@ -133,27 +133,58 @@ export default class UserListPage extends AdminPage {
         {/* Loading spinner that shows when a new page is being loaded */}
         {this.isLoadingPage && <LoadingIndicator size="large" />}
       </section>,
-      <nav class="UserListPage-gridPagination">
-        <Button
-          disabled={this.pageNumber === 0}
-          title={app.translator.trans('core.admin.users.pagination.back_button')}
-          onclick={this.previousPage.bind(this)}
-          icon="fas fa-chevron-left"
-          className="Button Button--icon UserListPage-backBtn"
-        />
-        <span class="UserListPage-pageNumber">
-          {app.translator.trans('core.admin.users.pagination.page_counter', {
-            current: this.pageNumber + 1,
-            total: this.getTotalPageCount(),
-          })}
-        </span>
-        <Button
-          disabled={!this.moreData}
-          title={app.translator.trans('core.admin.users.pagination.next_button')}
-          onclick={this.nextPage.bind(this)}
-          icon="fas fa-chevron-right"
-          className="Button Button--icon UserListPage-nextBtn"
-        />
+      this.pagination(),
+    ];
+  }
+
+  protected pagination(): Mithril.Children {
+    return [
+      <nav>
+        <div class="UserListPage-gridPagination">
+          <Button
+            disabled={this.pageNumber === 0}
+            title={app.translator.trans('core.admin.users.pagination.back_button')}
+            onclick={this.previousPage.bind(this)}
+            icon="fas fa-chevron-left"
+            className="Button Button--icon UserListPage-backBtn"
+          />
+          <span class="UserListPage-pageNumber">
+            {app.translator.trans('core.admin.users.pagination.page_counter', {
+              current: this.pageNumber + 1,
+              total: this.getTotalPageCount(),
+            })}
+          </span>
+          <Button
+            disabled={!this.moreData}
+            title={app.translator.trans('core.admin.users.pagination.next_button')}
+            onclick={this.nextPage.bind(this)}
+            icon="fas fa-chevron-right"
+            className="Button Button--icon UserListPage-nextBtn"
+          />
+        </div>
+        <div class="UserListPage-goToPage">
+          {/*
+            Why do we use a text input instead of a number?
+            See: https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/
+          */}
+          <label>
+            {app.translator.trans('core.admin.users.pagination.go_to_page')}{' '}
+            <input class="UserListPage-pageNumberInput FormControl" type="text" inputmode="numeric" pattern="[0-9]*" value={this.pageNumber + 1} />{' '}
+            <Button
+              class="Button"
+              onclick={() => {
+                const input = this.$('.UserListPage-pageNumberInput').first();
+                const num = parseInt((input.val() as string) || 'NaN');
+
+                if (num >= 1 && num <= this.getTotalPageCount()) {
+                  this.loadPage(num - 1);
+                }
+              }}
+            >
+              {app.translator.trans('core.admin.users.pagination.go')}
+            </Button>
+          </label>
+        </div>
       </nav>,
     ];
   }
@@ -365,13 +396,16 @@ export default class UserListPage extends AdminPage {
       });
   }
 
-  nextPage() {
+  goToPage(pageNumber: number) {
     this.isLoadingPage = true;
-    this.loadPage(this.pageNumber + 1);
+    this.loadPage(pageNumber);
+  }
+
+  nextPage() {
+    this.goToPage(this.pageNumber + 1);
   }
 
   previousPage() {
-    this.isLoadingPage = true;
-    this.loadPage(this.pageNumber - 1);
+    this.goToPage(this.pageNumber - 1);
   }
 }
