@@ -148,27 +148,45 @@ export default class UserListPage extends AdminPage {
     ];
   }
 
-  protected infoHeader() {
-    return (
-      <aside class="UserListPage-infoHeader">
-        <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>
-        <Button
-          icon="fas fa-link"
-          class="Button"
-          onclick={() => {
-            try {
-              navigator.clipboard.writeText(`${app.forum.attribute('baseUrl')}/admin#/users?page=${this.pageNumber + 1}`).then(() => {
-                const key = app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.users.info_header.copy_page_url.copied'));
+  /**
+   * Constructs a list of items that are shown in the info header.
+   */
+  infoHeaderItems(): ItemList {
+    const items = new ItemList();
 
-                setTimeout(() => app.alerts.dismiss(key), 5000);
-              });
-            } catch {}
-          }}
-        >
-          Copy link to page {this.pageNumber + 1}
-        </Button>
-      </aside>
+    items.add(
+      'totalUsers',
+      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
+      1000
     );
+
+    items.add(
+      'copyPageUrl',
+      <Button
+        icon="fas fa-link"
+        class="Button"
+        onclick={() => {
+          try {
+            navigator.clipboard.writeText(`${app.forum.attribute('baseUrl')}/admin#/users?page=${this.pageNumber + 1}`).then(() => {
+              const key = app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.users.info_header.copy_page_url.copied'));
+
+              setTimeout(() => app.alerts.dismiss(key), 5000);
+            });
+          } catch {}
+        }}
+      >
+        {app.translator.trans('core.admin.users.info_header.copy_page_url.button', { pageNumber: this.pageNumber + 1 })}
+      </Button>,
+      900
+    );
+
+    return items;
+  }
+
+  protected infoHeader() {
+    const items = this.infoHeaderItems().toArray();
+
+    return <aside class="UserListPage-infoHeader">{items}</aside>;
   }
 
   protected pagination(): Mithril.Children {

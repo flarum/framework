@@ -263,6 +263,7 @@ core:
 
       info_header:
         copy_page_url:
+          button: Copy link to page {pageNumber}
           copied: => core.ref.copied
 
       pagination:
