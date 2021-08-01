@@ -17,6 +17,7 @@ import extractText from '../../common/utils/extractText';
 
 import AdminPage from './AdminPage';
 import Checkbox from '../../common/components/Checkbox';
+import CreateUserModal from './CreateUserModal';
 
 type ColumnData = {
   /**
@@ -178,6 +179,20 @@ export default class UserListPage extends AdminPage {
         {app.translator.trans('core.admin.users.info_header.copy_page_url.button', { pageNumber: this.pageNumber + 1 })}
       </Button>,
       900
+    );
+
+    items.add(
+      'createUser',
+      <Button
+        icon="fas fa-user-plus"
+        class="Button"
+        onclick={() => {
+          app.modal.show(CreateUserModal);
+        }}
+      >
+        {app.translator.trans('core.admin.users.info_header.create_user.button')}
+      </Button>,
+      800
     );
 
     return items;
