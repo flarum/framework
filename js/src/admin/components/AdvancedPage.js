@@ -9,7 +9,7 @@ export default class AdvancedPage extends AdminPage {
 
     this.queueDrivers = {};
 
-    (app.data.queueDrivers).forEach(driver => {
+    app.data.queueDrivers.forEach((driver) => {
       this.queueDrivers[driver] = app.translator.trans('core.admin.queue.' + driver);
     });
   }
