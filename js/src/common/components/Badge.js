@@ -18,15 +18,18 @@ import classList from '../utils/classList';
  */
 export default class Badge extends Component {
   view() {
-    const { type, icon: iconName, label, ...attrs } = this.attrs;
+    const { type, icon: iconName, label, color, ...attrs } = this.attrs;
 
     const className = classList('Badge', [type && `Badge--${type}`], attrs.className);
 
     const iconChild = iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;');
 
+    const style = { ...(attrs.style || {}), '--badge-bg': color };
+
     const badgeAttrs = {
       ...attrs,
       className,
+      style,
     };
 
     const badgeNode = <div {...badgeAttrs}>{iconChild}</div>;

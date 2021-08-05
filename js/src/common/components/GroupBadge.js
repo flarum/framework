@@ -6,7 +6,7 @@ export default class GroupBadge extends Badge {
 
     if (attrs.group) {
       attrs.icon = attrs.group.icon();
-      attrs.style = { backgroundColor: attrs.group.color() };
+      attrs.color = attrs.group.color();
       attrs.label = typeof attrs.label === 'undefined' ? attrs.group.nameSingular() : attrs.label;
       attrs.type = 'group--' + attrs.group.id();
 
