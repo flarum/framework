@@ -30,7 +30,7 @@ export default class UserCard extends Component {
     const badges = user.badges().toArray();
 
     return (
-      <div className={'UserCard ' + (this.attrs.className || '')} style={color ? { backgroundColor: color } : ''}>
+      <div className={'UserCard ' + (this.attrs.className || '')} style={color ? { '--usercard-bg': color } : ''}>
         <div className="darkenBackground">
           <div className="container">
             {controls.length
