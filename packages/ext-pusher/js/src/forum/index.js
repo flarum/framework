@@ -122,7 +122,7 @@ app.initializers.add('flarum-pusher', () => {
           const oldCount = this.discussion.commentCount();
 
           app.store.find('discussions', this.discussion.id()).then(() => {
-            this.stream.update();
+            this.stream.update().then(m.redraw);
 
             if (!document.hasFocus()) {
               app.setTitleCount(Math.max(0, this.discussion.commentCount() - oldCount));
