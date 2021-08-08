@@ -21,6 +21,17 @@ class Item<T> {
 }
 
 /**
+ * Options for new `replace` syntax.
+ *
+ * Removes the need for passing `null` to parameters.
+ */
+interface IItemListReplaceOptions<T> {
+  _useNewSyntax: true;
+  content?: T;
+  priority?: number;
+}
+
+/**
  * The `ItemList` class collects items and then arranges them into an array
  * by priority.
  */
@@ -68,12 +79,50 @@ export default class ItemList<T> {
   /**
    * Replace an item in the list, only if it is already present.
    *
-   * If `content` or `priority` are `null`, these values will not be replaced.
+   * Only replaces values which are present in the object.
+   *
+   * @example <caption>Replace priority and not content.</caption>
+   * items.replace('myItem', { priority: 10 });
+   *
+   * @example <caption>Replace content and not priority.</caption>
+   * items.replace('myItem', { content: <p>My new value.</p> });
+   *
+   * @example <caption>Replace content and priority.</caption>
+   * items.replace('myItem', { content: <p>My new value.</p>, priority: 10 });
    */
-  replace(key: string, content: T | null = null, priority: number | null = null): this {
+  replace(key: string, options: IItemListReplaceOptions<T>): this;
+
+  // TODO: [Flarum 2.0] Remove deprecated `.replace()` syntax.
+  /**
+   * Replace an item in the list, only if it is already present.
+   *
+   * If `content` or `priority` are `null`, these values will not be replaced.
+   *
+   * @deprecated Please use the new object-based syntax. This syntax will be removed in Flarum 2.0.
+   *
+   * @example <caption>Replace priority and not content.</caption>
+   * items.replace('myItem', null, 10);
+   *
+   * @example <caption>Replace content and not priority.</caption>
+   * items.replace('myItem', <p>My new value.</p>);
+   *
+   * @example <caption>Replace content and priority.</caption>
+   * items.replace('myItem', <p>My new value.</p>, 10);
+   */
+  replace(key: string, contentOrOptions?: T | null, priority?: number | null): this;
+
+  replace(key: string, contentOrOptions: T | null | IItemListReplaceOptions<T> = null, priority: number | null = null): this {
     if (this.items[key]) {
-      if (content !== null) {
-        this.items[key].content = content;
+      if (contentOrOptions !== null) {
+        // Being called with new object-based syntax.
+        if ('_useNewSyntax' in contentOrOptions) {
+          if (contentOrOptions.content !== undefined) this.items[key].content = contentOrOptions.content;
+          if (contentOrOptions.priority !== undefined) this.items[key].priority = contentOrOptions.priority;
+
+          return this;
+        }
+
+        this.items[key].content = contentOrOptions;
       }
 
       if (priority !== null) {
