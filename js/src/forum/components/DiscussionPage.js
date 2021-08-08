@@ -9,7 +9,6 @@ import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
 import PostStreamState from '../states/PostStreamState';
-import Mithril from 'mithril';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
@@ -93,7 +92,7 @@ export default class DiscussionPage extends Page {
   /**
    * Function that renders the `sidebarItems` ItemList.
    *
-   * @returns {Mithril.Children}
+   * @returns {import('mithril').Children}
    */
   sidebar() {
     return (
@@ -106,7 +105,7 @@ export default class DiscussionPage extends Page {
   /**
    * Renders the discussion's hero.
    *
-   * @returns {Mithril.Children}
+   * @returns {import('mithril').Children}
    */
   hero() {
     return <DiscussionHero discussion={this.discussion} />;
