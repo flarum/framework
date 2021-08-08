@@ -14,7 +14,7 @@ class Item<T> {
    */
   key?: number;
 
-  constructor(content: any, priority: number = 0) {
+  constructor(content: T, priority: number) {
     this.content = content;
     this.priority = priority;
   }
