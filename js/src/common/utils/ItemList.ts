@@ -81,14 +81,16 @@ export default class ItemList<T> {
    *
    * Only replaces values which are present in the object.
    *
+   * The `_useNewSyntax` object property will be required until Flarum 2.0.
+   *
    * @example <caption>Replace priority and not content.</caption>
-   * items.replace('myItem', { priority: 10 });
+   * items.replace('myItem', { _useNewSyntax: true, priority: 10 });
    *
    * @example <caption>Replace content and not priority.</caption>
-   * items.replace('myItem', { content: <p>My new value.</p> });
+   * items.replace('myItem', { _useNewSyntax: true, content: <p>My new value.</p> });
    *
    * @example <caption>Replace content and priority.</caption>
-   * items.replace('myItem', { content: <p>My new value.</p>, priority: 10 });
+   * items.replace('myItem', { _useNewSyntax: true, content: <p>My new value.</p>, priority: 10 });
    */
   replace(key: string, options: IItemListReplaceOptions<T>): this;
 
