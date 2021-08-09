@@ -1,29 +1,35 @@
 import Component from '../Component';
 
+import type Mithril from 'mithril';
+import type ModalManagerState from '../states/ModalManagerState';
+
+interface IModalManagerAttrs {
+  state: ModalManagerState;
+}
+
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog
  * can be shown at once; loading a new component into the ModalManager will
  * overwrite the previous one.
  */
-export default class ModalManager extends Component {
+export default class ModalManager extends Component<IModalManagerAttrs> {
   view() {
     const modal = this.attrs.state.modal;
 
     return (
       <div className="ModalManager modal fade">
-        {modal
-          ? modal.componentClass.component({
-              ...modal.attrs,
-              animateShow: this.animateShow.bind(this),
-              animateHide: this.animateHide.bind(this),
-              state: this.attrs.state,
-            })
-          : ''}
+        {modal &&
+          modal.componentClass.component({
+            ...modal.attrs,
+            animateShow: this.animateShow.bind(this),
+            animateHide: this.animateHide.bind(this),
+            state: this.attrs.state,
+          })}
       </div>
     );
   }
 
-  oncreate(vnode) {
+  oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>) {
     super.oncreate(vnode);
 
     // Ensure the modal state is notified about a closed modal, even when the
@@ -32,7 +38,9 @@ export default class ModalManager extends Component {
     this.$().on('hidden.bs.modal', this.attrs.state.close.bind(this.attrs.state));
   }
 
-  animateShow(readyCallback) {
+  animateShow(readyCallback: () => void): void {
+    if (!this.attrs.state.modal) return;
+
     const dismissible = !!this.attrs.state.modal.componentClass.isDismissible;
 
     // If we are opening this modal while another modal is already open,
@@ -45,6 +53,7 @@ export default class ModalManager extends Component {
 
     this.$()
       .one('shown.bs.modal', readyCallback)
+      // @ts-expect-error: No typings available for Bootstrap modals.
       .modal({
         backdrop: dismissible || 'static',
         keyboard: dismissible,
@@ -52,7 +61,8 @@ export default class ModalManager extends Component {
       .modal('show');
   }
 
-  animateHide() {
+  animateHide(): void {
+    // @ts-expect-error: No typings available for Bootstrap modals.
     this.$().modal('hide');
   }
 }
