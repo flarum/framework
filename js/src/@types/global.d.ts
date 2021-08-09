@@ -16,7 +16,7 @@ declare const app: never;
 declare const m: import('mithril').Static;
 declare const dayjs: typeof import('dayjs');
 
-type ESModule = { __esModule: true, [key: string]: unknown };
+type ESModule = { __esModule: true; [key: string]: unknown };
 
 /**
  * The global `flarum` variable.
@@ -34,7 +34,7 @@ interface FlarumObject {
    *
    * You shouldn't need to access this directly
    */
-  core: Readonly<ESModule>,
+  core: Readonly<ESModule>;
   /**
    * Contains the compiled ES Modules for all Flarum extensions.
    *
@@ -43,7 +43,7 @@ interface FlarumObject {
    *   // Tags is enabled
    * }
    */
-  extensions: Readonly<Record<string, ESModule>>,
+  extensions: Readonly<Record<string, ESModule>>;
 }
 
 declare const flarum: FlarumObject;
