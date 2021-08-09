@@ -6,7 +6,7 @@ import classList from '../utils/classList';
 import extractText from '../utils/extractText';
 import LoadingIndicator from './LoadingIndicator';
 
-export interface ButtonAttrs extends ComponentAttrs {
+export interface IButtonAttrs extends ComponentAttrs {
   /**
    * Class(es) of an optional icon to be rendered within the button.
    *
@@ -66,8 +66,8 @@ export interface ButtonAttrs extends ComponentAttrs {
  * be used to represent any generic clickable control, like a menu item. Common
  * styles can be applied by providing `className="Button"` to the Button component.
  */
-export default class Button extends Component<ButtonAttrs> {
-  view(vnode: Mithril.Vnode<ButtonAttrs, never>) {
+export default class Button extends Component<IButtonAttrs> {
+  view(vnode: Mithril.Vnode<IButtonAttrs, never>) {
     let { type, title, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
 
     // If no `type` attr provided, set to "button"
@@ -91,13 +91,6 @@ export default class Button extends Component<ButtonAttrs> {
       loading: loading,
     });
 
-    if (!ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
-      fireDebugWarning(
-        '[Flarum Accessibility Warning] This button has no content and does not have any accessible label. This means that screen-readers will not be able to interpret its meaning. Consider providing accessible text via the `aria-label` attribute.\n\nLearn more: https://web.dev/button-name',
-        this.element
-      );
-    }
-
     const buttonAttrs = {
       disabled,
       className,
@@ -107,6 +100,19 @@ export default class Button extends Component<ButtonAttrs> {
     };
 
     return <button {...buttonAttrs}>{this.getButtonContent(vnode.children)}</button>;
+  }
+  
+  oncreate(vnode: Mithril.VnodeDOM<IButtonAttrs, this>) {
+    super.oncreate(vnode);
+    
+    const { 'aria-label': ariaLabel } = this.attrs;
+
+    if (!ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
+      fireDebugWarning(
+        '[Flarum Accessibility Warning] Button has no content and no accessible label. This means that screen-readers will not be able to interpret its meaning and just read "Button". Consider providing accessible text via the `aria-label` attribute. https://web.dev/button-name',
+        this.element
+      );
+    }
   }
 
   /**
