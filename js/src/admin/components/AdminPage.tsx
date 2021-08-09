@@ -91,7 +91,7 @@ export type SettingsComponentOptions = HTMLInputSettingsComponentOptions | Switc
 export type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
 
 export default class AdminPage extends Page {
-  settings: Record<string, () => string> = {};
+  settings!: Record<string, Stream<string>>;
   loading: boolean = false;
 
   oninit(vnode: Mithril.Vnode<Record<string, unknown>, this>) {
