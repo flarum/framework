@@ -16,6 +16,38 @@ declare const app: never;
 declare const m: import('mithril').Static;
 declare const dayjs: typeof import('dayjs');
 
+type ESModule = { __esModule: true, [key: string]: unknown };
+
+/**
+ * The global `flarum` variable.
+ *
+ * Contains the compiled ES Modules for all Flarum extensions and core.
+ *
+ * @example <caption>Check if `flarum-tags` is active.</captions>
+ * if ('flarum-tags' in flarum.extensions) {
+ *   // Tags is enabled
+ * }
+ */
+interface FlarumObject {
+  /**
+   * Contains the compiled ES Module for Flarum's core.
+   *
+   * You shouldn't need to access this directly
+   */
+  core: Readonly<ESModule>,
+  /**
+   * Contains the compiled ES Modules for all Flarum extensions.
+   *
+   * @example <caption>Check if `flarum-tags` is active.</captions>
+   * if ('flarum-tags' in flarum.extensions) {
+   *   // Tags is enabled
+   * }
+   */
+  extensions: Readonly<Record<string, ESModule>>,
+}
+
+declare const flarum: FlarumObject;
+
 // Extend JQuery with our custom functions, defined with $.fn
 interface JQuery {
   /**
