@@ -23,6 +23,7 @@ use Flarum\Post\Post;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
+use Flarum\User\Event\Deactivated;
 use Flarum\User\Event\Deleted;
 use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\EmailChangeRequested;
@@ -362,6 +363,22 @@ class User extends AbstractModel
             $this->is_email_confirmed = true;
 
             $this->raise(new Activated($this));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Deactivate the user's account.
+     *
+     * @return $this
+     */
+    public function deactivate()
+    {
+        if ($this->is_email_confirmed !== false) {
+            $this->is_email_confirmed = false;
+
+            $this->raise(new Deactivated($this));
         }
 
         return $this;
