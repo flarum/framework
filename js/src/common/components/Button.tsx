@@ -101,10 +101,10 @@ export default class Button extends Component<IButtonAttrs> {
 
     return <button {...buttonAttrs}>{this.getButtonContent(vnode.children)}</button>;
   }
-  
+
   oncreate(vnode: Mithril.VnodeDOM<IButtonAttrs, this>) {
     super.oncreate(vnode);
-    
+
     const { 'aria-label': ariaLabel } = this.attrs;
 
     if (!ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
