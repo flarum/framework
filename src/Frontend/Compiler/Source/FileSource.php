@@ -22,15 +22,21 @@ class FileSource implements SourceInterface
     protected $path;
 
     /**
+     * @var string
+     */
+    protected $extensionId;
+
+    /**
      * @param string $path
      */
-    public function __construct(string $path)
+    public function __construct(string $path, ?string $extensionId = null)
     {
         if (! file_exists($path)) {
             throw new InvalidArgumentException("File not found at path: $path");
         }
 
         $this->path = $path;
+        $this->extensionId = $extensionId;
     }
 
     /**
@@ -55,5 +61,10 @@ class FileSource implements SourceInterface
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    public function getExtensionId(): ?string
+    {
+        return $this->extensionId;
     }
 }
