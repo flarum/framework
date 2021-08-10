@@ -45,4 +45,34 @@ class ThemeTest extends TestCase
 
         $this->assertEquals(500, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function theme_extender_override_file_source_works()
+    {
+        $this->extend(
+            (new Extend\Theme)
+                ->overrideFileSource('forum.less', __DIR__.'/../../fixtures/less/forum.less')
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function theme_extender_override_file_source_works_by_failing_when_necessary()
+    {
+        $this->extend(
+            (new Extend\Theme)
+                ->overrideFileSource('mixins.less', __DIR__.'/../../fixtures/less/dummy.less')
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(500, $response->getStatusCode());
+    }
 }
