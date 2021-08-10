@@ -57,6 +57,11 @@ class Assets
      */
     protected $lessImportOverrides;
 
+    /**
+     * @var array
+     */
+    protected $fileSourceOverrides;
+
     public function __construct(string $name, Filesystem $assetsDir, string $cacheDir = null, array $lessImportDirs = null)
     {
         $this->name = $name;
@@ -164,6 +169,10 @@ class Assets
             $compiler->setLessImportOverrides($this->lessImportOverrides);
         }
 
+        if ($this->fileSourceOverrides) {
+            $compiler->setFileSourceOverrides($this->fileSourceOverrides);
+        }
+
         return $compiler;
     }
 
@@ -210,5 +219,10 @@ class Assets
     public function setLessImportOverrides(array $lessImportOverrides)
     {
         $this->lessImportOverrides = $lessImportOverrides;
+    }
+
+    public function setFileSourceOverrides(array $fileSourceOverrides)
+    {
+        $this->fileSourceOverrides = $fileSourceOverrides;
     }
 }

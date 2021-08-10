@@ -34,6 +34,11 @@ class LessCompiler extends RevisionCompiler
      */
     protected $lessImportOverrides = [];
 
+    /**
+     * @var array
+     */
+    protected $fileSourceOverrides = [];
+
     public function getCacheDir(): string
     {
         return $this->cacheDir;
@@ -59,6 +64,11 @@ class LessCompiler extends RevisionCompiler
         $this->lessImportOverrides = $lessImportOverrides;
     }
 
+    public function setFileSourceOverrides(array $fileSourceOverrides)
+    {
+        $this->fileSourceOverrides = $fileSourceOverrides;
+    }
+
     /**
      * @throws \Less_Exception_Parser
      */
@@ -77,6 +87,8 @@ class LessCompiler extends RevisionCompiler
             'import_callback' => $this->overrideImports($sources),
         ]);
 
+        $sources = $this->overrideSources($sources);
+
         foreach ($sources as $source) {
             if ($source instanceof FileSource) {
                 $parser->parseFile($source->getPath());
@@ -86,6 +98,26 @@ class LessCompiler extends RevisionCompiler
         }
 
         return $parser->getCss();
+    }
+
+    protected function overrideSources(array $sources): array
+    {
+        $fileSourceOverrides = new Collection($this->fileSourceOverrides);
+
+        foreach ($sources as $source) {
+            if ($source instanceof FileSource) {
+                $basename = basename($source->getPath());
+                $override = $fileSourceOverrides
+                    ->where('file', $basename)
+                    ->firstWhere('extensionId', $source->getExtensionId());
+
+                if ($override) {
+                    $source->setPath($override['newFilePath']);
+                }
+            }
+        }
+
+        return $sources;
     }
 
     protected function overrideImports(array $sources): callable

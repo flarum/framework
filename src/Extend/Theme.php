@@ -15,10 +15,18 @@ use Illuminate\Contracts\Container\Container;
 class Theme implements ExtenderInterface
 {
     private $lessImportOverrides = [];
+    private $fileSourceOverrides = [];
 
     public function overrideLessImport(string $file, string $newFilePath, string $extensionId = null): self
     {
         $this->lessImportOverrides[] = compact('file', 'newFilePath', 'extensionId');
+
+        return $this;
+    }
+
+    public function overrideFileSource(string $file, string $newFilePath, string $extensionId = null): self
+    {
+        $this->fileSourceOverrides[] = compact('file', 'newFilePath', 'extensionId');
 
         return $this;
     }
@@ -30,6 +38,7 @@ class Theme implements ExtenderInterface
                 $assets = $factory(...$args);
 
                 $assets->setLessImportOverrides($this->lessImportOverrides);
+                $assets->setFileSourceOverrides($this->fileSourceOverrides);
 
                 return $assets;
             };

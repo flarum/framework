@@ -63,6 +63,11 @@ class FileSource implements SourceInterface
         return $this->path;
     }
 
+    public function setPath(string $path): void
+    {
+        $this->path = $path;
+    }
+
     public function getExtensionId(): ?string
     {
         return $this->extensionId;
