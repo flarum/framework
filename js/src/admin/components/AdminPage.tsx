@@ -245,7 +245,7 @@ export default class AdminPage extends Page {
   /**
    * Returns a function that fetches the setting from the `app` global.
    */
-  setting(key: string, fallback: string = ''): () => string {
+  setting(key: string, fallback: string = ''): Stream<string> {
     this.settings[key] = this.settings[key] || Stream<string>(app.data.settings[key] || fallback);
 
     return this.settings[key];
