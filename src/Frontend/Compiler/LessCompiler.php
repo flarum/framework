@@ -32,12 +32,12 @@ class LessCompiler extends RevisionCompiler
     /**
      * @var array
      */
-    protected $lessImportOverrides = [];
+    protected $lessImportOverrides;
 
     /**
      * @var array
      */
-    protected $fileSourceOverrides = [];
+    protected $fileSourceOverrides;
 
     public function getCacheDir(): string
     {
@@ -61,12 +61,12 @@ class LessCompiler extends RevisionCompiler
 
     public function setLessImportOverrides(array $lessImportOverrides)
     {
-        $this->lessImportOverrides = $lessImportOverrides;
+        $this->lessImportOverrides = new Collection($lessImportOverrides);
     }
 
     public function setFileSourceOverrides(array $fileSourceOverrides)
     {
-        $this->fileSourceOverrides = $fileSourceOverrides;
+        $this->fileSourceOverrides = new Collection($fileSourceOverrides);
     }
 
     /**
@@ -84,10 +84,12 @@ class LessCompiler extends RevisionCompiler
             'compress' => true,
             'cache_dir' => $this->cacheDir,
             'import_dirs' => $this->importDirs,
-            'import_callback' => $this->overrideImports($sources),
+            'import_callback' => $this->lessImportOverrides ? $this->overrideImports($sources) : null,
         ]);
 
-        $sources = $this->overrideSources($sources);
+        if ($this->fileSourceOverrides) {
+            $sources = $this->overrideSources($sources);
+        }
 
         foreach ($sources as $source) {
             if ($source instanceof FileSource) {
@@ -102,12 +104,10 @@ class LessCompiler extends RevisionCompiler
 
     protected function overrideSources(array $sources): array
     {
-        $fileSourceOverrides = new Collection($this->fileSourceOverrides);
-
         foreach ($sources as $source) {
             if ($source instanceof FileSource) {
                 $basename = basename($source->getPath());
-                $override = $fileSourceOverrides
+                $override = $this->fileSourceOverrides
                     ->where('file', $basename)
                     ->firstWhere('extensionId', $source->getExtensionId());
 
@@ -134,13 +134,11 @@ class LessCompiler extends RevisionCompiler
             ];
         })->unique('path');
 
-        $lessImportOverrides = new Collection($this->lessImportOverrides);
-
-        return function ($evald) use ($baseSources, $lessImportOverrides): ?array {
+        return function ($evald) use ($baseSources): ?array {
             $relativeImportPath = Str::of($evald->PathAndUri()[0])->split('/\/less\//');
             $extensionId = $baseSources->where('path', $relativeImportPath->first())->pluck('extensionId')->first();
 
-            $overrideImport = $lessImportOverrides
+            $overrideImport = $this->lessImportOverrides
                 ->where('file', $relativeImportPath->last())
                 ->firstWhere('extensionId', $extensionId);
 
