@@ -147,6 +147,8 @@
       border-radius: 0;
       display: block;
       overflow-x: auto;
+      // Backwards compatibility for browsers that don't support `max()`
+      max-height: 50vh;
       max-height: max(50vh, 250px);
     }
   }
