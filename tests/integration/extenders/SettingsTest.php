@@ -163,6 +163,38 @@ class SettingsTest extends TestCase
         $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
         $this->assertEquals('customDefaultModified2', $payload['data']['attributes']['customPrefix.noCustomSetting']);
     }
+
+    /**
+     * @test
+     */
+    public function custom_less_var_does_not_work_by_default()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))
+                ->css(__DIR__.'/../../fixtures/less/config.less'),
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(500, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_less_var_works_if_registered()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))
+                ->css(__DIR__.'/../../fixtures/less/config.less'),
+            (new Extend\Settings())
+                ->registerLessConfigVar('custom-config-setting', 'custom-prefix.custom_setting')
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }
 
 class CustomInvokableClass
