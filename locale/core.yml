@@ -6,6 +6,32 @@ core:
 
   # Translations in this namespace are used by the admin interface.
   admin:
+    advanced:
+      description: Settings relating to Flarum's scalability.
+
+      drivers:
+        legend: Drivers
+
+        queue:
+          driver_heading: Queue Driver
+          driver_label: Choose a Queue Driver
+
+          names:
+            database: Database
+            sync: Sync
+
+      # Shown on the page when it's meant to be enabled
+      large_community_note: |
+        ℹ️ This page is intended for very active communities, like yours! Great job! Modifying
+        some of these settings may require advanced setup or create extra load for your
+        installation. <a>Learn more about these settings.</a>
+      # Shown on the page when it's hidden and was directly navigated to
+      not_enabled_warning: |
+        ⚠️ This page is intended for very active communities. This page is hidden for your
+        forum because you don't meet the recommended criteria for modifying these settings.
+        Doing so may require advanced setup or create extra load for your installation.
+        <a>Learn more about these settings.</a>
+      title: Advanced settings
 
     # These translations are used in the Appearance page.
     appearance:
@@ -143,6 +169,8 @@ core:
 
     # These translations are used in the navigation bar.
     nav:
+      advanced_button: => core.admin.advanced.title
+      advanced_title: => core.admin.advanced.description
       appearance_button: => core.admin.appearance.title
       appearance_title: => core.admin.appearance.description
       basics_button: => core.admin.basics.title

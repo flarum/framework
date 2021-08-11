@@ -1,0 +1,33 @@
+.AdvancedPage {
+  &-notEnabledWarning,
+  &-congratsText {
+    padding: 8px 8px 8px 12px;
+    max-width: 600px;
+  }
+
+  &-notEnabledWarning {
+    border-left: 8px solid @error-color;
+    background: fade(@error-color, 5%);
+  }
+
+  &-congratsText {
+    border-left: 8px solid @control-color;
+  }
+
+  &-category {
+    &:first-of-type {
+      margin-top: 16px;
+    }
+
+    > legend {
+      font-size: 1.25rem;
+    }
+
+    fieldset {
+      > legend {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+      }
+    }
+  }
+}

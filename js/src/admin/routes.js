@@ -9,9 +9,9 @@ import ExtensionPage from './components/ExtensionPage';
 import ExtensionPageResolver from './resolvers/ExtensionPageResolver';
 
 /**
- * The `routes` initializer defines the forum app's routes.
+ * The `routes` initializer defines the admin app's routes.
  *
- * @param {App} app
+ * @param {import('./app').default} app
  */
 export default function (app) {
   app.routes = {
@@ -20,6 +20,7 @@ export default function (app) {
     advanced: { path: '/advanced', component: AdvancedPage },
     permissions: { path: '/permissions', component: PermissionsPage },
     appearance: { path: '/appearance', component: AppearancePage },
+    advanced: { path: '/advanced', component: AdvancedPage },
     mail: { path: '/mail', component: MailPage },
     users: { path: '/users', component: UserListPage },
     extension: { path: '/extension/:id', component: ExtensionPage, resolverClass: ExtensionPageResolver },

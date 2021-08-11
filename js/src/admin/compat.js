@@ -34,6 +34,7 @@ import EditCustomCssModal from './components/EditCustomCssModal';
 import EditGroupModal from './components/EditGroupModal';
 import routes from './routes';
 import AdminApplication from './AdminApplication';
+import AdvancedPage from './components/AdvancedPage';
 
 export default Object.assign(compat, {
   'utils/saveSettings': saveSettings,
@@ -68,6 +69,7 @@ export default Object.assign(compat, {
   'components/AdminHeader': AdminHeader,
   'components/EditCustomCssModal': EditCustomCssModal,
   'components/EditGroupModal': EditGroupModal,
+  'components/AdvancedPage': AdvancedPage,
   routes: routes,
   AdminApplication: AdminApplication,
 });
