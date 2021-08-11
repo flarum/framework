@@ -10,6 +10,11 @@
  * ```
  * import app from 'flarum/admin/app';
  * ```
+ *
+ * @example App in common JS
+ * ```
+ * import app from 'flarum/common/app';
+ * ```
  */
 declare const app: never;
 
@@ -23,24 +28,24 @@ type ESModule = { __esModule: true; [key: string]: unknown };
  *
  * Contains the compiled ES Modules for all Flarum extensions and core.
  *
- * @example <caption>Check if `flarum-tags` is active.</captions>
+ * @example <caption>Check if `flarum-tags` is present</captions>
  * if ('flarum-tags' in flarum.extensions) {
- *   // Tags is enabled
+ *   // Tags is installed and enabled!
  * }
  */
 interface FlarumObject {
   /**
    * Contains the compiled ES Module for Flarum's core.
    *
-   * You shouldn't need to access this directly
+   * You shouldn't need to access this directly for any reason.
    */
   core: Readonly<ESModule>;
   /**
    * Contains the compiled ES Modules for all Flarum extensions.
    *
-   * @example <caption>Check if `flarum-tags` is active.</captions>
+   * @example <caption>Check if `flarum-tags` is present</captions>
    * if ('flarum-tags' in flarum.extensions) {
-   *   // Tags is enabled
+   *   // Tags is installed and enabled!
    * }
    */
   extensions: Readonly<Record<string, ESModule>>;
