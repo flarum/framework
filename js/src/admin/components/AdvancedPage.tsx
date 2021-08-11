@@ -53,7 +53,10 @@ export default class AdvancedPage extends AdminPage {
         'page_not_enabled',
         // TODO: Add link to docs page
         <p class="AdvancedPage-notEnabledWarning">
-          {app.translator.trans('core.admin.advanced.not_enabled_warning', { a: <Link external href="https://docs.flarum.org/" /> })}
+          {app.translator.trans('core.admin.advanced.not_enabled_warning', {
+            a: <Link external href="https://docs.flarum.org/" />,
+            icon: <span aria-label={app.translator.trans('core.admin.advanced.warning_icon_accessible_label')} class="fas fa-exclamation-triangle" />,
+          })}
         </p>,
         110
       );
@@ -62,7 +65,10 @@ export default class AdvancedPage extends AdminPage {
         'large_community_text',
         // TODO: Add link to docs page
         <p class="AdvancedPage-congratsText">
-          {app.translator.trans('core.admin.advanced.large_community_note', { a: <Link external href="https://docs.flarum.org/" /> })}
+          {app.translator.trans('core.admin.advanced.large_community_note', {
+            a: <Link external href="https://docs.flarum.org/" />,
+            icon: <span aria-label={app.translator.trans('core.admin.advanced.info_icon_accessible_label')} class="fas fa-info-circle" />,
+          })}
         </p>,
         110
       );

@@ -20,18 +20,21 @@ core:
             database: Database
             sync: Sync
 
+      info_icon_accessible_label: information symbol
       # Shown on the page when it's meant to be enabled
       large_community_note: |
-        ℹ️ This page is intended for very active communities, like yours! Great job! Modifying
+        <icon></icon> This page is intended for very active communities, like yours! Great job! Modifying
         some of these settings may require advanced setup or create extra load for your
         installation. <a>Learn more about these settings.</a>
       # Shown on the page when it's hidden and was directly navigated to
       not_enabled_warning: |
-        ⚠️ This page is intended for very active communities. This page is hidden for your
+        <icon></icon> This page is intended for very active communities. This page is hidden for your
         forum because you don't meet the recommended criteria for modifying these settings.
         Doing so may require advanced setup or create extra load for your installation.
         <a>Learn more about these settings.</a>
+
       title: Advanced settings
+      warning_icon_accessible_label: warning symbol
 
     # These translations are used in the Appearance page.
     appearance:
