@@ -9,6 +9,7 @@
     "clsx": "^1.1.1",
     "color-thief-browser": "^2.0.2",
     "dayjs": "^1.10.7",
+    "focus-trap": "^6.7.1",
     "jquery": "^3.6.0",
     "jquery.hotkeys": "^0.1.0",
     "mithril": "^2.0.4",

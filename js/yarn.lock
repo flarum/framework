@@ -1404,6 +1404,7 @@ __metadata:
     expose-loader: ^3.1.0
     flarum-tsconfig: ^1.0.2
     flarum-webpack-config: ^2.0.0
+    focus-trap: ^6.7.1
     jquery: ^3.6.0
     jquery.hotkeys: ^0.1.0
     mithril: ^2.0.4
@@ -2562,6 +2563,15 @@ __metadata:
   peerDependencies:
     webpack: ^5.60.0
   checksum: c3eae2b85bfecd00c2fd5b30a606dd8c8c67e15a7c22dc421b317fd3daf5d600ee9f21f4a5b5c23fa178adbaa2819a4713bae3f3af31150ab258bbadd5ecd2c9
+  languageName: node
+  linkType: hard
+
+"focus-trap@npm:^6.7.1":
+  version: 6.7.1
+  resolution: "focus-trap@npm:6.7.1"
+  dependencies:
+    tabbable: ^5.2.1
+  checksum: b96c54a6a2976f8509ed8447ce3a8b76db3801b9c170f278f60b0c878478f2bb2ebc6dbe3ccd7157006b9a7ad9a86c18283efff0f3e387e29ba3ea89d8687b9c
   languageName: node
   linkType: hard
 
@@ -3893,6 +3903,13 @@ __metadata:
   dependencies:
     has-flag: ^4.0.0
   checksum: c052193a7e43c6cdc741eb7f378df605636e01ad434badf7324f17fb60c69a880d8d8fcdcb562cf94c2350e57b937d7425ab5b8326c67c2adc48f7c87c1db406
+  languageName: node
+  linkType: hard
+
+"tabbable@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "tabbable@npm:5.2.1"
+  checksum: d26e9eeb880c4c78b59244bac2c931ad46f6c64a01e5c15ba6da348dc86442222912733846a9e63373342a81fa15d4afb31267606b38431510d10b0fb9ec9bba
   languageName: node
   linkType: hard
 
