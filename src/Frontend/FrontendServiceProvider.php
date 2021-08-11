@@ -57,6 +57,31 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 return $frontend;
             };
         });
+
+        $this->container->singleton('flarum.less.config', function (Container $container) {
+            return [
+                'config-primary-color'   => [
+                    'key' => 'theme_primary_color',
+                    'default' => '#000',
+                ],
+                'config-secondary-color' => [
+                    'key' => 'theme_secondary_color',
+                    'default' => '#000',
+                ],
+                'config-dark-mode'       => [
+                    'key' => 'theme_dark_mode',
+                    'callback' => function ($value) {
+                        return $value ? 'true' : 'false';
+                    },
+                ],
+                'config-colored-header'  => [
+                    'key' => 'theme_colored_header',
+                    'callback' => function ($value) {
+                        return $value ? 'true' : 'false';
+                    },
+                ],
+            ];
+        });
     }
 
     /**
@@ -83,17 +108,18 @@ class FrontendServiceProvider extends AbstractServiceProvider
     private function addLessVariables(SourceCollector $sources)
     {
         $sources->addString(function () {
+            $vars = $this->container->make('flarum.less.config');
             $settings = $this->container->make(SettingsRepositoryInterface::class);
 
-            $vars = [
-                'config-primary-color'   => $settings->get('theme_primary_color', '#000'),
-                'config-secondary-color' => $settings->get('theme_secondary_color', '#000'),
-                'config-dark-mode'       => $settings->get('theme_dark_mode') ? 'true' : 'false',
-                'config-colored-header'  => $settings->get('theme_colored_header') ? 'true' : 'false'
-            ];
+            return array_reduce(array_keys($vars), function ($string, $name) use ($vars, $settings) {
+                $var = $vars[$name];
+                $value = $settings->get($var['key'], $var['default'] ?? null);
 
-            return array_reduce(array_keys($vars), function ($string, $name) use ($vars) {
-                return $string."@$name: {$vars[$name]};";
+                if (isset($var['callback'])) {
+                    $value = $var['callback']($value);
+                }
+
+                return $string."@$name: {$value};";
             }, '');
         });
     }

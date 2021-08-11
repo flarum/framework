@@ -19,6 +19,7 @@ use Illuminate\Contracts\Container\Container;
 class Settings implements ExtenderInterface
 {
     private $settings = [];
+    private $lessConfigs = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -39,6 +40,29 @@ class Settings implements ExtenderInterface
     public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null): self
     {
         $this->settings[$key] = compact('attributeName', 'callback', 'default');
+
+        return $this;
+    }
+
+    /**
+     * Register a setting as a LESS configuration variable.
+     *
+     * @param string $configName: The name of the configuration variable, in hyphen case.
+     * @param string $key: The key of the setting.
+     * @param string|callable|null $callback: Optional callback to modify the value.
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - mixed $value: The value of the setting.
+     *
+     * The callable should return:
+     * - mixed $value: The modified value.
+     *
+     * @param mixed $default: Optional default serialized value. Will be run through the optional callback.
+     * @return self
+     */
+    public function registerLessConfigVar(string $configName, string $key, $callback = null, $default = null): self
+    {
+        $this->lessConfigs[$configName] = compact('key', 'callback', 'default');
 
         return $this;
     }
@@ -66,6 +90,20 @@ class Settings implements ExtenderInterface
                     return $attributes;
                 }
             );
+        }
+
+        if (! empty($this->lessConfigs)) {
+            $container->extend('flarum.less.config', function (array $existingConfig, Container $container) {
+                $config = $this->lessConfigs;
+
+                foreach ($config as $var => $data) {
+                    if (isset($data['callback'])) {
+                        $config[$var]['callback'] = ContainerUtil::wrapCallback($data['callback'], $container);
+                    }
+                }
+
+                return array_merge($existingConfig, $config);
+            });
         }
     }
 }

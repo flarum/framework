@@ -142,7 +142,8 @@ class AdminServiceProvider extends AbstractServiceProvider
             function (Saved $event) {
                 $recompile = new RecompileFrontendAssets(
                     $this->container->make('flarum.assets.admin'),
-                    $this->container->make(LocaleManager::class)
+                    $this->container->make(LocaleManager::class),
+                    $this->container->make('flarum.less.config')
                 );
                 $recompile->whenSettingsSaved($event);
             }

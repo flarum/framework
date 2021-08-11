@@ -156,7 +156,8 @@ class ForumServiceProvider extends AbstractServiceProvider
             function (Saved $event) use ($container) {
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.forum'),
-                    $container->make(LocaleManager::class)
+                    $container->make(LocaleManager::class),
+                    $container->make('flarum.less.config')
                 );
                 $recompile->whenSettingsSaved($event);
 
