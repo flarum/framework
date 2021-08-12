@@ -41,7 +41,7 @@ export default class Drawer {
 
     const $app = $('#app');
 
-    if (!$app.hasClass('drawerOpen')) return;
+    if (!this.isOpen()) return;
 
     const $drawer = $('#drawer');
 
