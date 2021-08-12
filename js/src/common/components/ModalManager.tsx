@@ -1,8 +1,12 @@
 import Component from '../Component';
-import { createFocusTrap, FocusTrap } from '../utils/focusTrap';
 
-import type Mithril from 'mithril';
+import { createFocusTrap, FocusTrap } from '../utils/focusTrap';
+import { tabbable } from 'tabbable';
+
 import type ModalManagerState from '../states/ModalManagerState';
+import type Mithril from 'mithril';
+
+window.tabbable = tabbable;
 
 interface IModalManagerAttrs {
   state: ModalManagerState;
@@ -14,7 +18,12 @@ interface IModalManagerAttrs {
  * overwrite the previous one.
  */
 export default class ModalManager extends Component<IModalManagerAttrs> {
-  focusTrap: FocusTrap | undefined;
+  protected focusTrap: FocusTrap | undefined;
+
+  /**
+   * Whether a modal is currently shown by this modal manager.
+   */
+  protected modalShown: boolean = false;
 
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
     const modal = this.attrs.state.modal;
@@ -45,12 +54,23 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
   onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
     super.onupdate(vnode);
+
+    requestAnimationFrame(() => {
+      try {
+        if (this.modalShown) this.focusTrap!.activate?.();
+        else this.focusTrap!.deactivate?.();
+      } catch {
+        // We can expect errors to occur here due to the nature of mithril rendering
+      }
+    });
   }
 
   animateShow(readyCallback: () => void): void {
     if (!this.attrs.state.modal) return;
 
     const dismissible = !!this.attrs.state.modal.componentClass.isDismissible;
+
+    this.modalShown = true;
 
     // If we are opening this modal while another modal is already open,
     // the shown event will not run, because the modal is already open.
@@ -68,14 +88,12 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
         keyboard: dismissible,
       })
       .modal('show');
-
-    this.focusTrap.activate?.();
   }
 
   animateHide(): void {
     // @ts-expect-error: No typings available for Bootstrap modals.
     this.$().modal('hide');
 
-    this.focusTrap.deactivate?.();
+    this.modalShown = false;
   }
 }
