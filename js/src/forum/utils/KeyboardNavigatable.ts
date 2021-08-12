@@ -51,7 +51,7 @@ export default class KeyboardNavigatable {
   /**
    * Provide a callback to be executed when the current item is selected..
    *
-   * This will be triggered by the Return and Tab keys..
+   * This will be triggered by the Return key.
    */
   onSelect(callback: KeyboardEventHandler): KeyboardNavigatable {
     const handler: KeyboardEventHandler = (e) => {
@@ -59,8 +59,23 @@ export default class KeyboardNavigatable {
       callback(e);
     };
 
-    this.callbacks.set(9, handler);
     this.callbacks.set(13, handler);
+
+    return this;
+  }
+
+  /**
+   * Provide a callback to be executed when the current item is tabbed into.
+   *
+   * This will be triggered by the Tab key.
+   */
+  onTab(callback: KeyboardEventHandler): KeyboardNavigatable {
+    const handler: KeyboardEventHandler = (e) => {
+      e.preventDefault();
+      callback(e);
+    };
+
+    this.callbacks.set(9, handler);
 
     return this;
   }
@@ -84,10 +99,6 @@ export default class KeyboardNavigatable {
    * Provide a callback to be executed when previous input is removed.
    *
    * This will be triggered by the Backspace key.
-   *
-   * @public
-   * @param {KeyboardNavigatable~keyCallback} callback
-   * @return {KeyboardNavigatable}
    */
   onRemove(callback: KeyboardEventHandler): KeyboardNavigatable {
     this.callbacks.set(8, (e) => {
@@ -112,7 +123,7 @@ export default class KeyboardNavigatable {
   /**
    * Set up the navigation key bindings on the given jQuery element.
    */
-  bindTo($element: JQuery) {
+  bindTo($element: JQuery<HTMLElement>) {
     // Handle navigation key events on the navigatable element.
     $element[0].addEventListener('keydown', this.navigate.bind(this));
   }
