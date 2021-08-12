@@ -1,4 +1,5 @@
 import { createFocusTrap } from './focusTrap';
+import { throttle } from './throttleDebounce';
 
 /**
  * The `Drawer` class controls the page's drawer. The drawer is the area the
@@ -23,6 +24,17 @@ export default class Drawer {
 
     this.focusTrap = createFocusTrap('#drawer', { allowOutsideClick: true });
   }
+
+  resizeHandler(e) {
+    if (this.isOpen()) {
+      if (document.documentElement.style.getPropertyValue('--flarum-screen') !== 'phone') {
+        // Drawer is open but we've made window bigger, so hide it.
+        this.hide();
+      }
+    }
+  }
+
+  throttledResizeHandler = throttle(500, this.resizeHandler.bind(this));
 
   /**
    * Check whether or not the drawer is currently open.
@@ -51,6 +63,7 @@ export default class Drawer {
     const $app = $('#app');
 
     this.focusTrap.deactivate();
+    window.removeEventListener('resize', this.throttledResizeHandler);
 
     if (!this.isOpen()) return;
 
@@ -71,6 +84,8 @@ export default class Drawer {
    */
   show() {
     $('#app').addClass('drawerOpen');
+
+    window.addEventListener('resize', this.throttledResizeHandler, { passive: true });
 
     this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').on('click', this.hide.bind(this));
 
