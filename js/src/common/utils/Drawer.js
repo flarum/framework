@@ -7,7 +7,7 @@ export default class Drawer {
   constructor() {
     // Set up an event handler so that whenever the content area is tapped,
     // the drawer will close.
-    $('#content').click((e) => {
+    $('#content').on('click', (e) => {
       if (this.isOpen()) {
         e.preventDefault();
         this.hide();
@@ -61,10 +61,7 @@ export default class Drawer {
   show() {
     $('#app').addClass('drawerOpen');
 
-    this.$backdrop = $('<div/>')
-      .addClass('drawer-backdrop fade')
-      .appendTo('body')
-      .click(() => this.hide());
+    this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').on('click', this.hide.bind(this));
 
     setTimeout(() => this.$backdrop.addClass('in'));
   }
