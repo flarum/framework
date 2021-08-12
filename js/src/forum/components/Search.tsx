@@ -173,7 +173,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
     this.$('.Search-results')
       .on('mousedown', (e) => e.preventDefault())
-      .on('click', () => this.$('input').blur())
+      .on('click', () => this.$('input').trigger('blur'))
 
       // Whenever the mouse is hovered over a search result, highlight it.
       .on('mouseenter', '> li:not(.Dropdown-header)', function () {
@@ -222,7 +222,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
       .on('focus', function () {
         $(this)
           .one('mouseup', (e) => e.preventDefault())
-          .select();
+          .trigger('select');
       });
 
     this.updateMaxHeightHandler = this.updateMaxHeight.bind(this);
