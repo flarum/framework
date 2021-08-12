@@ -69,13 +69,13 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
       })
       .modal('show');
 
-    if (this.focusTrap) this.focusTrap.activate();
+    this.focusTrap.activate?.();
   }
 
   animateHide(): void {
     // @ts-expect-error: No typings available for Bootstrap modals.
     this.$().modal('hide');
 
-    if (this.focusTrap) this.focusTrap.deactivate();
+    this.focusTrap.deactivate?.();
   }
 }

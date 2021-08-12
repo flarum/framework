@@ -74,7 +74,7 @@ export default class Drawer {
 
     $app.removeClass('drawerOpen');
 
-    if (this.$backdrop) this.$backdrop.remove();
+    this.$backdrop.remove?.();
   }
 
   /**
