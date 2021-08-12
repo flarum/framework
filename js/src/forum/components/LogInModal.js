@@ -124,11 +124,17 @@ export default class LogInModal extends Modal {
   footer() {
     return [
       <p className="LogInModal-forgotPassword">
-        <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
+        <Button class="Button Button--reset" onclick={this.forgotPassword.bind(this)}>
+          {app.translator.trans('core.forum.log_in.forgot_password_link')}
+        </Button>
       </p>,
 
       app.forum.attribute('allowSignUp') ? (
-        <p className="LogInModal-signUp">{app.translator.trans('core.forum.log_in.sign_up_text', { a: <a onclick={this.signUp.bind(this)} /> })}</p>
+        <p className="LogInModal-signUp">
+          {app.translator.trans('core.forum.log_in.sign_up_text', {
+            a: <Button class="Button Button--reset" onclick={this.signUp.bind(this)} />,
+          })}
+        </p>
       ) : (
         ''
       ),

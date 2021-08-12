@@ -106,9 +106,13 @@ export default class DiscussionListItem extends Component {
             text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
             position="right"
           >
-            <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
-              {avatar(user, { title: '' })}
-            </Link>
+            {user ? (
+              <Link className="DiscussionListItem-author" href={app.route.user(user)}>
+                {avatar(user, { title: '' })}
+              </Link>
+            ) : (
+              <span className="DiscussionListItem-author">{avatar(user, { title: '' })}</span>
+            )}
           </Tooltip>
 
           <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>

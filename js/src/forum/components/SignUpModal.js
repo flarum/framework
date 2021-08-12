@@ -23,21 +23,21 @@ export default class SignUpModal extends Modal {
     /**
      * The value of the username input.
      *
-     * @type {Function}
+     * @type {Stream<string>}
      */
     this.username = Stream(this.attrs.username || '');
 
     /**
      * The value of the email input.
      *
-     * @type {Function}
+     * @type {Stream<string>}
      */
     this.email = Stream(this.attrs.email || '');
 
     /**
      * The value of the password input.
      *
-     * @type {Function}
+     * @type {Stream<string>}
      */
     this.password = Stream(this.attrs.password || '');
   }
@@ -127,7 +127,9 @@ export default class SignUpModal extends Modal {
 
   footer() {
     return [
-      <p className="SignUpModal-logIn">{app.translator.trans('core.forum.sign_up.log_in_text', { a: <a onclick={this.logIn.bind(this)} /> })}</p>,
+      <p className="SignUpModal-logIn">
+        {app.translator.trans('core.forum.sign_up.log_in_text', { a: <Button class="Button Button--reset" onclick={this.logIn.bind(this)} /> })}
+      </p>,
     ];
   }
 

@@ -121,7 +121,6 @@
   }
 }
 
-
 .Button--square {
   padding-left: 9px;
   padding-right: 9px;
@@ -134,20 +133,37 @@
   border-radius: 18px;
 }
 .Button--link {
-  background: transparent !important;
+  color: @control-color;
+  background: none;
 
-  &:hover {
-    background: transparent !important;
-    color: @link-color;
-  }
   &:active,
-  &.active,
-  &:focus,
-  &.focus,
-  .open > &.Dropdown-toggle {
-    background: transparent !important;
-    .box-shadow(none);
+  &:hover,
+  &:focus {
     color: @link-color;
+    box-shadow: none;
+    background: none;
+  }
+}
+.Button--reset {
+  padding: 0;
+  margin: 0;
+  display: inline;
+  text-align: unset;
+  color: @link-color;
+  background: none;
+  vertical-align: unset;
+  white-space: unset;
+  line-height: unset;
+  .user-select(auto);
+  width: auto !important;
+
+  &:active,
+  &:hover,
+  &:focus,
+  .open > &.Dropdown-toggle {
+    color: @link-color;
+    box-shadow: none;
+    background: none;
   }
 }
 .Button--text {

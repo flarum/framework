@@ -1,6 +1,7 @@
 import Component from '../../common/Component';
 import humanTime from '../../common/helpers/humanTime';
 import fullTime from '../../common/helpers/fullTime';
+import Button from '../../common/components/Button';
 
 /**
  * The `PostMeta` component displays the time of a post, and when clicked, shows
@@ -28,9 +29,9 @@ export default class PostMeta extends Component {
 
     return (
       <div className="Dropdown PostMeta">
-        <a className="Dropdown-toggle" onclick={selectPermalink} data-toggle="dropdown">
+        <Button className="Button Button--reset Dropdown-toggle" onclick={selectPermalink} data-toggle="dropdown">
           {humanTime(time)}
-        </a>
+        </Button>
 
         <div className="Dropdown-menu dropdown-menu">
           <span className="PostMeta-number">{app.translator.trans('core.forum.post.number_tooltip', { number: post.number() })}</span>{' '}

@@ -7,10 +7,16 @@
       font-size: 14px;
       margin-right: 2px;
     }
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       text-decoration: none;
       color: @link-color;
     }
+  }
+
+  &-first,
+  &-last {
+    color: @control-color;
   }
 }
 .Scrubber-scrollbar {
@@ -21,14 +27,20 @@
   cursor: pointer;
   .user-select(none);
 }
-.Scrubber-before, .Scrubber-after {
+.Scrubber-before,
+.Scrubber-after {
   border-left: 1px solid @control-bg;
 }
 .Scrubber-unread {
   position: absolute;
   border-left: 1px solid lighten(@muted-color, 10%);
   width: 100%;
-  background-image: linear-gradient(to right, @control-bg, fade(@control-bg, 0) 10px, fade(@control-bg, 0));
+  background-image: linear-gradient(
+    to right,
+    @control-bg,
+    fade(@control-bg, 0) 10px,
+    fade(@control-bg, 0)
+  );
   display: flex;
   align-items: center;
   color: @muted-color;

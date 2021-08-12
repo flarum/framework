@@ -1,4 +1,5 @@
 import Component from '../../common/Component';
+import Button from '../../common/components/Button';
 import icon from '../../common/helpers/icon';
 import formatNumber from '../../common/utils/formatNumber';
 import ScrollListener from '../../common/utils/ScrollListener';
@@ -61,9 +62,9 @@ export default class PostStreamScrubber extends Component {
 
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
-            <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
+            <Button className="Button Button--reset Scrubber-first" onclick={this.goToFirst.bind(this)}>
               {icon('fas fa-angle-double-up')} {app.translator.trans('core.forum.post_scrubber.original_post_link')}
-            </a>
+            </Button>
 
             <div className="Scrubber-scrollbar">
               <div className="Scrubber-before" />
@@ -81,9 +82,9 @@ export default class PostStreamScrubber extends Component {
               </div>
             </div>
 
-            <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
+            <Button className="Button Button--reset Scrubber-last" onclick={this.goToLast.bind(this)}>
               {icon('fas fa-angle-double-down')} {app.translator.trans('core.forum.post_scrubber.now_link')}
-            </a>
+            </Button>
           </div>
         </div>
       </div>
