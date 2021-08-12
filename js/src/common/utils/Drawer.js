@@ -63,6 +63,8 @@ export default class Drawer {
 
     this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').on('click', this.hide.bind(this));
 
-    setTimeout(() => this.$backdrop.addClass('in'));
+    requestAnimationFrame(() => {
+      this.$backdrop.addClass('in');
+    });
   }
 }
