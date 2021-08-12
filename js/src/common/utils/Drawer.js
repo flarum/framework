@@ -1,9 +1,16 @@
+import { createFocusTrap } from './focusTrap';
+
 /**
  * The `Drawer` class controls the page's drawer. The drawer is the area the
  * slides out from the left on mobile devices; it contains the header and the
  * footer.
  */
 export default class Drawer {
+  /**
+   * @type {import('./focusTrap').FocusTrap}
+   */
+  focusTrap;
+
   constructor() {
     // Set up an event handler so that whenever the content area is tapped,
     // the drawer will close.
@@ -13,6 +20,8 @@ export default class Drawer {
         this.hide();
       }
     });
+
+    this.focusTrap = createFocusTrap('#drawer', { allowOutsideClick: true });
   }
 
   /**
@@ -41,6 +50,8 @@ export default class Drawer {
 
     const $app = $('#app');
 
+    this.focusTrap.deactivate();
+
     if (!this.isOpen()) return;
 
     const $drawer = $('#drawer');
@@ -65,6 +76,8 @@ export default class Drawer {
 
     requestAnimationFrame(() => {
       this.$backdrop.addClass('in');
+
+      this.focusTrap.activate();
     });
   }
 }
