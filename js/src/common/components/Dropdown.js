@@ -64,7 +64,7 @@ export default class Dropdown extends Component {
         m.redraw.sync();
       }
 
-      if (onshow) {
+      if (typeof onshow === 'function') {
         onshow();
       }
 
