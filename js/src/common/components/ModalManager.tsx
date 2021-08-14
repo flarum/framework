@@ -1,12 +1,9 @@
 import Component from '../Component';
 
 import { createFocusTrap, FocusTrap } from '../utils/focusTrap';
-import { tabbable } from 'tabbable';
 
 import type ModalManagerState from '../states/ModalManagerState';
 import type Mithril from 'mithril';
-
-window.tabbable = tabbable;
 
 interface IModalManagerAttrs {
   state: ModalManagerState;
