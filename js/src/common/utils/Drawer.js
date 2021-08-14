@@ -25,6 +25,16 @@ export default class Drawer {
     this.focusTrap = createFocusTrap('#drawer', { allowOutsideClick: true });
   }
 
+  /**
+   * Handler for the `resize` event on `window`.
+   *
+   * This is used to close the drawer when the viewport is widened past the `phone` size.
+   * At this point, the drawer turns into the standard header that we see on desktop, but
+   * the drawer is still registered as 'open' internally.
+   *
+   * This causes issues with the focus trap, resulting in focus becoming trapped within
+   * the header on desktop viewports.
+   */
   resizeHandler(e) {
     if (this.isOpen() && app.screen() !== 'phone') {
       // Drawer is open but we've made window bigger, so hide it.
