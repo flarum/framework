@@ -26,11 +26,9 @@ export default class Drawer {
   }
 
   resizeHandler(e) {
-    if (this.isOpen()) {
-      if (document.documentElement.style.getPropertyValue('--flarum-screen') !== 'phone') {
-        // Drawer is open but we've made window bigger, so hide it.
-        this.hide();
-      }
+    if (this.isOpen() && app.screen() !== 'phone') {
+      // Drawer is open but we've made window bigger, so hide it.
+      this.hide();
     }
   }
 
