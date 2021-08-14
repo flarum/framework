@@ -12,15 +12,22 @@ export default class Drawer {
    */
   focusTrap;
 
+  /**
+   * @type {HTMLElement}
+   */
+  appElement;
+
   constructor() {
     // Set up an event handler so that whenever the content area is tapped,
     // the drawer will close.
-    $('#content').on('click', (e) => {
+    document.getElementById('content').addEventListener('click', (e) => {
       if (this.isOpen()) {
         e.preventDefault();
         this.hide();
       }
     });
+
+    this.appElement = document.getElementById('app');
 
     this.focusTrap = createFocusTrap('#drawer', { allowOutsideClick: true });
   }
@@ -68,8 +75,6 @@ export default class Drawer {
      * More info: https://github.com/flarum/core/pull/2666#discussion_r595381014
      */
 
-    const $app = $('#app');
-
     this.focusTrap.deactivate();
     window.removeEventListener('resize', this.throttledResizeHandler);
 
@@ -80,7 +85,7 @@ export default class Drawer {
     // Used to prevent `visibility: hidden` from breaking the exit animation
     $drawer.css('visibility', 'visible').one('transitionend', () => $drawer.css('visibility', ''));
 
-    $app.removeClass('drawerOpen');
+    this.appElement.classList.remove('drawerOpen');
 
     this.$backdrop.remove?.();
   }
@@ -91,7 +96,7 @@ export default class Drawer {
    * @public
    */
   show() {
-    $('#app').addClass('drawerOpen');
+    this.appElement.classList.add('drawerOpen');
 
     window.addEventListener('resize', this.throttledResizeHandler, { passive: true });
 
