@@ -61,7 +61,9 @@ interface JQuery {
    * Do not use this directly. Instead use the `<Tooltip>` component that
    * is exported from `flarum/common/components/Tooltip`.
    *
-   * This may be removed in a future version of Flarum.
+   * This will be removed in a future version of Flarum.
+   *
+   * @deprecated
    */
   tooltip: import('./tooltips/index').TooltipJQueryFunction;
 }
