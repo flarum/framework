@@ -147,7 +147,7 @@ export default class ItemList<T> {
   /**
    * Merge another list's items into this one.
    *
-   * The list passed to this function will overwrite items whichalready exist
+   * The list passed to this function will overwrite items which already exist
    * with the same key.
    */
   merge<K>(otherList: ItemList<K>): ItemList<T | K> {
