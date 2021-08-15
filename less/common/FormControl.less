@@ -9,14 +9,14 @@
   background-color: @control-bg;
   border: 2px solid transparent;
   border-radius: @border-radius;
-  .transition(~"border-color .15s, background .15s");
+  transition: border-color 0.15s, background 0.15s;
   -webkit-appearance: none;
 
-  &:focus,
-  &.focus {
+  &:focus {
     background-color: @body-bg;
     color: @text-color;
     border-color: @primary-color;
+    outline: none;
   }
 
   // Placeholder
@@ -42,6 +42,7 @@
     font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
   }
 }
+
 .helpText {
   font-size: 12px;
   line-height: 1.5em;
