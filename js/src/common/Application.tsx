@@ -26,6 +26,78 @@ import PageState from './states/PageState';
 import ModalManagerState from './states/ModalManagerState';
 import AlertManagerState from './states/AlertManagerState';
 
+import type DefaultResolver from './resolvers/DefaultResolver';
+import type Mithril from 'mithril';
+import type Component from './Component';
+import { ComponentAttrs } from './Component';
+
+/**
+ * A valid route definition.
+ */
+export type RouteItem<
+  Attrs extends ComponentAttrs,
+  Comp extends Component<Attrs & { routeName: string }>,
+  RouteArgs extends Record<string, unknown> = {}
+> =
+  | {
+      /**
+       * The path for your route.
+       *
+       * This might be a specific URL path (e.g.,`/myPage`), or it might
+       * contain a variable used by a resolver (e.g., `/myPage/:id`).
+       *
+       * @see https://docs.flarum.org/extend/frontend-pages.html#route-resolvers-advanced
+       */
+      path: `/${string}`;
+      /**
+       * The component to render when this route matches.
+       */
+      component: { new (): Comp };
+      /**
+       * A custom resolver class.
+       *
+       * This should be the class itself, and **not** an instance of the
+       * class.
+       */
+      resolverClass?: { new (): DefaultResolver<Attrs, Comp, RouteArgs> };
+    }
+  | {
+      /**
+       * The path for your route.
+       *
+       * This might be a specific URL path (e.g.,`/myPage`), or it might
+       * contain a variable used by a resolver (e.g., `/myPage/:id`).
+       *
+       * @see https://docs.flarum.org/extend/frontend-pages.html#route-resolvers-advanced
+       */
+      path: `/${string}`;
+      /**
+       * An instance of a route resolver.
+       */
+      resolver: RouteResolver<Attrs, Comp, RouteArgs>;
+    };
+
+export interface RouteResolver<
+  Attrs extends ComponentAttrs,
+  Comp extends Component<Attrs & { routeName: string }>,
+  RouteArgs extends Record<string, unknown> = {}
+> {
+  /**
+   * A method which selects which component to render based on
+   * conditional logic.
+   *
+   * Returns the component class, and **not** a Vnode or JSX
+   * expression.
+   */
+  onmatch(args: RouteArgs, requestedPath: string, route: string): { new (): Comp };
+  /**
+   * A function which renders the provided component.
+   *
+   * Returns a Mithril Vnode or other children.
+   */
+  render(vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
+}
+
 /**
  * The `App` class provides a container for an application, as well as various
  * utilities for the rest of the app to use.
@@ -33,11 +105,8 @@ import AlertManagerState from './states/AlertManagerState';
 export default class Application {
   /**
    * The forum model for this application.
-   *
-   * @type {Forum}
-   * @public
    */
-  forum = null;
+  forum!: Forum;
 
   /**
    * A map of routes, keyed by a unique route name. Each route is an object
@@ -47,44 +116,31 @@ export default class Application {
    * - `component` The Mithril component to render when this route is active.
    *
    * @example
-   * app.routes.discussion = {path: '/d/:id', component: DiscussionPage.component()};
-   *
-   * @type {Object}
-   * @public
+   * app.routes.discussion = { path: '/d/:id', component: DiscussionPage };
    */
-  routes = {};
+  routes: Record<string, RouteItem<ComponentAttrs, Component<ComponentAttrs & { routeName: string }>, Record<string, unknown>>> = {};
 
   /**
    * An ordered list of initializers to bootstrap the application.
-   *
-   * @type {ItemList}
-   * @public
    */
-  initializers = new ItemList();
+  initializers: ItemList<() => void> = new ItemList();
 
   /**
    * The app's session.
    *
-   * @type {Session}
-   * @public
+   * Stores info about the current user.
    */
-  session = null;
+  session!: Session;
 
   /**
    * The app's translator.
-   *
-   * @type {Translator}
-   * @public
    */
-  translator = new Translator();
+  translator: Translator = new Translator();
 
   /**
    * The app's data store.
-   *
-   * @type {Store}
-   * @public
    */
-  store = new Store({
+  store: Store = new Store({
     forums: Forum,
     users: User,
     discussions: Discussion,
@@ -96,28 +152,19 @@ export default class Application {
   /**
    * A local cache that can be used to store data at the application level, so
    * that is persists between different routes.
-   *
-   * @type {Object}
-   * @public
    */
-  cache = {};
+  cache: Record<string, unknown> = {};
 
   /**
    * Whether or not the app has been booted.
-   *
-   * @type {Boolean}
-   * @public
    */
-  booted = false;
+  booted: boolean = false;
 
   /**
    * The key for an Alert that was shown as a result of an AJAX request error.
    * If present, it will be dismissed on the next successful request.
-   *
-   * @type {int}
-   * @private
    */
-  requestErrorAlert = null;
+  private requestErrorAlert: number | null = null;
 
   /**
    * The page the app is currently on.
@@ -125,10 +172,8 @@ export default class Application {
    * This object holds information about the type of page we are currently
    * visiting, and sometimes additional arbitrary page state that may be
    * relevant to lower-level components.
-   *
-   * @type {PageState}
    */
-  current = new PageState(null);
+  current: PageState = new PageState(null);
 
   /**
    * The page the app was on before the current page.
@@ -136,33 +181,39 @@ export default class Application {
    * Once the application navigates to another page, the object previously
    * assigned to this.current will be moved to this.previous, while this.current
    * is re-initialized.
-   *
-   * @type {PageState}
    */
-  previous = new PageState(null);
+  previous: PageState = new PageState(null);
 
-  /*
+  /**
    * An object that manages modal state.
-   *
-   * @type {ModalManagerState}
    */
-  modal = new ModalManagerState();
+  modal: ModalManagerState = new ModalManagerState();
 
   /**
    * An object that manages the state of active alerts.
-   *
-   * @type {AlertManagerState}
    */
-  alerts = new AlertManagerState();
+  alerts: AlertManagerState = new AlertManagerState();
 
-  data;
+  /**
+   * An object that manages the state of the navigation drawer.
+   */
+  drawer!: Drawer;
 
-  title = '';
-  titleCount = 0;
+  data!: {
+    apiDocument: Record<string, unknown> | null;
+    locale: string;
+    locales: Record<string, string>;
+    resources: Record<string, unknown>[];
+    session: { userId: number; csrfToken: string };
+    [key: string]: unknown;
+  };
 
-  initialRoute;
+  title: string = '';
+  titleCount: number = 0;
 
-  load(payload) {
+  initialRoute!: string;
+
+  load(payload: Application['data']) {
     this.data = payload;
     this.translator.setLocale(payload.locale);
   }
@@ -182,7 +233,7 @@ export default class Application {
   }
 
   // TODO: This entire system needs a do-over for v2
-  bootExtensions(extensions) {
+  bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
@@ -197,44 +248,43 @@ export default class Application {
     });
   }
 
-  mount(basePath = '') {
+  mount(basePath: string = '') {
     // An object with a callable view property is used in order to pass arguments to the component; see https://mithril.js.org/mount.html
-    m.mount(document.getElementById('modal'), { view: () => ModalManager.component({ state: this.modal }) });
-    m.mount(document.getElementById('alerts'), { view: () => AlertManager.component({ state: this.alerts }) });
+    m.mount(document.getElementById('modal')!, { view: () => ModalManager.component({ state: this.modal }) });
+    m.mount(document.getElementById('alerts')!, { view: () => AlertManager.component({ state: this.alerts }) });
 
     this.drawer = new Drawer();
 
-    m.route(document.getElementById('content'), basePath + '/', mapRoutes(this.routes, basePath));
+    m.route(document.getElementById('content')!, basePath + '/', mapRoutes(this.routes, basePath));
+
+    const appEl = document.getElementById('app')!;
+    const appHeaderEl = document.querySelector('.App-header')!;
 
     // Add a class to the body which indicates that the page has been scrolled
     // down. When this happens, we'll add classes to the header and app body
     // which will set the navbar's position to fixed. We don't want to always
     // have it fixed, as that could overlap with custom headers.
-    const scrollListener = new ScrollListener((top) => {
-      const $app = $('#app');
-      const offset = $app.offset().top;
+    const scrollListener = new ScrollListener((top: number) => {
+      const offset = appEl.getBoundingClientRect().top + document.body.scrollTop;
 
-      $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
-      $('.App-header').toggleClass('navbar-fixed-top', top >= offset);
+      appEl.classList.toggle('affix', top >= offset);
+      appEl.classList.toggle('scrolled', top > offset);
+
+      appHeaderEl.classList.toggle('navbar-fixed-top', top >= offset);
     });
 
     scrollListener.start();
     scrollListener.update();
 
-    $(() => {
-      $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
-    });
+    document.body.classList.add('ontouchstart' in window ? 'touch' : 'no-touch');
 
     liveHumanTimes();
   }
 
   /**
    * Get the API response document that has been preloaded into the application.
-   *
-   * @return {Object|null}
-   * @public
    */
-  preloadedApiDocument() {
+  preloadedApiDocument(): Record<string, unknown> | null {
     // If the URL has changed, the preloaded Api document is invalid.
     if (this.data.apiDocument && window.location.href === this.initialRoute) {
       const results = this.store.pushPayload(this.data.apiDocument);
@@ -249,21 +299,19 @@ export default class Application {
 
   /**
    * Determine the current screen mode, based on our media queries.
-   *
-   * @returns {String} - one of "phone", "tablet", "desktop" or "desktop-hd"
    */
-  screen() {
+  screen(): 'phone' | 'tablet' | 'desktop' | 'desktop-hd' {
     const styles = getComputedStyle(document.documentElement);
-    return styles.getPropertyValue('--flarum-screen');
+    return styles.getPropertyValue('--flarum-screen') as ReturnType<Application['screen']>;
   }
 
   /**
    * Set the <title> of the page.
    *
-   * @param {String} title
+   * @param title New page title
    * @public
    */
-  setTitle(title) {
+  setTitle(title: string): void {
     this.title = title;
     this.updateTitle();
   }
@@ -271,14 +319,14 @@ export default class Application {
   /**
    * Set a number to display in the <title> of the page.
    *
-   * @param {Integer} count
+   * @param count Number to display in title
    */
-  setTitleCount(count) {
+  setTitleCount(count: number): void {
     this.titleCount = count;
     this.updateTitle();
   }
 
-  updateTitle() {
+  updateTitle(): void {
     const count = this.titleCount ? `(${this.titleCount}) ` : '';
     const pageTitleWithSeparator = this.title && m.route.get() !== this.forum.attribute('basePath') + '/' ? this.title + ' - ' : '';
     const title = this.forum.attribute('title');
@@ -289,11 +337,13 @@ export default class Application {
    * Make an AJAX request, handling any low-level errors that may occur.
    *
    * @see https://mithril.js.org/request.html
-   * @param {Object} options
+   *
+   * @param options
    * @return {Promise}
-   * @public
    */
-  request(originalOptions) {
+  request<ResponseType>(
+    originalOptions: Mithril.RequestOptions<ResponseType> & { errorHandler: (errorMessage: string) => void; url: string }
+  ): Promise<ResponseType | string> {
     const options = Object.assign({}, originalOptions);
 
     // Set some default options if they haven't been overridden. We want to
@@ -302,27 +352,34 @@ export default class Application {
     // prevent redraws from occurring.
     options.background = options.background || true;
 
-    extend(options, 'config', (result, xhr) => xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken));
+    extend(options, 'config', (_: undefined, xhr: Parameters<Required<Mithril.RequestOptions<ResponseType>>['config']>[0]) => {
+      xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken!);
+    });
 
     // If the method is something like PATCH or DELETE, which not all servers
     // and clients support, then we'll send it as a POST request with the
     // intended method specified in the X-HTTP-Method-Override header.
-    if (options.method !== 'GET' && options.method !== 'POST') {
+    if (options.method && !['GET', 'POST'].includes(options.method)) {
       const method = options.method;
-      extend(options, 'config', (result, xhr) => xhr.setRequestHeader('X-HTTP-Method-Override', method));
+
+      extend(options, 'config', (_: undefined, xhr: Parameters<Required<Mithril.RequestOptions<ResponseType>>['config']>[0]) => {
+        xhr.setRequestHeader('X-HTTP-Method-Override', method);
+      });
+
       options.method = 'POST';
     }
 
     // When we deserialize JSON data, if for some reason the server has provided
     // a dud response, we don't want the application to crash. We'll show an
     // error message to the user instead.
-    options.deserialize = options.deserialize || ((responseText) => responseText);
 
-    options.errorHandler =
-      options.errorHandler ||
-      ((error) => {
-        throw error;
-      });
+    // @ts-expect-error Typescript doesn't know we return promisified `ReturnType` OR `string`,
+    // so it errors due to Mithril's typings
+    options.deserialize ||= (responseText: string) => responseText;
+
+    options.errorHandler ||= (error) => {
+      throw error;
+    };
 
     // When extracting the data from the response, we can check the server
     // response code and show an error message to the user if something's gone
@@ -332,7 +389,7 @@ export default class Application {
       let responseText;
 
       if (original) {
-        responseText = original(xhr.responseText);
+        responseText = original(xhr, options);
       } else {
         responseText = xhr.responseText || null;
       }
@@ -340,7 +397,7 @@ export default class Application {
       const status = xhr.status;
 
       if (status < 200 || status > 299) {
-        throw new RequestError(status, responseText, options, xhr);
+        throw new RequestError(`${status}`, `${responseText}`, options, xhr);
       }
 
       if (xhr.getResponseHeader) {
@@ -349,9 +406,10 @@ export default class Application {
       }
 
       try {
+        // @ts-expect-error
         return JSON.parse(responseText);
       } catch (e) {
-        throw new RequestError(500, responseText, options, xhr);
+        throw new RequestError('500', `${responseText}`, options, xhr);
       }
     };
 
@@ -366,7 +424,7 @@ export default class Application {
 
         switch (error.status) {
           case 422:
-            content = error.response.errors
+            content = (error.response.errors as Record<string, unknown>[])
               .map((error) => [error.detail, <br />])
               .reduce((a, b) => a.concat(b), [])
               .slice(0, -1);
@@ -405,7 +463,7 @@ export default class Application {
           content,
           controls: isDebug && [
             <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
-              Debug
+              {app.translator.trans('core.lib.debug_button')}
             </Button>,
           ],
         };
@@ -437,33 +495,28 @@ export default class Application {
    * @param {string[]} [formattedError]
    * @private
    */
-  showDebug(error, formattedError) {
-    this.alerts.dismiss(this.requestErrorAlert);
+  showDebug(error: RequestError, formattedError?: string[]) {
+    if (this.requestErrorAlert !== null) this.alerts.dismiss(this.requestErrorAlert);
 
     this.modal.show(RequestErrorModal, { error, formattedError });
   }
 
   /**
    * Construct a URL to the route with the given name.
-   *
-   * @param {String} name
-   * @param {Object} params
-   * @return {String}
-   * @public
    */
-  route(name, params = {}) {
+  route(name: string, params: Record<string, unknown> = {}): string {
     const route = this.routes[name];
 
     if (!route) throw new Error(`Route '${name}' does not exist`);
 
-    const url = route.path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
+    const url = route.path.replace(/:([^\/]+)/g, (m, key) => `${extract(params, key)}`);
 
     // Remove falsy values in params to avoid having urls like '/?sort&q'
     for (const key in params) {
       if (params.hasOwnProperty(key) && !params[key]) delete params[key];
     }
 
-    const queryString = m.buildQueryString(params);
+    const queryString = m.buildQueryString(params as any);
     const prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
 
     return prefix + url + (queryString ? '?' + queryString : '');
