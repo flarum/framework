@@ -13,7 +13,7 @@
   &,
   &:before,
   &:after {
-    .box-sizing(border-box);
+    box-sizing: border-box;
   }
 }
 
@@ -125,7 +125,7 @@ input[type="search"] {
 
 .fade {
   opacity: 0;
-  .transition(opacity .15s linear);
+  transition: opacity .15s linear;
   &.in {
     opacity: 1;
   }

@@ -65,7 +65,7 @@
     top: -10px;
     left: -100px;
     z-index: @zindex-dropdown;
-    .transition(~"opacity 0.2s, transform 0.2s");
+    transition: ~"opacity 0.2s, transform 0.2s";
     transform: scale(0.95);
     transform-origin: left top;
     opacity: 0;
@@ -297,7 +297,7 @@
   float: right;
   position: relative;
 
-  .transition(opacity 0.2s);
+  transition: opacity 0.2s;
 
   .EventPost &, .Post--hidden:not(.revealContent) & {
     margin-top: -27px;

@@ -28,8 +28,8 @@
   100% {opacity: 0.5}
 }
 .LoadingPost {
-  .animation(blink 1s linear);
-  .animation-iteration-count(infinite);
+  animation: blink 1s linear;
+  animation-iteration-count: infinite;
 }
 .fakeText {
   display: inline-block;
@@ -74,12 +74,12 @@
   100% {transform: scale(1)}
 }
 .pulsate {
-  .animation(pulsate 1s ease-in-out);
-  .animation-iteration-count(infinite);
+  animation: pulsate 1s ease-in-out;
+  animation-iteration-count: infinite;
 }
 .flash {
-  .animation(pulsate 0.2s ease-in-out);
-  .animation-iteration-count(1);
+  animation: pulsate 0.2s ease-in-out;
+  animation-iteration-count: 1;
 }
 
 @-webkit-keyframes fadeIn {
@@ -91,6 +91,6 @@
   100% {opacity: 1}
 }
 .fadeIn {
-  .animation(fadeIn 0.4s ease-in-out);
-  .animation-iteration-count(1);
+  animation: fadeIn 0.4s ease-in-out;
+  animation-iteration-count: 1;
 }
