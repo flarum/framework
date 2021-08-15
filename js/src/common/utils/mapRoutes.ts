@@ -1,3 +1,5 @@
+import type { RouteItem, RouteResolver } from '../Application';
+import type Component from '../Component';
 import DefaultResolver from '../resolvers/DefaultResolver';
 
 /**
@@ -6,12 +8,15 @@ import DefaultResolver from '../resolvers/DefaultResolver';
  * to provide each route with the current route name.
  *
  * @see https://mithril.js.org/route.html#signature
- * @param {Object} routes
- * @param {String} [basePath]
- * @return {Object}
  */
-export default function mapRoutes(routes, basePath = '') {
-  const map = {};
+export default function mapRoutes(
+  routes: Record<string, RouteItem<Record<string, unknown>, Component<{ routeName: string; [key: string]: unknown }>, Record<string, unknown>>>,
+  basePath: string = ''
+) {
+  const map: Record<
+    string,
+    RouteResolver<Record<string, unknown>, Component<{ routeName: string; [key: string]: unknown }>, Record<string, unknown>>
+  > = {};
 
   for (const routeName in routes) {
     const route = routes[routeName];
@@ -19,7 +24,7 @@ export default function mapRoutes(routes, basePath = '') {
     if ('resolver' in route) {
       map[basePath + route.path] = route.resolver;
     } else if ('component' in route) {
-      const resolverClass = 'resolverClass' in route ? route.resolverClass : DefaultResolver;
+      const resolverClass = 'resolverClass' in route ? route.resolverClass! : DefaultResolver;
       map[basePath + route.path] = new resolverClass(route.component, routeName);
     } else {
       throw new Error(`Either a resolver or a component must be provided for the route [${routeName}]`);
