@@ -228,13 +228,13 @@
     background: fade(@body-bg, 95%);
     position: relative;
     height: 300px;
-    transition: ~"background 0.2s, box-shadow 0.2s";
+    transition: background 0.2s, box-shadow 0.2s;
 
     &.active, &.fullScreen {
       background: @body-bg;
     }
     &.active:not(.fullScreen) {
-      box-shadow: ~"0 0 0 2px @{primary-color}, 0 2px 6px @{shadow-color}";
+      box-shadow: 0 0 0 2px @primary-color, 0 2px 6px @shadow-color;
     }
     &.fullScreen {
       position: fixed;

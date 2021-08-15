@@ -16,7 +16,7 @@
   z-index: @zindex-modal-background;
   background-color: @overlay-bg;
   opacity: 0;
-  transition: 0.2s opacity;
+  transition: opacity 0.2s;
 
   &.in {
     opacity: 1;
@@ -41,7 +41,7 @@
     transition: transform 0.2s ease-out;
   }
   &.in .Modal {
-    transform: scale(0.9);
+    transform: scale(1);
   }
 }
 .modal-open .ModalManager {
@@ -126,7 +126,7 @@
   opacity: 0;
   pointer-events: none;
   border-radius: @border-radius;
-  transition: 0.2s opacity;
+  transition: opacity 0.2s;
 
   &.active {
     opacity: 1;

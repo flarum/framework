@@ -40,7 +40,7 @@
     > .Button {
       float: none;
       background: transparent !important;
-      box-shadow: ~"none !important";
+      box-shadow: none !important;
       height: @header-height-phone;
       width: auto;
       padding: 13px !important;
@@ -155,7 +155,7 @@
     z-index: @zindex-modal-background;
     background-color: @overlay-bg;
     opacity: 0;
-    transition: 0.2s opacity;
+    transition: opacity 0.2s;
 
     &.in {
       opacity: 0.9;
