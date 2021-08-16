@@ -38,17 +38,18 @@ export type RouteItem<
   Attrs extends ComponentAttrs,
   Comp extends Component<Attrs & { routeName: string }>,
   RouteArgs extends Record<string, unknown> = {}
-> =
+> = {
+  /**
+   * The path for your route.
+   *
+   * This might be a specific URL path (e.g.,`/myPage`), or it might
+   * contain a variable used by a resolver (e.g., `/myPage/:id`).
+   *
+   * @see https://docs.flarum.org/extend/frontend-pages.html#route-resolvers-advanced
+   */
+  path: `/${string}`;
+} & (
   | {
-      /**
-       * The path for your route.
-       *
-       * This might be a specific URL path (e.g.,`/myPage`), or it might
-       * contain a variable used by a resolver (e.g., `/myPage/:id`).
-       *
-       * @see https://docs.flarum.org/extend/frontend-pages.html#route-resolvers-advanced
-       */
-      path: `/${string}`;
       /**
        * The component to render when this route matches.
        */
@@ -63,19 +64,11 @@ export type RouteItem<
     }
   | {
       /**
-       * The path for your route.
-       *
-       * This might be a specific URL path (e.g.,`/myPage`), or it might
-       * contain a variable used by a resolver (e.g., `/myPage/:id`).
-       *
-       * @see https://docs.flarum.org/extend/frontend-pages.html#route-resolvers-advanced
-       */
-      path: `/${string}`;
-      /**
        * An instance of a route resolver.
        */
       resolver: RouteResolver<Attrs, Comp, RouteArgs>;
-    };
+    }
+);
 
 export interface RouteResolver<
   Attrs extends ComponentAttrs,
