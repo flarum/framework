@@ -1,9 +1,15 @@
+:root {
+  --following-bg: #ffea7b;
+  --following-color: #de8e00;
+  --ignoring-bg: #aaa;
+}
+
 .Badge--following {
-  background: #ffea7b;
-  color: #de8e00;
+  --badge-bg: var(--following-bg);
+  --badge-color: var(--following-color);
 }
 .Badge--ignoring {
-  background: #aaa;
+  --badge-bg: var(--ignoring-bg);
 }
 .SubscriptionMenu-button--follow {
   & when (@config-dark-mode = false) {
