@@ -6,6 +6,7 @@ import DiscussionStickiedPost from './components/DiscussionStickiedPost';
 import addStickyBadge from './addStickyBadge';
 import addStickyControl from './addStickyControl';
 import addStickyExcerpt from './addStickyExcerpt';
+import addStickyClass from './addStickyClass';
 
 app.initializers.add('flarum-sticky', () => {
   app.postComponents.discussionStickied = DiscussionStickiedPost;
@@ -16,5 +17,6 @@ app.initializers.add('flarum-sticky', () => {
   addStickyBadge();
   addStickyControl();
   addStickyExcerpt();
+  addStickyClass();
 });
 
