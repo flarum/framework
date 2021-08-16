@@ -4,19 +4,21 @@
   display: inline-block;
   padding: 0.1em 0.5em;
   border-radius: @border-radius;
-  background: @control-bg;
-  color: @control-color;
+  background: var(--tag-bg);
+  color: var(--tag-color);
   text-transform: none;
 
   &.untagged {
-    background: transparent;
-    border: 1px dotted @muted-color;
-    color: @muted-color;
+    --tag-bg: transparent;
+    --tag-color: @muted-color;
+    border: 1px dotted;
   }
 
   &.colored {
+    --tag-color: @body-bg;
+
     .TagLabel-text {
-      color: @body-bg !important;
+      color: var(--tag-color) !important;
     }
   }
 
@@ -26,13 +28,9 @@
     font-size: 14px;
 
     &.colored {
+      --tag-color: var(--tag-bg);
       margin-right: 5px;
       background: @body-bg !important;
-      color: @muted-color;
-
-      .TagLabel-text {
-        color: inherit !important;
-      }
     }
   }
 }

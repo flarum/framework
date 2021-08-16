@@ -22,7 +22,7 @@ export default function() {
     if (tags && tags.length) {
       const color = tags[0].color();
       if (color) {
-        view.attrs.style = {backgroundColor: color};
+        view.attrs.style = { '--hero-bg': color };
         view.attrs.className += ' DiscussionHero--colored';
       }
     }

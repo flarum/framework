@@ -1,25 +1,36 @@
-@import "common/TagLabel";
-@import "common/TagIcon";
+@import "common/common";
 
 @import "forum/TagCloud";
 @import "forum/TagDiscussionModal";
+@import "forum/TagHero";
 @import "forum/TagTiles";
 
+.Button--tagColored {
+  --button-primary-bg: var(--color);
+  --button-primary-bg-hover: var(--color);
+  --button-primary-bg-active: var(--color);
+}
 .DiscussionHero {
   .item-title {
     display: block;
     margin-top: 15px;
   }
 }
-.TagLinkButton.child {
-  @media @tablet-up {
-    padding-top: 4px;
-    padding-bottom: 4px;
-  }
-  margin-left: 10px;
+.TagLinkButton {
+  &.child {
+    @media @tablet-up {
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+    margin-left: 10px;
 
-  .TagIcon {
-    display: none;
+    .TagIcon {
+      display: none;
+    }
+  }
+
+  .active > & {
+    --sidenav-color-active: var(--color);
   }
 }
 .DiscussionComposer-changeTags {

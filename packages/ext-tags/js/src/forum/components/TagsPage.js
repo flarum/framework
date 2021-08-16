@@ -59,7 +59,7 @@ export default class TagsPage extends Page {
 
                 return (
                   <li className={'TagTile ' + (tag.color() ? 'colored' : '')}
-                    style={{backgroundColor: tag.color()}}>
+                    style={{ '--tag-bg': tag.color() }}>
                     <Link className="TagTile-info" href={app.route.tag(tag)}>
                       {tag.icon() && tagIcon(tag, {}, { useColor: false })}
                       <h3 className="TagTile-name">{tag.name()}</h3>

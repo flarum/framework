@@ -8,7 +8,7 @@ export default class TagHero extends Component {
 
     return (
       <header className={'Hero TagHero' + (color ? ' TagHero--colored' : '')}
-        style={color ? {color: '#fff', backgroundColor: color} : ''}>
+        style={color ? { '--hero-bg': color } : ''}>
         <div className="container">
           <div className="containerNarrow">
             <h2 className="Hero-title">{tag.icon() && tagIcon(tag, {}, { useColor: false })} {tag.name()}</h2>

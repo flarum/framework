@@ -12,7 +12,7 @@ export default function tagLabel(tag, attrs = {}) {
   if (tag) {
     const color = tag.color();
     if (color) {
-      attrs.style.backgroundColor = attrs.style.color = color;
+      attrs.style['--tag-bg'] = color;
       attrs.className += ' colored';
     }
 

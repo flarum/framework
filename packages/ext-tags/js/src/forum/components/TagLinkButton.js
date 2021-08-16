@@ -17,9 +17,9 @@ export default class TagLinkButton extends LinkButton {
 
     return (
       <Link className={className} href={this.attrs.route}
-        style={active && tag ? {color: tag.color()} : ''}
+        style={tag ? { '--color': tag.color() } : ''}
         title={description || ''}>
-        {tagIcon(tag, {className: 'Button-icon'})}
+        {tagIcon(tag, { className: 'Button-icon' })}
         <span className="Button-label">
           {tag ? tag.name() : app.translator.trans('flarum-tags.forum.index.untagged_link')}
         </span>
