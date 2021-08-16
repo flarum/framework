@@ -2,6 +2,7 @@ import { extend, override } from 'flarum/extend';
 import IndexPage from 'flarum/components/IndexPage';
 import DiscussionListState from 'flarum/states/DiscussionListState';
 import GlobalSearchState from 'flarum/states/GlobalSearchState';
+import classList from 'flarum/utils/classList';
 
 import TagHero from './components/TagHero';
 
@@ -67,13 +68,15 @@ export default function() {
     if (tag) {
       const color = tag.color();
       const canStartDiscussion = tag.canStartDiscussion() || !app.session.user;
+      const newDiscussion = items.get('newDiscussion');
 
       if (color) {
-        items.get('newDiscussion').attrs.style = {backgroundColor: color};
+        newDiscussion.attrs.className = classList([newDiscussion.attrs.className, 'Button--tagColored']);
+        newDiscussion.attrs.style = { '--color': color };
       }
 
-      items.get('newDiscussion').attrs.disabled = !canStartDiscussion;
-      items.get('newDiscussion').children = app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button');
+      newDiscussion.attrs.disabled = !canStartDiscussion;
+      newDiscussion.children = app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button');
     }
   });
 

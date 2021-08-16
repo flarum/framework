@@ -10,16 +10,14 @@ export default function tagIcon(tag, attrs = {}, settings = {}) {
     hasIcon ? tag.icon() : 'TagIcon'
   ]);
 
-  if (tag) {
+  if (tag && useColor) {
     attrs.style = attrs.style || {};
+    attrs.style['--color'] = tag.color();
 
     if (hasIcon) {
-      attrs.style.color = useColor ? tag.color() : '';
-    } else {
-      attrs.style.backgroundColor = tag.color();
+      attrs.style.color = tag.color();
     }
-
-  } else {
+  } else if (!tag) {
     attrs.className += ' untagged';
   }
 
