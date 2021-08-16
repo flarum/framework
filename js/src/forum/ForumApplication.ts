@@ -19,78 +19,65 @@ import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import isSafariMobile from './utils/isSafariMobile';
 
+import app from './app';
+
+import type Notification from './components/Notification';
+import type Post from './components/Post';
+
 export default class ForumApplication extends Application {
   /**
    * A map of notification types to their components.
-   *
-   * @type {Object}
    */
-  notificationComponents = {
+  notificationComponents: Record<string, typeof Notification> = {
     discussionRenamed: DiscussionRenamedNotification,
   };
+
   /**
    * A map of post types to their components.
-   *
-   * @type {Object}
    */
-  postComponents = {
+  postComponents: Record<string, typeof Post> = {
     comment: CommentPost,
     discussionRenamed: DiscussionRenamedPost,
   };
 
   /**
    * An object which controls the state of the page's side pane.
-   *
-   * @type {Pane}
    */
-  pane = null;
-
-  /**
-   * An object which controls the state of the page's drawer.
-   *
-   * @type {Drawer}
-   */
-  drawer = null;
+  pane: Pane | null = null;
 
   /**
    * The app's history stack, which keeps track of which routes the user visits
    * so that they can easily navigate back to the previous route.
-   *
-   * @type {History}
    */
-  history = new History();
+  history: History = new History();
 
   /**
    * An object which controls the state of the user's notifications.
-   *
-   * @type {NotificationListState}
    */
-  notifications = new NotificationListState(this);
+  notifications: NotificationListState = new NotificationListState();
 
-  /*
+  /**
    * An object which stores previously searched queries and provides convenient
    * tools for retrieving and managing search values.
-   *
-   * @type {GlobalSearchState}
    */
-  search = new GlobalSearchState();
+  search: GlobalSearchState = new GlobalSearchState();
 
-  /*
+  /**
    * An object which controls the state of the composer.
    */
-  composer = new ComposerState();
+  composer: ComposerState = new ComposerState();
+
+  /**
+   * An object which controls the state of the cached discussion list, which
+   * is used in the index page and the slideout pane.
+   */
+  discussions?: DiscussionListState;
 
   constructor() {
     super();
 
     routes(this);
 
-    /**
-     * An object which controls the state of the cached discussion list, which
-     * is used in the index page and the slideout pane.
-     *
-     * @type {DiscussionListState}
-     */
     this.discussions = new DiscussionListState({});
   }
 
@@ -119,17 +106,17 @@ export default class ForumApplication extends Application {
 
     // We mount navigation and header components after the page, so components
     // like the back button can access the updated state when rendering.
-    m.mount(document.getElementById('app-navigation'), { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
-    m.mount(document.getElementById('header-navigation'), Navigation);
-    m.mount(document.getElementById('header-primary'), HeaderPrimary);
-    m.mount(document.getElementById('header-secondary'), HeaderSecondary);
-    m.mount(document.getElementById('composer'), { view: () => Composer.component({ state: this.composer }) });
+    m.mount(document.getElementById('app-navigation')!, { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
+    m.mount(document.getElementById('header-navigation')!, Navigation);
+    m.mount(document.getElementById('header-primary')!, HeaderPrimary);
+    m.mount(document.getElementById('header-secondary')!, HeaderSecondary);
+    m.mount(document.getElementById('composer')!, { view: () => Composer.component({ state: this.composer }) });
 
     alertEmailConfirmation(this);
 
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
-    $('#home-link').click((e) => {
+    document.getElementById('home-link')!.addEventListener('click', (e) => {
       if (e.ctrlKey || e.metaKey || e.which === 2) return;
       e.preventDefault();
       app.history.home();
