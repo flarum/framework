@@ -492,6 +492,7 @@ core:
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
+    debug_button: Debug
 
     # These translations are displayed as tooltips for discussion badges.
     badge:
