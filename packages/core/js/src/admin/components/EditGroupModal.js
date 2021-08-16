@@ -32,7 +32,7 @@ export default class EditGroupModal extends Modal {
       this.color() || this.icon()
         ? Badge.component({
             icon: this.icon(),
-            style: { backgroundColor: this.color() },
+            color: this.color(),
           })
         : '',
       ' ',
