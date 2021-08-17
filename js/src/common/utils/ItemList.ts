@@ -42,24 +42,11 @@ export default class ItemList<T> {
    * nor do we allow modifying existing items directly.
    *
    * Attempting to write to this **will** throw an error.
+   *
+   * @deprecated Use `ItemList.toObject()` instead.
    */
-  get items(): Record<string, Item<T>> {
-    return new Proxy(this._items, {
-      get(target, property, receiver) {
-        if (typeof property === 'string' && target[property] instanceof Item) {
-          return new Proxy(target[property], {
-            set() {
-              throw 'Modifying Items in an ItemList directly is not allowed. You must use `ItemList.replace()` instead.';
-            },
-          });
-        }
-
-        return Reflect.get(target, property, receiver);
-      },
-      set() {
-        throw 'Setting values of `ItemList.items` is not allowed. You must use `ItemList.add()` instead.';
-      },
-    });
+  get items(): Readonly<Record<string, Item<T>>> {
+    return this.toObject();
   }
 
   /**
@@ -245,4 +232,44 @@ export default class ItemList<T> {
       })
       .map((item) => item.content);
   }
+
+  /**
+   * A read-only map of all keys to their respective items.
+   *
+   * We don't allow adding new items to the ItemList via setting new properties,
+   * nor do we allow modifying existing items directly. You should use the
+   * `.add()` and `.replace()` methods respectively instead.
+   *
+   * Attempting to write to this **will** throw an error.
+   *
+   * @example
+   * const items = new ItemList();
+   * items.add('myKey', 'My cool value', 10);
+   * items.toObject();
+   * // { myKey: { content: 'My cool value', priority: 10 } }
+   */
+  toObject(): Readonly<Record<string, Item<T>>> {
+    return new Proxy(this._items, {
+      get(target, property, receiver) {
+        if (typeof property === 'string' && target[property] instanceof Item) {
+          return new Proxy(target[property], {
+            set() {
+              // Disallow directly modifying Item.content, Item.priority, Item.key.
+              throw Error(
+                'Modifying Items in an ItemList directly is not allowed. You must use `ItemList.replace()` or `ItemList.changePriority()` instead.'
+              );
+            },
+          });
+        }
+
+        return Reflect.get(target, property, receiver);
+      },
+      set() {
+        // Disallow overwriting items
+        throw Error('Setting values of `ItemList.items` is not allowed. You must use `ItemList.add()` instead.');
+      },
+    });
+  }
 }
+
+window.ItemList = ItemList;
