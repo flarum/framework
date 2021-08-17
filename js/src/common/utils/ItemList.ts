@@ -263,16 +263,6 @@ export default class ItemList<T> {
       .map((item) => item.content);
   }
 
-  private createItemContentProxy<C extends Object>(content: C, key: string) {
-    return new Proxy(content, {
-      get(target, property, receiver) {
-        if (property === 'itemName') return key;
-
-        return Reflect.get(target, property, receiver);
-      },
-    });
-  }
-
   /**
    * A read-only map of all keys to their respective items.
    *
@@ -307,6 +297,16 @@ export default class ItemList<T> {
       set() {
         // Disallow overwriting items
         throw Error('Setting values of `ItemList.items` is not allowed. You must use `ItemList.add()` instead.');
+      },
+    });
+  }
+
+  protected createItemContentProxy<C extends Object>(content: C, key: string) {
+    return new Proxy(content, {
+      get(target, property, receiver) {
+        if (property === 'itemName') return key;
+
+        return Reflect.get(target, property, receiver);
       },
     });
   }
