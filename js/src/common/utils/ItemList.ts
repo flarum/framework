@@ -53,7 +53,7 @@ export default class ItemList<T> {
    * Check whether the list is empty.
    */
   isEmpty(): boolean {
-    return !!Object.keys(this._items).length;
+    return Object.keys(this._items).length === 0;
   }
 
   /**
