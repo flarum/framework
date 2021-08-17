@@ -166,17 +166,22 @@ export default class ItemList<T> {
    * Convert the list into an array of item content arranged by priority. Each
    * item's content will be assigned an `itemName` property equal to the item's
    * unique key.
+   *
+   * @param addItemName Set to `false` to not set the `itemName` property on each item's content
    */
-  toArray(): T[] {
+  toArray(addItemName: boolean = true): T[] {
     const items: Item<T>[] = [];
 
     Object.keys(this.items).forEach((key) => {
       const val = this.items[key];
 
       if (val instanceof Item) {
-        val.content = Object(val.content);
+        if (addItemName) {
+          val.content = Object(val.content);
 
-        (val.content as T & { itemName: string }).itemName = key;
+          (val.content as T & { itemName: string }).itemName = key;
+        }
+
         val.key = items.length;
 
         items.push(val);
