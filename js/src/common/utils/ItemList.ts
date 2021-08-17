@@ -311,5 +311,3 @@ export default class ItemList<T> {
     });
   }
 }
-
-window.ItemList = ItemList;
