@@ -240,17 +240,15 @@ export default class ItemList<T> {
       const item = this._items[key];
       item.key = i;
 
-      if (objectifyContent) {
+      if (objectifyContent || typeof item.content === 'object') {
         // Convert content to object, then proxy it
-        return { ...item, content: this.createItemContentProxy(Object(item.content), key) };
+        return {
+          ...item,
+          content: this.createItemContentProxy(typeof item.content === 'object' ? item.content : Object(item.content), key),
+        };
       } else {
-        if (typeof item.content === 'object') {
-          // If the content already is an object, proxy it
-          return { ...item, content: this.createItemContentProxy(item.content, key) };
-        } else {
-          // ...otherwise just return a clone of the item.
-          return { ...item };
-        }
+        // ...otherwise just return a clone of the item.
+        return { ...item };
       }
     });
 
