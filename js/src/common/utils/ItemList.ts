@@ -197,28 +197,60 @@ export default class ItemList<T> {
   }
 
   /**
-   * Convert the list into an array of item content arranged by priority. Each
-   * item's content will be assigned an `itemName` property equal to the item's
-   * unique key.
+   * Convert the list into an array of item content arranged by priority.
    *
-   * @param addItemName Set to `false` to not set the `itemName` property on each item's content
+   * This **does not** preserve the original types of primitives and proxies
+   * all content values to make `itemName` accessible on them.
+   *
+   * **NOTE:** Modifying any objects in the final array may also update the
+   * content of the original ItemList.
+   *
+   * @see https://github.com/flarum/core/issues/3030
    */
-  toArray(addItemName: boolean = true): T[] {
-    const items: Item<T>[] = [];
+  toArray(objectifyContent?: true): (T & { itemName: string })[];
+  /**
+   * Convert the list into an array of item content arranged by priority.
+   *
+   * Content values that are already objects will be proxied and have
+   * `itemName` accessible on them.
+   *
+   * **NOTE:** Modifying any objects in the final array may also update the
+   * content of the original ItemList.
+   */
+  toArray(objectifyContent: false): (T extends Object ? T & { itemName: string } : T)[];
 
-    Object.keys(this.items).forEach((key) => {
-      const val = this.items[key];
+  /**
+   * Convert the list into an array of item content arranged by priority.
+   *
+   * Each item's content will be assigned an `itemName` property equal to the
+   * item's unique key.
+   *
+   * **NOTE:** If your ItemList holds primitive types (such as numbers, booleans
+   * or strings), these will be converted to their object counterparts if you do
+   * not provide `false` to this function.
+   *
+   * **NOTE:** Modifying any objects in the final array may also update the
+   * content of the original ItemList.
+   *
+   * @param objectifyContent Converts item content to objects and sets the
+   * `itemName` property on them.
+   */
+  toArray(objectifyContent: boolean = true): T[] | (T & { itemName: string })[] {
+    const items: Item<T>[] = Object.keys(this._items).map((key, i) => {
+      const item = this._items[key];
+      item.key = i;
 
-      if (val instanceof Item) {
-        if (addItemName) {
-          val.content = Object(val.content);
-
-          (val.content as T & { itemName: string }).itemName = key;
+      if (objectifyContent) {
+        // Convert content to object, then proxy it
+        return { ...item, content: this.createItemContentProxy(Object(item.content), key) };
+      } else {
+        if (typeof item.content === 'object') {
+          // If the content already is an object, proxy it
+          return { ...item, content: this.createItemContentProxy(item.content, key) };
+        } else {
+          // ...otherwise just return a clone of the item.
+          return { ...item };
         }
-
-        val.key = items.length;
-
-        items.push(val);
       }
     });
 
@@ -231,6 +263,16 @@ export default class ItemList<T> {
         return b.priority - a.priority;
       })
       .map((item) => item.content);
+  }
+
+  private createItemContentProxy<C extends Object>(content: C, key: string) {
+    return new Proxy(content, {
+      get(target, property, receiver) {
+        if (property === 'itemName') return key;
+
+        return Reflect.get(target, property, receiver);
+      },
+    });
   }
 
   /**
