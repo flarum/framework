@@ -181,7 +181,7 @@ export default class ItemList<T> {
    * Remove an item from the list.
    */
   remove(key: string): this {
-    delete this.items[key];
+    delete this._items[key];
 
     return this;
   }
@@ -193,11 +193,11 @@ export default class ItemList<T> {
    * with the same key.
    */
   merge<K>(otherList: ItemList<K>): ItemList<T | K> {
-    Object.keys(otherList.items).forEach((key) => {
-      const val = otherList.items[key];
+    Object.keys(otherList._items).forEach((key) => {
+      const val = otherList._items[key];
 
       if (val instanceof Item) {
-        (this as ItemList<T | K>).items[key] = otherList.items[key];
+        (this as ItemList<T | K>)._items[key] = otherList._items[key];
       }
     });
 
