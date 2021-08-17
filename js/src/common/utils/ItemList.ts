@@ -217,7 +217,7 @@ export default class ItemList<T> {
    * **NOTE:** Modifying any objects in the final array may also update the
    * content of the original ItemList.
    */
-  toArray(objectifyContent: false): (T extends Object ? T & { itemName: string } : T)[];
+  toArray(objectifyContent: false): (T extends Object ? T & Readonly<{ itemName: string }> : T)[];
 
   /**
    * Convert the list into an array of item content arranged by priority.
@@ -235,7 +235,7 @@ export default class ItemList<T> {
    * @param objectifyContent Converts item content to objects and sets the
    * `itemName` property on them.
    */
-  toArray(objectifyContent: boolean = true): T[] | (T & { itemName: string })[] {
+  toArray(objectifyContent: boolean = true): T[] | (T & Readonly<{ itemName: string }>)[] {
     const items: Item<T>[] = Object.keys(this._items).map((key, i) => {
       const item = this._items[key];
       item.key = i;
@@ -301,13 +301,18 @@ export default class ItemList<T> {
     });
   }
 
-  protected createItemContentProxy<C extends Object>(content: C, key: string) {
+  protected createItemContentProxy<C extends Object>(content: C, key: string): C & Readonly<{ itemName: string }> {
     return new Proxy(content, {
       get(target, property, receiver) {
         if (property === 'itemName') return key;
 
         return Reflect.get(target, property, receiver);
       },
-    });
+      set(target, property, value, receiver) {
+        if (property === 'itemName') throw new Error('`itemName` property is read-only');
+
+        return Reflect.set(target, property, value, receiver);
+      },
+    }) as C & Readonly<{ itemName: string }>;
   }
 }
