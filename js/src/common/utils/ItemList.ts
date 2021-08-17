@@ -10,7 +10,12 @@ class Item<T> {
   priority: number;
 
   /**
-   * Set when calling `.toArray()`
+   * The index of this item in the latest generated array.
+   *
+   * Set when calling `.toArray()`.
+   *
+   * **NOTE:** If you modify the item list after `.toArray()` is called,
+   * this value may not be correct.
    */
   key?: number;
 
