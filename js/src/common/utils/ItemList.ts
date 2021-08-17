@@ -21,17 +21,6 @@ class Item<T> {
 }
 
 /**
- * Options for new `replace` syntax.
- *
- * Removes the need for passing `null` to parameters.
- */
-interface IItemListReplaceOptions<T> {
-  _useNewSyntax: true;
-  content?: T;
-  priority?: number;
-}
-
-/**
  * The `ItemList` class collects items and then arranges them into an array
  * by priority.
  */
@@ -103,31 +92,22 @@ export default class ItemList<T> {
     return this;
   }
 
-  /**
-   * Replace an item in the list, only if it is already present.
-   *
-   * Only replaces values which are present in the object.
-   *
-   * The `_useNewSyntax` object property will be required until Flarum 2.0.
-   *
-   * @example <caption>Replace priority and not content.</caption>
-   * items.replace('myItem', { _useNewSyntax: true, priority: 10 });
-   *
-   * @example <caption>Replace content and not priority.</caption>
-   * items.replace('myItem', { _useNewSyntax: true, content: <p>My new value.</p> });
-   *
-   * @example <caption>Replace content and priority.</caption>
-   * items.replace('myItem', { _useNewSyntax: true, content: <p>My new value.</p>, priority: 10 });
-   */
-  replace(key: string, options: IItemListReplaceOptions<T>): this;
-
   // TODO: [Flarum 2.0] Remove deprecated `.replace()` syntax.
+
+  //? This is the deprecated syntax.
   /**
-   * Replace an item in the list, only if it is already present.
+   * Replace an item and/or priority in the list, only if it is already present.
    *
    * If `content` or `priority` are `null`, these values will not be replaced.
    *
-   * @deprecated Please use the new object-based syntax. This syntax will be removed in Flarum 2.0.
+   * If the provided `key` is not present, nothing will happen.
+   *
+   * @deprecated Please use the `changePriority` method to set the priority for
+   * an item. This will be removed in Flarum 2.0.
+   *
+   * @param key The key of the item in the list
+   * @param content The item's new content
+   * @param priority The item's new priority
    *
    * @example <caption>Replace priority and not content.</caption>
    * items.replace('myItem', null, 10);
@@ -138,25 +118,60 @@ export default class ItemList<T> {
    * @example <caption>Replace content and priority.</caption>
    * items.replace('myItem', <p>My new value.</p>, 10);
    */
-  replace(key: string, contentOrOptions?: T | null, priority?: number | null): this;
+  replace(key: string, content?: T | null, priority?: number): this;
 
-  replace(key: string, contentOrOptions: T | null | IItemListReplaceOptions<T> = null, priority: number | null = null): this {
-    if (this.items[key]) {
-      if (contentOrOptions !== null) {
-        // Being called with new object-based syntax.
-        if ('_useNewSyntax' in contentOrOptions) {
-          if (contentOrOptions.content !== undefined) this.items[key].content = contentOrOptions.content;
-          if (contentOrOptions.priority !== undefined) this.items[key].priority = contentOrOptions.priority;
+  //? This is the new syntax.
+  /**
+   * Replaces an item's content, if the provided item key exists.
+   *
+   * If the provided `key` is not present, nothing will happen.
+   *
+   * @param key The key of the item in the list
+   * @param content The item's new content
+   *
+   * @example <caption>Replace item content.</caption>
+   * items.replace('myItem', <p>My new value.</p>);
+   *
+   * @example <caption>Replace item content and priority.</caption>
+   *          items
+   *            .replace('myItem', <p>My new value.</p>)
+   *            .changePriority('myItem', 10);
+   */
+  replace(key: string, content: T): this;
 
-          return this;
-        }
+  replace(key: string, content: T | null = null, priority: number | null = null): this {
+    if (!this.has(key)) return this;
 
-        this.items[key].content = contentOrOptions;
-      }
+    if (content !== null) {
+      this._items[key].content = content;
+    }
 
-      if (priority !== null) {
-        this.items[key].priority = priority;
-      }
+    if (priority !== null) {
+      this._items[key].priority = priority;
+    }
+
+    return this;
+  }
+
+  /**
+   * Replaces an item's priority, if the provided item key exists.
+   *
+   * If the provided `key` is not present, nothing will happen.
+   *
+   * @param key The key of the item in the list
+   * @param priority The item's new priority
+   *
+   * @example <caption>Replace item priority.</caption>
+   * items.changePriority('myItem', 10);
+   *
+   * @example <caption>Replace item priority and content.</caption>
+   *          items
+   *            .changePriority('myItem', 10)
+   *            .replace('myItem', <p>My new value.</p>);
+   */
+  changePriority(key: string, priority: number): this {
+    if (this.has(key)) {
+      this._items[key].priority = priority;
     }
 
     return this;
