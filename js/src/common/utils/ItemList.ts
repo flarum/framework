@@ -207,17 +207,18 @@ export default class ItemList<T> {
    *
    * @see https://github.com/flarum/core/issues/3030
    */
-  toArray(objectifyContent?: true): (T & { itemName: string })[];
+  toArray(keepPrimitives?: false): (T & { itemName: string })[];
   /**
    * Convert the list into an array of item content arranged by priority.
    *
    * Content values that are already objects will be proxied and have
-   * `itemName` accessible on them.
+   * `itemName` accessible on them. Primitive values will not have the
+   * `itemName` property accessible.
    *
    * **NOTE:** Modifying any objects in the final array may also update the
    * content of the original ItemList.
    */
-  toArray(objectifyContent: false): (T extends object ? T & Readonly<{ itemName: string }> : T)[];
+  toArray(keepPrimitives: true): (T extends object ? T & Readonly<{ itemName: string }> : T)[];
 
   /**
    * Convert the list into an array of item content arranged by priority.
@@ -227,20 +228,20 @@ export default class ItemList<T> {
    *
    * **NOTE:** If your ItemList holds primitive types (such as numbers, booleans
    * or strings), these will be converted to their object counterparts if you do
-   * not provide `false` to this function.
+   * not provide `true` to this function.
    *
    * **NOTE:** Modifying any objects in the final array may also update the
    * content of the original ItemList.
    *
-   * @param objectifyContent Converts item content to objects and sets the
+   * @param keepPrimitives Converts item content to objects and sets the
    * `itemName` property on them.
    */
-  toArray(objectifyContent: boolean = true): T[] | (T & Readonly<{ itemName: string }>)[] {
+  toArray(keepPrimitives: boolean = false): T[] | (T & Readonly<{ itemName: string }>)[] {
     const items: Item<T>[] = Object.keys(this._items).map((key, i) => {
       const item = this._items[key];
       item.key = i;
 
-      if (objectifyContent || typeof item.content === 'object') {
+      if (!keepPrimitives || typeof item.content === 'object') {
         // Convert content to object, then proxy it
         return {
           ...item,
