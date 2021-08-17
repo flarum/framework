@@ -217,7 +217,7 @@ export default class ItemList<T> {
    * **NOTE:** Modifying any objects in the final array may also update the
    * content of the original ItemList.
    */
-  toArray(objectifyContent: false): (T extends Object ? T & Readonly<{ itemName: string }> : T)[];
+  toArray(objectifyContent: false): (T extends object ? T & Readonly<{ itemName: string }> : T)[];
 
   /**
    * Convert the list into an array of item content arranged by priority.
@@ -301,7 +301,7 @@ export default class ItemList<T> {
     });
   }
 
-  protected createItemContentProxy<C extends Object>(content: C, key: string): C & Readonly<{ itemName: string }> {
+  protected createItemContentProxy<C extends object>(content: C, key: string): C & Readonly<{ itemName: string }> {
     return new Proxy(content, {
       get(target, property, receiver) {
         if (property === 'itemName') return key;
