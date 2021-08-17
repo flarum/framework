@@ -37,29 +37,56 @@ interface IItemListReplaceOptions<T> {
  */
 export default class ItemList<T> {
   /**
-   * The items in the list
+   * The items in the list.
    */
-  items: { [key: string]: Item<T> } = {};
+  protected _items: Record<string, Item<T>> = {};
+
+  /**
+   * A read-only copy of items in the list.
+   *
+   * We don't allow adding new items to the ItemList via setting new properties,
+   * nor do we allow modifying existing items directly.
+   *
+   * Attempting to write to this **will** throw an error.
+   */
+  get items(): Record<string, Item<T>> {
+    return new Proxy(this._items, {
+      get(target, property, receiver) {
+        if (typeof property === 'string' && target[property] instanceof Item) {
+          return new Proxy(target[property], {
+            set() {
+              throw 'Modifying Items in an ItemList directly is not allowed. You must use `ItemList.replace()` instead.';
+            },
+          });
+        }
+
+        return Reflect.get(target, property, receiver);
+      },
+      set() {
+        throw 'Setting values of `ItemList.items` is not allowed. You must use `ItemList.add()` instead.';
+      },
+    });
+  }
 
   /**
    * Check whether the list is empty.
    */
   isEmpty(): boolean {
-    return !!Object.keys(this.items).length;
+    return !!Object.keys(this._items).length;
   }
 
   /**
    * Check whether an item is present in the list.
    */
   has(key: string): boolean {
-    return !!this.items[key];
+    return Object.keys(this._items).includes(key);
   }
 
   /**
    * Get the content of an item.
    */
   get(key: string): T {
-    return this.items[key].content;
+    return this._items[key].content;
   }
 
   /**
@@ -67,11 +94,11 @@ export default class ItemList<T> {
    *
    * @param key A unique key for the item.
    * @param content The item's content.
-   * @param [priority] The priority of the item. Items with a higher
-   *     priority will be positioned before items with a lower priority.
+   * @param priority The priority of the item. Items with a higher priority
+   * will be positioned before items with a lower priority.
    */
   add(key: string, content: T, priority: number = 0): this {
-    this.items[key] = new Item(content, priority);
+    this._items[key] = new Item(content, priority);
 
     return this;
   }
