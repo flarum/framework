@@ -3,8 +3,8 @@ name: JS
 on: [workflow_dispatch, push, pull_request]
 
 env:
-  NODE_VERSION: 14
-  MAIN_BRANCH: "master"
+  NODE_VERSION: 16
+  MAIN_BRANCH_REF: "refs/heads/master"
 
 jobs:
   prettier:
@@ -19,8 +19,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # cache: "npm"
-          # cache-dependency-path: js/package-lock.json
+          cache: "npm"
+          cache-dependency-path: js/package-lock.json
 
       - name: Install JS dependencies
         run: npm ci
@@ -36,7 +36,7 @@ jobs:
     needs: [prettier]
 
     # Only commit JS on push to master branch
-    if: github.ref == "refs/heads/$MAIN_BRANCH" && github.event_name == 'push'
+    if: github.ref == env.MAIN_BRANCH_REF && github.event_name == 'push'
 
     steps:
       - name: Check out code
@@ -46,8 +46,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # cache: "npm"
-          # cache-dependency-path: js/package-lock.json
+          cache: "npm"
+          cache-dependency-path: js/package-lock.json
 
       # Our action will install npm, cd into `./js`, run `npm run build` and
       # `npm run build-typings`, then commit and upload any changes
@@ -62,9 +62,9 @@ jobs:
   build-test:
     name: JS / Test build
     runs-on: ubuntu-latest
-    # needs: [prettier]
+    needs: [prettier]
 
-    if: github.ref != "refs/heads/$MAIN_BRANCH" || github.event_name != 'push'
+    if: github.ref != env.MAIN_BRANCH_REF || github.event_name != 'push'
 
     steps:
       - name: Check out code
@@ -74,8 +74,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # cache: "npm"
-          # cache-dependency-path: js/package-lock.json
+          cache: "npm"
+          cache-dependency-path: js/package-lock.json
 
       # Our action will install npm, cd into `./js`, run `npm run build` and
       # `npm run build-typings`, then commit and upload any changes
