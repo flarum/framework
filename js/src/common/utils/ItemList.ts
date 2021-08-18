@@ -1,12 +1,5 @@
 class Item<T> {
-  content:
-    | T
-    | (T & {
-        /**
-         * Set when calling `.toArray()`
-         */
-        itemName: string;
-      });
+  content: T;
   priority: number;
 
   /**
