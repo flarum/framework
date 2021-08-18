@@ -1,4 +1,4 @@
-name: Lint
+name: JS
 
 on: [workflow_dispatch, push, pull_request]
 
