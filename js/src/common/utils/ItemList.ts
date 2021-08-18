@@ -2,6 +2,7 @@ class Item<T> {
   content: T;
   priority: number;
 
+  // TODO: Flarum 2.0 - Stop setting `key` on Items
   /**
    * The index of this item in the latest generated array.
    *
@@ -9,6 +10,8 @@ class Item<T> {
    *
    * **NOTE:** If you modify the item list after `.toArray()` is called,
    * this value may not be correct.
+   *
+   * @deprecated This will be removed in Flarum 2.0.
    */
   key?: number;
 
@@ -178,11 +181,13 @@ export default class ItemList<T> {
    * with the same key.
    */
   merge<K>(otherList: ItemList<K>): ItemList<T | K> {
-    Object.keys(otherList._items).forEach((key) => {
-      const val = otherList._items[key];
+    const otherItems = otherList.toObject();
+
+    Object.keys(otherItems).forEach((key) => {
+      const val = otherItems[key];
 
       if (val instanceof Item) {
-        (this as ItemList<T | K>)._items[key] = otherList._items[key];
+        (this as ItemList<T | K>)._items[key] = val;
       }
     });
 
