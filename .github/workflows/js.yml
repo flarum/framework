@@ -7,7 +7,7 @@ env:
 
 jobs:
   prettier:
-    name: JS / Prettier
+    name: Prettier
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +30,7 @@ jobs:
         working-directory: ./js
 
   build-prod:
-    name: JS / Build and commit
+    name: Build and commit
     runs-on: ubuntu-latest
     needs: [prettier]
 
@@ -60,7 +60,7 @@ jobs:
           typings_script: build-typings
 
   build-test:
-    name: JS / Test build
+    name: Test build
     runs-on: ubuntu-latest
     needs: [prettier]
 
