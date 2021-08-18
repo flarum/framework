@@ -36,7 +36,7 @@ jobs:
     needs: [prettier]
 
     # Only commit JS on push to master branch
-    if: github.ref == 'refs/heads/${{ env.MAIN_BRANCH }}' && github.event_name == 'push'
+    if: github.ref == "refs/heads/$MAIN_BRANCH" && github.event_name == 'push'
 
     steps:
       - name: Check out code
