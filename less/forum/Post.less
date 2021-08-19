@@ -147,6 +147,9 @@
       border-radius: 0;
       display: block;
       overflow-x: auto;
+      // Backwards compatibility for browsers that don't support `max()`
+      max-height: 50vh;
+      max-height: ~"max(50vh, 250px)";
     }
   }
   h1, h2, h3, h4, h5, h6 {
@@ -198,7 +201,7 @@
     opacity: 0.5;
   }
   .Post-header .Button--more {
-    .Button--color(@muted-more-color, fade(@muted-more-color, 30%));
+    .Button--color(@muted-more-color, fade(@muted-more-color, 30%), 'muted-more');
   }
 }
 .Post--loading {
@@ -284,7 +287,7 @@
     font-size: 14px;
     margin-right: 5px;
   }
-  
+
   &:empty {
     display: none;
   }
