@@ -6,7 +6,7 @@
  *
  * - `discussion`
  */
-export default class ReplyPlaceholder extends Component<import("../../common/Component").ComponentAttrs> {
+export default class ReplyPlaceholder extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     anchorPreview(preview: any): void;
 }

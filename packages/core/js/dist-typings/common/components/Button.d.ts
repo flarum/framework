@@ -16,7 +16,7 @@
  * Note that a Button has no default class names. This is because a Button can
  * be used to represent any generic clickable control, like a menu item.
  */
-export default class Button extends Component<import("../Component").ComponentAttrs> {
+export default class Button extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
     /**
      * Get the template for the button's content.

@@ -28,7 +28,7 @@ export interface ComponentAttrs extends Mithril.Attributes {
  *
  * @see https://mithril.js.org/components.html
  */
-export default abstract class Component<T extends ComponentAttrs = ComponentAttrs> implements Mithril.ClassComponent<T> {
+export default abstract class Component<Attrs extends ComponentAttrs = ComponentAttrs, State = undefined> implements Mithril.ClassComponent<Attrs> {
     /**
      * The root DOM element for the component.
      */
@@ -38,35 +38,47 @@ export default abstract class Component<T extends ComponentAttrs = ComponentAttr
      *
      * @see https://mithril.js.org/components.html#passing-data-to-components
      */
-    protected attrs: T;
+    protected attrs: Attrs;
+    /**
+     * Class component state that is persisted between redraws.
+     *
+     * Updating this will **not** automatically trigger a redraw, unlike
+     * other frameworks.
+     *
+     * This is different to Vnode state, which is always an instance of your
+     * class component.
+     *
+     * This is `undefined` by default.
+     */
+    protected state: State;
     /**
      * @inheritdoc
      */
-    abstract view(vnode: Mithril.Vnode<T, this>): Mithril.Children;
+    abstract view(vnode: Mithril.Vnode<Attrs, this>): Mithril.Children;
     /**
      * @inheritdoc
      */
-    oninit(vnode: Mithril.Vnode<T, this>): void;
+    oninit(vnode: Mithril.Vnode<Attrs, this>): void;
     /**
      * @inheritdoc
      */
-    oncreate(vnode: Mithril.VnodeDOM<T, this>): void;
+    oncreate(vnode: Mithril.VnodeDOM<Attrs, this>): void;
     /**
      * @inheritdoc
      */
-    onbeforeupdate(vnode: Mithril.VnodeDOM<T, this>): void;
+    onbeforeupdate(vnode: Mithril.VnodeDOM<Attrs, this>): void;
     /**
      * @inheritdoc
      */
-    onupdate(vnode: Mithril.VnodeDOM<T, this>): void;
+    onupdate(vnode: Mithril.VnodeDOM<Attrs, this>): void;
     /**
      * @inheritdoc
      */
-    onbeforeremove(vnode: Mithril.VnodeDOM<T, this>): void;
+    onbeforeremove(vnode: Mithril.VnodeDOM<Attrs, this>): void;
     /**
      * @inheritdoc
      */
-    onremove(vnode: Mithril.VnodeDOM<T, this>): void;
+    onremove(vnode: Mithril.VnodeDOM<Attrs, this>): void;
     /**
      * Returns a jQuery object for this component's element. If you pass in a
      * selector string, this method will return a jQuery object, using the current
