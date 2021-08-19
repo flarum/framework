@@ -200,8 +200,15 @@ export default class ItemList<T> {
    * This **does not** preserve the original types of primitives and proxies
    * all content values to make `itemName` accessible on them.
    *
+   * **NOTE:** If your ItemList holds primitive types (such as numbers, booleans
+   * or strings), these will be converted to their object counterparts if you do
+   * not provide `true` to this function.
+   *
    * **NOTE:** Modifying any objects in the final array may also update the
    * content of the original ItemList.
+   *
+   * @param keepPrimitives Converts item content to objects and sets the
+   * `itemName` property on them.
    *
    * @see https://github.com/flarum/core/issues/3030
    */
@@ -215,25 +222,12 @@ export default class ItemList<T> {
    *
    * **NOTE:** Modifying any objects in the final array may also update the
    * content of the original ItemList.
-   */
-  toArray(keepPrimitives: true): (T extends object ? T & Readonly<{ itemName: string }> : T)[];
-
-  /**
-   * Convert the list into an array of item content arranged by priority.
-   *
-   * Each item's content will be assigned an `itemName` property equal to the
-   * item's unique key.
-   *
-   * **NOTE:** If your ItemList holds primitive types (such as numbers, booleans
-   * or strings), these will be converted to their object counterparts if you do
-   * not provide `true` to this function.
-   *
-   * **NOTE:** Modifying any objects in the final array may also update the
-   * content of the original ItemList.
    *
    * @param keepPrimitives Converts item content to objects and sets the
    * `itemName` property on them.
    */
+  toArray(keepPrimitives: true): (T extends object ? T & Readonly<{ itemName: string }> : T)[];
+
   toArray(keepPrimitives: boolean = false): T[] | (T & Readonly<{ itemName: string }>)[] {
     const items: Item<T>[] = Object.keys(this._items).map((key, i) => {
       const item = this._items[key];
