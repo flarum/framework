@@ -15,7 +15,7 @@
  *
  * @abstract
  */
-export default class ComposerBody extends Component<import("../../common/Component").ComponentAttrs> {
+export default class ComposerBody extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     composer: any;
     /**

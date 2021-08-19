@@ -6,7 +6,7 @@
  *
  * - `post`
  */
-export default class PostEdited extends Component<import("../../common/Component").ComponentAttrs> {
+export default class PostEdited extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
 }
 import Component from "../../common/Component";

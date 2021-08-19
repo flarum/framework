@@ -6,7 +6,7 @@
  *
  * - `text`
  */
-export default class Placeholder extends Component<import("../Component").ComponentAttrs> {
+export default class Placeholder extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
 }
 import Component from "../Component";

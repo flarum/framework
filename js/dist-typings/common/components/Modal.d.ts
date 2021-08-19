@@ -4,7 +4,7 @@
  *
  * @abstract
  */
-export default class Modal extends Component<import("../Component").ComponentAttrs> {
+export default class Modal extends Component<import("../Component").ComponentAttrs, undefined> {
     /**
      * Determine whether or not the modal should be dismissible via an 'x' button.
      */

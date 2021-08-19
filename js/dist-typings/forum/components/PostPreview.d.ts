@@ -6,7 +6,7 @@
  *
  * - `post`
  */
-export default class PostPreview extends Component<import("../../common/Component").ComponentAttrs> {
+export default class PostPreview extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
 }
 import Component from "../../common/Component";

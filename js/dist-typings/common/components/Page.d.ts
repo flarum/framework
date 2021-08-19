@@ -3,7 +3,7 @@
  *
  * @abstract
  */
-export default class Page extends Component<import("../Component").ComponentAttrs> {
+export default class Page extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
     /**
      * A class name to apply to the body while the route is active.
