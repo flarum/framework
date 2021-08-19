@@ -52,7 +52,7 @@ jobs:
       # Our action will install npm, cd into `./js`, run `npm run build` and
       # `npm run build-typings`, then commit and upload any changes
       - name: Build production JS
-        uses: flarum/action-build@dw/allow-test-builds
+        uses: flarum/action-build@2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_script: build
@@ -82,7 +82,7 @@ jobs:
       # Our action will install npm, cd into `./js`, run `npm run build` and
       # `npm run build-typings`, then commit and upload any changes
       - name: Build production JS
-        uses: flarum/action-build@dw/allow-test-builds
+        uses: flarum/action-build@2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_script: build
