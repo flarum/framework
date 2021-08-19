@@ -1,5 +1,5 @@
 import { SearchSource } from './Search';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in
  * the search dropdown.

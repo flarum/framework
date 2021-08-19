@@ -1,5 +1,5 @@
 import { SearchSource } from './Search';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
  * dropdown.
