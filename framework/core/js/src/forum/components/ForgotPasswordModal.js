@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import extractText from '../../common/utils/extractText';

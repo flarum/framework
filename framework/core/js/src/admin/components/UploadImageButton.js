@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Button from '../../common/components/Button';
 
 export default class UploadImageButton extends Button {

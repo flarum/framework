@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import Link from '../../common/components/Link';
 import UserCard from './UserCard';

@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import Dropdown from '../../common/components/Dropdown';

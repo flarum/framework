@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import humanTime from '../../common/helpers/humanTime';
 import fullTime from '../../common/helpers/fullTime';

@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
 import LinkButton from '../../common/components/LinkButton';
 import icon from '../../common/helpers/icon';

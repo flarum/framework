@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import humanTime from '../../common/utils/humanTime';
 import ItemList from '../../common/utils/ItemList';

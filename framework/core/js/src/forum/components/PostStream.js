@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
