@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';

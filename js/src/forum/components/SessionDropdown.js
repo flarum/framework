@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import Dropdown from '../../common/components/Dropdown';

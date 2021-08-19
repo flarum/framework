@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';

@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import DiscussionPage from '../components/DiscussionPage';
 import ReplyComposer from '../components/ReplyComposer';
 import LogInModal from '../components/LogInModal';

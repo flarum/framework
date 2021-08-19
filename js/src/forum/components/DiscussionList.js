@@ -1,9 +1,9 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import DiscussionListItem from './DiscussionListItem';
 import Button from '../../common/components/Button';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Placeholder from '../../common/components/Placeholder';
-import Discussion from '../../common/models/Discussion';
 
 /**
  * The `DiscussionList` component displays a list of discussions.
@@ -15,7 +15,7 @@ import Discussion from '../../common/models/Discussion';
 export default class DiscussionList extends Component {
   view() {
     /**
-     * @type DiscussionListState
+     * @type {import('../states/DiscussionListState').default}
      */
     const state = this.attrs.state;
 

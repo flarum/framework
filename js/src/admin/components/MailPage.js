@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import FieldSet from '../../common/components/FieldSet';
 import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';

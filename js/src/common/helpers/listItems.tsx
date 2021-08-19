@@ -1,4 +1,4 @@
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 import Separator from '../components/Separator';
 import classList from '../utils/classList';
 
