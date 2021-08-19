@@ -1,4 +1,4 @@
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 /**
  * The `highlight` helper searches for a word phrase in a string, and wraps
  * matches with the <mark> tag.
