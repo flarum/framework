@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Component from '../../common/Component';
 import PermissionDropdown from './PermissionDropdown';
 import SettingDropdown from './SettingDropdown';

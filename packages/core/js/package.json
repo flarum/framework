@@ -41,6 +41,6 @@
     "format": "prettier --write src",
     "format-check": "prettier --check src",
     "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
-    "build-typings": "npm run clean-typings && cp -r @types dist-typings/@types && tsc"
+    "build-typings": "npm run clean-typings && cp -r src/@types dist-typings/@types && tsc"
   }
 }

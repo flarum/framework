@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import GroupBadge from '../../common/components/GroupBadge';
 import EditGroupModal from './EditGroupModal';
 import Group from '../../common/models/Group';

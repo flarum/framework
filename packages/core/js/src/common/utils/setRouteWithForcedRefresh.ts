@@ -1,4 +1,4 @@
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * Mithril 2 does not completely rerender the page if a route change leads to the same route
