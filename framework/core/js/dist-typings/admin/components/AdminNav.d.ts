@@ -1,4 +1,4 @@
-export default class AdminNav extends Component<import("../../common/Component").ComponentAttrs> {
+export default class AdminNav extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     query: Stream<string> | undefined;
     scrollToActive(): void;

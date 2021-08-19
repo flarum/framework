@@ -13,7 +13,7 @@
  * - `drawer` Whether or not to show a button to toggle the app's drawer if
  *   there is no more history to pop.
  */
-export default class Navigation extends Component<import("../Component").ComponentAttrs> {
+export default class Navigation extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
     /**
      * Get the back button.

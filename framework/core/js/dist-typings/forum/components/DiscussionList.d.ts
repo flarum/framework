@@ -5,7 +5,7 @@
  *
  * - `state` A DiscussionListState object that represents the discussion lists's state.
  */
-export default class DiscussionList extends Component<import("../../common/Component").ComponentAttrs> {
+export default class DiscussionList extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
 }
 import Component from "../../common/Component";

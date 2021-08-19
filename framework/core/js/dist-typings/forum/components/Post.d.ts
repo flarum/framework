@@ -9,7 +9,7 @@
  *
  * @abstract
  */
-export default class Post extends Component<import("../../common/Component").ComponentAttrs> {
+export default class Post extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     loading: boolean | undefined;
     /**

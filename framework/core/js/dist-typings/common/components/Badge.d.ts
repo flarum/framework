@@ -11,7 +11,7 @@
  *
  * All other attrs will be assigned as attributes on the badge element.
  */
-export default class Badge extends Component<import("../Component").ComponentAttrs> {
+export default class Badge extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
 }
 import Component from "../Component";
