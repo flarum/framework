@@ -1,4 +1,4 @@
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 export interface ComponentAttrs extends Mithril.Attributes {
 }
 /**
