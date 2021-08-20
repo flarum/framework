@@ -9,4 +9,4 @@ export default function proxifyCompat(compat: Record<string, unknown>, namespace
   return new Proxy(compat, {
     get: (obj, prop: string) => obj[prop] || obj[prop.replace(regex, '$1').replace(fileExt, '')],
   });
-};
+}
