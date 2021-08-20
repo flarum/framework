@@ -1,4 +1,4 @@
-export default (compat: { [key: string]: any }, namespace: string) => {
+export default function proxifyCompat(compat: Record<string, unknown>, namespace: string) {
   // regex to replace common/ and NAMESPACE/ for core & core extensions
   // and remove .js, .ts and .tsx extensions
   // e.g. admin/utils/extract --> utils/extract
