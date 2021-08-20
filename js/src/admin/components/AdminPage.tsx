@@ -72,10 +72,6 @@ export default class AdminPage extends Page {
   settings!: Record<string, Stream<string>>;
   loading: boolean = false;
 
-  oninit(vnode: Mithril.Vnode<Record<string, unknown>, this>) {
-    super.oninit(vnode);
-  }
-
   view(vnode: Mithril.Vnode<Record<string, unknown>, this>) {
     const className = classList('AdminPage', this.headerInfo().className);
 
