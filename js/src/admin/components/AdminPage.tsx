@@ -1,7 +1,7 @@
 import type Mithril from 'mithril';
 
 import app from '../app';
-import Page from '../../common/components/Page';
+import Page, { IPageAttrs } from '../../common/components/Page';
 import Button from '../../common/components/Button';
 import Switch from '../../common/components/Switch';
 import Select from '../../common/components/Select';
@@ -68,11 +68,11 @@ export type SettingsComponentOptions = HTMLInputSettingsComponentOptions | Switc
  */
 export type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
 
-export default class AdminPage extends Page {
+export default class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
   settings!: Record<string, Stream<string>>;
   loading: boolean = false;
 
-  view(vnode: Mithril.Vnode<Record<string, unknown>, this>) {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const className = classList('AdminPage', this.headerInfo().className);
 
     return (
@@ -86,7 +86,7 @@ export default class AdminPage extends Page {
   /**
    * Returns the content of the AdminPage.
    */
-  content(vnode: Mithril.Vnode<Record<string, unknown>, this>): Mithril.Children {
+  content(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     return '';
   }
 
@@ -95,7 +95,7 @@ export default class AdminPage extends Page {
    *
    * Calls `this.saveSettings` when the button is clicked.
    */
-  submitButton(vnode: Mithril.Vnode<Record<string, unknown>, this>): Mithril.Children {
+  submitButton(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     return (
       <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.isChanged()}>
         {app.translator.trans('core.admin.settings.submit_button')}
@@ -106,7 +106,7 @@ export default class AdminPage extends Page {
   /**
    * Returns the Header component for this AdminPage.
    */
-  header(vnode: Mithril.Vnode<Record<string, unknown>, this>): Mithril.Children {
+  header(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const { title, className, ...headerAttrs } = this.headerInfo();
 
     return (
