@@ -6,7 +6,9 @@
  * Type that returns an array of all keys of a provided object that are of
  * of the provided type, or a subtype of the type.
  */
-declare type KeysOfType<Type extends object, Match> = { [Key in keyof Type]-?: Type[Key] extends Match ? Key : never };
+declare type KeysOfType<Type extends object, Match> = {
+  [Key in keyof Type]-?: Type[Key] extends Match ? Key : never
+};
 
 /**
  * Type that matches one of the keys of an object that is of the provided
