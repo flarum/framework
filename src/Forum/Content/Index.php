@@ -68,6 +68,7 @@ class Index
         $sort = Arr::pull($queryParams, 'sort');
         $q = Arr::pull($queryParams, 'q');
         $page = max(1, intval(Arr::pull($queryParams, 'page')));
+        $filters = Arr::pull($queryParams, 'filter', []);
 
         $sortMap = $this->getSortMap();
 
@@ -76,6 +77,8 @@ class Index
             'filter' => [],
             'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
         ];
+
+        $params['filter'] = array_merge($filters, $params['filter']);
 
         if ($q) {
             $params['filter']['q'] = $q;
