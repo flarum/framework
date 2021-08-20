@@ -10,18 +10,10 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
-use Flarum\Http\SessionAccessToken;
-use Flarum\Http\SessionAuthenticator;
-use Flarum\Http\UrlGenerator;
-use Flarum\User\Command\ConfirmEmail;
 use Flarum\User\EmailToken;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
-use Laminas\Diactoros\Response\RedirectResponse;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
 
 class ConfirmEmailViewController extends AbstractHtmlController
 {
