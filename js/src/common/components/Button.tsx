@@ -66,7 +66,7 @@ export interface IButtonAttrs extends ComponentAttrs {
  * be used to represent any generic clickable control, like a menu item. Common
  * styles can be applied by providing `className="Button"` to the Button component.
  */
-export default class Button<CustomAttrs extends Record<string, unknown> = {}> extends Component<IButtonAttrs & CustomAttrs> {
+export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.Vnode<IButtonAttrs, never>) {
     let { type, title, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
 
