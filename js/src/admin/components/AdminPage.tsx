@@ -242,7 +242,7 @@ export default class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> exte
   }
 
   /**
-   * Returns a list of settings that have been modified, but not yet saved.
+   * Returns a map of settings keys to values which includes only those which have been modified but not yet saved.
    */
   dirty(): Record<string, string> {
     const dirty: Record<string, string> = {};
