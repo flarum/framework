@@ -52,15 +52,9 @@
 }
 
 @media @phone, @tablet {
-  .App-nav .AdminNav {
+  .AdminNav {
     .Dropdown-menu {
       > li {
-        .ExtensionListTitle {
-          color: @muted-color;
-          text-transform: uppercase;
-          margin: 25px 0 10px 15px;
-        }
-
         .ExtensionIcon {
           margin: -2px -29px;
           --size: 25px;
@@ -155,12 +149,6 @@
           margin: 0 auto;
         }
 
-        .ExtensionListTitle {
-          color: @muted-color;
-          text-transform: uppercase;
-          margin: 25px 0 8px 15px;
-        }
-
         .ExtensionIcon {
           --size: 25px;
           margin-left: -29px;
@@ -186,6 +174,12 @@
 .AdminLinkButton-description {
   white-space: normal;
   padding-left: 5px;
+}
+
+.ExtensionListTitle {
+  color: @muted-color;
+  text-transform: uppercase;
+  margin: 25px 0 8px 15px;
 }
 
 .ExtensionListItem-Dot {
