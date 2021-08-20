@@ -40,18 +40,21 @@ export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOpt
   type: HTMLInputTypes;
 }
 
+const BooleanSettingTypes = ['bool', 'checkbox', 'switch', 'boolean'] as const;
+const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
+
 /**
  * Valid options for the setting component builder to generate a Switch.
  */
 export interface SwitchSettingComponentOptions extends CommonSettingsItemOptions {
-  type: 'bool' | 'checkbox' | 'switch' | 'boolean';
+  type: typeof BooleanSettingTypes[number];
 }
 
 /**
  * Valid options for the setting component builder to generate a Select dropdown.
  */
 export interface SelectSettingComponentOptions extends CommonSettingsItemOptions {
-  type: 'select' | 'dropdown' | 'selectdropdown';
+  type: typeof SelectSettingTypes[number];
   /**
    * Map of values to their labels
    */
@@ -178,7 +181,9 @@ export default class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> exte
 
     const [inputId, helpTextId] = [generateElementId(), generateElementId()];
 
-    if (['bool', 'checkbox', 'switch', 'boolean'].includes(type)) {
+    // Typescript being Typescript
+    // https://github.com/microsoft/TypeScript/issues/14520
+    if ((BooleanSettingTypes as readonly string[]).includes(type)) {
       return (
         // TODO: Add aria-describedby for switch help text.
         //? Requires changes to Checkbox component to allow providing attrs directly for the element(s).
@@ -189,7 +194,7 @@ export default class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> exte
           <div className="helpText">{help}</div>
         </div>
       );
-    } else if (['select', 'dropdown', 'selectdropdown'].includes(type)) {
+    } else if ((SelectSettingTypes as readonly string[]).includes(type)) {
       const { default: defaultValue, options, ...otherAttrs } = componentAttrs;
 
       return (
