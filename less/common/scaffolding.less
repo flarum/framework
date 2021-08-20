@@ -1,14 +1,3 @@
-// Store the current responsive screen mode in a CSS variable, to make it
-// available to the JS code.
-:root {
-  --flarum-screen: none;
-
-  @media @phone { --flarum-screen: phone; }
-  @media @tablet { --flarum-screen: tablet; }
-  @media @desktop { --flarum-screen: desktop; }
-  @media @desktop-hd { --flarum-screen: desktop-hd; }
-}
-
 * {
   &,
   &:before,
@@ -158,4 +147,14 @@ blockquote ol:last-child {
   padding: 50px 0;
   font-size: 18px;
   color: @muted-more-color;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

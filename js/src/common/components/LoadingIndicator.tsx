@@ -73,7 +73,7 @@ export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
         data-size={size}
         className={completeContainerClassName}
       >
-        <div aria-hidden className={completeClassName} {...attrs} />
+        <div aria-hidden="true" className={completeClassName} {...attrs} />
       </div>
     );
   }
