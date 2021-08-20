@@ -1,10 +1,3 @@
-export type KeyOfType<T extends object, Type> = Exclude<
-  {
-    [K in keyof T]: T[K] extends Type ? K : never;
-  }[keyof T],
-  undefined
->;
-
 /**
  * Extend an object's method by running its output through a mutating callback
  * every time it is called.
