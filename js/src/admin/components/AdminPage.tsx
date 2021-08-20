@@ -9,6 +9,7 @@ import classList from '../../common/utils/classList';
 import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 import AdminHeader from './AdminHeader';
+import generateElementId from '../utils/generateElementId';
 
 export interface AdminHeaderOptions {
   title: string;
@@ -175,8 +176,12 @@ export default class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> exte
 
     const value = this.setting(setting)();
 
+    const [inputId, helpTextId] = [generateElementId(), generateElementId()];
+
     if (['bool', 'checkbox', 'switch', 'boolean'].includes(type)) {
       return (
+        // TODO: Add aria-describedby for switch help text.
+        //? Requires changes to Checkbox component to allow providing attrs directly for the element(s).
         <div className="Form-group">
           <Switch state={!!value && value !== '0'} onchange={this.settings[setting]} {...componentAttrs}>
             {label}
@@ -189,9 +194,18 @@ export default class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> exte
 
       return (
         <div className="Form-group">
-          <label>{label}</label>
-          <div className="helpText">{help}</div>
-          <Select value={value || defaultValue} options={options} onchange={this.settings[setting]} {...otherAttrs} />
+          <label for={inputId}>{label}</label>
+          <div className="helpText" id={helpTextId}>
+            {help}
+          </div>
+          <Select
+            id={inputId}
+            aria-describedby={helpTextId}
+            value={value || defaultValue}
+            options={options}
+            onchange={this.settings[setting]}
+            {...otherAttrs}
+          />
         </div>
       );
     } else {
@@ -199,9 +213,11 @@ export default class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> exte
 
       return (
         <div className="Form-group">
-          {label ? <label>{label}</label> : ''}
-          <div className="helpText">{help}</div>
-          <input type={type} bidi={this.setting(setting)} {...componentAttrs} />
+          {label && <label for={inputId}>{label}</label>}
+          <div id={helpTextId} className="helpText">
+            {help}
+          </div>
+          <input id={inputId} aria-describedby={helpTextId} type={type} bidi={this.setting(setting)} {...componentAttrs} />
         </div>
       );
     }
