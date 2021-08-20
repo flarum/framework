@@ -25,8 +25,8 @@ export interface AdminHeaderOptions {
 
 interface CommonSettingsItemOptions extends Mithril.Attributes {
   setting: string;
-  label: string | ReturnType<typeof app.translator.trans>;
-  help?: string | ReturnType<typeof app.translator.trans>;
+  label: Mithril.Children;
+  help?: Mithril.Children;
   className?: string;
 }
 
@@ -55,7 +55,7 @@ export interface SelectSettingComponentOptions extends CommonSettingsItemOptions
   /**
    * Map of values to their labels
    */
-  options: { [value: string]: string | ReturnType<typeof app.translator.trans> };
+  options: { [value: string]: Mithril.Children };
   default: string;
 }
 
