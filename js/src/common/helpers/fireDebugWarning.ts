@@ -9,7 +9,7 @@
  * inundated with do-gooders telling them they have an issue when it isn't something they
  * can fix.
  */
-export default function fireDebugWarning(...args: any[]): void {
+export default function fireDebugWarning(...args: Parameters<typeof console.warn>): void {
   if (!app.forum.attribute('debug')) return;
 
   console.warn(...args);
