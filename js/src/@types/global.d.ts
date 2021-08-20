@@ -7,7 +7,7 @@
  * of the provided type, or a subtype of the type.
  */
 declare type KeysOfType<Type extends object, Match> = {
-  [Key in keyof Type]-?: Type[Key] extends Match ? Key : never
+  [Key in keyof Type]-?: Type[Key] extends Match ? Key : never;
 };
 
 /**
@@ -15,7 +15,6 @@ declare type KeysOfType<Type extends object, Match> = {
  * type, or a subtype of it.
  */
 declare type KeyOfType<Type extends object, Match> = KeysOfType<Type, Match>[keyof Type];
-
 
 /**
  * @deprecated Please import `app` from a namespace instead of using it as a global variable.
