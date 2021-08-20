@@ -10,7 +10,7 @@ import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 import AdminHeader from './AdminHeader';
 
-interface AdminHeaderOptions {
+export interface AdminHeaderOptions {
   title: string;
   description: string;
   icon: string;
