@@ -1,3 +1,6 @@
+import type Mithril from 'mithril';
+
+import app from '../app';
 import Page from '../../common/components/Page';
 import Button from '../../common/components/Button';
 import Switch from '../../common/components/Switch';
@@ -6,7 +9,6 @@ import classList from '../../common/utils/classList';
 import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 import AdminHeader from './AdminHeader';
-import type Mithril from 'mithril';
 
 interface AdminHeaderOptions {
   title: string;
