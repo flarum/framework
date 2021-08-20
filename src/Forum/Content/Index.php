@@ -74,11 +74,9 @@ class Index
 
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
-            'filter' => [],
+            'filter' => $filters,
             'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
         ];
-
-        $params['filter'] = array_merge($filters, $params['filter']);
 
         if ($q) {
             $params['filter']['q'] = $q;
