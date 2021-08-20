@@ -1,4 +1,32 @@
 /**
+ * A type that matches any valid value for the `type` attribute on an
+ * HTML `<input>` element.
+ */
+declare type HTMLInputTypes =
+  | 'button'
+  | 'checkbox'
+  | 'color'
+  | 'date'
+  | 'datetime-local'
+  | 'email'
+  | 'file'
+  | 'hidden'
+  | 'image'
+  | 'month'
+  | 'number'
+  | 'password'
+  | 'radio'
+  | 'range'
+  | 'reset'
+  | 'search'
+  | 'submit'
+  | 'tel'
+  | 'text'
+  | 'time'
+  | 'url'
+  | 'week';
+
+/**
  * @deprecated Please import `app` from a namespace instead of using it as a global variable.
  *
  * @example App in forum JS
