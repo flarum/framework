@@ -16,6 +16,36 @@ export default class DiscussionPage extends Page {
      */
     near: number | undefined;
     /**
+     * List of components shown while the discussion is loading.
+     *
+     * @returns {ItemList}
+     */
+    loadingItems(): ItemList;
+    /**
+     * Function that renders the `sidebarItems` ItemList.
+     *
+     * @returns {import('mithril').Children}
+     */
+    sidebar(): import('mithril').Children;
+    /**
+     * Renders the discussion's hero.
+     *
+     * @returns {import('mithril').Children}
+     */
+    hero(): import('mithril').Children;
+    /**
+     * List of items rendered as the main page content.
+     *
+     * @returns {ItemList}
+     */
+    pageContent(): ItemList;
+    /**
+     * List of items rendered inside the main page content container.
+     *
+     * @returns {ItemList}
+     */
+    mainContent(): ItemList;
+    /**
      * Load the discussion from the API or use the preloaded one.
      */
     load(): void;
@@ -49,5 +79,5 @@ export default class DiscussionPage extends Page {
     positionChanged(startNumber: any, endNumber: any): void;
 }
 import Page from "../../common/components/Page";
-import PostStreamState from "../states/PostStreamState";
 import ItemList from "../../common/utils/ItemList";
+import PostStreamState from "../states/PostStreamState";
