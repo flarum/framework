@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
+use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 
@@ -192,6 +193,9 @@ class SettingsTest extends TestCase
         );
 
         $response = $this->send($this->request('GET', '/'));
+
+        $cssFilePath = $this->app()->getContainer()->make('flarum.paths')->public.'/assets/forum.css';
+        $this->assertStringContainsString('--custom-config-setting:customValue', file_get_contents($cssFilePath));
 
         $this->assertEquals(200, $response->getStatusCode());
     }
