@@ -30,7 +30,17 @@ class AvatarValidator extends AbstractValidator
 
     protected function assertFileRequired(UploadedFileInterface $file)
     {
-        if ($file->getError() !== UPLOAD_ERR_OK) {
+        $error = $file->getError();
+
+        if ($error !== UPLOAD_ERR_OK) {
+            if ($error == UPLOAD_ERR_INI_SIZE || $error == UPLOAD_ERR_FORM_SIZE) {
+                $this->raise('file_too_large');
+            }
+
+            if ($error == UPLOAD_ERR_PARTIAL) {
+                $this->raise('file_uploaded');
+            }
+
             $this->raise('required');
         }
     }
@@ -81,5 +91,10 @@ class AvatarValidator extends AbstractValidator
     protected function getAllowedTypes()
     {
         return ['jpg', 'png', 'bmp', 'gif'];
+    }
+
+    protected function getRules()
+    {
+        return ['avatar' => 'required|file'];
     }
 }
