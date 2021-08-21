@@ -545,6 +545,11 @@ core:
 
   # Translations in this namespace are used in views other than Flarum's normal JS client.
   views:
+    # Translations in this namespace are displayed by the Confirm Email interface.
+    confirm_email:
+      submit_button: => core.ref.confirm_email
+      text: Click the button below to confirm your account's email.
+      title: => core.ref.confirm_email
 
     # Translations in this namespace are displayed by the basic HTML content loader.
     content:
@@ -656,6 +661,7 @@ core:
     change_password: Change Password
     color: Color                                 # Referenced by flarum-tags.yml
     confirm_password: Confirm Password
+    confirm_email: Confirm Email
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
     custom_footer_text: Add HTML to be displayed at the very bottom of the page.
     custom_footer_title: Edit Custom Footer
