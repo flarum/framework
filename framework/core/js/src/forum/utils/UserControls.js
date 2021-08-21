@@ -124,13 +124,18 @@ export default {
    * @param {string} type
    */
   showDeletionAlert(user, type) {
-    const { username, email } = user.data.attributes;
     const message = {
       success: 'core.forum.user_controls.delete_success_message',
       error: 'core.forum.user_controls.delete_error_message',
     }[type];
 
-    app.alerts.show({ type }, app.translator.trans(message, { username, email }));
+    app.alerts.show(
+      { type },
+      app.translator.trans(message, {
+        user,
+        email: user.email(),
+      })
+    );
   },
 
   /**
