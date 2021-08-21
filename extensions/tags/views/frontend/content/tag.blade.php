@@ -8,7 +8,7 @@
         @foreach ($apiDocument->data as $discussion)
             <li>
                 <a href="{{ $url->to('forum')->route('discussion', [
-                    'id' => $discussion->id . (trim($discussion->attributes->slug) ? '-' . $discussion->attributes->slug : '')
+                    'id' => $discussion->attributes->slug
                 ]) }}">
                     {{ $discussion->attributes->title }}
                 </a>
