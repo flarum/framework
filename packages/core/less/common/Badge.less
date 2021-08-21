@@ -1,26 +1,27 @@
 .Badge {
   .Badge--size(22px);
+  width: var(--size);
+  height: var(--size);
+  border-radius: calc(~"var(--size) / 2");
   background: var(--badge-bg);
   color: var(--badge-color);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   vertical-align: middle;
-  text-align: center;
-  .box-shadow(0 2px 4px @shadow-color);
+  box-shadow: 0 2px 4px @shadow-color;
 
   .Badge-label {
     display: none;
   }
+
+  &, .Badge-icon {
+    font-size: calc(~"0.56 * var(--size)");
+  }
 }
 
 .Badge--size(@size) {
-  width: @size;
-  height: @size;
-  border-radius: @size / 2;
-  line-height: @size - 1px;
-
-  &, .Badge-icon {
-    font-size: 0.56 * @size;
-  }
+  --size: @size;
 }
 
 .badges {

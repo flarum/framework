@@ -49,7 +49,7 @@
   position: relative;
   border-radius: 14px;
   background: @control-bg;
-  .transition(background-color 0.2s);
+  transition: background-color 0.2s;
 
   .LoadingIndicator {
     --size: 22px !important;
@@ -81,7 +81,7 @@
     height: 22px;
     padding: 0;
     left: 3px;
-    .transition(~"opacity 0.2s, left 0.2s");
+    transition: opacity 0.2s, left 0.2s;
 
     .on& {
       left: 25px;
