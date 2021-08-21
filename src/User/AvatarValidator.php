@@ -92,9 +92,4 @@ class AvatarValidator extends AbstractValidator
     {
         return ['jpg', 'png', 'bmp', 'gif'];
     }
-
-    protected function getRules()
-    {
-        return ['avatar' => 'required|file'];
-    }
 }
