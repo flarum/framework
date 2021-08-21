@@ -12,7 +12,7 @@
   margin: 7px 0;
   background: @body-bg;
   border-radius: @border-radius;
-  .box-shadow(0 2px 6px @shadow-color);
+  box-shadow: 0 2px 6px @shadow-color;
   list-style: none;
   text-align: left;
   color: @text-color;
@@ -35,11 +35,12 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      .box-shadow(none);
+      box-shadow: none;
       text-align: left;
       font-size: 13px;
       font-weight: normal;
       text-decoration: none;
+      cursor: pointer;
 
       &.hasIcon {
         padding-left: 40px;
@@ -154,7 +155,7 @@
     float: none;
     position: static;
     background: none;
-    .box-shadow(none);
+    box-shadow: none;
   }
 }
 
@@ -176,12 +177,12 @@
     display: block;
     max-height: 70vh;
     border-radius: 0;
-    .box-shadow(0 2px 6px @shadow-color);
+    box-shadow: 0 2px 6px @shadow-color;
     visibility: hidden;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    .translate3d(0, 70vh, 0);
-    .transition-transform(~" 0.3s, visibility 0s 0.3s");
+    transform: translate(0, 70vh);
+    transition: transform 0.3s, visibility 0s 0.3s;
 
     > li {
       > a, > button {
@@ -222,8 +223,8 @@
   .dropdown-backdrop {
     background: fade(@secondary-color, 90%);
     opacity: 0;
-    .transition(~"opacity 0.3s");
-    .translate3d(0, 0, 0);
+    transition: opacity 0.3s;
+    transform: translate(0, 0);
 
     .open & {
       opacity: 1;

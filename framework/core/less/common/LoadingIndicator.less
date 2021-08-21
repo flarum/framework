@@ -2,7 +2,7 @@
 // Loading Indicators
 
 .LoadingIndicator {
-  @spin-time: 750ms;
+  --spin-time: 750ms;
 
   // Use the value of `color` to maintain backwards compatibility
   border-color: currentColor;
@@ -14,7 +14,7 @@
   width: var(--size);
   height: var(--size);
 
-  animation: spin @spin-time linear infinite;
+  animation: spin var(--spin-time) linear infinite;
 
   // <div> container around the spinner
   // Used for positioning

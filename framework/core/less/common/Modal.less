@@ -16,7 +16,7 @@
   z-index: @zindex-modal-background;
   background-color: @overlay-bg;
   opacity: 0;
-  .transition(0.2s opacity);
+  transition: opacity 0.2s;
 
   &.in {
     opacity: 1;
@@ -37,11 +37,11 @@
 
   // When fading in the modal, animate it to slide down
   .Modal {
-    .scale(0.9);
-    .transition-transform(0.2s ease-out);
+    transform: scale(0.9);
+    transition: transform 0.2s ease-out;
   }
   &.in .Modal {
-    .scale(1);
+    transform: scale(1);
   }
 }
 .modal-open .ModalManager {
@@ -126,7 +126,7 @@
   opacity: 0;
   pointer-events: none;
   border-radius: @border-radius;
-  .transition(opacity 0.2s);
+  transition: opacity 0.2s;
 
   &.active {
     opacity: 1;
@@ -146,8 +146,8 @@
     bottom: 0;
     top: 0;
     overflow: auto;
-    .transition-transform(0.2s);
-    .translate3d(0, 100vh, 0);
+    transition: transform 0.2s ease-out;
+    transform: translate(0, 100vh);
 
     &.in {
       -webkit-transform: none !important;
@@ -170,7 +170,7 @@
     border: 0;
     min-height: 100vh;
     padding-top: @header-height-phone;
-    .box-shadow(none);
+    box-shadow: none;
   }
   .Modal-header {
     padding: 0;
@@ -193,7 +193,7 @@
 
     border: 0;
     border-radius: @border-radius;
-    .box-shadow(0 7px 15px @shadow-color);
+    box-shadow: 0 7px 15px @shadow-color;
   }
   .Modal--small {
     max-width: 375px;
