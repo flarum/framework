@@ -33,15 +33,15 @@ class AvatarValidator extends AbstractValidator
         $error = $file->getError();
 
         if ($error !== UPLOAD_ERR_OK) {
-            if ($error == UPLOAD_ERR_INI_SIZE || $error == UPLOAD_ERR_FORM_SIZE) {
+            if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
                 $this->raise('file_too_large');
             }
 
-            if ($error == UPLOAD_ERR_PARTIAL) {
-                $this->raise('file_uploaded');
+            if ($error === UPLOAD_ERR_NO_FILE) {
+                $this->raise('required');
             }
 
-            $this->raise('required');
+            $this->raise('file_uploaded');
         }
     }
 
