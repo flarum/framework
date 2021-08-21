@@ -46,7 +46,7 @@ class NotificationMailer
             $blueprint->getEmailView(),
             compact('blueprint', 'user'),
             function (Message $message) use ($blueprint, $user) {
-                $message->to($user->email, $user->username)
+                $message->to($user->email, $user->display_name)
                         ->subject($blueprint->getEmailSubject($this->translator));
             }
         );
