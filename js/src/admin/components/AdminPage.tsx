@@ -23,7 +23,16 @@ export interface AdminHeaderOptions {
   className: string;
 }
 
-type HTMLInputTypes =
+/**
+ * A type that matches any valid value for the `type` attribute on an HTML `<input>` element.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type
+ *
+ * Note: this will be exported from a different locaton in the future.
+ *
+ * @see https://github.com/flarum/core/issues/3039
+ */
+export type HTMLInputTypes =
   | 'button'
   | 'checkbox'
   | 'color'
