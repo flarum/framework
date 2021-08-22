@@ -37,12 +37,15 @@ export default class ItemList<T> {
    * We don't allow adding new items to the ItemList via setting new properties,
    * nor do we allow modifying existing items directly.
    *
-   * Attempting to write to this **will** throw an error.
-   *
    * @deprecated Use `ItemList.toObject()` instead.
    */
   get items(): Readonly<Record<string, Item<T>>> {
-    return this.toObject();
+    return new Proxy(this._items, {
+      set() {
+        console.warn('Modifying `ItemList.items` is not allowed.');
+        return false;
+      },
+    });
   }
 
   /**
