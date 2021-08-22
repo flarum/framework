@@ -79,7 +79,7 @@ import listItems from './helpers/listItems';
 import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
-import isObject from './helpers/isObject';
+import isObject from './utils/isObject';
 
 export default {
   extend: extend,
