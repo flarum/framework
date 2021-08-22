@@ -76,7 +76,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
   settings!: Record<string, Stream<string>>;
   loading: boolean = false;
 
-  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const className = classList('AdminPage', this.headerInfo().className);
 
     return (
@@ -90,9 +90,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
   /**
    * Returns the content of the AdminPage.
    */
-  content(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
-    return '';
-  }
+  abstract content(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children;
 
   /**
    * Returns the submit button for this AdminPage.
