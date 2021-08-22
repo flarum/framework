@@ -1,4 +1,5 @@
-export default class UploadImageButton extends Button {
+export default class UploadImageButton extends Button<import("../../common/components/Button").IButtonAttrs> {
+    constructor();
     loading: boolean;
     /**
      * Prompt the user to upload an image.
