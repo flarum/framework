@@ -28,7 +28,7 @@ export interface AdminHeaderOptions {
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type
  *
- * Note: this will be exported from a different locaton in the future.
+ * Note: this will be exported from a different location in the future.
  *
  * @see https://github.com/flarum/core/issues/3039
  */
