@@ -140,7 +140,7 @@ export default class DiscussionPage extends Page {
       'poststream',
       <div className="DiscussionPage-stream">
         {PostStream.component({
-          discussion,
+          discussion: this.discussion,
           stream: this.stream,
           onPositionChange: this.positionChanged.bind(this),
         })}
