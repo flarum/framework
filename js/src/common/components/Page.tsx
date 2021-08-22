@@ -12,7 +12,7 @@ export interface IPageAttrs {
  *
  * @abstract
  */
-export default class Page<CustomAttrs extends IPageAttrs = IPageAttrs> extends Component<IPageAttrs> {
+export default abstract class Page<CustomAttrs extends IPageAttrs = IPageAttrs> extends Component<CustomAttrs> {
   oninit(vnode) {
     super.oninit(vnode);
 
