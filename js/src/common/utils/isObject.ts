@@ -19,7 +19,7 @@
  * @example
  * isObject("hello world"); // false
  *
- * @see https://github.com/jashkenas/underscore/blob/master/underscore.js#L87-L91
+ * @see https://github.com/jashkenas/underscore/blob/943977e34e2279503528a71ddcc2dd5f96483945/underscore.js#L87-L91
  */
 export default function isObject(obj: unknown): obj is object {
   const type = typeof obj;

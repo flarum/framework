@@ -1,4 +1,4 @@
-import isObject from '../helpers/isObject';
+import isObject from './isObject';
 
 class Item<T> {
   content: T;
