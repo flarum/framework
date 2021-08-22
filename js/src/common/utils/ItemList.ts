@@ -181,10 +181,8 @@ export default class ItemList<T> {
    * with the same key.
    */
   merge<K>(otherList: ItemList<K>): ItemList<T | K> {
-    const otherItems = otherList.toObject();
-
-    Object.keys(otherItems).forEach((key) => {
-      const val = otherItems[key];
+    Object.keys(otherList._items).forEach((key) => {
+      const val = otherList._items[key];
 
       if (val instanceof Item) {
         (this as ItemList<T | K>)._items[key] = val;
