@@ -79,6 +79,7 @@ import listItems from './helpers/listItems';
 import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
+import isObject from './helpers/isObject';
 
 export default {
   extend: extend,
@@ -114,6 +115,7 @@ export default {
   'utils/mapRoutes': mapRoutes,
   'utils/withAttr': withAttr,
   'utils/throttleDebounce': ThrottleDebounce,
+  'utils/isObject': isObject,
   'models/Notification': Notification,
   'models/User': User,
   'models/Post': Post,

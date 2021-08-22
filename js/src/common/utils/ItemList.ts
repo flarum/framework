@@ -1,3 +1,5 @@
+import isObject from '../helpers/isObject';
+
 class Item<T> {
   content: T;
   priority: number;
@@ -256,44 +258,32 @@ export default class ItemList<T> {
   }
 
   /**
-   * A read-only map of all keys to their respective items.
+   * A read-only map of all keys to their respective items in no particular order.
    *
    * We don't allow adding new items to the ItemList via setting new properties,
    * nor do we allow modifying existing items directly. You should use the
    * `.add()` and `.replace()` methods respectively instead.
    *
-   * Attempting to write to this **will** throw an error.
-   *
    * @example
    * const items = new ItemList();
-   * items.add('myKey', 'My cool value', 10);
+   * items.add('b', 'My cool value', 10);
+   * items.add('a', 'My cool value', 0);
    * items.toObject();
-   * // { myKey: { content: 'My cool value', priority: 10 } }
+   * // { myKey: 'My cool value' }
    */
-  toObject(): Readonly<Record<string, Item<T>>> {
-    return new Proxy(this._items, {
-      get(target, property, receiver) {
-        if (typeof property === 'string' && target[property] instanceof Item) {
-          return new Proxy(target[property], {
-            set() {
-              // Disallow directly modifying Item.content, Item.priority, Item.key.
-              throw Error(
-                'Modifying Items in an ItemList directly is not allowed. You must use `ItemList.replace()` or `ItemList.changePriority()` instead.'
-              );
-            },
-          });
-        }
+  toObject(): Readonly<Record<string, Readonly<T>>> {
+    const keyItemMap = Object.keys(this._items).reduce((map, key) => {
+      const val = this.get(key);
 
-        return Reflect.get(target, property, receiver);
-      },
-      set() {
-        // Disallow overwriting items
-        throw Error('Setting values of `ItemList.items` is not allowed. You must use `ItemList.add()` instead.');
-      },
-    });
+      map[key] = val;
+
+      return map;
+    }, {} as Record<string, Readonly<T>>);
+
+    return keyItemMap;
   }
 
-  protected createItemContentProxy<C extends object>(content: C, key: string): C & Readonly<{ itemName: string }> {
+  protected createItemContentProxy<C extends object>(content: C, key: string): Readonly<C & { itemName: string }> {
     return new Proxy(content, {
       get(target, property, receiver) {
         if (property === 'itemName') return key;
@@ -301,10 +291,12 @@ export default class ItemList<T> {
         return Reflect.get(target, property, receiver);
       },
       set(target, property, value, receiver) {
-        if (property === 'itemName') throw new Error('`itemName` property is read-only');
+        if (key !== null && property === 'itemName') {
+          throw new Error('`itemName` property is read-only');
+        }
 
         return Reflect.set(target, property, value, receiver);
       },
-    }) as C & Readonly<{ itemName: string }>;
+    }) as C & { itemName: string };
   }
 }
