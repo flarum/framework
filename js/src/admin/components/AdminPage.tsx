@@ -72,7 +72,7 @@ export type SettingsComponentOptions = HTMLInputSettingsComponentOptions | Switc
  */
 export type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
 
-export default class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
+export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
   settings!: Record<string, Stream<string>>;
   loading: boolean = false;
 
