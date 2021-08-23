@@ -74,19 +74,17 @@ class LogInController implements RequestHandlerInterface
 
         $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
 
-        if ($response->getStatusCode() === 200) {
-            $data = json_decode($response->getBody());
+        $data = json_decode($response->getBody());
 
-            $token = AccessToken::findValid($data->token);
+        $token = AccessToken::findValid($data->token);
 
-            $session = $request->getAttribute('session');
-            $this->authenticator->logIn($session, $token);
+        $session = $request->getAttribute('session');
+        $this->authenticator->logIn($session, $token);
 
-            $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));
+        $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));
 
-            if ($token instanceof RememberAccessToken) {
-                $response = $this->rememberer->remember($response, $token);
-            }
+        if ($token instanceof RememberAccessToken) {
+            $response = $this->rememberer->remember($response, $token);
         }
 
         return $response;
