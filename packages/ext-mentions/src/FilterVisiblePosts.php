@@ -44,6 +44,8 @@ class FilterVisiblePosts
      */
     public function __invoke(Controller\AbstractSerializeController $controller, $data, ServerRequestInterface $request)
     {
+        $relations = [];
+
         // Firstly we gather a list of posts contained within the API document.
         // This will vary according to the API endpoint that is being accessed.
         if ($controller instanceof Controller\ShowDiscussionController) {
@@ -51,6 +53,11 @@ class FilterVisiblePosts
         } elseif ($controller instanceof Controller\ShowPostController
             || $controller instanceof Controller\CreatePostController
             || $controller instanceof Controller\UpdatePostController) {
+            $relations = [
+                'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
+                'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers'
+            ];
+
             $posts = [$data];
         } elseif ($controller instanceof Controller\ListPostsController) {
             $posts = $data;
@@ -67,7 +74,7 @@ class FilterVisiblePosts
             // Load all of the users that these posts mention. This way the data
             // will be ready to go when we need to sub in current usernames
             // during the rendering process.
-            $posts->loadMissing(['mentionsUsers', 'mentionsPosts.user', 'mentionedBy']);
+            $posts->loadMissing($relations);
 
             // Construct a list of the IDs of all of the posts that these posts
             // have been mentioned in. We can then filter this list of IDs to

@@ -11,6 +11,7 @@ namespace Flarum\Mentions;
 
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer\BasicPostSerializer;
+use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
@@ -56,18 +57,35 @@ return [
     (new Extend\ApiSerializer(BasicPostSerializer::class))
         ->hasMany('mentionedBy', BasicPostSerializer::class)
         ->hasMany('mentionsPosts', BasicPostSerializer::class)
-        ->hasMany('mentionsUsers', BasicPostSerializer::class),
+        ->hasMany('mentionsUsers', BasicUserSerializer::class),
 
     (new Extend\ApiController(Controller\ShowDiscussionController::class))
-        ->addInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion']),
+        ->addInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
+        ->load([
+            'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user', 'posts.mentionedBy',
+            'posts.mentionedBy.mentionsPosts', 'posts.mentionedBy.mentionsPosts.user', 'posts.mentionedBy.mentionsUsers',
+        ]),
+
+    (new Extend\ApiController(Controller\ListDiscussionsController::class))
+        ->load([
+            'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user',
+            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user'
+        ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
-        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']),
+        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
+        ->load([
+            'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
+            'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
+        ]),
 
     (new Extend\ApiController(Controller\CreatePostController::class))
+        ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy']),
+
+    (new Extend\ApiController(Controller\UpdatePostController::class))
         ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy']),
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))
