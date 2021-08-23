@@ -34,12 +34,14 @@ import EditCustomCssModal from './components/EditCustomCssModal';
 import EditGroupModal from './components/EditGroupModal';
 import routes from './routes';
 import AdminApplication from './AdminApplication';
+import generateElementId from './utils/generateElementId';
 
 export default Object.assign(compat, {
   'utils/saveSettings': saveSettings,
   'utils/ExtensionData': ExtensionData,
   'utils/isExtensionEnabled': isExtensionEnabled,
   'utils/getCategorizedExtensions': getCategorizedExtensions,
+  'utils/generateElementId': generateElementId,
   'components/SettingDropdown': SettingDropdown,
   'components/EditCustomFooterModal': EditCustomFooterModal,
   'components/SessionDropdown': SessionDropdown,
