@@ -2,7 +2,9 @@
  * The `DiscussionPage` component displays a whole discussion page, including
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
-export default class DiscussionPage extends Page {
+export default class DiscussionPage extends Page<import("../../common/components/Page").IPageAttrs> {
+    constructor();
+    useBrowserScrollRestoration: boolean | undefined;
     /**
      * The discussion that is being viewed.
      *
@@ -15,6 +17,7 @@ export default class DiscussionPage extends Page {
      * @type {number}
      */
     near: number | undefined;
+    bodyClass: string | undefined;
     /**
      * List of components shown while the discussion is loading.
      *
