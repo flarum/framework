@@ -10,19 +10,6 @@ class Item<T> {
   content: T;
   priority: number;
 
-  // TODO: Flarum 2.0 - Stop setting `key` on Items
-  /**
-   * The index of this item in the latest generated array.
-   *
-   * Set when calling `.toArray()`.
-   *
-   * **NOTE:** If you modify the item list after `.toArray()` is called,
-   * this value may not be correct.
-   *
-   * @deprecated This will be removed in Flarum 2.0.
-   */
-  key?: number;
-
   constructor(content: T, priority: number) {
     this.content = content;
     this.priority = priority;
@@ -245,7 +232,6 @@ export default class ItemList<T> {
   toArray(keepPrimitives: boolean = false): T[] | (T & Readonly<{ itemName: string }>)[] {
     const items: Item<T>[] = Object.keys(this._items).map((key, i) => {
       const item = this._items[key];
-      item.key = i;
 
       if (!keepPrimitives || isObject(item.content)) {
         // Convert content to object, then proxy it
@@ -259,15 +245,7 @@ export default class ItemList<T> {
       }
     });
 
-    return items
-      .sort((a, b) => {
-        if (a.priority === b.priority) {
-          return a.key! - b.key!;
-        }
-
-        return b.priority - a.priority;
-      })
-      .map((item) => item.content);
+    return items.sort((a, b) => b.priority - a.priority).map((item) => item.content);
   }
 
   /**
