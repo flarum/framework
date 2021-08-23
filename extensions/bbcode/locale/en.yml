@@ -1,0 +1,10 @@
+flarum-bbcode:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Translations in this namespace are used by the forum user interface.
+  forum:
+    quote:
+      wrote: wrote
