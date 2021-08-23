@@ -1,5 +1,11 @@
 import isObject from './isObject';
 
+export interface IItemObject<T> {
+  content: T;
+  itemName: string;
+  priority: number;
+}
+
 class Item<T> {
   content: T;
   priority: number;
@@ -41,7 +47,7 @@ export default class ItemList<T> {
    *
    * @deprecated Use `ItemList.toObject()` instead.
    */
-  get items(): Readonly<Record<string, Item<T>>> {
+  get items(): DeepReadonly<Record<string, Item<T>>> {
     return new Proxy(this._items, {
       set() {
         console.warn('Modifying `ItemList.items` is not allowed.');
@@ -69,6 +75,13 @@ export default class ItemList<T> {
    */
   get(key: string): T {
     return this._items[key].content;
+  }
+
+  /**
+   * Get the priority of an item.
+   */
+  getPriority(key: string): number {
+    return this._items[key].priority;
   }
 
   /**
@@ -234,11 +247,11 @@ export default class ItemList<T> {
       const item = this._items[key];
       item.key = i;
 
-      if (!keepPrimitives || typeof item.content === 'object') {
+      if (!keepPrimitives || isObject(item.content)) {
         // Convert content to object, then proxy it
         return {
           ...item,
-          content: this.createItemContentProxy(typeof item.content === 'object' ? item.content : Object(item.content), key),
+          content: this.createItemContentProxy(isObject(item.content) ? item.content : Object(item.content), key),
         };
       } else {
         // ...otherwise just return a clone of the item.
@@ -266,19 +279,26 @@ export default class ItemList<T> {
    *
    * @example
    * const items = new ItemList();
-   * items.add('b', 'My cool value', 10);
-   * items.add('a', 'My cool value', 0);
+   * items.add('b', 'My cool value', 20);
+   * items.add('a', 'My value', 10);
    * items.toObject();
-   * // { myKey: 'My cool value' }
+   * // {
+   * //   a: { content: 'My value', priority: 10, itemName: 'a' },
+   * //   b: { content: 'My cool value', priority: 20, itemName: 'b' },
+   * // }
    */
-  toObject(): Readonly<Record<string, Readonly<T>>> {
+  toObject(): DeepReadonly<Record<string, IItemObject<T>>> {
     const keyItemMap = Object.keys(this._items).reduce((map, key) => {
-      const val = this.get(key);
+      const obj = {
+        content: this.get(key),
+        itemName: key,
+        priority: this.getPriority(key),
+      };
 
-      map[key] = val;
+      map[key] = obj;
 
       return map;
-    }, {} as Record<string, Readonly<T>>);
+    }, {} as Record<string, IItemObject<T>>);
 
     return keyItemMap;
   }

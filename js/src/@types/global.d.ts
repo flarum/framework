@@ -1,3 +1,8 @@
+declare type Writable<T> = { -readonly [P in keyof T]: T[P] };
+declare type DeepWritable<T> = { -readonly [P in keyof T]: DeepWritable<T[P]> };
+
+declare type DeepReadonly<T> = { -readonly [P in keyof T]: DeepReadonly<T[P]> };
+
 /**
  * @deprecated Please import `app` from a namespace instead of using it as a global variable.
  *
