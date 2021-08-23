@@ -5,13 +5,15 @@
  *
  * @abstract
  */
-export default class UserPage extends Page {
+export default class UserPage extends Page<import("../../common/components/Page").IPageAttrs> {
+    constructor();
     /**
      * The user this page is for.
      *
      * @type {User}
      */
     user: any;
+    bodyClass: string | undefined;
     /**
      * Get the content to display in the user page.
      *
