@@ -89,7 +89,6 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         ];
                     }
 
-
                     $document->preloads = array_merge(
                         $document->preloads,
                         $fontawesome_preloads,
