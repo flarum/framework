@@ -106,7 +106,7 @@ export type SettingsComponentOptions = HTMLInputSettingsComponentOptions | Switc
 export type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
 
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
-  settings!: Record<string, Stream<string>>;
+  settings: Record<string, Stream<string>> = {};
   loading: boolean = false;
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
