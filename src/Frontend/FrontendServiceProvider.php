@@ -10,6 +10,7 @@
 namespace Flarum\Frontend;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Http\UrlGenerator;
@@ -32,7 +33,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 );
 
                 $assets->setLessImportDirs([
-                    $paths->vendor.'/components/font-awesome/less' => ''
+                    $paths->vendor . '/components/font-awesome/less' => ''
                 ]);
 
                 $assets->css([$this, 'addBaseCss']);
@@ -44,15 +45,38 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.frontend.factory', function (Container $container) {
             return function (string $name) use ($container) {
+                $config = $container[Config::class];
+
                 $frontend = $container->make(Frontend::class);
 
                 $frontend->content(function (Document $document) use ($name) {
-                    $document->layoutView = 'flarum::frontend.'.$name;
+                    $document->layoutView = 'flarum::frontend.' . $name;
                 });
 
                 $frontend->content($container->make(Content\Assets::class)->forFrontend($name));
                 $frontend->content($container->make(Content\CorePayload::class));
                 $frontend->content($container->make(Content\Meta::class));
+
+                $frontend->content(function (Document $document) use ($config) {
+                    $default_preloads = [
+                        [
+                            'href' => $config->url()->getPath() . '/assets/fonts/fa-solid-900.woff2',
+                            'as' => 'font',
+                            'type' => 'font/woff2',
+                            'crossorigin' => ''
+                        ], [
+                            'href' => $config->url()->getPath() . '/assets/fonts/fa-regular-400.woff2',
+                            'as' => 'font',
+                            'type' => 'font/woff2',
+                            'crossorigin' => ''
+                        ]
+                    ];
+
+                    $document->preloads = array_merge(
+                        $document->preloads,
+                        $default_preloads
+                    );
+                });
 
                 return $frontend;
             };
@@ -64,7 +88,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
      */
     public function boot(Container $container, ViewFactory $views)
     {
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
+        $this->loadViewsFrom(__DIR__ . '/../../views', 'flarum');
 
         $views->share([
             'translator' => $container->make('translator'),
@@ -74,8 +98,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
     public function addBaseCss(SourceCollector $sources)
     {
-        $sources->addFile(__DIR__.'/../../less/common/variables.less');
-        $sources->addFile(__DIR__.'/../../less/common/mixins.less');
+        $sources->addFile(__DIR__ . '/../../less/common/variables.less');
+        $sources->addFile(__DIR__ . '/../../less/common/mixins.less');
 
         $this->addLessVariables($sources);
     }
@@ -93,7 +117,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
             ];
 
             return array_reduce(array_keys($vars), function ($string, $name) use ($vars) {
-                return $string."@$name: {$vars[$name]};";
+                return $string . "@$name: {$vars[$name]};";
             }, '');
         });
     }
