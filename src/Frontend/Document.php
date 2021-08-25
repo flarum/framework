@@ -124,10 +124,10 @@ class Document implements Renderable
 
     /**
      * An array of preloaded assets.
-     * 
+     *
      * Each array item should be an array containing keys that pertain to the
      * `<link rel="preload">` tag.
-     * 
+     *
      * For example, the following will add a preload tag for a FontAwesome font file:
      * ```
      * $this->preloads[] = [
@@ -137,7 +137,7 @@ class Document implements Renderable
      *   'crossorigin' => ''
      * ];
      * ```
-     * 
+     *
      * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload
      *
      * @var array
@@ -204,7 +204,7 @@ class Document implements Renderable
     {
         $onHomePage = rtrim($this->request->getUri()->getPath(), '/') === '';
 
-        return ($this->title && !$onHomePage ? $this->title . ' - ' : '') . Arr::get($this->forumApiDocument, 'data.attributes.title');
+        return ($this->title && ! $onHomePage ? $this->title.' - ' : '').Arr::get($this->forumApiDocument, 'data.attributes.title');
     }
 
     /**
@@ -228,10 +228,10 @@ class Document implements Renderable
     protected function makePreloads(): array
     {
         return array_map(function ($preload) {
-            $attributes = "";
+            $attributes = '';
 
             foreach ($preload as $key => $value) {
-                $attributes .= " $key=\"" . e($value) . '"';
+                $attributes .= " $key=\"".e($value).'"';
             }
 
             return "<link rel=\"preload\"$attributes>";
@@ -244,17 +244,17 @@ class Document implements Renderable
     protected function makeHead(): string
     {
         $head = array_map(function ($url) {
-            return '<link rel="stylesheet" href="' . e($url) . '">';
+            return '<link rel="stylesheet" href="'.e($url).'">';
         }, $this->css);
 
         if ($this->canonicalUrl) {
-            $head[] = '<link rel="canonical" href="' . e($this->canonicalUrl) . '">';
+            $head[] = '<link rel="canonical" href="'.e($this->canonicalUrl).'">';
         }
 
         $head = array_merge($head, $this->makePreloads());
 
         $head = array_merge($head, array_map(function ($content, $name) {
-            return '<meta name="' . e($name) . '" content="' . e($content) . '">';
+            return '<meta name="'.e($name).'" content="'.e($content).'">';
         }, $this->meta, array_keys($this->meta)));
 
         return implode("\n", array_merge($head, $this->head));
@@ -266,7 +266,7 @@ class Document implements Renderable
     protected function makeJs(): string
     {
         return implode("\n", array_map(function ($url) {
-            return '<script src="' . e($url) . '"></script>';
+            return '<script src="'.e($url).'"></script>';
         }, $this->js));
     }
 

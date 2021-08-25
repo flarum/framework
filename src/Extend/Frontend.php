@@ -128,11 +128,11 @@ class Frontend implements ExtenderInterface
 
     /**
      * Adds multiple asset preloads.
-     * 
+     *
      * The parameter should be an array of preload arrays, or a callable that returns this.
-     * 
+     *
      * A preload array must contain keys that pertain to the `<link rel="preload">` tag.
-     * 
+     *
      * For example, the following will add preload tags for a script and font file:
      * ```
      * $frontend->preloads([
@@ -156,7 +156,7 @@ class Frontend implements ExtenderInterface
     {
         if (is_callable($preloads)) {
             $this->preloads = array_merge($this->preloads, $preloads());
-        } else if (is_array($preloads)) {
+        } elseif (is_array($preloads)) {
             $this->preloads = array_merge($this->preloads, $preloads);
         }
 
@@ -165,11 +165,11 @@ class Frontend implements ExtenderInterface
 
     /**
      * Adds a single asset preload.
-     * 
+     *
      * The parameter should be a preload array, or a callable that returns one.
-     * 
+     *
      * A preload array must contain keys that pertain to the `<link rel="preload">` tag.
-     * 
+     *
      * For example, the following will add preload tags for a script:
      * ```
      * $frontend->preload(
@@ -187,7 +187,7 @@ class Frontend implements ExtenderInterface
     {
         if (is_callable($preload)) {
             $this->preloads[] = $preload();
-        } else if (is_array($preload)) {
+        } elseif (is_array($preload)) {
             $this->preloads[] = $preload;
         }
 
@@ -208,7 +208,7 @@ class Frontend implements ExtenderInterface
             return;
         }
 
-        $abstract = 'flarum.assets.' . $this->frontend;
+        $abstract = 'flarum.assets.'.$this->frontend;
 
         $container->resolving($abstract, function (Assets $assets) use ($moduleName) {
             if ($this->js) {
@@ -232,7 +232,7 @@ class Frontend implements ExtenderInterface
             }
         });
 
-        if (!$container->bound($abstract)) {
+        if (! $container->bound($abstract)) {
             $container->bind($abstract, function (Container $container) {
                 return $container->make('flarum.assets.factory')($this->frontend);
             });

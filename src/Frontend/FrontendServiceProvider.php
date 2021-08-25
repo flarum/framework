@@ -33,7 +33,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 );
 
                 $assets->setLessImportDirs([
-                    $paths->vendor . '/components/font-awesome/less' => ''
+                    $paths->vendor.'/components/font-awesome/less' => ''
                 ]);
 
                 $assets->css([$this, 'addBaseCss']);
@@ -50,7 +50,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend = $container->make(Frontend::class);
 
                 $frontend->content(function (Document $document) use ($name) {
-                    $document->layoutView = 'flarum::frontend.' . $name;
+                    $document->layoutView = 'flarum::frontend.'.$name;
                 });
 
                 $frontend->content($container->make(Content\Assets::class)->forFrontend($name));
@@ -60,12 +60,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content(function (Document $document) use ($config) {
                     $default_preloads = [
                         [
-                            'href' => $config->url()->getPath() . '/assets/fonts/fa-solid-900.woff2',
+                            'href' => $config->url()->getPath().'/assets/fonts/fa-solid-900.woff2',
                             'as' => 'font',
                             'type' => 'font/woff2',
                             'crossorigin' => ''
                         ], [
-                            'href' => $config->url()->getPath() . '/assets/fonts/fa-regular-400.woff2',
+                            'href' => $config->url()->getPath().'/assets/fonts/fa-regular-400.woff2',
                             'as' => 'font',
                             'type' => 'font/woff2',
                             'crossorigin' => ''
@@ -88,7 +88,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
      */
     public function boot(Container $container, ViewFactory $views)
     {
-        $this->loadViewsFrom(__DIR__ . '/../../views', 'flarum');
+        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
         $views->share([
             'translator' => $container->make('translator'),
@@ -98,8 +98,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
     public function addBaseCss(SourceCollector $sources)
     {
-        $sources->addFile(__DIR__ . '/../../less/common/variables.less');
-        $sources->addFile(__DIR__ . '/../../less/common/mixins.less');
+        $sources->addFile(__DIR__.'/../../less/common/variables.less');
+        $sources->addFile(__DIR__.'/../../less/common/mixins.less');
 
         $this->addLessVariables($sources);
     }
@@ -117,7 +117,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
             ];
 
             return array_reduce(array_keys($vars), function ($string, $name) use ($vars) {
-                return $string . "@$name: {$vars[$name]};";
+                return $string."@$name: {$vars[$name]};";
             }, '');
         });
     }

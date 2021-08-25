@@ -26,11 +26,11 @@ class FrontendPreloadTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $assetsPath = $this->app()->getContainer()->make(Config::class)->url()->getPath() . '/assets';
+        $assetsPath = $this->app()->getContainer()->make(Config::class)->url()->getPath().'/assets';
 
         $urls = [
-            $assetsPath . '/fonts/fa-solid-900.woff2',
-            $assetsPath . '/fonts/fa-regular-400.woff2',
+            $assetsPath.'/fonts/fa-solid-900.woff2',
+            $assetsPath.'/fonts/fa-regular-400.woff2',
         ];
 
         $body = $response->getBody()->getContents();
@@ -50,7 +50,7 @@ class FrontendPreloadTest extends TestCase
         $this->extend(
             (new Extend\Frontend('forum'))
                 ->preload([
-                    "href" => $url,
+                    'href' => $url,
                 ])
         );
 
@@ -73,7 +73,7 @@ class FrontendPreloadTest extends TestCase
             (new Extend\Frontend('forum'))
                 ->preload(function () use ($url) {
                     return [
-                        "href" => $url,
+                        'href' => $url,
                     ];
                 })
         );
