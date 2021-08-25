@@ -90,10 +90,10 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     }
 
                     $document->preloads = array_merge(
-                        $document->preloads,
-                        $fontawesome_preloads,
                         $css_preloads,
                         $js_preloads,
+                        $fontawesome_preloads,
+                        $document->preloads,
                     );
                 });
 
