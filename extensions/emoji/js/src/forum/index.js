@@ -1,4 +1,4 @@
-import app from 'flarum/app';
+import app from 'flarum/forum/app';
 
 import addComposerAutocomplete from './addComposerAutocomplete';
 import renderEmoji from './renderEmoji';
