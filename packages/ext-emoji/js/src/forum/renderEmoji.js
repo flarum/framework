@@ -1,9 +1,7 @@
-/*global s9e*/
-
 import twemoji from 'twemoji';
 
-import { override } from 'flarum/extend';
-import Post from 'flarum/models/Post';
+import { override } from 'flarum/common/extend';
+import Post from 'flarum/common/models/Post';
 
 import base from './cdn';
 
