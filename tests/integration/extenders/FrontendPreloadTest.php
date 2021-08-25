@@ -36,7 +36,7 @@ class FrontendPreloadTest extends TestCase
         $body = $response->getBody()->getContents();
 
         foreach ($urls as $url) {
-            $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\" as=\"font\" as=\"font/woff2\" crossorigin=\"\">", $body);
+            $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\" as=\"font\" type=\"font/woff2\" crossorigin=\"\">", $body);
         }
     }
 
