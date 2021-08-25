@@ -58,7 +58,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content($container->make(Content\Meta::class));
 
                 $frontend->content(function (Document $document) use ($config) {
-                    $default_preloads = [
+                    $fontawesome_preloads = [
                         [
                             'href' => $config->url()->getPath().'/assets/fonts/fa-solid-900.woff2',
                             'as' => 'font',
@@ -72,9 +72,29 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         ]
                     ];
 
+                    // Add preloads for base CSS and JS assets. Extensions should add their own via the extender.
+                    $js_preloads = [];
+                    $css_preloads = [];
+
+                    foreach ($document->css as $url) {
+                        $css_preloads[] = [
+                            'href' => $url,
+                            'as' => 'style'
+                        ];
+                    }
+                    foreach ($document->js as $url) {
+                        $css_preloads[] = [
+                            'href' => $url,
+                            'as' => 'script'
+                        ];
+                    }
+
+
                     $document->preloads = array_merge(
                         $document->preloads,
-                        $default_preloads
+                        $fontawesome_preloads,
+                        $css_preloads,
+                        $js_preloads,
                     );
                 });
 
