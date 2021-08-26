@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
-use Flarum\Foundation\Config;
 use Flarum\Testing\integration\TestCase;
 
 class FrontendPreloadTest extends TestCase
