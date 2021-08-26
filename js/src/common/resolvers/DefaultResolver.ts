@@ -1,4 +1,4 @@
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * Generates a route resolver for a given component.

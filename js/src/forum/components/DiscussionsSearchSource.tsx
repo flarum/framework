@@ -1,8 +1,9 @@
+import app from '../../forum/app';
 import highlight from '../../common/helpers/highlight';
 import LinkButton from '../../common/components/LinkButton';
 import Link from '../../common/components/Link';
 import { SearchSource } from './Search';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in

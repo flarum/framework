@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Button from '../../common/components/Button';
 
 /**

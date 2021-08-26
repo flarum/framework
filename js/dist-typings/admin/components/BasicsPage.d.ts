@@ -1,4 +1,5 @@
-export default class BasicsPage extends AdminPage {
+export default class BasicsPage extends AdminPage<import("../../common/components/Page").IPageAttrs> {
+    constructor();
     localeOptions: {} | undefined;
     displayNameOptions: {} | undefined;
     slugDriverOptions: {} | undefined;

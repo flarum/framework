@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * The `fullTime` helper displays a formatted time string wrapped in a <time>

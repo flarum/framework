@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import DiscussionList from './DiscussionList';
 import Component from '../../common/Component';
 import DiscussionPage from './DiscussionPage';

@@ -1,4 +1,5 @@
-export default class ExtensionPage extends AdminPage {
+export default class ExtensionPage extends AdminPage<import("../../common/components/Page").IPageAttrs> {
+    constructor();
     extension: any;
     changingState: boolean | undefined;
     infoFields: {

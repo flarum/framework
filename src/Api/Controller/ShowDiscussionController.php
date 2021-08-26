@@ -187,12 +187,21 @@ class ShowDiscussionController extends AbstractShowController
 
         $query->orderBy('created_at')->skip($offset)->take($limit)->with($include);
 
-        $posts = $query->get()->all();
+        $posts = $query->get();
 
         foreach ($posts as $post) {
             $post->discussion = $discussion;
         }
 
-        return $posts;
+        $this->loadRelations($posts, $include);
+
+        return $posts->all();
+    }
+
+    protected function getRelationsToLoad(): array
+    {
+        $addedRelations = parent::getRelationsToLoad();
+
+        return $this->getPostRelationships($addedRelations);
     }
 }

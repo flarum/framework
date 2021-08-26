@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import ComposerBody from './ComposerBody';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';

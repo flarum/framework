@@ -1,3 +1,5 @@
+import app from '../common/app';
+
 import ItemList from './utils/ItemList';
 import Button from './components/Button';
 import ModalManager from './components/ModalManager';

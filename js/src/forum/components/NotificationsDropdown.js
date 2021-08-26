@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Dropdown from '../../common/components/Dropdown';
 import icon from '../../common/helpers/icon';
 import classList from '../../common/utils/classList';

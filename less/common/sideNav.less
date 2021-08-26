@@ -19,11 +19,11 @@
       & .Dropdown-menu {
         & > li > a {
           padding: 8px 0 8px 30px;
-          color: @muted-color;
+          color: var(--sidenav-color, @muted-color);
 
           &:hover {
             background: none;
-            color: @link-color;
+            color: var(--sidenav-color-hover, @link-color);
             text-decoration: none;
           }
 
@@ -35,7 +35,7 @@
         }
         & > li.active > a {
           background: none;
-          color: @primary-color;
+          color: var(--sidenav-color-active, @primary-color);
           font-weight: bold;
         }
         & > .Dropdown-separator {

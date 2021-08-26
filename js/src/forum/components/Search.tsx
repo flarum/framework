@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component, { ComponentAttrs } from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import ItemList from '../../common/utils/ItemList';
@@ -8,7 +9,7 @@ import icon from '../../common/helpers/icon';
 import SearchState from '../states/SearchState';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * The `SearchSource` interface defines a section of search results in the
