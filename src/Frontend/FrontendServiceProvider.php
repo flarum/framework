@@ -10,7 +10,6 @@
 namespace Flarum\Frontend;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Http\UrlGenerator;
@@ -45,8 +44,6 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.frontend.factory', function (Container $container) {
             return function (string $name) use ($container) {
-                $config = $container[Config::class];
-
                 $frontend = $container->make(Frontend::class);
 
                 $frontend->content(function (Document $document) use ($name) {
@@ -57,15 +54,17 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content($container->make(Content\CorePayload::class));
                 $frontend->content($container->make(Content\Meta::class));
 
-                $frontend->content(function (Document $document) use ($config) {
+                $frontend->content(function (Document $document) use ($container) {
+                    $filesystem = $container->make('filesystem')->disk('flarum-assets');
+
                     $fontawesome_preloads = [
                         [
-                            'href' => $config->url()->getPath().'/assets/fonts/fa-solid-900.woff2',
+                            'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
                             'as' => 'font',
                             'type' => 'font/woff2',
                             'crossorigin' => ''
                         ], [
-                            'href' => $config->url()->getPath().'/assets/fonts/fa-regular-400.woff2',
+                            'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
                             'as' => 'font',
                             'type' => 'font/woff2',
                             'crossorigin' => ''
