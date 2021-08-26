@@ -42,6 +42,7 @@ class LoadForumTagsRelationship
                     ->limit(4) // We get one more than we need so the "more" link can be shown.
             )
             ->whereVisibleTo($actor)
+            ->withStateFor($actor)
             ->get();
     }
 }

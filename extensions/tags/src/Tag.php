@@ -34,6 +34,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $last_posted_discussion_id
  * @property int $last_posted_user_id
  * @property string $icon
+ * @property TagState
  */
 class Tag extends AbstractModel
 {
