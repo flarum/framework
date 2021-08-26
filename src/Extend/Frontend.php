@@ -163,37 +163,6 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
-    /**
-     * Adds a single asset preload.
-     *
-     * The parameter should be a preload array, or a callable that returns one.
-     *
-     * A preload array must contain keys that pertain to the `<link rel="preload">` tag.
-     *
-     * For example, the following will add preload tags for a script:
-     * ```
-     * $frontend->preload(
-     *   [
-     *     'href' => '/assets/my-script.js',
-     *     'as' => 'script',
-     *   ]
-     * );
-     * ```
-     *
-     * @param callable|array $preload
-     * @return self
-     */
-    public function preload($preload): self
-    {
-        if (is_callable($preload)) {
-            $this->preloads[] = $preload();
-        } elseif (is_array($preload)) {
-            $this->preloads[] = $preload;
-        }
-
-        return $this;
-    }
-
     public function extend(Container $container, Extension $extension = null)
     {
         $this->registerAssets($container, $this->getModuleName($extension));

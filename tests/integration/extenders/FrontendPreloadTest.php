@@ -43,53 +43,7 @@ class FrontendPreloadTest extends TestCase
     /**
      * @test
      */
-    public function single_preload_can_be_added()
-    {
-        $url = $this->customPreloadUrls[0];
-
-        $this->extend(
-            (new Extend\Frontend('forum'))
-                ->preload([
-                    'href' => $url,
-                ])
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/')
-        );
-        $body = $response->getBody()->getContents();
-
-        $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\">", $body);
-    }
-
-    /**
-     * @test
-     */
-    public function single_preload_can_be_added_via_callable()
-    {
-        $url = $this->customPreloadUrls[0];
-
-        $this->extend(
-            (new Extend\Frontend('forum'))
-                ->preload(function () use ($url) {
-                    return [
-                        'href' => $url,
-                    ];
-                })
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/')
-        );
-        $body = $response->getBody()->getContents();
-
-        $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\">", $body);
-    }
-
-    /**
-     * @test
-     */
-    public function multiple_preloads_can_be_added()
+    public function preloads_can_be_added()
     {
         $urls = $this->customPreloadUrls;
 
@@ -115,7 +69,7 @@ class FrontendPreloadTest extends TestCase
     /**
      * @test
      */
-    public function multiple_preloads_can_be_added_via_callable()
+    public function preloads_can_be_added_via_callable()
     {
         $urls = $this->customPreloadUrls;
 
