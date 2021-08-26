@@ -26,11 +26,11 @@ class FrontendPreloadTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $assetsPath = $this->app()->getContainer()->make(Config::class)->url()->getPath().'/assets';
+        $filesystem = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
         $urls = [
-            $assetsPath.'/fonts/fa-solid-900.woff2',
-            $assetsPath.'/fonts/fa-regular-400.woff2',
+            $filesystem->url('fonts/fa-solid-900.woff2'),
+            $filesystem->url('fonts/fa-regular-400.woff2'),
         ];
 
         $body = $response->getBody()->getContents();
