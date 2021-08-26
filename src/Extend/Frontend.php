@@ -185,8 +185,7 @@ class Frontend implements ExtenderInterface
                 function (Saved $event) use ($container, $abstract) {
                     $recompile = new RecompileFrontendAssets(
                         $container->make($abstract),
-                        $container->make(LocaleManager::class),
-                        $this->container->make('flarum.less.config')
+                        $container->make(LocaleManager::class)
                     );
                     $recompile->whenSettingsSaved($event);
                 }

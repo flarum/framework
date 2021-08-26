@@ -156,15 +156,15 @@ class ForumServiceProvider extends AbstractServiceProvider
             function (Saved $event) use ($container) {
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.forum'),
-                    $container->make(LocaleManager::class),
-                    $container->make('flarum.less.config')
+                    $container->make(LocaleManager::class)
                 );
                 $recompile->whenSettingsSaved($event);
 
                 $validator = new ValidateCustomLess(
                     $container->make('flarum.assets.forum'),
                     $container->make('flarum.locales'),
-                    $container
+                    $container,
+                    $container->make('flarum.less.config')
                 );
                 $validator->whenSettingsSaved($event);
             }
@@ -176,7 +176,8 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $validator = new ValidateCustomLess(
                     $container->make('flarum.assets.forum'),
                     $container->make('flarum.locales'),
-                    $container
+                    $container,
+                    $container->make('flarum.less.config')
                 );
                 $validator->whenSettingsSaving($event);
             }

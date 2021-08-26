@@ -28,34 +28,19 @@ class RecompileFrontendAssets
     protected $locales;
 
     /**
-     * @var array
-     */
-    protected $cssRefreshingSettings;
-
-    /**
      * @param Assets $assets
      * @param LocaleManager $locales
      */
-    public function __construct(Assets $assets, LocaleManager $locales, array $cssRefreshingSettings = [])
+    public function __construct(Assets $assets, LocaleManager $locales)
     {
         $this->assets = $assets;
         $this->locales = $locales;
-        $this->cssRefreshingSettings = $cssRefreshingSettings;
     }
 
     public function whenSettingsSaved(Saved $event)
     {
-        if (! empty($this->cssRefreshingSettings)) {
-            $refreshingSettings = array_intersect(
-                array_keys($event->settings),
-                array_map(function ($v) {
-                    return $v['key'];
-                }, $this->cssRefreshingSettings)
-            );
-        }
-
         // @deprecated 'theme_' check, to be removed in 2.0
-        if (preg_grep('/^theme_/i', array_keys($event->settings)) || ! empty($refreshingSettings)) {
+        if (preg_grep('/^theme_/i', array_keys($event->settings))) {
             $this->flushCss();
         }
     }

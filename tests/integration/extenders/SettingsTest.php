@@ -199,6 +199,26 @@ class SettingsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function bad_custom_less_var_doesnt_work()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->registerLessConfigVar('custom-config-setting2', 'custom-prefix.custom_setting2')
+        );
+
+        $response = $this->send($this->request('POST', '/api/settings', [
+            'authenticatedAs' => 1,
+            'json' => [
+                'custom-prefix.custom_setting2' => '@muralf'
+            ],
+        ]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+    }
 }
 
 class CustomInvokableClass
