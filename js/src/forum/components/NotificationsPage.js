@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Page from '../../common/components/Page';
 import NotificationList from './NotificationList';
 

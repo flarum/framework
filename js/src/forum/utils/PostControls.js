@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';

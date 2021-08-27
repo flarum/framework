@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Modal from '../../common/components/Modal';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import SignUpModal from './SignUpModal';

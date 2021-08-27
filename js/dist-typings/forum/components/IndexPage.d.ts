@@ -2,9 +2,12 @@
  * The `IndexPage` component displays the index page, including the welcome
  * hero, the sidebar, and the discussion list.
  */
-export default class IndexPage extends Page {
+export default class IndexPage extends Page<import("../../common/components/Page").IPageAttrs> {
     static providesInitialSearch: boolean;
+    constructor();
     lastDiscussion: any;
+    bodyClass: string | undefined;
+    scrollTopOnCreate: boolean | undefined;
     setTitle(): void;
     /**
      * Get the component to display as the hero.

@@ -1,3 +1,4 @@
+import app from '../../common/app';
 import Component from '../Component';
 import icon from '../helpers/icon';
 import listItems from '../helpers/listItems';

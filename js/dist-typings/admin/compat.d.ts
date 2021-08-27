@@ -96,6 +96,7 @@ declare var _default: {
     'utils/ExtensionData': typeof ExtensionData;
     'utils/isExtensionEnabled': typeof isExtensionEnabled;
     'utils/getCategorizedExtensions': typeof getCategorizedExtensions;
+    'utils/generateElementId': typeof generateElementId;
     'components/SettingDropdown': typeof SettingDropdown;
     'components/EditCustomFooterModal': typeof EditCustomFooterModal;
     'components/SessionDropdown': typeof SessionDropdown;
@@ -132,6 +133,7 @@ import saveSettings from "./utils/saveSettings";
 import ExtensionData from "./utils/ExtensionData";
 import isExtensionEnabled from "./utils/isExtensionEnabled";
 import getCategorizedExtensions from "./utils/getCategorizedExtensions";
+import generateElementId from "./utils/generateElementId";
 import SettingDropdown from "./components/SettingDropdown";
 import EditCustomFooterModal from "./components/EditCustomFooterModal";
 import SessionDropdown from "./components/SessionDropdown";

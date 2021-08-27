@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import ExtensionLinkButton from './ExtensionLinkButton';
 import Component from '../../common/Component';
 import LinkButton from '../../common/components/LinkButton';

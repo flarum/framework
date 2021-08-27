@@ -9,7 +9,7 @@
  *
  * @see https://getbootstrap.com/docs/3.4/javascript/#affix
  */
-export default class AffixedSidebar extends Component<import("../../common/Component").ComponentAttrs> {
+export default class AffixedSidebar extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     boundOnresize: (() => void) | undefined;
     onresize(): void;

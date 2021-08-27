@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Button from '../../common/components/Button';
 import EditCustomCssModal from './EditCustomCssModal';
 import EditCustomHeaderModal from './EditCustomHeaderModal';

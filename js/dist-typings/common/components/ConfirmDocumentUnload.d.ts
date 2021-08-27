@@ -14,7 +14,7 @@
  * another component / DOM element.)
  *
  */
-export default class ConfirmDocumentUnload extends Component<import("../Component").ComponentAttrs> {
+export default class ConfirmDocumentUnload extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
     handler(): any;
     boundHandler: (() => any) | undefined;

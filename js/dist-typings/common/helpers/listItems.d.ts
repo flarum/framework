@@ -1,4 +1,4 @@
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 /**
  * The `listItems` helper wraps a collection of components in <li> tags,
  * stripping out any unnecessary `Separator` components.

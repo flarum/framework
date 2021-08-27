@@ -10,7 +10,7 @@
  * - `className` A CSS class for the element surrounding the preview.
  * - `surround` A callback that can execute code before and after re-render, e.g. for scroll anchoring.
  */
-export default class ComposerPostPreview extends Component<import("../../common/Component").ComponentAttrs> {
+export default class ComposerPostPreview extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     static initAttrs(attrs: any): void;
     constructor();
     updateInterval: number | undefined;

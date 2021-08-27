@@ -1,4 +1,5 @@
-import * as Mithril from 'mithril';
+import app from '../../common/app';
+import type Mithril from 'mithril';
 import User from '../models/User';
 
 /**

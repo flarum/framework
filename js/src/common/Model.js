@@ -1,3 +1,5 @@
+import app from '../common/app';
+
 /**
  * The `Model` class represents a local data resource. It provides methods to
  * persist changes via the API.

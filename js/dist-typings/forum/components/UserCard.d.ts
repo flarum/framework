@@ -10,7 +10,7 @@
  * - `editable`
  * - `controlsButtonClassName`
  */
-export default class UserCard extends Component<import("../../common/Component").ComponentAttrs> {
+export default class UserCard extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     /**
      * Build an item list of tidbits of info to show on this user's profile.

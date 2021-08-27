@@ -15,7 +15,7 @@
  *
  * The children will be displayed as a list inside of the dropdown menu.
  */
-export default class Dropdown extends Component<import("../Component").ComponentAttrs> {
+export default class Dropdown extends Component<import("../Component").ComponentAttrs, undefined> {
     static initAttrs(attrs: any): void;
     constructor();
     showing: boolean | undefined;

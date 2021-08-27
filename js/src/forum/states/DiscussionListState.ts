@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import PaginatedListState, { Page } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 

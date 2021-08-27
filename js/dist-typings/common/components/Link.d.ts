@@ -6,7 +6,7 @@
  * Links will default to internal; the 'external' attr must be set to
  * `true` for the link to be external.
  */
-export default class Link extends Component<import("../Component").ComponentAttrs> {
+export default class Link extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
 }
 import Component from "../Component";

@@ -11,7 +11,7 @@
  *   the `active` prop will automatically be set to true.
  * - `force` Whether the page should be fully rerendered. Defaults to `true`.
  */
-export default class LinkButton extends Button {
+export default class LinkButton extends Button<import("./Button").IButtonAttrs> {
     static initAttrs(attrs: any): void;
     /**
      * Determine whether a component with the given attrs is 'active'.
@@ -20,5 +20,6 @@ export default class LinkButton extends Button {
      * @return {Boolean}
      */
     static isActive(attrs: Object): boolean;
+    constructor();
 }
 import Button from "./Button";

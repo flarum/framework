@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
@@ -68,34 +69,86 @@ export default class DiscussionPage extends Page {
   }
 
   view() {
-    const discussion = this.discussion;
-
     return (
       <div className="DiscussionPage">
         <DiscussionListPane state={app.discussions} />
-        <div className="DiscussionPage-discussion">
-          {discussion ? (
-            [
-              DiscussionHero.component({ discussion }),
-              <div className="container">
-                <nav className="DiscussionPage-nav">
-                  <ul>{listItems(this.sidebarItems().toArray())}</ul>
-                </nav>
-                <div className="DiscussionPage-stream">
-                  {PostStream.component({
-                    discussion,
-                    stream: this.stream,
-                    onPositionChange: this.positionChanged.bind(this),
-                  })}
-                </div>
-              </div>,
-            ]
-          ) : (
-            <LoadingIndicator />
-          )}
-        </div>
+        <div className="DiscussionPage-discussion">{this.discussion ? this.pageContent().toArray() : this.loadingItems().toArray()}</div>
       </div>
     );
+  }
+
+  /**
+   * List of components shown while the discussion is loading.
+   *
+   * @returns {ItemList}
+   */
+  loadingItems() {
+    const items = new ItemList();
+
+    items.add('spinner', <LoadingIndicator />, 100);
+
+    return items;
+  }
+
+  /**
+   * Function that renders the `sidebarItems` ItemList.
+   *
+   * @returns {import('mithril').Children}
+   */
+  sidebar() {
+    return (
+      <nav className="DiscussionPage-nav">
+        <ul>{listItems(this.sidebarItems().toArray())}</ul>
+      </nav>
+    );
+  }
+
+  /**
+   * Renders the discussion's hero.
+   *
+   * @returns {import('mithril').Children}
+   */
+  hero() {
+    return <DiscussionHero discussion={this.discussion} />;
+  }
+
+  /**
+   * List of items rendered as the main page content.
+   *
+   * @returns {ItemList}
+   */
+  pageContent() {
+    const items = new ItemList();
+
+    items.add('hero', this.hero(), 100);
+    items.add('main', <div className="container">{this.mainContent().toArray()}</div>, 10);
+
+    return items;
+  }
+
+  /**
+   * List of items rendered inside the main page content container.
+   *
+   * @returns {ItemList}
+   */
+  mainContent() {
+    const items = new ItemList();
+
+    items.add('sidebar', this.sidebar(), 100);
+
+    items.add(
+      'poststream',
+      <div className="DiscussionPage-stream">
+        {PostStream.component({
+          discussion: this.discussion,
+          stream: this.stream,
+          onPositionChange: this.positionChanged.bind(this),
+        })}
+      </div>,
+      10
+    );
+
+    return items;
   }
 
   /**

@@ -1,4 +1,4 @@
-export default class PermissionGrid extends Component<import("../../common/Component").ComponentAttrs> {
+export default class PermissionGrid extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     permissionItems(): ItemList;
     viewItems(): ItemList;
