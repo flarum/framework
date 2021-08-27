@@ -193,7 +193,7 @@ class SettingsTest extends TestCase
 
         $response = $this->send($this->request('GET', '/'));
 
-        $cssFilePath = $this->app()->getContainer()->make('flarum.paths')->public.'/assets/forum.css';
+        $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
         $this->assertStringContainsString('--custom-config-setting:customValue', file_get_contents($cssFilePath));
 
         $this->assertEquals(200, $response->getStatusCode());
