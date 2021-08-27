@@ -113,14 +113,17 @@ class ValidateCustomLess
      */
     protected function hasDirtyCustomLessSettings($event): bool
     {
-        if (! empty($this->customLessSettings)) {
-            $dirtySettings = array_intersect(
-                array_keys($event->settings),
-                array_map(function ($setting) {
-                    return $setting['key'];
-                }, $this->customLessSettings)
-            );
+        if (empty($this->customLessSettings)) {
+            return false;
         }
+        
+        
+        $dirtySettings = array_intersect(
+            array_keys($event->settings),
+            array_map(function ($setting) {
+               return $setting['key'];
+            }, $this->customLessSettings)
+        );
 
         return ! empty($dirtySettings);
     }

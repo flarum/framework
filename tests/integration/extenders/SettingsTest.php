@@ -202,7 +202,7 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function bad_custom_less_var_doesnt_work()
+    public function cant_save_setting_if_invalid_less_var()
     {
         $this->extend(
             (new Extend\Settings())
