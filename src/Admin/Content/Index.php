@@ -24,7 +24,7 @@ class Index
     protected $view;
 
     /**
-     * @var ExtensionManager $extensions
+     * @var ExtensionManager
      */
     protected $extensions;
 
