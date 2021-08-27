@@ -30,12 +30,12 @@ class LessCompiler extends RevisionCompiler
     protected $importDirs = [];
 
     /**
-     * @var array
+     * @var Collection
      */
     protected $lessImportOverrides;
 
     /**
-     * @var array
+     * @var Collection
      */
     protected $fileSourceOverrides;
 

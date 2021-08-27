@@ -10,6 +10,7 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Frontend\Assets;
 use Illuminate\Contracts\Container\Container;
 
 class Theme implements ExtenderInterface
@@ -22,9 +23,9 @@ class Theme implements ExtenderInterface
      * For example, core's `forum.less` file imports a `forum/DiscussionListItem.less` file.
      * The contents of this file can be overriden with this method.
      *
-     * @param string $file: Relative path of the file to override, for example: `forum/Hero.less`
-     * @param string $newFilePath: Absolute path of the new file.
-     * @param string $extensionId: If overriding an extension file, specify its ID, for example: `flarum-tags`.
+     * @param string $file : Relative path of the file to override, for example: `forum/Hero.less`
+     * @param string $newFilePath : Absolute path of the new file.
+     * @param string|null $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
      * @return self
      */
     public function overrideLessImport(string $file, string $newFilePath, string $extensionId = null): self
@@ -39,9 +40,9 @@ class Theme implements ExtenderInterface
      * For example `forum.less`, `admin.less`, `mixins.less` and `variables.less` are file sources,
      * and can therefore be overriden using this method.
      *
-     * @param string $file: Name of the file to override, for example: `admin.less`
-     * @param string $newFilePath: Absolute path of the new file.
-     * @param string $extensionId: If overriding an extension file, specify its ID, for example: `flarum-tags`.
+     * @param string $file : Name of the file to override, for example: `admin.less`
+     * @param string $newFilePath : Absolute path of the new file.
+     * @param string|null $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
      * @return self
      */
     public function overrideFileSource(string $file, string $newFilePath, string $extensionId = null): self
@@ -55,10 +56,11 @@ class Theme implements ExtenderInterface
     {
         $container->extend('flarum.assets.factory', function (callable $factory) {
             return function (...$args) use ($factory) {
+                /** @var Assets $assets */
                 $assets = $factory(...$args);
 
-                $assets->setLessImportOverrides($this->lessImportOverrides);
-                $assets->setFileSourceOverrides($this->fileSourceOverrides);
+                $assets->addLessImportOverrides($this->lessImportOverrides);
+                $assets->addFileSourceOverrides($this->fileSourceOverrides);
 
                 return $assets;
             };
