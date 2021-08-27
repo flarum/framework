@@ -279,7 +279,7 @@ class Extension implements Arrayable
         return $icon;
     }
 
-    public function getIconStyle(): string
+    public function getIconStyles(): string
     {
         $properties = $this->getIcon();
 

@@ -34,38 +34,37 @@
             </tr>
         </thead>
         <tbody>
-        <?php /** @var \Flarum\Extension\Extension $extension */ ?>
-        @forelse($extensions as $extension)
-            @php $isEnabled = in_array($extension->getId(), $extensionsEnabled); @endphp
+            @forelse($extensions as $extension)
+                @php $isEnabled = in_array($extension->getId(), $extensionsEnabled); @endphp
 
-            <tr>
-                <td class="NoJs-ExtensionsTable-icon">
-                    <div class="ExtensionIcon" style="{{ $extension->getIconStyle() }}">
-                        <span class="icon {{ $extension->getIcon()['name'] ?? '' }}"></span>
-                    </div>
-                </td>
-                <td class="NoJs-ExtensionsTable-title">{{ $extension->getTitle() }}</td>
-                <td class="NoJs-ExtensionsTable-name">{{ $extension->name }}</td>
-                <td class="NoJs-ExtensionsTable-version">{{ $extension->getVersion() }}</td>
-                <td class="NoJs-ExtensionsTable-state">
-                    <span class="ExtensionListItem-Dot {{ $isEnabled ? 'enabled' : 'disabled' }}" aria-hidden="true"></span>
-                </td>
-                <td class="NoJs-ExtensionsTable-toggle Table-controls">
-                    <form action="{{ $url->to('admin')->route('extensions.update', ['name' => $extension->getId()]) }}" method="POST">
-                        <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
-                        <input type="hidden" name="enabled" value="{{ $isEnabled ? 0 : 1 }}">
+                <tr>
+                    <td class="NoJs-ExtensionsTable-icon">
+                        <div class="ExtensionIcon" style="{{ $extension->getIconStyles() }}">
+                            <span class="icon {{ $extension->getIcon()['name'] ?? '' }}"></span>
+                        </div>
+                    </td>
+                    <td class="NoJs-ExtensionsTable-title">{{ $extension->getTitle() }}</td>
+                    <td class="NoJs-ExtensionsTable-name">{{ $extension->name }}</td>
+                    <td class="NoJs-ExtensionsTable-version">{{ $extension->getVersion() }}</td>
+                    <td class="NoJs-ExtensionsTable-state">
+                        <span class="ExtensionListItem-Dot {{ $isEnabled ? 'enabled' : 'disabled' }}" aria-hidden="true"></span>
+                    </td>
+                    <td class="NoJs-ExtensionsTable-toggle Table-controls">
+                        <form action="{{ $url->to('admin')->route('extensions.update', ['name' => $extension->getId()]) }}" method="POST">
+                            <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
+                            <input type="hidden" name="enabled" value="{{ $isEnabled ? 0 : 1 }}">
 
-                        @if($isEnabled)
-                            <button type="submit" class="Button Table-controls-item">{{ $translator->trans('core.views.admin.extensions.disable') }}</button>
-                        @else
-                            <button type="submit" class="Button Table-controls-item">{{ $translator->trans('core.views.admin.extensions.enable') }}</button>
-                        @endif
-                    </form>
-                </td>
-            </tr>
-        @empty
-            <tr><td colspan="6" class="NoJs-ExtensionsTable-empty">{{ $translator->trans('core.views.admin.extensions.empty') }}</td></tr>
-        @endforelse
+                            @if($isEnabled)
+                                <button type="submit" class="Button Table-controls-item">{{ $translator->trans('core.views.admin.extensions.disable') }}</button>
+                            @else
+                                <button type="submit" class="Button Table-controls-item">{{ $translator->trans('core.views.admin.extensions.enable') }}</button>
+                            @endif
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr><td colspan="6" class="NoJs-ExtensionsTable-empty">{{ $translator->trans('core.views.admin.extensions.empty') }}</td></tr>
+            @endforelse
         </tbody>
     </table>
 </div>
