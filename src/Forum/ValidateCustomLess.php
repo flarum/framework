@@ -57,7 +57,7 @@ class ValidateCustomLess
 
     public function whenSettingsSaving(Saving $event)
     {
-        if (! isset($event->settings['custom_less']) && ! $this->hasModifiedCustomLessSetting($event)) {
+        if (! isset($event->settings['custom_less']) && ! $this->hasDirtyCustomLessSettings($event)) {
             return;
         }
 
@@ -96,7 +96,7 @@ class ValidateCustomLess
 
     public function whenSettingsSaved(Saved $event)
     {
-        if (! isset($event->settings['custom_less']) && ! $this->hasModifiedCustomLessSetting($event)) {
+        if (! isset($event->settings['custom_less']) && ! $this->hasDirtyCustomLessSettings($event)) {
             return;
         }
 
@@ -111,7 +111,7 @@ class ValidateCustomLess
      * @param Saved|Saving $event
      * @return bool
      */
-    protected function hasModifiedCustomLessSetting($event): bool
+    protected function hasDirtyCustomLessSettings($event): bool
     {
         if (! empty($this->customLessSettings)) {
             $dirtySettings = array_intersect(
