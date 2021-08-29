@@ -101,6 +101,7 @@ class ThemeTest extends TestCase
 
         $response = $this->send($this->request('GET', '/'));
 
+        $this->assertStringContainsString('Less_Exception_Compiler', $response->getBody()->getContents());
         $this->assertEquals(500, $response->getStatusCode());
     }
 }
