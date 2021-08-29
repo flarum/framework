@@ -102,6 +102,8 @@ class UserRepository
      * @param string $string
      * @param User|null $actor
      * @return array
+     *
+     * @deprecated remove in 2.0 (no longer used since https://github.com/flarum/core/pull/1878)
      */
     public function getIdsForUsername($string, User $actor = null)
     {
@@ -135,8 +137,10 @@ class UserRepository
      *
      * @param string $string
      * @return string
+     *
+     * @internal
      */
-    private function escapeLikeString($string)
+    public function escapeLikeString($string)
     {
         return str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $string);
     }
