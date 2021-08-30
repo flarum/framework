@@ -9,7 +9,8 @@
 
 namespace Flarum\Admin\Controller;
 
-use Flarum\Extension\ExtensionManager;
+use Flarum\Bus\Dispatcher;
+use Flarum\Extension\Command\ToggleExtension;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Support\Arr;
@@ -26,33 +27,28 @@ class UpdateExtensionController implements RequestHandlerInterface
     protected $url;
 
     /**
-     * @var ExtensionManager
+     * @var Dispatcher
      */
-    protected $extensions;
+    protected $bus;
 
-    public function __construct(UrlGenerator $url, ExtensionManager $extensions)
+    public function __construct(UrlGenerator $url, Dispatcher $bus)
     {
         $this->url = $url;
-        $this->extensions = $extensions;
+        $this->bus = $bus;
     }
 
     /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
+     * {@inheritdoc}
      */
     public function handle(Request $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-
-        $actor->assertAdmin();
-
         $enabled = (bool) (int) Arr::get($request->getParsedBody(), 'enabled');
         $name = Arr::get($request->getQueryParams(), 'name');
 
-        if ($enabled === true) {
-            $this->extensions->enable($name);
-        } elseif ($enabled === false) {
-            $this->extensions->disable($name);
-        }
+        $this->bus->dispatch(
+            new ToggleExtension($actor, $name, $enabled)
+        );
 
         return new RedirectResponse($this->url->to('admin')->base());
     }
