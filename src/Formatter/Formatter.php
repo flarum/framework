@@ -9,10 +9,12 @@
 
 namespace Flarum\Formatter;
 
+use Exception;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Unparser;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Formatter
 {
@@ -104,13 +106,18 @@ class Formatter
      */
     public function render($xml, $context = null, ServerRequestInterface $request = null)
     {
-        $renderer = $this->getRenderer();
+        try {
+            $renderer = $this->getRenderer();
 
-        foreach ($this->renderingCallbacks as $callback) {
-            $xml = $callback($renderer, $context, $xml, $request);
+            foreach ($this->renderingCallbacks as $callback) {
+                $xml = $callback($renderer, $context, $xml, $request);
+            }
+
+            return $renderer->render($xml);
+        } catch (Exception $e) {
+            resolve(LogReporter::class)->report($e);
+            return resolve(TranslatorInterface::class)->trans('core.lib.error.render_failed_message');
         }
-
-        return $renderer->render($xml);
     }
 
     /**
