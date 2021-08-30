@@ -10,6 +10,7 @@
 namespace Flarum\Formatter;
 
 use Exception;
+use Flarum\Foundation\ErrorHandling\LogReporter;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
