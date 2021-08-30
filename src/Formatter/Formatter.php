@@ -116,6 +116,7 @@ class Formatter
             return $renderer->render($xml);
         } catch (Exception $e) {
             resolve(LogReporter::class)->report($e);
+
             return resolve(TranslatorInterface::class)->trans('core.lib.error.render_failed_message');
         }
     }
