@@ -55,6 +55,7 @@ class UpdateMentionsMetadataWhenVisible
     protected function syncUserMentions(Post $post, array $mentioned)
     {
         $post->mentionsUsers()->sync($mentioned);
+        $post->unsetRelation('mentionsUsers');
 
         $users = User::whereIn('id', $mentioned)
             ->get()
@@ -69,6 +70,7 @@ class UpdateMentionsMetadataWhenVisible
     protected function syncPostMentions(Post $reply, array $mentioned)
     {
         $reply->mentionsPosts()->sync($mentioned);
+        $reply->unsetRelation('mentionsPosts');
 
         $posts = Post::with('user')
             ->whereIn('id', $mentioned)
