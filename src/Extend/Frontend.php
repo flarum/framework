@@ -154,11 +154,7 @@ class Frontend implements ExtenderInterface
      */
     public function preloads($preloads): self
     {
-        if (is_callable($preloads)) {
-            $this->preloads = array_merge($this->preloads, $preloads());
-        } elseif (is_array($preloads)) {
-            $this->preloads = array_merge($this->preloads, $preloads);
-        }
+        $this->preloads = array_merge($this->preloads, $preloads);
 
         return $this;
     }
@@ -177,7 +173,7 @@ class Frontend implements ExtenderInterface
             return;
         }
 
-        $abstract = 'flarum.assets.'.$this->frontend;
+        $abstract = 'flarum.assets.' . $this->frontend;
 
         $container->resolving($abstract, function (Assets $assets) use ($moduleName) {
             if ($this->js) {
@@ -201,7 +197,7 @@ class Frontend implements ExtenderInterface
             }
         });
 
-        if (! $container->bound($abstract)) {
+        if (!$container->bound($abstract)) {
             $container->bind($abstract, function (Container $container) {
                 return $container->make('flarum.assets.factory')($this->frontend);
             });
@@ -285,8 +281,10 @@ class Frontend implements ExtenderInterface
         $container->resolving(
             "flarum.frontend.$this->frontend",
             function (ActualFrontend $frontend, Container $container) {
-                $frontend->content(ContainerUtil::wrapCallback(function (Document $document) {
-                    $document->preloads = array_merge($document->preloads, $this->preloads);
+                $frontend->content(ContainerUtil::wrapCallback(function (Document $document) use ($container) {
+                    foreach ($this->preloads as $preload) {
+                        $document->preload[] = is_callable($preload) ? ContainerUtil::wrapCallback($preload, $container)() : $preload;
+                    }
                 }, $container));
             }
         );
