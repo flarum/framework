@@ -283,7 +283,7 @@ class Frontend implements ExtenderInterface
             function (ActualFrontend $frontend, Container $container) {
                 $frontend->content(ContainerUtil::wrapCallback(function (Document $document) use ($container) {
                     foreach ($this->preloads as $preload) {
-                        $document->preload[] = is_callable($preload) ? ContainerUtil::wrapCallback($preload, $container)() : $preload;
+                        $document->preloads[] = is_callable($preload) ? $preload($document) : $preload;
                     }
                 }, $container));
             }
