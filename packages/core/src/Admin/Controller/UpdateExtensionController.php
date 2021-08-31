@@ -7,33 +7,40 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Controller;
+namespace Flarum\Admin\Controller;
 
 use Flarum\Bus\Dispatcher;
 use Flarum\Extension\Command\ToggleExtension;
 use Flarum\Http\RequestUtil;
+use Flarum\Http\UrlGenerator;
 use Illuminate\Support\Arr;
-use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class UpdateExtensionController implements RequestHandlerInterface
 {
     /**
+     * @var UrlGenerator
+     */
+    protected $url;
+
+    /**
      * @var Dispatcher
      */
     protected $bus;
 
-    public function __construct(Dispatcher $bus)
+    public function __construct(UrlGenerator $url, Dispatcher $bus)
     {
+        $this->url = $url;
         $this->bus = $bus;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function handle(Request $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
         $enabled = (bool) (int) Arr::get($request->getParsedBody(), 'enabled');
@@ -43,6 +50,6 @@ class UpdateExtensionController implements RequestHandlerInterface
             new ToggleExtension($actor, $name, $enabled)
         );
 
-        return new EmptyResponse;
+        return new RedirectResponse($this->url->to('admin')->base());
     }
 }
