@@ -279,6 +279,19 @@ class Extension implements Arrayable
         return $icon;
     }
 
+    public function getIconStyles(): string
+    {
+        $properties = $this->getIcon();
+
+        unset($properties['name']);
+
+        return implode(';', array_map(function (string $property, string $value) {
+            $property = Str::kebab($property);
+
+            return "$property: $value";
+        }, array_keys($properties), $properties));
+    }
+
     /**
      * @internal
      */
