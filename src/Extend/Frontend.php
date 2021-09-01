@@ -281,11 +281,11 @@ class Frontend implements ExtenderInterface
         $container->resolving(
             "flarum.frontend.$this->frontend",
             function (ActualFrontend $frontend, Container $container) {
-                $frontend->content(ContainerUtil::wrapCallback(function (Document $document) {
+                $frontend->content(function (Document $document) use ($container) {
                     foreach ($this->preloads as $preload) {
-                        $document->preloads[] = is_callable($preload) ? $preload($document) : $preload;
+                        $document->preloads[] = is_callable($preload) ? ContainerUtil::wrapCallback($preload, $container) : $preload;
                     }
-                }, $container));
+                });
             }
         );
     }
