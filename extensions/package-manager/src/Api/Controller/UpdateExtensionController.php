@@ -33,10 +33,8 @@ class UpdateExtensionController extends AbstractShowController
         $actor = RequestUtil::getActor($request);
         $extensionId = Arr::get($request->getQueryParams(), 'id');
 
-        $this->bus->dispatch(
+        return $this->bus->dispatch(
             new UpdateExtension($actor, $extensionId)
         );
-
-        return null;
     }
 }

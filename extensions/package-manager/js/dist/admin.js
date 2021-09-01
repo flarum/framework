@@ -87,17 +87,31 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
-/***/ "../../core/js/node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":
-/*!***********************************************************************************************************!*\
-  !*** /home/samilyas/www/flarum/packages/core/js/node_modules/@babel/runtime/helpers/esm/inheritsLoose.js ***!
-  \***********************************************************************************************************/
+/***/ "./admin.js":
+/*!******************!*\
+  !*** ./admin.js ***!
+  \******************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _src_admin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/admin */ "./src/admin/index.js");
+/* empty/unused harmony star reexport */
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js ***!
+  \******************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return _inheritsLoose; });
-/* harmony import */ var _setPrototypeOf_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./setPrototypeOf.js */ "../../core/js/node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js");
+/* harmony import */ var _setPrototypeOf_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./setPrototypeOf.js */ "./node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js");
 
 function _inheritsLoose(subClass, superClass) {
   subClass.prototype = Object.create(superClass.prototype);
@@ -107,10 +121,10 @@ function _inheritsLoose(subClass, superClass) {
 
 /***/ }),
 
-/***/ "../../core/js/node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js":
-/*!************************************************************************************************************!*\
-  !*** /home/samilyas/www/flarum/packages/core/js/node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js ***!
-  \************************************************************************************************************/
+/***/ "./node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js":
+/*!*******************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js ***!
+  \*******************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -128,20 +142,6 @@ function _setPrototypeOf(o, p) {
 
 /***/ }),
 
-/***/ "./admin.js":
-/*!******************!*\
-  !*** ./admin.js ***!
-  \******************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _src_admin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/admin */ "./src/admin/index.js");
-/* empty/unused harmony star reexport */
-
-/***/ }),
-
 /***/ "./src/admin/components/Installer.tsx":
 /*!********************************************!*\
   !*** ./src/admin/components/Installer.tsx ***!
@@ -152,7 +152,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Installer; });
-/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "../../core/js/node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
 /* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/admin/app */ "flarum/admin/app");
 /* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_app__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var flarum_common_Component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/common/Component */ "flarum/common/Component");
@@ -161,6 +161,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! flarum/common/utils/Stream */ "flarum/common/utils/Stream");
 /* harmony import */ var flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! flarum/admin/components/LoadingModal */ "flarum/admin/components/LoadingModal");
+/* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5__);
+
 
 
 
@@ -227,20 +230,23 @@ var Installer = /*#__PURE__*/function (_Component) {
     var _this2 = this;
 
     this.isLoading = true;
+    flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.modal.show(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5___default.a);
     flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.request({
       method: 'POST',
       url: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.forum.attribute('apiUrl') + "/package-manager/extensions",
       body: {
         data: this.data()
       }
-    }).then(function () {
-      _this2.isLoading = false;
+    }).then(function (response) {
+      var extensionId = response.data.attributes.id;
       flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.alerts.show({
-        type: 'success',
-        message: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('core.lib.success')
-      });
-      m.redraw();
-    })["catch"](function () {
+        type: 'success'
+      }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('sycho-package-manager.admin.extensions.successful_install', {
+        extension: extensionId
+      }));
+      window.location.href = flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.forum.attribute('adminUrl') + "#/extension/" + extensionId;
+      window.location.reload();
+    })["finally"](function () {
       _this2.isLoading = false;
       m.redraw();
     });
@@ -270,7 +276,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flarum_admin_components_ExtensionPage__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_ExtensionPage__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! flarum/common/components/Button */ "flarum/common/components/Button");
 /* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _components_Installer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/Installer */ "./src/admin/components/Installer.tsx");
+/* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! flarum/admin/components/LoadingModal */ "flarum/admin/components/LoadingModal");
+/* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _components_Installer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/Installer */ "./src/admin/components/Installer.tsx");
+
 
 
 
@@ -278,7 +287,7 @@ __webpack_require__.r(__webpack_exports__);
 
 flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.initializers.add('sycho-package-manager', function (app) {
   app.extensionData["for"]('sycho-package-manager').registerSetting(function () {
-    return m(_components_Installer__WEBPACK_IMPORTED_MODULE_4__["default"], null);
+    return m(_components_Installer__WEBPACK_IMPORTED_MODULE_5__["default"], null);
   });
   Object(flarum_common_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_admin_components_ExtensionPage__WEBPACK_IMPORTED_MODULE_2___default.a.prototype, 'topItems', function (items) {
     var _this = this;
@@ -287,14 +296,17 @@ flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.initializers.add('sycho-
       className: "Button Button--danger",
       icon: "fas fa-times",
       onclick: function onclick() {
+        app.modal.show(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_4___default.a);
         app.request({
           url: app.forum.attribute('apiUrl') + "/package-manager/extensions/" + _this.extension.id,
           method: 'DELETE'
         }).then(function () {
           app.alerts.show({
-            type: 'success',
-            message: 'Success!'
-          });
+            type: 'success'
+          }, app.translator.trans('sycho-package-manager.admin.extensions.successful_remove'));
+          window.location = app.forum.attribute('adminUrl');
+        })["finally"](function () {
+          app.modal.close();
         });
       }
     }, "Remove"));
@@ -322,6 +334,17 @@ module.exports = flarum.core.compat['admin/app'];
 /***/ (function(module, exports) {
 
 module.exports = flarum.core.compat['admin/components/ExtensionPage'];
+
+/***/ }),
+
+/***/ "flarum/admin/components/LoadingModal":
+/*!**********************************************************************!*\
+  !*** external "flarum.core.compat['admin/components/LoadingModal']" ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['admin/components/LoadingModal'];
 
 /***/ }),
 

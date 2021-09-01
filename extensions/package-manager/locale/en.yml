@@ -1,7 +1,9 @@
 sycho-package-manager:
-    admin:
-        extensions:
-            install: Install a new extension
-            install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.
-            proceed: Proceed
+  admin:
+    extensions:
+      install: Install a new extension
+      install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.
+      proceed: Proceed
+      successful_install: "{extension} was installed successfully, redirecting.."
+      successful_remove: Extension removed successfully.
 

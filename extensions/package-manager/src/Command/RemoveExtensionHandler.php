@@ -2,25 +2,27 @@
 
 namespace SychO\PackageManager\Command;
 
+use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
-use SychO\PackageManager\Extension\PackageManager;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class RemoveExtensionHandler
 {
+    /**
+     * @var Application
+     */
+    protected $composer;
+
     /**
      * @var ExtensionManager
      */
     protected $extensions;
 
-    /**
-     * @var PackageManager
-     */
-    protected $packages;
-
-    public function __construct(ExtensionManager $extensions, PackageManager $packages)
+    public function __construct(Application $composer, ExtensionManager $extensions,)
     {
+        $this->composer = $composer;
         $this->extensions = $extensions;
-        $this->packages = $packages;
     }
 
     /**
@@ -37,6 +39,12 @@ class RemoveExtensionHandler
             // ... exception
         }
 
-        $this->packages->removePackage($extension->name);
+        $output = new BufferedOutput();
+        $input = new ArrayInput([
+            'command' => 'remove',
+            'packages' => [$extension->name],
+        ]);
+
+        $this->composer->run($input, $output);
     }
 }
