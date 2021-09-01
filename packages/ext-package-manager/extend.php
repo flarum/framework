@@ -23,6 +23,5 @@ return [
     new Extend\Locales(__DIR__ . '/locale'),
 
     (new Extend\ServiceProvider)
-        ->register(ComposerEnvironmentProvider::class)
         ->register(PackageManagerServiceProvider::class),
 ];
