@@ -9,7 +9,6 @@ namespace SychO\PackageManager;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Illuminate\Console\Scheduling\Event;
-use SychO\PackageManager\Console\TaskCommand;
 
 return [
     (new Extend\Routes('api'))
@@ -24,13 +23,6 @@ return [
     new Extend\Locales(__DIR__ . '/locale'),
 
     (new Extend\ServiceProvider)
-        ->register(ComposerEnvironmentProvider::class),
-
-    (new Extend\Console)
-        ->schedule(TaskCommand::class, function (Event $event) {
-            $event
-                ->everyMinute()
-                ->withoutOverlapping()
-                ->appendOutputTo(resolve(Paths::class)->storage.'/logs/bazaar-tasks.log');
-        }),
+        ->register(ComposerEnvironmentProvider::class)
+        ->register(PackageManagerServiceProvider::class),
 ];

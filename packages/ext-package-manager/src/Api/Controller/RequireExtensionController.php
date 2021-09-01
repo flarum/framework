@@ -31,10 +31,8 @@ class RequireExtensionController extends AbstractCreateController
         $actor = RequestUtil::getActor($request);
         $package = Arr::get($request->getParsedBody(), 'data.package');
 
-        $this->bus->dispatch(
+        return $this->bus->dispatch(
             new RequireExtension($actor, $package)
         );
-
-        return null;
     }
 }

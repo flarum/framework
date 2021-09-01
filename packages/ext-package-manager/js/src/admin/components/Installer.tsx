@@ -3,6 +3,7 @@ import app from 'flarum/admin/app';
 import Component from 'flarum/common/Component';
 import Button from "flarum/common/components/Button";
 import Stream from "flarum/common/utils/Stream";
+import LoadingModal from "flarum/admin/components/LoadingModal";
 
 export default class Installer extends Component {
   packageName!: Stream<string>;
@@ -39,6 +40,7 @@ export default class Installer extends Component {
 
   onsubmit(): void {
     this.isLoading = true;
+    app.modal.show(LoadingModal);
 
     app.request({
       method: 'POST',
@@ -46,11 +48,12 @@ export default class Installer extends Component {
       body: {
         data: this.data()
       },
-    }).then(() => {
-      this.isLoading = false;
-      app.alerts.show({ type: 'success', message: app.translator.trans('core.lib.success')});
-      m.redraw();
-    }).catch(() => {
+    }).then((response) => {
+      const extensionId = response.data.attributes.id;
+      app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.extensions.successful_install', { extension: extensionId }));
+      window.location.href = `${app.forum.attribute('adminUrl')}#/extension/${extensionId}`;
+      window.location.reload();
+    }).finally(() => {
       this.isLoading = false;
       m.redraw();
     });
