@@ -10,6 +10,11 @@ class ExtensionSerializer extends AbstractSerializer
 {
     protected $type = 'extensions';
 
+    public function getId($model)
+    {
+        return is_array($model) ? $model['id'] : $model->getId();
+    }
+
     protected function getDefaultAttributes($model)
     {
         if (is_array($model)) {
