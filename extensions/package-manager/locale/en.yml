@@ -1,0 +1,7 @@
+sycho-package-manager:
+    admin:
+        extensions:
+            install: Install a new extension
+            install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.
+            proceed: Proceed
+
