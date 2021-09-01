@@ -154,7 +154,7 @@ class Frontend implements ExtenderInterface
      */
     public function preloads($preloads): self
     {
-        $this->preloads = array_merge($this->preloads, $preloads);
+        $this->preloads = array_merge($this->preloads, (array) $preloads);
 
         return $this;
     }
