@@ -1,0 +1,39 @@
+{
+    "name": "sycho/flarum-package-manager",
+    "description": "A Flarum Package Manager.",
+    "keywords": [
+        "extensions", "composer", "packages", "manager", "updater"
+    ],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sami Mazouz",
+            "email": "sami.mazouz@flarum.org",
+            "homepage": "https://sycho9.github.io"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/SychO9/flarum-package-manager/issues",
+        "source": "https://github.com/SychO9/flarum-package-manager"
+    },
+    "require": {
+        "flarum/core": "^1.0.0",
+        "composer/composer": "^2.0"
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Package Manager",
+            "icon": {
+                "name": "fas fa-box-open",
+                "backgroundColor": "#117187",
+                "color": "#fff"
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "SychO\\PackageManager\\": "src/"
+        }
+    }
+}
