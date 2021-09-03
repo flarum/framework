@@ -278,7 +278,7 @@ export default class ItemList<T> {
    * // }
    */
   toObject(): DeepReadonly<Record<string, IItemObject<T>>> {
-    const keyItemMap = Object.keys(this._items).reduce((map, key) => {
+    return Object.keys(this._items).reduce((map, key) => {
       const obj = {
         content: this.get(key),
         itemName: key,
@@ -289,8 +289,6 @@ export default class ItemList<T> {
 
       return map;
     }, {} as Record<string, IItemObject<T>>);
-
-    return keyItemMap;
   }
 
   /**
