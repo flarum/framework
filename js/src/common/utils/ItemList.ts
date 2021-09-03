@@ -133,11 +133,11 @@ export default class ItemList<T> {
    * @param content The item's new content
    *
    * @example <caption>Replace item content.</caption>
-   * items.replace('myItem', <p>My new value.</p>);
+   * items.setContent('myItem', <p>My new value.</p>);
    *
    * @example <caption>Replace item content and priority.</caption>
    *          items
-   *            .replace('myItem', <p>My new value.</p>)
+   *            .setContent('myItem', <p>My new value.</p>)
    *            .setPriority('myItem', 10);
    */
   set(key: string, content: T): this {
@@ -159,7 +159,7 @@ export default class ItemList<T> {
    * @example <caption>Replace item priority and content.</caption>
    *          items
    *            .setPriority('myItem', 10)
-   *            .replace('myItem', <p>My new value.</p>);
+   *            .setContent('myItem', <p>My new value.</p>);
    */
   setPriority(key: string, priority: number): this {
     if (this.has(key)) {
@@ -254,7 +254,8 @@ export default class ItemList<T> {
    *
    * We don't allow adding new items to the ItemList via setting new properties,
    * nor do we allow modifying existing items directly. You should use the
-   * {@link ItemList.add} and {@link ItemList.replace} methods instead.
+   * {@link ItemList.add}, {@link ItemList.setContent} and
+   * {@link ItemList.setPriority} methods instead.
    *
    * @example
    * const items = new ItemList();
