@@ -281,7 +281,20 @@ export default class ItemList<T> {
     return keyItemMap;
   }
 
-  protected createItemContentProxy<C extends object>(content: C, key: string): Readonly<C & { itemName: string }> {
+  /**
+   * Proxies an item's content, adding the `itemName` readonly property to it.
+   *
+   * @example
+   * createItemContentProxy({ foo: 'bar' }, 'myItem');
+   * // { foo: 'bar', itemName: 'myItem' }
+   *
+   * @param content The item's content (objects only)
+   * @param key The item's key
+   * @returns Proxied content
+   *
+   * @internal
+   */
+  private createItemContentProxy<C extends object>(content: C, key: string): Readonly<C & { itemName: string }> {
     return new Proxy(content, {
       get(target, property, receiver) {
         if (property === 'itemName') return key;
