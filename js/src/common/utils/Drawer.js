@@ -1,5 +1,4 @@
 import { createFocusTrap } from './focusTrap';
-import { throttle } from './throttleDebounce';
 
 /**
  * The `Drawer` class controls the page's drawer. The drawer is the area the
@@ -13,7 +12,7 @@ export default class Drawer {
   focusTrap;
 
   /**
-   * @type {HTMLElement}
+   * @type {HTMLDivElement}
    */
   appElement;
 
@@ -28,8 +27,10 @@ export default class Drawer {
     });
 
     this.appElement = document.getElementById('app');
-
     this.focusTrap = createFocusTrap('#drawer', { allowOutsideClick: true });
+    this.drawerAailableMediaQuery = window.matchMedia(
+      `(max-width: ${getComputedStyle(document.documentElement).getPropertyValue('--screen-phone-max')})`
+    );
   }
 
   /**
@@ -41,24 +42,31 @@ export default class Drawer {
    *
    * This causes issues with the focus trap, resulting in focus becoming trapped within
    * the header on desktop viewports.
+   *
+   * @internal
    */
-  resizeHandler(e) {
-    if (this.isOpen() && app.screen() !== 'phone') {
+  resizeHandler = ((e) => {
+    console.log(this, e);
+    if (!e.matches && this.isOpen()) {
       // Drawer is open but we've made window bigger, so hide it.
       this.hide();
     }
-  }
+  }).bind(this);
 
-  throttledResizeHandler = throttle(500, this.resizeHandler.bind(this));
+  /**
+   * @internal
+   * @type {MediaQueryList}
+   */
+  drawerAailableMediaQuery;
 
   /**
    * Check whether or not the drawer is currently open.
    *
-   * @return {Boolean}
+   * @return {boolean}
    * @public
    */
   isOpen() {
-    return $('#app').hasClass('drawerOpen');
+    return this.appElement.classList.contains('drawerOpen');
   }
 
   /**
@@ -76,7 +84,7 @@ export default class Drawer {
      */
 
     this.focusTrap.deactivate();
-    window.removeEventListener('resize', this.throttledResizeHandler);
+    this.drawerAailableMediaQuery.removeListener(this.resizeHandler);
 
     if (!this.isOpen()) return;
 
@@ -98,7 +106,7 @@ export default class Drawer {
   show() {
     this.appElement.classList.add('drawerOpen');
 
-    window.addEventListener('resize', this.throttledResizeHandler, { passive: true });
+    this.drawerAailableMediaQuery.addListener(this.resizeHandler);
 
     this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').on('click', this.hide.bind(this));
 
