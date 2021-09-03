@@ -139,8 +139,14 @@ export default class ItemList<T> {
    *          items
    *            .setContent('myItem', <p>My new value.</p>)
    *            .setPriority('myItem', 10);
+   *
+   * @throws If the provided `key` is not present in the ItemList.
    */
-  set(key: string, content: T): this {
+  setContent(key: string, content: T): this {
+    if (!this.has(key)) {
+      throw new Error(`[ItemList] Cannot set content of Item. Key \`${key}\` is not present.`);
+    }
+
     // Saves on bundle size to call the deprecated method internally
     return this.replace(key, content);
   }
@@ -160,11 +166,15 @@ export default class ItemList<T> {
    *          items
    *            .setPriority('myItem', 10)
    *            .setContent('myItem', <p>My new value.</p>);
+   *
+   * @throws If the provided `key` is not present in the ItemList.
    */
   setPriority(key: string, priority: number): this {
-    if (this.has(key)) {
-      this._items[key].priority = priority;
+    if (!this.has(key)) {
+      throw new Error(`[ItemList] Cannot set priority of Item. Key \`${key}\` is not present.`);
     }
+
+    this._items[key].priority = priority;
 
     return this;
   }
