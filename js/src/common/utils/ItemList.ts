@@ -26,13 +26,14 @@ export default class ItemList<T> {
    */
   protected _items: Record<string, Item<T>> = {};
 
+  // TODO: [Flarum 2.0] Remove `.items` getter.
   /**
-   * A read-only copy of items in the list.
+   * A **read-only copy** of items in the list.
    *
    * We don't allow adding new items to the ItemList via setting new properties,
    * nor do we allow modifying existing items directly.
    *
-   * @deprecated Use `ItemList.toObject()` instead.
+   * @deprecated Use {@link ItemList.toObject} instead.
    */
   get items(): DeepReadonly<Record<string, Item<T>>> {
     return new Proxy(this._items, {
@@ -93,8 +94,8 @@ export default class ItemList<T> {
    *
    * If the provided `key` is not present, nothing will happen.
    *
-   * @deprecated Please use the `set` and `setPriority` methods to replace items
-   * and their priorities. This will be removed in Flarum 2.0.
+   * @deprecated Please use the {@link ItemList.setContent} and {@link ItemList.setPriority}
+   * methods to replace items and their priorities. This method will be removed in Flarum 2.0.
    *
    * @param key The key of the item in the list
    * @param content The item's new content
@@ -253,7 +254,7 @@ export default class ItemList<T> {
    *
    * We don't allow adding new items to the ItemList via setting new properties,
    * nor do we allow modifying existing items directly. You should use the
-   * `.add()` and `.replace()` methods respectively instead.
+   * {@link ItemList.add} and {@link ItemList.replace} methods instead.
    *
    * @example
    * const items = new ItemList();
