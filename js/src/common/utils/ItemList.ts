@@ -267,6 +267,9 @@ export default class ItemList<T> {
    * {@link ItemList.add}, {@link ItemList.setContent} and
    * {@link ItemList.setPriority} methods instead.
    *
+   * To match the old behaviour of the `ItemList.items` property, call
+   * `Object.values(ItemList.toObject())`.
+   *
    * @example
    * const items = new ItemList();
    * items.add('b', 'My cool value', 20);
