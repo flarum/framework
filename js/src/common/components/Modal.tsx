@@ -1,27 +1,23 @@
-import Mithril from 'mithril';
 import Component from '../Component';
-import type ModalManagerState from '../states/ModalManagerState';
-import RequestError from '../utils/RequestError';
-import Alert from './Alert';
+import Alert, { AlertAttrs } from './Alert';
 import Button from './Button';
+
+import type Mithril from 'mithril';
+import type ModalManagerState from '../states/ModalManagerState';
+import type RequestError from '../utils/RequestError';
 import type ModalManager from './ModalManager';
 
-interface IRealModalAttrs {
+interface IInternalModalAttrs {
   state: ModalManagerState;
   animateShow: ModalManager['animateShow'];
   animateHide: ModalManager['animateHide'];
-}
-
-export interface IModalAttrs {
-  dismissible: boolean;
-  [key: string]: unknown;
 }
 
 /**
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
  * should implement the `className`, `title`, and `content` methods.
  */
-export default abstract class Modal<ModalAttrs extends IModalAttrs> extends Component<IRealModalAttrs> {
+export default abstract class Modal<ModalAttrs extends Record<string, unknown> = {}> extends Component<ModalAttrs & IInternalModalAttrs> {
   /**
    * Determine whether or not the modal should be dismissible via an 'x' button.
    */
@@ -32,15 +28,15 @@ export default abstract class Modal<ModalAttrs extends IModalAttrs> extends Comp
   /**
    * Attributes for an alert component to show below the header.
    */
-  alertAttrs!: ModalAttrs;
+  alertAttrs!: AlertAttrs;
 
-  oncreate(vnode: Mithril.VnodeDOM<IRealModalAttrs, this>) {
+  oncreate(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>) {
     super.oncreate(vnode);
 
     this.attrs.animateShow(this.onready);
   }
 
-  onbeforeremove(vnode: Mithril.VnodeDOM<IRealModalAttrs, this>): Promise<void> | void {
+  onbeforeremove(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>): Promise<void> | void {
     super.onbeforeremove(vnode);
 
     // If the global modal state currently contains a modal,
