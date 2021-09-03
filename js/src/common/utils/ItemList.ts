@@ -183,12 +183,12 @@ export default class ItemList<T> {
    * The list passed to this function will overwrite items which already exist
    * with the same key.
    */
-  merge<K>(otherList: ItemList<K>): ItemList<T | K> {
+  merge(otherList: ItemList<T>): ItemList<T> {
     Object.keys(otherList._items).forEach((key) => {
       const val = otherList._items[key];
 
       if (val instanceof Item) {
-        (this as ItemList<T | K>)._items[key] = val;
+        this._items[key] = val;
       }
     });
 
