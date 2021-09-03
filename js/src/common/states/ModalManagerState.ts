@@ -12,13 +12,9 @@ export default class ModalManagerState {
   modal: null | {
     componentClass: typeof Modal;
     attrs?: Record<string, unknown>;
-  };
+  } = null;
 
   private closeTimeout?: number;
-
-  constructor() {
-    this.modal = null;
-  }
 
   /**
    * Shows a modal dialog.

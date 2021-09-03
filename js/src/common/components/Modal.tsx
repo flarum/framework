@@ -1,33 +1,46 @@
+import Mithril from 'mithril';
 import Component from '../Component';
+import type ModalManagerState from '../states/ModalManagerState';
+import RequestError from '../utils/RequestError';
 import Alert from './Alert';
 import Button from './Button';
+import type ModalManager from './ModalManager';
+
+interface IRealModalAttrs {
+  state: ModalManagerState;
+  animateShow: ModalManager['animateShow'];
+  animateHide: ModalManager['animateHide'];
+}
+
+export interface IModalAttrs {
+  dismissible: boolean;
+  [key: string]: unknown;
+}
 
 /**
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
  * should implement the `className`, `title`, and `content` methods.
- *
- * @abstract
  */
-export default class Modal extends Component {
+export default abstract class Modal<ModalAttrs extends IModalAttrs> extends Component<IRealModalAttrs> {
   /**
    * Determine whether or not the modal should be dismissible via an 'x' button.
    */
-  static isDismissible = true;
+  static readonly isDismissible = true;
+
+  protected loading: boolean = false;
 
   /**
    * Attributes for an alert component to show below the header.
-   *
-   * @type {object}
    */
-  alertAttrs = null;
+  alertAttrs!: ModalAttrs;
 
-  oncreate(vnode) {
+  oncreate(vnode: Mithril.VnodeDOM<IRealModalAttrs, this>) {
     super.oncreate(vnode);
 
-    this.attrs.animateShow(() => this.onready());
+    this.attrs.animateShow(this.onready);
   }
 
-  onbeforeremove(vnode) {
+  onbeforeremove(vnode: Mithril.VnodeDOM<IRealModalAttrs, this>): Promise<void> | void {
     super.onbeforeremove(vnode);
 
     // If the global modal state currently contains a modal,
@@ -50,7 +63,7 @@ export default class Modal extends Component {
     return (
       <div className={'Modal modal-dialog ' + this.className()}>
         <div className="Modal-content">
-          {this.constructor.isDismissible ? (
+          {(this.constructor as any).isDismissible && (
             <div className="Modal-close App-backControl">
               {Button.component({
                 icon: 'fas fa-times',
@@ -58,8 +71,6 @@ export default class Modal extends Component {
                 className: 'Button Button--icon Button--link',
               })}
             </div>
-          ) : (
-            ''
           )}
 
           <form onsubmit={this.onsubmit.bind(this)}>
@@ -78,51 +89,42 @@ export default class Modal extends Component {
 
   /**
    * Get the class name to apply to the modal.
-   *
-   * @return {String}
-   * @abstract
    */
-  className() {}
+  abstract className(): string;
 
   /**
    * Get the title of the modal dialog.
-   *
-   * @return {String}
-   * @abstract
    */
-  title() {}
+  abstract title(): string;
 
   /**
    * Get the content of the modal.
-   *
-   * @return {VirtualElement}
-   * @abstract
    */
-  content() {}
+  abstract content(): Mithril.Children;
 
   /**
    * Handle the modal form's submit event.
-   *
-   * @param {Event} e
    */
-  onsubmit() {}
+  abstract onsubmit(e: Event): void;
 
   /**
-   * Focus on the first input when the modal is ready to be used.
+   * Callback executed when the modal is shown and ready to be interacted with.
+   *
+   * @remark Focuses the first input in the modal.
    */
-  onready() {
-    this.$('form').find('input, select, textarea').first().focus().select();
+  onready(): void {
+    this.$().find('input, select, textarea').first().trigger('focus').trigger('select');
   }
 
   /**
-   * Hide the modal.
+   * Hides the modal.
    */
   hide() {
     this.attrs.state.close();
   }
 
   /**
-   * Stop loading.
+   * Sets `loading` to false and triggers a redraw.
    */
   loaded() {
     this.loading = false;
@@ -130,18 +132,16 @@ export default class Modal extends Component {
   }
 
   /**
-   * Show an alert describing an error returned from the API, and give focus to
-   * the first relevant field.
-   *
-   * @param {RequestError} error
+   * Shows an alert describing an error returned from the API, and gives focus to
+   * the first relevant field involved in the error.
    */
-  onerror(error) {
+  onerror(error: RequestError) {
     this.alertAttrs = error.alert;
 
     m.redraw();
 
-    if (error.status === 422 && error.response.errors) {
-      this.$('form [name=' + error.response.errors[0].source.pointer.replace('/data/attributes/', '') + ']').select();
+    if (error.status === 422 && error.response?.errors) {
+      this.$('form [name=' + (error.response.errors as any[])[0].source.pointer.replace('/data/attributes/', '') + ']').trigger('select');
     } else {
       this.onready();
     }
