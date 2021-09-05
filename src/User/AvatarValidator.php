@@ -41,7 +41,7 @@ class AvatarValidator extends AbstractValidator
                 $this->raise('required');
             }
 
-            $this->raise('file_uploaded');
+            $this->raise('file_upload_failed');
         }
     }
 
