@@ -521,6 +521,7 @@ core:
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
       missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
       not_found_message: The requested resource was not found.
+      payload_too_large_message: The request payload was too large.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
 

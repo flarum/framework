@@ -382,6 +382,10 @@ export default class Application {
             content = app.translator.trans('core.lib.error.not_found_message');
             break;
 
+          case 413:
+            content = app.translator.trans('core.lib.error.payload_too_large_message');
+            break;
+
           case 429:
             content = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
             break;
