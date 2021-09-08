@@ -1,12 +1,18 @@
+import app from '../app';
 import Component from '../Component';
 import PageState from '../states/PageState';
+
+export interface IPageAttrs {
+  key?: number;
+  routeName: string;
+}
 
 /**
  * The `Page` component
  *
  * @abstract
  */
-export default class Page extends Component {
+export default abstract class Page<CustomAttrs extends IPageAttrs = IPageAttrs> extends Component<CustomAttrs> {
   oninit(vnode) {
     super.oninit(vnode);
 

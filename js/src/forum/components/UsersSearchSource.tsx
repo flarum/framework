@@ -1,9 +1,10 @@
+import app from '../../forum/app';
 import highlight from '../../common/helpers/highlight';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import Link from '../../common/components/Link';
 import { SearchSource } from './Search';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search

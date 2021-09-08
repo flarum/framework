@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import avatar from '../../common/helpers/avatar';
 import icon from '../../common/helpers/icon';

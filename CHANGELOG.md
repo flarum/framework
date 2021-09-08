@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.4](https://github.com/flarum/core/compare/v1.0.3...v1.0.4)
+
+### Fixed
+
+- Upgrade to v1.0 resets the "view" permission on all tags (https://github.com/flarum/core/pull/2941)
+
+## [1.0.3](https://github.com/flarum/core/compare/v1.0.2...v1.0.3)
+
+### Changed
+
+- Removed [forum] prefix from Request Password and Email Confirmation emails ([a4a81c0](https://github.com/flarum/core/commit/a4a81c0ec237476cd6e7ca00c1ed9465493af476))
+- Adopt huntr.dev for handling our security vulnerability reports (https://github.com/flarum/core/pull/2918)
+- Maintenance handler can now be replaced through the service container (ioc) ([4acff91](https://github.com/flarum/core/commit/4acff91f8063fcced9bf8c9a76fbb510d06823c0))
+- The colors on the auto generated avatars are now based on the Display Name of the user (https://github.com/flarum/core/pull/2873)
+
+### Fixed
+
+- Avatar in notifications list are incorrectly aligned (https://github.com/flarum/core/pull/2906) 
+- FilesystemManager is not compatible with upstream Laravel implementation (https://github.com/flarum/core/pull/2936)
+
 ## [1.0.2](https://github.com/flarum/core/compare/v1.0.1...v1.0.2)
 
 ### Fixed

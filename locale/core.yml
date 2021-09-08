@@ -521,6 +521,7 @@ core:
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
       missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
       not_found_message: The requested resource was not found.
+      payload_too_large_message: The request payload was too large.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
 
@@ -545,6 +546,25 @@ core:
 
   # Translations in this namespace are used in views other than Flarum's normal JS client.
   views:
+    # Translations in this namespace are displayed by the basic HTML admin index.
+    admin:
+      extensions:
+        caption: => core.ref.extensions
+        disable: Disable
+        empty: No installed extensions
+        enable: Enable
+        name: Extension Name
+        package_name: Package Name
+        version: Version
+      info:
+        caption: Application Info
+      title: Administration
+
+    # Translations in this namespace are displayed by the Confirm Email interface.
+    confirm_email:
+      submit_button: => core.ref.confirm_email
+      text: Click the button below to confirm your account's email.
+      title: => core.ref.confirm_email
 
     # Translations in this namespace are displayed by the basic HTML content loader.
     content:
@@ -656,6 +676,7 @@ core:
     change_password: Change Password
     color: Color                                 # Referenced by flarum-tags.yml
     confirm_password: Confirm Password
+    confirm_email: Confirm Email
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
     custom_footer_text: Add HTML to be displayed at the very bottom of the page.
     custom_footer_title: Edit Custom Footer
@@ -667,6 +688,7 @@ core:
     edit: Edit
     edit_user: Edit User
     email: Email
+    extensions: Extensions
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     load_more: Load More

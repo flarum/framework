@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "@flarum/core",
+  "prettier": "@flarum/prettier-config",
   "dependencies": {
     "@askvortsov/rich-icu-message-formatter": "^0.1.0",
     "@ultraq/icu-message-formatter": "^0.10.1",
@@ -12,12 +13,14 @@
     "jquery": "^3.6.0",
     "jquery.hotkeys": "^0.1.0",
     "mithril": "^2.0.4",
+    "nanoid": "^3.1.25",
     "punycode": "^2.1.1",
     "textarea-caret": "^3.1.0",
     "throttle-debounce": "^3.0.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
+    "@flarum/prettier-config": "^1.0.0",
     "@types/jquery": "^3.5.5",
     "@types/mithril": "^2.0.7",
     "@types/punycode": "^2.1.0",
@@ -26,7 +29,6 @@
     "cross-env": "^7.0.3",
     "flarum-tsconfig": "^0.1.0-beta.16",
     "flarum-webpack-config": "0.1.0-beta.16.2",
-    "husky": "^4.3.8",
     "prettier": "^2.3.0",
     "typescript": "^4.2.4",
     "webpack": "^4.46.0",
@@ -40,11 +42,6 @@
     "format": "prettier --write src",
     "format-check": "prettier --check src",
     "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
-    "build-typings": "npm run clean-typings && cp -r @types dist-typings/@types && tsc"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run format"
-    }
+    "build-typings": "npm run clean-typings && cp -r src/@types dist-typings/@types && tsc"
   }
 }

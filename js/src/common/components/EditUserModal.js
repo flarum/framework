@@ -1,3 +1,4 @@
+import app from '../../common/app';
 import Modal from './Modal';
 import Button from './Button';
 import GroupBadge from './GroupBadge';

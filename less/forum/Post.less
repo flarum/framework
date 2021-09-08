@@ -65,7 +65,7 @@
     top: -10px;
     left: -100px;
     z-index: @zindex-dropdown;
-    .transition(~"opacity 0.2s, transform 0.2s");
+    transition: opacity 0.2s, transform 0.2s;
     transform: scale(0.95);
     transform-origin: left top;
     opacity: 0;
@@ -131,7 +131,7 @@
   // Code blocks
   pre {
     border: 0;
-    padding: 15px;
+    padding: 0;
     background: @code-bg;
     color: #666;
     font-size: 90%;
@@ -139,12 +139,17 @@
     overflow-wrap: normal;
 
     code {
-      padding: 0;
+      padding: 1em;
       background: none;
       color: inherit;
       line-height: inherit;
       font-size: 100%;
       border-radius: 0;
+      display: block;
+      overflow-x: auto;
+      // Backwards compatibility for browsers that don't support `max()`
+      max-height: 50vh;
+      max-height: ~"max(50vh, 250px)";
     }
   }
   h1, h2, h3, h4, h5, h6 {
@@ -196,7 +201,7 @@
     opacity: 0.5;
   }
   .Post-header .Button--more {
-    .Button--color(@muted-more-color, fade(@muted-more-color, 30%));
+    .Button--color(@muted-more-color, fade(@muted-more-color, 30%), 'muted-more');
   }
 }
 .Post--loading {
@@ -245,9 +250,6 @@
   a {
     font-weight: bold;
   }
-  .Post-footer {
-    margin-bottom: 0;
-  }
 }
 .EventPost-info {
   font-size: 14px;
@@ -285,13 +287,17 @@
     font-size: 14px;
     margin-right: 5px;
   }
+
+  &:empty {
+    display: none;
+  }
 }
 .Post-actions {
   margin-top: -5px;
   float: right;
   position: relative;
 
-  .transition(opacity 0.2s);
+  transition: opacity 0.2s;
 
   .EventPost &, .Post--hidden:not(.revealContent) & {
     margin-top: -27px;

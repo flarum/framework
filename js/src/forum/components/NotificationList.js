@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';

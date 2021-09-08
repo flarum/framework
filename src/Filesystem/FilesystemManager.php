@@ -35,15 +35,15 @@ class FilesystemManager extends LaravelFilesystemManager
     /**
      * @inheritDoc
      */
-    protected function resolve($name): Filesystem
+    protected function resolve($name, $config = null): Filesystem
     {
-        $driver = $this->getDriver($name);
-
-        $localConfig = $this->getLocalConfig($name);
+        $localConfig = $config ?? $this->getLocalConfig($name);
 
         if (empty($localConfig)) {
             throw new InvalidArgumentException("Disk [{$name}] has not been declared. Use the Filesystem extender to do this.");
         }
+
+        $driver = $config['driver'] ?? $this->getDriver($name);
 
         if ($driver === 'local') {
             return $this->createLocalDriver($localConfig);

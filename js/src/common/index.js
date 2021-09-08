@@ -21,8 +21,9 @@ import patchMithril from './utils/patchMithril';
 patchMithril(window);
 
 import * as Extend from './extend/index';
+import app from './app';
 
-export { Extend };
+export { Extend, app };
 
 import './utils/arrayFlatPolyfill';
 

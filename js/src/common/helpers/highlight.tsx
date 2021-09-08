@@ -1,4 +1,4 @@
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 import { truncate } from '../utils/string';
 
 /**

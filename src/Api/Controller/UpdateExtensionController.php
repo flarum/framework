@@ -9,7 +9,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Extension\ExtensionManager;
+use Flarum\Bus\Dispatcher;
+use Flarum\Extension\Command\ToggleExtension;
 use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -20,16 +21,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 class UpdateExtensionController implements RequestHandlerInterface
 {
     /**
-     * @var ExtensionManager
+     * @var Dispatcher
      */
-    protected $extensions;
+    protected $bus;
 
-    /**
-     * @param ExtensionManager $extensions
-     */
-    public function __construct(ExtensionManager $extensions)
+    public function __construct(Dispatcher $bus)
     {
-        $this->extensions = $extensions;
+        $this->bus = $bus;
     }
 
     /**
@@ -37,16 +35,13 @@ class UpdateExtensionController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        RequestUtil::getActor($request)->assertAdmin();
-
-        $enabled = Arr::get($request->getParsedBody(), 'enabled');
+        $actor = RequestUtil::getActor($request);
+        $enabled = (bool) (int) Arr::get($request->getParsedBody(), 'enabled');
         $name = Arr::get($request->getQueryParams(), 'name');
 
-        if ($enabled === true) {
-            $this->extensions->enable($name);
-        } elseif ($enabled === false) {
-            $this->extensions->disable($name);
-        }
+        $this->bus->dispatch(
+            new ToggleExtension($actor, $name, $enabled)
+        );
 
         return new EmptyResponse;
     }

@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import FieldSet from '../../common/components/FieldSet';
 import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
@@ -55,14 +56,12 @@ export default class MailPage extends AdminPage {
           type: 'text',
           setting: 'mail_from',
           label: app.translator.trans('core.admin.email.addresses_heading'),
-          className: 'MailPage-MailSettings',
         })}
         {this.buildSettingComponent({
           type: 'select',
           setting: 'mail_driver',
           options: Object.keys(this.driverFields).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
           label: app.translator.trans('core.admin.email.driver_heading'),
-          className: 'MailPage-MailSettings',
         })}
         {this.status.sending ||
           Alert.component(

@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Component from '../../common/Component';
 import Link from '../../common/components/Link';
 import avatar from '../../common/helpers/avatar';
@@ -16,7 +17,8 @@ export default class PostPreview extends Component {
   view() {
     const post = this.attrs.post;
     const user = post.user();
-    const excerpt = highlight(post.contentPlain(), this.attrs.highlight, 300);
+    const content = post.contentType() === 'comment' && post.contentPlain();
+    const excerpt = content ? highlight(content, this.attrs.highlight, 300) : '';
 
     return (
       <Link className="PostPreview" href={app.route.post(post)} onclick={this.attrs.onclick}>

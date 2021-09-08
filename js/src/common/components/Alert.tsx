@@ -2,7 +2,7 @@ import Component, { ComponentAttrs } from '../Component';
 import Button from './Button';
 import listItems from '../helpers/listItems';
 import extract from '../utils/extract';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 export interface AlertAttrs extends ComponentAttrs {
   /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */

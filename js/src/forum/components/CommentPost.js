@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Post from './Post';
 import classList from '../../common/utils/classList';
 import PostUser from './PostUser';
