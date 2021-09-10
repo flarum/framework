@@ -59,7 +59,7 @@ export default abstract class Modal<ModalAttrs extends Record<string, unknown> =
     return (
       <div className={'Modal modal-dialog ' + this.className()}>
         <div className="Modal-content">
-          {(this.constructor as any).isDismissible && (
+          {(this.constructor as typeof Modal).isDismissible && (
             <div className="Modal-close App-backControl">
               {Button.component({
                 icon: 'fas fa-times',
