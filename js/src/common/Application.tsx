@@ -174,12 +174,6 @@ export default class Application {
   booted: boolean = false;
 
   /**
-   * The key for an Alert that was shown as a result of an AJAX request error.
-   * If present, it will be dismissed on the next successful request.
-   */
-  private requestErrorAlert: number | null = null;
-
-  /**
    * The page the app is currently on.
    *
    * This object holds information about the type of page we are currently
@@ -221,8 +215,30 @@ export default class Application {
     [key: string]: unknown;
   };
 
-  private title: string = '';
-  private titleCount: number = 0;
+  private _title: string = '';
+  private _titleCount: number = 0;
+
+  private set title(val: string) {
+    this._title = val;
+  }
+
+  get title() {
+    return this._title;
+  }
+
+  private set titleCount(val: number) {
+    this._titleCount = val;
+  }
+
+  get titleCount() {
+    return this._titleCount;
+  }
+
+  /**
+   * The key for an Alert that was shown as a result of an AJAX request error.
+   * If present, it will be dismissed on the next successful request.
+   */
+  private requestErrorAlert: number | null = null;
 
   initialRoute!: string;
 
@@ -319,10 +335,9 @@ export default class Application {
   }
 
   /**
-   * Set the <title> of the page.
+   * Set the `<title>` of the page.
    *
    * @param title New page title
-   * @public
    */
   setTitle(title: string): void {
     this.title = title;
@@ -330,7 +345,7 @@ export default class Application {
   }
 
   /**
-   * Set a number to display in the <title> of the page.
+   * Set a number to display in the `<title>` of the page.
    *
    * @param count Number to display in title
    */
@@ -439,7 +454,7 @@ export default class Application {
           case 422:
             content = (error.response.errors as Record<string, unknown>[])
               .map((error) => [error.detail, <br />])
-              .reduce((a, b) => a.concat(b), [])
+              .flat()
               .slice(0, -1);
             break;
 
@@ -503,12 +518,7 @@ export default class Application {
     );
   }
 
-  /**
-   * @param {RequestError} error
-   * @param {string[]} [formattedError]
-   * @private
-   */
-  showDebug(error: RequestError, formattedError?: string[]) {
+  private showDebug(error: RequestError, formattedError?: string[]) {
     if (this.requestErrorAlert !== null) this.alerts.dismiss(this.requestErrorAlert);
 
     this.modal.show(RequestErrorModal, { error, formattedError });
