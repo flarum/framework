@@ -31,6 +31,26 @@ import type Mithril from 'mithril';
 import type Component from './Component';
 import { ComponentAttrs } from './Component';
 
+export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
+
+export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
+  errorHandler: (errorMessage: string) => void;
+  url: string;
+  // TODO: [Flarum 2.0] Remove deprecated option
+  /**
+   * Manipulate the response text before it is parsed into JSON.
+   *
+   * @deprecated Please use `modifyText` instead.
+   */
+  extract: (responseText: string) => string;
+  /**
+   * Manipulate the response text before it is parsed into JSON.
+   *
+   * This overrides any `extract` method provided.
+   */
+  modifyText: (responseText: string) => string;
+}
+
 /**
  * A valid route definition.
  */
@@ -82,13 +102,13 @@ export interface RouteResolver<
    * Returns the component class, and **not** a Vnode or JSX
    * expression.
    */
-  onmatch(args: RouteArgs, requestedPath: string, route: string): { new (): Comp };
+  onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): { new (): Comp };
   /**
    * A function which renders the provided component.
    *
    * Returns a Mithril Vnode or other children.
    */
-  render(vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
+  render(this: this, vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
 }
 
 /**
@@ -116,7 +136,7 @@ export default class Application {
   /**
    * An ordered list of initializers to bootstrap the application.
    */
-  initializers: ItemList<() => void> = new ItemList();
+  initializers: ItemList<(app: this) => void> = new ItemList();
 
   /**
    * The app's session.
@@ -201,8 +221,8 @@ export default class Application {
     [key: string]: unknown;
   };
 
-  title: string = '';
-  titleCount: number = 0;
+  private title: string = '';
+  private titleCount: number = 0;
 
   initialRoute!: string;
 
@@ -293,7 +313,7 @@ export default class Application {
   /**
    * Determine the current screen mode, based on our media queries.
    */
-  screen(): 'phone' | 'tablet' | 'desktop' | 'desktop-hd' {
+  screen(): FlarumScreens {
     const styles = getComputedStyle(document.documentElement);
     return styles.getPropertyValue('--flarum-screen') as ReturnType<Application['screen']>;
   }
@@ -334,16 +354,14 @@ export default class Application {
    * @param options
    * @return {Promise}
    */
-  request<ResponseType>(
-    originalOptions: Mithril.RequestOptions<ResponseType> & { errorHandler: (errorMessage: string) => void; url: string }
-  ): Promise<ResponseType | string> {
-    const options = Object.assign({}, originalOptions);
+  request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType | string> {
+    const options = { ...originalOptions };
 
     // Set some default options if they haven't been overridden. We want to
     // authenticate all requests with the session token. We also want all
     // requests to run asynchronously in the background, so that they don't
     // prevent redraws from occurring.
-    options.background = options.background || true;
+    options.background ||= true;
 
     extend(options, 'config', (_: undefined, xhr: Parameters<Required<Mithril.RequestOptions<ResponseType>>['config']>[0]) => {
       xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken!);
@@ -377,12 +395,14 @@ export default class Application {
     // When extracting the data from the response, we can check the server
     // response code and show an error message to the user if something's gone
     // awry.
-    const original = options.extract;
-    options.extract = (xhr) => {
+    const original = options.modifyText || options.extract;
+
+    // @ts-expect-error
+    options.extract = (xhr: XMLHttpRequest) => {
       let responseText;
 
       if (original) {
-        responseText = original(xhr, options);
+        responseText = original(xhr.responseText);
       } else {
         responseText = xhr.responseText || null;
       }

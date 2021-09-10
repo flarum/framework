@@ -71,14 +71,12 @@ export default class ForumApplication extends Application {
    * An object which controls the state of the cached discussion list, which
    * is used in the index page and the slideout pane.
    */
-  discussions?: DiscussionListState;
+  discussions: DiscussionListState = new DiscussionListState({});
 
   constructor() {
     super();
 
     routes(this);
-
-    this.discussions = new DiscussionListState({});
   }
 
   /**
