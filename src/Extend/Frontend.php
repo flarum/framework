@@ -153,9 +153,9 @@ class Frontend implements ExtenderInterface
             }
 
             if ($this->css) {
-                $assets->css(function (SourceCollector $sources) {
+                $assets->css(function (SourceCollector $sources) use ($moduleName) {
                     foreach ($this->css as $path) {
-                        $sources->addFile($path);
+                        $sources->addFile($path, $moduleName);
                     }
                 });
             }
