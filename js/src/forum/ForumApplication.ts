@@ -1,4 +1,5 @@
 import app from '../forum/app';
+
 import History from './utils/History';
 import Pane from './utils/Pane';
 import DiscussionPage from './components/DiscussionPage';
@@ -18,8 +19,6 @@ import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import isSafariMobile from './utils/isSafariMobile';
-
-import app from './app';
 
 import type Notification from './components/Notification';
 import type Post from './components/Post';
