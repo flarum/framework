@@ -1,6 +1,6 @@
 {
   "name": "flarum-tsconfig",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Flarum's official Typescript config file",
   "main": "tsconfig.json",
   "repository": "https://github.com/flarum/flarum-tsconfig",
