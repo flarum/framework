@@ -29,7 +29,7 @@ import AlertManagerState from './states/AlertManagerState';
 import type DefaultResolver from './resolvers/DefaultResolver';
 import type Mithril from 'mithril';
 import type Component from './Component';
-import { ComponentAttrs } from './Component';
+import type { ComponentAttrs } from './Component';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
