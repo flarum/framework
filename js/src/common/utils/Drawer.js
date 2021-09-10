@@ -28,7 +28,7 @@ export default class Drawer {
 
     this.appElement = document.getElementById('app');
     this.focusTrap = createFocusTrap('#drawer', { allowOutsideClick: true });
-    this.drawerAailableMediaQuery = window.matchMedia(
+    this.drawerAvailableMediaQuery = window.matchMedia(
       `(max-width: ${getComputedStyle(document.documentElement).getPropertyValue('--screen-phone-max')})`
     );
   }
@@ -57,7 +57,7 @@ export default class Drawer {
    * @internal
    * @type {MediaQueryList}
    */
-  drawerAailableMediaQuery;
+  drawerAvailableMediaQuery;
 
   /**
    * Check whether or not the drawer is currently open.
@@ -84,7 +84,7 @@ export default class Drawer {
      */
 
     this.focusTrap.deactivate();
-    this.drawerAailableMediaQuery.removeListener(this.resizeHandler);
+    this.drawerAvailableMediaQuery.removeListener(this.resizeHandler);
 
     if (!this.isOpen()) return;
 
@@ -106,7 +106,7 @@ export default class Drawer {
   show() {
     this.appElement.classList.add('drawerOpen');
 
-    this.drawerAailableMediaQuery.addListener(this.resizeHandler);
+    this.drawerAvailableMediaQuery.addListener(this.resizeHandler);
 
     this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').on('click', this.hide.bind(this));
 
