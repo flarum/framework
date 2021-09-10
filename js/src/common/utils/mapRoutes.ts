@@ -1,4 +1,4 @@
-import type { RouteItem, RouteResolver } from '../Application';
+import type { FlarumGenericRoute, RouteResolver } from '../Application';
 import type Component from '../Component';
 import DefaultResolver from '../resolvers/DefaultResolver';
 
@@ -9,10 +9,7 @@ import DefaultResolver from '../resolvers/DefaultResolver';
  *
  * @see https://mithril.js.org/route.html#signature
  */
-export default function mapRoutes(
-  routes: Record<string, RouteItem<Record<string, unknown>, Component<{ routeName: string; [key: string]: unknown }>, Record<string, unknown>>>,
-  basePath: string = ''
-) {
+export default function mapRoutes(routes: Record<string, FlarumGenericRoute>, basePath: string = '') {
   const map: Record<
     string,
     RouteResolver<Record<string, unknown>, Component<{ routeName: string; [key: string]: unknown }>, Record<string, unknown>>

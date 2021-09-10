@@ -33,6 +33,12 @@ import { ComponentAttrs } from './Component';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
+export type FlarumGenericRoute = RouteItem<
+  Record<string, unknown>,
+  Component<{ routeName: string; [key: string]: unknown }>,
+  Record<string, unknown>
+>;
+
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
   errorHandler: (errorMessage: string) => void;
   url: string;
@@ -131,7 +137,7 @@ export default class Application {
    * @example
    * app.routes.discussion = { path: '/d/:id', component: DiscussionPage };
    */
-  routes: Record<string, RouteItem<ComponentAttrs, Component<ComponentAttrs & { routeName: string }>, Record<string, unknown>>> = {};
+  routes: Record<string, FlarumGenericRoute> = {};
 
   /**
    * An ordered list of initializers to bootstrap the application.
@@ -378,7 +384,7 @@ export default class Application {
     // prevent redraws from occurring.
     options.background ||= true;
 
-    extend(options, 'config', (_: undefined, xhr: Parameters<Required<Mithril.RequestOptions<ResponseType>>['config']>[0]) => {
+    extend(options, 'config', (_: undefined, xhr: XMLHttpRequest) => {
       xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken!);
     });
 
@@ -388,7 +394,7 @@ export default class Application {
     if (options.method && !['GET', 'POST'].includes(options.method)) {
       const method = options.method;
 
-      extend(options, 'config', (_: undefined, xhr: Parameters<Required<Mithril.RequestOptions<ResponseType>>['config']>[0]) => {
+      extend(options, 'config', (_: undefined, xhr: XMLHttpRequest) => {
         xhr.setRequestHeader('X-HTTP-Method-Override', method);
       });
 
