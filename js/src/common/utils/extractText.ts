@@ -1,4 +1,4 @@
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * Extract the text nodes from a virtual element.
