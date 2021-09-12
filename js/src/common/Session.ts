@@ -22,12 +22,12 @@ export default class Session {
   /**
    * The current authenticated user.
    */
-  public user: User | null;
+  user: User | null;
 
   /**
    * The CSRF token.
    */
-  public csrfToken: string | null;
+  csrfToken: string | null;
 
   constructor(user: User | null, csrfToken: string | null) {
     this.user = user;
@@ -37,23 +37,19 @@ export default class Session {
   /**
    * Attempt to log in a user.
    */
-  public login(body: LoginParams, options: Omit<RequestOptions, 'url'> = {}) {
-    return app.request(
-      Object.assign(
-        {
-          method: 'POST',
-          url: `${app.forum.attribute('baseUrl')}/login`,
-          body,
-        },
-        options
-      )
-    );
+  login(body: LoginParams, options: Omit<RequestOptions, 'url' | 'body' | 'method'> = {}) {
+    return app.request({
+      method: 'POST',
+      url: `${app.forum.attribute('baseUrl')}/login`,
+      body,
+      ...options,
+    });
   }
 
   /**
    * Log the user out.
    */
-  public logout() {
+  logout() {
     window.location.href = `${app.forum.attribute('baseUrl')}/logout?token=${this.csrfToken}`;
   }
 }
