@@ -13,8 +13,7 @@
   transition: var(--transition);
   -webkit-appearance: none;
 
-  &:focus,
-  &.focus {
+  &:focus {
     background-color: @body-bg;
     color: @text-color;
     border-color: @primary-color;
@@ -44,6 +43,7 @@
     font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
   }
 }
+
 .helpText {
   font-size: 12px;
   line-height: 1.5em;
