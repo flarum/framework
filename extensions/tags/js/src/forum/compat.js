@@ -10,6 +10,7 @@ import TagLinkButton from './components/TagLinkButton';
 import addTagList from './addTagList';
 import addTagLabels from './addTagLabels';
 import addTagComposer from './addTagComposer';
+import getSelectableTags from './utils/getSelectableTags';
 
 export default Object.assign(compat, {
   'tags/addTagFilter': addTagFilter,
@@ -22,4 +23,5 @@ export default Object.assign(compat, {
   'tags/addTagList': addTagList,
   'tags/addTagLabels': addTagLabels,
   'tags/addTagComposer': addTagComposer,
+  'tags/utils/getSelectableTags': getSelectableTags,
 });
