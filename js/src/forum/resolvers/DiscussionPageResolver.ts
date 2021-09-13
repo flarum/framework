@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import DefaultResolver from '../../common/resolvers/DefaultResolver';
 import DiscussionPage from '../components/DiscussionPage';
 

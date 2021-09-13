@@ -52,20 +52,12 @@
 }
 
 @media @phone, @tablet {
-  .App-nav .AdminNav {
+  .AdminNav {
     .Dropdown-menu {
       > li {
-        .ExtensionListTitle {
-          color: @muted-color;
-          text-transform: uppercase;
-          margin: 25px 0 10px 15px;
-        }
-
         .ExtensionIcon {
           margin: -2px -29px;
-          width: 25px;
-          height: 25px;
-          font-size: 12.5px;
+          --size: 25px;
 
           .icon {
             margin: 0;
@@ -83,7 +75,7 @@
     top: @header-height;
     height: ~"calc(100vh - @{header-height})";
     width: @admin-pane-width;
-    .box-shadow(0 6px 6px @shadow-color);
+    box-shadow: 0 6px 6px @shadow-color;
     background: @body-bg;
     z-index: @zindex-pane;
     overflow-y: scroll;
@@ -157,18 +149,9 @@
           margin: 0 auto;
         }
 
-        .ExtensionListTitle {
-          color: @muted-color;
-          text-transform: uppercase;
-          margin: 25px 0 8px 15px;
-        }
-
         .ExtensionIcon {
-          width: 25px;
-          height: 25px;
-          font-size: 15px;
+          --size: 25px;
           margin-left: -29px;
-          vertical-align: middle;
         }
       }
     }
@@ -191,6 +174,12 @@
 .AdminLinkButton-description {
   white-space: normal;
   padding-left: 5px;
+}
+
+.ExtensionListTitle {
+  color: @muted-color;
+  text-transform: uppercase;
+  margin: 25px 0 8px 15px;
 }
 
 .ExtensionListItem-Dot {

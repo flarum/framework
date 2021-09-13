@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import UserPage from './UserPage';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';

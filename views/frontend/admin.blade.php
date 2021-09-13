@@ -28,9 +28,9 @@
             <div id="admin-navigation" class="App-nav sideNav"></div>
         </div>
 
-        <div id="content" class="sideNavOffset"></div>
-
-        {!! $content !!}
+        <div id="content" class="sideNavOffset">
+            {!! $content !!}
+        </div>
     </main>
 
 </div>

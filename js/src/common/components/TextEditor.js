@@ -1,3 +1,5 @@
+import app from '../../common/app';
+
 import Component from '../Component';
 import ItemList from '../utils/ItemList';
 import listItems from '../helpers/listItems';

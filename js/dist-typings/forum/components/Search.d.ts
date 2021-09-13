@@ -2,7 +2,7 @@ import Component, { ComponentAttrs } from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import SearchState from '../states/SearchState';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 /**
  * The `SearchSource` interface defines a section of search results in the
  * search dropdown.

@@ -1,4 +1,5 @@
-export default class MailPage extends AdminPage {
+export default class MailPage extends AdminPage<import("../../common/components/Page").IPageAttrs> {
+    constructor();
     sendingTest: boolean | undefined;
     refresh(): void;
     status: {

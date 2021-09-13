@@ -77,13 +77,14 @@
 }
 
 .ExtensionIcon {
-  width: 90px;
-  height: 90px;
+  --size: 90px;
+  width: var(--size);
+  height: var(--size);
   background: @control-bg;
   color: @control-color;
   border-radius: 6px;
   display: inline-flex;
-  font-size: 45px;
+  font-size: calc(~"var(--size) / 2");
   text-align: center;
   align-items: center;
   justify-content: center;

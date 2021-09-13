@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import EventPost from './EventPost';
 import extractText from '../../common/utils/extractText';
 

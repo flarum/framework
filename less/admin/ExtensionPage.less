@@ -1,13 +1,5 @@
 .ExtensionPage {
-
   &-header {
-    .ExtensionTitle {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      margin: 20px 0 15px;
-    }
-
     .helpText {
       margin-bottom: 5px;
     }
@@ -79,11 +71,8 @@
     }
 
     .ExtensionIcon {
-      width: 30px;
-      height: 30px;
-      font-size: 15px;
+      --size: 30px;
       margin-left: 0;
-      vertical-align: middle;
     }
 
     &TopItems {
@@ -123,7 +112,6 @@
   }
 
   &-permissions {
-
     .PermissionGrid-removeScope {
       display: none;
     }
@@ -138,6 +126,13 @@
       padding: 5px 0;
     }
   }
+}
+
+.ExtensionTitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 20px 0 15px;
 }
 
 .ExtensionInfo {

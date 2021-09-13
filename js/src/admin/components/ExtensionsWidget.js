@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import DashboardWidget from './DashboardWidget';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
 import getCategorizedExtensions from '../utils/getCategorizedExtensions';

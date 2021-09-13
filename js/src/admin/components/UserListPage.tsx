@@ -1,3 +1,5 @@
+import app from '../../admin/app';
+
 import EditUserModal from '../../common/components/EditUserModal';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
@@ -286,7 +288,7 @@ export default class UserListPage extends AdminPage {
 
           return (
             <div class="UserList-email" key={user.id()} data-email-shown="false">
-              <span class="UserList-emailAddress" aria-hidden onclick={() => setEmailVisibility(true)}>
+              <span class="UserList-emailAddress" aria-hidden="true" onclick={() => setEmailVisibility(true)}>
                 {user.email()}
               </span>
               <button

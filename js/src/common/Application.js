@@ -1,3 +1,5 @@
+import app from '../common/app';
+
 import ItemList from './utils/ItemList';
 import Button from './components/Button';
 import ModalManager from './components/ModalManager';
@@ -378,6 +380,10 @@ export default class Application {
           case 404:
           case 410:
             content = app.translator.trans('core.lib.error.not_found_message');
+            break;
+
+          case 413:
+            content = app.translator.trans('core.lib.error.payload_too_large_message');
             break;
 
           case 429:

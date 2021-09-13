@@ -148,13 +148,9 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     abstract protected function createElement($data, SerializerInterface $serializer);
 
     /**
-     * Eager loads the required relationships.
-     *
-     * @param Collection $models
-     * @param array $relations
-     * @return void
+     * Returns the relations to load added by extenders.
      */
-    protected function loadRelations(Collection $models, array $relations): void
+    protected function getRelationsToLoad(): array
     {
         $addedRelations = [];
 
@@ -163,6 +159,20 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
                 $addedRelations = array_merge($addedRelations, static::$loadRelations[$class]);
             }
         }
+
+        return $addedRelations;
+    }
+
+    /**
+     * Eager loads the required relationships.
+     *
+     * @param Collection $models
+     * @param array $relations
+     * @return void
+     */
+    protected function loadRelations(Collection $models, array $relations): void
+    {
+        $addedRelations = $this->getRelationsToLoad();
 
         if (! empty($addedRelations)) {
             usort($addedRelations, function ($a, $b) {

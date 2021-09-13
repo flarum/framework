@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Component from '../../common/Component';
 import LinkButton from '../../common/components/LinkButton';
 import SessionDropdown from './SessionDropdown';

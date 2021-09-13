@@ -9,7 +9,7 @@
  * - `targetPost`
  * - `onPositionChange`
  */
-export default class PostStream extends Component<import("../../common/Component").ComponentAttrs> {
+export default class PostStream extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     discussion: any;
     stream: any;

@@ -64,7 +64,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->get(
         '/confirm/{token}',
         'confirmEmail',
-        $route->toController(Controller\ConfirmEmailController::class)
+        $route->toController(Controller\ConfirmEmailViewController::class),
+    );
+
+    $map->post(
+        '/confirm/{token}',
+        'confirmEmail.submit',
+        $route->toController(Controller\ConfirmEmailController::class),
     );
 
     $map->get(
