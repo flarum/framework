@@ -77,6 +77,7 @@ class ForumSerializer extends AbstractSerializer
             'baseUrl' => $url = $this->url->to('forum')->base(),
             'basePath' => parse_url($url, PHP_URL_PATH) ?: '',
             'debug' => $this->config->inDebugMode(),
+            'bootExtensions' => $this->config->bootExtensions(),
             'apiUrl' => $this->url->to('api')->base(),
             'welcomeTitle' => $this->settings->get('welcome_title'),
             'welcomeMessage' => $this->settings->get('welcome_message'),

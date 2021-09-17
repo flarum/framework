@@ -11,6 +11,7 @@ namespace Flarum\Extension;
 
 use Flarum\Extension\Event\Disabling;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ExtensionServiceProvider extends AbstractServiceProvider
@@ -28,7 +29,12 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         // below, so that extensions have a chance to register things on the
         // container before the core boots up (and starts resolving services).
         $this->container['flarum']->booting(function () {
-            $this->container->make('flarum.extensions')->extend($this->container);
+            /** @var Config */
+            $config = $this->container->make(Config::class);
+            
+            if ($config->bootExtensions()) {
+                $this->container->make('flarum.extensions')->extend($this->container);
+            }
         });
     }
 
