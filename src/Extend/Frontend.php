@@ -34,7 +34,7 @@ class Frontend implements ExtenderInterface
     private $routes = [];
     private $removedRoutes = [];
     private $content = [];
-    private $preloads = [];
+    private $preloadArrs = [];
 
     /**
      * @param string $frontend: The name of the frontend.
@@ -154,7 +154,7 @@ class Frontend implements ExtenderInterface
      */
     public function preloads($preloads): self
     {
-        $this->preloads = array_merge($this->preloads, (array) $preloads);
+        $this->preloadArrs[] = $preloads;
 
         return $this;
     }
@@ -274,7 +274,7 @@ class Frontend implements ExtenderInterface
 
     private function registerPreloads(Container $container): void
     {
-        if (empty($this->preloads)) {
+        if (empty($this->preloadArrs)) {
             return;
         }
 
@@ -282,8 +282,8 @@ class Frontend implements ExtenderInterface
             "flarum.frontend.$this->frontend",
             function (ActualFrontend $frontend, Container $container) {
                 $frontend->content(function (Document $document) use ($container) {
-                    foreach ($this->preloads as $preloads) {
-                        $preloads = is_callable($preloads) ? ContainerUtil::wrapCallback($preloads, $container)($document) : $preloads;
+                    foreach ($this->preloadArrs as $preloadArr) {
+                        $preloads = is_callable($preloadArr) ? ContainerUtil::wrapCallback($preloadArr, $container)($document) : $preloadArr;
                         $document->preloads = array_merge($document->preloads, $preloads);
                     }
                 });
