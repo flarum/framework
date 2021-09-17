@@ -236,7 +236,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      */
     protected function extractOffset(ServerRequestInterface $request)
     {
-        return $this->buildParameters($request)->getOffset($this->extractLimit($request)) ?: 0;
+        return (int) $this->buildParameters($request)->getOffset($this->extractLimit($request)) ?: 0;
     }
 
     /**
@@ -245,7 +245,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      */
     protected function extractLimit(ServerRequestInterface $request)
     {
-        return $this->buildParameters($request)->getLimit($this->maxLimit) ?: $this->limit;
+        return (int) $this->buildParameters($request)->getLimit($this->maxLimit) ?: $this->limit;
     }
 
     /**
