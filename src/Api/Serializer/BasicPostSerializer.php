@@ -9,9 +9,12 @@
 
 namespace Flarum\Api\Serializer;
 
+use Exception;
+use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use InvalidArgumentException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BasicPostSerializer extends AbstractSerializer
 {
@@ -41,7 +44,14 @@ class BasicPostSerializer extends AbstractSerializer
         ];
 
         if ($post instanceof CommentPost) {
-            $attributes['contentHtml'] = $post->formatContent($this->request);
+            try {
+                $attributes['contentHtml'] = $post->formatContent($this->request);
+                $attributes['renderFailed'] = false;
+            } catch (Exception $e) {
+                $attributes['contentHtml'] = resolve(TranslatorInterface::class)->trans('core.lib.error.render_failed_message');
+                resolve(LogReporter::class)->report($e);
+                $attributes['renderFailed'] = true;
+            }
         } else {
             $attributes['content'] = $post->content;
         }

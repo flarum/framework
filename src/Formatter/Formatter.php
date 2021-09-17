@@ -107,19 +107,13 @@ class Formatter
      */
     public function render($xml, $context = null, ServerRequestInterface $request = null)
     {
-        try {
-            $renderer = $this->getRenderer();
+        $renderer = $this->getRenderer();
 
-            foreach ($this->renderingCallbacks as $callback) {
-                $xml = $callback($renderer, $context, $xml, $request);
-            }
-
-            return $renderer->render($xml);
-        } catch (Exception $e) {
-            resolve(LogReporter::class)->report($e);
-
-            return resolve(TranslatorInterface::class)->trans('core.lib.error.render_failed_message');
+        foreach ($this->renderingCallbacks as $callback) {
+            $xml = $callback($renderer, $context, $xml, $request);
         }
+
+        return $renderer->render($xml);
     }
 
     /**
