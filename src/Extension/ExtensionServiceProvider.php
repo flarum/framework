@@ -31,7 +31,7 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         $this->container['flarum']->booting(function () {
             /** @var Config */
             $config = $this->container->make(Config::class);
-            
+
             if ($config->bootExtensions()) {
                 $this->container->make('flarum.extensions')->extend($this->container);
             }

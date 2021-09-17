@@ -41,7 +41,7 @@ class Config implements ArrayAccess
     {
         return $this->data['offline'] ?? false;
     }
-    
+
     public function bootExtensions(): bool
     {
         return $this->data['boot_extensions'] ?? true;
