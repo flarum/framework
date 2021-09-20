@@ -18,7 +18,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
     return (
       <div className="ModalManager modal fade">
-        {modal &&
+        {!!modal &&
           modal.componentClass.component({
             ...modal.attrs,
             animateShow: this.animateShow.bind(this),
