@@ -130,3 +130,39 @@
     .offset();
   }
 }
+
+/** 
+ * This mixin allows support for a custom element nearby the focused one
+ * to have a focus style applied to it
+ *
+ * For example...
+ * 
+ *? button { .add-keyboard-focus-ring-nearby("+ .myOtherElement") }
+ * becomes
+ *? button:-moz-focusring + .myOtherElement { <styles> }
+ *? button:focus-within + .myOtherElement { <styles> }
+ */
+.add-keyboard-focus-ring-nearby-offset(@nearbySelector, @offset) {
+  @realNearbySelector: ~"@{nearbySelector}";
+
+  .offset() {
+    outline-offset: @offset;
+  }
+
+  // We need to declare these separately, otherwise
+  // browsers will ignore `:focus-visible` as they
+  // don't understand `:-moz-focusring`
+
+  // These are the keyboard-only versions of :focus
+  &:-moz-focusring {
+    @{realNearbySelector} {
+      .offset();
+    }
+  }
+
+  &:focus-visible {
+    @{realNearbySelector} {
+      .offset();
+    }
+  }
+}

@@ -103,14 +103,18 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
     const searchLabel = extractText(app.translator.trans('core.forum.header.search_placeholder'));
 
+    const isActive = !!currentSearch;
+    const shouldShowResults = !!(!this.loadingSources && this.state.getValue() && this.hasFocus);
+    const shouldShowClearButton = !!(!this.loadingSources && this.state.getValue());
+
     return (
       <div
         role="search"
-        className={classList({
-          Search: true,
+        aria-label={app.translator.trans('core.forum.header.search_role_label')}
+        className={classList('Search', {
           open: this.state.getValue() && this.hasFocus,
           focused: this.hasFocus,
-          active: !!currentSearch,
+          active: isActive,
           loading: !!this.loadingSources,
         })}
       >
@@ -125,18 +129,23 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
             onfocus={() => (this.hasFocus = true)}
             onblur={() => (this.hasFocus = false)}
           />
-          {this.loadingSources ? (
-            <LoadingIndicator size="small" display="inline" containerClassName="Button Button--icon Button--link" />
-          ) : currentSearch ? (
-            <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>
+          {!!this.loadingSources && <LoadingIndicator size="small" display="inline" containerClassName="Button Button--icon Button--link" />}
+          {shouldShowClearButton && (
+            <button
+              className="Search-clear Button Button--icon Button--link"
+              onclick={this.clear.bind(this)}
+              aria-label={app.translator.trans('core.forum.header.search_clear_button_accessible_label')}
+            >
               {icon('fas fa-times-circle')}
             </button>
-          ) : (
-            ''
           )}
         </div>
-        <ul className="Dropdown-menu Search-results">
-          {this.state.getValue() && this.hasFocus ? this.sources.map((source) => source.view(this.state.getValue())) : ''}
+        <ul
+          className="Dropdown-menu Search-results"
+          aria-hidden={!shouldShowResults || undefined}
+          aria-live={shouldShowResults ? 'polite' : undefined}
+        >
+          {shouldShowResults && this.sources.map((source) => source.view(this.state.getValue()))}
         </ul>
       </div>
     );
@@ -174,7 +183,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
     this.$('.Search-results')
       .on('mousedown', (e) => e.preventDefault())
-      .on('click', () => this.$('input').blur())
+      .on('click', () => this.$('input').trigger('blur'))
 
       // Whenever the mouse is hovered over a search result, highlight it.
       .on('mouseenter', '> li:not(.Dropdown-header)', function () {
@@ -223,7 +232,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
       .on('focus', function () {
         $(this)
           .one('mouseup', (e) => e.preventDefault())
-          .select();
+          .trigger('select');
       });
 
     this.updateMaxHeightHandler = this.updateMaxHeight.bind(this);
