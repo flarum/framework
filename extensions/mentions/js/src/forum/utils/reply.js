@@ -1,10 +1,10 @@
-import DiscussionControls from 'flarum/utils/DiscussionControls';
-import EditPostComposer from 'flarum/components/EditPostComposer';
-import cleanDisplayName from './cleanDisplayName';
+import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
+import EditPostComposer from 'flarum/forum/components/EditPostComposer';
+import getMentionText from './getMentionText';
 
 function insertMention(post, composer, quote) {
   const user = post.user();
-  const mention = `@"${(user && cleanDisplayName(user)) || app.translator.trans('core.lib.username.deleted_text')}"#p${post.id()} `;
+  const mention = getMentionText(user, post.id());
 
   // If the composer is empty, then assume we're starting a new reply.
   // In which case we don't want the user to have to confirm if they
@@ -19,9 +19,7 @@ function insertMention(post, composer, quote) {
 
   composer.editor.insertAtCursor(
     Array(precedingNewlines).join('\n') + // Insert up to two newlines, depending on preceding whitespace
-    (quote
-      ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n'
-      : mention),
+      (quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention),
     false
   );
 }
@@ -35,7 +33,6 @@ export default function reply(post, quote) {
     // The default "Reply" action behavior will only open a new composer if
     // necessary, but it will always be a ReplyComposer, hence the exceptional
     // case above.
-    DiscussionControls.replyAction.call(post.discussion())
-      .then(composer => insertMention(post, composer, quote));
+    DiscussionControls.replyAction.call(post.discussion()).then((composer) => insertMention(post, composer, quote));
   }
 }

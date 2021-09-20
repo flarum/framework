@@ -1,12 +1,12 @@
-import { extend } from 'flarum/extend';
-import Model from 'flarum/Model';
-import Post from 'flarum/models/Post';
-import CommentPost from 'flarum/components/CommentPost';
-import Link from 'flarum/components/Link';
-import PostPreview from 'flarum/components/PostPreview';
-import punctuateSeries from 'flarum/helpers/punctuateSeries';
-import username from 'flarum/helpers/username';
-import icon from 'flarum/helpers/icon';
+import { extend } from 'flarum/common/extend';
+import Model from 'flarum/common/Model';
+import Post from 'flarum/common/models/Post';
+import CommentPost from 'flarum/forum/components/CommentPost';
+import Link from 'flarum/common/components/Link';
+import PostPreview from 'flarum/forum/components/PostPreview';
+import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
+import username from 'flarum/common/helpers/username';
+import icon from 'flarum/common/helpers/icon';
 
 export default function addMentionedByList() {
   Post.prototype.mentionedBy = Model.hasMany('mentionedBy');
@@ -14,10 +14,12 @@ export default function addMentionedByList() {
   function hidePreview() {
     this.$('.Post-mentionedBy-preview')
       .removeClass('in')
-      .one('transitionend', function() { $(this).hide(); });
+      .one('transitionend', function () {
+        $(this).hide();
+      });
   }
 
-  extend(CommentPost.prototype, 'oncreate', function() {
+  extend(CommentPost.prototype, 'oncreate', function () {
     let timeout;
     const post = this.attrs.post;
     const replies = post.mentionedBy();
@@ -35,22 +37,26 @@ export default function addMentionedByList() {
         // When the user hovers their mouse over the list of people who have
         // replied to the post, render a list of reply previews into a
         // popup.
-        m.render($preview[0], replies.map(reply => (
-          <li data-number={reply.number()}>
-            {PostPreview.component({
-              post: reply,
-              onclick: hidePreview.bind(this)
-            })}
-          </li>
-        )));
+        m.render(
+          $preview[0],
+          replies.map((reply) => (
+            <li data-number={reply.number()}>
+              {PostPreview.component({
+                post: reply,
+                onclick: hidePreview.bind(this),
+              })}
+            </li>
+          ))
+        );
 
-        $preview.show()
+        $preview
+          .show()
           .css('top', $this.offset().top - $parentPost.offset().top + $this.outerHeight(true))
           .css('left', $this.offsetParent().offset().left - $parentPost.offset().left)
           .css('max-width', $parentPost.width());
 
         setTimeout(() => $preview.off('transitionend').addClass('in'));
-      }
+      };
 
       $this.add($preview).hover(
         () => {
@@ -66,23 +72,28 @@ export default function addMentionedByList() {
       // Whenever the user hovers their mouse over a particular name in the
       // list of repliers, highlight the corresponding post in the preview
       // popup.
-      this.$().find('.Post-mentionedBy-summary a').hover(function() {
-        $preview.find('[data-number="' + $(this).data('number') + '"]').addClass('active');
-      }, function() {
-        $preview.find('[data-number]').removeClass('active');
-      });
+      this.$()
+        .find('.Post-mentionedBy-summary a')
+        .hover(
+          function () {
+            $preview.find('[data-number="' + $(this).data('number') + '"]').addClass('active');
+          },
+          function () {
+            $preview.find('[data-number]').removeClass('active');
+          }
+        );
     }
   });
 
-  extend(CommentPost.prototype, 'footerItems', function(items) {
+  extend(CommentPost.prototype, 'footerItems', function (items) {
     const post = this.attrs.post;
     const replies = post.mentionedBy();
 
     if (replies && replies.length) {
       const users = [];
       const repliers = replies
-        .sort(reply => reply.user() === app.session.user ? -1 : 0)
-        .filter(reply => {
+        .sort((reply) => (reply.user() === app.session.user ? -1 : 0))
+        .filter((reply) => {
           const user = reply.user();
           if (users.indexOf(user) === -1) {
             users.push(user);
@@ -95,19 +106,15 @@ export default function addMentionedByList() {
 
       // Create a list of unique users who have replied. So even if a user has
       // replied twice, they will only be in this array once.
-      const names = repliers
-        .slice(0, overLimit ? limit - 1 : limit)
-        .map(reply => {
-          const user = reply.user();
+      const names = repliers.slice(0, overLimit ? limit - 1 : limit).map((reply) => {
+        const user = reply.user();
 
-          return (
-            <Link href={app.route.post(reply)}
-               onclick={hidePreview.bind(this)}
-               data-number={reply.number()}>
-              {app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)}
-            </Link>
-          );
-        });
+        return (
+          <Link href={app.route.post(reply)} onclick={hidePreview.bind(this)} data-number={reply.number()}>
+            {app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)}
+          </Link>
+        );
+      });
 
       // If there are more users that we've run out of room to display, add a "x
       // others" name to the end of the list. Clicking on it will display a modal
@@ -115,18 +122,17 @@ export default function addMentionedByList() {
       if (overLimit) {
         const count = repliers.length - names.length;
 
-        names.push(
-          app.translator.trans('flarum-mentions.forum.post.others_text', {count})
-        );
+        names.push(app.translator.trans('flarum-mentions.forum.post.others_text', { count }));
       }
 
-      items.add('replies',
+      items.add(
+        'replies',
         <div className="Post-mentionedBy">
           <span className="Post-mentionedBy-summary">
             {icon('fas fa-reply')}
             {app.translator.trans('flarum-mentions.forum.post.mentioned_by' + (repliers[0].user() === app.session.user ? '_self' : '') + '_text', {
               count: names.length,
-              users: punctuateSeries(names)
+              users: punctuateSeries(names),
             })}
           </span>
         </div>
