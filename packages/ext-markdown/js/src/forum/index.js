@@ -21,12 +21,14 @@ const styles = {
   'header': { prefix: '### ' },
   'bold': { prefix: '**', suffix: '**', trimFirst: true },
   'italic': { prefix: '_', suffix: '_', trimFirst: true },
+  'strikethrough': { prefix: '~~', suffix: '~~', trimFirst: true },
   'quote': { prefix: '> ', multiline: true, surroundWithNewlines: true },
   'code': { prefix: '`', suffix: '`', blockPrefix: '```', blockSuffix: '```' },
   'link': { prefix: '[', suffix: '](https://)', replaceNext: 'https://', scanFor: 'https?://' },
   'image': { prefix: '![', suffix: '](https://)', replaceNext: 'https://', scanFor: 'https?://' },
   'unordered_list': { prefix: '- ', multiline: true, surroundWithNewlines: true },
-  'ordered_list': { prefix: '1. ', multiline: true, orderedList: true }
+  'ordered_list': { prefix: '1. ', multiline: true, orderedList: true },
+  'spoiler': { prefix: '>!', suffix: '!<', blockPrefix: '>! ', multiline: true, trimFirst: true }
 }
 
 const applyStyle = (id) => {
@@ -64,7 +66,9 @@ app.initializers.add('flarum-markdown', function (app) {
         <MarkdownButton title={tooltip('header')} icon="fas fa-heading" onclick={makeApplyStyle('header')} />
         <MarkdownButton title={tooltip('bold', 'b')} icon="fas fa-bold" onclick={makeApplyStyle('bold')}  />
         <MarkdownButton title={tooltip('italic', 'i')} icon="fas fa-italic" onclick={makeApplyStyle('italic')}  />
+        <MarkdownButton title={tooltip('strikethrough')} icon="fas fa-strikethrough" onclick={makeApplyStyle('strikethrough')}  />
         <MarkdownButton title={tooltip('quote')} icon="fas fa-quote-left" onclick={makeApplyStyle('quote')} />
+        <MarkdownButton title={tooltip('spoiler')} icon="fas fa-exclamation-triangle" onclick={makeApplyStyle('spoiler')} />
         <MarkdownButton title={tooltip('code')} icon="fas fa-code" onclick={makeApplyStyle('code')} />
         <MarkdownButton title={tooltip('link')} icon="fas fa-link" onclick={makeApplyStyle('link')} />
         <MarkdownButton title={tooltip('image')} icon="fas fa-image" onclick={makeApplyStyle('image')} />

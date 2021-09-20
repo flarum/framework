@@ -9,4 +9,6 @@ flarum-markdown:
       link_tooltip: Add a link
       ordered_list_tooltip: Add a numbered list
       quote_tooltip: Insert a quote
+      spoiler_tooltip: Insert a spoiler
+      strikethrough_tooltip: Add strikethrough text
       unordered_list_tooltip: Add a bulleted list
