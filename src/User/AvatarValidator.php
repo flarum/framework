@@ -30,8 +30,18 @@ class AvatarValidator extends AbstractValidator
 
     protected function assertFileRequired(UploadedFileInterface $file)
     {
-        if ($file->getError() !== UPLOAD_ERR_OK) {
-            $this->raise('required');
+        $error = $file->getError();
+
+        if ($error !== UPLOAD_ERR_OK) {
+            if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+                $this->raise('file_too_large');
+            }
+
+            if ($error === UPLOAD_ERR_NO_FILE) {
+                $this->raise('required');
+            }
+
+            $this->raise('file_upload_failed');
         }
     }
 

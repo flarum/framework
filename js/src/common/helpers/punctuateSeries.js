@@ -1,3 +1,5 @@
+import app from '../../common/app';
+
 /**
  * The `punctuateSeries` helper formats a list of strings (e.g. names) to read
  * fluently in the application's locale.

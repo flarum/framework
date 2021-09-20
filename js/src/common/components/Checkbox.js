@@ -33,7 +33,9 @@ export default class Checkbox extends Component {
     return (
       <label className={className}>
         <input type="checkbox" checked={this.attrs.state} disabled={this.attrs.disabled} onchange={withAttr('checked', this.onchange.bind(this))} />
-        <div className="Checkbox-display">{this.getDisplay()}</div>
+        <div className="Checkbox-display" aria-hidden="true">
+          {this.getDisplay()}
+        </div>
         {vnode.children}
       </label>
     );

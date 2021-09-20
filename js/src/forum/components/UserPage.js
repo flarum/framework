@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Page from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import UserCard from './UserCard';

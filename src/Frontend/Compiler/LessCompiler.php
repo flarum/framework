@@ -10,6 +10,8 @@
 namespace Flarum\Frontend\Compiler;
 
 use Flarum\Frontend\Compiler\Source\FileSource;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Less_Parser;
 
 /**
@@ -26,6 +28,16 @@ class LessCompiler extends RevisionCompiler
      * @var array
      */
     protected $importDirs = [];
+
+    /**
+     * @var Collection
+     */
+    protected $lessImportOverrides;
+
+    /**
+     * @var Collection
+     */
+    protected $fileSourceOverrides;
 
     public function getCacheDir(): string
     {
@@ -47,6 +59,16 @@ class LessCompiler extends RevisionCompiler
         $this->importDirs = $importDirs;
     }
 
+    public function setLessImportOverrides(array $lessImportOverrides)
+    {
+        $this->lessImportOverrides = new Collection($lessImportOverrides);
+    }
+
+    public function setFileSourceOverrides(array $fileSourceOverrides)
+    {
+        $this->fileSourceOverrides = new Collection($fileSourceOverrides);
+    }
+
     /**
      * @throws \Less_Exception_Parser
      */
@@ -61,8 +83,13 @@ class LessCompiler extends RevisionCompiler
         $parser = new Less_Parser([
             'compress' => true,
             'cache_dir' => $this->cacheDir,
-            'import_dirs' => $this->importDirs
+            'import_dirs' => $this->importDirs,
+            'import_callback' => $this->lessImportOverrides ? $this->overrideImports($sources) : null,
         ]);
+
+        if ($this->fileSourceOverrides) {
+            $sources = $this->overrideSources($sources);
+        }
 
         foreach ($sources as $source) {
             if ($source instanceof FileSource) {
@@ -73,6 +100,54 @@ class LessCompiler extends RevisionCompiler
         }
 
         return $parser->getCss();
+    }
+
+    protected function overrideSources(array $sources): array
+    {
+        foreach ($sources as $source) {
+            if ($source instanceof FileSource) {
+                $basename = basename($source->getPath());
+                $override = $this->fileSourceOverrides
+                    ->where('file', $basename)
+                    ->firstWhere('extensionId', $source->getExtensionId());
+
+                if ($override) {
+                    $source->setPath($override['newFilePath']);
+                }
+            }
+        }
+
+        return $sources;
+    }
+
+    protected function overrideImports(array $sources): callable
+    {
+        $baseSources = (new Collection($sources))->filter(function ($source) {
+            return $source instanceof Source\FileSource;
+        })->map(function (FileSource $source) {
+            $path = realpath($source->getPath());
+            $path = Str::beforeLast($path, '/less/');
+
+            return [
+                'path' => $path,
+                'extensionId' => $source->getExtensionId(),
+            ];
+        })->unique('path');
+
+        return function ($evald) use ($baseSources): ?array {
+            $relativeImportPath = Str::of($evald->PathAndUri()[0])->split('/\/less\//');
+            $extensionId = $baseSources->where('path', $relativeImportPath->first())->pluck('extensionId')->first();
+
+            $overrideImport = $this->lessImportOverrides
+                ->where('file', $relativeImportPath->last())
+                ->firstWhere('extensionId', $extensionId);
+
+            if (! $overrideImport) {
+                return null;
+            }
+
+            return [$overrideImport['newFilePath'], $evald->PathAndUri()[1]];
+        };
     }
 
     protected function getCacheDifferentiator(): ?array

@@ -7,7 +7,7 @@
  * - `discussion`
  * - `params`
  */
-export default class DiscussionListItem extends Component<import("../../common/Component").ComponentAttrs> {
+export default class DiscussionListItem extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     /**
      * Set up a subtree retainer so that the discussion will not be redrawn

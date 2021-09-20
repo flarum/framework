@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import PermissionGrid from './PermissionGrid';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';

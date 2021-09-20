@@ -1,3 +1,4 @@
+import app from '../../common/app';
 import Component from '../Component';
 import Button from './Button';
 import LinkButton from './LinkButton';

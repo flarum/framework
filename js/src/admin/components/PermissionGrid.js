@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Component from '../../common/Component';
 import PermissionDropdown from './PermissionDropdown';
 import SettingDropdown from './SettingDropdown';
@@ -17,7 +18,7 @@ export default class PermissionGrid extends Component {
       <table className="PermissionGrid">
         <thead>
           <tr>
-            <td></td>
+            <th></th>
             {scopes.map((scope) => (
               <th>
                 {scope.label}{' '}

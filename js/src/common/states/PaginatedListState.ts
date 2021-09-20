@@ -1,3 +1,4 @@
+import app from '../../common/app';
 import Model from '../Model';
 
 export interface Page<TModel> {
@@ -91,7 +92,10 @@ export default abstract class PaginatedListState<T extends Model> {
    */
   protected loadPage(page = 1): Promise<T[]> {
     const params = this.requestParams();
-    params.page = { offset: this.pageSize * (page - 1) };
+    params.page = {
+      offset: this.pageSize * (page - 1),
+      ...params.page,
+    };
 
     if (Array.isArray(params.include)) {
       params.include = params.include.join(',');

@@ -3,7 +3,7 @@
  * the search box and the user menu. On the default skin, these are shown on the
  * right side of the header.
  */
-export default class HeaderSecondary extends Component<import("../../common/Component").ComponentAttrs> {
+export default class HeaderSecondary extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     /**
      * Build an item list for the controls.

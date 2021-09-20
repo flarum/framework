@@ -1,4 +1,4 @@
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * The `icon` helper displays an icon.
@@ -9,5 +9,5 @@ import * as Mithril from 'mithril';
 export default function icon(fontClass: string, attrs: Mithril.Attributes = {}): Mithril.Vnode {
   attrs.className = 'icon ' + fontClass + ' ' + (attrs.className || '');
 
-  return <i {...attrs} />;
+  return <i aria-hidden="true" {...attrs} />;
 }

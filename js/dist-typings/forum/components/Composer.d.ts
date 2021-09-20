@@ -3,14 +3,8 @@
  * content component with `load` and then its position/state can be altered with
  * `show`, `hide`, `close`, `minimize`, `fullScreen`, and `exitFullScreen`.
  */
-export default class Composer extends Component<import("../../common/Component").ComponentAttrs> {
+export default class Composer extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
-    /**
-     * The composer's "state".
-     *
-     * @type {ComposerState}
-     */
-    state: ComposerState | undefined;
     /**
      * Whether or not the composer currently has focus.
      *
@@ -108,5 +102,4 @@ export default class Composer extends Component<import("../../common/Component")
     changeHeight(height: any): void;
 }
 import Component from "../../common/Component";
-import ComposerState from "../states/ComposerState";
 import ItemList from "../../common/utils/ItemList";

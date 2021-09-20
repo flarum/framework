@@ -11,7 +11,7 @@
  * - `disabled`
  * - `preview`
  */
-export default class TextEditor extends Component<import("../Component").ComponentAttrs> {
+export default class TextEditor extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
     /**
      * The value of the editor.

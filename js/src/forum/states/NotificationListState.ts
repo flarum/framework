@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import PaginatedListState from '../../common/states/PaginatedListState';
 import Notification from '../../common/models/Notification';
 

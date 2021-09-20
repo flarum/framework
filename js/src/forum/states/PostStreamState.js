@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import { throttle } from 'throttle-debounce';
 import anchorScroll from '../../common/utils/anchorScroll';
 

@@ -1,3 +1,5 @@
+import app from '../../admin/app';
+
 export default function getCategorizedExtensions() {
   let extensions = {};
 

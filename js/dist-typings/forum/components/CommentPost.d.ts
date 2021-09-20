@@ -24,7 +24,7 @@ export default class CommentPost extends Post {
     cardVisible: boolean | undefined;
     refreshContent(): void;
     contentHtml: any;
-    isEditing(): any;
+    isEditing(): boolean;
     /**
      * Toggle the visibility of a hidden post's content.
      */

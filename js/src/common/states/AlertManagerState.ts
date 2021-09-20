@@ -1,4 +1,4 @@
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 import Alert, { AlertAttrs } from '../components/Alert';
 
 /**
