@@ -32,7 +32,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 );
 
                 $assets->setLessImportDirs([
-                    $paths->vendor.'/components/font-awesome/less' => ''
+                    $paths->vendor . '/components/font-awesome/less' => ''
                 ]);
 
                 $assets->css([$this, 'addBaseCss']);
@@ -47,7 +47,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend = $container->make(Frontend::class);
 
                 $frontend->content(function (Document $document) use ($name) {
-                    $document->layoutView = 'flarum::frontend.'.$name;
+                    $document->layoutView = 'flarum::frontend.' . $name;
                 });
 
                 $frontend->content($container->make(Content\Assets::class)->forFrontend($name));
@@ -55,21 +55,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content($container->make(Content\Meta::class));
 
                 $frontend->content(function (Document $document) use ($container) {
-                    $filesystem = $container->make('filesystem')->disk('flarum-assets');
-
-                    $fontawesome_preloads = [
-                        [
-                            'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
-                            'as' => 'font',
-                            'type' => 'font/woff2',
-                            'crossorigin' => ''
-                        ], [
-                            'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
-                            'as' => 'font',
-                            'type' => 'font/woff2',
-                            'crossorigin' => ''
-                        ]
-                    ];
+                    $default_preloads = $container->make('flarum.frontend.default_preloads');
 
                     // Add preloads for base CSS and JS assets. Extensions should add their own via the extender.
                     $js_preloads = [];
@@ -91,7 +77,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $document->preloads = array_merge(
                         $css_preloads,
                         $js_preloads,
-                        $fontawesome_preloads,
+                        $default_preloads,
                         $document->preloads,
                     );
                 });
@@ -99,6 +85,27 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 return $frontend;
             };
         });
+
+        $this->container->singleton(
+            'flarum.frontend.default_preloads',
+            function (Container $container) {
+                $filesystem = $container->make('filesystem')->disk('flarum-assets');
+
+                return [
+                    [
+                        'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
+                        'as' => 'font',
+                        'type' => 'font/woff2',
+                        'crossorigin' => ''
+                    ], [
+                        'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
+                        'as' => 'font',
+                        'type' => 'font/woff2',
+                        'crossorigin' => ''
+                    ]
+                ];
+            }
+        );
     }
 
     /**
@@ -106,7 +113,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
      */
     public function boot(Container $container, ViewFactory $views)
     {
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
+        $this->loadViewsFrom(__DIR__ . '/../../views', 'flarum');
 
         $views->share([
             'translator' => $container->make('translator'),
@@ -116,8 +123,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
     public function addBaseCss(SourceCollector $sources)
     {
-        $sources->addFile(__DIR__.'/../../less/common/variables.less');
-        $sources->addFile(__DIR__.'/../../less/common/mixins.less');
+        $sources->addFile(__DIR__ . '/../../less/common/variables.less');
+        $sources->addFile(__DIR__ . '/../../less/common/mixins.less');
 
         $this->addLessVariables($sources);
     }
@@ -135,7 +142,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
             ];
 
             return array_reduce(array_keys($vars), function ($string, $name) use ($vars) {
-                return $string."@$name: {$vars[$name]};";
+                return $string . "@$name: {$vars[$name]};";
             }, '');
         });
     }
