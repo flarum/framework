@@ -12,7 +12,7 @@ namespace Flarum\Tags\Api\Controller;
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Http\RequestUtil;
 use Flarum\Tags\Api\Serializer\TagSerializer;
-use Flarum\Tags\Tag;
+use Flarum\Tags\TagRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -40,14 +40,11 @@ class ListTagsController extends AbstractListController
     ];
 
     /**
-     * @var \Flarum\Tags\Tag
+     * @var TagRepository
      */
     protected $tags;
 
-    /**
-     * @param \Flarum\Tags\Tag $tags
-     */
-    public function __construct(Tag $tags)
+    public function __construct(TagRepository $tags)
     {
         $this->tags = $tags;
     }
@@ -64,8 +61,10 @@ class ListTagsController extends AbstractListController
             $include = array_merge($include, ['lastPostedDiscussion.tags', 'lastPostedDiscussion.state']);
         }
 
-        $tags = $this->tags->whereVisibleTo($actor)->withStateFor($actor)->get();
-
-        return $tags->load($include);
+        return $this->tags
+            ->with($include, $actor)
+            ->whereVisibleTo($actor)
+            ->withStateFor($actor)
+            ->get();
     }
 }
