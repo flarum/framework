@@ -54,9 +54,58 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content($container->make(Content\CorePayload::class));
                 $frontend->content($container->make(Content\Meta::class));
 
+                $frontend->content(function (Document $document) use ($container) {
+                    $default_preloads = $container->make('flarum.frontend.default_preloads');
+
+                    // Add preloads for base CSS and JS assets. Extensions should add their own via the extender.
+                    $js_preloads = [];
+                    $css_preloads = [];
+
+                    foreach ($document->css as $url) {
+                        $css_preloads[] = [
+                            'href' => $url,
+                            'as' => 'style'
+                        ];
+                    }
+                    foreach ($document->js as $url) {
+                        $css_preloads[] = [
+                            'href' => $url,
+                            'as' => 'script'
+                        ];
+                    }
+
+                    $document->preloads = array_merge(
+                        $css_preloads,
+                        $js_preloads,
+                        $default_preloads,
+                        $document->preloads,
+                    );
+                });
+
                 return $frontend;
             };
         });
+
+        $this->container->singleton(
+            'flarum.frontend.default_preloads',
+            function (Container $container) {
+                $filesystem = $container->make('filesystem')->disk('flarum-assets');
+
+                return [
+                    [
+                        'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
+                        'as' => 'font',
+                        'type' => 'font/woff2',
+                        'crossorigin' => ''
+                    ], [
+                        'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
+                        'as' => 'font',
+                        'type' => 'font/woff2',
+                        'crossorigin' => ''
+                    ]
+                ];
+            }
+        );
     }
 
     /**
