@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TagRepository
 {
+    private const TAG_RELATIONS = ['children', 'parent'];
+
     /**
      * Get a new query builder for the tags table.
      *
@@ -22,6 +24,28 @@ class TagRepository
     public function query()
     {
         return Tag::query();
+    }
+
+    /**
+     * @param array|string $relations
+     * @param User $actor
+     * @return Builder
+     */
+    public function with($relations, User $actor): Builder
+    {
+        $relationsArray = is_string($relations) ? explode(',', $relations) : $relations;
+
+        foreach (self::TAG_RELATIONS as $relation) {
+            if (in_array($relation, $relationsArray, true)) {
+                $relationsArray = array_diff($relationsArray, [$relation]);
+
+                $relationsArray[$relation] = function ($query) use ($actor) {
+                    $query->whereVisibleTo($actor);
+                };
+            }
+        }
+
+        return $this->query()->with($relationsArray);
     }
 
     /**

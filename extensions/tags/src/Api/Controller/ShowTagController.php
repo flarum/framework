@@ -12,7 +12,7 @@ namespace Flarum\Tags\Api\Controller;
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Http\RequestUtil;
 use Flarum\Tags\Api\Serializer\TagSerializer;
-use Flarum\Tags\Tag;
+use Flarum\Tags\TagRepository;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -32,11 +32,11 @@ class ShowTagController extends AbstractShowController
     ];
 
     /**
-     * @var Tag
+     * @var TagRepository
      */
     private $tags;
 
-    public function __construct(Tag $tags)
+    public function __construct(TagRepository $tags)
     {
         $this->tags = $tags;
     }
@@ -51,8 +51,8 @@ class ShowTagController extends AbstractShowController
         $include = $this->extractInclude($request);
 
         return $this->tags
+            ->with($include, $actor)
             ->whereVisibleTo($actor)
-            ->with($include)
             ->where('slug', $slug)
             ->firstOrFail();
     }

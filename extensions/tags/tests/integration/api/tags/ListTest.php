@@ -85,6 +85,33 @@ class ListTest extends TestCase
     /**
      * @test
      */
+    public function user_sees_where_allowed_with_included_tags()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/tags', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams([
+                'include' => 'children'
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $responseBody = json_decode($response->getBody()->getContents(), true);
+
+        $data = $responseBody['data'];
+        $included = $responseBody['included'];
+
+        // 5 isnt included because parent access doesnt necessarily give child access
+        // 6, 7, 8 aren't included because child access shouldnt work unless parent
+        // access is also given.
+        $this->assertEquals(['1', '2', '3', '4', '9', '10', '11'], Arr::pluck($data, 'id'));
+        $this->assertEquals(['3', '4'], Arr::pluck($included, 'id'));
+    }
+
+    /**
+     * @test
+     */
     public function guest_cant_see_restricted_or_children_of_restricted()
     {
         $response = $this->send(
