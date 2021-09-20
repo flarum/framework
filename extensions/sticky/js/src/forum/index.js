@@ -19,4 +19,3 @@ app.initializers.add('flarum-sticky', () => {
   addStickyExcerpt();
   addStickyClass();
 });
-
