@@ -44,15 +44,31 @@ class GlobalPolicy extends AbstractPolicy
 
         if (in_array($ability, ['viewForum', 'startDiscussion'])) {
             if (! isset($enoughPrimary[$actor->id][$ability])) {
-                $enoughPrimary[$actor->id][$ability] = Tag::whereHasPermission($actor, $ability)
+                $primaryTagsWhereNeedsPermission = $this->settings->get('flarum-tags.min_primary_tags');
+                $primaryTagsWhereHasPermission = Tag::whereHasPermission($actor, $ability)
                     ->where('tags.position', '!=', null)
-                    ->count() >= $this->settings->get('flarum-tags.min_primary_tags');
+                    ->count();
+
+                if ($ability === 'viewForum') {
+                    $primaryTagsCount = Tag::query()->where('position', '!=', null)->count();
+                    $enoughPrimary[$actor->id][$ability] = $primaryTagsWhereHasPermission >= min($primaryTagsCount, $primaryTagsWhereNeedsPermission);
+                } else {
+                    $enoughPrimary[$actor->id][$ability] = $primaryTagsWhereHasPermission >= $primaryTagsWhereNeedsPermission;
+                }
             }
 
             if (! isset($enoughSecondary[$actor->id][$ability])) {
-                $enoughSecondary[$actor->id][$ability] = Tag::whereHasPermission($actor, $ability)
+                $secondaryTagsWhereNeedsPermission = $this->settings->get('flarum-tags.min_secondary_tags');
+                $secondaryTagsWhereHasPermission = Tag::whereHasPermission($actor, $ability)
                     ->where('tags.position', '=', null)
-                    ->count() >= $this->settings->get('flarum-tags.min_secondary_tags');
+                    ->count();
+
+                if ($ability === 'viewForum') {
+                    $secondaryTagsCount = Tag::query()->where(['position' => null, 'parent_id' => null])->count();
+                    $enoughSecondary[$actor->id][$ability] = $secondaryTagsWhereHasPermission >= min($secondaryTagsCount, $secondaryTagsWhereNeedsPermission);
+                } else {
+                    $enoughSecondary[$actor->id][$ability] = $secondaryTagsWhereHasPermission >= $secondaryTagsWhereNeedsPermission;
+                }
             }
 
             if ($enoughPrimary[$actor->id][$ability] && $enoughSecondary[$actor->id][$ability]) {
