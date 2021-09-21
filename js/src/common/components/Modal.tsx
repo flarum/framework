@@ -6,6 +6,7 @@ import type Mithril from 'mithril';
 import type ModalManagerState from '../states/ModalManagerState';
 import type RequestError from '../utils/RequestError';
 import type ModalManager from './ModalManager';
+import fireDebugWarning from '../helpers/fireDebugWarning';
 
 interface IInternalModalAttrs {
   state: ModalManagerState;
@@ -29,6 +30,31 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
    * Attributes for an alert component to show below the header.
    */
   alertAttrs!: AlertAttrs;
+
+  oninit(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>) {
+    super.oninit(vnode);
+
+    // TODO: [Flarum 2.0] Remove the code below.
+    // This code prevents extensions which do not implement all abstract methods of this class from breaking
+    // the forum frontend. Without it, function calls would would error rather than returning `undefined.`
+
+    const missingMethods: string[] = [];
+
+    ['className', 'title', 'content', 'onsubmit'].forEach((method) => {
+      if (!(this as any)[method]) {
+        (this as any)[method] = function (): void {};
+        missingMethods.push(method);
+      }
+    });
+
+    if (missingMethods.length > 0) {
+      fireDebugWarning(
+        `Modal \`${this.constructor.name}\` does not implement all abstract methods of the Modal super class. Missing methods: ${missingMethods.join(
+          ', '
+        )}.`
+      );
+    }
+  }
 
   oncreate(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>) {
     super.oncreate(vnode);
