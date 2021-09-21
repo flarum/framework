@@ -17,7 +17,7 @@ interface IInternalModalAttrs {
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
  * should implement the `className`, `title`, and `content` methods.
  */
-export default abstract class Modal<ModalAttrs extends Record<string, unknown> = {}> extends Component<ModalAttrs & IInternalModalAttrs> {
+export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttrs & IInternalModalAttrs> {
   /**
    * Determine whether or not the modal should be dismissible via an 'x' button.
    */
