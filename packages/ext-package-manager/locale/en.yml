@@ -7,3 +7,11 @@ sycho-package-manager:
       successful_install: "{extension} was installed successfully, redirecting.."
       successful_remove: Extension removed successfully.
 
+    failure_modal:
+      title: Operation Failed
+      guessed_cause:
+        extension_incompatible_with_instance: The extension is most likely incompatible with your current Flarum instance.
+      show_composer_output: Show Advanced Details
+
+    file_permissions: >
+      The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage/.composer

@@ -3,6 +3,9 @@
 namespace SychO\PackageManager\Api\Controller;
 
 use Flarum\Bus\Dispatcher;
+use Laminas\Diactoros\Response\JsonResponse;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use SychO\PackageManager\Api\Serializer\ExtensionSerializer;
 use SychO\PackageManager\Command\RequireExtension;
 use SychO\PackageManager\Extension\ExtensionUtils;
@@ -12,10 +15,8 @@ use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class RequireExtensionController extends AbstractCreateController
+class RequireExtensionController implements RequestHandlerInterface
 {
-    public $serializer = ExtensionSerializer::class;
-
     /**
      * @var Dispatcher
      */
@@ -26,13 +27,15 @@ class RequireExtensionController extends AbstractCreateController
         $this->bus = $bus;
     }
 
-    protected function data(ServerRequestInterface $request, Document $document)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
         $package = Arr::get($request->getParsedBody(), 'data.package');
 
-        return $this->bus->dispatch(
+        $data = $this->bus->dispatch(
             new RequireExtension($actor, $package)
         );
+
+        return new JsonResponse($data);
     }
 }

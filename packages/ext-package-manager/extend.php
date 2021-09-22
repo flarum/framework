@@ -8,7 +8,9 @@ namespace SychO\PackageManager;
 
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
-use Illuminate\Console\Scheduling\Event;
+use Flarum\Frontend\Document;
+use SychO\PackageManager\Exception\ComposerCommandFailedExceptionHandler;
+use SychO\PackageManager\Exception\ComposerRequireFailedException;
 
 return [
     (new Extend\Routes('api'))
@@ -18,10 +20,21 @@ return [
 
     (new Extend\Frontend('admin'))
         ->css(__DIR__ . '/less/admin.less')
-        ->js(__DIR__ . '/js/dist/admin.js'),
+        ->js(__DIR__ . '/js/dist/admin.js')
+        ->content(function (Document $document) {
+            $paths = resolve(Paths::class);
+
+            $document->payload['isRequiredDirectoriesWritable'] = is_writable($paths->vendor)
+                && is_writable($paths->storage.'/.composer')
+                && is_writable($paths->base.'/composer.json')
+                && is_writable($paths->base.'/composer.lock');
+        }),
 
     new Extend\Locales(__DIR__ . '/locale'),
 
     (new Extend\ServiceProvider)
         ->register(PackageManagerServiceProvider::class),
+
+    (new Extend\ErrorHandling)
+        ->handler(ComposerRequireFailedException::class, ComposerCommandFailedExceptionHandler::class),
 ];

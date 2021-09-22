@@ -4,6 +4,7 @@ import Component from 'flarum/common/Component';
 import Button from "flarum/common/components/Button";
 import Stream from "flarum/common/utils/Stream";
 import LoadingModal from "flarum/admin/components/LoadingModal";
+import ComposerFailureModal from "./ComposerFailureModal";
 
 export default class Installer extends Component {
   packageName!: Stream<string>;
@@ -47,6 +48,15 @@ export default class Installer extends Component {
       url: `${app.forum.attribute('apiUrl')}/package-manager/extensions`,
       body: {
         data: this.data()
+      },
+      errorHandler: (e: any) => {
+        const error = e.response.errors[0];
+
+        if (error.code !== 'composer_command_failure') {
+          throw e;
+        }
+
+        app.modal.show(ComposerFailureModal, { error });
       },
     }).then((response) => {
       const extensionId = response.data.attributes.id;
