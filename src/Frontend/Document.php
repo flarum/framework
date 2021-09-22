@@ -97,19 +97,19 @@ class Document implements Renderable
 
     /**
      * Which page of content are we on?
-     * 
+     *
      * This is used to build prev/next meta links for SEO.
-     * 
+     *
      * @var null|int
      */
     public $page;
 
     /**
      * Is there a next page?
-     * 
+     *
      * This is used with $page to build next meta links for SEO.
-     * 
-     * @var null|boolean
+     *
+     * @var null|bool
      */
     public $hasNextPage;
 
@@ -263,10 +263,10 @@ class Document implements Renderable
 
         if ($this->page) {
             if ($this->page > 1) {
-                $head[] = '<link rel="prev" href="' . e(self::setPageParam($this->canonicalUrl, $this->page - 1)) . '">';
+                $head[] = '<link rel="prev" href="'.e(self::setPageParam($this->canonicalUrl, $this->page - 1)).'">';
             }
             if ($this->hasNextPage) {
-                $head[] = '<link rel="next" href="' . e(self::setPageParam($this->canonicalUrl, $this->page + 1)) . '">';
+                $head[] = '<link rel="next" href="'.e(self::setPageParam($this->canonicalUrl, $this->page + 1)).'">';
             }
         }
 
@@ -317,8 +317,9 @@ class Document implements Renderable
         $this->forumApiDocument = $forumApiDocument;
     }
 
-    public static function setPageParam(string $url, ?int $page) {
-        if (!$page || $page === 1) {
+    public static function setPageParam(string $url, ?int $page)
+    {
+        if (! $page || $page === 1) {
             return self::setQueryParam($url, 'page', null);
         }
 
@@ -342,13 +343,13 @@ class Document implements Renderable
                 }
 
                 $urlParts['query'] = http_build_query($urlQueryArgs);
-                $newUrl = $urlParts['scheme'] . '://' . $urlParts['host'] . $urlParts['path'] . '?' . $urlParts['query'];
+                $newUrl = $urlParts['scheme'].'://'.$urlParts['host'].$urlParts['path'].'?'.$urlParts['query'];
             } elseif ($value !== null) {
-                $newUrl = $url . '?' . http_build_query([$key => $value]);
+                $newUrl = $url.'?'.http_build_query([$key => $value]);
             } else {
                 return $url;
             }
-        
+
             return $newUrl;
         } else {
             return $url;
