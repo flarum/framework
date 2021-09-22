@@ -4,6 +4,7 @@ namespace SychO\PackageManager\Command;
 
 use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
+use SychO\PackageManager\Exception\ComposerRequireFailedException;
 use SychO\PackageManager\Extension\ExtensionUtils;
 use SychO\PackageManager\RequirePackageValidator;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -56,7 +57,11 @@ class RequireExtensionHandler
             'packages' => [$command->package],
         ]);
 
-        $this->composer->run($input, $output);
+        $exitCode = $this->composer->run($input, $output);
+
+        if ($exitCode !== 0) {
+            throw new ComposerRequireFailedException($command->package, $output->fetch());
+        }
 
         return ['id' => $extensionId];
     }
