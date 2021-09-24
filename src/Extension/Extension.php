@@ -288,7 +288,7 @@ class Extension implements Arrayable
         }
 
         $properties = array_filter($properties, function ($item) {
-            return ! is_array($item);
+            return is_string($item);
         });
 
         unset($properties['name']);
