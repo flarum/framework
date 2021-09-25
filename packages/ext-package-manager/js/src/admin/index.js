@@ -5,6 +5,7 @@ import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
 import Installer from "./components/Installer";
+import Updater from "./components/Updater";
 
 app.initializers.add('sycho-package-manager', (app) => {
   app.extensionData
@@ -22,6 +23,13 @@ app.initializers.add('sycho-package-manager', (app) => {
       if (app.data.isRequiredDirectoriesWritable) {
         return (
           <Installer />
+        );
+      }
+    })
+    .registerSetting(() => {
+      if (app.data.isRequiredDirectoriesWritable) {
+        return (
+          <Updater />
         );
       }
     });

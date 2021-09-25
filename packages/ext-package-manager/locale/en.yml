@@ -15,3 +15,9 @@ sycho-package-manager:
 
     file_permissions: >
       The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage/.composer
+
+    updater:
+      check_for_updates: Check for updates
+      last_update_checked_at: "Last Update Check: "
+      updater_title: Updates
+      updater_help: Runs a check for new extension and Flarum updates.

@@ -8,3 +8,60 @@
 .ComposerFailureModal-output {
   white-space: break-spaces;
 }
+
+.sycho-package-manager-Page .ExtensionPage-settings .Form-group:last-child {
+  display: none;
+}
+
+.PackageManager-lastUpdatedAt {
+  color: @control-color;
+
+  &-label {
+    font-weight: bold;
+  }
+}
+
+.PackageManager-extensions {
+  &-grid {
+    --gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, calc(~"100% / 3 - var(--gap)"));
+    gap: var(--gap);
+    margin-top: 16px;
+  }
+}
+
+.PackageManager-extension {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: @control-bg;
+  padding: 8px;
+  border-radius: @border-radius;
+
+  &-controls {
+    margin-left: auto;
+  }
+
+  &-icon {
+    --size: 40px;
+  }
+
+  &-name {
+    font-weight: bold;
+  }
+
+  &-version {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &-latest {
+      background: @alert-success-bg;
+      color: @alert-success-color;
+      border-radius: 30px;
+      padding: 0 6px;
+      font-weight: bold;
+    }
+  }
+}

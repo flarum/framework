@@ -59,7 +59,7 @@ export default class Installer extends Component {
         app.modal.show(ComposerFailureModal, { error });
       },
     }).then((response) => {
-      const extensionId = response.data.attributes.id;
+      const extensionId = response.id;
       app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.extensions.successful_install', { extension: extensionId }));
       window.location.href = `${app.forum.attribute('adminUrl')}#/extension/${extensionId}`;
       window.location.reload();
