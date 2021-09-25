@@ -283,6 +283,14 @@ class Extension implements Arrayable
     {
         $properties = $this->getIcon();
 
+        if (empty($properties)) {
+            return '';
+        }
+
+        $properties = array_filter($properties, function ($item) {
+            return is_string($item);
+        });
+
         unset($properties['name']);
 
         return implode(';', array_map(function (string $property, string $value) {
