@@ -1,20 +1,22 @@
 <?php
 
+/**
+ *
+ */
+
 namespace SychO\PackageManager\Api\Controller;
 
 use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
-use SychO\PackageManager\Api\Serializer\ExtensionSerializer;
-use Flarum\Api\Controller\AbstractShowController;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use SychO\PackageManager\Command\UpdateExtension;
-use Tobscure\JsonApi\Document;
 
-class UpdateExtensionController extends AbstractShowController
+class UpdateExtensionController implements RequestHandlerInterface
 {
-    public $serializer = ExtensionSerializer::class;
-
     /**
      * @var Dispatcher
      */
@@ -28,13 +30,15 @@ class UpdateExtensionController extends AbstractShowController
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
-    protected function data(ServerRequestInterface $request, Document $document)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
         $extensionId = Arr::get($request->getQueryParams(), 'id');
 
-        return $this->bus->dispatch(
+        $this->bus->dispatch(
             new UpdateExtension($actor, $extensionId)
         );
+
+        return new EmptyResponse();
     }
 }

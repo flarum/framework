@@ -3,6 +3,9 @@ import Component from 'flarum/common/Component';
 import icon from "flarum/common/helpers/icon";
 import Button from "flarum/common/components/Button";
 import humanTime from "flarum/common/helpers/humanTime";
+import LoadingModal from "flarum/admin/components/LoadingModal";
+import ComposerFailureModal from "./ComposerFailureModal";
+import Tooltip from "flarum/common/components/Tooltip";
 
 type UpdatedPackage = {
   name: string;
@@ -38,11 +41,17 @@ export default class Updater extends Component {
       <div className="Form-group">
         <label>{app.translator.trans('sycho-package-manager.admin.updater.updater_title')}</label>
         <p className="helpText">{app.translator.trans('sycho-package-manager.admin.updater.updater_help')}</p>
-        <p className="PackageManager-lastUpdatedAt">
-          <span className="PackageManager-lastUpdatedAt-label">{app.translator.trans('sycho-package-manager.admin.updater.last_update_checked_at')}</span>
-          <span className="PackageManager-lastUpdatedAt-value">{humanTime(this.lastUpdateCheck?.checkedAt)}</span>
-        </p>
-        <Button className="Button" icon="fas fa-sync-alt" onclick={this.checkForUpdates.bind(this)} loading={this.isLoading}>
+        {Object.keys(this.lastUpdateCheck).length ? (
+          <p className="PackageManager-lastUpdatedAt">
+            <span className="PackageManager-lastUpdatedAt-label">{app.translator.trans('sycho-package-manager.admin.updater.last_update_checked_at')}</span>
+            <span className="PackageManager-lastUpdatedAt-value">{humanTime(this.lastUpdateCheck?.checkedAt)}</span>
+          </p>
+        ) : null}
+        <Button
+          className="Button"
+          icon="fas fa-sync-alt"
+          onclick={this.checkForUpdates.bind(this)}
+          loading={this.isLoading}>
           {app.translator.trans('sycho-package-manager.admin.updater.check_for_updates')}
         </Button>
         {extensions.length ? (
@@ -61,7 +70,13 @@ export default class Updater extends Component {
                     </div>
                   </div>
                   <div className="PackageManager-extension-controls">
-                    <Button icon="fas fa-arrow-alt-circle-up" className="Button Button--icon Button--flat" />
+                    <Tooltip text={app.translator.trans('sycho-package-manager.admin.extensions.update')}>
+                      <Button
+                        icon="fas fa-arrow-alt-circle-up"
+                        className="Button Button--icon Button--flat"
+                        onclick={this.update.bind(this, extension)}
+                        aria-label={app.translator.trans('sycho-package-manager.admin.extensions.update')} />
+                    </Tooltip>
                   </div>
                 </div>
               ))}
@@ -75,7 +90,7 @@ export default class Updater extends Component {
   getExtensionUpdates() {
     const updates = this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: UpdatedPackage) => {
       const extension = app.data.extensions[composerPackage.name.replace('/', '-').replace(/(flarum-ext-)|(flarum-)/, '')];
-      const safeToUpdate = composerPackage['latest-status'] === 'semver-safe-update';
+      const safeToUpdate = ['semver-safe-update', 'update-possible'].includes(composerPackage['latest-status']);
 
       if (extension && safeToUpdate) {
         extension.newPackageUpdate = composerPackage;
@@ -96,6 +111,29 @@ export default class Updater extends Component {
     }).then((response) => {
       this.isLoading = false;
       this.lastUpdateCheck = response as LastUpdateCheck;
+      m.redraw();
+    });
+  }
+
+  update(extension: any) {
+    app.modal.show(LoadingModal);
+
+    app.request({
+      method: 'PATCH',
+      url: `${app.forum.attribute('apiUrl')}/package-manager/extensions/${extension.id}`,
+      errorHandler: (e: any) => {
+        const error = e.response.errors[0];
+
+        if (error.code !== 'composer_command_failure') {
+          throw e;
+        }
+
+        app.modal.show(ComposerFailureModal, { error });
+      },
+    }).then(() => {
+      app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.extensions.successful_update', { extension: extension.extra['flarum-extension'].title }));
+      window.location.reload();
+    }).finally(() => {
       m.redraw();
     });
   }

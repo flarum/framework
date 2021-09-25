@@ -12,7 +12,7 @@ class ComposerCommandFailedExceptionHandler
 {
     protected const INCOMPATIBLE_REGEX = '/ +- {PACKAGE_NAME} v[0-9.]+ requires flarum\/core/m';
 
-    public function handle(ComposerRequireFailedException $e): HandledError
+    public function handle(ComposerCommandFailedException $e): HandledError
     {
         return (new HandledError(
             $e,
@@ -21,7 +21,7 @@ class ComposerCommandFailedExceptionHandler
         ))->withDetails($this->errorDetails($e));
     }
 
-    protected function errorDetails(ComposerRequireFailedException $e): array
+    protected function errorDetails(ComposerCommandFailedException $e): array
     {
         $details = [
             'output' => $e->getMessage(),
@@ -34,13 +34,14 @@ class ComposerCommandFailedExceptionHandler
         return [$details];
     }
 
-    protected function guessCause(ComposerRequireFailedException $e): ?string
+    protected function guessCause(ComposerCommandFailedException $e): ?string
     {
-        error_log(str_replace('{PACKAGE_NAME}', preg_quote($e->packageName, '/'), self::INCOMPATIBLE_REGEX));
-        $hasMatches = preg_match(str_replace('{PACKAGE_NAME}', preg_quote($e->packageName, '/'), self::INCOMPATIBLE_REGEX), $e->getMessage(), $matches);
+        if ($e instanceof ComposerRequireFailedException) {
+            $hasMatches = preg_match(str_replace('{PACKAGE_NAME}', preg_quote($e->packageName, '/'), self::INCOMPATIBLE_REGEX), $e->getMessage(), $matches);
 
-        if ($hasMatches) {
-            return 'extension_incompatible_with_instance';
+            if ($hasMatches) {
+                return 'extension_incompatible_with_instance';
+            }
         }
 
         return null;

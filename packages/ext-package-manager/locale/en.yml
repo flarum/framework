@@ -6,6 +6,8 @@ sycho-package-manager:
       proceed: Proceed
       successful_install: "{extension} was installed successfully, redirecting.."
       successful_remove: Extension removed successfully.
+      successful_update: "{extension} was updated successfully, redirecting.."
+      update: Update
 
     failure_modal:
       title: Operation Failed
