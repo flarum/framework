@@ -6,6 +6,7 @@ import Button from 'flarum/common/components/Button';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
 import Installer from "./components/Installer";
 import Updater from "./components/Updater";
+import isExtensionEnabled from 'flarum/admin/utils/isExtensionEnabled';
 
 app.initializers.add('sycho-package-manager', (app) => {
   app.extensionData
@@ -35,6 +36,10 @@ app.initializers.add('sycho-package-manager', (app) => {
     });
 
   extend(ExtensionPage.prototype, 'topItems', function (items) {
+    if (this.extension.id === 'sycho-package-manager' || isExtensionEnabled(this.extension.id)) {
+      return;
+    }
+
     items.add(
       'remove',
       <Button

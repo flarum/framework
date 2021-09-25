@@ -536,6 +536,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _components_Installer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/Installer */ "./src/admin/components/Installer.tsx");
 /* harmony import */ var _components_Updater__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/Updater */ "./src/admin/components/Updater.tsx");
+/* harmony import */ var flarum_admin_utils_isExtensionEnabled__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! flarum/admin/utils/isExtensionEnabled */ "flarum/admin/utils/isExtensionEnabled");
+/* harmony import */ var flarum_admin_utils_isExtensionEnabled__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_utils_isExtensionEnabled__WEBPACK_IMPORTED_MODULE_8__);
+
 
 
 
@@ -565,6 +568,10 @@ flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.initializers.add('sycho-
   });
   Object(flarum_common_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_admin_components_ExtensionPage__WEBPACK_IMPORTED_MODULE_3___default.a.prototype, 'topItems', function (items) {
     var _this = this;
+
+    if (this.extension.id === 'sycho-package-manager' || flarum_admin_utils_isExtensionEnabled__WEBPACK_IMPORTED_MODULE_8___default()(this.extension.id)) {
+      return;
+    }
 
     items.add('remove', m(flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4___default.a, {
       className: "Button Button--danger",
@@ -619,6 +626,17 @@ module.exports = flarum.core.compat['admin/components/ExtensionPage'];
 /***/ (function(module, exports) {
 
 module.exports = flarum.core.compat['admin/components/LoadingModal'];
+
+/***/ }),
+
+/***/ "flarum/admin/utils/isExtensionEnabled":
+/*!***********************************************************************!*\
+  !*** external "flarum.core.compat['admin/utils/isExtensionEnabled']" ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['admin/utils/isExtensionEnabled'];
 
 /***/ }),
 
