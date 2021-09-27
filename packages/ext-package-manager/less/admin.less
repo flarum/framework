@@ -64,4 +64,17 @@
       font-weight: bold;
     }
   }
+
+  &--core {
+    background-color: #e7672e;
+    color: #fff;
+    --button-color: #fff;
+    --button-bg-hover: darken(#e7672e, 5);
+  }
+
+  &--core &-icon {
+    background-size: 100%;
+    background-color: transparent;
+    filter: grayscale(1) brightness(3.5);
+  }
 }

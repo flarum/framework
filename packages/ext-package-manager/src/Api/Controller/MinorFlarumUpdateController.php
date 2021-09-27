@@ -1,19 +1,21 @@
 <?php
 
+/**
+ *
+ */
+
 namespace SychO\PackageManager\Api\Controller;
 
-use Flarum\Api\Controller\AbstractDeleteController;
 use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
-use Illuminate\Support\Arr;
-use SychO\PackageManager\Api\Serializer\ExtensionSerializer;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use SychO\PackageManager\Command\RemoveExtension;
+use SychO\PackageManager\Command\MinorFlarumUpdate;
 
-class RemoveExtensionController extends AbstractDeleteController
+class MinorFlarumUpdateController implements RequestHandlerInterface
 {
-    public $serializer = ExtensionSerializer::class;
-
     /**
      * @var Dispatcher
      */
@@ -27,13 +29,14 @@ class RemoveExtensionController extends AbstractDeleteController
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
-    protected function delete(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $extensionId = Arr::get($request->getQueryParams(), 'id');
 
         $this->bus->dispatch(
-            new RemoveExtension($actor, $extensionId)
+            new MinorFlarumUpdate($actor)
         );
+
+        return new EmptyResponse();
     }
 }

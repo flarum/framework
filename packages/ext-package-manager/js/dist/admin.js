@@ -225,7 +225,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! flarum/admin/components/LoadingModal */ "flarum/admin/components/LoadingModal");
 /* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _ComposerFailureModal__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ComposerFailureModal */ "./src/admin/components/ComposerFailureModal.tsx");
+/* harmony import */ var _utils_errorHandler__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/errorHandler */ "./src/admin/utils/errorHandler.ts");
 
 
 
@@ -301,17 +301,7 @@ var Installer = /*#__PURE__*/function (_Component) {
       body: {
         data: this.data()
       },
-      errorHandler: function errorHandler(e) {
-        var error = e.response.errors[0];
-
-        if (error.code !== 'composer_command_failure') {
-          throw e;
-        }
-
-        flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.modal.show(_ComposerFailureModal__WEBPACK_IMPORTED_MODULE_6__["default"], {
-          error: error
-        });
-      }
+      errorHandler: _utils_errorHandler__WEBPACK_IMPORTED_MODULE_6__["default"]
     }).then(function (response) {
       var extensionId = response.id;
       flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.alerts.show({
@@ -357,9 +347,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flarum_common_helpers_humanTime__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(flarum_common_helpers_humanTime__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! flarum/admin/components/LoadingModal */ "flarum/admin/components/LoadingModal");
 /* harmony import */ var flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _ComposerFailureModal__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ComposerFailureModal */ "./src/admin/components/ComposerFailureModal.tsx");
-/* harmony import */ var flarum_common_components_Tooltip__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! flarum/common/components/Tooltip */ "flarum/common/components/Tooltip");
-/* harmony import */ var flarum_common_components_Tooltip__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Tooltip__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var flarum_common_components_Tooltip__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! flarum/common/components/Tooltip */ "flarum/common/components/Tooltip");
+/* harmony import */ var flarum_common_components_Tooltip__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Tooltip__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _utils_errorHandler__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/errorHandler */ "./src/admin/utils/errorHandler.ts");
+/* harmony import */ var flarum_common_utils_classList__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! flarum/common/utils/classList */ "flarum/common/utils/classList");
+/* harmony import */ var flarum_common_utils_classList__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_classList__WEBPACK_IMPORTED_MODULE_9__);
+
 
 
 
@@ -396,7 +389,20 @@ var Updater = /*#__PURE__*/function (_Component) {
     var _this$lastUpdateCheck,
         _this2 = this;
 
-    var extensions = this.getExtensionUpdates(); // @TODO catch `flarum/core` updates and display them differently, since it is the CORE and not an extension.
+    var extensions = this.getExtensionUpdates();
+    var coreUpdate = this.getCoreUpdate();
+    var core = null;
+
+    if (coreUpdate) {
+      core = {
+        title: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('sycho-package-manager.admin.updater.flarum'),
+        version: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.data.settings.version,
+        icon: {
+          backgroundImage: "url(" + flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.forum.attribute('baseUrl') + "/assets/extensions/sycho-package-manager/flarum.svg"
+        },
+        newPackageUpdate: coreUpdate
+      };
+    }
 
     return m("div", {
       className: "Form-group"
@@ -417,33 +423,44 @@ var Updater = /*#__PURE__*/function (_Component) {
       className: "PackageManager-extensions"
     }, m("div", {
       className: "PackageManager-extensions-grid"
-    }, extensions.map(function (extension) {
-      return m("div", {
-        className: "PackageManager-extension"
-      }, m("div", {
-        className: "PackageManager-extension-icon ExtensionIcon",
-        style: extension.icon
-      }, extension.icon ? flarum_common_helpers_icon__WEBPACK_IMPORTED_MODULE_3___default()(extension.icon.name) : ''), m("div", {
-        className: "PackageManager-extension-info"
-      }, m("div", {
-        className: "PackageManager-extension-name"
-      }, extension.extra['flarum-extension'].title), m("div", {
-        className: "PackageManager-extension-version"
-      }, m("span", {
-        className: "PackageManager-extension-version-current"
-      }, extension.version), m("span", {
-        className: "PackageManager-extension-version-latest Label"
-      }, extension.newPackageUpdate.latest))), m("div", {
-        className: "PackageManager-extension-controls"
-      }, m(flarum_common_components_Tooltip__WEBPACK_IMPORTED_MODULE_8___default.a, {
-        text: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('sycho-package-manager.admin.extensions.update')
-      }, m(flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4___default.a, {
-        icon: "fas fa-arrow-alt-circle-up",
-        className: "Button Button--icon Button--flat",
-        onclick: _this2.update.bind(_this2, extension),
-        "aria-label": flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('sycho-package-manager.admin.extensions.update')
-      }))));
+    }, core ? this.extensionItem(core, true) : null, extensions.map(function (extension) {
+      return _this2.extensionItem(extension);
     }))) : null);
+  };
+
+  _proto.extensionItem = function extensionItem(extension, isCore) {
+    if (isCore === void 0) {
+      isCore = false;
+    }
+
+    return m("div", {
+      className: flarum_common_utils_classList__WEBPACK_IMPORTED_MODULE_9___default()({
+        'PackageManager-extension': true,
+        'PackageManager-extension--core': isCore
+      })
+    }, m("div", {
+      className: "PackageManager-extension-icon ExtensionIcon",
+      style: extension.icon
+    }, extension.icon ? flarum_common_helpers_icon__WEBPACK_IMPORTED_MODULE_3___default()(extension.icon.name) : ''), m("div", {
+      className: "PackageManager-extension-info"
+    }, m("div", {
+      className: "PackageManager-extension-name"
+    }, extension.title || extension.extra['flarum-extension'].title), m("div", {
+      className: "PackageManager-extension-version"
+    }, m("span", {
+      className: "PackageManager-extension-version-current"
+    }, extension.version), m("span", {
+      className: "PackageManager-extension-version-latest Label"
+    }, extension.newPackageUpdate.latest))), m("div", {
+      className: "PackageManager-extension-controls"
+    }, m(flarum_common_components_Tooltip__WEBPACK_IMPORTED_MODULE_7___default.a, {
+      text: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('sycho-package-manager.admin.extensions.update')
+    }, m(flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4___default.a, {
+      icon: "fas fa-arrow-alt-circle-up",
+      className: "Button Button--icon Button--flat",
+      onclick: isCore ? this.updateCoreMinor.bind(this) : this.updateExtension.bind(this, extension),
+      "aria-label": flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('sycho-package-manager.admin.extensions.update')
+    }))));
   };
 
   _proto.getExtensionUpdates = function getExtensionUpdates() {
@@ -464,36 +481,52 @@ var Updater = /*#__PURE__*/function (_Component) {
     });
   };
 
+  _proto.getCoreUpdate = function getCoreUpdate() {
+    var _this$lastUpdateCheck5, _this$lastUpdateCheck6, _this$lastUpdateCheck7;
+
+    return (_this$lastUpdateCheck5 = this.lastUpdateCheck) == null ? void 0 : (_this$lastUpdateCheck6 = _this$lastUpdateCheck5.updates) == null ? void 0 : (_this$lastUpdateCheck7 = _this$lastUpdateCheck6.installed) == null ? void 0 : _this$lastUpdateCheck7.filter(function (composerPackage) {
+      return composerPackage.name === 'flarum/core';
+    }).pop();
+  };
+
   _proto.checkForUpdates = function checkForUpdates() {
     var _this3 = this;
 
     this.isLoading = true;
     flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.request({
       method: 'POST',
-      url: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.forum.attribute('apiUrl') + "/package-manager/check-for-updates"
+      url: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.forum.attribute('apiUrl') + "/package-manager/check-for-updates",
+      errorHandler: _utils_errorHandler__WEBPACK_IMPORTED_MODULE_8__["default"]
     }).then(function (response) {
-      _this3.isLoading = false;
       _this3.lastUpdateCheck = response;
+    })["finally"](function () {
+      _this3.isLoading = false;
       m.redraw();
     });
   };
 
-  _proto.update = function update(extension) {
+  _proto.updateCoreMinor = function updateCoreMinor() {
+    flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.modal.show(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_6___default.a);
+    flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.request({
+      method: 'POST',
+      url: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.forum.attribute('apiUrl') + "/package-manager/minor-update",
+      errorHandler: _utils_errorHandler__WEBPACK_IMPORTED_MODULE_8__["default"]
+    }).then(function () {
+      flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.alerts.show({
+        type: 'success'
+      }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('sycho-package-manager.admin.updater.minor_update_successful'));
+      window.location.reload();
+    })["finally"](function () {
+      m.redraw();
+    });
+  };
+
+  _proto.updateExtension = function updateExtension(extension) {
     flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.modal.show(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_6___default.a);
     flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.request({
       method: 'PATCH',
       url: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.forum.attribute('apiUrl') + "/package-manager/extensions/" + extension.id,
-      errorHandler: function errorHandler(e) {
-        var error = e.response.errors[0];
-
-        if (error.code !== 'composer_command_failure') {
-          throw e;
-        }
-
-        flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.modal.show(_ComposerFailureModal__WEBPACK_IMPORTED_MODULE_7__["default"], {
-          error: error
-        });
-      }
+      errorHandler: _utils_errorHandler__WEBPACK_IMPORTED_MODULE_8__["default"]
     }).then(function () {
       flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.alerts.show({
         type: 'success'
@@ -591,6 +624,34 @@ flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.initializers.add('sycho-
         });
       }
     }, "Remove"));
+  });
+});
+
+/***/ }),
+
+/***/ "./src/admin/utils/errorHandler.ts":
+/*!*****************************************!*\
+  !*** ./src/admin/utils/errorHandler.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/admin/app */ "flarum/admin/app");
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_app__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _components_ComposerFailureModal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/ComposerFailureModal */ "./src/admin/components/ComposerFailureModal.tsx");
+
+
+/* harmony default export */ __webpack_exports__["default"] = (function (e) {
+  var error = e.response.errors[0];
+
+  if (error.code !== 'composer_command_failure') {
+    throw e;
+  }
+
+  flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.modal.show(_components_ComposerFailureModal__WEBPACK_IMPORTED_MODULE_1__["default"], {
+    error: error
   });
 });
 
@@ -736,6 +797,17 @@ module.exports = flarum.core.compat['common/helpers/icon'];
 /***/ (function(module, exports) {
 
 module.exports = flarum.core.compat['common/utils/Stream'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/classList":
+/*!***************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/classList']" ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['common/utils/classList'];
 
 /***/ })
 

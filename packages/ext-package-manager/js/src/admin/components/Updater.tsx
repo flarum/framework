@@ -6,6 +6,8 @@ import humanTime from "flarum/common/helpers/humanTime";
 import LoadingModal from "flarum/admin/components/LoadingModal";
 import ComposerFailureModal from "./ComposerFailureModal";
 import Tooltip from "flarum/common/components/Tooltip";
+import errorHandler from "../utils/errorHandler";
+import classList from "flarum/common/utils/classList";
 
 type UpdatedPackage = {
   name: string;
@@ -34,8 +36,19 @@ export default class Updater extends Component {
 
   view() {
     const extensions: any = this.getExtensionUpdates();
+    const coreUpdate: UpdatedPackage|undefined = this.getCoreUpdate();
+    let core = null;
 
-    // @TODO catch `flarum/core` updates and display them differently, since it is the CORE and not an extension.
+    if (coreUpdate) {
+      core = {
+        title: app.translator.trans('sycho-package-manager.admin.updater.flarum'),
+        version: app.data.settings.version,
+        icon: {
+          backgroundImage: `url(${app.forum.attribute('baseUrl')}/assets/extensions/sycho-package-manager/flarum.svg`,
+        },
+        newPackageUpdate: coreUpdate,
+      };
+    }
 
     return (
       <div className="Form-group">
@@ -57,32 +70,37 @@ export default class Updater extends Component {
         {extensions.length ? (
           <div className="PackageManager-extensions">
             <div className="PackageManager-extensions-grid">
-              {extensions.map((extension: any) => (
-                <div className="PackageManager-extension">
-                  <div className="PackageManager-extension-icon ExtensionIcon" style={extension.icon}>
-                    {extension.icon ? icon(extension.icon.name) : ''}
-                  </div>
-                  <div className="PackageManager-extension-info">
-                    <div className="PackageManager-extension-name">{extension.extra['flarum-extension'].title}</div>
-                    <div className="PackageManager-extension-version">
-                      <span className="PackageManager-extension-version-current">{extension.version}</span>
-                      <span className="PackageManager-extension-version-latest Label">{extension.newPackageUpdate.latest}</span>
-                    </div>
-                  </div>
-                  <div className="PackageManager-extension-controls">
-                    <Tooltip text={app.translator.trans('sycho-package-manager.admin.extensions.update')}>
-                      <Button
-                        icon="fas fa-arrow-alt-circle-up"
-                        className="Button Button--icon Button--flat"
-                        onclick={this.update.bind(this, extension)}
-                        aria-label={app.translator.trans('sycho-package-manager.admin.extensions.update')} />
-                    </Tooltip>
-                  </div>
-                </div>
-              ))}
+              {core ? this.extensionItem(core, true) : null}
+              {extensions.map((extension: any) => this.extensionItem(extension))}
             </div>
           </div>
         ) : null}
+      </div>
+    );
+  }
+
+  extensionItem(extension: any, isCore: boolean = false) {
+    return (
+      <div className={classList({'PackageManager-extension': true, 'PackageManager-extension--core': isCore})}>
+        <div className="PackageManager-extension-icon ExtensionIcon" style={extension.icon}>
+          {extension.icon ? icon(extension.icon.name) : ''}
+        </div>
+        <div className="PackageManager-extension-info">
+          <div className="PackageManager-extension-name">{extension.title || extension.extra['flarum-extension'].title}</div>
+          <div className="PackageManager-extension-version">
+            <span className="PackageManager-extension-version-current">{extension.version}</span>
+            <span className="PackageManager-extension-version-latest Label">{extension.newPackageUpdate.latest}</span>
+          </div>
+        </div>
+        <div className="PackageManager-extension-controls">
+          <Tooltip text={app.translator.trans('sycho-package-manager.admin.extensions.update')}>
+            <Button
+              icon="fas fa-arrow-alt-circle-up"
+              className="Button Button--icon Button--flat"
+              onclick={isCore ? this.updateCoreMinor.bind(this) : this.updateExtension.bind(this, extension)}
+              aria-label={app.translator.trans('sycho-package-manager.admin.extensions.update')} />
+          </Tooltip>
+        </div>
       </div>
     );
   }
@@ -102,34 +120,47 @@ export default class Updater extends Component {
     return Object.values(app.data.extensions).filter((extension: any) => extension.newPackageUpdate);
   }
 
+  getCoreUpdate(): UpdatedPackage|undefined {
+    return this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: any) => composerPackage.name === 'flarum/core').pop();
+  }
+
   checkForUpdates() {
     this.isLoading = true;
 
     app.request({
       method: 'POST',
       url: `${app.forum.attribute('apiUrl')}/package-manager/check-for-updates`,
+      errorHandler,
     }).then((response) => {
-      this.isLoading = false;
       this.lastUpdateCheck = response as LastUpdateCheck;
+    }).finally(() => {
+      this.isLoading = false;
       m.redraw();
     });
   }
 
-  update(extension: any) {
+  updateCoreMinor() {
+    app.modal.show(LoadingModal);
+
+    app.request({
+      method: 'POST',
+      url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
+      errorHandler,
+    }).then(() => {
+      app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.updater.minor_update_successful'));
+      window.location.reload();
+    }).finally(() => {
+      m.redraw();
+    });
+  }
+
+  updateExtension(extension: any) {
     app.modal.show(LoadingModal);
 
     app.request({
       method: 'PATCH',
       url: `${app.forum.attribute('apiUrl')}/package-manager/extensions/${extension.id}`,
-      errorHandler: (e: any) => {
-        const error = e.response.errors[0];
-
-        if (error.code !== 'composer_command_failure') {
-          throw e;
-        }
-
-        app.modal.show(ComposerFailureModal, { error });
-      },
+      errorHandler,
     }).then(() => {
       app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.extensions.successful_update', { extension: extension.extra['flarum-extension'].title }));
       window.location.reload();
