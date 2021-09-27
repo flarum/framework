@@ -46,7 +46,7 @@ class RouteCollectionTest extends TestCase
     }
 
     /** @test */
-    public function can_add_empty_parameters()
+    public function must_provide_required_parameters()
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Route is missing argument for part user.');
