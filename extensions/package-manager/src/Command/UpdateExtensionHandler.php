@@ -11,6 +11,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use SychO\PackageManager\Exception\ComposerUpdateFailedException;
 use SychO\PackageManager\UpdateExtensionValidator;
+use SychO\PackageManager\LastUpdateCheck;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -32,16 +33,16 @@ class UpdateExtensionHandler
     protected $validator;
 
     /**
-     * @var SettingsRepositoryInterface
+     * @var LastUpdateCheck
      */
-    protected $settings;
+    protected $lastUpdateCheck;
 
-    public function __construct(Application $composer, ExtensionManager $extensions, UpdateExtensionValidator $validator, SettingsRepositoryInterface $settings)
+    public function __construct(Application $composer, ExtensionManager $extensions, UpdateExtensionValidator $validator, LastUpdateCheck $lastUpdateCheck)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
-        $this->settings = $settings;
+        $this->lastUpdateCheck = $lastUpdateCheck;
     }
 
     /**
@@ -72,24 +73,7 @@ class UpdateExtensionHandler
             throw new ComposerUpdateFailedException($extension->name, $output->fetch());
         }
 
-        $lastUpdateCheck = json_decode($this->settings->get('sycho-package-manager.last_update_check', '{}'), true);
-
-        if (isset($lastUpdateCheck['updates']) && ! empty($lastUpdateCheck['updates']['installed'])) {
-            $updatesListChanged = false;
-
-            foreach ($lastUpdateCheck['updates']['installed'] as $k => $package) {
-                if ($package['name'] === $extension->name) {
-                    unset($lastUpdateCheck['updates']['installed'][$k]);
-                    $updatesListChanged = true;
-                    break;
-                }
-            }
-
-            if ($updatesListChanged) {
-                $lastUpdateCheck['updates']['installed'] = array_values($lastUpdateCheck['updates']['installed']);
-                $this->settings->set('sycho-package-manager.last_update_check', json_encode($lastUpdateCheck));
-            }
-        }
+        $this->lastUpdateCheck->forget($extension->name);
 
         return true;
     }

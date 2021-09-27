@@ -5,6 +5,7 @@ import Button from "flarum/common/components/Button";
 import Stream from "flarum/common/utils/Stream";
 import LoadingModal from "flarum/admin/components/LoadingModal";
 import ComposerFailureModal from "./ComposerFailureModal";
+import errorHandler from "../utils/errorHandler";
 
 export default class Installer extends Component {
   packageName!: Stream<string>;
@@ -49,15 +50,7 @@ export default class Installer extends Component {
       body: {
         data: this.data()
       },
-      errorHandler: (e: any) => {
-        const error = e.response.errors[0];
-
-        if (error.code !== 'composer_command_failure') {
-          throw e;
-        }
-
-        app.modal.show(ComposerFailureModal, { error });
-      },
+      errorHandler,
     }).then((response) => {
       const extensionId = response.id;
       app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.extensions.successful_install', { extension: extensionId }));

@@ -6,15 +6,13 @@
 
 namespace SychO\PackageManager\Command;
 
-use Carbon\Carbon;
 use Composer\Console\Application;
-use Flarum\Settings\SettingsRepositoryInterface;
-use SychO\PackageManager\Exception\ComposerCommandFailedException;
+use SychO\PackageManager\Exception\ComposerUpdateFailedException;
 use SychO\PackageManager\LastUpdateCheck;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-class CheckForUpdatesHandler
+class MinorFlarumUpdateHandler
 {
     /**
      * @var Application
@@ -38,27 +36,30 @@ class CheckForUpdatesHandler
 
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws ComposerCommandFailedException
+     * @throws ComposerUpdateFailedException
      */
-    public function handle(CheckForUpdates $command)
+    public function handle(MinorFlarumUpdate $command)
     {
-        $actor = $command->actor;
-
-        $actor->assertAdmin();
+        $command->actor->assertAdmin();
 
         $output = new BufferedOutput();
         $input = new ArrayInput([
-            'command' => 'outdated',
-            '-D' => true,
-            '--format' => 'json',
+            'command' => 'update',
+            'packages' => ["flarum/*"],
+            '--prefer-dist' => true,
+            '--no-dev' => true,
+            '-a' => true,
+            '--with-all-dependencies' => true,
         ]);
 
         $exitCode = $this->composer->run($input, $output);
 
         if ($exitCode !== 0) {
-            throw new ComposerCommandFailedException('', $output->fetch());
+            throw new ComposerUpdateFailedException('flarum/*', $output->fetch());
         }
 
-        return $this->lastUpdateCheck->save(json_decode($output->fetch(), true));
+        $this->lastUpdateCheck->forget('flarum/*', true);
+
+        return true;
     }
 }

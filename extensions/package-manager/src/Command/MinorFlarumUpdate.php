@@ -1,14 +1,10 @@
 <?php
 
-/**
- *
- */
-
 namespace SychO\PackageManager\Command;
 
 use Flarum\User\User;
 
-class CheckForUpdates
+class MinorFlarumUpdate
 {
     /**
      * @var \Flarum\User\User

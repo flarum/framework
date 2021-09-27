@@ -9,16 +9,18 @@ namespace SychO\PackageManager;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Document;
-use Flarum\Settings\SettingsRepositoryInterface;
+use SychO\PackageManager\Exception\ComposerCommandFailedException;
 use SychO\PackageManager\Exception\ComposerCommandFailedExceptionHandler;
 use SychO\PackageManager\Exception\ComposerRequireFailedException;
+use SychO\PackageManager\Exception\ComposerUpdateFailedException;
 
 return [
     (new Extend\Routes('api'))
         ->post('/package-manager/extensions', 'package-manager.extensions.require', Api\Controller\RequireExtensionController::class)
         ->patch('/package-manager/extensions/{id}', 'package-manager.extensions.update', Api\Controller\UpdateExtensionController::class)
         ->delete('/package-manager/extensions/{id}', 'package-manager.extensions.remove', Api\Controller\RemoveExtensionController::class)
-        ->post('/package-manager/check-for-updates', 'package-manager.check-for-updates', Api\Controller\CheckForUpdatesController::class),
+        ->post('/package-manager/check-for-updates', 'package-manager.check-for-updates', Api\Controller\CheckForUpdatesController::class)
+        ->post('/package-manager/minor-update', 'package-manager.minor-update', Api\Controller\MinorFlarumUpdateController::class),
 
     (new Extend\Frontend('admin'))
         ->css(__DIR__ . '/less/admin.less')
@@ -31,7 +33,7 @@ return [
                 && is_writable($paths->base.'/composer.json')
                 && is_writable($paths->base.'/composer.lock');
 
-            $document->payload['lastUpdateCheck'] = json_decode(resolve(SettingsRepositoryInterface::class)->get('sycho-package-manager.last_update_check', '{}'), true);
+            $document->payload['lastUpdateCheck'] = resolve(LastUpdateCheck::class)->get();
         }),
 
     new Extend\Locales(__DIR__ . '/locale'),
@@ -40,5 +42,7 @@ return [
         ->register(PackageManagerServiceProvider::class),
 
     (new Extend\ErrorHandling)
-        ->handler(ComposerRequireFailedException::class, ComposerCommandFailedExceptionHandler::class),
+        ->handler(ComposerCommandFailedException::class, ComposerCommandFailedExceptionHandler::class)
+        ->handler(ComposerRequireFailedException::class, ComposerCommandFailedExceptionHandler::class)
+        ->handler(ComposerUpdateFailedException::class, ComposerCommandFailedExceptionHandler::class),
 ];
