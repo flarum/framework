@@ -71,7 +71,7 @@
   fieldset[disabled] & {
     cursor: default;
     opacity: 0.65;
-    box-shadow: none;
+    .box-shadow(none);
   }
 
   a& {
@@ -82,7 +82,7 @@
   }
 
   .Button-label {
-    transition: margin-right 0.1s;
+    .transition(margin-right 0.1s);
   }
 
   .LoadingIndicator-container {
@@ -142,7 +142,7 @@
   &.focus,
   .open > &.Dropdown-toggle {
     background: transparent !important;
-    box-shadow: none;
+    .box-shadow(none);
     color: @link-color;
   }
 }
@@ -158,7 +158,7 @@
   &:active,
   &.active,
   .open > &.Dropdown-toggle {
-    box-shadow: none;
+    .box-shadow(none);
   }
 }
 .Button--primary {

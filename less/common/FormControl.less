@@ -1,5 +1,4 @@
 .FormControl {
-  --transition: border-color .15s, background .15s;
   display: block;
   width: 100%;
   height: 36px;
@@ -10,7 +9,7 @@
   background-color: @control-bg;
   border: 2px solid transparent;
   border-radius: @border-radius;
-  transition: var(--transition);
+  .transition(~"border-color .15s, background .15s");
   -webkit-appearance: none;
 
   &:focus {

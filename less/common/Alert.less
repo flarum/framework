@@ -3,20 +3,6 @@
   border-radius: @border-radius;
   line-height: 1.5;
 
-  background: var(--alert-bg);
-
-  &,
-  a,
-  a:hover,
-  .Button,
-  .Button:hover,
-  .Button:active,
-  .Button.active,
-  .Button:focus,
-  .Button.focus {
-    color: var(--alert-color);
-  }
-
   .Alert--color(@alert-color, @alert-bg);
 }
 .Alert--error {
@@ -30,8 +16,19 @@
   }
 }
 .Alert--color(@color; @background) {
-  --alert-bg: @background;
-  --alert-color: @color;
+  background: @background;
+
+  &,
+  a,
+  a:hover,
+  .Button,
+  .Button:hover,
+  .Button:active,
+  .Button.active,
+  .Button:focus,
+  .Button.focus {
+    color: @color;
+  }
 }
 .Alert-controls {
   list-style-type: none;
