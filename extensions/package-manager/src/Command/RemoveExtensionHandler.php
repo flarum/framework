@@ -9,6 +9,7 @@ namespace SychO\PackageManager\Command;
 use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
 use Illuminate\Contracts\Events\Dispatcher;
+use SychO\PackageManager\Exception\ExtensionNotInstalledException;
 use SychO\PackageManager\Extension\Event\Removed;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -48,7 +49,7 @@ class RemoveExtensionHandler
         $extension = $this->extensions->getExtension($command->extensionId);
 
         if (empty($extension)) {
-            // ... exception
+            throw new ExtensionNotInstalledException($command->extensionId);
         }
 
         $output = new BufferedOutput();
