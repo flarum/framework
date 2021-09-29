@@ -9,7 +9,9 @@ namespace SychO\PackageManager\Command;
 use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Events\Dispatcher;
 use SychO\PackageManager\Exception\ComposerUpdateFailedException;
+use SychO\PackageManager\Extension\Event\Updated;
 use SychO\PackageManager\UpdateExtensionValidator;
 use SychO\PackageManager\LastUpdateCheck;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -37,12 +39,18 @@ class UpdateExtensionHandler
      */
     protected $lastUpdateCheck;
 
-    public function __construct(Application $composer, ExtensionManager $extensions, UpdateExtensionValidator $validator, LastUpdateCheck $lastUpdateCheck)
+    /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    public function __construct(Application $composer, ExtensionManager $extensions, UpdateExtensionValidator $validator, LastUpdateCheck $lastUpdateCheck, Dispatcher $events)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
         $this->lastUpdateCheck = $lastUpdateCheck;
+        $this->events = $events;
     }
 
     /**
@@ -74,6 +82,10 @@ class UpdateExtensionHandler
         }
 
         $this->lastUpdateCheck->forget($extension->name);
+
+        $this->events->dispatch(
+            new Updated($extension)
+        );
 
         return true;
     }

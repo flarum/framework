@@ -7,6 +7,8 @@
 namespace SychO\PackageManager\Command;
 
 use Composer\Console\Application;
+use Illuminate\Contracts\Events\Dispatcher;
+use SychO\PackageManager\Event\FlarumUpdated;
 use SychO\PackageManager\Exception\ComposerUpdateFailedException;
 use SychO\PackageManager\LastUpdateCheck;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -25,13 +27,20 @@ class MinorFlarumUpdateHandler
     protected $lastUpdateCheck;
 
     /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
      * @param Application $composer
      * @param LastUpdateCheck $lastUpdateCheck
+     * @param Dispatcher $events
      */
-    public function __construct(Application $composer, LastUpdateCheck $lastUpdateCheck)
+    public function __construct(Application $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events)
     {
         $this->composer = $composer;
         $this->lastUpdateCheck = $lastUpdateCheck;
+        $this->events = $events;
     }
 
     /**
@@ -59,6 +68,10 @@ class MinorFlarumUpdateHandler
         }
 
         $this->lastUpdateCheck->forget('flarum/*', true);
+
+        $this->events->dispatch(
+            new FlarumUpdated()
+        );
 
         return true;
     }

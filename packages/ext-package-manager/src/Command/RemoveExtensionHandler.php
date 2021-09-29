@@ -1,9 +1,15 @@
 <?php
 
+/**
+ *
+ */
+
 namespace SychO\PackageManager\Command;
 
 use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
+use Illuminate\Contracts\Events\Dispatcher;
+use SychO\PackageManager\Extension\Event\Removed;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -19,10 +25,16 @@ class RemoveExtensionHandler
      */
     protected $extensions;
 
-    public function __construct(Application $composer, ExtensionManager $extensions,)
+    /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    public function __construct(Application $composer, ExtensionManager $extensions, Dispatcher $events)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
+        $this->events = $events;
     }
 
     /**
@@ -46,5 +58,9 @@ class RemoveExtensionHandler
         ]);
 
         $this->composer->run($input, $output);
+
+        $this->events->dispatch(
+            new Removed($extension)
+        );
     }
 }
