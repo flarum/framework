@@ -33,15 +33,16 @@ class TagRepository
      */
     public function with($relations, User $actor): Builder
     {
-        $relationsArray = is_string($relations) ? explode(',', $relations) : $relations;
+        $relations = is_string($relations) ? explode(',', $relations) : $relations;
+        $relationsArray = [];
 
-        foreach (self::TAG_RELATIONS as $relation) {
-            if (in_array($relation, $relationsArray, true)) {
-                $relationsArray = array_diff($relationsArray, [$relation]);
-
+        foreach ($relations as $relation) {
+            if (in_array($relation, self::TAG_RELATIONS, true)) {
                 $relationsArray[$relation] = function ($query) use ($actor) {
                     $query->whereVisibleTo($actor);
                 };
+            } else {
+                $relationsArray[] = $relation;
             }
         }
 
