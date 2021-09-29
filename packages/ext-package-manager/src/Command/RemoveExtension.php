@@ -1,5 +1,9 @@
 <?php
 
+/**
+ *
+ */
+
 namespace SychO\PackageManager\Command;
 
 use Flarum\User\User;

@@ -8,7 +8,7 @@ namespace SychO\PackageManager\Command;
 
 use Flarum\User\User;
 
-class MinorFlarumUpdate
+class GlobalUpdate
 {
     /**
      * @var \Flarum\User\User

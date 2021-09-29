@@ -7,14 +7,14 @@
 namespace SychO\PackageManager\Command;
 
 use Composer\Console\Application;
+use Flarum\Bus\Dispatcher as FlarumDispatcher;
 use Illuminate\Contracts\Events\Dispatcher;
 use SychO\PackageManager\Event\FlarumUpdated;
 use SychO\PackageManager\Exception\ComposerUpdateFailedException;
-use SychO\PackageManager\LastUpdateCheck;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-class MinorFlarumUpdateHandler
+class GlobalUpdateHandler
 {
     /**
      * @var Application
@@ -22,39 +22,37 @@ class MinorFlarumUpdateHandler
     protected $composer;
 
     /**
-     * @var LastUpdateCheck
-     */
-    protected $lastUpdateCheck;
-
-    /**
      * @var Dispatcher
      */
     protected $events;
 
     /**
-     * @param Application $composer
-     * @param LastUpdateCheck $lastUpdateCheck
-     * @param Dispatcher $events
+     * @var FlarumDispatcher
      */
-    public function __construct(Application $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events)
+    protected $commandDispatcher;
+
+    /**
+     * @param Application $composer
+     * @param Dispatcher $events
+     * @param FlarumDispatcher $commandDispatcher
+     */
+    public function __construct(Application $composer, Dispatcher $events, FlarumDispatcher $commandDispatcher)
     {
         $this->composer = $composer;
-        $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
+        $this->commandDispatcher = $commandDispatcher;
     }
 
     /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws ComposerUpdateFailedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException|ComposerUpdateFailedException
      */
-    public function handle(MinorFlarumUpdate $command)
+    public function handle(GlobalUpdate $command)
     {
         $command->actor->assertAdmin();
 
         $output = new BufferedOutput();
         $input = new ArrayInput([
             'command' => 'update',
-            'packages' => ["flarum/*"],
             '--prefer-dist' => true,
             '--no-dev' => true,
             '-a' => true,
@@ -64,13 +62,15 @@ class MinorFlarumUpdateHandler
         $exitCode = $this->composer->run($input, $output);
 
         if ($exitCode !== 0) {
-            throw new ComposerUpdateFailedException('flarum/*', $output->fetch());
+            throw new ComposerUpdateFailedException('*', $output->fetch());
         }
 
-        $this->lastUpdateCheck->forget('flarum/*', true);
+        $this->commandDispatcher->dispatch(
+            new CheckForUpdates($command->actor)
+        );
 
         $this->events->dispatch(
-            new FlarumUpdated(FlarumUpdated::MINOR)
+            new FlarumUpdated(FlarumUpdated::GLOBAL)
         );
 
         return true;
