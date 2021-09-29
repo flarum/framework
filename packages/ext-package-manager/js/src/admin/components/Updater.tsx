@@ -82,7 +82,7 @@ export default class Updater extends Component {
           <div className="PackageManager-extensions">
             <LoadingIndicator />
           </div>
-        ) : (extensions.length ? (
+        ) : (extensions.length || core ? (
           <div className="PackageManager-extensions">
             <div className="PackageManager-extensions-grid">
               {core ? this.extensionItem(core, true) : null}

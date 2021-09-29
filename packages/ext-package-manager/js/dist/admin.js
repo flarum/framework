@@ -433,7 +433,7 @@ var Updater = /*#__PURE__*/function (_Component) {
       disabled: this.isLoading !== null && this.isLoading !== 'global-update'
     }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('sycho-package-manager.admin.updater.run_global_update'))), this.isLoading !== null ? m("div", {
       className: "PackageManager-extensions"
-    }, m(flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_10___default.a, null)) : extensions.length ? m("div", {
+    }, m(flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_10___default.a, null)) : extensions.length || core ? m("div", {
       className: "PackageManager-extensions"
     }, m("div", {
       className: "PackageManager-extensions-grid"
