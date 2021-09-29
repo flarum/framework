@@ -1,5 +1,9 @@
 <?php
 
+/**
+ *
+ */
+
 namespace SychO\PackageManager\Extension\Event;
 
 use Flarum\Extension\Extension;

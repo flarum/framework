@@ -1,12 +1,25 @@
 <?php
 
+/**
+ *
+ */
+
 namespace SychO\PackageManager;
 
 use Composer\Config;
 use Composer\Console\Application;
+use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
+use Flarum\Frontend\RecompileFrontendAssets;
+use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
+use SychO\PackageManager\Event\FlarumUpdated;
+use SychO\PackageManager\Extension\Event\Installed;
+use SychO\PackageManager\Extension\Event\Updated;
+use SychO\PackageManager\Listener\PostUpdateListener;
 
 class PackageManagerServiceProvider extends AbstractServiceProvider
 {
@@ -34,5 +47,27 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->alias(Application::class, 'flarum.composer');
+    }
+
+    public function boot(Container $container)
+    {
+        /** @var Dispatcher $events */
+        $events = $container->make('events');
+
+        $events->listen(
+            [Updated::class],
+            function (Updated $event) use ($container) {
+                $recompile = new RecompileFrontendAssets(
+                    $container->make('flarum.assets.forum'),
+                    $container->make(LocaleManager::class)
+                );
+                $recompile->flush();
+
+                $container->make(ExtensionManager::class)->migrate($event->extension);
+                $event->extension->copyAssetsTo($container->make('filesystem')->disk('flarum-assets'));
+            }
+        );
+
+        $events->listen(FlarumUpdated::class, PostUpdateListener::class);
     }
 }

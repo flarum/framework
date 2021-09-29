@@ -1,10 +1,16 @@
 <?php
 
+/**
+ *
+ */
+
 namespace SychO\PackageManager\Command;
 
 use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
+use Illuminate\Contracts\Events\Dispatcher;
 use SychO\PackageManager\Exception\ComposerRequireFailedException;
+use SychO\PackageManager\Extension\Event\Installed;
 use SychO\PackageManager\Extension\ExtensionUtils;
 use SychO\PackageManager\RequirePackageValidator;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -27,11 +33,17 @@ class RequireExtensionHandler
      */
     protected $validator;
 
-    public function __construct(Application $composer, ExtensionManager $extensions, RequirePackageValidator $validator)
+    /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    public function __construct(Application $composer, ExtensionManager $extensions, RequirePackageValidator $validator, Dispatcher $events)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
+        $this->events = $events;
     }
 
     /**
@@ -62,6 +74,10 @@ class RequireExtensionHandler
         if ($exitCode !== 0) {
             throw new ComposerRequireFailedException($command->package, $output->fetch());
         }
+
+        $this->events->dispatch(
+            new Installed($extensionId)
+        );
 
         return ['id' => $extensionId];
     }

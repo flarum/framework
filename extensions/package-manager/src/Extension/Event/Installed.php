@@ -1,18 +1,20 @@
 <?php
 
-namespace SychO\PackageManager\Extension\Event;
+/**
+ *
+ */
 
-use Flarum\Extension\Extension;
+namespace SychO\PackageManager\Extension\Event;
 
 class Installed
 {
     /**
-     * @var Extension
+     * @var string
      */
-    public $extension;
+    public $extensionId;
 
-    public function __construct(Extension $extension)
+    public function __construct(string $extensionId)
     {
-        $this->extension = $extension;
+        $this->extensionId = $extensionId;
     }
 }
