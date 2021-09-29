@@ -11,6 +11,7 @@ use Flarum\Bus\Dispatcher as FlarumDispatcher;
 use Illuminate\Contracts\Events\Dispatcher;
 use SychO\PackageManager\Event\FlarumUpdated;
 use SychO\PackageManager\Exception\ComposerUpdateFailedException;
+use SychO\PackageManager\OutputLogger;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -32,15 +33,16 @@ class GlobalUpdateHandler
     protected $commandDispatcher;
 
     /**
-     * @param Application $composer
-     * @param Dispatcher $events
-     * @param FlarumDispatcher $commandDispatcher
+     * @var OutputLogger
      */
-    public function __construct(Application $composer, Dispatcher $events, FlarumDispatcher $commandDispatcher)
+    protected $logger;
+
+    public function __construct(Application $composer, Dispatcher $events, FlarumDispatcher $commandDispatcher, OutputLogger $logger)
     {
         $this->composer = $composer;
         $this->events = $events;
         $this->commandDispatcher = $commandDispatcher;
+        $this->logger = $logger;
     }
 
     /**
@@ -60,6 +62,8 @@ class GlobalUpdateHandler
         ]);
 
         $exitCode = $this->composer->run($input, $output);
+
+        $this->logger->log($output->fetch(), $exitCode);
 
         if ($exitCode !== 0) {
             throw new ComposerUpdateFailedException('*', $output->fetch());
