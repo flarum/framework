@@ -9,6 +9,8 @@ namespace SychO\PackageManager\Command;
 use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
 use Illuminate\Contracts\Events\Dispatcher;
+use SychO\PackageManager\Exception\ComposerCommandFailedException;
+use SychO\PackageManager\Exception\ComposerUpdateFailedException;
 use SychO\PackageManager\Exception\ExtensionNotInstalledException;
 use SychO\PackageManager\Extension\Event\Removed;
 use SychO\PackageManager\OutputLogger;
@@ -66,8 +68,13 @@ class RemoveExtensionHandler
         ]);
 
         $exitCode = $this->composer->run($input, $output);
+        $output = $output->fetch();
 
-        $this->logger->log($output->fetch(), $exitCode);
+        $this->logger->log($output, $exitCode);
+
+        if ($exitCode !== 0) {
+            throw new ComposerCommandFailedException($extension->name, $output);
+        }
 
         $this->events->dispatch(
             new Removed($extension)

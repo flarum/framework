@@ -64,11 +64,12 @@ class MinorFlarumUpdateHandler
         ]);
 
         $exitCode = $this->composer->run($input, $output);
+        $output = $output->fetch();
 
-        $this->logger->log($output->fetch(), $exitCode);
+        $this->logger->log($output, $exitCode);
 
         if ($exitCode !== 0) {
-            throw new ComposerUpdateFailedException('flarum/*', $output->fetch());
+            throw new ComposerUpdateFailedException('flarum/*', $output);
         }
 
         $this->lastUpdateCheck->forget('flarum/*', true);
