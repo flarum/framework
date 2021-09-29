@@ -57,13 +57,14 @@ class CheckForUpdatesHandler
         ]);
 
         $exitCode = $this->composer->run($input, $output);
+        $output = $output->fetch();
 
-        $this->logger->log($output->fetch(), $exitCode);
+        $this->logger->log($output, $exitCode);
 
         if ($exitCode !== 0) {
-            throw new ComposerCommandFailedException('', $output->fetch());
+            throw new ComposerCommandFailedException('', $output);
         }
 
-        return $this->lastUpdateCheck->save(json_decode($output->fetch(), true));
+        return $this->lastUpdateCheck->save(json_decode($output, true));
     }
 }

@@ -78,11 +78,12 @@ class RequireExtensionHandler
         ]);
 
         $exitCode = $this->composer->run($input, $output);
+        $output = $output->fetch();
 
-        $this->logger->log($output->fetch(), $exitCode);
+        $this->logger->log($output, $exitCode);
 
         if ($exitCode !== 0) {
-            throw new ComposerRequireFailedException($command->package, $output->fetch());
+            throw new ComposerRequireFailedException($command->package, $output);
         }
 
         $this->events->dispatch(
