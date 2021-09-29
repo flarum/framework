@@ -1,5 +1,9 @@
 sycho-package-manager:
   admin:
+    exceptions:
+      extension_already_installed: Extension is already installed.
+      extension_not_installed: Extension not found.
+
     extensions:
       install: Install a new extension
       install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.

@@ -11,6 +11,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use SychO\PackageManager\Exception\ComposerUpdateFailedException;
+use SychO\PackageManager\Exception\ExtensionNotInstalledException;
 use SychO\PackageManager\Extension\Event\Updated;
 use SychO\PackageManager\UpdateExtensionValidator;
 use SychO\PackageManager\LastUpdateCheck;
@@ -66,7 +67,7 @@ class UpdateExtensionHandler
         $extension = $this->extensions->getExtension($command->extensionId);
 
         if (empty($extension)) {
-            // ... exception
+            throw new ExtensionNotInstalledException($command->extensionId);
         }
 
         $output = new BufferedOutput();

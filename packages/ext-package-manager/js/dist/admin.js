@@ -646,13 +646,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = (function (e) {
   var error = e.response.errors[0];
 
-  if (error.code !== 'composer_command_failure') {
+  if (!['composer_command_failure', 'extension_already_installed', 'extension_not_installed'].includes(error.code)) {
     throw e;
   }
 
-  flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.modal.show(_components_ComposerFailureModal__WEBPACK_IMPORTED_MODULE_1__["default"], {
-    error: error
-  });
+  switch (error.code) {
+    case 'composer_command_failure':
+      flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.modal.show(_components_ComposerFailureModal__WEBPACK_IMPORTED_MODULE_1__["default"], {
+        error: error
+      });
+      break;
+
+    case 'extension_already_installed':
+      flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.alerts.show({
+        type: 'error'
+      }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.translator.trans('sycho-package-manager.admin.exceptions.extension_already_installed'));
+      flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.modal.close();
+      break;
+
+    case 'extension_not_installed':
+      flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.alerts.show({
+        type: 'error'
+      }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.translator.trans('sycho-package-manager.admin.exceptions.extension_not_installed'));
+      flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default.a.modal.close();
+  }
 });
 
 /***/ }),

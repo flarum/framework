@@ -13,6 +13,8 @@ use SychO\PackageManager\Exception\ComposerCommandFailedException;
 use SychO\PackageManager\Exception\ComposerCommandFailedExceptionHandler;
 use SychO\PackageManager\Exception\ComposerRequireFailedException;
 use SychO\PackageManager\Exception\ComposerUpdateFailedException;
+use SychO\PackageManager\Exception\ExtensionAlreadyInstalledException;
+use SychO\PackageManager\Exception\ExtensionNotInstalledException;
 
 return [
     (new Extend\Routes('api'))
@@ -44,5 +46,9 @@ return [
     (new Extend\ErrorHandling)
         ->handler(ComposerCommandFailedException::class, ComposerCommandFailedExceptionHandler::class)
         ->handler(ComposerRequireFailedException::class, ComposerCommandFailedExceptionHandler::class)
-        ->handler(ComposerUpdateFailedException::class, ComposerCommandFailedExceptionHandler::class),
+        ->handler(ComposerUpdateFailedException::class, ComposerCommandFailedExceptionHandler::class)
+        ->type(ExtensionAlreadyInstalledException::class, 'extension_already_installed')
+        ->status('extension_already_installed', 409)
+        ->type(ExtensionNotInstalledException::class, 'extension_not_installed')
+        ->status('extension_not_installed', 409),
 ];

@@ -10,6 +10,7 @@ use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
 use Illuminate\Contracts\Events\Dispatcher;
 use SychO\PackageManager\Exception\ComposerRequireFailedException;
+use SychO\PackageManager\Exception\ExtensionAlreadyInstalledException;
 use SychO\PackageManager\Extension\Event\Installed;
 use SychO\PackageManager\Extension\ExtensionUtils;
 use SychO\PackageManager\RequirePackageValidator;
@@ -60,7 +61,7 @@ class RequireExtensionHandler
         $extension = $this->extensions->getExtension($extensionId);
 
         if (! empty($extension)) {
-            // ... exception
+            throw new ExtensionAlreadyInstalledException($extension);
         }
 
         $output = new BufferedOutput();
