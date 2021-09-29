@@ -25,7 +25,9 @@ sycho-package-manager:
     updater:
       check_for_updates: Check for updates
       flarum: Flarum Core
+      global_update_successful: Successfully updated all packages.
       last_update_checked_at: "Last Update Check: "
       minor_update_successful: Flarum successfully updated.
+      run_global_update: Run Global Update
       updater_title: Updates
       updater_help: Runs a check for new extension and Flarum updates.

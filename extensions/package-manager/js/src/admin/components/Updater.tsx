@@ -4,10 +4,10 @@ import icon from "flarum/common/helpers/icon";
 import Button from "flarum/common/components/Button";
 import humanTime from "flarum/common/helpers/humanTime";
 import LoadingModal from "flarum/admin/components/LoadingModal";
-import ComposerFailureModal from "./ComposerFailureModal";
 import Tooltip from "flarum/common/components/Tooltip";
 import errorHandler from "../utils/errorHandler";
 import classList from "flarum/common/utils/classList";
+import LoadingIndicator from "flarum/common/components/LoadingIndicator";
 
 type UpdatedPackage = {
   name: string;
@@ -27,7 +27,7 @@ type LastUpdateCheck = {
 };
 
 export default class Updater extends Component {
-  isLoading: boolean = false;
+  isLoading: string|null = null;
   lastUpdateCheck: LastUpdateCheck = app.data.lastUpdateCheck || {};
 
   oninit(vnode) {
@@ -60,21 +60,36 @@ export default class Updater extends Component {
             <span className="PackageManager-lastUpdatedAt-value">{humanTime(this.lastUpdateCheck?.checkedAt)}</span>
           </p>
         ) : null}
-        <Button
-          className="Button"
-          icon="fas fa-sync-alt"
-          onclick={this.checkForUpdates.bind(this)}
-          loading={this.isLoading}>
-          {app.translator.trans('sycho-package-manager.admin.updater.check_for_updates')}
-        </Button>
-        {extensions.length ? (
+        <div className="PackageManager-updaterControls">
+          <Button
+            className="Button"
+            icon="fas fa-sync-alt"
+            onclick={this.checkForUpdates.bind(this)}
+            loading={this.isLoading === 'check'}
+            disabled={this.isLoading !== null && this.isLoading !== 'check'}>
+            {app.translator.trans('sycho-package-manager.admin.updater.check_for_updates')}
+          </Button>
+          <Button
+            className="Button"
+            icon="fas fa-play"
+            onclick={this.updateGlobally.bind(this)}
+            loading={this.isLoading === 'global-update'}
+            disabled={this.isLoading !== null && this.isLoading !== 'global-update'}>
+            {app.translator.trans('sycho-package-manager.admin.updater.run_global_update')}
+          </Button>
+        </div>
+        {this.isLoading !== null ? (
+          <div className="PackageManager-extensions">
+            <LoadingIndicator />
+          </div>
+        ) : (extensions.length ? (
           <div className="PackageManager-extensions">
             <div className="PackageManager-extensions-grid">
               {core ? this.extensionItem(core, true) : null}
               {extensions.map((extension: any) => this.extensionItem(extension))}
             </div>
           </div>
-        ) : null}
+        ) : null)}
       </div>
     );
   }
@@ -125,7 +140,7 @@ export default class Updater extends Component {
   }
 
   checkForUpdates() {
-    this.isLoading = true;
+    this.isLoading = 'check';
 
     app.request({
       method: 'POST',
@@ -134,13 +149,14 @@ export default class Updater extends Component {
     }).then((response) => {
       this.lastUpdateCheck = response as LastUpdateCheck;
     }).finally(() => {
-      this.isLoading = false;
+      this.isLoading = null;
       m.redraw();
     });
   }
 
   updateCoreMinor() {
     app.modal.show(LoadingModal);
+    this.isLoading = 'minor-update';
 
     app.request({
       method: 'POST',
@@ -150,12 +166,14 @@ export default class Updater extends Component {
       app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.updater.minor_update_successful'));
       window.location.reload();
     }).finally(() => {
+      this.isLoading = null;
       m.redraw();
     });
   }
 
   updateExtension(extension: any) {
     app.modal.show(LoadingModal);
+    this.isLoading = 'extension-update';
 
     app.request({
       method: 'PATCH',
@@ -165,6 +183,24 @@ export default class Updater extends Component {
       app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.extensions.successful_update', { extension: extension.extra['flarum-extension'].title }));
       window.location.reload();
     }).finally(() => {
+      this.isLoading = null;
+      m.redraw();
+    });
+  }
+
+  updateGlobally() {
+    app.modal.show(LoadingModal);
+    this.isLoading = 'global-update';
+
+    app.request({
+      method: 'POST',
+      url: `${app.forum.attribute('apiUrl')}/package-manager/global-update`,
+      errorHandler,
+    }).then(() => {
+      app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.updater.global_update_successful'));
+      window.location.reload();
+    }).finally(() => {
+      this.isLoading = null;
       m.redraw();
     });
   }
