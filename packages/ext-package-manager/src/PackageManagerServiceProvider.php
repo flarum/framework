@@ -8,7 +8,6 @@ namespace SychO\PackageManager;
 
 use Composer\Config;
 use Composer\Console\Application;
-use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
@@ -16,8 +15,10 @@ use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Logger;
 use SychO\PackageManager\Event\FlarumUpdated;
-use SychO\PackageManager\Extension\Event\Installed;
 use SychO\PackageManager\Extension\Event\Updated;
 use SychO\PackageManager\Listener\PostUpdateListener;
 
@@ -47,6 +48,16 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->alias(Application::class, 'flarum.composer');
+
+        $this->container->singleton(OutputLogger::class, function (Container $container) {
+            $logPath = $container->make(Paths::class)->storage.'/logs/composer/output.log';
+            $handler = new RotatingFileHandler($logPath, Logger::INFO);
+            $handler->setFormatter(new LineFormatter(null, null, true, true));
+
+            $logger = new Logger('composer', [$handler]);
+
+            return new OutputLogger($logger);
+        });
     }
 
     public function boot(Container $container)

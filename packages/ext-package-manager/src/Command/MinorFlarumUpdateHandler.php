@@ -11,6 +11,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use SychO\PackageManager\Event\FlarumUpdated;
 use SychO\PackageManager\Exception\ComposerUpdateFailedException;
 use SychO\PackageManager\LastUpdateCheck;
+use SychO\PackageManager\OutputLogger;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -32,15 +33,16 @@ class MinorFlarumUpdateHandler
     protected $events;
 
     /**
-     * @param Application $composer
-     * @param LastUpdateCheck $lastUpdateCheck
-     * @param Dispatcher $events
+     * @var OutputLogger
      */
-    public function __construct(Application $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events)
+    protected $logger;
+
+    public function __construct(Application $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, OutputLogger $logger)
     {
         $this->composer = $composer;
         $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
+        $this->logger = $logger;
     }
 
     /**
@@ -62,6 +64,8 @@ class MinorFlarumUpdateHandler
         ]);
 
         $exitCode = $this->composer->run($input, $output);
+
+        $this->logger->log($output->fetch(), $exitCode);
 
         if ($exitCode !== 0) {
             throw new ComposerUpdateFailedException('flarum/*', $output->fetch());

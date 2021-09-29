@@ -13,6 +13,7 @@ use SychO\PackageManager\Exception\ComposerRequireFailedException;
 use SychO\PackageManager\Exception\ExtensionAlreadyInstalledException;
 use SychO\PackageManager\Extension\Event\Installed;
 use SychO\PackageManager\Extension\ExtensionUtils;
+use SychO\PackageManager\OutputLogger;
 use SychO\PackageManager\RequirePackageValidator;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -39,12 +40,18 @@ class RequireExtensionHandler
      */
     protected $events;
 
-    public function __construct(Application $composer, ExtensionManager $extensions, RequirePackageValidator $validator, Dispatcher $events)
+    /**
+     * @var OutputLogger
+     */
+    protected $logger;
+
+    public function __construct(Application $composer, ExtensionManager $extensions, RequirePackageValidator $validator, Dispatcher $events, OutputLogger $logger)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
         $this->events = $events;
+        $this->logger = $logger;
     }
 
     /**
@@ -71,6 +78,8 @@ class RequireExtensionHandler
         ]);
 
         $exitCode = $this->composer->run($input, $output);
+
+        $this->logger->log($output->fetch(), $exitCode);
 
         if ($exitCode !== 0) {
             throw new ComposerRequireFailedException($command->package, $output->fetch());

@@ -11,6 +11,7 @@ use Flarum\Extension\ExtensionManager;
 use Illuminate\Contracts\Events\Dispatcher;
 use SychO\PackageManager\Exception\ExtensionNotInstalledException;
 use SychO\PackageManager\Extension\Event\Removed;
+use SychO\PackageManager\OutputLogger;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -31,11 +32,17 @@ class RemoveExtensionHandler
      */
     protected $events;
 
-    public function __construct(Application $composer, ExtensionManager $extensions, Dispatcher $events)
+    /**
+     * @var OutputLogger
+     */
+    protected $logger;
+
+    public function __construct(Application $composer, ExtensionManager $extensions, Dispatcher $events, OutputLogger $logger)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->events = $events;
+        $this->logger = $logger;
     }
 
     /**
@@ -58,7 +65,9 @@ class RemoveExtensionHandler
             'packages' => [$extension->name],
         ]);
 
-        $this->composer->run($input, $output);
+        $exitCode = $this->composer->run($input, $output);
+
+        $this->logger->log($output->fetch(), $exitCode);
 
         $this->events->dispatch(
             new Removed($extension)
