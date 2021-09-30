@@ -16,12 +16,14 @@ class OutputLogger
         $this->logger = $logger;
     }
 
-    public function log(string $output, int $exitCode): void
+    public function log(string $input, string $output, int $exitCode): void
     {
+        $content = "$input\n$output";
+
         if ($exitCode === 0) {
-            $this->logger->info($output);
+            $this->logger->info($content);
         } else {
-            $this->logger->error($output);
+            $this->logger->error($content);
         }
     }
 }

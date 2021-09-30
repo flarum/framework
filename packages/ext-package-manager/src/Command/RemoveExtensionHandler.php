@@ -70,7 +70,7 @@ class RemoveExtensionHandler
         $exitCode = $this->composer->run($input, $output);
         $output = $output->fetch();
 
-        $this->logger->log($output, $exitCode);
+        $this->logger->log($input->__toString(), $output, $exitCode);
 
         if ($exitCode !== 0) {
             throw new ComposerCommandFailedException($extension->name, $output);
