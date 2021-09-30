@@ -1,8 +1,8 @@
 import app from 'flarum/admin/app';
 import Modal from 'flarum/common/components/Modal';
-import { ComponentAttrs } from "flarum/common/Component";
-import Alert from "flarum/common/components/Alert";
-import Mithril from "mithril";
+import { ComponentAttrs } from 'flarum/common/Component';
+import Alert from 'flarum/common/components/Alert';
+import Mithril from 'mithril';
 
 interface Attrs extends ComponentAttrs {
   output: string;
