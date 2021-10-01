@@ -8,11 +8,14 @@ import Tooltip from 'flarum/common/components/Tooltip';
 import errorHandler from '../utils/errorHandler';
 import classList from 'flarum/common/utils/classList';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import MajorUpdater from './MajorUpdater';
 
-type UpdatedPackage = {
+export type UpdatedPackage = {
   name: string;
   version: string;
   latest: string;
+  'latest-minor': string | null;
+  'latest-major': string | null;
   'latest-status': string;
   description: string;
 };
@@ -50,7 +53,7 @@ export default class Updater extends Component {
       };
     }
 
-    return (
+    return [
       <div className="Form-group">
         <label>{app.translator.trans('sycho-package-manager.admin.updater.updater_title')}</label>
         <p className="helpText">{app.translator.trans('sycho-package-manager.admin.updater.updater_help')}</p>
@@ -94,21 +97,36 @@ export default class Updater extends Component {
             </div>
           </div>
         ) : null}
-      </div>
-    );
+      </div>,
+      coreUpdate && coreUpdate['latest-major'] ? <MajorUpdater coreUpdate={coreUpdate} /> : null,
+    ];
   }
 
   extensionItem(extension: any, isCore: boolean = false) {
     return (
-      <div className={classList({ 'PackageManager-extension': true, 'PackageManager-extension--core': isCore })}>
+      <div
+        className={classList({
+          'PackageManager-extension': true,
+          'PackageManager-extension--core': isCore,
+        })}
+      >
         <div className="PackageManager-extension-icon ExtensionIcon" style={extension.icon}>
           {extension.icon ? icon(extension.icon.name) : ''}
         </div>
         <div className="PackageManager-extension-info">
           <div className="PackageManager-extension-name">{extension.title || extension.extra['flarum-extension'].title}</div>
           <div className="PackageManager-extension-version">
-            <span className="PackageManager-extension-version-current">{extension.version}</span>
-            <span className="PackageManager-extension-version-latest Label">{extension.newPackageUpdate.latest}</span>
+            <span className="PackageManager-extension-version-current">{this.version(extension.version)}</span>
+            {extension.newPackageUpdate['latest-minor'] ? (
+              <span className="PackageManager-extension-version-latest PackageManager-extension-version-latest--minor">
+                {this.version(extension.newPackageUpdate['latest-minor'])}
+              </span>
+            ) : null}
+            {extension.newPackageUpdate['latest-major'] && !isCore ? (
+              <span className="PackageManager-extension-version-latest PackageManager-extension-version-latest--major">
+                {this.version(extension.newPackageUpdate['latest-major'])}
+              </span>
+            ) : null}
           </div>
         </div>
         <div className="PackageManager-extension-controls">
@@ -125,8 +143,12 @@ export default class Updater extends Component {
     );
   }
 
+  version(v: string) {
+    return 'v' + v.replace('v', '');
+  }
+
   getExtensionUpdates() {
-    const updates = this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: UpdatedPackage) => {
+    this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: UpdatedPackage) => {
       const extension = app.data.extensions[composerPackage.name.replace('/', '-').replace(/(flarum-ext-)|(flarum-)/, '')];
       const safeToUpdate = ['semver-safe-update', 'update-possible'].includes(composerPackage['latest-status']);
 
@@ -141,7 +163,7 @@ export default class Updater extends Component {
   }
 
   getCoreUpdate(): UpdatedPackage | undefined {
-    return this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: any) => composerPackage.name === 'flarum/core').pop();
+    return this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: UpdatedPackage) => composerPackage.name === 'flarum/core').pop();
   }
 
   checkForUpdates() {

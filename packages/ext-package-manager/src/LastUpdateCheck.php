@@ -47,7 +47,7 @@ class LastUpdateCheck
 
         if (isset($lastUpdateCheck['updates']) && ! empty($lastUpdateCheck['updates']['installed'])) {
             $updatesListChanged = false;
-            $pattern = str_replace('*', '.*', preg_quote($name));
+            $pattern = preg_quote(str_replace('*', '.*', $name));
 
             foreach ($lastUpdateCheck['updates']['installed'] as $k => $package) {
                 if (($wildcard && Str::of($package['name'])->test("/($pattern)/")) || $package['name'] === $name) {

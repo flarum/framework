@@ -25,6 +25,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  grid-area: controls;
 }
 
 .PackageManager-extensions {
@@ -63,11 +64,19 @@
     gap: 8px;
 
     &-latest {
-      background: @alert-success-bg;
-      color: @alert-success-color;
       border-radius: 30px;
       padding: 0 6px;
       font-weight: bold;
+
+      &--minor {
+        background-color: @alert-success-bg;
+        color: @alert-success-color;
+      }
+
+      &--major {
+        background-color: @alert-bg;
+        color: @alert-color;
+      }
     }
   }
 
@@ -82,5 +91,31 @@
     background-size: 100%;
     background-color: transparent;
     filter: grayscale(1) brightness(3.5);
+  }
+}
+
+.PackageManager-majorUpdate {
+  border: 2px solid @control-danger-color;
+  border-radius: @border-radius;
+  padding: 16px;
+  background-color: lighten(@control-danger-bg, 5.5);
+  display: grid;
+  grid-template-areas:
+    "logo title"
+    "logo helpText"
+    "logo controls";
+  grid-gap: 0 16px;
+  align-items: center;
+
+  > img {
+    grid-area: logo;
+  }
+
+  > label {
+    grid-area: title;
+  }
+
+  > .helpText {
+    grid-area: helpText;
   }
 }
