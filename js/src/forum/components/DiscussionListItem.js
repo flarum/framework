@@ -63,7 +63,7 @@ export default class DiscussionListItem extends Component {
     const user = discussion.user();
     const isUnread = discussion.isUnread();
     const isRead = discussion.isRead();
-    const showUnread = !this.showRepliesCount() && isUnread;
+
     let jumpTo = 0;
     const controls = DiscussionControls.controls(discussion, this).toArray();
     const attrs = this.elementAttrs();
@@ -116,16 +116,7 @@ export default class DiscussionListItem extends Component {
             <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
             <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
           </Link>
-
-          <span
-            tabindex="0"
-            role="button"
-            className="DiscussionListItem-count"
-            onclick={this.markAsRead.bind(this)}
-            title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}
-          >
-            {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'replyCount']())}
-          </span>
+          {this.replyCountItem()}
         </div>
       </div>
     );
@@ -219,5 +210,34 @@ export default class DiscussionListItem extends Component {
     }
 
     return items;
+  }
+
+  replyCountItem() {
+    const discussion = this.attrs.discussion;
+    const showUnread = !this.showRepliesCount() && discussion.isUnread();
+
+    if (showUnread) {
+      return (
+        <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
+          <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
+
+          <span class="sr-only">
+            {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}{' '}
+            {app.translator.trans('core.forum.discussion_list.mark_as_read_a11y_label')}
+          </span>
+        </button>
+      );
+    }
+
+    return (
+      <span className="DiscussionListItem-count">
+        <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
+
+        <span class="sr-only">
+          {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
+          {app.translator.trans('core.forum.discussion_list.mark_as_read_a11y_label')}
+        </span>
+      </span>
+    );
   }
 }
