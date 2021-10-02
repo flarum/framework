@@ -13,7 +13,6 @@ import TerminalPost from './TerminalPost';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import DiscussionControls from '../utils/DiscussionControls';
 import slidable from '../utils/slidable';
-import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
 import DiscussionPage from './DiscussionPage';
 import escapeRegExp from '../../common/utils/escapeRegExp';
