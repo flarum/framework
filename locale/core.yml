@@ -1,12 +1,10 @@
 core:
-
   ##
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
   # Translations in this namespace are used by the admin interface.
   admin:
-
     # These translations are used in the Appearance page.
     appearance:
       colored_header_label: Colored Header
@@ -261,7 +259,6 @@ core:
 
   # Translations in this namespace are used by the forum user interface.
   forum:
-
     # These translations are used in the Change Email modal dialog.
     change_email:
       confirm_password_placeholder: => core.ref.confirm_password
@@ -326,11 +323,10 @@ core:
     discussion_list:
       empty_text: It looks as though there are no discussions here.
       load_more_button: => core.ref.load_more
-      mark_as_read_a11y_label: Mark replies as read
       replied_text: "{username} replied {ago}"
       started_text: "{username} started {ago}"
-      total_replies_a11y_label: "{count} replies"
-      unread_replies_a11y_label: "{count} unread replies"
+      total_replies_a11y_label: "{count, plural, one {# reply} other {# replies}}"
+      unread_replies_a11y_label: "{count, plural, one {# unread reply} other {# unread replies}}. Mark unread {count, plural, one {reply} other {replies}} as read."
 
     # These translations are used in the Forgot Password modal dialog.
     forgot_password:
@@ -496,7 +492,6 @@ core:
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
-
     # These translations are displayed as tooltips for discussion badges.
     badge:
       hidden_tooltip: Hidden
@@ -617,7 +612,6 @@ core:
 
   # Translations in this namespace are used in emails sent by the forum.
   email:
-
     # These translations are used in emails sent when users register new accounts.
     activate_account:
       subject: Activate Your New Account
@@ -678,7 +672,7 @@ core:
     all_discussions: All Discussions
     change_email: Change Email
     change_password: Change Password
-    color: Color                                 # Referenced by flarum-tags.yml
+    color: Color # Referenced by flarum-tags.yml
     confirm_password: Confirm Password
     confirm_email: Confirm Email
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
@@ -688,7 +682,7 @@ core:
     custom_header_title: Edit Custom Header
     delete: Delete
     delete_forever: Delete Forever
-    discussions: Discussions                     # Referenced by flarum-statistics.yml
+    discussions: Discussions # Referenced by flarum-statistics.yml
     edit: Edit
     edit_user: Edit User
     email: Email
@@ -702,25 +696,25 @@ core:
     mark_all_as_read: Mark All as Read
     next_page: Next Page
     notifications: Notifications
-    okay: OK                                     # Referenced by flarum-tags.yml
+    okay: OK # Referenced by flarum-tags.yml
     password: Password
-    posts: Posts                                 # Referenced by flarum-statistics.yml
+    posts: Posts # Referenced by flarum-statistics.yml
     previous_page: Previous Page
     remove: Remove
     rename: Rename
-    reply: Reply                                 # Referenced by flarum-mentions.yml
+    reply: Reply # Referenced by flarum-mentions.yml
     reset_your_password: Reset Your Password
     restore: Restore
-    save_changes: Save Changes                   # Referenced by flarum-suspend.yml, flarum-tags.yml
+    save_changes: Save Changes # Referenced by flarum-suspend.yml, flarum-tags.yml
     settings: Settings
     sign_up: Sign Up
-    some_others: "{count, plural, one {# other} other {# others}}"  # Referenced by flarum-likes.yml, flarum-mentions.yml
+    some_others: "{count, plural, one {# other} other {# others}}" # Referenced by flarum-likes.yml, flarum-mentions.yml
     start_a_discussion: Start a Discussion
     username: Username
-    users: Users                                 # Referenced by flarum-statistics.yml
+    users: Users # Referenced by flarum-statistics.yml
     view: View
     write_a_reply: Write a Reply...
-    you: You                                     # Referenced by flarum-likes.yml, flarum-mentions.yml
+    you: You # Referenced by flarum-likes.yml, flarum-mentions.yml
 
   ##
   # GROUP NAMES - These keys are translated at the back end.

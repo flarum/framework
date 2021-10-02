@@ -222,8 +222,7 @@ export default class DiscussionListItem extends Component {
           <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
 
           <span class="sr-only">
-            {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}{' '}
-            {app.translator.trans('core.forum.discussion_list.mark_as_read_a11y_label')}
+            {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
           </span>
         </button>
       );
@@ -233,10 +232,7 @@ export default class DiscussionListItem extends Component {
       <span className="DiscussionListItem-count">
         <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
 
-        <span class="sr-only">
-          {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
-          {app.translator.trans('core.forum.discussion_list.mark_as_read_a11y_label')}
-        </span>
+        <span class="sr-only">{app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}</span>
       </span>
     );
   }
