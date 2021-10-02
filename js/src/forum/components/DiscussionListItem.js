@@ -50,12 +50,11 @@ export default class DiscussionListItem extends Component {
 
   elementAttrs() {
     return {
-      className: classList([
-        'DiscussionListItem',
-        this.active() ? 'active' : '',
-        this.attrs.discussion.isHidden() ? 'DiscussionListItem--hidden' : '',
-        'ontouchstart' in window ? 'Slidable' : '',
-      ]),
+      className: classList('DiscussionListItem', {
+        active: this.active(),
+        'DiscussionListItem--hidden': this.attrs.discussion.isHidden(),
+        Slidable: 'ontouchstart' in window,
+      }),
     };
   }
 
