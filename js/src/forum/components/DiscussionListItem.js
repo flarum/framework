@@ -82,17 +82,16 @@ export default class DiscussionListItem extends Component {
 
     return (
       <div {...attrs}>
-        {controls.length
-          ? Dropdown.component(
-              {
-                icon: 'fas fa-ellipsis-v',
-                className: 'DiscussionListItem-controls',
-                buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
-                accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
-              },
-              controls
-            )
-          : ''}
+        {controls.length > 0 &&
+          Dropdown.component(
+            {
+              icon: 'fas fa-ellipsis-v',
+              className: 'DiscussionListItem-controls',
+              buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
+              accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
+            },
+            controls
+          )}
 
         <span
           className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
