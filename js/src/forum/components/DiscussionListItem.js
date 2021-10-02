@@ -100,7 +100,7 @@ export default class DiscussionListItem extends Component {
           {icon('fas fa-check')}
         </span>
 
-        <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
+        <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
           <Tooltip
             text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
             position="right"
