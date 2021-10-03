@@ -195,7 +195,7 @@ export default class Updater extends Component {
         errorHandler,
       })
       .then(() => {
-        app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.updater.minor_update_successful'));
+        app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.update_successful'));
         window.location.reload();
       })
       .finally(() => {
