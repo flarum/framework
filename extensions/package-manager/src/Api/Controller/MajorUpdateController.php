@@ -13,9 +13,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use SychO\PackageManager\Command\UpdateExtension;
+use SychO\PackageManager\Command\MajorUpdate;
 
-class UpdateExtensionController implements RequestHandlerInterface
+class MajorUpdateController implements RequestHandlerInterface
 {
     /**
      * @var Dispatcher
@@ -30,10 +30,10 @@ class UpdateExtensionController implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $extensionId = Arr::get($request->getQueryParams(), 'id');
+        $dryRun = (bool) (int) Arr::get($request->getParsedBody(), 'data.dryRun');
 
         $this->bus->dispatch(
-            new UpdateExtension($actor, $extensionId)
+            new MajorUpdate($actor, $dryRun)
         );
 
         return new EmptyResponse();

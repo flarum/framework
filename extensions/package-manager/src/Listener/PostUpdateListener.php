@@ -9,6 +9,7 @@ namespace SychO\PackageManager\Listener;
 use Composer\Command\ClearCacheCommand;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Foundation\Console\AssetsPublishCommand;
+use SychO\PackageManager\Event\FlarumUpdated;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -39,7 +40,7 @@ class PostUpdateListener
     /**
      * @throws \Exception
      */
-    public function handle($event)
+    public function handle(FlarumUpdated $event)
     {
         $this->clearCache->run(new ArrayInput([]), new NullOutput());
         $this->migrate->run(new ArrayInput([]), new NullOutput());
