@@ -19,6 +19,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use s9e\TextFormatter\Bundles\Fatdown;
 use Throwable;
 
 /**
@@ -524,5 +525,28 @@ class Extension implements Arrayable
             'optionalDependencyIds'  => $this->getOptionalDependencyIds(),
             'links'                  => $this->getLinks(),
         ], $this->composerJson);
+    }
+
+    /**
+     * Gets the rendered contents of the extension README file as a HTML string
+     *
+     * @return string|null
+     */
+    public function getReadme(): ?string
+    {
+        $content = null;
+        
+        if (file_exists($file = "$this->path/README.md")) {
+            $content = file_get_contents($file);
+        } elseif (file_exists($file = "$this->path/README")) {
+            $content = file_get_contents($file);
+        }
+
+        if ($content) {
+            $xml = Fatdown::parse($content);
+            return Fatdown::render($xml);
+        }
+
+        return null;
     }
 }

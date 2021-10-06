@@ -35,11 +35,6 @@ class ReadmeController extends AbstractShowController
 
         RequestUtil::getActor($request)->assertAdmin();
 
-        return $this->getReadme($extensionName);
-    }
-
-    private function getReadme(string $extensionName): stdClass
-    {
         $readme = new stdClass();
         $readme->id = $extensionName;
 
@@ -49,20 +44,7 @@ class ReadmeController extends AbstractShowController
             return $readme;
         }
 
-        $extPath = $ext->getPath();
-
-        if (file_exists("$extPath/README.md")) {
-            $readme->content = \file_get_contents("$extPath/README.md");
-        } elseif (file_exists("$extPath/README")) {
-            $readme->content = \file_get_contents("$extPath/README");
-        } else {
-            $readme->content = null;
-        }
-
-        if ($readme->content) {
-            $xml = Fatdown::parse($readme->content);
-            $readme->content = Fatdown::render($xml);
-        }
+        $readme->content = $ext->getReadme();
 
         return $readme;
     }
