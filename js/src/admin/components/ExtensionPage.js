@@ -11,6 +11,7 @@ import LoadingModal from './LoadingModal';
 import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
 import AdminPage from './AdminPage';
+import ReadmeModal from './ReadmeModal';
 
 export default class ExtensionPage extends AdminPage {
   oninit(vnode) {
@@ -194,6 +195,21 @@ export default class ExtensionPage extends AdminPage {
         );
       }
     });
+
+    const extension = this.extension;
+    items.add(
+      'readme',
+      Button.component(
+        {
+          icon: 'fab fa-readme',
+          class: 'Readme-link',
+          onclick() {
+            app.modal.show(ReadmeModal, { extension });
+          },
+        },
+        app.translator.trans('core.admin.extension.readme.button_label')
+      )
+    );
 
     return items;
   }
