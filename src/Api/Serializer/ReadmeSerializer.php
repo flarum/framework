@@ -1,8 +1,13 @@
 <?php
 
-namespace Flarum\Api\Serializer;
+/*
+* This file is part of Flarum.
+*
+* For detailed copyright and license information, please view the
+* LICENSE file that was distributed with this source code.
+*/
 
-use Flarum\Api\Serializer\AbstractSerializer;
+namespace Flarum\Api\Serializer;
 
 class ReadmeSerializer extends AbstractSerializer
 {
@@ -18,7 +23,7 @@ class ReadmeSerializer extends AbstractSerializer
     {
         $attributes = [];
 
-        if ($this->actor->isAdmin() && !empty($readme->content)) {
+        if ($this->actor->isAdmin() && ! empty($readme->content)) {
             $attributes = [
                 'content' => $readme->content,
             ];

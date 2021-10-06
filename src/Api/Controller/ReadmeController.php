@@ -1,5 +1,12 @@
 <?php
 
+/*
+* This file is part of Flarum.
+*
+* For detailed copyright and license information, please view the
+* LICENSE file that was distributed with this source code.
+*/
+
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\ReadmeSerializer;
@@ -38,7 +45,7 @@ class ReadmeController extends AbstractShowController
 
         $ext = $this->extensions->getExtension($extensionName);
 
-        if (!$ext) {
+        if (! $ext) {
             return $readme;
         }
 
@@ -46,7 +53,7 @@ class ReadmeController extends AbstractShowController
 
         if (file_exists("$extPath/README.md")) {
             $readme->content = \file_get_contents("$extPath/README.md");
-        } else if (file_exists("$extPath/README")) {
+        } elseif (file_exists("$extPath/README")) {
             $readme->content = \file_get_contents("$extPath/README");
         } else {
             $readme->content = null;
