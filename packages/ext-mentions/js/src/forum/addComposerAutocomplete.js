@@ -25,7 +25,8 @@ const throttledSearch = throttle(
             returnedUsers.push(u);
           }
         });
-        if (dropdown.active) buildSuggestions();
+        
+        buildSuggestions();
       });
       searched.push(typedLower);
     }
