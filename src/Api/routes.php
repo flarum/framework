@@ -265,6 +265,20 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ReadmeController::class)
     );
 
+    // Show detail of a given extension
+    $map->get(
+        '/extensions/{name}',
+        'extension.show',
+        $route->toController(Controller\ShowExtensionController::class)
+    );
+
+    // List all extensions
+    $map->get(
+        '/extensions',
+        'extensions.index',
+        $route->toController(Controller\ListExtensionsController::class)
+    );
+
     // Update settings
     $map->post(
         '/settings',
