@@ -1,4 +1,4 @@
-import getCleanDisplayName, { ShouldUseOldFormat } from './getCleanDisplayName';
+import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
 
 /**
  * Fetches the mention text for a specified user (and optionally a post ID for replies).
@@ -20,7 +20,7 @@ import getCleanDisplayName, { ShouldUseOldFormat } from './getCleanDisplayName';
  */
 export default function getMentionText(user, postId) {
   if (postId === undefined) {
-    if (ShouldUseOldFormat()) {
+    if (shouldUseOldFormat()) {
       // Plain @username
       const cleanText = getCleanDisplayName(user, false);
       return `@${cleanText}`;
