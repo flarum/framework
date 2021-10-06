@@ -516,7 +516,7 @@ core:
       title: => core.ref.edit_user
       username_heading: => core.ref.username
       username_label: => core.ref.username
-      nothing_available: You are not allowed to edit this user
+      nothing_available: You are not allowed to edit this user.
 
     # These translations are displayed as error messages.
     error:
