@@ -9,6 +9,7 @@
 
 namespace Flarum\Group;
 
+use Flarum\Group\Group;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -21,7 +22,7 @@ class GroupRepository
      */
     public function query()
     {
-        return User::query();
+        return Group::query();
     }
 
     /**
