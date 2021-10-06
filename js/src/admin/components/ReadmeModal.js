@@ -20,9 +20,8 @@ export default class ReadmeModal extends Modal {
   }
 
   title() {
-    const name = this.displayName;
     return app.translator.trans('core.admin.extension.readme.title', {
-      displayName: name,
+      displayName: this.displayName,
     });
   }
 

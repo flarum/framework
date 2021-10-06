@@ -208,7 +208,8 @@ export default class ExtensionPage extends AdminPage {
           },
         },
         app.translator.trans('core.admin.extension.readme.button_label')
-      )
+      ),
+      10
     );
 
     return items;

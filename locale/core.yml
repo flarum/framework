@@ -130,11 +130,11 @@ core:
       no_settings: This extension has no settings.
       open_modal: Open Settings
       permissions_title: Permissions
-      uninstall_button: Uninstall
       readme:
         button_label: Documentation
-        title: "{displayName} documentation"
         no_readme: This extension does not appear to have a README file
+        title: "{displayName} documentation"
+      uninstall_button: Uninstall
 
     # These translations are used in the secondary header.
     header:
