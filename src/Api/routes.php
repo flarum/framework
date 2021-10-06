@@ -268,7 +268,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     // Show detail of a given extension
     $map->get(
         '/extensions/{name}',
-        'extension.show',
+        'extensions.show',
         $route->toController(Controller\ShowExtensionController::class)
     );
 
