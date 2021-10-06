@@ -21,7 +21,7 @@ class ListExtensionsController extends AbstractListController
      * @var ExtensionManager
      */
     protected $extensions;
-    
+
     /**
      * {@inheritdoc}
      */
