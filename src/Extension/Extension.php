@@ -528,14 +528,14 @@ class Extension implements Arrayable
     }
 
     /**
-     * Gets the rendered contents of the extension README file as a HTML string
+     * Gets the rendered contents of the extension README file as a HTML string.
      *
      * @return string|null
      */
     public function getReadme(): ?string
     {
         $content = null;
-        
+
         if (file_exists($file = "$this->path/README.md")) {
             $content = file_get_contents($file);
         } elseif (file_exists($file = "$this->path/README")) {
@@ -544,6 +544,7 @@ class Extension implements Arrayable
 
         if ($content) {
             $xml = Fatdown::parse($content);
+
             return Fatdown::render($xml);
         }
 

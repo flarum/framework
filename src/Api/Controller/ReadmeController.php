@@ -14,7 +14,6 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use s9e\TextFormatter\Bundles\Fatdown;
 use stdClass;
 use Tobscure\JsonApi\Document;
 
