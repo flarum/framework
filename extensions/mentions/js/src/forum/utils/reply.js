@@ -4,7 +4,7 @@ import getMentionText from './getMentionText';
 
 function insertMention(post, composer, quote) {
   const user = post.user();
-  const mention = getMentionText(user, post.id());
+  const mention = getMentionText(user, post.id()) + ' ';
 
   // If the composer is empty, then assume we're starting a new reply.
   // In which case we don't want the user to have to confirm if they
