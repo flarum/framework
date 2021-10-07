@@ -261,6 +261,28 @@ class ListTest extends TestCase
         $this->assertEquals(['4'], Arr::pluck($data['data'], 'id'));
     }
 
+
+    /**
+     * @test
+     */
+    public function sorts_groups_by_name()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups', [
+                'authenticatedAs' => 1,
+            ])
+            ->withQueryParams([
+                'sort' => 'nameSingular',
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        // Ascending alphabetical order is: Admin - Guest - Hidden - Member - Mod
+        $this->assertEquals(['1', '2', '10', '3', '4'], Arr::pluck($data['data'], 'id'));
+    }
+
     protected function hiddenGroup(): array
     {
         return [
