@@ -18,8 +18,8 @@ class DisableBrowserCache implements Middleware
 {
     public function process(Request $request, Handler $handler): Response
     {
-        $request->withHeader('cache-control', 'max-age=0, no-store');
+        $response = $handler->handle($request);
 
-        return $handler->handle($request);
+        return $response->withHeader('Cache-Control', 'max-age=0, no-store');
     }
 }
