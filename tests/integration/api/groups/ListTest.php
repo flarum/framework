@@ -261,7 +261,6 @@ class ListTest extends TestCase
         $this->assertEquals(['4'], Arr::pluck($data['data'], 'id'));
     }
 
-
     /**
      * @test
      */
