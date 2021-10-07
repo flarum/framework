@@ -13,6 +13,8 @@ use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Query as DiscussionQuery;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
+use Flarum\Group\Filter\GroupFilterer;
+use Flarum\Group\Query as GroupQuery;
 use Flarum\Post\Filter as PostFilter;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\User\Filter\UserFilterer;
@@ -40,6 +42,10 @@ class FilterServiceProvider extends AbstractServiceProvider
                 UserFilterer::class => [
                     UserQuery\EmailFilterGambit::class,
                     UserQuery\GroupFilterGambit::class,
+                ],
+                GroupFilterer::class => [
+                    GroupQuery\HiddenFilterGambit::class,
+                    GroupQuery\NameFilterGambit::class,
                 ],
                 PostFilterer::class => [
                     PostFilter\AuthorFilter::class,
