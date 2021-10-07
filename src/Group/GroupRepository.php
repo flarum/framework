@@ -9,7 +9,6 @@
 
 namespace Flarum\Group;
 
-use Flarum\Group\Group;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 

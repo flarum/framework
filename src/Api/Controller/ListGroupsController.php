@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\GroupSerializer;
-use Flarum\Group\Group;
 use Flarum\Group\Filter\GroupFilterer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
