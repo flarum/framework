@@ -150,6 +150,9 @@ export default class TagsPage extends ExtensionPage {
     this.$('.TagList').get().map(e => {
       sortable.create(e, {
         group: 'tags',
+        delay: 50,
+        delayOnTouchOnly: true,
+        touchStartThreshold: 5,
         animation: 150,
         swapThreshold: 0.65,
         dragClass: 'sortable-dragging',
