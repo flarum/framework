@@ -14,7 +14,7 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
   }
 
   requestParams() {
-    const params: any = { include: ['user', 'lastPostedUser'], filter: {} };
+    const params: any = { include: ['user', 'lastPostedUser'], filter: this.params.filter || {} };
 
     params.sort = this.sortMap()[this.params.sort];
 
