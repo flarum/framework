@@ -27,7 +27,7 @@ class ListGroupsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $sortFields = ['nameSingular', 'namePlurar', 'isHidden'];
+    public $sortFields = ['nameSingular', 'namePlural', 'isHidden'];
 
     /**
      * {@inheritdoc}
