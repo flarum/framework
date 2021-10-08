@@ -9,7 +9,5 @@ import app from '../../forum/app';
  * // 1,234
  */
 export default function formatNumber(number: number, locale: string = app.data.locale): string {
-  return new Intl
-    .NumberFormat(locale)
-    .format(number);
+  return new Intl.NumberFormat(locale).format(number);
 }
