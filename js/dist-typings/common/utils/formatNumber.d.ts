@@ -6,4 +6,4 @@
  * formatNumber(1234);
  * // 1,234
  */
- export default function formatNumber(number: number): string;
+export default function formatNumber(number: number): string;
