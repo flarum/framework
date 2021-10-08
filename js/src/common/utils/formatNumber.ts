@@ -1,11 +1,13 @@
 /**
  * The `formatNumber` utility localizes a number into a string with the
- * appropriate punctuation.
+ * appropriate punctuation based on the provided locale.
  *
  * @example
- * formatNumber(1234);
+ * formatNumber(1234, 'en-US');
  * // 1,234
  */
-export default function formatNumber(number: number): string {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+export default function formatNumber(number: number, locale: string = 'en-US'): string {
+  return new Intl
+    .NumberFormat(locale)
+    .format(number);
 }
