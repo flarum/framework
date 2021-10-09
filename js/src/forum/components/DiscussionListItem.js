@@ -220,7 +220,7 @@ export default class DiscussionListItem extends Component {
         <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
           <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
 
-          <span class="sr-only">
+          <span class="visually-hidden">
             {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
           </span>
         </button>
@@ -231,7 +231,7 @@ export default class DiscussionListItem extends Component {
       <span className="DiscussionListItem-count">
         <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
 
-        <span class="sr-only">{app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}</span>
+        <span class="visually-hidden">{app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}</span>
       </span>
     );
   }
