@@ -231,7 +231,9 @@ export default class DiscussionListItem extends Component {
       <span className="DiscussionListItem-count">
         <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
 
-        <span class="visually-hidden">{app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}</span>
+        <span class="visually-hidden">
+          {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
+        </span>
       </span>
     );
   }
