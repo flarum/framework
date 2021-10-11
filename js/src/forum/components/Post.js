@@ -5,6 +5,7 @@ import Dropdown from '../../common/components/Dropdown';
 import PostControls from '../utils/PostControls';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
 
 /**
  * The `Post` component displays a single post. The basic post template just
@@ -21,6 +22,9 @@ export default class Post extends Component {
   oninit(vnode) {
     super.oninit(vnode);
 
+    /**
+     * May be set by subclasses.
+     */
     this.loading = false;
 
     /**
@@ -30,6 +34,7 @@ export default class Post extends Component {
      * @type {SubtreeRetainer}
      */
     this.subtree = new SubtreeRetainer(
+      () => this.loading,
       () => this.attrs.post.freshness,
       () => {
         const user = this.attrs.post.user();
@@ -50,7 +55,7 @@ export default class Post extends Component {
     return (
       <article {...attrs}>
         <div>
-          {this.content()}
+          {this.loading ? <LoadingIndicator /> : this.content()}
           <aside className="Post-actions">
             <ul>
               {listItems(this.actionItems().toArray())}
