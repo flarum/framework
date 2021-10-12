@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/likes/compare/v1.0.0...v1.1.0)
+
+### Changed
+- Add missing dot to `liked_by_text` translation (https://github.com/flarum/likes/pulls/29)
+
 ## [1.0.0](https://github.com/flarum/likes/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Added
