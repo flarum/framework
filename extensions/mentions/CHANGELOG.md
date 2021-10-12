@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/mentions/compare/v1.0.0...v1.1.0)
+
+### Changed
+- Eager load more necessary related mentions (https://github.com/flarum/mentions/pulls/72)
+- Refactors to the frontend JS (https://github.com/flarum/mentions/pulls/69) 
+
+### Fixed
+- Unrecognised user/post mentions (https://github.com/flarum/mentions/pulls/71)
+- Reduced bugginess in mentions username search (https://github.com/flarum/core/issues/3095)
+- Fixed missing space after mentions inserted via post reply (https://github.com/flarum/core/issues/3096)
+
 ## [1.0.0](https://github.com/flarum/mentions/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Changed
