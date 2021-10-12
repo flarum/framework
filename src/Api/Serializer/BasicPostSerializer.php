@@ -22,7 +22,7 @@ class BasicPostSerializer extends AbstractSerializer
      * @var LogReporter
      */
     protected $log;
-    
+
     /**
      * @var TranslatorInterface
      */
