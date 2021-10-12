@@ -3,8 +3,8 @@
   "name": "@flarum/akismet",
   "dependencies": {
     "flarum-webpack-config": "0.1.0-beta.10",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11"
+    "webpack": "^5.58.1",
+    "webpack-cli": "^4.9.0"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
