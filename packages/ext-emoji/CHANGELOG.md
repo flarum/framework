@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/emoji/compare/v1.0.0...v1.1.0)
+
+### Changed
+- Format with prettier, bump deps (https://github.com/flarum/markdown/pulls/37)
+- Update JS imports to new namespaced style (https://github.com/flarum/markdown/pulls/39)
+
+### Fixed
+- Twemoji frontend broken rendering with image markdown syntax (https://github.com/flarum/markdown/pulls/40)
+
 ## [1.0.0](https://github.com/flarum/emoji/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Changed

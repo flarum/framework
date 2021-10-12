@@ -6,7 +6,7 @@
     "simple-emoji-map": "^0.4.1",
     "twemoji": "^13.1.0",
     "webpack": "^4.46.0",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^4.9.0"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
