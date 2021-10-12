@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/markdown/compare/v1.0.1...v1.1.0)
+
+### Added
+- Spoiler and strikethrough buttons (https://github.com/flarum/markdown/pulls/30)
+
+### Fixed
+- Browser/system shortcuts triggering when applying editor style from shortcut (https://github.com/flarum/markdown/pulls/32)
+
 ## [1.0.1](https://github.com/flarum/markdown/compare/v1.0.0...v1.0.1)
 
 ### Fixed
