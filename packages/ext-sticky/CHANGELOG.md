@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/sticky/compare/v1.0.0...v1.1.0)
+
+### Added
+- Classes to sticky discussions (https://github.com/flarum/sticky/pulls/31)
+
+### Changed
+- Use css variables for badge (https://github.com/flarum/sticky/pulls/29)
+- Repo maintenance (https://github.com/flarum/sticky/pulls/30)
+
 ## [1.0.0](https://github.com/flarum/sticky/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Changed
