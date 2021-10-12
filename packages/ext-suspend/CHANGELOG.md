@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/suspend/compare/v1.0.0...v1.1.0)
+
+### Changed
+- Suspensions are now anonymous (https://github.com/flarum/suspend/pulls/39)
+- General repo maintenance (https://github.com/flarum/suspend/pulls/37)
+
 ## [1.0.0](https://github.com/flarum/suspend/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Changed
