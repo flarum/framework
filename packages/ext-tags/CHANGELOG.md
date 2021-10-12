@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/tags/compare/v1.0.3...v1.1.0)
+
+### Added
+- Custom colorising with CSS Custom Properties (https://github.com/flarum/tags/pulls/139)
+
+### Changed
+- Update nojs view to use slug driver (https://github.com/flarum/tags/pulls/142)
+- Pass filter params (https://github.com/flarum/tags/pulls/141)
+- Eager load actor tag states (https://github.com/flarum/tags/pulls/143)
+- Export `getSelectableTags` util (https://github.com/flarum/tags/pulls/144)
+
+### Fixed
+- Broken side nav tag listing (https://github.com/flarum/tags/pulls/137)
+- Discussions hidden from all users including admins (https://github.com/flarum/tags/pulls/140)
+- Unauthorized view of restricted tags (https://github.com/flarum/tags/pulls/145)
+- Make clicking edit tag button easier on mobile (https://github.com/flarum/core/issues/3098)
+
+
 ## [1.0.3](https://github.com/flarum/tags/compare/v1.0.2...v1.0.3)
 
 ### Fixed
