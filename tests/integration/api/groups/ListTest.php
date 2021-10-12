@@ -149,82 +149,6 @@ class ListTest extends TestCase
     /**
      * @test
      */
-    public function filters_groups_by_single_name()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/groups')
-            ->withQueryParams([
-                'filter' => ['name' => 'Admin'],
-            ])
-        );
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
-
-        // Only admin group
-        $this->assertEquals(['1'], Arr::pluck($data['data'], 'id'));
-    }
-
-    /**
-     * @test
-     */
-    public function filters_groups_by_single_name_negated()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/groups')
-            ->withQueryParams([
-                'filter' => ['-name' => 'Admin'],
-            ])
-        );
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
-
-        // ALl public groups but admin
-        $this->assertEquals(['2', '3', '4'], Arr::pluck($data['data'], 'id'));
-    }
-
-    /**
-     * @test
-     */
-    public function filters_groups_by_multiple_names()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/groups')
-            ->withQueryParams([
-                'filter' => ['name' => 'Admin,Mods'],
-            ])
-        );
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
-
-        // Only admin & mod group
-        $this->assertEquals(['1', '4'], Arr::pluck($data['data'], 'id'));
-    }
-
-    /**
-     * @test
-     */
-    public function filters_groups_by_multiple_names_negated()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/groups')
-            ->withQueryParams([
-                'filter' => ['-name' => 'Admin,Mods'],
-            ])
-        );
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
-
-        // ALl public groups but admin & mods
-        $this->assertEquals(['2', '3'], Arr::pluck($data['data'], 'id'));
-    }
-
-    /**
-     * @test
-     */
     public function paginates_groups_without_filter()
     {
         $response = $this->send(
@@ -249,16 +173,17 @@ class ListTest extends TestCase
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
-                'filter' => ['-name' => 'Admin'],
-                'page' => ['limit' => '2', 'offset' => '2'],
+                'filter' => ['hidden' => 1],
+                'page' => ['limit' => '1', 'offset' => '1'],
             ])
         );
 
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
 
-        // Show second page of groups
-        $this->assertEquals(['4'], Arr::pluck($data['data'], 'id'));
+        // Show second page of groups. Because there is only one hidden group,
+        // second page should be empty.
+        $this->assertEmpty($data['data']);
     }
 
     /**
