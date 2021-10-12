@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/nicknames/compare/v1.0.0...v1.1.0)
+
+No changes.
+
 ## [1.0.0](https://github.com/flarum/nicknames/compare/v0.1.0-beta.16.1...v1.0.0)
 
 ### Changed
