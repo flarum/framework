@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/lock/compare/v1.0.0...v1.1.0)
+
+### Changed
+- Use css variables for badge (https://github.com/flarum/lock/pulls/29)
+
 ## [1.0.0](https://github.com/flarum/lock/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Changed
