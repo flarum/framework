@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0](https://github.com/flarum/subscriptions/compare/v1.0.0...v1.1.0)
+
+### Changed
+- Use css variables for badge (https://github.com/flarum/subscriptions/pulls/42)
+- Add Prettier config and Update dependencies (https://github.com/flarum/subscriptions/pulls/41)
+
 ## [1.0.0](https://github.com/flarum/subscriptions/compare/v0.1.0-beta.16...v1.0.0)
 
 ### Changed
