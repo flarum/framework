@@ -19,6 +19,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class BasicPostSerializer extends AbstractSerializer
 {
     /**
+     * @var LogReporter
+     */
+    protected $log;
+    
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    public function __construct(LogReporter $log, TranslatorInterface $translator)
+    {
+        $this->log = $log;
+        $this->translator = $translator;
+    }
+    /**
      * {@inheritdoc}
      */
     protected $type = 'posts';
@@ -48,8 +63,8 @@ class BasicPostSerializer extends AbstractSerializer
                 $attributes['contentHtml'] = $post->formatContent($this->request);
                 $attributes['renderFailed'] = false;
             } catch (Exception $e) {
-                $attributes['contentHtml'] = resolve(TranslatorInterface::class)->trans('core.lib.error.render_failed_message');
-                resolve(LogReporter::class)->report($e);
+                $attributes['contentHtml'] = $this->translator->trans('core.lib.error.render_failed_message');
+                $this->log->report($e);
                 $attributes['renderFailed'] = true;
             }
         } else {
