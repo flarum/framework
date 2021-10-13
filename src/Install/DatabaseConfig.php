@@ -87,8 +87,8 @@ class DatabaseConfig implements Arrayable
         }
 
         if (! empty($this->prefix)) {
-            if (! preg_match('/^[\pL\pM\pN_-]+$/u', $this->prefix)) {
-                throw new ValidationFailed('The prefix may only contain characters, dashes and underscores.');
+            if (! preg_match('/^[\pL\pM\pN_]+$/u', $this->prefix)) {
+                throw new ValidationFailed('The prefix may only contain characters and underscores.');
             }
 
             if (strlen($this->prefix) > 10) {
