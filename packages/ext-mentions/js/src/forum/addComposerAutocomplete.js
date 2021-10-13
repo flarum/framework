@@ -224,7 +224,7 @@ export default function addComposerAutocomplete() {
 
         // Don't send API calls searching for users until at least 2 characters have been typed.
         // This focuses the mention results on users and posts in the discussion.
-        if (typed.length > 1) {
+        if (typed.length > 1 && app.forum.attribute('canSearchUsers')) {
           throttledSearch(typed, searched, returnedUsers, returnedUserIds, dropdown, buildSuggestions);
         }
       }
