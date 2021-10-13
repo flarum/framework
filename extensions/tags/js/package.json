@@ -4,7 +4,7 @@
   "dependencies": {
     "flarum-webpack-config": "0.1.0-beta.10",
     "sortablejs": "^1.10.2",
-    "webpack": "^5.58.1",
+    "webpack": "4.*",
     "webpack-cli": "^4.9.0"
   },
   "scripts": {
