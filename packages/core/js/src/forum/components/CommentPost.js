@@ -100,6 +100,7 @@ export default class CommentPost extends Post {
       ' ' +
       classList({
         CommentPost: true,
+        'Post--renderFailed': post.renderFailed(),
         'Post--hidden': post.isHidden(),
         'Post--edited': post.isEdited(),
         revealContent: this.revealContent,
