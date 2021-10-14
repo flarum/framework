@@ -1,4 +1,4 @@
-import app from '../../forum/app';
+import app from '../../common/app';
 
 /**
  * The `formatNumber` utility localizes a number into a string with the
