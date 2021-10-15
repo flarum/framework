@@ -35,6 +35,6 @@ class GroupFilterer extends AbstractFilterer
 
     protected function getQuery(User $actor): Builder
     {
-        return $this->groups->query()->select('groups.*')->whereVisibleTo($actor);
+        return $this->groups->query()->whereVisibleTo($actor);
     }
 }
