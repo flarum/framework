@@ -8,7 +8,7 @@ export default class ReadmeModal extends Modal {
   oninit(vnode) {
     super.oninit(vnode);
 
-    app.store.models['extensions-readme'] = ExtensionReadme;  
+    app.store.models['extensions-readme'] = ExtensionReadme;
 
     this.name = this.attrs.extension.id;
     this.displayName = this.attrs.extension.extra['flarum-extension'].title;
