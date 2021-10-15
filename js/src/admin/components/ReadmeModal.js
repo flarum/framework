@@ -30,7 +30,7 @@ export default class ReadmeModal extends Modal {
 
   content() {
     const text = app.translator.trans('core.admin.extension.readme.no_readme');
-    console.log(this.readme);
+
     return (
       <div className="container">
         {this.loading ? (
@@ -42,21 +42,10 @@ export default class ReadmeModal extends Modal {
     );
   }
 
-  loadReadme() {
-    // app
-    //   .request({
-    //     method: 'GET',
-    //     url: app.forum.attribute('apiUrl') + '/extensions-readme/' + this.name,
-    //   })
-    //   .then(this.parseResponse.bind(this));
+  async loadReadme() {
     const ext = this.name;
 
-    app.store.find('extensions-readme', ext).then(this.parseResponse.bind(this));
-  }
-
-  parseResponse(response) {
-    this.readme = response.data;
-
+    this.readme = await app.store.find('extensions-readme', ext);
     this.loading = false;
     m.redraw();
   }
