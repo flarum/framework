@@ -162,16 +162,6 @@ class Extension implements Arrayable
     }
 
     /**
-     * Get the complete composer.json as an array.
-     *
-     * @return array
-     */
-    public function getComposerJson(): array
-    {
-        return $this->composerJson;
-    }
-
-    /**
      * Dot notation getter for composer.json attributes.
      *
      * @see https://laravel.com/docs/8.x/helpers#arrays
