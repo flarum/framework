@@ -44,7 +44,7 @@ class FilterServiceProvider extends AbstractServiceProvider
                     UserQuery\GroupFilterGambit::class,
                 ],
                 GroupFilterer::class => [
-                    GroupQuery\HiddenFilterGambit::class,
+                    GroupQuery\HiddenFilter::class,
                 ],
                 PostFilterer::class => [
                     PostFilter\AuthorFilter::class,
