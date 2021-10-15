@@ -11,8 +11,6 @@ namespace Flarum\Group\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
-use Flarum\Search\SearchState;
-use Illuminate\Database\Query\Builder;
 
 class HiddenFilter implements FilterInterface
 {
