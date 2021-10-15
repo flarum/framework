@@ -260,16 +260,9 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
 
     // Get readme for an extension
     $map->get(
-        '/extensions/readme/{name}',
-        'extensions.readme',
-        $route->toController(Controller\ReadmeController::class)
-    );
-
-    // Show detail of a given extension
-    $map->get(
-        '/extensions/{name}',
-        'extensions.show',
-        $route->toController(Controller\ShowExtensionController::class)
+        '/extensions-readme/{name}',
+        'extensions.readme.show',
+        $route->toController(Controller\ShowExtensionReadmeController::class)
     );
 
     // List all extensions

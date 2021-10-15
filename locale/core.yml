@@ -131,7 +131,7 @@ core:
       open_modal: Open Settings
       permissions_title: Permissions
       readme:
-        button_label: Documentation
+        button_label: README
         no_readme: This extension does not appear to have a README file
         title: "{displayName} documentation"
       uninstall_button: Uninstall

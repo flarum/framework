@@ -9,13 +9,14 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\Serializer\BasicExtensionSerializer;
+use Flarum\Api\Serializer\ExtensionReadmeSerializer;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Http\RequestUtil;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListExtensionsController extends AbstractListController
+class ShowExtensionReadmeController extends AbstractShowController
 {
     /**
      * @var ExtensionManager
@@ -25,7 +26,7 @@ class ListExtensionsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $serializer = BasicExtensionSerializer::class;
+    public $serializer = ExtensionReadmeSerializer::class;
 
     public function __construct(ExtensionManager $extensions)
     {
@@ -33,12 +34,14 @@ class ListExtensionsController extends AbstractListController
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
+        $extensionName = Arr::get($request->getQueryParams(), 'name');
+
         RequestUtil::getActor($request)->assertAdmin();
 
-        return $this->extensions->getExtensions();
+        return $this->extensions->getExtension($extensionName);
     }
 }

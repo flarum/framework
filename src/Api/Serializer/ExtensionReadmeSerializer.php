@@ -9,17 +9,27 @@
 
 namespace Flarum\Api\Serializer;
 
-class ExtensionSerializer extends BasicExtensionSerializer
+class ExtensionReadmeSerializer extends AbstractSerializer
 {
     /**
      * {@inheritdoc}
      */
     protected function getDefaultAttributes($extension)
     {
-        $attributes = parent::getDefaultAttributes($extension) + [
-            'readmeHtml' => $extension->getReadme()
+        $attributes = [
+            'content' => $extension->getReadme()
         ];
 
         return $attributes;
+    }
+
+    public function getId($extension)
+    {
+        return $extension->getId();
+    }
+
+    public function getType($extension)
+    {
+        return 'extensions-readme';
     }
 }
