@@ -199,6 +199,7 @@ class Document implements Renderable
      */
     protected function makeTitle(): string
     {
+        // @todo v2.0 inject as dependency instead
         return resolve(TitleDriverInterface::class)->makeTitle($this, $this->request, $this->forumApiDocument);
     }
 
