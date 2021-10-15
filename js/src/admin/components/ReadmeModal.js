@@ -43,9 +43,7 @@ export default class ReadmeModal extends Modal {
   }
 
   async loadReadme() {
-    const ext = this.name;
-
-    this.readme = await app.store.find('extensions-readme', ext);
+    this.readme = await app.store.find('extensions-readme', this.name);
     this.loading = false;
     m.redraw();
   }
