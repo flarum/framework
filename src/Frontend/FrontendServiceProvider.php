@@ -12,6 +12,8 @@ namespace Flarum\Frontend;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Driver\BasicTitleDriver;
+use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -106,6 +108,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 ];
             }
         );
+
+        $this->container->singleton(TitleDriverInterface::class, function (Container $container) {
+            return $container->make(BasicTitleDriver::class);
+        });
+
+        $this->container->alias(TitleDriverInterface::class, 'flarum.frontend.title_driver');
     }
 
     /**

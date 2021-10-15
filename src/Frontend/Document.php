@@ -9,6 +9,7 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Frontend\Driver\TitleDriverInterface;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -159,10 +160,6 @@ class Document implements Renderable
      */
     protected $request;
 
-    /**
-     * @param Factory $view
-     * @param array $forumApiDocument
-     */
     public function __construct(Factory $view, array $forumApiDocument, Request $request)
     {
         $this->view = $view;
@@ -202,9 +199,7 @@ class Document implements Renderable
      */
     protected function makeTitle(): string
     {
-        $onHomePage = rtrim($this->request->getUri()->getPath(), '/') === '';
-
-        return ($this->title && ! $onHomePage ? $this->title.' - ' : '').Arr::get($this->forumApiDocument, 'data.attributes.title');
+        return resolve(TitleDriverInterface::class)->makeTitle($this, $this->request, $this->forumApiDocument);
     }
 
     /**

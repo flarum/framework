@@ -15,9 +15,10 @@ if (! function_exists('resolve')) {
     /**
      * Resolve a service from the container.
      *
-     * @param  string  $name
+     * @template T
+     * @param  class-string<T>|string  $name
      * @param  array  $parameters
-     * @return mixed
+     * @return T|mixed
      */
     function resolve($name, $parameters = [])
     {
