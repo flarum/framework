@@ -27,7 +27,7 @@ export default function getMentionText(user, postId) {
     }
     // @"Display name"#UserID
     const cleanText = getCleanDisplayName(user);
-    return `@"${cleanText}"${user.id()}`;
+    return `@"${cleanText}"#${user.id()}`;
   } else {
     // @"Display name"#pPostID
     const cleanText = getCleanDisplayName(user);
