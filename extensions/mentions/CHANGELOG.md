@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.1](https://github.com/flarum/mentions/compare/v1.1.0...v1.1.1)
+
+### Fixed
+- Broken autocompleted user mention format (https://github.com/flarum/mentions/pull/74)
+
 ## [1.1.0](https://github.com/flarum/mentions/compare/v1.0.0...v1.1.0)
 
 ### Changed
