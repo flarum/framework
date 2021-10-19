@@ -1,7 +1,7 @@
 .Scrubber {
   & a {
     margin-left: -1px;
-    color: @muted-color;
+    color: var(--muted-color);
 
     & .fa {
       font-size: 14px;
@@ -9,7 +9,7 @@
     }
     &:hover, &:focus {
       text-decoration: none;
-      color: @link-color;
+      color: var(--link-color);
     }
   }
 }
@@ -22,16 +22,16 @@
   .user-select(none);
 }
 .Scrubber-before, .Scrubber-after {
-  border-left: 1px solid @control-bg;
+  border-left: 1px solid var(--control-bg);
 }
 .Scrubber-unread {
   position: absolute;
   border-left: 1px solid lighten(@muted-color, 10%);
   width: 100%;
-  background-image: linear-gradient(to right, @control-bg, fade(@control-bg, 0) 10px, fade(@control-bg, 0));
+  background-image: linear-gradient(to right, var(--control-bg), fade(@control-bg, 0) 10px, fade(@control-bg, 0));
   display: flex;
   align-items: center;
-  color: @muted-color;
+  color: var(--muted-color);
   text-transform: uppercase;
   font-size: 11px;
   font-weight: bold;
@@ -49,14 +49,14 @@
 .Scrubber-bar {
   height: 100%;
   width: 5px;
-  background: @primary-color;
+  background: var(--primary-color);
   border-radius: 4px;
   float: left;
   margin-left: -2px;
   transition: background 0.2s;
 
   .disabled & {
-    background: @control-bg;
+    background: var(--control-bg);
   }
 }
 .Scrubber-info {
@@ -71,7 +71,7 @@
   }
 }
 .Scrubber-description {
-  color: @muted-color;
+  color: var(--muted-color);
 }
 
 @media @phone {

@@ -19,11 +19,11 @@
       & .Dropdown-menu {
         & > li > a {
           padding: 8px 0 8px 30px;
-          color: var(--sidenav-color, @muted-color);
+          color: var(--sidenav-color, var(--muted-color));
 
           &:hover {
             background: none;
-            color: var(--sidenav-color-hover, @link-color);
+            color: var(--sidenav-color-hover, var(--link-color));
             text-decoration: none;
           }
 
@@ -35,7 +35,7 @@
         }
         & > li.active > a {
           background: none;
-          color: var(--sidenav-color-active, @primary-color);
+          color: var(--sidenav-color-active, var(--primary-color));
           font-weight: bold;
         }
         & > .Dropdown-separator {
@@ -88,7 +88,7 @@
     left: 0;
     right: 0;
     margin-top: 15px;
-    border-bottom: 1px solid @control-bg;
+    border-bottom: 1px solid var(--control-bg);
   }
 
   > ul > li, .Dropdown-menu > li {

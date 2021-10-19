@@ -14,7 +14,7 @@
   bottom: 0;
   left: 0;
   z-index: @zindex-modal-background;
-  background-color: @overlay-bg;
+  background-color: var(--overlay-bg);
   opacity: 0;
   transition: opacity 0.2s;
 
@@ -60,7 +60,7 @@
 // Actual modal
 .Modal-content {
   position: relative;
-  background-color: @body-bg;
+  background-color: var(--body-bg);
   background-clip: padding-box;
   margin: 0 auto;
   overflow: hidden;
@@ -88,13 +88,13 @@
 }
 
 .Modal-body {
-  background-color: @control-bg;
+  background-color: var(--control-bg);
   padding: 25px 30px;
-  color: @control-color;
+  color: var(--control-color);
 
   .FormControl {
-    background-color: @body-bg;
-    color: @text-color;
+    background-color: var(--body-bg);
+    color: var(--text-color);
   }
 
   .Form--centered {
@@ -107,14 +107,14 @@
   }
 
   .off.Checkbox--switch .Checkbox-display {
-    background: @muted-more-color;
+    background: var(--muted-more-color);
   }
 }
 .Modal-footer {
   border: 0;
   padding: 20px;
   text-align: center;
-  color: @muted-color;
+  color: var(--muted-color);
 }
 
 @media @phone {
@@ -175,7 +175,7 @@
 
     border: 0;
     border-radius: @border-radius;
-    box-shadow: 0 7px 15px @shadow-color;
+    box-shadow: 0 7px 15px var(--shadow-color);
   }
   .Modal--small {
     max-width: 375px;

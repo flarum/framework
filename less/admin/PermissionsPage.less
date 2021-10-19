@@ -1,5 +1,5 @@
 .PermissionsPage-groups {
-  background: @control-bg;
+  background: var(--control-bg);
   border-radius: @border-radius;
   display: block;
   overflow-x: auto;
@@ -9,7 +9,7 @@
   width: 90px;
   display: inline-block;
   text-align: center;
-  color: @text-color;
+  color: var(--text-color);
   font-weight: bold;
   padding-left: 10px;
   padding-right: 10px;
@@ -21,7 +21,7 @@
   text-overflow: ellipsis;
 }
 .Group--add {
-  color: @muted-color;
+  color: var(--muted-color);
   width: auto;
   margin-left: 10px;
   font-weight: normal;
@@ -47,7 +47,7 @@
     text-align: left;
   }
   td {
-    color: @muted-color;
+    color: var(--muted-color);
   }
   thead th {
     position: -webkit-sticky;
@@ -57,15 +57,15 @@
     text-transform: uppercase;
     font-weight: bold;
     font-size: 12px;
-    color: @muted-color;
-    background: @body-bg;
+    color: var(--muted-color);
+    background: var(--body-bg);
     min-width: 140px;
     z-index: 1;
 
     &:first-child {
       left: 0;
       z-index: 3;
-      background: @body-bg;
+      background: var(--body-bg);
     }
 
     &:not(:hover) .PermissionGrid-removeScope {
@@ -86,7 +86,7 @@
         font-size: 14px;
         width: 18px;
         text-align: center;
-        color: @muted-color;
+        color: var(--muted-color);
       }
     }
     .Dropdown {
@@ -132,14 +132,14 @@
   }
 }
 .PermissionGrid-section {
-  background: @body-bg;
+  background: var(--body-bg);
 
   td, th {
     padding-top: 10px;
   }
 }
 .PermissionGrid-child {
-  background: @body-bg;
+  background: var(--body-bg);
 
   td, th {
     position: relative;

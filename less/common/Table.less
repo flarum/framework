@@ -1,5 +1,5 @@
 .Table {
-  background: @control-bg;
+  background: var(--control-bg);
   border-radius: @border-radius;
   border-collapse: collapse;
   border-spacing: 0;
@@ -9,8 +9,8 @@
   }
 
   td, th {
-    border-bottom: 1px solid @body-bg;
-    color: @control-color;
+    border-bottom: 1px solid var(--body-bg);
+    color: var(--control-color);
   }
 
   td, th, .Checkbox, &-controls-item {

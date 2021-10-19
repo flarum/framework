@@ -18,10 +18,10 @@
 
 .Post-header {
   margin-bottom: 15px;
-  color: @muted-color;
+  color: var(--muted-color);
 
   &, a {
-    color: @muted-color;
+    color: var(--muted-color);
   }
   > ul {
     list-style-type: none;
@@ -44,7 +44,7 @@
     display: inline;
   }
   h3, h3 a {
-    color: @heading-color;
+    color: var(--heading-color);
     font-weight: bold;
     font-size: 14px;
   }
@@ -99,31 +99,31 @@
     margin-bottom: 1em;
   }
   a {
-    border-bottom: 1px solid @control-bg;
+    border-bottom: 1px solid var(--control-bg);
     font-weight: 600;
 
     &:hover, &:focus, &:active {
       text-decoration: none;
-      border-color: @link-color;
+      border-color: var(--link-color);
     }
   }
   blockquote {
     font-size: inherit;
     border: 0;
-    background: @control-bg;
-    color: @control-color;
+    background: var(--control-bg);
+    color: var(--control-color);
     border-radius: @border-radius;
     padding: 8px 15px;
-    border-top: 2px dotted @body-bg;
-    border-bottom: 2px dotted @body-bg;
+    border-top: 2px dotted var(--body-bg);
+    border-bottom: 2px dotted var(--body-bg);
     margin: 1em 0;
   }
   // Inline code
   code {
     font-family: source-code-pro, Monaco, Consolas, "Courier New", monospace;
     padding: 5px;
-    background: @code-bg;
-    color: @code-color;
+    background: var(--code-bg);
+    color: var(--code-color);
     line-height: 1.3;
     font-size: 90%;
     border-radius: 4px
@@ -132,7 +132,7 @@
   pre {
     border: 0;
     padding: 0;
-    background: @code-bg;
+    background: var(--code-bg);
     color: #666;
     font-size: 90%;
     border-radius: @border-radius;
@@ -173,7 +173,7 @@
     font-size: 100%;
   }
   h6 {
-    color: @muted-more-color;
+    color: var(--muted-more-color);
   }
   img, iframe {
     max-width: 100%;
@@ -186,12 +186,12 @@
 }
 
 .Post--renderFailed {
-  background-color: @control-danger-bg;
+  background-color: var(--control-danger-bg);
 }
 
 .Post--hidden {
   .Post-header, .Post-header a, .PostUser h3, .PostUser h3 a {
-    color: @muted-more-color;
+    color: var(--muted-more-color);
   }
   &:not(.revealContent) {
     .Post-header {
@@ -217,14 +217,14 @@
 .PostMeta .Dropdown-menu {
   width: 420px;
   padding: 10px;
-  color: @muted-color;
+  color: var(--muted-color);
 
   @media @phone {
     padding: 15px !important;
   }
 }
 .PostMeta-number {
-  color: @text-color;
+  color: var(--text-color);
   font-weight: bold;
 }
 .PostMeta-time, .PostMeta-ip {
@@ -249,7 +249,7 @@
 }
 .EventPost {
   &, a {
-    color: @muted-color;
+    color: var(--muted-color);
   }
   a {
     font-weight: bold;
@@ -266,7 +266,7 @@
     margin: 0;
   }
   &, a {
-    color: @muted-color;
+    color: var(--muted-color);
   }
   a {
     display: inline-block;
@@ -328,7 +328,7 @@
 }
 
 .PostPreview {
-  color: @muted-color;
+  color: var(--muted-color);
   padding-left: 50px;
   line-height: 1.7em;
 
@@ -342,7 +342,7 @@
     .Avatar--size(32px);
   }
   .username {
-    color: @text-color;
+    color: var(--text-color);
     font-weight: bold;
     margin-right: 5px;
   }
@@ -417,8 +417,8 @@
   cursor: text;
   overflow: hidden;
   margin-top: 50px;
-  border: 2px dashed @control-bg;
-  color: @muted-color;
+  border: 2px dashed var(--control-bg);
+  color: var(--muted-color);
   border-radius: 10px;
 
   .Post-header {
@@ -439,7 +439,7 @@
       margin-top: -18px;
     }
     &:hover {
-      border-color: @control-bg;
+      border-color: var(--control-bg);
     }
   }
   .LoadingPost .Post-header {

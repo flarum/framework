@@ -24,7 +24,7 @@
     }
 
     .scrolled & {
-      box-shadow: 0 2px 6px @shadow-color;
+      box-shadow: 0 2px 6px var(--shadow-color);
     }
   }
   .App-primaryControl, .App-titleControl, .App-backControl {
@@ -136,7 +136,7 @@
     left: 0;
     top: 0;
     bottom: 0;
-    box-shadow: 0 2px 6px @shadow-color;
+    box-shadow: 0 2px 6px var(--shadow-color);
     transform: translate(-@drawer-width - 6px, 0);
     transition: transform 0.2s;
     z-index: @zindex-modal;
@@ -153,7 +153,7 @@
     bottom: 0;
     left: 0;
     z-index: @zindex-modal-background;
-    background-color: @overlay-bg;
+    background-color: var(--overlay-bg);
     opacity: 0;
     transition: opacity 0.2s;
 
@@ -241,7 +241,7 @@
     }
 
     .scrolled & {
-      box-shadow: 0 2px 6px @shadow-color;
+      box-shadow: 0 2px 6px var(--shadow-color);
     }
 
     & when (@config-colored-header = true) {
@@ -295,7 +295,7 @@
 // Content Area
 
 .App-content {
-  border-top: 1px solid @control-bg;
+  border-top: 1px solid var(--control-bg);
 }
 
 // On phones, the content area overlays the drawer, so we must give it a
@@ -303,7 +303,7 @@
 // meant to be open, we slide the content to the right to reveal the drawer.
 @media @phone {
   .App-content {
-    background: @body-bg;
+    background: var(--body-bg);
     width: 100%;
     min-height: 100vh;
     padding-bottom: 50px;

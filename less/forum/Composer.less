@@ -3,12 +3,12 @@
 
 .Composer {
   pointer-events: auto;
-  box-shadow: 0 2px 6px @shadow-color;
+  box-shadow: 0 2px 6px var(--shadow-color);
 
   &.minimized {
     height: 46px;
     cursor: pointer;
-    background: @control-bg;
+    background: var(--control-bg);
   }
 }
 .Composer-controls {
@@ -39,7 +39,7 @@
   h3 {
     margin: 0;
     line-height: 1.5em;
-    color: @secondary-color;
+    color: var(--secondary-color);
 
     &, input, a {
       font-size: 14px;
@@ -111,7 +111,7 @@
     left: 0;
     right: 0;
     z-index: @zindex-composer;
-    background: @body-bg;
+    background: var(--body-bg);
 
     &:not(.minimized) {
       position: fixed;
@@ -160,7 +160,7 @@
     bottom: 0;
     left: 0;
     z-index: @zindex-composer - 1;
-    background-color: @overlay-bg;
+    background-color: var(--overlay-bg);
     opacity: 0.9;
   }
   .ComposerBody-content {
@@ -176,7 +176,7 @@
 
     > li {
       display: block;
-      border-bottom: 1px solid @control-bg;
+      border-bottom: 1px solid var(--control-bg);
       padding: 10px 15px;
 
       .minimized & {
@@ -231,10 +231,10 @@
     transition: background 0.2s, box-shadow 0.2s;
 
     &.active, &.fullScreen {
-      background: @body-bg;
+      background: var(--body-bg);
     }
     &.active:not(.fullScreen) {
-      box-shadow: 0 0 0 2px @primary-color, 0 2px 6px @shadow-color;
+      box-shadow: 0 0 0 2px var(--primary-color), 0 2px 6px var(--shadow-color);
     }
     &.fullScreen {
       position: fixed;

@@ -16,14 +16,12 @@
   .Button.focus {
     color: var(--alert-color);
   }
-
-  .Alert--color(@alert-color, @alert-bg);
 }
 .Alert--error {
-  .Alert--color(@alert-error-color, @alert-error-bg);
+  .Alert--color(var(--alert-error-color), var(--alert-error-bg));
 }
 .Alert--success {
-  .Alert--color(@alert-success-color, @alert-success-bg);
+  .Alert--color(var(--alert-success-color), var(--alert-success-bg));
 
   a, a:hover {
     text-decoration: underline;

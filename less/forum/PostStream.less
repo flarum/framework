@@ -8,7 +8,7 @@
 }
 .PostStream-item {
   &:not(:last-child) {
-    border-bottom: 1px solid @control-bg;
+    border-bottom: 1px solid var(--control-bg);
 
     @media @phone {
       margin: 0 -15px;
@@ -28,7 +28,7 @@
 .fakeText {
   display: inline-block;
   vertical-align: middle;
-  background: @control-bg;
+  background: var(--control-bg);
   height: 12px;
   width: 100%;
   margin-bottom: 20px;
@@ -47,7 +47,7 @@
 .PostStream-timeGap {
   text-transform: uppercase;
   font-weight: bold;
-  color: @muted-color;
+  color: var(--muted-color);
   padding: 20px 20px 20px @avatar-column-width;
   font-size: 12px;
 

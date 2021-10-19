@@ -48,7 +48,7 @@
   padding: 3px;
   position: relative;
   border-radius: 14px;
-  background: @control-bg;
+  background: var(--control-bg);
   transition: background-color 0.2s;
 
   .LoadingIndicator {
@@ -89,9 +89,9 @@
   }
   &:before {
     content: " ";
-    background: @body-bg;
+    background: var(--body-bg);
     border-radius: 11px;
-    box-shadow: 0 2px 4px @shadow-color;
+    box-shadow: 0 2px 4px var(--shadow-color);
   }
 }
 .Checkbox-display {
@@ -104,11 +104,11 @@
     color: #d0021b;
   }
   .disabled & {
-    color: @muted-more-color !important;
+    color: var(--muted-more-color) !important;
   }
 }
 .Checkbox--switch.loading {
-  color: @muted-more-color !important;
+  color: var(--muted-more-color) !important;
 
   &.on .Checkbox-display {
     background: fade(#58a400, 0.5);

@@ -75,8 +75,8 @@
     top: @header-height;
     height: ~"calc(100vh - @{header-height})";
     width: @admin-pane-width;
-    box-shadow: 0 6px 6px @shadow-color;
-    background: @body-bg;
+    box-shadow: 0 6px 6px var(--shadow-color);
+    background: var(--body-bg);
     z-index: @zindex-pane;
     overflow-y: scroll;
     padding-bottom: 40px;
@@ -112,17 +112,17 @@
         > a,
         > a:hover,
         &.active > a {
-          color: @text-color;
+          color: var(--text-color);
         }
 
         > a:hover {
-          background: @control-bg;
+          background: var(--control-bg);
         }
 
         &.active > a {
-          background: @control-color;
+          background: var(--control-color);
           font-weight: normal;
-          color: @body-bg;
+          color: var(--body-bg);
 
           .Button-label,
           .Button-icon {
@@ -177,7 +177,7 @@
 }
 
 .ExtensionListTitle {
-  color: @muted-color;
+  color: var(--muted-color);
   text-transform: uppercase;
   margin: 25px 0 8px 15px;
 }

@@ -1,4 +1,37 @@
 :root {
+  --primary-color: @primary-color;
+  --secondary-color: @secondary-color;
+
+  --body-bg: @body-bg; // <--
+  --text-color: @text-color;
+  --link-color: @link-color;
+  --heading-color: @heading-color;
+
+  --muted-color: @muted-color; // <--
+  --muted-more-color: @muted-more-color; // <--
+
+  --shadow-color: @shadow-color;
+
+  --control-bg: @control-bg; // <--
+  --control-color: @control-color; // <--
+  --control-danger-bg: @control-danger-bg;
+  --control-danger-color: @control-danger-color;
+
+  --overlay-bg: @overlay-bg;
+  --code-bg: @code-bg;
+  --code-color: @code-color;
+
+  --error-color: @error-color;
+
+  --alert-bg: @alert-bg;
+  --alert-color: @alert-color;
+  --alert-error-bg: @alert-error-bg;
+  --alert-error-color: @alert-error-color;
+  --alert-success-bg: @alert-success-bg;
+  --alert-success-color: @alert-success-color;
+
+  --validation-error-color: @validation-error-color;
+
   // Component colors
   --avatar-bg: @control-bg;
   --badge-bg: @muted-color;
@@ -6,6 +39,9 @@
   --usercard-bg: @control-bg;
   --hero-bg: @hero-bg;
   --hero-color: @hero-color;
+
+  --discussion-title-color: mix(@heading-color, @body-bg, 55%);
+  --discussion-list-item-bg-hover: mix(@control-bg, @body-bg, 50%);
 
   .Button--color-vars(@control-color, @control-bg, 'button');
   .Button--color-vars(@body-bg, @primary-color, 'button-primary');

@@ -9,7 +9,7 @@
 @media @phone {
   .DiscussionPage-nav {
     margin: 0 -15px;
-    border-bottom: 1px solid @control-bg;
+    border-bottom: 1px solid var(--control-bg);
 
     > ul > li {
       margin: 15px;
@@ -76,10 +76,10 @@
     top: @header-height;
     height: ~"calc(100vh - @{header-height})";
     width: @pane-width;
-    background: @body-bg;
+    background: var(--body-bg);
     padding-bottom: 40px;
-    border-top: 1px solid @control-bg;
-    box-shadow: 0 6px 6px @shadow-color;
+    border-top: 1px solid var(--control-bg);
+    box-shadow: 0 6px 6px var(--shadow-color);
     transition: left 0.2s;
 
     .affix & {
@@ -96,7 +96,7 @@
       border-radius: 0;
 
       &.active {
-        background: @control-bg;
+        background: var(--control-bg);
       }
     }
     .DiscussionListItem-controls {

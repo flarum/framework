@@ -4,7 +4,7 @@
   &-header {
     @media @tablet-up {
       padding: 12px 15px;
-      border-bottom: 1px solid @control-bg;
+      border-bottom: 1px solid var(--control-bg);
 
       display: flex;
       justify-content: space-between;
@@ -15,7 +15,7 @@
         text-transform: uppercase;
         font-weight: bold;
         margin: 0;
-        color: @muted-color;
+        color: var(--muted-color);
       }
     }
 
@@ -29,11 +29,11 @@
       // it. In this case we will need to reset the button's styles back to
       // normal.
       & when (@config-colored-header = true) {
-        color: @control-color;
+        color: var(--control-color);
 
         &:hover,
         &:focus {
-          color: @link-color;
+          color: var(--link-color);
         }
       }
 
@@ -48,7 +48,7 @@
 
   // Message displayed when notifications are empty
   &-empty {
-    color: @muted-color;
+    color: var(--muted-color);
     text-align: center;
     padding: 50px 0;
     font-size: 16px;
@@ -56,7 +56,7 @@
 }
 
 .NotificationGroup {
-  border-top: 1px solid @control-bg;
+  border-top: 1px solid var(--control-bg);
   margin-top: -1px;
 
   &:not(:last-child) {
@@ -65,7 +65,7 @@
 
   &-header {
     font-weight: bold;
-    color: @heading-color !important;
+    color: var(--heading-color) !important;
     padding: 8px 16px;
     white-space: nowrap;
     overflow: hidden;
@@ -100,7 +100,7 @@
 
 .Notification {
   padding: 8px 16px;
-  color: @muted-color !important; // required to override .light-contents applied to header
+  color: var(--muted-color) !important; // required to override .light-contents applied to header
   overflow: hidden;
 
   display: grid;
@@ -118,14 +118,14 @@
   .add-keyboard-focus-ring-offset(-1px);
 
   &.unread {
-    background: @control-bg;
+    background: var(--control-bg);
   }
 
   &:hover,
   &:focus,
   &:focus-within {
     text-decoration: none;
-    background: @control-bg;
+    background: var(--control-bg);
 
     .Notification-action {
       opacity: 1;
@@ -136,7 +136,7 @@
     .Avatar--size(24px);
     grid-area: avatar;
   }
-  
+
   // Since images don't have baselines, aligning against the baseline won't work.
   // Instead we need to do some manual hackery to fix then, otherwise they won't
   // be correctly vertically aligned.
@@ -187,11 +187,11 @@
 
     // Needs more specificity to fix hover/focus styles not applying in dropdown
     .Notification & when (@config-colored-header = true) {
-      color: @control-color;
+      color: var(--control-color);
 
       &:hover,
       &:focus {
-        color: @link-color;
+        color: var(--link-color);
       }
     }
 
@@ -203,7 +203,7 @@
 
   &-excerpt {
     grid-area: excerpt;
-    color: @muted-more-color;
+    color: var(--muted-more-color);
     font-size: 11px;
     white-space: nowrap;
     text-overflow: ellipsis;

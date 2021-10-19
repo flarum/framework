@@ -14,7 +14,7 @@
 }
 .DiscussionListItem-content {
   position: relative;
-  color: @muted-color;
+  color: var(--muted-color);
 }
 .DiscussionListItem-main {
   color: inherit;
@@ -45,13 +45,13 @@
 .DiscussionListItem-title {
   margin: 0 0 3px;
   line-height: 1.3;
-  color: @heading-color;
+  color: var(--heading-color);
   font-weight: normal;
   overflow: hidden;
   text-overflow: ellipsis;
 
   .DiscussionList:not(.DiscussionList--searchResults) .read & {
-    color: mix(@heading-color, @body-bg, 55%);
+    color: var(--discussion-title-color);
   }
   .DiscussionList:not(.DiscussionList--searchResults) .unread & {
     font-weight: 600;
@@ -61,7 +61,7 @@
     background: none;
     box-shadow: none;
     font-weight: bold;
-    color: @text-color;
+    color: var(--text-color);
   }
 }
 .DiscussionListItem-info {
@@ -69,7 +69,7 @@
   padding: 0;
   margin: 0;
   font-size: 11px;
-  color: @muted-more-color;
+  color: var(--muted-more-color);
 
   > li {
     display: inline;
@@ -110,10 +110,10 @@
   }
 }
 
-@media (any-hover: none) { 
-  .DiscussionListItem-controls > .Dropdown-toggle { 
+@media (any-hover: none) {
+  .DiscussionListItem-controls > .Dropdown-toggle {
     display: none;
-  } 
+  }
 }
 
 @media @phone {
@@ -125,7 +125,7 @@
     padding-right: 15px + 35px;
 
     &:active {
-      background: @control-bg;
+      background: var(--control-bg);
     }
   }
   .DiscussionListItem-author {
@@ -158,14 +158,14 @@
   }
   .DiscussionListItem-count {
     margin-right: -35px;
-    background: @control-bg;
-    color: @control-color;
+    background: var(--control-bg);
+    color: var(--control-color);
     border-radius: @border-radius;
     font-size: 12px;
     padding: 2px 6px;
 
     .unread & {
-      background: @primary-color;
+      background: var(--primary-color);
       color: #fff;
       font-weight: bold;
 
@@ -189,7 +189,7 @@
     transition: background 0.2s;
 
     &:hover {
-      background: mix(@control-bg, @body-bg, 50%);
+      background: var(--discussion-list-item-bg-hover);
     }
     &:hover .DiscussionListItem-controls,
     .DiscussionListItem-controls.open {
@@ -245,7 +245,7 @@
     margin-top: 12px;
     margin-right: -70px;
     width: 55px;
-    color: @muted-color;
+    color: var(--muted-color);
     font-size: 14px;
     padding-left: 21px;
 
@@ -257,7 +257,7 @@
       margin-top: 3px;
     }
     .unread & {
-      color: @heading-color;
+      color: var(--heading-color);
       font-weight: bold;
 
       &:before {

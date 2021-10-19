@@ -6,22 +6,22 @@
   padding: 8px 13px;
   font-size: 13px;
   line-height: 1.5;
-  color: @control-color;
-  background-color: @control-bg;
+  color: var(--control-color);
+  background-color: var(--control-bg);
   border: 2px solid transparent;
   border-radius: @border-radius;
   transition: var(--transition);
   -webkit-appearance: none;
 
   &:focus {
-    background-color: @body-bg;
-    color: @text-color;
-    border-color: @primary-color;
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    border-color: var(--primary-color);
     outline: none;
   }
 
   // Placeholder
-  .placeholder(@control-color);
+  .placeholder(var(--control-color));
 
   // Disabled and read-only inputs
   &[disabled],
@@ -48,5 +48,5 @@
   font-size: 12px;
   line-height: 1.5em;
   margin-bottom: 10px;
-  color: @muted-color;
+  color: var(--muted-color);
 }
