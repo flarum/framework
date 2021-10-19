@@ -53,7 +53,7 @@
   padding: 8px 13px;
   border-radius: @border-radius;
   .user-select(none);
-  .Button--color(@control-color, @control-bg, 'button');
+  .Button--color(@control-color, @control-bg, 'button', true);
   border: 0;
 
   &:hover {
@@ -92,28 +92,43 @@
   }
 }
 
-.Button--color(@color; @background; @name: 'button') {
-  color: var(~"--@{name}-color", ~"@{color}");
-  background: var(~"--@{name}-bg", ~"@{background}");
-  @bg-hover: darken(fadein(@background, 5%), 5%);
-  @bg-active: darken(fadein(@background, 10%), 10%);
+// This allows to use the dynamic color modifying mixin while still using custom CSS poperties
+.Button--color-vars(@color; @background; @name: 'button') {
+  @componentName: ~"@{name}";
+
+  --@{componentName}-color: @color;
+  --@{componentName}-bg: @background;
+  --@{componentName}-bg-hover: darken(fadein(@background, 5%), 5%);
+  --@{componentName}-bg-active: darken(fadein(@background, 10%), 10%);
+  --@{componentName}-bg-disabled: @background;
+}
+
+.Button--color(@color; @background; @name: 'button'; @usingCssVars: false) {
+  // Backwards compatibility
+  // @todo remove in 2.0
+  & when (@usingCssVars = false) {
+    .Button--color-vars(@color, @background, @name);
+  }
+
+  color: var(~"--@{name}-color");
+  background: var(~"--@{name}-bg");
 
   &:hover,
   &:focus,
   &.focus {
-    background-color: var(~"--@{name}-bg-hover", ~"@{bg-hover}");
+    background-color: var(~"--@{name}-bg-hover");
   }
 
   &:active,
   &.active,
   .open > .Dropdown-toggle& {
-    background-color: var(~"--@{name}-bg-active", ~"@{bg-active}");
+    background-color: var(~"--@{name}-bg-active");
   }
 
   &.disabled,
   &[disabled],
   fieldset[disabled] & {
-    background: var(~"--@{name}-bg-disabled", ~"@{background}");
+    background: var(~"--@{name}-bg-disabled");
   }
 }
 
@@ -162,7 +177,7 @@
   }
 }
 .Button--primary {
-  .Button--color(@body-bg, @primary-color, 'button-primary');
+  .Button--color(@body-bg, @primary-color, 'button-primary', true);
   font-weight: bold;
   padding-left: 20px;
   padding-right: 20px;
@@ -172,7 +187,7 @@
   }
 }
 .Button--danger {
-  .Button--color(@control-danger-color, @control-danger-bg, 'control-danger');
+  .Button--color(@control-danger-color, @control-danger-bg, 'control-danger', true);
 }
 .Button--more {
   padding: 2px 4px;

@@ -7,6 +7,11 @@
   --hero-bg: @hero-bg;
   --hero-color: @hero-color;
 
+  .Button--color-vars(@control-color, @control-bg, 'button');
+  .Button--color-vars(@body-bg, @primary-color, 'button-primary');
+  .Button--color-vars(@control-danger-color, @control-danger-bg, 'control-danger');
+  .Button--color-vars(@muted-more-color, fade(@muted-more-color, 30%), 'muted-more');
+
   // Store the current responsive screen mode in a CSS variable, to make it
   // available to the JS code.
   --flarum-screen: none;
