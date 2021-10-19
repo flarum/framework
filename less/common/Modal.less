@@ -116,24 +116,6 @@
   text-align: center;
   color: @muted-color;
 }
-.Modal-loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: fade(@body-bg, 90%);
-  opacity: 0;
-  pointer-events: none;
-  border-radius: @border-radius;
-  transition: opacity 0.2s;
-
-  &.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
 
 @media @phone {
   .ModalManager.fade {
