@@ -71,11 +71,11 @@ export default class TagDiscussionModal extends Modal {
     // If this tag has a parent, we'll also need to add the parent tag to the
     // selected list if it's not already in there.
     const parent = tag.parent();
-    if (parent && this.selected.indexOf(parent) === -1) {
+    if (parent && !this.selected.includes(parent)) {
       this.selected.push(parent);
     }
 
-    if (this.selected.indexOf(tag) === -1) {
+    if (!this.selected.includes(tag)) {
       this.selected.push(tag);
     }
   }
@@ -109,6 +109,10 @@ export default class TagDiscussionModal extends Modal {
   }
 
   getInstruction(primaryCount, secondaryCount) {
+    if (app.forum.attribute('canBypassTagCounts')) {
+      return '';
+    }
+
     if (primaryCount < this.minPrimary) {
       const remaining = this.minPrimary - primaryCount;
       return app.translator.trans('flarum-tags.forum.choose_tags.choose_primary_placeholder', {count: remaining});
@@ -134,17 +138,17 @@ export default class TagDiscussionModal extends Modal {
     // makes it impossible to select a child if its parent hasn't been selected.
     tags = tags.filter(tag => {
       const parent = tag.parent();
-      return parent === false || this.selected.indexOf(parent) !== -1;
+      return parent === false || this.selected.includes(parent);
     });
 
     // If the number of selected primary/secondary tags is at the maximum, then
     // we'll filter out all other tags of that type.
-    if (primaryCount >= this.maxPrimary) {
-      tags = tags.filter(tag => !tag.isPrimary() || this.selected.indexOf(tag) !== -1);
+    if (primaryCount >= this.maxPrimary && !app.forum.attribute('canBypassTagCounts')) {
+      tags = tags.filter(tag => !tag.isPrimary() || this.selected.includes(tag));
     }
 
-    if (secondaryCount >= this.maxSecondary) {
-      tags = tags.filter(tag => tag.isPrimary() || this.selected.indexOf(tag) !== -1);
+    if (secondaryCount >= this.maxSecondary && !app.forum.attribute('canBypassTagCounts')) {
+      tags = tags.filter(tag => tag.isPrimary() || this.selected.includes(tag));
     }
 
     // If the user has entered text in the filter input, then filter by tags
@@ -153,7 +157,7 @@ export default class TagDiscussionModal extends Modal {
       tags = tags.filter(tag => tag.name().substr(0, filter.length).toLowerCase() === filter);
     }
 
-    if (tags.indexOf(this.index) === -1) this.index = tags[0];
+    if (!tags.includes(this.index)) this.index = tags[0];
 
     const inputWidth = Math.max(extractText(this.getInstruction(primaryCount, secondaryCount)).length, this.filter().length);
 
@@ -194,14 +198,14 @@ export default class TagDiscussionModal extends Modal {
       <div className="Modal-footer">
         <ul className="TagDiscussionModal-list SelectTagList">
           {tags
-            .filter(tag => filter || !tag.parent() || this.selected.indexOf(tag.parent()) !== -1)
+            .filter(tag => filter || !tag.parent() || this.selected.includes(tag.parent()))
             .map(tag => (
               <li data-index={tag.id()}
                 className={classList({
                   pinned: tag.position() !== null,
                   child: !!tag.parent(),
                   colored: !!tag.color(),
-                  selected: this.selected.indexOf(tag) !== -1,
+                  selected: this.selected.includes(tag),
                   active: this.index === tag
                 })}
                 style={{color: tag.color()}}
@@ -234,9 +238,7 @@ export default class TagDiscussionModal extends Modal {
   }
 
   toggleTag(tag) {
-    const index = this.selected.indexOf(tag);
-
-    if (index !== -1) {
+    if (this.selected.includes(tag)) {
       this.removeTag(tag);
     } else {
       this.addTag(tag);
@@ -252,7 +254,7 @@ export default class TagDiscussionModal extends Modal {
 
   select(e) {
     // Ctrl + Enter submits the selection, just Enter completes the current entry
-    if (e.metaKey || e.ctrlKey || this.selected.indexOf(this.index) !== -1) {
+    if (e.metaKey || e.ctrlKey || this.selected.includes(this.index)) {
       if (this.selected.length) {
         // The DOM submit method doesn't emit a `submit event, so we
         // simulate a manual submission so our `onsubmit` logic is run.
