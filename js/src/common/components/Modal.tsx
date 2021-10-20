@@ -59,7 +59,7 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
   oncreate(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>) {
     super.oncreate(vnode);
 
-    this.attrs.animateShow(this.onready);
+    this.attrs.animateShow(() => this.onready());
   }
 
   onbeforeremove(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>): Promise<void> | void {
