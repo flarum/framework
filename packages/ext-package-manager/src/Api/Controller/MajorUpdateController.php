@@ -1,10 +1,13 @@
 <?php
 
-/**
+/*
+ * This file is part of Flarum.
  *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
-namespace SychO\PackageManager\Api\Controller;
+namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
@@ -13,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use SychO\PackageManager\Command\MajorUpdate;
+use Flarum\PackageManager\Command\MajorUpdate;
 
 class MajorUpdateController implements RequestHandlerInterface
 {

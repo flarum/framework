@@ -17,17 +17,17 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
   view(vnode: Mithril.Vnode<ComponentAttrs, this>): Mithril.Children {
     return (
       <div className="Form-group PackageManager-majorUpdate">
-        <img alt="flarum logo" src={app.forum.attribute('baseUrl') + '/assets/extensions/sycho-package-manager/flarum.svg'} />
-        <label>{app.translator.trans('sycho-package-manager.admin.major_updater.title', { version: this.attrs.coreUpdate['latest-major'] })}</label>
-        <p className="helpText">{app.translator.trans('sycho-package-manager.admin.major_updater.description')}</p>
+        <img alt="flarum logo" src={app.forum.attribute('baseUrl') + '/assets/extensions/flarum-package-manager/flarum.svg'} />
+        <label>{app.translator.trans('flarum-package-manager.admin.major_updater.title', { version: this.attrs.coreUpdate['latest-major'] })}</label>
+        <p className="helpText">{app.translator.trans('flarum-package-manager.admin.major_updater.description')}</p>
         <div className="PackageManager-updaterControls">
-          <Tooltip text={app.translator.trans('sycho-package-manager.admin.major_updater.dry_run_help')}>
+          <Tooltip text={app.translator.trans('flarum-package-manager.admin.major_updater.dry_run_help')}>
             <Button className="Button" icon="fas fa-vial" onclick={this.update.bind(this, true)}>
-              {app.translator.trans('sycho-package-manager.admin.major_updater.dry_run')}
+              {app.translator.trans('flarum-package-manager.admin.major_updater.dry_run')}
             </Button>
           </Tooltip>
           <Button className="Button" icon="fas fa-play" onclick={this.update.bind(this, false)}>
-            {app.translator.trans('sycho-package-manager.admin.major_updater.update')}
+            {app.translator.trans('flarum-package-manager.admin.major_updater.update')}
           </Button>
         </div>
       </div>
@@ -48,7 +48,7 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
         errorHandler,
       })
       .then(() => {
-        app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.update_successful'));
+        app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
         window.location.reload();
       })
       .finally(() => {

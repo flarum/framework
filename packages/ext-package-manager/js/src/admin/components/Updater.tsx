@@ -44,10 +44,10 @@ export default class Updater extends Component {
 
     if (coreUpdate) {
       core = {
-        title: app.translator.trans('sycho-package-manager.admin.updater.flarum'),
+        title: app.translator.trans('flarum-package-manager.admin.updater.flarum'),
         version: app.data.settings.version,
         icon: {
-          backgroundImage: `url(${app.forum.attribute('baseUrl')}/assets/extensions/sycho-package-manager/flarum.svg`,
+          backgroundImage: `url(${app.forum.attribute('baseUrl')}/assets/extensions/flarum-package-manager/flarum.svg`,
         },
         newPackageUpdate: coreUpdate,
       };
@@ -55,12 +55,12 @@ export default class Updater extends Component {
 
     return [
       <div className="Form-group">
-        <label>{app.translator.trans('sycho-package-manager.admin.updater.updater_title')}</label>
-        <p className="helpText">{app.translator.trans('sycho-package-manager.admin.updater.updater_help')}</p>
+        <label>{app.translator.trans('flarum-package-manager.admin.updater.updater_title')}</label>
+        <p className="helpText">{app.translator.trans('flarum-package-manager.admin.updater.updater_help')}</p>
         {Object.keys(this.lastUpdateCheck).length ? (
           <p className="PackageManager-lastUpdatedAt">
             <span className="PackageManager-lastUpdatedAt-label">
-              {app.translator.trans('sycho-package-manager.admin.updater.last_update_checked_at')}
+              {app.translator.trans('flarum-package-manager.admin.updater.last_update_checked_at')}
             </span>
             <span className="PackageManager-lastUpdatedAt-value">{humanTime(this.lastUpdateCheck?.checkedAt)}</span>
           </p>
@@ -73,7 +73,7 @@ export default class Updater extends Component {
             loading={this.isLoading === 'check'}
             disabled={this.isLoading !== null && this.isLoading !== 'check'}
           >
-            {app.translator.trans('sycho-package-manager.admin.updater.check_for_updates')}
+            {app.translator.trans('flarum-package-manager.admin.updater.check_for_updates')}
           </Button>
           <Button
             className="Button"
@@ -82,7 +82,7 @@ export default class Updater extends Component {
             loading={this.isLoading === 'global-update'}
             disabled={this.isLoading !== null && this.isLoading !== 'global-update'}
           >
-            {app.translator.trans('sycho-package-manager.admin.updater.run_global_update')}
+            {app.translator.trans('flarum-package-manager.admin.updater.run_global_update')}
           </Button>
         </div>
         {this.isLoading !== null ? (
@@ -130,12 +130,12 @@ export default class Updater extends Component {
           </div>
         </div>
         <div className="PackageManager-extension-controls">
-          <Tooltip text={app.translator.trans('sycho-package-manager.admin.extensions.update')}>
+          <Tooltip text={app.translator.trans('flarum-package-manager.admin.extensions.update')}>
             <Button
               icon="fas fa-arrow-alt-circle-up"
               className="Button Button--icon Button--flat"
               onclick={isCore ? this.updateCoreMinor.bind(this) : this.updateExtension.bind(this, extension)}
-              aria-label={app.translator.trans('sycho-package-manager.admin.extensions.update')}
+              aria-label={app.translator.trans('flarum-package-manager.admin.extensions.update')}
             />
           </Tooltip>
         </div>
@@ -195,7 +195,7 @@ export default class Updater extends Component {
         errorHandler,
       })
       .then(() => {
-        app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.update_successful'));
+        app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
         window.location.reload();
       })
       .finally(() => {
@@ -217,7 +217,7 @@ export default class Updater extends Component {
       .then(() => {
         app.alerts.show(
           { type: 'success' },
-          app.translator.trans('sycho-package-manager.admin.extensions.successful_update', { extension: extension.extra['flarum-extension'].title })
+          app.translator.trans('flarum-package-manager.admin.extensions.successful_update', { extension: extension.extra['flarum-extension'].title })
         );
         window.location.reload();
       })
@@ -238,7 +238,7 @@ export default class Updater extends Component {
         errorHandler,
       })
       .then(() => {
-        app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.updater.global_update_successful'));
+        app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.updater.global_update_successful'));
         window.location.reload();
       })
       .finally(() => {

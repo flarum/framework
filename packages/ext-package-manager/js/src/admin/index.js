@@ -9,15 +9,15 @@ import Updater from './components/Updater';
 import isExtensionEnabled from 'flarum/admin/utils/isExtensionEnabled';
 import MajorUpdater from './components/MajorUpdater';
 
-app.initializers.add('sycho-package-manager', (app) => {
+app.initializers.add('flarum-package-manager', (app) => {
   app.extensionData
-    .for('sycho-package-manager')
+    .for('flarum-package-manager')
     .registerSetting(() => {
       if (!app.data.isRequiredDirectoriesWritable) {
         return (
           <div className="Form-group">
             <Alert type="warning" dismissible={false}>
-              {app.translator.trans('sycho-package-manager.admin.file_permissions')}
+              {app.translator.trans('flarum-package-manager.admin.file_permissions')}
             </Alert>
           </div>
         );
@@ -35,7 +35,7 @@ app.initializers.add('sycho-package-manager', (app) => {
     });
 
   extend(ExtensionPage.prototype, 'topItems', function (items) {
-    if (this.extension.id === 'sycho-package-manager' || isExtensionEnabled(this.extension.id)) {
+    if (this.extension.id === 'flarum-package-manager' || isExtensionEnabled(this.extension.id)) {
       return;
     }
 
@@ -53,7 +53,7 @@ app.initializers.add('sycho-package-manager', (app) => {
               method: 'DELETE',
             })
             .then(() => {
-              app.alerts.show({ type: 'success' }, app.translator.trans('sycho-package-manager.admin.extensions.successful_remove'));
+              app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.extensions.successful_remove'));
               window.location = app.forum.attribute('adminUrl');
             })
             .finally(() => {

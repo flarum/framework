@@ -20,16 +20,16 @@ export default class Installer extends Component {
   view(): Mithril.Children {
     return (
       <div className="Form-group">
-        <label htmlFor="install-extension">{app.translator.trans('sycho-package-manager.admin.extensions.install')}</label>
+        <label htmlFor="install-extension">{app.translator.trans('flarum-package-manager.admin.extensions.install')}</label>
         <p className="helpText">
-          {app.translator.trans('sycho-package-manager.admin.extensions.install_help', {
+          {app.translator.trans('flarum-package-manager.admin.extensions.install_help', {
             extiverse: <a href="https://extiverse.com">extiverse.com</a>,
           })}
         </p>
         <div className="FormControl-container">
           <input className="FormControl" id="install-extension" placeholder="vendor/package-name" bidi={this.packageName} />
           <Button className="Button" icon="fas fa-download" onclick={this.onsubmit.bind(this)} loading={this.isLoading}>
-            {app.translator.trans('sycho-package-manager.admin.extensions.proceed')}
+            {app.translator.trans('flarum-package-manager.admin.extensions.proceed')}
           </Button>
         </div>
       </div>
@@ -59,7 +59,7 @@ export default class Installer extends Component {
         const extensionId = response.id;
         app.alerts.show(
           { type: 'success' },
-          app.translator.trans('sycho-package-manager.admin.extensions.successful_install', { extension: extensionId })
+          app.translator.trans('flarum-package-manager.admin.extensions.successful_install', { extension: extensionId })
         );
         window.location.href = `${app.forum.attribute('adminUrl')}#/extension/${extensionId}`;
         window.location.reload();
