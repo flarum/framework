@@ -13,6 +13,8 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Query\Builder;
+use Psr\Http\Message\ServerRequestInterface;
 
 class ApiController implements ExtenderInterface
 {
@@ -298,7 +300,7 @@ class ApiController implements ExtenderInterface
      * To force load the relationship, both levels have to be specified,
      * example: ['relation', 'relation.subRelation'].
      *
-     * @param string|string[]|array<string, callable> $relations
+     * @param string|string[]|array<string, callable(Builder, ServerRequestInterface|null): void> $relations
      * @return self
      */
     public function load($relations): self
