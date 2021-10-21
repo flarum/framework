@@ -125,6 +125,9 @@ class ListDiscussionsController extends AbstractListController
 
         $results = $results->getResults();
 
+        /*
+         * @TODO replace in 1.2 with proper implementation!!!
+         */
         if (in_array('tags.state', $include, true)) {
             $results->load([
                 'tags.state' => function ($query) use ($actor) {
