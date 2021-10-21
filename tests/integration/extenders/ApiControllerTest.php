@@ -803,6 +803,127 @@ class ApiControllerTest extends TestCase
 
         $this->assertTrue($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
     }
+
+    /**
+     * @test
+     */
+    public function custom_callable_first_level_relation_is_loaded_if_added()
+    {
+        $users = null;
+
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasOne('firstLevelRelation', Post::class, 'user_id'),
+            (new Extend\ApiController(ListUsersController::class))
+                ->load(['firstLevelRelation' => function ($query, $request) {}])
+                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                    $users = $data;
+
+                    return [];
+                })
+        );
+
+        $this->send(
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertFalse($users->filter->relationLoaded('firstLevelRelation')->isEmpty());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_callable_second_level_relation_is_loaded_if_added()
+    {
+        $users = null;
+
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasOne('firstLevelRelation', Post::class, 'user_id'),
+            (new Extend\Model(Post::class))
+                ->belongsTo('secondLevelRelation', Discussion::class),
+            (new Extend\ApiController(ListUsersController::class))
+                ->load(['firstLevelRelation', 'firstLevelRelation.secondLevelRelation' => function ($query, $request) {}])
+                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                    $users = $data;
+
+                    return [];
+                })
+        );
+
+        $this->send(
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertFalse($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_callable_second_level_relation_is_not_loaded_when_first_level_is_not()
+    {
+        $users = null;
+
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasOne('firstLevelRelation', Post::class, 'user_id'),
+            (new Extend\Model(Post::class))
+                ->belongsTo('secondLevelRelation', Discussion::class),
+            (new Extend\ApiController(ListUsersController::class))
+                ->load(['firstLevelRelation.secondLevelRelation' => function ($query, $request) {}])
+                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                    $users = $data;
+
+                    return [];
+                })
+        );
+
+        $this->send(
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertTrue($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_callable_second_level_relation_is_loaded_when_first_level_is()
+    {
+        $users = null;
+
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasOne('firstLevelRelation', Post::class, 'user_id'),
+            (new Extend\Model(Post::class))
+                ->belongsTo('secondLevelRelation', Discussion::class),
+            (new Extend\ApiController(ListUsersController::class))
+                ->load([
+                    'firstLevelRelation' => function ($query, $request) {},
+                    'firstLevelRelation.secondLevelRelation' => function ($query, $request) {}
+                ])
+                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                    $users = $data;
+
+                    return [];
+                })
+        );
+
+        $this->send(
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertTrue($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isNotEmpty());
+    }
 }
 
 class CustomDiscussionSerializer extends DiscussionSerializer
