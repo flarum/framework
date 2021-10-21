@@ -298,7 +298,7 @@ class ApiController implements ExtenderInterface
      * To force load the relationship, both levels have to be specified,
      * example: ['relation', 'relation.subRelation'].
      *
-     * @param string|string[] $relations
+     * @param string|string[]|array<string, callable> $relations
      * @return self
      */
     public function load($relations): self

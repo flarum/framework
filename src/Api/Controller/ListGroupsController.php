@@ -31,7 +31,7 @@ class ListGroupsController extends AbstractListController
 
         $results = Group::whereVisibleTo($actor)->get();
 
-        $this->loadRelations($results, []);
+        $this->loadRelations($results, [], $request);
 
         return $results;
     }

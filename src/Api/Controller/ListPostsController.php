@@ -108,7 +108,7 @@ class ListPostsController extends AbstractListController
 
         $results = $results->getResults();
 
-        $this->loadRelations($results, $include);
+        $this->loadRelations($results, $include, $request);
 
         return $results;
     }

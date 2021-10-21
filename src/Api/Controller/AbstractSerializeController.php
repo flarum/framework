@@ -165,14 +165,19 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
     /**
      * Eager loads the required relationships.
-     *
-     * @param Collection $models
-     * @param array $relations
-     * @return void
      */
-    protected function loadRelations(Collection $models, array $relations): void
+    protected function loadRelations(Collection $models, array $relations, ServerRequestInterface $request = null): void
     {
         $addedRelations = $this->getRelationsToLoad();
+
+        // Filter out callables
+        $callables = [];
+        foreach ($addedRelations as $name => $relation) {
+            if (is_callable($relation)) {
+                $addedRelations[$name] = $name;
+                $callables[$name] = $relation;
+            }
+        }
 
         if (! empty($addedRelations)) {
             usort($addedRelations, function ($a, $b) {
@@ -194,6 +199,21 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
         if (! empty($relations)) {
             $relations = array_unique($relations);
+        }
+
+        foreach ($relations as $k => $relation) {
+            if (isset($callables[$relation])) {
+                $load = $callables[$relation];
+
+                $relations[$relation] = function ($query) use ($load, $request) {
+                    $load($query, $request);
+                };
+
+                unset($relations[$k]);
+            }
+        }
+
+        if (! empty($relations)) {
             $models->loadMissing($relations);
         }
     }
