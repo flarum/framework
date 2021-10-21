@@ -1,4 +1,4 @@
-sycho-package-manager:
+flarum-package-manager:
   admin:
     exceptions:
       extension_already_installed: Extension is already installed.

@@ -1,20 +1,23 @@
 <?php
 
-/**
+/*
+ * This file is part of Flarum.
  *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
-namespace SychO\PackageManager;
+namespace Flarum\PackageManager;
 
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Document;
-use SychO\PackageManager\Exception\ComposerCommandFailedException;
-use SychO\PackageManager\Exception\ComposerCommandFailedExceptionHandler;
-use SychO\PackageManager\Exception\ComposerRequireFailedException;
-use SychO\PackageManager\Exception\ComposerUpdateFailedException;
-use SychO\PackageManager\Exception\ExtensionAlreadyInstalledException;
-use SychO\PackageManager\Exception\ExtensionNotInstalledException;
+use Flarum\PackageManager\Exception\ComposerCommandFailedException;
+use Flarum\PackageManager\Exception\ComposerCommandFailedExceptionHandler;
+use Flarum\PackageManager\Exception\ComposerRequireFailedException;
+use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
+use Flarum\PackageManager\Exception\ExtensionAlreadyInstalledException;
+use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
 
 return [
     (new Extend\Routes('api'))

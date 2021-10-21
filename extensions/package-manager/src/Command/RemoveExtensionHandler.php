@@ -1,19 +1,22 @@
 <?php
 
-/**
+/*
+ * This file is part of Flarum.
  *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
-namespace SychO\PackageManager\Command;
+namespace Flarum\PackageManager\Command;
 
 use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
 use Illuminate\Contracts\Events\Dispatcher;
-use SychO\PackageManager\Exception\ComposerCommandFailedException;
-use SychO\PackageManager\Exception\ComposerUpdateFailedException;
-use SychO\PackageManager\Exception\ExtensionNotInstalledException;
-use SychO\PackageManager\Extension\Event\Removed;
-use SychO\PackageManager\OutputLogger;
+use Flarum\PackageManager\Exception\ComposerCommandFailedException;
+use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
+use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
+use Flarum\PackageManager\Extension\Event\Removed;
+use Flarum\PackageManager\OutputLogger;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 

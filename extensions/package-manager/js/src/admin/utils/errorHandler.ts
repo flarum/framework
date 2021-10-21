@@ -14,12 +14,12 @@ export default function (e: any) {
       break;
 
     case 'extension_already_installed':
-      app.alerts.show({ type: 'error' }, app.translator.trans('sycho-package-manager.admin.exceptions.extension_already_installed'));
+      app.alerts.show({ type: 'error' }, app.translator.trans('flarum-package-manager.admin.exceptions.extension_already_installed'));
       app.modal.close();
       break;
 
     case 'extension_not_installed':
-      app.alerts.show({ type: 'error' }, app.translator.trans('sycho-package-manager.admin.exceptions.extension_not_installed'));
+      app.alerts.show({ type: 'error' }, app.translator.trans('flarum-package-manager.admin.exceptions.extension_not_installed'));
       app.modal.close();
   }
 }

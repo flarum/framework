@@ -15,7 +15,7 @@ export default class ComposerFailureModal<T extends Attrs = Attrs> extends Modal
     if (this.attrs.error.guessed_cause) {
       this.alertAttrs = {
         type: 'error',
-        content: app.translator.trans(`sycho-package-manager.admin.failure_modal.guessed_cause.${this.attrs.error.guessed_cause}`),
+        content: app.translator.trans(`flarum-package-manager.admin.failure_modal.guessed_cause.${this.attrs.error.guessed_cause}`),
       };
     }
   }
@@ -25,14 +25,14 @@ export default class ComposerFailureModal<T extends Attrs = Attrs> extends Modal
   }
 
   title() {
-    return app.translator.trans('sycho-package-manager.admin.failure_modal.title');
+    return app.translator.trans('flarum-package-manager.admin.failure_modal.title');
   }
 
   content() {
     return (
       <div className="Modal-body">
         <details>
-          <summary>{app.translator.trans('sycho-package-manager.admin.failure_modal.show_composer_output')}</summary>
+          <summary>{app.translator.trans('flarum-package-manager.admin.failure_modal.show_composer_output')}</summary>
           <pre className="ComposerFailureModal-output">{this.attrs.error.output}</pre>
         </details>
       </div>

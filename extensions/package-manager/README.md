@@ -2,4 +2,4 @@
 
 *An Experiment.*
 
-Read: https://github.com/SychO9/flarum-package-manager/wiki
+Read: https://github.com/flarum/package-manager/wiki

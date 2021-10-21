@@ -1,10 +1,13 @@
 <?php
 
-/**
+/*
+ * This file is part of Flarum.
  *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
-namespace SychO\PackageManager;
+namespace Flarum\PackageManager;
 
 use Composer\Config;
 use Composer\Console\Application;
@@ -18,9 +21,9 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
-use SychO\PackageManager\Event\FlarumUpdated;
-use SychO\PackageManager\Extension\Event\Updated;
-use SychO\PackageManager\Listener\PostUpdateListener;
+use Flarum\PackageManager\Event\FlarumUpdated;
+use Flarum\PackageManager\Extension\Event\Updated;
+use Flarum\PackageManager\Listener\PostUpdateListener;
 
 class PackageManagerServiceProvider extends AbstractServiceProvider
 {
@@ -32,11 +35,12 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             $composer = new Application();
             $composer->setAutoExit(false);
 
+            /** @var Paths $paths */
             $paths = $container->make(Paths::class);
 
             putenv("COMPOSER_HOME={$paths->storage}/.composer");
             putenv("COMPOSER={$paths->base}/composer.json");
-            Config::$defaultConfig['vendor-dir'] = $paths->base.'/vendor';
+            Config::$defaultConfig['vendor-dir'] = $paths->vendor;
 
             // When running simple require, update and remove commands on packages,
             // composer 2 doesn't really need this much unless the extensions are very loaded dependency wise,

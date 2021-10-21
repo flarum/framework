@@ -1,15 +1,22 @@
 <?php
 
-namespace SychO\PackageManager\Command;
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\PackageManager\Command;
 
 use Composer\Console\Application;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use SychO\PackageManager\Event\FlarumUpdated;
-use SychO\PackageManager\Exception\ComposerUpdateFailedException;
-use SychO\PackageManager\LastUpdateCheck;
-use SychO\PackageManager\OutputLogger;
+use Flarum\PackageManager\Event\FlarumUpdated;
+use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
+use Flarum\PackageManager\LastUpdateCheck;
+use Flarum\PackageManager\OutputLogger;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 

@@ -1,10 +1,13 @@
 <?php
 
-/**
+/*
+ * This file is part of Flarum.
  *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
-namespace SychO\PackageManager;
+namespace Flarum\PackageManager;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -12,7 +15,7 @@ use Illuminate\Support\Str;
 
 class LastUpdateCheck
 {
-    public const KEY = 'sycho-package-manager.last_update_check';
+    public const KEY = 'flarum-package-manager.last_update_check';
 
     /**
      * @var SettingsRepositoryInterface

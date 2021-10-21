@@ -1,10 +1,13 @@
 <?php
 
-/**
+/*
+ * This file is part of Flarum.
  *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
-namespace SychO\PackageManager\Api\Controller;
+namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -13,7 +16,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use SychO\PackageManager\Command\CheckForUpdates;
+use Flarum\PackageManager\Command\CheckForUpdates;
 
 class CheckForUpdatesController implements RequestHandlerInterface
 {
