@@ -125,6 +125,14 @@ class ListDiscussionsController extends AbstractListController
 
         $results = $results->getResults();
 
+        if (in_array('tags.state', $include, true)) {
+            $results->load([
+                'tags.state' => function ($query) use ($actor) {
+                    $query->where('user_id', $actor->id);
+                }
+            ]);
+        }
+
         $this->loadRelations($results, $include);
 
         if ($relations = array_intersect($include, ['firstPost', 'lastPost', 'mostRelevantPost'])) {
