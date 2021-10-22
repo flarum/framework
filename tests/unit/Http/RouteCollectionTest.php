@@ -69,4 +69,16 @@ class RouteCollectionTest extends TestCase
 
         $this->assertEquals('/user/SomeUser', $path);
     }
+
+    /** @test */
+    public function can_provide_optional_parameters()
+    {
+        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
+            echo 'user';
+        });
+
+        $path = $routeCollection->getPath('user', ['user' => 'SomeUser', 'test' => 'Flarum']);
+
+        $this->assertEquals('/user/SomeUser/Flarum', $path);
+    }
 }
