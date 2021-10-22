@@ -123,11 +123,11 @@ class RouteCollection
 
     protected function fixPathPart($part, array $parameters, string $routeName)
     {
-        if (!is_array($part)) {
+        if (! is_array($part)) {
             return $part;
         }
 
-        if (!array_key_exists($part[0], $parameters)) {
+        if (! array_key_exists($part[0], $parameters)) {
             throw new \InvalidArgumentException("Could not generate URL for route '$routeName': no value provided for required part '$part[0]'.");
         }
 
@@ -157,7 +157,7 @@ class RouteCollection
                 }
             }
 
-            $fixedParts = array_map(function($part) use ($parameters, $name) {
+            $fixedParts = array_map(function ($part) use ($parameters, $name) {
                 return $this->fixPathPart($part, $parameters, $name);
             }, $matchingParts);
 
