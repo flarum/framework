@@ -49,12 +49,24 @@ class RouteCollectionTest extends TestCase
     public function must_provide_required_parameters()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Route is missing argument for part user.');
+        $this->expectExceptionMessage("Could not generate URL for route 'user': no value provided for required part 'user'.");
 
         $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}', 'user', function () {
             echo 'user';
         });
 
         $routeCollection->getPath('user', []);
+    }
+
+    /** @test */
+    public function dont_need_to_provide_optional_parameters()
+    {
+        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
+            echo 'user';
+        });
+
+        $path = $routeCollection->getPath('user', ['user' => 'SomeUser']);
+
+        $this->assertEquals('/user/SomeUser', $path);
     }
 }

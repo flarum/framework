@@ -121,15 +121,17 @@ class RouteCollection
         return $this->dataGenerator->getData();
     }
 
-    protected function fixPathPart(&$part, $key, array $parameters)
+    protected function fixPathPart($part, array $parameters, string $routeName)
     {
-        // This assumes that $parameters always has the required param
-        // the route needs. This isn't always the case.
-        if (is_array($part) && array_key_exists($part[0], $parameters)) {
-            $part = $parameters[$part[0]];
-        } elseif (is_array($part) && ! array_key_exists($part[0], $parameters)) {
-            throw new \InvalidArgumentException("Route is missing argument for part $part[0].");
+        if (!is_array($part)) {
+            return $part;
         }
+
+        if (!array_key_exists($part[0], $parameters)) {
+            throw new \InvalidArgumentException("Could not generate URL for route '$routeName': no value provided for required part '$part[0]'.");
+        }
+
+        return $parameters[$part[0]];
     }
 
     public function getPath($name, array $parameters = [])
@@ -155,9 +157,11 @@ class RouteCollection
                 }
             }
 
-            array_walk($matchingParts, [$this, 'fixPathPart'], $parameters);
+            $fixedParts = array_map(function($part) use ($parameters, $name) {
+                return $this->fixPathPart($part, $parameters, $name);
+            }, $matchingParts);
 
-            return '/'.ltrim(implode('', $matchingParts), '/');
+            return '/'.ltrim(implode('', $fixedParts), '/');
         }
 
         throw new \RuntimeException("Route $name not found");
