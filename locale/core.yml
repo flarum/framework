@@ -516,6 +516,7 @@ core:
       title: => core.ref.edit_user
       username_heading: => core.ref.username
       username_label: => core.ref.username
+      nothing_available: You are not allowed to edit this user.
 
     # These translations are displayed as error messages.
     error:
@@ -526,6 +527,7 @@ core:
       payload_too_large_message: The request payload was too large.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
+      render_failed_message: Sorry, we encountered an error while displaying this content. If you're a user, please try again later. If you're an administrator, take a look in your Flarum log files for more information.
 
     # These translations are used in the loading indicator component.
     loading_indicator:
