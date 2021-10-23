@@ -14,7 +14,7 @@ use Flarum\Discussion\Query as DiscussionQuery;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Group\Filter\GroupFilterer;
-use Flarum\Group\Query as GroupQuery;
+use Flarum\Group\Filter as GroupFilter;
 use Flarum\Post\Filter as PostFilter;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\User\Filter\UserFilterer;
@@ -44,7 +44,7 @@ class FilterServiceProvider extends AbstractServiceProvider
                     UserQuery\GroupFilterGambit::class,
                 ],
                 GroupFilterer::class => [
-                    GroupQuery\HiddenFilter::class,
+                    GroupFilter\HiddenFilter::class,
                 ],
                 PostFilterer::class => [
                     PostFilter\AuthorFilter::class,
