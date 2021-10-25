@@ -82,6 +82,10 @@ class AvatarValidator extends AbstractValidator
 
     protected function raise($error, array $parameters = [], $rule = null)
     {
+        // When we switched to intl ICU message format, the translation parameters
+        // have become required to be in the format `{param}`.
+        // Therefore we cannot use the translator to replace the string params.
+        // We use the laravel validator to make the replacements instead.
         $message = $this->laravelValidator->makeReplacements(
             $this->translator->trans("validation.$error"),
             'avatar',
