@@ -10,8 +10,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\GroupSerializer;
-use Flarum\Group\Group;
+use Flarum\Group\Filter\GroupFilterer;
 use Flarum\Http\RequestUtil;
+use Flarum\Http\UrlGenerator;
+use Flarum\Query\QueryCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -25,14 +27,61 @@ class ListGroupsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
+    public $sortFields = ['nameSingular', 'namePlural', 'isHidden'];
+
+    /**
+     * {@inheritdoc}
+     *
+     * @var int
+     */
+    public $limit = -1;
+
+    /**
+     * @var GroupFilterer
+     */
+    protected $filterer;
+
+    /**
+     * @var UrlGenerator
+     */
+    protected $url;
+
+    /**
+     * @param GroupFilterer $filterer
+     * @param UrlGenerator $url
+     */
+    public function __construct(GroupFilterer $filterer, UrlGenerator $url)
+    {
+        $this->filterer = $filterer;
+        $this->url = $url;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = RequestUtil::getActor($request);
 
-        $results = Group::whereVisibleTo($actor)->get();
+        $filters = $this->extractFilter($request);
+        $sort = $this->extractSort($request);
+        $sortIsDefault = $this->sortIsDefault($request);
 
-        $this->loadRelations($results, []);
+        $limit = $this->extractLimit($request);
+        $offset = $this->extractOffset($request);
 
-        return $results;
+        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
+
+        $queryResults = $this->filterer->filter($criteria, $limit, $offset);
+
+        $document->addPaginationLinks(
+            $this->url->to('api')->route('groups.index'),
+            $request->getQueryParams(),
+            $offset,
+            $limit,
+            $queryResults->areMoreResults() ? null : 0
+        );
+
+        return $queryResults->getResults();
     }
 }
