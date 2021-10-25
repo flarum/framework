@@ -79,7 +79,7 @@ export default class MailPage extends AdminPage {
 
                 return [
                   this.buildSettingComponent({
-                    type: typeof this.setting(field)() === 'string' ? 'text' : 'select',
+                    type: typeof fieldInfo === 'string' ? 'text' : 'select',
                     label: app.translator.trans(`core.admin.email.${field}_label`),
                     setting: field,
                     options: fieldInfo,
