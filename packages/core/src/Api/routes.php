@@ -224,6 +224,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\CreateGroupController::class)
     );
 
+    // Show a single group
+    $map->get(
+        '/groups/{id}',
+        'groups.show',
+        $route->toController(Controller\ShowGroupController::class)
+    );
+
     // Edit a group
     $map->patch(
         '/groups/{id}',
