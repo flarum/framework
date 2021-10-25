@@ -86,7 +86,6 @@
       .form-control:focus,
       .form-control.focus {
          border-color: {{ $primaryColor }};
-         outline: none;
       }
       .errors {
         color: #d83e3e;

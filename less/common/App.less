@@ -24,7 +24,7 @@
     }
 
     .scrolled & {
-      .box-shadow(0 2px 6px @shadow-color);
+      box-shadow: 0 2px 6px @shadow-color;
     }
   }
   .App-primaryControl, .App-titleControl, .App-backControl {
@@ -40,7 +40,7 @@
     > .Button {
       float: none;
       background: transparent !important;
-      .box-shadow(~"none !important");
+      box-shadow: none !important;
       height: @header-height-phone;
       width: auto;
       padding: 13px !important;
@@ -136,9 +136,9 @@
     left: 0;
     top: 0;
     bottom: 0;
-    .box-shadow(0 2px 6px @shadow-color);
-    .translate3d(-@drawer-width - 6px, 0, 0);
-    .transition-transform(0.2s);
+    box-shadow: 0 2px 6px @shadow-color;
+    transform: translate(-@drawer-width - 6px, 0);
+    transition: transform 0.2s;
     z-index: @zindex-modal;
 
     .drawerOpen & {
@@ -155,7 +155,7 @@
     z-index: @zindex-modal-background;
     background-color: @overlay-bg;
     opacity: 0;
-    .transition(0.2s opacity);
+    transition: opacity 0.2s;
 
     &.in {
       opacity: 0.9;
@@ -241,7 +241,7 @@
     }
 
     .scrolled & {
-      .box-shadow(0 2px 6px @shadow-color);
+      box-shadow: 0 2px 6px @shadow-color;
     }
 
     & when (@config-colored-header = true) {

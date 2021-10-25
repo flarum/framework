@@ -111,15 +111,18 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\AuthenticateWithHeader::class,
-                HttpMiddleware\CheckCsrfToken::class
+                HttpMiddleware\CheckCsrfToken::class,
+                HttpMiddleware\RememberFromCookie::class,
             ];
         });
 
         $this->container->singleton(Client::class, function ($container) {
             $pipe = new MiddlewarePipe;
 
-            $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($container) {
-                return ! in_array($middlewareClass, $container->make('flarum.api_client.exclude_middleware'));
+            $exclude = $container->make('flarum.api_client.exclude_middleware');
+
+            $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($exclude) {
+                return ! in_array($middlewareClass, $exclude);
             });
 
             foreach ($middlewareStack as $middleware) {

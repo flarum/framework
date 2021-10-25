@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Modal from '../../common/components/Modal';
 import LogInModal from './LogInModal';
 import Button from '../../common/components/Button';
@@ -103,6 +104,7 @@ export default class SignUpModal extends Modal {
             className="FormControl"
             name="password"
             type="password"
+            autocomplete="new-password"
             placeholder={extractText(app.translator.trans('core.forum.sign_up.password_placeholder'))}
             bidi={this.password}
             disabled={this.loading}

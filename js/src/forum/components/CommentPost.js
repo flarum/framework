@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Post from './Post';
 import classList from '../../common/utils/classList';
 import PostUser from './PostUser';
@@ -99,6 +100,7 @@ export default class CommentPost extends Post {
       ' ' +
       classList({
         CommentPost: true,
+        'Post--renderFailed': post.renderFailed(),
         'Post--hidden': post.isHidden(),
         'Post--edited': post.isEdited(),
         revealContent: this.revealContent,

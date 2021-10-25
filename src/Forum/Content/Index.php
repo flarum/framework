@@ -68,12 +68,13 @@ class Index
         $sort = Arr::pull($queryParams, 'sort');
         $q = Arr::pull($queryParams, 'q');
         $page = max(1, intval(Arr::pull($queryParams, 'page')));
+        $filters = Arr::pull($queryParams, 'filter', []);
 
         $sortMap = $this->getSortMap();
 
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
-            'filter' => [],
+            'filter' => $filters,
             'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
         ];
 

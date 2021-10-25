@@ -16,6 +16,7 @@ use Flarum\Foundation\ContainerUtil;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Document;
 use Flarum\Frontend\Frontend as ActualFrontend;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\RouteCollection;
@@ -33,6 +34,7 @@ class Frontend implements ExtenderInterface
     private $routes = [];
     private $removedRoutes = [];
     private $content = [];
+    private $preloadArrs = [];
 
     /**
      * @param string $frontend: The name of the frontend.
@@ -124,11 +126,45 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Adds multiple asset preloads.
+     *
+     * The parameter should be an array of preload arrays, or a callable that returns this.
+     *
+     * A preload array must contain keys that pertain to the `<link rel="preload">` tag.
+     *
+     * For example, the following will add preload tags for a script and font file:
+     * ```
+     * $frontend->preloads([
+     *   [
+     *     'href' => '/assets/my-script.js',
+     *     'as' => 'script',
+     *   ],
+     *   [
+     *     'href' => '/assets/fonts/my-font.woff2',
+     *     'as' => 'font',
+     *     'type' => 'font/woff2',
+     *     'crossorigin' => ''
+     *   ]
+     * ]);
+     * ```
+     *
+     * @param callable|array $preloads
+     * @return self
+     */
+    public function preloads($preloads): self
+    {
+        $this->preloadArrs[] = $preloads;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);
         $this->registerContent($container);
+        $this->registerPreloads($container);
     }
 
     private function registerAssets(Container $container, string $moduleName): void
@@ -153,9 +189,9 @@ class Frontend implements ExtenderInterface
             }
 
             if ($this->css) {
-                $assets->css(function (SourceCollector $sources) {
+                $assets->css(function (SourceCollector $sources) use ($moduleName) {
                     foreach ($this->css as $path) {
-                        $sources->addFile($path);
+                        $sources->addFile($path, $moduleName);
                     }
                 });
             }
@@ -232,6 +268,25 @@ class Frontend implements ExtenderInterface
                 foreach ($this->content as $content) {
                     $frontend->content(ContainerUtil::wrapCallback($content, $container));
                 }
+            }
+        );
+    }
+
+    private function registerPreloads(Container $container): void
+    {
+        if (empty($this->preloadArrs)) {
+            return;
+        }
+
+        $container->resolving(
+            "flarum.frontend.$this->frontend",
+            function (ActualFrontend $frontend, Container $container) {
+                $frontend->content(function (Document $document) use ($container) {
+                    foreach ($this->preloadArrs as $preloadArr) {
+                        $preloads = is_callable($preloadArr) ? ContainerUtil::wrapCallback($preloadArr, $container)($document) : $preloadArr;
+                        $document->preloads = array_merge($document->preloads, $preloads);
+                    }
+                });
             }
         );
     }

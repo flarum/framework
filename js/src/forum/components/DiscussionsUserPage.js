@@ -17,7 +17,7 @@ export default class DiscussionsUserPage extends UserPage {
     super.show(user);
 
     this.state = new DiscussionListState({
-      q: 'author:' + user.username(),
+      filter: { author: user.username() },
       sort: 'newest',
     });
 

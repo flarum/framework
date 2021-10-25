@@ -6,7 +6,7 @@
  * - `discussion`
  * - `lastPost`
  */
-export default class TerminalPost extends Component<import("../../common/Component").ComponentAttrs> {
+export default class TerminalPost extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
 }
 import Component from "../../common/Component";

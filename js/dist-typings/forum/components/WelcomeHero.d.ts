@@ -2,7 +2,7 @@
  * The `WelcomeHero` component displays a hero that welcomes the user to the
  * forum.
  */
-export default class WelcomeHero extends Component<import("../../common/Component").ComponentAttrs> {
+export default class WelcomeHero extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     hidden: string | boolean | null | undefined;
     /**

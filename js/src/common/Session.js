@@ -1,3 +1,5 @@
+import app from '../common/app';
+
 /**
  * The `Session` class defines the current user session. It stores a reference
  * to the current authenticated user, and provides methods to log in/out.

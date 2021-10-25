@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import ComposerBody from './ComposerBody';
 import extractText from '../../common/utils/extractText';
 import Stream from '../../common/utils/Stream';

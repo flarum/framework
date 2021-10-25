@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
@@ -37,6 +38,7 @@ export default class PermissionDropdown extends Dropdown {
 
     attrs.className = 'PermissionDropdown';
     attrs.buttonClassName = 'Button Button--text';
+    attrs.lazyDraw = true;
   }
 
   view(vnode) {

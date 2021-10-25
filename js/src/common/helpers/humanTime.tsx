@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 import humanTimeUtil from '../utils/humanTime';
 
 /**

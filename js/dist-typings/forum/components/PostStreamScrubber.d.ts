@@ -7,7 +7,7 @@
  * - `stream`
  * - `className`
  */
-export default class PostStreamScrubber extends Component<import("../../common/Component").ComponentAttrs> {
+export default class PostStreamScrubber extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     stream: any;
     handlers: {} | undefined;

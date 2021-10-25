@@ -1,4 +1,4 @@
-import * as Mithril from 'mithril';
+import type Mithril from 'mithril';
 import User from '../models/User';
 
 /**
@@ -31,7 +31,7 @@ export default function avatar(user: User, attrs: Object = {}): Mithril.Vnode {
     }
 
     content = username.charAt(0).toUpperCase();
-    attrs.style = { background: user.color() };
+    attrs.style = { '--avatar-bg': user.color() };
   }
 
   return <span {...attrs}>{content}</span>;

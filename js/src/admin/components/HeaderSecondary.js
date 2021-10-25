@@ -1,3 +1,4 @@
+import app from '../../admin/app';
 import Component from '../../common/Component';
 import LinkButton from '../../common/components/LinkButton';
 import SessionDropdown from './SessionDropdown';
@@ -22,7 +23,7 @@ export default class HeaderSecondary extends Component {
 
     items.add(
       'help',
-      <LinkButton href="https://docs.flarum.org/troubleshoot.html" icon="fas fa-question-circle" external={true} target="_blank">
+      <LinkButton href="https://docs.flarum.org/troubleshoot/" icon="fas fa-question-circle" external={true} target="_blank">
         {app.translator.trans('core.admin.header.get_help')}
       </LinkButton>
     );

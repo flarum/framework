@@ -1,9 +1,20 @@
 .Search {
   position: relative;
+
+  &-clear {
+    // It looks very weird due to the padding given to the button..
+    &:focus {
+      outline: none;
+    }
+
+    // ...so we display the ring around the icon inside the button, with an offset
+    .add-keyboard-focus-ring-nearby("> *");
+    .add-keyboard-focus-ring-nearby-offset("> *", 4px);
+  }
 }
 @media @tablet-up {
   .Search {
-    .transition(margin-left 0.4s);
+    transition: margin-left 0.4s;
 
     &.focused {
       margin-left: -400px;
@@ -59,7 +70,7 @@
     width: 225px;
     padding-left: 32px;
     padding-right: 32px;
-    .transition(all 0.4s);
+    transition: var(--transition), width 0.4s;
     box-sizing: inherit !important;
   }
 
@@ -70,7 +81,6 @@
   .Button {
     float: left;
     margin-left: -36px;
-    outline: none;
     width: 36px !important;
 
     &.LoadingIndicator {

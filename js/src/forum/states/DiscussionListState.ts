@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import PaginatedListState, { Page } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 
@@ -13,7 +14,7 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
   }
 
   requestParams() {
-    const params: any = { include: ['user', 'lastPostedUser'], filter: {} };
+    const params: any = { include: ['user', 'lastPostedUser'], filter: this.params.filter || {} };
 
     params.sort = this.sortMap()[this.params.sort];
 

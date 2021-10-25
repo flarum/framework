@@ -1,3 +1,4 @@
+import app from '../../forum/app';
 import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
@@ -76,6 +77,7 @@ export default class ChangeEmailModal extends Modal {
               type="password"
               name="password"
               className="FormControl"
+              autocomplete="current-password"
               placeholder={app.translator.trans('core.forum.change_email.confirm_password_placeholder')}
               bidi={this.password}
               disabled={this.loading}
