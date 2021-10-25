@@ -104,7 +104,7 @@ export default function() {
   Post.prototype.flagReason = function(flag) {
     if (flag.type() === 'user') {
       const user = flag.user();
-      const reason = flag.reason();
+      const reason = flag.reason() ? app.translator.trans(`flarum-flags.forum.flag_post.reason_${flag.reason()}_label`) : null;
       const detail = flag.reasonDetail();
       const time = humanTime(flag.createdAt());
 
