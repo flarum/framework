@@ -13,12 +13,14 @@ use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
+use Flarum\Settings\DefaultSettingsManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
 class Settings implements ExtenderInterface
 {
     private $settings = [];
+    private $defaults = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -38,13 +40,36 @@ class Settings implements ExtenderInterface
      */
     public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null): self
     {
-        $this->settings[$key] = compact('attributeName', 'callback', 'default');
+        $this->settings[$key] = compact('attributeName', 'callback');
+
+        if ($default) {
+            $this->default($key, $default);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set a default value for a setting.
+     * Recommended instead of inserting the default value with a migration.
+     */
+    public function default(string $key, $value): self
+    {
+        $this->defaults[$key] = $value;
 
         return $this;
     }
 
     public function extend(Container $container, Extension $extension = null)
     {
+        if (! empty($this->defaults)) {
+            $container->extend(DefaultSettingsManager::class, function (DefaultSettingsManager $manager) {
+                foreach ($this->defaults as $key => $default) {
+                    $manager->set($key, $default);
+                }
+            });
+        }
+
         if (! empty($this->settings)) {
             AbstractSerializer::addAttributeMutator(
                 ForumSerializer::class,
@@ -53,7 +78,7 @@ class Settings implements ExtenderInterface
                     $attributes = [];
 
                     foreach ($this->settings as $key => $setting) {
-                        $value = $settings->get($key, $setting['default']);
+                        $value = $settings->get($key);
 
                         if (isset($setting['callback'])) {
                             $callback = ContainerUtil::wrapCallback($setting['callback'], $container);
