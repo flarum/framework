@@ -1,6 +1,8 @@
 /**
  * The `evented` mixin provides methods allowing an object to trigger events,
  * running externally registered event handlers.
+ *
+ * @deprecated
  */
 export default {
   /**
@@ -19,6 +21,8 @@ export default {
    * @protected
    */
   getHandlers(event) {
+    console.trace('evented is deprecated and will be removed in a future version');
+
     this.handlers = this.handlers || {};
 
     this.handlers[event] = this.handlers[event] || [];
@@ -34,6 +38,8 @@ export default {
    * @public
    */
   trigger(event, ...args) {
+    console.trace('evented is deprecated and will be removed in a future version');
+
     this.getHandlers(event).forEach((handler) => handler.apply(this, args));
   },
 
@@ -44,6 +50,8 @@ export default {
    * @param {function} handler The function to handle the event.
    */
   on(event, handler) {
+    console.trace('evented is deprecated and will be removed in a future version');
+
     this.getHandlers(event).push(handler);
   },
 
@@ -55,6 +63,8 @@ export default {
    * @param {function} handler The function to handle the event.
    */
   one(event, handler) {
+    console.trace('evented is deprecated and will be removed in a future version');
+
     const wrapper = function () {
       handler.apply(this, arguments);
 
@@ -71,6 +81,8 @@ export default {
    * @param {function} handler The function that handles the event.
    */
   off(event, handler) {
+    console.trace('evented is deprecated and will be removed in a future version');
+
     const handlers = this.getHandlers(event);
     const index = handlers.indexOf(handler);
 
