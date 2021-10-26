@@ -23,8 +23,6 @@ class ProcessIp implements Middleware
         // If no header set via the proxy headers, use the IP given by the web server
         $ipAddress ?? Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 
-        var_dump($ipAddress);
-
         return $handler->handle($request->withAttribute('ipAddress', $ipAddress));
     }
 
