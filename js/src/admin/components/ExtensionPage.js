@@ -154,17 +154,13 @@ export default class ExtensionPage extends AdminPage {
         }
       };
 
+      // TODO v2.0: rename `uninstall` to `purge`
       items.add(
-        'purge',
+        'uninstall',
         <Button icon="fas fa-trash-alt" className="Button Button--primary" onclick={purge.bind(this)}>
           {app.translator.trans('core.admin.extension.purge_button')}
         </Button>
       );
-
-      /** Dummy entry to prevent BC breaks, since `uninstall` was renamed to `purge`.
-       * @deprecated v1.2, remove v2.0.
-       */
-      items.add('uninstall', <></>);
     }
 
     return items;
