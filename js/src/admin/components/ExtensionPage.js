@@ -160,6 +160,11 @@ export default class ExtensionPage extends AdminPage {
           {app.translator.trans('core.admin.extension.purge_button')}
         </Button>
       );
+
+      /** Dummy entry to prevent BC breaks, since `uninstall` was renamed to `purge`.
+       * @deprecated v1.2, remove v2.0.
+       */
+      items.add('uninstall', <></>);
     }
 
     return items;
