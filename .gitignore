@@ -8,3 +8,4 @@ tests/.phpunit.result.cache
 .vagrant
 .idea/*
 .vscode
+js/coverage-ts
