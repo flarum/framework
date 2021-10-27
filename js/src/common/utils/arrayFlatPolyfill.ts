@@ -4,11 +4,14 @@
 // Needed to provide support for Safari on iOS < 12
 
 if (!Array.prototype['flat']) {
-  Array.prototype['flat'] = function flat(this: any[], depth: number = 1): any[] {
-    return depth > 0
+  Array.prototype['flat'] = function flat<A, D extends number = 1>(this: A, depth?: D | unknown): any[] {
+    // @ts-ignore
+    return (depth ?? 1) > 0
+      // @ts-ignore
       ? Array.prototype.reduce.call(this, (acc, val): any[] => acc.concat(Array.isArray(val) ? flat.call(val, depth - 1) : val), [])
       : // If no depth is provided, or depth is 0, just return a copy of
         // the array. Spread is supported in all major browsers (iOS 8+)
+        // @ts-ignore
         [...this];
   };
 }

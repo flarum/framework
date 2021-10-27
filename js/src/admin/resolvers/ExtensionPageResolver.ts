@@ -5,10 +5,10 @@ import DefaultResolver from '../../common/resolvers/DefaultResolver';
  * A custom route resolver for ExtensionPage that generates handles routes
  * to default extension pages or a page provided by an extension.
  */
-export default class ExtensionPageResolver extends DefaultResolver {
+export default class ExtensionPageResolver<Attrs = {}, State = {}> extends DefaultResolver<Attrs, State> {
   static extension: string | null = null;
 
-  onmatch(args, requestedPath, route) {
+  onmatch(args: Attrs, requestedPath: string, route: string) {
     const extensionPage = app.extensionData.getPage(args.id);
 
     if (extensionPage) {
