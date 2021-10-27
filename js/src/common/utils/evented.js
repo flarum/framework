@@ -2,7 +2,7 @@
  * The `evented` mixin provides methods allowing an object to trigger events,
  * running externally registered event handlers.
  *
- * @deprecated
+ * @deprecated v1.2, to be removed in v2.0
  */
 export default {
   /**
