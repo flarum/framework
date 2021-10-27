@@ -48,7 +48,7 @@ class Settings implements ExtenderInterface
 
     /**
      * Set a default value for a setting.
-     * Recommended instead of inserting the default value with a migration.
+     * Replaces inserting the default value with a migration.
      */
     public function default(string $key, $value): self
     {
