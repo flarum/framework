@@ -217,34 +217,33 @@ export default class IndexPage extends Page {
    */
   viewItems() {
     const items = new ItemList();
-    const sortMap = app.discussions.sortMap();
 
-    const sortOptions = {};
-    for (const i in sortMap) {
-      sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
-    }
+    const sortOptions = Object.values(app.discussions.sortMap().toObject());
+
+    // Chooses the sort option with highest priority for now
+    const defaultSortMethod = sortOptions.reduce((acc, option) => (acc.priority > option.priority ? acc : option), { priority: -9e10 });
+
+    // Find the selected search method, otherwise heed the default
+    const activeSearchMethod = sortOptions.find((opt) => opt.itemName === app.search.params().sort) || defaultSortMethod;
 
     items.add(
       'sort',
       Dropdown.component(
         {
           buttonClassName: 'Button',
-          label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
+          label: app.translator.trans(`core.forum.index_sort.${activeSearchMethod.itemName}_button`),
           accessibleToggleLabel: app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label'),
         },
-        Object.keys(sortOptions).map((value) => {
-          const label = sortOptions[value];
-          const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
-
-          return Button.component(
+        sortOptions.map(({ itemName: sortingId, content: sortType }) =>
+          Button.component(
             {
               icon: active ? 'fas fa-check' : true,
-              onclick: app.search.changeSort.bind(app.search, value),
+              onclick: app.search.changeSort.bind(app.search, sortType),
               active: active,
             },
-            label
-          );
-        })
+            app.translator.trans(`core.forum.index_sort.${sortingId}_button`)
+          )
+        )
       )
     );
 
