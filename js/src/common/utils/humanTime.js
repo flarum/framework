@@ -18,19 +18,24 @@ export default function humanTime(time) {
 
   const day = 864e5;
   const diff = m.diff(moment());
+  var userLang = navigator.language || navigator.userLanguage;
   let ago = null;
 
   // If this date was more than a month ago, we'll show the name of the month
   // in the string. If it wasn't this year, we'll show the year as well.
   if (diff < -30 * day) {
     if (m.year() === moment().year()) {
-      if (moment.locale() == 'en') {
+      if (userLang == 'en-US') {
         ago = m.format('MMM D');
       } else {
         ago = m.format('D MMM');
       }
     } else {
-      ago = m.format('ll');
+      if (userLang == 'en-US') {
+        ago = m.format('MMM D, YYYY');
+      } else {
+        ago = m.format('D MMM YYYY');
+      }
     }
   } else {
     ago = m.fromNow();
