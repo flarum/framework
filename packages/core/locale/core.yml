@@ -326,9 +326,10 @@ core:
     discussion_list:
       empty_text: It looks as though there are no discussions here.
       load_more_button: => core.ref.load_more
-      mark_as_read_tooltip: Mark as Read
       replied_text: "{username} replied {ago}"
       started_text: "{username} started {ago}"
+      total_replies_a11y_label: "{count, plural, one {# reply} other {# replies}}"
+      unread_replies_a11y_label: "{count, plural, one {# unread reply} other {# unread replies}}. Mark unread {count, plural, one {reply} other {replies}} as read."
 
     # These translations are used in the Forgot Password modal dialog.
     forgot_password:
