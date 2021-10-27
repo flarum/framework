@@ -11,7 +11,7 @@ export default class ReadmeModal extends Modal {
     app.store.models['extensions-readme'] = ExtensionReadme;
 
     this.name = this.attrs.extension.id;
-    this.displayName = this.attrs.extension.extra['flarum-extension'].title;
+    this.extName = this.attrs.extension.extra['flarum-extension'].title;
 
     this.loading = true;
 
@@ -24,7 +24,7 @@ export default class ReadmeModal extends Modal {
 
   title() {
     return app.translator.trans('core.admin.extension.readme.title', {
-      displayName: this.displayName,
+      extName: this.extName,
     });
   }
 

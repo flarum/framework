@@ -133,7 +133,7 @@ core:
       readme:
         button_label: README
         no_readme: This extension does not appear to have a README file
-        title: "{displayName} documentation"
+        title: "{extName} documentation"
       uninstall_button: Uninstall
 
     # These translations are used in the secondary header.
