@@ -21,7 +21,7 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
 
     protected $defaultSettingsManager;
 
-    public function __construct(SettingsRepositoryInterface $inner, DefaultSettingsManager $defaultSettingsManager)
+    public function __construct(SettingsRepositoryInterface $inner, DefaultSettingsRepository $defaultSettingsManager)
     {
         $this->inner = $inner;
         $this->defaultSettingsManager = $defaultSettingsManager;

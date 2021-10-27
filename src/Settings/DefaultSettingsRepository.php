@@ -11,7 +11,7 @@ namespace Flarum\Settings;
 
 use Illuminate\Support\Arr;
 
-class DefaultSettingsManager
+class DefaultSettingsRepository implements SettingsRepositoryInterface
 {
     protected $defaults = [];
 
@@ -20,9 +20,14 @@ class DefaultSettingsManager
         return Arr::get($this->defaults, $key, $default);
     }
 
-    public function add($key, $value)
+    public function set($key, $value)
     {
         $this->defaults[$key] = $this->defaults[$key] ?? $value;
+    }
+
+    public function delete($keyLike)
+    {
+        throw new \RuntimeException('Cannot delete immutable default setting.');
     }
 
     public function all(): array

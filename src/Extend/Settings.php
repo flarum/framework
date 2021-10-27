@@ -13,7 +13,7 @@ use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
-use Flarum\Settings\DefaultSettingsManager;
+use Flarum\Settings\DefaultSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
@@ -60,9 +60,9 @@ class Settings implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         if (! empty($this->defaults)) {
-            $container->extend(DefaultSettingsManager::class, function (DefaultSettingsManager $manager) {
+            $container->extend(DefaultSettingsRepository::class, function (DefaultSettingsRepository $defaultSettings) {
                 foreach ($this->defaults as $key => $default) {
-                    $manager->add($key, $default);
+                    $defaultSettings->set($key, $default);
                 }
             });
         }
