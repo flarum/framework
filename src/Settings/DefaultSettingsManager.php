@@ -20,8 +20,13 @@ class DefaultSettingsManager
         return Arr::get($this->defaults, $key, $default);
     }
 
-    public function set($key, $value)
+    public function add($key, $value)
     {
-        $this->defaults[$key] = $value;
+        $this->defaults[$key] = $this->defaults[$key] ?? $value;
+    }
+
+    public function all(): array
+    {
+        return $this->defaults;
     }
 }

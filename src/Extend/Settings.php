@@ -62,7 +62,7 @@ class Settings implements ExtenderInterface
         if (! empty($this->defaults)) {
             $container->extend(DefaultSettingsManager::class, function (DefaultSettingsManager $manager) {
                 foreach ($this->defaults as $key => $default) {
-                    $manager->set($key, $default);
+                    $manager->add($key, $default);
                 }
             });
         }
