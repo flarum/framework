@@ -22,7 +22,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
     {
         $this->container->singleton(DefaultSettingsManager::class);
 
-        $this->container->alias(DefaultSettingsManager::class, 'flarum.default_settings');
+        $this->container->alias(DefaultSettingsManager::class, 'flarum.settings.default');
 
         $this->container->singleton(SettingsRepositoryInterface::class, function (Container $container) {
             return new MemoryCacheSettingsRepository(
