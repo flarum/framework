@@ -1,6 +1,7 @@
 import app from '../../forum/app';
 import PaginatedListState, { Page } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
+import ItemList from '../../common/utils/ItemList';
 
 export default class DiscussionListState extends PaginatedListState<Discussion> {
   protected extraDiscussions: Discussion[] = [];
@@ -45,21 +46,22 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
   }
 
   /**
-   * Get a map of sort keys (which appear in the URL, and are used for
+   * Get a list of sort keys (which appear in the URL, and are used for
    * translation) to the API sort value that they represent.
    */
-  sortMap() {
-    const map: any = {};
+  sortMap(): ItemList<string> {
+    const sortItems = new ItemList<string>();
 
     if (this.params.q) {
-      map.relevance = '';
+      sortItems.add('relevance', '', 100);
     }
-    map.latest = '-lastPostedAt';
-    map.top = '-commentCount';
-    map.newest = '-createdAt';
-    map.oldest = 'createdAt';
 
-    return map;
+    sortItems.add('latest', '-lastPostedAt', 80);
+    sortItems.add('top', '-commentCount', 60);
+    sortItems.add('newest', '-createdAt', 40);
+    sortItems.add('oldest', 'createdAt', 20);
+
+    return sortItems;
   }
 
   /**
