@@ -47,7 +47,7 @@ export default class ExtensionData {
      * @param priority
      * @returns {ExtensionData}
      */
-    registerPermission(content: any, permissionType?: any, priority?: number): ExtensionData;
+    registerPermission(content: any, permissionType?: null, priority?: number): ExtensionData;
     /**
      * Replace the default extension page with a custom component.
      * This component would typically extend ExtensionPage
