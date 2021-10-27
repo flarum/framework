@@ -5,7 +5,7 @@
  * @deprecated v1.2, to be removed in v2.0
  */
 
-const deprecatedNotice = 'evented is deprecated and will be removed in a future version';
+const deprecatedNotice = 'The `evented` util is deprecated and will be removed in Flarum 2.0. For more info, please see https://github.com/flarum/core/issues/2547';
 
 export default {
   /**
