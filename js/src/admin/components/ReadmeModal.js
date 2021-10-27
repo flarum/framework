@@ -8,7 +8,7 @@ export default class ReadmeModal extends Modal {
   oninit(vnode) {
     super.oninit(vnode);
 
-    app.store.models['extensions-readme'] = ExtensionReadme;
+    app.store.models['extension-readmes'] = ExtensionReadme;
 
     this.name = this.attrs.extension.id;
     this.extName = this.attrs.extension.extra['flarum-extension'].title;
@@ -43,7 +43,7 @@ export default class ReadmeModal extends Modal {
   }
 
   async loadReadme() {
-    this.readme = await app.store.find('extensions-readme', this.name);
+    this.readme = await app.store.find('extension-readmes', this.name);
     this.loading = false;
     m.redraw();
   }

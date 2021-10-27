@@ -30,6 +30,6 @@ class ExtensionReadmeSerializer extends AbstractSerializer
 
     public function getType($extension)
     {
-        return 'extensions-readme';
+        return 'extension-readmes';
     }
 }
