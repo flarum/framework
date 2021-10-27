@@ -6,7 +6,7 @@
   "author": "Flarum Team",
   "license": "MIT",
   "peerDependencies": {
-    "webpack": "^4.46.0"
+    "webpack": "^5.60.0"
   },
   "dependencies": {
     "@babel/core": "^7.14.3",
