@@ -141,8 +141,8 @@ export default class ExtensionPage extends AdminPage {
     items.add('version', <span className="ExtensionVersion">{this.extension.version}</span>);
 
     if (!this.isEnabled()) {
-      const uninstall = () => {
-        if (confirm(app.translator.trans('core.admin.extension.confirm_uninstall'))) {
+      const purge = () => {
+        if (confirm(app.translator.trans('core.admin.extension.confirm_purge'))) {
           app
             .request({
               url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
@@ -154,10 +154,11 @@ export default class ExtensionPage extends AdminPage {
         }
       };
 
+      // TODO v2.0: rename `uninstall` to `purge`
       items.add(
         'uninstall',
-        <Button icon="fas fa-trash-alt" className="Button Button--primary" onclick={uninstall.bind(this)}>
-          {app.translator.trans('core.admin.extension.uninstall_button')}
+        <Button icon="fas fa-trash-alt" className="Button Button--primary" onclick={purge.bind(this)}>
+          {app.translator.trans('core.admin.extension.purge_button')}
         </Button>
       );
     }
