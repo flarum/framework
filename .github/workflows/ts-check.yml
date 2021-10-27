@@ -25,7 +25,7 @@ jobs:
         run: npm ci
         working-directory: ./js
 
-      - name: Check JS formatting
+      - name: Typecheck
         run: npm run check-typings
         working-directory: ./js
 
@@ -48,6 +48,6 @@ jobs:
         run: npm ci
         working-directory: ./js
 
-      - name: Check JS formatting
+      - name: Check type coverage
         run: npm run check-typings-coverage
         working-directory: ./js
