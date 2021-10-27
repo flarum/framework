@@ -111,7 +111,7 @@ module.exports = function (options = {}) {
       })(),
 
       // Support importing old-style core modules.
-      function (context, request, callback) {
+      function ({request}, callback) {
         let matches;
         if ((matches = /^flarum\/(.+)$/.exec(request))) {
           return callback(null, "root flarum.core.compat['" + matches[1] + "']");
