@@ -44,7 +44,7 @@
     "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
     "build-typings": "npm run clean-typings && cp -r src/@types dist-typings/@types && tsc",
     "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-    "check-typings-coverage": "typescript-coverage-report --threshold=90"
+    "check-typings-coverage": "typescript-coverage-report"
   },
   "packageManager": "yarn@3.1.0"
 }
