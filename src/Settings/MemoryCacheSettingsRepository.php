@@ -19,18 +19,18 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
 
     protected $cache = [];
 
-    protected $defaultSettingsManager;
+    protected $defaultSettings = [];
 
-    public function __construct(SettingsRepositoryInterface $inner, DefaultSettingsManager $defaultSettingsManager)
+    public function __construct(SettingsRepositoryInterface $inner, array $defaultSettings)
     {
         $this->inner = $inner;
-        $this->defaultSettingsManager = $defaultSettingsManager;
+        $this->defaultSettings = $defaultSettings;
     }
 
     public function all(): array
     {
         if (! $this->isCached) {
-            $this->cache = $this->inner->all();
+            $this->cache = array_merge($this->defaultSettings, $this->inner->all());
             $this->isCached = true;
         }
 
@@ -39,15 +39,13 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
 
     public function get($key, $default = null)
     {
-        $value = $this->defaultSettingsManager->get($key, $default);
-
         if (array_key_exists($key, $this->cache)) {
-            $value = $this->cache[$key];
+            return $this->cache[$key];
         } elseif (! $this->isCached) {
-            $value = Arr::get($this->all(), $key, $value);
+            return Arr::get($this->all(), $key, $default);
         }
 
-        return $value;
+        return $default;
     }
 
     public function set($key, $value)
