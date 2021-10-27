@@ -52,7 +52,10 @@ export interface SearchAttrs extends ComponentAttrs {
  * - state: SearchState instance.
  */
 export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T> {
-  static MIN_SEARCH_LEN = 3;
+  /**
+   * The minimum query length before sources are searched.
+   */
+  protected static MIN_SEARCH_LEN = 3;
 
   protected state!: SearchState;
 
@@ -211,7 +214,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
         search.searchTimeout = setTimeout(() => {
           if (state.isCached(query)) return;
 
-          if (query.length >= Search.MIN_SEARCH_LEN) {
+          if (query.length >= (search.constructor as typeof Search).MIN_SEARCH_LEN) {
             search.sources.map((source) => {
               if (!source.search) return;
 
