@@ -134,7 +134,6 @@ core:
         button_label: README
         no_readme: This extension does not appear to have a README file
         title: "{extName} documentation"
-      uninstall_button: Uninstall
       purge_button: Purge
 
     # These translations are used in the secondary header.
