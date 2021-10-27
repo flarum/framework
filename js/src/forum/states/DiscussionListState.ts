@@ -25,7 +25,7 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
       filter: this.params.filter || {},
     };
 
-    params.sort = this.sortMap().get(this.params.sort);
+    params.sort = this.sortMap()[this.params.sort];
 
     if (this.params.q) {
       params.filter.q = this.params.q;
