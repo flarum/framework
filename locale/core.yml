@@ -130,11 +130,11 @@ core:
       no_settings: This extension has no settings.
       open_modal: Open Settings
       permissions_title: Permissions
+      purge_button: Purge
       readme:
         button_label: README
         no_readme: This extension does not appear to have a README file
         title: "{extName} documentation"
-      purge_button: Purge
 
     # These translations are used in the secondary header.
     header:
