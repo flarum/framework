@@ -25,12 +25,16 @@ class SettingsServiceProvider extends AbstractServiceProvider
         $this->container->alias(DefaultSettingsRepository::class, 'flarum.settings.default');
 
         $this->container->singleton(SettingsRepositoryInterface::class, function (Container $container) {
-            return new MemoryCacheSettingsRepository(
-                new DatabaseSettingsRepository(
-                    $container->make(ConnectionInterface::class)
-                ),
-                $this->container->make(DefaultSettingsRepository::class)
+            $defaults = $container->make(DefaultSettingsRepository::class);
+            $defaults->setInner(
+                new MemoryCacheSettingsRepository(
+                    new DatabaseSettingsRepository(
+                        $container->make(ConnectionInterface::class)
+                    )
+                )
             );
+
+            return $defaults;
         });
 
         $this->container->alias(SettingsRepositoryInterface::class, 'flarum.settings');

@@ -19,12 +19,9 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
 
     protected $cache = [];
 
-    protected $defaultSettingsManager;
-
-    public function __construct(SettingsRepositoryInterface $inner, DefaultSettingsRepository $defaultSettingsManager)
+    public function __construct(SettingsRepositoryInterface $inner)
     {
         $this->inner = $inner;
-        $this->defaultSettingsManager = $defaultSettingsManager;
     }
 
     public function all(): array
@@ -34,15 +31,13 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
             $this->isCached = true;
         }
 
-        return $this->getCache();
+        return $this->cache;
     }
 
     public function get($key, $default = null)
     {
-        $cache = $this->getCache();
-
-        if (array_key_exists($key, $cache)) {
-            return $cache[$key];
+        if (array_key_exists($key, $this->cache)) {
+            return $this->cache[$key];
         } elseif (! $this->isCached) {
             return Arr::get($this->all(), $key, $default);
         }
@@ -62,10 +57,5 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
         unset($this->cache[$key]);
 
         $this->inner->delete($key);
-    }
-
-    protected function getCache(): array
-    {
-        return array_merge($this->defaultSettingsManager->all(), $this->cache);
     }
 }

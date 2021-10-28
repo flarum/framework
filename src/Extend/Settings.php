@@ -62,7 +62,7 @@ class Settings implements ExtenderInterface
         if (! empty($this->defaults)) {
             $container->extend(DefaultSettingsRepository::class, function (DefaultSettingsRepository $defaultSettings) {
                 foreach ($this->defaults as $key => $default) {
-                    $defaultSettings->set($key, $default);
+                    $defaultSettings->default($key, $default);
                 }
             });
         }
