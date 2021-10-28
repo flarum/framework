@@ -268,7 +268,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     // Get readme for an extension
     $map->get(
         '/extension-readmes/{name}',
-        'extension.readmes.show',
+        'extension-readmes.show',
         $route->toController(Controller\ShowExtensionReadmeController::class)
     );
 
