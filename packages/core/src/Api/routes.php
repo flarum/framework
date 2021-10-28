@@ -265,6 +265,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\UninstallExtensionController::class)
     );
 
+    // Get readme for an extension
+    $map->get(
+        '/extension-readmes/{name}',
+        'extension-readmes.show',
+        $route->toController(Controller\ShowExtensionReadmeController::class)
+    );
+
     // Update settings
     $map->post(
         '/settings',
