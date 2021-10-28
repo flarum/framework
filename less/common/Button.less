@@ -122,25 +122,30 @@
   padding-left: 9px;
   padding-right: 9px;
 }
+
 .Button--rounded {
   border-radius: 18px;
 }
+
 .Button--flat {
   background: transparent;
   border-radius: 18px;
 }
+
 .Button--link {
   color: @control-color;
   background: unset !important;
 
   &:active,
   &:hover,
-  &:focus {
+  &:focus,
+  .open > &.Dropdown-toggle {
     color: @link-color;
     box-shadow: none;
     background: unset !important;
   }
 }
+
 .Button--reset {
   padding: 0;
   margin: 0;
@@ -158,11 +163,12 @@
   &:hover,
   &:focus,
   .open > &.Dropdown-toggle {
-    background: transparent !important;
-    box-shadow: none;
     color: @link-color;
+    background: unset !important;
+    box-shadow: none;
   }
 }
+
 .Button--text {
   background: transparent !important;
   padding: 0;
@@ -178,6 +184,7 @@
     box-shadow: none;
   }
 }
+
 .Button--primary {
   .Button--color(@body-bg, @primary-color, 'button-primary');
   font-weight: bold;
@@ -188,9 +195,11 @@
     display: none;
   }
 }
+
 .Button--danger {
   .Button--color(@control-danger-color, @control-danger-bg, 'control-danger');
 }
+
 .Button--more {
   padding: 2px 4px;
   line-height: 1;
@@ -199,6 +208,7 @@
     margin: 0;
   }
 }
+
 .Button--block {
   display: block;
   width: 100%;
@@ -210,6 +220,7 @@
     margin-top: 5px;
   }
 }
+
 // Little round icon buttons
 .Button--icon {
   width: 36px;
@@ -225,6 +236,7 @@
     margin: 0;
   }
 }
+
 .SessionDropdown .Dropdown-toggle {
   border-radius: 18px;
 
@@ -233,16 +245,20 @@
     .Avatar--size(24px);
   }
 }
+
 .Button-icon {
   margin-right: 7px;
 }
+
 .Button-icon,
 .Button-caret {
   font-size: 14px;
 }
+
 .Button-caret {
   margin-left: 7px;
 }
+
 .Button-badge {
   font-size: 12px;
   font-weight: bold;
