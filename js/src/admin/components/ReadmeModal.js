@@ -19,7 +19,7 @@ export default class ReadmeModal extends Modal {
   }
 
   className() {
-    return 'ReadmeModal Modal--large';
+    return 'ReadmeModal Modal--large Modal--inverted';
   }
 
   title() {
@@ -32,7 +32,7 @@ export default class ReadmeModal extends Modal {
     const text = app.translator.trans('core.admin.extension.readme.no_readme');
 
     return (
-      <div className="container">
+      <div className="Modal-body">
         {this.loading ? (
           <div className="ReadmeModal-loading">{LoadingIndicator.component()}</div>
         ) : (
