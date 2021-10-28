@@ -22,8 +22,8 @@
  * @see https://mithril.js.org/lifecycle-methods.html#onbeforeupdate
  */
 export default class SubtreeRetainer {
-  callbacks: (() => any)[];
-  data: Record<string, any>;
+  protected callbacks: (() => any)[];
+  protected data: Record<string, any>;
 
   /**
    * @param callbacks Functions returning data to keep track of.
