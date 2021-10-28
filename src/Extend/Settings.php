@@ -49,6 +49,10 @@ class Settings implements ExtenderInterface
     /**
      * Set a default value for a setting.
      * Replaces inserting the default value with a migration.
+     *
+     * @param string $key: The setting key, must be unique. Namespace it with the extension ID (example: 'my-extension-id.setting_key').
+     * @param mixed $value: The setting value.
+     * @return self
      */
     public function default(string $key, $value): self
     {
