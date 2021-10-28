@@ -30,6 +30,7 @@ class ApiController implements ExtenderInterface
     private $removeSortFields = [];
     private $sort;
     private $load = [];
+    private $loadCallables = [];
 
     /**
      * @param string $controllerClass: The ::class attribute of the controller you are modifying.
@@ -323,7 +324,7 @@ class ApiController implements ExtenderInterface
      */
     public function loadWhere(string $relation, callable $callback): self
     {
-        $this->load = array_merge($this->load, [$relation => $callback]);
+        $this->loadCallables = array_merge($this->loadCallables, [$relation => $callback]);
 
         return $this;
     }
@@ -395,6 +396,7 @@ class ApiController implements ExtenderInterface
         }
 
         AbstractSerializeController::setLoadRelations($this->controllerClass, $this->load);
+        AbstractSerializeController::setLoadRelationCallables($this->controllerClass, $this->loadCallables);
     }
 
     /**

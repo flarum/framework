@@ -88,9 +88,14 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     protected static $beforeSerializationCallbacks = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     protected static $loadRelations = [];
+
+    /**
+     * @var array<string, callable>
+     */
+    protected static $loadRelationCallables = [];
 
     /**
      * {@inheritdoc}
@@ -149,6 +154,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
     /**
      * Returns the relations to load added by extenders.
+     *
+     * @return string[]
      */
     protected function getRelationsToLoad(): array
     {
@@ -164,19 +171,33 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
+     * Returns the relation callables to load added by extenders.
+     *
+     * @return array<string, callable>
+     */
+    protected function getRelationCallablesToLoad(): array
+    {
+        $addedRelationCallables = [];
+
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
+            if (isset(static::$loadRelationCallables[$class])) {
+                $addedRelationCallables = array_merge($addedRelationCallables, static::$loadRelationCallables[$class]);
+            }
+        }
+
+        return $addedRelationCallables;
+    }
+
+    /**
      * Eager loads the required relationships.
      */
     protected function loadRelations(Collection $models, array $relations, ServerRequestInterface $request = null): void
     {
         $addedRelations = $this->getRelationsToLoad();
+        $addedRelationCallables = $this->getRelationCallablesToLoad();
 
-        // Filter out callables
-        $callables = [];
-        foreach ($addedRelations as $name => $relation) {
-            if (is_callable($relation)) {
-                $addedRelations[$name] = $name;
-                $callables[$name] = $relation;
-            }
+        foreach ($addedRelationCallables as $name => $relation) {
+            $addedRelations[] = $name;
         }
 
         if (! empty($addedRelations)) {
@@ -201,11 +222,13 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
             $relations = array_unique($relations);
         }
 
-        foreach ($relations as $k => $relation) {
-            if (isset($callables[$relation])) {
-                $load = $callables[$relation];
+        $callables = [];
 
-                $relations[$relation] = function ($query) use ($load, $request, $relations) {
+        foreach ($relations as $k => $relation) {
+            if (isset($addedRelationCallables[$relation])) {
+                $load = $addedRelationCallables[$relation];
+
+                $callables[$relation] = function ($query) use ($load, $request, $relations) {
                     $load($query, $request, $relations);
                 };
 
@@ -213,9 +236,9 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
             }
         }
 
-        uasort($relations, function ($r1) {
-            return ! is_callable($r1);
-        });
+        if (! empty($callables)) {
+            $models->loadMissing($callables);
+        }
 
         if (! empty($relations)) {
             $models->loadMissing($relations);
@@ -453,5 +476,17 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         }
 
         static::$loadRelations[$controllerClass] = array_merge(static::$loadRelations[$controllerClass], $relations);
+    }
+
+    /**
+     * @internal
+     */
+    public static function setLoadRelationCallables(string $controllerClass, array $relations)
+    {
+        if (! isset(static::$loadRelationCallables[$controllerClass])) {
+            static::$loadRelationCallables[$controllerClass] = [];
+        }
+
+        static::$loadRelationCallables[$controllerClass] = array_merge(static::$loadRelationCallables[$controllerClass], $relations);
     }
 }
