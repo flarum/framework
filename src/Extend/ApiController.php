@@ -13,8 +13,6 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Database\Query\Builder;
-use Psr\Http\Message\ServerRequestInterface;
 
 class ApiController implements ExtenderInterface
 {
@@ -300,12 +298,32 @@ class ApiController implements ExtenderInterface
      * To force load the relationship, both levels have to be specified,
      * example: ['relation', 'relation.subRelation'].
      *
-     * @param string|string[]|array<string, callable(Builder, ServerRequestInterface|null): void> $relations
+     * @param string|string[] $relations
      * @return self
      */
     public function load($relations): self
     {
-        $this->load = array_merge($this->load, (array) $relations);
+        $this->load = array_merge($this->load, array_map('strval', (array) $relations));
+
+        return $this;
+    }
+
+    /**
+     * Allows loading a relationship with additional query modification.
+     *
+     * @param string $relation: Relationship name, see load method description.
+     * @param callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void $callback
+     *
+     * The callback to modify the query, should accept:
+     * - \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation $query: A query object.
+     * - \Psr\Http\Message\ServerRequestInterface|null $request: An instance of the request.
+     * - array $relations: An array of relations that are to be loaded.
+     *
+     * @return self
+     */
+    public function loadWhere(string $relation, callable $callback): self
+    {
+        $this->load = array_merge($this->load, [$relation => $callback]);
 
         return $this;
     }

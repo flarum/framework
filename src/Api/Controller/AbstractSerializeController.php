@@ -205,13 +205,17 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
             if (isset($callables[$relation])) {
                 $load = $callables[$relation];
 
-                $relations[$relation] = function ($query) use ($load, $request) {
-                    $load($query, $request);
+                $relations[$relation] = function ($query) use ($load, $request, $relations) {
+                    $load($query, $request, $relations);
                 };
 
                 unset($relations[$k]);
             }
         }
+
+        uasort($relations, function ($r1) {
+            return ! is_callable($r1);
+        });
 
         if (! empty($relations)) {
             $models->loadMissing($relations);

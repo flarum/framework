@@ -815,7 +815,7 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('firstLevelRelation', Post::class, 'user_id'),
             (new Extend\ApiController(ListUsersController::class))
-                ->load(['firstLevelRelation' => function ($query, $request) {}])
+                ->loadWhere('firstLevelRelation', function ($query, $request) {})
                 ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
                     $users = $data;
 
@@ -845,7 +845,8 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(Post::class))
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
-                ->load(['firstLevelRelation', 'firstLevelRelation.secondLevelRelation' => function ($query, $request) {}])
+                ->load('firstLevelRelation')
+                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
                 ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
                     $users = $data;
 
@@ -875,7 +876,7 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(Post::class))
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
-                ->load(['firstLevelRelation.secondLevelRelation' => function ($query, $request) {}])
+                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
                 ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
                     $users = $data;
 
@@ -905,10 +906,8 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(Post::class))
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
-                ->load([
-                    'firstLevelRelation' => function ($query, $request) {},
-                    'firstLevelRelation.secondLevelRelation' => function ($query, $request) {}
-                ])
+                ->loadWhere('firstLevelRelation', function ($query, $request) {})
+                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
                 ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
                     $users = $data;
 
