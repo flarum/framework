@@ -1,6 +1,12 @@
 .Search {
   position: relative;
 
+  // TODO v2.0 check if this is supported by Firefox,
+  // if so, consider switching to it.
+  ::-webkit-search-cancel-button {
+    display: none;
+  }
+
   &-clear {
     // It looks very weird due to the padding given to the button..
     &:focus {

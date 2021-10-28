@@ -17,12 +17,19 @@ use Symfony\Component\Mime\MimeTypes;
 class AvatarValidator extends AbstractValidator
 {
     /**
+     * @var \Illuminate\Validation\Validator
+     */
+    protected $laravelValidator;
+
+    /**
      * Throw an exception if a model is not valid.
      *
      * @param array $attributes
      */
     public function assertValid(array $attributes)
     {
+        $this->laravelValidator = $this->makeValidator($attributes);
+
         $this->assertFileRequired($attributes['avatar']);
         $this->assertFileMimes($attributes['avatar']);
         $this->assertFileSize($attributes['avatar']);
@@ -69,15 +76,21 @@ class AvatarValidator extends AbstractValidator
         $maxSize = $this->getMaxSize();
 
         if ($file->getSize() / 1024 > $maxSize) {
-            $this->raise('max.file', [':max' => $maxSize]);
+            $this->raise('max.file', [':max' => $maxSize], 'max');
         }
     }
 
-    protected function raise($error, array $parameters = [])
+    protected function raise($error, array $parameters = [], $rule = null)
     {
-        $message = $this->translator->trans(
-            "validation.$error",
-            $parameters + [':attribute' => 'avatar']
+        // When we switched to intl ICU message format, the translation parameters
+        // have become required to be in the format `{param}`.
+        // Therefore we cannot use the translator to replace the string params.
+        // We use the laravel validator to make the replacements instead.
+        $message = $this->laravelValidator->makeReplacements(
+            $this->translator->trans("validation.$error"),
+            'avatar',
+            $rule ?? $error,
+            array_values($parameters)
         );
 
         throw new ValidationException(['avatar' => $message]);

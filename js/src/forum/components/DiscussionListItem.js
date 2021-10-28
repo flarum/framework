@@ -13,7 +13,6 @@ import TerminalPost from './TerminalPost';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import DiscussionControls from '../utils/DiscussionControls';
 import slidable from '../utils/slidable';
-import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
 import DiscussionPage from './DiscussionPage';
 import escapeRegExp from '../../common/utils/escapeRegExp';
@@ -50,12 +49,11 @@ export default class DiscussionListItem extends Component {
 
   elementAttrs() {
     return {
-      className: classList([
-        'DiscussionListItem',
-        this.active() ? 'active' : '',
-        this.attrs.discussion.isHidden() ? 'DiscussionListItem--hidden' : '',
-        'ontouchstart' in window ? 'Slidable' : '',
-      ]),
+      className: classList('DiscussionListItem', {
+        active: this.active(),
+        'DiscussionListItem--hidden': this.attrs.discussion.isHidden(),
+        Slidable: 'ontouchstart' in window,
+      }),
     };
   }
 
@@ -64,7 +62,7 @@ export default class DiscussionListItem extends Component {
     const user = discussion.user();
     const isUnread = discussion.isUnread();
     const isRead = discussion.isRead();
-    const showUnread = !this.showRepliesCount() && isUnread;
+
     let jumpTo = 0;
     const controls = DiscussionControls.controls(discussion, this).toArray();
     const attrs = this.elementAttrs();
@@ -83,17 +81,16 @@ export default class DiscussionListItem extends Component {
 
     return (
       <div {...attrs}>
-        {controls.length
-          ? Dropdown.component(
-              {
-                icon: 'fas fa-ellipsis-v',
-                className: 'DiscussionListItem-controls',
-                buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
-                accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
-              },
-              controls
-            )
-          : ''}
+        {controls.length > 0 &&
+          Dropdown.component(
+            {
+              icon: 'fas fa-ellipsis-v',
+              className: 'DiscussionListItem-controls',
+              buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
+              accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
+            },
+            controls
+          )}
 
         <span
           className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
@@ -102,7 +99,7 @@ export default class DiscussionListItem extends Component {
           {icon('fas fa-check')}
         </span>
 
-        <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
+        <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
           <Tooltip
             text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
             position="right"
@@ -118,16 +115,7 @@ export default class DiscussionListItem extends Component {
             <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
             <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
           </Link>
-
-          <span
-            tabindex="0"
-            role="button"
-            className="DiscussionListItem-count"
-            onclick={this.markAsRead.bind(this)}
-            title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}
-          >
-            {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'replyCount']())}
-          </span>
+          {this.replyCountItem()}
         </div>
       </div>
     );
@@ -221,5 +209,32 @@ export default class DiscussionListItem extends Component {
     }
 
     return items;
+  }
+
+  replyCountItem() {
+    const discussion = this.attrs.discussion;
+    const showUnread = !this.showRepliesCount() && discussion.isUnread();
+
+    if (showUnread) {
+      return (
+        <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
+          <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
+
+          <span class="visually-hidden">
+            {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
+          </span>
+        </button>
+      );
+    }
+
+    return (
+      <span className="DiscussionListItem-count">
+        <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
+
+        <span class="visually-hidden">
+          {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
+        </span>
+      </span>
+    );
   }
 }

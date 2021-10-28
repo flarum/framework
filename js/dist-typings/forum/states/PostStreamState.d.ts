@@ -41,8 +41,8 @@ declare class PostStreamState {
      * @type {Boolean}
      */
     forceUpdateScrubber: boolean;
-    loadNext: any;
-    loadPrevious: any;
+    loadNext: throttle<() => void>;
+    loadPrevious: throttle<() => void>;
     /**
      * Update the stream so that it loads and includes the latest posts in the
      * discussion, if the end is being viewed.
@@ -184,3 +184,4 @@ declare class PostStreamState {
 declare namespace PostStreamState {
     const loadCount: number;
 }
+import { throttle } from "throttle-debounce";
