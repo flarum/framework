@@ -10,6 +10,7 @@
 namespace Flarum\Settings;
 
 use Illuminate\Support\Arr;
+use RuntimeException;
 
 class DefaultSettingsRepository implements SettingsRepositoryInterface
 {
@@ -22,12 +23,16 @@ class DefaultSettingsRepository implements SettingsRepositoryInterface
 
     public function set($key, $value)
     {
-        $this->defaults[$key] = $this->defaults[$key] ?? $value;
+        if (isset($this->defaults[$key])) {
+            throw new RuntimeException("Cannot modify immutable default setting $key.");
+        }
+
+        $this->defaults[$key] = $value;
     }
 
     public function delete($keyLike)
     {
-        throw new \RuntimeException('Cannot delete immutable default setting.');
+        throw new RuntimeException("Cannot delete immutable default setting $keyLike.");
     }
 
     public function all(): array
