@@ -28,11 +28,17 @@ export default class AppearancePage extends AdminPage {
               type: 'text',
               setting: 'theme_primary_color',
               placeholder: '#aaaaaa',
+              formGroupAttrs: {
+                style: { '--input-value': this.setting('theme_primary_color')() },
+              },
             })}
             {this.buildSettingComponent({
               type: 'text',
               setting: 'theme_secondary_color',
               placeholder: '#aaaaaa',
+              formGroupAttrs: {
+                style: { '--input-value': this.setting('theme_secondary_color')() },
+              },
             })}
           </div>
 
@@ -104,18 +110,5 @@ export default class AppearancePage extends AdminPage {
 
   onsaved() {
     window.location.reload();
-  }
-
-  saveSettings(e) {
-    e.preventDefault();
-
-    const hex = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
-
-    if (!hex.test(this.settings['theme_primary_color']()) || !hex.test(this.settings['theme_secondary_color']())) {
-      alert(app.translator.trans('core.admin.appearance.enter_hex_message'));
-      return;
-    }
-
-    super.saveSettings(e);
   }
 }
