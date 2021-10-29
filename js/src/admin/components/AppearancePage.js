@@ -25,20 +25,14 @@ export default class AppearancePage extends AdminPage {
 
           <div className="AppearancePage-colors-input">
             {this.buildSettingComponent({
-              type: 'text',
+              type: 'color-preview',
               setting: 'theme_primary_color',
               placeholder: '#aaaaaa',
-              formGroupAttrs: {
-                style: { '--input-value': this.setting('theme_primary_color')() },
-              },
             })}
             {this.buildSettingComponent({
-              type: 'text',
+              type: 'color-preview',
               setting: 'theme_secondary_color',
               placeholder: '#aaaaaa',
-              formGroupAttrs: {
-                style: { '--input-value': this.setting('theme_secondary_color')() },
-              },
             })}
           </div>
 
