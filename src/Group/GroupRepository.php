@@ -21,7 +21,7 @@ class GroupRepository
      */
     public function query()
     {
-        return User::query();
+        return Group::query();
     }
 
     /**
