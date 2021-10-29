@@ -126,7 +126,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
      *   return <p>My cool component</p>;
      * }
      */
-    buildSettingComponent(entry: ((this: typeof this) => Mithril.Children) | SettingsComponentOptions): Mithril.Children;
+    buildSettingComponent(entry: ((this: this) => Mithril.Children) | SettingsComponentOptions): Mithril.Children;
     /**
      * Called when `saveSettings` completes successfully.
      */
