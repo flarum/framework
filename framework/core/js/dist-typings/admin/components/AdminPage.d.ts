@@ -39,6 +39,7 @@ export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOpt
 }
 declare const BooleanSettingTypes: readonly ["bool", "checkbox", "switch", "boolean"];
 declare const SelectSettingTypes: readonly ["select", "dropdown", "selectdropdown"];
+declare const TextareaSettingTypes: readonly ["textarea"];
 /**
  * Valid options for the setting component builder to generate a Switch.
  */
@@ -59,9 +60,15 @@ export interface SelectSettingComponentOptions extends CommonSettingsItemOptions
     default: string;
 }
 /**
+ * Valid options for the setting component builder to generate a Textarea.
+ */
+export interface TextareaSettingComponentOptions extends CommonSettingsItemOptions {
+    type: typeof TextareaSettingTypes[number];
+}
+/**
  * All valid options for the setting component builder.
  */
-export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions;
+export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions | TextareaSettingComponentOptions;
 /**
  * Valid attrs that can be returned by the `headerInfo` function
  */
