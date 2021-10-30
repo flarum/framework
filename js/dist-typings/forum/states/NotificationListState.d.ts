@@ -10,5 +10,5 @@ export default class NotificationListState extends PaginatedListState<Notificati
     /**
      * Mark all of the notifications as read.
      */
-    markAllAsRead(): Promise<any> | undefined;
+    markAllAsRead(): Promise<unknown> | undefined;
 }

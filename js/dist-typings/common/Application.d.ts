@@ -1,3 +1,94 @@
+import ItemList from './utils/ItemList';
+import Translator from './Translator';
+import Store from './Store';
+import Session from './Session';
+import Drawer from './utils/Drawer';
+import Forum from './models/Forum';
+import PageState from './states/PageState';
+import ModalManagerState from './states/ModalManagerState';
+import AlertManagerState from './states/AlertManagerState';
+import type DefaultResolver from './resolvers/DefaultResolver';
+import type Mithril from 'mithril';
+import type Component from './Component';
+import type { ComponentAttrs } from './Component';
+export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
+export declare type FlarumGenericRoute = RouteItem<Record<string, unknown>, Component<{
+    routeName: string;
+    [key: string]: unknown;
+}>, Record<string, unknown>>;
+export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
+    errorHandler: (errorMessage: string) => void;
+    url: string;
+    /**
+     * Manipulate the response text before it is parsed into JSON.
+     *
+     * @deprecated Please use `modifyText` instead.
+     */
+    extract: (responseText: string) => string;
+    /**
+     * Manipulate the response text before it is parsed into JSON.
+     *
+     * This overrides any `extract` method provided.
+     */
+    modifyText: (responseText: string) => string;
+}
+/**
+ * A valid route definition.
+ */
+export declare type RouteItem<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
+    routeName: string;
+}>, RouteArgs extends Record<string, unknown> = {}> = {
+    /**
+     * The path for your route.
+     *
+     * This might be a specific URL path (e.g.,`/myPage`), or it might
+     * contain a variable used by a resolver (e.g., `/myPage/:id`).
+     *
+     * @see https://docs.flarum.org/extend/frontend-pages.html#route-resolvers-advanced
+     */
+    path: `/${string}`;
+} & ({
+    /**
+     * The component to render when this route matches.
+     */
+    component: {
+        new (): Comp;
+    };
+    /**
+     * A custom resolver class.
+     *
+     * This should be the class itself, and **not** an instance of the
+     * class.
+     */
+    resolverClass?: {
+        new (): DefaultResolver<Attrs, Comp, RouteArgs>;
+    };
+} | {
+    /**
+     * An instance of a route resolver.
+     */
+    resolver: RouteResolver<Attrs, Comp, RouteArgs>;
+});
+export interface RouteResolver<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
+    routeName: string;
+}>, RouteArgs extends Record<string, unknown> = {}> {
+    /**
+     * A method which selects which component to render based on
+     * conditional logic.
+     *
+     * Returns the component class, and **not** a Vnode or JSX
+     * expression.
+     */
+    onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): {
+        new (): Comp;
+    };
+    /**
+     * A function which renders the provided component.
+     *
+     * Returns a Mithril Vnode or other children.
+     */
+    render(this: this, vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
+}
 /**
  * The `App` class provides a container for an application, as well as various
  * utilities for the rest of the app to use.
@@ -5,11 +96,8 @@
 export default class Application {
     /**
      * The forum model for this application.
-     *
-     * @type {Forum}
-     * @public
      */
-    public forum: Forum;
+    forum: Forum;
     /**
      * A map of routes, keyed by a unique route name. Each route is an object
      * containing the following properties:
@@ -18,71 +106,42 @@ export default class Application {
      * - `component` The Mithril component to render when this route is active.
      *
      * @example
-     * app.routes.discussion = {path: '/d/:id', component: DiscussionPage.component()};
-     *
-     * @type {Object}
-     * @public
+     * app.routes.discussion = { path: '/d/:id', component: DiscussionPage };
      */
-    public routes: Object;
+    routes: Record<string, FlarumGenericRoute>;
     /**
      * An ordered list of initializers to bootstrap the application.
-     *
-     * @type {ItemList}
-     * @public
      */
-    public initializers: ItemList;
+    initializers: ItemList<(app: this) => void>;
     /**
      * The app's session.
      *
-     * @type {Session}
-     * @public
+     * Stores info about the current user.
      */
-    public session: Session;
+    session: Session;
     /**
      * The app's translator.
-     *
-     * @type {Translator}
-     * @public
      */
-    public translator: Translator;
+    translator: Translator;
     /**
      * The app's data store.
-     *
-     * @type {Store}
-     * @public
      */
-    public store: Store;
+    store: Store;
     /**
      * A local cache that can be used to store data at the application level, so
      * that is persists between different routes.
-     *
-     * @type {Object}
-     * @public
      */
-    public cache: Object;
+    cache: Record<string, unknown>;
     /**
      * Whether or not the app has been booted.
-     *
-     * @type {Boolean}
-     * @public
      */
-    public booted: boolean;
-    /**
-     * The key for an Alert that was shown as a result of an AJAX request error.
-     * If present, it will be dismissed on the next successful request.
-     *
-     * @type {int}
-     * @private
-     */
-    private requestErrorAlert;
+    booted: boolean;
     /**
      * The page the app is currently on.
      *
      * This object holds information about the type of page we are currently
      * visiting, and sometimes additional arbitrary page state that may be
      * relevant to lower-level components.
-     *
-     * @type {PageState}
      */
     current: PageState;
     /**
@@ -91,84 +150,82 @@ export default class Application {
      * Once the application navigates to another page, the object previously
      * assigned to this.current will be moved to this.previous, while this.current
      * is re-initialized.
-     *
-     * @type {PageState}
      */
     previous: PageState;
+    /**
+     * An object that manages modal state.
+     */
     modal: ModalManagerState;
     /**
      * An object that manages the state of active alerts.
-     *
-     * @type {AlertManagerState}
      */
     alerts: AlertManagerState;
-    data: any;
-    title: string;
-    titleCount: number;
-    initialRoute: any;
-    load(payload: any): void;
+    /**
+     * An object that manages the state of the navigation drawer.
+     */
+    drawer: Drawer;
+    data: {
+        apiDocument: Record<string, unknown> | null;
+        locale: string;
+        locales: Record<string, string>;
+        resources: Record<string, unknown>[];
+        session: {
+            userId: number;
+            csrfToken: string;
+        };
+        [key: string]: unknown;
+    };
+    private _title;
+    private _titleCount;
+    private set title(value);
+    get title(): string;
+    private set titleCount(value);
+    get titleCount(): number;
+    /**
+     * The key for an Alert that was shown as a result of an AJAX request error.
+     * If present, it will be dismissed on the next successful request.
+     */
+    private requestErrorAlert;
+    initialRoute: string;
+    load(payload: Application['data']): void;
     boot(): void;
-    bootExtensions(extensions: any): void;
+    bootExtensions(extensions: Record<string, {
+        extend?: unknown[];
+    }>): void;
     mount(basePath?: string): void;
-    drawer: Drawer | undefined;
     /**
      * Get the API response document that has been preloaded into the application.
-     *
-     * @return {Object|null}
-     * @public
      */
-    public preloadedApiDocument(): Object | null;
+    preloadedApiDocument(): Record<string, unknown> | null;
     /**
      * Determine the current screen mode, based on our media queries.
-     *
-     * @returns {String} - one of "phone", "tablet", "desktop" or "desktop-hd"
      */
-    screen(): string;
+    screen(): FlarumScreens;
     /**
-     * Set the <title> of the page.
+     * Set the `<title>` of the page.
      *
-     * @param {String} title
-     * @public
+     * @param title New page title
      */
-    public setTitle(title: string): void;
+    setTitle(title: string): void;
     /**
-     * Set a number to display in the <title> of the page.
+     * Set a number to display in the `<title>` of the page.
      *
-     * @param {Integer} count
+     * @param count Number to display in title
      */
-    setTitleCount(count: any): void;
+    setTitleCount(count: number): void;
     updateTitle(): void;
     /**
      * Make an AJAX request, handling any low-level errors that may occur.
      *
      * @see https://mithril.js.org/request.html
-     * @param {Object} options
+     *
+     * @param options
      * @return {Promise}
-     * @public
      */
-    public request(originalOptions: any): Promise<any>;
-    /**
-     * @param {RequestError} error
-     * @param {string[]} [formattedError]
-     * @private
-     */
+    request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType | string>;
     private showDebug;
     /**
      * Construct a URL to the route with the given name.
-     *
-     * @param {String} name
-     * @param {Object} params
-     * @return {String}
-     * @public
      */
-    public route(name: string, params?: Object): string;
+    route(name: string, params?: Record<string, unknown>): string;
 }
-import Forum from "./models/Forum";
-import ItemList from "./utils/ItemList";
-import Session from "./Session";
-import Translator from "./Translator";
-import Store from "./Store";
-import PageState from "./states/PageState";
-import ModalManagerState from "./states/ModalManagerState";
-import AlertManagerState from "./states/AlertManagerState";
-import Drawer from "./utils/Drawer";

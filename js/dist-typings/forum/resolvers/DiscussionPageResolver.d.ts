@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import DefaultResolver from '../../common/resolvers/DefaultResolver';
 /**
  * A custom route resolver for DiscussionPage that generates the same key to all posts
@@ -19,6 +18,6 @@ export default class DiscussionPageResolver extends DefaultResolver {
      * @inheritdoc
      */
     makeKey(): string;
-    onmatch(args: any, requestedPath: any, route: any): import("mithril").Component<{}, {}>;
-    render(vnode: any): any[];
+    onmatch(args: any, requestedPath: any, route: any): any;
+    render(vnode: any): any;
 }
