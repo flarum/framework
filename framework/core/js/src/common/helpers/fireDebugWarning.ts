@@ -1,3 +1,5 @@
+import app from '../app';
+
 /**
  * Calls `console.warn` with the provided arguments, but only if the forum is in debug mode.
  *

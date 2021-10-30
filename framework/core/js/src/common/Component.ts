@@ -138,13 +138,13 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
       if ('children' in attrs) {
         throw new Error(
           `[${
-            (this.constructor as any).name
+            (this.constructor as typeof Component).name
           }] The "children" attribute of attrs should never be used. Either pass children in as the vnode children or rename the attribute`
         );
       }
 
       if ('tag' in attrs) {
-        throw new Error(`[${(this.constructor as any).name}] You cannot use the "tag" attribute name with Mithril 2.`);
+        throw new Error(`[${(this.constructor as typeof Component).name}] You cannot use the "tag" attribute name with Mithril 2.`);
       }
     }
 
