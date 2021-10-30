@@ -6,7 +6,8 @@
  *
  * - `email`
  */
-export default class ForgotPasswordModal extends Modal {
+export default class ForgotPasswordModal extends Modal<any> {
+    constructor();
     /**
      * The value of the email input.
      *
