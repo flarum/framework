@@ -55,6 +55,9 @@
   .Button--color-vars(@control-danger-color, @control-danger-bg, 'control-danger');
   .Button--color-vars(@muted-more-color, fade(@muted-more-color, 30%), 'muted-more');
 
+  .light-contents-vars();
+  .light-contents-vars(@header-color, @header-control-bg, @header-control-color, 'header');
+
   // Store the current responsive screen mode in a CSS variable, to make it
   // available to the JS code.
   --flarum-screen: none;
