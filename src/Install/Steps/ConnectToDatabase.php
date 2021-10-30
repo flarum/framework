@@ -48,7 +48,10 @@ class ConnectToDatabase implements Step
                 throw new RangeException('MySQL version too low. You need at least MySQL 5.6.');
             }
         }
-
+        
+        /** resolves #3029 */
+        $pdo->exec('SET SESSION sql_require_primary_key=0');
+        
         ($this->store)(
             new MySqlConnection(
                 $pdo,
