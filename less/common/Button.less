@@ -53,7 +53,8 @@
   padding: 8px 13px;
   border-radius: @border-radius;
   .user-select(none);
-  .Button--color(@control-color, @control-bg, 'button', true);
+  color: var(--button-color);
+  background: var(--button-bg);
   border: 0;
 
   &:hover {
@@ -90,9 +91,41 @@
     margin-top: -0.175em;
     margin-left: 4px;
   }
+
+  &:hover,
+  &:focus,
+  &.focus {
+    background-color: var(--button-bg-hover);
+  }
+
+  &:active,
+  &.active,
+  .open > .Dropdown-toggle& {
+    background-color: var(--button-bg-active);
+  }
+
+  &.disabled,
+  &[disabled],
+  fieldset[disabled] & {
+    background: var(--button-bg-disabled);
+  }
 }
 
-// This allows to use the dynamic color modifying mixin while still using custom CSS poperties
+/**
+ * Should be used at the `:root` level to declare the color variations as custom CSS properties first.
+ * Then use the `.Button--color-auto()` below to use those variations on your element.
+ *
+ * `@name` parameter must be unique.
+ *
+ * For example:
+ * :root {
+ *   .Button--color-vars(green, white, 'button-success');
+ * }
+ *
+ * .Button--success {
+ *   .Button-color-auto('button-success');
+ * }
+ */
 .Button--color-vars(@color; @background; @name: 'button') {
   @componentName: ~"@{name}";
 
@@ -103,33 +136,21 @@
   --@{componentName}-bg-disabled: @background;
 }
 
-.Button--color(@color; @background; @name: 'button'; @usingCssVars: false) {
-  // Backwards compatibility
-  // @todo remove in 2.0
-  & when (@usingCssVars = false) {
-    .Button--color-vars(@color, @background, @name);
-  }
+.Button--color-auto(@name: 'button') {
+  --button-color: var(~"--@{name}-color");
+  --button-bg: var(~"--@{name}-bg");
+  --button-bg-hover: var(~"--@{name}-bg-hover");
+  --button-bg-active: var(~"--@{name}-bg-active");
+  --button-bg-disabled: var(~"--@{name}-bg-disabled");
+}
 
-  color: var(~"--@{name}-color");
-  background: var(~"--@{name}-bg");
-
-  &:hover,
-  &:focus,
-  &.focus {
-    background-color: var(~"--@{name}-bg-hover");
-  }
-
-  &:active,
-  &.active,
-  .open > .Dropdown-toggle& {
-    background-color: var(~"--@{name}-bg-active");
-  }
-
-  &.disabled,
-  &[disabled],
-  fieldset[disabled] & {
-    background: var(~"--@{name}-bg-disabled");
-  }
+/**
+ * Legacy mixin, allows customizing button colors inline without declaring custom CSS properties at the root.
+ * For a better theming experience, declaring the custom CSS properties at the root first using `Button--color-vars()`
+ * then using `Button--color-auto()` is recommended.
+ */
+.Button--color(@color; @background) {
+  .Button--color-vars(@color, @background, 'button');
 }
 
 
@@ -177,7 +198,7 @@
   }
 }
 .Button--primary {
-  .Button--color(@body-bg, @primary-color, 'button-primary', true);
+  .Button--color-auto('button-primary');
   font-weight: bold;
   padding-left: 20px;
   padding-right: 20px;
@@ -187,7 +208,7 @@
   }
 }
 .Button--danger {
-  .Button--color(@control-danger-color, @control-danger-bg, 'control-danger', true);
+  .Button--color-auto('control-danger');
 }
 .Button--more {
   padding: 2px 4px;
