@@ -41,7 +41,10 @@ export interface SearchAttrs extends ComponentAttrs {
  * - state: SearchState instance.
  */
 export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T> {
-    static MIN_SEARCH_LEN: number;
+    /**
+     * The minimum query length before sources are searched.
+     */
+    protected static MIN_SEARCH_LEN: number;
     protected state: SearchState;
     /**
      * Whether or not the search input has focus.
