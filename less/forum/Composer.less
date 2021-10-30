@@ -87,7 +87,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: fade(@body-bg, 90%);
+  background: var(--body-bg-faded);
   display: none;
   border-radius: @border-radius @border-radius 0 0;
 
@@ -225,7 +225,7 @@
   }
   .Composer {
     border-radius: @border-radius @border-radius 0 0;
-    background: fade(@body-bg, 95%);
+    background: var(--body-bg-faded);
     position: relative;
     height: 300px;
     transition: background 0.2s, box-shadow 0.2s;

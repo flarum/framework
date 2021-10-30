@@ -59,10 +59,10 @@
       }
 
       &--shaded {
-        background: darken(@body-bg, 3%);
+        background: var(--body-bg-dark);
 
         & when (@config-dark-mode = true) {
-          background: lighten(@body-bg, 5%);
+          background: var(--body-bg-light);
         }
       }
     }
