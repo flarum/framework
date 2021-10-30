@@ -6,7 +6,8 @@
  * - `identification`
  * - `password`
  */
-export default class LogInModal extends Modal {
+export default class LogInModal extends Modal<any> {
+    constructor();
     /**
      * The value of the identification input.
      *

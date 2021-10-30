@@ -1,4 +1,5 @@
-export default class ReadmeModal extends Modal {
+export default class ReadmeModal extends Modal<any> {
+    constructor();
     name: any;
     extName: any;
     loadReadme(): Promise<void>;
