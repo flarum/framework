@@ -1,44 +1,53 @@
+import History from './utils/History';
+import Pane from './utils/Pane';
+import Application from '../common/Application';
+import NotificationListState from './states/NotificationListState';
+import GlobalSearchState from './states/GlobalSearchState';
+import DiscussionListState from './states/DiscussionListState';
+import ComposerState from './states/ComposerState';
+import type Notification from './components/Notification';
+import type Post from './components/Post';
 export default class ForumApplication extends Application {
     /**
      * A map of notification types to their components.
-     *
-     * @type {Object}
      */
-    notificationComponents: Object;
+    notificationComponents: Record<string, typeof Notification>;
     /**
      * A map of post types to their components.
-     *
-     * @type {Object}
      */
-    postComponents: Object;
+    postComponents: Record<string, typeof Post>;
     /**
      * An object which controls the state of the page's side pane.
-     *
-     * @type {Pane}
      */
-    pane: Pane;
+    pane: Pane | null;
     /**
      * The app's history stack, which keeps track of which routes the user visits
      * so that they can easily navigate back to the previous route.
-     *
-     * @type {History}
      */
     history: History;
     /**
      * An object which controls the state of the user's notifications.
-     *
-     * @type {NotificationListState}
      */
     notifications: NotificationListState;
+    /**
+     * An object which stores previously searched queries and provides convenient
+     * tools for retrieving and managing search values.
+     */
     search: GlobalSearchState;
+    /**
+     * An object which controls the state of the composer.
+     */
     composer: ComposerState;
     /**
      * An object which controls the state of the cached discussion list, which
      * is used in the index page and the slideout pane.
-     *
-     * @type {DiscussionListState}
      */
     discussions: DiscussionListState;
+    constructor();
+    /**
+     * @inheritdoc
+     */
+    mount(): void;
     /**
      * Check whether or not the user is currently viewing a discussion.
      *
@@ -59,12 +68,5 @@ export default class ForumApplication extends Application {
      *     in, and thus the page is reloaded.
      * @public
      */
-    public authenticationComplete(payload: Object): void;
+    authenticationComplete(payload: any): void;
 }
-import Application from "../common/Application";
-import Pane from "./utils/Pane";
-import History from "./utils/History";
-import NotificationListState from "./states/NotificationListState";
-import GlobalSearchState from "./states/GlobalSearchState";
-import ComposerState from "./states/ComposerState";
-import DiscussionListState from "./states/DiscussionListState";
