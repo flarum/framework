@@ -12,7 +12,7 @@ const later =
  */
 export default class ScrollListener {
   /**
-   * @param {Function} callback The callback to run when the scroll position
+   * @param {(top: number) => void} callback The callback to run when the scroll position
    *     changes.
    * @public
    */
