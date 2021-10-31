@@ -20,7 +20,7 @@
   --control-bg: @control-bg;
   --control-bg-light: lighten(@control-bg, 3%);
   --control-bg-dark: darken(@control-bg, 4%);
-  --control-color: @control-color; // <--
+  --control-color: @control-color;
   --control-danger-bg: @control-danger-bg;
   --control-danger-color: @control-danger-color;
 
@@ -37,13 +37,19 @@
   --alert-success-bg: @alert-success-bg;
   --alert-success-color: @alert-success-color;
 
+  --switch-on-color: #58a400;
+  --switch-off-color: #d0021b;
+
+  --enabled-color: #2ECC40;
+  --disabled-color: #FF4136;
+
   --validation-error-color: @validation-error-color;
 
-  // Component colors
-  --avatar-bg: @control-bg;
-  --badge-bg: @muted-color;
+  --avatar-bg: var(--control-bg);
+  --badge-bg: var(--muted-color);
   --badge-color: #fff;
-  --usercard-bg: @control-bg;
+  --badge-hidden-bg: #888;
+  --usercard-bg: var(--control-bg);
   --hero-bg: @hero-bg;
   --hero-color: @hero-color;
 
