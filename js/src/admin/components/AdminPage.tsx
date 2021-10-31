@@ -272,9 +272,11 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
 
         if ((ColorSettingTypes as readonly string[]).includes(type)) {
           Tag = ColorInput;
+        } else {
+          componentAttrs.type = type;
         }
 
-        settingElement = <Tag id={inputId} aria-describedby={helpTextId} type={type} bidi={this.setting(setting)} {...componentAttrs} />;
+        settingElement = <Tag id={inputId} aria-describedby={helpTextId} bidi={this.setting(setting)} {...componentAttrs} />;
       }
     }
 

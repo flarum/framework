@@ -11,6 +11,8 @@ export default class ColorInput extends Component {
     const { className, ...attrs } = this.attrs;
     const value = attrs.bidi?.() || attrs.value;
 
+    attrs.type ||= 'text';
+
     return (
       <div className="ColorInput">
         <input className={classList('FormControl', className)} {...attrs} />
