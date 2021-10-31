@@ -23,7 +23,7 @@ export default class PostStream extends Component<import("../../common/Component
      * @param {Integer} top
      */
     onscroll(top?: any): void;
-    calculatePositionTimeout: number | undefined;
+    calculatePositionTimeout: NodeJS.Timeout | undefined;
     /**
      * Check if either extreme of the post stream is in the viewport,
      * and if so, trigger loading the next/previous page.
