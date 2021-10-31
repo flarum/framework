@@ -28,7 +28,7 @@
     "bundlewatch": "^0.3.2",
     "cross-env": "^7.0.3",
     "flarum-tsconfig": "^1.0.2",
-    "flarum-webpack-config": "2.0.0-beta.2",
+    "flarum-webpack-config": "2.0.0",
     "prettier": "^2.4.1",
     "typescript": "^4.4.4",
     "webpack": "^5.60.0",
