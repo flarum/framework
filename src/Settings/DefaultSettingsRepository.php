@@ -33,6 +33,8 @@ class DefaultSettingsRepository implements SettingsRepositoryInterface
 
     public function get($key, $default = null)
     {
+        // Global default overrules local default because local default is deprecated,
+        // and will be removed in 2.0
         return $this->inner->get($key, $this->defaults[$key] ?? $default);
     }
 
