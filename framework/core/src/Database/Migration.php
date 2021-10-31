@@ -9,6 +9,7 @@
 
 namespace Flarum\Database;
 
+use Flarum\Extend\Settings;
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
@@ -120,6 +121,9 @@ abstract class Migration
 
     /**
      * Add default values for config values.
+     *
+     * @deprecated Use the Settings extender's `default` method instead to register settings.
+     * @see Settings::default()
      */
     public static function addSettings(array $defaults)
     {
