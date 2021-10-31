@@ -1,7 +1,15 @@
 /**
  * The `evented` mixin provides methods allowing an object to trigger events,
  * running externally registered event handlers.
+ *
+ * @deprecated v1.2, to be removed in v2.0
  */
+
+import fireDebugWarning from '../helpers/fireDebugWarning';
+
+const deprecatedNotice =
+  'The `evented` util is deprecated and will be removed in Flarum 2.0. For more info, please see https://github.com/flarum/core/issues/2547';
+
 export default {
   /**
    * Arrays of registered event handlers, grouped by the event name.
@@ -19,6 +27,8 @@ export default {
    * @protected
    */
   getHandlers(event) {
+    fireDebugWarning(deprecatedNotice);
+
     this.handlers = this.handlers || {};
 
     this.handlers[event] = this.handlers[event] || [];
@@ -34,6 +44,8 @@ export default {
    * @public
    */
   trigger(event, ...args) {
+    fireDebugWarning(deprecatedNotice);
+
     this.getHandlers(event).forEach((handler) => handler.apply(this, args));
   },
 
@@ -44,6 +56,8 @@ export default {
    * @param {function} handler The function to handle the event.
    */
   on(event, handler) {
+    fireDebugWarning(deprecatedNotice);
+
     this.getHandlers(event).push(handler);
   },
 
@@ -55,6 +69,8 @@ export default {
    * @param {function} handler The function to handle the event.
    */
   one(event, handler) {
+    fireDebugWarning(deprecatedNotice);
+
     const wrapper = function () {
       handler.apply(this, arguments);
 
@@ -71,6 +87,8 @@ export default {
    * @param {function} handler The function that handles the event.
    */
   off(event, handler) {
+    fireDebugWarning(deprecatedNotice);
+
     const handlers = this.getHandlers(event);
     const index = handlers.indexOf(handler);
 
