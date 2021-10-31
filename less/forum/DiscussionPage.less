@@ -69,13 +69,13 @@
 
 @media @tablet-up {
   .DiscussionPage-list {
-    left: -@pane-width - 6px;
+    left: calc(~"0px - var(--pane-width) - 6px");
     position: absolute;
-    z-index: @zindex-pane;
+    z-index: var(--zindex-pane);
     overflow: auto;
-    top: @header-height;
+    top: var(--header-height);
     height: ~"calc(100vh - @{header-height})";
-    width: @pane-width;
+    width: var(--pane-width);
     background: var(--body-bg);
     padding-bottom: 40px;
     border-top: 1px solid var(--control-bg);
@@ -134,7 +134,7 @@
   // When the pane is pinned, move the other page content inwards
   .App-content, .App-footer {
     .hasPane.panePinned & {
-      margin-left: @pane-width;
+      margin-left: var(--pane-width);
 
       .container {
         max-width: 100%;

@@ -13,7 +13,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: @zindex-modal-background;
+  z-index: var(--zindex-modal-background);
   background-color: var(--overlay-bg);
   opacity: 0;
   transition: opacity 0.2s;
@@ -32,7 +32,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: @zindex-modal;
+  z-index: var(--zindex-modal);
   -webkit-overflow-scrolling: touch;
 
   // When fading in the modal, animate it to slide down
@@ -151,7 +151,7 @@
     border-radius: 0;
     border: 0;
     min-height: 100vh;
-    padding-top: @header-height-phone;
+    padding-top: var(--header-height-phone);
     box-shadow: none;
   }
   .Modal-header {
@@ -174,7 +174,7 @@
   .Modal-content {
 
     border: 0;
-    border-radius: @border-radius;
+    border-radius: var(--border-radius);
     box-shadow: 0 7px 15px var(--shadow-color);
   }
   .Modal--small {

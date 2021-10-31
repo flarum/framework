@@ -7,7 +7,7 @@
   transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
   top: 0;
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
   .clearfix();
 
   &.editing {
@@ -56,7 +56,7 @@
       font-size: 12px;
     }
     & .fa-circle {
-      color: @online-user-circle-color;
+      color: var(--online-user-circle-color);
     }
   }
 
@@ -64,7 +64,7 @@
     position: absolute;
     top: -10px;
     left: -100px;
-    z-index: @zindex-dropdown;
+    z-index: var(--zindex-dropdown);
     transition: opacity 0.2s, transform 0.2s;
     transform: scale(0.95);
     transform-origin: left top;
@@ -112,7 +112,7 @@
     border: 0;
     background: var(--control-bg);
     color: var(--control-color);
-    border-radius: @border-radius;
+    border-radius: var(--border-radius);
     padding: 8px 15px;
     border-top: 2px dotted var(--body-bg);
     border-bottom: 2px dotted var(--body-bg);
@@ -135,7 +135,7 @@
     background: var(--code-bg);
     color: var(--code-color);
     font-size: 90%;
-    border-radius: @border-radius;
+    border-radius: var(--border-radius);
     overflow-wrap: normal;
 
     code {

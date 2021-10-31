@@ -4,7 +4,7 @@
 // Base class
 .tooltip {
   position: absolute;
-  z-index: @zindex-tooltip;
+  z-index: var(--zindex-tooltip);
   display: block;
   font-size: 12px;
   font-weight: normal;
@@ -23,11 +23,11 @@
 .tooltip-inner {
   max-width: 200px;
   padding: 7px 12px;
-  color: @tooltip-color;
+  color: var(--tooltip-color);
   text-align: center;
   text-decoration: none;
-  background-color: @tooltip-bg;
-  border-radius: @border-radius;
+  background-color: var(--tooltip-bg);
+  border-radius: var(--border-radius);
 }
 
 // Arrows
@@ -46,27 +46,27 @@
     left: 50%;
     margin-left: -@tooltip-arrow-width;
     border-width: @tooltip-arrow-width @tooltip-arrow-width 0;
-    border-top-color: @tooltip-bg;
+    border-top-color: var(--tooltip-bg);
   }
   &.right .tooltip-arrow {
     top: 50%;
     left: 0;
     margin-top: -@tooltip-arrow-width;
     border-width: @tooltip-arrow-width @tooltip-arrow-width @tooltip-arrow-width 0;
-    border-right-color: @tooltip-bg;
+    border-right-color: var(--tooltip-bg);
   }
   &.left .tooltip-arrow {
     top: 50%;
     right: 0;
     margin-top: -@tooltip-arrow-width;
     border-width: @tooltip-arrow-width 0 @tooltip-arrow-width @tooltip-arrow-width;
-    border-left-color: @tooltip-bg;
+    border-left-color: var(--tooltip-bg);
   }
   &.bottom .tooltip-arrow {
     top: 0;
     left: 50%;
     margin-left: -@tooltip-arrow-width;
     border-width: 0 @tooltip-arrow-width @tooltip-arrow-width;
-    border-bottom-color: @tooltip-bg;
+    border-bottom-color: var(--tooltip-bg);
   }
 }

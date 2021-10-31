@@ -53,6 +53,11 @@
   --hero-bg: @hero-bg;
   --hero-color: @hero-color;
 
+  --tooltip-bg: @tooltip-bg;
+  --tooltip-color: @tooltip-color;
+
+  --online-user-circle-color: @online-user-circle-color;
+
   --discussion-title-color: mix(@heading-color, @body-bg, 55%);
   --discussion-list-item-bg-hover: mix(@control-bg, @body-bg, 50%);
 
@@ -64,12 +69,29 @@
   .light-contents-vars();
   .light-contents-vars(@header-color, @header-control-bg, @header-control-color, 'header');
 
+  // Non color variables
+  --border-radius: @border-radius;
+
   // Store the current responsive screen mode in a CSS variable, to make it
   // available to the JS code.
   --flarum-screen: none;
+
+  --drawer-width: @drawer-width;
+  --pane-width: @pane-width;
+  --header-height: @header-height;
+  --header-height-phone: @header-height-phone;
 
   @media @phone { --flarum-screen: phone; }
   @media @tablet { --flarum-screen: tablet; }
   @media @desktop { --flarum-screen: desktop; }
   @media @desktop-hd { --flarum-screen: desktop-hd; }
+
+  --zindex-header: @zindex-header;
+  --zindex-pane: @zindex-pane;
+  --zindex-composer: @zindex-composer;
+  --zindex-dropdown: @zindex-dropdown;
+  --zindex-modal-background: @zindex-modal-background;
+  --zindex-modal: @zindex-modal;
+  --zindex-alerts: @zindex-alerts;
+  --zindex-tooltip: @zindex-tooltip;
 }

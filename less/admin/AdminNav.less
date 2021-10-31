@@ -72,12 +72,12 @@
 @media @desktop-up {
   .App-nav {
     position: absolute;
-    top: @header-height;
+    top: var(--header-height);
     height: ~"calc(100vh - @{header-height})";
     width: @admin-pane-width;
     box-shadow: 0 6px 6px var(--shadow-color);
     background: var(--body-bg);
-    z-index: @zindex-pane;
+    z-index: var(--zindex-pane);
     overflow-y: scroll;
     padding-bottom: 40px;
 

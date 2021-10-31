@@ -1,12 +1,12 @@
 .App {
   position: relative !important;
-  padding-top: @header-height;
+  padding-top: var(--header-height);
   padding-bottom: 50px;
   overflow-x: hidden;
   min-height: 100vh;
 
   @media @phone {
-    padding-top: @header-height-phone;
+    padding-top: var(--header-height-phone);
   }
 }
 
@@ -29,7 +29,7 @@
   }
   .App-primaryControl, .App-titleControl, .App-backControl {
     position: absolute !important;
-    z-index: @zindex-header + 1;
+    z-index: calc(~"var(--zindex-header) + 1");
     top: 0 !important;
     margin: 0;
 
@@ -41,7 +41,7 @@
       float: none;
       background: transparent !important;
       box-shadow: none !important;
-      height: @header-height-phone;
+      height: var(--header-height-phone);
       width: auto;
       padding: 13px !important;
       margin: 0 !important;
@@ -71,7 +71,7 @@
     margin: 0 !important;
 
     > .Button {
-      color: @header-control-color !important;
+      color: var(--header-control-color) !important;
 
       .Button-icon {
         display: block;
@@ -88,13 +88,13 @@
     left: 50%;
     margin-left: -100px;
     text-align: center;
-    color: @header-color !important;
+    color: var(--header-color) !important;
 
     &, > .Button {
       font-size: 16px;
     }
     > .Button {
-      color: @header-color;
+      color: var(--header-color);
       width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -130,16 +130,16 @@
     overflow: hidden;
   }
   .App-drawer {
-    background: @header-bg;
-    width: @drawer-width;
+    background: var(--header-bg);
+    width: var(--drawer-width);
     position: fixed;
     left: 0;
     top: 0;
     bottom: 0;
     box-shadow: 0 2px 6px var(--shadow-color);
-    transform: translate(-@drawer-width - 6px, 0);
+    transform: translate(calc(~"0px - var(--drawer-width) - 6px"), 0);
     transition: transform 0.2s;
-    z-index: @zindex-modal;
+    z-index: var(--zindex-modal);
 
     .drawerOpen & {
       -webkit-transform: none !important;
@@ -152,7 +152,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: @zindex-modal-background;
+    z-index: var(--zindex-modal-background);
     background-color: var(--overlay-bg);
     opacity: 0;
     transition: opacity 0.2s;
