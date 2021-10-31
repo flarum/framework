@@ -225,7 +225,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         $callableRelations = [];
         $nonCallableRelations = [];
 
-        foreach ($relations as $k => $relation) {
+        foreach ($relations as $relation) {
             if (isset($addedRelationCallables[$relation])) {
                 $load = $addedRelationCallables[$relation];
 
@@ -233,7 +233,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
                     $load($query, $request, $relations);
                 };
             } else {
-                $nonCallableRelations[$k] = $relation;
+                $nonCallableRelations[] = $relation;
             }
         }
 
