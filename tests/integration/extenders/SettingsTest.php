@@ -200,6 +200,26 @@ class SettingsTest extends TestCase
 
         $this->assertEquals('defaultParameterValue', $value);
     }
+
+    /**
+     * @test
+     */
+    public function null_custom_setting_returns_null()
+    {
+        $this->setting('custom-prefix.custom_null_setting', null);
+
+        $this->extend(
+            (new Extend\Settings())
+                ->default('custom-prefix.custom_null_setting', 'extenderDefault')
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.custom_null_setting');
+
+        $this->assertEquals(null, $value);
+    }
 }
 
 class CustomInvokableClass
