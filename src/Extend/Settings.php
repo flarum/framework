@@ -13,7 +13,6 @@ use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
-use Flarum\Settings\DefaultSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
