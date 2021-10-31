@@ -12,12 +12,12 @@ export default class ColorInput extends Component {
     const value = attrs.bidi?.() || attrs.value;
 
     return (
-      <div className="Color-input">
+      <div className="ColorInput">
         <input className={classList('FormControl', className)} {...attrs} />
 
-        <span className="Color-input--icon">{icon('fas fa-exclamation-circle')}</span>
+        <span className="ColorInput-icon">{icon('fas fa-exclamation-circle')}</span>
 
-        <div className="Color-input--preview" style={{ '--input-value': value }} />
+        <div className="ColorInput-preview" style={{ '--input-value': value }} />
       </div>
     );
   }
