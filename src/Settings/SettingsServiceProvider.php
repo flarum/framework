@@ -12,6 +12,7 @@ namespace Flarum\Settings;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\Collection;
 
 class SettingsServiceProvider extends AbstractServiceProvider
 {
@@ -20,21 +21,19 @@ class SettingsServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton(DefaultSettingsRepository::class);
-
-        $this->container->alias(DefaultSettingsRepository::class, 'flarum.settings.default');
+        $this->container->singleton('flarum.settings.default', function () {
+            return new Collection();
+        });
 
         $this->container->singleton(SettingsRepositoryInterface::class, function (Container $container) {
-            $defaults = $container->make(DefaultSettingsRepository::class);
-            $defaults->setInner(
+            return new DefaultSettingsRepository(
                 new MemoryCacheSettingsRepository(
                     new DatabaseSettingsRepository(
                         $container->make(ConnectionInterface::class)
                     )
-                )
+                ),
+                $container->make('flarum.settings.default')
             );
-
-            return $defaults;
         });
 
         $this->container->alias(SettingsRepositoryInterface::class, 'flarum.settings');

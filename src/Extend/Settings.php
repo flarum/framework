@@ -16,6 +16,7 @@ use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\DefaultSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Collection;
 
 class Settings implements ExtenderInterface
 {
@@ -64,9 +65,13 @@ class Settings implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         if (! empty($this->defaults)) {
-            $container->extend(DefaultSettingsRepository::class, function (DefaultSettingsRepository $defaultSettings) {
-                foreach ($this->defaults as $key => $default) {
-                    $defaultSettings->default($key, $default);
+            $container->extend('flarum.settings.default', function (Collection $defaults) {
+                foreach ($this->defaults as $key => $value) {
+                    if ($defaults->has($key)) {
+                        throw new \RuntimeException("Cannot modify immutable default setting $key.");
+                    }
+
+                    $defaults->put($key, $value);
                 }
             });
         }

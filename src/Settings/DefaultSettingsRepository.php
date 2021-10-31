@@ -9,33 +9,25 @@
 
 namespace Flarum\Settings;
 
-use RuntimeException;
+use Illuminate\Support\Collection;
 
 class DefaultSettingsRepository implements SettingsRepositoryInterface
 {
-    protected $defaults = [];
+    protected $defaults;
 
     private $inner;
 
-    public function setInner(SettingsRepositoryInterface $inner): void
+    public function __construct(SettingsRepositoryInterface $inner, Collection $defaults)
     {
         $this->inner = $inner;
-    }
-
-    public function default(string $key, $value): void
-    {
-        if (isset($this->defaults[$key])) {
-            throw new RuntimeException("Cannot modify immutable default setting $key.");
-        }
-
-        $this->defaults[$key] = $value;
+        $this->defaults = $defaults;
     }
 
     public function get($key, $default = null)
     {
         // Global default overrules local default because local default is deprecated,
         // and will be removed in 2.0
-        return $this->inner->get($key, $this->defaults[$key] ?? $default);
+        return $this->inner->get($key, $this->defaults->get($key, $default));
     }
 
     public function set($key, $value)
@@ -50,6 +42,6 @@ class DefaultSettingsRepository implements SettingsRepositoryInterface
 
     public function all(): array
     {
-        return array_merge($this->defaults, $this->inner->all());
+        return array_merge($this->defaults->toArray(), $this->inner->all());
     }
 }
