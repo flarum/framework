@@ -1,5 +1,60 @@
 # Changelog
 
+
+## [1.1.0](https://github.com/flarum/core/compare/v1.0.4...v1.1.0)
+
+### Added
+- Info command now displays MySQL version, queue driver, mail driver (https://github.com/flarum/core/pull/2991)
+- Use organization Prettier config (https://github.com/flarum/core/pull/2967)
+- Support for global typings in extensions (https://github.com/flarum/core/pull/2992)
+- Typings for class component state attribute (https://github.com/flarum/core/pull/2995)
+- Custom colorising with CSS custom properties (https://github.com/flarum/core/pull/3001)
+- Theme Extender to allow overriding LESS files (https://github.com/flarum/core/pull/3008)
+- Update lastSeenAt when authenticating via API (https://github.com/flarum/core/pull/3058)
+- NoJs Admin View (https://github.com/flarum/core/pull/3059)
+- Preload FontAwesome, JS and CSS, and add `preload` extender (https://github.com/flarum/core/pull/3057)
+
+### Changed
+- Move Day.js plugin types import to global typings (https://github.com/flarum/core/pull/2954)
+- Avoid resolving excluded middleware on each middleware items
+- Allow extra attrs provided to `<Select>` to be passed through to the DOM element (https://github.com/flarum/core/pull/2959)
+- Limit height of code blocks (https://github.com/flarum/core/pull/3012)
+- Update normalize.css from v3.0.2 to v8.0.1 (https://github.com/flarum/core/pull/3015)
+- Permission Grid: stick the headers to handle a lot of tags (https://github.com/flarum/core/pull/2887)
+- Use `ItemList` for `DiscussionPage` content (https://github.com/flarum/core/pull/3004)
+- Move email confirmation to POST request (https://github.com/flarum/core/pull/3038)
+- Minor CSS code cleanup (https://github.com/flarum/core/pull/3026) 
+- Replace username with display name in more places (https://github.com/flarum/core/pull/3040) 
+- Rewrite Button to Typescript (https://github.com/flarum/core/pull/2984)
+- Rewrite AdminPage abstract component into Typescript (https://github.com/flarum/core/pull/2996)
+- Allow adding page parameters to PaginatedListState (https://github.com/flarum/core/pull/2935)
+- Pass filter params to getApiDocument (https://github.com/flarum/core/pull/3037)
+- Use author filter instead of gambit to get a user's discussions (https://github.com/flarum/core/pull/3068)
+- [A11Y] Accessibility improvements for the Search component (https://github.com/flarum/core/pull/3017)
+- Add determinsm to extension order resolution (https://github.com/flarum/core/pull/3076)
+- Add cache control headers to the admin area (https://github.com/flarum/core/pull/3097)
+
+### Fixed
+- HLJS 11 new styles resulting in double padding (https://github.com/flarum/core/pull/2909)
+- Internal API client attempting to load an uninstantiated session
+- Empty post footer taking visual space (https://github.com/flarum/core/pull/2926)
+- Unrecognized component class custom attribute typings (https://github.com/flarum/core/pull/2962)
+- User edit groups permission not visually depending on view hidden groups permission (https://github.com/flarum/core/pull/2880)
+- Event post excerpt preview triggers error (https://github.com/flarum/core/pull/2964)
+- Missing settings defaults for display name driver and User slug driver (https://github.com/flarum/core/pull/2971)
+- [A11Y] Icons not hidden from screenreaders (https://github.com/flarum/core/pull/3027)
+- [A11Y] Checkboxes not focusable (https://github.com/flarum/core/pull/3014)
+- Uploading ICO favicons resulting in server errors (https://github.com/flarum/core/pull/2949)
+- Missing proper validation for large avatar upload payload (https://github.com/flarum/core/pull/3042)
+- [A11Y] Missing focus rings in control elements (https://github.com/flarum/core/pull/3016)
+- Unsanitised integer query parameters (https://github.com/flarum/core/pull/3064)
+
+###### Code Contributors
+@lhsazevedo, @Ornanovitch, @pierres, @the-turk, @iPurpl3x
+
+###### Issue Reporters
+@uamv, @dannyuk1982, @BurnNoticeSpy, @haarp, @peopleinside, @matteocontrini
+
 ## [1.0.4](https://github.com/flarum/core/compare/v1.0.3...v1.0.4)
 
 ### Fixed

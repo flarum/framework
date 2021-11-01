@@ -75,6 +75,7 @@ export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOpt
 
 const BooleanSettingTypes = ['bool', 'checkbox', 'switch', 'boolean'] as const;
 const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
+const TextareaSettingTypes = ['textarea'] as const;
 
 /**
  * Valid options for the setting component builder to generate a Switch.
@@ -96,9 +97,20 @@ export interface SelectSettingComponentOptions extends CommonSettingsItemOptions
 }
 
 /**
+ * Valid options for the setting component builder to generate a Textarea.
+ */
+export interface TextareaSettingComponentOptions extends CommonSettingsItemOptions {
+  type: typeof TextareaSettingTypes[number];
+}
+
+/**
  * All valid options for the setting component builder.
  */
-export type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions;
+export type SettingsComponentOptions =
+  | HTMLInputSettingsComponentOptions
+  | SwitchSettingComponentOptions
+  | SelectSettingComponentOptions
+  | TextareaSettingComponentOptions;
 
 /**
  * Valid attrs that can be returned by the `headerInfo` function
@@ -201,7 +213,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    *   return <p>My cool component</p>;
    * }
    */
-  buildSettingComponent(entry: ((this: typeof this) => Mithril.Children) | SettingsComponentOptions): Mithril.Children {
+  buildSettingComponent(entry: ((this: this) => Mithril.Children) | SettingsComponentOptions): Mithril.Children {
     if (typeof entry === 'function') {
       return entry.call(this);
     }
@@ -211,6 +223,8 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     const value = this.setting(setting)();
 
     const [inputId, helpTextId] = [generateElementId(), generateElementId()];
+
+    let settingElement: Mithril.Children;
 
     // Typescript being Typescript
     // https://github.com/microsoft/TypeScript/issues/14520
@@ -228,35 +242,35 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     } else if ((SelectSettingTypes as readonly string[]).includes(type)) {
       const { default: defaultValue, options, ...otherAttrs } = componentAttrs;
 
-      return (
-        <div className="Form-group">
-          <label for={inputId}>{label}</label>
-          <div className="helpText" id={helpTextId}>
-            {help}
-          </div>
-          <Select
-            id={inputId}
-            aria-describedby={helpTextId}
-            value={value || defaultValue}
-            options={options}
-            onchange={this.settings[setting]}
-            {...otherAttrs}
-          />
-        </div>
+      settingElement = (
+        <Select
+          id={inputId}
+          aria-describedby={helpTextId}
+          value={value || defaultValue}
+          options={options}
+          onchange={this.settings[setting]}
+          {...otherAttrs}
+        />
       );
     } else {
       componentAttrs.className = classList(['FormControl', componentAttrs.className]);
 
-      return (
-        <div className="Form-group">
-          {label && <label for={inputId}>{label}</label>}
-          <div id={helpTextId} className="helpText">
-            {help}
-          </div>
-          <input id={inputId} aria-describedby={helpTextId} type={type} bidi={this.setting(setting)} {...componentAttrs} />
-        </div>
-      );
+      if ((TextareaSettingTypes as readonly string[]).includes(type)) {
+        settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={this.setting(setting)} {...componentAttrs} />;
+      } else {
+        settingElement = <input id={inputId} aria-describedby={helpTextId} type={type} bidi={this.setting(setting)} {...componentAttrs} />;
+      }
     }
+
+    return (
+      <div className="Form-group">
+        {label && <label for={inputId}>{label}</label>}
+        <div id={helpTextId} className="helpText">
+          {help}
+        </div>
+        {settingElement}
+      </div>
+    );
   }
 
   /**

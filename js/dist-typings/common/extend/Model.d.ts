@@ -1,5 +1,5 @@
 export default class Model {
-    constructor(type: any, model?: any);
+    constructor(type: any, model?: null);
     type: any;
     attributes: any[];
     hasOnes: any[];

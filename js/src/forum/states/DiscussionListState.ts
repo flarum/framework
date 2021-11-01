@@ -5,7 +5,7 @@ import Discussion from '../../common/models/Discussion';
 export default class DiscussionListState extends PaginatedListState<Discussion> {
   protected extraDiscussions: Discussion[] = [];
 
-  constructor(params: any, page: number) {
+  constructor(params: any, page: number = 1) {
     super(params, page, 20);
   }
 
@@ -14,7 +14,7 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
   }
 
   requestParams() {
-    const params: any = { include: ['user', 'lastPostedUser'], filter: {} };
+    const params: any = { include: ['user', 'lastPostedUser'], filter: this.params.filter || {} };
 
     params.sort = this.sortMap()[this.params.sort];
 

@@ -224,6 +224,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\CreateGroupController::class)
     );
 
+    // Show a single group
+    $map->get(
+        '/groups/{id}',
+        'groups.show',
+        $route->toController(Controller\ShowGroupController::class)
+    );
+
     // Edit a group
     $map->patch(
         '/groups/{id}',
@@ -256,6 +263,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/extensions/{name}',
         'extensions.delete',
         $route->toController(Controller\UninstallExtensionController::class)
+    );
+
+    // Get readme for an extension
+    $map->get(
+        '/extension-readmes/{name}',
+        'extension-readmes.show',
+        $route->toController(Controller\ShowExtensionReadmeController::class)
     );
 
     // Update settings

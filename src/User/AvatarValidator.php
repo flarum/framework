@@ -17,12 +17,19 @@ use Symfony\Component\Mime\MimeTypes;
 class AvatarValidator extends AbstractValidator
 {
     /**
+     * @var \Illuminate\Validation\Validator
+     */
+    protected $laravelValidator;
+
+    /**
      * Throw an exception if a model is not valid.
      *
      * @param array $attributes
      */
     public function assertValid(array $attributes)
     {
+        $this->laravelValidator = $this->makeValidator($attributes);
+
         $this->assertFileRequired($attributes['avatar']);
         $this->assertFileMimes($attributes['avatar']);
         $this->assertFileSize($attributes['avatar']);
@@ -30,8 +37,18 @@ class AvatarValidator extends AbstractValidator
 
     protected function assertFileRequired(UploadedFileInterface $file)
     {
-        if ($file->getError() !== UPLOAD_ERR_OK) {
-            $this->raise('required');
+        $error = $file->getError();
+
+        if ($error !== UPLOAD_ERR_OK) {
+            if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+                $this->raise('file_too_large');
+            }
+
+            if ($error === UPLOAD_ERR_NO_FILE) {
+                $this->raise('required');
+            }
+
+            $this->raise('file_upload_failed');
         }
     }
 
@@ -59,15 +76,21 @@ class AvatarValidator extends AbstractValidator
         $maxSize = $this->getMaxSize();
 
         if ($file->getSize() / 1024 > $maxSize) {
-            $this->raise('max.file', [':max' => $maxSize]);
+            $this->raise('max.file', [':max' => $maxSize], 'max');
         }
     }
 
-    protected function raise($error, array $parameters = [])
+    protected function raise($error, array $parameters = [], $rule = null)
     {
-        $message = $this->translator->trans(
-            "validation.$error",
-            $parameters + [':attribute' => 'avatar']
+        // When we switched to intl ICU message format, the translation parameters
+        // have become required to be in the format `{param}`.
+        // Therefore we cannot use the translator to replace the string params.
+        // We use the laravel validator to make the replacements instead.
+        $message = $this->laravelValidator->makeReplacements(
+            $this->translator->trans("validation.$error"),
+            'avatar',
+            $rule ?? $error,
+            array_values($parameters)
         );
 
         throw new ValidationException(['avatar' => $message]);

@@ -2,7 +2,8 @@
  * The `EditGroupModal` component shows a modal dialog which allows the user
  * to create or edit a group.
  */
-export default class EditGroupModal extends Modal {
+export default class EditGroupModal extends Modal<any> {
+    constructor();
     group: any;
     nameSingular: Stream<any> | undefined;
     namePlural: Stream<any> | undefined;

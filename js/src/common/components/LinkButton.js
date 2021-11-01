@@ -27,6 +27,7 @@ export default class LinkButton extends Button {
 
     vdom.tag = Link;
     vdom.attrs.active = String(vdom.attrs.active);
+    delete vdom.attrs.type;
 
     return vdom;
   }

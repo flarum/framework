@@ -83,6 +83,7 @@ export default class LogInModal extends Modal {
           className="FormControl"
           name="password"
           type="password"
+          autocomplete="current-password"
           placeholder={extractText(app.translator.trans('core.forum.log_in.password_placeholder'))}
           bidi={this.password}
           disabled={this.loading}

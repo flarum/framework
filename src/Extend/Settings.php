@@ -15,10 +15,12 @@ use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Collection;
 
 class Settings implements ExtenderInterface
 {
     private $settings = [];
+    private $defaults = [];
     private $lessConfigs = [];
 
     /**
@@ -34,12 +36,28 @@ class Settings implements ExtenderInterface
      * The callable should return:
      * - mixed $value: The modified value.
      *
-     * @param mixed $default: Optional default serialized value. Will be run through the optional callback.
+     * @todo remove $default in 2.0
+     * @param mixed $default: Deprecated optional default serialized value. Will be run through the optional callback.
      * @return self
      */
     public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null): self
     {
         $this->settings[$key] = compact('attributeName', 'callback', 'default');
+
+        return $this;
+    }
+
+    /**
+     * Set a default value for a setting.
+     * Replaces inserting the default value with a migration.
+     *
+     * @param string $key: The setting key, must be unique. Namespace it with the extension ID (example: 'my-extension-id.setting_key').
+     * @param mixed $value: The setting value.
+     * @return self
+     */
+    public function default(string $key, $value): self
+    {
+        $this->defaults[$key] = $value;
 
         return $this;
     }
@@ -69,6 +87,18 @@ class Settings implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
+        if (! empty($this->defaults)) {
+            $container->extend('flarum.settings.default', function (Collection $defaults) {
+                foreach ($this->defaults as $key => $value) {
+                    if ($defaults->has($key)) {
+                        throw new \RuntimeException("Cannot modify immutable default setting $key.");
+                    }
+
+                    $defaults->put($key, $value);
+                }
+            });
+        }
+
         if (! empty($this->settings)) {
             AbstractSerializer::addAttributeMutator(
                 ForumSerializer::class,

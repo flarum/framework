@@ -10,9 +10,11 @@ Object.assign(Post.prototype, {
 
   createdAt: Model.attribute('createdAt', Model.transformDate),
   user: Model.hasOne('user'),
+
   contentType: Model.attribute('contentType'),
   content: Model.attribute('content'),
   contentHtml: Model.attribute('contentHtml'),
+  renderFailed: Model.attribute('renderFailed'),
   contentPlain: computed('contentHtml', getPlainContent),
 
   editedAt: Model.attribute('editedAt', Model.transformDate),

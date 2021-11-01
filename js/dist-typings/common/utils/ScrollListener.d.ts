@@ -4,12 +4,12 @@
  */
 export default class ScrollListener {
     /**
-     * @param {Function} callback The callback to run when the scroll position
+     * @param {(top: number) => void} callback The callback to run when the scroll position
      *     changes.
      * @public
      */
-    constructor(callback: Function);
-    callback: Function;
+    constructor(callback: (top: number) => void);
+    callback: (top: number) => void;
     ticking: boolean;
     /**
      * On each animation frame, as long as the listener is active, run the

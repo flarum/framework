@@ -19,11 +19,11 @@
     <input type="hidden" name="passwordToken" value="{{ $passwordToken }}">
 
     <p class="form-group">
-      <input type="password" class="form-control" name="password" placeholder="{{ $translator->trans('core.views.reset_password.new_password_label') }}">
+      <input type="password" class="form-control" name="password" autocomplete="new-password" placeholder="{{ $translator->trans('core.views.reset_password.new_password_label') }}">
     </p>
 
     <p class="form-group">
-      <input type="password" class="form-control" name="password_confirmation" placeholder="{{ $translator->trans('core.views.reset_password.confirm_password_label') }}">
+      <input type="password" class="form-control" name="password_confirmation" autocomplete="new-password" placeholder="{{ $translator->trans('core.views.reset_password.confirm_password_label') }}">
     </p>
 
     <p class="form-group">

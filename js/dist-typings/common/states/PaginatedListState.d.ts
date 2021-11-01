@@ -44,8 +44,8 @@ export default abstract class PaginatedListState<T extends Model> {
      * @param page
      * @see requestParams
      */
-    refreshParams(newParams: any, page: number): any;
-    refresh(page?: number): any;
+    refreshParams(newParams: any, page: number): Promise<void> | undefined;
+    refresh(page?: number): Promise<void>;
     getPages(): Page<T>[];
     getLocation(): PaginationLocation;
     isLoading(): boolean;

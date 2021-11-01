@@ -119,13 +119,17 @@
 // ---------------------------------
 // BREAKPOINTS
 
-@screen-phone-max:                 (@screen-tablet - 1);
+// We use `-0.02` here to fix an odd rendering glitch with specific operating system UI scaling, and combined
+// with specific viewport sizes. This can result in the browser actually being 'between' media queries, which
+// breaks our UI. See: https://github.com/flarum/core/issues/2915
+
+@screen-phone-max:                 (@screen-tablet - 0.02);
 
 @screen-tablet:                    768px;
-@screen-tablet-max:                (@screen-desktop - 1);
+@screen-tablet-max:                (@screen-desktop - 0.02);
 
 @screen-desktop:                   992px;
-@screen-desktop-max:               (@screen-desktop-hd - 1);
+@screen-desktop-max:               (@screen-desktop-hd - 0.02);
 
 @screen-desktop-hd:                1100px;
 

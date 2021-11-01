@@ -421,7 +421,7 @@ class ExtensionManager
      * Sort a list of extensions so that they are properly resolved in respect to order.
      * Effectively just topological sorting.
      *
-     * @param Extension[] $extensionList: an array of \Flarum\Extension\Extension objects
+     * @param Extension[] $extensionList
      *
      * @return array with 2 keys: 'valid' points to an ordered array of \Flarum\Extension\Extension
      *                            'missingDependencies' points to an associative array of extensions that could not be resolved due
@@ -442,6 +442,12 @@ class ExtensionManager
         $circularDependencies = [];
         $pendingQueue = [];
         $inDegreeCount = []; // How many extensions are dependent on a given extension?
+
+        // Sort alphabetically by ID. This guarantees that any set of extensions will always be sorted the same way.
+        // This makes boot order deterministic, and independent of enabled order.
+        $extensionList = Arr::sort($extensionList, function ($ext) {
+            return $ext->getId();
+        });
 
         foreach ($extensionList as $extension) {
             $extensionIdMapping[$extension->getId()] = $extension;

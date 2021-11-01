@@ -47,6 +47,8 @@ class AuthenticateWithHeader implements Middleware
             }
 
             if (isset($actor)) {
+                $actor->updateLastSeen()->save();
+
                 $request = RequestUtil::withActor($request, $actor);
                 $request = $request->withAttribute('bypassCsrfToken', true);
                 $request = $request->withoutAttribute('session');

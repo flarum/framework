@@ -77,6 +77,7 @@ export default class ChangeEmailModal extends Modal {
               type="password"
               name="password"
               className="FormControl"
+              autocomplete="current-password"
               placeholder={app.translator.trans('core.forum.change_email.confirm_password_placeholder')}
               bidi={this.password}
               disabled={this.loading}
