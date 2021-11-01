@@ -30,6 +30,7 @@ class ApiController implements ExtenderInterface
     private $removeSortFields = [];
     private $sort;
     private $load = [];
+    private $loadCallables = [];
 
     /**
      * @param string $controllerClass: The ::class attribute of the controller you are modifying.
@@ -303,7 +304,27 @@ class ApiController implements ExtenderInterface
      */
     public function load($relations): self
     {
-        $this->load = array_merge($this->load, (array) $relations);
+        $this->load = array_merge($this->load, array_map('strval', (array) $relations));
+
+        return $this;
+    }
+
+    /**
+     * Allows loading a relationship with additional query modification.
+     *
+     * @param string $relation: Relationship name, see load method description.
+     * @param callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void $callback
+     *
+     * The callback to modify the query, should accept:
+     * - \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation $query: A query object.
+     * - \Psr\Http\Message\ServerRequestInterface|null $request: An instance of the request.
+     * - array $relations: An array of relations that are to be loaded.
+     *
+     * @return self
+     */
+    public function loadWhere(string $relation, callable $callback): self
+    {
+        $this->loadCallables = array_merge($this->loadCallables, [$relation => $callback]);
 
         return $this;
     }
@@ -375,6 +396,7 @@ class ApiController implements ExtenderInterface
         }
 
         AbstractSerializeController::setLoadRelations($this->controllerClass, $this->load);
+        AbstractSerializeController::setLoadRelationCallables($this->controllerClass, $this->loadCallables);
     }
 
     /**

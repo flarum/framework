@@ -82,6 +82,10 @@ class ListGroupsController extends AbstractListController
             $queryResults->areMoreResults() ? null : 0
         );
 
-        return $queryResults->getResults();
+        $results = $queryResults->getResults();
+
+        $this->loadRelations($results, [], $request);
+
+        return $results;
     }
 }
