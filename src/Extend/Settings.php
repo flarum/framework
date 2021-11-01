@@ -75,12 +75,11 @@ class Settings implements ExtenderInterface
      * The callable should return:
      * - mixed $value: The modified value.
      *
-     * @param mixed $default: Optional default serialized value. Will be run through the optional callback.
      * @return self
      */
-    public function registerLessConfigVar(string $configName, string $key, $callback = null, $default = null): self
+    public function registerLessConfigVar(string $configName, string $key, $callback = null): self
     {
-        $this->lessConfigs[$configName] = compact('key', 'callback', 'default');
+        $this->lessConfigs[$configName] = compact('key', 'callback');
 
         return $this;
     }

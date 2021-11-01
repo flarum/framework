@@ -111,11 +111,9 @@ class FrontendServiceProvider extends AbstractServiceProvider
             return [
                 'config-primary-color'   => [
                     'key' => 'theme_primary_color',
-                    'default' => '#000',
                 ],
                 'config-secondary-color' => [
                     'key' => 'theme_secondary_color',
-                    'default' => '#000',
                 ],
                 'config-dark-mode'       => [
                     'key' => 'theme_dark_mode',
