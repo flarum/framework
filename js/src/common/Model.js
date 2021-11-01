@@ -313,6 +313,8 @@ export default class Model {
    * @protected
    */
   static getIdentifier(model) {
+    if (!model) return model;
+
     return {
       type: model.data.type,
       id: model.data.id,
