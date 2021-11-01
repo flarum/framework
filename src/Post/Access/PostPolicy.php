@@ -58,7 +58,7 @@ class PostPolicy extends AbstractPolicy
 
             if ($allowEditing === '-1'
                 || ($allowEditing === 'reply' && $post->number >= $post->discussion->last_post_number)
-                || ($post->created_at->diffInMinutes(new Carbon) < $allowEditing)) {
+                || (is_numeric($allowEditing) && $post->created_at->diffInMinutes(new Carbon) < $allowEditing)) {
                 return $this->allow();
             }
         }
