@@ -21,6 +21,7 @@ class Settings implements ExtenderInterface
 {
     private $settings = [];
     private $defaults = [];
+    private $lessConfigs = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -61,6 +62,28 @@ class Settings implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Register a setting as a LESS configuration variable.
+     *
+     * @param string $configName: The name of the configuration variable, in hyphen case.
+     * @param string $key: The key of the setting.
+     * @param string|callable|null $callback: Optional callback to modify the value.
+     *
+     * The callback can be a closure or an invokable class, and should accept:
+     * - mixed $value: The value of the setting.
+     *
+     * The callable should return:
+     * - mixed $value: The modified value.
+     *
+     * @return self
+     */
+    public function registerLessConfigVar(string $configName, string $key, $callback = null): self
+    {
+        $this->lessConfigs[$configName] = compact('key', 'callback');
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         if (! empty($this->defaults)) {
@@ -96,6 +119,20 @@ class Settings implements ExtenderInterface
                     return $attributes;
                 }
             );
+        }
+
+        if (! empty($this->lessConfigs)) {
+            $container->extend('flarum.less.config', function (array $existingConfig, Container $container) {
+                $config = $this->lessConfigs;
+
+                foreach ($config as $var => $data) {
+                    if (isset($data['callback'])) {
+                        $config[$var]['callback'] = ContainerUtil::wrapCallback($data['callback'], $container);
+                    }
+                }
+
+                return array_merge($existingConfig, $config);
+            });
         }
     }
 }

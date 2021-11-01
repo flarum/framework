@@ -22,7 +22,10 @@ class SettingsServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->container->singleton('flarum.settings.default', function () {
-            return new Collection();
+            return new Collection([
+                'theme_primary_color' => '#4D698E',
+                'theme_secondary_color' => '#4D698E',
+            ]);
         });
 
         $this->container->singleton(SettingsRepositoryInterface::class, function (Container $container) {
