@@ -1,6 +1,7 @@
 import type Mithril from 'mithril';
 import Separator from '../components/Separator';
 import classList from '../utils/classList';
+import type Component from '../Component';
 
 function isSeparator(item): boolean {
   return item.tag === Separator;
@@ -21,11 +22,20 @@ function withoutUnnecessarySeparators(items: Array<Mithril.Vnode>): Array<Mithri
 }
 
 /**
- * The `listItems` helper wraps a collection of components in <li> tags,
+ * The `listItems` helper wraps an array of components in the provided tag,
  * stripping out any unnecessary `Separator` components.
+ *
+ * By default, this tag is an `<li>` tag, but this is customisable through the
+ * second function parameter, `customTag`.
  */
-export default function listItems(items: Mithril.Vnode | Array<Mithril.Vnode>): Array<Mithril.Vnode> {
+export default function listItems<Attrs = Record<string, unknown>>(
+  items: Mithril.Vnode | Mithril.Vnode[],
+  customTag: string | Component<Attrs> = 'li',
+  attributes: Attrs = {}
+): Mithril.Vnode[] {
   if (!(items instanceof Array)) items = [items];
+
+  const Tag = customTag;
 
   return withoutUnnecessarySeparators(items).map((item: Mithril.Vnode) => {
     const isListItem = item.tag && item.tag.isListItem;
@@ -41,12 +51,13 @@ export default function listItems(items: Mithril.Vnode | Array<Mithril.Vnode>): 
     const node: Mithril.Vnode = isListItem ? (
       item
     ) : (
-      <li
+      <Tag
         className={classList([className, item.itemName && `item-${item.itemName}`, active && 'active'])}
-        key={(item.attrs && item.attrs.key) || item.itemName}
+        key={item?.attrs.key || item.itemName}
+        {...attributes}
       >
         {item}
-      </li>
+      </Tag>
     );
 
     return node;
