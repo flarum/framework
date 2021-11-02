@@ -3,13 +3,13 @@ import Separator from '../components/Separator';
 import classList from '../utils/classList';
 import type * as Component from '../Component';
 
-function isSeparator(item): boolean {
+function isSeparator(item: Mithril.Vnode): boolean {
   return item.tag === Separator;
 }
 
-function withoutUnnecessarySeparators(items: Array<Mithril.Vnode>): Array<Mithril.Vnode> {
-  const newItems = [];
-  let prevItem;
+function withoutUnnecessarySeparators(items: Mithril.Vnode[]): Mithril.Vnode[] {
+  const newItems: Mithril.Vnode[] = [];
+  let prevItem: Mithril.Vnode;
 
   items.filter(Boolean).forEach((item: Mithril.Vnode, i: number) => {
     if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
@@ -21,6 +21,16 @@ function withoutUnnecessarySeparators(items: Array<Mithril.Vnode>): Array<Mithri
   return newItems;
 }
 
+export interface ModdedVnodeAttrs {
+  itemClassName?: string;
+  key?: string;
+}
+
+export type ModdedVnode<Attrs> = Mithril.Vnode<ModdedVnodeAttrs, Component.default<Attrs> | {}> & {
+  itemName?: string;
+  itemClassName?: string;
+};
+
 /**
  * The `listItems` helper wraps an array of components in the provided tag,
  * stripping out any unnecessary `Separator` components.
@@ -29,7 +39,7 @@ function withoutUnnecessarySeparators(items: Array<Mithril.Vnode>): Array<Mithri
  * second function parameter, `customTag`.
  */
 export default function listItems<Attrs extends Record<string, unknown>>(
-  items: Mithril.Vnode | Mithril.Vnode[],
+  items: ModdedVnode<Attrs> | ModdedVnode<Attrs>[],
   customTag: string | Component.default<Attrs> = 'li',
   attributes: Attrs = {}
 ): Mithril.Vnode[] {
@@ -37,7 +47,7 @@ export default function listItems<Attrs extends Record<string, unknown>>(
 
   const Tag = customTag;
 
-  return withoutUnnecessarySeparators(items).map((item: Mithril.Vnode) => {
+  return withoutUnnecessarySeparators(items).map((item: ModdedVnode<Attrs>) => {
     const isListItem = item.tag?.isListItem;
     const active = item.tag?.isActive?.(item.attrs);
     const className = item.attrs?.itemClassName || item.itemClassName;
@@ -51,6 +61,7 @@ export default function listItems<Attrs extends Record<string, unknown>>(
     const node: Mithril.Vnode = isListItem ? (
       item
     ) : (
+      // @ts-expect-error `Component` does not have any construct or call signatures
       <Tag
         className={classList([className, item.itemName && `item-${item.itemName}`, active && 'active'])}
         key={item?.attrs?.key || item.itemName}
