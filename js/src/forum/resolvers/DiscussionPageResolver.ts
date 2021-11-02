@@ -9,7 +9,7 @@ import DiscussionPage from '../components/DiscussionPage';
  * on the same discussion. It triggers a scroll when going from one post to another
  * in the same discussion.
  */
-export default class DiscussionPageResolver<Attrs = {}, State = {}> extends DefaultResolver<Attrs, State> {
+export default class DiscussionPageResolver<Attrs = {}, State = {}> extends DefaultResolver<Attrs, DiscussionPage, State> {
   static scrollToPostNumber: string | null = null;
 
   /**

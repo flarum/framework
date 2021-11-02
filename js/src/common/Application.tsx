@@ -40,7 +40,7 @@ export type FlarumGenericRoute = RouteItem<
 >;
 
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
-  errorHandler: (errorMessage: string) => void;
+  errorHandler?: (errorMessage: string) => void;
   url: string;
   // TODO: [Flarum 2.0] Remove deprecated option
   /**
@@ -48,13 +48,13 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
    *
    * @deprecated Please use `modifyText` instead.
    */
-  extract: (responseText: string) => string;
+  extract?: (responseText: string) => string;
   /**
    * Manipulate the response text before it is parsed into JSON.
    *
    * This overrides any `extract` method provided.
    */
-  modifyText: (responseText: string) => string;
+  modifyText?: (responseText: string) => string;
 }
 
 /**
@@ -248,12 +248,12 @@ export default class Application {
 
   initialRoute!: string;
 
-  load(payload: Application['data']) {
+  public load(payload: Application['data']) {
     this.data = payload;
     this.translator.setLocale(payload.locale);
   }
 
-  boot() {
+  public boot() {
     this.initializers.toArray().forEach((initializer) => initializer(this));
 
     this.store.pushPayload({ data: this.data.resources });
@@ -268,7 +268,7 @@ export default class Application {
   }
 
   // TODO: This entire system needs a do-over for v2
-  bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
+  public bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
@@ -283,7 +283,7 @@ export default class Application {
     });
   }
 
-  mount(basePath: string = '') {
+  protected mount(basePath: string = '') {
     // An object with a callable view property is used in order to pass arguments to the component; see https://mithril.js.org/mount.html
     m.mount(document.getElementById('modal')!, { view: () => ModalManager.component({ state: this.modal }) });
     m.mount(document.getElementById('alerts')!, { view: () => AlertManager.component({ state: this.alerts }) });
@@ -431,7 +431,7 @@ export default class Application {
       const status = xhr.status;
 
       if (status < 200 || status > 299) {
-        throw new RequestError(`${status}`, `${responseText}`, options, xhr);
+        throw new RequestError(status, `${responseText}`, options, xhr);
       }
 
       if (xhr.getResponseHeader) {
@@ -443,7 +443,7 @@ export default class Application {
         // @ts-expect-error
         return JSON.parse(responseText);
       } catch (e) {
-        throw new RequestError('500', `${responseText}`, options, xhr);
+        throw new RequestError(500, `${responseText}`, options, xhr);
       }
     };
 
