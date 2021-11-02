@@ -117,6 +117,17 @@
   color: var(--muted-color);
 }
 
+.Modal--inverted {
+  .Modal-header {
+    background-color: var(--control-bg);
+    color: var(--control-color);
+  }
+  .Modal-body {
+    background-color: transparent;
+    color: unset;
+  }
+}
+
 @media @phone {
   .ModalManager.fade {
     opacity: 1;

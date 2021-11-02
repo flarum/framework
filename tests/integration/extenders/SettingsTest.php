@@ -163,6 +163,118 @@ class SettingsTest extends TestCase
         $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
         $this->assertEquals('customDefaultModified2', $payload['data']['attributes']['customPrefix.noCustomSetting']);
     }
+
+    /**
+     * @test
+     */
+    public function custom_setting_default_prioritizes_extender()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->serializeToForum('customPrefix.unavailableCustomSetting3', 'custom-prefix.unavailable_custom_setting3')
+                ->default('custom-prefix.unavailable_custom_setting3', 'extenderDefault')
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.unavailable_custom_setting3', 'defaultParameterValue');
+
+        $this->assertEquals('extenderDefault', $value);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_setting_default_falls_back_to_parameter()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->serializeToForum('customPrefix.unavailableCustomSetting4', 'custom-prefix.unavailable_custom_setting4')
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.unavailable_custom_setting4', 'defaultParameterValue');
+
+        $this->assertEquals('defaultParameterValue', $value);
+    }
+
+    /**
+     * @test
+     */
+    public function null_custom_setting_returns_null()
+    {
+        $this->setting('custom-prefix.custom_null_setting', null);
+
+        $this->extend(
+            (new Extend\Settings())
+                ->default('custom-prefix.custom_null_setting', 'extenderDefault')
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.custom_null_setting');
+
+        $this->assertEquals(null, $value);
+    }
+
+    /**
+     * @test
+     */
+    public function custom_less_var_does_not_work_by_default()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))
+                ->css(__DIR__.'/../../fixtures/less/config.less'),
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(500, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function custom_less_var_works_if_registered()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))
+                ->css(__DIR__.'/../../fixtures/less/config.less'),
+            (new Extend\Settings())
+                ->registerLessConfigVar('custom-config-setting', 'custom-prefix.custom_setting')
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
+        $this->assertStringContainsString('--custom-config-setting:customValue', file_get_contents($cssFilePath));
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function cant_save_setting_if_invalid_less_var()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->registerLessConfigVar('custom-config-setting2', 'custom-prefix.custom_setting2')
+        );
+
+        $response = $this->send($this->request('POST', '/api/settings', [
+            'authenticatedAs' => 1,
+            'json' => [
+                'custom-prefix.custom_setting2' => '@muralf'
+            ],
+        ]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+    }
 }
 
 class CustomInvokableClass

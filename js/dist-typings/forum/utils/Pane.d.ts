@@ -73,7 +73,7 @@ export default class Pane {
      * @public
      */
     public onmouseleave(): void;
-    hideTimeout: number | undefined;
+    hideTimeout: NodeJS.Timeout | undefined;
     /**
      * Toggle whether or not the pane is pinned.
      *

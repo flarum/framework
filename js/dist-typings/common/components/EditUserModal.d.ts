@@ -1,7 +1,8 @@
 /**
  * The `EditUserModal` component displays a modal dialog with a login form.
  */
-export default class EditUserModal extends Modal {
+export default class EditUserModal extends Modal<any> {
+    constructor();
     username: Stream<any> | undefined;
     email: Stream<any> | undefined;
     isEmailConfirmed: Stream<any> | undefined;

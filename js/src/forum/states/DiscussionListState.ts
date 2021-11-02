@@ -5,7 +5,7 @@ import Discussion from '../../common/models/Discussion';
 export default class DiscussionListState extends PaginatedListState<Discussion> {
   protected extraDiscussions: Discussion[] = [];
 
-  constructor(params: any, page: number) {
+  constructor(params: any, page: number = 1) {
     super(params, page, 20);
   }
 

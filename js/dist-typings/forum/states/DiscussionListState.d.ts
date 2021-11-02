@@ -2,7 +2,7 @@ import PaginatedListState, { Page } from '../../common/states/PaginatedListState
 import Discussion from '../../common/models/Discussion';
 export default class DiscussionListState extends PaginatedListState<Discussion> {
     protected extraDiscussions: Discussion[];
-    constructor(params: any, page: number);
+    constructor(params: any, page?: number);
     get type(): string;
     requestParams(): any;
     protected loadPage(page?: number): any;

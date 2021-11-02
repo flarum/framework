@@ -203,7 +203,7 @@ export default class ExtensionPage extends AdminPage {
       Button.component(
         {
           icon: 'fab fa-readme',
-          class: 'Readme-link',
+          class: 'Button Button--text',
           onclick() {
             app.modal.show(ReadmeModal, { extension });
           },

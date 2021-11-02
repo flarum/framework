@@ -13,6 +13,6 @@
 export default class ComposerPostPreview extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     static initAttrs(attrs: any): void;
     constructor();
-    updateInterval: number | undefined;
+    updateInterval: NodeJS.Timer | undefined;
 }
 import Component from "../../common/Component";
