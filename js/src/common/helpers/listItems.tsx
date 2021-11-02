@@ -53,7 +53,7 @@ export default function listItems<Attrs = Record<string, unknown>>(
     ) : (
       <Tag
         className={classList([className, item.itemName && `item-${item.itemName}`, active && 'active'])}
-        key={item?.attrs.key || item.itemName}
+        key={item?.attrs?.key || item.itemName}
         {...attributes}
       >
         {item}
