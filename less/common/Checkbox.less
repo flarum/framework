@@ -24,9 +24,9 @@
   }
 }
 .Checkbox--switch {
-  @left-pad: 65px;
+  --left-pad: 65px;
 
-  padding-left: @left-pad;
+  padding-left: var(--left-pad);
   margin: 5px 0;
 
   input[type="checkbox"] {
@@ -37,7 +37,7 @@
 
   .Checkbox-display {
     float: left;
-    margin-left: -@left-pad;
+    margin-left: calc(~"0px - var(--left-pad)");
     margin-top: -4px;
   }
 }

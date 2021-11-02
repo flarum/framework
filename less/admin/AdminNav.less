@@ -1,6 +1,6 @@
-@admin-pane-width: 250px;
-
 .App {
+  --admin-pane-width: 250px;
+
   padding-bottom: 0;
 }
 
@@ -73,8 +73,8 @@
   .App-nav {
     position: absolute;
     top: var(--header-height);
-    height: ~"calc(100vh - @{header-height})";
-    width: @admin-pane-width;
+    height: ~"calc(100vh - var(--header-height))";
+    width: var(--admin-pane-width);
     box-shadow: 0 6px 6px var(--shadow-color);
     background: var(--body-bg);
     z-index: var(--zindex-pane);
@@ -87,7 +87,7 @@
     }
   }
   .App-content .sideNavOffset {
-    margin-left: @admin-pane-width;
+    margin-left: var(--admin-pane-width);
   }
   .App-nav .AdminNav {
     .Dropdown-menu {
