@@ -3,13 +3,13 @@ import Separator from '../components/Separator';
 import classList from '../utils/classList';
 import type * as Component from '../Component';
 
-function isSeparator(item: Mithril.Vnode): boolean {
+function isSeparator(item: Mithril.Children): boolean {
   return item.tag === Separator;
 }
 
-function withoutUnnecessarySeparators(items: Mithril.Vnode[]): Mithril.Vnode[] {
-  const newItems: Mithril.Vnode[] = [];
-  let prevItem: Mithril.Vnode;
+function withoutUnnecessarySeparators(items: Mithril.Children): Mithril.Children {
+  const newItems: Mithril.Children = [];
+  let prevItem: Mithril.Child;
 
   items.filter(Boolean).forEach((item: Mithril.Vnode, i: number) => {
     if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
