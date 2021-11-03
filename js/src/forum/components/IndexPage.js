@@ -222,7 +222,7 @@ export default class IndexPage extends Page {
     const sortOptions = Object.keys(sortMap).reduce((acc, sortId) => {
       acc[sortId] = app.translator.trans(`core.forum.index_sort.${sortId}_button`);
       return acc;
-    }, {} as Record<string, string>);
+    }, {});
 
     items.add(
       'sort',
