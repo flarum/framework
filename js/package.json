@@ -43,5 +43,6 @@
     "format-check": "prettier --check src",
     "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
     "build-typings": "npm run clean-typings && cp -r src/@types dist-typings/@types && tsc"
-  }
+  },
+  "packageManager": "yarn@3.1.0"
 }
