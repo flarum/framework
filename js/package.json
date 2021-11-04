@@ -18,7 +18,6 @@
     "throttle-debounce": "^3.0.1"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.16.0",
     "@flarum/prettier-config": "^1.0.0",
     "@types/jquery": "^3.5.8",
     "@types/mithril": "^2.0.8",
@@ -28,7 +27,7 @@
     "cross-env": "^7.0.3",
     "expose-loader": "^3.1.0",
     "flarum-tsconfig": "^1.0.2",
-    "flarum-webpack-config": "2.0.0",
+    "flarum-webpack-config": "^2.0.0",
     "prettier": "^2.4.1",
     "typescript": "^4.4.4",
     "webpack": "^5.61.0",
