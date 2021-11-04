@@ -5,7 +5,7 @@
   &-grid {
     width: 100%;
     position: relative;
-    border-radius: @border-radius;
+    border-radius: var(--border-radius);
 
     // Use CSS custom properties to define the number of columns in the grid
     grid-template-columns: repeat(var(--columns), max-content);
@@ -43,9 +43,9 @@
 
     &-header {
       font-weight: bold;
-      border-bottom: 1px solid @muted-more-color;
+      border-bottom: 1px solid var(--muted-more-color);
       padding: 8px 16px;
-      background: @control-bg;
+      background: var(--control-bg);
     }
 
     &-rowItem {
@@ -59,10 +59,10 @@
       }
 
       &--shaded {
-        background: darken(@body-bg, 3%);
+        background: var(--body-bg-shaded);
 
         & when (@config-dark-mode = true) {
-          background: lighten(@body-bg, 5%);
+          background: var(--body-bg-light);
         }
       }
     }
