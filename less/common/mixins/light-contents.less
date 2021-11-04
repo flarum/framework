@@ -15,7 +15,7 @@
 
     &:focus {
       color: @color;
-      background: var(~"--@{name}-control-bg-dark", fadein(darken(@control-bg, 5%), 10%));
+      background: var(~"--@{name}-control-bg-shaded", fadein(darken(@control-bg, 5%), 10%));
     }
   }
   .Button, .Button:hover {
@@ -41,6 +41,6 @@
   --@{componentName}-color: @color;
   --@{componentName}-control-color: @control-color;
   --@{componentName}-control-bg: @control-bg;
-  --@{componentName}-control-bg-dark: fadein(darken(@control-bg, 5%), 10%);
+  --@{componentName}-control-bg-shaded: fadein(darken(@control-bg, 5%), 10%);
   --@{componentName}-control-bg-fadedin: fadein(@control-bg, 5%);
 }
