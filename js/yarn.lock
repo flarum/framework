@@ -1308,7 +1308,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-typescript@npm:^7.13.0, @babel/preset-typescript@npm:^7.15.0":
+"@babel/preset-typescript@npm:^7.13.0, @babel/preset-typescript@npm:^7.16.0":
   version: 7.16.0
   resolution: "@babel/preset-typescript@npm:7.16.0"
   dependencies:
@@ -1380,7 +1380,7 @@ __metadata:
   resolution: "@flarum/core@workspace:."
   dependencies:
     "@askvortsov/rich-icu-message-formatter": ^0.2.1
-    "@babel/preset-typescript": ^7.15.0
+    "@babel/preset-typescript": ^7.16.0
     "@flarum/prettier-config": ^1.0.0
     "@types/jquery": ^3.5.8
     "@types/mithril": ^2.0.8
@@ -1393,7 +1393,7 @@ __metadata:
     color-thief-browser: ^2.0.2
     cross-env: ^7.0.3
     dayjs: ^1.10.7
-    expose-loader: ^2.0.0
+    expose-loader: ^3.1.0
     flarum-tsconfig: ^1.0.2
     flarum-webpack-config: 2.0.0
     jquery: ^3.6.0
@@ -1405,9 +1405,9 @@ __metadata:
     textarea-caret: ^3.1.0
     throttle-debounce: ^3.0.1
     typescript: ^4.4.4
-    webpack: ^5.60.0
+    webpack: ^5.61.0
     webpack-cli: ^4.9.1
-    webpack-merge: ^4.2.2
+    webpack-merge: ^5.8.0
   languageName: unknown
   linkType: soft
 
@@ -2308,12 +2308,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expose-loader@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "expose-loader@npm:2.0.0"
+"expose-loader@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "expose-loader@npm:3.1.0"
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 8ef4c7b4e666b5b0749129bc153a41901b15351e40dc1379e47184ed60670c9fcdaf73ef18ba8123e3d716728607a639c10ec447c53ffdd7df53baf580a9826d
+  checksum: c9bc3c220f9f5e46f7897a8a884fbe3b494b7e2a7fca454dc4642ad73664367c2501dfdf8476477a1ee3fd6c32d18aae1187e428c03f310de2f465eb4157d33c
   languageName: node
   linkType: hard
 
@@ -2778,7 +2778,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.15, lodash@npm:^4.17.20":
+"lodash@npm:^4.17.20":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -3640,16 +3640,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-merge@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "webpack-merge@npm:4.2.2"
-  dependencies:
-    lodash: ^4.17.15
-  checksum: ce58bc8ab53a3dd5d9a0df65684571349eef53372bf8f224521072110485391335b26ab097c5f07829b88d0c146056944149566e5a953f05997b0fe2cbaf8dd6
-  languageName: node
-  linkType: hard
-
-"webpack-merge@npm:^5.7.3":
+"webpack-merge@npm:^5.7.3, webpack-merge@npm:^5.8.0":
   version: 5.8.0
   resolution: "webpack-merge@npm:5.8.0"
   dependencies:
@@ -3666,7 +3657,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.60.0":
+"webpack@npm:^5.61.0":
   version: 5.61.0
   resolution: "webpack@npm:5.61.0"
   dependencies:
