@@ -23,21 +23,21 @@
 }
 
 .NotificationsDropdown .Dropdown-toggle.new .Button-icon {
-  color: @header-color;
+  color: var(--header-color);
 }
 
 .NotificationsDropdown-unread {
   position: absolute;
   top: 2px;
   left: 18px;
-  background: @header-control-color;
-  color: @header-bg;
+  background: var(--header-control-color);
+  color: var(--header-bg);
   font-size: 11px;
   font-weight: bold;
   padding: 2px 4px 3px;
   line-height: 1em;
   border-radius: 10px;
-  box-shadow: 0 0 0 1px @header-bg;
+  box-shadow: 0 0 0 1px var(--header-bg);
   min-width: 16px;
   height: 16px;
   text-align: center;
@@ -47,6 +47,6 @@
   }
 
   .new & {
-    background: @header-color;
+    background: var(--header-color);
   }
 }

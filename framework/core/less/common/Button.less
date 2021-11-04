@@ -51,9 +51,10 @@
   white-space: nowrap;
   line-height: 20px;
   padding: 8px 13px;
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
   .user-select(none);
-  .Button--color(@control-color, @control-bg, 'button');
+  color: var(--button-color);
+  background: var(--button-bg);
   border: 0;
 
   &:hover {
@@ -90,33 +91,25 @@
     margin-top: -0.175em;
     margin-left: 4px;
   }
-}
-
-.Button--color(@color; @background; @name: 'button') {
-  color: var(~"--@{name}-color", ~"@{color}");
-  background: var(~"--@{name}-bg", ~"@{background}");
-  @bg-hover: darken(fadein(@background, 5%), 5%);
-  @bg-active: darken(fadein(@background, 10%), 10%);
 
   &:hover,
   &:focus,
   &.focus {
-    background-color: var(~"--@{name}-bg-hover", ~"@{bg-hover}");
+    background-color: var(--button-bg-hover);
   }
 
   &:active,
   &.active,
   .open > .Dropdown-toggle& {
-    background-color: var(~"--@{name}-bg-active", ~"@{bg-active}");
+    background-color: var(--button-bg-active);
   }
 
   &.disabled,
   &[disabled],
   fieldset[disabled] & {
-    background: var(~"--@{name}-bg-disabled", ~"@{background}");
+    background: var(--button-bg-disabled);
   }
 }
-
 
 .Button--square {
   padding-left: 9px;
@@ -134,7 +127,7 @@
 
   &:hover {
     background: transparent !important;
-    color: @link-color;
+    color: var(--link-color);
   }
   &:active,
   &.active,
@@ -143,7 +136,7 @@
   .open > &.Dropdown-toggle {
     background: transparent !important;
     box-shadow: none;
-    color: @link-color;
+    color: var(--link-color);
   }
 }
 .Button--text {
@@ -162,7 +155,7 @@
   }
 }
 .Button--primary {
-  .Button--color(@body-bg, @primary-color, 'button-primary');
+  .Button--color-auto('button-primary');
   font-weight: bold;
   padding-left: 20px;
   padding-right: 20px;
@@ -172,7 +165,7 @@
   }
 }
 .Button--danger {
-  .Button--color(@control-danger-color, @control-danger-bg, 'control-danger');
+  .Button--color-auto('control-danger');
 }
 .Button--more {
   padding: 2px 4px;

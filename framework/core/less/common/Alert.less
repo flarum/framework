@@ -1,6 +1,6 @@
 .Alert {
   padding: 12px 16px;
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
   line-height: 1.5;
 
   background: var(--alert-bg);
@@ -16,14 +16,12 @@
   .Button.focus {
     color: var(--alert-color);
   }
-
-  .Alert--color(@alert-color, @alert-bg);
 }
 .Alert--error {
-  .Alert--color(@alert-error-color, @alert-error-bg);
+  .Alert--color(var(--alert-error-color), var(--alert-error-bg));
 }
 .Alert--success {
-  .Alert--color(@alert-success-color, @alert-success-bg);
+  .Alert--color(var(--alert-success-color), var(--alert-success-bg));
 
   a, a:hover {
     text-decoration: underline;

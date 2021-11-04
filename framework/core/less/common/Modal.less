@@ -13,8 +13,8 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: @zindex-modal-background;
-  background-color: @overlay-bg;
+  z-index: var(--zindex-modal-background);
+  background-color: var(--overlay-bg);
   opacity: 0;
   transition: opacity 0.2s;
 
@@ -32,7 +32,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: @zindex-modal;
+  z-index: var(--zindex-modal);
   -webkit-overflow-scrolling: touch;
 
   // When fading in the modal, animate it to slide down
@@ -60,7 +60,7 @@
 // Actual modal
 .Modal-content {
   position: relative;
-  background-color: @body-bg;
+  background-color: var(--body-bg);
   background-clip: padding-box;
   margin: 0 auto;
   overflow: hidden;
@@ -88,13 +88,13 @@
 }
 
 .Modal-body {
-  background-color: @control-bg;
+  background-color: var(--control-bg);
   padding: 25px 30px;
-  color: @control-color;
+  color: var(--control-color);
 
   .FormControl {
-    background-color: @body-bg;
-    color: @text-color;
+    background-color: var(--body-bg);
+    color: var(--text-color);
   }
 
   .Form--centered {
@@ -107,37 +107,20 @@
   }
 
   .off.Checkbox--switch .Checkbox-display {
-    background: @muted-more-color;
+    background: var(--muted-more-color);
   }
 }
 .Modal-footer {
   border: 0;
   padding: 20px;
   text-align: center;
-  color: @muted-color;
-}
-.Modal-loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: fade(@body-bg, 90%);
-  opacity: 0;
-  pointer-events: none;
-  border-radius: @border-radius;
-  transition: opacity 0.2s;
-
-  &.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
+  color: var(--muted-color);
 }
 
 .Modal--inverted {
   .Modal-header {
-    background-color: @control-bg;
-    color: @control-color;
+    background-color: var(--control-bg);
+    color: var(--control-color);
   }
   .Modal-body {
     background-color: transparent;
@@ -179,7 +162,7 @@
     border-radius: 0;
     border: 0;
     min-height: 100vh;
-    padding-top: @header-height-phone;
+    padding-top: var(--header-height-phone);
     box-shadow: none;
   }
   .Modal-header {
@@ -202,8 +185,8 @@
   .Modal-content {
 
     border: 0;
-    border-radius: @border-radius;
-    box-shadow: 0 7px 15px @shadow-color;
+    border-radius: var(--border-radius);
+    box-shadow: 0 7px 15px var(--shadow-color);
   }
   .Modal--small {
     max-width: 375px;

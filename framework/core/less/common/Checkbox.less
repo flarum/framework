@@ -24,9 +24,9 @@
   }
 }
 .Checkbox--switch {
-  @left-pad: 65px;
+  --left-pad: 65px;
 
-  padding-left: @left-pad;
+  padding-left: var(--left-pad);
   margin: 5px 0;
 
   input[type="checkbox"] {
@@ -37,7 +37,7 @@
 
   .Checkbox-display {
     float: left;
-    margin-left: -@left-pad;
+    margin-left: calc(~"0px - var(--left-pad)");
     margin-top: -4px;
   }
 }
@@ -48,7 +48,7 @@
   padding: 3px;
   position: relative;
   border-radius: 14px;
-  background: @control-bg;
+  background: var(--control-bg);
   transition: background-color 0.2s;
 
   .LoadingIndicator {
@@ -60,7 +60,7 @@
   }
 
   .on& {
-    background: #58a400;
+    background: var(--switch-on-color);
 
     .LoadingIndicator-container {
       // Show loading indicator over the switch button
@@ -89,34 +89,34 @@
   }
   &:before {
     content: " ";
-    background: @body-bg;
+    background: var(--body-bg);
     border-radius: 11px;
-    box-shadow: 0 2px 4px @shadow-color;
+    box-shadow: 0 2px 4px var(--shadow-color);
   }
 }
 .Checkbox-display {
   font-size: 14px;
 
   .on & {
-    color: #58a400;
+    color: var(--switch-on-color);
   }
   .off & {
-    color: #d0021b;
+    color:var(--switch-off-color);
   }
   .disabled & {
-    color: @muted-more-color !important;
+    color: var(--muted-more-color) !important;
   }
 }
 .Checkbox--switch.loading {
-  color: @muted-more-color !important;
+  color: var(--muted-more-color) !important;
 
   &.on .Checkbox-display {
-    background: fade(#58a400, 0.5);
+    background: transparent;
   }
   &.off .Checkbox-display {
-    background: fade(@control-bg, 0.5);
+    background: transparent;
   }
   .LoadingIndicator {
-    color: darken(@muted-color, 50%);
+    color: var(--muted-color-dark);
   }
 }
