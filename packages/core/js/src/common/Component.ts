@@ -121,8 +121,8 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
    *
    * @see https://mithril.js.org/hyperscript.html#mselector,-attributes,-children
    */
-  static component(attrs = {}, children = null): Mithril.Vnode {
-    const componentAttrs = Object.assign({}, attrs) as Record<string, unknown>;
+  static component(attrs: Attrs = {}, children: Mithril.Children = null): Mithril.Vnode {
+    const componentAttrs = { ...attrs };
 
     return m(this as any, componentAttrs, children);
   }
