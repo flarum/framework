@@ -1,24 +1,24 @@
 .DashboardPage {
-  background: @body-bg;
-  color: @control-color;
+  background: var(--body-bg);
+  color: var(--control-color);
   min-height: 100vh;
   padding-bottom: 30px;
 }
 
 .Widget {
-  background: @control-bg;
-  color: @text-color;
-  border-radius: @border-radius;
+  background: var(--control-bg);
+  color: var(--text-color);
+  border-radius: var(--border-radius);
   padding: 20px;
   margin-bottom: 20px;
 
   .Button {
-    .Button--color(@control-color, @body-bg, 'button-alternate')
+    .Button--color-auto('button-inverted');
   }
 }
 
 .StatusWidget {
-  color: @muted-color;
+  color: var(--muted-color);
 
   >ul {
     margin: 0;

@@ -1,6 +1,6 @@
 .Table {
-  background: @control-bg;
-  border-radius: @border-radius;
+  background: var(--control-bg);
+  border-radius: var(--border-radius);
   border-collapse: collapse;
   border-spacing: 0;
 
@@ -9,8 +9,8 @@
   }
 
   td, th {
-    border-bottom: 1px solid @body-bg;
-    color: @control-color;
+    border-bottom: 1px solid var(--body-bg);
+    color: var(--control-color);
   }
 
   td, th, .Checkbox, &-controls-item {
@@ -57,7 +57,7 @@
 
     &.highlighted .Checkbox, .Checkbox:hover {
       &:not(.disabled) {
-        background: darken(@control-bg, 4%);
+        background: var(--control-bg-shaded);
       }
     }
   }

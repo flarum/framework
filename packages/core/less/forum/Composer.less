@@ -3,12 +3,12 @@
 
 .Composer {
   pointer-events: auto;
-  box-shadow: 0 2px 6px @shadow-color;
+  box-shadow: 0 2px 6px var(--shadow-color);
 
   &.minimized {
     height: 46px;
     cursor: pointer;
-    background: @control-bg;
+    background: var(--control-bg);
   }
 }
 .Composer-controls {
@@ -39,7 +39,7 @@
   h3 {
     margin: 0;
     line-height: 1.5em;
-    color: @secondary-color;
+    color: var(--secondary-color);
 
     &, input, a {
       font-size: 14px;
@@ -87,9 +87,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: fade(@body-bg, 90%);
+  background: var(--body-bg-faded);
   display: none;
-  border-radius: @border-radius @border-radius 0 0;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
 
   &.active {
     display: flex;
@@ -110,15 +110,15 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: @zindex-composer;
-    background: @body-bg;
+    z-index: var(--zindex-composer);
+    background: var(--body-bg);
 
     &:not(.minimized) {
       position: fixed;
       top: 0;
       height: 350px !important;
       max-height: 100%;
-      padding-top: @header-height-phone;
+      padding-top: var(--header-height-phone);
 
       // Fixes a bug where fixed position doesn't properly work in Safari mobile
       // https://github.com/flarum/core/issues/2652
@@ -139,7 +139,7 @@
 
       & .Composer-controls {
         position: static;
-        z-index: @zindex-header + 1;
+        z-index: calc(~"var(--zindex-header) + 1");
 
         li:not(.App-backControl) {
           display: none;
@@ -159,8 +159,8 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: @zindex-composer - 1;
-    background-color: @overlay-bg;
+    z-index: calc(~"var(--zindex-composer) - 1");
+    background-color: var(--overlay-bg);
     opacity: 0.9;
   }
   .ComposerBody-content {
@@ -176,7 +176,7 @@
 
     > li {
       display: block;
-      border-bottom: 1px solid @control-bg;
+      border-bottom: 1px solid var(--control-bg);
       padding: 10px 15px;
 
       .minimized & {
@@ -185,17 +185,17 @@
       }
 
       .normal &:first-child {
-        margin: -@header-height-phone 50px 0;
+        margin: calc(~"0px - var(--header-height-phone)") 50px 0;
         text-align: center;
         position: relative;
-        z-index: @zindex-header + 1;
+        z-index: calc(~"var(--zindex-header) + 1");
         border: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
 
         h3 {
-          color: @header-control-color;
+          color: var(--header-control-color);
         }
       }
     }
@@ -219,22 +219,22 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: @zindex-composer;
+    z-index: var(--zindex-composer);
     pointer-events: none;
     transition: left 0.2s;
   }
   .Composer {
-    border-radius: @border-radius @border-radius 0 0;
-    background: fade(@body-bg, 95%);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    background: var(--body-bg-faded);
     position: relative;
     height: 300px;
     transition: background 0.2s, box-shadow 0.2s;
 
     &.active, &.fullScreen {
-      background: @body-bg;
+      background: var(--body-bg);
     }
     &.active:not(.fullScreen) {
-      box-shadow: 0 0 0 2px @primary-color, 0 2px 6px @shadow-color;
+      box-shadow: 0 0 0 2px var(--primary-color), 0 2px 6px var(--shadow-color);
     }
     &.fullScreen {
       position: fixed;
@@ -322,6 +322,6 @@
 
 @media @desktop-hd {
   .hasPane.panePinned .App-composer {
-    left: @pane-width;
+    left: var(--pane-width);
   }
 }
