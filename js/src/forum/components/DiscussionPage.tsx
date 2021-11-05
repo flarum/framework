@@ -15,18 +15,21 @@ import PostStreamState from '../states/PostStreamState';
 import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
 
-export interface IDiscussionPageAttrs extends IPageAttrs { }
+export interface IDiscussionPageAttrs extends IPageAttrs {
+  id: string;
+  near?: string;
+}
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
-export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
+export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = IDiscussionPageAttrs> extends Page<CustomAttrs> {
   /**
    * The discussion that is being viewed.
    */
   protected discussion: Discussion | null = null;
-  
+
   /**
    * A public API for interacting with the post stream.
    */
@@ -162,7 +165,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * Load the discussion from the API or use the preloaded one.
    */
   load() {
-    const preloadedDiscussion = app.preloadedApiDocument();
+    const preloadedDiscussion = app.preloadedApiDocument() as Discussion | null;
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this
       // component for the first time on page load, then any calls to m.redraw
@@ -274,6 +277,8 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    */
   positionChanged(startNumber: number, endNumber: number) {
     const discussion = this.discussion;
+
+    if (!discussion) return;
 
     // Construct a URL to this discussion with the updated position, then
     // replace it into the window's history and our own history stack.

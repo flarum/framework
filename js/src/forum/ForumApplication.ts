@@ -148,7 +148,7 @@ export default class ForumApplication extends Application {
    * will be reloaded. Otherwise, a SignUpModal will be opened, prefilled
    * with the provided details.
    */
-  public authenticationComplete(payload: Record<string, unknown>): void{
+  public authenticationComplete(payload: Record<string, unknown>): void {
     if (payload.loggedIn) {
       window.location.reload();
     } else {

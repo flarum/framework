@@ -86,7 +86,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
   protected navigator!: KeyboardNavigatable;
 
-  protected searchTimeout?: number;
+  protected searchTimeout?: NodeJS.Timeout;
 
   private updateMaxHeightHandler?: () => void;
 
@@ -214,7 +214,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
         if (!query) return;
 
-        clearTimeout(search.searchTimeout);
+        if (search.searchTimeout) clearTimeout(search.searchTimeout);
         search.searchTimeout = setTimeout(() => {
           if (state.isCached(query)) return;
 
@@ -256,7 +256,8 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    * Navigate to the currently selected search result and close the list.
    */
   selectResult() {
-    clearTimeout(this.searchTimeout);
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+  
     this.loadingSources = 0;
 
     if (this.searchState.getValue()) {

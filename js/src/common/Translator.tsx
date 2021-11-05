@@ -51,7 +51,7 @@ export default class Translator {
     // translation key is used.
 
     if ('user' in parameters) {
-      const user = (extract(parameters, 'user') as User);
+      const user = extract(parameters, 'user') as User;
 
       if (!parameters.username) parameters.username = username(user);
     }

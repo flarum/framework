@@ -29,7 +29,6 @@ export default abstract class Page<CustomAttrs extends IPageAttrs = IPageAttrs> 
    */
   protected useBrowserScrollRestoration = true;
 
-
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
