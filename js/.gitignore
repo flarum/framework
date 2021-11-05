@@ -1,3 +1,5 @@
+node_modules
+
 # https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
 # We are not using zero-installs
 .pnp.*
