@@ -1,3 +1,5 @@
+import extractText from 'flarum/common/utils/extractText';
+
 /**
  * Whether to use the old mentions format.
  *
@@ -5,7 +7,7 @@
  */
 export const shouldUseOldFormat = () => app.forum.attribute('allowUsernameMentionFormat') || false;
 
-const getDeletedUserText = () => app.translator.trans('core.lib.username.deleted_text');
+const getDeletedUserText = () => extractText(app.translator.trans('core.lib.username.deleted_text'));
 
 /**
  * Fetches a user's username or display name.
