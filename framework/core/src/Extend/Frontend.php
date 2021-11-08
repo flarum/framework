@@ -35,6 +35,7 @@ class Frontend implements ExtenderInterface
     private $removedRoutes = [];
     private $content = [];
     private $preloadArrs = [];
+    private $titleDriver;
 
     /**
      * @param string $frontend: The name of the frontend.
@@ -159,12 +160,23 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Register a new title driver to change the title of frontend documents.
+     */
+    public function title(string $driverClass): self
+    {
+        $this->titleDriver = $driverClass;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);
         $this->registerContent($container);
         $this->registerPreloads($container);
+        $this->registerTitleDriver($container);
     }
 
     private function registerAssets(Container $container, string $moduleName): void
@@ -294,5 +306,14 @@ class Frontend implements ExtenderInterface
     private function getModuleName(?Extension $extension): string
     {
         return $extension ? $extension->getId() : 'site-custom';
+    }
+
+    private function registerTitleDriver(Container $container): void
+    {
+        if ($this->titleDriver) {
+            $container->extend('flarum.frontend.title_driver', function ($driver, Container $container) {
+                return $container->make($this->titleDriver);
+            });
+        }
     }
 }
