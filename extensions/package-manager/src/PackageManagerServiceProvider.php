@@ -72,14 +72,19 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
         $events->listen(
             [Updated::class],
             function (Updated $event) use ($container) {
-                $recompile = new RecompileFrontendAssets(
-                    $container->make('flarum.assets.forum'),
-                    $container->make(LocaleManager::class)
-                );
-                $recompile->flush();
+                /** @var ExtensionManager $extensions */
+                $extensions = $container->make(ExtensionManager::class);
 
-                $container->make(ExtensionManager::class)->migrate($event->extension);
-                $event->extension->copyAssetsTo($container->make('filesystem')->disk('flarum-assets'));
+                if ($extensions->isEnabled($event->extension->getId())) {
+                    $recompile = new RecompileFrontendAssets(
+                        $container->make('flarum.assets.forum'),
+                        $container->make(LocaleManager::class)
+                    );
+                    $recompile->flush();
+
+                    $extensions->migrate($event->extension);
+                    $event->extension->copyAssetsTo($container->make('filesystem')->disk('flarum-assets'));
+                }
             }
         );
 
