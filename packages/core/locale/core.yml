@@ -539,6 +539,10 @@ core:
     loading_indicator:
       accessible_label: => core.ref.loading
 
+    # These translations are used in the navigation header.
+    nav:
+      drawer_button: Open Navigation Drawer
+
     # These translations are used as suffixes when abbreviating numbers.
     number_suffix:
       kilo_text: K
