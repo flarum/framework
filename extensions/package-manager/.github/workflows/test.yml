@@ -71,6 +71,7 @@ jobs:
           DB_PORT: 13306
           DB_PASSWORD: root
           DB_PREFIX: ${{ matrix.prefix }}
+          FLARUM_TEST_TMP_DIR_LOCAL: tests/tmp
 
       - name: Run Composer tests
         run: composer test

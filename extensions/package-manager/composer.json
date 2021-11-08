@@ -22,7 +22,8 @@
         "composer/composer": "^2.0"
     },
     "require-dev": {
-        "flarum/testing": "^1.0.0"
+        "flarum/testing": "^1.0.0",
+        "flarum/tags": "*"
     },
     "extra": {
         "flarum-extension": {
