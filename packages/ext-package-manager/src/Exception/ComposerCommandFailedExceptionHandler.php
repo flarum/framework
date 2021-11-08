@@ -13,7 +13,7 @@ use Flarum\Foundation\ErrorHandling\HandledError;
 
 class ComposerCommandFailedExceptionHandler
 {
-    protected const INCOMPATIBLE_REGEX = '/ +- {PACKAGE_NAME} v[0-9.]+ requires flarum\/core/m';
+    protected const INCOMPATIBLE_REGEX = '/(?:(?: +- {PACKAGE_NAME} v[0-9A-z.-]+ requires flarum\/core)|(?:Could not find a version of package {PACKAGE_NAME} matching your minim))/m';
 
     public function handle(ComposerCommandFailedException $e): HandledError
     {
