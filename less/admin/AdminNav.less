@@ -1,6 +1,6 @@
-@admin-pane-width: 250px;
-
 .App {
+  --admin-pane-width: 250px;
+
   padding-bottom: 0;
 }
 
@@ -72,12 +72,12 @@
 @media @desktop-up {
   .App-nav {
     position: absolute;
-    top: @header-height;
-    height: ~"calc(100vh - @{header-height})";
-    width: @admin-pane-width;
-    box-shadow: 0 6px 6px @shadow-color;
-    background: @body-bg;
-    z-index: @zindex-pane;
+    top: var(--header-height);
+    height: ~"calc(100vh - var(--header-height))";
+    width: var(--admin-pane-width);
+    box-shadow: 0 6px 6px var(--shadow-color);
+    background: var(--body-bg);
+    z-index: var(--zindex-pane);
     overflow-y: scroll;
     padding-bottom: 40px;
 
@@ -87,7 +87,7 @@
     }
   }
   .App-content .sideNavOffset {
-    margin-left: @admin-pane-width;
+    margin-left: var(--admin-pane-width);
   }
   .App-nav .AdminNav {
     .Dropdown-menu {
@@ -112,17 +112,17 @@
         > a,
         > a:hover,
         &.active > a {
-          color: @text-color;
+          color: var(--text-color);
         }
 
         > a:hover {
-          background: @control-bg;
+          background: var(--control-bg);
         }
 
         &.active > a {
-          background: @control-color;
+          background: var(--control-color);
           font-weight: normal;
-          color: @body-bg;
+          color: var(--body-bg);
 
           .Button-label,
           .Button-icon {
@@ -177,7 +177,7 @@
 }
 
 .ExtensionListTitle {
-  color: @muted-color;
+  color: var(--muted-color);
   text-transform: uppercase;
   margin: 25px 0 8px 15px;
 }
@@ -204,9 +204,9 @@
 }
 
 .ExtensionListItem-Dot.enabled {
-  background-color: #2ECC40;
+  background-color: var(--enabled-color);
 }
 .ExtensionListItem-Dot.disabled {
-  border: 2px solid #FF4136;
+  border: 2px solid var(--disabled-color);
   box-sizing: border-box;
 }

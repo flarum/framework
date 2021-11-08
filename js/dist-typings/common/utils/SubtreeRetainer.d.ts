@@ -22,31 +22,23 @@
  * @see https://mithril.js.org/lifecycle-methods.html#onbeforeupdate
  */
 export default class SubtreeRetainer {
+    protected callbacks: (() => any)[];
+    protected data: Record<string, any>;
     /**
-     * @param {...callbacks} callbacks Functions returning data to keep track of.
+     * @param callbacks Functions returning data to keep track of.
      */
-    constructor(...callbacks: any[]);
-    callbacks: any[];
-    data: {};
+    constructor(...callbacks: (() => any)[]);
     /**
      * Return whether any data has changed since the last check.
      * If so, Mithril needs to re-diff the vnode and its children.
-     *
-     * @return {boolean}
-     * @public
      */
-    public needsRebuild(): boolean;
+    needsRebuild(): boolean;
     /**
      * Add another callback to be checked.
-     *
-     * @param {...Function} callbacks
-     * @public
      */
-    public check(...callbacks: Function[]): void;
+    check(...callbacks: (() => any)[]): void;
     /**
-     * Invalidate the subtree, forcing it to be rerendered.
-     *
-     * @public
+     * Invalidate the subtree, forcing it to be redrawn.
      */
-    public invalidate(): void;
+    invalidate(): void;
 }

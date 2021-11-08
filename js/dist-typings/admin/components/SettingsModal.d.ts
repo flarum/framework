@@ -1,4 +1,5 @@
-export default class SettingsModal extends Modal {
+export default class SettingsModal extends Modal<any> {
+    constructor();
     settings: {} | undefined;
     form(): string;
     submitButton(): JSX.Element;

@@ -121,8 +121,8 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
    *
    * @see https://mithril.js.org/hyperscript.html#mselector,-attributes,-children
    */
-  static component(attrs = {}, children = null): Mithril.Vnode {
-    const componentAttrs = Object.assign({}, attrs) as Record<string, unknown>;
+  static component(attrs: Attrs = {}, children: Mithril.Children = null): Mithril.Vnode {
+    const componentAttrs = { ...attrs };
 
     return m(this as any, componentAttrs, children);
   }
@@ -138,13 +138,13 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
       if ('children' in attrs) {
         throw new Error(
           `[${
-            (this.constructor as any).name
+            (this.constructor as typeof Component).name
           }] The "children" attribute of attrs should never be used. Either pass children in as the vnode children or rename the attribute`
         );
       }
 
       if ('tag' in attrs) {
-        throw new Error(`[${(this.constructor as any).name}] You cannot use the "tag" attribute name with Mithril 2.`);
+        throw new Error(`[${(this.constructor as typeof Component).name}] You cannot use the "tag" attribute name with Mithril 2.`);
       }
     }
 

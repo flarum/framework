@@ -2,7 +2,8 @@
  * The `ChangeEmailModal` component shows a modal dialog which allows the user
  * to change their email address.
  */
-export default class ChangeEmailModal extends Modal {
+export default class ChangeEmailModal extends Modal<any> {
+    constructor();
     /**
      * Whether or not the email has been changed successfully.
      *

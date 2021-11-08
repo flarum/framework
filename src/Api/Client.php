@@ -132,6 +132,7 @@ class Client
 
         if ($this->parent) {
             $request = $request
+                ->withAttribute('ipAddress', $this->parent->getAttribute('ipAddress'))
                 ->withAttribute('session', $this->parent->getAttribute('session'));
             $request = RequestUtil::withActor($request, RequestUtil::getActor($this->parent));
         }

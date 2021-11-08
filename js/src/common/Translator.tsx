@@ -55,16 +55,7 @@ export default class Translator {
       if (!parameters.username) parameters.username = username(user);
     }
 
-    const escapedParameters: TranslatorParameters = {};
-
-    for (const param in parameters) {
-      const paramValue = parameters[param];
-
-      if (typeof paramValue === 'string') escapedParameters[param] = <>{parameters[param]}</>;
-      else escapedParameters[param] = parameters[param];
-    }
-
-    return escapedParameters;
+    return parameters;
   }
 
   trans(id: string, parameters: TranslatorParameters = {}) {

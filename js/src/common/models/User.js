@@ -89,8 +89,18 @@ Object.assign(User.prototype, {
     const user = this;
 
     image.onload = function () {
-      const colorThief = new ColorThief();
-      user.avatarColor = colorThief.getColor(this);
+      try {
+        const colorThief = new ColorThief();
+        user.avatarColor = colorThief.getColor(this);
+      } catch (e) {
+        // Completely white avatars throw errors due to a glitch in color thief
+        // See https://github.com/lokesh/color-thief/issues/40
+        if (e instanceof TypeError) {
+          user.avatarColor = [255, 255, 255];
+        } else {
+          throw e;
+        }
+      }
       user.freshness = new Date();
       m.redraw();
     };

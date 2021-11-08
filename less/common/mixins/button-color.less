@@ -1,0 +1,41 @@
+/**
+ * Should be used at the `:root` level to declare the color variations as custom CSS properties first.
+ * Then use the `.Button--color-auto()` below to use those variations on your element.
+ *
+ * `@name` parameter must be unique.
+ *
+ * For example:
+ * :root {
+ *   .Button--color-vars(green, white, 'button-success');
+ * }
+ *
+ * .Button--success {
+ *   .Button-color-auto('button-success');
+ * }
+ */
+.Button--color-vars(@color; @background; @name: 'button') {
+  @componentName: ~"@{name}";
+
+  --@{componentName}-color: @color;
+  --@{componentName}-bg: @background;
+  --@{componentName}-bg-hover: darken(fadein(@background, 5%), 5%);
+  --@{componentName}-bg-active: darken(fadein(@background, 10%), 10%);
+  --@{componentName}-bg-disabled: @background;
+}
+
+.Button--color-auto(@name: 'button') {
+  --button-color: var(~"--@{name}-color");
+  --button-bg: var(~"--@{name}-bg");
+  --button-bg-hover: var(~"--@{name}-bg-hover");
+  --button-bg-active: var(~"--@{name}-bg-active");
+  --button-bg-disabled: var(~"--@{name}-bg-disabled");
+}
+
+/**
+ * Legacy mixin, allows customizing button colors inline without declaring custom CSS properties at the root.
+ * For a better theming experience, declaring the custom CSS properties at the root first using `Button--color-vars()`
+ * then using `Button--color-auto()` is recommended.
+ */
+.Button--color(@color; @background) {
+  .Button--color-vars(@color, @background, 'button');
+}

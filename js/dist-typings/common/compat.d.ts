@@ -1,5 +1,5 @@
 declare var _default: {
-    extend: typeof extend;
+    extend: any;
     Session: typeof Session;
     Store: typeof Store;
     'utils/BasicEditorDriver': typeof BasicEditorDriver;
@@ -32,11 +32,7 @@ declare var _default: {
     'utils/subclassOf': typeof subclassOf;
     'utils/setRouteWithForcedRefresh': typeof setRouteWithForcedRefresh;
     'utils/patchMithril': typeof patchMithril;
-    'utils/proxifyCompat': (compat: {
-        [key: string]: any;
-    }, namespace: string) => {
-        [key: string]: any;
-    };
+    'utils/proxifyCompat': typeof proxifyCompat;
     'utils/classList': (...classes: import("clsx").ClassValue[]) => string;
     'utils/extractText': typeof extractText;
     'utils/formatNumber': typeof formatNumber;
@@ -93,7 +89,6 @@ declare var _default: {
     'states/PaginatedListState': typeof PaginatedListState;
 };
 export default _default;
-import * as extend from "./extend";
 import Session from "./Session";
 import Store from "./Store";
 import BasicEditorDriver from "./utils/BasicEditorDriver";
@@ -118,6 +113,7 @@ import Stream from "./utils/Stream";
 import subclassOf from "./utils/subclassOf";
 import setRouteWithForcedRefresh from "./utils/setRouteWithForcedRefresh";
 import patchMithril from "./utils/patchMithril";
+import proxifyCompat from "./utils/proxifyCompat";
 import extractText from "./utils/extractText";
 import formatNumber from "./utils/formatNumber";
 import mapRoutes from "./utils/mapRoutes";

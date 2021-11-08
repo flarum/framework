@@ -1,3 +1,5 @@
+import Application from '../common/Application';
+import ExtensionData from './utils/ExtensionData';
 export default class AdminApplication extends Application {
     extensionData: ExtensionData;
     extensionCategories: {
@@ -11,7 +13,10 @@ export default class AdminApplication extends Application {
         backUrl: () => any;
         back: () => void;
     };
+    constructor();
+    /**
+     * @inheritdoc
+     */
+    mount(): void;
     getRequiredPermissions(permission: any): string[];
 }
-import Application from "../common/Application";
-import ExtensionData from "./utils/ExtensionData";

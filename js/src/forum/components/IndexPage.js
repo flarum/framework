@@ -219,10 +219,10 @@ export default class IndexPage extends Page {
     const items = new ItemList();
     const sortMap = app.discussions.sortMap();
 
-    const sortOptions = {};
-    for (const i in sortMap) {
-      sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
-    }
+    const sortOptions = Object.keys(sortMap).reduce((acc, sortId) => {
+      acc[sortId] = app.translator.trans(`core.forum.index_sort.${sortId}_button`);
+      return acc;
+    }, {});
 
     items.add(
       'sort',

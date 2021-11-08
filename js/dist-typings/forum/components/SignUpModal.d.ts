@@ -8,7 +8,8 @@
  * - `password`
  * - `token` An email token to sign up with.
  */
-export default class SignUpModal extends Modal {
+export default class SignUpModal extends Modal<any> {
+    constructor();
     /**
      * The value of the username input.
      *

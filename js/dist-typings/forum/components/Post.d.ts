@@ -11,6 +11,9 @@
  */
 export default class Post extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    /**
+     * May be set by subclasses.
+     */
     loading: boolean | undefined;
     /**
      * Set up a subtree retainer so that the post will not be redrawn
