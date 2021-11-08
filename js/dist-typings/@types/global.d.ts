@@ -1,4 +1,22 @@
 /**
+ * UTILITY TYPES
+ */
+
+/**
+ * Type that returns an array of all keys of a provided object that are of
+ * of the provided type, or a subtype of the type.
+ */
+declare type KeysOfType<Type extends object, Match> = {
+  [Key in keyof Type]-?: Type[Key] extends Match ? Key : never;
+};
+
+/**
+ * Type that matches one of the keys of an object that is of the provided
+ * type, or a subtype of it.
+ */
+declare type KeyOfType<Type extends object, Match> = KeysOfType<Type, Match>[keyof Type];
+
+/**
  * @deprecated Please import `app` from a namespace instead of using it as a global variable.
  *
  * @example App in forum JS

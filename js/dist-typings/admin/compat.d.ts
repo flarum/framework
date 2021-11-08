@@ -1,5 +1,5 @@
 declare var _default: {
-    extend: typeof import("../common/extend");
+    extend: any;
     Session: typeof import("../common/Session").default;
     Store: typeof import("../common/Store").default;
     'utils/BasicEditorDriver': typeof import("../common/utils/BasicEditorDriver").default;
@@ -32,11 +32,7 @@ declare var _default: {
     'utils/subclassOf': typeof import("../common/utils/subclassOf").default;
     'utils/setRouteWithForcedRefresh': typeof import("../common/utils/setRouteWithForcedRefresh").default;
     'utils/patchMithril': typeof import("../common/utils/patchMithril").default;
-    'utils/proxifyCompat': (compat: {
-        [key: string]: any;
-    }, namespace: string) => {
-        [key: string]: any;
-    };
+    'utils/proxifyCompat': typeof import("../common/utils/proxifyCompat").default;
     'utils/classList': (...classes: import("clsx").ClassValue[]) => string;
     'utils/extractText': typeof import("../common/utils/extractText").default;
     'utils/formatNumber': typeof import("../common/utils/formatNumber").default;
