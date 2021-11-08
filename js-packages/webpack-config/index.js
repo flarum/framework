@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { NormalModuleReplacementPlugin } = require('webpack');
 
 const entryPointNames = ['forum', 'admin'];
 const entryPointExts = ['js', 'ts'];
@@ -28,6 +29,28 @@ function getEntryPoints() {
 const useBundleAnalyzer = process.env.ANALYZER === 'true';
 const plugins = [];
 
+/**
+ * Yarn Plug'n'Play means that dependency hoisting doesn't work like it normally
+ * would with the standard `node_modules` configuration. This is by design, as
+ * hoisting is unpredictable.
+ *
+ * This plugin works around this by ensuring references to `@babel/runtime` (which
+ * is required at build-time from an extension/core's scope) are redirected to the
+ * copy of `@babel/runtime` which is a dependency of this package.
+ *
+ * This removes the need for hoisting, and allows for Plyug'n'Play compatibility.
+ *
+ * Thanks goes to Yarn's lead maintainer @arcanis for helping me get to this
+ * solution.
+ */
+plugins.push(
+  new NormalModuleReplacementPlugin(/^@babel\/runtime(.*)/, (resource) => {
+    const path = resource.request.split('@babel/runtime')[1];
+
+    resource.request = require.resolve(`@babel/runtime${path}`);
+  })
+);
+
 if (useBundleAnalyzer) {
   plugins.push(new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)());
 }
@@ -50,13 +73,13 @@ module.exports = function (options = {}) {
           // Matches .js, .jsx, .ts, .tsx
           // See: https://regexr.com/5snjd
           test: /\.(j|t)sx?$/,
-          loader: 'babel-loader',
+          loader: require.resolve('babel-loader'),
           options: {
             presets: [
-              '@babel/preset-react',
-              '@babel/preset-typescript',
+              require.resolve('@babel/preset-react'),
+              require.resolve('@babel/preset-typescript'),
               [
-                '@babel/preset-env',
+                require.resolve('@babel/preset-env'),
                 {
                   modules: false,
                   loose: true,
@@ -64,11 +87,11 @@ module.exports = function (options = {}) {
               ],
             ],
             plugins: [
-              ['@babel/plugin-transform-runtime', { useESModules: true }],
-              ['@babel/plugin-proposal-class-properties', { loose: true }],
-              ['@babel/plugin-proposal-private-methods', { loose: true }],
+              [require.resolve('@babel/plugin-transform-runtime'), { useESModules: true }],
+              [require.resolve('@babel/plugin-proposal-class-properties'), { loose: true }],
+              [require.resolve('@babel/plugin-proposal-private-methods'), { loose: true }],
               [
-                '@babel/plugin-transform-react-jsx',
+                require.resolve('@babel/plugin-transform-react-jsx'),
                 {
                   pragma: 'm',
                   pragmaFrag: "'['",
@@ -111,7 +134,7 @@ module.exports = function (options = {}) {
       })(),
 
       // Support importing old-style core modules.
-      function ({request}, callback) {
+      function ({ request }, callback) {
         let matches;
         if ((matches = /^flarum\/(.+)$/.exec(request))) {
           return callback(null, "root flarum.core.compat['" + matches[1] + "']");
