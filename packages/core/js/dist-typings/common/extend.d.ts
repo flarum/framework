@@ -19,11 +19,11 @@
  *   // something that needs to be run on creation and update
  * });
  *
- * @param {object} object The object that owns the method
- * @param {string|string[]} methods The name or names of the method(s) to extend
- * @param {function} callback A callback which mutates the method's output
+ * @param object The object that owns the method
+ * @param methods The name or names of the method(s) to extend
+ * @param callback A callback which mutates the method's output
  */
-export function extend(object: object, methods: string | string[], callback: Function): void;
+export declare function extend<T extends object, K extends KeyOfType<T, Function>>(object: T, methods: K | K[], callback: (this: T, val: ReturnType<T[K]>, ...args: Parameters<T[K]>) => void): void;
 /**
  * Override an object's method by replacing it with a new function, so that the
  * new function will be run every time the object's method is called.
@@ -47,8 +47,8 @@ export function extend(object: object, methods: string | string[], callback: Fun
  *   // something that needs to be run on creation and update
  * });
  *
- * @param {object} object The object that owns the method
- * @param {string|string[]} method The name or names of the method(s) to override
- * @param {function} newMethod The method to replace it with
+ * @param object The object that owns the method
+ * @param methods The name or names of the method(s) to override
+ * @param newMethod The method to replace it with
  */
-export function override(object: object, methods: any, newMethod: Function): void;
+export declare function override<T extends object, K extends KeyOfType<T, Function>>(object: T, methods: K | K[], newMethod: (this: T, orig: T[K], ...args: Parameters<T[K]>) => void): void;
