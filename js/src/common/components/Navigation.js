@@ -93,6 +93,7 @@ export default class Navigation extends Component {
         drawer.show();
       },
       icon: 'fas fa-bars',
+      ariaLabel: 'Open Navigation Drawer',
     });
   }
 }
