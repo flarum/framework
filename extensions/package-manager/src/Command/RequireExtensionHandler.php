@@ -66,12 +66,19 @@ class RequireExtensionHandler
             throw new ExtensionAlreadyInstalledException($extension);
         }
 
+        $packageName = $command->package;
+
+        // Auto append :* if not requiring a specific version.
+        if (strpos($packageName, ':') === false) {
+            $packageName .= ":*";
+        }
+
         $output = $this->composer->run(
-            new StringInput("require $command->package")
+            new StringInput("require $packageName")
         );
 
         if ($output->getExitCode() !== 0) {
-            throw new ComposerRequireFailedException($command->package, $output->getContents());
+            throw new ComposerRequireFailedException($packageName, $output->getContents());
         }
 
         $this->events->dispatch(
