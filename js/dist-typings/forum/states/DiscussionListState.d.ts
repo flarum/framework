@@ -1,11 +1,16 @@
 import PaginatedListState, { Page } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
+export interface IRequestParams {
+    include: string[];
+    filter: Record<string, string>;
+    sort?: string;
+}
 export default class DiscussionListState extends PaginatedListState<Discussion> {
     protected extraDiscussions: Discussion[];
     constructor(params: any, page?: number);
     get type(): string;
-    requestParams(): any;
-    protected loadPage(page?: number): any;
+    requestParams(): IRequestParams;
+    protected loadPage(page?: number): Promise<Discussion[]>;
     clear(): void;
     /**
      * Get a map of sort keys (which appear in the URL, and are used for
