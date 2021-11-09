@@ -24,4 +24,14 @@ class ComposerCommandFailedException extends Exception
 
         parent::__construct($output);
     }
+
+    public function guessCause(): ?string
+    {
+
+    }
+
+    protected function getRawPackageName(): string
+    {
+        return preg_replace('/^([A-z0-9-_\/]+)(?::.*|)$/i', '$1', $this->packageName);
+    }
 }
