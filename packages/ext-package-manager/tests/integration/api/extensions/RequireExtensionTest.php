@@ -66,6 +66,26 @@ class RequireExtensionTest extends TestCase
     /**
      * @test
      */
+    public function requiring_a_compatible_extension_with_specific_version_works()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/package-manager/extensions', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'package' => 'v17development/flarum-blog:0.4.0'
+                    ]
+                ]
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertExtensionExists('v17development-blog');
+    }
+
+    /**
+     * @test
+     */
     public function requiring_an_uncompatible_extension_fails()
     {
         $response = $this->send(
@@ -74,6 +94,26 @@ class RequireExtensionTest extends TestCase
                 'json' => [
                     'data' => [
                         'package' => 'flarum/auth-github'
+                    ]
+                ]
+            ])
+        );
+
+        $this->assertEquals(409, $response->getStatusCode());
+        $this->assertEquals('extension_incompatible_with_instance', $this->guessedCause($response));
+    }
+
+    /**
+     * @test
+     */
+    public function requiring_an_uncompatible_extension_with_specific_version_fails()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/package-manager/extensions', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'package' => 'flarum/auth-github:0.1.0-beta.9'
                     ]
                 ]
             ])
