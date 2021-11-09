@@ -28,8 +28,8 @@ export type Extension = {
   extra: {
     'flarum-extension': {
       title: string;
-    }
-  }
+    };
+  };
 };
 
 export default class AdminApplication extends Application {
@@ -58,7 +58,11 @@ export default class AdminApplication extends Application {
    * @inheritdoc
    */
 
-  data!: Application['data'] & { extensions: Record<string, Extension>; settings: Record<string, string>; modelStatistics: Record<string, {total: number}> };
+  data!: Application['data'] & {
+    extensions: Record<string, Extension>;
+    settings: Record<string, string>;
+    modelStatistics: Record<string, { total: number }>;
+  };
 
   constructor() {
     super();

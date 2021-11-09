@@ -14,7 +14,7 @@ export type ModdedVnode<Attrs> = Mithril.Vnode<ModdedVnodeAttrs, Component<Attrs
   tag: Mithril.Vnode['tag'] & {
     isListItem?: boolean;
     isActive?: (attrs: ComponentAttrs) => boolean;
-  }
+  };
 };
 
 function isSeparator<Attrs>(item: ModdedVnode<Attrs>): boolean {

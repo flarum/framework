@@ -259,7 +259,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    */
   selectResult() {
     if (this.searchTimeout) clearTimeout(this.searchTimeout);
-  
+
     this.loadingSources = 0;
 
     const selectedUrl = this.getItem(this.index).find('a').attr('href');

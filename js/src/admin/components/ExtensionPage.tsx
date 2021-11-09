@@ -186,11 +186,11 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     const links = this.extension.links;
 
     if (links.authors?.length) {
-      const authors = links.authors.map((author) => 
-          <Link href={author.link} external={true} target="_blank">
-            {author.name}
-          </Link>
-      );
+      const authors = links.authors.map((author) => (
+        <Link href={author.link} external={true} target="_blank">
+          {author.name}
+        </Link>
+      ));
 
       items.add('authors', [icon('fas fa-user'), <span>{punctuateSeries(authors)}</span>]);
     }
@@ -264,7 +264,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     }
 
     const error = e.response?.errors?.[0];
-    
+
     if (error) {
       app.alerts.show(
         { type: 'error' },

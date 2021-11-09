@@ -39,7 +39,7 @@ declare const app: never;
 declare const m: import('mithril').Static;
 declare const dayjs: typeof import('dayjs');
 
-type ESModule = { __esModule: true;[key: string]: unknown };
+type ESModule = { __esModule: true; [key: string]: unknown };
 
 /**
  * The global `flarum` variable.

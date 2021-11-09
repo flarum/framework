@@ -1,4 +1,4 @@
-import type Mithril from "mithril";
+import type Mithril from 'mithril';
 
 export type InternalFlarumRequestOptions<ResponseType> = Mithril.RequestOptions<ResponseType> & {
   errorHandler: (error: RequestError) => void;

@@ -369,7 +369,7 @@ export default class Application {
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
-    const {background, deserialize, errorHandler, extract, modifyText, ...tmpOptions} = { ...flarumOptions };
+    const { background, deserialize, errorHandler, extract, modifyText, ...tmpOptions } = { ...flarumOptions };
 
     // Unless specified otherwise, requests should run asynchronously in the
     // background, so that they don't prevent redraws from occurring.
@@ -396,7 +396,7 @@ export default class Application {
       background: background ?? defaultBackground,
       deserialize: deserialize ?? defaultDeserialize,
       errorHandler: errorHandler ?? defaultErrorHandler,
-      ...tmpOptions
+      ...tmpOptions,
     };
 
     extend(options, 'config', (_: undefined, xhr: XMLHttpRequest) => {
@@ -500,7 +500,7 @@ export default class Application {
         // contains a formatted errors if possible, response must be an JSON API array of errors
         // the details property is decoded to transform escaped characters such as '\n'
         const errors = error.response && error.response.errors;
-        const formattedError = Array.isArray(errors) && errors?.[0]?.detail && errors.map((e) => decodeURI(e.detail ?? '')) || undefined;
+        const formattedError = (Array.isArray(errors) && errors?.[0]?.detail && errors.map((e) => decodeURI(e.detail ?? ''))) || undefined;
 
         error.alert = {
           type: 'error',
