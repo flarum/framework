@@ -14,8 +14,4 @@ js/dist/* -diff
 js/dist/* linguist-generated
 js/dist-typings/* linguist-generated
 
-# https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
-/js/.yarn/releases/** binary
-/js/.yarn/plugins/** binary
-
 * text=auto eol=lf
