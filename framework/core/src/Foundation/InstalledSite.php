@@ -174,7 +174,7 @@ class InstalledSite implements SiteInterface
     protected function registerLogger(Container $container)
     {
         $logPath = $this->paths->storage.'/logs/flarum.log';
-        $handler = new RotatingFileHandler($logPath, Logger::INFO);
+        $handler = new RotatingFileHandler($logPath, 0, Logger::INFO);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
         $container->instance('log', new Logger('flarum', [$handler]));
