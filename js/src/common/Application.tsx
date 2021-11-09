@@ -278,6 +278,7 @@ export default class Application {
       const extenders = extension.extend.flat(Infinity);
 
       for (const extender of extenders) {
+        // @ts-expect-error This is beyond saving atm.
         extender.extend(this, { name, exports: extension });
       }
     });

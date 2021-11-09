@@ -249,7 +249,9 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
   onremove(vnode: Mithril.VnodeDOM<T, this>) {
     super.onremove(vnode);
 
-    window.removeEventListener('resize', this.updateMaxHeightHandler);
+    if (this.updateMaxHeightHandler) {
+      window.removeEventListener('resize', this.updateMaxHeightHandler);
+    }
   }
 
   /**
@@ -260,8 +262,9 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
   
     this.loadingSources = 0;
 
-    if (this.searchState.getValue()) {
-      m.route.set(this.getItem(this.index).find('a').attr('href'));
+    const selectedUrl = this.getItem(this.index).find('a').attr('href');
+    if (this.searchState.getValue() && selectedUrl) {
+      m.route.set(selectedUrl);
     } else {
       this.clear();
     }
@@ -336,11 +339,11 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     this.index = parseInt($item.attr('data-index') as string) || fixedIndex;
 
     if (scrollToItem) {
-      const dropdownScroll = $dropdown.scrollTop();
-      const dropdownTop = $dropdown.offset().top;
-      const dropdownBottom = dropdownTop + $dropdown.outerHeight();
-      const itemTop = $item.offset().top;
-      const itemBottom = itemTop + $item.outerHeight();
+      const dropdownScroll = $dropdown.scrollTop()!;
+      const dropdownTop = $dropdown.offset()!.top;
+      const dropdownBottom = dropdownTop + $dropdown.outerHeight()!;
+      const itemTop = $item.offset()!.top;
+      const itemBottom = itemTop + $item.outerHeight()!;
 
       let scrollTop;
       if (itemTop < dropdownTop) {
