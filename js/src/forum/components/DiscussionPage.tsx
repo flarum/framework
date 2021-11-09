@@ -17,7 +17,7 @@ import Post from '../../common/models/Post';
 
 export interface IDiscussionPageAttrs extends IPageAttrs {
   id: string;
-  near?: string;
+  near?: number;
 }
 
 /**
@@ -275,7 +275,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * When the posts that are visible in the post stream change (i.e. the user
    * scrolls up or down), then we update the URL and mark the posts as read.
    */
-  positionChanged(startNumber: number, endNumber: number) {
+  positionChanged(startNumber: number, endNumber: number): void {
     const discussion = this.discussion;
 
     if (!discussion) return;
