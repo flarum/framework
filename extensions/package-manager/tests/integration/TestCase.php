@@ -9,18 +9,13 @@
 
 namespace Flarum\PackageManager\Tests\integration;
 
-use Composer\Config;
-use Composer\Console\Application;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Paths;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Extension\ExtensionUtils;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\NullOutput;
 
 class TestCase extends \Flarum\Testing\integration\TestCase
 {
@@ -81,10 +76,9 @@ class TestCase extends \Flarum\Testing\integration\TestCase
 
     protected function composer(string $command): void
     {
-        /** @var Application $composer */
-        $composer = $this->app()->getContainer()->make(Application::class);
-        $output = new NullOutput();
-        $composer->run(new StringInput($command), $output);
+        /** @var ComposerAdapter $composer */
+        $composer = $this->app()->getContainer()->make(ComposerAdapter::class);
+        $composer->run(new StringInput($command));
     }
 
     protected function guessedCause(ResponseInterface $response): ?string

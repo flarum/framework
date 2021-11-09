@@ -9,21 +9,19 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Composer\Console\Application;
 use Flarum\Foundation\Paths;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\LastUpdateCheck;
-use Flarum\PackageManager\OutputLogger;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 class MajorUpdateHandler
 {
     /**
-     * @var Application
+     * @var ComposerAdapter
      */
     protected $composer;
 
@@ -38,11 +36,6 @@ class MajorUpdateHandler
     protected $events;
 
     /**
-     * @var OutputLogger
-     */
-    protected $logger;
-
-    /**
      * @var Paths
      */
     protected $paths;
@@ -52,12 +45,11 @@ class MajorUpdateHandler
      */
     protected $composerJson;
 
-    public function __construct(Application $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, OutputLogger $logger, Paths $paths)
+    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, Paths $paths)
     {
         $this->composer = $composer;
         $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
-        $this->logger = $logger;
         $this->paths = $paths;
     }
 
@@ -128,6 +120,7 @@ class MajorUpdateHandler
     protected function revertComposerJson(): void
     {
         $composerJsonPath = $this->paths->base . '/composer.json';
+        // @todo use filesystem for all file_get_contents
         file_put_contents($composerJsonPath, $this->composerJson);
     }
 
@@ -136,24 +129,20 @@ class MajorUpdateHandler
      */
     protected function runCommand(bool $dryRun): void
     {
-        $output = new BufferedOutput();
-        $input = new ArrayInput([
-            'command' => 'update',
-            '--prefer-dist' => true,
-            '--no-plugins' => true,
-            '--no-dev' => true,
-            '-a' => true,
-            '--with-all-dependencies' => true,
-            '--dry-run' => $dryRun,
-        ]);
+        $output = $this->composer->run(
+            new ArrayInput([
+                'command' => 'update',
+                '--prefer-dist' => true,
+                '--no-plugins' => true,
+                '--no-dev' => true,
+                '-a' => true,
+                '--with-all-dependencies' => true,
+                '--dry-run' => $dryRun,
+            ])
+        );
 
-        $exitCode = $this->composer->run($input, $output);
-        $output = $output->fetch();
-
-        $this->logger->log($input->__toString(), $output, $exitCode);
-
-        if ($exitCode !== 0) {
-            throw new ComposerUpdateFailedException('*', $output);
+        if ($output->getExitCode() !== 0) {
+            throw new ComposerUpdateFailedException('*', $output->getContents());
         }
     }
 }

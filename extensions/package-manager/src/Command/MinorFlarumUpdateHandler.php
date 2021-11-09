@@ -9,19 +9,17 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Composer\Console\Application;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\LastUpdateCheck;
-use Flarum\PackageManager\OutputLogger;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Input\StringInput;
 
 class MinorFlarumUpdateHandler
 {
     /**
-     * @var Application
+     * @var ComposerAdapter
      */
     protected $composer;
 
@@ -35,17 +33,11 @@ class MinorFlarumUpdateHandler
      */
     protected $events;
 
-    /**
-     * @var OutputLogger
-     */
-    protected $logger;
-
-    public function __construct(Application $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, OutputLogger $logger)
+    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events)
     {
         $this->composer = $composer;
         $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
-        $this->logger = $logger;
     }
 
     /**
@@ -56,23 +48,12 @@ class MinorFlarumUpdateHandler
     {
         $command->actor->assertAdmin();
 
-        $output = new BufferedOutput();
-        $input = new ArrayInput([
-            'command' => 'update',
-            'packages' => ["flarum/*"],
-            '--prefer-dist' => true,
-            '--no-dev' => true,
-            '-a' => true,
-            '--with-all-dependencies' => true,
-        ]);
+        $output = $this->composer->run(
+            new StringInput("update flarum/* --prefer-dist --no-dev -a --with-all-dependencies")
+        );
 
-        $exitCode = $this->composer->run($input, $output);
-        $output = $output->fetch();
-
-        $this->logger->log($input->__toString(), $output, $exitCode);
-
-        if ($exitCode !== 0) {
-            throw new ComposerUpdateFailedException('flarum/*', $output);
+        if ($output->getExitCode() !== 0) {
+            throw new ComposerUpdateFailedException('flarum/*', $output->getContents());
         }
 
         $this->lastUpdateCheck->forget('flarum/*', true);

@@ -16,6 +16,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Monolog\Formatter\LineFormatter;
@@ -29,7 +30,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->container->singleton(Application::class, function (Container $container) {
+        $this->container->singleton(ComposerAdapter::class, function (Container $container) {
             // This should only ever be resolved when running composer commands,
             // because we modify other environment configurations.
             $composer = new Application();
@@ -48,10 +49,10 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             @ini_set('memory_limit', '1G');
             @set_time_limit(5 * 60);
 
-            return $composer;
+            return new ComposerAdapter($composer, $container->make(OutputLogger::class));
         });
 
-        $this->container->alias(Application::class, 'flarum.composer');
+        $this->container->alias(ComposerAdapter::class, 'flarum.composer');
 
         $this->container->singleton(OutputLogger::class, function (Container $container) {
             $logPath = $container->make(Paths::class)->storage.'/logs/composer/output.log';

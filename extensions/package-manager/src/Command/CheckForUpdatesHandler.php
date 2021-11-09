@@ -9,17 +9,15 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Composer\Console\Application;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
 use Flarum\PackageManager\LastUpdateCheck;
-use Flarum\PackageManager\OutputLogger;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 class CheckForUpdatesHandler
 {
     /**
-     * @var Application
+     * @var ComposerAdapter
      */
     protected $composer;
 
@@ -28,16 +26,10 @@ class CheckForUpdatesHandler
      */
     protected $lastUpdateCheck;
 
-    /**
-     * @var OutputLogger
-     */
-    protected $logger;
-
-    public function __construct(Application $composer, LastUpdateCheck $lastUpdateCheck, OutputLogger $logger)
+    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck)
     {
         $this->composer = $composer;
         $this->lastUpdateCheck = $lastUpdateCheck;
-        $this->logger = $logger;
     }
 
     /**
@@ -109,23 +101,19 @@ class CheckForUpdatesHandler
      */
     protected function runComposerCommand(bool $minorOnly): string
     {
-        $output = new BufferedOutput();
-        $input = new ArrayInput([
-            'command' => 'outdated',
-            '-D' => true,
-            '--minor-only' => $minorOnly,
-            '--format' => 'json',
-        ]);
+        $output = $this->composer->run(
+            new ArrayInput([
+                'command' => 'outdated',
+                '-D' => true,
+                '--minor-only' => $minorOnly,
+                '--format' => 'json',
+            ])
+        );
 
-        $exitCode = $this->composer->run($input, $output);
-        $output = $output->fetch();
-
-        $this->logger->log($input->__toString(), $output, $exitCode);
-
-        if ($exitCode !== 0) {
-            throw new ComposerCommandFailedException('', $output);
+        if ($output->getExitCode() !== 0) {
+            throw new ComposerCommandFailedException('', $output->getContents());
         }
 
-        return $output;
+        return $output->getContents();
     }
 }
