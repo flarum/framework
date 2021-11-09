@@ -9,22 +9,20 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Exception\ComposerRequireFailedException;
 use Flarum\PackageManager\Exception\ExtensionAlreadyInstalledException;
 use Flarum\PackageManager\Extension\Event\Installed;
 use Flarum\PackageManager\Extension\ExtensionUtils;
-use Flarum\PackageManager\OutputLogger;
 use Flarum\PackageManager\RequirePackageValidator;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Input\StringInput;
 
 class RequireExtensionHandler
 {
     /**
-     * @var Application
+     * @var ComposerAdapter
      */
     protected $composer;
 
@@ -43,18 +41,12 @@ class RequireExtensionHandler
      */
     protected $events;
 
-    /**
-     * @var OutputLogger
-     */
-    protected $logger;
-
-    public function __construct(Application $composer, ExtensionManager $extensions, RequirePackageValidator $validator, Dispatcher $events, OutputLogger $logger)
+    public function __construct(ComposerAdapter $composer, ExtensionManager $extensions, RequirePackageValidator $validator, Dispatcher $events)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
         $this->events = $events;
-        $this->logger = $logger;
     }
 
     /**
@@ -74,19 +66,12 @@ class RequireExtensionHandler
             throw new ExtensionAlreadyInstalledException($extension);
         }
 
-        $output = new BufferedOutput();
-        $input = new ArrayInput([
-            'command' => 'require',
-            'packages' => [$command->package],
-        ]);
+        $output = $this->composer->run(
+            new StringInput("require $command->package")
+        );
 
-        $exitCode = $this->composer->run($input, $output);
-        $output = $output->fetch();
-
-        $this->logger->log($input->__toString(), $output, $exitCode);
-
-        if ($exitCode !== 0) {
-            throw new ComposerRequireFailedException($command->package, $output);
+        if ($output->getExitCode() !== 0) {
+            throw new ComposerRequireFailedException($command->package, $output->getContents());
         }
 
         $this->events->dispatch(

@@ -9,21 +9,18 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
 use Flarum\PackageManager\Extension\Event\Removed;
-use Flarum\PackageManager\OutputLogger;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Input\StringInput;
 
 class RemoveExtensionHandler
 {
     /**
-     * @var Application
+     * @var ComposerAdapter
      */
     protected $composer;
 
@@ -37,17 +34,11 @@ class RemoveExtensionHandler
      */
     protected $events;
 
-    /**
-     * @var OutputLogger
-     */
-    protected $logger;
-
-    public function __construct(Application $composer, ExtensionManager $extensions, Dispatcher $events, OutputLogger $logger)
+    public function __construct(ComposerAdapter $composer, ExtensionManager $extensions, Dispatcher $events)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->events = $events;
-        $this->logger = $logger;
     }
 
     /**
@@ -64,19 +55,12 @@ class RemoveExtensionHandler
             throw new ExtensionNotInstalledException($command->extensionId);
         }
 
-        $output = new BufferedOutput();
-        $input = new ArrayInput([
-            'command' => 'remove',
-            'packages' => [$extension->name],
-        ]);
+        $output = $this->composer->run(
+            new StringInput("remove $extension->name")
+        );
 
-        $exitCode = $this->composer->run($input, $output);
-        $output = $output->fetch();
-
-        $this->logger->log($input->__toString(), $output, $exitCode);
-
-        if ($exitCode !== 0) {
-            throw new ComposerCommandFailedException($extension->name, $output);
+        if ($output->getExitCode() !== 0) {
+            throw new ComposerCommandFailedException($extension->name, $output->getContents());
         }
 
         $this->events->dispatch(

@@ -9,23 +9,20 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Composer\Console\Application;
 use Flarum\Extension\ExtensionManager;
-use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
 use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\OutputLogger;
 use Flarum\PackageManager\UpdateExtensionValidator;
 use Flarum\PackageManager\LastUpdateCheck;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Input\StringInput;
 
 class UpdateExtensionHandler
 {
     /**
-     * @var Application
+     * @var ComposerAdapter
      */
     protected $composer;
 
@@ -49,25 +46,18 @@ class UpdateExtensionHandler
      */
     protected $events;
 
-    /**
-     * @var OutputLogger
-     */
-    protected $logger;
-
     public function __construct(
-        Application $composer,
+        ComposerAdapter $composer,
         ExtensionManager $extensions,
         UpdateExtensionValidator $validator,
         LastUpdateCheck $lastUpdateCheck,
-        Dispatcher $events,
-        OutputLogger $logger)
+        Dispatcher $events)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
         $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
-        $this->logger = $logger;
     }
 
     /**
@@ -86,19 +76,12 @@ class UpdateExtensionHandler
             throw new ExtensionNotInstalledException($command->extensionId);
         }
 
-        $output = new BufferedOutput();
-        $input = new ArrayInput([
-            'command' => 'require',
-            'packages' => ["$extension->name:*"],
-        ]);
+        $output = $this->composer->run(
+            new StringInput("require $extension->name:*")
+        );
 
-        $exitCode = $this->composer->run($input, $output);
-        $output = $output->fetch();
-
-        $this->logger->log($input->__toString(), $output, $exitCode);
-
-        if ($exitCode !== 0) {
-            throw new ComposerUpdateFailedException($extension->name, $output);
+        if ($output->getExitCode() !== 0) {
+            throw new ComposerUpdateFailedException($extension->name, $output->getContents());
         }
 
         $this->lastUpdateCheck->forget($extension->name);
