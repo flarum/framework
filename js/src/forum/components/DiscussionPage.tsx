@@ -57,8 +57,6 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
       app.pane?.hide();
     }
 
-    app.history.push('discussion');
-
     this.bodyClass = 'App--discussion';
   }
 

@@ -3,6 +3,8 @@
 //
 // Needed to provide support for Safari on iOS < 12
 
+// ts-ignored because we can afford to encapsulate some messy logic behind the clean typings.
+
 if (!Array.prototype['flat']) {
   Array.prototype['flat'] = function flat<A, D extends number = 1>(this: A, depth?: D | unknown): any[] {
     // @ts-ignore

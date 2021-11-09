@@ -13,7 +13,7 @@ export default class DiscussionPageResolver<
   Attrs extends IDiscussionPageAttrs = IDiscussionPageAttrs,
   RouteArgs extends Record<string, unknown> = {}
 > extends DefaultResolver<Attrs, DiscussionPage<Attrs>, RouteArgs> {
-  static scrollToPostNumber: string | null = null;
+  static scrollToPostNumber: number | null = null;
 
   /**
    * Remove optional parts of a discussion's slug to keep the substring
@@ -42,7 +42,7 @@ export default class DiscussionPageResolver<
   onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string) {
     if (app.current.matches(DiscussionPage) && this.canonicalizeDiscussionSlug(args.id) === this.canonicalizeDiscussionSlug(m.route.param('id'))) {
       // By default, the first post number of any discussion is 1
-      DiscussionPageResolver.scrollToPostNumber = args.near || '1';
+      DiscussionPageResolver.scrollToPostNumber = args.near || 1;
     }
 
     return super.onmatch(args, requestedPath, route);

@@ -14,6 +14,7 @@ import mapRoutes from './utils/mapRoutes';
 import RequestError, { InternalFlarumRequestOptions } from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
 import liveHumanTimes from './utils/liveHumanTimes';
+// @ts-expect-error We need to explicitly use the prefix to distinguish between the extend folder.
 import { extend } from './extend.ts';
 
 import Forum from './models/Forum';
