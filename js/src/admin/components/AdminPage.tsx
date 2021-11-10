@@ -106,10 +106,7 @@ export interface TextareaSettingComponentOptions extends CommonSettingsItemOptio
 }
 
 /**
- * Valid options for the setting component builder to generate a ColorInput.
-=======
  * Valid options for the setting component builder to generate a ColorPreviewInput.
->>>>>>> c10922974 (Rename component to ColorPreviewInput, remove aliases in admin & export in compat)
  */
 export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemOptions {
   type: typeof ColorPreviewSettingType;
