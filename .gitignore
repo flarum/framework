@@ -1,7 +1,6 @@
 /vendor
 composer.lock
 composer.phar
-node_modules
 .DS_Store
 Thumbs.db
 tests/.phpunit.result.cache
