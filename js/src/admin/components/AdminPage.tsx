@@ -10,7 +10,7 @@ import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 import AdminHeader from './AdminHeader';
 import generateElementId from '../utils/generateElementId';
-import ColorInput from '../../common/components/ColorInput';
+import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 
 export interface AdminHeaderOptions {
   title: string;
@@ -77,7 +77,7 @@ export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOpt
 const BooleanSettingTypes = ['bool', 'checkbox', 'switch', 'boolean'] as const;
 const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
 const TextareaSettingTypes = ['textarea'] as const;
-const ColorSettingTypes = ['color-input', 'color-preview', 'custom-color'] as const;
+const ColorPreviewSettingType = 'color-preview';
 
 /**
  * Valid options for the setting component builder to generate a Switch.
@@ -107,9 +107,12 @@ export interface TextareaSettingComponentOptions extends CommonSettingsItemOptio
 
 /**
  * Valid options for the setting component builder to generate a ColorInput.
+=======
+ * Valid options for the setting component builder to generate a ColorPreviewInput.
+>>>>>>> c10922974 (Rename component to ColorPreviewInput, remove aliases in admin & export in compat)
  */
-export interface ColorSettingComponentOptions extends CommonSettingsItemOptions {
-  type: typeof ColorSettingTypes[number];
+export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemOptions {
+  type: typeof ColorPreviewSettingType;
 }
 
 /**
@@ -120,7 +123,7 @@ export type SettingsComponentOptions =
   | SwitchSettingComponentOptions
   | SelectSettingComponentOptions
   | TextareaSettingComponentOptions
-  | ColorSettingComponentOptions;
+  | ColorPreviewSettingComponentOptions;
 
 /**
  * Valid attrs that can be returned by the `headerInfo` function
@@ -270,8 +273,8 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       } else {
         let Tag: any = 'input';
 
-        if ((ColorSettingTypes as readonly string[]).includes(type)) {
-          Tag = ColorInput;
+        if (type === ColorPreviewSettingType) {
+          Tag = ColorPreviewInput;
         } else {
           componentAttrs.type = type;
         }

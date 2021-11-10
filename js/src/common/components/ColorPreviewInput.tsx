@@ -4,7 +4,7 @@ import Component, { ComponentAttrs } from '../Component';
 import classList from '../utils/classList';
 import icon from '../helpers/icon';
 
-export default class ColorInput extends Component {
+export default class ColorPreviewInput extends Component {
   value?: string;
 
   view(vnode: Mithril.Vnode<ComponentAttrs, this>) {
