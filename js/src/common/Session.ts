@@ -27,9 +27,9 @@ export default class Session {
   /**
    * The CSRF token.
    */
-  csrfToken: string | null;
+  csrfToken: string;
 
-  constructor(user: User | null, csrfToken: string | null) {
+  constructor(user: User | null, csrfToken: string) {
     this.user = user;
     this.csrfToken = csrfToken;
   }
