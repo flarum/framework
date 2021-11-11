@@ -175,15 +175,15 @@ class ForumServiceProvider extends AbstractServiceProvider
         $events->listen(
             Saving::class,
             function (Saving $event) use ($container, $validatorFactory) {
-                $validation = $validatorFactory->make(
+                $validator = $validatorFactory->make(
                     $event->settings,
                     array_map(function ($value) {
                         return 'max:65000';
                     }, $event->settings),
                 );
         
-                if ($validation->fails()) {
-                    throw new ValidationException($validation);
+                if ($validator->fails()) {
+                    throw new ValidationException($validator);
                 }
 
                 $validator = new ValidateCustomLess(
