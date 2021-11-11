@@ -98,3 +98,10 @@ interface JSX {
     attrs: Record<string, unknown>;
   };
 }
+
+interface Event {
+  /**
+   * Whether this event should trigger a Mithril redraw.
+   */
+  redraw: boolean;
+}

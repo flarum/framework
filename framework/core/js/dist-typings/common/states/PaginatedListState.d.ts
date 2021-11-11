@@ -10,15 +10,18 @@ export interface PaginationLocation {
     startIndex?: number;
     endIndex?: number;
 }
-export default abstract class PaginatedListState<T extends Model> {
+export interface PaginatedListParams {
+    [key: string]: any;
+}
+export default abstract class PaginatedListState<T extends Model, P extends PaginatedListParams = PaginatedListParams> {
     protected location: PaginationLocation;
     protected pageSize: number;
     protected pages: Page<T>[];
-    protected params: any;
+    protected params: P;
     protected initialLoading: boolean;
     protected loadingPrev: boolean;
     protected loadingNext: boolean;
-    protected constructor(params?: any, page?: number, pageSize?: number);
+    protected constructor(params?: P, page?: number, pageSize?: number);
     abstract get type(): string;
     clear(): void;
     loadPrev(): Promise<void>;
@@ -44,7 +47,7 @@ export default abstract class PaginatedListState<T extends Model> {
      * @param page
      * @see requestParams
      */
-    refreshParams(newParams: any, page: number): Promise<void> | undefined;
+    refreshParams(newParams: P, page: number): Promise<void>;
     refresh(page?: number): Promise<void>;
     getPages(): Page<T>[];
     getLocation(): PaginationLocation;
@@ -73,6 +76,6 @@ export default abstract class PaginatedListState<T extends Model> {
     getParams(): any;
     protected getNextPageNumber(): number;
     protected getPrevPageNumber(): number;
-    protected paramsChanged(newParams: any): boolean;
+    protected paramsChanged(newParams: P): boolean;
     protected getAllItems(): T[];
 }

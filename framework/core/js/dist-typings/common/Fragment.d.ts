@@ -32,7 +32,7 @@ export default abstract class Fragment {
      * @returns {jQuery} the jQuery object for the DOM node
      * @final
      */
-    $(selector: any): JQuery<any>;
+    $(selector?: string): JQuery;
     /**
      * Get the renderable virtual DOM that represents the fragment's view.
      *

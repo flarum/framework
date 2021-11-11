@@ -17,7 +17,7 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
     /**
      * Determine whether or not the modal should be dismissible via an 'x' button.
      */
-    static readonly isDismissible = true;
+    static readonly isDismissible: boolean;
     protected loading: boolean;
     /**
      * Attributes for an alert component to show below the header.
