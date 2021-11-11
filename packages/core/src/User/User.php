@@ -358,7 +358,7 @@ class User extends AbstractModel
      */
     public function activate()
     {
-        if ($this->is_email_confirmed !== true) {
+        if (! $this->is_email_confirmed) {
             $this->is_email_confirmed = true;
 
             $this->raise(new Activated($this));
