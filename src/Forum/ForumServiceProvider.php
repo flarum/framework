@@ -31,11 +31,11 @@ use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Settings\SettingsValidator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory as ValidatorFactory;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Validation\ValidationException;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -175,16 +175,8 @@ class ForumServiceProvider extends AbstractServiceProvider
         $events->listen(
             Saving::class,
             function (Saving $event) use ($container, $validatorFactory) {
-                $validator = $validatorFactory->make(
-                    $event->settings,
-                    array_map(function ($value) {
-                        return 'max:65000';
-                    }, $event->settings),
-                );
-
-                if ($validator->fails()) {
-                    throw new ValidationException($validator);
-                }
+                $settingsValidator = new SettingsValidator($validatorFactory, $event->settings);
+                $settingsValidator->validate();
 
                 $validator = new ValidateCustomLess(
                     $container->make('flarum.assets.forum'),
