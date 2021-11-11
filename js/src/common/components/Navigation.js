@@ -53,7 +53,7 @@ export default class Navigation extends Component {
         e.preventDefault();
         history.back();
       },
-      'aria-label': app.translator.trans('core.lib.close_button'),
+      'aria-label': app.translator.trans('core.lib.nav.back'),
     });
   }
 

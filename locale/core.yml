@@ -542,6 +542,7 @@ core:
 
     # These translations are used in the navigation header.
     nav:
+      back: Back
       drawer_button: Open Navigation Drawer
 
     # These translations are used as suffixes when abbreviating numbers.
