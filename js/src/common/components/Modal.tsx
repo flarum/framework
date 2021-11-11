@@ -92,7 +92,7 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
                 icon: 'fas fa-times',
                 onclick: this.hide.bind(this),
                 className: 'Button Button--icon Button--link',
-                'aria-label': app.translator.trans('core.lib.close_button'),
+                'aria-label': app.translator.trans('core.lib.modal.close'),
               })}
             </div>
           )}
