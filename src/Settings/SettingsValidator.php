@@ -19,7 +19,6 @@ class SettingsValidator
      */
     protected $validatorFactory;
 
-
     /**
      * @var array
      */
