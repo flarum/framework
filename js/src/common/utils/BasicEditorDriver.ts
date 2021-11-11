@@ -18,7 +18,7 @@ export default class BasicEditorDriver implements EditorDriverInterface {
     this.el.placeholder = params.placeholder;
     this.el.value = params.value;
 
-    const callInputListeners = (e) => {
+    const callInputListeners = (e: Event) => {
       params.inputListeners.forEach((listener) => {
         listener();
       });
@@ -46,7 +46,7 @@ export default class BasicEditorDriver implements EditorDriverInterface {
   keyHandlers(params: EditorDriverParams): ItemList {
     const items = new ItemList();
 
-    items.add('submit', function (e) {
+    items.add('submit', function (e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         params.onsubmit();
       }

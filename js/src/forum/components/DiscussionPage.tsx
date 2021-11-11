@@ -1,5 +1,7 @@
+import type Mithril from 'mithril';
+
 import app from '../../forum/app';
-import Page from '../../common/components/Page';
+import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
 import DiscussionListPane from './DiscussionListPane';
@@ -10,30 +12,38 @@ import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
 import PostStreamState from '../states/PostStreamState';
+import Discussion from '../../common/models/Discussion';
+import Post from '../../common/models/Post';
+
+export interface IDiscussionPageAttrs extends IPageAttrs {
+  id: string;
+  near?: number;
+}
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
-export default class DiscussionPage extends Page {
-  oninit(vnode) {
+export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = IDiscussionPageAttrs> extends Page<CustomAttrs> {
+  /**
+   * The discussion that is being viewed.
+   */
+  protected discussion: Discussion | null = null;
+
+  /**
+   * A public API for interacting with the post stream.
+   */
+  protected stream: PostStreamState | null = null;
+
+  /**
+   * The number of the first post that is currently visible in the viewport.
+   */
+  protected near: number = 0;
+
+  protected useBrowserScrollRestoration = true;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
-
-    this.useBrowserScrollRestoration = false;
-
-    /**
-     * The discussion that is being viewed.
-     *
-     * @type {Discussion}
-     */
-    this.discussion = null;
-
-    /**
-     * The number of the first post that is currently visible in the viewport.
-     *
-     * @type {number}
-     */
-    this.near = m.route.param('near') || 0;
 
     this.load();
 
@@ -43,25 +53,23 @@ export default class DiscussionPage extends Page {
     // then the pane would redraw which would be slow and would cause problems with
     // event handlers.
     if (app.discussions.hasItems()) {
-      app.pane.enable();
-      app.pane.hide();
+      app.pane?.enable();
+      app.pane?.hide();
     }
-
-    app.history.push('discussion');
 
     this.bodyClass = 'App--discussion';
   }
 
-  onremove(vnode) {
+  onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onremove(vnode);
 
     // If we are indeed navigating away from this discussion, then disable the
     // discussion list pane. Also, if we're composing a reply to this
     // discussion, minimize the composer – unless it's empty, in which case
     // we'll just close it.
-    app.pane.disable();
+    app.pane?.disable();
 
-    if (app.composer.composingReplyTo(this.discussion) && !app.composer.fields.content()) {
+    if (app.composer.composingReplyTo(this.discussion) && !app.composer?.fields?.content()) {
       app.composer.hide();
     } else {
       app.composer.minimize();
@@ -155,7 +163,7 @@ export default class DiscussionPage extends Page {
    * Load the discussion from the API or use the preloaded one.
    */
   load() {
-    const preloadedDiscussion = app.preloadedApiDocument();
+    const preloadedDiscussion = app.preloadedApiDocument() as Discussion | null;
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this
       // component for the first time on page load, then any calls to m.redraw
@@ -186,10 +194,8 @@ export default class DiscussionPage extends Page {
 
   /**
    * Initialize the component to display the given discussion.
-   *
-   * @param {Discussion} discussion
    */
-  show(discussion) {
+  show(discussion: Discussion) {
     app.history.push('discussion', discussion.title());
     app.setTitle(discussion.title());
     app.setTitleCount(0);
@@ -214,7 +220,7 @@ export default class DiscussionPage extends Page {
             record.relationships.discussion.data.id === discussionId
         )
         .map((record) => app.store.getById('posts', record.id))
-        .sort((a, b) => a.createdAt() - b.createdAt())
+        .sort((a: Post, b: Post) => a.createdAt() - b.createdAt())
         .slice(0, 20);
     }
 
@@ -266,12 +272,11 @@ export default class DiscussionPage extends Page {
   /**
    * When the posts that are visible in the post stream change (i.e. the user
    * scrolls up or down), then we update the URL and mark the posts as read.
-   *
-   * @param {Integer} startNumber
-   * @param {Integer} endNumber
    */
-  positionChanged(startNumber, endNumber) {
+  positionChanged(startNumber: number, endNumber: number): void {
     const discussion = this.discussion;
+
+    if (!discussion) return;
 
     // Construct a URL to this discussion with the updated position, then
     // replace it into the window's history and our own history stack.

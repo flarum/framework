@@ -20,21 +20,21 @@ export interface AlertAttrs extends ComponentAttrs {
  * some controls, and may be dismissible.
  */
 export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<T> {
-  view(vnode: Mithril.Vnode) {
+  view(vnode: Mithril.VnodeDOM<T, this>) {
     const attrs = Object.assign({}, this.attrs);
 
     const type = extract(attrs, 'type');
     attrs.className = 'Alert Alert--' + type + ' ' + (attrs.className || '');
 
     const content = extract(attrs, 'content') || vnode.children;
-    const controls = (extract(attrs, 'controls') || []) as Mithril.ChildArray;
+    const controls = (extract(attrs, 'controls') || []) as Mithril.Vnode[];
 
     // If the alert is meant to be dismissible (which is the case by default),
     // then we will create a dismiss button to append as the final control in
     // the alert.
     const dismissible = extract(attrs, 'dismissible');
     const ondismiss = extract(attrs, 'ondismiss');
-    const dismissControl = [];
+    const dismissControl: Mithril.Vnode[] = [];
 
     if (dismissible || dismissible === undefined) {
       dismissControl.push(<Button icon="fas fa-times" className="Button Button--link Button--icon Alert-dismiss" onclick={ondismiss} />);

@@ -1,7 +1,6 @@
 import Component from '../Component';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
-import { TooltipCreationOptions } from '../../../@types/tooltips';
 import extractText from '../utils/extractText';
 
 export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Tooltip> {

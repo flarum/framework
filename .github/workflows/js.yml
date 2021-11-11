@@ -29,10 +29,56 @@ jobs:
         run: yarn run format-check
         working-directory: ./js
 
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "yarn"
+          cache-dependency-path: js/yarn.lock
+
+      - name: Install JS dependencies
+        run: yarn --frozen-lockfile
+        working-directory: ./js
+
+      - name: Typecheck
+        run: yarn run check-typings || true  # REMOVE THIS ONCE TYPE SAFETY REACHED
+        working-directory: ./js
+
+  type-coverage:
+    name: Type Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "yarn"
+          cache-dependency-path: js/yarn.lock
+
+      - name: Install JS dependencies
+        run: yarn --frozen-lockfile
+        working-directory: ./js
+
+      - name: Check type coverage
+        run: yarn run check-typings-coverage
+        working-directory: ./js
+
   build-prod:
     name: Build and commit
     runs-on: ubuntu-latest
-    needs: [prettier]
+    needs: [prettier, typecheck, type-coverage]
 
     # Only commit JS on push to master branch
     # Remember to change in `build-test` job too
@@ -62,7 +108,7 @@ jobs:
   build-test:
     name: Test build
     runs-on: ubuntu-latest
-    needs: [prettier]
+    needs: [prettier, typecheck, type-coverage]
 
     # Inverse check of `build-prod`
     # Remember to change in `build-prod` job too

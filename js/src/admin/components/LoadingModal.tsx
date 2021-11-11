@@ -1,11 +1,11 @@
 import app from '../../admin/app';
 import Modal from '../../common/components/Modal';
 
-export default class LoadingModal extends Modal {
+export default class LoadingModal<ModalAttrs = {}> extends Modal<ModalAttrs> {
   /**
    * @inheritdoc
    */
-  static isDismissible = false;
+  static readonly isDismissible: boolean = false;
 
   className() {
     return 'LoadingModal Modal--small';
@@ -17,5 +17,9 @@ export default class LoadingModal extends Modal {
 
   content() {
     return '';
+  }
+
+  onsubmit(e: Event): void {
+    throw new Error('LoadingModal should not throw errors.');
   }
 }

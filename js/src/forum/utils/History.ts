@@ -1,5 +1,11 @@
 import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
 
+export interface HistoryEntry {
+  name: string;
+  title: string;
+  url: string;
+}
+
 /**
  * The `History` class keeps track and manages a stack of routes that the user
  * has navigated to in their session.
@@ -12,46 +18,34 @@ import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefr
  * rather than the previous discussion.
  */
 export default class History {
-  constructor(defaultRoute) {
-    /**
-     * The stack of routes that have been navigated to.
-     *
-     * @type {Array}
-     * @protected
-     */
-    this.stack = [];
-  }
+  /**
+   * The stack of routes that have been navigated to.
+   */
+  protected stack: HistoryEntry[] = [];
 
   /**
    * Get the item on the top of the stack.
-   *
-   * @return {Object}
-   * @public
    */
-  getCurrent() {
+  getCurrent(): HistoryEntry {
     return this.stack[this.stack.length - 1];
   }
 
   /**
    * Get the previous item on the stack.
-   *
-   * @return {Object}
-   * @public
    */
-  getPrevious() {
+  getPrevious(): HistoryEntry {
     return this.stack[this.stack.length - 2];
   }
 
   /**
    * Push an item to the top of the stack.
    *
-   * @param {String} name The name of the route.
-   * @param {String} title The title of the route.
-   * @param {String} [url] The URL of the route. The current URL will be used if
+   * @param {string} name The name of the route.
+   * @param {string} title The title of the route.
+   * @param {string} [url] The URL of the route. The current URL will be used if
    *     not provided.
-   * @public
    */
-  push(name, title, url = m.route.get()) {
+  push(name: string, title: string, url = m.route.get()) {
     // If we're pushing an item with the same name as second-to-top item in the
     // stack, we will assume that the user has clicked the 'back' button in
     // their browser. In this case, we don't want to push a new item, so we will
@@ -74,18 +68,13 @@ export default class History {
 
   /**
    * Check whether or not the history stack is able to be popped.
-   *
-   * @return {Boolean}
-   * @public
    */
-  canGoBack() {
+  canGoBack(): boolean {
     return this.stack.length > 1;
   }
 
   /**
    * Go back to the previous route in the history stack.
-   *
-   * @public
    */
   back() {
     if (!this.canGoBack()) {
@@ -99,10 +88,8 @@ export default class History {
 
   /**
    * Get the URL of the previous page.
-   *
-   * @public
    */
-  backUrl() {
+  backUrl(): string {
     const secondTop = this.stack[this.stack.length - 2];
 
     return secondTop.url;
@@ -110,8 +97,6 @@ export default class History {
 
   /**
    * Go to the first route in the history stack.
-   *
-   * @public
    */
   home() {
     this.stack.splice(0);

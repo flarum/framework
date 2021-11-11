@@ -14,7 +14,7 @@ export default class ModalManagerState {
     attrs?: Record<string, unknown>;
   } = null;
 
-  private closeTimeout?: number;
+  private closeTimeout?: NodeJS.Timeout;
 
   /**
    * Shows a modal dialog.
@@ -36,7 +36,7 @@ export default class ModalManagerState {
       throw new Error(invalidModalWarning);
     }
 
-    clearTimeout(this.closeTimeout);
+    if (this.closeTimeout) clearTimeout(this.closeTimeout);
 
     this.modal = { componentClass, attrs };
 
