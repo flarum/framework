@@ -14,6 +14,7 @@ import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 
 import AdminPage from './AdminPage';
+import Mithril from 'mithril';
 
 type ColumnData = {
   /**
@@ -97,7 +98,7 @@ export default class UserListPage extends AdminPage {
       ];
     }
 
-    const columns: (ColumnData & { itemName: string })[] = this.columns().toArray();
+    const columns = this.columns().toArray();
 
     return [
       <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
@@ -177,7 +178,7 @@ export default class UserListPage extends AdminPage {
    *
    * See `UserListPage.tsx` for examples.
    */
-  columns(): ItemList {
+  columns(): ItemList<ColumnData> {
     const columns = new ItemList();
 
     columns.add(
