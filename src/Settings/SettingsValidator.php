@@ -9,7 +9,6 @@
 
 namespace Flarum\Settings;
 
-use Flarum\Forum\ValidateCustomLess;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 
