@@ -8,7 +8,7 @@ export default class SessionDropdown extends Dropdown {
      *
      * @return {ItemList}
      */
-    items(): ItemList;
+    items(): ItemList<any>;
 }
 import Dropdown from "../../common/components/Dropdown";
 import ItemList from "../../common/utils/ItemList";

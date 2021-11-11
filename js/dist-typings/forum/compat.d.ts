@@ -39,6 +39,7 @@ declare var _default: {
     'utils/mapRoutes': typeof import("../common/utils/mapRoutes").default;
     'utils/withAttr': (key: string, cb: Function) => (this: Element) => void;
     'utils/throttleDebounce': typeof import("../common/utils/throttleDebounce");
+    'utils/isObject': typeof import("../common/utils/isObject").default;
     'models/Notification': typeof import("../common/models/Notification").default;
     'models/User': typeof import("../common/models/User").default;
     'models/Post': typeof import("../common/models/Post").default;
@@ -89,10 +90,10 @@ declare var _default: {
     'states/PaginatedListState': typeof import("../common/states/PaginatedListState").default;
 } & {
     'utils/PostControls': {
-        controls(post: any, context: any): import("../common/utils/ItemList").default;
-        userControls(post: any, context: any): import("../common/utils/ItemList").default;
-        moderationControls(post: any, context: any): import("../common/utils/ItemList").default;
-        destructiveControls(post: any, context: any): import("../common/utils/ItemList").default;
+        controls(post: any, context: any): import("../common/utils/ItemList").default<any>;
+        userControls(post: any, context: any): import("../common/utils/ItemList").default<any>;
+        moderationControls(post: any, context: any): import("../common/utils/ItemList").default<any>;
+        destructiveControls(post: any, context: any): import("../common/utils/ItemList").default<any>;
         editAction(): Promise<any>;
         hideAction(): Promise<any>;
         restoreAction(): Promise<any>;
@@ -102,10 +103,10 @@ declare var _default: {
     'utils/slidable': typeof slidable;
     'utils/History': typeof History;
     'utils/DiscussionControls': {
-        controls(discussion: any, context: any): import("../common/utils/ItemList").default;
-        userControls(discussion: any, context: any): import("../common/utils/ItemList").default;
-        moderationControls(discussion: any): import("../common/utils/ItemList").default;
-        destructiveControls(discussion: any): import("../common/utils/ItemList").default;
+        controls(discussion: any, context: any): import("../common/utils/ItemList").default<any>;
+        userControls(discussion: any, context: any): import("../common/utils/ItemList").default<any>;
+        moderationControls(discussion: any): import("../common/utils/ItemList").default<any>;
+        destructiveControls(discussion: any): import("../common/utils/ItemList").default<any>;
         replyAction(goToLast: boolean, forceRefresh: boolean): Promise<any>;
         hideAction(): Promise<any>;
         restoreAction(): Promise<any>;
@@ -114,10 +115,10 @@ declare var _default: {
     };
     'utils/alertEmailConfirmation': typeof alertEmailConfirmation;
     'utils/UserControls': {
-        controls(user: any, context: any): import("../common/utils/ItemList").default;
-        userControls(): import("../common/utils/ItemList").default;
-        moderationControls(user: any): import("../common/utils/ItemList").default;
-        destructiveControls(user: any): import("../common/utils/ItemList").default;
+        controls(user: any, context: any): import("../common/utils/ItemList").default<any>;
+        userControls(): import("../common/utils/ItemList").default<any>;
+        moderationControls(user: any): import("../common/utils/ItemList").default<any>;
+        destructiveControls(user: any): import("../common/utils/ItemList").default<any>;
         deleteAction(user: any): void;
         showDeletionAlert(user: any, type: string): void;
         editAction(user: any): void;

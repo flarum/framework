@@ -1,5 +1,5 @@
 export default class StatusWidget extends DashboardWidget {
-    items(): ItemList;
+    items(): ItemList<any>;
     handleClearCache(e: any): void;
 }
 import DashboardWidget from "./DashboardWidget";

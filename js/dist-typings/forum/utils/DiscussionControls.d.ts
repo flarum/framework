@@ -8,7 +8,7 @@ declare namespace _default {
      * @return {ItemList}
      * @public
      */
-    function controls(discussion: any, context: any): ItemList;
+    function controls(discussion: any, context: any): ItemList<any>;
     /**
      * Get a list of controls for a discussion.
      *
@@ -18,7 +18,7 @@ declare namespace _default {
      * @return {ItemList}
      * @public
      */
-    function controls(discussion: any, context: any): ItemList;
+    function controls(discussion: any, context: any): ItemList<any>;
     /**
      * Get controls for a discussion pertaining to the current user (e.g. reply,
      * follow).
@@ -29,7 +29,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function userControls(discussion: any, context: any): ItemList;
+    function userControls(discussion: any, context: any): ItemList<any>;
     /**
      * Get controls for a discussion pertaining to the current user (e.g. reply,
      * follow).
@@ -40,7 +40,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function userControls(discussion: any, context: any): ItemList;
+    function userControls(discussion: any, context: any): ItemList<any>;
     /**
      * Get controls for a discussion pertaining to moderation (e.g. rename, lock).
      *
@@ -50,7 +50,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function moderationControls(discussion: any): ItemList;
+    function moderationControls(discussion: any): ItemList<any>;
     /**
      * Get controls for a discussion pertaining to moderation (e.g. rename, lock).
      *
@@ -60,7 +60,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function moderationControls(discussion: any): ItemList;
+    function moderationControls(discussion: any): ItemList<any>;
     /**
      * Get controls for a discussion which are destructive (e.g. delete).
      *
@@ -70,7 +70,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function destructiveControls(discussion: any): ItemList;
+    function destructiveControls(discussion: any): ItemList<any>;
     /**
      * Get controls for a discussion which are destructive (e.g. delete).
      *
@@ -80,7 +80,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function destructiveControls(discussion: any): ItemList;
+    function destructiveControls(discussion: any): ItemList<any>;
     /**
      * Open the reply composer for the discussion. A promise will be returned,
      * which resolves when the composer opens successfully. If the user is not

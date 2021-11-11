@@ -85,7 +85,7 @@ export default class Composer extends Component<import("../../common/Component")
      *
      * @return {ItemList}
      */
-    controlItems(): ItemList;
+    controlItems(): ItemList<any>;
     /**
      * Initialize default Composer height.
      */

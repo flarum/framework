@@ -10,7 +10,7 @@ export default class EditGroupModal extends Modal<any> {
     icon: Stream<any> | undefined;
     color: Stream<any> | undefined;
     isHidden: Stream<any> | undefined;
-    fields(): ItemList;
+    fields(): ItemList<any>;
     submitData(): {
         nameSingular: any;
         namePlural: any;

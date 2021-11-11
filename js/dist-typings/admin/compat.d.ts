@@ -39,6 +39,7 @@ declare var _default: {
     'utils/mapRoutes': typeof import("../common/utils/mapRoutes").default;
     'utils/withAttr': (key: string, cb: Function) => (this: Element) => void;
     'utils/throttleDebounce': typeof import("../common/utils/throttleDebounce");
+    'utils/isObject': typeof import("../common/utils/isObject").default;
     'models/Notification': typeof import("../common/models/Notification").default;
     'models/User': typeof import("../common/models/User").default;
     'models/Post': typeof import("../common/models/Post").default;

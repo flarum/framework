@@ -9,7 +9,7 @@ export default class EditUserModal extends Modal<any> {
     setPassword: Stream<boolean> | undefined;
     password: Stream<any> | undefined;
     groups: {} | undefined;
-    fields(): ItemList;
+    fields(): ItemList<any>;
     activate(): void;
     data(): {
         relationships: {};

@@ -10,7 +10,7 @@ export default class BasicsPage extends AdminPage<import("../../common/component
      * @return {ItemList}
      * @public
      */
-    public homePageItems(): ItemList;
+    public homePageItems(): ItemList<any>;
 }
 import AdminPage from "./AdminPage";
 import ItemList from "../../common/utils/ItemList";

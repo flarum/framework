@@ -30,7 +30,7 @@ export default class SignUpModal extends Modal<any> {
     password: Function | undefined;
     isProvided(field: any): any;
     body(): (string | JSX.Element)[];
-    fields(): ItemList;
+    fields(): ItemList<any>;
     footer(): JSX.Element[];
     /**
      * Open the log in modal, prefilling it with an email/username/password if
