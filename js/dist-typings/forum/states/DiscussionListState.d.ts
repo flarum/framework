@@ -1,13 +1,16 @@
-import PaginatedListState, { Page } from '../../common/states/PaginatedListState';
+import PaginatedListState, { Page, PaginatedListParams } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 export interface IRequestParams {
     include: string[];
     filter: Record<string, string>;
     sort?: string;
 }
-export default class DiscussionListState extends PaginatedListState<Discussion> {
+export interface DiscussionListParams extends PaginatedListParams {
+    sort?: string;
+}
+export default class DiscussionListState<P extends DiscussionListParams = DiscussionListParams> extends PaginatedListState<Discussion, P> {
     protected extraDiscussions: Discussion[];
-    constructor(params: any, page?: number);
+    constructor(params: P, page?: number);
     get type(): string;
     requestParams(): IRequestParams;
     protected loadPage(page?: number): Promise<Discussion[]>;

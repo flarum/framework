@@ -7,6 +7,7 @@ import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import type Notification from './components/Notification';
 import type Post from './components/Post';
+import Discussion from '../common/models/Discussion';
 export default class ForumApplication extends Application {
     /**
      * A map of notification types to their components.
@@ -50,11 +51,8 @@ export default class ForumApplication extends Application {
     mount(): void;
     /**
      * Check whether or not the user is currently viewing a discussion.
-     *
-     * @param {Discussion} discussion
-     * @return {Boolean}
      */
-    viewingDiscussion(discussion: any): boolean;
+    viewingDiscussion(discussion: Discussion): boolean;
     /**
      * Callback for when an external authenticator (social login) action has
      * completed.
@@ -62,11 +60,6 @@ export default class ForumApplication extends Application {
      * If the payload indicates that the user has been logged in, then the page
      * will be reloaded. Otherwise, a SignUpModal will be opened, prefilled
      * with the provided details.
-     *
-     * @param {Object} payload A dictionary of attrs to pass into the sign up
-     *     modal. A truthy `loggedIn` attr indicates that the user has logged
-     *     in, and thus the page is reloaded.
-     * @public
      */
-    authenticationComplete(payload: any): void;
+    authenticationComplete(payload: Record<string, unknown>): void;
 }

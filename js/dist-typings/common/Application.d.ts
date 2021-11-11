@@ -3,6 +3,7 @@ import Translator from './Translator';
 import Store from './Store';
 import Session from './Session';
 import Drawer from './utils/Drawer';
+import RequestError, { InternalFlarumRequestOptions } from './utils/RequestError';
 import Forum from './models/Forum';
 import PageState from './states/PageState';
 import ModalManagerState from './states/ModalManagerState';
@@ -17,20 +18,20 @@ export declare type FlarumGenericRoute = RouteItem<Record<string, unknown>, Comp
     [key: string]: unknown;
 }>, Record<string, unknown>>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
-    errorHandler: (errorMessage: string) => void;
+    errorHandler?: (error: RequestError) => void;
     url: string;
     /**
      * Manipulate the response text before it is parsed into JSON.
      *
      * @deprecated Please use `modifyText` instead.
      */
-    extract: (responseText: string) => string;
+    extract?: (responseText: string) => string;
     /**
      * Manipulate the response text before it is parsed into JSON.
      *
      * This overrides any `extract` method provided.
      */
-    modifyText: (responseText: string) => string;
+    modifyText?: (responseText: string) => string;
 }
 /**
  * A valid route definition.
@@ -192,7 +193,7 @@ export default class Application {
     bootExtensions(extensions: Record<string, {
         extend?: unknown[];
     }>): void;
-    mount(basePath?: string): void;
+    protected mount(basePath?: string): void;
     /**
      * Get the API response document that has been preloaded into the application.
      */
@@ -214,6 +215,7 @@ export default class Application {
      */
     setTitleCount(count: number): void;
     updateTitle(): void;
+    protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType>;
     /**
      * Make an AJAX request, handling any low-level errors that may occur.
      *
