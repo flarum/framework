@@ -65,7 +65,7 @@ export default class NotificationGrid extends Component<import("../../common/Com
      *
      * @return {ItemList}
      */
-    notificationMethods(): ItemList;
+    notificationMethods(): ItemList<any>;
     /**
      * Build an item list for the notification types to display in the grid.
      *
@@ -77,7 +77,7 @@ export default class NotificationGrid extends Component<import("../../common/Com
      *
      * @return {ItemList}
      */
-    notificationTypes(): ItemList;
+    notificationTypes(): ItemList<any>;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

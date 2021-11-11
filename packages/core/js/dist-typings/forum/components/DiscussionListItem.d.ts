@@ -51,7 +51,7 @@ export default class DiscussionListItem extends Component<import("../../common/C
      *
      * @return {ItemList}
      */
-    infoItems(): ItemList;
+    infoItems(): ItemList<any>;
     replyCountItem(): JSX.Element;
 }
 import Component from "../../common/Component";

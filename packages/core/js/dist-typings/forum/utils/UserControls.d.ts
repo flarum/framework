@@ -8,7 +8,7 @@ declare namespace _default {
      * @return {ItemList}
      * @public
      */
-    function controls(user: any, context: any): ItemList;
+    function controls(user: any, context: any): ItemList<any>;
     /**
      * Get a list of controls for a user.
      *
@@ -18,7 +18,7 @@ declare namespace _default {
      * @return {ItemList}
      * @public
      */
-    function controls(user: any, context: any): ItemList;
+    function controls(user: any, context: any): ItemList<any>;
     /**
      * Get controls for a user pertaining to the current user (e.g. poke, follow).
      *
@@ -28,7 +28,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function userControls(): ItemList;
+    function userControls(): ItemList<any>;
     /**
      * Get controls for a user pertaining to the current user (e.g. poke, follow).
      *
@@ -38,7 +38,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function userControls(): ItemList;
+    function userControls(): ItemList<any>;
     /**
      * Get controls for a user pertaining to moderation (e.g. suspend, edit).
      *
@@ -48,7 +48,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function moderationControls(user: any): ItemList;
+    function moderationControls(user: any): ItemList<any>;
     /**
      * Get controls for a user pertaining to moderation (e.g. suspend, edit).
      *
@@ -58,7 +58,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function moderationControls(user: any): ItemList;
+    function moderationControls(user: any): ItemList<any>;
     /**
      * Get controls for a user which are destructive (e.g. delete).
      *
@@ -68,7 +68,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function destructiveControls(user: any): ItemList;
+    function destructiveControls(user: any): ItemList<any>;
     /**
      * Get controls for a user which are destructive (e.g. delete).
      *
@@ -78,7 +78,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function destructiveControls(user: any): ItemList;
+    function destructiveControls(user: any): ItemList<any>;
     /**
      * Delete the user.
      *

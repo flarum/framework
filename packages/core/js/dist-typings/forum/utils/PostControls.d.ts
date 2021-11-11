@@ -8,7 +8,7 @@ declare namespace _default {
      * @return {ItemList}
      * @public
      */
-    function controls(post: any, context: any): ItemList;
+    function controls(post: any, context: any): ItemList<any>;
     /**
      * Get a list of controls for a post.
      *
@@ -18,7 +18,7 @@ declare namespace _default {
      * @return {ItemList}
      * @public
      */
-    function controls(post: any, context: any): ItemList;
+    function controls(post: any, context: any): ItemList<any>;
     /**
      * Get controls for a post pertaining to the current user (e.g. report).
      *
@@ -28,7 +28,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function userControls(post: any, context: any): ItemList;
+    function userControls(post: any, context: any): ItemList<any>;
     /**
      * Get controls for a post pertaining to the current user (e.g. report).
      *
@@ -38,7 +38,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function userControls(post: any, context: any): ItemList;
+    function userControls(post: any, context: any): ItemList<any>;
     /**
      * Get controls for a post pertaining to moderation (e.g. edit).
      *
@@ -48,7 +48,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function moderationControls(post: any, context: any): ItemList;
+    function moderationControls(post: any, context: any): ItemList<any>;
     /**
      * Get controls for a post pertaining to moderation (e.g. edit).
      *
@@ -58,7 +58,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function moderationControls(post: any, context: any): ItemList;
+    function moderationControls(post: any, context: any): ItemList<any>;
     /**
      * Get controls for a post that are destructive (e.g. delete).
      *
@@ -68,7 +68,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function destructiveControls(post: any, context: any): ItemList;
+    function destructiveControls(post: any, context: any): ItemList<any>;
     /**
      * Get controls for a post that are destructive (e.g. delete).
      *
@@ -78,7 +78,7 @@ declare namespace _default {
      * @return {ItemList}
      * @protected
      */
-    function destructiveControls(post: any, context: any): ItemList;
+    function destructiveControls(post: any, context: any): ItemList<any>;
     /**
      * Open the composer to edit a post.
      *

@@ -34,7 +34,7 @@ export default class CommentPost extends Post {
      *
      * @return {ItemList}
      */
-    headerItems(): ItemList;
+    headerItems(): ItemList<any>;
 }
 import Post from "./Post";
 import ItemList from "../../common/utils/ItemList";

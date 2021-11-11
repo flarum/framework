@@ -9,7 +9,7 @@ export default class HeaderPrimary extends Component<import("../../common/Compon
      *
      * @return {ItemList}
      */
-    items(): ItemList;
+    items(): ItemList<any>;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

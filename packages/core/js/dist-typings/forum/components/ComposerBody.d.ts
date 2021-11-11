@@ -35,7 +35,7 @@ export default class ComposerBody extends Component<import("../../common/Compone
      *
      * @return {ItemList}
      */
-    headerItems(): ItemList;
+    headerItems(): ItemList<any>;
     /**
      * Handle the submit event of the text editor.
      *

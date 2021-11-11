@@ -22,10 +22,10 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     className(): string;
     view(vnode: Mithril.VnodeDOM<Attrs, this>): JSX.Element | null;
     header(): JSX.Element[];
-    sections(vnode: Mithril.VnodeDOM<Attrs, this>): ItemList;
+    sections(vnode: Mithril.VnodeDOM<Attrs, this>): ItemList<unknown>;
     content(vnode: Mithril.VnodeDOM<Attrs, this>): JSX.Element;
-    topItems(): ItemList;
-    infoItems(): ItemList;
+    topItems(): ItemList<unknown>;
+    infoItems(): ItemList<unknown>;
     toggle(): void;
     isEnabled(): any;
     onerror(e: RequestError): void;

@@ -8,25 +8,25 @@ export default class SettingsPage extends UserPage {
      *
      * @return {ItemList}
      */
-    settingsItems(): ItemList;
+    settingsItems(): ItemList<any>;
     /**
      * Build an item list for the user's account settings.
      *
      * @return {ItemList}
      */
-    accountItems(): ItemList;
+    accountItems(): ItemList<any>;
     /**
      * Build an item list for the user's notification settings.
      *
      * @return {ItemList}
      */
-    notificationsItems(): ItemList;
+    notificationsItems(): ItemList<any>;
     /**
      * Build an item list for the user's privacy settings.
      *
      * @return {ItemList}
      */
-    privacyItems(): ItemList;
+    privacyItems(): ItemList<any>;
     discloseOnlineLoading: boolean | undefined;
 }
 import UserPage from "./UserPage";

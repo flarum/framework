@@ -27,7 +27,7 @@ export default class LogInModal extends Modal<any> {
      */
     remember: Function | undefined;
     body(): JSX.Element[];
-    fields(): ItemList;
+    fields(): ItemList<any>;
     footer(): (string | JSX.Element)[];
     /**
      * Open the forgot password modal, prefilling it with an email if the user has
