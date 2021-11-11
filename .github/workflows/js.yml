@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "yarn"
-          cache-dependency-path: js/package-lock.json
+          cache-dependency-path: js/yarn.lock
 
       - name: Install JS dependencies
         run: yarn --frozen-lockfile
@@ -65,7 +65,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "yarn"
-          cache-dependency-path: js/package-lock.json
+          cache-dependency-path: js/yarn.lock
 
       - name: Install JS dependencies
         run: yarn --frozen-lockfile
