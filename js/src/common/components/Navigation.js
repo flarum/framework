@@ -47,7 +47,7 @@ export default class Navigation extends Component {
       className: 'Button Navigation-back Button--icon',
       href: history.backUrl(),
       icon: 'fas fa-chevron-left',
-      title: previous.title,
+      'aria-label': previous.title,
       onclick: (e) => {
         if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
         e.preventDefault();

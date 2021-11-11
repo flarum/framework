@@ -1,3 +1,4 @@
+import app from '../../common/app';
 import Component from '../Component';
 import Alert, { AlertAttrs } from './Alert';
 import Button from './Button';
@@ -91,6 +92,7 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
                 icon: 'fas fa-times',
                 onclick: this.hide.bind(this),
                 className: 'Button Button--icon Button--link',
+                'aria-label': app.translator.trans('core.lib.modal.close'),
               })}
             </div>
           )}

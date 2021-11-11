@@ -27,6 +27,7 @@ export default class WelcomeHero extends Component {
             icon: 'fas fa-times',
             onclick: slideUp,
             className: 'Hero-close Button Button--icon Button--link',
+            'aria-label': app.translator.trans('core.forum.welcome_hero.hide'),
           })}
 
           <div className="containerNarrow">

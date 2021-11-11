@@ -497,6 +497,9 @@ core:
       resend_button: Resend Confirmation Email
       sent_message: Sent
 
+    welcome_hero:
+      hide: Hide welcome message
+
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
     debug_button: Debug
@@ -538,6 +541,10 @@ core:
     # These translations are used in the loading indicator component.
     loading_indicator:
       accessible_label: => core.ref.loading
+
+    # These translations are used in modals.
+    modal:
+      close: Close
 
     # These translations are used in the navigation header.
     nav:
