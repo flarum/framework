@@ -53,7 +53,7 @@ class SetSettingsController implements RequestHandlerInterface
 
         $validation = $this->validatorFactory->make(
             $settings,
-            array_map(function($value) {
+            array_map(function ($value) {
                 return 'max:65000';
             }, $settings),
         );
