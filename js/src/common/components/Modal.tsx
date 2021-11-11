@@ -1,4 +1,4 @@
-import app from '../../forum/app';
+import app from '../../common/app';
 import Component from '../Component';
 import Alert, { AlertAttrs } from './Alert';
 import Button from './Button';
