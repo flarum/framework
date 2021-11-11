@@ -181,7 +181,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                         return 'max:65000';
                     }, $event->settings),
                 );
-        
+
                 if ($validator->fails()) {
                     throw new ValidationException($validator);
                 }
