@@ -13,8 +13,6 @@ use Flarum\Http\RequestUtil;
 use Flarum\Settings\Event;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Validation\ValidationException;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -35,11 +33,10 @@ class SetSettingsController implements RequestHandlerInterface
     /**
      * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepositoryInterface $settings, Dispatcher $dispatcher, Factory $validatorFactory)
+    public function __construct(SettingsRepositoryInterface $settings, Dispatcher $dispatcher)
     {
         $this->settings = $settings;
         $this->dispatcher = $dispatcher;
-        $this->validatorFactory = $validatorFactory;
     }
 
     /**
@@ -50,17 +47,6 @@ class SetSettingsController implements RequestHandlerInterface
         RequestUtil::getActor($request)->assertAdmin();
 
         $settings = $request->getParsedBody();
-
-        $validation = $this->validatorFactory->make(
-            $settings,
-            array_map(function ($value) {
-                return 'max:65000';
-            }, $settings),
-        );
-
-        if ($validation->fails()) {
-            throw new ValidationException($validation);
-        }
 
         $this->dispatcher->dispatch(new Event\Saving($settings));
 
