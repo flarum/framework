@@ -1,8 +1,11 @@
-export default class LoadingModal extends Modal<any> {
+import Modal from '../../common/components/Modal';
+export default class LoadingModal<ModalAttrs = {}> extends Modal<ModalAttrs> {
     /**
      * @inheritdoc
      */
-    static isDismissible: boolean;
-    constructor();
+    static readonly isDismissible: boolean;
+    className(): string;
+    title(): any;
+    content(): string;
+    onsubmit(e: Event): void;
 }
-import Modal from "../../common/components/Modal";

@@ -6,8 +6,6 @@ export default class IndexPage extends Page<import("../../common/components/Page
     static providesInitialSearch: boolean;
     constructor();
     lastDiscussion: any;
-    bodyClass: string | undefined;
-    scrollTopOnCreate: boolean | undefined;
     setTitle(): void;
     /**
      * Get the component to display as the hero.

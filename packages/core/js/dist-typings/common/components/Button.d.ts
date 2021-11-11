@@ -60,8 +60,8 @@ export interface IButtonAttrs extends ComponentAttrs {
  * styles can be applied by providing `className="Button"` to the Button component.
  */
 export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
-    view(vnode: Mithril.Vnode<IButtonAttrs, never>): JSX.Element;
-    oncreate(vnode: Mithril.VnodeDOM<IButtonAttrs, this>): void;
+    view(vnode: Mithril.VnodeDOM<CustomAttrs, this>): JSX.Element;
+    oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     /**
      * Get the template for the button's content.
      */

@@ -15,5 +15,5 @@ export interface AlertAttrs extends ComponentAttrs {
  * some controls, and may be dismissible.
  */
 export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<T> {
-    view(vnode: Mithril.Vnode): JSX.Element;
+    view(vnode: Mithril.VnodeDOM<T, this>): JSX.Element;
 }

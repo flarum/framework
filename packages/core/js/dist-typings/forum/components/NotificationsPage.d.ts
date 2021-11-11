@@ -4,6 +4,5 @@
  */
 export default class NotificationsPage extends Page<import("../../common/components/Page").IPageAttrs> {
     constructor();
-    bodyClass: string | undefined;
 }
 import Page from "../../common/components/Page";

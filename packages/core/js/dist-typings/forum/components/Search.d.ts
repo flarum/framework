@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import Component, { ComponentAttrs } from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 import KeyboardNavigatable from '../utils/KeyboardNavigatable';
@@ -16,8 +17,9 @@ import type Mithril from 'mithril';
 export interface SearchSource {
     /**
      * Make a request to get results for the given query.
+     * The results will be updated internally in the search source, not exposed.
      */
-    search(query: string): any;
+    search(query: string): Promise<void>;
     /**
      * Get an array of virtual <li>s that list the search results for the given
      * query.
@@ -45,7 +47,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
      * The minimum query length before sources are searched.
      */
     protected static MIN_SEARCH_LEN: number;
-    protected state: SearchState;
+    protected searchState: SearchState;
     /**
      * Whether or not the search input has focus.
      */
@@ -66,14 +68,14 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
      */
     protected index: number;
     protected navigator: KeyboardNavigatable;
-    protected searchTimeout?: number;
+    protected searchTimeout?: NodeJS.Timeout;
     private updateMaxHeightHandler?;
     oninit(vnode: Mithril.Vnode<T, this>): void;
     view(): JSX.Element;
     updateMaxHeight(): void;
-    onupdate(vnode: any): void;
-    oncreate(vnode: any): void;
-    onremove(vnode: any): void;
+    onupdate(vnode: Mithril.VnodeDOM<T, this>): void;
+    oncreate(vnode: Mithril.VnodeDOM<T, this>): void;
+    onremove(vnode: Mithril.VnodeDOM<T, this>): void;
     /**
      * Navigate to the currently selected search result and close the list.
      */

@@ -1,3 +1,8 @@
+export interface HistoryEntry {
+    name: string;
+    title: string;
+    url: string;
+}
 /**
  * The `History` class keeps track and manages a stack of routes that the user
  * has navigated to in their session.
@@ -10,61 +15,41 @@
  * rather than the previous discussion.
  */
 export default class History {
-    constructor(defaultRoute: any);
     /**
      * The stack of routes that have been navigated to.
-     *
-     * @type {Array}
-     * @protected
      */
-    protected stack: any[];
+    protected stack: HistoryEntry[];
     /**
      * Get the item on the top of the stack.
-     *
-     * @return {Object}
-     * @public
      */
-    public getCurrent(): Object;
+    getCurrent(): HistoryEntry;
     /**
      * Get the previous item on the stack.
-     *
-     * @return {Object}
-     * @public
      */
-    public getPrevious(): Object;
+    getPrevious(): HistoryEntry;
     /**
      * Push an item to the top of the stack.
      *
-     * @param {String} name The name of the route.
-     * @param {String} title The title of the route.
-     * @param {String} [url] The URL of the route. The current URL will be used if
+     * @param {string} name The name of the route.
+     * @param {string} title The title of the route.
+     * @param {string} [url] The URL of the route. The current URL will be used if
      *     not provided.
-     * @public
      */
-    public push(name: string, title: string, url?: string | undefined): void;
+    push(name: string, title: string, url?: string): void;
     /**
      * Check whether or not the history stack is able to be popped.
-     *
-     * @return {Boolean}
-     * @public
      */
-    public canGoBack(): boolean;
+    canGoBack(): boolean;
     /**
      * Go back to the previous route in the history stack.
-     *
-     * @public
      */
-    public back(): void;
+    back(): void;
     /**
      * Get the URL of the previous page.
-     *
-     * @public
      */
-    public backUrl(): any;
+    backUrl(): string;
     /**
      * Go to the first route in the history stack.
-     *
-     * @public
      */
-    public home(): void;
+    home(): void;
 }
