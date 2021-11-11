@@ -39,13 +39,13 @@ export default class UserPage extends Page<import("../../common/components/Page"
      *
      * @return {ItemList}
      */
-    sidebarItems(): ItemList;
+    sidebarItems(): ItemList<any>;
     /**
      * Build an item list for the navigation in the sidebar.
      *
      * @return {ItemList}
      */
-    navItems(): ItemList;
+    navItems(): ItemList<any>;
 }
 import Page from "../../common/components/Page";
 import ItemList from "../../common/utils/ItemList";

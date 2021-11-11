@@ -26,7 +26,7 @@ export default class AvatarEditor extends Component<import("../../common/Compone
      *
      * @return {ItemList}
      */
-    controlItems(): ItemList;
+    controlItems(): ItemList<any>;
     /**
      * Enable dragover style
      *

@@ -1,6 +1,17 @@
 /// <reference types="mithril" />
+import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
+declare type ColumnData = {
+    /**
+     * Column title
+     */
+    name: String;
+    /**
+     * Component(s) to show for this column.
+     */
+    content: (user: User) => JSX.Element;
+};
 /**
  * Admin page which displays a paginated list of all users on the forum.
  */
@@ -50,7 +61,7 @@ export default class UserListPage extends AdminPage {
      *
      * See `UserListPage.tsx` for examples.
      */
-    columns(): ItemList;
+    columns(): ItemList<ColumnData>;
     headerInfo(): {
         className: string;
         icon: string;
@@ -70,3 +81,4 @@ export default class UserListPage extends AdminPage {
     nextPage(): void;
     previousPage(): void;
 }
+export {};

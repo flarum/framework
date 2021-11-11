@@ -71,7 +71,7 @@ export default class ExtensionData {
      * @param type
      * @returns {ItemList}
      */
-    getAllExtensionPermissions(type: any): ItemList;
+    getAllExtensionPermissions(type: any): ItemList<any>;
     /**
      * Get a singular extension's registered permissions
      *

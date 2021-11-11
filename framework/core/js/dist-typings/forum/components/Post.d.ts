@@ -46,13 +46,13 @@ export default class Post extends Component<import("../../common/Component").Com
      *
      * @return {ItemList}
      */
-    actionItems(): ItemList;
+    actionItems(): ItemList<any>;
     /**
      * Build an item list for the post's footer.
      *
      * @return {ItemList}
      */
-    footerItems(): ItemList;
+    footerItems(): ItemList<any>;
 }
 import Component from "../../common/Component";
 import SubtreeRetainer from "../../common/utils/SubtreeRetainer";

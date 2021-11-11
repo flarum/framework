@@ -12,7 +12,7 @@ export default class DiscussionHero extends Component<import("../../common/Compo
      *
      * @return {ItemList}
      */
-    items(): ItemList;
+    items(): ItemList<any>;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

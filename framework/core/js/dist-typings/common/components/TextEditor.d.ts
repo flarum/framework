@@ -38,13 +38,13 @@ export default class TextEditor extends Component<import("../Component").Compone
      *
      * @return {ItemList}
      */
-    controlItems(): ItemList;
+    controlItems(): ItemList<any>;
     /**
      * Build an item list for the toolbar controls.
      *
      * @return {ItemList}
      */
-    toolbarItems(): ItemList;
+    toolbarItems(): ItemList<any>;
     /**
      * Handle input into the textarea.
      *

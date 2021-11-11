@@ -7,8 +7,8 @@ export default class AdminNav extends Component<import("../../common/Component")
      *
      * @return {ItemList}
      */
-    items(): ItemList;
-    extensionItems(): ItemList;
+    items(): ItemList<any>;
+    extensionItems(): ItemList<any>;
 }
 import Component from "../../common/Component";
 import Stream from "../../common/utils/Stream";

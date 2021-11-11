@@ -33,7 +33,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      *
      * @returns {ItemList}
      */
-    loadingItems(): ItemList;
+    loadingItems(): ItemList<unknown>;
     /**
      * Function that renders the `sidebarItems` ItemList.
      *
@@ -51,13 +51,13 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      *
      * @returns {ItemList}
      */
-    pageContent(): ItemList;
+    pageContent(): ItemList<unknown>;
     /**
      * List of items rendered inside the main page content container.
      *
      * @returns {ItemList}
      */
-    mainContent(): ItemList;
+    mainContent(): ItemList<unknown>;
     /**
      * Load the discussion from the API or use the preloaded one.
      */
@@ -83,7 +83,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      *
      * @return {ItemList}
      */
-    sidebarItems(): ItemList;
+    sidebarItems(): ItemList<unknown>;
     /**
      * When the posts that are visible in the post stream change (i.e. the user
      * scrolls up or down), then we update the URL and mark the posts as read.

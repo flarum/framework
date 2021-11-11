@@ -20,14 +20,14 @@ export default class IndexPage extends Page<import("../../common/components/Page
      *
      * @return {ItemList}
      */
-    sidebarItems(): ItemList;
+    sidebarItems(): ItemList<any>;
     /**
      * Build an item list for the navigation in the sidebar of the index page. By
      * default this is just the 'All Discussions' link.
      *
      * @return {ItemList}
      */
-    navItems(): ItemList;
+    navItems(): ItemList<any>;
     /**
      * Build an item list for the part of the toolbar which is concerned with how
      * the results are displayed. By default this is just a select box to change
@@ -35,14 +35,14 @@ export default class IndexPage extends Page<import("../../common/components/Page
      *
      * @return {ItemList}
      */
-    viewItems(): ItemList;
+    viewItems(): ItemList<any>;
     /**
      * Build an item list for the part of the toolbar which is about taking action
      * on the results. By default this is just a "mark all as read" button.
      *
      * @return {ItemList}
      */
-    actionItems(): ItemList;
+    actionItems(): ItemList<any>;
     /**
      * Open the composer for a new discussion or prompt the user to login.
      *

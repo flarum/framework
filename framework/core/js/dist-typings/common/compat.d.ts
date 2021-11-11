@@ -39,6 +39,7 @@ declare var _default: {
     'utils/mapRoutes': typeof mapRoutes;
     'utils/withAttr': (key: string, cb: Function) => (this: Element) => void;
     'utils/throttleDebounce': typeof ThrottleDebounce;
+    'utils/isObject': typeof isObject;
     'models/Notification': typeof Notification;
     'models/User': typeof User;
     'models/Post': typeof Post;
@@ -118,6 +119,7 @@ import extractText from "./utils/extractText";
 import formatNumber from "./utils/formatNumber";
 import mapRoutes from "./utils/mapRoutes";
 import * as ThrottleDebounce from "./utils/throttleDebounce";
+import isObject from "./utils/isObject";
 import Notification from "./models/Notification";
 import User from "./models/User";
 import Post from "./models/Post";

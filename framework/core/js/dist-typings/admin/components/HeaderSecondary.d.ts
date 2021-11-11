@@ -8,7 +8,7 @@ export default class HeaderSecondary extends Component<import("../../common/Comp
      *
      * @return {ItemList}
      */
-    items(): ItemList;
+    items(): ItemList<any>;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";
