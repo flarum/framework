@@ -10,6 +10,7 @@ import SearchState from '../states/SearchState';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
 import type Mithril from 'mithril';
+import Model from '../../common/Model';
 
 /**
  * The `SearchSource` interface defines a section of search results in the
@@ -24,8 +25,9 @@ import type Mithril from 'mithril';
 export interface SearchSource {
   /**
    * Make a request to get results for the given query.
+   * The results will be updated internally in the search source, not exposed.
    */
-  search(query: string);
+  search(query: string): Promise<void>;
 
   /**
    * Get an array of virtual <li>s that list the search results for the given
@@ -57,7 +59,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    */
   protected static MIN_SEARCH_LEN = 3;
 
-  protected state!: SearchState;
+  protected searchState!: SearchState;
 
   /**
    * Whether or not the search input has focus.
@@ -84,18 +86,18 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
   protected navigator!: KeyboardNavigatable;
 
-  protected searchTimeout?: number;
+  protected searchTimeout?: NodeJS.Timeout;
 
   private updateMaxHeightHandler?: () => void;
 
   oninit(vnode: Mithril.Vnode<T, this>) {
     super.oninit(vnode);
 
-    this.state = this.attrs.state;
+    this.searchState = this.attrs.state;
   }
 
   view() {
-    const currentSearch = this.state.getInitialSearch();
+    const currentSearch = this.searchState.getInitialSearch();
 
     // Initialize search sources in the view rather than the constructor so
     // that we have access to app.forum.
@@ -107,15 +109,15 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     const searchLabel = extractText(app.translator.trans('core.forum.header.search_placeholder'));
 
     const isActive = !!currentSearch;
-    const shouldShowResults = !!(!this.loadingSources && this.state.getValue() && this.hasFocus);
-    const shouldShowClearButton = !!(!this.loadingSources && this.state.getValue());
+    const shouldShowResults = !!(!this.loadingSources && this.searchState.getValue() && this.hasFocus);
+    const shouldShowClearButton = !!(!this.loadingSources && this.searchState.getValue());
 
     return (
       <div
         role="search"
         aria-label={app.translator.trans('core.forum.header.search_role_label')}
         className={classList('Search', {
-          open: this.state.getValue() && this.hasFocus,
+          open: this.searchState.getValue() && this.hasFocus,
           focused: this.hasFocus,
           active: isActive,
           loading: !!this.loadingSources,
@@ -127,8 +129,8 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
             className="FormControl"
             type="search"
             placeholder={searchLabel}
-            value={this.state.getValue()}
-            oninput={(e) => this.state.setValue(e.target.value)}
+            value={this.searchState.getValue()}
+            oninput={(e: InputEvent) => this.searchState.setValue((e?.target as HTMLInputElement)?.value)}
             onfocus={() => (this.hasFocus = true)}
             onblur={() => (this.hasFocus = false)}
           />
@@ -148,7 +150,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
           aria-hidden={!shouldShowResults || undefined}
           aria-live={shouldShowResults ? 'polite' : undefined}
         >
-          {shouldShowResults && this.sources.map((source) => source.view(this.state.getValue()))}
+          {shouldShowResults && this.sources.map((source) => source.view(this.searchState.getValue()))}
         </ul>
       </div>
     );
@@ -159,11 +161,12 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     // we need to calculate and set the max height dynamically.
     const resultsElementMargin = 14;
     const maxHeight =
-      window.innerHeight - this.element.querySelector('.Search-input>.FormControl').getBoundingClientRect().bottom - resultsElementMargin;
-    this.element.querySelector('.Search-results').style['max-height'] = `${maxHeight}px`;
+      window.innerHeight - this.element.querySelector('.Search-input>.FormControl')!.getBoundingClientRect().bottom - resultsElementMargin;
+
+    this.element.querySelector('.Search-results')?.setAttribute('style', `max-height: ${maxHeight}px`);
   }
 
-  onupdate(vnode) {
+  onupdate(vnode: Mithril.VnodeDOM<T, this>) {
     super.onupdate(vnode);
 
     // Highlight the item that is currently selected.
@@ -175,11 +178,11 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     this.updateMaxHeight();
   }
 
-  oncreate(vnode) {
+  oncreate(vnode: Mithril.VnodeDOM<T, this>) {
     super.oncreate(vnode);
 
     const search = this;
-    const state = this.state;
+    const state = this.searchState;
 
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
@@ -210,7 +213,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
         if (!query) return;
 
-        clearTimeout(search.searchTimeout);
+        if (search.searchTimeout) clearTimeout(search.searchTimeout);
         search.searchTimeout = setTimeout(() => {
           if (state.isCached(query)) return;
 
@@ -242,21 +245,25 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     window.addEventListener('resize', this.updateMaxHeightHandler);
   }
 
-  onremove(vnode) {
+  onremove(vnode: Mithril.VnodeDOM<T, this>) {
     super.onremove(vnode);
 
-    window.removeEventListener('resize', this.updateMaxHeightHandler);
+    if (this.updateMaxHeightHandler) {
+      window.removeEventListener('resize', this.updateMaxHeightHandler);
+    }
   }
 
   /**
    * Navigate to the currently selected search result and close the list.
    */
   selectResult() {
-    clearTimeout(this.searchTimeout);
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+
     this.loadingSources = 0;
 
-    if (this.state.getValue()) {
-      m.route.set(this.getItem(this.index).find('a').attr('href'));
+    const selectedUrl = this.getItem(this.index).find('a').attr('href');
+    if (this.searchState.getValue() && selectedUrl) {
+      m.route.set(selectedUrl);
     } else {
       this.clear();
     }
@@ -268,7 +275,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    * Clear the search
    */
   clear() {
-    this.state.clear();
+    this.searchState.clear();
   }
 
   /**
@@ -331,11 +338,11 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     this.index = parseInt($item.attr('data-index') as string) || fixedIndex;
 
     if (scrollToItem) {
-      const dropdownScroll = $dropdown.scrollTop();
-      const dropdownTop = $dropdown.offset().top;
-      const dropdownBottom = dropdownTop + $dropdown.outerHeight();
-      const itemTop = $item.offset().top;
-      const itemBottom = itemTop + $item.outerHeight();
+      const dropdownScroll = $dropdown.scrollTop()!;
+      const dropdownTop = $dropdown.offset()!.top;
+      const dropdownBottom = dropdownTop + $dropdown.outerHeight()!;
+      const itemTop = $item.offset()!.top;
+      const itemBottom = itemTop + $item.outerHeight()!;
 
       let scrollTop;
       if (itemTop < dropdownTop) {

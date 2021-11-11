@@ -1,9 +1,9 @@
 type RGB = { r: number; g: number; b: number };
 
 function hsvToRgb(h: number, s: number, v: number): RGB {
-  let r;
-  let g;
-  let b;
+  let r!: number;
+  let g!: number;
+  let b!: number;
 
   const i = Math.floor(h * 6);
   const f = h * 6 - i;

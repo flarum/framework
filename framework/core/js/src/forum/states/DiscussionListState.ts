@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import PaginatedListState, { Page } from '../../common/states/PaginatedListState';
+import PaginatedListState, { Page, PaginatedListParams } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 
 export interface IRequestParams {
@@ -8,10 +8,14 @@ export interface IRequestParams {
   sort?: string;
 }
 
-export default class DiscussionListState extends PaginatedListState<Discussion> {
+export interface DiscussionListParams extends PaginatedListParams {
+  sort?: string;
+}
+
+export default class DiscussionListState<P extends DiscussionListParams = DiscussionListParams> extends PaginatedListState<Discussion, P> {
   protected extraDiscussions: Discussion[] = [];
 
-  constructor(params: any, page: number = 1) {
+  constructor(params: P, page: number = 1) {
     super(params, page, 20);
   }
 
@@ -25,7 +29,7 @@ export default class DiscussionListState extends PaginatedListState<Discussion> 
       filter: this.params.filter || {},
     };
 
-    params.sort = this.sortMap()[this.params.sort];
+    params.sort = this.sortMap()[this.params.sort ?? ''];
 
     if (this.params.q) {
       params.filter.q = this.params.q;

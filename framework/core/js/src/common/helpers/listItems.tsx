@@ -1,15 +1,29 @@
 import type Mithril from 'mithril';
+import Component, { ComponentAttrs } from '../Component';
 import Separator from '../components/Separator';
 import classList from '../utils/classList';
-import type * as Component from '../Component';
 
-function isSeparator(item: Mithril.Children): boolean {
+export interface ModdedVnodeAttrs {
+  itemClassName?: string;
+  key?: string;
+}
+
+export type ModdedVnode<Attrs> = Mithril.Vnode<ModdedVnodeAttrs, Component<Attrs> | {}> & {
+  itemName?: string;
+  itemClassName?: string;
+  tag: Mithril.Vnode['tag'] & {
+    isListItem?: boolean;
+    isActive?: (attrs: ComponentAttrs) => boolean;
+  };
+};
+
+function isSeparator<Attrs>(item: ModdedVnode<Attrs>): boolean {
   return item.tag === Separator;
 }
 
-function withoutUnnecessarySeparators(items: Mithril.Children): Mithril.Children {
-  const newItems: Mithril.Children = [];
-  let prevItem: Mithril.Child;
+function withoutUnnecessarySeparators<Attrs>(items: ModdedVnode<Attrs>[]): ModdedVnode<Attrs>[] {
+  const newItems: ModdedVnode<Attrs>[] = [];
+  let prevItem: ModdedVnode<Attrs>;
 
   items.filter(Boolean).forEach((item: Mithril.Vnode, i: number) => {
     if (!isSeparator(item) || (prevItem && !isSeparator(prevItem) && i !== items.length - 1)) {
@@ -21,16 +35,6 @@ function withoutUnnecessarySeparators(items: Mithril.Children): Mithril.Children
   return newItems;
 }
 
-export interface ModdedVnodeAttrs {
-  itemClassName?: string;
-  key?: string;
-}
-
-export type ModdedVnode<Attrs> = Mithril.Vnode<ModdedVnodeAttrs, Component.default<Attrs> | {}> & {
-  itemName?: string;
-  itemClassName?: string;
-};
-
 /**
  * The `listItems` helper wraps an array of components in the provided tag,
  * stripping out any unnecessary `Separator` components.
@@ -39,12 +43,11 @@ export type ModdedVnode<Attrs> = Mithril.Vnode<ModdedVnodeAttrs, Component.defau
  * second function parameter, `customTag`.
  */
 export default function listItems<Attrs extends Record<string, unknown>>(
-  items: ModdedVnode<Attrs> | ModdedVnode<Attrs>[],
-  customTag: string | Component.default<Attrs> = 'li',
-  attributes: Attrs = {}
+  rawItems: ModdedVnode<Attrs> | ModdedVnode<Attrs>[],
+  customTag: string | Component<Attrs> = 'li',
+  attributes: Attrs = {} as Attrs
 ): Mithril.Vnode[] {
-  if (!(items instanceof Array)) items = [items];
-
+  const items = rawItems instanceof Array ? rawItems : [rawItems];
   const Tag = customTag;
 
   return withoutUnnecessarySeparators(items).map((item: ModdedVnode<Attrs>) => {

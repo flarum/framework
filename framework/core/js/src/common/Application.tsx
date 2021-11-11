@@ -11,9 +11,10 @@ import Session from './Session';
 import extract from './utils/extract';
 import Drawer from './utils/Drawer';
 import mapRoutes from './utils/mapRoutes';
-import RequestError from './utils/RequestError';
+import RequestError, { InternalFlarumRequestOptions } from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
 import liveHumanTimes from './utils/liveHumanTimes';
+// @ts-expect-error We need to explicitly use the prefix to distinguish between the extend folder.
 import { extend } from './extend.ts';
 
 import Forum from './models/Forum';
@@ -40,7 +41,7 @@ export type FlarumGenericRoute = RouteItem<
 >;
 
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
-  errorHandler: (errorMessage: string) => void;
+  errorHandler?: (error: RequestError) => void;
   url: string;
   // TODO: [Flarum 2.0] Remove deprecated option
   /**
@@ -48,13 +49,13 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
    *
    * @deprecated Please use `modifyText` instead.
    */
-  extract: (responseText: string) => string;
+  extract?: (responseText: string) => string;
   /**
    * Manipulate the response text before it is parsed into JSON.
    *
    * This overrides any `extract` method provided.
    */
-  modifyText: (responseText: string) => string;
+  modifyText?: (responseText: string) => string;
 }
 
 /**
@@ -248,12 +249,12 @@ export default class Application {
 
   initialRoute!: string;
 
-  load(payload: Application['data']) {
+  public load(payload: Application['data']) {
     this.data = payload;
     this.translator.setLocale(payload.locale);
   }
 
-  boot() {
+  public boot() {
     this.initializers.toArray().forEach((initializer) => initializer(this));
 
     this.store.pushPayload({ data: this.data.resources });
@@ -268,7 +269,7 @@ export default class Application {
   }
 
   // TODO: This entire system needs a do-over for v2
-  bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
+  public bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
@@ -278,12 +279,13 @@ export default class Application {
       const extenders = extension.extend.flat(Infinity);
 
       for (const extender of extenders) {
+        // @ts-expect-error This is beyond saving atm.
         extender.extend(this, { name, exports: extension });
       }
     });
   }
 
-  mount(basePath: string = '') {
+  protected mount(basePath: string = '') {
     // An object with a callable view property is used in order to pass arguments to the component; see https://mithril.js.org/mount.html
     m.mount(document.getElementById('modal')!, { view: () => ModalManager.component({ state: this.modal }) });
     m.mount(document.getElementById('alerts')!, { view: () => AlertManager.component({ state: this.alerts }) });
@@ -367,22 +369,36 @@ export default class Application {
     document.title = count + pageTitleWithSeparator + title;
   }
 
-  /**
-   * Make an AJAX request, handling any low-level errors that may occur.
-   *
-   * @see https://mithril.js.org/request.html
-   *
-   * @param options
-   * @return {Promise}
-   */
-  request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType | string> {
-    const options = { ...originalOptions };
+  protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
+    const { background, deserialize, errorHandler, extract, modifyText, ...tmpOptions } = { ...flarumOptions };
 
-    // Set some default options if they haven't been overridden. We want to
-    // authenticate all requests with the session token. We also want all
-    // requests to run asynchronously in the background, so that they don't
-    // prevent redraws from occurring.
-    options.background ||= true;
+    // Unless specified otherwise, requests should run asynchronously in the
+    // background, so that they don't prevent redraws from occurring.
+    const defaultBackground = true;
+
+    // When we deserialize JSON data, if for some reason the server has provided
+    // a dud response, we don't want the application to crash. We'll show an
+    // error message to the user instead.
+
+    // @ts-expect-error Typescript doesn't know we return promisified `ReturnType` OR `string`,
+    // so it errors due to Mithril's typings
+    const defaultDeserialize = (response: string) => response as ResponseType;
+
+    const defaultErrorHandler = (error: RequestError) => {
+      throw error;
+    };
+
+    // When extracting the data from the response, we can check the server
+    // response code and show an error message to the user if something's gone
+    // awry.
+    const originalExtract = modifyText || extract;
+
+    const options: InternalFlarumRequestOptions<ResponseType> = {
+      background: background ?? defaultBackground,
+      deserialize: deserialize ?? defaultDeserialize,
+      errorHandler: errorHandler ?? defaultErrorHandler,
+      ...tmpOptions,
+    };
 
     extend(options, 'config', (_: undefined, xhr: XMLHttpRequest) => {
       xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken!);
@@ -401,37 +417,19 @@ export default class Application {
       options.method = 'POST';
     }
 
-    // When we deserialize JSON data, if for some reason the server has provided
-    // a dud response, we don't want the application to crash. We'll show an
-    // error message to the user instead.
-
-    // @ts-expect-error Typescript doesn't know we return promisified `ReturnType` OR `string`,
-    // so it errors due to Mithril's typings
-    options.deserialize ||= (responseText: string) => responseText;
-
-    options.errorHandler ||= (error) => {
-      throw error;
-    };
-
-    // When extracting the data from the response, we can check the server
-    // response code and show an error message to the user if something's gone
-    // awry.
-    const original = options.modifyText || options.extract;
-
-    // @ts-expect-error
     options.extract = (xhr: XMLHttpRequest) => {
       let responseText;
 
-      if (original) {
-        responseText = original(xhr.responseText);
+      if (originalExtract) {
+        responseText = originalExtract(xhr.responseText);
       } else {
-        responseText = xhr.responseText || null;
+        responseText = xhr.responseText;
       }
 
       const status = xhr.status;
 
       if (status < 200 || status > 299) {
-        throw new RequestError(`${status}`, `${responseText}`, options, xhr);
+        throw new RequestError<ResponseType>(status, `${responseText}`, options, xhr);
       }
 
       if (xhr.getResponseHeader) {
@@ -440,12 +438,25 @@ export default class Application {
       }
 
       try {
-        // @ts-expect-error
         return JSON.parse(responseText);
       } catch (e) {
-        throw new RequestError('500', `${responseText}`, options, xhr);
+        throw new RequestError<ResponseType>(500, `${responseText}`, options, xhr);
       }
     };
+
+    return options;
+  }
+
+  /**
+   * Make an AJAX request, handling any low-level errors that may occur.
+   *
+   * @see https://mithril.js.org/request.html
+   *
+   * @param options
+   * @return {Promise}
+   */
+  request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType | string> {
+    const options = this.transformRequestOptions(originalOptions);
 
     if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);
 
@@ -453,12 +464,12 @@ export default class Application {
     // returned and show an alert containing its contents.
     return m.request(options).then(
       (response) => response,
-      (error) => {
+      (error: RequestError) => {
         let content;
 
         switch (error.status) {
           case 422:
-            content = (error.response.errors as Record<string, unknown>[])
+            content = ((error.response?.errors ?? {}) as Record<string, unknown>[])
               .map((error) => [error.detail, <br />])
               .flat()
               .slice(0, -1);
@@ -490,7 +501,7 @@ export default class Application {
         // contains a formatted errors if possible, response must be an JSON API array of errors
         // the details property is decoded to transform escaped characters such as '\n'
         const errors = error.response && error.response.errors;
-        const formattedError = Array.isArray(errors) && errors[0] && errors[0].detail && errors.map((e) => decodeURI(e.detail));
+        const formattedError = (Array.isArray(errors) && errors?.[0]?.detail && errors.map((e) => decodeURI(e.detail ?? ''))) || undefined;
 
         error.alert = {
           type: 'error',
@@ -505,18 +516,22 @@ export default class Application {
         try {
           options.errorHandler(error);
         } catch (error) {
-          if (isDebug && error.xhr) {
-            const { method, url } = error.options;
-            const { status = '' } = error.xhr;
+          if (error instanceof RequestError) {
+            if (isDebug && error.xhr) {
+              const { method, url } = error.options;
+              const { status = '' } = error.xhr;
 
-            console.group(`${method} ${url} ${status}`);
+              console.group(`${method} ${url} ${status}`);
 
-            console.error(...(formattedError || [error]));
+              console.error(...(formattedError || [error]));
 
-            console.groupEnd();
+              console.groupEnd();
+            }
+
+            this.requestErrorAlert = this.alerts.show(error.alert, error.alert.content);
+          } else {
+            throw error;
           }
-
-          this.requestErrorAlert = this.alerts.show(error.alert, error.alert.content);
         }
 
         return Promise.reject(error);

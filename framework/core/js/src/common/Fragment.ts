@@ -34,8 +34,8 @@ export default abstract class Fragment {
    * @returns {jQuery} the jQuery object for the DOM node
    * @final
    */
-  public $(selector) {
-    const $element = $(this.element);
+  public $(selector?: string): JQuery {
+    const $element = $(this.element) as JQuery<HTMLElement>;
 
     return selector ? $element.find(selector) : $element;
   }

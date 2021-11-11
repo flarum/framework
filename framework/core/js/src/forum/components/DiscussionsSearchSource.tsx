@@ -4,15 +4,16 @@ import LinkButton from '../../common/components/LinkButton';
 import Link from '../../common/components/Link';
 import { SearchSource } from './Search';
 import type Mithril from 'mithril';
+import Discussion from '../../common/models/Discussion';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in
  * the search dropdown.
  */
 export default class DiscussionsSearchSource implements SearchSource {
-  protected results = new Map<string, unknown[]>();
+  protected results = new Map<string, Discussion[]>();
 
-  search(query: string) {
+  async search(query: string): Promise<void> {
     query = query.toLowerCase();
 
     this.results.set(query, []);
@@ -23,13 +24,16 @@ export default class DiscussionsSearchSource implements SearchSource {
       include: 'mostRelevantPost',
     };
 
-    return app.store.find('discussions', params).then((results) => this.results.set(query, results));
+    return app.store.find('discussions', params).then((results) => {
+      this.results.set(query, results);
+      m.redraw();
+    });
   }
 
   view(query: string): Array<Mithril.Vnode> {
     query = query.toLowerCase();
 
-    const results = (this.results.get(query) || []).map((discussion: unknown) => {
+    const results = (this.results.get(query) || []).map((discussion) => {
       const mostRelevantPost = discussion.mostRelevantPost();
 
       return (

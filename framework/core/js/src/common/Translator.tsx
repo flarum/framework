@@ -1,6 +1,7 @@
 import { RichMessageFormatter, mithrilRichHandler } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
 import username from './helpers/username';
+import User from './models/User';
 import extract from './utils/extract';
 
 type Translations = Record<string, string>;
@@ -50,7 +51,7 @@ export default class Translator {
     // translation key is used.
 
     if ('user' in parameters) {
-      const user = extract(parameters, 'user');
+      const user = extract(parameters, 'user') as User;
 
       if (!parameters.username) parameters.username = username(user);
     }
