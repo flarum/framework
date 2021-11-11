@@ -91,7 +91,7 @@ export default class KeyboardNavigatable {
    */
   onRemove(callback: KeyboardEventHandler): KeyboardNavigatable {
     this.callbacks.set(8, (e) => {
-      if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
+      if (e instanceof KeyboardEvent && e.target instanceof HTMLInputElement && e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
         callback(e);
         e.preventDefault();
       }
@@ -114,7 +114,7 @@ export default class KeyboardNavigatable {
    */
   bindTo($element: JQuery) {
     // Handle navigation key events on the navigatable element.
-    $element.on('keydown', this.navigate.bind(this));
+    $element[0].addEventListener('keydown', this.navigate.bind(this));
   }
 
   /**

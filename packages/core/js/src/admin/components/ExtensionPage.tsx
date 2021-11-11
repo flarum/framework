@@ -12,26 +12,39 @@ import ExtensionPermissionGrid from './ExtensionPermissionGrid';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
 import AdminPage from './AdminPage';
 import ReadmeModal from './ReadmeModal';
+import RequestError from '../../common/utils/RequestError';
+import { Extension } from '../AdminApplication';
+import { IPageAttrs } from '../../common/components/Page';
+import type Mithril from 'mithril';
 
-export default class ExtensionPage extends AdminPage {
-  oninit(vnode) {
+export interface ExtensionPageAttrs extends IPageAttrs {
+  id: string;
+}
+
+export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs> extends AdminPage<Attrs> {
+  extension!: Extension;
+
+  changingState = false;
+
+  infoFields = {
+    discuss: 'fas fa-comment-alt',
+    documentation: 'fas fa-book',
+    support: 'fas fa-life-ring',
+    website: 'fas fa-link',
+    donate: 'fas fa-donate',
+    source: 'fas fa-code',
+  };
+
+  oninit(vnode: Mithril.Vnode<Attrs, this>) {
     super.oninit(vnode);
 
-    this.extension = app.data.extensions[this.attrs.id];
-    this.changingState = false;
+    const extension = app.data.extensions[this.attrs.id];
 
-    this.infoFields = {
-      discuss: 'fas fa-comment-alt',
-      documentation: 'fas fa-book',
-      support: 'fas fa-life-ring',
-      website: 'fas fa-link',
-      donate: 'fas fa-donate',
-      source: 'fas fa-code',
-    };
-
-    if (!this.extension) {
+    if (!extension) {
       return m.route.set(app.route('dashboard'));
     }
+
+    this.extension = extension;
   }
 
   className() {
@@ -40,7 +53,7 @@ export default class ExtensionPage extends AdminPage {
     return this.extension.id + '-Page';
   }
 
-  view() {
+  view(vnode: Mithril.VnodeDOM<Attrs, this>) {
     if (!this.extension) return null;
 
     return (
@@ -51,7 +64,7 @@ export default class ExtensionPage extends AdminPage {
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
           </div>
         ) : (
-          <div className="ExtensionPage-body">{this.sections().toArray()}</div>
+          <div className="ExtensionPage-body">{this.sections(vnode).toArray()}</div>
         )}
       </div>
     );
@@ -92,10 +105,10 @@ export default class ExtensionPage extends AdminPage {
     ];
   }
 
-  sections() {
+  sections(vnode: Mithril.VnodeDOM<Attrs, this>) {
     const items = new ItemList();
 
-    items.add('content', this.content());
+    items.add('content', this.content(vnode));
 
     items.add('permissions', [
       <div className="ExtensionPage-permissions">
@@ -117,7 +130,7 @@ export default class ExtensionPage extends AdminPage {
     return items;
   }
 
-  content() {
+  content(vnode: Mithril.VnodeDOM<Attrs, this>) {
     const settings = app.extensionData.getSettings(this.extension.id);
 
     return (
@@ -126,7 +139,7 @@ export default class ExtensionPage extends AdminPage {
           {settings ? (
             <div className="Form">
               {settings.map(this.buildSettingComponent.bind(this))}
-              <div className="Form-group">{this.submitButton()}</div>
+              <div className="Form-group">{this.submitButton(vnode)}</div>
             </div>
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>
@@ -172,21 +185,17 @@ export default class ExtensionPage extends AdminPage {
 
     const links = this.extension.links;
 
-    if (links.authors.length) {
-      let authors = [];
-
-      links.authors.map((author) => {
-        authors.push(
-          <Link href={author.link} external={true} target="_blank">
-            {author.name}
-          </Link>
-        );
-      });
+    if (links.authors?.length) {
+      const authors = links.authors.map((author) => (
+        <Link href={author.link} external={true} target="_blank">
+          {author.name}
+        </Link>
+      ));
 
       items.add('authors', [icon('fas fa-user'), <span>{punctuateSeries(authors)}</span>]);
     }
 
-    Object.keys(this.infoFields).map((field) => {
+    (Object.keys(this.infoFields) as (keyof ExtensionPage['infoFields'])[]).map((field) => {
       if (links[field]) {
         items.add(
           field,
@@ -240,7 +249,7 @@ export default class ExtensionPage extends AdminPage {
     return isExtensionEnabled(this.extension.id);
   }
 
-  onerror(e) {
+  onerror(e: RequestError) {
     // We need to give the modal animation time to start; if we close the modal too early,
     // it breaks the bootstrap modal library.
     // TODO: This workaround should be removed when we move away from bootstrap JS for modals.
@@ -254,14 +263,16 @@ export default class ExtensionPage extends AdminPage {
       throw e;
     }
 
-    const error = e.response.errors[0];
+    const error = e.response?.errors?.[0];
 
-    app.alerts.show(
-      { type: 'error' },
-      app.translator.trans(`core.lib.error.${error.code}_message`, {
-        extension: error.extension,
-        extensions: error.extensions.join(', '),
-      })
-    );
+    if (error) {
+      app.alerts.show(
+        { type: 'error' },
+        app.translator.trans(`core.lib.error.${error.code}_message`, {
+          extension: error.extension,
+          extensions: (error.extensions as string[]).join(', '),
+        })
+      );
+    }
   }
 }
