@@ -1,6 +1,8 @@
+import app from '../../forum/app';
 import Component from '../Component';
 import Alert, { AlertAttrs } from './Alert';
 import Button from './Button';
+
 
 import type Mithril from 'mithril';
 import type ModalManagerState from '../states/ModalManagerState';
@@ -91,6 +93,7 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
                 icon: 'fas fa-times',
                 onclick: this.hide.bind(this),
                 className: 'Button Button--icon Button--link',
+                'aria-label': app.translator.trans('core.lib.close_button'),
               })}
             </div>
           )}

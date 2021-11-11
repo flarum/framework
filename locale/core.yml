@@ -283,7 +283,7 @@ core:
 
     # These translations are used by the composer controls.
     composer:
-      close_tooltip: Close
+      close_tooltip: => core.ref.close
       exit_full_screen_tooltip: Exit Full Screen
       full_screen_tooltip: Full Screen
       minimize_tooltip: Minimize
@@ -500,6 +500,7 @@ core:
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
     debug_button: Debug
+    close_button: => core.ref.close
 
     # These translations are displayed as tooltips for discussion badges.
     badge:
@@ -688,6 +689,7 @@ core:
     all_discussions: All Discussions
     change_email: Change Email
     change_password: Change Password
+    close: Close
     color: Color                                 # Referenced by flarum-tags.yml
     confirm_password: Confirm Password
     confirm_email: Confirm Email
