@@ -3,7 +3,6 @@ import Component from '../Component';
 import Alert, { AlertAttrs } from './Alert';
 import Button from './Button';
 
-
 import type Mithril from 'mithril';
 import type ModalManagerState from '../states/ModalManagerState';
 import type RequestError from '../utils/RequestError';
