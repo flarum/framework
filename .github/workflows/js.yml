@@ -41,15 +41,15 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: "yarn"
           cache-dependency-path: js/package-lock.json
 
       - name: Install JS dependencies
-        run: npm ci
+        run: yarn --frozen-lockfile
         working-directory: ./js
 
       - name: Typecheck
-        run: npm run check-typings || true  # REMOVE THIS ONCE TYPE SAFETY REACHED
+        run: yarn run check-typings || true  # REMOVE THIS ONCE TYPE SAFETY REACHED
         working-directory: ./js
 
   type-coverage:
@@ -64,15 +64,15 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: "yarn"
           cache-dependency-path: js/package-lock.json
 
       - name: Install JS dependencies
-        run: npm ci
+        run: yarn --frozen-lockfile
         working-directory: ./js
 
       - name: Check type coverage
-        run: npm run check-typings-coverage
+        run: yarn run check-typings-coverage
         working-directory: ./js
 
   build-prod:
