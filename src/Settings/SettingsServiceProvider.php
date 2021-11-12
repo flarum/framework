@@ -45,7 +45,6 @@ class SettingsServiceProvider extends AbstractServiceProvider
         $this->container->alias(SettingsRepositoryInterface::class, 'flarum.settings');
     }
 
-
     public function boot(Dispatcher $events, SettingsValidator $settingsValidator)
     {
         $events->listen(

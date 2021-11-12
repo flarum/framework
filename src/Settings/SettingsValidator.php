@@ -19,13 +19,12 @@ class SettingsValidator extends AbstractValidator
      */
     protected $rules = [];
 
-
     /**
      * These rules apply to all attributes.
-     * 
+     *
      * Entries in the default DB settings table are limited to 65,000
      * characters. We validate against this to avoid confusing errors.
-     * 
+     *
      * @var array
      */
     protected $globalRules = [

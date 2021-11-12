@@ -31,10 +31,8 @@ use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Settings\SettingsValidator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Validation\Factory as ValidatorFactory;
 use Illuminate\Contracts\View\Factory;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -133,7 +131,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container, Dispatcher $events, Factory $view, ValidatorFactory $validatorFactory)
+    public function boot(Container $container, Dispatcher $events, Factory $view)
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
