@@ -12,7 +12,7 @@ export default class BasicEditorDriver implements EditorDriverInterface {
     this.build(dom, params);
   }
 
-  build(dom: HTMLElement, params: EditorDriverParams) {
+  protected build(dom: HTMLElement, params: EditorDriverParams) {
     this.el.className = params.classNames.join(' ');
     this.el.disabled = params.disabled;
     this.el.placeholder = params.placeholder;
@@ -43,8 +43,8 @@ export default class BasicEditorDriver implements EditorDriverInterface {
     dom.append(this.el);
   }
 
-  keyHandlers(params: EditorDriverParams): ItemList {
-    const items = new ItemList();
+  protected keyHandlers(params: EditorDriverParams) {
+    const items = new ItemList<(e: KeyboardEvent) => void>();
 
     items.add('submit', function (e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {

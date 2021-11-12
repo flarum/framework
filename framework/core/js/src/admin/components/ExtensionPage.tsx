@@ -150,7 +150,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   }
 
   topItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add('version', <span className="ExtensionVersion">{this.extension.version}</span>);
 
@@ -181,7 +181,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   }
 
   infoItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     const links = this.extension.links;
 
