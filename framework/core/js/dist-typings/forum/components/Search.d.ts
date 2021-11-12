@@ -87,7 +87,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     /**
      * Build an item list of SearchSources.
      */
-    sourceItems(): ItemList;
+    sourceItems(): ItemList<SearchSource>;
     /**
      * Get all of the search result items that are selectable.
      */
