@@ -80,10 +80,8 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     show(discussion: Discussion): void;
     /**
      * Build an item list for the contents of the sidebar.
-     *
-     * @return {ItemList}
      */
-    sidebarItems(): ItemList<unknown>;
+    sidebarItems(): ItemList<Mithril.Vnode<{}, {}>>;
     /**
      * When the posts that are visible in the post stream change (i.e. the user
      * scrolls up or down), then we update the URL and mark the posts as read.
