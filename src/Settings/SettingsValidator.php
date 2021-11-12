@@ -10,7 +10,6 @@
 namespace Flarum\Settings;
 
 use Flarum\Foundation\AbstractValidator;
-use Illuminate\Support\Arr;
 
 class SettingsValidator extends AbstractValidator
 {
