@@ -21,7 +21,8 @@ class SettingsValidator extends AbstractValidator
      */
     protected function makeValidator(array $attributes)
     {
-        // These rules apply to all settings.
+        // Entries in the default DB settings table are limited to 65,000
+        // characters. We validate against this to avoid confusing errors.
         $rules = array_map(function ($value) {
             return 'max:65000';
         }, $attributes);
