@@ -24,8 +24,8 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     header(): JSX.Element[];
     sections(vnode: Mithril.VnodeDOM<Attrs, this>): ItemList<unknown>;
     content(vnode: Mithril.VnodeDOM<Attrs, this>): JSX.Element;
-    topItems(): ItemList<unknown>;
-    infoItems(): ItemList<unknown>;
+    topItems(): ItemList<Mithril.Children>;
+    infoItems(): ItemList<Mithril.Children>;
     toggle(): void;
     isEnabled(): any;
     onerror(e: RequestError): void;

@@ -3,8 +3,8 @@ import ItemList from './ItemList';
 export default class BasicEditorDriver implements EditorDriverInterface {
     el: HTMLTextAreaElement;
     constructor(dom: HTMLElement, params: EditorDriverParams);
-    build(dom: HTMLElement, params: EditorDriverParams): void;
-    keyHandlers(params: EditorDriverParams): ItemList;
+    protected build(dom: HTMLElement, params: EditorDriverParams): void;
+    protected keyHandlers(params: EditorDriverParams): ItemList<(e: KeyboardEvent) => void>;
     moveCursorTo(position: number): void;
     getSelectionRange(): Array<number>;
     getLastNChars(n: number): string;
