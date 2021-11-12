@@ -10,10 +10,6 @@
 namespace Flarum\Settings;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Frontend\RecompileFrontendAssets;
-use Flarum\Forum\ValidateCustomLess;
-use Flarum\Locale\LocaleManager;
-use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsValidator;
 use Illuminate\Contracts\Container\Container;
@@ -50,39 +46,12 @@ class SettingsServiceProvider extends AbstractServiceProvider
     }
 
 
-    public function boot(Container $container, Dispatcher $events, SettingsValidator $settingsValidator)
+    public function boot(Dispatcher $events, SettingsValidator $settingsValidator)
     {
         $events->listen(
-            Saved::class,
-            function (Saved $event) use ($container) {
-                $recompile = new RecompileFrontendAssets(
-                    $container->make('flarum.assets.forum'),
-                    $container->make(LocaleManager::class)
-                );
-                $recompile->whenSettingsSaved($event);
-
-                $validator = new ValidateCustomLess(
-                    $container->make('flarum.assets.forum'),
-                    $container->make('flarum.locales'),
-                    $container,
-                    $container->make('flarum.less.config')
-                );
-                $validator->whenSettingsSaved($event);
-            }
-        );
-
-        $events->listen(
             Saving::class,
-            function (Saving $event) use ($container, $settingsValidator) {
+            function (Saving $event) use ($settingsValidator) {
                 $settingsValidator->assertValid($event->settings);
-
-                $validator = new ValidateCustomLess(
-                    $container->make('flarum.assets.forum'),
-                    $container->make('flarum.locales'),
-                    $container,
-                    $container->make('flarum.less.config')
-                );
-                $validator->whenSettingsSaving($event);
             }
         );
     }

@@ -10,9 +10,28 @@
 namespace Flarum\Settings;
 
 use Flarum\Foundation\AbstractValidator;
+use Illuminate\Support\Arr;
 
 class SettingsValidator extends AbstractValidator
 {
+    /**
+     * @var array
+     */
+    protected $rules = [];
+
+
+    /**
+     * These rules apply to all attributes.
+     * 
+     * Entries in the default DB settings table are limited to 65,000
+     * characters. We validate against this to avoid confusing errors.
+     * 
+     * @var array
+     */
+    protected $globalRules = [
+        'max:65000',
+    ];
+
     /**
      * Make a new validator instance for this model.
      *
@@ -21,11 +40,17 @@ class SettingsValidator extends AbstractValidator
      */
     protected function makeValidator(array $attributes)
     {
-        // Entries in the default DB settings table are limited to 65,000
-        // characters. We validate against this to avoid confusing errors.
-        $rules = array_map(function ($value) {
-            return 'max:65000';
+        // Apply global rules first.
+        $rules = array_map(function () {
+            return $this->globalRules;
         }, $attributes);
+
+        // Apply attribute specific rules.
+        foreach ($rules as $key => $value) {
+            if (array_key_exists($key, $this->rules)) {
+                $rules[$key] = array_merge($rules[$key], $this->rules[$key]);
+            }
+        }
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());
 
