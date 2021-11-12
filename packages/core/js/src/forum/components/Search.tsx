@@ -281,8 +281,8 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
   /**
    * Build an item list of SearchSources.
    */
-  sourceItems(): ItemList {
-    const items = new ItemList();
+  sourceItems(): ItemList<SearchSource> {
+    const items = new ItemList<SearchSource>();
 
     if (app.forum.attribute('canViewForum')) items.add('discussions', new DiscussionsSearchSource());
     if (app.forum.attribute('canSearchUsers')) items.add('users', new UsersSearchSource());

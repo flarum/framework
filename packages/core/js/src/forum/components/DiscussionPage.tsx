@@ -238,11 +238,9 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
 
   /**
    * Build an item list for the contents of the sidebar.
-   *
-   * @return {ItemList}
    */
   sidebarItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Vnode>();
 
     items.add(
       'controls',
