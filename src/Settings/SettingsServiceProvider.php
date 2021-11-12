@@ -11,7 +11,6 @@ namespace Flarum\Settings;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\Event\Saving;
-use Flarum\Settings\SettingsValidator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
