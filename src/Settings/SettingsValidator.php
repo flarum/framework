@@ -9,38 +9,29 @@
 
 namespace Flarum\Settings;
 
-use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Validation\ValidationException;
+use Flarum\Foundation\AbstractValidator;
 
-class SettingsValidator
+class SettingsValidator extends AbstractValidator
 {
     /**
-     * @var Factory
+     * Make a new validator instance for this model.
+     *
+     * @param array $attributes
+     * @return \Illuminate\Validation\Validator
      */
-    protected $validatorFactory;
-
-    /**
-     * @var array
-     */
-    protected $settings;
-
-    public function __construct(Factory $validatorFactory, array $settings)
+    protected function makeValidator(array $attributes)
     {
-        $this->validatorFactory = $validatorFactory;
-        $this->settings = $settings;
-    }
+        // These rules apply to all settings.
+        $rules = array_map(function ($value) {
+            return 'max:65000';
+        }, $attributes);
 
-    public function validate()
-    {
-        $validator = $this->validatorFactory->make(
-            $this->settings,
-            array_map(function ($value) {
-                return 'max:65000';
-            }, $this->settings),
-        );
+        $validator = $this->validator->make($attributes, $rules, $this->getMessages());
 
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
+        foreach ($this->configuration as $callable) {
+            $callable($this, $validator);
         }
+
+        return $validator;
     }
 }

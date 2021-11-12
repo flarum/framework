@@ -28,13 +28,9 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\Event\Saved;
-use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Settings\SettingsValidator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Validation\Factory as ValidatorFactory;
 use Illuminate\Contracts\View\Factory;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -133,7 +129,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container, Dispatcher $events, Factory $view, ValidatorFactory $validatorFactory)
+    public function boot(Container $container, Dispatcher $events, Factory $view)
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
@@ -150,41 +146,6 @@ class ForumServiceProvider extends AbstractServiceProvider
                     $container->make(LocaleManager::class)
                 );
                 $recompile->flush();
-            }
-        );
-
-        $events->listen(
-            Saved::class,
-            function (Saved $event) use ($container) {
-                $recompile = new RecompileFrontendAssets(
-                    $container->make('flarum.assets.forum'),
-                    $container->make(LocaleManager::class)
-                );
-                $recompile->whenSettingsSaved($event);
-
-                $validator = new ValidateCustomLess(
-                    $container->make('flarum.assets.forum'),
-                    $container->make('flarum.locales'),
-                    $container,
-                    $container->make('flarum.less.config')
-                );
-                $validator->whenSettingsSaved($event);
-            }
-        );
-
-        $events->listen(
-            Saving::class,
-            function (Saving $event) use ($container, $validatorFactory) {
-                $settingsValidator = new SettingsValidator($validatorFactory, $event->settings);
-                $settingsValidator->validate();
-
-                $validator = new ValidateCustomLess(
-                    $container->make('flarum.assets.forum'),
-                    $container->make('flarum.locales'),
-                    $container,
-                    $container->make('flarum.less.config')
-                );
-                $validator->whenSettingsSaving($event);
             }
         );
     }
