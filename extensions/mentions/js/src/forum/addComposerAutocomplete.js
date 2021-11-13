@@ -66,7 +66,7 @@ export default function addComposerAutocomplete() {
     const returnedUserIds = new Set(returnedUsers.map((u) => u.id()));
 
     const applySuggestion = (replacement) => {
-      app.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
+      this.attrs.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
 
       dropdown.hide();
     };
