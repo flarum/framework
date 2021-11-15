@@ -40,8 +40,8 @@ export default function addComposerAutocomplete() {
       dropdown.hide();
     };
 
-    params.inputListeners.push(function (e) {
-      const selection = app.composer.editor.getSelectionRange();
+    params.inputListeners.push(() => {
+      const selection = this.attrs.composer.editor.getSelectionRange();
 
       const cursor = selection[0];
 
@@ -50,7 +50,7 @@ export default function addComposerAutocomplete() {
       // Search backwards from the cursor for an ':' symbol. If we find
       // one and followed by a whitespace, we will want to show the
       // autocomplete dropdown!
-      const lastChunk = app.composer.editor.getLastNChars(15);
+      const lastChunk = this.attrs.composer.editor.getLastNChars(15);
       absEmojiStart = 0;
       for (let i = lastChunk.length - 1; i >= 0; i--) {
         const character = lastChunk.substr(i, 1);
@@ -134,7 +134,7 @@ export default function addComposerAutocomplete() {
             m.render($container[0], dropdown.render());
 
             dropdown.show();
-            const coordinates = app.composer.editor.getCaretCoordinates(absEmojiStart);
+            const coordinates = this.attrs.composer.editor.getCaretCoordinates(absEmojiStart);
             const width = dropdown.$().outerWidth();
             const height = dropdown.$().outerHeight();
             const parent = dropdown.$().offsetParent();
