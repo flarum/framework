@@ -27,7 +27,7 @@ export default function addSubscriptionControls() {
     if (app.session.user) {
       const discussion = this.discussion;
 
-      items.add('subscription', SubscriptionMenu.component({discussion}));
+      items.add('subscription', SubscriptionMenu.component({discussion}), 80);
     }
   });
 }
