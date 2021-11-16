@@ -1,17 +1,49 @@
 import app from '../../admin/app';
-import Component from '../../common/Component';
+import Component, { ComponentAttrs } from '../../common/Component';
 import PermissionDropdown from './PermissionDropdown';
 import SettingDropdown from './SettingDropdown';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import icon from '../../common/helpers/icon';
+import type Mithril from 'mithril';
 
-export default class PermissionGrid extends Component {
-  view() {
+export interface PermissionConfig {
+  permission: string;
+  icon: string;
+  label: Mithril.Children;
+  allowGuest?: boolean;
+}
+
+export interface PermissionSetting {
+  setting: () => Mithril.Children;
+  icon: string;
+  label: Mithril.Children;
+}
+
+export type PermissionGridEntry = PermissionConfig | PermissionSetting;
+
+export type PermissionType = 'view' | 'start' | 'reply' | 'moderate';
+
+export interface ScopeItem {
+  label: Mithril.Children;
+  render: (permission: PermissionGridEntry) => Mithril.Children;
+  onremove?: () => void;
+}
+
+export interface IPermissionGridAttrs extends ComponentAttrs {}
+
+export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = IPermissionGridAttrs> extends Component<CustomAttrs> {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const scopes = this.scopeItems().toArray();
 
-    const permissionCells = (permission) => {
-      return scopes.map((scope) => <td>{scope.render(permission)}</td>);
+    const permissionCells = (permission: PermissionGridEntry | { children: PermissionGridEntry[] }) => {
+      return scopes.map((scope) => {
+        if ('children' in permission) {
+          return <td></td>;
+        }
+
+        return scope.render(permission);
+      });
     };
 
     return (
@@ -56,7 +88,10 @@ export default class PermissionGrid extends Component {
   }
 
   permissionItems() {
-    const items = new ItemList();
+    const items = new ItemList<{
+      label: Mithril.Children;
+      children: PermissionGridEntry[];
+    }>();
 
     items.add(
       'view',
@@ -98,7 +133,7 @@ export default class PermissionGrid extends Component {
   }
 
   viewItems() {
-    const items = new ItemList();
+    const items = new ItemList<PermissionGridEntry>();
 
     items.add(
       'viewForum',
@@ -162,7 +197,7 @@ export default class PermissionGrid extends Component {
   }
 
   startItems() {
-    const items = new ItemList();
+    const items = new ItemList<PermissionGridEntry>();
 
     items.add(
       'start',
@@ -205,7 +240,7 @@ export default class PermissionGrid extends Component {
   }
 
   replyItems() {
-    const items = new ItemList();
+    const items = new ItemList<PermissionGridEntry>();
 
     items.add(
       'reply',
@@ -247,7 +282,7 @@ export default class PermissionGrid extends Component {
   }
 
   moderateItems() {
-    const items = new ItemList();
+    const items = new ItemList<PermissionGridEntry>();
 
     items.add(
       'viewIpsPosts',
@@ -365,16 +400,16 @@ export default class PermissionGrid extends Component {
   }
 
   scopeItems() {
-    const items = new ItemList();
+    const items = new ItemList<ScopeItem>();
 
     items.add(
       'global',
       {
         label: app.translator.trans('core.admin.permissions.global_heading'),
-        render: (item) => {
-          if (item.setting) {
+        render: (item: PermissionGridEntry) => {
+          if ('setting' in item) {
             return item.setting();
-          } else if (item.permission) {
+          } else if ('permission' in item) {
             return PermissionDropdown.component({
               permission: item.permission,
               allowGuest: item.allowGuest,
