@@ -44,8 +44,8 @@ class SetTest extends TestCase
             ])
         );
 
-        // Test for successful response and that the email is included in the response
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertNotEquals('world', $this->app->getContainer()->make('flarum.settings')->get('hello'));
     }
 
     /**
@@ -62,8 +62,8 @@ class SetTest extends TestCase
             ])
         );
 
-        // Test for successful response and that the email is included in the response
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals('world', $this->app->getContainer()->make('flarum.settings')->get('hello'));
     }
 
     /**
@@ -80,7 +80,6 @@ class SetTest extends TestCase
             ])
         );
 
-        // Test for successful response and that the email is included in the response
         $this->assertEquals(422, $response->getStatusCode());
     }
 }
