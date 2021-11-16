@@ -438,6 +438,10 @@ export default class Application {
       }
 
       try {
+        if (responseText === '') {
+          return null;
+        }
+
         return JSON.parse(responseText);
       } catch (e) {
         throw new RequestError<ResponseType>(500, `${responseText}`, options, xhr);
