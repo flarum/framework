@@ -1,26 +1,36 @@
 import app from '../../admin/app';
-import PermissionGrid from './PermissionGrid';
+import PermissionGrid, { PermissionGridEntry } from './PermissionGrid';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
+import Mithril from 'mithril';
 
-export default class ExtensionPermissionGrid extends PermissionGrid {
-  oninit(vnode) {
+export interface IExtensionPermissionGridAttrs {
+  extensionId: string;
+}
+
+export default class ExtensionPermissionGrid<
+  CustomAttrs extends IExtensionPermissionGridAttrs = IExtensionPermissionGridAttrs
+> extends PermissionGrid<CustomAttrs> {
+  protected extensionId!: string;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.extensionId = this.attrs.extensionId;
   }
 
   permissionItems() {
-    const permissionCategories = super.permissionItems();
+    const items = new ItemList<{ label: Mithril.Children; children: PermissionGridEntry[] }>();
 
-    permissionCategories.items = Object.entries(permissionCategories.items)
-      .filter(([category, info]) => info.content.children.length > 0)
-      .reduce((obj, [category, info]) => {
-        obj[category] = info;
-        return obj;
-      }, {});
+    super
+      .permissionItems()
+      .toArray()
+      .filter((item) => item.children.length > 0)
+      .forEach((item) => {
+        items.add(item.itemName, item);
+      });
 
-    return permissionCategories;
+    return items;
   }
 
   viewItems() {
