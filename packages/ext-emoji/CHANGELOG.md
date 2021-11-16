@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.1](https://github.com/flarum/emoji/compare/v1.1.0...v1.1.1)
+
+### Fixed
+* fix: errors with composer reuse by @davwheat in https://github.com/flarum/emoji/pull/42
+
 ## [1.1.0](https://github.com/flarum/emoji/compare/v1.0.0...v1.1.0)
 
 ### Changed
