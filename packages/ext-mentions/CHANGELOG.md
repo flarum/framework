@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/flarum/mentions/compare/v1.1.1...v1.1.2)
+
+### Fixed
+
+* Only search users via rest API if user has permission by @askvortsov1 in https://github.com/flarum/mentions/pull/73
+* fix: Cannot reply to posts by deleted authors by @SychO9 in https://github.com/flarum/mentions/pull/75
+* fix: autocomplete errors with TextEditor re-use by @davwheat in https://github.com/flarum/mentions/pull/77
+
 ## [1.1.1](https://github.com/flarum/mentions/compare/v1.1.0...v1.1.1)
 
 ### Fixed
