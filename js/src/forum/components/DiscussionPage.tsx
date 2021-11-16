@@ -252,7 +252,8 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
           accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
         },
         DiscussionControls.controls(this.discussion, this).toArray()
-      )
+      ),
+      100
     );
 
     items.add(
