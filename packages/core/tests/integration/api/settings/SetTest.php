@@ -15,6 +15,7 @@ use Flarum\Testing\integration\TestCase;
 class SetTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+
     /**
      * @inheritDoc
      */
@@ -64,7 +65,6 @@ class SetTest extends TestCase
         // Test for successful response and that the email is included in the response
         $this->assertEquals(200, $response->getStatusCode());
     }
-
 
     /**
      * @test
