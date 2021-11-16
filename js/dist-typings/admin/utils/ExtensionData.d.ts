@@ -1,17 +1,46 @@
+import type Mithril from 'mithril';
+import ItemList from '../../common/utils/ItemList';
+import { SettingsComponentOptions } from '../components/AdminPage';
+import ExtensionPage, { ExtensionPageAttrs } from '../components/ExtensionPage';
+import { PermissionConfig, PermissionType } from '../components/PermissionGrid';
+declare type SettingConfigInput = SettingsComponentOptions | (() => Mithril.Children);
+declare type SettingConfigInternal = SettingsComponentOptions | ((() => Mithril.Children) & {
+    setting: string;
+});
+export declare type CustomExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs> = new () => ExtensionPage<Attrs>;
+declare type ExtensionConfig = {
+    settings?: ItemList<SettingConfigInternal>;
+    permissions?: {
+        view?: ItemList<PermissionConfig>;
+        start?: ItemList<PermissionConfig>;
+        reply?: ItemList<PermissionConfig>;
+        moderate?: ItemList<PermissionConfig>;
+    };
+    page?: CustomExtensionPage;
+};
+declare type InnerDataNoActiveExtension = {
+    currentExtension: null;
+    data: {
+        [key: string]: ExtensionConfig | undefined;
+    };
+};
+declare type InnerDataActiveExtension = {
+    currentExtension: string;
+    data: {
+        [key: string]: ExtensionConfig;
+    };
+};
 export default class ExtensionData {
-    data: {};
-    currentExtension: any;
+    protected state: InnerDataActiveExtension | InnerDataNoActiveExtension;
     /**
      * This function simply takes the extension id
      *
      * @example
-     * app.extensionData.load('flarum-tags')
+     * app.extensionData.for('flarum-tags')
      *
      * flarum/flags -> flarum-flags | acme/extension -> acme-extension
-     *
-     * @param extension
      */
-    for(extension: any): ExtensionData;
+    for(extension: string): this;
     /**
      * This function registers your settings with Flarum
      *
@@ -24,13 +53,8 @@ export default class ExtensionData {
      *   type: 'text', // This will be inputted into the input tag for the setting (text/number/etc)
      *   label: app.translator.trans('flarum-flags.admin.settings.guidelines_url_label')
      * }, 15) // priority is optional (ItemList)
-     *
-     *
-     * @param content
-     * @param priority
-     * @returns {ExtensionData}
      */
-    registerSetting(content: any, priority?: number): ExtensionData;
+    registerSetting(content: SettingConfigInput, priority?: number): this;
     /**
      * This function registers your permission with Flarum
      *
@@ -41,58 +65,32 @@ export default class ExtensionData {
      *     label: app.translator.trans('flarum-flags.admin.permissions.view_flags_label'),
      *     permission: 'discussion.viewFlags'
      * }, 'moderate', 65)
-     *
-     * @param content
-     * @param permissionType
-     * @param priority
-     * @returns {ExtensionData}
      */
-    registerPermission(content: any, permissionType?: null, priority?: number): ExtensionData;
+    registerPermission(content: PermissionConfig, permissionType: PermissionType, priority?: number): this;
     /**
      * Replace the default extension page with a custom component.
      * This component would typically extend ExtensionPage
-     *
-     * @param component
-     * @returns {ExtensionData}
      */
-    registerPage(component: any): ExtensionData;
+    registerPage(component: CustomExtensionPage): this;
     /**
      * Get an extension's registered settings
-     *
-     * @param extensionId
-     * @returns {boolean|*}
      */
-    getSettings(extensionId: any): boolean | any;
+    getSettings(extensionId: string): SettingConfigInternal[] | undefined;
     /**
-     *
      * Get an ItemList of all extensions' registered permissions
-     *
-     * @param extension
-     * @param type
-     * @returns {ItemList}
      */
-    getAllExtensionPermissions(type: any): ItemList<any>;
+    getAllExtensionPermissions(type: PermissionType): ItemList<PermissionConfig>;
     /**
      * Get a singular extension's registered permissions
-     *
-     * @param extension
-     * @param type
-     * @returns {boolean|*}
      */
-    getExtensionPermissions(extension: any, type: any): boolean | any;
+    getExtensionPermissions(extension: string, type: PermissionType): ItemList<PermissionConfig>;
     /**
      * Checks whether a given extension has registered permissions.
-     *
-     * @param extension
-     * @returns {boolean}
      */
-    extensionHasPermissions(extension: any): boolean;
+    extensionHasPermissions(extension: string): boolean;
     /**
      * Returns an extension's custom page component if it exists.
-     *
-     * @param extension
-     * @returns {boolean|*}
      */
-    getPage(extension: any): boolean | any;
+    getPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs>(extension: string): CustomExtensionPage<Attrs> | undefined;
 }
-import ItemList from "../../common/utils/ItemList";
+export {};
