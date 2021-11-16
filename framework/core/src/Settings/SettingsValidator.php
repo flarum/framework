@@ -14,11 +14,6 @@ use Flarum\Foundation\AbstractValidator;
 class SettingsValidator extends AbstractValidator
 {
     /**
-     * @var array
-     */
-    protected $rules = [];
-
-    /**
      * These rules apply to all attributes.
      *
      * Entries in the default DB settings table are limited to 65,000
@@ -45,9 +40,7 @@ class SettingsValidator extends AbstractValidator
 
         // Apply attribute specific rules.
         foreach ($rules as $key => $value) {
-            if (array_key_exists($key, $this->rules)) {
-                $rules[$key] = array_merge($rules[$key], $this->rules[$key]);
-            }
+            $rules[$key] = array_merge($rules[$key], $this->rules[$key] ?? []);
         }
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());
