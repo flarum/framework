@@ -67,7 +67,7 @@ class QueueServiceProvider extends AbstractServiceProvider
             /** @var Config $config */
             $config = $container->make(Config::class);
 
-            return new Worker(
+            $worker = new Worker(
                 $container[Factory::class],
                 $container['events'],
                 $container[ExceptionHandling::class],
@@ -75,6 +75,10 @@ class QueueServiceProvider extends AbstractServiceProvider
                     return $config->inMaintenanceMode();
                 }
             );
+
+            $worker->setCache($container->make('cache.store'));
+
+            return $worker;
         });
 
         // Override the Laravel native Listener, so that we can ignore the environment
