@@ -179,7 +179,7 @@ export default class UserListPage extends AdminPage {
    * See `UserListPage.tsx` for examples.
    */
   columns(): ItemList<ColumnData> {
-    const columns = new ItemList();
+    const columns = new ItemList<ColumnData>();
 
     columns.add(
       'id',
