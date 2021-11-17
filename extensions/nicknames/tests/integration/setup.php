@@ -7,9 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
+use Flarum\Testing\integration\Setup\SetupScript;
 
-return Migration::addSettings([
-    'flarum-nicknames.max' => '150',
-    'flarum-nicknames.min' => '1',
-]);
+require __DIR__.'/../../vendor/autoload.php';
+
+$setup = new SetupScript();
+
+$setup->run();
