@@ -1,6 +1,6 @@
 import app from '../common/app';
 import User from './models/User';
-import { RequestOptions } from './Application';
+import { FlarumRequestOptions } from './Application';
 
 export type LoginParams = {
   /**
@@ -37,7 +37,7 @@ export default class Session {
   /**
    * Attempt to log in a user.
    */
-  login(body: LoginParams, options: Omit<RequestOptions, 'url' | 'body' | 'method'> = {}) {
+  login(body: LoginParams, options: Omit<FlarumRequestOptions<any>, 'url' | 'body' | 'method'> = {}) {
     return app.request({
       method: 'POST',
       url: `${app.forum.attribute('baseUrl')}/login`,
