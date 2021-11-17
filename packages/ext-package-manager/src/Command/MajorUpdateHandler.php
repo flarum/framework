@@ -9,10 +9,9 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Flarum\Foundation\Paths;
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Composer\ComposerJson;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Arr;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\LastUpdateCheck;
@@ -36,21 +35,22 @@ class MajorUpdateHandler
     protected $events;
 
     /**
-     * @var Paths
-     */
-    protected $paths;
-
-    /**
-     * @var array
+     * @var ComposerJson
      */
     protected $composerJson;
 
-    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, Paths $paths)
+    /**
+     * @param ComposerAdapter $composer
+     * @param LastUpdateCheck $lastUpdateCheck
+     * @param Dispatcher $events
+     * @param ComposerJson $composerJson
+     */
+    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, ComposerJson $composerJson)
     {
         $this->composer = $composer;
         $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
-        $this->paths = $paths;
+        $this->composerJson = $composerJson;
     }
 
     /**
@@ -67,7 +67,7 @@ class MajorUpdateHandler
     {
         $command->actor->assertAdmin();
 
-        $majorVersion = $this->getNewMajorVersion();
+        $majorVersion = $this->lastUpdateCheck->getNewMajorVersion();
 
         if (! $majorVersion) {
             return false;
@@ -78,7 +78,7 @@ class MajorUpdateHandler
         $this->runCommand($command->dryRun);
 
         if ($command->dryRun) {
-            $this->revertComposerJson();
+            $this->composerJson->revert();
 
             return true;
         }
@@ -92,36 +92,10 @@ class MajorUpdateHandler
         return true;
     }
 
-    protected function getNewMajorVersion(): ?string
-    {
-        $core = Arr::first($this->lastUpdateCheck->get()['updates']['installed'], function ($package) {
-            return $package['name'] === 'flarum/core';
-        });
-
-        return $core ? $core['latest-major'] : null;
-    }
-
     protected function updateComposerJson(string $majorVersion): void
     {
-        $composerJsonPath = $this->paths->base . '/composer.json';
-        $this->composerJson = $newComposerJson = json_decode(file_get_contents($composerJsonPath), true);
-
-        foreach ($newComposerJson['require'] as $name => &$version) {
-            if ($name === 'flarum/core') {
-                $version = '^'.str_replace('v', '', $majorVersion);
-            } else {
-                $version = '*';
-            }
-        }
-
-        file_put_contents($composerJsonPath, json_encode($newComposerJson));
-    }
-
-    protected function revertComposerJson(): void
-    {
-        $composerJsonPath = $this->paths->base . '/composer.json';
-        // @todo use filesystem for all file_get_contents
-        file_put_contents($composerJsonPath, $this->composerJson);
+        $this->composerJson->require('*', '*');
+        $this->composerJson->require('flarum/core', '^'.str_replace('v', '', $majorVersion));
     }
 
     /**

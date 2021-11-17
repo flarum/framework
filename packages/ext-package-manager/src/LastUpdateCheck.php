@@ -11,6 +11,7 @@ namespace Flarum\PackageManager;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class LastUpdateCheck
@@ -42,6 +43,15 @@ class LastUpdateCheck
     public function get(): array
     {
         return json_decode($this->settings->get(self::KEY, '{}'), true);
+    }
+
+    public function getNewMajorVersion(): ?string
+    {
+        $core = Arr::first($this->get()['updates']['installed'], function ($package) {
+            return $package['name'] === 'flarum/core';
+        });
+
+        return $core ? $core['latest-major'] : null;
     }
 
     public function forget(string $name, bool $wildcard = false): void

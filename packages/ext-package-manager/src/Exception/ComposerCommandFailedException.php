@@ -27,7 +27,7 @@ class ComposerCommandFailedException extends Exception
 
     public function guessCause(): ?string
     {
-
+        return null;
     }
 
     protected function getRawPackageName(): string
