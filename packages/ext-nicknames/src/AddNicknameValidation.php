@@ -5,6 +5,7 @@ namespace Flarum\Nicknames;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Validation\Validator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AddNicknameValidation
 {
@@ -13,10 +14,16 @@ class AddNicknameValidation
      */
     protected $settings;
 
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
 
-    public function __construct(SettingsRepositoryInterface $settings)
+
+    public function __construct(SettingsRepositoryInterface $settings, TranslatorInterface $translator)
     {
         $this->settings = $settings;
+        $this->translator = $translator;
     }
 
     public function __invoke($flarumValidator, Validator $validator)
@@ -28,7 +35,7 @@ class AddNicknameValidation
             function ($attribute, $value, $fail) {
                 $regex = $this->settings->get('flarum-nicknames.regex');
                 if ($regex && !preg_match_all("/$regex/", $value)) {
-                    $fail(app('translator')->trans('flarum-nicknames.api.invalid_nickname_message'));
+                    $this->translator->trans('flarum-nicknames.api.invalid_nickname_message');
                 }
             },
             'min:' . $this->settings->get('flarum-nicknames.min'),

@@ -16,6 +16,17 @@ app.initializers.add('flarum/nicknames', () => {
       );
     })
     .registerSetting({
+      setting: 'flarum-nicknames.set_on_registration',
+      type: 'boolean',
+      label: app.translator.trans('flarum-nicknames.admin.settings.set_on_registration_label')
+    })
+    .registerSetting({
+      setting: 'flarum-nicknames.random_username',
+      type: 'boolean',
+      label: app.translator.trans('flarum-nicknames.admin.settings.random_username_label'),
+      help: app.translator.trans('flarum-nicknames.admin.settings.random_username_help')
+    })
+    .registerSetting({
       setting: 'flarum-nicknames.unique',
       type: 'boolean',
       label: app.translator.trans('flarum-nicknames.admin.settings.unique_label')

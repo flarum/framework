@@ -1,6 +1,7 @@
 import { extend } from 'flarum/common/extend';
 import Button from 'flarum/common/components/Button';
 import EditUserModal from 'flarum/common/components/EditUserModal';
+import SignUpModal from 'flarum/forum/components/SignUpModal';
 import SettingsPage from 'flarum/forum/components/SettingsPage';
 import Model from 'flarum/common/Model';
 import User from 'flarum/common/models/User';
@@ -50,5 +51,60 @@ app.initializers.add('flarum/nicknames', () => {
     }
   });
 
+  extend(SignUpModal.prototype, 'oninit', function () {
+    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
+    this.nickname = Stream(this.attrs.username || '');
+
+  });
+
+
+  extend(SignUpModal.prototype, 'onready', function () {
+    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
+
+    if (app.forum.attribute('setNicknameOnRegistration') && app.forum.attribute('randomizeUsernameOnRegistration')) {
+      this.$('[name=nickname]').select();
+    }
+
+  });
+
+  extend(SignUpModal.prototype, 'fields', function (items) {
+    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
+
+    if (app.forum.attribute('setNicknameOnRegistration')) {
+      items.add(
+        'nickname',
+        <div className="Form-group">
+          <input
+            className="FormControl"
+            name="nickname"
+            type="text"
+            placeholder={extractText(app.translator.trans('flarum-nicknames.forum.sign_up.nickname_placeholder'))}
+            bidi={this.nickname}
+            disabled={this.loading || this.isProvided('nickname')}
+            required={app.forum.attribute('randomizeUsernameOnRegistration')}
+          />
+        </div>,
+        25
+      );
+
+      if (app.forum.attribute('randomizeUsernameOnRegistration')) {
+        items.remove('username');
+      }
+    }
+  });
+
+  extend(SignUpModal.prototype, 'submitData', function (data) {
+    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
+
+    if (app.forum.attribute('setNicknameOnRegistration')) {
+      data.nickname = this.nickname();
+      if (app.forum.attribute('randomizeUsernameOnRegistration')) {
+        const arr = new Uint32Array(2);
+        crypto.getRandomValues(arr);
+        data.username = arr.join('');
+      }
+    }
+  });
+  
 });

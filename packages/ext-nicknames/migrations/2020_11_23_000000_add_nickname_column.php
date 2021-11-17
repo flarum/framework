@@ -7,7 +7,7 @@ return [
     'up' => function(Builder $schema) {
         if (!$schema->hasColumn('users', 'nickname')) {
             $schema->table('users', function (Blueprint $table) use ($schema) {
-                $table->string('nickname', 150)->after('username')->index();
+                $table->string('nickname', 150)->after('username')->index()->nullable();
             });
         }
     },
