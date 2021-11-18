@@ -7,7 +7,6 @@ import LoadingModal from 'flarum/admin/components/LoadingModal';
 import Installer from './components/Installer';
 import Updater from './components/Updater';
 import isExtensionEnabled from 'flarum/admin/utils/isExtensionEnabled';
-import MajorUpdater from './components/MajorUpdater';
 
 app.initializers.add('flarum-package-manager', (app) => {
   app.extensionData
@@ -22,16 +21,22 @@ app.initializers.add('flarum-package-manager', (app) => {
           </div>
         );
       }
+
+      return null;
     })
     .registerSetting(() => {
       if (app.data.isRequiredDirectoriesWritable) {
         return <Installer />;
       }
+
+      return null;
     })
     .registerSetting(() => {
       if (app.data.isRequiredDirectoriesWritable) {
         return <Updater />;
       }
+
+      return null;
     });
 
   extend(ExtensionPage.prototype, 'topItems', function (items) {

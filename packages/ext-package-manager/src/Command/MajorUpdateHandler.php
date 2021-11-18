@@ -83,7 +83,7 @@ class MajorUpdateHandler
             return true;
         }
 
-        $this->lastUpdateCheck->forget('flarum/*', true);
+        $this->lastUpdateCheck->forgetAll();
 
         $this->events->dispatch(
             new FlarumUpdated(FlarumUpdated::MAJOR)

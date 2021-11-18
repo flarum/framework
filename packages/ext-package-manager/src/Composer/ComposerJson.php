@@ -11,6 +11,7 @@ namespace Flarum\PackageManager\Composer;
 
 use Flarum\Foundation\Paths;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 class ComposerJson
 {
@@ -37,24 +38,26 @@ class ComposerJson
 
     public function require(string $packageName, string $version): void
     {
-        $composerJson = $this->getComposerJson();
+        $composerJson = $this->get();
 
         if (strpos($packageName, '*') === false) {
             $composerJson['require'][$packageName] = $version;
         } else {
             foreach ($composerJson['require'] as $p => $v) {
-                if (preg_match(preg_quote(str_replace('*', '.*', $packageName), '/'), $p, $matches)) {
+                $wildcardPackageName = str_replace('\*', '.*', preg_quote($packageName, '/'));
+
+                if (Str::of($p)->test("/($wildcardPackageName)/")) {
                     $composerJson['require'][$p] = $version;
                 }
             }
         }
 
-        $this->setComposerJson($composerJson);
+        $this->set($composerJson);
     }
 
     public function revert(): void
     {
-        $this->setComposerJson($this->initialJson);
+        $this->set($this->initialJson);
     }
 
     protected function getComposerJsonPath(): string
@@ -65,7 +68,7 @@ class ComposerJson
     /**
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    protected function getComposerJson(): array
+    public function get(): array
     {
         $json = json_decode($this->filesystem->get($this->getComposerJsonPath()), true);
 
@@ -76,7 +79,7 @@ class ComposerJson
         return $json;
     }
 
-    protected function setComposerJson(array $json): void
+    protected function set(array $json): void
     {
         $this->filesystem->put($this->getComposerJsonPath(), json_encode($json, JSON_PRETTY_PRINT));
     }

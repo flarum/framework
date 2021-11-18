@@ -10,6 +10,7 @@
 namespace Flarum\PackageManager\Command;
 
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Composer\ComposerJson;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
@@ -33,11 +34,17 @@ class MinorFlarumUpdateHandler
      */
     protected $events;
 
-    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events)
+    /**
+     * @var ComposerJson
+     */
+    protected $composerJson;
+
+    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, ComposerJson $composerJson)
     {
         $this->composer = $composer;
         $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
+        $this->composerJson = $composerJson;
     }
 
     /**
@@ -48,15 +55,20 @@ class MinorFlarumUpdateHandler
     {
         $command->actor->assertAdmin();
 
+        $coreRequirement = $this->composerJson->get()['require']['flarum/core'];
+
+        $this->composerJson->require('*', '*');
+        $this->composerJson->require('flarum/core', $coreRequirement);
+
         $output = $this->composer->run(
-            new StringInput("update flarum/* --prefer-dist --no-dev -a --with-all-dependencies")
+            new StringInput("update --prefer-dist --no-dev -a --with-all-dependencies")
         );
 
         if ($output->getExitCode() !== 0) {
             throw new ComposerUpdateFailedException('flarum/*', $output->getContents());
         }
 
-        $this->lastUpdateCheck->forget('flarum/*', true);
+        $this->lastUpdateCheck->forgetAll();
 
         $this->events->dispatch(
             new FlarumUpdated(FlarumUpdated::MINOR)
