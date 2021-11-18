@@ -60,7 +60,7 @@ class LastUpdateCheck
 
         if (isset($lastUpdateCheck['updates']) && ! empty($lastUpdateCheck['updates']['installed'])) {
             $updatesListChanged = false;
-            $pattern = preg_quote(str_replace('*', '.*', $name));
+            $pattern = str_replace('\*', '.*', preg_quote($name, '/'));
 
             foreach ($lastUpdateCheck['updates']['installed'] as $k => $package) {
                 if (($wildcard && Str::of($package['name'])->test("/($pattern)/")) || $package['name'] === $name) {
@@ -78,5 +78,10 @@ class LastUpdateCheck
                 $this->settings->set(self::KEY, json_encode($lastUpdateCheck));
             }
         }
+    }
+
+    public function forgetAll(): void
+    {
+        $this->save([]);
     }
 }

@@ -1,3 +1,4 @@
+import Mithril from "mithril";
 import app from 'flarum/admin/app';
 import Component from 'flarum/common/Component';
 import icon from 'flarum/common/helpers/icon';
@@ -9,6 +10,7 @@ import errorHandler from '../utils/errorHandler';
 import classList from 'flarum/common/utils/classList';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import MajorUpdater from './MajorUpdater';
+import {Extension} from "flarum/admin/AdminApplication";
 
 export type UpdatedPackage = {
   name: string;
@@ -20,37 +22,44 @@ export type UpdatedPackage = {
   description: string;
 };
 
-type ComposerUpdates = {
+export type ComposerUpdates = {
   installed: UpdatedPackage[];
 };
 
-type LastUpdateCheck = {
+export type LastUpdateCheck = {
   checkedAt: Date;
   updates: ComposerUpdates;
 };
 
-export default class Updater extends Component {
+export default class Updater<Attrs> extends Component<Attrs> {
   isLoading: string | null = null;
-  lastUpdateCheck: LastUpdateCheck = app.data.lastUpdateCheck || {};
+  lastUpdateCheck: LastUpdateCheck = (app.data.lastUpdateCheck as LastUpdateCheck) || {};
+  packageUpdates: Record<string, UpdatedPackage> = {};
 
-  oninit(vnode) {
+  oninit(vnode: Mithril.Vnode<Attrs, this>) {
     super.oninit(vnode);
   }
 
   view() {
     const extensions: any = this.getExtensionUpdates();
     const coreUpdate: UpdatedPackage | undefined = this.getCoreUpdate();
-    let core = null;
+    let core: any = null;
 
     if (coreUpdate) {
       core = {
-        title: app.translator.trans('flarum-package-manager.admin.updater.flarum'),
+        id: "flarum-core",
         version: app.data.settings.version,
         icon: {
           backgroundImage: `url(${app.forum.attribute('baseUrl')}/assets/extensions/flarum-package-manager/flarum.svg`,
         },
-        newPackageUpdate: coreUpdate,
+        extra: {
+          'flarum-extension': {
+            title: app.translator.trans('flarum-package-manager.admin.updater.flarum'),
+          }
+        }
       };
+
+      this.packageUpdates['flarum-core'] = coreUpdate;
     }
 
     return [
@@ -102,7 +111,7 @@ export default class Updater extends Component {
     ];
   }
 
-  extensionItem(extension: any, isCore: boolean = false) {
+  extensionItem(extension: Extension, isCore: boolean = false) {
     return (
       <div
         className={classList({
@@ -114,17 +123,17 @@ export default class Updater extends Component {
           {extension.icon ? icon(extension.icon.name) : ''}
         </div>
         <div className="PackageManager-extension-info">
-          <div className="PackageManager-extension-name">{extension.title || extension.extra['flarum-extension'].title}</div>
+          <div className="PackageManager-extension-name">{extension.extra['flarum-extension'].title}</div>
           <div className="PackageManager-extension-version">
             <span className="PackageManager-extension-version-current">{this.version(extension.version)}</span>
-            {extension.newPackageUpdate['latest-minor'] ? (
+            {this.packageUpdates[extension.id]['latest-minor'] ? (
               <span className="PackageManager-extension-version-latest PackageManager-extension-version-latest--minor">
-                {this.version(extension.newPackageUpdate['latest-minor'])}
+                {this.version(this.packageUpdates[extension.id]['latest-minor']!)}
               </span>
             ) : null}
-            {extension.newPackageUpdate['latest-major'] && !isCore ? (
+            {this.packageUpdates[extension.id]['latest-major'] && !isCore ? (
               <span className="PackageManager-extension-version-latest PackageManager-extension-version-latest--major">
-                {this.version(extension.newPackageUpdate['latest-major'])}
+                {this.version(this.packageUpdates[extension.id]['latest-major']!)}
               </span>
             ) : null}
           </div>
@@ -153,13 +162,13 @@ export default class Updater extends Component {
       const safeToUpdate = ['semver-safe-update', 'update-possible'].includes(composerPackage['latest-status']);
 
       if (extension && safeToUpdate) {
-        extension.newPackageUpdate = composerPackage;
+        this.packageUpdates[extension.id] = composerPackage;
       }
 
       return extension && safeToUpdate;
     });
 
-    return Object.values(app.data.extensions).filter((extension: any) => extension.newPackageUpdate);
+    return Object.values(app.data.extensions).filter((extension: any) => this.packageUpdates[extension.id]);
   }
 
   getCoreUpdate(): UpdatedPackage | undefined {
@@ -185,23 +194,25 @@ export default class Updater extends Component {
   }
 
   updateCoreMinor() {
-    app.modal.show(LoadingModal);
-    this.isLoading = 'minor-update';
+    if (confirm(app.translator.trans('flarum-package-manager.admin.minor_update_confirmation.content'))) {
+      app.modal.show(LoadingModal);
+      this.isLoading = 'minor-update';
 
-    app
-      .request({
-        method: 'POST',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
-        errorHandler,
-      })
-      .then(() => {
-        app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
-        window.location.reload();
-      })
-      .finally(() => {
-        this.isLoading = null;
-        m.redraw();
-      });
+      /*app
+        .request({
+          method: 'POST',
+          url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
+          errorHandler,
+        })
+        .then(() => {
+          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
+          window.location.reload();
+        })
+        .finally(() => {
+          this.isLoading = null;
+          m.redraw();
+        });*/
+    }
   }
 
   updateExtension(extension: any) {

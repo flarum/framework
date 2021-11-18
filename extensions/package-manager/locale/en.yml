@@ -29,6 +29,9 @@ flarum-package-manager:
       title: Flarum {version} Major Update Available
       update: Update
 
+    minor_update_confirmation:
+      content: This will also update any other extensions/packages with availabe updates.
+
     updater:
       check_for_updates: Check for updates
       flarum: Flarum Core
