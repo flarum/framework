@@ -198,7 +198,7 @@ export default class Updater<Attrs> extends Component<Attrs> {
       app.modal.show(LoadingModal);
       this.isLoading = 'minor-update';
 
-      /*app
+      app
         .request({
           method: 'POST',
           url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
@@ -211,7 +211,7 @@ export default class Updater<Attrs> extends Component<Attrs> {
         .finally(() => {
           this.isLoading = null;
           m.redraw();
-        });*/
+        });
     }
   }
 

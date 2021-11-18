@@ -643,28 +643,29 @@ var Updater = /*#__PURE__*/function (_Component) {
   };
 
   _proto.updateCoreMinor = function updateCoreMinor() {
+    var _this5 = this;
+
     if (confirm(flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('flarum-package-manager.admin.minor_update_confirmation.content'))) {
       flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.modal.show(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_6___default.a);
       this.isLoading = 'minor-update';
-      /*app
-        .request({
-          method: 'POST',
-          url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
-          errorHandler,
-        })
-        .then(() => {
-          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
-          window.location.reload();
-        })
-        .finally(() => {
-          this.isLoading = null;
-          m.redraw();
-        });*/
+      flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.request({
+        method: 'POST',
+        url: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.forum.attribute('apiUrl') + "/package-manager/minor-update",
+        errorHandler: _utils_errorHandler__WEBPACK_IMPORTED_MODULE_8__["default"]
+      }).then(function () {
+        flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.alerts.show({
+          type: 'success'
+        }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('flarum-package-manager.admin.update_successful'));
+        window.location.reload();
+      })["finally"](function () {
+        _this5.isLoading = null;
+        m.redraw();
+      });
     }
   };
 
   _proto.updateExtension = function updateExtension(extension) {
-    var _this5 = this;
+    var _this6 = this;
 
     flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.modal.show(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_6___default.a);
     this.isLoading = 'extension-update';
@@ -680,13 +681,13 @@ var Updater = /*#__PURE__*/function (_Component) {
       }));
       window.location.reload();
     })["finally"](function () {
-      _this5.isLoading = null;
+      _this6.isLoading = null;
       m.redraw();
     });
   };
 
   _proto.updateGlobally = function updateGlobally() {
-    var _this6 = this;
+    var _this7 = this;
 
     flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.modal.show(flarum_admin_components_LoadingModal__WEBPACK_IMPORTED_MODULE_6___default.a);
     this.isLoading = 'global-update';
@@ -700,7 +701,7 @@ var Updater = /*#__PURE__*/function (_Component) {
       }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default.a.translator.trans('flarum-package-manager.admin.updater.global_update_successful'));
       window.location.reload();
     })["finally"](function () {
-      _this6.isLoading = null;
+      _this7.isLoading = null;
       m.redraw();
     });
   };
