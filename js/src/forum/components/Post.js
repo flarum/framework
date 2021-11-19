@@ -120,7 +120,7 @@ export default class Post extends Component {
   /**
    * Get the post's classes.
    *
-   * @param string classes
+   * @param existing string
    * @returns {string[]}
    */
   classes(existing) {
@@ -137,7 +137,7 @@ export default class Post extends Component {
       classes.push('Post--by-actor');
     }
 
-    if (user && user === discussion.user()) {
+    if (user && user.id() === discussion.attribute('startUserId')) {
       classes.push('Post--by-start-user');
     }
 
