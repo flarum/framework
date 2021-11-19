@@ -37,7 +37,7 @@ export default class Post extends Component<import("../../common/Component").Com
     /**
      * Get the post's classes.
      *
-     * @param string classes
+     * @param existing string
      * @returns {string[]}
      */
     classes(existing: any): string[];
