@@ -163,7 +163,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     const maxHeight =
       window.innerHeight - this.element.querySelector('.Search-input>.FormControl')!.getBoundingClientRect().bottom - resultsElementMargin;
 
-    this.element.querySelector('.Search-results')?.setAttribute('style', `max-height: ${maxHeight}px`);
+    (this.element.querySelector('.Search-results') as HTMLElement).style?.setProperty('max-height', `${maxHeight}px`);
   }
 
   onupdate(vnode: Mithril.VnodeDOM<T, this>) {
