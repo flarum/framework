@@ -1,5 +1,6 @@
 import app from '../../common/app';
 import Model from '../Model';
+import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 
 export interface Page<TModel> {
   number: number;
@@ -17,6 +18,10 @@ export interface PaginationLocation {
 
 export interface PaginatedListParams {
   [key: string]: any;
+}
+
+export interface PaginatedListRequestParams extends Omit<ApiQueryParamsPlural, 'include'> {
+  include?: string | string[];
 }
 
 export default abstract class PaginatedListState<T extends Model, P extends PaginatedListParams = PaginatedListParams> {
@@ -39,7 +44,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
 
   abstract get type(): string;
 
-  public clear() {
+  public clear(): void {
     this.pages = [];
 
     m.redraw();
@@ -69,15 +74,15 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       .finally(() => (this.loadingNext = false));
   }
 
-  protected parseResults(pg: number, results: T[]) {
+  protected parseResults(pg: number, results: ApiResponsePlural<T>): void {
     const pageNum = Number(pg);
 
-    const links = results.payload?.links || {};
+    const links = results.payload?.links;
     const page = {
       number: pageNum,
       items: results,
-      hasNext: !!links.next,
-      hasPrev: !!links.prev,
+      hasNext: !!links?.next,
+      hasPrev: !!links?.prev,
     };
 
     if (this.isEmpty() || pageNum > this.getNextPageNumber() - 1) {
@@ -94,18 +99,21 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   /**
    * Load a new page of results.
    */
-  protected loadPage(page = 1): Promise<T[]> {
-    const params = this.requestParams();
-    params.page = {
-      ...params.page,
-      offset: this.pageSize * (page - 1),
+  protected loadPage(page = 1): Promise<ApiResponsePlural<T>> {
+    const reqParams = this.requestParams();
+
+    const include = Array.isArray(reqParams.include) ? reqParams.include.join(',') : reqParams.include;
+
+    const params: ApiQueryParamsPlural = {
+      ...reqParams,
+      page: {
+        ...reqParams.page,
+        offset: this.pageSize * (page - 1),
+      },
+      include,
     };
 
-    if (Array.isArray(params.include)) {
-      params.include = params.include.join(',');
-    }
-
-    return app.store.find(this.type, params);
+    return app.store.find<T[]>(this.type, params);
   }
 
   /**
@@ -115,7 +123,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
    * @abstract
    * @see loadPage
    */
-  protected requestParams(): any {
+  protected requestParams(): PaginatedListRequestParams {
     return this.params;
   }
 
@@ -137,7 +145,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     return Promise.resolve();
   }
 
-  public refresh(page: number = 1) {
+  public refresh(page: number = 1): Promise<void> {
     this.initialLoading = true;
     this.loadingPrev = false;
     this.loadingNext = false;
@@ -147,14 +155,14 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     this.location = { page };
 
     return this.loadPage()
-      .then((results: T[]) => {
+      .then((results) => {
         this.pages = [];
         this.parseResults(this.location.page, results);
       })
       .finally(() => (this.initialLoading = false));
   }
 
-  public getPages() {
+  public getPages(): Page<T>[] {
     return this.pages;
   }
   public getLocation(): PaginationLocation {
@@ -203,7 +211,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   /**
    * Stored state parameters.
    */
-  public getParams(): any {
+  public getParams(): P {
     return this.params;
   }
 

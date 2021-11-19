@@ -1,12 +1,7 @@
 import app from '../../forum/app';
-import PaginatedListState, { Page, PaginatedListParams } from '../../common/states/PaginatedListState';
+import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
-
-export interface IRequestParams {
-  include: string[];
-  filter: Record<string, string>;
-  sort?: string;
-}
+import { ApiQueryParamsPlural, ApiResponsePlural } from '../../common/Store';
 
 export interface DiscussionListParams extends PaginatedListParams {
   sort?: string;
@@ -23,13 +18,12 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     return 'discussions';
   }
 
-  requestParams(): IRequestParams {
-    const params: IRequestParams = {
+  requestParams(): PaginatedListRequestParams {
+    const params = {
       include: ['user', 'lastPostedUser'],
       filter: this.params.filter || {},
+      sort: this.sortMap()[this.params.sort ?? ''],
     };
-
-    params.sort = this.sortMap()[this.params.sort ?? ''];
 
     if (this.params.q) {
       params.filter.q = this.params.q;
@@ -39,8 +33,8 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     return params;
   }
 
-  protected loadPage(page: number = 1): Promise<Discussion[]> {
-    const preloadedDiscussions = app.preloadedApiDocument() as Discussion[] | null;
+  protected loadPage(page: number = 1): Promise<ApiResponsePlural<Discussion>> {
+    const preloadedDiscussions = app.preloadedApiDocument<Discussion[]>();
 
     if (preloadedDiscussions) {
       this.initialLoading = false;
