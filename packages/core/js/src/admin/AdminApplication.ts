@@ -44,9 +44,9 @@ export default class AdminApplication extends Application {
   history = {
     canGoBack: () => true,
     getPrevious: () => {},
-    backUrl: () => this.forum.attribute('baseUrl'),
+    backUrl: () => this.forum.attribute<string>('baseUrl'),
     back: function () {
-      window.location = this.backUrl();
+      window.location.assign(this.backUrl());
     },
   };
 

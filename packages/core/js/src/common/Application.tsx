@@ -6,7 +6,7 @@ import ModalManager from './components/ModalManager';
 import AlertManager from './components/AlertManager';
 import RequestErrorModal from './components/RequestErrorModal';
 import Translator from './Translator';
-import Store from './Store';
+import Store, { ApiPayload, ApiResponse, ApiResponsePlural, ApiResponseSingle, payloadIsPlural } from './Store';
 import Session from './Session';
 import extract from './utils/extract';
 import Drawer from './utils/Drawer';
@@ -31,6 +31,7 @@ import type DefaultResolver from './resolvers/DefaultResolver';
 import type Mithril from 'mithril';
 import type Component from './Component';
 import type { ComponentAttrs } from './Component';
+import Model, { SavedModelData } from './Model';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -210,10 +211,10 @@ export default class Application {
   drawer!: Drawer;
 
   data!: {
-    apiDocument: Record<string, unknown> | null;
+    apiDocument: ApiPayload | null;
     locale: string;
     locales: Record<string, string>;
-    resources: Record<string, unknown>[];
+    resources: SavedModelData[];
     session: { userId: number; csrfToken: string };
     [key: string]: unknown;
   };
@@ -255,9 +256,9 @@ export default class Application {
 
     this.store.pushPayload({ data: this.data.resources });
 
-    this.forum = this.store.getById('forums', 1);
+    this.forum = this.store.getById('forums', '1')!;
 
-    this.session = new Session(this.store.getById('users', this.data.session.userId), this.data.session.csrfToken);
+    this.session = new Session(this.store.getById('users', String(this.data.session.userId)), this.data.session.csrfToken);
 
     this.mount();
 
@@ -317,10 +318,14 @@ export default class Application {
   /**
    * Get the API response document that has been preloaded into the application.
    */
-  preloadedApiDocument(): Record<string, unknown> | null {
+  preloadedApiDocument<M extends Model>(): ApiResponseSingle<M> | null;
+  preloadedApiDocument<Ms extends Model[]>(): ApiResponsePlural<Ms[number]> | null;
+  preloadedApiDocument<M extends Model | Model[]>(): ApiResponse<FlatArray<M, 1>> | null {
     // If the URL has changed, the preloaded Api document is invalid.
     if (this.data.apiDocument && window.location.href === this.initialRoute) {
-      const results = this.store.pushPayload(this.data.apiDocument);
+      const results = payloadIsPlural(this.data.apiDocument)
+        ? this.store.pushPayload<FlatArray<M, 1>[]>(this.data.apiDocument)
+        : this.store.pushPayload<FlatArray<M, 1>>(this.data.apiDocument);
 
       this.data.apiDocument = null;
 
@@ -450,7 +455,7 @@ export default class Application {
    * @param options
    * @return {Promise}
    */
-  request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType | string> {
+  request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType> {
     const options = this.transformRequestOptions(originalOptions);
 
     if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);

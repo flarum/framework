@@ -24,7 +24,7 @@ export default class DiscussionsSearchSource implements SearchSource {
       include: 'mostRelevantPost',
     };
 
-    return app.store.find('discussions', params).then((results) => {
+    return app.store.find<Discussion[]>('discussions', params).then((results) => {
       this.results.set(query, results);
       m.redraw();
     });

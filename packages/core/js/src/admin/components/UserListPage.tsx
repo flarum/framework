@@ -1,3 +1,5 @@
+import type Mithril from 'mithril';
+
 import app from '../../admin/app';
 
 import EditUserModal from '../../common/components/EditUserModal';
@@ -14,7 +16,6 @@ import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 
 import AdminPage from './AdminPage';
-import Mithril from 'mithril';
 
 type ColumnData = {
   /**
@@ -24,19 +25,8 @@ type ColumnData = {
   /**
    * Component(s) to show for this column.
    */
-  content: (user: User) => JSX.Element;
+  content: (user: User) => Mithril.Children;
 };
-
-type ApiPayload = {
-  data: Record<string, unknown>[];
-  included: Record<string, unknown>[];
-  links: {
-    first: string;
-    next?: string;
-  };
-};
-
-type UsersApiResponse = User[] & { payload: ApiPayload };
 
 /**
  * Admin page which displays a paginated list of all users on the forum.
@@ -185,7 +175,7 @@ export default class UserListPage extends AdminPage {
       'id',
       {
         name: app.translator.trans('core.admin.users.grid.columns.user_id.title'),
-        content: (user: User) => user.id(),
+        content: (user: User) => user.id() ?? '',
       },
       100
     );
@@ -348,15 +338,15 @@ export default class UserListPage extends AdminPage {
     if (pageNumber < 0) pageNumber = 0;
 
     app.store
-      .find('users', {
+      .find<User[]>('users', {
         page: {
           limit: this.numPerPage,
           offset: pageNumber * this.numPerPage,
         },
       })
-      .then((apiData: UsersApiResponse) => {
+      .then((apiData) => {
         // Next link won't be present if there's no more data
-        this.moreData = !!apiData.payload.links.next;
+        this.moreData = !!apiData.payload?.links?.next;
 
         let data = apiData;
 
