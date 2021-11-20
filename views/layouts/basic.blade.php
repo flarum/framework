@@ -1,6 +1,6 @@
-<?php
+@php
   $primaryColor = $settings->get('theme_primary_color', '#000');
-?>
+@endphp
 
 <!DOCTYPE html>
 <html>
