@@ -24,7 +24,7 @@ use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\Listener\PostUpdateListener;
+use Flarum\PackageManager\Listener\FlarumUpdateListener;
 
 class PackageManagerServiceProvider extends AbstractServiceProvider
 {
@@ -89,6 +89,6 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             }
         );
 
-        $events->listen(FlarumUpdated::class, PostUpdateListener::class);
+        $events->listen(FlarumUpdated::class, FlarumUpdateListener::class);
     }
 }

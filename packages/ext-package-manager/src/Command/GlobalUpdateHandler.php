@@ -55,12 +55,8 @@ class GlobalUpdateHandler
             throw new ComposerUpdateFailedException('*', $output->getContents());
         }
 
-        $this->commandDispatcher->dispatch(
-            new CheckForUpdates($command->actor)
-        );
-
         $this->events->dispatch(
-            new FlarumUpdated(FlarumUpdated::GLOBAL)
+            new FlarumUpdated($command->actor, FlarumUpdated::GLOBAL)
         );
 
         return true;

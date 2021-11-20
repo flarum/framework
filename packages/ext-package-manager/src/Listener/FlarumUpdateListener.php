@@ -10,13 +10,15 @@
 namespace Flarum\PackageManager\Listener;
 
 use Composer\Command\ClearCacheCommand;
+use Flarum\Bus\Dispatcher;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Foundation\Console\AssetsPublishCommand;
+use Flarum\PackageManager\Command\CheckForUpdates;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
-class PostUpdateListener
+class FlarumUpdateListener
 {
     /**
      * @var ClearCacheCommand
@@ -33,11 +35,23 @@ class PostUpdateListener
      */
     private $migrate;
 
-    public function __construct(ClearCacheCommand $clearCache, AssetsPublishCommand $publishAssets, MigrateCommand $migrate)
+    /**
+     * @var Dispatcher
+     */
+    private $bus;
+
+    /**
+     * @param ClearCacheCommand $clearCache
+     * @param AssetsPublishCommand $publishAssets
+     * @param MigrateCommand $migrate
+     * @param Dispatcher $bus
+     */
+    public function __construct(ClearCacheCommand $clearCache, AssetsPublishCommand $publishAssets, MigrateCommand $migrate, Dispatcher $bus)
     {
         $this->clearCache = $clearCache;
         $this->publishAssets = $publishAssets;
         $this->migrate = $migrate;
+        $this->bus = $bus;
     }
 
     /**
@@ -48,5 +62,9 @@ class PostUpdateListener
         $this->clearCache->run(new ArrayInput([]), new NullOutput());
         $this->migrate->run(new ArrayInput([]), new NullOutput());
         $this->publishAssets->run(new ArrayInput([]), new NullOutput());
+
+        $this->bus->dispatch(
+            new CheckForUpdates($event->actor)
+        );
     }
 }

@@ -84,10 +84,8 @@ class MajorUpdateHandler
             return true;
         }
 
-        $this->lastUpdateCheck->forgetAll();
-
         $this->events->dispatch(
-            new FlarumUpdated(FlarumUpdated::MAJOR)
+            new FlarumUpdated($command->actor, FlarumUpdated::MAJOR)
         );
 
         return true;
