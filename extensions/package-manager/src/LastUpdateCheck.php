@@ -79,9 +79,4 @@ class LastUpdateCheck
             }
         }
     }
-
-    public function forgetAll(): void
-    {
-        $this->save([]);
-    }
 }

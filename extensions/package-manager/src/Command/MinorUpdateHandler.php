@@ -68,10 +68,8 @@ class MinorUpdateHandler
             throw new ComposerUpdateFailedException('flarum/*', $output->getContents());
         }
 
-        $this->lastUpdateCheck->forgetAll();
-
         $this->events->dispatch(
-            new FlarumUpdated(FlarumUpdated::MINOR)
+            new FlarumUpdated($command->actor, FlarumUpdated::MINOR)
         );
 
         return true;

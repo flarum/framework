@@ -9,6 +9,8 @@
 
 namespace Flarum\PackageManager\Event;
 
+use Flarum\User\User;
+
 class FlarumUpdated
 {
     public const GLOBAL = 'global';
@@ -16,12 +18,18 @@ class FlarumUpdated
     public const MINOR = 'minor';
 
     /**
+     * @var User
+     */
+    public $actor;
+
+    /**
      * @var string
      */
     public $type;
 
-    public function __construct(string $type)
+    public function __construct(User $actor, string $type)
     {
+        $this->actor = $actor;
         $this->type = $type;
     }
 }
