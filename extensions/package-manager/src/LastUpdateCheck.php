@@ -54,22 +54,18 @@ class LastUpdateCheck
         return $core ? $core['latest-major'] : null;
     }
 
-    public function forget(string $name, bool $wildcard = false): void
+    public function forget(string $name): void
     {
-        $lastUpdateCheck = json_decode($this->settings->get(self::KEY, '{}'), true);
+        $lastUpdateCheck = $this->get();
 
         if (isset($lastUpdateCheck['updates']) && ! empty($lastUpdateCheck['updates']['installed'])) {
             $updatesListChanged = false;
-            $pattern = str_replace('\*', '.*', preg_quote($name, '/'));
 
             foreach ($lastUpdateCheck['updates']['installed'] as $k => $package) {
-                if (($wildcard && Str::of($package['name'])->test("/($pattern)/")) || $package['name'] === $name) {
+                if ($package['name'] === $name) {
                     unset($lastUpdateCheck['updates']['installed'][$k]);
                     $updatesListChanged = true;
-
-                    if (! $wildcard) {
-                        break;
-                    }
+                    break;
                 }
             }
 
