@@ -11,9 +11,10 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Composer\ComposerJson;
+use Flarum\PackageManager\Exception\MajorUpdateFailedException;
+use Flarum\PackageManager\Exception\NoNewMajorVersionException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\LastUpdateCheck;
 use Symfony\Component\Console\Input\ArrayInput;
 
@@ -61,7 +62,7 @@ class MajorUpdateHandler
      * Run migrations.
      *
      * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws ComposerUpdateFailedException
+     * @throws NoNewMajorVersionException|MajorUpdateFailedException
      */
     public function handle(MajorUpdate $command)
     {
@@ -70,12 +71,12 @@ class MajorUpdateHandler
         $majorVersion = $this->lastUpdateCheck->getNewMajorVersion();
 
         if (! $majorVersion) {
-            return false;
+            throw new NoNewMajorVersionException();
         }
 
         $this->updateComposerJson($majorVersion);
 
-        $this->runCommand($command->dryRun);
+        $this->runCommand($command->dryRun, $majorVersion);
 
         if ($command->dryRun) {
             $this->composerJson->revert();
@@ -94,29 +95,34 @@ class MajorUpdateHandler
 
     protected function updateComposerJson(string $majorVersion): void
     {
+        $versionNumber = str_replace('v', '', $majorVersion);
+
         $this->composerJson->require('*', '*');
-        $this->composerJson->require('flarum/core', '^'.str_replace('v', '', $majorVersion));
+        $this->composerJson->require('flarum/core', '^'.$versionNumber);
     }
 
     /**
-     * @throws ComposerUpdateFailedException
+     * @throws MajorUpdateFailedException
      */
-    protected function runCommand(bool $dryRun): void
+    protected function runCommand(bool $dryRun, string $majorVersion): void
     {
-        $output = $this->composer->run(
-            new ArrayInput([
-                'command' => 'update',
-                '--prefer-dist' => true,
-                '--no-plugins' => true,
-                '--no-dev' => true,
-                '-a' => true,
-                '--with-all-dependencies' => true,
-                '--dry-run' => $dryRun,
-            ])
-        );
+        $input = [
+            'command' => 'update',
+            '--prefer-dist' => true,
+            '--no-plugins' => true,
+            '--no-dev' => true,
+            '-a' => true,
+            '--with-all-dependencies' => true,
+        ];
+
+        if ($dryRun) {
+            $input['--dry-run'] = true;
+        }
+
+        $output = $this->composer->run(new ArrayInput($input));
 
         if ($output->getExitCode() !== 0) {
-            throw new ComposerUpdateFailedException('*', $output->getContents());
+            throw new MajorUpdateFailedException('*', $output->getContents(), $majorVersion);
         }
     }
 }

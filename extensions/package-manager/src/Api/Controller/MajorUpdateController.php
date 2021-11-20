@@ -33,7 +33,7 @@ class MajorUpdateController implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $dryRun = (bool) (int) Arr::get($request->getParsedBody(), 'data.dryRun');
+        $dryRun = (bool) (int) Arr::get($request->getParsedBody(), 'data.dryRun', 0);
 
         $this->bus->dispatch(
             new MajorUpdate($actor, $dryRun)

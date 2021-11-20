@@ -15,9 +15,9 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Flarum\PackageManager\Command\MinorFlarumUpdate;
+use Flarum\PackageManager\Command\MinorUpdate;
 
-class MinorFlarumUpdateController implements RequestHandlerInterface
+class MinorUpdateController implements RequestHandlerInterface
 {
     /**
      * @var Dispatcher
@@ -37,7 +37,7 @@ class MinorFlarumUpdateController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
 
         $this->bus->dispatch(
-            new MinorFlarumUpdate($actor)
+            new MinorUpdate($actor)
         );
 
         return new EmptyResponse();

@@ -44,6 +44,10 @@ class ComposerJson
             $composerJson['require'][$packageName] = $version;
         } else {
             foreach ($composerJson['require'] as $p => $v) {
+                if ($version === '*@dev') {
+                    continue;
+                }
+
                 $wildcardPackageName = str_replace('\*', '.*', preg_quote($packageName, '/'));
 
                 if (Str::of($p)->test("/($wildcardPackageName)/")) {
@@ -81,6 +85,6 @@ class ComposerJson
 
     protected function set(array $json): void
     {
-        $this->filesystem->put($this->getComposerJsonPath(), json_encode($json, JSON_PRETTY_PRINT));
+        $this->filesystem->put($this->getComposerJsonPath(), json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 }

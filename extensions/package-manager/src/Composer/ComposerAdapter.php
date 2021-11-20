@@ -14,6 +14,9 @@ use Flarum\PackageManager\OutputLogger;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * @internal
+ */
 class ComposerAdapter
 {
     /**
@@ -26,19 +29,23 @@ class ComposerAdapter
      */
     private $logger;
 
+    /**
+     * @var BufferedOutput
+     */
+    private $output;
+
     public function __construct(Application $application, OutputLogger $logger)
     {
         $this->application = $application;
         $this->logger = $logger;
+        $this->output = new BufferedOutput();
     }
 
     public function run(InputInterface $input): ComposerOutput
     {
-        $output = new BufferedOutput();
+        $exitCode = $this->application->run($input, $this->output);
 
-        $exitCode = $this->application->run($input, $output);
-
-        $outputContents = $output->fetch();
+        $outputContents = $this->output->fetch();
 
         $this->logger->log($input->__toString(), $outputContents, $exitCode);
 

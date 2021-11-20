@@ -11,7 +11,7 @@ namespace Flarum\PackageManager\Exception;
 
 use Flarum\Foundation\ErrorHandling\HandledError;
 
-class ComposerCommandFailedExceptionHandler
+class ExceptionHandler
 {
     public function handle(ComposerCommandFailedException $e): HandledError
     {
@@ -30,6 +30,10 @@ class ComposerCommandFailedExceptionHandler
 
         if ($guessedCause = $this->guessCause($e)) {
             $details['guessed_cause'] = $guessedCause;
+        }
+
+        if (! empty($e->details)) {
+            $details = array_merge($details, $e->details);
         }
 
         return [$details];

@@ -17,7 +17,7 @@ use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\LastUpdateCheck;
 use Symfony\Component\Console\Input\StringInput;
 
-class MinorFlarumUpdateHandler
+class MinorUpdateHandler
 {
     /**
      * @var ComposerAdapter
@@ -51,7 +51,7 @@ class MinorFlarumUpdateHandler
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws ComposerUpdateFailedException
      */
-    public function handle(MinorFlarumUpdate $command)
+    public function handle(MinorUpdate $command)
     {
         $command->actor->assertAdmin();
 

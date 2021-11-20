@@ -71,7 +71,9 @@ class CheckForUpdatesHandler
         if ($majorUpdates) {
             $secondOutput = $this->runComposerCommand(true);
             $secondOutput = json_decode($secondOutput, true);
-        } else {
+        }
+
+        if (! isset($secondOutput)) {
             $secondOutput = ['installed' => []];
         }
 
@@ -101,14 +103,17 @@ class CheckForUpdatesHandler
      */
     protected function runComposerCommand(bool $minorOnly): string
     {
-        $output = $this->composer->run(
-            new ArrayInput([
-                'command' => 'outdated',
-                '-D' => true,
-                '--minor-only' => $minorOnly,
-                '--format' => 'json',
-            ])
-        );
+        $input = [
+            'command' => 'outdated',
+            '-D' => true,
+            '--format' => 'json',
+        ];
+
+        if ($minorOnly) {
+            $input['--minor-only'] = true;
+        }
+
+        $output = $this->composer->run(new ArrayInput($input));
 
         if ($output->getExitCode() !== 0) {
             throw new ComposerCommandFailedException('', $output->getContents());

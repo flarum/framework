@@ -18,6 +18,11 @@ class ComposerCommandFailedException extends Exception
      */
     public $packageName;
 
+    /**
+     * @var array
+     */
+    public $details = [];
+
     public function __construct(string $packageName, string $output)
     {
         $this->packageName = $packageName;
