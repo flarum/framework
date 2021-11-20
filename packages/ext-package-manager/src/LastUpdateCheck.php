@@ -42,12 +42,12 @@ class LastUpdateCheck
 
     public function get(): array
     {
-        return json_decode($this->settings->get(self::KEY, '{}'), true);
+        return json_decode($this->settings->get(self::KEY), true);
     }
 
     public function getNewMajorVersion(): ?string
     {
-        $core = Arr::first($this->get()['updates']['installed'], function ($package) {
+        $core = Arr::first(Arr::get($this->get(), 'updates.installed', []), function ($package) {
             return $package['name'] === 'flarum/core';
         });
 

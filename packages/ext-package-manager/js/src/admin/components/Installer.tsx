@@ -4,14 +4,13 @@ import Component from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
-import ComposerFailureModal from './ComposerFailureModal';
 import errorHandler from '../utils/errorHandler';
 
-export default class Installer extends Component {
+export default class Installer<Attrs> extends Component<Attrs> {
   packageName!: Stream<string>;
   isLoading: boolean = false;
 
-  oninit(vnode: Mithril.Vnode): void {
+  oninit(vnode: Mithril.Vnode<Attrs, this>): void {
     super.oninit(vnode);
 
     this.packageName = Stream('');

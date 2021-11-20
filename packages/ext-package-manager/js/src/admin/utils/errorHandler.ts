@@ -1,5 +1,4 @@
 import app from 'flarum/admin/app';
-import ComposerFailureModal from '../components/ComposerFailureModal';
 
 export default function (e: any) {
   const error = e.response.errors[0];
@@ -10,7 +9,10 @@ export default function (e: any) {
 
   switch (error.code) {
     case 'composer_command_failure':
-      app.modal.show(ComposerFailureModal, { error });
+      if (error.guessed_cause) {
+        app.alerts.show({type: 'error'}, app.translator.trans(`flarum-package-manager.admin.exceptions.guessed_cause.${error.guessed_cause}`))
+        app.modal.close();
+      }
       break;
 
     case 'extension_already_installed':

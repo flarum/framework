@@ -11,7 +11,7 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\User\User;
 
-class MinorFlarumUpdate
+class MinorUpdate
 {
     /**
      * @var \Flarum\User\User

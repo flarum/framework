@@ -4,6 +4,12 @@ flarum-package-manager:
       extension_already_installed: Extension is already installed.
       extension_not_installed: Extension not found.
 
+      guessed_cause:
+        extension_incompatible_with_instance: The extension is most likely incompatible with your current Flarum instance.
+        extensions_incompatible_with_new_major: >
+          Some installed extensions are not compatible with the newest major release.
+          Please wait until the extensions are updated to be compatible by the authors, or remove them before proceeding.
+
     extensions:
       install: Install a new extension
       install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.
@@ -12,12 +18,6 @@ flarum-package-manager:
       successful_remove: Extension removed successfully.
       successful_update: "{extension} was updated successfully, redirecting.."
       update: Update
-
-    failure_modal:
-      title: Operation Failed
-      guessed_cause:
-        extension_incompatible_with_instance: The extension is most likely incompatible with your current Flarum instance.
-      show_composer_output: Show Advanced Details
 
     file_permissions: >
       The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage/.composer

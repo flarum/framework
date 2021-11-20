@@ -13,11 +13,10 @@ use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Document;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Exception\ComposerCommandFailedExceptionHandler;
+use Flarum\PackageManager\Exception\ExceptionHandler;
 use Flarum\PackageManager\Exception\ComposerRequireFailedException;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
-use Flarum\PackageManager\Exception\ExtensionAlreadyInstalledException;
-use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
+use Flarum\PackageManager\Exception\MajorUpdateFailedException;
 
 return [
     (new Extend\Routes('api'))
@@ -25,7 +24,8 @@ return [
         ->patch('/package-manager/extensions/{id}', 'package-manager.extensions.update', Api\Controller\UpdateExtensionController::class)
         ->delete('/package-manager/extensions/{id}', 'package-manager.extensions.remove', Api\Controller\RemoveExtensionController::class)
         ->post('/package-manager/check-for-updates', 'package-manager.check-for-updates', Api\Controller\CheckForUpdatesController::class)
-        ->post('/package-manager/minor-update', 'package-manager.minor-update', Api\Controller\MinorFlarumUpdateController::class)
+        ->post('/package-manager/minor-update', 'package-manager.minor-update', Api\Controller\MinorUpdateController::class)
+        ->post('/package-manager/major-update', 'package-manager.major-update', Api\Controller\MajorUpdateController::class)
         ->post('/package-manager/global-update', 'package-manager.global-update', Api\Controller\GlobalUpdateController::class),
 
     (new Extend\Frontend('admin'))
@@ -44,15 +44,23 @@ return [
 
     new Extend\Locales(__DIR__ . '/locale'),
 
+    (new Extend\Settings())
+        ->default('flarum-package-manager.last_update_check', json_encode([
+            'checkedAt' => null,
+            'updates' => [
+                'installed' => [],
+            ],
+        ])),
+
     (new Extend\ServiceProvider)
         ->register(PackageManagerServiceProvider::class),
 
     (new Extend\ErrorHandling)
-        ->handler(ComposerCommandFailedException::class, ComposerCommandFailedExceptionHandler::class)
-        ->handler(ComposerRequireFailedException::class, ComposerCommandFailedExceptionHandler::class)
-        ->handler(ComposerUpdateFailedException::class, ComposerCommandFailedExceptionHandler::class)
-        ->type(ExtensionAlreadyInstalledException::class, 'extension_already_installed')
+        ->handler(ComposerCommandFailedException::class, ExceptionHandler::class)
+        ->handler(ComposerRequireFailedException::class, ExceptionHandler::class)
+        ->handler(ComposerUpdateFailedException::class, ExceptionHandler::class)
+        ->handler(MajorUpdateFailedException::class, ExceptionHandler::class)
         ->status('extension_already_installed', 409)
-        ->type(ExtensionNotInstalledException::class, 'extension_not_installed')
-        ->status('extension_not_installed', 409),
+        ->status('extension_not_installed', 409)
+        ->status('no_new_major_version', 409),
 ];
