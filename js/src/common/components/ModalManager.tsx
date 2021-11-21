@@ -1,7 +1,9 @@
 import Component from '../Component';
 
-import type Mithril from 'mithril';
+import { createFocusTrap, FocusTrap } from '../utils/focusTrap';
+
 import type ModalManagerState from '../states/ModalManagerState';
+import type Mithril from 'mithril';
 
 interface IModalManagerAttrs {
   state: ModalManagerState;
@@ -13,7 +15,14 @@ interface IModalManagerAttrs {
  * overwrite the previous one.
  */
 export default class ModalManager extends Component<IModalManagerAttrs> {
-  view() {
+  protected focusTrap: FocusTrap | undefined;
+
+  /**
+   * Whether a modal is currently shown by this modal manager.
+   */
+  protected modalShown: boolean = false;
+
+  view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
     const modal = this.attrs.state.modal;
 
     return (
@@ -29,19 +38,36 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     );
   }
 
-  oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>) {
+  oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
     super.oncreate(vnode);
 
     // Ensure the modal state is notified about a closed modal, even when the
     // DOM-based Bootstrap JavaScript code triggered the closing of the modal,
     // e.g. via ESC key or a click on the modal backdrop.
     this.$().on('hidden.bs.modal', this.attrs.state.close.bind(this.attrs.state));
+
+    this.focusTrap = createFocusTrap(this.element as HTMLElement);
+  }
+
+  onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
+    super.onupdate(vnode);
+
+    requestAnimationFrame(() => {
+      try {
+        if (this.modalShown) this.focusTrap!.activate?.();
+        else this.focusTrap!.deactivate?.();
+      } catch {
+        // We can expect errors to occur here due to the nature of mithril rendering
+      }
+    });
   }
 
   animateShow(readyCallback: () => void): void {
     if (!this.attrs.state.modal) return;
 
     const dismissible = !!this.attrs.state.modal.componentClass.isDismissible;
+
+    this.modalShown = true;
 
     // If we are opening this modal while another modal is already open,
     // the shown event will not run, because the modal is already open.
@@ -64,5 +90,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   animateHide(): void {
     // @ts-expect-error: No typings available for Bootstrap modals.
     this.$().modal('hide');
+
+    this.modalShown = false;
   }
 }
