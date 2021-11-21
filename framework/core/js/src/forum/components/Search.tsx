@@ -202,7 +202,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     this.navigator
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
-      .onSelect(this.selectResult.bind(this))
+      .onSelect(this.selectResult.bind(this), true)
       .onCancel(this.clear.bind(this))
       .bindTo($input);
 
