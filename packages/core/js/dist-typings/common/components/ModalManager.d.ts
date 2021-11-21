@@ -1,6 +1,7 @@
 import Component from '../Component';
-import type Mithril from 'mithril';
+import { FocusTrap } from '../utils/focusTrap';
 import type ModalManagerState from '../states/ModalManagerState';
+import type Mithril from 'mithril';
 interface IModalManagerAttrs {
     state: ModalManagerState;
 }
@@ -10,8 +11,14 @@ interface IModalManagerAttrs {
  * overwrite the previous one.
  */
 export default class ModalManager extends Component<IModalManagerAttrs> {
-    view(): JSX.Element;
+    protected focusTrap: FocusTrap | undefined;
+    /**
+     * Whether a modal is currently shown by this modal manager.
+     */
+    protected modalShown: boolean;
+    view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children;
     oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void;
+    onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void;
     animateShow(readyCallback: () => void): void;
     animateHide(): void;
 }
