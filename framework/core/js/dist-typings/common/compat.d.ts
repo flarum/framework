@@ -40,6 +40,7 @@ declare var _default: {
     'utils/withAttr': (key: string, cb: Function) => (this: Element) => void;
     'utils/throttleDebounce': typeof ThrottleDebounce;
     'utils/isObject': typeof isObject;
+    'utils/focusTrap': typeof FocusTrap;
     'models/Notification': typeof Notification;
     'models/User': typeof User;
     'models/Post': typeof Post;
@@ -120,6 +121,7 @@ import formatNumber from "./utils/formatNumber";
 import mapRoutes from "./utils/mapRoutes";
 import * as ThrottleDebounce from "./utils/throttleDebounce";
 import isObject from "./utils/isObject";
+import * as FocusTrap from "./utils/focusTrap";
 import Notification from "./models/Notification";
 import User from "./models/User";
 import Post from "./models/Post";
