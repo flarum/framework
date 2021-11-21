@@ -12,7 +12,6 @@ namespace Flarum\Frontend\Compiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Compiler\Source\SourceInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
 
 /**
  * @internal
