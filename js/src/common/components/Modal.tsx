@@ -129,7 +129,9 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
   /**
    * Handle the modal form's submit event.
    */
-  abstract onsubmit(e: Event): void;
+  onsubmit(e: Event): void {
+    // ...
+  }
 
   /**
    * Callback executed when the modal is shown and ready to be interacted with.
