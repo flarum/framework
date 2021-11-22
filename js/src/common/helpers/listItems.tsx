@@ -9,17 +9,16 @@ type ModdedVnodeAttrs = {
 };
 
 type ModdedTag = Mithril.Vnode['tag'] & {
-    isListItem?: boolean;
-    isActive?: (attrs: ComponentAttrs) => boolean;
-  };
+  isListItem?: boolean;
+  isActive?: (attrs: ComponentAttrs) => boolean;
+};
 
-type ModdedVnode = Mithril.Vnode<ModdedVnodeAttrs> & { itemName?: string, itemClassName?: string, tag: ModdedTag; };
+type ModdedVnode = Mithril.Vnode<ModdedVnodeAttrs> & { itemName?: string; itemClassName?: string; tag: ModdedTag };
 
-type ModdedChild = (ModdedVnode | string | number | boolean | null | undefined);
+type ModdedChild = ModdedVnode | string | number | boolean | null | undefined;
 interface ModdedChildArray extends Array<ModdedChildren> {}
-type ModdedChildren = (ModdedChild | ModdedChildArray);
+type ModdedChildren = ModdedChild | ModdedChildArray;
 type ModdedChildrenWithItemname = ModdedChildren & { itemName?: string };
-
 
 function isVnode(item: ModdedChildren): item is Mithril.Vnode {
   return typeof item === 'object' && item !== null && 'tag' in item;
@@ -75,11 +74,7 @@ export default function listItems<Attrs extends ComponentAttrs>(
     const className = item.attrs?.itemClassName || item.itemClassName;
 
     return (
-      <Tag
-        className={classList([className, active && 'active'])}
-        key={item?.attrs?.key || item.itemName}
-        {...attributes}
-      >
+      <Tag className={classList([className, active && 'active'])} key={item?.attrs?.key || item.itemName} {...attributes}>
         {item}
       </Tag>
     );
