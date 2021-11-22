@@ -78,6 +78,9 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     }
   }
 
+  /**
+   * @todo split into FormModal and Modal in 2.0
+   */
   view() {
     if (this.alertAttrs) {
       this.alertAttrs.dismissible = false;
@@ -124,9 +127,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   /**
    * Get the content of the modal.
    */
-  content(): Mithril.Children {
-    return null;
-  }
+ abstract content(): Mithril.Children;
 
   /**
    * Handle the modal form's submit event.
