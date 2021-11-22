@@ -223,10 +223,8 @@ export default class Store {
   /**
    * Create a new record of the given type.
    *
-   * @param {String} type The resource type
-   * @param {Object} [data] Any data to initialize the model with
-   * @return {Model}
-   * @public
+   * @param type The resource type
+   * @param data Any data to initialize the model with
    */
   createRecord<M extends Model>(type: string, data: ModelData = {}): M {
     data.type = data.type || type;
