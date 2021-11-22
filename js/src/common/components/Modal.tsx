@@ -124,7 +124,9 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
   /**
    * Get the content of the modal.
    */
-  abstract content(): Mithril.Children;
+  content(): Mithril.Children {
+    return null;
+  };
 
   /**
    * Handle the modal form's submit event.
