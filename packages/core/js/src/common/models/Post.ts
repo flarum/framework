@@ -37,7 +37,7 @@ export default class Post extends Model {
         return getPlainContent(content);
       }
 
-      return content as (null | undefined);
+      return content as null | undefined;
     }).call(this);
   }
 
