@@ -44,12 +44,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
             };
         });
 
-        $this->container->singleton('flarum.frontend.factory', function (Container $container, string $namespace = 'flarum') {
-            return function (string $name) use ($container, $namespace) {
+        $this->container->singleton('flarum.frontend.factory', function (Container $container) {
+            return function (string $name, string $namespace = 'flarum') use ($container) {
                 $frontend = $container->make(Frontend::class);
 
-                $frontend->content(function (Document $document) use ($name) {
-                    $document->layoutView = sprintf('%s:frontend.%s', $namespace, $name);
+                $frontend->content(function (Document $document) use ($name, $namespace) {
+                    $document->layoutView = sprintf('%s::frontend.%s', $namespace, $name);
                 });
 
                 $frontend->content($container->make(Content\Assets::class)->forFrontend($name));
