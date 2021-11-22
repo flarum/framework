@@ -13,10 +13,10 @@ export default class Group extends Model {
   }
 
   color() {
-    return Model.attribute<string>('color').call(this);
+    return Model.attribute<string | null>('color').call(this);
   }
   icon() {
-    return Model.attribute<string>('icon').call(this);
+    return Model.attribute<string | null>('icon').call(this);
   }
 
   isHidden() {

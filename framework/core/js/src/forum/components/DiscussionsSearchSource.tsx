@@ -40,7 +40,7 @@ export default class DiscussionsSearchSource implements SearchSource {
         <li className="DiscussionSearchResult" data-index={'discussions' + discussion.id()}>
           <Link href={app.route.discussion(discussion, mostRelevantPost && mostRelevantPost.number())}>
             <div className="DiscussionSearchResult-title">{highlight(discussion.title(), query)}</div>
-            {mostRelevantPost ? <div className="DiscussionSearchResult-excerpt">{highlight(mostRelevantPost.contentPlain(), query, 100)}</div> : ''}
+            {mostRelevantPost ? <div className="DiscussionSearchResult-excerpt">{highlight(mostRelevantPost.contentPlain() ?? '', query, 100)}</div> : ''}
           </Link>
         </li>
       );

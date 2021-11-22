@@ -310,6 +310,8 @@ export default abstract class Model {
    *     relationship exists; undefined if the relationship exists but the model
    *     has not been loaded; or the model if it has been loaded.
    */
+  static hasOne<M extends Model>(name: string): () => M | false;
+  static hasOne<M extends Model | null>(name: string): () => M | null | false;
   static hasOne<M extends Model>(name: string): () => M | false {
     return function (this: Model) {
       if (this.data.relationships) {
@@ -358,8 +360,12 @@ export default abstract class Model {
   /**
    * Transform the given value into a Date object.
    */
-  static transformDate(value: string | null): Date | null {
-    return value ? new Date(value) : null;
+  static transformDate(value: string): Date;
+  static transformDate(value: string | null): Date | null;
+  static transformDate(value: string | undefined): Date | undefined;
+  static transformDate(value: string | null | undefined): Date | null | undefined;
+  static transformDate(value: string | null | undefined): Date | null | undefined {
+    return value != null ? new Date(value) : value;
   }
 
   /**
