@@ -73,18 +73,14 @@ export default class ForumApplication extends Application {
    */
   discussions: DiscussionListState = new DiscussionListState({});
 
-
-  route: typeof Application.prototype.route & ReturnType<typeof makeRouteHelpers>; 
+  route: typeof Application.prototype.route & ReturnType<typeof makeRouteHelpers>;
 
   constructor() {
     super();
 
     routes(this);
 
-    this.route = Object.assign(
-      Application.prototype.route.bind(this),
-      makeRouteHelpers(this),
-    );
+    this.route = Object.assign(Application.prototype.route.bind(this), makeRouteHelpers(this));
   }
 
   /**

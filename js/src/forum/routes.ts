@@ -55,6 +55,6 @@ export function makeRouteHelpers(app: ForumApplication) {
       return app.route('user', {
         username: user.slug(),
       });
-    }
-  }
+    },
+  };
 }
