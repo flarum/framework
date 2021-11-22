@@ -71,7 +71,6 @@ export default abstract class Model {
   /**
    * @param data A resource object from the API.
    * @param store The data store that this model should be persisted to.
-   * @public
    */
   constructor(data: ModelData = {}, store = null) {
     this.data = data;
@@ -150,7 +149,6 @@ export default abstract class Model {
    * Merge new attributes into this model locally.
    *
    * @param attributes The attributes to merge.
-   * @public
    */
   pushAttributes(attributes: ModelAttributes) {
     this.pushData({ attributes });
@@ -161,7 +159,6 @@ export default abstract class Model {
    *
    * @param attributes The attributes to save. If a 'relationships' key
    *     exists, it will be extracted and relationships will also be saved.
-   * @public
    */
   save(
     attributes: SaveAttributes,
@@ -337,7 +334,6 @@ export default abstract class Model {
    * @return false if no information about the relationship
    *     exists; an array if it does, containing models if they have been
    *     loaded, and undefined for those that have not.
-   * @public
    */
   static hasMany<M extends Model>(name: string): () => (M | undefined)[] | false {
     return function (this: Model) {
