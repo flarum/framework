@@ -42,7 +42,7 @@ export default class Discussion extends Model {
     return Model.attribute<number | undefined>('commentCount').call(this);
   }
   replyCount() {
-    return computed<Number, this>('commentCount', (commentCount) => Math.max(0, (commentCount as number ?? 0) - 1)).call(this);
+    return computed<Number, this>('commentCount', (commentCount) => Math.max(0, ((commentCount as number) ?? 0) - 1)).call(this);
   }
   posts() {
     return Model.hasMany<Post>('posts').call(this);
@@ -112,9 +112,9 @@ export default class Discussion extends Model {
    * user.
    */
   unreadCount(): number {
-    const user = app.session.user;
+    const user: User = app.session.user;
 
-    if (user && user.markedAllAsReadAt().getTime() < this.lastPostedAt()?.getTime()!) {
+    if (user && (user.markedAllAsReadAt()?.getTime() ?? 0) < this.lastPostedAt()?.getTime()!) {
       const unreadCount = Math.max(0, (this.lastPostNumber() ?? 0) - (this.lastReadPostNumber() || 0));
       // If posts have been deleted, it's possible that the unread count could exceed the
       // actual post count. As such, we take the min of the two to ensure this isn't an issue.
