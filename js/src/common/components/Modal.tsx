@@ -126,7 +126,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
    */
   content(): Mithril.Children {
     return null;
-  };
+  }
 
   /**
    * Handle the modal form's submit event.
