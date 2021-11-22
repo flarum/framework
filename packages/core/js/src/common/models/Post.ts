@@ -13,55 +13,61 @@ export default class Post extends Model {
   }
 
   createdAt() {
-    return Model.attribute<Date | null, string>('createdAt', Model.transformDate).call(this);
+    return Model.attribute<Date, string>('createdAt', Model.transformDate).call(this);
   }
   user() {
     return Model.hasOne<User>('user').call(this);
   }
 
   contentType() {
-    return Model.attribute<string>('contentType').call(this);
+    return Model.attribute<string | null>('contentType').call(this);
   }
   content() {
-    return Model.attribute<string>('content').call(this);
+    return Model.attribute<string | null | undefined>('content').call(this);
   }
   contentHtml() {
-    return Model.attribute<string>('contentHtml').call(this);
+    return Model.attribute<string | null | undefined>('contentHtml').call(this);
   }
   renderFailed() {
-    return Model.attribute<boolean>('renderFailed').call(this);
+    return Model.attribute<boolean | undefined>('renderFailed').call(this);
   }
   contentPlain() {
-    return computed<string>('contentHtml', getPlainContent as (content: unknown) => string).call(this);
+    return computed<string | null | undefined>('contentHtml', (content) => {
+      if (typeof content === 'string') {
+        return getPlainContent(content);
+      }
+
+      return content as (null | undefined);
+    }).call(this);
   }
 
   editedAt() {
-    return Model.attribute<Date | null, string>('editedAt', Model.transformDate).call(this);
+    return Model.attribute('editedAt', Model.transformDate).call(this);
   }
   editedUser() {
-    return Model.hasOne<User>('editedUser').call(this);
+    return Model.hasOne<User | null>('editedUser').call(this);
   }
   isEdited() {
     return computed<boolean>('editedAt', (editedAt) => !!editedAt).call(this);
   }
 
   hiddenAt() {
-    return Model.attribute<Date | null, string>('hiddenAt', Model.transformDate).call(this);
+    return Model.attribute('hiddenAt', Model.transformDate).call(this);
   }
   hiddenUser() {
-    return Model.hasOne<User>('hiddenUser').call(this);
+    return Model.hasOne<User | null>('hiddenUser').call(this);
   }
   isHidden() {
     return computed<boolean>('hiddenAt', (hiddenAt) => !!hiddenAt).call(this);
   }
 
   canEdit() {
-    return Model.attribute<boolean>('canEdit').call(this);
+    return Model.attribute<boolean | undefined>('canEdit').call(this);
   }
   canHide() {
-    return Model.attribute<boolean>('canHide').call(this);
+    return Model.attribute<boolean | undefined>('canHide').call(this);
   }
   canDelete() {
-    return Model.attribute<boolean>('canDelete').call(this);
+    return Model.attribute<boolean | undefined>('canDelete').call(this);
   }
 }

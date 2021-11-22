@@ -6,6 +6,7 @@ import ItemList from '../utils/ItemList';
 import computed from '../utils/computed';
 import GroupBadge from '../components/GroupBadge';
 import Mithril from 'mithril';
+import Group from './Group';
 
 export default class User extends Model {
   username() {
@@ -19,65 +20,65 @@ export default class User extends Model {
   }
 
   email() {
-    return Model.attribute<string | null>('email').call(this);
+    return Model.attribute<string | undefined>('email').call(this);
   }
   isEmailConfirmed() {
-    return Model.attribute<boolean | null>('isEmailConfirmed').call(this);
+    return Model.attribute<boolean | undefined>('isEmailConfirmed').call(this);
   }
 
   password() {
-    return Model.attribute<string | null>('password').call(this);
+    return Model.attribute<string | undefined>('password').call(this);
   }
 
   avatarUrl() {
-    return Model.attribute<string>('avatarUrl').call(this);
+    return Model.attribute<string | null>('avatarUrl').call(this);
   }
 
   preferences() {
-    return Model.attribute<Record<string, any> | null>('preferences').call(this);
+    return Model.attribute<Record<string, any> | null | undefined>('preferences').call(this);
   }
 
   groups() {
-    return Model.hasMany('groups').call(this);
+    return Model.hasMany<Group>('groups').call(this);
   }
 
   joinTime() {
-    return Model.attribute<Date | null, string | null>('joinTime', Model.transformDate).call(this);
+    return Model.attribute('joinTime', Model.transformDate).call(this);
   }
 
   lastSeenAt() {
-    return Model.attribute<Date | null, string | null>('lastSeenAt', Model.transformDate).call(this);
+    return Model.attribute('lastSeenAt', Model.transformDate).call(this);
   }
 
   markedAllAsReadAt() {
-    return Model.attribute<Date | null, string | null>('markedAllAsReadAt', Model.transformDate).call(this);
+    return Model.attribute('markedAllAsReadAt', Model.transformDate).call(this);
   }
 
   unreadNotificationCount() {
-    return Model.attribute<number | null>('unreadNotificationCount').call(this);
+    return Model.attribute<number | undefined>('unreadNotificationCount').call(this);
   }
   newNotificationCount() {
-    return Model.attribute<number | null>('newNotificationCount').call(this);
+    return Model.attribute<number | undefined>('newNotificationCount').call(this);
   }
 
   discussionCount() {
-    return Model.attribute<number | null>('discussionCount').call(this);
+    return Model.attribute<number | undefined>('discussionCount').call(this);
   }
   commentCount() {
-    return Model.attribute<number | null>('commentCount').call(this);
+    return Model.attribute<number | undefined>('commentCount').call(this);
   }
 
   canEdit() {
-    return Model.attribute<boolean | null>('canEdit').call(this);
+    return Model.attribute<boolean | undefined>('canEdit').call(this);
   }
   canEditCredentials() {
-    return Model.attribute<boolean | null>('canEditCredentials').call(this);
+    return Model.attribute<boolean | undefined>('canEditCredentials').call(this);
   }
   canEditGroups() {
-    return Model.attribute<boolean | null>('canEditGroups').call(this);
+    return Model.attribute<boolean | undefined>('canEditGroups').call(this);
   }
   canDelete() {
-    return Model.attribute<boolean | null>('canDelete').call(this);
+    return Model.attribute<boolean | undefined>('canDelete').call(this);
   }
 
   color() {
@@ -148,7 +149,7 @@ export default class User extends Model {
       m.redraw();
     };
     image.crossOrigin = 'anonymous';
-    image.src = this.avatarUrl();
+    image.src = this.avatarUrl() ?? '';
   }
 
   /**

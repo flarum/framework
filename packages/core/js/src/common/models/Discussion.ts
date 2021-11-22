@@ -16,46 +16,46 @@ export default class Discussion extends Model {
   }
 
   createdAt() {
-    return Model.attribute<Date | null, string | null>('createdAt', Model.transformDate).call(this);
+    return Model.attribute<Date | undefined, string | undefined>('createdAt', Model.transformDate).call(this);
   }
   user() {
-    return Model.hasOne<User>('user').call(this);
+    return Model.hasOne<User | null>('user').call(this);
   }
   firstPost() {
-    return Model.hasOne<Post>('firstPost').call(this);
+    return Model.hasOne<Post | null>('firstPost').call(this);
   }
 
   lastPostedAt() {
-    return Model.attribute<Date | null, string | null>('lastPostedAt', Model.transformDate).call(this);
+    return Model.attribute('lastPostedAt', Model.transformDate).call(this);
   }
   lastPostedUser() {
-    return Model.hasOne<User>('lastPostedUser').call(this);
+    return Model.hasOne<User | null>('lastPostedUser').call(this);
   }
   lastPost() {
-    return Model.hasOne<Post>('lastPost').call(this);
+    return Model.hasOne<Post | null>('lastPost').call(this);
   }
   lastPostNumber() {
-    return Model.attribute<number | null>('lastPostNumber').call(this);
+    return Model.attribute<number | null | undefined>('lastPostNumber').call(this);
   }
 
   commentCount() {
-    return Model.attribute<number | null>('commentCount').call(this);
+    return Model.attribute<number | undefined>('commentCount').call(this);
   }
   replyCount() {
-    return computed<number, this>('commentCount', (commentCount) => Math.max(0, (commentCount as number) - 1)).call(this);
+    return computed<Number, this>('commentCount', (commentCount) => Math.max(0, (commentCount as number ?? 0) - 1)).call(this);
   }
   posts() {
     return Model.hasMany<Post>('posts').call(this);
   }
   mostRelevantPost() {
-    return Model.hasOne<Post>('mostRelevantPost').call(this);
+    return Model.hasOne<Post | null>('mostRelevantPost').call(this);
   }
 
   lastReadAt() {
-    return Model.attribute<Date | null, string | null>('lastReadAt', Model.transformDate).call(this);
+    return Model.attribute('lastReadAt', Model.transformDate).call(this);
   }
   lastReadPostNumber() {
-    return Model.attribute<number | null>('lastReadPostNumber').call(this);
+    return Model.attribute<number | null | undefined>('lastReadPostNumber').call(this);
   }
   isUnread() {
     return computed<boolean, this>('unreadCount', (unreadCount) => !!unreadCount).call(this);
@@ -65,26 +65,26 @@ export default class Discussion extends Model {
   }
 
   hiddenAt() {
-    return Model.attribute<Date | null, string | null>('hiddenAt', Model.transformDate).call(this);
+    return Model.attribute('hiddenAt', Model.transformDate).call(this);
   }
   hiddenUser() {
-    return Model.hasOne<User>('hiddenUser').call(this);
+    return Model.hasOne<User | null>('hiddenUser').call(this);
   }
   isHidden() {
     return computed<boolean, this>('hiddenAt', (hiddenAt) => !!hiddenAt).call(this);
   }
 
   canReply() {
-    return Model.attribute<boolean | null>('canReply').call(this);
+    return Model.attribute<boolean | undefined>('canReply').call(this);
   }
   canRename() {
-    return Model.attribute<boolean | null>('canRename').call(this);
+    return Model.attribute<boolean | undefined>('canRename').call(this);
   }
   canHide() {
-    return Model.attribute<boolean | null>('canHide').call(this);
+    return Model.attribute<boolean | undefined>('canHide').call(this);
   }
   canDelete() {
-    return Model.attribute<boolean | null>('canDelete').call(this);
+    return Model.attribute<boolean | undefined>('canDelete').call(this);
   }
 
   /**
