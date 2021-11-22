@@ -129,7 +129,7 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
   /**
    * Handle the modal form's submit event.
    */
-  onsubmit(e: Event): void {
+  onsubmit(e: SubmitEvent): void {
     // ...
   }
 
