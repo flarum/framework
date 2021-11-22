@@ -59,7 +59,7 @@ export default function listItems<Attrs extends ComponentAttrs>(
 
   return withoutUnnecessarySeparators(items).map((item) => {
     const classes = [item.itemName && `item-${item.itemName}`];
-  
+
     if (!isVnode(item)) {
       return (
         <Tag className={classList(classes)} {...attributes}>
