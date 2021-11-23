@@ -1,4 +1,4 @@
-export default class ReadmeModal extends Modal<any> {
+export default class ReadmeModal extends Modal<import("../../common/components/Modal").IInternalModalAttrs> {
     constructor();
     name: any;
     extName: any;
