@@ -1,37 +1,35 @@
+import User from './models/User';
+import { FlarumRequestOptions } from './Application';
+export declare type LoginParams = {
+    /**
+     * The username/email
+     */
+    identification: string;
+    /**
+     * Password
+     */
+    password: string;
+};
 /**
  * The `Session` class defines the current user session. It stores a reference
  * to the current authenticated user, and provides methods to log in/out.
  */
 export default class Session {
-    constructor(user: any, csrfToken: any);
     /**
      * The current authenticated user.
-     *
-     * @type {User|null}
-     * @public
      */
-    public user: any | null;
+    user: User | null;
     /**
      * The CSRF token.
-     *
-     * @type {String|null}
-     * @public
      */
-    public csrfToken: string | null;
+    csrfToken: string;
+    constructor(user: User | null, csrfToken: string);
     /**
      * Attempt to log in a user.
-     *
-     * @param {String} identification The username/email.
-     * @param {String} password
-     * @param {Object} [options]
-     * @return {Promise}
-     * @public
      */
-    public login(body: any, options?: Object | undefined): Promise<any>;
+    login(body: LoginParams, options?: Omit<FlarumRequestOptions<any>, 'url' | 'body' | 'method'>): Promise<any>;
     /**
      * Log the user out.
-     *
-     * @public
      */
-    public logout(): void;
+    logout(): void;
 }
