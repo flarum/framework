@@ -71,8 +71,8 @@ export default function addComposerAutocomplete() {
       dropdown.hide();
     };
 
-    params.inputListeners.push(function () {
-      const selection = app.composer.editor.getSelectionRange();
+    params.inputListeners.push(() => {
+      const selection = this.attrs.composer.editor.getSelectionRange();
 
       const cursor = selection[0];
 
@@ -80,7 +80,7 @@ export default function addComposerAutocomplete() {
 
       // Search backwards from the cursor for an '@' symbol. If we find one,
       // we will want to show the autocomplete dropdown!
-      const lastChunk = app.composer.editor.getLastNChars(30);
+      const lastChunk = this.attrs.composer.editor.getLastNChars(30);
       absMentionStart = 0;
       for (let i = lastChunk.length - 1; i >= 0; i--) {
         const character = lastChunk.substr(i, 1);
@@ -146,8 +146,8 @@ export default function addComposerAutocomplete() {
           // post, then we can suggest other posts in the discussion to mention.
           // We will add the 5 most recent comments in the discussion which
           // match any username characters that have been typed.
-          if (app.composer.bodyMatches(ReplyComposer) || app.composer.bodyMatches(EditPostComposer)) {
-            const composerAttrs = app.composer.body.attrs;
+          if (this.attrs.composer.bodyMatches(ReplyComposer) || this.attrs.composer.bodyMatches(EditPostComposer)) {
+            const composerAttrs = this.attrs.composer.body.attrs;
             const composerPost = composerAttrs.post;
             const discussion = (composerPost && composerPost.discussion()) || composerAttrs.discussion;
 
@@ -189,7 +189,7 @@ export default function addComposerAutocomplete() {
             m.render($container[0], dropdown.render());
 
             dropdown.show();
-            const coordinates = app.composer.editor.getCaretCoordinates(absMentionStart);
+            const coordinates = this.attrs.composer.editor.getCaretCoordinates(absMentionStart);
             const width = dropdown.$().outerWidth();
             const height = dropdown.$().outerHeight();
             const parent = dropdown.$().offsetParent();
