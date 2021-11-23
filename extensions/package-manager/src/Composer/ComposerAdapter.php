@@ -43,6 +43,8 @@ class ComposerAdapter
 
     public function run(InputInterface $input): ComposerOutput
     {
+        $this->application->resetComposer();
+
         $exitCode = $this->application->run($input, $this->output);
 
         $outputContents = $this->output->fetch();

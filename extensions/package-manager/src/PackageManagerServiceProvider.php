@@ -17,6 +17,7 @@ use Flarum\Foundation\Paths;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Listener\ReCheckForUpdates;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Monolog\Formatter\LineFormatter;
@@ -24,7 +25,7 @@ use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\Listener\FlarumUpdateListener;
+use Flarum\PackageManager\Listener\ClearCacheAfterUpdate;
 
 class PackageManagerServiceProvider extends AbstractServiceProvider
 {
@@ -89,6 +90,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             }
         );
 
-        $events->listen(FlarumUpdated::class, FlarumUpdateListener::class);
+        $events->listen(FlarumUpdated::class, ClearCacheAfterUpdate::class);
+        $events->listen([FlarumUpdated::class, Updated::class], ReCheckForUpdates::class);
     }
 }

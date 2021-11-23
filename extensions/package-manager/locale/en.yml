@@ -1,6 +1,7 @@
 flarum-package-manager:
   admin:
     exceptions:
+      composer_command_failure: Failed to execute. Check the composer logs in storage/logs/composer.
       extension_already_installed: Extension is already installed.
       extension_not_installed: Extension not found.
 
@@ -11,6 +12,7 @@ flarum-package-manager:
           Please wait until the extensions are updated to be compatible by the authors, or remove them before proceeding.
 
     extensions:
+      check_why_it_failed_updating: Show why it did not update to the latest.
       install: Install a new extension
       install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.
       proceed: Proceed
@@ -26,6 +28,10 @@ flarum-package-manager:
       description: Major Flarum updates are not backwards compatible, meaning that some of your currently installed extensions, and manually made modifications might not work with this new version.
       dry_run: Dry Run
       dry_run_help: A dry run emulates the update to see if your current setup can safely update, this does not mean that your manual made custom modifications will work in the newer version.
+      failure:
+        desc: The last major update failed, some installed extensions are not compatible with the new major release.
+        why: Find out more
+
       title: Flarum {version} Major Update Available
       update: Update
 
@@ -42,3 +48,6 @@ flarum-package-manager:
       updater_help: Runs a check for new extension and Flarum updates.
 
     update_successful: Flarum successfully updated.
+
+    why_not_modal:
+      title: Why Won't it Update
