@@ -93,7 +93,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
             <div className="Modal-close App-backControl">
               {Button.component({
                 icon: 'fas fa-times',
-                onclick: this.hide.bind(this),
+                onclick: () => this.hide(),
                 className: 'Button Button--icon Button--link',
                 'aria-label': app.translator.trans('core.lib.modal.close'),
               })}
@@ -148,14 +148,14 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   /**
    * Hides the modal.
    */
-  hide() {
+  hide(): void {
     this.attrs.state.close();
   }
 
   /**
    * Sets `loading` to false and triggers a redraw.
    */
-  loaded() {
+  loaded(): void {
     this.loading = false;
     m.redraw();
   }
@@ -164,7 +164,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
    * Shows an alert describing an error returned from the API, and gives focus to
    * the first relevant field involved in the error.
    */
-  onerror(error: RequestError) {
+  onerror(error: RequestError): void {
     this.alertAttrs = error.alert;
 
     m.redraw();
