@@ -17,9 +17,9 @@ export default class ColorPreviewInput extends Component {
       <div className="ColorInput">
         <input className={classList('FormControl', className)} {...attrs} />
 
-        <span className="ColorInput-icon">{icon('fas fa-exclamation-circle')}</span>
+        <span className="ColorInput-icon" role="presentation">{icon('fas fa-exclamation-circle')}</span>
 
-        <div className="ColorInput-preview" style={{ '--input-value': value }} />
+        <div className="ColorInput-preview" style={{ '--input-value': value }} role="presentation" />
       </div>
     );
   }
