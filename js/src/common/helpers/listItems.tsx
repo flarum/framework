@@ -16,7 +16,7 @@ type ModdedTag = Mithril.Vnode['tag'] & {
 type ModdedVnode = Mithril.Vnode<ModdedVnodeAttrs> & { itemName?: string; itemClassName?: string; tag: ModdedTag };
 
 type ModdedChild = ModdedVnode | string | number | boolean | null | undefined;
-interface ModdedChildArray extends Array<ModdedChildren> {}
+type ModdedChildArray = ModdedChildren[];
 type ModdedChildren = ModdedChild | ModdedChildArray;
 type ModdedChildrenWithItemname = ModdedChildren & { itemName?: string };
 
