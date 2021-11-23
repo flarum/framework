@@ -1,9 +1,8 @@
-{{-- TODO: Change below to @php when Laravel is upgraded --}}
-<?php
+@php
   $primaryColor = $settings->get('theme_primary_color', '#000');
-?>
+@endphp
 
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
