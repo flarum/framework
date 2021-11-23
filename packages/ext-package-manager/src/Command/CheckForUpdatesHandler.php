@@ -49,6 +49,7 @@ class CheckForUpdatesHandler
      * The results from both commands are properly processed and merged to have new key values `latest-minor` and `latest-major`.
      *
      * @throws \Flarum\User\Exception\PermissionDeniedException|ComposerCommandFailedException
+     * @todo integration test
      */
     public function handle(CheckForUpdates $command)
     {
