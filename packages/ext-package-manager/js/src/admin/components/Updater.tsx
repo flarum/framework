@@ -1,16 +1,13 @@
-import Mithril from "mithril";
+import Mithril from 'mithril';
 import app from 'flarum/admin/app';
 import Component from 'flarum/common/Component';
-import icon from 'flarum/common/helpers/icon';
 import Button from 'flarum/common/components/Button';
 import humanTime from 'flarum/common/helpers/humanTime';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
-import Tooltip from 'flarum/common/components/Tooltip';
 import errorHandler from '../utils/errorHandler';
-import classList from 'flarum/common/utils/classList';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import MajorUpdater from './MajorUpdater';
-import {Extension} from "flarum/admin/AdminApplication";
+import ExtensionItem, { Extension } from './ExtensionItem';
 
 export type UpdatedPackage = {
   name: string;
@@ -27,27 +24,54 @@ export type ComposerUpdates = {
 };
 
 export type LastUpdateCheck = {
-  checkedAt: Date;
+  checkedAt: Date | null;
   updates: ComposerUpdates;
+};
+
+type UpdateType = 'major' | 'minor' | 'global';
+type UpdateStatus = 'success' | 'failure' | null;
+export type UpdateState = {
+  ranAt: Date | null;
+  status: UpdateStatus;
+  limitedPackages: string[];
+  incompatibleExtensions: string[];
+};
+
+export type LastUpdateRun = {
+  [key in UpdateType]: UpdateState;
+} & {
+  limitedPackages: () => string[];
 };
 
 export default class Updater<Attrs> extends Component<Attrs> {
   isLoading: string | null = null;
-  lastUpdateCheck: LastUpdateCheck = (app.data.lastUpdateCheck as LastUpdateCheck) || {};
   packageUpdates: Record<string, UpdatedPackage> = {};
+  lastUpdateCheck: LastUpdateCheck = JSON.parse(app.data.settings['flarum-package-manager.last_update_check']) as LastUpdateCheck;
+  get lastUpdateRun(): LastUpdateRun {
+    const lastUpdateRun = JSON.parse(app.data.settings['flarum-package-manager.last_update_run']) as LastUpdateRun;
+
+    lastUpdateRun.limitedPackages = () => [
+      ...lastUpdateRun.major.limitedPackages,
+      ...lastUpdateRun.minor.limitedPackages,
+      ...lastUpdateRun.global.limitedPackages,
+    ];
+
+    return lastUpdateRun;
+  }
 
   oninit(vnode: Mithril.Vnode<Attrs, this>) {
     super.oninit(vnode);
   }
 
   view() {
-    const extensions: any = this.getExtensionUpdates();
-    const coreUpdate: UpdatedPackage | undefined = this.getCoreUpdate();
-    let core: any = null;
+    const extensions = this.getExtensionUpdates();
+    let coreUpdate: UpdatedPackage | undefined = this.getCoreUpdate();
+    let core: any;
 
     if (coreUpdate) {
       core = {
-        id: "flarum-core",
+        id: 'flarum-core',
+        name: 'flarum/core',
         version: app.data.settings.version,
         icon: {
           backgroundImage: `url(${app.forum.attribute('baseUrl')}/assets/extensions/flarum-package-manager/flarum.svg`,
@@ -55,25 +79,23 @@ export default class Updater<Attrs> extends Component<Attrs> {
         extra: {
           'flarum-extension': {
             title: app.translator.trans('flarum-package-manager.admin.updater.flarum'),
-          }
-        }
+          },
+        },
       };
-
-      this.packageUpdates['flarum-core'] = coreUpdate;
     }
 
     return [
       <div className="Form-group">
         <label>{app.translator.trans('flarum-package-manager.admin.updater.updater_title')}</label>
         <p className="helpText">{app.translator.trans('flarum-package-manager.admin.updater.updater_help')}</p>
-        {Object.keys(this.lastUpdateCheck).length ? (
+        {this.lastUpdateCheck?.checkedAt && (
           <p className="PackageManager-lastUpdatedAt">
             <span className="PackageManager-lastUpdatedAt-label">
               {app.translator.trans('flarum-package-manager.admin.updater.last_update_checked_at')}
             </span>
-            <span className="PackageManager-lastUpdatedAt-value">{humanTime(this.lastUpdateCheck?.checkedAt)}</span>
+            <span className="PackageManager-lastUpdatedAt-value">{humanTime(this.lastUpdateCheck.checkedAt)}</span>
           </p>
-        ) : null}
+        )}
         <div className="PackageManager-updaterControls">
           <Button
             className="Button"
@@ -101,64 +123,36 @@ export default class Updater<Attrs> extends Component<Attrs> {
         ) : extensions.length || core ? (
           <div className="PackageManager-extensions">
             <div className="PackageManager-extensions-grid">
-              {core ? this.extensionItem(core, true) : null}
-              {extensions.map((extension: any) => this.extensionItem(extension))}
+              {core ? (
+                <ExtensionItem
+                  extension={core}
+                  updates={coreUpdate}
+                  isCore={true}
+                  onClickUpdate={this.updateCoreMinor.bind(this)}
+                  whyNotWarning={this.lastUpdateRun.limitedPackages().includes('flarum/core')}
+                />
+              ) : null}
+              {extensions.map((extension: Extension) => (
+                <ExtensionItem
+                  extension={extension}
+                  updates={this.packageUpdates[extension.id]}
+                  onClickUpdate={this.updateExtension.bind(this, extension)}
+                  whyNotWarning={this.lastUpdateRun.limitedPackages().includes(extension.name)}
+                />
+              ))}
             </div>
           </div>
         ) : null}
       </div>,
-      coreUpdate && coreUpdate['latest-major'] ? <MajorUpdater coreUpdate={coreUpdate} /> : null,
+      coreUpdate && coreUpdate['latest-major'] ? <MajorUpdater coreUpdate={coreUpdate} updateState={this.lastUpdateRun.major} /> : null,
     ];
   }
 
-  extensionItem(extension: Extension, isCore: boolean = false) {
-    return (
-      <div
-        className={classList({
-          'PackageManager-extension': true,
-          'PackageManager-extension--core': isCore,
-        })}
-      >
-        <div className="PackageManager-extension-icon ExtensionIcon" style={extension.icon}>
-          {extension.icon ? icon(extension.icon.name) : ''}
-        </div>
-        <div className="PackageManager-extension-info">
-          <div className="PackageManager-extension-name">{extension.extra['flarum-extension'].title}</div>
-          <div className="PackageManager-extension-version">
-            <span className="PackageManager-extension-version-current">{this.version(extension.version)}</span>
-            {this.packageUpdates[extension.id]['latest-minor'] ? (
-              <span className="PackageManager-extension-version-latest PackageManager-extension-version-latest--minor">
-                {this.version(this.packageUpdates[extension.id]['latest-minor']!)}
-              </span>
-            ) : null}
-            {this.packageUpdates[extension.id]['latest-major'] && !isCore ? (
-              <span className="PackageManager-extension-version-latest PackageManager-extension-version-latest--major">
-                {this.version(this.packageUpdates[extension.id]['latest-major']!)}
-              </span>
-            ) : null}
-          </div>
-        </div>
-        <div className="PackageManager-extension-controls">
-          <Tooltip text={app.translator.trans('flarum-package-manager.admin.extensions.update')}>
-            <Button
-              icon="fas fa-arrow-alt-circle-up"
-              className="Button Button--icon Button--flat"
-              onclick={isCore ? this.updateCoreMinor.bind(this) : this.updateExtension.bind(this, extension)}
-              aria-label={app.translator.trans('flarum-package-manager.admin.extensions.update')}
-            />
-          </Tooltip>
-        </div>
-      </div>
-    );
-  }
-
-  version(v: string) {
-    return 'v' + v.replace('v', '');
-  }
-
-  getExtensionUpdates() {
+  getExtensionUpdates(): Extension[] {
     this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: UpdatedPackage) => {
-      const extension = app.data.extensions[composerPackage.name.replace('/', '-').replace(/(flarum-ext-)|(flarum-)/, '')];
+      const id = composerPackage.name.replace('/', '-').replace(/(flarum-ext-)|(flarum-)/, '');
+
+      const extension = app.data.extensions[id];
       const safeToUpdate = ['semver-safe-update', 'update-possible'].includes(composerPackage['latest-status']);
 
       if (extension && safeToUpdate) {
@@ -168,7 +162,7 @@ export default class Updater<Attrs> extends Component<Attrs> {
       return extension && safeToUpdate;
     });
 
-    return Object.values(app.data.extensions).filter((extension: any) => this.packageUpdates[extension.id]);
+    return (Object.values(app.data.extensions) as Extension[]).filter((extension: Extension) => this.packageUpdates[extension.id]);
   }
 
   getCoreUpdate(): UpdatedPackage | undefined {

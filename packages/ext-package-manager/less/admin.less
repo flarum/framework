@@ -14,7 +14,7 @@
 }
 
 .PackageManager-lastUpdatedAt {
-  color: @control-color;
+  color: var(--control-color);
 
   &-label {
     font-weight: bold;
@@ -42,9 +42,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: @control-bg;
+  background-color: var(--control-bg);
   padding: 8px;
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
 
   &-controls {
     margin-left: auto;
@@ -69,22 +69,28 @@
       font-weight: bold;
 
       &--minor {
-        background-color: @alert-success-bg;
-        color: @alert-success-color;
+        background-color: var(--alert-success-bg);
+        color: var(--alert-success-color);
       }
 
       &--major {
-        background-color: @alert-bg;
-        color: @alert-color;
+        background-color: var(--alert-bg);
+        color: var(--alert-color);
       }
     }
   }
 
   &--core {
+    --bg-hover: darken(#e7672e, 5);
     background-color: #e7672e;
     color: #fff;
     --button-color: #fff;
-    --button-bg-hover: darken(#e7672e, 5);
+    --button-bg-hover: var(--bg-hover);
+
+    .Button--danger {
+      color: #fff;
+      --button-bg-hover: var(--bg-hover);
+    }
   }
 
   &--core &-icon {
@@ -92,19 +98,23 @@
     background-color: transparent;
     filter: grayscale(1) brightness(3.5);
   }
+
+  &--danger {
+    background-color: var(--control-danger-bg);
+  }
 }
 
 .PackageManager-majorUpdate {
-  border: 2px solid @control-danger-color;
-  border-radius: @border-radius;
-  padding: 16px;
-  background-color: lighten(@control-danger-bg, 5.5);
+  --space: 16px;
+  padding: var(--space);
   display: grid;
   grid-template-areas:
-    "logo title"
-    "logo helpText"
-    "logo controls";
-  grid-gap: 0 16px;
+    "title logo"
+    "helpText logo"
+    "controls logo"
+    "extensions extensions"
+    "failure failure";
+  grid-gap: 0 var(--space);
   align-items: center;
 
   > img {
@@ -117,5 +127,31 @@
 
   > .helpText {
     grid-area: helpText;
+  }
+
+  &-failure {
+    --border-radius: 0;
+    grid-area: failure;
+    margin: calc(~"0px - var(--space)");
+    margin-top: var(--space);
+  }
+
+  &-incompatibleExtensions {
+    grid-area: extensions;
+    margin-top: var(--space);
+    padding-top: var(--space);
+    border-top: 1px solid var(--control-bg);
+  }
+}
+
+.Form-group--danger {
+  border: 2px solid var(--alert-error-bg);
+  border-radius: var(--border-radius);
+  background-color: transparent;
+}
+
+.WhyNotModal {
+  &-contents {
+    overflow-x: auto;
   }
 }

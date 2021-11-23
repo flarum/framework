@@ -7,16 +7,12 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Event;
+namespace Flarum\PackageManager\Command;
 
 use Flarum\User\User;
 
-class FlarumUpdated
+class WhyNot
 {
-    public const GLOBAL = 'global';
-    public const MINOR = 'minor';
-    public const MAJOR = 'major';
-
     /**
      * @var User
      */
@@ -25,11 +21,17 @@ class FlarumUpdated
     /**
      * @var string
      */
-    public $type;
+    public $package;
 
-    public function __construct(User $actor, string $type)
+    /**
+     * @var string
+     */
+    public $version;
+
+    public function __construct(User $actor, string $package, string $version)
     {
         $this->actor = $actor;
-        $this->type = $type;
+        $this->package = $package;
+        $this->version = $version;
     }
 }

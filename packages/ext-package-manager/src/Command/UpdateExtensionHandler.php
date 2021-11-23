@@ -16,7 +16,7 @@ use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
 use Flarum\PackageManager\Extension\Event\Updated;
 use Flarum\PackageManager\UpdateExtensionValidator;
-use Flarum\PackageManager\LastUpdateCheck;
+use Flarum\PackageManager\Settings\LastUpdateCheck;
 use Symfony\Component\Console\Input\StringInput;
 
 class UpdateExtensionHandler
@@ -83,8 +83,6 @@ class UpdateExtensionHandler
         if ($output->getExitCode() !== 0) {
             throw new ComposerUpdateFailedException($extension->name, $output->getContents());
         }
-
-        $this->lastUpdateCheck->forget($extension->name);
 
         $this->events->dispatch(
             new Updated($extension)

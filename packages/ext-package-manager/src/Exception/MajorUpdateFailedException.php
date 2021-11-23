@@ -1,8 +1,17 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PackageManager\Exception;
 
 use Composer\Semver\Semver;
+use Flarum\PackageManager\Event\FlarumUpdated;
+use Flarum\PackageManager\Settings\LastUpdateRun;
 
 class MajorUpdateFailedException extends ComposerCommandFailedException
 {
@@ -30,6 +39,12 @@ class MajorUpdateFailedException extends ComposerCommandFailedException
                     $this->details['incompatible_extensions'][] = $name;
                 }
             }
+
+            resolve(LastUpdateRun::class)
+                ->for(FlarumUpdated::MAJOR)
+                ->with('status', LastUpdateRun::FAILURE)
+                ->with('incompatibleExtensions', $this->details['incompatible_extensions'])
+                ->save();
 
             return 'extensions_incompatible_with_new_major';
         }

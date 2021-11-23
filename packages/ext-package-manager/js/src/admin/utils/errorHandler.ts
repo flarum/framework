@@ -10,8 +10,10 @@ export default function (e: any) {
   switch (error.code) {
     case 'composer_command_failure':
       if (error.guessed_cause) {
-        app.alerts.show({type: 'error'}, app.translator.trans(`flarum-package-manager.admin.exceptions.guessed_cause.${error.guessed_cause}`))
+        app.alerts.show({ type: 'error' }, app.translator.trans(`flarum-package-manager.admin.exceptions.guessed_cause.${error.guessed_cause}`));
         app.modal.close();
+      } else {
+        app.alerts.show({ type: 'error' }, app.translator.trans('flarum-package-manager.admin.exceptions.composer_command_failure'));
       }
       break;
 

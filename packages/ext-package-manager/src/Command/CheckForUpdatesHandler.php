@@ -11,7 +11,7 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\LastUpdateCheck;
+use Flarum\PackageManager\Settings\LastUpdateCheck;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class CheckForUpdatesHandler
@@ -22,7 +22,7 @@ class CheckForUpdatesHandler
     protected $composer;
 
     /**
-     * @var LastUpdateCheck
+     * @var \Flarum\PackageManager\Settings\LastUpdateCheck
      */
     protected $lastUpdateCheck;
 
@@ -95,7 +95,9 @@ class CheckForUpdatesHandler
             }
         }
 
-        return $this->lastUpdateCheck->save($firstOutput);
+        return $this->lastUpdateCheck
+            ->with('installed', $firstOutput['installed'])
+            ->save();
     }
 
     /**

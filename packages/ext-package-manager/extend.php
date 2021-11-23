@@ -17,6 +17,8 @@ use Flarum\PackageManager\Exception\ExceptionHandler;
 use Flarum\PackageManager\Exception\ComposerRequireFailedException;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Exception\MajorUpdateFailedException;
+use Flarum\PackageManager\Settings\LastUpdateCheck;
+use Flarum\PackageManager\Settings\LastUpdateRun;
 
 return [
     (new Extend\Routes('api'))
@@ -24,6 +26,7 @@ return [
         ->patch('/package-manager/extensions/{id}', 'package-manager.extensions.update', Api\Controller\UpdateExtensionController::class)
         ->delete('/package-manager/extensions/{id}', 'package-manager.extensions.remove', Api\Controller\RemoveExtensionController::class)
         ->post('/package-manager/check-for-updates', 'package-manager.check-for-updates', Api\Controller\CheckForUpdatesController::class)
+        ->post('/package-manager/why-not', 'package-manager.why-not', Api\Controller\WhyNotController::class)
         ->post('/package-manager/minor-update', 'package-manager.minor-update', Api\Controller\MinorUpdateController::class)
         ->post('/package-manager/major-update', 'package-manager.major-update', Api\Controller\MajorUpdateController::class)
         ->post('/package-manager/global-update', 'package-manager.global-update', Api\Controller\GlobalUpdateController::class),
@@ -38,19 +41,13 @@ return [
                 && is_writable($paths->storage.'/.composer')
                 && is_writable($paths->base.'/composer.json')
                 && is_writable($paths->base.'/composer.lock');
-
-            $document->payload['lastUpdateCheck'] = resolve(LastUpdateCheck::class)->get();
         }),
 
     new Extend\Locales(__DIR__ . '/locale'),
 
     (new Extend\Settings())
-        ->default('flarum-package-manager.last_update_check', json_encode([
-            'checkedAt' => null,
-            'updates' => [
-                'installed' => [],
-            ],
-        ])),
+        ->default(LastUpdateCheck::key(), json_encode(LastUpdateCheck::default()))
+        ->default(LastUpdateRun::key(), json_encode(LastUpdateRun::default())),
 
     (new Extend\ServiceProvider)
         ->register(PackageManagerServiceProvider::class),
