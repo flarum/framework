@@ -71,3 +71,9 @@ app.initializers.add('flarum-mentions', function() {
 });
 
 export * from './utils/textFormatter';
+
+// Expose compat API
+import mentionsCompat from './compat';
+import { compat } from '@flarum/core/forum';
+
+Object.assign(compat, mentionsCompat);
