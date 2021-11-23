@@ -1,7 +1,7 @@
 /**
  * The `EditUserModal` component displays a modal dialog with a login form.
  */
-export default class EditUserModal extends Modal<any> {
+export default class EditUserModal extends Modal<import("./Modal").IInternalModalAttrs> {
     constructor();
     username: Stream<any> | undefined;
     email: Stream<any> | undefined;

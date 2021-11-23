@@ -6,7 +6,7 @@
  * - `identification`
  * - `password`
  */
-export default class LogInModal extends Modal<any> {
+export default class LogInModal extends Modal<import("../../common/components/Modal").IInternalModalAttrs> {
     constructor();
     /**
      * The value of the identification input.
