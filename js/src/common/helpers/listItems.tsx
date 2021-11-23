@@ -50,7 +50,7 @@ function withoutUnnecessarySeparators(items: ModdedChildrenWithItemName[]): Modd
  * second function parameter, `customTag`.
  */
 export default function listItems<Attrs extends ComponentAttrs>(
-  rawItems: ModdedChildrenWithItemname[],
+  rawItems: ModdedChildrenWithItemName[],
   customTag: string | (new () => Component<Attrs>) = 'li',
   attributes: Attrs = {} as Attrs
 ): Mithril.Vnode[] {
