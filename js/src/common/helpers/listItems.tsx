@@ -18,7 +18,7 @@ type ModdedVnode = Mithril.Vnode<ModdedVnodeAttrs> & { itemName?: string; itemCl
 type ModdedChild = ModdedVnode | string | number | boolean | null | undefined;
 type ModdedChildArray = ModdedChildren[];
 type ModdedChildren = ModdedChild | ModdedChildArray;
-type ModdedChildrenWithItemname = ModdedChildren & { itemName?: string };
+type ModdedChildrenWithItemName = ModdedChildren & { itemName?: string };
 
 function isVnode(item: ModdedChildren): item is Mithril.Vnode {
   return typeof item === 'object' && item !== null && 'tag' in item;
