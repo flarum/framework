@@ -28,7 +28,7 @@ function isSeparator(item: ModdedChildren): boolean {
   return isVnode(item) && item.tag === Separator;
 }
 
-function withoutUnnecessarySeparators(items: ModdedChildrenWithItemname[]): ModdedChildrenWithItemname[] {
+function withoutUnnecessarySeparators(items: ModdedChildrenWithItemName[]): ModdedChildrenWithItemName[] {
   const newItems: ModdedChildrenWithItemname[] = [];
   let prevItem: ModdedChildren;
 
