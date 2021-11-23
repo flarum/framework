@@ -9,7 +9,7 @@ import type RequestError from '../utils/RequestError';
 import type ModalManager from './ModalManager';
 import fireDebugWarning from '../helpers/fireDebugWarning';
 
-interface IInternalModalAttrs {
+export interface IInternalModalAttrs {
   state: ModalManagerState;
   animateShow: ModalManager['animateShow'];
   animateHide: ModalManager['animateHide'];
@@ -19,7 +19,7 @@ interface IInternalModalAttrs {
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
  * should implement the `className`, `title`, and `content` methods.
  */
-export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttrs & IInternalModalAttrs> {
+export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Component<ModalAttrs> {
   /**
    * Determine whether or not the modal should be dismissible via an 'x' button.
    */
@@ -32,7 +32,7 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
    */
   alertAttrs!: AlertAttrs;
 
-  oninit(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>) {
+  oninit(vnode: Mithril.VnodeDOM<ModalAttrs, this>) {
     super.oninit(vnode);
 
     // TODO: [Flarum 2.0] Remove the code below.
@@ -57,13 +57,13 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
     }
   }
 
-  oncreate(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>) {
+  oncreate(vnode: Mithril.VnodeDOM<ModalAttrs, this>) {
     super.oncreate(vnode);
 
     this.attrs.animateShow(() => this.onready());
   }
 
-  onbeforeremove(vnode: Mithril.VnodeDOM<ModalAttrs & IInternalModalAttrs, this>): Promise<void> | void {
+  onbeforeremove(vnode: Mithril.VnodeDOM<ModalAttrs, this>): Promise<void> | void {
     super.onbeforeremove(vnode);
 
     // If the global modal state currently contains a modal,
@@ -78,6 +78,9 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
     }
   }
 
+  /**
+   * @todo split into FormModal and Modal in 2.0
+   */
   view() {
     if (this.alertAttrs) {
       this.alertAttrs.dismissible = false;
@@ -129,7 +132,9 @@ export default abstract class Modal<ModalAttrs = {}> extends Component<ModalAttr
   /**
    * Handle the modal form's submit event.
    */
-  abstract onsubmit(e: Event): void;
+  onsubmit(e: SubmitEvent): void {
+    // ...
+  }
 
   /**
    * Callback executed when the modal is shown and ready to be interacted with.
