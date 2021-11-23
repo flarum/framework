@@ -40,6 +40,7 @@ export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOpt
 declare const BooleanSettingTypes: readonly ["bool", "checkbox", "switch", "boolean"];
 declare const SelectSettingTypes: readonly ["select", "dropdown", "selectdropdown"];
 declare const TextareaSettingTypes: readonly ["textarea"];
+declare const ColorPreviewSettingType = "color-preview";
 /**
  * Valid options for the setting component builder to generate a Switch.
  */
@@ -66,9 +67,15 @@ export interface TextareaSettingComponentOptions extends CommonSettingsItemOptio
     type: typeof TextareaSettingTypes[number];
 }
 /**
+ * Valid options for the setting component builder to generate a ColorPreviewInput.
+ */
+export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemOptions {
+    type: typeof ColorPreviewSettingType;
+}
+/**
  * All valid options for the setting component builder.
  */
-export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions | TextareaSettingComponentOptions;
+export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions | TextareaSettingComponentOptions | ColorPreviewSettingComponentOptions;
 /**
  * Valid attrs that can be returned by the `headerInfo` function
  */
