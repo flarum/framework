@@ -10,6 +10,7 @@ import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 import AdminHeader from './AdminHeader';
 import generateElementId from '../utils/generateElementId';
+import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 
 export interface AdminHeaderOptions {
   title: string;
@@ -76,6 +77,7 @@ export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOpt
 const BooleanSettingTypes = ['bool', 'checkbox', 'switch', 'boolean'] as const;
 const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
 const TextareaSettingTypes = ['textarea'] as const;
+const ColorPreviewSettingType = 'color-preview';
 
 /**
  * Valid options for the setting component builder to generate a Switch.
@@ -104,13 +106,21 @@ export interface TextareaSettingComponentOptions extends CommonSettingsItemOptio
 }
 
 /**
+ * Valid options for the setting component builder to generate a ColorPreviewInput.
+ */
+export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemOptions {
+  type: typeof ColorPreviewSettingType;
+}
+
+/**
  * All valid options for the setting component builder.
  */
 export type SettingsComponentOptions =
   | HTMLInputSettingsComponentOptions
   | SwitchSettingComponentOptions
   | SelectSettingComponentOptions
-  | TextareaSettingComponentOptions;
+  | TextareaSettingComponentOptions
+  | ColorPreviewSettingComponentOptions;
 
 /**
  * Valid attrs that can be returned by the `headerInfo` function
@@ -258,7 +268,15 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={this.setting(setting)} {...componentAttrs} />;
       } else {
-        settingElement = <input id={inputId} aria-describedby={helpTextId} type={type} bidi={this.setting(setting)} {...componentAttrs} />;
+        let Tag: VnodeElementTag = 'input';
+
+        if (type === ColorPreviewSettingType) {
+          Tag = ColorPreviewInput;
+        } else {
+          componentAttrs.type = type;
+        }
+
+        settingElement = <Tag id={inputId} aria-describedby={helpTextId} bidi={this.setting(setting)} {...componentAttrs} />;
       }
     }
 

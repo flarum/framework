@@ -57,6 +57,7 @@ import Alert from './components/Alert';
 import Link from './components/Link';
 import LinkButton from './components/LinkButton';
 import Checkbox from './components/Checkbox';
+import ColorPreviewInput from './components/ColorPreviewInput';
 import SelectDropdown from './components/SelectDropdown';
 import ModalManager from './components/ModalManager';
 import Button from './components/Button';
@@ -144,6 +145,7 @@ export default {
   'components/Link': Link,
   'components/LinkButton': LinkButton,
   'components/Checkbox': Checkbox,
+  'components/ColorPreviewInput': ColorPreviewInput,
   'components/SelectDropdown': SelectDropdown,
   'components/ModalManager': ModalManager,
   'components/Button': Button,

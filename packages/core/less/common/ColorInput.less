@@ -1,0 +1,22 @@
+.ColorInput {
+  position: relative;
+
+  &-preview, &-icon {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+  }
+
+  &-preview {
+    background-color: var(--input-value);
+    border-radius: 15%;
+  }
+
+  &-icon {
+    text-align: center;
+    color: @validation-error-color;
+  }
+}
