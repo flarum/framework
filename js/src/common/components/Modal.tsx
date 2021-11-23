@@ -93,7 +93,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
             <div className="Modal-close App-backControl">
               {Button.component({
                 icon: 'fas fa-times',
-                onclick: this.hide.bind(this),
+                onclick: () => this.hide(),
                 className: 'Button Button--icon Button--link',
                 'aria-label': app.translator.trans('core.lib.modal.close'),
               })}
@@ -148,7 +148,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   /**
    * Hides the modal.
    */
-  hide(e?: MouseEvent): void {
+  hide(): void {
     this.attrs.state.close();
   }
 
