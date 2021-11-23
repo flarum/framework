@@ -6,7 +6,7 @@
  *
  * - `email`
  */
-export default class ForgotPasswordModal extends Modal<any> {
+export default class ForgotPasswordModal extends Modal<import("../../common/components/Modal").IInternalModalAttrs> {
     constructor();
     /**
      * The value of the email input.
