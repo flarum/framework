@@ -29,7 +29,7 @@ function isSeparator(item: ModdedChildren): boolean {
 }
 
 function withoutUnnecessarySeparators(items: ModdedChildrenWithItemName[]): ModdedChildrenWithItemName[] {
-  const newItems: ModdedChildrenWithItemname[] = [];
+  const newItems: ModdedChildrenWithItemName[] = [];
   let prevItem: ModdedChildren;
 
   items.filter(Boolean).forEach((item, i: number) => {
