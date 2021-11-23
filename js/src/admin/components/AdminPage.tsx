@@ -268,7 +268,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={this.setting(setting)} {...componentAttrs} />;
       } else {
-        let Tag: any = 'input';
+        let Tag: VnodeElementTag = 'input';
 
         if (type === ColorPreviewSettingType) {
           Tag = ColorPreviewInput;
