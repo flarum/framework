@@ -85,7 +85,7 @@ class UpdateExtensionHandler
         }
 
         $this->events->dispatch(
-            new Updated($extension)
+            new Updated($command->actor, $extension)
         );
 
         return true;

@@ -10,16 +10,23 @@
 namespace Flarum\PackageManager\Extension\Event;
 
 use Flarum\Extension\Extension;
+use Flarum\User\User;
 
 class Updated
 {
+    /**
+     * @var User
+     */
+    public $actor;
+
     /**
      * @var Extension
      */
     public $extension;
 
-    public function __construct(Extension $extension)
+    public function __construct(User $actor, Extension $extension)
     {
+        $this->actor = $actor;
         $this->extension = $extension;
     }
 }
