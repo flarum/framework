@@ -67,6 +67,7 @@ declare var _default: {
     'components/Link': typeof import("../common/components/Link").default;
     'components/LinkButton': typeof import("../common/components/LinkButton").default;
     'components/Checkbox': typeof import("../common/components/Checkbox").default;
+    'components/ColorPreviewInput': typeof import("../common/components/ColorPreviewInput").default;
     'components/SelectDropdown': typeof import("../common/components/SelectDropdown").default;
     'components/ModalManager': typeof import("../common/components/ModalManager").default;
     'components/Button': typeof import("../common/components/Button").default;

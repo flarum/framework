@@ -67,6 +67,7 @@ declare var _default: {
     'components/Link': typeof Link;
     'components/LinkButton': typeof LinkButton;
     'components/Checkbox': typeof Checkbox;
+    'components/ColorPreviewInput': typeof ColorPreviewInput;
     'components/SelectDropdown': typeof SelectDropdown;
     'components/ModalManager': typeof ModalManager;
     'components/Button': typeof Button;
@@ -148,6 +149,7 @@ import Alert from "./components/Alert";
 import Link from "./components/Link";
 import LinkButton from "./components/LinkButton";
 import Checkbox from "./components/Checkbox";
+import ColorPreviewInput from "./components/ColorPreviewInput";
 import SelectDropdown from "./components/SelectDropdown";
 import ModalManager from "./components/ModalManager";
 import Button from "./components/Button";
