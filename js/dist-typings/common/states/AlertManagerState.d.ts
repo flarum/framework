@@ -28,7 +28,7 @@ export default class AlertManagerState {
     /**
      * Dismiss an alert.
      */
-    dismiss(key: AlertIdentifier): void;
+    dismiss(key: AlertIdentifier | null): void;
     /**
      * Clear all alerts.
      */
