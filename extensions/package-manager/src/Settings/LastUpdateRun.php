@@ -65,7 +65,13 @@ class LastUpdateRun implements JsonSetting
 
     public function get(): array
     {
-        return json_decode($this->settings->get(self::key()), true);
+        $lastUpdateRun = json_decode($this->settings->get(self::key()), true);
+
+        if ($this->activeUpdate) {
+            return $lastUpdateRun[$this->activeUpdate];
+        }
+
+        return $lastUpdateRun;
     }
 
     public static function key(): string

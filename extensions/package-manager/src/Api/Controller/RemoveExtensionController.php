@@ -9,18 +9,17 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
-use Flarum\Api\Controller\AbstractDeleteController;
 use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
-use Flarum\PackageManager\Api\Serializer\ExtensionSerializer;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Flarum\PackageManager\Command\RemoveExtension;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class RemoveExtensionController extends AbstractDeleteController
+class RemoveExtensionController implements RequestHandlerInterface
 {
-    public $serializer = ExtensionSerializer::class;
-
     /**
      * @var Dispatcher
      */
@@ -31,10 +30,7 @@ class RemoveExtensionController extends AbstractDeleteController
         $this->bus = $bus;
     }
 
-    /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    protected function delete(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
         $extensionId = Arr::get($request->getQueryParams(), 'id');
@@ -42,5 +38,7 @@ class RemoveExtensionController extends AbstractDeleteController
         $this->bus->dispatch(
             new RemoveExtension($actor, $extensionId)
         );
+
+        return new EmptyResponse();
     }
 }

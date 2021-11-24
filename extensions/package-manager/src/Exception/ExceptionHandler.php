@@ -24,9 +24,7 @@ class ExceptionHandler
 
     protected function errorDetails(ComposerCommandFailedException $e): array
     {
-        $details = [
-            'output' => $e->getMessage(),
-        ];
+        $details = [];
 
         if ($guessedCause = $this->guessCause($e)) {
             $details['guessed_cause'] = $guessedCause;
