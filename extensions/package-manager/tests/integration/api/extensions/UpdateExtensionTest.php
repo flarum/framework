@@ -35,7 +35,7 @@ class UpdateExtensionTest extends TestCase
             ])
         );
 
-        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertExtensionExists('flarum-tags');
     }
 

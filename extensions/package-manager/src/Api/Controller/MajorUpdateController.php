@@ -39,6 +39,6 @@ class MajorUpdateController implements RequestHandlerInterface
             new MajorUpdate($actor, $dryRun)
         );
 
-        return new EmptyResponse();
+        return new EmptyResponse(200);
     }
 }

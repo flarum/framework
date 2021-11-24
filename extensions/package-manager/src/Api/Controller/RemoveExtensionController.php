@@ -39,6 +39,6 @@ class RemoveExtensionController implements RequestHandlerInterface
             new RemoveExtension($actor, $extensionId)
         );
 
-        return new EmptyResponse();
+        return new EmptyResponse(200);
     }
 }
