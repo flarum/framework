@@ -46,7 +46,7 @@ class MinorUpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertPackageVersion('flarum/tags', '*');
         $this->assertPackageVersion('flarum/dummy-compatible-extension', '*');
     }
@@ -83,7 +83,7 @@ class MinorUpdateTest extends TestCase
         /** @var LastUpdateRun $lastUpdateRun */
         $lastUpdateRun = $this->app()->getContainer()->make(LastUpdateRun::class);
 
-        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertPackageVersion("flarum/tags", "*");
         $this->assertPackageVersion("flarum/dummy-extension", "*");
         $this->assertEquals([

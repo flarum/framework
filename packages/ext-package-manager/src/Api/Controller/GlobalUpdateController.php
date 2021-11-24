@@ -40,6 +40,6 @@ class GlobalUpdateController implements RequestHandlerInterface
             new GlobalUpdate($actor)
         );
 
-        return new EmptyResponse();
+        return new EmptyResponse(200);
     }
 }

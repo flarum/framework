@@ -39,6 +39,6 @@ class UpdateExtensionController implements RequestHandlerInterface
             new UpdateExtension($actor, $extensionId)
         );
 
-        return new EmptyResponse();
+        return new EmptyResponse(200);
     }
 }

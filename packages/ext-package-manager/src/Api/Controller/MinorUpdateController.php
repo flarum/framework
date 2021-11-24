@@ -40,6 +40,6 @@ class MinorUpdateController implements RequestHandlerInterface
             new MinorUpdate($actor)
         );
 
-        return new EmptyResponse();
+        return new EmptyResponse(200);
     }
 }

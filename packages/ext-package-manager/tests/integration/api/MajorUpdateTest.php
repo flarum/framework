@@ -79,7 +79,7 @@ class MajorUpdateTest extends TestCase
             }
         )[0]['latest-major'];
 
-        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertPackageVersion("flarum/core", str_replace('v', '^', $newMinorCoreVersion));
         $this->assertPackageVersion("flarum/tags", "*");
         $this->assertPackageVersion("flarum/dummy-compatible-extension", "*");
