@@ -100,7 +100,7 @@ class RequireExtensionTest extends TestCase
         );
 
         $this->assertEquals(409, $response->getStatusCode());
-        $this->assertEquals('extension_incompatible_with_instance', $this->guessedCause($response));
+        $this->assertEquals('extension_incompatible_with_instance', $this->errorDetails($response)['guessed_cause']);
     }
 
     /**
@@ -120,6 +120,6 @@ class RequireExtensionTest extends TestCase
         );
 
         $this->assertEquals(409, $response->getStatusCode());
-        $this->assertEquals('extension_incompatible_with_instance', $this->guessedCause($response));
+        $this->assertEquals('extension_incompatible_with_instance', $this->errorDetails($response)['guessed_cause']);
     }
 }

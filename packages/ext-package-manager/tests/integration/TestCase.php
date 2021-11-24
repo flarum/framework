@@ -11,6 +11,7 @@ namespace Flarum\PackageManager\Tests\integration;
 
 use Flarum\Foundation\Paths;
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Composer\ComposerJson;
 use Flarum\PackageManager\Extension\ExtensionUtils;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Illuminate\Support\Arr;
@@ -27,7 +28,7 @@ class TestCase extends \Flarum\Testing\integration\TestCase
 
         $this->extension('flarum-package-manager', 'flarum-tags');
 
-        $tmp = $this->tmpDir();
+        $tmp = realpath($this->tmpDir());
 
         $this->app()->getContainer()->instance('flarum.paths', new Paths([
             'base' => $tmp,
@@ -64,6 +65,14 @@ class TestCase extends \Flarum\Testing\integration\TestCase
         $this->assertExtension($id, false);
     }
 
+    protected function assertPackageVersion(string $packageName, string $version)
+    {
+        $composerJson = $this->app()->getContainer()->make(ComposerJson::class)->get();
+
+        $this->assertArrayHasKey($packageName, $composerJson['require'], "$packageName is not required.");
+        $this->assertEquals($version, $composerJson['require'][$packageName], "Expected $packageName to be $version, found {$composerJson['require'][$packageName]} instead.");
+    }
+
     protected function requireExtension(string $package)
     {
         $this->composer("require $package");
@@ -81,10 +90,17 @@ class TestCase extends \Flarum\Testing\integration\TestCase
         $composer->run(new StringInput($command));
     }
 
-    protected function guessedCause(ResponseInterface $response): ?string
+    protected function errorGuessedCause(ResponseInterface $response): ?string
     {
-        $json = json_decode($response->getBody()->getContents(), true);
+        $details = $this->errorDetails($response);
 
-        return $json['errors'] ? ($json['errors'][0]['guessed_cause'] ?? null) : null;
+        return $details['guessed_cause'] ?? null;
+    }
+
+    protected function errorDetails(ResponseInterface $response): array
+    {
+        $json = json_decode((string) $response->getBody(), true);
+
+        return $json['errors'] ? ($json['errors'][0] ?? []) : [];
     }
 }
