@@ -90,13 +90,6 @@ class TestCase extends \Flarum\Testing\integration\TestCase
         $composer->run(new StringInput($command));
     }
 
-    protected function errorGuessedCause(ResponseInterface $response): ?string
-    {
-        $details = $this->errorDetails($response);
-
-        return $details['guessed_cause'] ?? null;
-    }
-
     protected function errorDetails(ResponseInterface $response): array
     {
         $json = json_decode((string) $response->getBody(), true);
