@@ -66,7 +66,11 @@ class AvatarValidator extends AbstractValidator
 
         $guessedExtension = MimeTypes::getDefault()->getExtensions($file->getClientMediaType())[0] ?? null;
 
-        if (! in_array($guessedExtension, $allowedTypes)) {
+        $stream = $file->getStream();
+        $tmpFilename = $stream->getMetadata("uri");
+        $notImage = !getimagesize($tmpFilename);
+
+        if ($notImage || ! in_array($guessedExtension, $allowedTypes)) {
             $this->raise('mimes', [':values' => implode(', ', $allowedTypes)]);
         }
     }
@@ -103,6 +107,6 @@ class AvatarValidator extends AbstractValidator
 
     protected function getAllowedTypes()
     {
-        return ['jpg', 'png', 'bmp', 'gif'];
+        return ['jpeg', 'jpg', 'png', 'bmp', 'gif'];
     }
 }
