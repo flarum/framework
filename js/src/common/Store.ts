@@ -6,6 +6,9 @@ export interface ApiQueryParamsSingle {
   fields?: string[];
   include?: string;
   bySlug?: boolean;
+  meta?: {
+    [key: string]: any;
+  };
 }
 
 export interface ApiQueryParamsPlural {
@@ -22,6 +25,9 @@ export interface ApiQueryParamsPlural {
     size?: number;
   };
   sort?: string;
+  meta?: {
+    [key: string]: any;
+  };
 }
 
 export type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
