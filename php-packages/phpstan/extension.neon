@@ -1,0 +1,13 @@
+inclues:
+    - vendor/phpstan/phpstan-php-parser/extension.neon
+parameters:
+    universalObjectCratesClasses:
+        - Illuminate\Http\Request
+    earlyTerminatingFunctionCalls:
+        - abort
+        - dd
+    excludePaths:
+        - *.blade.php
+    mixinExcludeClasses:
+        - Eloquent
+    checkGenericClassInNonGenericObjectType: false
