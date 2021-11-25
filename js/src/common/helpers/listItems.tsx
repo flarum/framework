@@ -18,7 +18,12 @@ type ModdedVnode = Mithril.Vnode<ModdedVnodeAttrs> & { itemName?: string; itemCl
 type ModdedChild = ModdedVnode | string | number | boolean | null | undefined;
 type ModdedChildArray = ModdedChildren[];
 type ModdedChildren = ModdedChild | ModdedChildArray;
-type ModdedChildrenWithItemName = ModdedChildren & { itemName?: string };
+
+/**
+ * This type represents an element of a list returned by `ItemList.toArray()`,
+ * coupled with some static properties used on various components.
+ */
+export type ModdedChildrenWithItemName = ModdedChildren & { itemName?: string };
 
 function isVnode(item: ModdedChildren): item is Mithril.Vnode {
   return typeof item === 'object' && item !== null && 'tag' in item;
