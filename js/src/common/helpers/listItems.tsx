@@ -51,7 +51,7 @@ function withoutUnnecessarySeparators(items: ModdedChildrenWithItemName[]): Modd
  */
 export default function listItems<Attrs extends ComponentAttrs>(
   rawItems: ModdedChildrenWithItemName[],
-  customTag: string | (new () => Component<Attrs>) = 'li',
+  customTag: VnodeElementTag<Attrs> = 'li',
   attributes: Attrs = {} as Attrs
 ): Mithril.Vnode[] {
   const items = rawItems instanceof Array ? rawItems : [rawItems];
