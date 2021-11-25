@@ -4,7 +4,8 @@
     "minimum-stability": "stable",
     "license": "MIT",
     "require": {
-        "phpstan/phpstan-php-parser": "^1.0"
+        "phpstan/phpstan-php-parser": "^1.0",
+        "phpstan/phpstan": "^1.2"
     },
     "extra": {
         "phpstan": {
