@@ -1,27 +1,61 @@
+import type Mithril from 'mithril';
+
 import app from '../../common/app';
-import Component from '../Component';
+import Component, { ComponentAttrs } from '../Component';
 import icon from '../helpers/icon';
 import listItems from '../helpers/listItems';
+
+export interface IDropdownAttrs extends ComponentAttrs{
+  /**
+   * A class name to apply to the dropdown toggle button.
+   */
+  buttonClassName?: string;
+
+  /**
+   * A class name to apply to the dropdown menu.
+   */
+  menuClassName?: string;
+
+  /**
+   * The name of an icon to show in the dropdown toggle button.
+   */
+  icon?: string;
+
+  /**
+   * The name of an icon to show on the right of the button.
+   */
+  caretIcon?: string;
+
+  /**
+   * The label of the dropdown toggle button. Defaults to 'Controls'.
+   */
+  label?: Mithril.Children;
+
+  /**
+   * The label used to describe the dropdown toggle button to assistive readers.
+   * Defaults to 'Toggle dropdown menu'.
+   */
+  accessibleToggleLabel?: string;
+
+  /**
+   * A callback to run when the dropdown is shown.
+   */
+  onshow?: () => void;
+
+  /**
+   * A callback to run when the dropdown is hidden.
+   */
+  onhide?: () => void;
+}
 
 /**
  * The `Dropdown` component displays a button which, when clicked, shows a
  * dropdown menu beneath it.
  *
- * ### Attrs
- *
- * - `buttonClassName` A class name to apply to the dropdown toggle button.
- * - `menuClassName` A class name to apply to the dropdown menu.
- * - `icon` The name of an icon to show in the dropdown toggle button.
- * - `caretIcon` The name of an icon to show on the right of the button.
- * - `label` The label of the dropdown toggle button. Defaults to 'Controls'.
- * - `accessibleToggleLabel` The label used to describe the dropdown toggle button to assistive readers. Defaults to 'Toggle dropdown menu'.
- * - `onhide`
- * - `onshow`
- *
  * The children will be displayed as a list inside of the dropdown menu.
  */
-export default class Dropdown extends Component {
-  static initAttrs(attrs) {
+export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttrs> extends Component<CustomAttrs> {
+  static initAttrs(attrs: IDropdownAttrs) {
     attrs.className = attrs.className || '';
     attrs.buttonClassName = attrs.buttonClassName || '';
     attrs.menuClassName = attrs.menuClassName || '';
@@ -30,13 +64,9 @@ export default class Dropdown extends Component {
     attrs.accessibleToggleLabel = attrs.accessibleToggleLabel || app.translator.trans('core.lib.dropdown.toggle_dropdown_accessible_label');
   }
 
-  oninit(vnode) {
-    super.oninit(vnode);
+  protected showing = false;
 
-    this.showing = false;
-  }
-
-  view(vnode) {
+  view(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     const items = vnode.children ? listItems(vnode.children) : [];
     const renderItems = this.attrs.lazyDraw ? this.showing : true;
 
@@ -48,7 +78,7 @@ export default class Dropdown extends Component {
     );
   }
 
-  oncreate(vnode) {
+  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.oncreate(vnode);
 
     // When opening the dropdown menu, work out if the menu goes beyond the
@@ -80,13 +110,13 @@ export default class Dropdown extends Component {
 
       $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
-      $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
+      $menu.toggleClass('Dropdown-menu--top', $menu.offset()!.top + $menu.height()! > $(window).scrollTop()! + $(window).height()!);
 
-      if ($menu.offset().top < 0) {
+      if ($menu.offset()!.top < 0) {
         $menu.removeClass('Dropdown-menu--top');
       }
 
-      $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
+      $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset()!.left + $menu.width()! > $(window).scrollLeft()! + $(window).width()!);
     });
 
     this.$().on('hidden.bs.dropdown', () => {
@@ -102,11 +132,8 @@ export default class Dropdown extends Component {
 
   /**
    * Get the template for the button.
-   *
-   * @return {*}
-   * @protected
    */
-  getButton(children) {
+  protected getButton(children: Mithril.Children): Mithril.Children {
     return (
       <button
         className={'Dropdown-toggle ' + this.attrs.buttonClassName}
@@ -122,11 +149,8 @@ export default class Dropdown extends Component {
 
   /**
    * Get the template for the button's content.
-   *
-   * @return {*}
-   * @protected
    */
-  getButtonContent(children) {
+  protected getButtonContent(children: Mithril.Children): Mithril.Children {
     return [
       this.attrs.icon ? icon(this.attrs.icon, { className: 'Button-icon' }) : '',
       <span className="Button-label">{this.attrs.label}</span>,
@@ -134,7 +158,7 @@ export default class Dropdown extends Component {
     ];
   }
 
-  getMenu(items) {
+  protected getMenu(items: Mithril.Children): Mithril.Children {
     return <ul className={'Dropdown-menu dropdown-menu ' + this.attrs.menuClassName}>{items}</ul>;
   }
 }

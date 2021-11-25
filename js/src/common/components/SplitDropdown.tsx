@@ -1,20 +1,25 @@
-import Dropdown from './Dropdown';
+import type Mithril from 'mithril';
+import Dropdown, { IDropdownAttrs } from './Dropdown';
 import Button from './Button';
 import icon from '../helpers/icon';
+
+export interface ISplitDropdownAttrs extends IDropdownAttrs {
+
+}
 
 /**
  * The `SplitDropdown` component is similar to `Dropdown`, but the first child
  * is displayed as its own button prior to the toggle button.
  */
-export default class SplitDropdown extends Dropdown {
-  static initAttrs(attrs) {
+export default class SplitDropdown<CustomAttrs extends ISplitDropdownAttrs = ISplitDropdownAttrs> extends Dropdown<CustomAttrs> {
+  static initAttrs(attrs: ISplitDropdownAttrs) {
     super.initAttrs(attrs);
 
     attrs.className += ' Dropdown--split';
     attrs.menuClassName += ' Dropdown-menu--right';
   }
 
-  getButton(children) {
+  getButton(children: Mithril.ChildArray): Mithril.Children {
     // Make a copy of the attrs of the first child component. We will assign
     // these attrs to a new button, so that it has exactly the same behaviour as
     // the first child.
@@ -39,11 +44,8 @@ export default class SplitDropdown extends Dropdown {
   /**
    * Get the first child. If the first child is an array, the first item in that
    * array will be returned.
-   *
-   * @return {*}
-   * @protected
    */
-  getFirstChild(children) {
+  protected getFirstChild(children: Mithril.Children): Mithril.Vnode {
     let firstChild = children;
 
     while (firstChild instanceof Array) firstChild = firstChild[0];
