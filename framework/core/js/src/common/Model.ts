@@ -2,16 +2,16 @@ import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
 import Store, { ApiPayloadSingle, ApiResponseSingle } from './Store';
 
-interface ModelIdentifier {
+export interface ModelIdentifier {
   type: string;
   id: string;
 }
 
-interface ModelAttributes {
+export interface ModelAttributes {
   [key: string]: unknown;
 }
 
-interface ModelRelationships {
+export interface ModelRelationships {
   [relationship: string]: {
     data: ModelIdentifier | ModelIdentifier[];
   };
@@ -66,13 +66,13 @@ export default abstract class Model {
   /**
    * The data store that this resource should be persisted to.
    */
-  protected store: Store | null;
+  protected store: Store;
 
   /**
    * @param data A resource object from the API.
    * @param store The data store that this model should be persisted to.
    */
-  constructor(data: ModelData = {}, store = null) {
+  constructor(data: ModelData = {}, store = app.store) {
     this.data = data;
     this.store = store;
   }
@@ -218,10 +218,6 @@ export default abstract class Model {
         // model exists now (if it didn't already), and we'll push the data that
         // the API returned into the store.
         (payload) => {
-          if (!this.store) {
-            throw new Error('Model has no store');
-          }
-
           return this.store.pushPayload<this>(payload);
         },
 
@@ -257,11 +253,7 @@ export default abstract class Model {
       .then(() => {
         this.exists = false;
 
-        if (this.store) {
-          this.store.remove(this);
-        } else {
-          throw new Error('Tried to delete a model without a store!');
-        }
+        this.store.remove(this);
       });
   }
 
@@ -319,7 +311,7 @@ export default abstract class Model {
         }
 
         if (relationshipData) {
-          return app.store.getById<M>(relationshipData.type, relationshipData.id) as M;
+          return this.store.getById<M>(relationshipData.type, relationshipData.id) as M;
         }
       }
 
@@ -345,7 +337,7 @@ export default abstract class Model {
         }
 
         if (relationshipData) {
-          return relationshipData.map((data) => app.store.getById<M>(data.type, data.id));
+          return relationshipData.map((data) => this.store.getById<M>(data.type, data.id));
         }
       }
 
