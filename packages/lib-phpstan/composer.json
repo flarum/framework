@@ -1,0 +1,16 @@
+{
+    "name": "flarum/phpstan",
+    "description": "Flarum PHPStan extension",
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "require": {
+        "phpstan/phpstan-php-parser": "^1.0"
+    },
+    "extra": {
+        "phpstan": {
+            "includes": [
+                "extension.neon"
+            ]
+        }
+    }
+}
