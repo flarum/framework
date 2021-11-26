@@ -1,3 +1,6 @@
+/// <reference path="../../src/common/translator-icu-rich.d.ts" />
+import { RichMessageFormatter } from '@askvortsov/rich-icu-message-formatter';
+import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
 declare type Translations = Record<string, string>;
 declare type TranslatorParameters = Record<string, unknown>;
 export default class Translator {
@@ -8,15 +11,15 @@ export default class Translator {
     /**
      * The underlying ICU MessageFormatter util.
      */
-    protected formatter: any;
+    protected formatter: RichMessageFormatter;
     setLocale(locale: string): void;
     addTranslations(translations: Translations): void;
     /**
      * An extensible entrypoint for extenders to register type handlers for translations.
      */
     protected formatterTypeHandlers(): {
-        plural: any;
-        select: any;
+        plural: typeof pluralTypeHandler;
+        select: typeof selectTypeHandler;
     };
     /**
      * A temporary system to preprocess parameters.
@@ -26,6 +29,6 @@ export default class Translator {
      * @internal
      */
     protected preprocessParameters(parameters: TranslatorParameters): TranslatorParameters;
-    trans(id: string, parameters?: TranslatorParameters): any;
+    trans(id: string, parameters?: TranslatorParameters): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
 }
 export {};
