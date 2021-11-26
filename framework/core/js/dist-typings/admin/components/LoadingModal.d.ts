@@ -1,3 +1,4 @@
+/// <reference path="../../../src/common/translator-icu-rich.d.ts" />
 import Modal from '../../common/components/Modal';
 export default class LoadingModal<ModalAttrs = {}> extends Modal<ModalAttrs> {
     /**
@@ -5,7 +6,7 @@ export default class LoadingModal<ModalAttrs = {}> extends Modal<ModalAttrs> {
      */
     static readonly isDismissible: boolean;
     className(): string;
-    title(): any;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     content(): string;
     onsubmit(e: Event): void;
 }
