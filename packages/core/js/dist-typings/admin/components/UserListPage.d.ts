@@ -1,3 +1,4 @@
+/// <reference path="../../../src/common/translator-icu-rich.d.ts" />
 /// <reference types="mithril" />
 import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
@@ -65,8 +66,8 @@ export default class UserListPage extends AdminPage {
     headerInfo(): {
         className: string;
         icon: string;
-        title: any;
-        description: any;
+        title: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+        description: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     };
     /**
      * Asynchronously fetch the next set of users to be rendered.
