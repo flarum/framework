@@ -1,12 +1,20 @@
 # Changelog
 
+## [1.1.3](https://github.com/flarum/mentions/compare/v1.1.2...v1.1.3)
+
+### Added
+- chore: add missing compat exports and extensibility by @gianniguida in https://github.com/flarum/mentions/pull/76
+
+### Fixed
+- fix: errors on texteditor re-use again by @davwheat in https://github.com/flarum/mentions/pull/78
+- fix: Allow mentions from non-post objects by @imorland in https://github.com/flarum/mentions/pull/79
+
 ## [1.1.2](https://github.com/flarum/mentions/compare/v1.1.1...v1.1.2)
 
 ### Fixed
-
-* Only search users via rest API if user has permission by @askvortsov1 in https://github.com/flarum/mentions/pull/73
-* fix: Cannot reply to posts by deleted authors by @SychO9 in https://github.com/flarum/mentions/pull/75
-* fix: autocomplete errors with TextEditor re-use by @davwheat in https://github.com/flarum/mentions/pull/77
+- Only search users via rest API if user has permission by @askvortsov1 in https://github.com/flarum/mentions/pull/73
+- fix: Cannot reply to posts by deleted authors by @SychO9 in https://github.com/flarum/mentions/pull/75
+- fix: autocomplete errors with TextEditor re-use by @davwheat in https://github.com/flarum/mentions/pull/77
 
 ## [1.1.1](https://github.com/flarum/mentions/compare/v1.1.0...v1.1.1)
 
