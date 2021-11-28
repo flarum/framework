@@ -15,10 +15,10 @@ export default class MentionsUserPage extends PostsUserPage {
     return app.store.find('posts', {
       filter: {
         type: 'comment',
-        mentioned: this.user.id()
+        mentioned: this.user.id(),
       },
-      page: {offset, limit: this.loadLimit},
-      sort: '-createdAt'
+      page: { offset, limit: this.loadLimit },
+      sort: '-createdAt',
     });
   }
 }

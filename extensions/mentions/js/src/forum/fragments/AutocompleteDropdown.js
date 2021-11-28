@@ -9,16 +9,20 @@ export default class AutocompleteDropdown extends Fragment {
   view() {
     return (
       <ul className="Dropdown-menu MentionsDropdown">
-        {this.items.map(item => <li>{item}</li>)}
+        {this.items.map((item) => (
+          <li>{item}</li>
+        ))}
       </ul>
     );
   }
 
   show(left, top) {
-    this.$().show().css({
-      left: left + 'px',
-      top: top + 'px'
-    });
+    this.$()
+      .show()
+      .css({
+        left: left + 'px',
+        top: top + 'px',
+      });
     this.active = true;
   }
 
@@ -31,7 +35,7 @@ export default class AutocompleteDropdown extends Fragment {
     this.keyWasJustPressed = true;
     this.setIndex(this.index + delta, true);
     clearTimeout(this.keyWasJustPressedTimeout);
-    this.keyWasJustPressedTimeout = setTimeout(() => this.keyWasJustPressed = false, 500);
+    this.keyWasJustPressedTimeout = setTimeout(() => (this.keyWasJustPressed = false), 500);
   }
 
   complete() {

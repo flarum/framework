@@ -19,5 +19,5 @@ export default {
   'mentions/utils/getMentionText': getMentionText,
   'mentions/utils/reply': reply,
   'mentions/utils/selectedText': selectedText,
-  'mentions/utils/textFormatter': textFormatter
+  'mentions/utils/textFormatter': textFormatter,
 };
