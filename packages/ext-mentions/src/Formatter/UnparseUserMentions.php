@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Post\Post;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -49,10 +50,10 @@ class UnparseUserMentions
      */
     protected function updateUserMentionTags($context, string $xml): string
     {
-        $post = $context;
-
-        return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($post) {
-            $user = $post->mentionsUsers->find($attributes['id']);
+        return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
+            $user = (isset($context->getRelations()['mentionsUsers']) || $context instanceof Post)
+                ? $context->mentionsUsers->find($attributes['id'])
+                : User::find($attributes['id']);
 
             if ($user) {
                 $attributes['displayname'] = $user->display_name;
