@@ -6,8 +6,7 @@ export function filterUserMentions(tag) {
 
   if (app.forum.attribute('allowUsernameMentionFormat') && tag.hasAttribute('username'))
     user = app.store.getBy('users', 'username', tag.getAttribute('username'));
-  else if (tag.hasAttribute('id'))
-    user = app.store.getById('users', tag.getAttribute('id'));
+  else if (tag.hasAttribute('id')) user = app.store.getById('users', tag.getAttribute('id'));
 
   if (user) {
     tag.setAttribute('id', user.id());

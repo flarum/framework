@@ -12,9 +12,12 @@ export default class PostQuoteButton extends Fragment {
 
   view() {
     return (
-      <button class="Button PostQuoteButton" onclick={() => {
-        reply(this.post, this.content);
-      }}>
+      <button
+        class="Button PostQuoteButton"
+        onclick={() => {
+          reply(this.post, this.content);
+        }}
+      >
         {icon('fas fa-quote-left', { className: 'Button-icon' })}
         {app.translator.trans('flarum-mentions.forum.post.quote_button')}
       </button>
@@ -25,10 +28,7 @@ export default class PostQuoteButton extends Fragment {
     const $this = this.$().show();
     const parentOffset = $this.offsetParent().offset();
 
-    $this
-      .css('left', left - parentOffset.left)
-      .css('top', top - parentOffset.top);
-
+    $this.css('left', left - parentOffset.left).css('top', top - parentOffset.top);
 
     this.hideHandler = this.hide.bind(this);
     $(document).on('mouseup', this.hideHandler);

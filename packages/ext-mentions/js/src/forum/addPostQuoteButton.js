@@ -5,7 +5,7 @@ import PostQuoteButton from './fragments/PostQuoteButton';
 import selectedText from './utils/selectedText';
 
 export default function addPostQuoteButton() {
-  extend(CommentPost.prototype, 'oncreate', function() {
+  extend(CommentPost.prototype, 'oncreate', function () {
     const post = this.attrs.post;
 
     if (post.isHidden() || (app.session.user && !post.discussion().canReply())) return;
@@ -18,7 +18,7 @@ export default function addPostQuoteButton() {
 
     const button = new PostQuoteButton(post);
 
-    const handler = function(e) {
+    const handler = function (e) {
       setTimeout(() => {
         const content = selectedText($postBody);
         if (content) {

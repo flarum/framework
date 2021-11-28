@@ -10,11 +10,11 @@ import addPostQuoteButton from './addPostQuoteButton';
 import addComposerAutocomplete from './addComposerAutocomplete';
 import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
-import UserPage from 'flarum/components/UserPage'
+import UserPage from 'flarum/components/UserPage';
 import LinkButton from 'flarum/components/LinkButton';
 import MentionsUserPage from './components/MentionsUserPage';
 
-app.initializers.add('flarum-mentions', function() {
+app.initializers.add('flarum-mentions', function () {
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   addPostMentionPreviews();
@@ -38,30 +38,34 @@ app.initializers.add('flarum-mentions', function() {
   app.notificationComponents.userMentioned = UserMentionedNotification;
 
   // Add notification preferences.
-  extend(NotificationGrid.prototype, 'notificationTypes', function(items) {
+  extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
     items.add('postMentioned', {
       name: 'postMentioned',
       icon: 'fas fa-reply',
-      label: app.translator.trans('flarum-mentions.forum.settings.notify_post_mentioned_label')
+      label: app.translator.trans('flarum-mentions.forum.settings.notify_post_mentioned_label'),
     });
 
     items.add('userMentioned', {
       name: 'userMentioned',
       icon: 'fas fa-at',
-      label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label')
+      label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label'),
     });
   });
 
   // Add mentions tab in user profile
-  app.routes['user.mentions'] = {path: '/u/:username/mentions', component: MentionsUserPage};
-  extend(UserPage.prototype, 'navItems', function(items) {
+  app.routes['user.mentions'] = { path: '/u/:username/mentions', component: MentionsUserPage };
+  extend(UserPage.prototype, 'navItems', function (items) {
     const user = this.user;
-    items.add('mentions',
-      LinkButton.component({
-        href: app.route('user.mentions', {username: user.slug()}),
-        name: 'mentions',
-        icon: 'fas fa-at'
-      }, app.translator.trans('flarum-mentions.forum.user.mentions_link')),
+    items.add(
+      'mentions',
+      LinkButton.component(
+        {
+          href: app.route('user.mentions', { username: user.slug() }),
+          name: 'mentions',
+          icon: 'fas fa-at',
+        },
+        app.translator.trans('flarum-mentions.forum.user.mentions_link')
+      ),
       80
     );
   });
