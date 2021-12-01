@@ -10,7 +10,7 @@ import Composer from './components/Composer';
 import DiscussionRenamedNotification from './components/DiscussionRenamedNotification';
 import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
-import routes from './routes';
+import routes, { makeRouteHelpers } from './routes';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
@@ -73,10 +73,14 @@ export default class ForumApplication extends Application {
    */
   discussions: DiscussionListState = new DiscussionListState({});
 
+  route: typeof Application.prototype.route & ReturnType<typeof makeRouteHelpers>;
+
   constructor() {
     super();
 
     routes(this);
+
+    this.route = Object.assign({}, (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this), makeRouteHelpers(this));
   }
 
   /**
