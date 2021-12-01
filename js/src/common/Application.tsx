@@ -466,10 +466,9 @@ export default class Application {
     const formattedErrors = error.response?.errors?.map((e) => decodeURI(e.detail ?? '')) ?? [];
 
     let content;
-
     switch (error.status) {
       case 422:
-        content = formattedErrors.map((detail) => [detail, <br />]).flat();
+        content = formattedErrors.map((detail) => [detail, <br />]).flat().slice(0, -1);
         break;
 
       case 401:

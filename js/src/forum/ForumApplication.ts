@@ -80,7 +80,7 @@ export default class ForumApplication extends Application {
 
     routes(this);
 
-    this.route = Object.assign({}, (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this), makeRouteHelpers(this));
+    this.route = Object.assign((Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this), makeRouteHelpers(this));
   }
 
   /**
