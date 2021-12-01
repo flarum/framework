@@ -24,8 +24,9 @@ class RevisionCompiler implements CompilerInterface
      * @var Filesystem
      */
     protected $assetsDir;
-
-    /** @var VersionerInterface */
+    /**
+     * @var VersionerInterface
+     */
     protected $versioner;
 
     /**
@@ -41,6 +42,7 @@ class RevisionCompiler implements CompilerInterface
     /**
      * @param Filesystem $assetsDir
      * @param string $filename
+     * @param VersionerInterface|null $versioner @deprecated nullable will be removed at v2.0
      */
     public function __construct(Filesystem $assetsDir, string $filename, VersionerInterface $versioner = null)
     {
