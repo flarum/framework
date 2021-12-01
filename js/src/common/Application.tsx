@@ -454,24 +454,22 @@ export default class Application {
     const options = this.transformRequestOptions(originalOptions);
 
     if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);
-  
-    return m.request(options).catch(
-      (e) => this.requestErrorCatch(e, originalOptions.errorHandler)
-    );
+
+    return m.request(options).catch((e) => this.requestErrorCatch(e, originalOptions.errorHandler));
   }
 
   /**
-   * By default, show an error alert, and log the error to the console. 
+   * By default, show an error alert, and log the error to the console.
    */
   protected requestErrorCatch<ResponseType>(error: RequestError, customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']) {
+    // the details property is decoded to transform escaped characters such as '\n'
+    const formattedErrors = error.response?.errors?.map((e) => decodeURI(e.detail ?? '')) ?? [];
+
     let content;
 
     switch (error.status) {
       case 422:
-        content = ((error.response?.errors ?? {}) as Record<string, unknown>[])
-          .map((error) => [error.detail, <br />])
-          .flat()
-          .slice(0, -1);
+        content = formattedErrors.map((detail) => [detail, <br />]).flat();
         break;
 
       case 401:
@@ -496,36 +494,28 @@ export default class Application {
         content = app.translator.trans('core.lib.error.generic_message');
     }
 
-    const isDebug = app.forum.attribute('debug');
-    // contains a formatted errors if possible, response must be an JSON API array of errors
-    // the details property is decoded to transform escaped characters such as '\n'
-    const errors = error.response && error.response.errors;
-    const formattedError = (Array.isArray(errors) && errors?.[0]?.detail && errors.map((e) => decodeURI(e.detail ?? ''))) || undefined;
+    const isDebug: boolean = app.forum.attribute('debug');
 
     error.alert = {
       type: 'error',
       content,
       controls: isDebug && [
-        <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
+        <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedErrors)}>
           {app.translator.trans('core.lib.debug_button')}
         </Button>,
       ],
     };
 
     if (customErrorHandler) {
-      try {
-        customErrorHandler(error);
-      } catch (e) {
-        this.requestErrorHandlerFallback(e, isDebug, formattedError);
-      }
+      customErrorHandler(error);
     } else {
-      this.requestErrorHandlerFallback(error, isDebug, formattedError);
+      this.requestErrorHandlerFallback(error, isDebug, formattedErrors);
     }
 
     return Promise.reject(error);
   }
 
-  protected requestErrorHandlerFallback(e: unknown, isDebug: boolean, formattedError: string): void {
+  protected requestErrorHandlerFallback(e: unknown, isDebug: boolean, formattedErrors: string[]): void {
     if (e instanceof RequestError) {
       if (isDebug && e.xhr) {
         const { method, url } = e.options;
@@ -533,18 +523,20 @@ export default class Application {
 
         console.group(`${method} ${url} ${status}`);
 
-        console.error(...(formattedError || [e]));
+        console.error(...(formattedErrors || [e]));
 
         console.groupEnd();
       }
 
-      this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
+      if (e.alert) {
+        this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
+      }
     } else {
       throw e;
     }
   }
 
-  private showDebug(error: RequestError, formattedError?: string[]) {
+  private showDebug(error: RequestError, formattedError: string[]) {
     if (this.requestErrorAlert !== null) this.alerts.dismiss(this.requestErrorAlert);
 
     this.modal.show(RequestErrorModal, { error, formattedError });
