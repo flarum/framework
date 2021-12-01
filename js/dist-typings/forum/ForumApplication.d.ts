@@ -1,5 +1,6 @@
 import History from './utils/History';
 import Pane from './utils/Pane';
+import { makeRouteHelpers } from './routes';
 import Application from '../common/Application';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
@@ -44,6 +45,7 @@ export default class ForumApplication extends Application {
      * is used in the index page and the slideout pane.
      */
     discussions: DiscussionListState;
+    route: typeof Application.prototype.route & ReturnType<typeof makeRouteHelpers>;
     constructor();
     /**
      * @inheritdoc

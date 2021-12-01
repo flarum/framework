@@ -13,10 +13,7 @@ import type Mithril from 'mithril';
 import type Component from './Component';
 import type { ComponentAttrs } from './Component';
 export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
-export declare type FlarumGenericRoute = RouteItem<Record<string, unknown>, Component<{
-    routeName: string;
-    [key: string]: unknown;
-}>, Record<string, unknown>>;
+export declare type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
     errorHandler?: (error: RequestError) => void;
     url: string;
@@ -52,18 +49,14 @@ export declare type RouteItem<Attrs extends ComponentAttrs, Comp extends Compone
     /**
      * The component to render when this route matches.
      */
-    component: {
-        new (): Comp;
-    };
+    component: new () => Comp;
     /**
      * A custom resolver class.
      *
      * This should be the class itself, and **not** an instance of the
      * class.
      */
-    resolverClass?: {
-        new (): DefaultResolver<Attrs, Comp, RouteArgs>;
-    };
+    resolverClass?: new (component: new () => Comp, routeName: string) => DefaultResolver<Attrs, Comp, RouteArgs>;
 } | {
     /**
      * An instance of a route resolver.
