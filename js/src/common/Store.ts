@@ -2,13 +2,15 @@ import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
 import Model, { ModelData, SavedModelData } from './Model';
 
+export interface MetaInformation {
+  [key: string]: any;
+}
+
 export interface ApiQueryParamsSingle {
   fields?: string[];
   include?: string;
   bySlug?: boolean;
-  meta?: {
-    [key: string]: any;
-  };
+  meta?: MetaInformation;
 }
 
 export interface ApiQueryParamsPlural {
@@ -25,9 +27,7 @@ export interface ApiQueryParamsPlural {
     size?: number;
   };
   sort?: string;
-  meta?: {
-    [key: string]: any;
-  };
+  meta?: MetaInformation;
 }
 
 export type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
@@ -35,6 +35,7 @@ export type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
 export interface ApiPayloadSingle {
   data: SavedModelData;
   included?: SavedModelData[];
+  meta?: MetaInformation;
 }
 
 export interface ApiPayloadPlural {
@@ -45,6 +46,7 @@ export interface ApiPayloadPlural {
     next?: string;
     prev?: string;
   };
+  meta?: MetaInformation;
 }
 
 export type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
