@@ -11,13 +11,9 @@ import type { default as Component, ComponentAttrs } from '../Component';
 export default class DefaultResolver<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
     routeName: string;
 }>, RouteArgs extends Record<string, unknown> = {}> implements RouteResolver<Attrs, Comp, RouteArgs> {
-    component: {
-        new (): Comp;
-    };
+    component: new () => Comp;
     routeName: string;
-    constructor(component: {
-        new (): Comp;
-    }, routeName: string);
+    constructor(component: new () => Comp, routeName: string);
     /**
      * When a route change results in a changed key, a full page
      * rerender occurs. This method can be overriden in subclasses
