@@ -15,10 +15,10 @@ export default class DefaultResolver<
   RouteArgs extends Record<string, unknown> = {}
 > implements RouteResolver<Attrs, Comp, RouteArgs>
 {
-  component: { new (): Comp };
+  component: new () => Comp;
   routeName: string;
 
-  constructor(component: { new (): Comp }, routeName: string) {
+  constructor(component: new () => Comp, routeName: string) {
     this.component = component;
     this.routeName = routeName;
   }

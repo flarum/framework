@@ -1,3 +1,4 @@
+import AdminApplication from './AdminApplication';
 import DashboardPage from './components/DashboardPage';
 import BasicsPage from './components/BasicsPage';
 import PermissionsPage from './components/PermissionsPage';
@@ -9,10 +10,8 @@ import ExtensionPageResolver from './resolvers/ExtensionPageResolver';
 
 /**
  * The `routes` initializer defines the forum app's routes.
- *
- * @param {App} app
  */
-export default function (app) {
+export default function (app: AdminApplication) {
   app.routes = {
     dashboard: { path: '/', component: DashboardPage },
     basics: { path: '/basics', component: BasicsPage },
