@@ -16,7 +16,17 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BasicTitleDriver implements TitleDriverInterface
 {
-    public function makeTitle(Document $document, ServerRequestInterface $request, TranslatorInterface $translator, array $forumApiDocument): string
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
+
+    public function makeTitle(Document $document, ServerRequestInterface $request, array $forumApiDocument): string
     {
         $onHomePage = rtrim($request->getUri()->getPath(), '/') === '';
 
@@ -27,7 +37,7 @@ class BasicTitleDriver implements TitleDriverInterface
         ];
 
         return $onHomePage || ! $document->title
-            ? $translator->trans('core.views.meta_titles.without_page_title', $params)
-            : $translator->trans('core.views.meta_titles.with_page_title', $params);
+            ? $this->translator->trans('core.views.meta_titles.without_page_title', $params)
+            : $this->translator->trans('core.views.meta_titles.with_page_title', $params);
     }
 }

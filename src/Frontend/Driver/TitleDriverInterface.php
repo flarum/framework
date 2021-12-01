@@ -11,9 +11,8 @@ namespace Flarum\Frontend\Driver;
 
 use Flarum\Frontend\Document;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 interface TitleDriverInterface
 {
-    public function makeTitle(Document $document, ServerRequestInterface $request, TranslatorInterface $translator, array $forumApiDocument): string;
+    public function makeTitle(Document $document, ServerRequestInterface $request, array $forumApiDocument): string;
 }

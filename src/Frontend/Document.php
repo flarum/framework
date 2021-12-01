@@ -15,7 +15,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * A view which renders a HTML skeleton for Flarum's frontend app.
@@ -219,7 +218,7 @@ class Document implements Renderable
     protected function makeTitle(): string
     {
         // @todo v2.0 inject as dependency instead
-        return resolve(TitleDriverInterface::class)->makeTitle($this, $this->request, resolve(TranslatorInterface::class), $this->forumApiDocument);
+        return resolve(TitleDriverInterface::class)->makeTitle($this, $this->request, $this->forumApiDocument);
     }
 
     /**
