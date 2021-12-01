@@ -366,7 +366,7 @@ export default class Application {
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
-    const { background, deserialize, errorHandler, extract, modifyText, ...tmpOptions } = { ...flarumOptions };
+    const { background, deserialize, extract, modifyText, ...tmpOptions } = { ...flarumOptions };
 
     // Unless specified otherwise, requests should run asynchronously in the
     // background, so that they don't prevent redraws from occurring.
@@ -380,10 +380,6 @@ export default class Application {
     // so it errors due to Mithril's typings
     const defaultDeserialize = (response: string) => response as ResponseType;
 
-    const defaultErrorHandler = (error: RequestError) => {
-      throw error;
-    };
-
     // When extracting the data from the response, we can check the server
     // response code and show an error message to the user if something's gone
     // awry.
@@ -392,7 +388,6 @@ export default class Application {
     const options: InternalFlarumRequestOptions<ResponseType> = {
       background: background ?? defaultBackground,
       deserialize: deserialize ?? defaultDeserialize,
-      errorHandler: errorHandler ?? defaultErrorHandler,
       ...tmpOptions,
     };
 
@@ -459,72 +454,78 @@ export default class Application {
     const options = this.transformRequestOptions(originalOptions);
 
     if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);
-
-    // Now make the request. If it's a failure, inspect the error that was
-    // returned and show an alert containing its contents.
-    return m.request(options).then(
-      (response) => response,
-      (error: RequestError) => {
-        let content;
-
-        switch (error.status) {
-          case 422:
-            content = ((error.response?.errors ?? {}) as Record<string, unknown>[])
-              .map((error) => [error.detail, <br />])
-              .flat()
-              .slice(0, -1);
-            break;
-
-          case 401:
-          case 403:
-            content = app.translator.trans('core.lib.error.permission_denied_message');
-            break;
-
-          case 404:
-          case 410:
-            content = app.translator.trans('core.lib.error.not_found_message');
-            break;
-
-          case 413:
-            content = app.translator.trans('core.lib.error.payload_too_large_message');
-            break;
-
-          case 429:
-            content = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
-            break;
-
-          default:
-            content = app.translator.trans('core.lib.error.generic_message');
-        }
-
-        const isDebug = app.forum.attribute('debug');
-        // contains a formatted errors if possible, response must be an JSON API array of errors
-        // the details property is decoded to transform escaped characters such as '\n'
-        const errors = error.response && error.response.errors;
-        const formattedError = (Array.isArray(errors) && errors?.[0]?.detail && errors.map((e) => decodeURI(e.detail ?? ''))) || undefined;
-
-        error.alert = {
-          type: 'error',
-          content,
-          controls: isDebug && [
-            <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
-              {app.translator.trans('core.lib.debug_button')}
-            </Button>,
-          ],
-        };
-
-        try {
-          options.errorHandler(error);
-        } catch (e) {
-          this.fallbackRequestErrorHandler(isDebug, formattedError, e);
-        }
-
-        return Promise.reject(error);
-      }
+  
+    return m.request(options).catch(
+      (e) => this.requestErrorCatch(e, originalOptions.errorHandler)
     );
   }
 
-  protected fallbackRequestErrorHandler(isDebug: boolean, formattedError: string, e: unknown): void {
+  /**
+   * By default, show an error alert, and log the error to the console. 
+   */
+  protected requestErrorCatch<ResponseType>(error: RequestError, customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']) {
+    let content;
+
+    switch (error.status) {
+      case 422:
+        content = ((error.response?.errors ?? {}) as Record<string, unknown>[])
+          .map((error) => [error.detail, <br />])
+          .flat()
+          .slice(0, -1);
+        break;
+
+      case 401:
+      case 403:
+        content = app.translator.trans('core.lib.error.permission_denied_message');
+        break;
+
+      case 404:
+      case 410:
+        content = app.translator.trans('core.lib.error.not_found_message');
+        break;
+
+      case 413:
+        content = app.translator.trans('core.lib.error.payload_too_large_message');
+        break;
+
+      case 429:
+        content = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+        break;
+
+      default:
+        content = app.translator.trans('core.lib.error.generic_message');
+    }
+
+    const isDebug = app.forum.attribute('debug');
+    // contains a formatted errors if possible, response must be an JSON API array of errors
+    // the details property is decoded to transform escaped characters such as '\n'
+    const errors = error.response && error.response.errors;
+    const formattedError = (Array.isArray(errors) && errors?.[0]?.detail && errors.map((e) => decodeURI(e.detail ?? ''))) || undefined;
+
+    error.alert = {
+      type: 'error',
+      content,
+      controls: isDebug && [
+        <Button className="Button Button--link" onclick={this.showDebug.bind(this, error, formattedError)}>
+          {app.translator.trans('core.lib.debug_button')}
+        </Button>,
+      ],
+    };
+
+    if (customErrorHandler) {
+      try {
+        customErrorHandler(error);
+      } catch (e) {
+        this.requestErrorHandlerFallback(e, isDebug, formattedError);
+      }
+    } else {
+      this.requestErrorHandlerFallback(error, isDebug, formattedError);
+    }
+
+    return Promise.reject(error);
+  }
+
+  protected requestErrorHandlerFallback(e: unknown, isDebug: boolean, formattedError: string): void {
     if (e instanceof RequestError) {
       if (isDebug && e.xhr) {
         const { method, url } = e.options;
