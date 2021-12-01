@@ -468,7 +468,10 @@ export default class Application {
     let content;
     switch (error.status) {
       case 422:
-        content = formattedErrors.map((detail) => [detail, <br />]).flat().slice(0, -1);
+        content = formattedErrors
+          .map((detail) => [detail, <br />])
+          .flat()
+          .slice(0, -1);
         break;
 
       case 401:
