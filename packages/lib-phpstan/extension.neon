@@ -1,13 +1,38 @@
-inclues:
+includes:
     - vendor/phpstan/phpstan-php-parser/extension.neon
 parameters:
+    stubFiles:
+        - stubs/Illuminate/Enumerable.stub
+        - stubs/Illuminate/Database/EloquentBuilder.stub
+        - stubs/Illuminate/Collection.stub
+        - stubs/Illuminate/Database/EloquentCollection.stub
+        - stubs/Illuminate/Database/Factory.stub
+        - stubs/Illuminate/Database/Model.stub
+        - stubs/Illuminate/Database/Gate.stub
+        - stubs/Illuminate/Database/Relation.stub
+        - stubs/Illuminate/Database/BelongsTo.stub
+        - stubs/Illuminate/Database/BelongsToMany.stub
+        - stubs/Illuminate/Database/HasOneOrMany.stub
+        - stubs/Illuminate/Database/HasMany.stub
+        - stubs/Illuminate/Database/HasOne.stub
+        - stubs/Illuminate/Database/HasOneThrough.stub
+        - stubs/Illuminate/Database/HasManyThrough.stub
+        - stubs/Illuminate/Database/MorphTo.stub
+        - stubs/Illuminate/Database/MorphToMany.stub
+        - stubs/Illuminate/Database/MorphMany.stub
+        - stubs/Illuminate/Database/MorphOne.stub
+        - stubs/Illuminate/Database/MorphOneOrMany.stub
+        - stubs/Illuminate/HigherOrderProxies.stub
+        - stubs/Illuminate/Database/QueryBuilder.stub
+        - stubs/Illuminate/EnumeratesValues.stub
+        - stubs/Contracts/Support.stub
     universalObjectCratesClasses:
         - Illuminate\Http\Request
+    mixinExcludeClasses:
+        - Eloquent
     earlyTerminatingFunctionCalls:
         - abort
         - dd
     excludePaths:
         - *.blade.php
-    mixinExcludeClasses:
-        - Eloquent
     checkGenericClassInNonGenericObjectType: false
