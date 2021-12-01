@@ -11,6 +11,8 @@ namespace Flarum\User;
 
 use Flarum\Foundation\AbstractValidator;
 use Flarum\Foundation\ValidationException;
+use Intervention\Image\Exception\NotReadableException;
+use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\Mime\MimeTypes;
 
@@ -69,6 +71,12 @@ class AvatarValidator extends AbstractValidator
         if (! in_array($guessedExtension, $allowedTypes)) {
             $this->raise('mimes', [':values' => implode(', ', $allowedTypes)]);
         }
+
+        try {
+            (new ImageManager)->make($file->getStream());
+        } catch (NotReadableException $_e) {
+            $this->raise('image');
+        }
     }
 
     protected function assertFileSize(UploadedFileInterface $file)
@@ -103,6 +111,6 @@ class AvatarValidator extends AbstractValidator
 
     protected function getAllowedTypes()
     {
-        return ['jpg', 'png', 'bmp', 'gif'];
+        return ['jpeg', 'jpg', 'png', 'bmp', 'gif'];
     }
 }
