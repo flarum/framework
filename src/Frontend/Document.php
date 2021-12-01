@@ -15,6 +15,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * A view which renders a HTML skeleton for Flarum's frontend app.
@@ -218,7 +219,7 @@ class Document implements Renderable
     protected function makeTitle(): string
     {
         // @todo v2.0 inject as dependency instead
-        return resolve(TitleDriverInterface::class)->makeTitle($this, $this->request, $this->forumApiDocument);
+        return resolve(TitleDriverInterface::class)->makeTitle($this, $this->request, resolve(TranslatorInterface::class), $this->forumApiDocument);
     }
 
     /**
@@ -329,7 +330,7 @@ class Document implements Renderable
     /**
      * Set or override a query param on a string URL to a particular value.
      */
-    public static function setQueryParam(string $url, string $key, ?string $value)
+    protected static function setQueryParam(string $url, string $key, ?string $value)
     {
         if (filter_var($url, FILTER_VALIDATE_URL)) {
             $urlParts = parse_url($url);
