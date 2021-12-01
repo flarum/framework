@@ -508,13 +508,13 @@ export default class Application {
     if (customErrorHandler) {
       customErrorHandler(error);
     } else {
-      this.requestErrorHandlerFallback(error, isDebug, formattedErrors);
+      this.requestErrorDefaultHandler(error, isDebug, formattedErrors);
     }
 
     return Promise.reject(error);
   }
 
-  protected requestErrorHandlerFallback(e: unknown, isDebug: boolean, formattedErrors: string[]): void {
+  protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void {
     if (e instanceof RequestError) {
       if (isDebug && e.xhr) {
         const { method, url } = e.options;
