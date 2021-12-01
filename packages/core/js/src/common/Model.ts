@@ -1,6 +1,6 @@
 import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
-import Store, { ApiPayloadSingle, ApiResponseSingle } from './Store';
+import Store, { ApiPayloadSingle, ApiResponseSingle, MetaInformation } from './Store';
 
 export interface ModelIdentifier {
   type: string;
@@ -162,7 +162,7 @@ export default abstract class Model {
    */
   save(
     attributes: SaveAttributes,
-    options: Omit<FlarumRequestOptions<ApiPayloadSingle>, 'url'> & { meta?: any } = {}
+    options: Omit<FlarumRequestOptions<ApiPayloadSingle>, 'url'> & { meta?: MetaInformation } = {}
   ): Promise<ApiResponseSingle<this>> {
     const data: ModelData & { id?: string } = {
       type: this.data.type,
