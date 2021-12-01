@@ -515,22 +515,22 @@ export default class Application {
 
         try {
           options.errorHandler(error);
-        } catch (error) {
-          if (error instanceof RequestError) {
-            if (isDebug && error.xhr) {
-              const { method, url } = error.options;
-              const { status = '' } = error.xhr;
+        } catch (e) {
+          if (e instanceof RequestError) {
+            if (isDebug && e.xhr) {
+              const { method, url } = e.options;
+              const { status = '' } = e.xhr;
 
               console.group(`${method} ${url} ${status}`);
 
-              console.error(...(formattedError || [error]));
+              console.error(...(formattedError || [e]));
 
               console.groupEnd();
             }
 
-            this.requestErrorAlert = this.alerts.show(error.alert, error.alert.content);
+            this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
           } else {
-            throw error;
+            throw e;
           }
         }
 
