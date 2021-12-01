@@ -524,7 +524,7 @@ export default class Application {
     );
   }
 
-  protected fallbackRequestErrorHandler(isDebug: boolean, formattedError: string, e: unknown) {
+  protected fallbackRequestErrorHandler(isDebug: boolean, formattedError: string, e: unknown): void {
     if (e instanceof RequestError) {
       if (isDebug && e.xhr) {
         const { method, url } = e.options;
