@@ -516,27 +516,31 @@ export default class Application {
         try {
           options.errorHandler(error);
         } catch (e) {
-          if (e instanceof RequestError) {
-            if (isDebug && e.xhr) {
-              const { method, url } = e.options;
-              const { status = '' } = e.xhr;
-
-              console.group(`${method} ${url} ${status}`);
-
-              console.error(...(formattedError || [e]));
-
-              console.groupEnd();
-            }
-
-            this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
-          } else {
-            throw e;
-          }
+          this.fallbackRequestErrorHandler(isDebug, formattedError, e);
         }
 
         return Promise.reject(error);
       }
     );
+  }
+
+  protected fallbackRequestErrorHandler(isDebug: boolean, formattedError: string, e: unknown) {
+    if (e instanceof RequestError) {
+      if (isDebug && e.xhr) {
+        const { method, url } = e.options;
+        const { status = '' } = e.xhr;
+
+        console.group(`${method} ${url} ${status}`);
+
+        console.error(...(formattedError || [e]));
+
+        console.groupEnd();
+      }
+
+      this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
+    } else {
+      throw e;
+    }
   }
 
   private showDebug(error: RequestError, formattedError?: string[]) {
