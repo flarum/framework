@@ -149,7 +149,7 @@ export default class AvatarEditor extends Component {
 
     // Create a hidden HTML input element and click on it so the user can select
     // an avatar file. Once they have, we will upload it via the API.
-    const $input = $('<input type="file">');
+    const $input = $('<input type="file" accept=".jpg, .jpeg, .png, .bmp, .gif">');
 
     $input
       .appendTo('body')
