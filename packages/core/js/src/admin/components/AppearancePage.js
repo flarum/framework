@@ -5,6 +5,7 @@ import EditCustomHeaderModal from './EditCustomHeaderModal';
 import EditCustomFooterModal from './EditCustomFooterModal';
 import UploadImageButton from './UploadImageButton';
 import AdminPage from './AdminPage';
+import ItemList from '../../common/utils/ItemList';
 
 export default class AppearancePage extends AdminPage {
   headerInfo() {
@@ -21,34 +22,7 @@ export default class AppearancePage extends AdminPage {
       <div className="Form">
         <fieldset className="AppearancePage-colors">
           <legend>{app.translator.trans('core.admin.appearance.colors_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.colors_text')}</div>
-
-          <div className="AppearancePage-colors-input">
-            {this.buildSettingComponent({
-              type: 'color-preview',
-              setting: 'theme_primary_color',
-              placeholder: '#aaaaaa',
-            })}
-            {this.buildSettingComponent({
-              type: 'color-preview',
-              setting: 'theme_secondary_color',
-              placeholder: '#aaaaaa',
-            })}
-          </div>
-
-          {this.buildSettingComponent({
-            type: 'switch',
-            setting: 'theme_dark_mode',
-            label: app.translator.trans('core.admin.appearance.dark_mode_label'),
-          })}
-
-          {this.buildSettingComponent({
-            type: 'switch',
-            setting: 'theme_colored_header',
-            label: app.translator.trans('core.admin.appearance.colored_header_label'),
-          })}
-
-          {this.submitButton()}
+          {this.colorItems().toArray()}
         </fieldset>
       </div>,
 
@@ -100,6 +74,53 @@ export default class AppearancePage extends AdminPage {
         )}
       </fieldset>,
     ];
+  }
+
+  colorItems() {
+    const items = new ItemList();
+
+    items.add('helpText', <div className="helpText">{app.translator.trans('core.admin.appearance.colors_text')}</div>, 80);
+
+    items.add(
+      'theme-colors',
+      <div className="AppearancePage-colors-input">
+        {this.buildSettingComponent({
+          type: 'color-preview',
+          setting: 'theme_primary_color',
+          placeholder: '#aaaaaa',
+        })}
+        {this.buildSettingComponent({
+          type: 'color-preview',
+          setting: 'theme_secondary_color',
+          placeholder: '#aaaaaa',
+        })}
+      </div>,
+      70
+    );
+
+    items.add(
+      'dark-mode',
+      this.buildSettingComponent({
+        type: 'switch',
+        setting: 'theme_dark_mode',
+        label: app.translator.trans('core.admin.appearance.dark_mode_label'),
+      }),
+      60
+    );
+
+    items.add(
+      'colored-header',
+      this.buildSettingComponent({
+        type: 'switch',
+        setting: 'theme_colored_header',
+        label: app.translator.trans('core.admin.appearance.colored_header_label'),
+      }),
+      50
+    );
+
+    items.add('submit', this.submitButton(), 0);
+
+    return items;
   }
 
   onsaved() {
