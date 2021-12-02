@@ -82,7 +82,7 @@ export default class AppearancePage extends AdminPage {
     items.add('helpText', <div className="helpText">{app.translator.trans('core.admin.appearance.colors_text')}</div>, 80);
 
     items.add(
-      'color-input',
+      'theme-colors',
       <div className="AppearancePage-colors-input">
         {this.buildSettingComponent({
           type: 'color-preview',
