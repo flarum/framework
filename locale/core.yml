@@ -628,6 +628,11 @@ core:
       submit_button: => core.ref.save_changes
       title: => core.ref.reset_your_password
 
+    # Translations in this namespace are used to format page meta titles.
+    meta_titles:
+      with_page_title: "{pageNumber, plural, =1 {{pageTitle} - {forumName}} other {{pageTitle}: Page # - {forumName}}}"
+      without_page_title: "{pageNumber, plural, =1 {{forumName}} other {Page # - {forumName}}}"
+
   # Translations in this namespace are used in messages output by the API.
   api:
     invalid_username_message: "The username may only contain letters, numbers, and dashes."
