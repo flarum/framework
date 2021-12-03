@@ -97,9 +97,12 @@ class Discussion
         $hasNextPage = $page < 1 + intval($apiDocument->data->attributes->commentCount / 20);
 
         $document->title = $apiDocument->data->attributes->title;
-        $document->canonicalUrl = $url(['page' => $page]);
         $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'hasPrevPage', 'hasNextPage', 'getResource', 'posts', 'url'));
         $document->payload['apiDocument'] = $apiDocument;
+
+        $document->canonicalUrl = $url([]);
+        $document->page = $page;
+        $document->hasNextPage = $hasNextPage;
 
         return $document;
     }
