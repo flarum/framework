@@ -12,21 +12,22 @@ namespace Flarum\Frontend\Compiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Compiler\Source\SourceInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
 
 /**
  * @internal
  */
 class RevisionCompiler implements CompilerInterface
 {
-    const REV_MANIFEST = 'rev-manifest.json';
-
     const EMPTY_REVISION = 'empty';
 
     /**
      * @var Filesystem
      */
     protected $assetsDir;
+    /**
+     * @var VersionerInterface
+     */
+    protected $versioner;
 
     /**
      * @var string
@@ -41,11 +42,13 @@ class RevisionCompiler implements CompilerInterface
     /**
      * @param Filesystem $assetsDir
      * @param string $filename
+     * @param VersionerInterface|null $versioner @deprecated nullable will be removed at v2.0
      */
-    public function __construct(Filesystem $assetsDir, string $filename)
+    public function __construct(Filesystem $assetsDir, string $filename, VersionerInterface $versioner = null)
     {
         $this->assetsDir = $assetsDir;
         $this->filename = $filename;
+        $this->versioner = $versioner ?: new FileVersioner($assetsDir);
     }
 
     public function getFilename(): string
@@ -62,7 +65,7 @@ class RevisionCompiler implements CompilerInterface
     {
         $sources = $this->getSources();
 
-        $oldRevision = $this->getRevision();
+        $oldRevision = $this->versioner->getRevision($this->filename);
 
         $newRevision = $this->calculateRevision($sources);
 
@@ -76,7 +79,7 @@ class RevisionCompiler implements CompilerInterface
                 $newRevision = static::EMPTY_REVISION;
             }
 
-            $this->putRevision($newRevision);
+            $this->versioner->putRevision($this->filename, $newRevision);
         }
     }
 
@@ -101,12 +104,12 @@ class RevisionCompiler implements CompilerInterface
 
     public function getUrl(): ?string
     {
-        $revision = $this->getRevision();
+        $revision = $this->versioner->getRevision($this->filename);
 
         if (! $revision) {
             $this->commit();
 
-            $revision = $this->getRevision();
+            $revision = $this->versioner->getRevision($this->filename);
 
             if (! $revision) {
                 return null;
@@ -164,34 +167,6 @@ class RevisionCompiler implements CompilerInterface
         return $string;
     }
 
-    protected function getRevision(): ?string
-    {
-        if ($this->assetsDir->has(static::REV_MANIFEST)) {
-            $manifest = json_decode($this->assetsDir->read(static::REV_MANIFEST), true);
-
-            return Arr::get($manifest, $this->filename);
-        }
-
-        return null;
-    }
-
-    protected function putRevision(?string $revision)
-    {
-        if ($this->assetsDir->has(static::REV_MANIFEST)) {
-            $manifest = json_decode($this->assetsDir->read(static::REV_MANIFEST), true);
-        } else {
-            $manifest = [];
-        }
-
-        if ($revision) {
-            $manifest[$this->filename] = $revision;
-        } else {
-            unset($manifest[$this->filename]);
-        }
-
-        $this->assetsDir->put(static::REV_MANIFEST, json_encode($manifest));
-    }
-
     /**
      * @param SourceInterface[] $sources
      * @return string
@@ -214,10 +189,10 @@ class RevisionCompiler implements CompilerInterface
 
     public function flush()
     {
-        if ($this->getRevision() !== null) {
+        if ($this->versioner->getRevision($this->filename) !== null) {
             $this->delete($this->filename);
 
-            $this->putRevision(null);
+            $this->versioner->putRevision($this->filename, null);
         }
     }
 
