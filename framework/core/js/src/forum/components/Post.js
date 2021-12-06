@@ -66,8 +66,8 @@ export default class Post extends Component {
                     buttonClassName="Button Button--icon Button--flat"
                     menuClassName="Dropdown-menu--right"
                     icon="fas fa-ellipsis-h"
-                    onshow={() => this.$('.Post-actions').addClass('open')}
-                    onhide={() => this.$('.Post-actions').removeClass('open')}
+                    onshow={() => this.$('.Post-controls').addClass('open')}
+                    onhide={() => this.$('.Post-controls').removeClass('open')}
                     accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
                   >
                     {controls}
