@@ -26,13 +26,24 @@ export default class StatusWidget extends DashboardWidget {
         buttonClassName="Button"
         menuClassName="Dropdown-menu--right"
       >
-        <Button onclick={this.handleClearCache.bind(this)}>{app.translator.trans('core.admin.dashboard.clear_cache_button')}</Button>
+        {this.toolsItems().toArray()}
       </Dropdown>
     );
 
     items.add('version-flarum', [<strong>Flarum</strong>, <br />, app.forum.attribute('version')]);
     items.add('version-php', [<strong>PHP</strong>, <br />, app.data.phpVersion]);
     items.add('version-mysql', [<strong>MySQL</strong>, <br />, app.data.mysqlVersion]);
+
+    return items;
+  }
+
+  toolsItems() {
+    const items = new ItemList();
+
+    items.add(
+      'clearCache',
+      <Button onclick={this.handleClearCache.bind(this)}>{app.translator.trans('core.admin.dashboard.clear_cache_button')}</Button>
+    );
 
     return items;
   }
