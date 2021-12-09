@@ -1,5 +1,5 @@
 import type Mithril from 'mithril';
-import { AlertAttrs } from '../components/Alert';
+import type { AlertAttrs } from '../components/Alert';
 
 export type InternalFlarumRequestOptions<ResponseType> = Mithril.RequestOptions<ResponseType> & {
   url: string;
