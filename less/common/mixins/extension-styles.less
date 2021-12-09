@@ -1,7 +1,9 @@
-.if-extension-enabled(@extension) {
-  // Placeholder mixin
-}
+.when-extension-enabled(@extension, @code) {
+  @found-extension: true;
 
-.for(@extensions-enabled, {
-  .if-extension-enabled(@value);
-});
+  .for(@extensions-enabled, {
+    & when (@value = @extension) {
+      @code();
+    }
+  });
+}
