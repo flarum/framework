@@ -140,7 +140,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     'callback' => function ($value) {
                         /** @var array */
                         $extensionsEnabled = json_decode($value, true);
-                        
+
                         $var = '';
 
                         foreach ($extensionsEnabled as $ext) {
