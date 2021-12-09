@@ -141,14 +141,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         /** @var array */
                         $extensionsEnabled = json_decode($value, true);
 
-                        $var = '';
-
-                        foreach ($extensionsEnabled as $ext) {
-                            $var .= "$ext, ";
-                        }
-
-                        // Remove extra ", "
-                        return substr($var, 0, -2);
+                        return implode($extensionsEnabled, ',');
                     },
                 ],
             ];
