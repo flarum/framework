@@ -1,0 +1,14 @@
+// https://stackoverflow.com/a/35548888/11091039
+.for(@list, @code) {
+  & {
+    .loop(@i: 1) when (@i <= length(@list)) {
+      @value: extract(@list, @i);
+
+      @code();
+
+      .loop(@i + 1);
+    }
+
+    .loop();
+  }
+}
