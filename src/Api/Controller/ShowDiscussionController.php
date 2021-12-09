@@ -16,6 +16,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface;
@@ -98,9 +99,9 @@ class ShowDiscussionController extends AbstractShowController
             $this->includePosts($discussion, $request, $postRelationships);
         }
 
-        $discussion->load(array_filter($include, function ($relationship) {
+        $this->loadRelations(new Collection([$discussion]), array_filter($include, function ($relationship) {
             return ! Str::startsWith($relationship, 'posts');
-        }));
+        }), $request);
 
         return $discussion;
     }
@@ -198,10 +199,29 @@ class ShowDiscussionController extends AbstractShowController
         return $posts->all();
     }
 
-    protected function getRelationsToLoad(): array
+    protected function getRelationsToLoad(Collection $models): array
     {
-        $addedRelations = parent::getRelationsToLoad();
+        $addedRelations = parent::getRelationsToLoad($models);
+
+        if ($models->first() instanceof Discussion) {
+            return $addedRelations;
+        }
 
         return $this->getPostRelationships($addedRelations);
+    }
+
+    protected function getRelationCallablesToLoad(Collection $models): array
+    {
+        $addedCallableRelations = parent::getRelationCallablesToLoad($models);
+
+        if ($models->first() instanceof Discussion) {
+            return $addedCallableRelations;
+        }
+
+        $postCallableRelationships = $this->getPostRelationships(array_keys($addedCallableRelations));
+
+        return array_intersect_key($addedCallableRelations, array_flip(array_map(function ($relation) {
+            return "posts.$relation";
+        }, $postCallableRelationships)));
     }
 }

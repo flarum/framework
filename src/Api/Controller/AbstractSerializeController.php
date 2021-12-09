@@ -157,7 +157,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      *
      * @return string[]
      */
-    protected function getRelationsToLoad(): array
+    protected function getRelationsToLoad(Collection $models): array
     {
         $addedRelations = [];
 
@@ -175,7 +175,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      *
      * @return array<string, callable>
      */
-    protected function getRelationCallablesToLoad(): array
+    protected function getRelationCallablesToLoad(Collection $models): array
     {
         $addedRelationCallables = [];
 
@@ -193,8 +193,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      */
     protected function loadRelations(Collection $models, array $relations, ServerRequestInterface $request = null): void
     {
-        $addedRelations = $this->getRelationsToLoad();
-        $addedRelationCallables = $this->getRelationCallablesToLoad();
+        $addedRelations = $this->getRelationsToLoad($models);
+        $addedRelationCallables = $this->getRelationCallablesToLoad($models);
 
         foreach ($addedRelationCallables as $name => $relation) {
             $addedRelations[] = $name;

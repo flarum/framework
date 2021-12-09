@@ -14,6 +14,7 @@ use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Discussion\Command\StartDiscussion;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -69,6 +70,8 @@ class CreateDiscussionController extends AbstractCreateController
                 new ReadDiscussion($discussion->id, $actor, 1)
             );
         }
+
+        $this->loadRelations(new Collection([$discussion]), $this->extractInclude($request), $request);
 
         return $discussion;
     }
