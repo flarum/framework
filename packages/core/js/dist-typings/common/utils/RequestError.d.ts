@@ -1,6 +1,6 @@
 import type Mithril from 'mithril';
+import type { AlertAttrs } from '../components/Alert';
 export declare type InternalFlarumRequestOptions<ResponseType> = Mithril.RequestOptions<ResponseType> & {
-    errorHandler: (error: RequestError) => void;
     url: string;
 };
 export default class RequestError<ResponseType = string> {
@@ -16,6 +16,6 @@ export default class RequestError<ResponseType = string> {
             [key: string]: unknown;
         }[];
     } | null;
-    alert: any;
+    alert: AlertAttrs | null;
     constructor(status: number, responseText: string | null, options: InternalFlarumRequestOptions<ResponseType>, xhr: XMLHttpRequest);
 }
