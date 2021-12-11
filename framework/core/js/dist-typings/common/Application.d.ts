@@ -218,6 +218,11 @@ export default class Application {
      * @return {Promise}
      */
     request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType | string>;
+    /**
+     * By default, show an error alert, and log the error to the console.
+     */
+    protected requestErrorCatch<ResponseType>(error: RequestError, customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']): Promise<never>;
+    protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void;
     private showDebug;
     /**
      * Construct a URL to the route with the given name.
