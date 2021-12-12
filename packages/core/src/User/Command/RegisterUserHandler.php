@@ -50,18 +50,24 @@ class RegisterUserHandler
     private $validator;
 
     /**
+     * @var ImageManager
+     */
+    protected $imageManager;
+
+    /**
      * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      * @param UserValidator $validator
      * @param AvatarUploader $avatarUploader
      */
-    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $userValidator, AvatarUploader $avatarUploader, Factory $validator)
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $userValidator, AvatarUploader $avatarUploader, Factory $validator, ImageManager $imageManager)
     {
         $this->events = $events;
         $this->settings = $settings;
         $this->userValidator = $userValidator;
         $this->avatarUploader = $avatarUploader;
         $this->validator = $validator;
+        $this->imageManager = $imageManager;
     }
 
     /**
@@ -160,7 +166,7 @@ class RegisterUserHandler
             throw new InvalidArgumentException("Provided avatar URL must have scheme http or https. Scheme provided was $scheme.", 503);
         }
 
-        $image = (new ImageManager)->make($url);
+        $image = $this->imageManager->make($url);
 
         $this->avatarUploader->upload($user, $image);
     }
