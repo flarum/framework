@@ -148,7 +148,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $views->share([
             'translator' => $container->make('translator'),
-            'url' => $container->make(UrlGenerator::class)
+            'url' => $container->make(UrlGenerator::class),
+            'slugManager' => $container->make(SlugManager::class)
         ]);
     }
 
