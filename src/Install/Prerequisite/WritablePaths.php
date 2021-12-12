@@ -31,7 +31,7 @@ class WritablePaths implements PrerequisiteInterface
         $problems = $this->getMissingPaths()
             ->concat($this->getNonWritablePaths());
 
-        if (!$problems->isEmpty()) {
+        if (! $problems->isEmpty()) {
             return $problems->prepend($this->getServerInfo());
         }
 
@@ -44,14 +44,14 @@ class WritablePaths implements PrerequisiteInterface
             'title' => 'Server Metadata',
             'detail' => implode('<br />', [
                 'The following information might be useful for troubleshooting the errors below.',
-                'Current User:' . get_current_user(),
+                'Current User:'.get_current_user(),
                 'Current File Permissions:',
                 $this->paths->map(function ($path) {
-                    return " - $path: " . substr(sprintf('%o', fileperms($path)), -4);
+                    return " - $path: ".substr(sprintf('%o', fileperms($path)), -4);
                 })->implode('<br />'),
                 'Current File Ownership:',
                 $this->paths->map(function ($path) {
-                    return " - $path: " . posix_getpwuid(fileowner($path))['name'] .':'.posix_getgrgid(filegroup($path))['name'];
+                    return " - $path: ".posix_getpwuid(fileowner($path))['name'].':'.posix_getgrgid(filegroup($path))['name'];
                 })->implode('<br />'),
             ]),
         ];
