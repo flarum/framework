@@ -33,7 +33,7 @@ export function getPlainContent(string: string): string {
   getPlainContent.removeSelectors.forEach((selector) => {
     const el = element.querySelectorAll(selector);
     el.forEach((e) => {
-      e.parentNode?.removeChild(e);
+      e.remove();
     });
   });
 
