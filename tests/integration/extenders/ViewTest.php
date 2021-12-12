@@ -36,4 +36,17 @@ class ViewTest extends TestCase
 
         $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('integration.test::test')->render()));
     }
+
+    /**
+     * @test
+     */
+    public function can_replace_view_namespace_by_extender()
+    {
+        $this->extend(
+            (new Extend\View)
+                ->replace('flarum', dirname(__FILE__, 3).'/fixtures/views')
+        );
+
+        $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('flarum::test')->render()));
+    }
 }
