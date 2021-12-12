@@ -1,7 +1,7 @@
 import app from '../../admin/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 
-export default class LoadingModal<ModalAttrs = {}> extends Modal<ModalAttrs> {
+export default class LoadingModal<ModalAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<ModalAttrs> {
   /**
    * @inheritdoc
    */
