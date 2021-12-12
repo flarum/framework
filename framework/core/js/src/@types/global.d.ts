@@ -21,7 +21,7 @@ declare type KeysOfType<Type extends object, Match> = {
  */
 declare type KeyOfType<Type extends object, Match> = KeysOfType<Type, Match>[keyof Type];
 
-declare type VnodeElementTag<Attrs = Record<string, unknown>, State = Record<string, unknown>> = string | ComponentTypes<Attrs, State>;
+declare type VnodeElementTag<Attrs = Record<string, unknown>, State = Record<string, unknown>> = string | import('mithril').ComponentTypes<Attrs, State>;
 
 /**
  * @deprecated Please import `app` from a namespace instead of using it as a global variable.
