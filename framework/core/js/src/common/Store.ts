@@ -175,14 +175,12 @@ export default class Store {
 
     return app
       .request<M extends Array<infer _T> ? ApiPayloadPlural : ApiPayloadSingle>(
-        Object.assign(
-          {
-            method: 'GET',
-            url,
-            params,
-          },
-          options
-        )
+        {
+          method: 'GET',
+          url,
+          params,
+          ...options,
+        }
       )
       .then((payload) => {
         if (payloadIsPlural(payload)) {
