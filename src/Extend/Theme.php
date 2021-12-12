@@ -58,10 +58,8 @@ class Theme implements ExtenderInterface
      *
      * **Example usage:**
      * ```php
-     * use
-     *
      * (new Extend\Theme)
-     *     ->addLessFunction('is-flarum', function (Less_Tree_Quoted $text) {
+     *     ->addCustomLessFunction('is-flarum', function (mixed $text) {
      *         return new Less_Tree_Quoted('', strtolower($text) === 'flarum' ? 'true' : 'false')
      *     }),
      * ```
@@ -74,7 +72,23 @@ class Theme implements ExtenderInterface
      */
     public function addCustomLessFunction(string $functionName, callable $callable): self
     {
-        $this->customFunctions[$functionName] = $callable;
+        if (!is_callable($callable)) return $this;
+
+        $this->customFunctions[$functionName] = function (...$args) use ($callable) {
+            $argVals = array_map(function ($arg) {
+                return $arg->value;
+            }, $args);
+
+            $return = $callable(...$argVals);
+
+            // Numbers
+            if (!is_string($return) && is_numeric($return)) {
+                return new \Less_Tree_Dimension($return);
+            }
+
+            // Anything else
+            return new \Less_Tree_Quoted('', $return);
+        };
 
         return $this;
     }

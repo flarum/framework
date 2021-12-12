@@ -115,8 +115,11 @@ class ThemeTest extends TestCase
             (new Extend\Frontend('forum'))
                 ->css(__DIR__.'/../../fixtures/less/custom_function.less'),
             (new Extend\Theme)
-                ->addCustomLessFunction('is-flarum', function (Less_Tree_Quoted $text) {
-                    return new Less_Tree_Quoted('', strtolower($text->value) === 'flarum' ? 'true' : 'false');
+                ->addCustomLessFunction('is-flarum', function ($text) {
+                    return strtolower($text) === 'flarum' ? 'true' : 100;
+                })
+                ->addCustomLessFunction('is-gt', function ($a, $b) {
+                    return $a > $b === 'flarum' ? true : false;
                 })
         );
 
@@ -128,6 +131,6 @@ class ThemeTest extends TestCase
         $contents = file_get_contents($cssFilePath);
 
         $this->assertStringContainsString('.dummy_func_test{color:green}', $contents);
-        $this->assertStringContainsString('.dummy_func_test2{color:red}', $contents);
+        $this->assertStringContainsString('.dummy_func_test2{--x:1000;--y:false;}', $contents);
     }
 }
