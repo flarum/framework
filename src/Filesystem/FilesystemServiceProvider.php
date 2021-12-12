@@ -12,12 +12,12 @@ namespace Flarum\Filesystem;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
-use Flarum\Foundation\ValidationException;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Intervention\Image\ImageManager;
+use RuntimeException;
 
 class FilesystemServiceProvider extends AbstractServiceProvider
 {
@@ -80,7 +80,7 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             }
 
             if (! Arr::has(self::INTERVENTION_DRIVERS, $driver)) {
-                throw new ValidationException(['intervention' => 'invalid driver']);
+                throw new RuntimeException('intervention/image: invalid driver');
             }
 
             return new ImageManager([
