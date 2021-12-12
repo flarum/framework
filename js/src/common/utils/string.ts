@@ -28,13 +28,13 @@ export function slug(string: string): string {
 export function getPlainContent(string: string): string {
   const html = string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;').replace(/<img\b[^>]*>/gi, ' ');
 
-  const element = new DOMParser().parseFromString(html, "text/html").documentElement;
+  const element = new DOMParser().parseFromString(html, 'text/html').documentElement;
 
   getPlainContent.removeSelectors.forEach((selector) => {
     const el = element.querySelectorAll(selector);
     el.forEach((e) => {
       e.parentNode?.removeChild(e);
-    })
+    });
   });
 
   return element.textContent.replace(/\s+/g, ' ').trim();
