@@ -147,13 +147,13 @@ export default class Store {
   async find<M extends Model>(
     type: string,
     id: string,
-    params: ApiQueryParamsSingle,
+    params?: ApiQueryParamsSingle,
     options?: ApiQueryRequestOptions<ApiPayloadSingle>
   ): Promise<ApiResponseSingle<M>>;
   async find<Ms extends Model[]>(
     type: string,
     ids: string[],
-    params: ApiQueryParamsPlural,
+    params?: ApiQueryParamsPlural,
     options?: ApiQueryRequestOptions<ApiPayloadPlural>
   ): Promise<ApiResponsePlural<Ms[number]>>;
   async find<M extends Model | Model[]>(
