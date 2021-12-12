@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
+use Less_Tree_Quoted;
 
 class ThemeTest extends TestCase
 {
@@ -103,5 +104,30 @@ class ThemeTest extends TestCase
 
         $this->assertStringContainsString('Less_Exception_Compiler', $response->getBody()->getContents());
         $this->assertEquals(500, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function theme_extender_can_add_custom_function()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))
+                ->css(__DIR__.'/../../fixtures/less/custom_function.less'),
+            (new Extend\Theme)
+                ->addCustomLessFunction('is-flarum', function (Less_Tree_Quoted $text) {
+                    return new Less_Tree_Quoted('', strtolower($text) === 'flarum' ? 'true' : 'false');
+                })
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
+        $contents = file_get_contents($cssFilePath);
+
+        $this->assertStringContainsString('.dummy_test_case{color:greem}', $contents);
+        $this->assertStringContainsString('.dummy_test_case2{color:red}', $contents);
     }
 }

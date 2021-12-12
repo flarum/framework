@@ -62,12 +62,18 @@ class Assets
      */
     protected $fileSourceOverrides = [];
 
-    public function __construct(string $name, Filesystem $assetsDir, string $cacheDir = null, array $lessImportDirs = null)
+    /**
+     * @var array
+     */
+    protected $customFunctions = [];
+
+    public function __construct(string $name, Filesystem $assetsDir, string $cacheDir = null, array $lessImportDirs = null, array $customFunctions = null)
     {
         $this->name = $name;
         $this->assetsDir = $assetsDir;
         $this->cacheDir = $cacheDir;
         $this->lessImportDirs = $lessImportDirs;
+        $this->customFunctions = $customFunctions;
     }
 
     public function js($sources)
@@ -173,6 +179,10 @@ class Assets
             $compiler->setFileSourceOverrides($this->fileSourceOverrides);
         }
 
+        if ($this->customFunctions) {
+            $compiler->setCustomFunctions($this->customFunctions);
+        }
+
         return $compiler;
     }
 
@@ -224,5 +234,10 @@ class Assets
     public function addFileSourceOverrides(array $fileSourceOverrides)
     {
         $this->fileSourceOverrides = array_merge($this->fileSourceOverrides, $fileSourceOverrides);
+    }
+
+    public function addCustomLessFunctions(array $customFunctions)
+    {
+        $this->customFunctions = array_merge($this->customFunctions, $customFunctions);
     }
 }

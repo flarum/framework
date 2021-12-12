@@ -52,6 +52,31 @@ class Theme implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * This method allows you to add custom Less functions.
+     *
+     * **Example usage:**
+     * ```php
+     * use 
+     * 
+     * (new Extend\Theme)
+     *     ->addLessFunction('is_flarum', function (Less_Tree_Quoted $text) {
+     *         return new Less_Tree_Quoted('', strtolower($text) === 'flarum' ? 'true' : 'false')
+     *     }),
+     * ```
+     *
+     * @see https://leafo.net/lessphp/docs/#custom_functions
+     *
+     * @param string $functionName Name of the function identifier.
+     * @param callable $callable The PHP function to run when the Less function is called.
+     * @return self
+     */
+    public function addCustomLessFunction(string $functionName, callable $callable): self {
+        $this->customFunctions[$functionName] = $callable;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend('flarum.assets.factory', function (callable $factory) {
@@ -61,6 +86,7 @@ class Theme implements ExtenderInterface
 
                 $assets->addLessImportOverrides($this->lessImportOverrides);
                 $assets->addFileSourceOverrides($this->fileSourceOverrides);
+                $assets->addCustomLessFunctions($this->customFunctions);
 
                 return $assets;
             };

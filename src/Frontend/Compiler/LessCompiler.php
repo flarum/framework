@@ -30,6 +30,11 @@ class LessCompiler extends RevisionCompiler
     protected $importDirs = [];
 
     /**
+     * @var array
+     */
+    protected $customFunctions = [];
+
+    /**
      * @var Collection
      */
     protected $lessImportOverrides;
@@ -69,6 +74,11 @@ class LessCompiler extends RevisionCompiler
         $this->fileSourceOverrides = new Collection($fileSourceOverrides);
     }
 
+    public function setCustomFunctions(array $customFunctions)
+    {
+        $this->customFunctions = $customFunctions;
+    }
+
     /**
      * @throws \Less_Exception_Parser
      */
@@ -96,6 +106,12 @@ class LessCompiler extends RevisionCompiler
                 $parser->parseFile($source->getPath());
             } else {
                 $parser->parse($source->getContent());
+            }
+        }
+
+        foreach ($this->customFunctions as $name => $callback) {
+            if (is_callable($callback)) {
+                $parser->registerFunction($name, $callback);
             }
         }
 
