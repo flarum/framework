@@ -1,34 +1,31 @@
 import app from '../../forum/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import extractText from '../../common/utils/extractText';
 import Stream from '../../common/utils/Stream';
+import Mithril from 'mithril';
+import RequestError from '../../common/utils/RequestError';
+
+export interface IForgotPasswordModalAttrs extends IInternalModalAttrs {
+  email?: string;
+}
 
 /**
  * The `ForgotPasswordModal` component displays a modal which allows the user to
  * enter their email address and request a link to reset their password.
- *
- * ### Attrs
- *
- * - `email`
  */
-export default class ForgotPasswordModal extends Modal {
-  oninit(vnode) {
+export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModalAttrs = IForgotPasswordModalAttrs> extends Modal<CustomAttrs> {
+  /**
+   * The value of the email input.
+   */
+  email!: Stream<string>;
+
+  success: boolean = false;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    /**
-     * The value of the email input.
-     *
-     * @type {Function}
-     */
     this.email = Stream(this.attrs.email || '');
-
-    /**
-     * Whether or not the password reset email was sent successfully.
-     *
-     * @type {Boolean}
-     */
-    this.success = false;
   }
 
   className() {
@@ -84,7 +81,7 @@ export default class ForgotPasswordModal extends Modal {
     );
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
@@ -98,14 +95,14 @@ export default class ForgotPasswordModal extends Modal {
       })
       .then(() => {
         this.success = true;
-        this.alert = null;
+        this.alertAttrs = null;
       })
       .catch(() => {})
       .then(this.loaded.bind(this));
   }
 
-  onerror(error) {
-    if (error.status === 404) {
+  onerror(error: RequestError) {
+    if (error.status === 404 && error.alert) {
       error.alert.content = app.translator.trans('core.forum.forgot_password.not_found_message');
     }
 
