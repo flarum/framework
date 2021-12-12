@@ -14,6 +14,7 @@ use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
+use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -148,7 +149,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $views->share([
             'translator' => $container->make('translator'),
-            'url' => $container->make(UrlGenerator::class)
+            'url' => $container->make(UrlGenerator::class),
+            'slugManager' => $container->make(SlugManager::class)
         ]);
     }
 
