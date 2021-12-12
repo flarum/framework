@@ -135,15 +135,6 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         return $value ? 'true' : 'false';
                     },
                 ],
-                'extensions-enabled'     => [
-                    'key' => 'extensions_enabled',
-                    'callback' => function ($value) {
-                        /** @var array */
-                        $extensionsEnabled = json_decode($value, true);
-
-                        return implode(',', $extensionsEnabled);
-                    },
-                ],
             ];
         });
     }
