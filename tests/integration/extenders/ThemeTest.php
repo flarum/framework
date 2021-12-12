@@ -127,7 +127,7 @@ class ThemeTest extends TestCase
         $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
         $contents = file_get_contents($cssFilePath);
 
-        $this->assertStringContainsString('.dummy_test_case{color:greem}', $contents);
-        $this->assertStringContainsString('.dummy_test_case2{color:red}', $contents);
+        $this->assertStringContainsString('.dummy_func_test{color:green}', $contents);
+        $this->assertStringContainsString('.dummy_func_test2{color:red}', $contents);
     }
 }
