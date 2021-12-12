@@ -61,7 +61,7 @@ export default class Discussion extends Model {
     return computed<boolean, this>('unreadCount', (unreadCount) => !!unreadCount).call(this);
   }
   isRead() {
-    return computed<boolean, this>('unreadCount', (unreadCount) => app.session.user && !unreadCount).call(this);
+    return computed<boolean, this>('unreadCount', (unreadCount) => !!(app.session.user && !unreadCount)).call(this);
   }
 
   hiddenAt() {
@@ -112,7 +112,7 @@ export default class Discussion extends Model {
    * user.
    */
   unreadCount(): number {
-    const user: User = app.session.user;
+    const user = app.session.user;
 
     if (user && (user.markedAllAsReadAt()?.getTime() ?? 0) < this.lastPostedAt()?.getTime()!) {
       const unreadCount = Math.max(0, (this.lastPostNumber() ?? 0) - (this.lastReadPostNumber() || 0));
