@@ -10,10 +10,13 @@
 namespace Flarum\Filesystem;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Arr;
+use Intervention\Image\ImageManager;
 
 class FilesystemServiceProvider extends AbstractServiceProvider
 {
@@ -59,6 +62,25 @@ class FilesystemServiceProvider extends AbstractServiceProvider
                 $container->make('flarum.filesystem.disks'),
                 $container->make('flarum.filesystem.resolved_drivers')
             );
+        });
+
+        $this->container->singleton(ImageManager::class, function (Container $container) {
+            /** @var Config $config */
+            $config = $this->container->make(Config::class);
+
+            $intervention = $config->offsetGet('intervention');
+            $driver = Arr::get($intervention, 'driver', 'gd');
+
+            // Check that the imagick library is actually available, else default back to gd.
+            if ($driver === 'imagick' && ! extension_loaded('imagick')) {
+                $driver = 'gd';
+            }
+
+            //TODO validate the setting. Only `gd` or `imagick` are acceptable.
+
+            return new ImageManager([
+                'driver' => $driver
+            ]);
         });
     }
 }
