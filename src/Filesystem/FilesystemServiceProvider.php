@@ -24,7 +24,7 @@ class FilesystemServiceProvider extends AbstractServiceProvider
     const gdDriver = 'gd';
     const imagickDriver = 'imagick';
     const interventionDrivers = ['gd' => 'gd', 'imagick' => 'imagick'];
-    
+
     /**
      * {@inheritdoc}
      */
