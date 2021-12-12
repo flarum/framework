@@ -16,6 +16,7 @@ import RequestError from '../../common/utils/RequestError';
 import { Extension } from '../AdminApplication';
 import { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
+import extractText from '../../common/utils/extractText';
 
 export interface ExtensionPageAttrs extends IPageAttrs {
   id: string;
@@ -156,7 +157,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
 
     if (!this.isEnabled()) {
       const purge = () => {
-        if (confirm(app.translator.trans('core.admin.extension.confirm_purge'))) {
+        if (confirm(extractText(app.translator.trans('core.admin.extension.confirm_purge')))) {
           app
             .request({
               url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
