@@ -13,8 +13,8 @@ import generateElementId from '../utils/generateElementId';
 import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 
 export interface AdminHeaderOptions {
-  title: string;
-  description: string;
+  title: Mithril.Children;
+  description: Mithril.Children;
   icon: string;
   /**
    * Will be used as the class for the AdminPage.
