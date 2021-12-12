@@ -72,7 +72,7 @@ class Theme implements ExtenderInterface
      */
     public function addCustomLessFunction(string $functionName, callable $callable): self
     {
-        if (!is_callable($callable)) {
+        if (! is_callable($callable)) {
             return $this;
         }
 
@@ -84,7 +84,7 @@ class Theme implements ExtenderInterface
             $return = $callable(...$argVals);
 
             // Numbers
-            if (!is_string($return) && is_numeric($return)) {
+            if (! is_string($return) && is_numeric($return)) {
                 return new \Less_Tree_Dimension($return);
             }
 
