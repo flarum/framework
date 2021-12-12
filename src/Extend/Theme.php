@@ -61,7 +61,7 @@ class Theme implements ExtenderInterface
      * use
      *
      * (new Extend\Theme)
-     *     ->addLessFunction('is_flarum', function (Less_Tree_Quoted $text) {
+     *     ->addLessFunction('is-flarum', function (Less_Tree_Quoted $text) {
      *         return new Less_Tree_Quoted('', strtolower($text) === 'flarum' ? 'true' : 'false')
      *     }),
      * ```
