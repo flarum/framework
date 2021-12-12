@@ -32,11 +32,11 @@ export interface SavedModelData {
 
 export type ModelData = UnsavedModelData | SavedModelData;
 
-interface SaveRelationships {
+export interface SaveRelationships {
   [relationship: string]: Model | Model[];
 }
 
-interface SaveAttributes {
+export interface SaveAttributes {
   [key: string]: unknown;
   relationships?: SaveRelationships;
 }

@@ -125,7 +125,7 @@ export default class ForumApplication extends Application {
       app.history.home();
 
       // Reload the current user so that their unread notification count is refreshed.
-      const userId = app.session.user?.id()
+      const userId = app.session.user?.id();
       if (userId) {
         app.store.find('users', userId);
         m.redraw();

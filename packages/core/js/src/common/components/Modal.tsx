@@ -32,7 +32,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
    */
   alertAttrs: AlertAttrs | null = null;
 
-  oninit(vnode: Mithril.VnodeDOM<ModalAttrs, this>) {
+  oninit(vnode: Mithril.Vnode<ModalAttrs, this>) {
     super.oninit(vnode);
 
     // TODO: [Flarum 2.0] Remove the code below.

@@ -7,11 +7,8 @@ export type LoginParams = {
    * The username/email
    */
   identification: string;
-
-  /**
-   * Password
-   */
   password: string;
+  remember: boolean;
 };
 
 /**

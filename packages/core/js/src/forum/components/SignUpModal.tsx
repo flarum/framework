@@ -1,45 +1,47 @@
 import app from '../../forum/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import LogInModal from './LogInModal';
 import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
+import type Mithril from 'mithril';
 
-/**
- * The `SignUpModal` component displays a modal dialog with a singup form.
- *
- * ### Attrs
- *
- * - `username`
- * - `email`
- * - `password`
- * - `token` An email token to sign up with.
- */
-export default class SignUpModal extends Modal {
-  oninit(vnode) {
+export interface ISignupModalAttrs extends IInternalModalAttrs {
+  username?: string;
+  email?: string;
+  password?: string;
+  token?: string;
+  provided?: string[];
+}
+
+export type SignupBody = {
+  username: string;
+  email: string;
+} & ({ token: string } | { password: string });
+
+export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignupModalAttrs> extends Modal<CustomAttrs> {
+  /**
+   * The value of the username input.
+   */
+  username!: Stream<string>;
+
+  /**
+   * The value of the email input.
+   */
+  email!: Stream<string>;
+
+  /**
+   * The value of the password input.
+   */
+  password!: Stream<string>;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    /**
-     * The value of the username input.
-     *
-     * @type {Function}
-     */
     this.username = Stream(this.attrs.username || '');
-
-    /**
-     * The value of the email input.
-     *
-     * @type {Function}
-     */
     this.email = Stream(this.attrs.email || '');
-
-    /**
-     * The value of the password input.
-     *
-     * @type {Function}
-     */
     this.password = Stream(this.attrs.password || '');
   }
 
@@ -55,12 +57,12 @@ export default class SignUpModal extends Modal {
     return [<div className="Modal-body">{this.body()}</div>, <div className="Modal-footer">{this.footer()}</div>];
   }
 
-  isProvided(field) {
-    return this.attrs.provided && this.attrs.provided.indexOf(field) !== -1;
+  isProvided(field: string): boolean {
+    return this.attrs.provided?.includes(field) ?? false;
   }
 
   body() {
-    return [this.attrs.token ? '' : <LogInButtons />, <div className="Form Form--centered">{this.fields().toArray()}</div>];
+    return [!this.attrs.token && <LogInButtons />, <div className="Form Form--centered">{this.fields().toArray()}</div>];
   }
 
   fields() {
@@ -156,7 +158,7 @@ export default class SignUpModal extends Modal {
     }
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
@@ -175,21 +177,15 @@ export default class SignUpModal extends Modal {
 
   /**
    * Get the data that should be submitted in the sign-up request.
-   *
-   * @return {Object}
-   * @protected
    */
-  submitData() {
+  submitData(): SignupBody {
+    const authData = this.attrs.token ? { token: this.attrs.token } : { password: this.password() };
+
     const data = {
       username: this.username(),
       email: this.email(),
+      ...authData,
     };
-
-    if (this.attrs.token) {
-      data.token = this.attrs.token;
-    } else {
-      data.password = this.password();
-    }
 
     return data;
   }
