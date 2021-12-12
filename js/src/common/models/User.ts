@@ -116,7 +116,7 @@ export default class User extends Model {
 
     if (groups) {
       groups.forEach((group) => {
-        items.add(`group${group?.id()}`, GroupBadge.component({ group }));
+        items.add(`group${group?.id()}`, <GroupBadge group={group} />);
       });
     }
 
