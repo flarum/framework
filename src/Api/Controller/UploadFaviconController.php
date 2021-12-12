@@ -56,7 +56,8 @@ class UploadFaviconController extends UploadImageController
             ]);
         }
 
-        $manager = new ImageManager();
+        /** @var ImageManager $manager */
+        $manager = resolve(ImageManager::class);
 
         $encodedImage = $manager->make($file->getStream())->resize(64, 64, function ($constraint) {
             $constraint->aspectRatio();

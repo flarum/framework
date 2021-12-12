@@ -73,7 +73,7 @@ class AvatarValidator extends AbstractValidator
         }
 
         try {
-            (new ImageManager)->make($file->getStream());
+            (resolve(ImageManager::class))->make($file->getStream());
         } catch (NotReadableException $_e) {
             $this->raise('image');
         }

@@ -24,7 +24,8 @@ class UploadLogoController extends UploadImageController
      */
     protected function makeImage(UploadedFileInterface $file): Image
     {
-        $manager = new ImageManager();
+        /** @var ImageManager $manager */
+        $manager = resolve(ImageManager::class);
 
         $encodedImage = $manager->make($file->getStream())->heighten(60, function ($constraint) {
             $constraint->upsize();

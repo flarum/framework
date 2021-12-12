@@ -160,7 +160,7 @@ class RegisterUserHandler
             throw new InvalidArgumentException("Provided avatar URL must have scheme http or https. Scheme provided was $scheme.", 503);
         }
 
-        $image = (new ImageManager)->make($url);
+        $image = resolve(ImageManager::class)->make($url);
 
         $this->avatarUploader->upload($user, $image);
     }
