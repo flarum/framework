@@ -37,17 +37,23 @@ class UploadAvatarHandler
     protected $validator;
 
     /**
+     * @var ImageManager
+     */
+    protected $imageManager;
+
+    /**
      * @param Dispatcher $events
      * @param UserRepository $users
      * @param AvatarUploader $uploader
      * @param AvatarValidator $validator
      */
-    public function __construct(Dispatcher $events, UserRepository $users, AvatarUploader $uploader, AvatarValidator $validator)
+    public function __construct(Dispatcher $events, UserRepository $users, AvatarUploader $uploader, AvatarValidator $validator, ImageManager $imageManager)
     {
         $this->events = $events;
         $this->users = $users;
         $this->uploader = $uploader;
         $this->validator = $validator;
+        $this->imageManager = $imageManager;
     }
 
     /**
@@ -68,7 +74,7 @@ class UploadAvatarHandler
 
         $this->validator->assertValid(['avatar' => $command->file]);
 
-        $image = (new ImageManager)->make($command->file->getStream());
+        $image = $this->imageManager->make($command->file->getStream());
 
         $this->events->dispatch(
             new AvatarSaving($user, $actor, $image)
