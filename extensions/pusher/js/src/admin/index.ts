@@ -1,6 +1,6 @@
-import app from 'flarum/app';
+import app from 'flarum/admin/app';
 
-app.initializers.add('flarum-pusher', app => {
+app.initializers.add('flarum-pusher', () => {
   app.extensionData
     .for('flarum-pusher')
     .registerSetting(
