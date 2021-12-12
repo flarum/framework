@@ -258,7 +258,7 @@ export default class Application {
 
     this.forum = this.store.getById('forums', '1')!;
 
-    this.session = new Session(this.store.getById('users', String(this.data.session.userId)), this.data.session.csrfToken);
+    this.session = new Session(this.store.getById<User>('users', String(this.data.session.userId)) ?? null, this.data.session.csrfToken);
 
     this.mount();
 
