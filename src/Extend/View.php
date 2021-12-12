@@ -18,6 +18,7 @@ class View implements ExtenderInterface, LifecycleInterface
 {
     private $namespaces = [];
     private $replaceNamespaces = [];
+    private $prependNamespaces = [];
 
     /**
      * Register a new namespace of Laravel views.
