@@ -57,8 +57,8 @@ class Theme implements ExtenderInterface
      *
      * **Example usage:**
      * ```php
-     * use 
-     * 
+     * use
+     *
      * (new Extend\Theme)
      *     ->addLessFunction('is_flarum', function (Less_Tree_Quoted $text) {
      *         return new Less_Tree_Quoted('', strtolower($text) === 'flarum' ? 'true' : 'false')
@@ -71,7 +71,8 @@ class Theme implements ExtenderInterface
      * @param callable $callable The PHP function to run when the Less function is called.
      * @return self
      */
-    public function addCustomLessFunction(string $functionName, callable $callable): self {
+    public function addCustomLessFunction(string $functionName, callable $callable): self
+    {
         $this->customFunctions[$functionName] = $callable;
 
         return $this;
