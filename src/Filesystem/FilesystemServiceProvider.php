@@ -12,6 +12,7 @@ namespace Flarum\Filesystem;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
@@ -20,6 +21,10 @@ use Intervention\Image\ImageManager;
 
 class FilesystemServiceProvider extends AbstractServiceProvider
 {
+    const gdDriver = 'gd';
+    const imagickDriver = 'imagick';
+    const interventionDrivers = ['gd' => 'gd', 'imagick' => 'imagick'];
+    
     /**
      * {@inheritdoc}
      */
@@ -69,14 +74,16 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             $config = $this->container->make(Config::class);
 
             $intervention = $config->offsetGet('intervention');
-            $driver = Arr::get($intervention, 'driver', 'gd');
+            $driver = Arr::get($intervention, 'driver', self::interventionDrivers['gd']);
 
             // Check that the imagick library is actually available, else default back to gd.
-            if ($driver === 'imagick' && ! extension_loaded('imagick')) {
-                $driver = 'gd';
+            if ($driver === self::interventionDrivers['imagick'] && ! extension_loaded(self::interventionDrivers['imagick'])) {
+                $driver = self::interventionDrivers['gd'];
             }
 
-            //TODO validate the setting. Only `gd` or `imagick` are acceptable.
+            if (! Arr::has(self::interventionDrivers, $driver)) {
+                throw new ValidationException(['intervention' => 'invalid driver']);
+            }
 
             return new ImageManager([
                 'driver' => $driver
