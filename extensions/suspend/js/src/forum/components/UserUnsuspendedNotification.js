@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import Notification from 'flarum/components/Notification';
 
 export default class UserUnsuspendedNotification extends Notification {

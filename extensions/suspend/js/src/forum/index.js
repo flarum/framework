@@ -9,6 +9,7 @@ import User from 'flarum/models/User';
 import SuspendUserModal from './components/SuspendUserModal';
 import UserSuspendedNotification from './components/UserSuspendedNotification';
 import UserUnsuspendedNotification from './components/UserUnsuspendedNotification';
+import checkForSuspension from './checkForSuspension';
 
 app.initializers.add('flarum-suspend', () => {
   app.notificationComponents.userSuspended = UserSuspendedNotification;
@@ -16,6 +17,8 @@ app.initializers.add('flarum-suspend', () => {
 
   User.prototype.canSuspend = Model.attribute('canSuspend');
   User.prototype.suspendedUntil = Model.attribute('suspendedUntil', Model.transformDate);
+  User.prototype.suspendReason = Model.attribute('suspendReason');
+  User.prototype.suspendMessage = Model.attribute('suspendMessage');
 
   extend(UserControls, 'moderationControls', (items, user) => {
     if (user.canSuspend()) {
@@ -46,4 +49,12 @@ app.initializers.add('flarum-suspend', () => {
       );
     }
   });
+
+  checkForSuspension();
 });
+
+// Expose compat API
+import suspendCompat from './compat';
+import { compat } from '@flarum/core/forum';
+
+Object.assign(compat, suspendCompat);

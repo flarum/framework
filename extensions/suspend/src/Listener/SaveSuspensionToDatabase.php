@@ -53,11 +53,17 @@ class SaveSuspensionToDatabase
 
             $actor->assertCan('suspend', $user);
 
-            $user->suspended_until = $attributes['suspendedUntil']
-                ? new DateTime($attributes['suspendedUntil'])
-                : null;
+            if ($attributes['suspendedUntil']) {
+                $user->suspended_until = new DateTime($attributes['suspendedUntil']);
+                $user->suspend_reason = empty($attributes['suspendReason']) ? null : $attributes['suspendReason'];
+                $user->suspend_message = empty($attributes['suspendMessage']) ? null : $attributes['suspendMessage'];
+            } else {
+                $user->suspended_until = null;
+                $user->suspend_reason = null;
+                $user->suspend_message = null;
+            }
 
-            if ($user->isDirty('suspended_until')) {
+            if ($user->isDirty(['suspended_until', 'suspend_reason', 'suspend_message'])) {
                 $this->events->dispatch(
                     $user->suspended_until === null ?
                         new Unsuspended($user, $actor) :

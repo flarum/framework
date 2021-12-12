@@ -1,4 +1,6 @@
+import app from 'flarum/forum/app';
 import Notification from 'flarum/components/Notification';
+import { isPermanentSuspensionDate } from '../helpers/suspensionHelper';
 
 export default class UserSuspendedNotification extends Notification {
   icon() {
@@ -14,8 +16,10 @@ export default class UserSuspendedNotification extends Notification {
     const suspendedUntil = notification.content();
     const timeReadable = dayjs(suspendedUntil).from(notification.createdAt(), true);
 
-    return app.translator.trans('flarum-suspend.forum.notifications.user_suspended_text', {
-      timeReadable,
-    });
+    return isPermanentSuspensionDate(suspendedUntil)
+      ? app.translator.trans('flarum-suspend.forum.notifications.user_suspended_indefinite_text')
+      : app.translator.trans('flarum-suspend.forum.notifications.user_suspended_text', {
+          timeReadable,
+        });
   }
 }
