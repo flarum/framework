@@ -131,8 +131,7 @@ export default class User extends Model {
     const image = new Image();
     const user = this;
 
-    // @ts-expect-error This shouldn't be failing.
-    image.onload = function (this: HTMLImageElement) {
+    image.addEventListener('load', function (this: HTMLImageElement) {
       try {
         const colorThief = new ColorThief();
         user.avatarColor = colorThief.getColor(this);
@@ -147,7 +146,7 @@ export default class User extends Model {
       }
       user.freshness = new Date();
       m.redraw();
-    };
+    });
     image.crossOrigin = 'anonymous';
     image.src = this.avatarUrl() ?? '';
   }
