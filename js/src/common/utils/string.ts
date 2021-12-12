@@ -37,7 +37,7 @@ export function getPlainContent(string: string): string {
     });
   });
 
-  return element.textContent.replace(/\s+/g, ' ').trim();
+  return element.innerText.replace(/\s+/g, ' ').trim();
 }
 
 /**
