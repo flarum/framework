@@ -17,6 +17,7 @@ class Theme implements ExtenderInterface
 {
     private $lessImportOverrides = [];
     private $fileSourceOverrides = [];
+    private $customFunctions = [];
 
     /**
      * This can be used to override LESS files that are imported within the code.
