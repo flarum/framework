@@ -1,17 +1,28 @@
 import app from '../../common/app';
-import Modal from './Modal';
+import Modal, { IInternalModalAttrs } from './Modal';
 import Button from './Button';
 import GroupBadge from './GroupBadge';
 import Group from '../models/Group';
 import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
 import Stream from '../utils/Stream';
+import Mithril from 'mithril';
+import User from '../models/User';
+import { SaveAttributes, SaveRelationships } from '../Model';
 
-/**
- * The `EditUserModal` component displays a modal dialog with a login form.
- */
-export default class EditUserModal extends Modal {
-  oninit(vnode) {
+export interface IEditUserModalAttrs extends IInternalModalAttrs {
+  user: User;
+}
+
+export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEditUserModalAttrs> extends Modal<CustomAttrs> {
+  protected username!: Stream<string>;
+  protected email!: Stream<string>;
+  protected isEmailConfirmed!: Stream<boolean>;
+  protected setPassword!: Stream<boolean>;
+  protected password!: Stream<string>;
+  protected groups: Record<string, Stream<boolean>> = {};
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     const user = this.attrs.user;
@@ -19,14 +30,15 @@ export default class EditUserModal extends Modal {
     this.username = Stream(user.username() || '');
     this.email = Stream(user.email() || '');
     this.isEmailConfirmed = Stream(user.isEmailConfirmed() || false);
-    this.setPassword = Stream(false);
+    this.setPassword = Stream(false as boolean);
     this.password = Stream(user.password() || '');
-    this.groups = {};
+
+    const userGroups = user.groups() || [];
 
     app.store
-      .all('groups')
-      .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
-      .forEach((group) => (this.groups[group.id()] = Stream(user.groups().indexOf(group) !== -1)));
+      .all<Group>('groups')
+      .filter((group) => ![Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!))
+      .forEach((group) => (this.groups[group.id()!] = Stream(userGroups.includes(group))));
   }
 
   className() {
@@ -49,7 +61,7 @@ export default class EditUserModal extends Modal {
   fields() {
     const items = new ItemList();
 
-    if (app.session.user.canEditCredentials()) {
+    if (app.session.user?.canEditCredentials()) {
       items.add(
         'username',
         <div className="Form-group">
@@ -103,10 +115,11 @@ export default class EditUserModal extends Modal {
               <label className="checkbox">
                 <input
                   type="checkbox"
-                  onchange={(e) => {
-                    this.setPassword(e.target.checked);
+                  onchange={(e: KeyboardEvent) => {
+                    const target = e.target as HTMLInputElement;
+                    this.setPassword(target.checked);
                     m.redraw.sync();
-                    if (e.target.checked) this.$('[name=password]').select();
+                    if (target.checked) this.$('[name=password]').select();
                     e.redraw = false;
                   }}
                   disabled={this.nonAdminEditingAdmin()}
@@ -132,24 +145,31 @@ export default class EditUserModal extends Modal {
       }
     }
 
-    if (app.session.user.canEditGroups()) {
+    if (app.session.user?.canEditGroups()) {
       items.add(
         'groups',
         <div className="Form-group EditUserModal-groups">
           <label>{app.translator.trans('core.lib.edit_user.groups_heading')}</label>
           <div>
             {Object.keys(this.groups)
-              .map((id) => app.store.getById('groups', id))
-              .map((group) => (
-                <label className="checkbox">
-                  <input
-                    type="checkbox"
-                    bidi={this.groups[group.id()]}
-                    disabled={group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))}
-                  />
-                  {GroupBadge.component({ group, label: '' })} {group.nameSingular()}
-                </label>
-              ))}
+              .map((id) => app.store.getById<Group>('groups', id))
+              .filter(Boolean)
+              .map(
+                (group) =>
+                  // Necessary because filter(Boolean) doesn't narrow out falsy values.
+                  group && (
+                    <label className="checkbox">
+                      <input
+                        type="checkbox"
+                        bidi={this.groups[group.id()!]}
+                        disabled={
+                          group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))
+                        }
+                      />
+                      {GroupBadge.component({ group, label: '' })} {group.nameSingular()}
+                    </label>
+                  )
+              )}
           </div>
         </div>,
         10
@@ -194,9 +214,8 @@ export default class EditUserModal extends Modal {
   }
 
   data() {
-    const data = {
-      relationships: {},
-    };
+    const data: SaveAttributes = {};
+    const relationships: SaveRelationships = {};
 
     if (this.attrs.user.canEditCredentials() && !this.nonAdminEditingAdmin()) {
       data.username = this.username();
@@ -211,15 +230,18 @@ export default class EditUserModal extends Modal {
     }
 
     if (this.attrs.user.canEditGroups()) {
-      data.relationships.groups = Object.keys(this.groups)
+      relationships.groups = Object.keys(this.groups)
         .filter((id) => this.groups[id]())
-        .map((id) => app.store.getById('groups', id));
+        .map((id) => app.store.getById<Group>('groups', id))
+        .filter((g): g is Group => g instanceof Group);
     }
+
+    data.relationships = relationships;
 
     return data;
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
@@ -239,9 +261,8 @@ export default class EditUserModal extends Modal {
 
   /**
    * @internal
-   * @protected
    */
-  userIsAdmin(user) {
-    return user.groups().some((g) => g.id() === Group.ADMINISTRATOR_ID);
+  protected userIsAdmin(user: User | null) {
+    return user && (user.groups() || []).some((g) => g?.id() === Group.ADMINISTRATOR_ID);
   }
 }
