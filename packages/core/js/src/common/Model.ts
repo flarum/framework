@@ -239,14 +239,12 @@ export default abstract class Model {
 
     return app
       .request(
-        Object.assign(
-          {
-            method: 'DELETE',
-            url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-            body,
-          },
-          options
-        )
+        {
+          method: 'DELETE',
+          url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
+          body,
+          ...options,
+        },
       )
       .then(() => {
         this.exists = false;
