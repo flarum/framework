@@ -44,7 +44,7 @@ class View implements ExtenderInterface, LifecycleInterface
 
     /**
      * Override an existing namespace of Laravel views.
-     * 
+     *
      * **If you're only replacing one or a few views, you probably want to `->prepend()` the new views instead.**
      *
      * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
