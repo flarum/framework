@@ -21,7 +21,7 @@ use Intervention\Image\ImageManager;
 
 class FilesystemServiceProvider extends AbstractServiceProvider
 {
-    const interventionDrivers = ['gd' => 'gd', 'imagick' => 'imagick'];
+    protected const INTERVENTION_DRIVERS = ['gd' => 'gd', 'imagick' => 'imagick'];
 
     /**
      * {@inheritdoc}
@@ -72,14 +72,14 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             $config = $this->container->make(Config::class);
 
             $intervention = $config->offsetGet('intervention');
-            $driver = Arr::get($intervention, 'driver', self::interventionDrivers['gd']);
+            $driver = Arr::get($intervention, 'driver', self::INTERVENTION_DRIVERS['gd']);
 
             // Check that the imagick library is actually available, else default back to gd.
-            if ($driver === self::interventionDrivers['imagick'] && ! extension_loaded(self::interventionDrivers['imagick'])) {
-                $driver = self::interventionDrivers['gd'];
+            if ($driver === self::INTERVENTION_DRIVERS['imagick'] && ! extension_loaded(self::INTERVENTION_DRIVERS['imagick'])) {
+                $driver = self::INTERVENTION_DRIVERS['gd'];
             }
 
-            if (! Arr::has(self::interventionDrivers, $driver)) {
+            if (! Arr::has(self::INTERVENTION_DRIVERS, $driver)) {
                 throw new ValidationException(['intervention' => 'invalid driver']);
             }
 
