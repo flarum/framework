@@ -9,7 +9,7 @@ export default class Post extends Model {
     return Model.attribute<number>('number').call(this);
   }
   discussion() {
-    return Model.hasOne<Discussion>('discussion').call(this);
+    return Model.hasOne<Discussion>('discussion').call(this) as Discussion;
   }
 
   createdAt() {
