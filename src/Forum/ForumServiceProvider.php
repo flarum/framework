@@ -13,6 +13,7 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
@@ -34,6 +35,8 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Arr;
+use Intervention\Image\ImageManager;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -128,6 +131,21 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->container->bind('flarum.frontend.forum', function (Container $container) {
             return $container->make('flarum.frontend.factory')('forum');
+        });
+
+        $this->container->singleton(ImageManager::class, function (Container $container) {
+            /** @var Config $config */
+            $config = $this->container->make(Config::class);
+
+            $intervention = $config->offsetGet('intervention');
+            $driver = Arr::get($intervention, 'driver', 'gd');
+
+            if ($driver === 'imagick' && ! extension_loaded('imagick')) {
+                $driver = 'gd';
+            }
+            return new ImageManager([
+                'driver' => $driver
+            ]);
         });
     }
 
