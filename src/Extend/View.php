@@ -44,6 +44,8 @@ class View implements ExtenderInterface, LifecycleInterface
 
     /**
      * Override an existing namespace of Laravel views.
+     * 
+     * **If you're only replacing one or a few views, you probably want to `->prepend()` the new views instead.**
      *
      * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
      * Flarum core uses them for error pages, the installer, HTML emails, and the skeletons for the forum and admin sites.
@@ -61,11 +63,33 @@ class View implements ExtenderInterface, LifecycleInterface
         return $this;
     }
 
+    /**
+     * Extend an existing namespace of Laravel views.
+     *
+     * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
+     * Flarum core uses them for error pages, the installer, HTML emails, and the skeletons for the forum and admin sites.
+     * To replace views within a namespace, you will need to put them in a folder in your extension, and register that folder under an existing namespace.
+     *
+     * @param  string  $namespace: The name of the namespace.
+     * @param  string|string[]  $hints: This is a path (or an array of paths) to the folder(s)
+     *                               where view files are stored, relative to the extend.php file.
+     * @return self
+     */
+    public function prepend(string $namespace, $hints): self
+    {
+        $this->prependNamespaces[$namespace] = $hints;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $container->resolving(Factory::class, function (Factory $view) {
             foreach ($this->namespaces as $namespace => $hints) {
                 $view->addNamespace($namespace, $hints);
+            }
+            foreach ($this->prependNamespaces as $namespace => $hints) {
+                $view->prependNamespace($namespace, $hints);
             }
             foreach ($this->replaceNamespaces as $namespace => $hints) {
                 $view->replaceNamespace($namespace, $hints);
