@@ -140,6 +140,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $intervention = $config->offsetGet('intervention');
             $driver = Arr::get($intervention, 'driver', 'gd');
 
+            // Check that the imagick library is actually available, else default back to gd.
             if ($driver === 'imagick' && ! extension_loaded('imagick')) {
                 $driver = 'gd';
             }
