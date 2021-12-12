@@ -11,7 +11,6 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
-use Less_Tree_Quoted;
 
 class ThemeTest extends TestCase
 {
