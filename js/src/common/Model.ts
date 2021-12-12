@@ -204,14 +204,12 @@ export default abstract class Model {
 
     return app
       .request<ApiPayloadSingle>(
-        Object.assign(
-          {
-            method: this.exists ? 'PATCH' : 'POST',
-            url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-            body: request,
-          },
-          options
-        )
+        {
+          method: this.exists ? 'PATCH' : 'POST',
+          url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
+          body: request,
+          ...options,
+        },
       )
       .then(
         // If everything went well, we'll make sure the store knows that this
