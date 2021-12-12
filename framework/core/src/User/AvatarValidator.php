@@ -11,10 +11,12 @@ namespace Flarum\User;
 
 use Flarum\Foundation\AbstractValidator;
 use Flarum\Foundation\ValidationException;
+use Illuminate\Validation\Factory;
 use Intervention\Image\Exception\NotReadableException;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\Mime\MimeTypes;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AvatarValidator extends AbstractValidator
 {
@@ -22,6 +24,18 @@ class AvatarValidator extends AbstractValidator
      * @var \Illuminate\Validation\Validator
      */
     protected $laravelValidator;
+
+    /**
+     * @var ImageManager
+     */
+    protected $imageManager;
+
+    public function __construct(Factory $validator, TranslatorInterface $translator, ImageManager $imageManager)
+    {
+        parent::__construct($validator, $translator);
+
+        $this->imageManager = $imageManager;
+    }
 
     /**
      * Throw an exception if a model is not valid.
@@ -73,7 +87,7 @@ class AvatarValidator extends AbstractValidator
         }
 
         try {
-            (new ImageManager)->make($file->getStream());
+            $this->imageManager->make($file->getStream());
         } catch (NotReadableException $_e) {
             $this->raise('image');
         }
