@@ -174,14 +174,12 @@ export default class Store {
     }
 
     return app
-      .request<M extends Array<infer _T> ? ApiPayloadPlural : ApiPayloadSingle>(
-        {
-          method: 'GET',
-          url,
-          params,
-          ...options,
-        }
-      )
+      .request<M extends Array<infer _T> ? ApiPayloadPlural : ApiPayloadSingle>({
+        method: 'GET',
+        url,
+        params,
+        ...options,
+      })
       .then((payload) => {
         if (payloadIsPlural(payload)) {
           return this.pushPayload<FlatArray<M, 1>[]>(payload);

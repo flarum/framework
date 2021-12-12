@@ -203,14 +203,12 @@ export default abstract class Model {
     };
 
     return app
-      .request<ApiPayloadSingle>(
-        {
-          method: this.exists ? 'PATCH' : 'POST',
-          url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-          body: request,
-          ...options,
-        },
-      )
+      .request<ApiPayloadSingle>({
+        method: this.exists ? 'PATCH' : 'POST',
+        url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
+        body: request,
+        ...options,
+      })
       .then(
         // If everything went well, we'll make sure the store knows that this
         // model exists now (if it didn't already), and we'll push the data that
@@ -238,14 +236,12 @@ export default abstract class Model {
     if (!this.exists) return Promise.resolve();
 
     return app
-      .request(
-        {
-          method: 'DELETE',
-          url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-          body,
-          ...options,
-        },
-      )
+      .request({
+        method: 'DELETE',
+        url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
+        body,
+        ...options,
+      })
       .then(() => {
         this.exists = false;
 
