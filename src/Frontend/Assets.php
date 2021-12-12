@@ -13,7 +13,9 @@ use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Compiler\JsCompiler;
 use Flarum\Frontend\Compiler\LessCompiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Less_Tree_Quoted;
 
 /**
  * A factory class for creating frontend asset compilers.
@@ -41,6 +43,11 @@ class Assets
      * @var Filesystem
      */
     protected $assetsDir;
+
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
 
     /**
      * @var string
@@ -120,7 +127,7 @@ class Assets
 
     public function makeJs(): JsCompiler
     {
-        $compiler = $this->makeJsCompiler($this->name.'.js');
+        $compiler = $this->makeJsCompiler($this->name . '.js');
 
         $this->populate($compiler, 'js');
 
@@ -129,7 +136,7 @@ class Assets
 
     public function makeCss(): LessCompiler
     {
-        $compiler = $this->makeLessCompiler($this->name.'.css');
+        $compiler = $this->makeLessCompiler($this->name . '.css');
 
         $this->populate($compiler, 'css');
 
@@ -138,7 +145,7 @@ class Assets
 
     public function makeLocaleJs(string $locale): JsCompiler
     {
-        $compiler = $this->makeJsCompiler($this->name.'-'.$locale.'.js');
+        $compiler = $this->makeJsCompiler($this->name . '-' . $locale . '.js');
 
         $this->populate($compiler, 'localeJs', $locale);
 
@@ -147,7 +154,7 @@ class Assets
 
     public function makeLocaleCss(string $locale): LessCompiler
     {
-        $compiler = $this->makeLessCompiler($this->name.'-'.$locale.'.css');
+        $compiler = $this->makeLessCompiler($this->name . '-' . $locale . '.css');
 
         $this->populate($compiler, 'localeCss', $locale);
 
@@ -164,7 +171,7 @@ class Assets
         $compiler = new LessCompiler($this->assetsDir, $filename);
 
         if ($this->cacheDir) {
-            $compiler->setCacheDir($this->cacheDir.'/less');
+            $compiler->setCacheDir($this->cacheDir . '/less');
         }
 
         if ($this->lessImportDirs) {
@@ -179,9 +186,25 @@ class Assets
             $compiler->setFileSourceOverrides($this->fileSourceOverrides);
         }
 
+        /** @var SettingsRepositoryInterface */
+        $settings = resolve(SettingsRepositoryInterface::class);
+
+        $coreFunctions = [
+            'is-extension-enabled' => function (Less_Tree_Quoted $extensionId) use ($settings) {
+                $raw = $settings->get('extensions_enabled');
+                $extensionsEnabled = json_decode($raw);
+
+                return new Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false');
+            }
+        ];
+
         if ($this->customFunctions) {
-            $compiler->setCustomFunctions($this->customFunctions);
+            $this->customFunctions = array_merge($coreFunctions, $this->customFunctions);
+        } else {
+            $this->customFunctions = $coreFunctions;
         }
+
+        $compiler->setCustomFunctions($this->customFunctions);
 
         return $compiler;
     }

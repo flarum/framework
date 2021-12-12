@@ -116,7 +116,7 @@ class ThemeTest extends TestCase
                 ->css(__DIR__.'/../../fixtures/less/custom_function.less'),
             (new Extend\Theme)
                 ->addCustomLessFunction('is-flarum', function (Less_Tree_Quoted $text) {
-                    return new Less_Tree_Quoted('', strtolower($text) === 'flarum' ? 'true' : 'false');
+                    return new Less_Tree_Quoted('', strtolower($text->value) === 'flarum' ? 'true' : 'false');
                 })
         );
 

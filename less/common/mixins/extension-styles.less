@@ -1,9 +1,0 @@
-.when-extension-enabled(@extension, @code) {
-  @found-extension: true;
-
-  .for(@extensions-enabled, {
-    & when (@value = @extension) {
-      @code();
-    }
-  });
-}
