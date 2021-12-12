@@ -80,7 +80,7 @@ class Assets
         $this->assetsDir = $assetsDir;
         $this->cacheDir = $cacheDir;
         $this->lessImportDirs = $lessImportDirs;
-        $this->customFunctions = $customFunctions;
+        $this->customFunctions = $customFunctions ?? [];
     }
 
     public function js($sources)
@@ -198,11 +198,7 @@ class Assets
             }
         ];
 
-        if ($this->customFunctions) {
-            $this->customFunctions = array_merge($coreFunctions, $this->customFunctions);
-        } else {
-            $this->customFunctions = $coreFunctions;
-        }
+        $this->customFunctions = array_merge($coreFunctions, $this->customFunctions);
 
         $compiler->setCustomFunctions($this->customFunctions);
 
