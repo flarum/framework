@@ -60,5 +60,8 @@ return [
         ->addFilter(SuspendedFilterGambit::class),
 
     (new Extend\SimpleFlarumSearch(UserSearcher::class))
-        ->addGambit(SuspendedFilterGambit::class)
+        ->addGambit(SuspendedFilterGambit::class),
+
+    (new Extend\View())
+        ->namespace('flarum-suspend', __DIR__.'/views'),
 ];

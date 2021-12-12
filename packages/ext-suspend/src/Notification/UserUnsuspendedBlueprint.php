@@ -10,9 +10,12 @@
 namespace Flarum\Suspend\Notification;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\MailableInterface;
 use Flarum\User\User;
+use Illuminate\Support\Carbon;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class UserUnsuspendedBlueprint implements BlueprintInterface
+class UserUnsuspendedBlueprint implements BlueprintInterface, MailableInterface
 {
     /**
      * @var User
@@ -48,7 +51,7 @@ class UserUnsuspendedBlueprint implements BlueprintInterface
      */
     public function getData()
     {
-        return null;
+        return Carbon::now();
     }
 
     /**
@@ -65,5 +68,21 @@ class UserUnsuspendedBlueprint implements BlueprintInterface
     public static function getSubjectModel()
     {
         return User::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEmailView()
+    {
+        return ['text' => 'flarum-suspend::emails.unsuspended'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEmailSubject(TranslatorInterface $translator)
+    {
+        return $translator->trans('flarum-suspend.email.unsuspended.subject');
     }
 }
