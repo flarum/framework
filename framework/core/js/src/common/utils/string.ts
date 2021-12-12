@@ -28,11 +28,16 @@ export function slug(string: string): string {
 export function getPlainContent(string: string): string {
   const html = string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;').replace(/<img\b[^>]*>/gi, ' ');
 
-  const dom = $('<div/>').html(html);
+  const element = new DOMParser().parseFromString(html, 'text/html').documentElement;
 
-  dom.find(getPlainContent.removeSelectors.join(',')).remove();
+  getPlainContent.removeSelectors.forEach((selector) => {
+    const el = element.querySelectorAll(selector);
+    el.forEach((e) => {
+      e.remove();
+    });
+  });
 
-  return dom.text().replace(/\s+/g, ' ').trim();
+  return element.innerText.replace(/\s+/g, ' ').trim();
 }
 
 /**
