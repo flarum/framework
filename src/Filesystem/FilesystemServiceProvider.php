@@ -80,7 +80,7 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             }
 
             if (! Arr::has(self::INTERVENTION_DRIVERS, $driver)) {
-                throw new RuntimeException('intervention/image: invalid driver');
+                throw new RuntimeException("intervention/image: $driver is not valid");
             }
 
             return new ImageManager([
