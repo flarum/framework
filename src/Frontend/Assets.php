@@ -44,11 +44,6 @@ class Assets
     protected $assetsDir;
 
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * @var string
      */
     protected $cacheDir;
