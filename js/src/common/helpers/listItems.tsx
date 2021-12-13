@@ -75,13 +75,13 @@ export default function listItems<Attrs extends ComponentAttrs>(
 
     if (isVnode(item)) {
       classes.push(item.attrs?.itemClassName || item.itemClassName);
-  
+
       if (item.tag.isActive?.(item.attrs)) {
         classes.push('active');
       }
     }
 
-    const key = isVnode(item) && item?.attrs?.key || item.itemName;
+    const key = (isVnode(item) && item?.attrs?.key) || item.itemName;
 
     return (
       <Tag className={classList(classes)} key={key} {...attributes}>
