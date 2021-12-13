@@ -296,16 +296,14 @@ export default abstract class Model {
   static hasOne<M extends Model | null>(name: string): () => M | null | false;
   static hasOne<M extends Model>(name: string): () => M | false {
     return function (this: Model) {
-      if (this.data.relationships) {
-        const relationshipData = this.data.relationships[name]?.data;
+      const relationshipData = this.data.relationships?.[name]?.data;
 
-        if (relationshipData instanceof Array) {
-          throw new Error(`Relationship ${name} on model ${this.data.type} is plural, so the hasOne method cannot be used to access it.`);
-        }
+      if (relationshipData && relationshipData instanceof Array) {
+        throw new Error(`Relationship ${name} on model ${this.data.type} is plural, so the hasOne method cannot be used to access it.`);
+      }
 
-        if (relationshipData) {
-          return this.store.getById<M>(relationshipData.type, relationshipData.id) as M;
-        }
+      if (relationshipData) {
+        return this.store.getById<M>(relationshipData.type, relationshipData.id) as M;
       }
 
       return false;
@@ -322,16 +320,14 @@ export default abstract class Model {
    */
   static hasMany<M extends Model>(name: string): () => (M | undefined)[] | false {
     return function (this: Model) {
-      if (this.data.relationships) {
-        const relationshipData = this.data.relationships[name]?.data;
+      const relationshipData = this.data.relationships?.[name]?.data;
 
-        if (!(relationshipData instanceof Array)) {
-          throw new Error(`Relationship ${name} on model ${this.data.type} is singular, so the hasMany method cannot be used to access it.`);
-        }
+      if (relationshipData && !(relationshipData instanceof Array)) {
+        throw new Error(`Relationship ${name} on model ${this.data.type} is singular, so the hasMany method cannot be used to access it.`);
+      }
 
-        if (relationshipData) {
-          return relationshipData.map((data) => this.store.getById<M>(data.type, data.id));
-        }
+      if (relationshipData) {
+        return relationshipData.map((data) => this.store.getById<M>(data.type, data.id));
       }
 
       return false;
