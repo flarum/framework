@@ -110,6 +110,7 @@ export default abstract class Model {
     }
 
     if ('attributes' in data) {
+      this.data.attributes ||= {};
       Object.assign(this.data.attributes, data.attributes);
     }
 
