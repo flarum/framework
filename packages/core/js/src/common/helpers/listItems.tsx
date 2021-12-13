@@ -65,15 +65,7 @@ export default function listItems<Attrs extends ComponentAttrs>(
   return withoutUnnecessarySeparators(items).map((item) => {
     const classes = [item.itemName && `item-${item.itemName}`];
 
-    if (!isVnode(item)) {
-      return (
-        <Tag className={classList(classes)} {...attributes}>
-          {item}
-        </Tag>
-      );
-    }
-
-    if (item.tag.isListItem) {
+    if (isVnode(item) && item.tag.isListItem) {
       item.attrs = item.attrs || {};
       item.attrs.key = item.attrs.key || item.itemName;
       item.key = item.attrs.key;
@@ -81,14 +73,18 @@ export default function listItems<Attrs extends ComponentAttrs>(
       return item;
     }
 
-    classes.push(item.attrs?.itemClassName || item.itemClassName);
-
-    if (item.tag.isActive?.(item.attrs)) {
-      classes.push('active');
+    if (isVnode(item)) {
+      classes.push(item.attrs?.itemClassName || item.itemClassName);
+  
+      if (item.tag.isActive?.(item.attrs)) {
+        classes.push('active');
+      }
     }
 
+    const key = isVnode(item) && item?.attrs?.key || item.itemName;
+
     return (
-      <Tag className={classList(classes)} key={item?.attrs?.key || item.itemName} {...attributes}>
+      <Tag className={classList(classes)} key={key} {...attributes}>
         {item}
       </Tag>
     );
