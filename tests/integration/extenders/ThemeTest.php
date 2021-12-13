@@ -130,6 +130,6 @@ class ThemeTest extends TestCase
         $contents = file_get_contents($cssFilePath);
 
         $this->assertStringContainsString('.dummy_func_test{color:green}', $contents);
-        $this->assertStringContainsString('.dummy_func_test2{--x:1000;--y:false;}', $contents);
+        $this->assertStringContainsString('.dummy_func_test2{--x:1000;--y:false}', $contents);
     }
 }
