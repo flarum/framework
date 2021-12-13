@@ -54,6 +54,9 @@ jobs:
           extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
           tools: phpunit, composer:v2
 
+      - name: Setup problem matchers for PHPUnit
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
       # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
       # which isn't supported prior to PHP7.4
       # When we drop support for PHP7.3, we should remove this from the setup.
