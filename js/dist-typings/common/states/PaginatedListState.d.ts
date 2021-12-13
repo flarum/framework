@@ -1,4 +1,5 @@
 import Model from '../Model';
+import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 export interface Page<TModel> {
     number: number;
     items: TModel[];
@@ -13,6 +14,9 @@ export interface PaginationLocation {
 export interface PaginatedListParams {
     [key: string]: any;
 }
+export interface PaginatedListRequestParams extends Omit<ApiQueryParamsPlural, 'include'> {
+    include?: string | string[];
+}
 export default abstract class PaginatedListState<T extends Model, P extends PaginatedListParams = PaginatedListParams> {
     protected location: PaginationLocation;
     protected pageSize: number;
@@ -26,11 +30,11 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     clear(): void;
     loadPrev(): Promise<void>;
     loadNext(): Promise<void>;
-    protected parseResults(pg: number, results: T[]): void;
+    protected parseResults(pg: number, results: ApiResponsePlural<T>): void;
     /**
      * Load a new page of results.
      */
-    protected loadPage(page?: number): Promise<T[]>;
+    protected loadPage(page?: number): Promise<ApiResponsePlural<T>>;
     /**
      * Get the parameters that should be passed in the API request.
      * Do not include page offset unless subclass overrides loadPage.
@@ -38,7 +42,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
      * @abstract
      * @see loadPage
      */
-    protected requestParams(): any;
+    protected requestParams(): PaginatedListRequestParams;
     /**
      * Update the `this.params` object, calling `refresh` if they have changed.
      * Use `requestParams` for converting `this.params` into API parameters
@@ -73,7 +77,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     /**
      * Stored state parameters.
      */
-    getParams(): any;
+    getParams(): P;
     protected getNextPageNumber(): number;
     protected getPrevPageNumber(): number;
     protected paramsChanged(newParams: P): boolean;

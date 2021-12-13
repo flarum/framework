@@ -1,10 +1,6 @@
-import PaginatedListState, { Page, PaginatedListParams } from '../../common/states/PaginatedListState';
+import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
-export interface IRequestParams {
-    include: string[];
-    filter: Record<string, string>;
-    sort?: string;
-}
+import { ApiResponsePlural } from '../../common/Store';
 export interface DiscussionListParams extends PaginatedListParams {
     sort?: string;
 }
@@ -12,8 +8,8 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     protected extraDiscussions: Discussion[];
     constructor(params: P, page?: number);
     get type(): string;
-    requestParams(): IRequestParams;
-    protected loadPage(page?: number): Promise<Discussion[]>;
+    requestParams(): PaginatedListRequestParams;
+    protected loadPage(page?: number): Promise<ApiResponsePlural<Discussion>>;
     clear(): void;
     /**
      * Get a map of sort keys (which appear in the URL, and are used for

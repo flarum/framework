@@ -3,6 +3,6 @@ export default class ReadmeModal extends Modal<import("../../common/components/M
     name: any;
     extName: any;
     loadReadme(): Promise<void>;
-    readme: any;
+    readme: import("../../common/Store").ApiResponseSingle<import("../../common/Model").default> | undefined;
 }
 import Modal from "../../common/components/Modal";

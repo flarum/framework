@@ -46,6 +46,17 @@ declare const app: never;
 declare const m: import('mithril').Static;
 declare const dayjs: typeof import('dayjs');
 
+/**
+ * From https://github.com/lokesh/color-thief/issues/188
+ */
+declare module 'color-thief-browser' {
+  type Color = [number, number, number];
+  export default class ColorThief {
+    getColor: (img: HTMLImageElement | null) => Color;
+    getPalette: (img: HTMLImageElement | null) => Color[];
+  }
+}
+
 type ESModule = { __esModule: true; [key: string]: unknown };
 
 /**

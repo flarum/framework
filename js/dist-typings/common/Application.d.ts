@@ -1,6 +1,6 @@
 import ItemList from './utils/ItemList';
 import Translator from './Translator';
-import Store from './Store';
+import Store, { ApiPayload, ApiResponsePlural, ApiResponseSingle } from './Store';
 import Session from './Session';
 import Drawer from './utils/Drawer';
 import RequestError, { InternalFlarumRequestOptions } from './utils/RequestError';
@@ -12,6 +12,7 @@ import type DefaultResolver from './resolvers/DefaultResolver';
 import type Mithril from 'mithril';
 import type Component from './Component';
 import type { ComponentAttrs } from './Component';
+import Model, { SavedModelData } from './Model';
 export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export declare type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
@@ -159,10 +160,10 @@ export default class Application {
      */
     drawer: Drawer;
     data: {
-        apiDocument: Record<string, unknown> | null;
+        apiDocument: ApiPayload | null;
         locale: string;
         locales: Record<string, string>;
-        resources: Record<string, unknown>[];
+        resources: SavedModelData[];
         session: {
             userId: number;
             csrfToken: string;
@@ -190,7 +191,8 @@ export default class Application {
     /**
      * Get the API response document that has been preloaded into the application.
      */
-    preloadedApiDocument(): Record<string, unknown> | null;
+    preloadedApiDocument<M extends Model>(): ApiResponseSingle<M> | null;
+    preloadedApiDocument<Ms extends Model[]>(): ApiResponsePlural<Ms[number]> | null;
     /**
      * Determine the current screen mode, based on our media queries.
      */
@@ -217,7 +219,7 @@ export default class Application {
      * @param options
      * @return {Promise}
      */
-    request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType | string>;
+    request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType>;
     /**
      * By default, show an error alert, and log the error to the console.
      */

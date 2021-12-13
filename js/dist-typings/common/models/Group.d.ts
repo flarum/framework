@@ -1,9 +1,11 @@
-export default Group;
-declare class Group extends Model {
+import Model from '../Model';
+export default class Group extends Model {
+    static ADMINISTRATOR_ID: string;
+    static GUEST_ID: string;
+    static MEMBER_ID: string;
+    nameSingular(): string;
+    namePlural(): string;
+    color(): string | null;
+    icon(): string | null;
+    isHidden(): boolean;
 }
-declare namespace Group {
-    const ADMINISTRATOR_ID: string;
-    const GUEST_ID: string;
-    const MEMBER_ID: string;
-}
-import Model from "../Model";
