@@ -109,6 +109,19 @@ class FrontendServiceProvider extends AbstractServiceProvider
             }
         );
 
+        $this->container->singleton(
+            'flarum.frontend.default_less_functions',
+            function (Container $container) {
+                $extensionsEnabled = json_decode($settings->get('extensions_enabled'));
+
+                return [
+                    'is-extension-enabled' => function (Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
+                        return in_array($extensionId->value, $extensionsEnabled);
+                    }
+                ];
+            }
+        )
+
         $this->container->singleton(TitleDriverInterface::class, function (Container $container) {
             return $container->make(BasicTitleDriver::class);
         });

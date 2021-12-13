@@ -186,19 +186,7 @@ class Assets
             $compiler->setFileSourceOverrides($this->fileSourceOverrides);
         }
 
-        /** @var SettingsRepositoryInterface */
-        $settings = resolve(SettingsRepositoryInterface::class);
-
-        $coreFunctions = [
-            'is-extension-enabled' => function (Less_Tree_Quoted $extensionId) use ($settings) {
-                $raw = $settings->get('extensions_enabled');
-                $extensionsEnabled = json_decode($raw);
-
-                return new Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false');
-            }
-        ];
-
-        $this->customFunctions = array_merge($coreFunctions, $this->customFunctions);
+        $this->customFunctions = array_merge(resolve('flarum.frontend.default_preloads'), $this->customFunctions);
 
         $compiler->setCustomFunctions($this->customFunctions);
 
