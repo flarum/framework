@@ -18,6 +18,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Less_Tree_Quoted;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
@@ -112,11 +113,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $this->container->singleton(
             'flarum.frontend.default_less_functions',
             function (Container $container) {
-                $extensionsEnabled = json_decode($settings->get('extensions_enabled'));
+                $extensionsEnabled = json_decode(resolve(SettingsRepositoryInterface::class)->get('extensions_enabled'));
 
                 return [
-                    'is-extension-enabled' => function (Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
-                        return in_array($extensionId->value, $extensionsEnabled);
+                    'is-extension-enabled' => function (\Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
+                        return new \Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false');
                     }
                 ];
             }
