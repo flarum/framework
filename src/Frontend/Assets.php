@@ -13,7 +13,6 @@ use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Compiler\JsCompiler;
 use Flarum\Frontend\Compiler\LessCompiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
 
 /**
