@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        php: [7.3, 7.4, '8.0', '8.1']
+        php: [7.3, 7.4, '8.0', 8.1]
         service: ['mysql:5.7', mariadb]
         prefix: ['', flarum_]
 
@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@0b9d33cd0782337377999751fc10ea079fdd7104 # pin@v2
+        uses: shivammathur/setup-php@15b20027cf4e61cb21f2582a8f125cafb1c0492e # pin@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: xdebug
