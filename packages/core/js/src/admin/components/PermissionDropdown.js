@@ -38,7 +38,6 @@ export default class PermissionDropdown extends Dropdown {
 
     attrs.className = 'PermissionDropdown';
     attrs.buttonClassName = 'Button Button--text';
-    attrs.lazyDraw = true;
   }
 
   view(vnode) {
