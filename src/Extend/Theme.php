@@ -94,7 +94,7 @@ class Theme implements ExtenderInterface
             }
 
             // Anything else
-            return new \Less_Tree_Quoted('', strval($return));
+            return new \Less_Tree_Quoted('', (string) $return);
         };
 
         return $this;
