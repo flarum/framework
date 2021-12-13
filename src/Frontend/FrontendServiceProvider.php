@@ -114,8 +114,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
             function (Container $container) {
                 $extensionsEnabled = json_decode($container->make(SettingsRepositoryInterface::class)->get('extensions_enabled'));
 
+                // Please note that these functions do not go through the same transformation which the Theme extender's
+                // `addCustomLessFunction` method does. You'll need to use the correct Less tree return type, and get
+                // parameter values with `$arg->value`.
                 return [
-                    'is-extension-enabled' => function (\Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
+                    'is-extension-enabled' => function ($extensionId) use ($extensionsEnabled) {
                         return new \Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false');
                     }
                 ];
