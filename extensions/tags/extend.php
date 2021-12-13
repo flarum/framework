@@ -31,6 +31,12 @@ use Flarum\Tags\Query\TagFilterGambit;
 use Flarum\Tags\Tag;
 use Psr\Http\Message\ServerRequestInterface;
 
+$eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $relations) {
+    if ($request && in_array('tags.state', $relations, true)) {
+        $query->withStateFor(RequestUtil::getActor($request));
+    }
+};
+
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
@@ -73,17 +79,15 @@ return [
 
     (new Extend\ApiController(FlarumController\ListDiscussionsController::class))
         ->addInclude(['tags', 'tags.state', 'tags.parent'])
-        ->loadWhere('tags', function ($query, ?ServerRequestInterface $request, array $relations) {
-            if ($request && in_array('tags.state', $relations, true)) {
-                $query->withStateFor(RequestUtil::getActor($request));
-            }
-        }),
+        ->loadWhere('tags', $eagerLoadTagState),
 
     (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
-        ->addInclude(['tags', 'tags.state', 'tags.parent']),
+        ->addInclude(['tags', 'tags.state', 'tags.parent'])
+        ->loadWhere('tags', $eagerLoadTagState),
 
     (new Extend\ApiController(FlarumController\CreateDiscussionController::class))
-        ->addInclude(['tags', 'tags.state', 'tags.parent']),
+        ->addInclude(['tags', 'tags.state', 'tags.parent'])
+        ->loadWhere('tags', $eagerLoadTagState),
 
     (new Extend\ApiController(FlarumController\ShowForumController::class))
         ->addInclude(['tags', 'tags.parent'])
