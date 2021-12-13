@@ -1,4 +1,4 @@
-import Component from '../Component';
+import type Component from '../Component';
 import Modal from '../components/Modal';
 
 /**
@@ -8,7 +8,7 @@ import Modal from '../components/Modal';
  * https://github.com/Microsoft/TypeScript/issues/1213
  * Therefore, we have to use this ugly, messy workaround.
  */
-type UnsafeModalClass = ComponentClass<any, Modal> & {isDismissible: boolean, component: typeof Component.component};
+type UnsafeModalClass = ComponentClass<any, Modal> & { isDismissible: boolean; component: typeof Component.component };
 
 /**
  * Class used to manage modal state.
