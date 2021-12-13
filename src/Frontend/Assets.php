@@ -15,7 +15,6 @@ use Flarum\Frontend\Compiler\LessCompiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
-use Less_Tree_Quoted;
 
 /**
  * A factory class for creating frontend asset compilers.
