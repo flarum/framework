@@ -18,7 +18,6 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory as ViewFactory;
-use Less_Tree_Quoted;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
