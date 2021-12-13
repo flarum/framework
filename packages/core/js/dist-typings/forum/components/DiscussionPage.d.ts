@@ -3,6 +3,7 @@ import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import PostStreamState from '../states/PostStreamState';
 import Discussion from '../../common/models/Discussion';
+import { ApiResponseSingle } from '../../common/Store';
 export interface IDiscussionPageAttrs extends IPageAttrs {
     id: string;
     near?: number;
@@ -77,7 +78,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     /**
      * Initialize the component to display the given discussion.
      */
-    show(discussion: Discussion): void;
+    show(discussion: ApiResponseSingle<Discussion>): void;
     /**
      * Build an item list for the contents of the sidebar.
      */
