@@ -105,11 +105,11 @@ class Post extends AbstractModel
     }
 
     /**
-     * We override this so that we can use custom logic to 
+     * We override this so that we can use custom logic to.
      */
     protected function insertAndSetId(Builder $query, $attributes)
     {
-        $attrsNoNumber = array_filter($attributes, function($key) {
+        $attrsNoNumber = array_filter($attributes, function ($key) {
             return $key !== 'number';
         }, ARRAY_FILTER_USE_KEY);
 
