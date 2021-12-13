@@ -17,7 +17,7 @@ export default class UsersSearchResults implements SearchSource {
 
   async search(query: string): Promise<void> {
     return app.store
-      .find('users', {
+      .find<User[]>('users', {
         filter: { q: query },
         page: { limit: 5 },
       })
@@ -33,7 +33,7 @@ export default class UsersSearchResults implements SearchSource {
     const results = (this.results.get(query) || [])
       .concat(
         app.store
-          .all('users')
+          .all<User>('users')
           .filter((user) => [user.username(), user.displayName()].some((value) => value.toLowerCase().substr(0, query.length) === query))
       )
       .filter((e, i, arr) => arr.lastIndexOf(e) === i)

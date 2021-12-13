@@ -14,6 +14,7 @@ import DiscussionControls from '../utils/DiscussionControls';
 import PostStreamState from '../states/PostStreamState';
 import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
+import { ApiResponseSingle } from '../../common/Store';
 
 export interface IDiscussionPageAttrs extends IPageAttrs {
   id: string;
@@ -163,7 +164,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * Load the discussion from the API or use the preloaded one.
    */
   load() {
-    const preloadedDiscussion = app.preloadedApiDocument() as Discussion | null;
+    const preloadedDiscussion = app.preloadedApiDocument<Discussion>();
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this
       // component for the first time on page load, then any calls to m.redraw
@@ -173,7 +174,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     } else {
       const params = this.requestParams();
 
-      app.store.find('discussions', m.route.param('id'), params).then(this.show.bind(this));
+      app.store.find<Discussion>('discussions', m.route.param('id'), params).then(this.show.bind(this));
     }
 
     m.redraw();
@@ -195,7 +196,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   /**
    * Initialize the component to display the given discussion.
    */
-  show(discussion: Discussion) {
+  show(discussion: ApiResponseSingle<Discussion>) {
     app.history.push('discussion', discussion.title());
     app.setTitle(discussion.title());
     app.setTitleCount(0);
@@ -207,7 +208,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // extensions. We need to distinguish the two so we don't end up displaying
     // the wrong posts. We do so by filtering out the posts that don't have
     // the 'discussion' relationship linked, then sorting and splicing.
-    let includedPosts = [];
+    let includedPosts: (Post | undefined)[] = [];
     if (discussion.payload && discussion.payload.included) {
       const discussionId = discussion.id();
 
@@ -217,10 +218,11 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
             record.type === 'posts' &&
             record.relationships &&
             record.relationships.discussion &&
+            !Array.isArray(record.relationships.discussion.data) &&
             record.relationships.discussion.data.id === discussionId
         )
-        .map((record) => app.store.getById('posts', record.id))
-        .sort((a: Post, b: Post) => a.createdAt() - b.createdAt())
+        .map((record) => app.store.getById<Post>('posts', record.id))
+        .sort((a?: Post, b?: Post) => (a?.createdAt()?.getTime() ?? 0) - (b?.createdAt()?.getTime() ?? 0))
         .slice(0, 20);
     }
 
@@ -228,7 +230,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
     this.stream = new PostStreamState(discussion, includedPosts);
-    this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true).then(() => {
+    this.stream.goToNumber(m.route.param('near') || (includedPosts[0]?.number() ?? 0), true).then(() => {
       this.discussion = discussion;
 
       app.current.set('discussion', discussion);

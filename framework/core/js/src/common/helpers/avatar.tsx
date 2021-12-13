@@ -24,8 +24,8 @@ export default function avatar(user: User, attrs: ComponentAttrs = {}): Mithril.
   // uploaded image, or the first letter of their username if they haven't
   // uploaded one.
   if (user) {
-    const username: string = user.displayName() || '?';
-    const avatarUrl: string = user.avatarUrl();
+    const username = user.displayName() || '?';
+    const avatarUrl = user.avatarUrl();
 
     if (hasTitle) attrs.title = attrs.title || username;
 

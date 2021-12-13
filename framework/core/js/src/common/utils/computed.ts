@@ -1,3 +1,5 @@
+import Model from '../Model';
+
 /**
  * The `computed` utility creates a function that will cache its output until
  * any of the dependent values are dirty.
@@ -7,20 +9,21 @@
  *     dependent values.
  * @return {Function}
  */
-export default function computed(...dependentKeys) {
-  const keys = dependentKeys.slice(0, -1);
-  const compute = dependentKeys.slice(-1)[0];
+export default function computed<T, M = Model>(...args: [...string[], (this: M, ...args: unknown[]) => T]): () => T {
+  const keys = args.slice(0, -1) as string[];
+  const compute = args.slice(-1)[0] as (this: M, ...args: unknown[]) => T;
 
-  const dependentValues = {};
-  let computedValue;
+  const dependentValues: Record<string, unknown> = {};
+  let computedValue: T;
 
-  return function () {
+  return function (this: M) {
     let recompute = false;
 
     // Read all of the dependent values. If any of them have changed since last
     // time, then we'll want to recompute our output.
     keys.forEach((key) => {
-      const value = typeof this[key] === 'function' ? this[key]() : this[key];
+      const attr = (this as Record<string, unknown | (() => unknown)>)[key];
+      const value = typeof attr === 'function' ? attr.call(this) : attr;
 
       if (dependentValues[key] !== value) {
         recompute = true;
