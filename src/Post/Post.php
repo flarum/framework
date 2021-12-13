@@ -10,6 +10,7 @@
 namespace Flarum\Post;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Database\InsertsViaSubqueryTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
@@ -17,7 +18,6 @@ use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\MySqlConnection;
 
 /**
  * @property int $id
@@ -42,6 +42,7 @@ class Post extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
+    use InsertsViaSubqueryTrait;
 
     protected $table = 'posts';
 
@@ -102,36 +103,10 @@ class Post extends AbstractModel
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
-    }
 
-    /**
-     * We override this so that we can use custom logic to.
-     */
-    protected function insertAndSetId(Builder $query, $attributes)
-    {
-        $attrsNoNumber = array_filter($attributes, function ($key) {
-            return $key !== 'number';
-        }, ARRAY_FILTER_USE_KEY);
-
-        $literalsSubquery = Post::query();
-
-        foreach ($attrsNoNumber as $attr => $value) {
-            //! DANGER!!! Literal Injection Vuln!!!
-            $literalsSubquery->selectRaw("'$value' as $attr");
-        }
-
-        $literalsSubquery->selectSub(Post::query()->where('discussion_id', $this->discussion_id)->selectRaw('count(*)+1'), 'number');
-
-        $attrNames = array_keys($attrsNoNumber);
-        $attrNames[] = 'number';
-
-        $query->insertUsing($attrNames, $literalsSubquery->limit(1));
-
-        /** @var MySqlConnection */
-        $con = $query->getQuery()->getConnection();
-        $id = $con->getPdo()->lastInsertId('id');
-
-        $this->setAttribute('id', $id);
+        static::$subqueryAttributes['number'] = function(Post $post) {
+            return static::query()->where('discussion_id', $post->discussion_id)->selectRaw("max(number)+1");
+        };
     }
 
     /**
