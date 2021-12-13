@@ -4,7 +4,7 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Placeholder from '../../common/components/Placeholder';
 import ExtensionReadme from '../models/ExtensionReadme';
 import type Mithril from 'mithril';
-import { Extension } from '../AdminApplication';
+import type { Extension } from '../AdminApplication';
 
 export interface IReadmeModalAttrs extends IInternalModalAttrs {
   extension: Extension;

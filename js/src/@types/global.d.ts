@@ -23,19 +23,18 @@ declare type KeyOfType<Type extends object, Match> = KeysOfType<Type, Match>[key
 
 type Component<A> = import('mithril').Component<A>;
 
-declare type ComponentClass< 
-Attrs = Record<string, unknown>, C extends Component<Attrs> = Component<Attrs>> = { new (...args: any[]): Component<Attrs>, prototype: C };
+declare type ComponentClass<Attrs = Record<string, unknown>, C extends Component<Attrs> = Component<Attrs>> = {
+  new (...args: any[]): Component<Attrs>;
+  prototype: C;
+};
 
 /**
  * Unfortunately, TypeScript only supports strings and classes for JSX tags.
  * Therefore, our type definition should only allow for those two types.
- * 
+ *
  * @see https://github.com/microsoft/TypeScript/issues/14789#issuecomment-412247771
  */
-declare type VnodeElementTag<
-  Attrs = Record<string, unknown>,
-  C extends Component<Attrs> = Component<Attrs>
-> = string | ComponentClass<Attrs, C>;
+declare type VnodeElementTag<Attrs = Record<string, unknown>, C extends Component<Attrs> = Component<Attrs>> = string | ComponentClass<Attrs, C>;
 
 /**
  * @deprecated Please import `app` from a namespace instead of using it as a global variable.
