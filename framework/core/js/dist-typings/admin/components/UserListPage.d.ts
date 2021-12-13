@@ -1,5 +1,5 @@
 /// <reference path="../../../src/common/translator-icu-rich.d.ts" />
-/// <reference types="mithril" />
+import type Mithril from 'mithril';
 import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
@@ -11,7 +11,7 @@ declare type ColumnData = {
     /**
      * Component(s) to show for this column.
      */
-    content: (user: User) => JSX.Element;
+    content: (user: User) => Mithril.Children;
 };
 /**
  * Admin page which displays a paginated list of all users on the forum.

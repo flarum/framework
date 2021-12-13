@@ -1,3 +1,4 @@
+import Model from '../Model';
 /**
  * The `computed` utility creates a function that will cache its output until
  * any of the dependent values are dirty.
@@ -7,4 +8,4 @@
  *     dependent values.
  * @return {Function}
  */
-export default function computed(...dependentKeys: string[]): Function;
+export default function computed<T, M = Model>(...args: [...string[], (this: M, ...args: unknown[]) => T]): () => T;

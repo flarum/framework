@@ -35,7 +35,7 @@ export default class AdminApplication extends Application {
     history: {
         canGoBack: () => boolean;
         getPrevious: () => void;
-        backUrl: () => any;
+        backUrl: () => string;
         back: () => void;
     };
     /**
