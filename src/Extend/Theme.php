@@ -60,7 +60,7 @@ class Theme implements ExtenderInterface
      * ```php
      * (new Extend\Theme)
      *     ->addCustomLessFunction('is-flarum', function (mixed $text) {
-     *         return new Less_Tree_Quoted('', strtolower($text) === 'flarum' ? 'true' : 'false')
+     *         return strtolower($text) === 'flarum'
      *     }),
      * ```
      *
@@ -72,16 +72,17 @@ class Theme implements ExtenderInterface
      */
     public function addCustomLessFunction(string $functionName, callable $callable): self
     {
-        if (! is_callable($callable)) {
-            return $this;
-        }
-
         $this->customFunctions[$functionName] = function (...$args) use ($callable) {
             $argVals = array_map(function ($arg) {
                 return $arg->value;
             }, $args);
 
             $return = $callable(...$argVals);
+
+            // Booleans
+            if (is_bool($return)) {
+                return new \Less_Tree_Quoted('', $return ? 'true' : 'false');
+            }
 
             // Numbers
             if (! is_string($return) && is_numeric($return)) {

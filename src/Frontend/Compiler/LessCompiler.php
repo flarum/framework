@@ -110,9 +110,7 @@ class LessCompiler extends RevisionCompiler
         }
 
         foreach ($this->customFunctions as $name => $callback) {
-            if (is_callable($callback)) {
                 $parser->registerFunction($name, $callback);
-            }
         }
 
         return $parser->getCss();

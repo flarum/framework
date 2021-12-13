@@ -118,7 +118,7 @@ class ThemeTest extends TestCase
                     return strtolower($text) === 'flarum' ? 'true' : 100;
                 })
                 ->addCustomLessFunction('is-gt', function ($a, $b) {
-                    return $a > $b === 'flarum' ? true : false;
+                    return $a > $b;
                 })
         );
 
