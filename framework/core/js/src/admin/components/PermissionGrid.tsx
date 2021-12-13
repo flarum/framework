@@ -38,11 +38,13 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
 
     const permissionCells = (permission: PermissionGridEntry | { children: PermissionGridEntry[] }) => {
       return scopes.map((scope) => {
+        // This indicates the "permission" is a permission category,
+        // in which case we return an empty table cell.
         if ('children' in permission) {
           return <td></td>;
         }
 
-        return scope.render(permission);
+        return <td>{scope.render(permission)}</td>;
       });
     };
 
@@ -416,7 +418,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
             });
           }
 
-          return '';
+          return null;
         },
       },
       100
