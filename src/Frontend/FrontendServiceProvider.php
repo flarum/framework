@@ -120,7 +120,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     }
                 ];
             }
-        )
+        );
 
         $this->container->singleton(TitleDriverInterface::class, function (Container $container) {
             return $container->make(BasicTitleDriver::class);
