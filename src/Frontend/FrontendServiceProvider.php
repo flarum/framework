@@ -112,7 +112,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $this->container->singleton(
             'flarum.frontend.default_less_functions',
             function (Container $container) {
-                $extensionsEnabled = json_decode(resolve(SettingsRepositoryInterface::class)->get('extensions_enabled'));
+                $extensionsEnabled = json_decode($container->make(SettingsRepositoryInterface::class)->get('extensions_enabled'));
 
                 return [
                     'is-extension-enabled' => function (\Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
