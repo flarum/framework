@@ -418,7 +418,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
             });
           }
 
-          return undefined;
+          return null;
         },
       },
       100
