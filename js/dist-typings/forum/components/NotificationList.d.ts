@@ -4,6 +4,7 @@
  */
 export default class NotificationList extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    controlItems(): ItemList<any>;
     content(state: any): any;
     $notifications: JQuery<HTMLElement> | undefined;
     $scrollParent: JQuery<HTMLElement> | JQuery<Window & typeof globalThis> | undefined;
@@ -16,3 +17,4 @@ export default class NotificationList extends Component<import("../../common/Com
     inPanel(): boolean;
 }
 import Component from "../../common/Component";
+import ItemList from "../../common/utils/ItemList";
