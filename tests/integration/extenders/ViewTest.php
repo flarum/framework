@@ -54,7 +54,7 @@ class ViewTest extends TestCase
         // Expect to fail -- original namespace hint has been replaced
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageMatches("/(View \[.*\] not found\.)/");
-        $viewFactory->make('flarum.forum::frontend.app')->render();
+        $viewFactory->make('flarum::frontend.app')->render();
     }
 
     /**
