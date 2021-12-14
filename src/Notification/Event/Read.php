@@ -9,6 +9,7 @@
 
 namespace Flarum\Notification\Event;
 
+use DateTime;
 use Flarum\Notification\Notification;
 use Flarum\User\User;
 
@@ -24,9 +25,15 @@ class Read
      */
     public $notification;
 
-    public function __construct(User $user, Notification $notification)
+    /**
+     * @var DateTime
+     */
+    public $timestamp;
+
+    public function __construct(User $user, Notification $notification, DateTime $timestamp)
     {
         $this->user = $user;
         $this->notification = $notification;
+        $this->timestamp = $timestamp;
     }
 }

@@ -12,6 +12,7 @@ namespace Flarum\Notification\Command;
 use Flarum\Notification\Event\ReadAll;
 use Flarum\Notification\NotificationRepository;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Carbon;
 
 class ReadAllNotificationsHandler
 {
@@ -47,6 +48,6 @@ class ReadAllNotificationsHandler
 
         $this->notifications->markAllAsRead($actor);
 
-        $this->events->dispatch(new ReadAll($actor));
+        $this->events->dispatch(new ReadAll($actor, Carbon::now()));
     }
 }

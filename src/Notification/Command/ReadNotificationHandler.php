@@ -51,7 +51,7 @@ class ReadNotificationHandler
 
         $notification->read_at = Carbon::now();
 
-        $this->events->dispatch(new Read($actor, $notification));
+        $this->events->dispatch(new Read($actor, $notification, Carbon::now()));
 
         return $notification;
     }
