@@ -17,7 +17,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 class ReadNotificationHandler
 {
     /**
-     * @var DIspatcher
+     * @var Dispatcher
      */
     protected $events;
 
