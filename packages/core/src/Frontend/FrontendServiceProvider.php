@@ -31,7 +31,9 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $assets = new Assets(
                     $name,
                     $container->make('filesystem')->disk('flarum-assets'),
-                    $paths->storage
+                    $paths->storage,
+                    null,
+                    $container->make('flarum.frontend.custom_less_functions')
                 );
 
                 $assets->setLessImportDirs([
@@ -106,6 +108,22 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         'type' => 'font/woff2',
                         'crossorigin' => ''
                     ]
+                ];
+            }
+        );
+
+        $this->container->singleton(
+            'flarum.frontend.custom_less_functions',
+            function (Container $container) {
+                $extensionsEnabled = json_decode($container->make(SettingsRepositoryInterface::class)->get('extensions_enabled'));
+
+                // Please note that these functions do not go through the same transformation which the Theme extender's
+                // `addCustomLessFunction` method does. You'll need to use the correct Less tree return type, and get
+                // parameter values with `$arg->value`.
+                return [
+                    'is-extension-enabled' => function (\Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
+                        return new \Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false');
+                    }
                 ];
             }
         );
