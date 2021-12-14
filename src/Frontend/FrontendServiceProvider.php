@@ -30,7 +30,9 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $assets = new Assets(
                     $name,
                     $container->make('filesystem')->disk('flarum-assets'),
-                    $paths->storage
+                    $paths->storage,
+                    null,
+                    $container->make('flarum.frontend.custom_less_functions')
                 );
 
                 $assets->setLessImportDirs([
@@ -110,7 +112,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
         );
 
         $this->container->singleton(
-            'flarum.frontend.default_less_functions',
+            'flarum.frontend.custom_less_functions',
             function (Container $container) {
                 $extensionsEnabled = json_decode($container->make(SettingsRepositoryInterface::class)->get('extensions_enabled'));
 

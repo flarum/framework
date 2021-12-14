@@ -12,6 +12,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Assets;
 use Illuminate\Contracts\Container\Container;
+use RuntimeException;
 
 class Theme implements ExtenderInterface
 {
@@ -84,18 +85,17 @@ class Theme implements ExtenderInterface
                 return new \Less_Tree_Quoted('', $return ? 'true' : 'false');
             }
 
-            // Numbers
-            if (! is_string($return) && is_numeric($return)) {
-                return new \Less_Tree_Dimension($return);
-            }
-
             // Strings
             if (is_string($return)) {
                 return new \Less_Tree_Quoted('', $return);
             }
 
-            // Anything else
-            return new \Less_Tree_Quoted('', (string) $return);
+            // Numbers
+            if (is_numeric($return)) {
+                return new \Less_Tree_Dimension($return);
+            }
+
+            throw new RuntimeException('Custom Less functions must only return a string, number or boolean.');
         };
 
         return $this;
@@ -103,6 +103,10 @@ class Theme implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
+        $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {
+            array_merge($customFunctions, $this->customFunctions);
+        });
+
         $container->extend('flarum.assets.factory', function (callable $factory) {
             return function (...$args) use ($factory) {
                 /** @var Assets $assets */
@@ -110,7 +114,6 @@ class Theme implements ExtenderInterface
 
                 $assets->addLessImportOverrides($this->lessImportOverrides);
                 $assets->addFileSourceOverrides($this->fileSourceOverrides);
-                $assets->addCustomLessFunctions($this->customFunctions);
 
                 return $assets;
             };

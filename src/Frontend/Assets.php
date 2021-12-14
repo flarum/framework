@@ -179,8 +179,6 @@ class Assets
             $compiler->setFileSourceOverrides($this->fileSourceOverrides);
         }
 
-        $this->customFunctions = array_merge(resolve('flarum.frontend.default_preloads'), $this->customFunctions);
-
         $compiler->setCustomFunctions($this->customFunctions);
 
         return $compiler;
@@ -234,10 +232,5 @@ class Assets
     public function addFileSourceOverrides(array $fileSourceOverrides)
     {
         $this->fileSourceOverrides = array_merge($this->fileSourceOverrides, $fileSourceOverrides);
-    }
-
-    public function addCustomLessFunctions(array $customFunctions)
-    {
-        $this->customFunctions = array_merge($this->customFunctions, $customFunctions);
     }
 }
