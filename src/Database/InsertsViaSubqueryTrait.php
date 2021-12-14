@@ -62,5 +62,9 @@ trait InsertsViaSubqueryTrait
         $id = is_numeric($idRaw) ? (int) $idRaw : $idRaw;
 
         $this->setAttribute($keyName, $id);
+
+        // This is necessary to get the computed value of saved attributes.
+        $this->exists = true;
+        $this->refresh();
     }
 }
