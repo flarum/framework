@@ -24,10 +24,10 @@ export interface SavedModelData {
     relationships?: ModelRelationships;
 }
 export declare type ModelData = UnsavedModelData | SavedModelData;
-interface SaveRelationships {
+export interface SaveRelationships {
     [relationship: string]: Model | Model[];
 }
-interface SaveAttributes {
+export interface SaveAttributes {
     [key: string]: unknown;
     relationships?: SaveRelationships;
 }
@@ -145,4 +145,3 @@ export default abstract class Model {
      */
     protected static getIdentifier(model: Model): ModelIdentifier;
 }
-export {};

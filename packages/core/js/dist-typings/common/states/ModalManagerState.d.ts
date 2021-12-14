@@ -1,4 +1,16 @@
+import type Component from '../Component';
 import Modal from '../components/Modal';
+/**
+ * Ideally, `show` would take a higher-kinded generic, ala:
+ *  `show<Attrs, C>(componentClass: C<Attrs>, attrs: Attrs): void`
+ * Unfortunately, TypeScript does not support this:
+ * https://github.com/Microsoft/TypeScript/issues/1213
+ * Therefore, we have to use this ugly, messy workaround.
+ */
+declare type UnsafeModalClass = ComponentClass<any, Modal> & {
+    isDismissible: boolean;
+    component: typeof Component.component;
+};
 /**
  * Class used to manage modal state.
  *
@@ -9,7 +21,7 @@ export default class ModalManagerState {
      * @internal
      */
     modal: null | {
-        componentClass: typeof Modal;
+        componentClass: UnsafeModalClass;
         attrs?: Record<string, unknown>;
     };
     private closeTimeout?;
@@ -25,7 +37,7 @@ export default class ModalManagerState {
      * // This "hack" is needed due to quirks with nested redraws in Mithril.
      * setTimeout(() => app.modal.show(MyCoolModal, { attr: 'value' }), 0);
      */
-    show(componentClass: typeof Modal, attrs?: Record<string, unknown>): void;
+    show(componentClass: UnsafeModalClass, attrs?: Record<string, unknown>): void;
     /**
      * Closes the currently open dialog, if one is open.
      */
@@ -37,3 +49,4 @@ export default class ModalManagerState {
      */
     isModalOpen(): boolean;
 }
+export {};

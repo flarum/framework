@@ -22,8 +22,8 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     /**
      * Attributes for an alert component to show below the header.
      */
-    alertAttrs: AlertAttrs;
-    oninit(vnode: Mithril.VnodeDOM<ModalAttrs, this>): void;
+    alertAttrs: AlertAttrs | null;
+    oninit(vnode: Mithril.Vnode<ModalAttrs, this>): void;
     oncreate(vnode: Mithril.VnodeDOM<ModalAttrs, this>): void;
     onbeforeremove(vnode: Mithril.VnodeDOM<ModalAttrs, this>): Promise<void> | void;
     /**
@@ -37,7 +37,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     /**
      * Get the title of the modal dialog.
      */
-    abstract title(): string;
+    abstract title(): Mithril.Children;
     /**
      * Get the content of the modal.
      */

@@ -24,7 +24,7 @@ export default class AlertManagerState {
      */
     show(children: Mithril.Children): AlertIdentifier;
     show(attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
-    show(componentClass: Alert, attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
+    show(componentClass: typeof Alert, attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
     /**
      * Dismiss an alert.
      */
