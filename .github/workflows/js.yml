@@ -49,7 +49,7 @@ jobs:
         working-directory: ./js
 
       - name: Typecheck
-        run: yarn run check-typings || true  # REMOVE THIS ONCE TYPE SAFETY REACHED
+        run: yarn run check-typings
         working-directory: ./js
 
   type-coverage:

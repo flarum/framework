@@ -23,6 +23,7 @@ import isSafariMobile from './utils/isSafariMobile';
 import type Notification from './components/Notification';
 import type Post from './components/Post';
 import Discussion from '../common/models/Discussion';
+import extractText from '../common/utils/extractText';
 
 export default class ForumApplication extends Application {
   /**
@@ -99,7 +100,7 @@ export default class ForumApplication extends Application {
     }
 
     this.routes[defaultAction].path = '/';
-    this.history.push(defaultAction, this.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
+    this.history.push(defaultAction, extractText(this.translator.trans('core.forum.header.back_to_index_tooltip')), '/');
 
     this.pane = new Pane(document.getElementById('app'));
 
@@ -124,8 +125,9 @@ export default class ForumApplication extends Application {
       app.history.home();
 
       // Reload the current user so that their unread notification count is refreshed.
-      if (app.session.user) {
-        app.store.find('users', app.session.user.id());
+      const userId = app.session.user?.id();
+      if (userId) {
+        app.store.find('users', userId);
         m.redraw();
       }
     });
