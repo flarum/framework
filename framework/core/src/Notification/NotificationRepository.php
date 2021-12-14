@@ -50,6 +50,8 @@ class NotificationRepository
      */
     public function markAllAsRead(User $user)
     {
-        Notification::where('user_id', $user->id)->update(['read_at' => Carbon::now()]);
+        Notification::where('user_id', $user->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => Carbon::now()]);
     }
 }
