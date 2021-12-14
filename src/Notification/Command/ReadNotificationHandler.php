@@ -22,7 +22,7 @@ class ReadNotificationHandler
     {
         $this->events = $events;
     }
-    
+
     /**
      * @param ReadNotification $command
      * @return \Flarum\Notification\Notification
@@ -46,7 +46,7 @@ class ReadNotificationHandler
         $notification->read_at = Carbon::now();
 
         $this->events->dispatch(new Read($actor, $notification));
-        
+
         return $notification;
     }
 }
