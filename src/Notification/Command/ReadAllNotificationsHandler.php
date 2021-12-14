@@ -27,6 +27,7 @@ class ReadAllNotificationsHandler
 
     /**
      * @param NotificationRepository $notifications
+     * @param Dispatcher $events
      */
     public function __construct(NotificationRepository $notifications, Dispatcher $events)
     {

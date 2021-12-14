@@ -16,8 +16,14 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class ReadNotificationHandler
 {
+    /**
+     * @var DIspatcher
+     */
     protected $events;
 
+    /**
+     * @param Dispatcher $events
+     */
     public function __construct(Dispatcher $events)
     {
         $this->events = $events;
