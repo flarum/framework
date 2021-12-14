@@ -27,7 +27,7 @@ export default class AlertManagerState {
    */
   show(children: Mithril.Children): AlertIdentifier;
   show(attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
-  show(componentClass: Alert, attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
+  show(componentClass: typeof Alert, attrs: AlertAttrs, children: Mithril.Children): AlertIdentifier;
 
   show(arg1: any, arg2?: any, arg3?: any) {
     // Assigns variables as per the above signatures
