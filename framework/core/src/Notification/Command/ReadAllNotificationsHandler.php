@@ -9,7 +9,10 @@
 
 namespace Flarum\Notification\Command;
 
+use Flarum\Notification\Event\ReadAll;
 use Flarum\Notification\NotificationRepository;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Carbon;
 
 class ReadAllNotificationsHandler
 {
@@ -19,11 +22,18 @@ class ReadAllNotificationsHandler
     protected $notifications;
 
     /**
-     * @param NotificationRepository $notifications
+     * @var Dispatcher
      */
-    public function __construct(NotificationRepository $notifications)
+    protected $events;
+
+    /**
+     * @param NotificationRepository $notifications
+     * @param Dispatcher $events
+     */
+    public function __construct(NotificationRepository $notifications, Dispatcher $events)
     {
         $this->notifications = $notifications;
+        $this->events = $events;
     }
 
     /**
@@ -37,5 +47,7 @@ class ReadAllNotificationsHandler
         $actor->assertRegistered();
 
         $this->notifications->markAllAsRead($actor);
+
+        $this->events->dispatch(new ReadAll($actor, Carbon::now()));
     }
 }
