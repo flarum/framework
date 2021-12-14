@@ -75,7 +75,7 @@ class Theme implements ExtenderInterface
      */
     public function addCustomLessFunction(string $functionName, callable $callable): self
     {
-        $this->customFunctions[$functionName] = function (...$args) use ($callable) {
+        $this->customFunctions[$functionName] = function (...$args) use ($callable, $functionName) {
             $argVals = array_map(function ($arg) {
                 return $arg->value;
             }, $args);
@@ -94,7 +94,7 @@ class Theme implements ExtenderInterface
                 return new \Less_Tree_Dimension($return);
             }
 
-            throw new RuntimeException('Custom Less functions must only return a string, number or boolean.');
+            throw new RuntimeException('Custom Less function `'.$functionName.'` must only return a string, number or boolean.');
         };
 
         return $this;
