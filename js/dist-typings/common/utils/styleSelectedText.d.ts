@@ -9,6 +9,7 @@ interface StyleArgs {
     scanFor: string;
     surroundWithNewlines: boolean;
     orderedList: boolean;
+    unorderedList: boolean;
     trimFirst: boolean;
 }
 export default function styleSelectedText(textarea: HTMLTextAreaElement, styleArgs: StyleArgs): void;
