@@ -104,7 +104,7 @@ class Theme implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {
-            array_merge($customFunctions, $this->customFunctions);
+            return array_merge($customFunctions, $this->customFunctions);
         });
 
         $container->extend('flarum.assets.factory', function (callable $factory) {
