@@ -56,6 +56,8 @@ class Theme implements ExtenderInterface
 
     /**
      * This method allows you to add custom Less functions.
+     * 
+     * All custom Less functions may only return numbers, strings or booleans.
      *
      * **Example usage:**
      * ```php
