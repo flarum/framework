@@ -2,8 +2,8 @@ import type Mithril from 'mithril';
 import Page, { IPageAttrs } from '../../common/components/Page';
 import Stream from '../../common/utils/Stream';
 export interface AdminHeaderOptions {
-    title: string;
-    description: string;
+    title: Mithril.Children;
+    description: Mithril.Children;
     icon: string;
     /**
      * Will be used as the class for the AdminPage.

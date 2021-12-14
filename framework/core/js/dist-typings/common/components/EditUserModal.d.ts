@@ -1,26 +1,31 @@
-/**
- * The `EditUserModal` component displays a modal dialog with a login form.
- */
-export default class EditUserModal extends Modal<import("./Modal").IInternalModalAttrs> {
-    constructor();
-    username: Stream<any> | undefined;
-    email: Stream<any> | undefined;
-    isEmailConfirmed: Stream<any> | undefined;
-    setPassword: Stream<boolean> | undefined;
-    password: Stream<any> | undefined;
-    groups: {} | undefined;
-    fields(): ItemList<any>;
+/// <reference path="../../../src/common/translator-icu-rich.d.ts" />
+import Modal, { IInternalModalAttrs } from './Modal';
+import ItemList from '../utils/ItemList';
+import Stream from '../utils/Stream';
+import type Mithril from 'mithril';
+import type User from '../models/User';
+import type { SaveAttributes } from '../Model';
+export interface IEditUserModalAttrs extends IInternalModalAttrs {
+    user: User;
+}
+export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEditUserModalAttrs> extends Modal<CustomAttrs> {
+    protected username: Stream<string>;
+    protected email: Stream<string>;
+    protected isEmailConfirmed: Stream<boolean>;
+    protected setPassword: Stream<boolean>;
+    protected password: Stream<string>;
+    protected groups: Record<string, Stream<boolean>>;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    className(): string;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    content(): JSX.Element;
+    fields(): ItemList<unknown>;
     activate(): void;
-    data(): {
-        relationships: {};
-    };
-    nonAdminEditingAdmin(): any;
+    data(): SaveAttributes;
+    onsubmit(e: SubmitEvent): void;
+    nonAdminEditingAdmin(): boolean | null;
     /**
      * @internal
-     * @protected
      */
-    protected userIsAdmin(user: any): any;
+    protected userIsAdmin(user: User | null): boolean | null;
 }
-import Modal from "./Modal";
-import Stream from "../utils/Stream";
-import ItemList from "../utils/ItemList";

@@ -1,8 +1,18 @@
-export default class ReadmeModal extends Modal<import("../../common/components/Modal").IInternalModalAttrs> {
-    constructor();
-    name: any;
-    extName: any;
-    loadReadme(): Promise<void>;
-    readme: import("../../common/Store").ApiResponseSingle<import("../../common/Model").default> | undefined;
+/// <reference path="../../../src/common/translator-icu-rich.d.ts" />
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import ExtensionReadme from '../models/ExtensionReadme';
+import type Mithril from 'mithril';
+import type { Extension } from '../AdminApplication';
+export interface IReadmeModalAttrs extends IInternalModalAttrs {
+    extension: Extension;
 }
-import Modal from "../../common/components/Modal";
+export default class ReadmeModal<CustomAttrs extends IReadmeModalAttrs = IReadmeModalAttrs> extends Modal<CustomAttrs> {
+    protected name: string;
+    protected extName: string;
+    protected readme: ExtensionReadme;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    className(): string;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    content(): JSX.Element;
+    loadReadme(): Promise<void>;
+}

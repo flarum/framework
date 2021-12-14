@@ -1,25 +1,25 @@
+/// <reference path="../../../src/common/translator-icu-rich.d.ts" />
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import Stream from '../../common/utils/Stream';
+import Mithril from 'mithril';
+import RequestError from '../../common/utils/RequestError';
+export interface IForgotPasswordModalAttrs extends IInternalModalAttrs {
+    email?: string;
+}
 /**
  * The `ForgotPasswordModal` component displays a modal which allows the user to
  * enter their email address and request a link to reset their password.
- *
- * ### Attrs
- *
- * - `email`
  */
-export default class ForgotPasswordModal extends Modal<import("../../common/components/Modal").IInternalModalAttrs> {
-    constructor();
+export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModalAttrs = IForgotPasswordModalAttrs> extends Modal<CustomAttrs> {
     /**
      * The value of the email input.
-     *
-     * @type {Function}
      */
-    email: Function | undefined;
-    /**
-     * Whether or not the password reset email was sent successfully.
-     *
-     * @type {Boolean}
-     */
-    success: boolean | undefined;
-    alert: any;
+    email: Stream<string>;
+    success: boolean;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    className(): string;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    content(): JSX.Element;
+    onsubmit(e: SubmitEvent): void;
+    onerror(error: RequestError): void;
 }
-import Modal from "../../common/components/Modal";
