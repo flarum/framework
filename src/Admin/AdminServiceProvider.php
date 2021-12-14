@@ -29,6 +29,7 @@ use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
@@ -121,9 +122,9 @@ class AdminServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
-    public function boot()
+    public function boot(ViewFactory $views)
     {
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
+        $views->addNamespace('flarum.admin', __DIR__.'/../../views');
 
         $events = $this->container->make('events');
 

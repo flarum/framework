@@ -13,6 +13,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class UpdateServiceProvider extends AbstractServiceProvider
 {
@@ -30,9 +31,9 @@ class UpdateServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot()
+    public function boot(ViewFactory $views)
     {
-        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.update');
+        $views->addNamespace('flarum.update', __DIR__ . '/../../views/install');
     }
 
     /**

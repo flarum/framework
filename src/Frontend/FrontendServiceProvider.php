@@ -144,7 +144,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
      */
     public function boot(Container $container, ViewFactory $views)
     {
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
+        $views->addNamespace('flarum', __DIR__.'/../../views');
 
         $views->share([
             'translator' => $container->make('translator'),
