@@ -47,7 +47,14 @@ class ViewTest extends TestCase
                 ->replace('flarum', dirname(__FILE__, 3).'/fixtures/views')
         );
 
-        $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('flarum::test')->render()));
+        $viewFactory = $this->app()->getContainer()->make(Factory::class);
+
+        $this->assertEquals('<html><body>Hello World!</body></html>', trim($viewFactory->make('flarum::test')->render()));
+
+        // Expect to fail -- original namespace hint has been replaced
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches("/(View \[.*\] not found\.)/");
+        $viewFactory->make('flarum.forum::frontend.app')->render();
     }
 
     /**
