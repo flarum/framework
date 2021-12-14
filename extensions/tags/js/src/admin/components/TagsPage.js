@@ -44,7 +44,7 @@ export default class TagsPage extends ExtensionPage {
 
     this.loading = true;
 
-    app.store.find('tags', { include: 'parent,lastPostedDiscussion' }).then(() => {
+    app.store.find('tags', { include: 'parent' }).then(() => {
       this.loading = false;
 
       m.redraw();
