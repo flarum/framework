@@ -15,7 +15,6 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
 
 /**
- * 
  * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
  *
  * Flarum's core uses them for error pages, the installer, HTML emails, and the skeletons for the forum and admin sites.

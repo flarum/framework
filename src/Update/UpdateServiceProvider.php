@@ -33,7 +33,7 @@ class UpdateServiceProvider extends AbstractServiceProvider
 
     public function boot(ViewFactory $views)
     {
-        $views->addNamespace('flarum.update', __DIR__ . '/../../views/install');
+        $views->addNamespace('flarum.update', __DIR__.'/../../views/install');
     }
 
     /**

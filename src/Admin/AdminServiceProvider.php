@@ -28,8 +28,8 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
-use Laminas\Stratigility\MiddlewarePipe;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Laminas\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
