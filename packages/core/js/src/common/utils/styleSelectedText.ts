@@ -16,6 +16,7 @@ interface StyleArgs {
   scanFor: string;
   surroundWithNewlines: boolean;
   orderedList: boolean;
+  unorderedList: boolean;
   trimFirst: boolean;
 }
 
@@ -30,6 +31,7 @@ const defaults: StyleArgs = {
   scanFor: '',
   surroundWithNewlines: false,
   orderedList: false,
+  unorderedList: false,
   trimFirst: false,
 };
 
@@ -41,8 +43,8 @@ export default function styleSelectedText(textarea: HTMLTextAreaElement, styleAr
   const text = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
 
   let result;
-  if (styleArgs.orderedList) {
-    result = orderedList(textarea);
+  if (styleArgs.orderedList || styleArgs.unorderedList) {
+    result = listStyle(textarea, styleArgs);
   } else if (styleArgs.multiline && isMultipleLines(text)) {
     result = multilineStyle(textarea, styleArgs);
   } else {
@@ -75,6 +77,21 @@ function wordSelectionEnd(text: string, i: number, multiline: boolean): number {
     index++;
   }
   return index;
+}
+
+function expandSelectionToLine(textarea: HTMLTextAreaElement) {
+  const lines = textarea.value.split('\n');
+  let counter = 0;
+  for (let index = 0; index < lines.length; index++) {
+    const lineLength = lines[index].length + 1;
+    if (textarea.selectionStart >= counter && textarea.selectionStart < counter + lineLength) {
+      textarea.selectionStart = counter;
+    }
+    if (textarea.selectionEnd >= counter && textarea.selectionEnd < counter + lineLength) {
+      textarea.selectionEnd = counter + lineLength - 1;
+    }
+    counter += lineLength;
+  }
 }
 
 function expandSelectedText(textarea: HTMLTextAreaElement, prefixToUse: string, suffixToUse: string, multiline = false): string {
@@ -140,7 +157,9 @@ function blockStyle(textarea: HTMLTextAreaElement, arg: StyleArgs): SelectionRan
 
   let selectedText = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
   let prefixToUse = isMultipleLines(selectedText) && blockPrefix.length > 0 ? `${blockPrefix}\n` : prefix;
-  let suffixToUse = isMultipleLines(selectedText) && blockSuffix.length > 0 ? `\n${blockSuffix}` : suffix;
+  // CHANGED
+  let suffixToUse = isMultipleLines(selectedText) && blockSuffix.length > 0 ? `\n${blockSuffix}` : prefixToUse === prefix ? suffix : '';
+  // END CHANGED
 
   if (prefixSpace) {
     const beforeSelection = textarea.value[textarea.selectionStart - 1];
@@ -198,19 +217,25 @@ function blockStyle(textarea: HTMLTextAreaElement, arg: StyleArgs): SelectionRan
 }
 
 function multilineStyle(textarea: HTMLTextAreaElement, arg: StyleArgs) {
-  const { prefix, suffix, surroundWithNewlines } = arg;
+  const { prefix, suffix, blockPrefix, blockSuffix, surroundWithNewlines } = arg;
   let text = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
   let selectionStart = textarea.selectionStart;
   let selectionEnd = textarea.selectionEnd;
   const lines = text.split('\n');
-  const undoStyle = lines.every((line) => line.startsWith(prefix) && line.endsWith(suffix));
+  // CHANGED
+  let prefixToUse = blockPrefix.length > 0 ? blockPrefix : prefix;
+  let suffixToUse = blockSuffix.length > 0 ? blockSuffix : prefixToUse == prefix ? suffix : '';
+  const undoStyle = lines.every((line) => line.startsWith(prefixToUse) && line.endsWith(suffixToUse));
+  // END CHANGED
 
   if (undoStyle) {
-    text = lines.map((line) => line.slice(prefix.length, line.length - suffix.length)).join('\n');
+    text = lines.map((line) => line.slice(prefixToUse.length, line.length - suffixToUse.length)).join('\n');
     selectionEnd = selectionStart + text.length;
   } else {
-    text = lines.map((line) => prefix + line + suffix).join('\n');
-    if (surroundWithNewlines) {
+    // CHANGED
+    text = lines.map((line) => prefixToUse + line + suffixToUse).join('\n');
+    if (surroundWithNewlines || suffixToUse === '') {
+      // END CHANGED
       const { newlinesToAppend, newlinesToPrepend } = newlinesToSurroundSelectedText(textarea);
       selectionStart += newlinesToAppend.length;
       selectionEnd = selectionStart + text.length;
@@ -221,54 +246,116 @@ function multilineStyle(textarea: HTMLTextAreaElement, arg: StyleArgs) {
   return { text, selectionStart, selectionEnd };
 }
 
-function orderedList(textarea: HTMLTextAreaElement): SelectionRange {
+interface UndoResult {
+  text: string;
+  processed: boolean;
+}
+function undoOrderedListStyle(text: string): UndoResult {
+  const lines = text.split('\n');
   const orderedListRegex = /^\d+\.\s+/;
-  const noInitialSelection = textarea.selectionStart === textarea.selectionEnd;
-  let selectionEnd;
-  let selectionStart;
-  let text = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
-  let textToUnstyle = text;
-  let lines = text.split('\n');
-  let startOfLine, endOfLine;
-  if (noInitialSelection) {
-    const linesBefore = textarea.value.slice(0, textarea.selectionStart).split(/\n/);
-    startOfLine = textarea.selectionStart - linesBefore[linesBefore.length - 1].length;
-    endOfLine = wordSelectionEnd(textarea.value, textarea.selectionStart, true);
-    textToUnstyle = textarea.value.slice(startOfLine, endOfLine);
+  const shouldUndoOrderedList = lines.every((line) => orderedListRegex.test(line));
+  let result = lines;
+  if (shouldUndoOrderedList) {
+    result = lines.map((line) => line.replace(orderedListRegex, ''));
   }
-  const linesToUnstyle = textToUnstyle.split('\n');
-  const undoStyling = linesToUnstyle.every((line) => orderedListRegex.test(line));
 
-  if (undoStyling) {
-    lines = linesToUnstyle.map((line) => line.replace(orderedListRegex, ''));
-    text = lines.join('\n');
-    if (noInitialSelection && startOfLine && endOfLine) {
-      const lengthDiff = linesToUnstyle[0].length - lines[0].length;
-      selectionStart = selectionEnd = textarea.selectionStart - lengthDiff;
-      textarea.selectionStart = startOfLine;
-      textarea.selectionEnd = endOfLine;
-    }
+  return {
+    text: result.join('\n'),
+    processed: shouldUndoOrderedList,
+  };
+}
+
+function undoUnorderedListStyle(text: string): UndoResult {
+  const lines = text.split('\n');
+  const unorderedListPrefix = '- ';
+  const shouldUndoUnorderedList = lines.every((line) => line.startsWith(unorderedListPrefix));
+  let result = lines;
+  if (shouldUndoUnorderedList) {
+    result = lines.map((line) => line.slice(unorderedListPrefix.length, line.length));
+  }
+
+  return {
+    text: result.join('\n'),
+    processed: shouldUndoUnorderedList,
+  };
+}
+
+function makePrefix(index: number, unorderedList: boolean): string {
+  if (unorderedList) {
+    return '- ';
   } else {
-    lines = numberedLines(lines);
-    text = lines.join('\n');
-    const { newlinesToAppend, newlinesToPrepend } = newlinesToSurroundSelectedText(textarea);
-    selectionStart = textarea.selectionStart + newlinesToAppend.length;
-    selectionEnd = selectionStart + text.length;
-    if (noInitialSelection) selectionStart = selectionEnd;
-    text = newlinesToAppend + text + newlinesToPrepend;
+    return `${index + 1}. `;
+  }
+}
+
+function clearExistingListStyle(style: StyleArgs, selectedText: string): [UndoResult, UndoResult, string] {
+  let undoResultOpositeList: UndoResult;
+  let undoResult: UndoResult;
+  let pristineText;
+  if (style.orderedList) {
+    undoResult = undoOrderedListStyle(selectedText);
+    undoResultOpositeList = undoUnorderedListStyle(undoResult.text);
+    pristineText = undoResultOpositeList.text;
+  } else {
+    undoResult = undoUnorderedListStyle(selectedText);
+    undoResultOpositeList = undoOrderedListStyle(undoResult.text);
+    pristineText = undoResultOpositeList.text;
+  }
+  return [undoResult, undoResultOpositeList, pristineText];
+}
+
+function listStyle(textarea: HTMLTextAreaElement, style: StyleArgs): SelectionRange {
+  const noInitialSelection = textarea.selectionStart === textarea.selectionEnd;
+  let selectionStart = textarea.selectionStart;
+  let selectionEnd = textarea.selectionEnd;
+
+  // Select whole line
+  expandSelectionToLine(textarea);
+
+  const selectedText = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+
+  // If the user intent was to do an undo, we will stop after this.
+  // Otherwise, we will still undo to other list type to prevent list stacking
+  const [undoResult, undoResultOpositeList, pristineText] = clearExistingListStyle(style, selectedText);
+
+  const prefixedLines = pristineText.split('\n').map((value, index) => {
+    return `${makePrefix(index, style.unorderedList)}${value}`;
+  });
+
+  const totalPrefixLength = prefixedLines.reduce((previousValue, _currentValue, currentIndex) => {
+    return previousValue + makePrefix(currentIndex, style.unorderedList).length;
+  }, 0);
+
+  const totalPrefixLengthOpositeList = prefixedLines.reduce((previousValue, _currentValue, currentIndex) => {
+    return previousValue + makePrefix(currentIndex, !style.unorderedList).length;
+  }, 0);
+
+  if (undoResult.processed) {
+    if (noInitialSelection) {
+      selectionStart = Math.max(selectionStart - makePrefix(0, style.unorderedList).length, 0);
+      selectionEnd = selectionStart;
+    } else {
+      selectionStart = textarea.selectionStart;
+      selectionEnd = textarea.selectionEnd - totalPrefixLength;
+    }
+    return { text: pristineText, selectionStart, selectionEnd };
+  }
+
+  const { newlinesToAppend, newlinesToPrepend } = newlinesToSurroundSelectedText(textarea);
+  const text = newlinesToAppend + prefixedLines.join('\n') + newlinesToPrepend;
+
+  if (noInitialSelection) {
+    selectionStart = Math.max(selectionStart + makePrefix(0, style.unorderedList).length + newlinesToAppend.length, 0);
+    selectionEnd = selectionStart;
+  } else {
+    if (undoResultOpositeList.processed) {
+      selectionStart = Math.max(textarea.selectionStart + newlinesToAppend.length, 0);
+      selectionEnd = textarea.selectionEnd + newlinesToAppend.length + totalPrefixLength - totalPrefixLengthOpositeList;
+    } else {
+      selectionStart = Math.max(textarea.selectionStart + newlinesToAppend.length, 0);
+      selectionEnd = textarea.selectionEnd + newlinesToAppend.length + totalPrefixLength;
+    }
   }
 
   return { text, selectionStart, selectionEnd };
-}
-
-function numberedLines(lines: string[]) {
-  let i;
-  let len;
-  let index;
-  const results = [];
-  for (index = i = 0, len = lines.length; i < len; index = ++i) {
-    const line = lines[index];
-    results.push(`${index + 1}. ${line}`);
-  }
-  return results;
 }
