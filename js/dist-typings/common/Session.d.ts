@@ -5,10 +5,8 @@ export declare type LoginParams = {
      * The username/email
      */
     identification: string;
-    /**
-     * Password
-     */
     password: string;
+    remember: boolean;
 };
 /**
  * The `Session` class defines the current user session. It stores a reference

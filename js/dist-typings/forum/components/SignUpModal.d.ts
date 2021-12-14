@@ -1,36 +1,43 @@
-/**
- * The `SignUpModal` component displays a modal dialog with a singup form.
- *
- * ### Attrs
- *
- * - `username`
- * - `email`
- * - `password`
- * - `token` An email token to sign up with.
- */
-export default class SignUpModal extends Modal<import("../../common/components/Modal").IInternalModalAttrs> {
-    constructor();
+/// <reference path="../../../src/common/translator-icu-rich.d.ts" />
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import ItemList from '../../common/utils/ItemList';
+import Stream from '../../common/utils/Stream';
+import type Mithril from 'mithril';
+export interface ISignupModalAttrs extends IInternalModalAttrs {
+    username?: string;
+    email?: string;
+    password?: string;
+    token?: string;
+    provided?: string[];
+}
+export declare type SignupBody = {
+    username: string;
+    email: string;
+} & ({
+    token: string;
+} | {
+    password: string;
+});
+export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignupModalAttrs> extends Modal<CustomAttrs> {
     /**
      * The value of the username input.
-     *
-     * @type {Function}
      */
-    username: Function | undefined;
+    username: Stream<string>;
     /**
      * The value of the email input.
-     *
-     * @type {Function}
      */
-    email: Function | undefined;
+    email: Stream<string>;
     /**
      * The value of the password input.
-     *
-     * @type {Function}
      */
-    password: Function | undefined;
-    isProvided(field: any): any;
-    body(): (string | JSX.Element)[];
-    fields(): ItemList<any>;
+    password: Stream<string>;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    className(): string;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    content(): JSX.Element[];
+    isProvided(field: string): boolean;
+    body(): (false | JSX.Element)[];
+    fields(): ItemList<unknown>;
     footer(): JSX.Element[];
     /**
      * Open the log in modal, prefilling it with an email/username/password if
@@ -38,14 +45,11 @@ export default class SignUpModal extends Modal<import("../../common/components/M
      *
      * @public
      */
-    public logIn(): void;
+    logIn(): void;
+    onready(): void;
+    onsubmit(e: SubmitEvent): void;
     /**
      * Get the data that should be submitted in the sign-up request.
-     *
-     * @return {Object}
-     * @protected
      */
-    protected submitData(): Object;
+    submitData(): SignupBody;
 }
-import Modal from "../../common/components/Modal";
-import ItemList from "../../common/utils/ItemList";
