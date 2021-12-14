@@ -15,7 +15,7 @@ export default class NotificationListState extends PaginatedListState<Notificati
    * Load the next page of notification results.
    */
   load(): Promise<void> {
-    if (app.session.user.newNotificationCount()) {
+    if (app.session.user?.newNotificationCount()) {
       this.pages = [];
       this.location = { page: 1 };
     }
@@ -24,7 +24,7 @@ export default class NotificationListState extends PaginatedListState<Notificati
       return Promise.resolve();
     }
 
-    app.session.user.pushAttributes({ newNotificationCount: 0 });
+    app.session.user?.pushAttributes({ newNotificationCount: 0 });
 
     return super.loadNext();
   }
@@ -35,7 +35,7 @@ export default class NotificationListState extends PaginatedListState<Notificati
   markAllAsRead() {
     if (this.pages.length === 0) return;
 
-    app.session.user.pushAttributes({ unreadNotificationCount: 0 });
+    app.session.user?.pushAttributes({ unreadNotificationCount: 0 });
 
     this.pages.forEach((page) => {
       page.items.forEach((notification) => notification.pushAttributes({ isRead: true }));

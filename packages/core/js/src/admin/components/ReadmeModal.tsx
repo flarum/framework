@@ -1,11 +1,21 @@
 import app from '../../admin/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Placeholder from '../../common/components/Placeholder';
 import ExtensionReadme from '../models/ExtensionReadme';
+import type Mithril from 'mithril';
+import type { Extension } from '../AdminApplication';
 
-export default class ReadmeModal extends Modal {
-  oninit(vnode) {
+export interface IReadmeModalAttrs extends IInternalModalAttrs {
+  extension: Extension;
+}
+
+export default class ReadmeModal<CustomAttrs extends IReadmeModalAttrs = IReadmeModalAttrs> extends Modal<CustomAttrs> {
+  protected name!: string;
+  protected extName!: string;
+  protected readme!: ExtensionReadme;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     app.store.models['extension-readmes'] = ExtensionReadme;

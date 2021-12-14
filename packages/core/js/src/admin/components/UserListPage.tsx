@@ -21,7 +21,7 @@ type ColumnData = {
   /**
    * Column title
    */
-  name: String;
+  name: Mithril.Children;
   /**
    * Component(s) to show for this column.
    */
