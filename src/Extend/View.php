@@ -14,6 +14,12 @@ use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
 
+/**
+ * 
+ * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
+ *
+ * Flarum's core uses them for error pages, the installer, HTML emails, and the skeletons for the forum and admin sites.
+ */
 class View implements ExtenderInterface, LifecycleInterface
 {
     private $namespaces = [];
@@ -23,8 +29,6 @@ class View implements ExtenderInterface, LifecycleInterface
     /**
      * Register a new namespace of Laravel views.
      *
-     * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
-     * Flarum core uses them for error pages, the installer, HTML emails, and the skeletons for the forum and admin sites.
      * To create and use views in your extension, you will need to put them in a folder, and register that folder as a namespace.
      *
      * Views can then be used in your extension by injecting an instance of `Illuminate\Contracts\View\Factory`,
@@ -48,8 +52,6 @@ class View implements ExtenderInterface, LifecycleInterface
      *
      * **If you're only replacing one or a few views, you probably want to `->prepend()` the new views instead.**
      *
-     * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
-     * Flarum core uses them for error pages, the installer, HTML emails, and the skeletons for the forum and admin sites.
      * To replace views, you will need to put them in a folder in your extension, and register that folder under an existing namespace.
      *
      * @param  string  $namespace: The name of the namespace.
@@ -67,8 +69,6 @@ class View implements ExtenderInterface, LifecycleInterface
     /**
      * Extend an existing namespace of Laravel views.
      *
-     * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
-     * Flarum core uses them for error pages, the installer, HTML emails, and the skeletons for the forum and admin sites.
      * To replace views within a namespace, you will need to put them in a folder in your extension, and register that folder under an existing namespace.
      *
      * @param  string  $namespace: The name of the namespace.
