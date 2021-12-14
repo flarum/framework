@@ -104,4 +104,32 @@ class ThemeTest extends TestCase
         $this->assertStringContainsString('Less_Exception_Compiler', $response->getBody()->getContents());
         $this->assertEquals(500, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function theme_extender_can_add_custom_function()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))
+                ->css(__DIR__.'/../../fixtures/less/custom_function.less'),
+            (new Extend\Theme)
+                ->addCustomLessFunction('is-flarum', function ($text) {
+                    return strtolower($text) === 'flarum' ? 'true' : 100;
+                })
+                ->addCustomLessFunction('is-gt', function ($a, $b) {
+                    return $a > $b;
+                })
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
+        $contents = file_get_contents($cssFilePath);
+
+        $this->assertStringContainsString('.dummy_func_test{color:green}', $contents);
+        $this->assertStringContainsString('.dummy_func_test2{--x:1000;--y:false}', $contents);
+    }
 }

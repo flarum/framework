@@ -1,0 +1,7 @@
+.dummy_func_test when (is-flarum("flarum") = true) {
+  color: green;
+}
+.dummy_func_test2 {
+  --x: is-flarum("not flarum") * 10;
+  --y: is-gt(1, 2);
+}
