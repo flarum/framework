@@ -5,6 +5,7 @@ import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Discussion from '../../common/models/Discussion';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `NotificationList` component displays a list of the logged-in user's
@@ -19,19 +20,30 @@ export default class NotificationList extends Component {
         <div className="NotificationList-header">
           <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('core.forum.notifications.title')}</h4>
 
-          <div className="App-primaryControl">
-            <Button
-              className="Button Button--link"
-              icon="fas fa-check"
-              title={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}
-              onclick={state.markAllAsRead.bind(state)}
-            />
-          </div>
+          <div className="App-primaryControl">{this.controlItems().toArray()}</div>
         </div>
 
         <div className="NotificationList-content">{this.content(state)}</div>
       </div>
     );
+  }
+
+  controlItems() {
+    const items = new ItemList();
+    const state = this.attrs.state;
+
+    items.add(
+      'mark_all_as_read',
+      <Button
+        className="Button Button--link"
+        icon="fas fa-check"
+        title={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}
+        onclick={state.markAllAsRead.bind(state)}
+      />,
+      70
+    );
+
+    return items;
   }
 
   content(state) {
