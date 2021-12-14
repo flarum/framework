@@ -10,10 +10,19 @@
 namespace Flarum\Notification\Command;
 
 use Carbon\Carbon;
+use Flarum\Notification\Event\Read;
 use Flarum\Notification\Notification;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class ReadNotificationHandler
 {
+    protected $events;
+
+    public function __construct(Dispatcher $events)
+    {
+        $this->events = $events;
+    }
+    
     /**
      * @param ReadNotification $command
      * @return \Flarum\Notification\Notification
@@ -36,6 +45,8 @@ class ReadNotificationHandler
 
         $notification->read_at = Carbon::now();
 
+        $this->events->dispatch(new Read($actor, $notification));
+        
         return $notification;
     }
 }
