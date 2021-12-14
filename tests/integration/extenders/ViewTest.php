@@ -52,7 +52,7 @@ class ViewTest extends TestCase
         $this->assertEquals('<html><body>Hello World!</body></html>', trim($viewFactory->make('flarum::test')->render()));
 
         // Expect to fail -- original namespace hint has been replaced
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageMatches("/(View \[.*\] not found\.)/");
         $viewFactory->make('flarum.forum::frontend.app')->render();
     }
