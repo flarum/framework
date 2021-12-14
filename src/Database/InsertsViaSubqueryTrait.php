@@ -42,8 +42,9 @@ trait InsertsViaSubqueryTrait
         $insertRowSubquery = static::query()->limit(1);
 
         foreach ($literalAttributes as $attrName => $value) {
-            //! DANGER!!! Literal Injection Vuln!!!
-            $insertRowSubquery->selectRaw("'$value' as $attrName");
+            $parameter = $query->getGrammar()->parameter($value);
+            $insertRowSubquery->addBinding($value, 'select');
+            $insertRowSubquery->selectRaw("'$parameter' as $attrName");
         }
 
         foreach (static::$subqueryAttributes as $attrName => $callback) {
