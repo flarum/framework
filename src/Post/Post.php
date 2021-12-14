@@ -104,8 +104,8 @@ class Post extends AbstractModel
 
         static::addGlobalScope(new RegisteredTypesScope);
 
-        static::$subqueryAttributes['number'] = function(Post $post) {
-            return static::query()->where('discussion_id', $post->discussion_id)->selectRaw("max(number)+1");
+        static::$subqueryAttributes['number'] = function (Post $post) {
+            return static::query()->where('discussion_id', $post->discussion_id)->selectRaw('max(number)+1');
         };
     }
 

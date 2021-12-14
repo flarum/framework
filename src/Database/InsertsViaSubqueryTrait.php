@@ -17,14 +17,14 @@ trait InsertsViaSubqueryTrait
     /**
      * A list that maps attribute names to callables that produce subqueries
      * used to calculate the inserted value.
-     * 
+     *
      * Each callable should take an instance of the model being saved,
      * and return an Eloquent query builder that queries for the subquery
      * generated value. The result of the query should be one row of one column.
-     * 
+     *
      * Subquery attributes should be added in the static `boot` method of models
      * using this trait.
-     * 
+     *
      * @var array<string, callable(AbstractModel): Builder>
      */
     protected static $subqueryAttributes = [];
@@ -63,5 +63,4 @@ trait InsertsViaSubqueryTrait
 
         $this->setAttribute($keyName, $id);
     }
-
 }
