@@ -121,17 +121,17 @@ export default class Store {
   pushObject<M extends Model>(data: SavedModelData, allowUnregistered: false): M;
   pushObject<M extends Model>(data: SavedModelData, allowUnregistered = true): M | null {
     if (!this.models[data.type]) {
-      if (allowUnregistered) {
-        return null;
-      }
-
-      fireDebugWarning(
-        `[Flarum 2.0 Deprecation] Cannot push object of type ${data.type}, as that type has not yet been registered in the store. This will throw an error in Flarum 2.0 and later.
+      if (!allowUnregistered) {
+        fireDebugWarning(
+          `[Flarum 2.0 Deprecation] Cannot push object of type ${data.type}, as that type has not yet been registered in the store. This will throw an error in Flarum 2.0 and later.
 
 You will need to register the model class for this type in the app store in the future.
 
 For more information, see https://github.com/flarum/core/pull/3206.`
-      );
+        );
+      }
+
+      return null;
     }
 
     const type = (this.data[data.type] = this.data[data.type] || {});
