@@ -14,7 +14,7 @@ use Flarum\Notification\Command\DeleteAllNotifications;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 
-class ReadAllNotificationsController extends AbstractDeleteController
+class DeleteAllNotificationsController extends AbstractDeleteController
 {
     /**
      * @var Dispatcher
