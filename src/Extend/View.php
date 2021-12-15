@@ -22,7 +22,6 @@ use Illuminate\Contracts\View\Factory;
 class View implements ExtenderInterface, LifecycleInterface
 {
     private $namespaces = [];
-    private $replaceNamespaces = [];
     private $prependNamespaces = [];
 
     /**
@@ -42,25 +41,6 @@ class View implements ExtenderInterface, LifecycleInterface
     public function namespace(string $namespace, $hints): self
     {
         $this->namespaces[$namespace] = $hints;
-
-        return $this;
-    }
-
-    /**
-     * Override an existing namespace of Laravel views.
-     *
-     * **If you're only replacing one or a few views, you probably want to `->prepend()` the new views instead.**
-     *
-     * To replace views, you will need to put them in a folder in your extension, and register that folder under an existing namespace.
-     *
-     * @param  string  $namespace: The name of the namespace.
-     * @param  string|string[]  $hints: This is a path (or an array of paths) to the folder(s)
-     *                               where view files are stored, relative to the extend.php file.
-     * @return self
-     */
-    public function replace(string $namespace, $hints): self
-    {
-        $this->replaceNamespaces[$namespace] = $hints;
 
         return $this;
     }
@@ -90,9 +70,6 @@ class View implements ExtenderInterface, LifecycleInterface
             }
             foreach ($this->prependNamespaces as $namespace => $hints) {
                 $view->prependNamespace($namespace, $hints);
-            }
-            foreach ($this->replaceNamespaces as $namespace => $hints) {
-                $view->replaceNamespace($namespace, $hints);
             }
         });
     }

@@ -40,25 +40,6 @@ class ViewTest extends TestCase
     /**
      * @test
      */
-    public function can_replace_view_namespace_by_extender()
-    {
-        $this->extend(
-            (new Extend\View)
-                ->replace('flarum', dirname(__FILE__, 3).'/fixtures/views')
-        );
-
-        /** @var Factory */
-        $viewFactory = $this->app()->getContainer()->make(Factory::class);
-
-        $this->assertEquals('<html><body>Hello World!</body></html>', trim($viewFactory->make('flarum::test')->render()));
-
-        // Original namespace hint has been replaced
-        $this->assertFalse($viewFactory->exists('flarum::frontend.app'));
-    }
-
-    /**
-     * @test
-     */
     public function can_prepend_view_namespace_by_extender()
     {
         $this->extend(
