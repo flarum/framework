@@ -52,6 +52,8 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
       );
     }
 
+    const emailLabel = extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'));
+
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
@@ -61,7 +63,8 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
               className="FormControl"
               name="email"
               type="email"
-              placeholder={extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'))}
+              placeholder={emailLabel}
+              aria-label={emailLabel}
               bidi={this.email}
               disabled={this.loading}
             />
