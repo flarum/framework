@@ -124,7 +124,7 @@ export default class Store {
       if (!allowUnregistered) {
         setTimeout(() =>
           fireDebugWarning(
-            `[Flarum 2.0 Deprecation] Cannot push object of type ${data.type}, as that type has not yet been registered in the store. This will throw an error in Flarum 2.0 and later.
+            `[Flarum 2.0 Deprecation] Cannot push object of type \`${data.type}\`, as that type has not yet been registered in the store. This will throw an error in Flarum 2.0 and later.
 
 For more information, see https://github.com/flarum/core/pull/3206.`
           )
