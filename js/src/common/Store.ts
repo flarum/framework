@@ -1,5 +1,6 @@
 import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
+import fireDebugWarning from './helpers/fireDebugWarning';
 import Model, { ModelData, SavedModelData } from './Model';
 
 export interface MetaInformation {
@@ -124,7 +125,11 @@ export default class Store {
         return null;
       }
 
-      throw new Error(`Cannot push object of type ${data.type}, as that type has not yet been registered in the store.`);
+      fireDebugWarning(
+        `[Flarum 2.0 Deprecation] Cannot push object of type ${data.type}, as that type has not yet been registered in the store. This will throw an error in Flarum 2.0 and later.
+
+You will need to register the model class for this type in the app store in the future.`
+      );
     }
 
     const type = (this.data[data.type] = this.data[data.type] || {});
