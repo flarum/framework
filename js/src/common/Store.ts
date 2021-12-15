@@ -128,7 +128,9 @@ export default class Store {
       fireDebugWarning(
         `[Flarum 2.0 Deprecation] Cannot push object of type ${data.type}, as that type has not yet been registered in the store. This will throw an error in Flarum 2.0 and later.
 
-You will need to register the model class for this type in the app store in the future.`
+You will need to register the model class for this type in the app store in the future.
+
+For more information, see https://github.com/flarum/core/pull/3206.`
       );
     }
 
