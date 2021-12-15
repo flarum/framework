@@ -10,7 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\RequestUtil;
-use Flarum\Notification\Command\DeleteAllNotifications;
+use Flarum\Notification\Command\ReadAllNotifications;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -35,7 +35,7 @@ class ReadAllNotificationsController extends AbstractDeleteController
     protected function delete(ServerRequestInterface $request)
     {
         $this->bus->dispatch(
-            new DeleteAllNotifications(RequestUtil::getActor($request))
+            new ReadAllNotifications(RequestUtil::getActor($request))
         );
     }
 }
