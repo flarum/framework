@@ -57,6 +57,9 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
   fields() {
     const items = new ItemList();
 
+    const identificationLabel = extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'));
+    const passwordLabel = extractText(app.translator.trans('core.forum.log_in.password_placeholder'));
+
     items.add(
       'identification',
       <div className="Form-group">
@@ -64,7 +67,8 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
           className="FormControl"
           name="identification"
           type="text"
-          placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
+          placeholder={identificationLabel}
+          aria-label={identificationLabel}
           bidi={this.identification}
           disabled={this.loading}
         />
@@ -80,7 +84,8 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
           name="password"
           type="password"
           autocomplete="current-password"
-          placeholder={extractText(app.translator.trans('core.forum.log_in.password_placeholder'))}
+          placeholder={passwordLabel}
+          aria-label={passwordLabel}
           bidi={this.password}
           disabled={this.loading}
         />
