@@ -68,6 +68,10 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
   fields() {
     const items = new ItemList();
 
+    const usernameLabel = extractText(app.translator.trans('core.forum.sign_up.username_placeholder'));
+    const emailLabel = extractText(app.translator.trans('core.forum.sign_up.email_placeholder'));
+    const passwordLabel = extractText(app.translator.trans('core.forum.sign_up.password_placeholder'));
+
     items.add(
       'username',
       <div className="Form-group">
@@ -75,7 +79,8 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
           className="FormControl"
           name="username"
           type="text"
-          placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
+          placeholder={usernameLabel}
+          aria-label={usernameLabel}
           bidi={this.username}
           disabled={this.loading || this.isProvided('username')}
         />
@@ -90,7 +95,8 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
           className="FormControl"
           name="email"
           type="email"
-          placeholder={extractText(app.translator.trans('core.forum.sign_up.email_placeholder'))}
+          placeholder={emailLabel}
+          aria-label={emailLabel}
           bidi={this.email}
           disabled={this.loading || this.isProvided('email')}
         />
@@ -107,7 +113,8 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
             name="password"
             type="password"
             autocomplete="new-password"
-            placeholder={extractText(app.translator.trans('core.forum.sign_up.password_placeholder'))}
+            placeholder={passwordLabel}
+            aria-label={passwordLabel}
             bidi={this.password}
             disabled={this.loading}
           />
