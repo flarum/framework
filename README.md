@@ -9,7 +9,6 @@
 <a href="https://github.styleci.io/repos/28257573"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="StyleCI"></a>
 </p>
 
-
 ## About Flarum
 
 **[Flarum](https://flarum.org/) is a delightfully simple discussion platform for your website.** It's fast and easy to use, with all the features you need to run a successful community. It is designed to be:
@@ -20,17 +19,19 @@
 
 * **Powerful and extensible.** Customize, extend, and integrate Flarum to suit your community. Flarum’s architecture is amazingly flexible, with a powerful Extension API.
 
+![screenshot](https://flarum.org/assets/img/home-screenshot.png)
+
 ## Installation
 
-This repository contains Flarum's core code. If you want to set up a forum, visit the [Flarum skeleton repository](https://github.com/flarum/flarum).
+This repository contains Flarum's core code. If you want to set up a forum, visit the [Flarum skeleton repository](https://github.com/flarum/flarum).  For support, refer to the [documentation](https://docs.flarum.org/), and ask questions on the [community forum](https://discuss.flarum.org/) or [Discord chat](https://flarum.org/discord/).
 
 ## Contributing
 
-Thank you for considering contributing to Flarum! Please read the **[Contributing guide](https://flarum.org/docs/contributing.html)** to learn how you can help.
+Thank you for considering contributing to Flarum! Please read the **[Contributing guide](https://docs.flarum.org/contributing)** to learn how you can help.
 
 ## Security Vulnerabilities
 
-If you discover a security vulnerability within Flarum, please send an e-mail to [security@flarum.org](mailto:security@flarum.org). All security vulnerabilities will be promptly addressed. More details can be found in our [security policy](https://github.com/flarum/core/security/policy).
+If you discover a security vulnerability within Flarum, please send an e-mail to [security@flarum.org](mailto:security@flarum.org).  All security vulnerabilities will be promptly addressed. More details can be found in our [security policy](https://github.com/flarum/core/security/policy).
 
 ## License
 
