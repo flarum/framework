@@ -19,11 +19,11 @@
 
 * **Powerful and extensible.** Customize, extend, and integrate Flarum to suit your community. Flarum’s architecture is amazingly flexible, with a powerful Extension API.
 
-![screenshot](https://flarum.org/assets/img/home-screenshot.png)
+![Screenshot of a Flarum instance, showing multiple discussions and tags.](https://flarum.org/assets/img/home-screenshot.png)
 
 ## Installation
 
-This repository contains Flarum's core code. If you want to set up a forum, visit the [Flarum skeleton repository](https://github.com/flarum/flarum).  For support, refer to the [documentation](https://docs.flarum.org/), and ask questions on the [community forum](https://discuss.flarum.org/) or [Discord chat](https://flarum.org/discord/).
+This repository contains Flarum's core code. If you want to set up a forum, visit the [Flarum skeleton repository](https://github.com/flarum/flarum). For support, refer to the [documentation](https://docs.flarum.org/), and ask questions on the [Flarum Discuss](https://discuss.flarum.org/) (our community forum) or [Discord server](https://flarum.org/discord/).
 
 ## Contributing
 
