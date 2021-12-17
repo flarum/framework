@@ -31,5 +31,6 @@ export default function fireDebugWarning(...args: Parameters<typeof console.warn
  * @see {@link fireDebugWarning}
  */
 export function fireDeprecationWarning(message: string, githubId: string, removedFrom: string = '2.0', repo: string = 'flarum/core'): void {
-  fireDebugWarning(`[Flarum ${removedFrom} Deprecation] ${message}\n\nSee: https://github.com/${repo}/issue/${githubId}`);
+  // GitHub auto-redirects between `/pull` and `/issues` for us, so using `/pull` saves 2 bytes!
+  fireDebugWarning(`[Flarum ${removedFrom} Deprecation] ${message}\n\nSee: https://github.com/${repo}/pull/${githubId}`);
 }
