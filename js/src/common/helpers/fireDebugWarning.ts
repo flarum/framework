@@ -27,7 +27,7 @@ export default function fireDebugWarning(...args: Parameters<typeof console.warn
  * @param githubId The PR or Issue ID with more info in relation to this change.
  * @param [removedFrom] The version in which this feature will be completely removed. (default: 2.0)
  * @param [repo] The repo which the issue or PR is located in. (default: flarum/core)
- * 
+ *
  * @see {@link fireDebugWarning}
  */
 export function fireDeprecationWarning(message: string, githubId: string, removedFrom: string = '2.0', repo: string = 'flarum/core'): void {
