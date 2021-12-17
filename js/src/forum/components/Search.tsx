@@ -53,13 +53,27 @@ export interface SearchAttrs extends ComponentAttrs {
  *
  * - state: SearchState instance.
  */
-export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T> {
+export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T, SearchState> {
   /**
    * The minimum query length before sources are searched.
    */
   protected static MIN_SEARCH_LEN = 3;
 
+  /**
+   * The instance of `SearchState` for this component.
+   */
   protected searchState!: SearchState;
+
+  /**
+   * The instance of `SearchState` for this component.
+   *
+   * @deprecated Replace with`this.searchState` instead.
+   */
+  // TODO: [Flarum 2.0] Remove this.
+  // @ts-expect-error This is a get accessor, while superclass defines this as a property. This is needed to prevent breaking changes, however.
+  protected get state() {
+    return this.searchState;
+  }
 
   /**
    * Whether or not the search input has focus.
