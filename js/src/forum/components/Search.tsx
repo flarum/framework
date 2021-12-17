@@ -74,6 +74,9 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
   protected get state() {
     return this.searchState;
   }
+  protected set state(state: SearchState) {
+    this.searchState = state;
+  }
 
   /**
    * Whether or not the search input has focus.
