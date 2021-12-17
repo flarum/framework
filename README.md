@@ -23,7 +23,7 @@
 
 ## Installation
 
-This repository contains Flarum's core code. If you want to set up a forum, visit the [Flarum skeleton repository](https://github.com/flarum/flarum). For support, refer to the [documentation](https://docs.flarum.org/), and ask questions on the [Flarum Discuss](https://discuss.flarum.org/) (our community forum) or [Discord server](https://flarum.org/discord/).
+This repository contains Flarum's core code. If you want to set up a forum, visit the [Flarum skeleton repository](https://github.com/flarum/flarum). For support, refer to the [documentation](https://docs.flarum.org/), and ask questions on [Flarum Discuss](https://discuss.flarum.org/) (our community forum) or [Discord server](https://flarum.org/discord/).
 
 ## Contributing
 
