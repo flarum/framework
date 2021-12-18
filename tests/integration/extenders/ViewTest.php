@@ -59,7 +59,6 @@ class ViewTest extends TestCase
             (new Extend\View)
                 ->extendNamespace('flarum', dirname(__FILE__, 3).'/fixtures/views/override')
         );
-        
 
         $response = $this->send(
             $this->request('GET', '/')
