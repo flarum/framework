@@ -48,14 +48,15 @@ class View implements ExtenderInterface, LifecycleInterface
     /**
      * Extend an existing namespace of Laravel views.
      *
-     * To replace views within a namespace, you will need to put them in a folder in your extension, and register that folder under an existing namespace.
+     * To extend an existing namespace, you will need to put views in a folder in your extension,
+     * and register that folder under the existing namespace with this extender.
      *
      * @param  string  $namespace: The name of the namespace.
      * @param  string|string[]  $hints: This is a path (or an array of paths) to the folder(s)
      *                               where view files are stored, relative to the extend.php file.
      * @return self
      */
-    public function prepend(string $namespace, $hints): self
+    public function extendNamespace(string $namespace, $hints): self
     {
         $this->prependNamespaces[$namespace] = $hints;
 

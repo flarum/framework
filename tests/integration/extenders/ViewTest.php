@@ -44,7 +44,7 @@ class ViewTest extends TestCase
     {
         $this->extend(
             (new Extend\View)
-                ->prepend('flarum', dirname(__FILE__, 3).'/fixtures/views')
+                ->extendNamespace('flarum', dirname(__FILE__, 3).'/fixtures/views')
         );
 
         $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('flarum::test')->render()));
