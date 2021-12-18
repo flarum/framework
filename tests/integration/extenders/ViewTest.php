@@ -64,6 +64,6 @@ class ViewTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $this->assertEquals('<html><body>We have overridden the core app view.</body></html>', $response->getBody()->getContents());
+        $this->assertEquals('<html><body>We have overridden the core app view.</body></html>', trim($response->getBody()->getContents()));
     }
 }
