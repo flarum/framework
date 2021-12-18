@@ -40,7 +40,7 @@ class ViewTest extends TestCase
     /**
      * @test
      */
-    public function can_prepend_view_namespace_by_extender()
+    public function can_add_view_to_namespace_by_prepend_extender()
     {
         $this->extend(
             (new Extend\View)
@@ -48,5 +48,23 @@ class ViewTest extends TestCase
         );
 
         $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('flarum::test')->render()));
+    }
+
+    /**
+     * @test
+     */
+    public function can_override_view_in_namespace_by_prepend_extender()
+    {
+        $this->extend(
+            (new Extend\View)
+                ->extendNamespace('flarum', dirname(__FILE__, 3).'/fixtures/views/override')
+        );
+        
+
+        $response = $this->send(
+            $this->request('GET', '/')
+        );
+
+        $this->assertEquals('<html><body>We have overridden the core app view.</body></html>', $response->getBody()->getContents());
     }
 }
