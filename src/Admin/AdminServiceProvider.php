@@ -28,7 +28,6 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\View\Factory as ViewFactory;
 use Laminas\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
@@ -122,9 +121,9 @@ class AdminServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
-    public function boot(ViewFactory $views)
+    public function boot()
     {
-        $views->addNamespace('flarum.admin', __DIR__.'/../../views');
+        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
         $events = $this->container->make('events');
 

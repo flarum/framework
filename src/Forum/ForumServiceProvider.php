@@ -33,7 +33,7 @@ use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Contracts\View\Factory;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -131,11 +131,11 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container, Dispatcher $events, ViewFactory $views)
+    public function boot(Container $container, Dispatcher $events, Factory $view)
     {
-        $views->addNamespace('flarum.forum', __DIR__.'/../../views');
+        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
-        $views->share([
+        $view->share([
             'translator' => $container->make(TranslatorInterface::class),
             'settings' => $container->make(SettingsRepositoryInterface::class)
         ]);

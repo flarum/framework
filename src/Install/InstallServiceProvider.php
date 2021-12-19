@@ -13,7 +13,6 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class InstallServiceProvider extends AbstractServiceProvider
 {
@@ -30,9 +29,9 @@ class InstallServiceProvider extends AbstractServiceProvider
     /**
      * {@inheritdoc}
      */
-    public function boot(Container $container, RouteHandlerFactory $route, ViewFactory $views)
+    public function boot(Container $container, RouteHandlerFactory $route)
     {
-        $views->addNamespace('flarum.install', __DIR__.'/../../views/install');
+        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
 
         $this->populateRoutes($container->make('flarum.install.routes'), $route);
     }
