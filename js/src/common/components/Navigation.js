@@ -65,7 +65,7 @@ export default class Navigation extends Component {
   getPaneButton() {
     const { pane } = app;
 
-    if (!pane || !pane.active) return '';
+    if (!pane || !pane.active) return null;
 
     return Button.component({
       className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
@@ -81,7 +81,7 @@ export default class Navigation extends Component {
    * @protected
    */
   getDrawerButton() {
-    if (!this.attrs.drawer) return '';
+    if (!this.attrs.drawer) return null;
 
     const { drawer } = app;
     const user = app.session.user;

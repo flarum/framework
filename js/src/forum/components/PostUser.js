@@ -29,7 +29,10 @@ export default class PostUser extends Component {
       );
     }
 
-    let card = '';
+    /**
+     * @type {import('mithril').Children}
+     */
+    let card = null;
 
     if (!post.isHidden() && this.attrs.cardVisible) {
       card = UserCard.component({

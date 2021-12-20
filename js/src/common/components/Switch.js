@@ -12,6 +12,6 @@ export default class Switch extends Checkbox {
   }
 
   getDisplay() {
-    return this.attrs.loading ? super.getDisplay() : '';
+    return !!this.attrs.loading && super.getDisplay();
   }
 }

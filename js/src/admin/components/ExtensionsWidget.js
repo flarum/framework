@@ -21,7 +21,7 @@ export default class ExtensionsWidget extends DashboardWidget {
 
     return (
       <div className="ExtensionsWidget-list">
-        {Object.keys(categories).map((category) => (this.categorizedExtensions[category] ? this.extensionCategory(category) : ''))}
+        {Object.keys(categories).map((category) => !!this.categorizedExtensions[category] && this.extensionCategory(category))}
       </div>
     );
   }
@@ -41,7 +41,7 @@ export default class ExtensionsWidget extends DashboardWidget {
         <Link href={app.route('extension', { id: extension.id })}>
           <div className="ExtensionListItem-content">
             <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-              {extension.icon ? icon(extension.icon.name) : ''}
+              {!!extension.icon && icon(extension.icon.name)}
             </span>
             <span className="ExtensionListItem-title">{extension.extra['flarum-extension'].title}</span>
           </div>

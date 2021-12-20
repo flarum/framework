@@ -175,7 +175,7 @@ export default class UserListPage extends AdminPage {
       'id',
       {
         name: app.translator.trans('core.admin.users.grid.columns.user_id.title'),
-        content: (user: User) => user.id() ?? '',
+        content: (user: User) => user.id() ?? null,
       },
       100
     );

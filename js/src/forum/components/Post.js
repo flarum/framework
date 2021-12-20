@@ -59,7 +59,7 @@ export default class Post extends Component {
           <aside className="Post-actions">
             <ul>
               {listItems(this.actionItems().toArray())}
-              {controls.length ? (
+              {!!controls.length && (
                 <li>
                   <Dropdown
                     className="Post-controls"
@@ -73,8 +73,6 @@ export default class Post extends Component {
                     {controls}
                   </Dropdown>
                 </li>
-              ) : (
-                ''
               )}
             </ul>
           </aside>
@@ -114,7 +112,7 @@ export default class Post extends Component {
    * @return {Array}
    */
   content() {
-    return [];
+    return null;
   }
 
   /**
@@ -124,7 +122,10 @@ export default class Post extends Component {
    * @returns {string[]}
    */
   classes(existing) {
-    let classes = (existing || '').split(' ').concat(['Post']);
+    const classes = (existing || '')
+      .split(' ')
+      .filter((x) => x.trim() !== '')
+      .concat(['Post']);
 
     const user = this.attrs.post.user();
     const discussion = this.attrs.post.discussion();

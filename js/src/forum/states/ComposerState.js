@@ -260,7 +260,7 @@ class ComposerState {
     // let the CSS decide how high it is. If it's fullscreen, then we need to
     // make it as high as the window.
     if (this.position === ComposerState.Position.MINIMIZED) {
-      return '';
+      return null;
     } else if (this.position === ComposerState.Position.FULLSCREEN) {
       return $(window).height();
     }

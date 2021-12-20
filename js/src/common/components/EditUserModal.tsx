@@ -89,7 +89,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                 disabled={this.nonAdminEditingAdmin()}
               />
             </div>
-            {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) ? (
+            {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) && (
               <div>
                 {Button.component(
                   {
@@ -100,8 +100,6 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                   app.translator.trans('core.lib.edit_user.activate_button')
                 )}
               </div>
-            ) : (
-              ''
             )}
           </div>,
           30
@@ -126,7 +124,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                 />
                 {app.translator.trans('core.lib.edit_user.set_password_label')}
               </label>
-              {this.setPassword() ? (
+              {this.setPassword() && (
                 <input
                   className="FormControl"
                   type="password"
@@ -135,8 +133,6 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                   bidi={this.password}
                   disabled={this.nonAdminEditingAdmin()}
                 />
-              ) : (
-                ''
               )}
             </div>
           </div>,

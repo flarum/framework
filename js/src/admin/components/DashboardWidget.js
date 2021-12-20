@@ -20,6 +20,6 @@ export default class DashboardWidget extends Component {
    * @return {VirtualElement}
    */
   content() {
-    return [];
+    return null;
   }
 }

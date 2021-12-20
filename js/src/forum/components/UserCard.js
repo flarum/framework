@@ -34,19 +34,18 @@ export default class UserCard extends Component {
       <div className={'UserCard ' + (this.attrs.className || '')} style={color && { '--usercard-bg': color }}>
         <div className="darkenBackground">
           <div className="container">
-            {controls.length
-              ? Dropdown.component(
-                  {
-                    className: 'UserCard-controls App-primaryControl',
-                    menuClassName: 'Dropdown-menu--right',
-                    buttonClassName: this.attrs.controlsButtonClassName,
-                    label: app.translator.trans('core.forum.user_controls.button'),
-                    accessibleToggleLabel: app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label'),
-                    icon: 'fas fa-ellipsis-v',
-                  },
-                  controls
-                )
-              : ''}
+            {!!controls.length &&
+              Dropdown.component(
+                {
+                  className: 'UserCard-controls App-primaryControl',
+                  menuClassName: 'Dropdown-menu--right',
+                  buttonClassName: this.attrs.controlsButtonClassName,
+                  label: app.translator.trans('core.forum.user_controls.button'),
+                  accessibleToggleLabel: app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label'),
+                  icon: 'fas fa-ellipsis-v',
+                },
+                controls
+              )}
 
             <div className="UserCard-profile">
               <h2 className="UserCard-identity">
@@ -60,7 +59,7 @@ export default class UserCard extends Component {
                 )}
               </h2>
 
-              {badges.length ? <ul className="UserCard-badges badges">{listItems(badges)}</ul> : ''}
+              {!!badges.length && <ul className="UserCard-badges badges">{listItems(badges)}</ul>}
 
               <ul className="UserCard-info">{listItems(this.infoItems().toArray())}</ul>
             </div>
