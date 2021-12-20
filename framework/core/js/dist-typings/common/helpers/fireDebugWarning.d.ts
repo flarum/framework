@@ -10,3 +10,17 @@
  * can fix.
  */
 export default function fireDebugWarning(...args: Parameters<typeof console.warn>): void;
+/**
+ * Fire a Flarum deprecation warning which is shown in the JS console.
+ *
+ * These warnings are only shown when the forum is in debug mode, and the function exists to
+ * reduce bundle size caused by multiple warnings across our JavaScript.
+ *
+ * @param message The message to display. (Short, but sweet, please!)
+ * @param githubId The PR or Issue ID with more info in relation to this change.
+ * @param [removedFrom] The version in which this feature will be completely removed. (default: 2.0)
+ * @param [repo] The repo which the issue or PR is located in. (default: flarum/core)
+ *
+ * @see {@link fireDebugWarning}
+ */
+export declare function fireDeprecationWarning(message: string, githubId: string, removedFrom?: string, repo?: string): void;
