@@ -1,11 +1,3 @@
-const later =
-  window.requestAnimationFrame ||
-  window.webkitRequestAnimationFrame ||
-  window.mozRequestAnimationFrame ||
-  window.msRequestAnimationFrame ||
-  window.oRequestAnimationFrame ||
-  ((callback) => window.setTimeout(callback, 1000 / 60));
-
 /**
  * The `ScrollListener` class sets up a listener that handles window scroll
  * events.
@@ -34,7 +26,7 @@ export default class ScrollListener {
 
     // Schedule the callback to be executed soon (TM), and stop throttling once
     // the callback is done.
-    later(() => {
+    requestAnimationFrame(() => {
       this.update();
       this.ticking = false;
     });
