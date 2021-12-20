@@ -100,8 +100,6 @@ export default class PostsUserPage extends UserPage {
 
   /**
    * Clear and reload the user's activity feed.
-   *
-   * @public
    */
   refresh() {
     this.loading = true;
@@ -132,8 +130,6 @@ export default class PostsUserPage extends UserPage {
 
   /**
    * Load the next page of results.
-   *
-   * @public
    */
   loadMore() {
     this.loading = true;

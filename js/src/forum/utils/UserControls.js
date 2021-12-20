@@ -17,7 +17,6 @@ export default {
    * @param {import('../../common/Component').default<any, any>}  context The parent component under which the controls menu will be displayed.
    *
    * @return {ItemList<import('mithril').Children>}
-   * @public
    */
   controls(user, context) {
     const items = new ItemList();

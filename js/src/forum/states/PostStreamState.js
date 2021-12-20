@@ -60,8 +60,6 @@ class PostStreamState {
   /**
    * Update the stream so that it loads and includes the latest posts in the
    * discussion, if the end is being viewed.
-   *
-   * @public
    */
   update() {
     if (!this.viewingEnd()) return Promise.resolve();

@@ -6,7 +6,6 @@ export default class ScrollListener {
   /**
    * @param {(top: number) => void} callback The callback to run when the scroll position
    *     changes.
-   * @public
    */
   constructor(callback) {
     this.callback = callback;
@@ -36,8 +35,6 @@ export default class ScrollListener {
 
   /**
    * Run the callback, whether there was a scroll event or not.
-   *
-   * @public
    */
   update() {
     this.callback(window.pageYOffset);
@@ -45,8 +42,6 @@ export default class ScrollListener {
 
   /**
    * Start listening to and handling the window's scroll position.
-   *
-   * @public
    */
   start() {
     if (!this.active) {
@@ -56,8 +51,6 @@ export default class ScrollListener {
 
   /**
    * Stop listening to and handling the window's scroll position.
-   *
-   * @public
    */
   stop() {
     window.removeEventListener('scroll', this.active);

@@ -42,7 +42,6 @@ class ComposerState {
    * Load a content component into the composer.
    *
    * @param {typeof import('../components/ComposerBody').default} componentClass
-   * @public
    */
   load(componentClass, attrs) {
     const body = { componentClass, attrs };
@@ -82,8 +81,6 @@ class ComposerState {
 
   /**
    * Show the composer.
-   *
-   * @public
    */
   show() {
     if (this.position === ComposerState.Position.NORMAL || this.position === ComposerState.Position.FULLSCREEN) return;
@@ -94,8 +91,6 @@ class ComposerState {
 
   /**
    * Close the composer.
-   *
-   * @public
    */
   hide() {
     this.clear();
@@ -105,8 +100,6 @@ class ComposerState {
   /**
    * Confirm with the user so they don't lose their content, then close the
    * composer.
-   *
-   * @public
    */
   close() {
     if (this.preventExit()) return;
@@ -116,8 +109,6 @@ class ComposerState {
 
   /**
    * Minimize the composer. Has no effect if the composer is hidden.
-   *
-   * @public
    */
   minimize() {
     if (!this.isVisible()) return;
@@ -129,8 +120,6 @@ class ComposerState {
   /**
    * Take the composer into fullscreen mode. Has no effect if the composer is
    * hidden.
-   *
-   * @public
    */
   fullScreen() {
     if (!this.isVisible()) return;
@@ -141,8 +130,6 @@ class ComposerState {
 
   /**
    * Exit fullscreen mode.
-   *
-   * @public
    */
   exitFullScreen() {
     if (this.position !== ComposerState.Position.FULLSCREEN) return;
