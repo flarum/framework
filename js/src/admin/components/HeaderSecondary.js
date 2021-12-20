@@ -28,7 +28,7 @@ export default class HeaderSecondary extends Component {
       </LinkButton>
     );
 
-    items.add('session', SessionDropdown.component());
+    items.add('session', <SessionDropdown />);
 
     return items;
   }

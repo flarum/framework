@@ -20,6 +20,6 @@ export default class DashboardWidget extends Component {
    * @return {import('mithril').Children}
    */
   content() {
-    return [];
+    return null;
   }
 }
