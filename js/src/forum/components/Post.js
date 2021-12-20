@@ -6,6 +6,7 @@ import PostControls from '../utils/PostControls';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
+import classList from '../../common/utils/classList';
 
 /**
  * The `Post` component displays a single post. The basic post template just
@@ -124,27 +125,14 @@ export default class Post extends Component {
    * @returns {string[]}
    */
   classes(existing) {
-    const classes = (existing || '')
-      .split(' ')
-      .filter((x) => x.trim() !== '')
-      .concat(['Post']);
-
     const user = this.attrs.post.user();
     const discussion = this.attrs.post.discussion();
 
-    if (this.loading) {
-      classes.push('Post--loading');
-    }
-
-    if (user && user === app.session.user) {
-      classes.push('Post--by-actor');
-    }
-
-    if (user && user.id() === discussion.attribute('startUserId')) {
-      classes.push('Post--by-start-user');
-    }
-
-    return classes;
+    return classList(existing, 'Post', {
+      'Post--loading': this.loading,
+      'Post--by-actor': user === app.session.user,
+      'Post--by-start-user': user?.id() === discussion.attribute('startUserId'),
+    });
   }
 
   /**
