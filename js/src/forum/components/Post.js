@@ -132,7 +132,9 @@ export default class Post extends Component {
       'Post--loading': this.loading,
       'Post--by-actor': user === app.session.user,
       'Post--by-start-user': user?.id() === discussion.attribute('startUserId'),
-    }).split(' ').filter(x => !!x);
+    })
+      .split(' ')
+      .filter((x) => !!x);
   }
 
   /**
