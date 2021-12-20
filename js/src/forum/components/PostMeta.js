@@ -51,8 +51,8 @@ export default class PostMeta extends Component {
   /**
    * Get the permalink for the given post.
    *
-   * @param {Post} post
-   * @returns {String}
+   * @param {import('../../common/models/Post').default} post
+   * @returns {string}
    */
   getPermalink(post) {
     return app.forum.attribute('baseUrl') + app.route.post(post);

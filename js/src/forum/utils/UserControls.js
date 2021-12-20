@@ -13,10 +13,10 @@ export default {
   /**
    * Get a list of controls for a user.
    *
-   * @param {User} user
-   * @param {*} context The parent component under which the controls menu will
-   *     be displayed.
-   * @return {ItemList}
+   * @param {import('../../common/models/User').default} user
+   * @param {typeof import('../../common/Component').default} context The parent component under which the controls menu will be displayed.
+   *
+   * @return {ItemList<import('mithril').Children>}
    * @public
    */
   controls(user, context) {
@@ -36,10 +36,10 @@ export default {
   /**
    * Get controls for a user pertaining to the current user (e.g. poke, follow).
    *
-   * @param {User} user
-   * @param {*} context The parent component under which the controls menu will
-   *     be displayed.
-   * @return {ItemList}
+   * @param {import('../../common/models/User').default} user
+   * @param {typeof import('../../common/Component').default} context The parent component under which the controls menu will be displayed.
+   *
+   * @return {ItemList<import('mithril').Children>}
    * @protected
    */
   userControls() {
@@ -49,10 +49,10 @@ export default {
   /**
    * Get controls for a user pertaining to moderation (e.g. suspend, edit).
    *
-   * @param {User} user
-   * @param {*} context The parent component under which the controls menu will
-   *     be displayed.
-   * @return {ItemList}
+   * @param {import('../../common/models/User').default} user
+   * @param {typeof import('../../common/Component').default} context The parent component under which the controls menu will be displayed.
+   *
+   * @return {ItemList<import('mithril').Children>}
    * @protected
    */
   moderationControls(user) {
@@ -73,10 +73,10 @@ export default {
   /**
    * Get controls for a user which are destructive (e.g. delete).
    *
-   * @param {User} user
-   * @param {*} context The parent component under which the controls menu will
-   *     be displayed.
-   * @return {ItemList}
+   * @param {import('../../common/models/User').default} user
+   * @param {typeof import('../../common/Component').default} context The parent component under which the controls menu will be displayed.
+   *
+   * @return {ItemList<import('mithril').Children>}
    * @protected
    */
   destructiveControls(user) {
@@ -97,7 +97,7 @@ export default {
   /**
    * Delete the user.
    *
-   * @param {User} user
+   * @param {import('../../common/models/User').default} user
    */
   deleteAction(user) {
     if (!confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
@@ -120,7 +120,7 @@ export default {
   /**
    * Show deletion alert of user.
    *
-   * @param {User} user
+   * @param {import('../../common/models/User').default} user
    * @param {string} type
    */
   showDeletionAlert(user, type) {
@@ -141,7 +141,7 @@ export default {
   /**
    * Edit the user.
    *
-   * @param {User} user
+   * @param {import('../../common/models/User').default} user
    */
   editAction(user) {
     app.modal.show(EditUserModal, { user });

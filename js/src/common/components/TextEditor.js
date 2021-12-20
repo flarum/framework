@@ -90,7 +90,7 @@ export default class TextEditor extends Component {
   /**
    * Build an item list for the text editor controls.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   controlItems() {
     const items = new ItemList();
@@ -123,7 +123,7 @@ export default class TextEditor extends Component {
   /**
    * Build an item list for the toolbar controls.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   toolbarItems() {
     return new ItemList();
@@ -132,7 +132,7 @@ export default class TextEditor extends Component {
   /**
    * Handle input into the textarea.
    *
-   * @param {String} value
+   * @param {string} value
    */
   oninput(value) {
     this.value = value;

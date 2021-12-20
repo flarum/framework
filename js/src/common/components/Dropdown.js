@@ -103,7 +103,7 @@ export default class Dropdown extends Component {
   /**
    * Get the template for the button.
    *
-   * @return {*}
+   * @return {import('mithril').Children}
    * @protected
    */
   getButton(children) {
@@ -123,7 +123,7 @@ export default class Dropdown extends Component {
   /**
    * Get the template for the button's content.
    *
-   * @return {*}
+   * @return {import('mithril').Children}
    * @protected
    */
   getButtonContent(children) {

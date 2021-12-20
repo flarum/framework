@@ -76,7 +76,7 @@ export default class ComposerBody extends Component {
   /**
    * Check if there is any unsaved data.
    *
-   * @return {String}
+   * @return {boolean}
    */
   hasChanges() {
     const content = this.composer.fields.content();
@@ -87,7 +87,7 @@ export default class ComposerBody extends Component {
   /**
    * Build an item list for the composer's header.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   headerItems() {
     return new ItemList();

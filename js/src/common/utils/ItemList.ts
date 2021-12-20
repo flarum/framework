@@ -303,7 +303,7 @@ export default class ItemList<T> {
    *
    * @param content The item's content (objects only)
    * @param key The item's key
-   * @returns Proxied content
+   * @return Proxied content
    *
    * @internal
    */

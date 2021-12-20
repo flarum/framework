@@ -38,7 +38,7 @@ export default class PostsUserPage extends UserPage {
     /**
      * The number of activity items to load per request.
      *
-     * @type {Integer}
+     * @type {number}
      */
     this.loadLimit = 20;
 
@@ -115,8 +115,8 @@ export default class PostsUserPage extends UserPage {
   /**
    * Load a new page of the user's activity feed.
    *
-   * @param {Integer} [offset] The position to start getting results from.
-   * @return {Promise}
+   * @param {number} [offset] The position to start getting results from.
+   * @return {Promise<import('../../common/models/Post').default[]>}
    * @protected
    */
   loadResults(offset) {
@@ -143,8 +143,8 @@ export default class PostsUserPage extends UserPage {
   /**
    * Parse results and append them to the activity feed.
    *
-   * @param {Post[]} results
-   * @return {Post[]}
+   * @param {import('../../common/models/Post').default[]} results
+   * @return {import('../../common/models/Post').default[]}
    */
   parseResults(results) {
     this.loading = false;

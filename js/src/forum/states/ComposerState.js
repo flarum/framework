@@ -17,7 +17,7 @@ class ComposerState {
      * The composer's intended height, which can be modified by the user
      * (by dragging the composer handle).
      *
-     * @type {Integer}
+     * @type {number}
      */
     this.height = null;
 
@@ -41,7 +41,7 @@ class ComposerState {
   /**
    * Load a content component into the composer.
    *
-   * @param {ComposerBody} componentClass
+   * @param {typeof import('../components/ComposerBody').default} componentClass
    * @public
    */
   load(componentClass, attrs) {
@@ -154,8 +154,7 @@ class ComposerState {
   /**
    * Determine whether the body matches the given component class and data.
    *
-   * @param {object} type The component class to check against. Subclasses are
-   *                      accepted as well.
+   * @param {object} type The component class to check against. Subclasses are accepted as well.
    * @param {object} data
    * @return {boolean}
    */
@@ -186,8 +185,7 @@ class ComposerState {
    * This will be true if the Composer is in full-screen mode on desktop,
    * or if we are on a mobile device, where we always consider the composer as full-screen..
    *
-   * @return {Boolean}
-   * @public
+   * @return {boolean}
    */
   isFullScreen() {
     return this.position === ComposerState.Position.FULLSCREEN || app.screen() === 'phone';
@@ -197,8 +195,8 @@ class ComposerState {
    * Check whether or not the user is currently composing a reply to a
    * discussion.
    *
-   * @param {Discussion} discussion
-   * @return {Boolean}
+   * @param {import('../../common/models/Discussion').default} discussion
+   * @return {boolean}
    */
   composingReplyTo(discussion) {
     return this.isVisible() && this.bodyMatches(ReplyComposer, { discussion });
@@ -208,7 +206,7 @@ class ComposerState {
    * Confirm with the user that they want to close the composer and lose their
    * content.
    *
-   * @return {Boolean} Whether or not the exit was cancelled.
+   * @return {boolean} Whether or not the exit was cancelled.
    */
   preventExit() {
     if (!this.isVisible()) return;
@@ -226,8 +224,8 @@ class ComposerState {
    * confirmation is necessary. If the callback returns true at the time of
    * closing, the provided text will be shown in a standard confirmation dialog.
    *
-   * @param {Function} callback
-   * @param {String} message
+   * @param {() => boolean} callback
+   * @param {string} message
    */
   preventClosingWhen(callback, message) {
     this.onExit = { callback, message };
@@ -235,7 +233,7 @@ class ComposerState {
 
   /**
    * Minimum height of the Composer.
-   * @returns {Integer}
+   * @returns {number}
    */
   minimumHeight() {
     return 200;
@@ -243,7 +241,7 @@ class ComposerState {
 
   /**
    * Maxmimum height of the Composer.
-   * @returns {Integer}
+   * @returns {number}
    */
   maximumHeight() {
     return $(window).height() - $('#header').outerHeight();
@@ -251,9 +249,9 @@ class ComposerState {
 
   /**
    * Computed the composer's current height, based on the intended height, and
-   * the composer's current state. This will be applied to the composer's
+   * the composer's current state. This will be applied to the composer
    * content's DOM element.
-   * @returns {Integer|String}
+   * @returns {number | string}
    */
   computedHeight() {
     // If the composer is minimized, then we don't want to set a height; we'll
