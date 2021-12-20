@@ -9,8 +9,8 @@ import icon from '../../common/helpers/icon';
 import SearchState from '../states/SearchState';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
+import { fireDeprecationWarning } from '../../common/helpers/fireDebugWarning';
 import type Mithril from 'mithril';
-import Model from '../../common/Model';
 
 /**
  * The `SearchSource` interface defines a section of search results in the
@@ -53,13 +53,32 @@ export interface SearchAttrs extends ComponentAttrs {
  *
  * - state: SearchState instance.
  */
-export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T> {
+export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T, SearchState> {
   /**
    * The minimum query length before sources are searched.
    */
   protected static MIN_SEARCH_LEN = 3;
 
+  /**
+   * The instance of `SearchState` for this component.
+   */
   protected searchState!: SearchState;
+
+  /**
+   * The instance of `SearchState` for this component.
+   *
+   * @deprecated Replace with`this.searchState` instead.
+   */
+  // TODO: [Flarum 2.0] Remove this.
+  // @ts-expect-error This is a get accessor, while superclass defines this as a property. This is needed to prevent breaking changes, however.
+  protected get state() {
+    fireDeprecationWarning('`state` property of the Search component is deprecated', '3212');
+    return this.searchState;
+  }
+  protected set state(state: SearchState) {
+    fireDeprecationWarning('`state` property of the Search component is deprecated', '3212');
+    this.searchState = state;
+  }
 
   /**
    * Whether or not the search input has focus.
