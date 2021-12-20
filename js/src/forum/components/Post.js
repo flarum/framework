@@ -133,11 +133,11 @@ export default class Post extends Component {
       classes.push('Post--loading');
     }
 
-    if (user && user === app.session.user) {
+    if (user === app.session.user) {
       classes.push('Post--by-actor');
     }
 
-    if (user && user.id() === discussion.attribute('startUserId')) {
+    if (user?.id() === discussion.attribute('startUserId')) {
       classes.push('Post--by-start-user');
     }
 

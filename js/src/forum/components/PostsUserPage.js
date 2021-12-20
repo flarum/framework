@@ -149,7 +149,7 @@ export default class PostsUserPage extends UserPage {
   parseResults(results) {
     this.loading = false;
 
-    [].push.apply(this.posts, results);
+    this.posts.push(results);
 
     this.moreResults = results.length >= this.loadLimit;
     m.redraw();
