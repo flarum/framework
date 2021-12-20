@@ -122,10 +122,7 @@ export default class Post extends Component {
    * @returns {string[]}
    */
   classes(existing) {
-    const classes = (existing || '')
-      .split(' ')
-      .filter((x) => x.trim() !== '')
-      .concat(['Post']);
+    let classes = (existing || '').split(' ').concat(['Post']);
 
     const user = this.attrs.post.user();
     const discussion = this.attrs.post.discussion();
