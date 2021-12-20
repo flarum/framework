@@ -37,7 +37,7 @@ export default class Dropdown extends Component {
   }
 
   view(vnode) {
-    const items = vnode.children ? listItems(vnode.children) : [];
+    const items = vnode.children ? listItems(vnode.children) : null;
     const renderItems = this.attrs.lazyDraw ? this.showing : true;
 
     return (

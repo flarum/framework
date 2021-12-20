@@ -39,7 +39,7 @@ export default class UsersSearchResults implements SearchSource {
       .filter((e, i, arr) => arr.lastIndexOf(e) === i)
       .sort((a, b) => a.displayName().localeCompare(b.displayName()));
 
-    if (!results.length) return [];
+    if (!results.length) return null;
 
     return [
       <li className="Dropdown-header">{app.translator.trans('core.forum.search.users_heading')}</li>,
