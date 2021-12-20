@@ -1,6 +1,6 @@
 import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
-import fireDebugWarning from './helpers/fireDebugWarning';
+import { fireDeprecationWarning } from './helpers/fireDebugWarning';
 import Model, { ModelData, SavedModelData } from './Model';
 
 export interface MetaInformation {
@@ -123,11 +123,7 @@ export default class Store {
     if (!this.models[data.type]) {
       if (!allowUnregistered) {
         setTimeout(() =>
-          fireDebugWarning(
-            `[Flarum 2.0 Deprecation] Cannot push object of type \`${data.type}\`, as that type has not yet been registered in the store. This will throw an error in Flarum 2.0 and later.
-
-For more information, see https://github.com/flarum/core/pull/3206.`
-          )
+          fireDeprecationWarning(`Pushing object of type \`${data.type}\` not allowed, as type not yet registered in the store.`, '3206')
         );
       }
 
