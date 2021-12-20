@@ -355,7 +355,7 @@ class User extends AbstractModel
     // TODO: remove this in Flarum 2.0
     /**
      * Activate the user's account.
-     * 
+     *
      * Please use `->confirmEmail()` instead.
      *
      * @return $this
