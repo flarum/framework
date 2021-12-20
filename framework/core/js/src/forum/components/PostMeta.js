@@ -55,6 +55,6 @@ export default class PostMeta extends Component {
    * @returns {String}
    */
   getPermalink(post) {
-    return window.location.origin + app.route.post(post);
+    return app.forum.attribute('baseUrl') + app.route.post(post);
   }
 }
