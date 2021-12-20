@@ -367,7 +367,7 @@ class User extends AbstractModel
     }
 
     /**
-     * Activate the user's account.
+     * Mark the user's email as confirmed.
      *
      * @return $this
      */
@@ -383,7 +383,7 @@ class User extends AbstractModel
     }
 
     /**
-     * Deactivate the user's account.
+     * Mark the user's email as not confirmed.
      *
      * @return $this
      */
