@@ -70,7 +70,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // we'll just close it.
     app.pane?.disable();
 
-    if (app.composer.composingReplyTo(this.discussion) && !app.composer?.fields?.content()) {
+    if (this.discussion && app.composer.composingReplyTo(this.discussion) && !app.composer?.fields?.content()) {
       app.composer.hide();
     } else {
       app.composer.minimize();
@@ -232,19 +232,21 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   sidebarItems() {
     const items = new ItemList<Mithril.Children>();
 
-    items.add(
-      'controls',
-      SplitDropdown.component(
-        {
-          icon: 'fas fa-ellipsis-v',
-          className: 'App-primaryControl',
-          buttonClassName: 'Button--primary',
-          accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
-        },
-        DiscussionControls.controls(this.discussion, this).toArray()
-      ),
-      100
-    );
+    if (this.discussion) {
+      items.add(
+        'controls',
+        SplitDropdown.component(
+          {
+            icon: 'fas fa-ellipsis-v',
+            className: 'App-primaryControl',
+            buttonClassName: 'Button--primary',
+            accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
+          },
+          DiscussionControls.controls(this.discussion, this).toArray()
+        ),
+        100
+      );
+    }
 
     items.add(
       'scrubber',

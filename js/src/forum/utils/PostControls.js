@@ -14,7 +14,7 @@ export default {
    * Get a list of controls for a post.
    *
    * @param {import('../../common/models/Post').default} post
-   * @param {typeof import('../../common/Component').default} context The parent component under which the controls menu will be displayed.
+   * @param {import('../../common/Component').default<any, any>}  context The parent component under which the controls menu will be displayed.
    *
    * @return {ItemList<import('mithril').Children>}')}
    * @public
@@ -37,7 +37,7 @@ export default {
    * Get controls for a post pertaining to the current user (e.g. report).
    *
    * @param {import('../../common/models/Post').default} post
-   * @param {typeof import('../../common/Component').default} context The parent component under which the controls menu will be displayed.
+   * @param {import('../../common/Component').default<any, any>}  context The parent component under which the controls menu will be displayed.
    *
    * @return {ItemList<import('mithril').Children>}')}
    * @protected
@@ -50,7 +50,7 @@ export default {
    * Get controls for a post pertaining to moderation (e.g. edit).
    *
    * @param {import('../../common/models/Post').default} post
-   * @param {typeof import('../../common/Component').default} context The parent component under which the controls menu will be displayed.
+   * @param {import('../../common/Component').default<any, any>}  context The parent component under which the controls menu will be displayed.
    *
    * @return {ItemList<import('mithril').Children>}')}
    * @protected
@@ -80,7 +80,7 @@ export default {
    * Get controls for a post that are destructive (e.g. delete).
    *
    * @param {import('../../common/models/Post').default} post
-   * @param {typeof import('../../common/Component').default} context The parent component under which the controls menu will be displayed.
+   * @param {import('../../common/Component').default<any, any>}  context The parent component under which the controls menu will be displayed.
    *
    * @return {ItemList<import('mithril').Children>}')}
    * @protected
