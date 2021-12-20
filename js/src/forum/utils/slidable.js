@@ -4,7 +4,7 @@
  * controls.
  *
  * It relies on the element having children with particular CSS classes.
- * 
+ *
  * The function returns a record with a `reset` proeprty. This is a function
  * which reverts the slider to its original position. This should be called,
  * for example, when a controls dropdown is closed.
