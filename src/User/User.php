@@ -352,12 +352,26 @@ class User extends AbstractModel
         return $valid;
     }
 
+    // TODO: remove this in Flarum 2.0
+    /**
+     * Activate the user's account.
+     * 
+     * Please use `->confirmEmail()` instead.
+     *
+     * @return $this
+     * @deprecated
+     */
+    public function activate()
+    {
+        return $this->confirmEmail();
+    }
+
     /**
      * Activate the user's account.
      *
      * @return $this
      */
-    public function activate()
+    public function confirmEmail()
     {
         if (! $this->is_email_confirmed) {
             $this->is_email_confirmed = true;
@@ -373,7 +387,7 @@ class User extends AbstractModel
      *
      * @return $this
      */
-    public function deactivate()
+    public function unconfirmEmail()
     {
         if ($this->is_email_confirmed !== false) {
             $this->is_email_confirmed = false;

@@ -107,7 +107,7 @@ class RegisterUserHandler
         }
 
         if ($actor->isAdmin() && Arr::get($data, 'attributes.isEmailConfirmed')) {
-            $user->activate();
+            $user->confirmEmail();
         }
 
         $this->events->dispatch(
@@ -138,7 +138,7 @@ class RegisterUserHandler
             $user->$k = $v;
 
             if ($k === 'email') {
-                $user->activate();
+                $user->confirmEmail();
             }
         }
 

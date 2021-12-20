@@ -41,10 +41,11 @@ class ConfirmEmailHandler
         /** @var EmailToken $token */
         $token = EmailToken::validOrFail($command->token);
 
+        /** @var \Flarum\User\User */
         $user = $token->user;
         $user->changeEmail($token->email);
 
-        $user->activate();
+        $user->confirmEmail();
 
         $user->save();
         $this->dispatchEventsFor($user);

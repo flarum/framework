@@ -86,9 +86,9 @@ class EditUserHandler
             $actor->assertAdmin();
 
             if ($attributes['isEmailConfirmed'] === false) {
-                $user->deactivate();
+                $user->unconfirmEmail();
             } else {
-                $user->activate();
+                $user->confirmEmail();
             }
         }
 
