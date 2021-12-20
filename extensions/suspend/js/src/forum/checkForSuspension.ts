@@ -7,7 +7,7 @@ export default function () {
     if (app.session.user) {
       const message = app.session.user.suspendMessage();
       const until = app.session.user.suspendedUntil();
-      const alreadyDisplayed = localStorage.getItem(localStorageKey()) === until.getTime().toString();
+      const alreadyDisplayed = localStorage.getItem(localStorageKey()) === until?.getTime().toString();
 
       if (message && !alreadyDisplayed) {
         app.modal.show(SuspensionInfoModal, { message, until });
