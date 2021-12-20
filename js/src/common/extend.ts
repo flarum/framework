@@ -23,7 +23,7 @@
  * @param methods The name or names of the method(s) to extend
  * @param callback A callback which mutates the method's output
  */
-export function extend<T extends Record<any, any>, K extends KeyOfType<T, Function>>(
+export function extend<T extends Record<string, any>, K extends KeyOfType<T, Function>>(
   object: T,
   methods: K | K[],
   callback: (this: T, val: ReturnType<T[K]>, ...args: Parameters<T[K]>) => void

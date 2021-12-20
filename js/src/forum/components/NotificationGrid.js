@@ -19,7 +19,7 @@ export default class NotificationGrid extends Component {
     /**
      * Information about the available notification methods.
      *
-     * @type {({ name: string, icon: string, label: import('@askvortsov/rich-icu-message-formatter').NestedStringArray })[]}
+     * @type {({ name: string, icon: string, label: import('mithril').Children })[]}
      */
     this.methods = this.notificationMethods().toArray();
 

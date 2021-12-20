@@ -133,7 +133,7 @@ export default class Post extends Component {
       classes.push('Post--loading');
     }
 
-    if (user === app.session.user) {
+    if (user && user === app.session.user) {
       classes.push('Post--by-actor');
     }
 
