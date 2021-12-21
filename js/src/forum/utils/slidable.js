@@ -36,7 +36,7 @@ export default function slidable(element) {
     // bit of a workaround. We set up the animation with a step function that
     // will set the transform property, but then we animate an unused property
     // (background-position-x) with jQuery.
-    options.duration ||= 200;
+    options.duration ||= 'fast';
     options.step = function (x) {
       $(this).css('transform', 'translate(' + x + 'px, 0)');
     };
