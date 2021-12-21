@@ -31,12 +31,12 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     return (
       <header class="Hero WelcomeHero">
         <div class="container">
-          {Button.component({
-            icon: 'fas fa-times',
-            onclick: slideUp,
-            className: 'Hero-close Button Button--icon Button--link',
-            'aria-label': app.translator.trans('core.forum.welcome_hero.hide'),
-          })}
+          <Button
+            icon="fas fa-times"
+            onclick={slideUp}
+            className="Hero-close Button Button--icon Button--link"
+            aria-label={app.translator.trans('core.forum.welcome_hero.hide')}
+          />
 
           <div class="containerNarrow">
             <h2 class="Hero-title">{app.forum.attribute('welcomeTitle')}</h2>
