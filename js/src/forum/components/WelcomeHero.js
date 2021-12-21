@@ -10,11 +10,11 @@ export default class WelcomeHero extends Component {
   oninit(vnode) {
     super.oninit(vnode);
 
-    this.hidden = localStorage.getItem('welcomeHidden');
+    this.hidden = !app.forum.attribute('welcomeTitle')?.trim() || localStorage.getItem('welcomeHidden');
   }
 
   view() {
-    if (this.hidden) return <div />;
+    if (this.hidden) return null;
 
     const slideUp = () => {
       this.$().slideUp(this.hide.bind(this));
