@@ -12,6 +12,7 @@ import tagLabel from '../../common/helpers/tagLabel';
 import tagIcon from '../../common/helpers/tagIcon';
 import sortTags from '../../common/utils/sortTags';
 import getSelectableTags from '../utils/getSelectableTags';
+import ToggleButton from './ToggleButton';
 
 export default class TagDiscussionModal extends Modal {
   oninit(vnode) {
@@ -27,6 +28,8 @@ export default class TagDiscussionModal extends Modal {
     this.maxPrimary = app.forum.attribute('maxPrimaryTags');
     this.minSecondary = app.forum.attribute('minSecondaryTags');
     this.maxSecondary = app.forum.attribute('maxSecondaryTags');
+
+    this.bypassReqs = false;
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
@@ -109,7 +112,7 @@ export default class TagDiscussionModal extends Modal {
   }
 
   getInstruction(primaryCount, secondaryCount) {
-    if (app.forum.attribute('canBypassTagCounts')) {
+    if (this.bypassReqs) {
       return '';
     }
 
@@ -128,7 +131,7 @@ export default class TagDiscussionModal extends Modal {
     if (this.tagsLoading) {
       return <LoadingIndicator />;
     }
-  
+
     let tags = this.tags;
     const filter = this.filter().toLowerCase();
     const primaryCount = this.primaryCount();
@@ -143,11 +146,11 @@ export default class TagDiscussionModal extends Modal {
 
     // If the number of selected primary/secondary tags is at the maximum, then
     // we'll filter out all other tags of that type.
-    if (primaryCount >= this.maxPrimary && !app.forum.attribute('canBypassTagCounts')) {
+    if (primaryCount >= this.maxPrimary && !this.bypassReqs) {
       tags = tags.filter(tag => !tag.isPrimary() || this.selected.includes(tag));
     }
 
-    if (secondaryCount >= this.maxSecondary && !app.forum.attribute('canBypassTagCounts')) {
+    if (secondaryCount >= this.maxSecondary && !this.bypassReqs) {
       tags = tags.filter(tag => tag.isPrimary() || this.selected.includes(tag));
     }
 
@@ -225,12 +228,19 @@ export default class TagDiscussionModal extends Modal {
               </li>
             ))}
         </ul>
+        {!!app.forum.attribute('canBypassTagCounts') && (
+          <div className="TagDiscussionModal-controls">
+            <ToggleButton className="Button" onclick={() => this.bypassReqs = !this.bypassReqs} isToggled={this.bypassReqs}>
+              {app.translator.trans('flarum-tags.forum.choose_tags.bypass_requirements')}
+            </ToggleButton>
+          </div>
+        )}
       </div>
     ];
   }
 
   meetsRequirements(primaryCount, secondaryCount) {
-    if (app.forum.attribute('canBypassTagCounts')) {
+    if (this.bypassReqs) {
       return true;
     }
 
