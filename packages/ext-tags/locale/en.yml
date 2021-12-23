@@ -66,6 +66,7 @@ flarum-tags:
 
     # These translations are used by the Choose Tags modal dialog.
     choose_tags:
+      bypass_requirements: Bypass tag requirements
       choose_primary_placeholder: "{count, plural, one {Choose a primary tag} other {Choose # primary tags}}"
       choose_secondary_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
       edit_title: "Edit Tags for {title}"
