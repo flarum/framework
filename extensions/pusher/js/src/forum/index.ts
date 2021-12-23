@@ -9,27 +9,27 @@ import ItemList from 'flarum/common/utils/ItemList';
 import { VnodeDOM } from 'Mithril';
 
 app.initializers.add('flarum-pusher', () => {
-  app.pusher = new Promise((resolve) => {
-    $.getScript('//cdn.jsdelivr.net/npm/pusher-js@7.0.3/dist/web/pusher.min.js', () => {
-      const socket: PusherTypes.default = new Pusher(app.forum.attribute('pusherKey'), {
-        authEndpoint: `${app.forum.attribute('apiUrl')}/pusher/auth`,
-        cluster: app.forum.attribute('pusherCluster'),
-        auth: {
-          headers: {
-            'X-CSRF-Token': app.session.csrfToken,
-          },
-        },
-      });
+  app.pusher = (async () => {
+    await import('//cdn.jsdelivr.net/npm/pusher-js@7.0.3/dist/web/pusher.min.js' /* webpackIgnore: true, webpackPrefetch: true */);
 
-      return resolve({
-        channels: {
-          main: socket.subscribe('public'),
-          user: app.session.user ? socket.subscribe(`private-user${app.session.user.id()}`) : null,
+    const socket: PusherTypes.default = new Pusher(app.forum.attribute('pusherKey'), {
+      authEndpoint: `${app.forum.attribute('apiUrl')}/pusher/auth`,
+      cluster: app.forum.attribute('pusherCluster'),
+      auth: {
+        headers: {
+          'X-CSRF-Token': app.session.csrfToken,
         },
-        pusher: socket,
-      });
+      },
     });
-  });
+
+    return {
+      channels: {
+        main: socket.subscribe('public'),
+        user: app.session.user ? socket.subscribe(`private-user${app.session.user.id()}`) : null,
+      },
+      pusher: socket,
+    };
+  })();
 
   app.pushedUpdates = [];
 
@@ -96,25 +96,6 @@ app.initializers.add('flarum-pusher', () => {
     }
   });
 
-  // Prevent any newly-created discussions from triggering the discussion list
-  // update button showing.
-  // TODO: Might be better pause the response to the push updates while the
-  // composer is loading? idk
-  // TODO: It seems that this is not used
-  extend(DiscussionList.prototype, 'addDiscussion', function (returned, discussion) {
-    const index = app.pushedUpdates.indexOf(discussion.id());
-
-    if (index !== -1) {
-      app.pushedUpdates.splice(index, 1);
-    }
-
-    if (app.current.matches(IndexPage)) {
-      app.setTitleCount(app.pushedUpdates.length);
-    }
-
-    m.redraw();
-  });
-
   extend(DiscussionPage.prototype, 'oncreate', function () {
     app.pusher.then((binding) => {
       const pusher = binding.pusher;
@@ -131,7 +112,7 @@ app.initializers.add('flarum-pusher', () => {
             if (!document.hasFocus()) {
               app.setTitleCount(Math.max(0, this.discussion.commentCount() - oldCount));
 
-              $(window).one('focus', () => app.setTitleCount(0));
+              window.addEventListener('focus', () => app.setTitleCount(0), { once: true });
             }
           });
         }
