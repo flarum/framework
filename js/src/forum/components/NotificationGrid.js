@@ -33,7 +33,7 @@ export default class NotificationGrid extends Component {
     /**
      * Information about the available notification types.
      *
-     * @type {({ name: string, icon: string, label: import('@askvortsov/rich-icu-message-formatter').NestedStringArray })[]}
+     * @type {({ name: string, icon: string, label: import('mithril').Children })[]}
      */
     this.types = this.notificationTypes().toArray();
   }
@@ -168,7 +168,7 @@ export default class NotificationGrid extends Component {
    * - `icon` The icon to display in the column header.
    * - `label` The label to display in the column header.
    *
-   * @return {ItemList<{ name: string, icon: string, label: import('@askvortsov/rich-icu-message-formatter').NestedStringArray }>}
+   * @return {ItemList<{ name: string, icon: string, label: import('mithril').Children }>}
    */
   notificationMethods() {
     const items = new ItemList();
@@ -197,7 +197,7 @@ export default class NotificationGrid extends Component {
    * - `icon` The icon to display in the notification grid row.
    * - `label` The label to display in the notification grid row.
    *
-   * @return {ItemList<{ name: string, icon: string, label: import('@askvortsov/rich-icu-message-formatter').NestedStringArray }>}
+   * @return {ItemList<{ name: string, icon: string, label: import('mithril').Children}>}
    */
   notificationTypes() {
     const items = new ItemList();

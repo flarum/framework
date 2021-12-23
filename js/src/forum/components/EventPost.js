@@ -55,7 +55,7 @@ export default class EventPost extends Post {
    * Get the description text for the event.
    *
    * @param {Record<string, unknown>} data
-   * @return {import('@askvortsov/rich-icu-message-formatter').NestedStringArray} The description to render in the DOM
+   * @return {import('mithril').Children} The description to render in the DOM
    */
   description(data) {
     return app.translator.trans(this.descriptionKey(), data);
