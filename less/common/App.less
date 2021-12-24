@@ -27,16 +27,13 @@
       box-shadow: 0 2px 6px var(--shadow-color);
     }
   }
-  .App-primaryControl,
-  .App-titleControl,
-  .App-backControl {
+  .App-primaryControl, .App-titleControl, .App-backControl {
     position: absolute !important;
     z-index: calc(~"var(--zindex-header) + 1");
     top: 0 !important;
     margin: 0;
 
-    .App.affix &,
-    .Composer & {
+    .App.affix &, .Composer & {
       position: fixed !important;
     }
 
@@ -62,18 +59,15 @@
     right: 0;
 
     &.Dropdown {
-      .Button,
-      .Button-caret {
+      .Button, .Button-caret {
         display: none !important;
       }
-      .Dropdown-toggle,
-      .Button-icon {
+      .Dropdown-toggle, .Button-icon {
         display: block !important;
       }
     }
   }
-  .App-primaryControl,
-  .App-backControl {
+  .App-primaryControl, .App-backControl {
     margin: 0 !important;
 
     > .Button {
@@ -96,8 +90,7 @@
     text-align: center;
     color: var(--header-color) !important;
 
-    &,
-    > .Button {
+    &, > .Button {
       font-size: 16px;
     }
     > .Button {
@@ -206,15 +199,12 @@
     > li {
       padding: 0 10px 0;
     }
-    .FormControl,
-    .ButtonGroup,
-    .Button {
+    .FormControl, .ButtonGroup, .Button {
       width: 100%;
       text-align: left;
     }
     .Dropdown-menu {
-      .ButtonGroup,
-      .Button {
+      .ButtonGroup, .Button {
         width: auto;
       }
     }
@@ -230,7 +220,7 @@
 @media @phone {
   .App-drawer {
     & when (@config-colored-header = true) {
-      .light-contents(@name: "header-colored");
+      .light-contents(@name: 'header-colored');
     }
   }
 }
@@ -254,7 +244,7 @@
     }
 
     & when (@config-colored-header = true) {
-      .light-contents(@name: "header-colored");
+      .light-contents(@name: 'header-colored');
     }
   }
 
@@ -263,8 +253,7 @@
     margin-right: 25px;
   }
   .Header-controls {
-    &,
-    > li {
+    &, > li {
       display: inline-block;
       vertical-align: middle;
     }
