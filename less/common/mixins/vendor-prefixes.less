@@ -65,11 +65,7 @@
 // CSS3 Content Columns
 /** @deprecated */
 .content-columns(@column-count; @column-gap: @grid-gutter-width) {
-  // Safari
-  -webkit-column-count: @column-count;
   column-count: @column-count;
-  // Safari
-  -webkit-column-gap: @column-gap;
   column-gap: @column-gap;
 }
 
@@ -85,7 +81,6 @@
 // Placeholder text
 .placeholder(@color) {
   // Safari
-  &::-webkit-input-placeholder,
   &::placeholder {
     color: @color;
   }
@@ -176,7 +171,7 @@
 // User select
 // For selecting text on the page
 .user-select(@select) {
-  // Safari + MS Edge
+  // Safari
   -webkit-user-select: @select;
   user-select: @select;
 }

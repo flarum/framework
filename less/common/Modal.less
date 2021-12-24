@@ -33,7 +33,6 @@
   bottom: 0;
   left: 0;
   z-index: var(--zindex-modal);
-  -webkit-overflow-scrolling: touch;
 
   // When fading in the modal, animate it to slide down
   .Modal {
@@ -143,8 +142,7 @@
     transform: translate(0, 100vh);
 
     &.in {
-      -webkit-transform: none !important;
-              transform: none !important;
+      transform: none !important;
     }
     &:before {
       content: " ";
@@ -155,8 +153,7 @@
   .Modal {
     max-width: 100%;
     margin: 0;
-    -webkit-transform: none !important;
-            transform: none !important;
+    transform: none !important;
   }
   .Modal-content {
     border-radius: 0;
@@ -183,7 +180,6 @@
     z-index: 1;
   }
   .Modal-content {
-
     border: 0;
     border-radius: var(--border-radius);
     box-shadow: 0 7px 15px var(--shadow-color);

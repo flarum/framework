@@ -107,25 +107,15 @@
       }
 
       .animated {
-        -webkit-animation-fill-mode: both;
         animation-fill-mode: both;
-
-        -webkit-animation-duration: 0.5s;
         animation-duration: 0.5s;
-
         animation-delay: 1.7s;
-        -webkit-animation-delay: 1.7s;
-      }
-      @-webkit-keyframes fadeIn {
-        0% {opacity: 0}
-        100% {opacity: 1}
       }
       @keyframes fadeIn {
         0% {opacity: 0}
         100% {opacity: 1}
       }
       .fadeIn {
-        -webkit-animation-name: fadeIn;
         animation-name: fadeIn;
       }
 
