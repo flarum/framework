@@ -1,0 +1,17 @@
+{
+    "name": "flarum",
+    "prettier": "@flarum/prettier-config",
+    "repository": "git@github.com:flarum/core.git",
+    "author": "Flarum Team",
+    "license": "MIT",
+    "private": true,
+    "packageManager": "yarn@3.1.1",
+    "devDependencies": {
+        "@flarum/prettier-config": "^1.0.0",
+        "prettier": "^2.5.1"
+    },
+    "scripts": {
+        "format": "prettier --write less",
+        "format-check": "prettier --check less"
+    }
+}

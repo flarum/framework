@@ -9,3 +9,22 @@ tests/.phpunit.result.cache
 .idea/*
 .vscode
 js/coverage-ts
+
+# Yarn
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+js/.pnp.*
+js/.yarn/*
+!js/.yarn/patches
+!js/.yarn/plugins
+!js/.yarn/releases
+!js/.yarn/sdks
+!js/.yarn/versions
+
+node_modules

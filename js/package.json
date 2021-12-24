@@ -47,5 +47,5 @@
     "check-typings": "tsc --noEmit --emitDeclarationOnly false",
     "check-typings-coverage": "typescript-coverage-report"
   },
-  "packageManager": "yarn@3.1.0"
+  "packageManager": "yarn@3.1.1"
 }
