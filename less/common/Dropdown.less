@@ -24,7 +24,9 @@
   }
 
   > li {
-    > a, > button, > span {
+    > a,
+    > button,
+    > span {
       padding: 8px 15px;
       display: block;
       width: 100%;
@@ -59,13 +61,15 @@
         background: none !important;
       }
     }
-    > a, > button {
+    > a,
+    > button {
       &:hover {
         background: var(--control-bg);
       }
     }
     &.active {
-      > a, > button {
+      > a,
+      > button {
         background: var(--control-bg);
       }
     }
@@ -100,16 +104,14 @@
   height: 1px;
 }
 
-
 .dropdown-backdrop {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   top: 0;
-  z-index: calc(~"var(--zindex-dropdown) - 10");
+  z-index: calc(~'var(--zindex-dropdown) - 10');
 }
-
 
 .Dropdown--split {
   .Dropdown-toggle .Button-icon {
@@ -131,7 +133,8 @@
 
   @media @tablet-up {
     .Dropdown-menu li:first-child {
-      &, + li.Dropdown-separator {
+      &,
+      + li.Dropdown-separator {
         display: none;
       }
     }
@@ -155,7 +158,6 @@
     box-shadow: none;
   }
 }
-
 
 @media @phone {
   .Dropdown.open {
@@ -182,7 +184,8 @@
     transition: transform 0.3s, visibility 0s 0.3s;
 
     > li {
-      > a, > button {
+      > a,
+      > button {
         background: var(--body-bg);
         font-size: 16px;
         padding: 15px 20px;
@@ -200,8 +203,10 @@
       }
     }
     > .active {
-      > a, > button {
-        &, &:hover {
+      > a,
+      > button {
+        &,
+        &:hover {
           background: var(--primary-color) !important;
           color: #fff !important;
         }
@@ -209,7 +214,7 @@
     }
     .open& {
       -webkit-transform: none;
-              transform: none;
+      transform: none;
       visibility: visible;
       transition-delay: 0s;
     }

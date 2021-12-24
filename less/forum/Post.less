@@ -20,7 +20,8 @@
   margin-bottom: 15px;
   color: var(--muted-color);
 
-  &, a {
+  &,
+  a {
     color: var(--muted-color);
   }
   > ul {
@@ -43,7 +44,8 @@
   h3 {
     display: inline;
   }
-  h3, h3 a {
+  h3,
+  h3 a {
     color: var(--heading-color);
     font-weight: bold;
     font-size: 14px;
@@ -95,14 +97,19 @@
   overflow: auto;
   overflow-wrap: break-word;
 
-  p, ul, ol, blockquote {
+  p,
+  ul,
+  ol,
+  blockquote {
     margin-bottom: 1em;
   }
   a {
     border-bottom: 1px solid var(--control-bg);
     font-weight: 600;
 
-    &:hover, &:focus, &:active {
+    &:hover,
+    &:focus,
+    &:active {
       text-decoration: none;
       border-color: var(--link-color);
     }
@@ -120,13 +127,13 @@
   }
   // Inline code
   code {
-    font-family: source-code-pro, Monaco, Consolas, "Courier New", monospace;
+    font-family: source-code-pro, Monaco, Consolas, 'Courier New', monospace;
     padding: 5px;
     background: var(--code-bg);
     color: var(--code-color);
     line-height: 1.3;
     font-size: 90%;
-    border-radius: 4px
+    border-radius: 4px;
   }
   // Code blocks
   pre {
@@ -149,10 +156,15 @@
       overflow-x: auto;
       // Backwards compatibility for browsers that don't support `max()`
       max-height: 50vh;
-      max-height: ~"max(50vh, 250px)";
+      max-height: ~'max(50vh, 250px)';
     }
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     margin-top: 1em;
     margin-bottom: 16px;
     font-weight: bold;
@@ -169,17 +181,20 @@
   h4 {
     font-size: 125%;
   }
-  h5, h6 {
+  h5,
+  h6 {
     font-size: 100%;
   }
   h6 {
     color: var(--muted-more-color);
   }
-  img, iframe {
+  img,
+  iframe {
     max-width: 100%;
   }
 }
-.Post-body, .Post-preview {
+.Post-body,
+.Post-preview {
   > *:first-child {
     margin-top: 0 !important;
   }
@@ -190,18 +205,27 @@
 }
 
 .Post--hidden {
-  .Post-header, .Post-header a, .PostUser h3, .PostUser h3 a {
+  .Post-header,
+  .Post-header a,
+  .PostUser h3,
+  .PostUser h3 a {
     color: var(--muted-more-color);
   }
   &:not(.revealContent) {
     .Post-header {
       margin-bottom: 0;
     }
-    .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
+    .Post-body,
+    .Post-footer,
+    h3 .Avatar,
+    .PostUser-badges {
       display: none;
     }
   }
-  .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
+  .Post-body,
+  .Post-footer,
+  h3 .Avatar,
+  .PostUser-badges {
     opacity: 0.5;
   }
   .Post-header .Button--more {
@@ -227,7 +251,8 @@
   color: var(--text-color);
   font-weight: bold;
 }
-.PostMeta-time, .PostMeta-ip {
+.PostMeta-time,
+.PostMeta-ip {
   margin-left: 5px;
 }
 .PostMeta-permalink {
@@ -248,7 +273,8 @@
   float: left;
 }
 .EventPost {
-  &, a {
+  &,
+  a {
     color: var(--muted-color);
   }
   a {
@@ -259,13 +285,15 @@
   font-size: 14px;
 }
 
-.Post-footer, .Post-actions {
+.Post-footer,
+.Post-actions {
   > ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
   }
-  &, a {
+  &,
+  a {
     color: var(--muted-color);
   }
   a {
@@ -303,7 +331,8 @@
 
   transition: opacity 0.2s;
 
-  .EventPost &, .Post--hidden:not(.revealContent) & {
+  .EventPost &,
+  .Post--hidden:not(.revealContent) & {
     margin-top: -27px;
     margin-bottom: -15px;
   }
@@ -322,7 +351,9 @@
       vertical-align: top;
     }
   }
-  .Post:hover &, .Post:focus-within &, &.open {
+  .Post:hover &,
+  .Post:focus-within &,
+  &.open {
     opacity: 1;
   }
 }
@@ -389,7 +420,8 @@
   .Post {
     padding-left: 20px + @avatar-column-width;
   }
-  .CommentPost:not(.Post--hidden), .ReplyPlaceholder {
+  .CommentPost:not(.Post--hidden),
+  .ReplyPlaceholder {
     min-height: 64px + 40px; // avatar height + padding
   }
   .PostUser-avatar {

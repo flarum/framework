@@ -2,7 +2,7 @@
   .Badge--size(22px);
   width: var(--size);
   height: var(--size);
-  border-radius: calc(~"var(--size) / 2");
+  border-radius: calc(~'var(--size) / 2');
   background: var(--badge-bg);
   color: var(--badge-color);
   display: inline-flex;
@@ -15,8 +15,9 @@
     display: none;
   }
 
-  &, .Badge-icon {
-    font-size: calc(~"0.56 * var(--size)");
+  &,
+  .Badge-icon {
+    font-size: calc(~'0.56 * var(--size)');
   }
 }
 
@@ -29,7 +30,8 @@
   padding: 0;
   list-style: none;
 
-  &, > li {
+  &,
+  > li {
     display: inline-block;
   }
 }

@@ -14,7 +14,7 @@
  * }
  */
 .Button--color-vars(@color; @background; @name: 'button') {
-  @componentName: ~"@{name}";
+  @componentName: ~'@{name}';
 
   --@{componentName}-color: @color;
   --@{componentName}-bg: @background;
@@ -24,11 +24,11 @@
 }
 
 .Button--color-auto(@name: 'button') {
-  --button-color: var(~"--@{name}-color");
-  --button-bg: var(~"--@{name}-bg");
-  --button-bg-hover: var(~"--@{name}-bg-hover");
-  --button-bg-active: var(~"--@{name}-bg-active");
-  --button-bg-disabled: var(~"--@{name}-bg-disabled");
+  --button-color: var(~'--@{name}-color');
+  --button-bg: var(~'--@{name}-bg');
+  --button-bg-hover: var(~'--@{name}-bg-hover');
+  --button-bg-active: var(~'--@{name}-bg-active');
+  --button-bg-disabled: var(~'--@{name}-bg-disabled');
 }
 
 /**

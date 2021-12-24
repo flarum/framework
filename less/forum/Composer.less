@@ -41,18 +41,23 @@
     line-height: 1.5em;
     color: var(--secondary-color);
 
-    &, input, a {
+    &,
+    input,
+    a {
       font-size: 14px;
       font-weight: normal;
     }
-    input, a {
+    input,
+    a {
       color: inherit;
     }
     input {
       font-size: 16px;
       width: 500px;
 
-      &, &[disabled], &:focus {
+      &,
+      &[disabled],
+      &:focus {
         background: none;
         border: 0;
         padding: 0 20px 0 0;
@@ -127,7 +132,7 @@
       }
 
       &:before {
-        content: " ";
+        content: ' ';
         .header-background();
         position: absolute;
         opacity: 0;
@@ -139,7 +144,7 @@
 
       & .Composer-controls {
         position: static;
-        z-index: calc(~"var(--zindex-header) + 1");
+        z-index: calc(~'var(--zindex-header) + 1');
 
         li:not(.App-backControl) {
           display: none;
@@ -159,7 +164,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: calc(~"var(--zindex-composer) - 1");
+    z-index: calc(~'var(--zindex-composer) - 1');
     background-color: var(--overlay-bg);
     opacity: 0.9;
   }
@@ -185,10 +190,10 @@
       }
 
       .normal &:first-child {
-        margin: calc(~"0px - var(--header-height-phone)") 50px 0;
+        margin: calc(~'0px - var(--header-height-phone)') 50px 0;
         text-align: center;
         position: relative;
-        z-index: calc(~"var(--zindex-header) + 1");
+        z-index: calc(~'var(--zindex-header) + 1');
         border: 0;
         white-space: nowrap;
         overflow: hidden;
@@ -230,7 +235,8 @@
     height: 300px;
     transition: background 0.2s, box-shadow 0.2s;
 
-    &.active, &.fullScreen {
+    &.active,
+    &.fullScreen {
       background: var(--body-bg);
     }
     &.active:not(.fullScreen) {
@@ -279,7 +285,8 @@
     margin-bottom: -17px;
     position: relative;
 
-    .minimized &, .fullScreen & {
+    .minimized &,
+    .fullScreen & {
       display: none;
     }
   }
@@ -287,14 +294,16 @@
     float: left;
     .Avatar--size(64px);
 
-    .minimized &, .fullScreen & {
+    .minimized &,
+    .fullScreen & {
       display: none;
     }
   }
   .ComposerBody-content {
     margin-left: 85px;
 
-    .minimized &, .fullScreen & {
+    .minimized &,
+    .fullScreen & {
       margin-left: 0;
     }
   }

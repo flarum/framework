@@ -25,7 +25,7 @@
       margin: 10px;
 
       .SearchBar {
-        width: 100%
+        width: 100%;
       }
     }
   }
@@ -43,8 +43,8 @@
 @media @tablet {
   .AdminNav {
     .item-search,
-    li[class^="item-category"],
-    li[class^="item-extension"],
+    li[class^='item-category'],
+    li[class^='item-extension'],
     .AdminLinkButton-description {
       display: none !important;
     }
@@ -68,12 +68,11 @@
   }
 }
 
-
 @media @desktop-up {
   .App-nav {
     position: absolute;
     top: var(--header-height);
-    height: ~"calc(100vh - var(--header-height))";
+    height: ~'calc(100vh - var(--header-height))';
     width: var(--admin-pane-width);
     box-shadow: 0 6px 6px var(--shadow-color);
     background: var(--body-bg);
@@ -168,7 +167,6 @@
       padding: 0;
     }
   }
-
 }
 
 .AdminLinkButton-description {
@@ -195,7 +193,7 @@
 .ExtensionNavButton {
   .Button-label {
     display: inline-block;
-    max-width: ~"calc(100% - 18px)";
+    max-width: ~'calc(100% - 18px)';
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: middle;

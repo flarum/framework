@@ -50,7 +50,7 @@
  *? button :focus-within { <styles>  }
  */
 .add-keyboard-focus-ring(@customFocusSelector) {
-  @realFocusSelector: ~"@{customFocusSelector}";
+  @realFocusSelector: ~'@{customFocusSelector}';
 
   &@{realFocusSelector} {
     #private.__focus-ring-styles();
@@ -69,7 +69,7 @@
  *? button:focus-within + .myOtherElement { <styles> }
  */
 .add-keyboard-focus-ring-nearby(@nearbySelector) {
-  @realNearbySelector: ~"@{nearbySelector}";
+  @realNearbySelector: ~'@{nearbySelector}';
 
   // We need to declare these separately, otherwise
   // browsers will ignore `:focus-visible` as they
@@ -124,7 +124,7 @@
     outline-offset: @offset;
   }
 
-  @realFocusSelector: ~"@{customFocusSelector}";
+  @realFocusSelector: ~'@{customFocusSelector}';
 
   &@{realFocusSelector} {
     .offset();
@@ -143,7 +143,7 @@
  *? button:focus-within + .myOtherElement { <styles> }
  */
 .add-keyboard-focus-ring-nearby-offset(@nearbySelector, @offset) {
-  @realNearbySelector: ~"@{nearbySelector}";
+  @realNearbySelector: ~'@{nearbySelector}';
 
   .offset() {
     outline-offset: @offset;

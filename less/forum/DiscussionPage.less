@@ -15,7 +15,8 @@
       margin: 15px;
       display: inline-block;
 
-      &.item-controls, &.item-scrubber {
+      &.item-controls,
+      &.item-scrubber {
         margin: 0;
         display: block;
       }
@@ -26,7 +27,8 @@
   .DiscussionPage-nav {
     float: right;
 
-    &, > ul {
+    &,
+    > ul {
       width: 150px;
     }
     > ul {
@@ -38,7 +40,8 @@
         margin-bottom: 10px;
       }
     }
-    .ButtonGroup, .Button {
+    .ButtonGroup,
+    .Button {
       width: 100%;
     }
     .ButtonGroup:not(.itemCount1) {
@@ -69,12 +72,12 @@
 
 @media @tablet-up {
   .DiscussionPage-list {
-    left: calc(~"-6px - var(--pane-width)");
+    left: calc(~'-6px - var(--pane-width)');
     position: absolute;
     z-index: var(--zindex-pane);
     overflow: auto;
     top: var(--header-height);
-    height: ~"calc(100vh - var(--header-height))";
+    height: ~'calc(100vh - var(--header-height))';
     width: var(--pane-width);
     background: var(--body-bg);
     padding-bottom: 40px;
@@ -132,7 +135,8 @@
     }
   }
   // When the pane is pinned, move the other page content inwards
-  .App-content, .App-footer {
+  .App-content,
+  .App-footer {
     .hasPane.panePinned & {
       margin-left: var(--pane-width);
 

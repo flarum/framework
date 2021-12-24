@@ -8,16 +8,21 @@
     text-align: start;
   }
 
-  td, th {
+  td,
+  th {
     border-bottom: 1px solid var(--body-bg);
     color: var(--control-color);
   }
 
-  td, th, .Checkbox, &-controls-item {
+  td,
+  th,
+  .Checkbox,
+  &-controls-item {
     padding: 10px 15px;
   }
 
-  & &-checkbox, & &-controls {
+  & &-checkbox,
+  & &-controls {
     padding: 0;
   }
 
@@ -55,7 +60,8 @@
       cursor: pointer;
     }
 
-    &.highlighted .Checkbox, .Checkbox:hover {
+    &.highlighted .Checkbox,
+    .Checkbox:hover {
       &:not(.disabled) {
         background: var(--control-bg-shaded);
       }

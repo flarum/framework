@@ -27,13 +27,16 @@
       box-shadow: 0 2px 6px var(--shadow-color);
     }
   }
-  .App-primaryControl, .App-titleControl, .App-backControl {
+  .App-primaryControl,
+  .App-titleControl,
+  .App-backControl {
     position: absolute !important;
-    z-index: calc(~"var(--zindex-header) + 1");
+    z-index: calc(~'var(--zindex-header) + 1');
     top: 0 !important;
     margin: 0;
 
-    .App.affix &, .Composer & {
+    .App.affix &,
+    .Composer & {
       position: fixed !important;
     }
 
@@ -59,15 +62,18 @@
     right: 0;
 
     &.Dropdown {
-      .Button, .Button-caret {
+      .Button,
+      .Button-caret {
         display: none !important;
       }
-      .Dropdown-toggle, .Button-icon {
+      .Dropdown-toggle,
+      .Button-icon {
         display: block !important;
       }
     }
   }
-  .App-primaryControl, .App-backControl {
+  .App-primaryControl,
+  .App-backControl {
     margin: 0 !important;
 
     > .Button {
@@ -90,7 +96,8 @@
     text-align: center;
     color: var(--header-color) !important;
 
-    &, > .Button {
+    &,
+    > .Button {
       font-size: 16px;
     }
     > .Button {
@@ -137,13 +144,13 @@
     top: 0;
     bottom: 0;
     box-shadow: 0 2px 6px var(--shadow-color);
-    transform: translateX(calc(~"-6px - var(--drawer-width)"));
+    transform: translateX(calc(~'-6px - var(--drawer-width)'));
     transition: transform 0.2s;
     z-index: var(--zindex-modal);
 
     .drawerOpen & {
       -webkit-transform: none !important;
-              transform: none !important;
+      transform: none !important;
     }
   }
   .drawer-backdrop {
@@ -200,12 +207,15 @@
     > li {
       padding: 0 10px 0;
     }
-    .FormControl, .ButtonGroup, .Button {
+    .FormControl,
+    .ButtonGroup,
+    .Button {
       width: 100%;
       text-align: left;
     }
     .Dropdown-menu {
-      .ButtonGroup, .Button {
+      .ButtonGroup,
+      .Button {
         width: auto;
       }
     }
@@ -254,7 +264,8 @@
     margin-right: 25px;
   }
   .Header-controls {
-    &, > li {
+    &,
+    > li {
       display: inline-block;
       vertical-align: middle;
     }
