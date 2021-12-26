@@ -4,7 +4,7 @@ on: [workflow_dispatch, push, pull_request]
 
 jobs:
   run:
-    uses: flarum/.github/.github/workflows/REUSABLE_frontend.yml@as/reusable_workflows
+    uses: flarum/.github/.github/workflows/REUSABLE_frontend.yml
     with:
       main_git_branch: master
     secrets:

@@ -4,4 +4,4 @@ on: [workflow_dispatch, push, pull_request]
 
 jobs:
   run:
-    uses: flarum/.github/.github/workflows/REUSABLE_backend.yml@as/reusable_workflows
+    uses: flarum/.github/.github/workflows/REUSABLE_backend.yml
