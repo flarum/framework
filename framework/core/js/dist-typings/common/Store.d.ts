@@ -78,7 +78,7 @@ export default class Store {
      *     within the 'data' key of the payload.
      */
     pushPayload<M extends Model>(payload: ApiPayloadSingle): ApiResponseSingle<M>;
-    pushPayload<Ms extends Model[]>(payload: ApiPayloadPlural): ApiResponseSingle<Ms[number]>;
+    pushPayload<Ms extends Model[]>(payload: ApiPayloadPlural): ApiResponsePlural<Ms[number]>;
     /**
      * Create a model to represent a resource object (or update an existing one),
      * and push it into the store.
