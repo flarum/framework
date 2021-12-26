@@ -3,5 +3,5 @@ name: PHP
 on: [workflow_dispatch, push, pull_request]
 
 jobs:
-  run:
+  x:
     uses: flarum/.github/.github/workflows/REUSABLE_backend.yml@as/reusable_workflows

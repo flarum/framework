@@ -3,7 +3,9 @@ name: JS
 on: [workflow_dispatch, push, pull_request]
 
 jobs:
-  run:
+  x:
     uses: flarum/.github/.github/workflows/REUSABLE_frontend.yml@as/reusable_workflows
     with:
       main_git_branch: master
+    secrets:
+      bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
