@@ -94,7 +94,7 @@ export default class Store {
    *     within the 'data' key of the payload.
    */
   pushPayload<M extends Model>(payload: ApiPayloadSingle): ApiResponseSingle<M>;
-  pushPayload<Ms extends Model[]>(payload: ApiPayloadPlural): ApiResponseSingle<Ms[number]>;
+  pushPayload<Ms extends Model[]>(payload: ApiPayloadPlural): ApiResponsePlural<Ms[number]>;
   pushPayload<M extends Model | Model[]>(payload: ApiPayload): ApiResponse<FlatArray<M, 1>> {
     if (payload.included) payload.included.map(this.pushObject.bind(this));
 
