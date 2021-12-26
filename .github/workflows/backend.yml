@@ -1,0 +1,7 @@
+name: Flarum Frontend Jobs
+
+on: [workflow_dispatch, push, pull_request]
+
+jobs:
+  call_central_workflow:
+    uses: flarum/.github/.github/workflows/REUSABLE_backend.yml@as/reusable_workflows

@@ -1,0 +1,11 @@
+name: Flarum Frontend Jobs
+
+on: [workflow_dispatch, push, pull_request]
+
+jobs:
+  call_central_workflow:
+    uses: flarum/.github/.github/workflows/REUSABLE_frontend.yml@as/reusable_workflows
+    with:
+      main_git_branch: master
+    secrets:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
