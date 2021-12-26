@@ -1,4 +1,4 @@
-name: Flarum Frontend Jobs
+name: Flarum Backend Jobs
 
 on: [workflow_dispatch, push, pull_request]
 
