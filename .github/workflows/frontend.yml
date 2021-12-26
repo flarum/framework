@@ -6,6 +6,7 @@ jobs:
   run:
     uses: flarum/.github/.github/workflows/REUSABLE_frontend.yml@main
     with:
+      enable_bundlewatch: true
       main_git_branch: master
     secrets:
       bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
