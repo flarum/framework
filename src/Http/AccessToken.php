@@ -64,6 +64,12 @@ class AccessToken extends AbstractModel
     protected static $lifetime = 0;
 
     /**
+     * Difference from the current `last_activity_at` attribute value before `updateLastSeen()`
+     * will update the attribute on the DB. Measured in seconds.
+     */
+    private const LAST_ACTIVITY_UPDATE_DIFF = 60;
+
+    /**
      * Generate an access token for the specified user.
      *
      * @param int $userId
@@ -98,7 +104,7 @@ class AccessToken extends AbstractModel
         $now = Carbon::now();
 
         // Only update if the current timestamp >120s ago
-        if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds($now) > 120) {
+        if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds($now) > AccessToken::LAST_ACTIVITY_UPDATE_DIFF) {
             $this->last_activity_at = $now;
         }
 
