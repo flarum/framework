@@ -6,7 +6,7 @@ declare class PostStreamState {
      *
      * @type {Discussion}
      */
-    discussion: any;
+    discussion: Discussion;
     /**
      * Whether or not the infinite-scrolling auto-load functionality is
      * disabled.
@@ -150,7 +150,7 @@ declare class PostStreamState {
      *
      * @return {Post[]}
      */
-    posts(): any[];
+    posts(): Post[];
     /**
      * Get the total number of posts in the discussion.
      *
