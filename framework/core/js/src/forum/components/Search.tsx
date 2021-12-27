@@ -88,7 +88,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
   /**
    * An array of SearchSources.
    */
-  protected sources!: SearchSource[];
+  protected sources?: SearchSource[];
 
   /**
    * The number of sources that are still loading results.
@@ -192,13 +192,17 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     this.setIndex(this.getCurrentNumericIndex());
 
     // If there are no sources, the search view is not shown.
-    if (!this.sources.length) return;
+    if (!this.sources?.length) return;
 
     this.updateMaxHeight();
   }
 
   oncreate(vnode: Mithril.VnodeDOM<T, this>) {
     super.oncreate(vnode);
+
+    // If there are no sources, we shouldn't initialize logic for
+    // search elements, as they will not be shown.
+    if (!this.sources?.length) return;
 
     const search = this;
     const state = this.searchState;
@@ -237,7 +241,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
           if (state.isCached(query)) return;
 
           if (query.length >= (search.constructor as typeof Search).MIN_SEARCH_LEN) {
-            search.sources.map((source) => {
+            search.sources?.map((source) => {
               if (!source.search) return;
 
               search.loadingSources++;
