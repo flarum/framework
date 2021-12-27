@@ -20,7 +20,7 @@ export default class PostsUserPage extends UserPage {
      *
      * @type {Post[]}
      */
-    posts: any[] | undefined;
+    posts: Post[] | undefined;
     /**
      * The number of activity items to load per request.
      *
