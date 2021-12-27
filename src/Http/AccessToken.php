@@ -97,6 +97,7 @@ class AccessToken extends AbstractModel
     {
         $now = Carbon::now();
 
+        // Only update if the current timestamp >120s ago
         if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds() > 120) {
             $this->last_activity_at = $now;
         }
