@@ -12,9 +12,9 @@ export default class PostMeta extends Component<import("../../common/Component")
     /**
      * Get the permalink for the given post.
      *
-     * @param {Post} post
-     * @returns {String}
+     * @param {import('../../common/models/Post').default} post
+     * @returns {string}
      */
-    getPermalink(post: any): string;
+    getPermalink(post: import('../../common/models/Post').default): string;
 }
 import Component from "../../common/Component";

@@ -18,23 +18,23 @@ export default class Navigation extends Component<import("../Component").Compone
     /**
      * Get the back button.
      *
-     * @return {Object}
+     * @return {import('mithril').Children}
      * @protected
      */
-    protected getBackButton(): Object;
+    protected getBackButton(): import('mithril').Children;
     /**
      * Get the pane pinned toggle button.
      *
-     * @return {Object|String}
+     * @return {import('mithril').Children}
      * @protected
      */
-    protected getPaneButton(): Object | string;
+    protected getPaneButton(): import('mithril').Children;
     /**
      * Get the drawer toggle button.
      *
-     * @return {Object|String}
+     * @return {import('mithril').Children}
      * @protected
      */
-    protected getDrawerButton(): Object | string;
+    protected getDrawerButton(): import('mithril').Children;
 }
 import Component from "../Component";

@@ -44,42 +44,30 @@ export default class Pane {
     protected showing: boolean;
     /**
      * Enable the pane.
-     *
-     * @public
      */
-    public enable(): void;
+    enable(): void;
     /**
      * Disable the pane.
-     *
-     * @public
      */
-    public disable(): void;
+    disable(): void;
     /**
      * Show the pane.
-     *
-     * @public
      */
-    public show(): void;
+    show(): void;
     /**
      * Hide the pane.
-     *
-     * @public
      */
-    public hide(): void;
+    hide(): void;
     /**
      * Begin a timeout to hide the pane, which can be cancelled by showing the
      * pane.
-     *
-     * @public
      */
-    public onmouseleave(): void;
+    onmouseleave(): void;
     hideTimeout: NodeJS.Timeout | undefined;
     /**
      * Toggle whether or not the pane is pinned.
-     *
-     * @public
      */
-    public togglePinned(): void;
+    togglePinned(): void;
     /**
      * Apply the appropriate CSS classes to the page element.
      *

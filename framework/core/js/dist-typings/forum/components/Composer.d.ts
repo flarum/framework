@@ -21,9 +21,9 @@ export default class Composer extends Component<import("../../common/Component")
     /**
      * Resize the composer according to mouse movement.
      *
-     * @param {Event} e
+     * @param {MouseEvent} e
      */
-    onmousemove(e: Event): void;
+    onmousemove(e: MouseEvent): void;
     /**
      * Finish resizing the composer when the mouse is released.
      */
@@ -83,23 +83,23 @@ export default class Composer extends Component<import("../../common/Component")
     /**
      * Build an item list for the composer's controls.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    controlItems(): ItemList<any>;
+    controlItems(): ItemList<import('mithril').Children>;
     /**
      * Initialize default Composer height.
      */
     initializeHeight(): void;
     /**
      * Default height of the Composer in case none is saved.
-     * @returns {Integer}
+     * @returns {number}
      */
-    defaultHeight(): any;
+    defaultHeight(): number;
     /**
      * Save a new Composer height and update the DOM.
-     * @param {Integer} height
+     * @param {number} height
      */
-    changeHeight(height: any): void;
+    changeHeight(height: number): void;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

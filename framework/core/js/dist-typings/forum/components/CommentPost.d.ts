@@ -32,9 +32,9 @@ export default class CommentPost extends Post {
     /**
      * Build an item list for the post's header.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    headerItems(): ItemList<any>;
+    headerItems(): ItemList<import('mithril').Children>;
 }
 import Post from "./Post";
 import ItemList from "../../common/utils/ItemList";

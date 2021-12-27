@@ -4,8 +4,8 @@ declare var _default: {
     Store: typeof import("../common/Store").default;
     'utils/BasicEditorDriver': typeof BasicEditorDriver;
     'utils/evented': {
-        handlers: Object;
-        getHandlers(event: string): any[];
+        handlers: Record<string, unknown>;
+        getHandlers(event: string): Function[];
         trigger(event: string, ...args: any[]): void;
         on(event: string, handler: Function): void;
         one(event: string, handler: Function): void;
@@ -92,38 +92,38 @@ declare var _default: {
     'states/PaginatedListState': typeof import("../common/states/PaginatedListState").default;
 } & {
     'utils/PostControls': {
-        controls(post: any, context: any): import("../common/utils/ItemList").default<any>;
-        userControls(post: any, context: any): import("../common/utils/ItemList").default<any>;
-        moderationControls(post: any, context: any): import("../common/utils/ItemList").default<any>;
-        destructiveControls(post: any, context: any): import("../common/utils/ItemList").default<any>;
-        editAction(): Promise<any>;
-        hideAction(): Promise<any>;
-        restoreAction(): Promise<any>;
-        deleteAction(context: any): Promise<any>;
+        controls(post: import("../common/models/Post").default, context: import("../common/Component").default<any, any>): import("../common/utils/ItemList").default<import("mithril").Children>;
+        userControls(post: import("../common/models/Post").default, context: import("../common/Component").default<any, any>): import("../common/utils/ItemList").default<import("mithril").Children>;
+        moderationControls(post: import("../common/models/Post").default, context: import("../common/Component").default<any, any>): import("../common/utils/ItemList").default<import("mithril").Children>;
+        destructiveControls(post: import("../common/models/Post").default, context: import("../common/Component").default<any, any>): import("../common/utils/ItemList").default<import("mithril").Children>;
+        editAction(): Promise<void>;
+        hideAction(): Promise<void>;
+        restoreAction(): Promise<void>;
+        deleteAction(context: any): Promise<void>;
     };
     'utils/KeyboardNavigatable': typeof KeyboardNavigatable;
     'utils/slidable': typeof slidable;
     'utils/History': typeof History;
     'utils/DiscussionControls': {
-        controls(discussion: any, context: any): import("../common/utils/ItemList").default<any>;
-        userControls(discussion: any, context: any): import("../common/utils/ItemList").default<any>;
-        moderationControls(discussion: any): import("../common/utils/ItemList").default<any>;
-        destructiveControls(discussion: any): import("../common/utils/ItemList").default<any>;
-        replyAction(goToLast: boolean, forceRefresh: boolean): Promise<any>;
-        hideAction(): Promise<any>;
-        restoreAction(): Promise<any>;
-        deleteAction(): Promise<any>;
-        renameAction(): Promise<any>;
+        controls(discussion: import("../common/models/Discussion").default, context: import("../common/Component").default<any, any>): import("../common/utils/ItemList").default<import("mithril").Children>;
+        userControls(discussion: import("../common/models/Discussion").default, context: import("../common/Component").default<any, any>): import("../common/utils/ItemList").default<import("mithril").Children>;
+        moderationControls(discussion: import("../common/models/Discussion").default): import("../common/utils/ItemList").default<import("mithril").Children>;
+        destructiveControls(discussion: import("../common/models/Discussion").default): import("../common/utils/ItemList").default<import("mithril").Children>;
+        replyAction(goToLast: boolean, forceRefresh: boolean): Promise<void>;
+        hideAction(): Promise<void>;
+        restoreAction(): Promise<void>;
+        deleteAction(): Promise<void>;
+        renameAction(): any;
     };
     'utils/alertEmailConfirmation': typeof alertEmailConfirmation;
     'utils/UserControls': {
-        controls(user: any, context: any): import("../common/utils/ItemList").default<any>;
-        userControls(): import("../common/utils/ItemList").default<any>;
-        moderationControls(user: any): import("../common/utils/ItemList").default<any>;
-        destructiveControls(user: any): import("../common/utils/ItemList").default<any>;
-        deleteAction(user: any): void;
-        showDeletionAlert(user: any, type: string): void;
-        editAction(user: any): void;
+        controls(user: import("../common/models/User").default, context: import("../common/Component").default<any, any>): import("../common/utils/ItemList").default<import("mithril").Children>;
+        userControls(): import("../common/utils/ItemList").default<import("mithril").Children>;
+        moderationControls(user: import("../common/models/User").default): import("../common/utils/ItemList").default<import("mithril").Children>;
+        destructiveControls(user: import("../common/models/User").default): import("../common/utils/ItemList").default<import("mithril").Children>;
+        deleteAction(user: import("../common/models/User").default): void;
+        showDeletionAlert(user: import("../common/models/User").default, type: string): void;
+        editAction(user: import("../common/models/User").default): void;
     };
     'utils/Pane': typeof Pane;
     'utils/BasicEditorDriver': typeof BasicEditorDriver;

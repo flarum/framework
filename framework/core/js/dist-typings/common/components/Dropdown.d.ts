@@ -22,17 +22,17 @@ export default class Dropdown extends Component<import("../Component").Component
     /**
      * Get the template for the button.
      *
-     * @return {*}
+     * @return {import('mithril').Children}
      * @protected
      */
-    protected getButton(children: any): any;
+    protected getButton(children: any): import('mithril').Children;
     /**
      * Get the template for the button's content.
      *
-     * @return {*}
+     * @return {import('mithril').Children}
      * @protected
      */
-    protected getButtonContent(children: any): any;
+    protected getButtonContent(children: any): import('mithril').Children;
     getMenu(items: any): JSX.Element;
 }
 import Component from "../Component";

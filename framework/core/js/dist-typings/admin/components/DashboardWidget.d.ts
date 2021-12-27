@@ -3,14 +3,14 @@ export default class DashboardWidget extends Component<import("../../common/Comp
     /**
      * Get the class name to apply to the widget.
      *
-     * @return {String}
+     * @return {string}
      */
     className(): string;
     /**
      * Get the content of the widget.
      *
-     * @return {VirtualElement}
+     * @return {import('mithril').Children}
      */
-    content(): any;
+    content(): import('mithril').Children;
 }
 import Component from "../../common/Component";
