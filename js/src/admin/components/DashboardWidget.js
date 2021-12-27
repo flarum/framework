@@ -8,7 +8,7 @@ export default class DashboardWidget extends Component {
   /**
    * Get the class name to apply to the widget.
    *
-   * @return {String}
+   * @return {string}
    */
   className() {
     return '';
@@ -17,9 +17,9 @@ export default class DashboardWidget extends Component {
   /**
    * Get the content of the widget.
    *
-   * @return {VirtualElement}
+   * @return {import('mithril').Children}
    */
   content() {
-    return [];
+    return null;
   }
 }

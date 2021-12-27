@@ -143,7 +143,7 @@ export default class DiscussionListItem extends Component {
   /**
    * Determine whether or not the discussion is currently being viewed.
    *
-   * @return {Boolean}
+   * @return {boolean}
    */
   active() {
     return app.current.matches(DiscussionPage, { discussion: this.attrs.discussion });
@@ -154,7 +154,7 @@ export default class DiscussionListItem extends Component {
    * should be displayed instead of information about the most recent reply to
    * the discussion.
    *
-   * @return {Boolean}
+   * @return {boolean}
    */
   showFirstPost() {
     return ['newest', 'oldest'].indexOf(this.attrs.params.sort) !== -1;
@@ -164,7 +164,7 @@ export default class DiscussionListItem extends Component {
    * Determine whether or not the number of replies should be shown instead of
    * the number of unread posts.
    *
-   * @return {Boolean}
+   * @return {boolean}
    */
   showRepliesCount() {
     return this.attrs.params.sort === 'replies';
@@ -186,7 +186,7 @@ export default class DiscussionListItem extends Component {
    * Build an item list of info for a discussion listing. By default this is
    * just the first/last post indicator.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   infoItems() {
     const items = new ItemList();

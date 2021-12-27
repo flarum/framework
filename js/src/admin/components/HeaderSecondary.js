@@ -16,7 +16,7 @@ export default class HeaderSecondary extends Component {
   /**
    * Build an item list for the controls.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   items() {
     const items = new ItemList();
@@ -28,7 +28,7 @@ export default class HeaderSecondary extends Component {
       </LinkButton>
     );
 
-    items.add('session', SessionDropdown.component());
+    items.add('session', <SessionDropdown />);
 
     return items;
   }

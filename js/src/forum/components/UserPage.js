@@ -30,6 +30,11 @@ export default class UserPage extends Page {
     this.bodyClass = 'App--user';
   }
 
+  /**
+   * Base view template for the user page.
+   *
+   * @return {import('mithril').Children}
+   */
   view() {
     return (
       <div className="UserPage">
@@ -60,7 +65,7 @@ export default class UserPage extends Page {
   /**
    * Get the content to display in the user page.
    *
-   * @return {VirtualElement}
+   * @return {import('mithril').Children}
    */
   content() {}
 
@@ -68,7 +73,7 @@ export default class UserPage extends Page {
    * Initialize the component with a user, and trigger the loading of their
    * activity feed.
    *
-   * @param {User} user
+   * @param {import('../../common/models/User').default} user
    * @protected
    */
   show(user) {
@@ -85,7 +90,7 @@ export default class UserPage extends Page {
    * Given a username, load the user's profile from the store, or make a request
    * if we don't have it yet. Then initialize the profile page with that user.
    *
-   * @param {String} username
+   * @param {string} username
    */
   loadUser(username) {
     const lowercaseUsername = username.toLowerCase();
@@ -110,7 +115,7 @@ export default class UserPage extends Page {
   /**
    * Build an item list for the content of the sidebar.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   sidebarItems() {
     const items = new ItemList();
@@ -128,7 +133,7 @@ export default class UserPage extends Page {
   /**
    * Build an item list for the navigation in the sidebar.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   navItems() {
     const items = new ItemList();

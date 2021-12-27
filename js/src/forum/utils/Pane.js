@@ -52,8 +52,6 @@ export default class Pane {
 
   /**
    * Enable the pane.
-   *
-   * @public
    */
   enable() {
     this.active = true;
@@ -62,8 +60,6 @@ export default class Pane {
 
   /**
    * Disable the pane.
-   *
-   * @public
    */
   disable() {
     this.active = false;
@@ -73,8 +69,6 @@ export default class Pane {
 
   /**
    * Show the pane.
-   *
-   * @public
    */
   show() {
     clearTimeout(this.hideTimeout);
@@ -84,8 +78,6 @@ export default class Pane {
 
   /**
    * Hide the pane.
-   *
-   * @public
    */
   hide() {
     this.showing = false;
@@ -95,8 +87,6 @@ export default class Pane {
   /**
    * Begin a timeout to hide the pane, which can be cancelled by showing the
    * pane.
-   *
-   * @public
    */
   onmouseleave() {
     this.hideTimeout = setTimeout(this.hide.bind(this), 250);
@@ -104,8 +94,6 @@ export default class Pane {
 
   /**
    * Toggle whether or not the pane is pinned.
-   *
-   * @public
    */
   togglePinned() {
     this.pinned = !this.pinned;

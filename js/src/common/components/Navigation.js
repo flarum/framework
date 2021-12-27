@@ -36,7 +36,7 @@ export default class Navigation extends Component {
   /**
    * Get the back button.
    *
-   * @return {Object}
+   * @return {import('mithril').Children}
    * @protected
    */
   getBackButton() {
@@ -59,7 +59,7 @@ export default class Navigation extends Component {
   /**
    * Get the pane pinned toggle button.
    *
-   * @return {Object|String}
+   * @return {import('mithril').Children}
    * @protected
    */
   getPaneButton() {
@@ -77,7 +77,7 @@ export default class Navigation extends Component {
   /**
    * Get the drawer toggle button.
    *
-   * @return {Object|String}
+   * @return {import('mithril').Children}
    * @protected
    */
   getDrawerButton() {

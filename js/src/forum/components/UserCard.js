@@ -73,7 +73,7 @@ export default class UserCard extends Component {
   /**
    * Build an item list of tidbits of info to show on this user's profile.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   infoItems() {
     const items = new ItemList();

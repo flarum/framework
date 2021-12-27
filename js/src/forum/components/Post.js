@@ -102,7 +102,7 @@ export default class Post extends Component {
   /**
    * Get attributes for the post element.
    *
-   * @return {Object}
+   * @return {Record<string, unknown>}
    */
   elementAttrs() {
     return {};
@@ -111,16 +111,16 @@ export default class Post extends Component {
   /**
    * Get the post's content.
    *
-   * @return {Array}
+   * @return {import('mithril').Children}
    */
   content() {
-    return [];
+    return null;
   }
 
   /**
    * Get the post's classes.
    *
-   * @param existing string
+   * @param {string} existing
    * @returns {string[]}
    */
   classes(existing) {
@@ -137,7 +137,7 @@ export default class Post extends Component {
       classes.push('Post--by-actor');
     }
 
-    if (user && user.id() === discussion.attribute('startUserId')) {
+    if (user?.id() === discussion.attribute('startUserId')) {
       classes.push('Post--by-start-user');
     }
 
@@ -147,7 +147,7 @@ export default class Post extends Component {
   /**
    * Build an item list for the post's actions.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   actionItems() {
     return new ItemList();
@@ -156,7 +156,7 @@ export default class Post extends Component {
   /**
    * Build an item list for the post's footer.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   footerItems() {
     return new ItemList();

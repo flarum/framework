@@ -78,7 +78,7 @@ export default class UploadImageButton extends Button {
   /**
    * After a successful upload/removal, reload the page.
    *
-   * @param {Object} response
+   * @param {object} response
    * @protected
    */
   success(response) {
@@ -88,7 +88,7 @@ export default class UploadImageButton extends Button {
   /**
    * If upload/removal fails, stop loading.
    *
-   * @param {Object} response
+   * @param {object} response
    * @protected
    */
   failure(response) {

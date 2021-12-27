@@ -63,7 +63,7 @@ export default class DiscussionComposer extends ComposerBody {
    * Handle the title input's keydown event. When the return key is pressed,
    * move the focus to the start of the text editor.
    *
-   * @param {Event} e
+   * @param {KeyboardEvent} e
    */
   onkeydown(e) {
     if (e.which === 13) {
@@ -82,7 +82,7 @@ export default class DiscussionComposer extends ComposerBody {
   /**
    * Get the data to submit to the server when the discussion is saved.
    *
-   * @return {Object}
+   * @return {Record<string, unknown>}
    */
   data() {
     return {

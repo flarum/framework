@@ -59,7 +59,7 @@ export default class ReplyComposer extends ComposerBody {
   /**
    * Get the data to submit to the server when the reply is saved.
    *
-   * @return {Object}
+   * @return {Record<string, unknown>}
    */
   data() {
     return {

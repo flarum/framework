@@ -4,12 +4,13 @@
  * controls.
  *
  * It relies on the element having children with particular CSS classes.
- * TODO: document
  *
- * @param {DOMElement} element
- * @return {Object}
- * @property {function} reset Revert the slider to its original position. This
- *     should be called, for example, when a controls dropdown is closed.
+ * The function returns a record with a `reset` proeprty. This is a function
+ * which reverts the slider to its original position. This should be called,
+ * for example, when a controls dropdown is closed.
+ *
+ * @param {HTMLElement | SVGElement | Element} element
+ * @return {{ reset : () => void }}
  */
 export default function slidable(element) {
   const $element = $(element);
@@ -27,15 +28,15 @@ export default function slidable(element) {
   /**
    * Animate the slider to a new position.
    *
-   * @param {Integer} newPos
-   * @param {Object} [options]
+   * @param {number} newPos
+   * @param {Partial<JQueryAnimationOptions>} [options]
    */
   const animatePos = (newPos, options = {}) => {
     // Since we can't animate the transform property with jQuery, we'll use a
     // bit of a workaround. We set up the animation with a step function that
     // will set the transform property, but then we animate an unused property
     // (background-position-x) with jQuery.
-    options.duration = options.duration || 'fast';
+    options.duration ||= 'fast';
     options.step = function (x) {
       $(this).css('transform', 'translate(' + x + 'px, 0)');
     };

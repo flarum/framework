@@ -21,7 +21,7 @@ export default class HeaderPrimary extends Component {
   /**
    * Build an item list for the controls.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   items() {
     return new ItemList();

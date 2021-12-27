@@ -5,9 +5,9 @@
  * @example
  * class MyClass extends mixin(ExistingClass, evented, etc) {}
  *
- * @param {Class} Parent The class to extend the new class from.
- * @param {...Object} mixins The objects to mix in.
- * @return {Class} A new class that extends Parent and contains the mixins.
+ * @param {object} Parent The class to extend the new class from.
+ * @param {Record<string, any>[]} mixins The objects to mix in.
+ * @return {object} A new class that extends Parent and contains the mixins.
  */
 export default function mixin(Parent, ...mixins) {
   class Mixed extends Parent {}
