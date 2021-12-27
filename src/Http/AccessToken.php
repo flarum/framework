@@ -67,7 +67,7 @@ class AccessToken extends AbstractModel
      * Difference from the current `last_activity_at` attribute value before `updateLastSeen()`
      * will update the attribute on the DB. Measured in seconds.
      */
-    private const LAST_ACTIVITY_UPDATE_DIFF = 60;
+    private const LAST_ACTIVITY_UPDATE_DIFF = 90;
 
     /**
      * Generate an access token for the specified user.

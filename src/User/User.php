@@ -124,7 +124,7 @@ class User extends AbstractModel
      * Difference from the current `last_seen` attribute value before `updateLastSeen()`
      * will update the attribute on the DB. Measured in seconds.
      */
-    private const LAST_SEEN_UPDATE_DIFF = 120;
+    private const LAST_SEEN_UPDATE_DIFF = 180;
 
     /**
      * Boot the model.
