@@ -114,7 +114,8 @@ export default class Post extends Component {
    * @return {import('mithril').Children}
    */
   content() {
-    return null;
+    // TODO: [Flarum 2.0] return `null`
+    return [];
   }
 
   /**
