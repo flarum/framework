@@ -23,7 +23,7 @@ export default class DiscussionHero extends Component {
   /**
    * Build an item list for the contents of the discussion hero.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   items() {
     const items = new ItemList();

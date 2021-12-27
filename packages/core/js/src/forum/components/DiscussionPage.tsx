@@ -70,7 +70,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // we'll just close it.
     app.pane?.disable();
 
-    if (app.composer.composingReplyTo(this.discussion) && !app.composer?.fields?.content()) {
+    if (this.discussion && app.composer.composingReplyTo(this.discussion) && !app.composer?.fields?.content()) {
       app.composer.hide();
     } else {
       app.composer.minimize();
@@ -88,11 +88,9 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
 
   /**
    * List of components shown while the discussion is loading.
-   *
-   * @returns {ItemList}
    */
-  loadingItems() {
-    const items = new ItemList();
+  loadingItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
     items.add('spinner', <LoadingIndicator />, 100);
 
@@ -101,10 +99,8 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
 
   /**
    * Function that renders the `sidebarItems` ItemList.
-   *
-   * @returns {import('mithril').Children}
    */
-  sidebar() {
+  sidebar(): Mithril.Children {
     return (
       <nav className="DiscussionPage-nav">
         <ul>{listItems(this.sidebarItems().toArray())}</ul>
@@ -114,20 +110,16 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
 
   /**
    * Renders the discussion's hero.
-   *
-   * @returns {import('mithril').Children}
    */
-  hero() {
+  hero(): Mithril.Children {
     return <DiscussionHero discussion={this.discussion} />;
   }
 
   /**
    * List of items rendered as the main page content.
-   *
-   * @returns {ItemList}
    */
-  pageContent() {
-    const items = new ItemList();
+  pageContent(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
     items.add('hero', this.hero(), 100);
     items.add('main', <div className="container">{this.mainContent().toArray()}</div>, 10);
@@ -137,11 +129,9 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
 
   /**
    * List of items rendered inside the main page content container.
-   *
-   * @returns {ItemList}
    */
-  mainContent() {
-    const items = new ItemList();
+  mainContent(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
     items.add('sidebar', this.sidebar(), 100);
 
@@ -163,7 +153,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   /**
    * Load the discussion from the API or use the preloaded one.
    */
-  load() {
+  load(): void {
     const preloadedDiscussion = app.preloadedApiDocument<Discussion>();
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this
@@ -183,10 +173,8 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   /**
    * Get the parameters that should be passed in the API request to get the
    * discussion.
-   *
-   * @return {Object}
    */
-  requestParams() {
+  requestParams(): Record<string, unknown> {
     return {
       bySlug: true,
       page: { near: this.near },
@@ -196,7 +184,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   /**
    * Initialize the component to display the given discussion.
    */
-  show(discussion: ApiResponseSingle<Discussion>) {
+  show(discussion: ApiResponseSingle<Discussion>): void {
     app.history.push('discussion', discussion.title());
     app.setTitle(discussion.title());
     app.setTitleCount(0);
@@ -242,21 +230,23 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * Build an item list for the contents of the sidebar.
    */
   sidebarItems() {
-    const items = new ItemList<Mithril.Vnode>();
+    const items = new ItemList<Mithril.Children>();
 
-    items.add(
-      'controls',
-      SplitDropdown.component(
-        {
-          icon: 'fas fa-ellipsis-v',
-          className: 'App-primaryControl',
-          buttonClassName: 'Button--primary',
-          accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
-        },
-        DiscussionControls.controls(this.discussion, this).toArray()
-      ),
-      100
-    );
+    if (this.discussion) {
+      items.add(
+        'controls',
+        SplitDropdown.component(
+          {
+            icon: 'fas fa-ellipsis-v',
+            className: 'App-primaryControl',
+            buttonClassName: 'Button--primary',
+            accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
+          },
+          DiscussionControls.controls(this.discussion, this).toArray()
+        ),
+        100
+      );
+    }
 
     items.add(
       'scrubber',

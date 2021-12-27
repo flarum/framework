@@ -57,7 +57,7 @@ export default class Notification extends Component {
   /**
    * Get the name of the icon that should be displayed in the notification.
    *
-   * @return {String}
+   * @return {string}
    * @abstract
    */
   icon() {}
@@ -65,7 +65,7 @@ export default class Notification extends Component {
   /**
    * Get the URL that the notification should link to.
    *
-   * @return {String}
+   * @return {string}
    * @abstract
    */
   href() {}
@@ -73,7 +73,7 @@ export default class Notification extends Component {
   /**
    * Get the content of the notification.
    *
-   * @return {VirtualElement}
+   * @return {import('mithril').Children}
    * @abstract
    */
   content() {}
@@ -81,7 +81,7 @@ export default class Notification extends Component {
   /**
    * Get the excerpt of the notification.
    *
-   * @return {VirtualElement}
+   * @return {import('mithril').Children}
    * @abstract
    */
   excerpt() {}

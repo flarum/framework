@@ -451,9 +451,6 @@ export default class Application {
    * Make an AJAX request, handling any low-level errors that may occur.
    *
    * @see https://mithril.js.org/request.html
-   *
-   * @param options
-   * @return {Promise}
    */
   request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType> {
     const options = this.transformRequestOptions(originalOptions);

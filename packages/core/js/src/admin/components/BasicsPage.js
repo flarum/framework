@@ -120,8 +120,7 @@ export default class BasicsPage extends AdminPage {
    * Build a list of options for the default homepage. Each option must be an
    * object with `path` and `label` properties.
    *
-   * @return {ItemList}
-   * @public
+   * @return {ItemList<{ path: string, label: import('mithril').Children }>}
    */
   homePageItems() {
     const items = new ItemList();

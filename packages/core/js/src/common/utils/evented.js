@@ -13,17 +13,21 @@ export default {
   /**
    * Arrays of registered event handlers, grouped by the event name.
    *
-   * @type {Object}
+   * @type {Record<string, unknown>}
    * @protected
+   *
+   * @deprecated
    */
   handlers: null,
 
   /**
    * Get all of the registered handlers for an event.
    *
-   * @param {String} event The name of the event.
-   * @return {Array}
+   * @param {string} event The name of the event.
+   * @return {Function[]}
    * @protected
+   *
+   * @deprecated
    */
   getHandlers(event) {
     fireDeprecationWarning(deprecatedNotice, deprecationIssueId);
@@ -38,9 +42,10 @@ export default {
   /**
    * Trigger an event.
    *
-   * @param {String} event The name of the event.
-   * @param {...*} args Arguments to pass to event handlers.
-   * @public
+   * @param {string} event The name of the event.
+   * @param {any[]} args Arguments to pass to event handlers.
+   *
+   * @deprecated
    */
   trigger(event, ...args) {
     fireDeprecationWarning(deprecatedNotice, deprecationIssueId);
@@ -51,8 +56,10 @@ export default {
   /**
    * Register an event handler.
    *
-   * @param {String} event The name of the event.
-   * @param {function} handler The function to handle the event.
+   * @param {string} event The name of the event.
+   * @param {Function} handler The function to handle the event.
+   *
+   * @deprecated
    */
   on(event, handler) {
     fireDeprecationWarning(deprecatedNotice, deprecationIssueId);
@@ -64,8 +71,10 @@ export default {
    * Register an event handler so that it will run only once, and then
    * unregister itself.
    *
-   * @param {String} event The name of the event.
-   * @param {function} handler The function to handle the event.
+   * @param {string} event The name of the event.
+   * @param {Function} handler The function to handle the event.
+   *
+   * @deprecated
    */
   one(event, handler) {
     fireDeprecationWarning(deprecatedNotice, deprecationIssueId);
@@ -82,8 +91,10 @@ export default {
   /**
    * Unregister an event handler.
    *
-   * @param {String} event The name of the event.
-   * @param {function} handler The function that handles the event.
+   * @param {string} event The name of the event.
+   * @param {Function} handler The function that handles the event.
+   *
+   * @deprecated
    */
   off(event, handler) {
     fireDeprecationWarning(deprecatedNotice, deprecationIssueId);

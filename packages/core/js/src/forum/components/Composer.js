@@ -127,7 +127,7 @@ export default class Composer extends Component {
   /**
    * Resize the composer according to mouse movement.
    *
-   * @param {Event} e
+   * @param {MouseEvent} e
    */
   onmousemove(e) {
     if (!this.handle) return;
@@ -317,7 +317,7 @@ export default class Composer extends Component {
   /**
    * Build an item list for the composer's controls.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   controlItems() {
     const items = new ItemList();
@@ -379,7 +379,7 @@ export default class Composer extends Component {
 
   /**
    * Default height of the Composer in case none is saved.
-   * @returns {Integer}
+   * @returns {number}
    */
   defaultHeight() {
     return this.$().height();
@@ -387,7 +387,7 @@ export default class Composer extends Component {
 
   /**
    * Save a new Composer height and update the DOM.
-   * @param {Integer} height
+   * @param {number} height
    */
   changeHeight(height) {
     this.state.height = height;

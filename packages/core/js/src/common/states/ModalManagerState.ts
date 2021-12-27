@@ -73,7 +73,7 @@ export default class ModalManagerState {
   /**
    * Checks if a modal is currently open.
    *
-   * @returns `true` if a modal dialog is currently open, otherwise `false`.
+   * @return `true` if a modal dialog is currently open, otherwise `false`.
    */
   isModalOpen(): boolean {
     return !!this.modal;

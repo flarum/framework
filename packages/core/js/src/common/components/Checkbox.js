@@ -44,7 +44,7 @@ export default class Checkbox extends Component {
   /**
    * Get the template for the checkbox's display (tick/cross icon).
    *
-   * @return {*}
+   * @return {import('mithril').Children}
    * @protected
    */
   getDisplay() {
@@ -54,7 +54,7 @@ export default class Checkbox extends Component {
   /**
    * Run a callback when the state of the checkbox is changed.
    *
-   * @param {Boolean} checked
+   * @param {boolean} checked
    * @protected
    */
   onchange(checked) {

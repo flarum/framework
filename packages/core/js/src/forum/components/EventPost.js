@@ -45,7 +45,7 @@ export default class EventPost extends Post {
   /**
    * Get the name of the event icon.
    *
-   * @return {String}
+   * @return {string}
    */
   icon() {
     return '';
@@ -54,8 +54,8 @@ export default class EventPost extends Post {
   /**
    * Get the description text for the event.
    *
-   * @param {Object} data
-   * @return {String|Object} The description to render in the DOM
+   * @param {Record<string, unknown>} data
+   * @return {import('mithril').Children} The description to render in the DOM
    */
   description(data) {
     return app.translator.trans(this.descriptionKey(), data);
@@ -64,7 +64,7 @@ export default class EventPost extends Post {
   /**
    * Get the translation key for the description of the event.
    *
-   * @return {String}
+   * @return {string}
    */
   descriptionKey() {
     return '';
@@ -73,7 +73,7 @@ export default class EventPost extends Post {
   /**
    * Get the translation data for the description of the event.
    *
-   * @return {Object}
+   * @return {Record<string, unknown>}
    */
   descriptionData() {
     return {};

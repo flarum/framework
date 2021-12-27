@@ -55,7 +55,7 @@ export default class AdminNav extends Component {
   /**
    * Build an item list of main links to show in the admin navigation.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   items() {
     const items = new ItemList();

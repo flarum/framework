@@ -35,8 +35,8 @@ export default class LinkButton extends Button {
   /**
    * Determine whether a component with the given attrs is 'active'.
    *
-   * @param {Object} attrs
-   * @return {Boolean}
+   * @param {object} attrs
+   * @return {boolean}
    */
   static isActive(attrs) {
     return typeof attrs.active !== 'undefined' ? attrs.active : m.route.get() === attrs.href;

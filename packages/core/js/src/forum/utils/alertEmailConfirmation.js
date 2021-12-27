@@ -6,7 +6,7 @@ import Component from '../../common/Component';
 /**
  * Shows an alert if the user has not yet confirmed their email address.
  *
- * @param {ForumApplication} app
+ * @param {import('../ForumApplication').default} app
  */
 export default function alertEmailConfirmation(app) {
   const user = app.session.user;

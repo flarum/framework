@@ -8,8 +8,8 @@
  * position can be anchor to an element that is in or below the viewport, so
  * the content in the viewport will stay the same.
  *
- * @param {DOMElement} element The element to anchor the scroll position to.
- * @param {Function} callback The callback to run that will change page content.
+ * @param {HTMLElement | SVGElement | Element} element The element to anchor the scroll position to.
+ * @param {() => void} callback The callback to run that will change page content.
  */
 export default function anchorScroll(element, callback) {
   const $window = $(window);

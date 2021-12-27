@@ -148,7 +148,7 @@ export default class PostStream extends Component {
 
   /**
    *
-   * @param {Integer} top
+   * @param {number} top
    */
   onscroll(top = window.pageYOffset) {
     if (this.stream.paused || this.stream.pagesLoading) return;
@@ -167,7 +167,7 @@ export default class PostStream extends Component {
    * Check if either extreme of the post stream is in the viewport,
    * and if so, trigger loading the next/previous page.
    *
-   * @param {Integer} top
+   * @param {number} top
    */
   loadPostsIfNeeded(top = window.pageYOffset) {
     const marginTop = this.getMarginTop();
@@ -298,7 +298,7 @@ export default class PostStream extends Component {
    * Get the distance from the top of the viewport to the point at which we
    * would consider a post to be the first one visible.
    *
-   * @return {Integer}
+   * @return {number}
    */
   getMarginTop() {
     const headerId = app.screen() === 'phone' ? '#app-navigation' : '#header';
@@ -309,9 +309,9 @@ export default class PostStream extends Component {
   /**
    * Scroll down to a certain post by number and 'flash' it.
    *
-   * @param {Integer} number
-   * @param {Boolean} animate
-   * @return {jQuery.Deferred}
+   * @param {number} number
+   * @param {boolean} animate
+   * @return {JQueryDeferred}
    */
   scrollToNumber(number, animate) {
     const $item = this.$(`.PostStream-item[data-number=${number}]`);
@@ -322,10 +322,10 @@ export default class PostStream extends Component {
   /**
    * Scroll down to a certain post by index.
    *
-   * @param {Integer} index
-   * @param {Boolean} animate
-   * @param {Boolean} reply Whether or not to scroll to the reply placeholder.
-   * @return {jQuery.Deferred}
+   * @param {number} index
+   * @param {boolean} animate
+   * @param {boolean} reply Whether or not to scroll to the reply placeholder.
+   * @return {JQueryDeferred}
    */
   scrollToIndex(index, animate, reply) {
     const $item = reply ? $('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${index}]`);
@@ -340,12 +340,12 @@ export default class PostStream extends Component {
   /**
    * Scroll down to the given post.
    *
-   * @param {jQuery} $item
-   * @param {Boolean} animate
-   * @param {Boolean} force Whether or not to force scrolling to the item, even
+   * @param {JQuery} $item
+   * @param {boolean} animate
+   * @param {boolean} force Whether or not to force scrolling to the item, even
    *     if it is already in the viewport.
-   * @param {Boolean} reply Whether or not to scroll to the reply placeholder.
-   * @return {jQuery.Deferred}
+   * @param {boolean} reply Whether or not to scroll to the reply placeholder.
+   * @return {JQueryDeferred}
    */
   scrollToItem($item, animate, force, reply) {
     const $container = $('html, body').stop(true);
@@ -418,7 +418,7 @@ export default class PostStream extends Component {
   /**
    * 'Flash' the given post, drawing the user's attention to it.
    *
-   * @param {jQuery} $item
+   * @param {JQuery} $item
    */
   flashItem($item) {
     // This might execute before the fadeIn class has been removed in PostStreamItem's

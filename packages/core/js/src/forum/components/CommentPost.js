@@ -120,7 +120,7 @@ export default class CommentPost extends Post {
   /**
    * Build an item list for the post's header.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   headerItems() {
     const items = new ItemList();
