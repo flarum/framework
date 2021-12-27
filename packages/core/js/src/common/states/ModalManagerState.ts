@@ -22,7 +22,14 @@ export default class ModalManagerState {
   modal: null | {
     componentClass: UnsafeModalClass;
     attrs?: Record<string, unknown>;
+    key: number;
   } = null;
+
+  /**
+   * Used to force re-initialization of modals if a modal
+   * is replaced by another of the same type.
+   */
+  private key = 0;
 
   private closeTimeout?: NodeJS.Timeout;
 
@@ -48,7 +55,7 @@ export default class ModalManagerState {
 
     if (this.closeTimeout) clearTimeout(this.closeTimeout);
 
-    this.modal = { componentClass, attrs };
+    this.modal = { componentClass, attrs, key: this.key++ };
 
     m.redraw.sync();
   }
