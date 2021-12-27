@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\users;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class UpdateTest extends TestCase
 {
@@ -658,5 +659,36 @@ class UpdateTest extends TestCase
             ])
         );
         $this->assertEquals(403, $response->getStatusCode());
+    }
+    
+    /**
+     * @test
+     */
+    public function last_seen_not_updated_quickly()
+    {
+        $user = User::find(2);
+
+        $lastSeenOriginal = Carbon::now()->subSeconds(10);
+        $expectedLastSeen = $lastSeenOriginal->copy();
+
+        $user->last_seen_at = $lastSeenOriginal;
+        $user->updateLastSeen();
+
+        $this->assertEquals($expectedLastSeen, $user->last_seen_at);
+    }
+
+    /**
+     * @test
+     */
+    public function last_seen_updated_after_long_time()
+    {
+        $user = User::find(2);
+
+        $lastSeenOriginal = Carbon::now()->subHour();
+
+        $user->last_seen_at = $lastSeenOriginal;
+        $user->updateLastSeen();
+
+        $this->assertNotEquals($lastSeenOriginal, $user->last_seen_at);
     }
 }
