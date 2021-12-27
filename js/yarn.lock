@@ -1390,7 +1390,7 @@ __metadata:
   dependencies:
     "@askvortsov/rich-icu-message-formatter": ^0.2.1
     "@flarum/prettier-config": ^1.0.0
-    "@types/jquery": ^3.5.8
+    "@types/jquery": ^3.5.10
     "@types/mithril": ^2.0.8
     "@types/punycode": ^2.1.0
     "@types/textarea-caret": ^3.0.1
@@ -1409,13 +1409,13 @@ __metadata:
     jquery.hotkeys: ^0.1.0
     mithril: ^2.0.4
     nanoid: ^3.1.30
-    prettier: ^2.4.1
+    prettier: ^2.5.1
     punycode: ^2.1.1
     textarea-caret: ^3.1.0
     throttle-debounce: ^3.0.1
-    typescript: ^4.4.4
+    typescript: ^4.5.4
     typescript-coverage-report: ^0.6.1
-    webpack: ^5.61.0
+    webpack: ^5.65.0
     webpack-cli: ^4.9.1
     webpack-merge: ^5.8.0
   languageName: unknown
@@ -1542,7 +1542,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jquery@npm:^3.5.5, @types/jquery@npm:^3.5.8":
+"@types/jquery@npm:^3.5.10":
+  version: 3.5.10
+  resolution: "@types/jquery@npm:3.5.10"
+  dependencies:
+    "@types/sizzle": "*"
+  checksum: 8ac37fd113680bfe63748f28b438e4e0119342bdb5d7f94851a4178607b5c097a0b23bd2d17f9c390972a5d4c04247b5d1b806eb52b50ea1085b50629db8057d
+  languageName: node
+  linkType: hard
+
+"@types/jquery@npm:^3.5.5":
   version: 3.5.8
   resolution: "@types/jquery@npm:3.5.8"
   dependencies:
@@ -3392,12 +3401,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.4.1":
-  version: 2.4.1
-  resolution: "prettier@npm:2.4.1"
+"prettier@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "prettier@npm:2.5.1"
   bin:
     prettier: bin-prettier.js
-  checksum: cc6830588b401b0d742862fe9c46bc9118204fb307c3abe0e49e95b35ed23629573807ffdf9cdd65289c252a0bb51fc0171437f6626ee36378dea80f0ee80b91
+  checksum: 21b9408476ea1c544b0e45d51ceb94a84789ff92095abb710942d780c862d0daebdb29972d47f6b4d0f7ebbfb0ffbf56cc2cfa3e3e9d1cca54864af185b15b66
   languageName: node
   linkType: hard
 
@@ -4094,7 +4103,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.3.2, typescript@npm:^4.4.4":
+"typescript@npm:^4.3.2":
   version: 4.4.4
   resolution: "typescript@npm:4.4.4"
   bin:
@@ -4104,9 +4113,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:^4.5.4":
+  version: 4.5.4
+  resolution: "typescript@npm:4.5.4"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 59f3243f9cd6fe3161e6150ff6bf795fc843b4234a655dbd938a310515e0d61afd1ac942799e7415e4334255e41c2c49b7dd5d9fd38a17acd25a6779ca7e0961
+  languageName: node
+  linkType: hard
+
 "typescript@patch:typescript@4.1.3#~builtin<compat/typescript>":
   version: 4.1.3
-  resolution: "typescript@patch:typescript@npm%3A4.1.3#~builtin<compat/typescript>::version=4.1.3&hash=ddd1e8"
+  resolution: "typescript@patch:typescript@npm%3A4.1.3#~builtin<compat/typescript>::version=4.1.3&hash=493e53"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -4114,13 +4133,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.3.2#~builtin<compat/typescript>, typescript@patch:typescript@^4.4.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.3.2#~builtin<compat/typescript>":
   version: 4.4.4
-  resolution: "typescript@patch:typescript@npm%3A4.4.4#~builtin<compat/typescript>::version=4.4.4&hash=ddd1e8"
+  resolution: "typescript@patch:typescript@npm%3A4.4.4#~builtin<compat/typescript>::version=4.4.4&hash=493e53"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: bd629ad0da4a15d79aaad56baf3ee7d96f6a181760d430ae77f8c5325df7bffd9edee57544a3970e3651e8b796fe03a5838a7eb39c6d46cc3866c0b23d36a0dd
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@^4.5.4#~builtin<compat/typescript>":
+  version: 4.5.4
+  resolution: "typescript@patch:typescript@npm%3A4.5.4#~builtin<compat/typescript>::version=4.5.4&hash=493e53"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 2e488dde7d2c4a2fa2e79cf2470600f8ce81bc0563c276b72df8ff412d74456ae532ba824650ae936ce207440c79720ddcfaa25e3cb4477572b8534fa4e34d49
   languageName: node
   linkType: hard
 
@@ -4183,13 +4212,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"watchpack@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "watchpack@npm:2.2.0"
+"watchpack@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "watchpack@npm:2.3.1"
   dependencies:
     glob-to-regexp: ^0.4.1
     graceful-fs: ^4.1.2
-  checksum: e275f48fae29edee3195c51a8312b609581b9be5ce323d3102ffd082cb124f48d7a393ce05e4110239e4354379e04d78a97ceb26ae367746e7e218bf258135c8
+  checksum: 70a34f92842d94b5d842980f866d568d7a467de667c96ae5759c759f46587e49265863171f4650bdbafc5f3870a28f2b4453e9e847098ec4b718b38926d47d22
   languageName: node
   linkType: hard
 
@@ -4255,16 +4284,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-sources@npm:^3.2.0":
-  version: 3.2.1
-  resolution: "webpack-sources@npm:3.2.1"
-  checksum: 438ee4759f70ee2d5ae17a2fc5e66a1f71f0ba8ad9de77edfaf4180c82925f6504790c5a1ddfa2a6d409212cd9e7332a6822d6acabb0f39303bc3b14354872e6
+"webpack-sources@npm:^3.2.2":
+  version: 3.2.2
+  resolution: "webpack-sources@npm:3.2.2"
+  checksum: cc81f1f1bfd1c25c7a565598850294b515bcccf7974d0249b4a0c8c607307866ce3f9e8cdef1c74d5facfb0d993944c499cfd4b7c8f52d01359b6671cc5823d4
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.61.0":
-  version: 5.61.0
-  resolution: "webpack@npm:5.61.0"
+"webpack@npm:^5.65.0":
+  version: 5.65.0
+  resolution: "webpack@npm:5.65.0"
   dependencies:
     "@types/eslint-scope": ^3.7.0
     "@types/estree": ^0.0.50
@@ -4288,14 +4317,14 @@ __metadata:
     schema-utils: ^3.1.0
     tapable: ^2.1.1
     terser-webpack-plugin: ^5.1.3
-    watchpack: ^2.2.0
-    webpack-sources: ^3.2.0
+    watchpack: ^2.3.1
+    webpack-sources: ^3.2.2
   peerDependenciesMeta:
     webpack-cli:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 442958ec48645c9e612a2628a815c411cbc18289b5cc7b3d1b5d0f8e5b41606ed225decf4f3684edc365e6390867bded244d20387c70fbb630c0ac08443c34c8
+  checksum: 221ab8ccd440cb678269e86689704bbef81cf41393eb266625873e30c6980ffaa055bb1a7d14bf9fc0f5a2e6f03d15d068cbb995bc876757c01a4ca27fd2870c
   languageName: node
   linkType: hard
 
