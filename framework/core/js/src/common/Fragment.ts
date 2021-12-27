@@ -30,8 +30,8 @@ export default abstract class Fragment {
    * containing all of the `li` elements inside the DOM element of this
    * fragment.
    *
-   * @param {String} [selector] a jQuery-compatible selector string
-   * @returns {jQuery} the jQuery object for the DOM node
+   * @param [selector] a jQuery-compatible selector string
+   * @returns the jQuery object for the DOM node
    * @final
    */
   public $(selector?: string): JQuery {

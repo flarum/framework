@@ -12,8 +12,7 @@ export default class LogInButtons extends Component {
   /**
    * Build a list of LogInButton components.
    *
-   * @return {ItemList}
-   * @public
+   * @return {ItemList<import('mithril').Children>}
    */
   items() {
     return new ItemList();

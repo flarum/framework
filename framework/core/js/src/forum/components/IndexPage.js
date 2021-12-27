@@ -133,7 +133,7 @@ export default class IndexPage extends Page {
   /**
    * Get the component to display as the hero.
    *
-   * @return {MithrilComponent}
+   * @return {import('mithril').Children}
    */
   hero() {
     return WelcomeHero.component();
@@ -144,7 +144,7 @@ export default class IndexPage extends Page {
    * "New Discussion" button, and then a DropdownSelect component containing a
    * list of navigation items.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   sidebarItems() {
     const items = new ItemList();
@@ -187,7 +187,7 @@ export default class IndexPage extends Page {
    * Build an item list for the navigation in the sidebar of the index page. By
    * default this is just the 'All Discussions' link.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   navItems() {
     const items = new ItemList();
@@ -213,7 +213,7 @@ export default class IndexPage extends Page {
    * the results are displayed. By default this is just a select box to change
    * the way discussions are sorted.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   viewItems() {
     const items = new ItemList();
@@ -255,7 +255,7 @@ export default class IndexPage extends Page {
    * Build an item list for the part of the toolbar which is about taking action
    * on the results. By default this is just a "mark all as read" button.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   actionItems() {
     const items = new ItemList();
@@ -294,7 +294,7 @@ export default class IndexPage extends Page {
   /**
    * Open the composer for a new discussion or prompt the user to login.
    *
-   * @return {Promise}
+   * @return {Promise<void>}
    */
   newDiscussionAction() {
     return new Promise((resolve, reject) => {
@@ -313,8 +313,6 @@ export default class IndexPage extends Page {
 
   /**
    * Mark all discussions as read.
-   *
-   * @return void
    */
   markAllAsRead() {
     const confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));

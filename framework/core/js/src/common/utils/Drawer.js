@@ -63,7 +63,6 @@ export default class Drawer {
    * Check whether or not the drawer is currently open.
    *
    * @return {boolean}
-   * @public
    */
   isOpen() {
     return this.appElement.classList.contains('drawerOpen');
@@ -71,8 +70,6 @@ export default class Drawer {
 
   /**
    * Hide the drawer.
-   *
-   * @public
    */
   hide() {
     /**
@@ -100,8 +97,6 @@ export default class Drawer {
 
   /**
    * Show the drawer.
-   *
-   * @public
    */
   show() {
     this.appElement.classList.add('drawerOpen');

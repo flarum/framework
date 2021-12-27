@@ -19,21 +19,21 @@ export default class NotificationGrid extends Component {
     /**
      * Information about the available notification methods.
      *
-     * @type {Array}
+     * @type {({ name: string, icon: string, label: import('mithril').Children })[]}
      */
     this.methods = this.notificationMethods().toArray();
 
     /**
      * A map of which notification checkboxes are loading.
      *
-     * @type {Object}
+     * @type {Record<string, boolean>}
      */
     this.loading = {};
 
     /**
      * Information about the available notification types.
      *
-     * @type {Array}
+     * @type {({ name: string, icon: string, label: import('mithril').Children })[]}
      */
     this.types = this.notificationTypes().toArray();
   }
@@ -104,7 +104,7 @@ export default class NotificationGrid extends Component {
    * Toggle the state of the given preferences, based on the value of the first
    * one.
    *
-   * @param {Array} keys
+   * @param {string[]} keys
    */
   toggle(keys) {
     const user = this.attrs.user;
@@ -128,7 +128,7 @@ export default class NotificationGrid extends Component {
   /**
    * Toggle all notification types for the given method.
    *
-   * @param {String} method
+   * @param {string} method
    */
   toggleMethod(method) {
     const keys = this.types.map((type) => this.preferenceKey(type.name, method)).filter((key) => key in this.attrs.user.preferences());
@@ -139,7 +139,7 @@ export default class NotificationGrid extends Component {
   /**
    * Toggle all notification methods for the given type.
    *
-   * @param {String} type
+   * @param {string} type
    */
   toggleType(type) {
     const keys = this.methods.map((method) => this.preferenceKey(type, method.name)).filter((key) => key in this.attrs.user.preferences());
@@ -151,9 +151,9 @@ export default class NotificationGrid extends Component {
    * Get the name of the preference key for the given notification type-method
    * combination.
    *
-   * @param {String} type
-   * @param {String} method
-   * @return {String}
+   * @param {string} type
+   * @param {string} method
+   * @return {string}
    */
   preferenceKey(type, method) {
     return 'notify_' + type + '_' + method;
@@ -168,7 +168,7 @@ export default class NotificationGrid extends Component {
    * - `icon` The icon to display in the column header.
    * - `label` The label to display in the column header.
    *
-   * @return {ItemList}
+   * @return {ItemList<{ name: string, icon: string, label: import('mithril').Children }>}
    */
   notificationMethods() {
     const items = new ItemList();
@@ -197,7 +197,7 @@ export default class NotificationGrid extends Component {
    * - `icon` The icon to display in the notification grid row.
    * - `label` The label to display in the notification grid row.
    *
-   * @return {ItemList}
+   * @return {ItemList<{ name: string, icon: string, label: import('mithril').Children}>}
    */
   notificationTypes() {
     const items = new ItemList();

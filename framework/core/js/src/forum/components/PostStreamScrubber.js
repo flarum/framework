@@ -158,7 +158,7 @@ export default class PostStreamScrubber extends Component {
    * Update the scrollbar's position to reflect the current values of the
    * index/visible properties.
    *
-   * @param {Boolean} animate
+   * @param {Partial<{fromScroll: boolean, forceHeightChange: boolean, animate: boolean}>} options
    */
   updateScrubberValues(options = {}) {
     const index = this.stream.index;
@@ -301,7 +301,7 @@ export default class PostStreamScrubber extends Component {
    * Get the percentage of the height of the scrubber that should be allocated
    * to each post.
    *
-   * @return {Object}
+   * @return {{ index: number, visible: number }}
    * @property {Number} index The percent per post for posts on either side of
    *     the visible part of the scrubber.
    * @property {Number} visible The percent per post for the visible part of the

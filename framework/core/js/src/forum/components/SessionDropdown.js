@@ -35,7 +35,7 @@ export default class SessionDropdown extends Dropdown {
   /**
    * Build an item list for the contents of the dropdown menu.
    *
-   * @return {ItemList}
+   * @return {ItemList<import('mithril').Children>}
    */
   items() {
     const items = new ItemList();
