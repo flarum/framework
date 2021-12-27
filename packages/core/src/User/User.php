@@ -121,6 +121,12 @@ class User extends AbstractModel
     protected static $passwordCheckers;
 
     /**
+     * Difference from the current `last_seen` attribute value before `updateLastSeen()`
+     * will update the attribute on the DB. Measured in seconds.
+     */
+    private const LAST_SEEN_UPDATE_DIFF = 180;
+
+    /**
      * Boot the model.
      *
      * @return void
@@ -564,7 +570,11 @@ class User extends AbstractModel
      */
     public function updateLastSeen()
     {
-        $this->last_seen_at = Carbon::now();
+        $now = Carbon::now();
+
+        if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now) > User::LAST_SEEN_UPDATE_DIFF) {
+            $this->last_seen_at = $now;
+        }
 
         return $this;
     }

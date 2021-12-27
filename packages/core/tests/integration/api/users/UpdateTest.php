@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\users;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class UpdateTest extends TestCase
 {
@@ -33,6 +34,15 @@ class UpdateTest extends TestCase
                     'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', // BCrypt hash for "too-obscure"
                     'email' => 'normal2@machine.local',
                     'is_email_confirmed' => 1,
+                    'last_seen_at' => Carbon::now()->subSecond(),
+                ],
+                [
+                    'id' => 4,
+                    'username' => 'normal3',
+                    'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', // BCrypt hash for "too-obscure"
+                    'email' => 'normal3@machine.local',
+                    'is_email_confirmed' => 1,
+                    'last_seen_at' => Carbon::now()->subHour(),
                 ]
             ],
         ]);
@@ -200,7 +210,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id'=> 1, 'type' => 'group']
+                                    ['id' => 1, 'type' => 'group']
                                 ]
                             ]
                         ],
@@ -323,7 +333,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id'=> 1, 'type' => 'group']
+                                    ['id' => 1, 'type' => 'group']
                                 ]
                             ]
                         ],
@@ -469,7 +479,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id'=> 4, 'type' => 'group']
+                                    ['id' => 4, 'type' => 'group']
                                 ]
                             ]
                         ],
@@ -517,7 +527,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id'=> 1, 'type' => 'group']
+                                    ['id' => 1, 'type' => 'group']
                                 ]
                             ]
                         ],
@@ -542,7 +552,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id'=> 1, 'type' => 'group']
+                                    ['id' => 1, 'type' => 'group']
                                 ]
                             ]
                         ],
@@ -649,8 +659,7 @@ class UpdateTest extends TestCase
                     'data' => [
                         'relationships' => [
                             'groups' => [
-                                'data' => [
-                                ]
+                                'data' => []
                             ]
                         ],
                     ]
@@ -658,5 +667,47 @@ class UpdateTest extends TestCase
             ])
         );
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function last_seen_not_updated_quickly()
+    {
+        $this->app();
+
+        $user = User::find(3);
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/3', [
+                'authenticatedAs' => 3,
+                'json' => [],
+            ])
+        );
+        $body = json_decode($response->getBody(), true);
+        $last_seen = $body['data']['attributes']['lastSeenAt'];
+
+        $this->assertTrue(Carbon::parse($last_seen)->equalTo($user->last_seen_at));
+    }
+
+    /**
+     * @test
+     */
+    public function last_seen_updated_after_long_time()
+    {
+        $this->app();
+
+        $user = User::find(4);
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/4', [
+                'authenticatedAs' => 4,
+                'json' => [],
+            ])
+        );
+        $body = json_decode($response->getBody(), true);
+        $last_seen = $body['data']['attributes']['lastSeenAt'];
+
+        $this->assertFalse(Carbon::parse($last_seen)->equalTo($user->last_seen_at));
     }
 }

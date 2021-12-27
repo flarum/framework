@@ -64,6 +64,12 @@ class AccessToken extends AbstractModel
     protected static $lifetime = 0;
 
     /**
+     * Difference from the current `last_activity_at` attribute value before `updateLastSeen()`
+     * will update the attribute on the DB. Measured in seconds.
+     */
+    private const LAST_ACTIVITY_UPDATE_DIFF = 90;
+
+    /**
      * Generate an access token for the specified user.
      *
      * @param int $userId
@@ -95,7 +101,11 @@ class AccessToken extends AbstractModel
      */
     public function touch(ServerRequestInterface $request = null)
     {
-        $this->last_activity_at = Carbon::now();
+        $now = Carbon::now();
+
+        if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds($now) > AccessToken::LAST_ACTIVITY_UPDATE_DIFF) {
+            $this->last_activity_at = $now;
+        }
 
         if ($request) {
             $this->last_ip_address = $request->getAttribute('ipAddress');
