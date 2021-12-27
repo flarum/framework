@@ -95,7 +95,11 @@ class AccessToken extends AbstractModel
      */
     public function touch(ServerRequestInterface $request = null)
     {
-        $this->last_activity_at = Carbon::now();
+        $now = Carbon::now();
+
+        if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds() > 120) {
+            $this->last_activity_at = $now;
+        }
 
         if ($request) {
             $this->last_ip_address = $request->getAttribute('ipAddress');
