@@ -572,7 +572,6 @@ class User extends AbstractModel
     {
         $now = Carbon::now();
 
-        // Only update if the current timestamp is from a while ago
         if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now) > User::LAST_SEEN_UPDATE_DIFF) {
             $this->last_seen_at = $now;
         }
