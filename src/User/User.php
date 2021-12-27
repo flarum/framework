@@ -564,7 +564,12 @@ class User extends AbstractModel
      */
     public function updateLastSeen()
     {
-        $this->last_seen_at = Carbon::now();
+        $now = Carbon::now();
+
+        // Only update if the current timestamp is >120s ago
+        if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now) > 120) {
+            $this->last_seen_at = $now;
+        }
 
         return $this;
     }
