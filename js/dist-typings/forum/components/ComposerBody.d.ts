@@ -27,15 +27,15 @@ export default class ComposerBody extends Component<import("../../common/Compone
     /**
      * Check if there is any unsaved data.
      *
-     * @return {String}
+     * @return {boolean}
      */
-    hasChanges(): string;
+    hasChanges(): boolean;
     /**
      * Build an item list for the composer's header.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    headerItems(): ItemList<any>;
+    headerItems(): ItemList<import('mithril').Children>;
     /**
      * Handle the submit event of the text editor.
      *

@@ -20,17 +20,17 @@ export default class PostStream extends Component<import("../../common/Component
     triggerScroll(): void;
     /**
      *
-     * @param {Integer} top
+     * @param {number} top
      */
-    onscroll(top?: any): void;
+    onscroll(top?: number): void;
     calculatePositionTimeout: NodeJS.Timeout | undefined;
     /**
      * Check if either extreme of the post stream is in the viewport,
      * and if so, trigger loading the next/previous page.
      *
-     * @param {Integer} top
+     * @param {number} top
      */
-    loadPostsIfNeeded(top?: any): void;
+    loadPostsIfNeeded(top?: number): void;
     updateScrubber(top?: number): void;
     /**
      * Work out which posts (by number) are currently visible in the viewport, and
@@ -41,43 +41,43 @@ export default class PostStream extends Component<import("../../common/Component
      * Get the distance from the top of the viewport to the point at which we
      * would consider a post to be the first one visible.
      *
-     * @return {Integer}
+     * @return {number}
      */
-    getMarginTop(): any;
+    getMarginTop(): number;
     /**
      * Scroll down to a certain post by number and 'flash' it.
      *
-     * @param {Integer} number
-     * @param {Boolean} animate
-     * @return {jQuery.Deferred}
+     * @param {number} number
+     * @param {boolean} animate
+     * @return {JQueryDeferred}
      */
-    scrollToNumber(number: any, animate: boolean): any;
+    scrollToNumber(number: number, animate: boolean): JQueryDeferred<any>;
     /**
      * Scroll down to a certain post by index.
      *
-     * @param {Integer} index
-     * @param {Boolean} animate
-     * @param {Boolean} reply Whether or not to scroll to the reply placeholder.
-     * @return {jQuery.Deferred}
+     * @param {number} index
+     * @param {boolean} animate
+     * @param {boolean} reply Whether or not to scroll to the reply placeholder.
+     * @return {JQueryDeferred}
      */
-    scrollToIndex(index: any, animate: boolean, reply: boolean): any;
+    scrollToIndex(index: number, animate: boolean, reply: boolean): JQueryDeferred<any>;
     /**
      * Scroll down to the given post.
      *
-     * @param {jQuery} $item
-     * @param {Boolean} animate
-     * @param {Boolean} force Whether or not to force scrolling to the item, even
+     * @param {JQuery} $item
+     * @param {boolean} animate
+     * @param {boolean} force Whether or not to force scrolling to the item, even
      *     if it is already in the viewport.
-     * @param {Boolean} reply Whether or not to scroll to the reply placeholder.
-     * @return {jQuery.Deferred}
+     * @param {boolean} reply Whether or not to scroll to the reply placeholder.
+     * @return {JQueryDeferred}
      */
-    scrollToItem($item: JQueryStatic, animate: boolean, force: boolean, reply: boolean): any;
+    scrollToItem($item: JQuery, animate: boolean, force: boolean, reply: boolean): JQueryDeferred<any>;
     /**
      * 'Flash' the given post, drawing the user's attention to it.
      *
-     * @param {jQuery} $item
+     * @param {JQuery} $item
      */
-    flashItem($item: JQueryStatic): void;
+    flashItem($item: JQuery): void;
 }
 import Component from "../../common/Component";
 import ScrollListener from "../../common/utils/ScrollListener";

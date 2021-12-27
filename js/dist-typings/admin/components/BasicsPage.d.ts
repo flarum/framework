@@ -7,10 +7,12 @@ export default class BasicsPage extends AdminPage<import("../../common/component
      * Build a list of options for the default homepage. Each option must be an
      * object with `path` and `label` properties.
      *
-     * @return {ItemList}
-     * @public
+     * @return {ItemList<{ path: string, label: import('mithril').Children }>}
      */
-    public homePageItems(): ItemList<any>;
+    homePageItems(): ItemList<{
+        path: string;
+        label: import('mithril').Children;
+    }>;
 }
 import AdminPage from "./AdminPage";
 import ItemList from "../../common/utils/ItemList";

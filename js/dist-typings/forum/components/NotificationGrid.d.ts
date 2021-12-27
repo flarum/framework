@@ -11,47 +11,55 @@ export default class NotificationGrid extends Component<import("../../common/Com
     /**
      * Information about the available notification methods.
      *
-     * @type {Array}
+     * @type {({ name: string, icon: string, label: import('mithril').Children })[]}
      */
-    methods: any[] | undefined;
+    methods: {
+        name: string;
+        icon: string;
+        label: import('mithril').Children;
+    }[] | undefined;
     /**
      * A map of which notification checkboxes are loading.
      *
-     * @type {Object}
+     * @type {Record<string, boolean>}
      */
-    loading: Object | undefined;
+    loading: Record<string, boolean> | undefined;
     /**
      * Information about the available notification types.
      *
-     * @type {Array}
+     * @type {({ name: string, icon: string, label: import('mithril').Children })[]}
      */
-    types: any[] | undefined;
+    types: {
+        name: string;
+        icon: string;
+        label: import('mithril').Children;
+    }[] | undefined;
     /**
      * Toggle the state of the given preferences, based on the value of the first
      * one.
      *
-     * @param {Array} keys
+     * @param {string[]} keys
      */
-    toggle(keys: any[]): void;
+    toggle(keys: string[]): void;
     /**
      * Toggle all notification types for the given method.
      *
-     * @param {String} method
+     * @param {string} method
      */
     toggleMethod(method: string): void;
     /**
      * Toggle all notification methods for the given type.
      *
-     * @param {String} type
+     * @param {string} type
      */
     toggleType(type: string): void;
     /**
      * Get the name of the preference key for the given notification type-method
      * combination.
      *
-     * @param {String} type
-     * @param {String} method
-     * @return {String}
+     * @param {string} type
+     * @param {string} method
+     * @return {string}
      */
     preferenceKey(type: string, method: string): string;
     /**
@@ -63,9 +71,13 @@ export default class NotificationGrid extends Component<import("../../common/Com
      * - `icon` The icon to display in the column header.
      * - `label` The label to display in the column header.
      *
-     * @return {ItemList}
+     * @return {ItemList<{ name: string, icon: string, label: import('mithril').Children }>}
      */
-    notificationMethods(): ItemList<any>;
+    notificationMethods(): ItemList<{
+        name: string;
+        icon: string;
+        label: import('mithril').Children;
+    }>;
     /**
      * Build an item list for the notification types to display in the grid.
      *
@@ -75,9 +87,14 @@ export default class NotificationGrid extends Component<import("../../common/Com
      * - `icon` The icon to display in the notification grid row.
      * - `label` The label to display in the notification grid row.
      *
-     * @return {ItemList}
+     * @return {ItemList<{ name: string, icon: string, label: import('mithril').Children}>}
      */
-    notificationTypes(): ItemList<any>;
+    notificationTypes(): ItemList<{
+        name: string;
+        icon: string;
+        label: import('mithril').Children;
+    }>;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";
+import icon from "../../common/helpers/icon";

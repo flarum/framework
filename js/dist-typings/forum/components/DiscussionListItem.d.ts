@@ -23,7 +23,7 @@ export default class DiscussionListItem extends Component<import("../../common/C
     /**
      * Determine whether or not the discussion is currently being viewed.
      *
-     * @return {Boolean}
+     * @return {boolean}
      */
     active(): boolean;
     /**
@@ -31,14 +31,14 @@ export default class DiscussionListItem extends Component<import("../../common/C
      * should be displayed instead of information about the most recent reply to
      * the discussion.
      *
-     * @return {Boolean}
+     * @return {boolean}
      */
     showFirstPost(): boolean;
     /**
      * Determine whether or not the number of replies should be shown instead of
      * the number of unread posts.
      *
-     * @return {Boolean}
+     * @return {boolean}
      */
     showRepliesCount(): boolean;
     /**
@@ -49,9 +49,9 @@ export default class DiscussionListItem extends Component<import("../../common/C
      * Build an item list of info for a discussion listing. By default this is
      * just the first/last post indicator.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    infoItems(): ItemList<any>;
+    infoItems(): ItemList<import('mithril').Children>;
     replyCountItem(): JSX.Element;
 }
 import Component from "../../common/Component";

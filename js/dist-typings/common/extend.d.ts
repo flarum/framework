@@ -23,7 +23,7 @@
  * @param methods The name or names of the method(s) to extend
  * @param callback A callback which mutates the method's output
  */
-export declare function extend<T extends object, K extends KeyOfType<T, Function>>(object: T, methods: K | K[], callback: (this: T, val: ReturnType<T[K]>, ...args: Parameters<T[K]>) => void): void;
+export declare function extend<T extends Record<string, any>, K extends KeyOfType<T, Function>>(object: T, methods: K | K[], callback: (this: T, val: ReturnType<T[K]>, ...args: Parameters<T[K]>) => void): void;
 /**
  * Override an object's method by replacing it with a new function, so that the
  * new function will be run every time the object's method is called.
@@ -51,4 +51,4 @@ export declare function extend<T extends object, K extends KeyOfType<T, Function
  * @param methods The name or names of the method(s) to override
  * @param newMethod The method to replace it with
  */
-export declare function override<T extends object, K extends KeyOfType<T, Function>>(object: T, methods: K | K[], newMethod: (this: T, orig: T[K], ...args: Parameters<T[K]>) => void): void;
+export declare function override<T extends Record<any, any>, K extends KeyOfType<T, Function>>(object: T, methods: K | K[], newMethod: (this: T, orig: T[K], ...args: Parameters<T[K]>) => void): void;

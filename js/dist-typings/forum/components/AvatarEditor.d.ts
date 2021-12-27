@@ -24,36 +24,36 @@ export default class AvatarEditor extends Component<import("../../common/Compone
     /**
      * Get the items in the edit avatar dropdown menu.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    controlItems(): ItemList<any>;
+    controlItems(): ItemList<import('mithril').Children>;
     /**
      * Enable dragover style
      *
-     * @param {Event} e
+     * @param {DragEvent} e
      */
-    enableDragover(e: Event): void;
+    enableDragover(e: DragEvent): void;
     /**
      * Disable dragover style
      *
-     * @param {Event} e
+     * @param {DragEvent} e
      */
-    disableDragover(e: Event): void;
+    disableDragover(e: DragEvent): void;
     /**
      * Upload avatar when file is dropped into dropzone.
      *
-     * @param {Event} e
+     * @param {DragEvent} e
      */
-    dropUpload(e: Event): void;
+    dropUpload(e: DragEvent): void;
     /**
      * If the user doesn't have an avatar, there's no point in showing the
      * controls dropdown, because only one option would be viable: uploading.
      * Thus, when the avatar editor's dropdown toggle button is clicked, we prompt
      * the user to upload an avatar immediately.
      *
-     * @param {Event} e
+     * @param {MouseEvent} e
      */
-    quickUpload(e: Event): void;
+    quickUpload(e: MouseEvent): void;
     /**
      * Upload avatar using file picker
      */
@@ -72,17 +72,17 @@ export default class AvatarEditor extends Component<import("../../common/Compone
      * After a successful upload/removal, push the updated user data into the
      * store, and force a recomputation of the user's avatar color.
      *
-     * @param {Object} response
+     * @param {object} response
      * @protected
      */
-    protected success(response: Object): void;
+    protected success(response: object): void;
     /**
      * If avatar upload/removal fails, stop loading.
      *
-     * @param {Object} response
+     * @param {object} response
      * @protected
      */
-    protected failure(response: Object): void;
+    protected failure(response: object): void;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

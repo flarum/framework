@@ -6,10 +6,9 @@ export default class LogInButtons extends Component<import("../../common/Compone
     /**
      * Build a list of LogInButton components.
      *
-     * @return {ItemList}
-     * @public
+     * @return {ItemList<import('mithril').Children>}
      */
-    public items(): ItemList<any>;
+    items(): ItemList<import('mithril').Children>;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

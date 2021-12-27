@@ -24,35 +24,31 @@ export default class PostsUserPage extends UserPage {
     /**
      * The number of activity items to load per request.
      *
-     * @type {Integer}
+     * @type {number}
      */
-    loadLimit: any;
+    loadLimit: number | undefined;
     /**
      * Clear and reload the user's activity feed.
-     *
-     * @public
      */
-    public refresh(): void;
+    refresh(): void;
     /**
      * Load a new page of the user's activity feed.
      *
-     * @param {Integer} [offset] The position to start getting results from.
-     * @return {Promise}
+     * @param {number} [offset] The position to start getting results from.
+     * @return {Promise<import('../../common/models/Post').default[]>}
      * @protected
      */
-    protected loadResults(offset?: any): Promise<any>;
+    protected loadResults(offset?: number | undefined): Promise<import('../../common/models/Post').default[]>;
     /**
      * Load the next page of results.
-     *
-     * @public
      */
-    public loadMore(): void;
+    loadMore(): void;
     /**
      * Parse results and append them to the activity feed.
      *
-     * @param {Post[]} results
-     * @return {Post[]}
+     * @param {import('../../common/models/Post').default[]} results
+     * @return {import('../../common/models/Post').default[]}
      */
-    parseResults(results: any[]): any[];
+    parseResults(results: import('../../common/models/Post').default[]): import('../../common/models/Post').default[];
 }
 import UserPage from "./UserPage";

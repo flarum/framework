@@ -15,9 +15,9 @@ export default class UserCard extends Component<import("../../common/Component")
     /**
      * Build an item list of tidbits of info to show on this user's profile.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    infoItems(): ItemList<any>;
+    infoItems(): ItemList<import('mithril').Children>;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

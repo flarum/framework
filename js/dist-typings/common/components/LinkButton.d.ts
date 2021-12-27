@@ -16,10 +16,10 @@ export default class LinkButton extends Button<import("./Button").IButtonAttrs> 
     /**
      * Determine whether a component with the given attrs is 'active'.
      *
-     * @param {Object} attrs
-     * @return {Boolean}
+     * @param {object} attrs
+     * @return {boolean}
      */
-    static isActive(attrs: Object): boolean;
+    static isActive(attrs: object): boolean;
     constructor();
 }
 import Button from "./Button";

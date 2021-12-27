@@ -6,9 +6,9 @@ export default class SessionDropdown extends Dropdown {
     /**
      * Build an item list for the contents of the dropdown menu.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    items(): ItemList<any>;
+    items(): ItemList<import('mithril').Children>;
 }
 import Dropdown from "../../common/components/Dropdown";
 import ItemList from "../../common/utils/ItemList";

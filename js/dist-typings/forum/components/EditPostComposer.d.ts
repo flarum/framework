@@ -17,8 +17,8 @@ export default class EditPostComposer extends ComposerBody {
     /**
      * Get the data to submit to the server when the post is saved.
      *
-     * @return {Object}
+     * @return {Record<string, unknown>}
      */
-    data(): Object;
+    data(): Record<string, unknown>;
 }
 import ComposerBody from "./ComposerBody";
