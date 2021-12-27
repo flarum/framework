@@ -13,5 +13,6 @@ tests export-ignore
 js/dist/* -diff
 js/dist/* linguist-generated
 js/dist-typings/* linguist-generated
+js/yarn.lock -diff
 
 * text=auto eol=lf
