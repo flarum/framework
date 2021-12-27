@@ -89,9 +89,9 @@ export default class IndexPage extends Page {
     // Let browser handle scrolling on page reload.
     if (app.previous.type == null) return;
 
-    // When on mobile, only retain scroll if we're coming from a discussion page.
+    // Only retain scroll position if we're coming from a discussion page.
     // Otherwise, we've just changed the filter, so we should go to the top of the page.
-    if (app.screen() == 'desktop' || app.screen() == 'desktop-hd' || this.lastDiscussion) {
+    if (this.lastDiscussion) {
       $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
     } else {
       $(window).scrollTop(0);
