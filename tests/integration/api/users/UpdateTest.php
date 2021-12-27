@@ -674,6 +674,8 @@ class UpdateTest extends TestCase
      */
     public function last_seen_not_updated_quickly()
     {
+        $this->app();
+
         $user = User::find(3);
 
         $response = $this->send(
@@ -693,6 +695,8 @@ class UpdateTest extends TestCase
      */
     public function last_seen_updated_after_long_time()
     {
+        $this->app();
+
         $user = User::find(4);
 
         $response = $this->send(
