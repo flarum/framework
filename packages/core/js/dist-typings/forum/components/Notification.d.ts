@@ -13,31 +13,31 @@ export default class Notification extends Component<import("../../common/Compone
     /**
      * Get the name of the icon that should be displayed in the notification.
      *
-     * @return {String}
+     * @return {string}
      * @abstract
      */
     icon(): string;
     /**
      * Get the URL that the notification should link to.
      *
-     * @return {String}
+     * @return {string}
      * @abstract
      */
     href(): string;
     /**
      * Get the content of the notification.
      *
-     * @return {VirtualElement}
+     * @return {import('mithril').Children}
      * @abstract
      */
-    content(): any;
+    content(): import('mithril').Children;
     /**
      * Get the excerpt of the notification.
      *
-     * @return {VirtualElement}
+     * @return {import('mithril').Children}
      * @abstract
      */
-    excerpt(): any;
+    excerpt(): import('mithril').Children;
     /**
      * Mark the notification as read.
      */

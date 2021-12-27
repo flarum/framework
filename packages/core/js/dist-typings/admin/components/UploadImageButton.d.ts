@@ -13,16 +13,16 @@ export default class UploadImageButton extends Button<import("../../common/compo
     /**
      * After a successful upload/removal, reload the page.
      *
-     * @param {Object} response
+     * @param {object} response
      * @protected
      */
-    protected success(response: Object): void;
+    protected success(response: object): void;
     /**
      * If upload/removal fails, stop loading.
      *
-     * @param {Object} response
+     * @param {object} response
      * @protected
      */
-    protected failure(response: Object): void;
+    protected failure(response: object): void;
 }
 import Button from "../../common/components/Button";

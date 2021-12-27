@@ -25,34 +25,34 @@ export default class Post extends Component<import("../../common/Component").Com
     /**
      * Get attributes for the post element.
      *
-     * @return {Object}
+     * @return {Record<string, unknown>}
      */
-    elementAttrs(): Object;
+    elementAttrs(): Record<string, unknown>;
     /**
      * Get the post's content.
      *
-     * @return {Array}
+     * @return {import('mithril').Children}
      */
-    content(): any[];
+    content(): import('mithril').Children;
     /**
      * Get the post's classes.
      *
-     * @param existing string
+     * @param {string} existing
      * @returns {string[]}
      */
-    classes(existing: any): string[];
+    classes(existing: string): string[];
     /**
      * Build an item list for the post's actions.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    actionItems(): ItemList<any>;
+    actionItems(): ItemList<import('mithril').Children>;
     /**
      * Build an item list for the post's footer.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    footerItems(): ItemList<any>;
+    footerItems(): ItemList<import('mithril').Children>;
 }
 import Component from "../../common/Component";
 import SubtreeRetainer from "../../common/utils/SubtreeRetainer";

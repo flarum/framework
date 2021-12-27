@@ -42,8 +42,6 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
     /**
      * Open the log in modal, prefilling it with an email/username/password if
      * the user has entered one.
-     *
-     * @public
      */
     logIn(): void;
     onready(): void;

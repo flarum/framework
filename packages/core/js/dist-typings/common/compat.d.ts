@@ -4,8 +4,8 @@ declare var _default: {
     Store: typeof Store;
     'utils/BasicEditorDriver': typeof BasicEditorDriver;
     'utils/evented': {
-        handlers: Object;
-        getHandlers(event: string): any[];
+        handlers: Record<string, unknown>;
+        getHandlers(event: string): Function[];
         trigger(event: string, ...args: any[]): void;
         on(event: string, handler: Function): void;
         one(event: string, handler: Function): void;

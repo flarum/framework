@@ -46,33 +46,30 @@ declare class PostStreamState {
     /**
      * Update the stream so that it loads and includes the latest posts in the
      * discussion, if the end is being viewed.
-     *
-     * @public
      */
-    public update(): Promise<any>;
+    update(): Promise<void>;
     visibleEnd: any;
     /**
      * Load and scroll up to the first post in the discussion.
      *
-     * @return {Promise}
+     * @return {Promise<void>}
      */
-    goToFirst(): Promise<any>;
+    goToFirst(): Promise<void>;
     /**
      * Load and scroll down to the last post in the discussion.
      *
-     * @return {Promise}
+     * @return {Promise<void>}
      */
-    goToLast(): Promise<any>;
+    goToLast(): Promise<void>;
     /**
      * Load and scroll to a post with a certain number.
      *
-     * @param {number|String} number The post number to go to. If 'reply', go to
-     *     the last post and scroll the reply preview into view.
-     * @param {Boolean} noAnimation
-     * @return {Promise}
+     * @param {number | string} number The post number to go to. If 'reply', go to the last post and scroll the reply preview into view.
+     * @param {boolean} [noAnimation]
+     * @return {Promise<void>}
      */
-    goToNumber(number: number | string, noAnimation?: boolean): Promise<any>;
-    loadPromise: Promise<any> | undefined;
+    goToNumber(number: number | string, noAnimation?: boolean | undefined): Promise<void>;
+    loadPromise: Promise<void> | undefined;
     needsScroll: boolean | undefined;
     targetPost: {
         number: string | number;
@@ -86,28 +83,28 @@ declare class PostStreamState {
      * Load and scroll to a certain index within the discussion.
      *
      * @param {number} index
-     * @param {Boolean} noAnimation
-     * @return {Promise}
+     * @param {boolean} [noAnimation]
+     * @return {Promise<void>}
      */
-    goToIndex(index: number, noAnimation?: boolean): Promise<any>;
+    goToIndex(index: number, noAnimation?: boolean | undefined): Promise<void>;
     /**
      * Clear the stream and load posts near a certain number. Returns a promise.
      * If the post with the given number is already loaded, the promise will be
      * resolved immediately.
      *
      * @param {number} number
-     * @return {Promise}
+     * @return {Promise<void>}
      */
-    loadNearNumber(number: number): Promise<any>;
+    loadNearNumber(number: number): Promise<void>;
     /**
      * Clear the stream and load posts near a certain index. A page of posts
      * surrounding the given index will be loaded. Returns a promise. If the given
      * index is already loaded, the promise will be resolved immediately.
      *
      * @param {number} index
-     * @return {Promise}
+     * @return {Promise<void>}
      */
-    loadNearIndex(index: number): Promise<any>;
+    loadNearIndex(index: number): Promise<void>;
     /**
      * Load the next page of posts.
      */
@@ -122,7 +119,7 @@ declare class PostStreamState {
      *
      * @param {number} start
      * @param {number} end
-     * @param {Boolean} backwards
+     * @param {boolean} backwards
      */
     loadPage(start: number, end: number, backwards?: boolean): void;
     /**
@@ -131,15 +128,15 @@ declare class PostStreamState {
      *
      * @param {number} start
      * @param {number} end
-     * @return {Promise}
+     * @return {Promise<void>}
      */
-    loadRange(start: number, end: number): Promise<any>;
+    loadRange(start: number, end: number): Promise<void>;
     /**
      * Set up the stream with the given array of posts.
      *
-     * @param {Post[]} posts
+     * @param {import('../../common/models/Post').default[]} posts
      */
-    show(posts: any[]): void;
+    show(posts: import('../../common/models/Post').default[]): void;
     /**
      * Reset the stream so that a specific range of posts is displayed. If a range
      * is not specified, the first page of posts will be displayed.
@@ -164,7 +161,7 @@ declare class PostStreamState {
      * Check whether or not the scrubber should be disabled, i.e. if all of the
      * posts are visible in the viewport.
      *
-     * @return {Boolean}
+     * @return {boolean}
      */
     disabled(): boolean;
     /**

@@ -8,9 +8,9 @@ export default class HeaderPrimary extends Component<import("../../common/Compon
     /**
      * Build an item list for the controls.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    items(): ItemList<any>;
+    items(): ItemList<import('mithril').Children>;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

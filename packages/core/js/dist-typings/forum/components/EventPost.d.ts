@@ -13,27 +13,27 @@ export default class EventPost extends Post {
     /**
      * Get the name of the event icon.
      *
-     * @return {String}
+     * @return {string}
      */
     icon(): string;
     /**
      * Get the description text for the event.
      *
-     * @param {Object} data
-     * @return {String|Object} The description to render in the DOM
+     * @param {Record<string, unknown>} data
+     * @return {import('mithril').Children} The description to render in the DOM
      */
-    description(data: Object): string | Object;
+    description(data: Record<string, unknown>): import('mithril').Children;
     /**
      * Get the translation key for the description of the event.
      *
-     * @return {String}
+     * @return {string}
      */
     descriptionKey(): string;
     /**
      * Get the translation data for the description of the event.
      *
-     * @return {Object}
+     * @return {Record<string, unknown>}
      */
-    descriptionData(): Object;
+    descriptionData(): Record<string, unknown>;
 }
 import Post from "./Post";

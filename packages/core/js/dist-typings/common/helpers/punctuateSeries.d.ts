@@ -6,7 +6,7 @@
  * punctuateSeries(['Toby', 'Franz', 'Dominion']) // Toby, Franz, and Dominion
  * ```
  *
- * @param {Array} items
- * @return {VirtualElement}
+ * @param {import('mithril').Children[]} items
+ * @return {import('mithril').Children}')}
  */
-export default function punctuateSeries(items: any[]): any;
+export default function punctuateSeries(items: import('mithril').Children[]): import('mithril').Children;

@@ -34,20 +34,15 @@ export default class Drawer {
      * Check whether or not the drawer is currently open.
      *
      * @return {boolean}
-     * @public
      */
-    public isOpen(): boolean;
+    isOpen(): boolean;
     /**
      * Hide the drawer.
-     *
-     * @public
      */
-    public hide(): void;
+    hide(): void;
     /**
      * Show the drawer.
-     *
-     * @public
      */
-    public show(): void;
+    show(): void;
     $backdrop: JQuery<HTMLElement> | undefined;
 }

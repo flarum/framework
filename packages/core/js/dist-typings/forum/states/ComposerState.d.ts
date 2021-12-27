@@ -15,9 +15,9 @@ declare class ComposerState {
      * The composer's intended height, which can be modified by the user
      * (by dragging the composer handle).
      *
-     * @type {Integer}
+     * @type {number}
      */
-    height: any;
+    height: number;
     /**
      * The dynamic component being shown inside the composer.
      *
@@ -33,16 +33,15 @@ declare class ComposerState {
     /**
      * Load a content component into the composer.
      *
-     * @param {ComposerBody} componentClass
-     * @public
+     * @param {typeof import('../components/ComposerBody').default} componentClass
      */
-    public load(componentClass: any, attrs: any): void;
+    load(componentClass: typeof import('../components/ComposerBody').default, attrs: any): void;
     /**
      * Clear the composer's content component.
      */
     clear(): void;
     onExit: {
-        callback: Function;
+        callback: () => boolean;
         message: string;
     } | null | undefined;
     fields: {
@@ -50,47 +49,34 @@ declare class ComposerState {
     } | undefined;
     /**
      * Show the composer.
-     *
-     * @public
      */
-    public show(): void;
+    show(): void;
     /**
      * Close the composer.
-     *
-     * @public
      */
-    public hide(): void;
+    hide(): void;
     /**
      * Confirm with the user so they don't lose their content, then close the
      * composer.
-     *
-     * @public
      */
-    public close(): void;
+    close(): void;
     /**
      * Minimize the composer. Has no effect if the composer is hidden.
-     *
-     * @public
      */
-    public minimize(): void;
+    minimize(): void;
     /**
      * Take the composer into fullscreen mode. Has no effect if the composer is
      * hidden.
-     *
-     * @public
      */
-    public fullScreen(): void;
+    fullScreen(): void;
     /**
      * Exit fullscreen mode.
-     *
-     * @public
      */
-    public exitFullScreen(): void;
+    exitFullScreen(): void;
     /**
      * Determine whether the body matches the given component class and data.
      *
-     * @param {object} type The component class to check against. Subclasses are
-     *                      accepted as well.
+     * @param {object} type The component class to check against. Subclasses are accepted as well.
      * @param {object} data
      * @return {boolean}
      */
@@ -110,23 +96,22 @@ declare class ComposerState {
      * This will be true if the Composer is in full-screen mode on desktop,
      * or if we are on a mobile device, where we always consider the composer as full-screen..
      *
-     * @return {Boolean}
-     * @public
+     * @return {boolean}
      */
-    public isFullScreen(): boolean;
+    isFullScreen(): boolean;
     /**
      * Check whether or not the user is currently composing a reply to a
      * discussion.
      *
-     * @param {Discussion} discussion
-     * @return {Boolean}
+     * @param {import('../../common/models/Discussion').default} discussion
+     * @return {boolean}
      */
-    composingReplyTo(discussion: any): boolean;
+    composingReplyTo(discussion: import('../../common/models/Discussion').default): boolean;
     /**
      * Confirm with the user that they want to close the composer and lose their
      * content.
      *
-     * @return {Boolean} Whether or not the exit was cancelled.
+     * @return {boolean} Whether or not the exit was cancelled.
      */
     preventExit(): boolean;
     /**
@@ -136,27 +121,27 @@ declare class ComposerState {
      * confirmation is necessary. If the callback returns true at the time of
      * closing, the provided text will be shown in a standard confirmation dialog.
      *
-     * @param {Function} callback
-     * @param {String} message
+     * @param {() => boolean} callback
+     * @param {string} message
      */
-    preventClosingWhen(callback: Function, message: string): void;
+    preventClosingWhen(callback: () => boolean, message: string): void;
     /**
      * Minimum height of the Composer.
-     * @returns {Integer}
+     * @returns {number}
      */
-    minimumHeight(): any;
+    minimumHeight(): number;
     /**
      * Maxmimum height of the Composer.
-     * @returns {Integer}
+     * @returns {number}
      */
-    maximumHeight(): any;
+    maximumHeight(): number;
     /**
      * Computed the composer's current height, based on the intended height, and
-     * the composer's current state. This will be applied to the composer's
+     * the composer's current state. This will be applied to the composer
      * content's DOM element.
-     * @returns {Integer|String}
+     * @returns {number | string}
      */
-    computedHeight(): any | string;
+    computedHeight(): number | string;
 }
 declare namespace ComposerState {
     namespace Position {

@@ -36,19 +36,19 @@ export default class TextEditor extends Component<import("../Component").Compone
     /**
      * Build an item list for the text editor controls.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    controlItems(): ItemList<any>;
+    controlItems(): ItemList<import('mithril').Children>;
     /**
      * Build an item list for the toolbar controls.
      *
-     * @return {ItemList}
+     * @return {ItemList<import('mithril').Children>}
      */
-    toolbarItems(): ItemList<any>;
+    toolbarItems(): ItemList<import('mithril').Children>;
     /**
      * Handle input into the textarea.
      *
-     * @param {String} value
+     * @param {string} value
      */
     oninput(value: string): void;
     /**

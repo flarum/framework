@@ -7,9 +7,10 @@ export default class SplitDropdown extends Dropdown {
      * Get the first child. If the first child is an array, the first item in that
      * array will be returned.
      *
-     * @return {*}
+     * @param {unknown[] | unknown} children
+     * @return {unknown}
      * @protected
      */
-    protected getFirstChild(children: any): any;
+    protected getFirstChild(children: unknown[] | unknown): unknown;
 }
 import Dropdown from "./Dropdown";

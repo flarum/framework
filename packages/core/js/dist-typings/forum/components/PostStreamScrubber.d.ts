@@ -19,9 +19,13 @@ export default class PostStreamScrubber extends Component<import("../../common/C
      * Update the scrollbar's position to reflect the current values of the
      * index/visible properties.
      *
-     * @param {Boolean} animate
+     * @param {Partial<{fromScroll: boolean, forceHeightChange: boolean, animate: boolean}>} options
      */
-    updateScrubberValues(options?: {}): void;
+    updateScrubberValues(options?: Partial<{
+        fromScroll: boolean;
+        forceHeightChange: boolean;
+        animate: boolean;
+    }>): void;
     adjustingHeight: boolean | undefined;
     /**
      * Go to the first post in the discussion.
@@ -40,13 +44,16 @@ export default class PostStreamScrubber extends Component<import("../../common/C
      * Get the percentage of the height of the scrubber that should be allocated
      * to each post.
      *
-     * @return {Object}
+     * @return {{ index: number, visible: number }}
      * @property {Number} index The percent per post for posts on either side of
      *     the visible part of the scrubber.
      * @property {Number} visible The percent per post for the visible part of the
      *     scrubber.
      */
-    percentPerPost(): Object;
+    percentPerPost(): {
+        index: number;
+        visible: number;
+    };
 }
 import Component from "../../common/Component";
 import ScrollListener from "../../common/utils/ScrollListener";
