@@ -76,7 +76,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     return this.searchState;
   }
   protected set state(state: SearchState) {
-    fireDeprecationWarning('`state` property of the Search component is deprecated', '3212');
+    state !== undefined && fireDeprecationWarning('`state` property of the Search component is deprecated', '3212');
     this.searchState = state;
   }
 
