@@ -542,6 +542,11 @@ core:
     loading_indicator:
       accessible_label: => core.ref.loading
 
+    # Translations in this namespace are used to format page meta titles.
+    meta_titles:
+      with_page_title: "{pageNumber, plural, =1 {{pageTitle} - {forumName}} other {{pageTitle}: Page # - {forumName}}}"
+      without_page_title: "{pageNumber, plural, =1 {{forumName}} other {Page # - {forumName}}}"
+
     # These translations are used in modals.
     modal:
       close: Close
@@ -627,11 +632,6 @@ core:
       new_password_label: New Password
       submit_button: => core.ref.save_changes
       title: => core.ref.reset_your_password
-
-    # Translations in this namespace are used to format page meta titles.
-    meta_titles:
-      with_page_title: "{pageNumber, plural, =1 {{pageTitle} - {forumName}} other {{pageTitle}: Page # - {forumName}}}"
-      without_page_title: "{pageNumber, plural, =1 {{forumName}} other {Page # - {forumName}}}"
 
   # Translations in this namespace are used in messages output by the API.
   api:
