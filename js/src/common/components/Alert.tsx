@@ -4,7 +4,7 @@ import listItems from '../helpers/listItems';
 import extract from '../utils/extract';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
-import { app } from '..';
+import app from '../app';
 
 export interface AlertAttrs extends ComponentAttrs {
   /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
