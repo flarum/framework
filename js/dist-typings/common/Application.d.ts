@@ -73,6 +73,8 @@ export interface RouteResolver<Attrs extends ComponentAttrs, Comp extends Compon
      *
      * Returns the component class, and **not** a Vnode or JSX
      * expression.
+     *
+     * @see https://mithril.js.org/route.html#routeresolveronmatch
      */
     onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): {
         new (): Comp;
@@ -80,9 +82,14 @@ export interface RouteResolver<Attrs extends ComponentAttrs, Comp extends Compon
     /**
      * A function which renders the provided component.
      *
+     * If not specified, the route will default to rendering the
+     * component on its own, inside of a fragment.
+     *
      * Returns a Mithril Vnode or other children.
+     *
+     * @see https://mithril.js.org/route.html#routeresolverrender
      */
-    render(this: this, vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
+    render?(this: this, vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
 }
 /**
  * The `App` class provides a container for an application, as well as various
