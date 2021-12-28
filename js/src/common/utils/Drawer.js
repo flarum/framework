@@ -27,7 +27,10 @@ export default class Drawer {
     });
 
     this.appElement = document.getElementById('app');
-    this.focusTrap = createFocusTrap('#drawer', { allowOutsideClick: true });
+    // Despite the `focus-trap` documentation, both `clickOutsideDeactivates`
+    // and `allowOutsideClick` are necessary so that inputs in modals triggered
+    // from the drawer's nav components can be interacted with.
+    this.focusTrap = createFocusTrap('#drawer', { allowOutsideClick: true, clickOutsideDeactivates: true });
     this.drawerAvailableMediaQuery = window.matchMedia(
       `(max-width: ${getComputedStyle(document.documentElement).getPropertyValue('--screen-phone-max')})`
     );
