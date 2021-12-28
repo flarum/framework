@@ -18,7 +18,7 @@ export default class AlertManager extends Component {
           const urgent = alert.attrs.type === 'error';
 
           return (
-            <div className="AlertManager-alert" role="alert" aria-live={urgent ? 'assertive' : 'polite'}>
+            <div class="AlertManager-alert" role="alert" aria-live={urgent ? 'assertive' : 'polite'}>
               <alert.componentClass {...alert.attrs} ondismiss={this.state.dismiss.bind(this.state, key)}>
                 {alert.children}
               </alert.componentClass>

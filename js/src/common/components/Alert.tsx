@@ -43,7 +43,7 @@ export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<
         <Button
           aria-label={app.translator.trans('core.lib.alert.dismiss_a11y_label')}
           icon="fas fa-times"
-          className="Button Button--link Button--icon Alert-dismiss"
+          class="Button Button--link Button--icon Alert-dismiss"
           onclick={ondismiss}
         />
       );
