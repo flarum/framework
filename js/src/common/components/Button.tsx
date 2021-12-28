@@ -69,7 +69,7 @@ export interface IButtonAttrs extends ComponentAttrs {
 export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
   /**
    * Prevents firing of accessibility warnings for this Button component.
-   * 
+   *
    * This should be set to `true` when creating a custom Button class component which
    * does not expect any children to be provided to it because, for example, it has a
    * custom `view` method with its own content baked-in.
