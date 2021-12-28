@@ -3,6 +3,8 @@ import Button from './Button';
 import listItems from '../helpers/listItems';
 import extract from '../utils/extract';
 import type Mithril from 'mithril';
+import classList from '../utils/classList';
+import app from '../app';
 
 export interface AlertAttrs extends ComponentAttrs {
   /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
@@ -24,7 +26,7 @@ export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<
     const attrs = Object.assign({}, this.attrs);
 
     const type = extract(attrs, 'type');
-    attrs.className = 'Alert Alert--' + type + ' ' + (attrs.className || '');
+    attrs.className = classList('Alert', `Alert--${type}`, attrs.className);
 
     const content = extract(attrs, 'content') || vnode.children;
     const controls = (extract(attrs, 'controls') || []) as Mithril.Vnode[];
@@ -37,13 +39,20 @@ export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<
     const dismissControl: Mithril.Vnode[] = [];
 
     if (dismissible || dismissible === undefined) {
-      dismissControl.push(<Button icon="fas fa-times" className="Button Button--link Button--icon Alert-dismiss" onclick={ondismiss} />);
+      dismissControl.push(
+        <Button
+          aria-label={app.translator.trans('core.lib.alert.dismiss_a11y_label')}
+          icon="fas fa-times"
+          class="Button Button--link Button--icon Alert-dismiss"
+          onclick={ondismiss}
+        />
+      );
     }
 
     return (
       <div {...attrs}>
-        <span className="Alert-body">{content}</span>
-        <ul className="Alert-controls">{listItems(controls.concat(dismissControl))}</ul>
+        <span class="Alert-body">{content}</span>
+        <ul class="Alert-controls">{listItems(controls.concat(dismissControl))}</ul>
       </div>
     );
   }
