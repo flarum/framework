@@ -65,7 +65,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     /**
      * An array of SearchSources.
      */
-    protected sources: SearchSource[];
+    protected sources?: SearchSource[];
     /**
      * The number of sources that are still loading results.
      */

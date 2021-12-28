@@ -23,7 +23,13 @@ export default class ModalManagerState {
     modal: null | {
         componentClass: UnsafeModalClass;
         attrs?: Record<string, unknown>;
+        key: number;
     };
+    /**
+     * Used to force re-initialization of modals if a modal
+     * is replaced by another of the same type.
+     */
+    private key;
     private closeTimeout?;
     /**
      * Shows a modal dialog.
