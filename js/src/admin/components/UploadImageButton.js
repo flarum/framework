@@ -3,6 +3,7 @@ import Button from '../../common/components/Button';
 
 export default class UploadImageButton extends Button {
   loading = false;
+  ignoreNoChildrenWarning = true;
 
   view(vnode) {
     this.attrs.loading = this.loading;

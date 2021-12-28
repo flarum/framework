@@ -67,6 +67,15 @@ export interface IButtonAttrs extends ComponentAttrs {
  * styles can be applied by providing `className="Button"` to the Button component.
  */
 export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
+  /**
+   * Prevents firing of accessibility warnings for this Button component.
+   * 
+   * This should be set to `true` when creating a custom Button class component which
+   * does not expect any children to be provided to it because, for example, it has a
+   * custom `view` method with its own content baked-in.
+   */
+  protected ignoreNoChildrenWarning: boolean = false;
+
   view(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     let { type, title, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
 
@@ -107,7 +116,7 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
 
     const { 'aria-label': ariaLabel } = this.attrs;
 
-    if (!ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
+    if (!this.ignoreNoChildrenWarning && !ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
       fireDebugWarning(
         '[Flarum Accessibility Warning] Button has no content and no accessible label. This means that screen-readers will not be able to interpret its meaning and just read "Button". Consider providing accessible text via the `aria-label` attribute. https://web.dev/button-name',
         this.element
