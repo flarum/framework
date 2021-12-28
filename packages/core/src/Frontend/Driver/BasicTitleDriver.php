@@ -37,7 +37,7 @@ class BasicTitleDriver implements TitleDriverInterface
         ];
 
         return $onHomePage || ! $document->title
-            ? $this->translator->trans('core.views.meta_titles.without_page_title', $params)
-            : $this->translator->trans('core.views.meta_titles.with_page_title', $params);
+            ? $this->translator->trans('core.lib.meta_titles.without_page_title', $params)
+            : $this->translator->trans('core.lib.meta_titles.with_page_title', $params);
     }
 }
