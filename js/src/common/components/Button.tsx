@@ -116,7 +116,7 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
 
     const { 'aria-label': ariaLabel } = this.attrs;
 
-    if (!this.ignoreNoChildrenWarning && !ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
+    if (this.view === Button.prototype.view && !ariaLabel && !extractText(vnode.children) && !this.element?.getAttribute?.('aria-label')) {
       fireDebugWarning(
         '[Flarum Accessibility Warning] Button has no content and no accessible label. This means that screen-readers will not be able to interpret its meaning and just read "Button". Consider providing accessible text via the `aria-label` attribute. https://web.dev/button-name',
         this.element
