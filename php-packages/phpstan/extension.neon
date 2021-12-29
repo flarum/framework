@@ -36,3 +36,256 @@ parameters:
     excludePaths:
         - *.blade.php
     checkGenericClassInNonGenericObjectType: false
+    checkModelProperties: false
+    databaseMigrationsPath: []
+
+parametersSchema:
+    databaseMigrationsPath: listOf(string())
+    checkModelProperties: bool()
+
+services:
+        -
+            class: Flarum\PHPStan\Methods\RelationForwardsCallsExtension
+            tags:
+                - phpstan.broker.methodsClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Methods\ModelForwardsCallsExtension
+            tags:
+                - phpstan.broker.methodsClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Methods\EloquentBuilderForwardsCallsExtension
+            tags:
+                - phpstan.broker.methodsClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Methods\HigherOrderTapProxyExtension
+            tags:
+                - phpstan.broker.methodsClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Methods\HigherOrderCollectionProxyExtension
+            tags:
+                - phpstan.broker.methodsClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Methods\StorageMethodsClassReflectionExtension
+            tags:
+                - phpstan.broker.methodsClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Methods\Extension
+            tags:
+                - phpstan.broker.methodsClassReflectionExtension
+        -
+            class: Flarum\PHPStan\Methods\ModelFactoryMethodsClassReflectionExtension
+            tags:
+                - phpstan.broker.methodsClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Properties\ModelAccessorExtension
+            tags:
+                - phpstan.broker.propertiesClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Properties\ModelPropertyExtension
+            tags:
+                - phpstan.broker.propertiesClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Properties\HigherOrderCollectionProxyPropertyExtension
+            tags:
+                - phpstan.broker.propertiesClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\Types\RelationDynamicMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\Types\ModelRelationsDynamicMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\HigherOrderTapProxyExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+        -
+            class: Flarum\PHPStan\ReturnTypes\ContainerArrayAccessDynamicMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+            arguments:
+                className: Illuminate\Contracts\Container\Container
+        -
+            class: Flarum\PHPStan\ReturnTypes\ContainerArrayAccessDynamicMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+            arguments:
+                className: Illuminate\Container\Container
+        -
+            class: Flarum\PHPStan\ReturnTypes\ContainerArrayAccessDynamicMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+            arguments:
+                className: Illuminate\Foundation\Application
+        -
+            class: Flarum\PHPStan\ReturnTypes\ContainerArrayAccessDynamicMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+            arguments:
+                className: Illuminate\Contracts\Foundation\Application
+
+        -
+            class: Flarum\PHPStan\Properties\ModelRelationsExtension
+            tags:
+                - phpstan.broker.propertiesClassReflectionExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\ModelFactoryDynamicStaticMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\ModelExtension
+            tags:
+                - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\RequestExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\EloquentBuilderExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\RelationFindExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\RelationCollectionExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\ModelFindExtension
+            tags:
+                - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\BuilderModelFindExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\TestCaseExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\CollectionMakeDynamicStaticMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\Support\CollectionHelper
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\Helpers\CollectExtension
+            tags:
+                - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\Helpers\TransExtension
+            tags:
+                - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\Helpers\ValidatorExtension
+            tags:
+                - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\CollectionFilterDynamicReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\Types\AbortIfFunctionTypeSpecifyingExtension
+            tags:
+                - phpstan.typeSpecifier.functionTypeSpecifyingExtension
+            arguments:
+                methodName: 'abort'
+                negate: false
+
+        -
+            class: Flarum\PHPStan\Types\AbortIfFunctionTypeSpecifyingExtension
+            tags:
+                - phpstan.typeSpecifier.functionTypeSpecifyingExtension
+            arguments:
+                methodName: 'abort'
+                negate: true
+
+        -
+            class: Flarum\PHPStan\Types\AbortIfFunctionTypeSpecifyingExtension
+            tags:
+                - phpstan.typeSpecifier.functionTypeSpecifyingExtension
+            arguments:
+                methodName: throw
+                negate: false
+
+        -
+            class: Flarum\PHPStan\Types\AbortIfFunctionTypeSpecifyingExtension
+            tags:
+                - phpstan.typeSpecifier.functionTypeSpecifyingExtension
+            arguments:
+                methodName: throw
+                negate: true
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\Helpers\AppExtension
+            tags:
+                - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\Helpers\ValueExtension
+            tags:
+                - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\Helpers\TapExtension
+            tags:
+                - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\ReturnTypes\StorageDynamicStaticMethodReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+        -
+            class: Flarum\PHPStan\Types\GenericEloquentCollectionTypeNodeResolverExtension
+            tags:
+                - phpstan.phpDoc.typeNodeResolverExtension
+
+        -
+            class: Flarum\PHPStan\Types\ViewStringTypeNodeResolverExtension
+            tags:
+                - phpstan.phpDoc.typeNodeResolverExtension
+        -
+            class: Flarum\PHPStan\Methods\BuilderHelper
+            arguments:
+                checkProperties: %checkModelProperties%
+        -
+            class: Flarum\PHPStan\Properties\MigrationHelper
+            arguments:
+                databaseMigrationPath: %databaseMigrationsPath%
+                parser: @currentPhpVersionSimpleDirectParser
+        -
+            class: Flarum\PHPStan\Types\RelationParserHelper
+            arguments:
+                parser: @currentPhpVersionSimpleDirectParser

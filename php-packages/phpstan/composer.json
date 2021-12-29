@@ -7,11 +7,19 @@
         "phpstan/phpstan-php-parser": "^1.0",
         "phpstan/phpstan": "^1.2"
     },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\PHPStan\\": "src/"
+        }
+    },
     "extra": {
         "phpstan": {
             "includes": [
                 "extension.neon"
             ]
+        },
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
         }
     }
 }
