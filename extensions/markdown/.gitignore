@@ -4,6 +4,7 @@ composer.phar
 Thumbs.db
 bower_components
 node_modules
+composer.lock
 
 # Yarn 2+
 js/.pnp.*
