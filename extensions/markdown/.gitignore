@@ -4,3 +4,12 @@ composer.phar
 Thumbs.db
 bower_components
 node_modules
+
+# Yarn 2+
+js/.pnp.*
+js/.yarn/*
+!js/.yarn/patches
+!js/.yarn/plugins
+!js/.yarn/releases
+!js/.yarn/sdks
+!js/.yarn/versions
