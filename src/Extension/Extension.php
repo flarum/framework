@@ -263,11 +263,11 @@ class Extension implements Arrayable
             return $icon;
         }
 
-        $file = $this->path.'/'.$file;
+        $file = $this->path . '/' . $file;
 
         if (file_exists($file)) {
             $extension = pathinfo($file, PATHINFO_EXTENSION);
-            if (! array_key_exists($extension, self::LOGO_MIMETYPES)) {
+            if (!array_key_exists($extension, self::LOGO_MIMETYPES)) {
                 throw new \RuntimeException('Invalid image type');
             }
 
@@ -372,13 +372,13 @@ class Extension implements Arrayable
     {
         $extenderFile = $this->getExtenderFile();
 
-        if (! $extenderFile) {
+        if (!$extenderFile) {
             return [];
         }
 
         $extenders = require $extenderFile;
 
-        if (! is_array($extenders)) {
+        if (!is_array($extenders)) {
             $extenders = [$extenders];
         }
 
@@ -436,7 +436,7 @@ class Extension implements Arrayable
             $links['support'] = "mailto:$supportEmail";
         }
 
-        if (($funding = $this->composerJsonAttribute('funding')) && count($funding)) {
+        if (($funding = $this->composerJsonAttribute('funding')) && count($funding) && is_array($funding[0]) && Arr::has($funding[0], 'url')) {
             $links['donate'] = $funding[0]['url'];
         }
 
@@ -445,7 +445,7 @@ class Extension implements Arrayable
         foreach ((array) $this->composerJsonAttribute('authors') as $author) {
             $links['authors'][] = [
                 'name' => Arr::get($author, 'name'),
-                'link' => Arr::get($author, 'homepage') ?? (Arr::get($author, 'email') ? 'mailto:'.Arr::get($author, 'email') : ''),
+                'link' => Arr::get($author, 'homepage') ?? (Arr::get($author, 'email') ? 'mailto:' . Arr::get($author, 'email') : ''),
             ];
         }
 
@@ -459,7 +459,7 @@ class Extension implements Arrayable
      */
     public function hasAssets()
     {
-        return realpath($this->path.'/assets/') !== false;
+        return realpath($this->path . '/assets/') !== false;
     }
 
     /**
@@ -467,7 +467,7 @@ class Extension implements Arrayable
      */
     public function copyAssetsTo(FilesystemInterface $target)
     {
-        if (! $this->hasAssets()) {
+        if (!$this->hasAssets()) {
             return;
         }
 
@@ -488,7 +488,7 @@ class Extension implements Arrayable
      */
     public function hasMigrations()
     {
-        return realpath($this->path.'/migrations/') !== false;
+        return realpath($this->path . '/migrations/') !== false;
     }
 
     /**
@@ -496,14 +496,14 @@ class Extension implements Arrayable
      */
     public function migrate(Migrator $migrator, $direction = 'up')
     {
-        if (! $this->hasMigrations()) {
+        if (!$this->hasMigrations()) {
             return;
         }
 
         if ($direction == 'up') {
-            return $migrator->run($this->getPath().'/migrations', $this);
+            return $migrator->run($this->getPath() . '/migrations', $this);
         } else {
-            return $migrator->reset($this->getPath().'/migrations', $this);
+            return $migrator->reset($this->getPath() . '/migrations', $this);
         }
     }
 
