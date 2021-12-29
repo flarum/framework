@@ -25,6 +25,4 @@ return [
         }),
 
     new Extend\Locales(__DIR__.'/locale'),
-
-    (new Extend\Settings)->serializeToForum('flarum-markdown.mdarea', 'flarum-markdown.mdarea', 'boolval', true)
 ];
