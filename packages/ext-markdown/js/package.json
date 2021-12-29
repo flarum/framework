@@ -2,12 +2,13 @@
   "private": true,
   "name": "@flarum/markdown",
   "dependencies": {
-    "flarum-webpack-config": "^1.0",
+    "flarum-webpack-config": "^1.0.0",
     "webpack": "^4.46.0",
     "webpack-cli": "^4.9.1"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production"
-  }
+  },
+  "packageManager": "yarn@3.1.1"
 }
