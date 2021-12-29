@@ -436,8 +436,8 @@ class Extension implements Arrayable
             $links['support'] = "mailto:$supportEmail";
         }
 
-        if (($funding = $this->composerJsonAttribute('funding')) && count($funding)) {
-            $links['donate'] = $funding[0]['url'];
+        if (($funding = $this->composerJsonAttribute('funding')) && is_array($funding) && ($fundingUrl = Arr::get($funding, '0.url'))) {
+            $links['donate'] = $fundingUrl;
         }
 
         $links['authors'] = [];
