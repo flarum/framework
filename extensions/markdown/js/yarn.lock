@@ -1381,11 +1381,20 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flarum/markdown@workspace:."
   dependencies:
+    "@flarum/prettier-config": ^1.0.0
     flarum-webpack-config: ^1.0.0
+    prettier: ^2.5.1
     webpack: ^4.46.0
     webpack-cli: ^4.9.1
   languageName: unknown
   linkType: soft
+
+"@flarum/prettier-config@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@flarum/prettier-config@npm:1.0.0"
+  checksum: 2035b97dcd02f2ebcb9f0f88111adbf176fbb31132c4e0a2a5387cec14619ef0f8ac3418c14a0730de1d14765b2bc7c53aa3eea6b28949da93ceb3c1c229195a
+  languageName: node
+  linkType: hard
 
 "@gar/promisify@npm:^1.0.1":
   version: 1.1.2
@@ -4750,6 +4759,15 @@ __metadata:
   version: 0.1.1
   resolution: "posix-character-classes@npm:0.1.1"
   checksum: dedb99913c60625a16050cfed2fb5c017648fc075be41ac18474e1c6c3549ef4ada201c8bd9bd006d36827e289c571b6092e1ef6e756cdbab2fd7046b25c6442
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "prettier@npm:2.5.1"
+  bin:
+    prettier: bin-prettier.js
+  checksum: 21b9408476ea1c544b0e45d51ceb94a84789ff92095abb710942d780c862d0daebdb29972d47f6b4d0f7ebbfb0ffbf56cc2cfa3e3e9d1cca54864af185b15b66
   languageName: node
   linkType: hard
 
