@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.1](https://github.com/flarum/markdown/compare/v1.1.0...v1.1.1)
+
+### Added
+
+- feat: make markdown toolbar extensible by @davwheat in https://github.com/flarum/markdown/pull/33
+
+### Fixed
+
+- fix: re-use of texteditor with markdown ext breaks markdown toolbar items by @davwheat in https://github.com/flarum/markdown/pull/34
+
 ## [1.1.0](https://github.com/flarum/markdown/compare/v1.0.1...v1.1.0)
 
 ### Added
