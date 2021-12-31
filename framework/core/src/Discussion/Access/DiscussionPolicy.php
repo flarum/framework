@@ -55,7 +55,7 @@ class DiscussionPolicy extends AbstractPolicy
 
             if ($allowRenaming === '-1'
                 || ($allowRenaming === 'reply' && $discussion->participant_count <= 1)
-                || ($discussion->created_at->diffInMinutes() < $allowRenaming)) {
+                || (is_numeric($allowRenaming) && $discussion->created_at->diffInMinutes() < $allowRenaming)) {
                 return $this->allow();
             }
         }

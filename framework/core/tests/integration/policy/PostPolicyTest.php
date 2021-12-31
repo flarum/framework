@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\post;
+namespace Flarum\Tests\integration\policy;
 
 use Carbon\Carbon;
 use Flarum\Post\Post;
