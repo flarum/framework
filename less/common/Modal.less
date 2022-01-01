@@ -6,8 +6,24 @@
   overflow: hidden;
 }
 
-// Modal background
-.ModalManager dialog {
+.Modal {
+  border-width: 0;
+  padding: 0;
+  overflow: visible;
+  border-radius: @border-radius;
+
+  transform: scale(0.9);
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+
+  // only in polyfilled browsers
+  &[role] {
+    top: 0 !important;
+  }
+
+  &.in {
+    transform: scale(1);
+  }
+
   //! These MUST be defined separately
   //
   // When browsers do not understand a pseudoselector, the entire block is ignored,
@@ -22,24 +38,11 @@
 
   + .backdrop {
     background: var(--overlay-bg);
-  }
-}
-
-// Container that the modal scrolls within
-.ModalManager {
-  // When fading in the modal, animate it to slide down
-  dialog {
-    border-width: 0;
-    padding: 0;
-    overflow: visible;
-    border-radius: @border-radius;
-
-    transform: scale(0.9);
-    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
-
-    &.in {
-      transform: scale(1);
-    }
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 }
 
@@ -159,12 +162,11 @@
 }
 
 @media @tablet-up {
-  .ModalManager dialog {
+  .Modal {
     border-radius: var(--border-radius);
     box-shadow: 0 7px 15px var(--shadow-color);
     width: 100%;
-  }
-  .Modal {
+    max-width: 600px;
     margin: 120px auto;
   }
   .Modal-close {
