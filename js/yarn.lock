@@ -1401,6 +1401,7 @@ __metadata:
     color-thief-browser: ^2.0.2
     cross-env: ^7.0.3
     dayjs: ^1.10.7
+    dialog-polyfill: ^0.5.6
     expose-loader: ^3.1.0
     flarum-tsconfig: ^1.0.2
     flarum-webpack-config: ^2.0.0
@@ -2307,6 +2308,13 @@ __metadata:
   dependencies:
     object-keys: ^1.0.12
   checksum: da80dba55d0cd76a5a7ab71ef6ea0ebcb7b941f803793e4e0257b384cb772038faa0c31659d244e82c4342edef841c1a1212580006a05a5068ee48223d787317
+  languageName: node
+  linkType: hard
+
+"dialog-polyfill@npm:^0.5.6":
+  version: 0.5.6
+  resolution: "dialog-polyfill@npm:0.5.6"
+  checksum: dde8d4b6a62b63b710e0d0d70b615d92ff08f3cb2b521e1f99b17e8220d9d55d0fdf9fc17fbe77b0ff1be817094e14b60c4c4bacd5456fba427ede48d2d90230
   languageName: node
   linkType: hard
 

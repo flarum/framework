@@ -1,5 +1,5 @@
 import type Component from '../Component';
-import Modal from '../components/Modal';
+import Modal, { IDismissibleOptions } from '../components/Modal';
 
 /**
  * Ideally, `show` would take a higher-kinded generic, ala:
@@ -8,7 +8,7 @@ import Modal from '../components/Modal';
  * https://github.com/Microsoft/TypeScript/issues/1213
  * Therefore, we have to use this ugly, messy workaround.
  */
-type UnsafeModalClass = ComponentClass<any, Modal> & { isDismissible: boolean; component: typeof Component.component };
+type UnsafeModalClass = ComponentClass<any, Modal> & { get dismissibleOptions(): IDismissibleOptions; component: typeof Component.component };
 
 /**
  * Class used to manage modal state.

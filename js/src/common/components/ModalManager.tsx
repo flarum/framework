@@ -22,12 +22,14 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
    */
   protected modalShown: boolean = false;
 
+  protected modalClosing: boolean = false;
+
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
     const modal = this.attrs.state.modal;
     const Tag = modal?.componentClass;
 
     return (
-      <div className="ModalManager modal fade">
+      <div className="ModalManager modal">
         {!!Tag && (
           <Tag
             key={modal?.key}
@@ -43,11 +45,6 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
   oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
     super.oncreate(vnode);
-
-    // Ensure the modal state is notified about a closed modal, even when the
-    // DOM-based Bootstrap JavaScript code triggered the closing of the modal,
-    // e.g. via ESC key or a click on the modal backdrop.
-    this.$().on('hidden.bs.modal', this.attrs.state.close.bind(this.attrs.state));
 
     this.focusTrap = createFocusTrap(this.element as HTMLElement);
   }
@@ -65,35 +62,74 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     });
   }
 
+  private get dialogElement(): HTMLDialogElement {
+    return this.element.querySelector('dialog') as HTMLDialogElement;
+  }
+
   animateShow(readyCallback: () => void): void {
     if (!this.attrs.state.modal) return;
 
-    const dismissible = !!this.attrs.state.modal.componentClass.isDismissible;
+    const dismissibleState = this.attrs.state.modal.componentClass.dismissibleOptions;
 
     this.modalShown = true;
 
-    // If we are opening this modal while another modal is already open,
-    // the shown event will not run, because the modal is already open.
-    // So, we need to manually trigger the readyCallback.
-    if (this.$().hasClass('in')) {
-      readyCallback();
-      return;
-    }
+    // Register with polyfill
+    dialogPolyfill.registerDialog(this.dialogElement);
 
-    this.$()
-      .one('shown.bs.modal', readyCallback)
-      // @ts-expect-error: No typings available for Bootstrap modals.
-      .modal({
-        backdrop: dismissible || 'static',
-        keyboard: dismissible,
-      })
-      .modal('show');
+    if (!dismissibleState.viaEscKey) this.dialogElement.addEventListener('cancel', this.preventEscPressHandler);
+    if (dismissibleState.viaBackdropClick) this.dialogElement.addEventListener('click', (e) => this.handleBackdropClick.call(this, e));
+
+    this.dialogElement.addEventListener('transitionend', () => readyCallback(), { once: true });
+    // Ensure the modal state is ALWAYS notified about a closed modal
+    this.dialogElement.addEventListener('close', this.attrs.state.close.bind(this.attrs.state));
+
+    // Use close animation instead
+    this.dialogElement.addEventListener('cancel', this.animateCloseHandler.bind(this));
+
+    this.dialogElement.showModal();
+
+    // Fade in
+    requestAnimationFrame(() => {
+      this.dialogElement.classList.add('in');
+    });
   }
 
   animateHide(): void {
-    // @ts-expect-error: No typings available for Bootstrap modals.
-    this.$().modal('hide');
+    if (this.modalClosing || !this.modalShown) return;
+    this.modalClosing = true;
 
-    this.modalShown = false;
+    this.dialogElement.addEventListener(
+      'transitionend',
+      () => {
+        this.dialogElement.close();
+        this.dialogElement.removeEventListener('cancel', this.preventEscPressHandler);
+
+        this.modalShown = false;
+        this.modalClosing = false;
+        m.redraw();
+      },
+      { once: true }
+    );
+
+    this.dialogElement.classList.remove('in');
+    this.dialogElement.classList.add('out');
+  }
+
+  animateCloseHandler(this: this, e: Event) {
+    e.preventDefault();
+
+    this.animateHide();
+  }
+
+  preventEscPressHandler(this: this, e: Event) {
+    e.preventDefault();
+  }
+
+  handleBackdropClick(this: this, e: MouseEvent) {
+    // If it's a click on the dialog element, the backdrop has been clicked.
+    // If it was a click in the modal, the element would be `div.Modal-content` or some other element.
+    if (e.target !== this.dialogElement) return;
+
+    this.animateHide();
   }
 }

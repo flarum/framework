@@ -3,9 +3,12 @@ import 'expose-loader?exposes=$,jQuery!jquery';
 import 'expose-loader?exposes=m!mithril';
 import 'expose-loader?exposes=dayjs!dayjs';
 
+// HTML dialog element polyfill from the Chrome Dev team: https://github.com/GoogleChrome/dialog-polyfill
+import dialogPolyfill from 'dialog-polyfill';
+window.dialogPolyfill = dialogPolyfill;
+
 import 'bootstrap/js/affix';
 import 'bootstrap/js/dropdown';
-import 'bootstrap/js/modal';
 import 'bootstrap/js/tooltip';
 import 'bootstrap/js/transition';
 import 'jquery.hotkeys/jquery.hotkeys';

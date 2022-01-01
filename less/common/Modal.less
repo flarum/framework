@@ -7,54 +7,40 @@
 }
 
 // Modal background
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: var(--zindex-modal-background);
-  background-color: var(--overlay-bg);
-  opacity: 0;
-  transition: opacity 0.2s;
+.ModalManager dialog {
+  //! These MUST be defined separately
+  //
+  // When browsers do not understand a pseudoselector, the entire block is ignored,
+  // meaning no backdrop would be visible at all.
+  &::backdrop {
+    // `::backdrop` does not inherit anything from parents, so we need to declare this here.
+    // See: https://stackoverflow.com/a/63322762/11091039
 
-  &.in {
-    opacity: 1;
+    --overlay-bg: @overlay-bg;
+    background: var(--overlay-bg);
+  }
+
+  + .backdrop {
+    background: var(--overlay-bg);
   }
 }
 
 // Container that the modal scrolls within
 .ModalManager {
-  display: none;
-  overflow: hidden;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: var(--zindex-modal);
-  -webkit-overflow-scrolling: touch;
-
   // When fading in the modal, animate it to slide down
-  .Modal {
-    transform: scale(0.9);
-    transition: transform 0.2s ease-out;
-  }
-  &.in .Modal {
-    transform: scale(1);
-  }
-}
-.modal-open .ModalManager {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
+  dialog {
+    border-width: 0;
+    padding: 0;
+    overflow: visible;
+    border-radius: @border-radius;
 
-// Shell div to position the modal with bottom padding
-.Modal {
-  position: relative;
-  width: auto;
-  margin: 10px;
-  max-width: 600px;
+    transform: scale(0.9);
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+
+    &.in {
+      transform: scale(1);
+    }
+  }
 }
 
 // Actual modal
@@ -173,6 +159,11 @@
 }
 
 @media @tablet-up {
+  .ModalManager dialog {
+    border-radius: var(--border-radius);
+    box-shadow: 0 7px 15px var(--shadow-color);
+    width: 100%;
+  }
   .Modal {
     margin: 120px auto;
   }
@@ -183,10 +174,7 @@
     z-index: 1;
   }
   .Modal-content {
-
-    border: 0;
     border-radius: var(--border-radius);
-    box-shadow: 0 7px 15px var(--shadow-color);
   }
   .Modal--small {
     max-width: 375px;
