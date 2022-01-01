@@ -24,6 +24,8 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
   protected modalClosing: boolean = false;
 
+  protected clickStartedOnBackdrop: boolean = false;
+
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
     const modal = this.attrs.state.modal;
     const Tag = modal?.componentClass;
@@ -77,7 +79,10 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     dialogPolyfill.registerDialog(this.dialogElement);
 
     if (!dismissibleState.viaEscKey) this.dialogElement.addEventListener('cancel', this.preventEscPressHandler);
-    if (dismissibleState.viaBackdropClick) this.dialogElement.addEventListener('click', (e) => this.handleBackdropClick.call(this, e));
+    if (dismissibleState.viaBackdropClick) {
+      this.dialogElement.addEventListener('mousedown', (e) => this.handleBackdropMouseDown.call(this, e));
+      this.dialogElement.addEventListener('click', (e) => this.handleBackdropClick.call(this, e));
+    }
 
     this.dialogElement.addEventListener('transitionend', () => readyCallback(), { once: true });
     // Ensure the modal state is ALWAYS notified about a closed modal
@@ -115,21 +120,37 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     this.dialogElement.classList.add('out');
   }
 
-  animateCloseHandler(this: this, e: Event) {
+  protected animateCloseHandler(this: this, e: Event) {
     e.preventDefault();
 
     this.animateHide();
   }
 
-  preventEscPressHandler(this: this, e: Event) {
+  protected preventEscPressHandler(this: this, e: Event) {
     e.preventDefault();
   }
 
-  handleBackdropClick(this: this, e: MouseEvent) {
-    // If it's a click on the dialog element, the backdrop has been clicked.
-    // If it was a click in the modal, the element would be `div.Modal-content` or some other element.
+  protected handleBackdropMouseDown(this: this, e: MouseEvent) {
+    // If it's a mousedown on the dialog element, the backdrop has been clicked.
+    // If it was a mousedown in the modal, the element would be `div.Modal-content` or some other element.
     if (e.target !== this.dialogElement) return;
 
+    this.clickStartedOnBackdrop = true;
+    window.addEventListener(
+      'mouseup',
+      () => {
+        if (e.target !== this.dialogElement) this.clickStartedOnBackdrop = false;
+      },
+      { once: true }
+    );
+  }
+
+  protected handleBackdropClick(this: this, e: MouseEvent) {
+    // If it's a click on the dialog element, the backdrop has been clicked.
+    // If it was a click in the modal, the element would be `div.Modal-content` or some other element.
+    if (e.target !== this.dialogElement || !this.clickStartedOnBackdrop) return;
+
+    this.clickStartedOnBackdrop = false;
     this.animateHide();
   }
 }
