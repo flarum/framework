@@ -109,8 +109,21 @@
             "dev-master": "1.x-dev"
         },
         "flarum-cli": {
+            "excludeScaffolding": [
+                "LICENSE.md",
+                "js/tsconfig.json",
+                "js/webpack.config.js"
+            ],
             "modules": {
-                "backendTesting": true
+                "backendTesting": true,
+                "js": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": true,
+                "bundlewatch": true,
+                "editorConfig": true,
+                "styleci": true
             }
         }
     },
