@@ -86,7 +86,7 @@
         "wikimedia/less.php": "^3.0"
     },
     "require-dev": {
-        "flarum/testing": "1.0@dev"
+        "flarum/testing": "^1.0.0"
     },
     "autoload": {
         "psr-4": {
@@ -107,6 +107,11 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.x-dev"
+        },
+        "flarum-cli": {
+            "modules": {
+                "backendTesting": true
+            }
         }
     },
     "scripts": {
