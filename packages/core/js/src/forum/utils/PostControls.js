@@ -151,7 +151,7 @@ export default {
    */
   hideAction() {
     if (!confirm(extractText(app.translator.trans('core.forum.post_controls.hide_confirmation')))) return;
-    this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
+    this.pushData({ attributes: { hiddenAt: new Date() }, relationships: { hiddenUser: app.session.user } });
 
     return this.save({ isHidden: true }).then(() => m.redraw());
   },
@@ -162,7 +162,7 @@ export default {
    * @return {Promise<void>}
    */
   restoreAction() {
-    this.pushAttributes({ hiddenAt: null, hiddenUser: null });
+    this.pushData({ attributes: { hiddenAt: null }, relationships: { hiddenUser: null } });
 
     return this.save({ isHidden: false }).then(() => m.redraw());
   },
