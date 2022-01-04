@@ -38,7 +38,7 @@ class Akismet
 
     public function isConfigured(): bool
     {
-        return !empty($this->apiKey);
+        return ! empty($this->apiKey);
     }
 
     /**
@@ -48,6 +48,7 @@ class Akismet
     protected function sendRequest(string $type): ResponseInterface
     {
         $client = new Client();
+
         return $client->request('POST', "$this->apiUrl/$type", [
             'headers'     => [
                 'User-Agent' => "Flarum/$this->flarumVersion | Akismet/$this->extensionVersion",
@@ -147,7 +148,7 @@ class Akismet
      * contact-form: A contact form or feedback form submission.
      * signup: A new user account.
      * message: A message sent between just a few users.
-     * You may send a value not listed above if none of them accurately describe your content. This is further explained here: https://blog.akismet.com/2012/06/19/pro-tip-tell-us-your-comment_type/
+     * You may send a value not listed above if none of them accurately describe your content. This is further explained here: https://blog.akismet.com/2012/06/19/pro-tip-tell-us-your-comment_type/.
      */
     public function withType(string $type): Akismet
     {
@@ -226,4 +227,3 @@ class Akismet
         return $this->withParam('recheck_reason', $reason);
     }
 }
-

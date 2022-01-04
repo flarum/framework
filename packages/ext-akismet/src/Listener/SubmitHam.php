@@ -26,7 +26,7 @@ class SubmitHam
 
     public function handle(PostWasApproved $event)
     {
-        if (!$this->akismet->isConfigured()) {
+        if (! $this->akismet->isConfigured()) {
             return;
         }
 
