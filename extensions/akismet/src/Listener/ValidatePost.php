@@ -35,14 +35,14 @@ class ValidatePost
 
     public function handle(Saving $event)
     {
-        if (!$this->akismet->isConfigured()) {
+        if (! $this->akismet->isConfigured()) {
             return;
         }
 
         $post = $event->post;
 
         //TODO Sometimes someone posts spam when editing a post. In this case 'recheck_reason=edit' can be used when sending a request to Akismet
-        if ($post->exists || !($post instanceof CommentPost) || $post->user->hasPermission('bypassAkismet')) {
+        if ($post->exists || ! ($post instanceof CommentPost) || $post->user->hasPermission('bypassAkismet')) {
             return;
         }
 
@@ -54,7 +54,6 @@ class ValidatePost
             ->withIp($post->ip_address)
             ->withUserAgent($_SERVER['HTTP_USER_AGENT'])
             ->checkSpam();
-
 
         if ($result['isSpam']) {
             $post->is_spam = true;

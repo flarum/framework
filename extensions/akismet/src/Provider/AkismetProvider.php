@@ -9,13 +9,13 @@
 
 namespace Flarum\Akismet\Provider;
 
+use Flarum\Akismet\Akismet;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Akismet\Akismet;
 use Illuminate\Container\Container;
 
 class AkismetProvider extends AbstractServiceProvider
