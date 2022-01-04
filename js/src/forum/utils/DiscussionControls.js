@@ -213,7 +213,7 @@ export default {
    * @return {Promise<void>}
    */
   hideAction() {
-    this.pushData({ attributes: {hiddenAt: new Date()}, relationships: {hiddenUser: app.session.user} });
+    this.pushData({ attributes: { hiddenAt: new Date() }, relationships: { hiddenUser: app.session.user } });
 
     return this.save({ isHidden: true });
   },
@@ -224,7 +224,7 @@ export default {
    * @return {Promise<void>}
    */
   restoreAction() {
-    this.pushData({ attributes: {hiddenAt: null}, relationships: {hiddenUser: null} });
+    this.pushData({ attributes: { hiddenAt: null }, relationships: { hiddenUser: null } });
 
     return this.save({ isHidden: false });
   },

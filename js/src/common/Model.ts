@@ -121,7 +121,7 @@ export default abstract class Model {
           fireDeprecationWarning('Providing models as attributes to `Model.pushData()` or `Model.pushAttributes()` is deprecated.', '3249');
           delete data.attributes[key];
           data.relationships ||= {};
-          data.relationships[key] = { data: Model.getIdentifier(val)};
+          data.relationships[key] = { data: Model.getIdentifier(val) };
         }
       }
 
