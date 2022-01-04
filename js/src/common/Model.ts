@@ -118,7 +118,7 @@ export default abstract class Model {
       for (const key in data.attributes) {
         const val = data.attributes[key];
         if (val && val instanceof Model) {
-          fireDebugWarning('Model.pushData() was passed a Model instance in the `attributes` field. This is not supported.');
+          fireDeprecationWarning('Providing models as attributes to `Model.pushData()` or `Model.pushAttributes()` is deprecated.', '3249');
           delete data.attributes[key];
           data.relationships ||= {};
           data.relationships[key] = { data: Model.getIdentifier(val)};
