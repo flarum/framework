@@ -1,5 +1,6 @@
 import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
+import fireDebugWarning from './helpers/fireDebugWarning';
 import Store, { ApiPayloadSingle, ApiResponseSingle, MetaInformation } from './Store';
 
 export interface ModelIdentifier {
@@ -111,6 +112,19 @@ export default abstract class Model {
 
     if ('attributes' in data) {
       this.data.attributes ||= {};
+
+      // @deprecated
+      // Filter out relationships that got in by accident.
+      for (const key in data.attributes) {
+        const val = data.attributes[key];
+        if (val && val instanceof Model) {
+          fireDebugWarning('Model.pushData() was passed a Model instance in the `attributes` field. This is not supported.');
+          delete data.attributes[key];
+          data.relationships ||= {};
+          data.relationships[key] = { data: Model.getIdentifier(val)};
+        }
+      }
+
       Object.assign(this.data.attributes, data.attributes);
     }
 
