@@ -9,9 +9,12 @@
 
 namespace Flarum\Akismet\Listener;
 
+use Carbon\Carbon;
+use Flarum\Akismet\Akismet;
 use Flarum\Flags\Flag;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Saving;
-use TijsVerkoyen\Akismet\Akismet;
+use Flarum\Settings\SettingsRepositoryInterface;
 
 class ValidatePost
 {
@@ -19,46 +22,69 @@ class ValidatePost
      * @var Akismet
      */
     protected $akismet;
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    private $settings;
 
-    public function __construct(Akismet $akismet)
+    public function __construct(Akismet $akismet, SettingsRepositoryInterface $settings)
     {
         $this->akismet = $akismet;
+        $this->settings = $settings;
     }
 
     public function handle(Saving $event)
     {
-        $post = $event->post;
-
-        if ($post->exists || $post->user->groups()->count()) {
+        if (!$this->akismet->isConfigured()) {
             return;
         }
 
-        $isSpam = $this->akismet->isSpam(
-            $post->content,
-            $post->user->username,
-            $post->user->email,
-            null,
-            'comment'
-        );
+        $post = $event->post;
 
-        if ($isSpam) {
-            $post->is_approved = false;
+        //TODO Sometimes someone posts spam when editing a post. In this case 'recheck_reason=edit' can be used when sending a request to Akismet
+        if ($post->exists || !($post instanceof CommentPost) || $post->user->hasPermission('bypassAkismet')) {
+            return;
+        }
+
+        $result = $this->akismet
+            ->withContent($post->content)
+            ->withAuthorName($post->user->username)
+            ->withAuthorEmail($post->user->email)
+            ->withType($post->number == 1 ? 'forum-post' : 'reply')
+            ->withIp($post->ip_address)
+            ->withUserAgent($_SERVER['HTTP_USER_AGENT'])
+            ->checkSpam();
+
+
+        if ($result['isSpam']) {
             $post->is_spam = true;
 
-            $post->afterSave(function ($post) {
-                if ($post->number == 1) {
-                    $post->discussion->is_approved = false;
-                    $post->discussion->save();
-                }
+            if ($result['proTip'] === 'discard' && $this->settings->get('flarum-akismet.delete_blatant_spam')) {
+                $post->hide();
 
-                $flag = new Flag;
+                $post->afterSave(function ($post) {
+                    if ($post->number == 1) {
+                        $post->discussion->hide();
+                    }
+                });
+            } else {
+                $post->is_approved = false;
 
-                $flag->post_id = $post->id;
-                $flag->type = 'akismet';
-                $flag->created_at = time();
+                $post->afterSave(function ($post) {
+                    if ($post->number == 1) {
+                        $post->discussion->is_approved = false;
+                        $post->discussion->save();
+                    }
 
-                $flag->save();
-            });
+                    $flag = new Flag;
+
+                    $flag->post_id = $post->id;
+                    $flag->type = 'akismet';
+                    $flag->created_at = Carbon::now();
+
+                    $flag->save();
+                });
+            }
         }
     }
 }

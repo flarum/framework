@@ -9,8 +9,8 @@
 
 namespace Flarum\Akismet\Listener;
 
+use Flarum\Akismet\Akismet;
 use Flarum\Approval\Event\PostWasApproved;
-use TijsVerkoyen\Akismet\Akismet;
 
 class SubmitHam
 {
@@ -26,16 +26,20 @@ class SubmitHam
 
     public function handle(PostWasApproved $event)
     {
+        if (!$this->akismet->isConfigured()) {
+            return;
+        }
+
         $post = $event->post;
 
         if ($post->is_spam) {
-            $this->akismet->submitHam(
-                $post->ip_address,
-                null,
-                $post->content,
-                $post->user->username,
-                $post->user->email
-            );
+            $this->akismet
+                ->withContent($post->content)
+                ->withIp($post->ip_address)
+                ->withAuthorName($post->user->username)
+                ->withAuthorEmail($post->user->email)
+                ->withType($post->number === 1 ? 'forum-post' : 'reply')
+                ->submitHam();
         }
     }
 }
