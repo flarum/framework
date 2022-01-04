@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.1](https://github.com/flarum/core/compare/v1.1.0...v1.1.1)
+
+### Fixed
+- Performance issue with very large communities.
 
 ## [1.1.0](https://github.com/flarum/core/compare/v1.0.4...v1.1.0)
 
