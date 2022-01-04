@@ -1,6 +1,8 @@
+.idea
 /vendor
 composer.phar
 .DS_Store
 Thumbs.db
 node_modules
 js/dist/*
+composer.lock

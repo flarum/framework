@@ -7,10 +7,14 @@ flarum-akismet:
   # Translations in this namespace are used by the admin interface.
   admin:
 
-    # These translations are used in the Akismet Settings modal dialog.
+    # These translations are used in the Akismet Settings.
     akismet_settings:
       api_key_label: API Key
       title: Akismet Settings
+      delete_blatant_spam_label: Automatically delete blatant spam
+      delete_blatant_spam_help: If Akismet has determined that the comment is blatant spam, instead of flagging, automatically delete post
+    permissions:
+      bypass_akismet: Bypass Akismet
 
   # Translations in this namespace are used by the forum user interface.
   forum:
