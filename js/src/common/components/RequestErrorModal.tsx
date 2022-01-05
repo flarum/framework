@@ -22,7 +22,7 @@ export default class RequestErrorModal<CustomAttrs extends IRequestErrorModalAtt
 
     // If the error is already formatted, just add line endings;
     // else try to parse it as JSON and stringify it with indentation
-    if (formattedError) {
+    if (formattedError.length) {
       responseText = formattedError.join('\n\n');
     } else if (error.response) {
       responseText = JSON.stringify(error.response, null, 2);
