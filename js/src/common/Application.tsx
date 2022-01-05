@@ -550,7 +550,7 @@ export default class Application {
         if (formattedErrors.length) {
           console.error(...formattedErrors);
         } else {
-          console.error(e)
+          console.error(e);
         }
 
         console.groupEnd();
