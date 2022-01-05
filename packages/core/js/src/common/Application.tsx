@@ -547,7 +547,11 @@ export default class Application {
 
         console.group(`${method} ${url} ${status}`);
 
-        console.error(...(formattedErrors || [e]));
+        if (formattedErrors.length) {
+          console.error(...formattedErrors);
+        } else {
+          console.error(e)
+        }
 
         console.groupEnd();
       }
