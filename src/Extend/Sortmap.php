@@ -16,7 +16,7 @@ class Sortmap implements ExtenderInterface
 {
     private $sortFields = [];
 
-    public function addSort(string $key, string $value):self
+    public function addSort(string $key, string $value): self
     {
         $this->sortFields[$key] = $value;
 
