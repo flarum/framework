@@ -130,7 +130,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             return $container->make('flarum.frontend.factory')('forum');
         });
 
-        $this->container->singleton('flarum.forum.sortmap', function (Container $container) {
+        $this->container->singleton('flarum.forum.sortmap', function () {
             return [
                 'latest' => '-lastPostedAt',
                 'top' => '-commentCount',
