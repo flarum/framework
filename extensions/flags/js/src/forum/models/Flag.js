@@ -1,4 +1,4 @@
-import Model from 'flarum/Model';
+import Model from 'flarum/common/Model';
 
 class Flag extends Model {}
 

@@ -1,10 +1,10 @@
-import { extend } from 'flarum/extend';
-import app from 'flarum/app';
-import Post from 'flarum/components/Post';
-import Button from 'flarum/components/Button';
-import ItemList from 'flarum/utils/ItemList';
-import PostControls from 'flarum/utils/PostControls';
-import humanTime from 'flarum/utils/humanTime';
+import { extend } from 'flarum/common/extend';
+import app from 'flarum/forum/app';
+import Post from 'flarum/forum/components/Post';
+import Button from 'flarum/common/components/Button';
+import ItemList from 'flarum/common/utils/ItemList';
+import PostControls from 'flarum/forum/utils/PostControls';
+import humanTime from 'flarum/common/utils/humanTime';
 
 export default function () {
   extend(Post.prototype, 'elementAttrs', function (attrs) {

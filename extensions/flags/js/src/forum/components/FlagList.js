@@ -1,10 +1,11 @@
-import Component from 'flarum/Component';
-import Link from 'flarum/components/Link';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import avatar from 'flarum/helpers/avatar';
-import username from 'flarum/helpers/username';
-import icon from 'flarum/helpers/icon';
-import humanTime from 'flarum/helpers/humanTime';
+import app from 'flarum/forum/app';
+import Component from 'flarum/common/Component';
+import Link from 'flarum/common/components/Link';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import avatar from 'flarum/common/helpers/avatar';
+import username from 'flarum/common/helpers/username';
+import icon from 'flarum/common/helpers/icon';
+import humanTime from 'flarum/common/helpers/humanTime';
 
 export default class FlagList extends Component {
   oninit(vnode) {
