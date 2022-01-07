@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import NotificationsDropdown from 'flarum/components/NotificationsDropdown';
 
 import FlagList from './FlagList';

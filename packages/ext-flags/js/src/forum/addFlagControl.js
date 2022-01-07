@@ -1,7 +1,7 @@
-import { extend } from 'flarum/extend';
-import app from 'flarum/app';
-import PostControls from 'flarum/utils/PostControls';
-import Button from 'flarum/components/Button';
+import { extend } from 'flarum/common/extend';
+import app from 'flarum/forum/app';
+import PostControls from 'flarum/forum/utils/PostControls';
+import Button from 'flarum/common/components/Button';
 
 import FlagPostModal from './components/FlagPostModal';
 

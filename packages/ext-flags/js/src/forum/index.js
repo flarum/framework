@@ -1,5 +1,5 @@
-import app from 'flarum/app';
-import Model from 'flarum/Model';
+import app from 'flarum/forum/app';
+import Model from 'flarum/common/Model';
 
 import Flag from './models/Flag';
 import FlagsPage from './components/FlagsPage';
