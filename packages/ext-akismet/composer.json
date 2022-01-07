@@ -53,7 +53,9 @@
                 "bundlewatch": false,
                 "backendTesting": true,
                 "editorConfig": true,
-                "styleci": true
+                "styleci": true,
+                "admin": true,
+                "forum": true
             }
         }
     },
