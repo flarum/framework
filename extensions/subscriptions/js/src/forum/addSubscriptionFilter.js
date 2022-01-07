@@ -1,8 +1,9 @@
-import { extend } from 'flarum/extend';
-import LinkButton from 'flarum/components/LinkButton';
-import IndexPage from 'flarum/components/IndexPage';
-import DiscussionListState from 'flarum/states/DiscussionListState';
-import GlobalSearchState from 'flarum/states/GlobalSearchState';
+import app from 'flarum/forum/app';
+import { extend } from 'flarum/common/extend';
+import LinkButton from 'flarum/common/components/LinkButton';
+import IndexPage from 'flarum/forum/components/IndexPage';
+import DiscussionListState from 'flarum/forum/states/DiscussionListState';
+import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 
 export default function addSubscriptionFilter() {
   extend(IndexPage.prototype, 'navItems', function(items) {

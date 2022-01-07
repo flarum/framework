@@ -1,5 +1,5 @@
-import Notification from 'flarum/components/Notification';
-import username from 'flarum/helpers/username';
+import app from 'flarum/forum/app';
+import Notification from 'flarum/forum/components/Notification';
 
 export default class NewPostNotification extends Notification {
   icon() {

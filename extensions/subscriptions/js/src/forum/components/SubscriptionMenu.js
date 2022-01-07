@@ -1,9 +1,10 @@
-import Dropdown from 'flarum/components/Dropdown';
-import Button from 'flarum/components/Button';
+import app from 'flarum/forum/app';
+import Dropdown from 'flarum/common/components/Dropdown';
+import Button from 'flarum/common/components/Button';
 import Tooltip from 'flarum/common/components/Tooltip';
-import icon from 'flarum/helpers/icon';
-import extractText from 'flarum/utils/extractText';
-import classList from 'flarum/utils/classList';
+import icon from 'flarum/common/helpers/icon';
+import extractText from 'flarum/common/utils/extractText';
+import classList from 'flarum/common/utils/classList';
 
 import SubscriptionMenuItem from './SubscriptionMenuItem';
 
