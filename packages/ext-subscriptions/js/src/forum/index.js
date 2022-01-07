@@ -1,9 +1,9 @@
-import { extend } from 'flarum/extend';
-import app from 'flarum/app';
-import Model from 'flarum/Model';
-import Discussion from 'flarum/models/Discussion';
-import IndexPage from 'flarum/components/IndexPage';
-import NotificationGrid from 'flarum/components/NotificationGrid';
+import { extend } from 'flarum/common/extend';
+import app from 'flarum/forum/app';
+import Model from 'flarum/common/Model';
+import Discussion from 'flarum/common/models/Discussion';
+import IndexPage from 'flarum/forum/components/IndexPage';
+import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 
 import addSubscriptionBadge from './addSubscriptionBadge';
 import addSubscriptionControls from './addSubscriptionControls';
