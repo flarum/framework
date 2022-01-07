@@ -6,14 +6,21 @@ import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 
 export default function addSubscriptionFilter() {
-  extend(IndexPage.prototype, 'navItems', function(items) {
+  extend(IndexPage.prototype, 'navItems', function (items) {
     if (app.session.user) {
       const params = app.search.stickyParams();
 
-      items.add('following', LinkButton.component({
-        href: app.route('following', params),
-        icon: 'fas fa-star'
-      }, app.translator.trans('flarum-subscriptions.forum.index.following_link')), 50);
+      items.add(
+        'following',
+        LinkButton.component(
+          {
+            href: app.route('following', params),
+            icon: 'fas fa-star',
+          },
+          app.translator.trans('flarum-subscriptions.forum.index.following_link')
+        ),
+        50
+      );
     }
   });
 

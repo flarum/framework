@@ -23,11 +23,11 @@ app.initializers.add('subscriptions', function () {
   addSubscriptionFilter();
   addSubscriptionSettings();
 
-  extend(NotificationGrid.prototype, 'notificationTypes', function(items) {
+  extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
     items.add('newPost', {
       name: 'newPost',
       icon: 'fas fa-star',
-      label: app.translator.trans('flarum-subscriptions.forum.settings.notify_new_post_label')
+      label: app.translator.trans('flarum-subscriptions.forum.settings.notify_new_post_label'),
     });
   });
 });

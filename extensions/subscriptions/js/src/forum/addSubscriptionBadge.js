@@ -4,7 +4,7 @@ import Discussion from 'flarum/common/models/Discussion';
 import Badge from 'flarum/common/components/Badge';
 
 export default function addSubscriptionBadge() {
-  extend(Discussion.prototype, 'badges', function(badges) {
+  extend(Discussion.prototype, 'badges', function (badges) {
     let badge;
 
     switch (this.subscription()) {
@@ -12,7 +12,7 @@ export default function addSubscriptionBadge() {
         badge = Badge.component({
           label: app.translator.trans('flarum-subscriptions.forum.badge.following_tooltip'),
           icon: 'fas fa-star',
-          type: 'following'
+          type: 'following',
         });
         break;
 
@@ -20,12 +20,12 @@ export default function addSubscriptionBadge() {
         badge = Badge.component({
           label: app.translator.trans('flarum-subscriptions.forum.badge.ignoring_tooltip'),
           icon: 'far fa-eye-slash',
-          type: 'ignoring'
+          type: 'ignoring',
         });
         break;
 
       default:
-        // no default
+      // no default
     }
 
     if (badge) {
