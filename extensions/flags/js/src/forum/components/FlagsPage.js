@@ -18,6 +18,10 @@ export default class FlagsPage extends Page {
   }
 
   view() {
-    return <div className="FlagsPage"><FlagList state={app.flags}></FlagList></div>;
+    return (
+      <div className="FlagsPage">
+        <FlagList state={app.flags}></FlagList>
+      </div>
+    );
   }
 }
