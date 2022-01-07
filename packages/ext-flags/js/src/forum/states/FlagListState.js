@@ -22,12 +22,13 @@ export default class FlagListState {
     this.loading = true;
     m.redraw();
 
-    this.app.store.find('flags')
-      .then(flags => {
+    this.app.store
+      .find('flags')
+      .then((flags) => {
         this.app.session.user.pushAttributes({ newFlagCount: 0 });
         this.cache = flags.sort((a, b) => b.createdAt() - a.createdAt());
       })
-      .catch(() => { })
+      .catch(() => {})
       .then(() => {
         this.loading = false;
         m.redraw();

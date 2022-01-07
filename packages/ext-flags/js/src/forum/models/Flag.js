@@ -9,7 +9,7 @@ Object.assign(Flag.prototype, {
   createdAt: Model.attribute('createdAt', Model.transformDate),
 
   post: Model.hasOne('post'),
-  user: Model.hasOne('user')
+  user: Model.hasOne('user'),
 });
 
 export default Flag;

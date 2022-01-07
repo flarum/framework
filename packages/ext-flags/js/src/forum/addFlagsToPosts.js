@@ -6,14 +6,14 @@ import ItemList from 'flarum/utils/ItemList';
 import PostControls from 'flarum/utils/PostControls';
 import humanTime from 'flarum/utils/humanTime';
 
-export default function() {
-  extend(Post.prototype, 'elementAttrs', function(attrs) {
+export default function () {
+  extend(Post.prototype, 'elementAttrs', function (attrs) {
     if (this.attrs.post.flags().length) {
       attrs.className += ' Post--flagged';
     }
   });
 
-  Post.prototype.dismissFlag = function(body) {
+  Post.prototype.dismissFlag = function (body) {
     const post = this.attrs.post;
 
     delete post.data.relationships.flags;
@@ -45,16 +45,16 @@ export default function() {
     return app.request({
       url: app.forum.attribute('apiUrl') + post.apiEndpoint() + '/flags',
       method: 'DELETE',
-      body
+      body,
     });
   };
 
-  Post.prototype.flagActionItems = function() {
+  Post.prototype.flagActionItems = function () {
     const items = new ItemList();
 
     const controls = PostControls.destructiveControls(this.attrs.post);
 
-    Object.keys(controls.items).forEach(k => {
+    Object.keys(controls.items).forEach((k) => {
       const attrs = controls.get(k).attrs;
 
       attrs.className = 'Button';
@@ -62,22 +62,20 @@ export default function() {
       extend(attrs, 'onclick', () => this.dismissFlag());
     });
 
-    items.add('controls', (
-      <div className="ButtonGroup">
-        {controls.toArray()}
-      </div>
-    ));
+    items.add('controls', <div className="ButtonGroup">{controls.toArray()}</div>);
 
-    items.add('dismiss', (
+    items.add(
+      'dismiss',
       <Button className="Button" icon="far fa-eye-slash" onclick={this.dismissFlag.bind(this)}>
         {app.translator.trans('flarum-flags.forum.post.dismiss_flag_button')}
-      </Button>
-    ), -100);
+      </Button>,
+      -100
+    );
 
     return items;
   };
 
-  extend(Post.prototype, 'content', function(vdom) {
+  extend(Post.prototype, 'content', function (vdom) {
     const post = this.attrs.post;
     const flags = post.flags();
 
@@ -88,20 +86,16 @@ export default function() {
     vdom.unshift(
       <div className="Post-flagged">
         <div className="Post-flagged-flags">
-          {flags.map(flag =>
-            <div className="Post-flagged-flag">
-              {this.flagReason(flag)}
-            </div>
-          )}
+          {flags.map((flag) => (
+            <div className="Post-flagged-flag">{this.flagReason(flag)}</div>
+          ))}
         </div>
-        <div className="Post-flagged-actions">
-          {this.flagActionItems().toArray()}
-        </div>
+        <div className="Post-flagged-actions">{this.flagActionItems().toArray()}</div>
       </div>
     );
   });
 
-  Post.prototype.flagReason = function(flag) {
+  Post.prototype.flagReason = function (flag) {
     if (flag.type() === 'user') {
       const user = flag.user();
       const reason = flag.reason() ? app.translator.trans(`flarum-flags.forum.flag_post.reason_${flag.reason()}_label`) : null;
@@ -109,8 +103,12 @@ export default function() {
       const time = humanTime(flag.createdAt());
 
       return [
-        app.translator.trans(reason ? 'flarum-flags.forum.post.flagged_by_with_reason_text' : 'flarum-flags.forum.post.flagged_by_text', {time, user, reason}),
-        detail ? <span className="Post-flagged-detail">{detail}</span> : ''
+        app.translator.trans(reason ? 'flarum-flags.forum.post.flagged_by_with_reason_text' : 'flarum-flags.forum.post.flagged_by_text', {
+          time,
+          user,
+          reason,
+        }),
+        detail ? <span className="Post-flagged-detail">{detail}</span> : '',
       ];
     }
   };
