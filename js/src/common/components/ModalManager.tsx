@@ -49,7 +49,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     // e.g. via ESC key or a click on the modal backdrop.
     this.$().on('hidden.bs.modal', this.attrs.state.close.bind(this.attrs.state));
 
-    this.focusTrap = createFocusTrap(this.element as HTMLElement);
+    this.focusTrap = createFocusTrap(this.element as HTMLElement, { allowOutsideClick: true });
   }
 
   onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
