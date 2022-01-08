@@ -18,7 +18,7 @@ export default class EditCustomCssModal extends SettingsModal {
         })}
       </p>,
       <div className="Form-group">
-        <textarea className="FormControl" rows="30" bidi={this.setting('custom_less')} />
+        <textarea className="FormControl" rows="30" bidi={this.setting('custom_less')} spellcheck={false} />
       </div>,
     ];
   }
