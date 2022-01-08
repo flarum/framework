@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import EditPostComposer from 'flarum/forum/components/EditPostComposer';
 import getMentionText from './getMentionText';

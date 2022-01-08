@@ -1,5 +1,6 @@
-import { extend } from 'flarum/extend';
-import CommentPost from 'flarum/components/CommentPost';
+import app from 'flarum/forum/app';
+import { extend } from 'flarum/common/extend';
+import CommentPost from 'flarum/forum/components/CommentPost';
 
 import PostQuoteButton from './fragments/PostQuoteButton';
 import selectedText from './utils/selectedText';

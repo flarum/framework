@@ -1,4 +1,4 @@
-import Fragment from 'flarum/Fragment';
+import Fragment from 'flarum/common/Fragment';
 
 export default class AutocompleteDropdown extends Fragment {
   items = [];

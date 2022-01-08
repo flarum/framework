@@ -1,5 +1,6 @@
-import Notification from 'flarum/components/Notification';
-import { truncate } from 'flarum/utils/string';
+import app from 'flarum/forum/app';
+import Notification from 'flarum/forum/components/Notification';
+import { truncate } from 'flarum/common/utils/string';
 
 export default class UserMentionedNotification extends Notification {
   icon() {
