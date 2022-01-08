@@ -138,7 +138,7 @@ export default class Post extends Component {
       classes.push('Post--by-actor');
     }
 
-    if (user?.id() === discussion.attribute('startUserId')) {
+    if (user && user?.id() === discussion.attribute('startUserId')) {
       classes.push('Post--by-start-user');
     }
 
