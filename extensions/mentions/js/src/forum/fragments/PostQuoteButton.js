@@ -1,5 +1,6 @@
-import Fragment from 'flarum/Fragment';
-import icon from 'flarum/helpers/icon';
+import app from 'flarum/forum/app';
+import Fragment from 'flarum/common/Fragment';
+import icon from 'flarum/common/helpers/icon';
 
 import reply from '../utils/reply';
 

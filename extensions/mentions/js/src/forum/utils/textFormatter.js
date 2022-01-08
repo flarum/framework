@@ -1,5 +1,6 @@
-import username from 'flarum/helpers/username';
-import extractText from 'flarum/utils/extractText';
+import app from 'flarum/forum/app';
+import username from 'flarum/common/helpers/username';
+import extractText from 'flarum/common/utils/extractText';
 
 export function filterUserMentions(tag) {
   let user;

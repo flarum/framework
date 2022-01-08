@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import extractText from 'flarum/common/utils/extractText';
 
 /**

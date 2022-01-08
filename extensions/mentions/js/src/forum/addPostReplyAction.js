@@ -1,6 +1,7 @@
-import { extend } from 'flarum/extend';
-import Button from 'flarum/components/Button';
-import CommentPost from 'flarum/components/CommentPost';
+import app from 'flarum/forum/app';
+import { extend } from 'flarum/common/extend';
+import Button from 'flarum/common/components/Button';
+import CommentPost from 'flarum/forum/components/CommentPost';
 
 import reply from './utils/reply';
 

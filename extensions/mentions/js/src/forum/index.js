@@ -1,7 +1,7 @@
-import { extend } from 'flarum/extend';
-import app from 'flarum/app';
-import NotificationGrid from 'flarum/components/NotificationGrid';
-import { getPlainContent } from 'flarum/utils/string';
+import { extend } from 'flarum/common/extend';
+import app from 'flarum/forum/app';
+import NotificationGrid from 'flarum/forum/components/NotificationGrid';
+import { getPlainContent } from 'flarum/common/utils/string';
 
 import addPostMentionPreviews from './addPostMentionPreviews';
 import addMentionedByList from './addMentionedByList';
@@ -10,8 +10,8 @@ import addPostQuoteButton from './addPostQuoteButton';
 import addComposerAutocomplete from './addComposerAutocomplete';
 import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
-import UserPage from 'flarum/components/UserPage';
-import LinkButton from 'flarum/components/LinkButton';
+import UserPage from 'flarum/forum/components/UserPage';
+import LinkButton from 'flarum/common/components/LinkButton';
 import MentionsUserPage from './components/MentionsUserPage';
 
 app.initializers.add('flarum-mentions', function () {

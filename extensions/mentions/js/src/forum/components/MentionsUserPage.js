@@ -1,4 +1,5 @@
-import PostsUserPage from 'flarum/components/PostsUserPage';
+import app from 'flarum/forum/app';
+import PostsUserPage from 'flarum/forum/components/PostsUserPage';
 
 /**
  * The `MentionsUserPage` component shows post which user Mentioned at
