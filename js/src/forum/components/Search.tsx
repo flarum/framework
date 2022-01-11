@@ -161,6 +161,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
               className="Search-clear Button Button--icon Button--link"
               onclick={this.clear.bind(this)}
               aria-label={app.translator.trans('core.forum.header.search_clear_button_accessible_label')}
+              type="button"
             >
               {icon('fas fa-times-circle')}
             </button>
