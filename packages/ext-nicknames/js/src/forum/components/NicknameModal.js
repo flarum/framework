@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
@@ -21,20 +22,17 @@ export default class NicknameModal extends Modal {
       <div className="Modal-body">
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input
-              type="text"
-              autocomplete="off"
-              name="nickname"
-              className="FormControl"
-              bidi={this.nickname}
-              disabled={this.loading} />
+            <input type="text" autocomplete="off" name="nickname" className="FormControl" bidi={this.nickname} disabled={this.loading} />
           </div>
           <div className="Form-group">
-            {Button.component({
-              className: 'Button Button--primary Button--block',
-              type: 'submit',
-              loading: this.loading,
-            }, app.translator.trans('flarum-nicknames.forum.change_nickname.submit_button'))}
+            {Button.component(
+              {
+                className: 'Button Button--primary Button--block',
+                type: 'submit',
+                loading: this.loading,
+              },
+              app.translator.trans('flarum-nicknames.forum.change_nickname.submit_button')
+            )}
           </div>
         </div>
       </div>
@@ -51,9 +49,13 @@ export default class NicknameModal extends Modal {
 
     this.loading = true;
 
-    app.session.user.save({ nickname: this.nickname() }, {
-      errorHandler: this.onerror.bind(this),
-    })
+    app.session.user
+      .save(
+        { nickname: this.nickname() },
+        {
+          errorHandler: this.onerror.bind(this),
+        }
+      )
       .then(this.hide.bind(this))
       .catch(() => {
         this.loading = false;
