@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import Button from 'flarum/common/components/Button';
 import EditUserModal from 'flarum/common/components/EditUserModal';
@@ -16,7 +17,8 @@ app.initializers.add('flarum/nicknames', () => {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     if (this.user.canEditOwnNickname()) {
-      items.add('changeNickname',
+      items.add(
+        'changeNickname',
         <Button className="Button" onclick={() => app.modal.show(NickNameModal)}>
           {app.translator.trans('flarum-nicknames.forum.settings.change_nickname_button')}
         </Button>
@@ -33,13 +35,18 @@ app.initializers.add('flarum/nicknames', () => {
   extend(EditUserModal.prototype, 'fields', function (items) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
-    items.add('nickname',
+    items.add(
+      'nickname',
       <div className="Form-group">
         <label>{app.translator.trans('flarum-nicknames.forum.edit_user.nicknames_heading')}</label>
-        <input className="FormControl"
-               placeholder={extractText(app.translator.trans('flarum-nicknames.forum.edit_user.nicknames_text'))}
-               bidi={this.nickname} />
-      </div>, 100);
+        <input
+          className="FormControl"
+          placeholder={extractText(app.translator.trans('flarum-nicknames.forum.edit_user.nicknames_text'))}
+          bidi={this.nickname}
+        />
+      </div>,
+      100
+    );
   });
 
   extend(EditUserModal.prototype, 'data', function (data) {
@@ -55,9 +62,7 @@ app.initializers.add('flarum/nicknames', () => {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     this.nickname = Stream(this.attrs.username || '');
-
   });
-
 
   extend(SignUpModal.prototype, 'onready', function () {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
@@ -65,7 +70,6 @@ app.initializers.add('flarum/nicknames', () => {
     if (app.forum.attribute('setNicknameOnRegistration') && app.forum.attribute('randomizeUsernameOnRegistration')) {
       this.$('[name=nickname]').select();
     }
-
   });
 
   extend(SignUpModal.prototype, 'fields', function (items) {
@@ -106,5 +110,4 @@ app.initializers.add('flarum/nicknames', () => {
       }
     }
   });
-  
 });
