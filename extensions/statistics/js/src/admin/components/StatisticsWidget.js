@@ -7,11 +7,12 @@
  * file that was distributed with this source code.
  */
 
-import DashboardWidget from 'flarum/components/DashboardWidget';
-import SelectDropdown from 'flarum/components/SelectDropdown';
-import Button from 'flarum/components/Button';
-import icon from 'flarum/helpers/icon';
-import abbreviateNumber from 'flarum/utils/abbreviateNumber';
+import app from 'flarum/admin/app';
+import DashboardWidget from 'flarum/admin/components/DashboardWidget';
+import SelectDropdown from 'flarum/common/components/SelectDropdown';
+import Button from 'flarum/common/components/Button';
+import icon from 'flarum/common/helpers/icon';
+import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
 
 import { Chart } from 'frappe-charts/dist/frappe-charts.esm.js';
 
@@ -31,10 +32,10 @@ export default class StatisticsWidget extends DashboardWidget {
 
     this.entities = ['users', 'discussions', 'posts'];
     this.periods = {
-      today: {start: today, end: today + 86400, step: 3600},
-      last_7_days: {start: today - 86400 * 7, end: today, step: 86400},
-      last_28_days: {start: today - 86400 * 28, end: today, step: 86400},
-      last_12_months: {start: today - 86400 * 364, end: today, step: 86400 * 7}
+      today: { start: today, end: today + 86400, step: 3600 },
+      last_7_days: { start: today - 86400 * 7, end: today, step: 86400 },
+      last_28_days: { start: today - 86400 * 28, end: today, step: 86400 },
+      last_12_months: { start: today - 86400 * 364, end: today, step: 86400 * 7 },
     };
 
     this.selectedEntity = 'users';
@@ -54,11 +55,12 @@ export default class StatisticsWidget extends DashboardWidget {
           <div className="StatisticsWidget-label">{app.translator.trans('flarum-statistics.admin.statistics.total_label')}</div>
           <div className="StatisticsWidget-label">
             <SelectDropdown buttonClassName="Button Button--text" caretIcon="fas fa-caret-down">
-              {Object.keys(this.periods).map(period => (
+              {Object.keys(this.periods).map((period) => (
                 <Button
                   active={period === this.selectedPeriod}
                   onclick={this.changePeriod.bind(this, period)}
-                  icon={period === this.selectedPeriod ? 'fas fa-check' : true}>
+                  icon={period === this.selectedPeriod ? 'fas fa-check' : true}
+                >
                   {app.translator.trans(`flarum-statistics.admin.statistics.${period}_label`)}
                 </Button>
               ))}
@@ -66,30 +68,37 @@ export default class StatisticsWidget extends DashboardWidget {
           </div>
         </div>
 
-        {this.entities.map(entity => {
+        {this.entities.map((entity) => {
           const totalCount = this.getTotalCount(entity);
           const thisPeriodCount = this.getPeriodCount(entity, thisPeriod);
           const lastPeriodCount = this.getPeriodCount(entity, this.getLastPeriod(thisPeriod));
-          const periodChange = lastPeriodCount > 0 && (thisPeriodCount - lastPeriodCount) / lastPeriodCount * 100;
+          const periodChange = lastPeriodCount > 0 && ((thisPeriodCount - lastPeriodCount) / lastPeriodCount) * 100;
 
           return (
-            <a className={'StatisticsWidget-entity'+(this.selectedEntity === entity ? ' active' : '')} onclick={this.changeEntity.bind(this, entity)}>
-              <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.'+entity+'_heading')}</h3>
-              <div className="StatisticsWidget-total" title={totalCount}>{abbreviateNumber(totalCount)}</div>
+            <a
+              className={'StatisticsWidget-entity' + (this.selectedEntity === entity ? ' active' : '')}
+              onclick={this.changeEntity.bind(this, entity)}
+            >
+              <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>
+              <div className="StatisticsWidget-total" title={totalCount}>
+                {abbreviateNumber(totalCount)}
+              </div>
               <div className="StatisticsWidget-period" title={thisPeriodCount}>
                 {abbreviateNumber(thisPeriodCount)}{' '}
                 {periodChange ? (
-                  <span className={'StatisticsWidget-change StatisticsWidget-change--'+(periodChange > 0 ? 'up' : 'down')}>
-                    {icon('fas fa-arrow-'+(periodChange > 0 ? 'up' : 'down'))}
+                  <span className={'StatisticsWidget-change StatisticsWidget-change--' + (periodChange > 0 ? 'up' : 'down')}>
+                    {icon('fas fa-arrow-' + (periodChange > 0 ? 'up' : 'down'))}
                     {Math.abs(periodChange.toFixed(1))}%
                   </span>
-                ) : ''}
+                ) : (
+                  ''
+                )}
               </div>
             </a>
           );
         })}
 
-        <div className="StatisticsWidget-chart" oncreate={this.drawChart.bind(this)} onupdate={this.drawChart.bind(this)}/>
+        <div className="StatisticsWidget-chart" oncreate={this.drawChart.bind(this)} onupdate={this.drawChart.bind(this)} />
       </div>
     );
   }
@@ -121,18 +130,15 @@ export default class StatisticsWidget extends DashboardWidget {
 
       labels.push(label);
 
-      thisPeriod.push(this.getPeriodCount(this.selectedEntity, {start: i, end: i + period.step}));
+      thisPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i, end: i + period.step }));
 
-      lastPeriod.push(this.getPeriodCount(this.selectedEntity, {start: i - periodLength, end: i - periodLength + period.step}));
+      lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength + period.step }));
     }
 
-    const datasets = [
-      {values: lastPeriod},
-      {values: thisPeriod}
-    ];
+    const datasets = [{ values: lastPeriod }, { values: thisPeriod }];
     const data = {
       labels,
-      datasets
+      datasets,
     };
 
     if (!this.chart) {
@@ -143,12 +149,12 @@ export default class StatisticsWidget extends DashboardWidget {
         axisOptions: {
           xAxisMode: 'tick',
           yAxisMode: 'span',
-          xIsSeries: true
+          xIsSeries: true,
         },
         lineOptions: {
-          hideDots: 1
+          hideDots: 1,
         },
-        colors: ['black', app.forum.attribute('themePrimaryColor')]
+        colors: ['black', app.forum.attribute('themePrimaryColor')],
       });
     } else {
       this.chart.update(data);
@@ -186,7 +192,7 @@ export default class StatisticsWidget extends DashboardWidget {
   getLastPeriod(thisPeriod) {
     return {
       start: thisPeriod.start - (thisPeriod.end - thisPeriod.start),
-      end: thisPeriod.start
+      end: thisPeriod.start,
     };
   }
 }
