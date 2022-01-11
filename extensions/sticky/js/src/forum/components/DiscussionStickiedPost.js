@@ -1,4 +1,4 @@
-import EventPost from 'flarum/components/EventPost';
+import EventPost from 'flarum/forum/components/EventPost';
 
 export default class DiscussionStickiedPost extends EventPost {
   icon() {
