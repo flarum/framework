@@ -1,9 +1,10 @@
-import { extend } from 'flarum/extend';
-import DiscussionListState from 'flarum/states/DiscussionListState';
-import DiscussionListItem from 'flarum/components/DiscussionListItem';
-import DiscussionPage from 'flarum/components/DiscussionPage';
-import IndexPage from 'flarum/components/IndexPage';
-import { truncate } from 'flarum/utils/string';
+import app from 'flarum/forum/app';
+import { extend } from 'flarum/common/extend';
+import DiscussionListState from 'flarum/forum/states/DiscussionListState';
+import DiscussionListItem from 'flarum/forum/components/DiscussionListItem';
+import DiscussionPage from 'flarum/forum/components/DiscussionPage';
+import IndexPage from 'flarum/forum/components/IndexPage';
+import { truncate } from 'flarum/common/utils/string';
 
 export default function addStickyControl() {
   extend(DiscussionListState.prototype, 'requestParams', function (params) {

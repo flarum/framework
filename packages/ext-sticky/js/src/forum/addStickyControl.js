@@ -1,7 +1,8 @@
-import { extend } from 'flarum/extend';
-import DiscussionControls from 'flarum/utils/DiscussionControls';
-import DiscussionPage from 'flarum/components/DiscussionPage';
-import Button from 'flarum/components/Button';
+import app from 'flarum/forum/app';
+import { extend } from 'flarum/common/extend';
+import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
+import DiscussionPage from 'flarum/forum/components/DiscussionPage';
+import Button from 'flarum/common/components/Button';
 
 export default function addStickyControl() {
   extend(DiscussionControls, 'moderationControls', function (items, discussion) {
