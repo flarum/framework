@@ -1,10 +1,8 @@
-import EventPost from 'flarum/components/EventPost';
+import EventPost from 'flarum/forum/components/EventPost';
 
 export default class DiscussionLockedPost extends EventPost {
   icon() {
-    return this.attrs.post.content().locked
-      ? 'fas fa-lock'
-      : 'fas fa-unlock';
+    return this.attrs.post.content().locked ? 'fas fa-lock' : 'fas fa-unlock';
   }
 
   descriptionKey() {
