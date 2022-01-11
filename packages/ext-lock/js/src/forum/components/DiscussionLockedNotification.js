@@ -1,4 +1,5 @@
-import Notification from 'flarum/components/Notification';
+import app from 'flarum/forum/app';
+import Notification from 'flarum/forum/components/Notification';
 
 export default class DiscussionLockedNotification extends Notification {
   icon() {
@@ -12,6 +13,6 @@ export default class DiscussionLockedNotification extends Notification {
   }
 
   content() {
-    return app.translator.trans('flarum-lock.forum.notifications.discussion_locked_text', {user: this.attrs.notification.fromUser()});
+    return app.translator.trans('flarum-lock.forum.notifications.discussion_locked_text', { user: this.attrs.notification.fromUser() });
   }
 }
