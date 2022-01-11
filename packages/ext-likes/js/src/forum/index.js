@@ -1,8 +1,8 @@
-import { extend } from 'flarum/extend';
-import app from 'flarum/app';
-import Post from 'flarum/models/Post';
-import Model from 'flarum/Model';
-import NotificationGrid from 'flarum/components/NotificationGrid';
+import { extend } from 'flarum/common/extend';
+import app from 'flarum/forum/app';
+import Post from 'flarum/common/models/Post';
+import Model from 'flarum/common/Model';
+import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 
 import addLikeAction from './addLikeAction';
 import addLikesList from './addLikesList';
@@ -21,7 +21,7 @@ app.initializers.add('flarum-likes', () => {
     items.add('postLiked', {
       name: 'postLiked',
       icon: 'far fa-thumbs-up',
-      label: app.translator.trans('flarum-likes.forum.settings.notify_post_liked_label')
+      label: app.translator.trans('flarum-likes.forum.settings.notify_post_liked_label'),
     });
   });
 });
