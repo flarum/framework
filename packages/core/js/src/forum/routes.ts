@@ -34,7 +34,7 @@ export function makeRouteHelpers(app: ForumApplication) {
     /**
      * Generate a URL to a discussion.
      */
-    discussion: (discussion: Discussion, near: number) => {
+    discussion: (discussion: Discussion, near?: number) => {
       return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
         id: discussion.slug(),
         near: near && near !== 1 ? near : undefined,
