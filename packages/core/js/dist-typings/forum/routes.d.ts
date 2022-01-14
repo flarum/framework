@@ -10,7 +10,7 @@ export declare function makeRouteHelpers(app: ForumApplication): {
     /**
      * Generate a URL to a discussion.
      */
-    discussion: (discussion: Discussion, near: number) => string;
+    discussion: (discussion: Discussion, near?: number | undefined) => string;
     /**
      * Generate a URL to a post.
      */
