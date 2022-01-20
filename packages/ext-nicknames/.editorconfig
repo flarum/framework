@@ -1,4 +1,3 @@
-
 # EditorConfig helps developers define and maintain consistent
 # coding styles between different editors and IDEs
 # editorconfig.org
@@ -16,5 +15,5 @@ indent_size = 2
 [*.{diff,md}]
 trim_trailing_whitespace = false
 
-[*.php]
+[*.{php,xml,json}]
 indent_size = 4
