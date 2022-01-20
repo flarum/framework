@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/flarum/tags/compare/v1.1.0...v1.2.0)
+
+### Added
+- Bypass tag requirements toggle button for able actors (https://github.com/flarum/tags/pull/153).
+
+### Changed
+- Eager load tags state with actor id (https://github.com/flarum/tags/pull/149, https://github.com/flarum/tags/pull/151).
+- Slashes in tag slug break routing (https://github.com/flarum/tags/pull/150).
+- Stop loading tag last posted discussion relation on admin side (https://github.com/flarum/tags/pull/152).
+
+### Fixed
+- UI does not reflect bypass tag requirements permission (https://github.com/flarum/tags/pull/148).
+- Occassional errors when deleting flagged posts (https://github.com/flarum/tags/pull/154)
+- Tag discussion count doesn't adjust when deleting first/only post of the discussion (https://github.com/flarum/tags/pull/154)
+
 ## [1.1.0](https://github.com/flarum/tags/compare/v1.0.3...v1.1.0)
 
 ### Added
