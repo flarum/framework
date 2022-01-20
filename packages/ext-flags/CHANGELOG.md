@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0](https://github.com/flarum/flags/compare/v1.1.0...v1.2.0)
+
+### Fixed
+- Missing translation for the reason flag (https://github.com/flarum/flags/pull/30).
+- Created flags show user as "deleted" until a page refresh (https://github.com/flarum/flags/pull/42)
+
 ## [1.1.0](https://github.com/flarum/flags/compare/v1.0.0...v1.1.0)
 
 No changes.
