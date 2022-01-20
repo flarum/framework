@@ -43,7 +43,7 @@
         "format": "prettier --write src",
         "format-check": "prettier --check src",
         "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
-        "build-typings": "npm run clean-typings && tsc && [[ -e src/@types ]] && cp -r src/@types dist-typings/@types",
+        "build-typings": "npm run clean-typings && tsc && [ -e src/@types ] && cp -r src/@types dist-typings/@types",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
         "check-typings-coverage": "typescript-coverage-report"
     },
