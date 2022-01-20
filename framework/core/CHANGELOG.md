@@ -100,7 +100,8 @@
 - `last_activity_at, last_seen_at` updated on all API requests (https://github.com/flarum/core/pull/3231).
 - `RememberMe` access token updated twice in API requests (https://github.com/flarum/core/pull/3233).
 - Error in `funding` item in `composer.json` bricks the frontend (https://github.com/flarum/core/pull/3239).
-- Fix escaped quotes in window title (https://github.com/flarum/core/pull/3264)
+- Escaped quotes in window title (https://github.com/flarum/core/pull/3264)
+- `schedule:list` command fails due to missing timezone configuration.
 
 ### Deprecated
 - Unused `evented` utility (https://github.com/flarum/core/pull/3125).
