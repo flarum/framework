@@ -1,24 +1,19 @@
-# EditorConfig makes it easy to maintain the correct coding style
-# when switching between different text editors and projects.
-# http://editorconfig.org/
+# EditorConfig helps developers define and maintain consistent
+# coding styles between different editors and IDEs
+# editorconfig.org
 
-# Top-most EditorConfig file. Do not search in parent directories.
 root = true
 
-# Set two space indentation, line endings to Unix (LF) with a final newline,
-# default charset to UTF-8, and trim trailing whitespace in all files.
 [*]
-indent_style = space
-indent_size = 2
 end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
+indent_style = space
+indent_size = 2
 
-# Set four space indentation in JSON and PHP files.
-[*.{json,php}]
-indent_size = 4
-
-# Do not trim trailing whitespace in Markdown files.
-[*.md]
+[*.{diff,md}]
 trim_trailing_whitespace = false
+
+[*.{php,xml,json}]
+indent_size = 4

@@ -1,11 +1,12 @@
-# The .gitignore file specifies intentionally untracked files that
-# Git should ignore. Files already tracked by Git are not affected.
-# http://git-scm.com/docs/gitignore
-
-# Composer
 /vendor
+composer.lock
 composer.phar
 
-# Operating systems
 .DS_Store
 Thumbs.db
+tests/.phpunit.result.cache
+/tests/integration/tmp
+.vagrant
+.idea/*
+.vscode
+js/coverage-ts
