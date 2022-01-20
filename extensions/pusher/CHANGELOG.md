@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0](https://github.com/flarum/pusher/compare/v1.1.0...v1.2.0)
+
+### Changed
+- Convert to TypeScript (https://github.com/flarum/pusher/pull/34).
+- Replace jQuery with vanilla JS (https://github.com/flarum/pusher/pull/35).
+
+### Fixed
+- Discussion list pagination breaks when clicking on the update button (https://github.com/flarum/pusher/pull/33).
+
 ## [1.1.0](https://github.com/flarum/pusher/compare/v1.0.0...v1.1.0)
 
 No changes.
