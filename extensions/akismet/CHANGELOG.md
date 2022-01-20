@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.0](https://github.com/flarum/akismet/compare/v1.1.0...v1.2.0)
+
+### Added
+
+-  Permission to bypass Akismet (https://github.com/flarum/akismet/pull/24)
+-  Option to remove blatant spam (https://github.com/flarum/akismet/pull/24)
+-  Sending additional parameters like is_test (https://github.com/flarum/akismet/pull/24)
+
+### Changed
+
+- Convert frontend to TypeScript (https://github.com/flarum/akismet/pull/24)
+- Call Akismet API manually (https://github.com/flarum/akismet/pull/24)
+
+### Fixed
+
+- PHP 8 compatibility (https://github.com/flarum/akismet/pull/24)
+
 ## [1.1.0](https://github.com/flarum/akismet/compare/v1.0.0...v1.1.0)
 
 No changes.
