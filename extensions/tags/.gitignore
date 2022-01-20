@@ -1,7 +1,12 @@
 /vendor
+composer.lock
 composer.phar
+
 .DS_Store
 Thumbs.db
-node_modules
-js/dist/*
-composer.lock
+tests/.phpunit.result.cache
+/tests/integration/tmp
+.vagrant
+.idea/*
+.vscode
+js/coverage-ts
