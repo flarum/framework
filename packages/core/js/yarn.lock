@@ -5,14 +5,14 @@ __metadata:
   version: 5
   cacheKey: 8
 
-"@askvortsov/rich-icu-message-formatter@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "@askvortsov/rich-icu-message-formatter@npm:0.2.2"
+"@askvortsov/rich-icu-message-formatter@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@askvortsov/rich-icu-message-formatter@npm:0.2.3"
   dependencies:
     "@babel/runtime": ^7.11.2
     "@ultraq/array-utils": ^2.1.0
     "@ultraq/icu-message-formatter": ^0.12.0
-  checksum: 5034e851e6b9c4ab33f4a36e0f5fd4fa10d76462dd880fbca66d60b0a5bafb1ba37e7fb15253db3a9ba2c2b0df139fb963531ac66892e5afd563c9c142a5efe5
+  checksum: b73665819c877f2c13ed4198d3b635225aebabe087ac55efa7f623e936cc62be600b3edd8fcd003a863addee00255a552b9205470e36607e1133e8e85175d662
   languageName: node
   linkType: hard
 
@@ -1388,7 +1388,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flarum/core@workspace:."
   dependencies:
-    "@askvortsov/rich-icu-message-formatter": ^0.2.2
+    "@askvortsov/rich-icu-message-formatter": ^0.2.3
     "@flarum/prettier-config": ^1.0.0
     "@types/jquery": ^3.5.10
     "@types/mithril": ^2.0.8
