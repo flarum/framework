@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.0](https://github.com/flarum/nicknames/compare/v1.1.0...v1.2.0)
+
+### Added
+- Prompt for nickname on registration (https://github.com/flarum/nicknames/pull/4).
+
 ## [1.1.0](https://github.com/flarum/nicknames/compare/v1.0.0...v1.1.0)
 
 No changes.
