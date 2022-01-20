@@ -9,7 +9,9 @@
         "format": "prettier --write src",
         "format-check": "prettier --check src",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report"
+        "check-typings-coverage": "typescript-coverage-report",
+        "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
+        "build-typings": "npm run clean-typings && cp -r src/@types dist-typings/@types && tsc"
     },
     "devDependencies": {
         "@flarum/prettier-config": "^1.0.0",

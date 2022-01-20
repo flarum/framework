@@ -55,7 +55,8 @@
                 "editorConfig": true,
                 "styleci": true,
                 "admin": true,
-                "forum": true
+                "forum": true,
+                "css": false
             }
         }
     },
