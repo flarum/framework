@@ -19,8 +19,8 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.1",
-        "flarum/approval": "^1.1",
+        "flarum/core": "^1.2",
+        "flarum/approval": "^1.2",
         "guzzlehttp/guzzle": "^7.4"
     },
     "autoload": {
