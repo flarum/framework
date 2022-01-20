@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.1"
+        "flarum/core": "^1.2"
     },
     "autoload": {
         "psr-4": {
