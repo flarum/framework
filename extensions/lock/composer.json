@@ -2,7 +2,9 @@
     "name": "flarum/lock",
     "description": "End a discussion and don't let anyone add further replies.",
     "type": "flarum-extension",
-    "keywords": ["moderation"],
+    "keywords": [
+        "moderation"
+    ],
     "license": "MIT",
     "support": {
         "issues": "https://github.com/flarum/core/issues",
@@ -35,6 +37,23 @@
                 "name": "fas fa-lock",
                 "backgroundColor": "#ddd",
                 "color": "#666"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": false,
+                "bundlewatch": false,
+                "backendTesting": false,
+                "editorConfig": true,
+                "styleci": true
             }
         }
     }
