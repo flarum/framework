@@ -43,6 +43,23 @@
                 "backgroundColor": "#F28326",
                 "color": "#fff"
             }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": true,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": false,
+                "typescript": false,
+                "bundlewatch": false,
+                "backendTesting": true,
+                "editorConfig": true,
+                "styleci": true
+            }
         }
     },
     "scripts": {
@@ -62,6 +79,6 @@
     },
     "require-dev": {
         "flarum/core": "*@dev",
-        "flarum/testing": "*@dev"
+        "flarum/testing": "^1.0.0"
     }
 }

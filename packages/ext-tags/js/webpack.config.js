@@ -1,3 +1,1 @@
-const config = require('flarum-webpack-config');
-
-module.exports = config();
+module.exports = require('flarum-webpack-config')();
