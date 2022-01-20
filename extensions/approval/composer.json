@@ -2,19 +2,21 @@
     "name": "flarum/approval",
     "description": "Make discussions and posts require moderator approval.",
     "type": "flarum-extension",
-    "keywords": ["moderation"],
+    "keywords": [
+        "moderation"
+    ],
     "license": "MIT",
     "support": {
-      "issues": "https://github.com/flarum/core/issues",
-      "source": "https://github.com/flarum/approval",
-      "forum": "https://discuss.flarum.org"
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/approval",
+        "forum": "https://discuss.flarum.org"
     },
     "homepage": "https://flarum.org",
     "funding": [
-      {
-        "type": "website",
-        "url": "https://flarum.org/donate/"
-      }
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
     ],
     "require": {
         "flarum/core": "^1.1",
@@ -36,6 +38,23 @@
                 "name": "fas fa-check",
                 "backgroundColor": "#ABDC88",
                 "color": "#3F8A32"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": false,
+                "bundlewatch": false,
+                "backendTesting": false,
+                "editorConfig": true,
+                "styleci": true
             }
         }
     }
