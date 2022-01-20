@@ -30,6 +30,7 @@ import './utils/arrayFlatPolyfill';
 const tooltipGen = $.fn.tooltip;
 
 // Remove in a future version of Flarum.
+// @ts-ignore
 $.fn.tooltip = function (options, caller) {
   // Show a warning when `$.tooltip` is used outside of the Tooltip component.
   // This functionality is deprecated and should not be used.

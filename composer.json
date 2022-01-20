@@ -123,7 +123,11 @@
                 "typescript": true,
                 "bundlewatch": true,
                 "editorConfig": true,
-                "styleci": true
+                "styleci": true,
+                "admin": true,
+                "forum": true,
+                "jsCommon": true,
+                "css": true
             }
         }
     },
