@@ -1,5 +1,110 @@
 # Changelog
 
+## [1.2.0](https://github.com/flarum/core/compare/v1.1.1...v1.2.0)
+
+### Added
+- View `README` documentation in extension pages (https://github.com/flarum/core/pull/3094).
+- Declare & Use CSS Custom Properties (https://github.com/flarum/core/pull/3146).
+- Lazy draw dropdowns to improve performance (https://github.com/flarum/core/pull/2925).
+- Default Settings Extender (https://github.com/flarum/core/pull/3127).
+- Add `textarea` setting type to admin pages (https://github.com/flarum/core/pull/3141).
+- Allow registering settings as `Less` config vars through Settings Extender (https://github.com/flarum/core/pull/3011).
+- Allow replacing of blade template namespaces via extender (https://github.com/flarum/core/pull/3167).
+- Update to Webpack 5 (https://github.com/flarum/core/pull/3135).
+- Introduce `Less` custom function extender with a `is-extension-enabled` function (https://github.com/flarum/core/pull/3190).
+- Support for `few` in ICU Message syntax (https://github.com/flarum/core/pull/3122).
+- ES6 local support for number formatting (https://github.com/flarum/core/pull/3099).
+- Added dedicated endpoint for retrieving single groups (https://github.com/flarum/core/pull/3084).
+- Callback `loadWhere` relation eager loading extender (https://github.com/flarum/core/pull/3116).
+- Extensible document title driver implementation (https://github.com/flarum/core/pull/3109).
+- Type checks, typescript coverage GH action (https://github.com/flarum/core/pull/3136).
+- Add color indicator in appearance admin page instead of validating colors (https://github.com/flarum/core/pull/3140).
+- Add typing files for our translator libraries (https://github.com/flarum/core/pull/3175).
+- `StatusWidget` tools extensibility (https://github.com/flarum/core/pull/3189).
+- Allow switching the `ImageManager` driver (https://github.com/flarum/core/pull/3195).
+- Events for notification read/all read actions (https://github.com/flarum/core/pull/3203).
+
+### Changed
+- Testing with php8.1 (https://github.com/flarum/core/pull/3102).
+- Migrate fully to Yarn (https://github.com/flarum/core/pull/3155).
+- Handle post rendering errors to avoid crashes (https://github.com/flarum/core/pull/3061).
+- Added basic filtering, sorting, and pagination to groups endpoint (https://github.com/flarum/core/pull/3084).
+- Pass IP address to API Client pipeline (https://github.com/flarum/core/pull/3124).
+- Rename Extension Page "Uninstall" to "Purge" (https://github.com/flarum/core/pull/3123).
+- [A11Y] Improve accessibility for discussion reply count on post stream (https://github.com/flarum/core/pull/3090).
+- Improved post loading support (https://github.com/flarum/core/pull/3100).
+- Rewrite SubtreeRetainer into Typescript (https://github.com/flarum/core/pull/3137).
+- Rewrite ModalManager and state to Typescript (https://github.com/flarum/core/pull/3007).
+- Rewrite frontend application files to Typescript (https://github.com/flarum/core/pull/3006).
+- Allow extensions to modify the minimum search length in the Search component (https://github.com/flarum/core/pull/3130).
+- Allow use of any tag in `listItems` helper (https://github.com/flarum/core/pull/3147).
+- Replace `for ... in` with `Array.reduce` (https://github.com/flarum/core/pull/3149).
+- Page title format is now implemented through translations (https://github.com/flarum/core/pull/3077, https://github.com/flarum/core/pull/3228)
+- Add `aria-label` attribute to the navigation drawer button (https://github.com/flarum/core/pull/3157).
+- Convert extend util to TypeScript (https://github.com/flarum/core/pull/2928).
+- Better typings for DiscussionListState (https://github.com/flarum/core/pull/3132).
+- Rewrite ItemList, update `ItemList` typings (https://github.com/flarum/core/pull/3005).
+- Add priority order to discussion page controls (https://github.com/flarum/core/pull/3165).
+- Use `@php` in Blade templates (https://github.com/flarum/core/pull/3172).
+- Convert some common classes/utils to TS (https://github.com/flarum/core/pull/2929).
+- Convert routes to Typescript (https://github.com/flarum/core/pull/3177).
+- Move admin `colorItems` to an `ItemList` (https://github.com/flarum/core/pull/3186).
+- Centralize pagination/canonical meta URL generation in Document (https://github.com/flarum/core/pull/3077).
+- Use revision versioner to allow custom asset versioning (https://github.com/flarum/core/pull/3183).
+- Split up application error handling (https://github.com/flarum/core/pull/3184).
+- Make SlugManager available to blade template (https://github.com/flarum/core/pull/3194).
+- Convert models to TS (https://github.com/flarum/core/pull/3174).
+- Allow loading relations in other discussion endpoints (https://github.com/flarum/core/pull/3191).
+- Improve selected text stylization (https://github.com/flarum/core/pull/2961).
+- Extract notification `primaryControl` items to an ItemList (https://github.com/flarum/core/pull/3204).
+- Frontend code housekeeping (#3214, #3213).
+- Only retain scroll position if coming from discussion (https://github.com/flarum/core/pull/3229).
+- Use `aria-live` regions to focus screenreader attention on alerts as they appear (https://github.com/flarum/core/pull/3237).
+- Prevent unwarranted `a11y` warnings on custom Button subclasses (https://github.com/flarum/core/pull/3238).
+
+### Fixed
+- Missing locale text in the user editing modal (https://github.com/flarum/core/pull/3093).
+- Dashes in table prefix prevent installation (https://github.com/flarum/core/pull/3089).
+- Missing autocomplete attributes to input fields (https://github.com/flarum/core/pull/3088).
+- Missing route parameters throwing an error (https://github.com/flarum/core/pull/3118).
+- Mail settings select component never used (https://github.com/flarum/core/pull/3120).
+- White avatar image throws javascript errors on the profile page (https://github.com/flarum/core/pull/3119).
+- Unformatted avatar upload validation errors (https://github.com/flarum/core/pull/2946).
+- Webkit input clear button shows up with the custom one (https://github.com/flarum/core/pull/3128).
+- Media query breakpoints conflict with Windows display scaling (https://github.com/flarum/core/pull/3139).
+- `typeof this` not recognized by some IDEs (https://github.com/flarum/core/pull/3142).
+- `Model.save()` cannot save `null` `hasOne` relationship (https://github.com/flarum/core/pull/3131).
+- Edit post `until reply` policy broken on PHP 8 (https://github.com/flarum/core/pull/3145).
+- Inaccurate `Component.component` argument typings (https://github.com/flarum/core/pull/3148).
+- Scrolling notification list infinitely repeats (https://github.com/flarum/core/pull/3159).
+- Argument for INFO constant was assigned to `maxfiles` argument incorrectly (bfd81a83cfd0fa8125395a147ff0c9ce622f38e3).
+- `Activated` event is sent every time an email is confirmed instead of just once (https://github.com/flarum/core/pull/3163).
+- [A11Y] Modal close button missing accessible label (https://github.com/flarum/core/pull/3161).
+- [A11Y] Auth modal inputs missing accessible labels (https://github.com/flarum/core/pull/3207).
+- [A11Y] Triggering click on drawer button can cause layered backdrops (https://github.com/flarum/core/pull/3018).
+- [A11Y] Focus can leave open nav drawer on mobile (https://github.com/flarum/core/pull/3018).
+- [A11Y] Post action items not showing when focus is within the post (https://github.com/flarum/core/pull/3173).
+- [A11Y] Missing accessible label for alert dismiss button (https://github.com/flarum/core/pull/3237).
+- Error accessing the forum after saving a setting with more than 65k characters (https://github.com/flarum/core/pull/3162).
+- Cannot restart queue from within (https://github.com/flarum/core/pull/3166).
+- `Post--by-actor` not showing when comparing user instances (https://github.com/flarum/core/pull/3170).
+- Incorrect typings for Modal `hide()` method (https://github.com/flarum/core/pull/3180).
+- Avatar Upload throws errors with correct mimetype and incorrect extension (https://github.com/flarum/core/pull/3181).
+- Clicking the dropdown button on a post opens all dropdowns in `Post-actions` (https://github.com/flarum/core/pull/3185).
+- `getPlainContent()` causes external content to be fetched (https://github.com/flarum/core/pull/3193).
+- `listItems` not accepting all `Mithril.Children` (https://github.com/flarum/core/pull/3176).
+- Notifications mark as read option updates all notifications including the read ones (https://github.com/flarum/core/pull/3202).
+- Post meta permalink not properly generated (https://github.com/flarum/core/pull/3216).
+- Broken contribution link in README (https://github.com/flarum/core/pull/3211).
+- `WelcomeHero` is displayed when content is empty (https://github.com/flarum/core/pull/3219).
+- `last_activity_at, last_seen_at` updated on all API requests (https://github.com/flarum/core/pull/3231).
+- `RememberMe` access token updated twice in API requests (https://github.com/flarum/core/pull/3233).
+- Error in `funding` item in `composer.json` bricks the frontend (https://github.com/flarum/core/pull/3239).
+- Fix escaped quotes in window title (https://github.com/flarum/core/pull/3264)
+
+### Deprecated
+- Unused `evented` utility (https://github.com/flarum/core/pull/3125).
+
 ## [1.1.1](https://github.com/flarum/core/compare/v1.1.0...v1.1.1)
 
 ### Fixed
