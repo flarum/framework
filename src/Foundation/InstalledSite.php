@@ -159,6 +159,9 @@ class InstalledSite implements SiteInterface
     protected function getIlluminateConfig()
     {
         return new ConfigRepository([
+            'app' => [
+                'timezone' => 'UTC'
+            ],
             'view' => [
                 'paths' => [],
                 'compiled' => $this->paths->storage.'/views',
