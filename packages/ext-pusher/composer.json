@@ -2,7 +2,9 @@
     "name": "flarum/pusher",
     "description": "See new discussions and posts in real-time using Pusher.",
     "type": "flarum-extension",
-    "keywords": ["discussion"],
+    "keywords": [
+        "discussion"
+    ],
     "license": "MIT",
     "support": {
         "issues": "https://github.com/flarum/core/issues",
@@ -39,6 +41,23 @@
                 "backgroundRepeat": "no-repeat",
                 "backgroundColor": "#40bad8",
                 "color": "#fff"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": true,
+                "bundlewatch": false,
+                "backendTesting": false,
+                "editorConfig": true,
+                "styleci": true
             }
         }
     }
