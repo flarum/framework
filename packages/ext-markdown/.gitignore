@@ -1,16 +1,12 @@
 /vendor
+composer.lock
 composer.phar
+
 .DS_Store
 Thumbs.db
-bower_components
-node_modules
-composer.lock
-
-# Yarn 2+
-js/.pnp.*
-js/.yarn/*
-!js/.yarn/patches
-!js/.yarn/plugins
-!js/.yarn/releases
-!js/.yarn/sdks
-!js/.yarn/versions
+tests/.phpunit.result.cache
+/tests/integration/tmp
+.vagrant
+.idea/*
+.vscode
+js/coverage-ts
