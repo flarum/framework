@@ -2,7 +2,9 @@
     "name": "flarum/embed",
     "description": "Embed Flarum discussions as comments for your blog.",
     "type": "flarum-extension",
-    "keywords": ["discussion"],
+    "keywords": [
+        "discussion"
+    ],
     "license": "MIT",
     "support": {
         "issues": "https://github.com/flarum/core/issues",
@@ -35,6 +37,23 @@
                 "name": "fas fa-code",
                 "backgroundColor": "#B9D233",
                 "color": "#fff"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": false,
+                "forum": true,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": false,
+                "bundlewatch": false,
+                "backendTesting": false,
+                "editorConfig": true,
+                "styleci": true
             }
         }
     }
