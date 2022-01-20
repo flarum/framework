@@ -2,7 +2,9 @@
     "name": "flarum/subscriptions",
     "description": "Allow users to follow discussions and receive notifications for new posts.",
     "type": "flarum-extension",
-    "keywords": ["discussion"],
+    "keywords": [
+        "discussion"
+    ],
     "license": "MIT",
     "support": {
         "issues": "https://github.com/flarum/core/issues",
@@ -35,6 +37,23 @@
                 "name": "fas fa-star",
                 "backgroundColor": "#ffea7b",
                 "color": "#de8e00"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": false,
+                "forum": true,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": false,
+                "bundlewatch": false,
+                "backendTesting": false,
+                "editorConfig": true,
+                "styleci": true
             }
         }
     }
