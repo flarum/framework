@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.0](https://github.com/flarum/suspend/compare/v1.1.0...v1.2.0)
+
+### Added
+- Display suspension to user on first visit (https://github.com/flarum/suspend/pull/41).
+
 ## [1.1.0](https://github.com/flarum/suspend/compare/v1.0.0...v1.1.0)
 
 ### Changed
