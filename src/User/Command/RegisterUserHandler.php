@@ -98,7 +98,7 @@ class RegisterUserHandler
 
         $user = User::register(
             Arr::get($data, 'attributes.username'),
-            Arr::get($data, 'attributes.email'),
+            trim(Arr::get($data, 'attributes.email')),
             $password
         );
 
