@@ -17,7 +17,6 @@ use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class EditUserHandler
