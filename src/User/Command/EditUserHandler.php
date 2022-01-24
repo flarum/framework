@@ -59,7 +59,7 @@ class EditUserHandler
         $user = $this->users->findOrFail($command->userId, $actor);
 
         $isSelf = $actor->id === $user->id;
-                 
+
         $data['attributes']['email'] = trim($data['attributes']['email']);
 
         $attributes = Arr::get($data, 'attributes', []);
