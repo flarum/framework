@@ -50,7 +50,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             @ini_set('memory_limit', '1G');
             @set_time_limit(5 * 60);
 
-            return new ComposerAdapter($composer, $container->make(OutputLogger::class));
+            return new ComposerAdapter($composer, $container->make(OutputLogger::class), $container->make(Paths::class));
         });
 
         $this->container->alias(ComposerAdapter::class, 'flarum.composer');
