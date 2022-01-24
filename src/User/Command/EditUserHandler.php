@@ -17,6 +17,7 @@ use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class EditUserHandler
@@ -59,6 +60,8 @@ class EditUserHandler
         $user = $this->users->findOrFail($command->userId, $actor);
 
         $isSelf = $actor->id === $user->id;
+                 
+        $data['attributes']['email'] = trim($data['attributes']['email']);
 
         $attributes = Arr::get($data, 'attributes', []);
         $relationships = Arr::get($data, 'relationships', []);
