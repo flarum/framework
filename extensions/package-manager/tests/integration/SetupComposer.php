@@ -28,7 +28,7 @@ class SetupComposer
         'repositories' => [
             [
                 'type' => 'path',
-                'url' => __DIR__.'/../tmp/packages/*',
+                'url' => __DIR__.'/tmp/packages/*',
             ]
         ]
     ];

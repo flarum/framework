@@ -1,5 +1,12 @@
-js/node_modules
-vendor/
+/vendor
 composer.lock
-tests/tmp/
-.phpunit.result.cache
+composer.phar
+
+.DS_Store
+Thumbs.db
+tests/.phpunit.result.cache
+/tests/integration/tmp
+.vagrant
+.idea/*
+.vscode
+js/coverage-ts
