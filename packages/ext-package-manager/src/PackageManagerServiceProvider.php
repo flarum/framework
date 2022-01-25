@@ -42,6 +42,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
 
             putenv("COMPOSER_HOME={$paths->storage}/.composer");
             putenv("COMPOSER={$paths->base}/composer.json");
+            putenv("COMPOSER_DISABLE_XDEBUG_WARN=1");
             Config::$defaultConfig['vendor-dir'] = $paths->vendor;
 
             // When running simple require, update and remove commands on packages,
