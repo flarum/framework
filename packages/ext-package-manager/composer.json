@@ -39,6 +39,7 @@
             }
         },
         "flarum-cli": {
+            "exludeScaffolding": [".github/workflows/backend.yml"],
             "modules": {
                 "admin": true,
                 "forum": false,
