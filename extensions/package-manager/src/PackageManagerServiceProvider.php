@@ -42,6 +42,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
 
             putenv("COMPOSER_HOME={$paths->storage}/.composer");
             putenv("COMPOSER={$paths->base}/composer.json");
+            putenv("COMPOSER_DISABLE_XDEBUG_WARN=1");
             Config::$defaultConfig['vendor-dir'] = $paths->vendor;
 
             // When running simple require, update and remove commands on packages,
@@ -50,7 +51,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             @ini_set('memory_limit', '1G');
             @set_time_limit(5 * 60);
 
-            return new ComposerAdapter($composer, $container->make(OutputLogger::class));
+            return new ComposerAdapter($composer, $container->make(OutputLogger::class), $container->make(Paths::class));
         });
 
         $this->container->alias(ComposerAdapter::class, 'flarum.composer');
