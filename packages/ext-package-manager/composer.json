@@ -39,7 +39,17 @@
             }
         },
         "flarum-cli": {
-            "exludeScaffolding": [".github/workflows/backend.yml"],
+            "excludeScaffolding": [
+                ".github/workflows/backend.yml",
+                "js/src/admin/index.ts",
+                "tests/phpunit.integration.xml",
+                "tests/integration/setup.php"
+            ],
+            "excludeScaffoldingConfigKeys": {
+                "composer.json": [
+                    "scripts.test:setup"
+                ]
+            },
             "modules": {
                 "admin": true,
                 "forum": false,
