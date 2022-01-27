@@ -6,12 +6,22 @@ import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import Button from 'flarum/common/components/Button';
 import ItemList from 'flarum/common/utils/ItemList';
-import { VnodeDOM } from 'Mithril';
+import { Children, VnodeDOM } from 'mithril';
+
+export type PusherBinding = {
+  channels: {
+    main: PusherTypes.Channel;
+    user: PusherTypes.Channel | null;
+  };
+  pusher: PusherTypes.default;
+};
 
 app.initializers.add('flarum-pusher', () => {
   app.pusher = (async () => {
+    // @ts-expect-error
     await import('//cdn.jsdelivr.net/npm/pusher-js@7.0.3/dist/web/pusher.min.js' /* webpackIgnore: true, webpackPrefetch: true */);
 
+    // @ts-expect-error Imported dynamically
     const socket: PusherTypes.default = new Pusher(app.forum.attribute('pusherKey'), {
       authEndpoint: `${app.forum.attribute('apiUrl')}/pusher/auth`,
       cluster: app.forum.attribute('pusherCluster'),
@@ -34,7 +44,7 @@ app.initializers.add('flarum-pusher', () => {
   app.pushedUpdates = [];
 
   extend(DiscussionList.prototype, 'oncreate', function () {
-    app.pusher.then((binding) => {
+    app.pusher.then((binding: PusherBinding) => {
       const pusher = binding.pusher;
 
       pusher.bind('newPost', (data: { tagIds: number[]; discussionId: number }) => {
@@ -44,7 +54,7 @@ app.initializers.add('flarum-pusher', () => {
           if (params.tags) {
             const tag = app.store.getBy('tags', 'slug', params.tags);
 
-            if (data.tagIds.indexOf(tag.id()) === -1) return;
+            if (!data.tagIds.includes(tag.id())) return;
           }
 
           const id = String(data.discussionId);
@@ -64,12 +74,12 @@ app.initializers.add('flarum-pusher', () => {
   });
 
   extend(DiscussionList.prototype, 'onremove', function () {
-    app.pusher.then((binding) => {
+    app.pusher.then((binding: PusherBinding) => {
       binding.pusher.unbind('newPost');
     });
   });
 
-  extend(DiscussionList.prototype, 'view', function (vdom: VnodeDOM) {
+  extend(DiscussionList.prototype, 'view', function (this: DiscussionList, vdom: VnodeDOM) {
     if (app.pushedUpdates) {
       const count = app.pushedUpdates.length;
 
@@ -96,21 +106,22 @@ app.initializers.add('flarum-pusher', () => {
     }
   });
 
-  extend(DiscussionPage.prototype, 'oncreate', function () {
-    app.pusher.then((binding) => {
+  extend(DiscussionPage.prototype, 'oncreate', function (this: DiscussionPage) {
+    app.pusher.then((binding: PusherBinding) => {
       const pusher = binding.pusher;
 
       pusher.bind('newPost', (data: { discussionId: number }) => {
         const id = String(data.discussionId);
+        const discussionId = this.discussion?.id();
 
-        if (this.discussion && this.discussion.id() === id && this.stream) {
-          const oldCount = this.discussion.commentCount();
+        if (this.discussion && discussionId === id && this.stream) {
+          const oldCount = this.discussion.commentCount() ?? 0;
 
-          app.store.find('discussions', this.discussion.id()).then(() => {
-            this.stream.update().then(m.redraw);
+          app.store.find('discussions', discussionId).then(() => {
+            this.stream?.update().then(m.redraw);
 
             if (!document.hasFocus()) {
-              app.setTitleCount(Math.max(0, this.discussion.commentCount() - oldCount));
+              app.setTitleCount(Math.max(0, (this.discussion?.commentCount() ?? 0) - oldCount));
 
               window.addEventListener('focus', () => app.setTitleCount(0), { once: true });
             }
@@ -121,24 +132,26 @@ app.initializers.add('flarum-pusher', () => {
   });
 
   extend(DiscussionPage.prototype, 'onremove', function () {
-    app.pusher.then((binding) => {
+    app.pusher.then((binding: PusherBinding) => {
       binding.pusher.unbind('newPost');
     });
   });
 
-  extend(IndexPage.prototype, 'actionItems', (items: ItemList) => {
+  extend(IndexPage.prototype, 'actionItems', (items: ItemList<Children>) => {
     items.remove('refresh');
   });
 
-  app.pusher.then((binding) => {
+  app.pusher.then((binding: PusherBinding) => {
     const channels = binding.channels;
 
     if (channels.user) {
       channels.user.bind('notification', () => {
-        app.session.user.pushAttributes({
-          unreadNotificationCount: app.session.user.unreadNotificationCount() + 1,
-          newNotificationCount: app.session.user.newNotificationCount() + 1,
-        });
+        if (app.session.user) {
+          app.session.user.pushAttributes({
+            unreadNotificationCount: app.session.user.unreadNotificationCount() ?? 0 + 1,
+            newNotificationCount: app.session.user.newNotificationCount() ?? 0 + 1,
+          });
+        }
         app.notifications.clear();
         m.redraw();
       });
