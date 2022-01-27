@@ -1096,6 +1096,13 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.10.tgz#616f16e9d3a2a3d618136b1be244315d95bd7cab"
   integrity sha512-S/3xB4KzyFxYGCppyDt68yzBU9ysL88lSdIah4D6cptdcltc4NCPCAMc0+PCpg/lLIyC7IPvj2Z52OJWeIUkog==
 
+"@types/pusher-js@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@types/pusher-js/-/pusher-js-5.1.0.tgz#73d062489dd4e6981c2f2366da1bc2d4634783ba"
+  integrity sha512-VubdW1NvHAojLFtJ+FWmZsIlkSE+EiaLrrfCKcW/t9UDlXWF85rSPVc+5zdpZLVzkwaUaFeyIYSgeNfXc9Dxlg==
+  dependencies:
+    pusher-js "*"
+
 "@types/sizzle@*":
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.3.tgz#ff5e2f1902969d305225a047c8a0fd5c915cebef"
@@ -2269,6 +2276,13 @@ punycode@^2.1.0:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
+pusher-js@*:
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/pusher-js/-/pusher-js-7.0.4.tgz#44708ce2c24cc0695f9e3504e967bfbdd540e0b0"
+  integrity sha512-P/1ZVNmiBC48BZdo6eB403DyrWnKMxgpAm91XaHay3igxGf4kZHjVgxM3WqkZ1dS+ooGCM1rWjStizQvCvtQrw==
+  dependencies:
+    tweetnacl "^1.0.3"
+
 queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
@@ -2657,6 +2671,11 @@ tsutils@3:
   integrity sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   dependencies:
     tslib "^1.8.1"
+
+tweetnacl@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
+  integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
 
 type-coverage-core@^2.17.2:
   version "2.19.1"
