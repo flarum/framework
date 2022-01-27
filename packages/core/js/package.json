@@ -39,13 +39,14 @@
     "scripts": {
         "dev": "webpack --mode development --watch",
         "build": "webpack --mode production",
-        "analyze": "cross-env ANALYZER=true yarn build",
+        "analyze": "cross-env ANALYZER=true yarn run build",
         "format": "prettier --write src",
         "format-check": "prettier --check src",
         "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
-        "build-typings": "npm run clean-typings && tsc && [ -e src/@types ] && cp -r src/@types dist-typings/@types",
+        "build-typings": "yarn run clean-typings && tsc && [ -e src/@types ] && cp -r src/@types dist-typings/@types",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report"
+        "check-typings-coverage": "typescript-coverage-report",
+        "ci": "yarn install --immutable --immutable-cache"
     },
     "packageManager": "yarn@3.1.1"
 }
