@@ -45,8 +45,7 @@
         "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
         "build-typings": "yarn run clean-typings && tsc && [ -e src/@types ] && cp -r src/@types dist-typings/@types",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report",
-        "ci": "yarn install --immutable --immutable-cache"
+        "check-typings-coverage": "typescript-coverage-report"
     },
     "packageManager": "yarn@3.1.1"
 }
