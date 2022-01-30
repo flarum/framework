@@ -7,12 +7,26 @@
     bottom: 8px;
     width: 20px;
     height: 20px;
-    pointer-events: none;
   }
 
   &-preview {
-    background-color: var(--input-value);
+    display: inline-block;
     border-radius: 15%;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+
+    // Match both the wrapper div and the div with the background color
+    &, &::-webkit-color-swatch-wrapper, &::-webkit-color-swatch {
+      border: none;
+      padding: 0;
+    }
+
+    // This has to be a separate entry so other browsers
+    // don't ignore the entire CSS rule. Thanks Firefox.
+    &::-moz-color-swatch {
+      border: none;
+    }
   }
 
   &-icon {
