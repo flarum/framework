@@ -1,8 +1,10 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import ItemList from 'flarum/utils/ItemList';
-import { slug } from 'flarum/utils/string';
-import Stream from 'flarum/utils/Stream';
+import app from 'flarum/admin/app';
+import Modal from 'flarum/common/components/Modal';
+import Button from 'flarum/common/components/Button';
+import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
+import ItemList from 'flarum/common/utils/ItemList';
+import { slug } from 'flarum/common/utils/string';
+import Stream from 'flarum/common/utils/Stream';
 
 import tagLabel from '../../common/helpers/tagLabel';
 
@@ -68,7 +70,7 @@ export default class EditTagModal extends Modal {
 
     items.add('color', <div className="Form-group">
       <label>{app.translator.trans('flarum-tags.admin.edit_tag.color_label')}</label>
-      <input className="FormControl" placeholder="#aaaaaa" bidi={this.color} />
+      <ColorPreviewInput className="FormControl" placeholder="#aaaaaa" bidi={this.color} />
     </div>, 20);
 
     items.add('icon', <div className="Form-group">
