@@ -49,7 +49,6 @@ export default class Drawer {
    * @internal
    */
   resizeHandler = ((e) => {
-    console.log(this, e);
     if (!e.matches && this.isOpen()) {
       // Drawer is open but we've made window bigger, so hide it.
       this.hide();
