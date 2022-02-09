@@ -65,22 +65,11 @@ class Index
     {
         $queryParams = $request->getQueryParams();
 
-        $sort = Arr::pull($queryParams, 'sort');
-        $q = Arr::pull($queryParams, 'q');
+       
+        $params = $this->generateParams($queryParams);
         $page = max(1, intval(Arr::pull($queryParams, 'page')));
-        $filters = Arr::pull($queryParams, 'filter', []);
 
-        $sortMap = $this->getSortMap();
-
-        $params = [
-            'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
-            'filter' => $filters,
-            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
-        ];
-
-        if ($q) {
-            $params['filter']['q'] = $q;
-        }
+        
 
         $apiDocument = $this->getApiDocument($request, $params);
         $defaultRoute = $this->settings->get('default_route');
@@ -96,12 +85,44 @@ class Index
         return $document;
     }
 
+
+    /**
+     * Returns parameters.
+     *
+     * @return array
+     */
+
+
+    protected function generateParams($queryParams)
+    {
+        
+        $sort = Arr::pull($queryParams, 'sort');
+        $q = Arr::pull($queryParams, 'q','');
+        $page = max(1, intval(Arr::pull($queryParams, 'page')));
+        $filters = Arr::pull($queryParams, 'filter', []);
+
+        $sortMap = $this->getSortMap();
+
+        $params = [
+            'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
+            'filter' => $filters,
+            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
+        ];
+
+        if ($q) {
+            $params['filter']['q'] = $q;
+        }
+
+        return $params;
+
+    }
+
     /**
      * Get a map of sort query param values and their API sort params.
      *
      * @return array
      */
-    private function getSortMap()
+    protected function getSortMap()
     {
         return [
             'latest' => '-lastPostedAt',
