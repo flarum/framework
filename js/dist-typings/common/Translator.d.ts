@@ -1,4 +1,4 @@
-/// <reference path="../../src/common/translator-icu-rich.d.ts" />
+/// <reference path="../@types/translator-icu-rich.d.ts" />
 import { RichMessageFormatter } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
 declare type Translations = Record<string, string>;
