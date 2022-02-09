@@ -41,7 +41,7 @@ class ListPostsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $sortFields = ['number'];
+    public $sortFields = ['number', 'createdAt'];
 
     /**
      * @var PostFilterer
