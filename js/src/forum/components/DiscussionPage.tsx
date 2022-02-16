@@ -210,7 +210,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
             record.relationships.discussion.data.id === discussionId
         )
         .map((record) => app.store.getById<Post>('posts', record.id))
-        .sort((a?: Post, b?: Post) => (a?.createdAt()?.getTime() ?? 0) - (b?.createdAt()?.getTime() ?? 0))
+        .sort((a?: Post, b?: Post) => (a?.number() ?? 0) - (b?.number() ?? 0))
         .slice(0, 20);
     }
 
