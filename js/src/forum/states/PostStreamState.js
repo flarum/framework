@@ -289,7 +289,7 @@ class PostStreamState {
 
     if (loadIds.length) {
       return app.store.find('posts', loadIds).then((newPosts) => {
-        return loaded.concat(newPosts).sort((a, b) => a.createdAt() - b.createdAt());
+        return loaded.concat(newPosts).sort((a, b) => a.number() - b.number());
       });
     }
 
