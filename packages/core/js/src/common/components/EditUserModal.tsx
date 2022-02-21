@@ -61,7 +61,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
   fields() {
     const items = new ItemList();
 
-    if (app.session.user?.canEditCredentials()) {
+    if (this.attrs.user.canEditCredentials()) {
       items.add(
         'username',
         <div className="Form-group">
@@ -145,7 +145,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
       }
     }
 
-    if (app.session.user?.canEditGroups()) {
+    if (this.attrs.user.canEditGroups()) {
       items.add(
         'groups',
         <div className="Form-group EditUserModal-groups">
