@@ -35,9 +35,8 @@ return [
         ->listen(Saving::class, SaveNicknameToDatabase::class),
 
     (new Extend\ApiSerializer(UserSerializer::class))
-        ->attribute('canEditOwnNickname', function ($serializer, $user) {
-            $actor = $serializer->getActor();
-            return $actor->id === $user->id && $serializer->getActor()->can('editOwnNickname', $user);
+        ->attribute('canEditNickname', function (UserSerializer $serializer, User $user) {
+            return $serializer->getActor()->can('editNickname', $user);
         }),
 
     (new Extend\Settings())

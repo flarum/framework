@@ -11,12 +11,12 @@ import Stream from 'flarum/common/utils/Stream';
 import NickNameModal from './components/NicknameModal';
 
 app.initializers.add('flarum/nicknames', () => {
-  User.prototype.canEditOwnNickname = Model.attribute('canEditOwnNickname');
+  User.prototype.canEditNickname = Model.attribute('canEditNickname');
 
   extend(SettingsPage.prototype, 'accountItems', function (items) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
-    if (this.user.canEditOwnNickname()) {
+    if (this.user.canEditNickname()) {
       items.add(
         'changeNickname',
         <Button className="Button" onclick={() => app.modal.show(NickNameModal)}>
@@ -27,13 +27,13 @@ app.initializers.add('flarum/nicknames', () => {
   });
 
   extend(EditUserModal.prototype, 'oninit', function () {
-    if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
-
     this.nickname = Stream(this.attrs.user.displayName());
   });
 
   extend(EditUserModal.prototype, 'fields', function (items) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
+
+    if (!this.attrs.user.canEditNickname()) return;
 
     items.add(
       'nickname',
@@ -52,7 +52,8 @@ app.initializers.add('flarum/nicknames', () => {
   extend(EditUserModal.prototype, 'data', function (data) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
-    const user = this.attrs.user;
+    if (!this.attrs.user.canEditNickname()) return;
+
     if (this.nickname() !== this.attrs.user.displayName()) {
       data.nickname = this.nickname();
     }
