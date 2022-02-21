@@ -325,9 +325,10 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
   /**
    * Get the position of the currently selected search result item.
+   * Returns zero if not found.
    */
   getCurrentNumericIndex(): number {
-    return this.selectableItems().index(this.getItem(this.index));
+    return Math.max(0, this.selectableItems().index(this.getItem(this.index)));
   }
 
   /**
