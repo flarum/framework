@@ -53,7 +53,9 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // page, then we don't want Mithril to redraw the whole page – if it did,
     // then the pane would redraw which would be slow and would cause problems with
     // event handlers.
-    if (app.discussions.hasItems()) {
+    // We will also enable the pane if the discussion list is empty but loading,
+    // because the DiscussionComposer refreshes the list and redirects to the new discussion at the same time.
+    if (app.discussions.hasItems() || app.discussions.isLoading()) {
       app.pane?.enable();
       app.pane?.hide();
     }
