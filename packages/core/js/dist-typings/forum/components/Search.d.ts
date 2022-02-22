@@ -104,6 +104,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     selectableItems(): JQuery;
     /**
      * Get the position of the currently selected search result item.
+     * Returns zero if not found.
      */
     getCurrentNumericIndex(): number;
     /**
