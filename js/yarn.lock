@@ -1396,7 +1396,6 @@ __metadata:
     "@askvortsov/rich-icu-message-formatter": ^0.2.4
     "@flarum/prettier-config": ^1.0.0
     "@types/jquery": ^3.5.10
-    "@types/mithril": ^2.0.8
     "@types/punycode": ^2.1.0
     "@types/textarea-caret": ^3.0.1
     "@ultraq/icu-message-formatter": ^0.12.0
@@ -1563,7 +1562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mithril@npm:^2.0.7, @types/mithril@npm:^2.0.8":
+"@types/mithril@npm:^2.0.7":
   version: 2.0.8
   resolution: "@types/mithril@npm:2.0.8"
   checksum: 53d10bacd004b8028884a2e5a908ce32fd54da5247e47afd8aec0edff01fd56cc239fd72d0487d406d328363dc55adcefcd430088584e68622c2623708c94cbd
