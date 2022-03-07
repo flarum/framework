@@ -41,7 +41,7 @@ class DiscussionRepository
 
     /**
      * Get the IDs of discussions which a user has read completely.
-     * 
+     *
      * @deprecated 1.3 Use `getReadIdsQuery` instead
      *
      * @param User $user
