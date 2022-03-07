@@ -41,6 +41,8 @@ class DiscussionRepository
 
     /**
      * Get the IDs of discussions which a user has read completely.
+     * 
+     * @deprecated 1.3 Use `getReadIdsQuery` instead
      *
      * @param User $user
      * @return array
@@ -52,6 +54,20 @@ class DiscussionRepository
             ->whereColumn('last_read_post_number', '>=', 'last_post_number')
             ->pluck('id')
             ->all();
+    }
+
+    /**
+     * Get a query containing the IDs of discussions which a user has read completely.
+     *
+     * @param User $user
+     * @return Builder
+     */
+    public function getReadIdsQuery(User $user): Builder
+    {
+        return Discussion::leftJoin('discussion_user', 'discussion_user.discussion_id', '=', 'discussions.id')
+            ->where('discussion_user.user_id', $user->id)
+            ->whereColumn('last_read_post_number', '>=', 'last_post_number')
+            ->select('id');
     }
 
     /**
