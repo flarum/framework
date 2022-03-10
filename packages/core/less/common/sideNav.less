@@ -1,0 +1,128 @@
+.sideNav > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// On phones, the index sidebar will pretty much take care of itself. The
+// navigation list is a .dropdown-select and will be shown as the title-
+// control; the new discussion button is the primary-control. On anything
+// larger than a phone, however, we need to affix the sidebar and expand the
+// .dropdown-select into a plain list.
+@media @expand-side-nav {
+  .sideNav {
+    & .Dropdown--select {
+      display: block;
+
+      .Dropdown--expanded();
+
+      & .Dropdown-menu {
+        & > li > a {
+          padding: 8px 0 8px 30px;
+          color: var(--sidenav-color, var(--muted-color));
+
+          &:hover {
+            background: none;
+            color: var(--sidenav-color-hover, var(--link-color));
+            text-decoration: none;
+          }
+
+          & .Button-icon {
+            float: left;
+            margin-left: -30px;
+            font-size: 15px;
+          }
+        }
+        & > li.active > a {
+          background: none;
+          color: var(--sidenav-color-active, var(--primary-color));
+          font-weight: bold;
+        }
+        & > .Dropdown-separator {
+          background: none;
+        }
+      }
+    }
+  }
+}
+
+@media @tablet {
+  .sideNav {
+    .sideNav--horizontal();
+  }
+}
+
+@media @desktop-up {
+  .sideNavContainer {
+    display: flex;
+  }
+  .sideNav {
+    flex-shrink: 0;
+    margin-right: 50px;
+
+    &, > ul {
+      width: 190px;
+    }
+    > ul {
+      margin-top: 30px;
+
+      &.affix {
+        top: var(--header-height);
+      }
+      > li {
+        margin-bottom: 10px;
+      }
+    }
+  }
+}
+
+.sideNav--horizontal {
+  padding: 15px 0;
+  white-space: nowrap;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &:after {
+    content: " ";
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-top: 15px;
+    border-bottom: 1px solid var(--control-bg);
+  }
+
+  > ul > li, .Dropdown-menu > li {
+    display: inline-block;
+    margin: 0 20px 0 0;
+    vertical-align: top;
+  }
+  .Dropdown-separator {
+    display: none;
+  }
+
+  .Dropdown--select .Dropdown-menu > li > a {
+    padding-left: 25px;
+
+    .icon {
+      margin-left: -25px;
+    }
+  }
+
+  .affix {
+    position: static;
+  }
+}
+
+@media @phone, @tablet {
+  .sideNavOffset {
+    margin-top: 15px;
+  }
+}
+
+@media @desktop-up {
+  .sideNavOffset {
+    margin-top: 30px;
+    flex: 1;
+    min-width: 0;
+  }
+}

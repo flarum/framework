@@ -1,0 +1,212 @@
+.NotificationList {
+  overflow: hidden;
+
+  &-header {
+    @media @tablet-up {
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--control-bg);
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h4 {
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: bold;
+        margin: 0;
+        color: var(--muted-color);
+      }
+    }
+
+    // Mark all as read button
+    .Button {
+      padding: 0;
+      text-decoration: none;
+
+      // The NotificationList may be displayed inside of the drawer as a
+      // dropdown menu – but the drawer may have .light-contents() applied to
+      // it. In this case we will need to reset the button's styles back to
+      // normal.
+      & when (@config-colored-header = true) {
+        color: var(--control-color);
+
+        &:hover,
+        &:focus {
+          color: var(--link-color);
+        }
+      }
+
+      .add-keyboard-focus-ring();
+      .add-keyboard-focus-ring-offset(4px);
+
+      .icon {
+        margin-right: 0;
+      }
+    }
+  }
+
+  // Message displayed when notifications are empty
+  &-empty {
+    color: var(--muted-color);
+    text-align: center;
+    padding: 50px 0;
+    font-size: 16px;
+  }
+}
+
+.NotificationGroup {
+  border-top: 1px solid var(--control-bg);
+  margin-top: -1px;
+
+  &:not(:last-child) {
+    margin-bottom: 20px;
+  }
+
+  &-header {
+    font-weight: bold;
+    color: var(--heading-color) !important;
+    padding: 8px 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    display: flex;
+    align-items: center;
+
+    // Prevent outline overflowing parent
+    .add-keyboard-focus-ring-offset(-1px);
+  }
+
+  &-badges {
+    --overlap: 13px;
+
+    margin-right: 8px;
+    padding-right: var(--overlap);
+
+    .Badge {
+      margin-right: calc(~"0px - var(--overlap)");
+      position: relative;
+      .Badge--size(21px);
+    }
+  }
+
+  &-content {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.Notification {
+  padding: 8px 16px;
+  color: var(--muted-color) !important; // required to override .light-contents applied to header
+  overflow: hidden;
+
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+
+  grid-template-areas:
+    "avatar icon title   button"
+    "x      x    excerpt excerpt";
+
+  align-items: baseline;
+  row-gap: 1px;
+  column-gap: 6px;
+
+  // Prevent outline overflowing parent
+  .add-keyboard-focus-ring-offset(-1px);
+
+  &.unread {
+    background: var(--control-bg);
+  }
+
+  &:hover,
+  &:focus,
+  &:focus-within {
+    text-decoration: none;
+    background: var(--control-bg);
+
+    .Notification-action {
+      opacity: 1;
+    }
+  }
+
+  .Avatar {
+    .Avatar--size(24px);
+    grid-area: avatar;
+  }
+
+  // Since images don't have baselines, aligning against the baseline won't work.
+  // Instead we need to do some manual hackery to fix then, otherwise they won't
+  // be correctly vertically aligned.
+  img.Avatar {
+    align-self: flex-start;
+    margin-top: -2px;
+  }
+
+  &-icon {
+    font-size: 14px;
+    grid-area: icon;
+  }
+
+  &-title {
+    grid-area: title;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  &-content {
+    line-height: 19px;
+    margin-right: 8px;
+
+    .username {
+      font-weight: bold;
+    }
+  }
+
+  time {
+    line-height: inherit;
+    font-size: 11px;
+    line-height: 19px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  &-action {
+    line-height: inherit;
+    padding: 0;
+    opacity: 0;
+
+    .add-keyboard-focus-ring();
+    .add-keyboard-focus-ring-offset(4px);
+
+    grid-area: button;
+
+    // Needs more specificity to fix hover/focus styles not applying in dropdown
+    .Notification & when (@config-colored-header = true) {
+      color: var(--control-color);
+
+      &:hover,
+      &:focus {
+        color: var(--link-color);
+      }
+    }
+
+    .icon {
+      font-size: 13px;
+      margin-right: 0;
+    }
+  }
+
+  &-excerpt {
+    grid-area: excerpt;
+    color: var(--muted-more-color);
+    font-size: 11px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}

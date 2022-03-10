@@ -1,0 +1,26 @@
+daysUntilStale: 90
+daysUntilClose: 30
+
+staleLabel: stale
+
+exemptLabels:
+- org/keep
+- type/bug
+- type/regression
+- critical
+- security
+exemptAssignees: true
+exemptMilestones: true
+exemptProjects: true
+
+markComment: >
+  This issue has been automatically marked as stale because it has not had
+  recent activity. It will be closed if no further activity occurs. We do this
+  to keep the amount of open issues to a manageable minimum.
+
+  In any case, thanks for taking an interest in this software and contributing
+  by opening the issue in the first place!
+
+closeComment: >
+  We are closing this issue as it seems to have grown stale. If you still
+  encounter this problem with the latest version, feel free to re-open it.

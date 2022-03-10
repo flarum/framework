@@ -1,0 +1,168 @@
+// This mixin should **only** be used in this file. If you want to define your own
+// custom outline style(s), override this mixin in your own theme extension, or in
+// the Custom Less section of the Admin dashboard.
+#private {
+  .__focus-ring-styles() {
+    // This uses the browser's default outline styles, rather than
+    // using custom ones, which could introduce more issues
+
+    // Source: https://css-tricks.com/copy-the-browsers-native-focus-styles
+    outline: 5px auto Highlight;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
+}
+
+/**
+ * Adds a focus ring to an element.
+ *
+ * This is only shown when focus is provided via keyboard, using the
+ * `:focus-visible` selector, and `:-moz-focusring` for older Firefox.
+ */
+.add-keyboard-focus-ring() {
+  // We need to declare these separately, otherwise
+  // browsers will ignore `:focus-visible` as they
+  // don't understand `:-moz-focusring`
+
+  // These are the keyboard-only versions of :focus
+  &:-moz-focusring {
+    #private.__focus-ring-styles();
+  }
+
+  &:focus-visible {
+    #private.__focus-ring-styles();
+  }
+}
+
+/** 
+ * This mixin allows support for a custom focus
+ * selector to be supplied.
+ *
+ * For example...
+ * 
+ *? button { .add-keyboard-focus-ring(":focus-within") }
+ * becomes
+ *? button:focus-within { <styles>  }
+ *
+ * AND
+ *
+ *? button { .add-keyboard-focus-ring(" :focus-within") }
+ * becomes
+ *? button :focus-within { <styles>  }
+ */
+.add-keyboard-focus-ring(@customFocusSelector) {
+  @realFocusSelector: ~"@{customFocusSelector}";
+
+  &@{realFocusSelector} {
+    #private.__focus-ring-styles();
+  }
+}
+
+/** 
+ * This mixin allows support for a custom element nearby the focused one
+ * to have a focus style applied to it
+ *
+ * For example...
+ * 
+ *? button { .add-keyboard-focus-ring-nearby("+ .myOtherElement") }
+ * becomes
+ *? button:-moz-focusring + .myOtherElement { <styles> }
+ *? button:focus-within + .myOtherElement { <styles> }
+ */
+.add-keyboard-focus-ring-nearby(@nearbySelector) {
+  @realNearbySelector: ~"@{nearbySelector}";
+
+  // We need to declare these separately, otherwise
+  // browsers will ignore `:focus-visible` as they
+  // don't understand `:-moz-focusring`
+
+  // These are the keyboard-only versions of :focus
+  &:-moz-focusring {
+    @{realNearbySelector} {
+      #private.__focus-ring-styles();
+    }
+  }
+
+  &:focus-visible {
+    @{realNearbySelector} {
+      #private.__focus-ring-styles();
+    }
+  }
+}
+
+/**
+ * Allows an offset to be supplied for an a11y
+ * outline.
+ *
+ * Useful for elements whose content is right up
+ * against their bounds.
+ *
+ * `.addKeyboardFocusRingOffset(2px)` will add an
+ *  offset of 2 pixels to the outline.
+ */
+.add-keyboard-focus-ring-offset(@offset) {
+  .offset() {
+    outline-offset: @offset;
+  }
+
+  &:-moz-focusring {
+    .offset();
+  }
+  &:focus-visible {
+    .offset();
+  }
+}
+
+/**
+ * Allows an offset to be supplied for an a11y
+ * outline.
+ *
+ * Useful for elements whose content is right up
+ * against their bounds.
+ */
+.add-keyboard-focus-ring-offset(@customSelector, @offset) {
+  .offset() {
+    outline-offset: @offset;
+  }
+
+  @realFocusSelector: ~"@{customFocusSelector}";
+
+  &@{realFocusSelector} {
+    .offset();
+  }
+}
+
+/** 
+ * This mixin allows support for a custom element nearby the focused one
+ * to have a focus style applied to it
+ *
+ * For example...
+ * 
+ *? button { .add-keyboard-focus-ring-nearby("+ .myOtherElement") }
+ * becomes
+ *? button:-moz-focusring + .myOtherElement { <styles> }
+ *? button:focus-within + .myOtherElement { <styles> }
+ */
+.add-keyboard-focus-ring-nearby-offset(@nearbySelector, @offset) {
+  @realNearbySelector: ~"@{nearbySelector}";
+
+  .offset() {
+    outline-offset: @offset;
+  }
+
+  // We need to declare these separately, otherwise
+  // browsers will ignore `:focus-visible` as they
+  // don't understand `:-moz-focusring`
+
+  // These are the keyboard-only versions of :focus
+  &:-moz-focusring {
+    @{realNearbySelector} {
+      .offset();
+    }
+  }
+
+  &:focus-visible {
+    @{realNearbySelector} {
+      .offset();
+    }
+  }
+}

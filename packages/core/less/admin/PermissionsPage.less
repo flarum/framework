@@ -1,0 +1,154 @@
+.PermissionsPage-groups {
+  background: var(--control-bg);
+  border-radius: var(--border-radius);
+  display: block;
+  overflow-x: auto;
+  padding: 10px;
+}
+.Group {
+  width: 90px;
+  display: inline-block;
+  text-align: center;
+  color: var(--text-color);
+  font-weight: bold;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.Group-name {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.Group--add {
+  color: var(--muted-color);
+  width: auto;
+  margin-left: 10px;
+  font-weight: normal;
+
+  .Group-icon {
+    font-size: 14px;
+    margin-top: 5px;
+  }
+}
+
+
+.PermissionsPage-permissions {
+  margin: 20px 0 30px;
+  overflow-x: auto;
+  max-height: 75vh;
+}
+
+.PermissionGrid {
+  white-space: nowrap;
+
+  td, th {
+    padding: 5px;
+    text-align: left;
+  }
+  td {
+    color: var(--muted-color);
+  }
+  thead th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    padding-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 12px;
+    color: var(--muted-color);
+    background: var(--body-bg);
+    min-width: 140px;
+    z-index: 1;
+
+    &:first-child {
+      left: 0;
+      z-index: 3;
+      background: var(--body-bg);
+    }
+
+    &:not(:hover) .PermissionGrid-removeScope {
+      display: none;
+    }
+  }
+  tbody {
+    th {
+      position: -webkit-sticky;
+      position: sticky;
+      left: 0;
+      padding-right: 50px;
+      z-index: 4;
+      background: inherit;
+
+      .icon {
+        margin-right: 5px;
+        font-size: 14px;
+        width: 18px;
+        text-align: center;
+        color: var(--muted-color);
+      }
+    }
+    .Dropdown {
+      display: block;
+
+      .Dropdown-toggle {
+        width: 100%;
+        display: block;
+        text-align: left;
+        float: none;
+      }
+      .Dropdown-menu {
+        margin: 0;
+      }
+    }
+    .Button {
+      text-decoration: none;
+
+      .Badge {
+        margin: -3px 2px -3px 0;
+      }
+    }
+    td:not(:hover) .Select-caret,
+    td:not(:hover) .Dropdown:not(.open) .Button-caret {
+      display: none;
+    }
+    .open .Dropdown-toggle {
+      box-shadow: none;
+    }
+  }
+}
+.PermissionGrid-removeScope {
+  margin: -1px 0;
+}
+.PermissionDropdown {
+  .Dropdown-toggle {
+    padding: 5px 0;
+    margin: -5px 0;
+  }
+  .Badge {
+    margin: -3px 3px -3px 0;
+    box-shadow: none;
+  }
+}
+.PermissionGrid-section {
+  background: var(--body-bg);
+
+  td, th {
+    padding-top: 10px;
+  }
+}
+.PermissionGrid-child {
+  background: var(--body-bg);
+
+  td, th {
+    position: relative;
+  }
+  th {
+    font-weight: normal;
+  }
+
+  &:hover {
+    background: var(--control-bg-light);
+  }
+}

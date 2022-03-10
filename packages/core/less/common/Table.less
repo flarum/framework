@@ -1,0 +1,69 @@
+.Table {
+  background: var(--control-bg);
+  border-radius: var(--border-radius);
+  border-collapse: collapse;
+  border-spacing: 0;
+
+  caption {
+    text-align: start;
+  }
+
+  td, th {
+    border-bottom: 1px solid var(--body-bg);
+    color: var(--control-color);
+  }
+
+  td, th, .Checkbox, &-controls-item {
+    padding: 10px 15px;
+  }
+
+  & &-checkbox, & &-controls {
+    padding: 0;
+  }
+
+  thead {
+    th {
+      text-align: center;
+      padding: 15px 25px;
+    }
+
+    .icon {
+      display: block;
+      font-size: 14px;
+      width: auto;
+      margin-bottom: 5px;
+    }
+  }
+
+  &-groupToggle {
+    cursor: pointer;
+
+    .icon {
+      font-size: 14px;
+      margin-right: 2px;
+      .fa-fw();
+    }
+  }
+
+  &-checkbox {
+    .Checkbox {
+      display: block;
+    }
+
+    .Checkbox-display {
+      text-align: center;
+      cursor: pointer;
+    }
+
+    &.highlighted .Checkbox, .Checkbox:hover {
+      &:not(.disabled) {
+        background: var(--control-bg-shaded);
+      }
+    }
+  }
+
+  &-controls-item {
+    width: 100%;
+    border-radius: 0;
+  }
+}

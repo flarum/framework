@@ -1,0 +1,125 @@
+.UserListPage {
+  // Pad bottom of page to make nav area look less squashed
+  padding-bottom: 24px;
+
+  &-grid {
+    width: 100%;
+    position: relative;
+    border-radius: var(--border-radius);
+
+    // Use CSS custom properties to define the number of columns in the grid
+    grid-template-columns: repeat(var(--columns), max-content);
+
+    // Ensure mobile scrollbar isn't on top of content
+    padding-bottom: 4px;
+
+    // Table refreshing overlay
+    &--loadingPage {
+      &::after {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(128, 128, 128, 0.2);
+      }
+
+      .LoadingIndicator-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+    }
+
+    &--loaded,
+    &--loadingPage {
+      display: grid;
+      overflow-x: auto;
+    }
+
+    &-header {
+      font-weight: bold;
+      border-bottom: 1px solid var(--muted-more-color);
+      padding: 8px 16px;
+      background: var(--control-bg);
+    }
+
+    &-rowItem {
+      padding: 4px 16px;
+      display: flex;
+      align-items: center;
+
+      &[data-column-name="editUser"] {
+        padding: 0;
+        position: relative;
+      }
+
+      &--shaded {
+        background: var(--body-bg-shaded);
+
+        & when (@config-dark-mode = true) {
+          background: var(--body-bg-light);
+        }
+      }
+    }
+  }
+
+  &-gridPagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+}
+
+// Handles styling of default UserList columns
+.UserList {
+  &-joinDate {
+    cursor: help;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
+
+  &-editModalBtn {
+    width: 100%;
+    height: 100%;
+
+    border-radius: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-email {
+    display: flex;
+    flex-grow: 1;
+
+    &[data-email-shown="false"] {
+      .UserList-emailAddress {
+        user-select: none;
+        filter: blur(4px);
+        cursor: pointer;
+      }
+    }
+
+    &Address {
+      flex-grow: 1;
+      margin-right: 4px;
+      transition: filter 0.2s ease-out;
+    }
+
+    &IconBtn {
+      margin-left: 12px;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}

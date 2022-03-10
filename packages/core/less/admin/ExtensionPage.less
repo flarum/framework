@@ -1,0 +1,161 @@
+.ExtensionPage {
+  &-header {
+    .helpText {
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      display: inline-block;
+      margin: 0;
+      vertical-align: middle;
+    }
+
+    &Items {
+      padding: 15px 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .Checkbox {
+        margin: 5px 0 0 0;
+        display: inline-block;
+      }
+
+      .Checkbox.off {
+        .Checkbox-display {
+          background: var(--muted-more-color);
+        }
+      }
+    }
+  }
+
+  &-header,
+  &-permissions-header {
+    background: var(--control-bg);
+
+    h2 {
+      color: var(--muted-color);
+
+      span {
+        font-size: 13px;
+        color: var(--muted-color);
+        font-weight: normal;
+      }
+    }
+
+    .Button-icon {
+      display: unset;
+    }
+
+    ul {
+      display: flex;
+      align-items: center;
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+
+      > li {
+        display: inline;
+        color: var(--muted-color);
+        margin-left: 13px;
+
+
+        > a {
+          color: var(--muted-color);
+        }
+
+        > .icon {
+          margin-right: 5px;
+        }
+      }
+    }
+
+    .ExtensionIcon {
+      --size: 30px;
+      margin-left: 0;
+    }
+
+    &TopItems {
+      margin-left: auto;
+    }
+
+    @media (max-width: @screen-phone-max) {
+      &TopItems {
+        float: right;
+        position: relative;
+      }
+
+      .item-website, .item-source, .item-documentation {
+        display: none;
+      }
+    }
+  }
+
+  &-settings, &-permissions {
+    .ExtensionPage-subHeader {
+      margin: 5px 0px;
+    }
+  }
+
+  &-settings {
+    margin-top: 20px;
+    padding: 10px 0;
+
+    input {
+      max-width: 400px;
+    }
+  }
+
+  &-subHeader {
+    color: var(--muted-color);
+    font-weight: normal;
+  }
+
+  &-permissions {
+    .PermissionGrid-removeScope {
+      display: none;
+    }
+
+    > .container {
+      overflow-x: auto;
+      padding-bottom: 25vh;
+    }
+
+    &-header {
+      margin: 20px 0 20px;
+      padding: 5px 0;
+    }
+  }
+}
+
+.ExtensionTitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 20px 0 15px;
+}
+
+.ExtensionInfo {
+  margin-left: auto;
+
+  .item-authors {
+    a {
+      color: var(--muted-color);
+    }
+  }
+}
+
+.ExtensionName {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.ReadmeModal {
+   .Placeholder {
+     margin-bottom: 40px;
+   }
+
+   img {
+     max-width: 100%;
+   }
+ }
