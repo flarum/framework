@@ -6,6 +6,8 @@ import classList from 'flarum/utils/classList';
 
 import TagHero from './components/TagHero';
 
+const findTag = slug => app.store.all('tags').find(tag => tag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0);
+
 export default function() {
   IndexPage.prototype.currentTag = function() {
     if (this.currentActiveTag) {
@@ -16,18 +18,26 @@ export default function() {
     let tag = null;
 
     if (slug) {
-      tag = app.store.getBy('tags', 'slug', slug);
+      tag = findTag(slug);
     }
 
     if (slug && !tag || (tag && !tag.isChild() && !tag.children())) {
+      if (this.currentTagLoading) {
+        return;
+      }
+
+      this.currentTagLoading = true;
+
       // Unlike the backend, no need to fetch parent.children because if we're on
       // a child tag page, then either:
       //    - We loaded in that child tag (and its siblings) in the API document
       //    - We first navigated to the current tag's parent, which would have loaded in the current tag's siblings.
       app.store.find('tags', slug, { include: 'children,children.parent,parent,state'}).then(() => {
-        this.currentActiveTag = app.store.getBy('tags', 'slug', slug);
+        this.currentActiveTag = findTag(slug);
 
         m.redraw();
+      }).finally(() => {
+        this.currentTagLoading = false;
       });
     }
 
