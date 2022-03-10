@@ -17,6 +17,6 @@
         "build": "webpack --mode production",
         "format": "prettier --write src",
         "format-check": "prettier --check src",
-        "analyze": "cross-env ANALYZER=true yarn build"
+        "analyze": "cross-env ANALYZER=true yarn run build"
     }
 }

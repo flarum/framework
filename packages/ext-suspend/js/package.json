@@ -6,7 +6,7 @@
         "dev": "webpack --mode development --watch",
         "build": "webpack --mode production",
         "format": "prettier --write src",
-        "analyze": "cross-env ANALYZER=true yarn build",
+        "analyze": "cross-env ANALYZER=true yarn run build",
         "format-check": "prettier --check src"
     },
     "devDependencies": {

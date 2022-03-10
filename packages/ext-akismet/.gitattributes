@@ -14,5 +14,6 @@ js/dist/* -diff
 js/dist/* linguist-generated
 js/dist-typings/* linguist-generated
 js/yarn.lock -diff
+js/package-lock.json -diff
 
 * text=auto eol=lf

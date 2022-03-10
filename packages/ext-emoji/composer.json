@@ -51,10 +51,12 @@
             }
         }
     },
-    "repositories": [{
+    "repositories": [
+        {
             "type": "path",
             "url": "../*"
-        }],
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }
