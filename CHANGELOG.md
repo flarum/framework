@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.1](https://github.com/flarum/core/compare/v1.2.0...v1.2.1)
+
+### Fixed
+- Don't escape single quotes in discussion title meta tags (60600f4d2b8f0c5dac94c329041427a0a08fad42)
+
 ## [1.2.0](https://github.com/flarum/core/compare/v1.1.1...v1.2.0)
 
 ### Added
