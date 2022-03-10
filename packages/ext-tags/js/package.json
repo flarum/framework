@@ -1,0 +1,17 @@
+{
+    "private": true,
+    "name": "@flarum/tags",
+    "dependencies": {
+        "sortablejs": "^1.14.0"
+    },
+    "scripts": {
+        "dev": "webpack --mode development --watch",
+        "build": "webpack --mode production",
+        "analyze": "cross-env ANALYZER=true yarn build"
+    },
+    "devDependencies": {
+        "flarum-webpack-config": "^2.0.0",
+        "webpack": "^5.65.0",
+        "webpack-cli": "^4.9.1"
+    }
+}

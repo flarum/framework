@@ -1,0 +1,94 @@
+@import "common/common";
+
+@import "forum/TagCloud";
+@import "forum/TagDiscussionModal";
+@import "forum/TagHero";
+@import "forum/TagTiles";
+@import "forum/ToggleButton";
+
+.Button--tagColored {
+  --button-primary-bg: var(--color);
+  --button-primary-bg-hover: var(--color);
+  --button-primary-bg-active: var(--color);
+}
+.DiscussionHero {
+  .item-title {
+    display: block;
+    margin-top: 15px;
+  }
+}
+.TagLinkButton {
+  &.child {
+    @media @tablet-up {
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+    margin-left: 10px;
+
+    .TagIcon {
+      display: none;
+    }
+  }
+
+  .active > & {
+    --sidenav-color-active: var(--color);
+  }
+}
+.DiscussionComposer-changeTags {
+  margin-right: 15px;
+  vertical-align: 2px;
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+.DiscussionListItem-info > .item-tags {
+  margin-right: 4px;
+  opacity: 1;
+}
+@media @tablet-up {
+  .IndexPage, .UserPage {
+    .DiscussionListItem-title {
+      margin-right: 155px;
+    }
+    .DiscussionListItem-info > .item-tags {
+      margin-right: 0;
+      position: absolute;
+      right: 80px;
+      top: 14px;
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: max-width 0.2s ease-in-out, -webkit-mask-image 0.2s;
+      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 140px, rgba(0,0,0,0) 150px);
+      font-size: 12px;
+
+      &:hover {
+        max-width: 400px;
+        -webkit-mask-image: none;
+      }
+    }
+  }
+}
+@media @desktop-up {
+  .TagsPage {
+    .sideNav {
+      .sideNav--horizontal();
+      float: none;
+      width: auto;
+      padding-top: 0;
+
+      &:after {
+        display: none;
+      }
+
+      > ul > li:first-child {
+        width: 190px;
+      }
+    }
+    .sideNavOffset {
+      margin: 15px 0 0;
+    }
+  }
+}
