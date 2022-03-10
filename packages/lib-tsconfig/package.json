@@ -1,0 +1,15 @@
+{
+  "name": "flarum-tsconfig",
+  "version": "1.0.2",
+  "description": "Flarum's official Typescript config file",
+  "main": "tsconfig.json",
+  "repository": "https://github.com/flarum/flarum-tsconfig",
+  "author": "Flarum Team",
+  "license": "MIT",
+  "dependencies": {
+    "@types/jquery": "^3.5.5",
+    "@types/mithril": "^2.0.7",
+    "@types/throttle-debounce": "^2.1.0",
+    "dayjs": "^1.10.4"
+  }
+}
