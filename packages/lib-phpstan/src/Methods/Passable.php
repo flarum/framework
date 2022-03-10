@@ -2,13 +2,20 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
+use Flarum\PHPStan\Concerns;
+use Flarum\PHPStan\Contracts\Methods\PassableContract;
 use Illuminate\Contracts\Pipeline\Pipeline;
 use LogicException;
 use Mockery;
-use Flarum\PHPStan\Concerns;
-use Flarum\PHPStan\Contracts\Methods\PassableContract;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\Php\PhpMethodReflection;

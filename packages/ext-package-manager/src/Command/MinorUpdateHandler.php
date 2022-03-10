@@ -11,10 +11,10 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Composer\ComposerJson;
-use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Settings\LastUpdateCheck;
+use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class MinorUpdateHandler
@@ -61,7 +61,7 @@ class MinorUpdateHandler
         $this->composerJson->require('flarum/core', $coreRequirement);
 
         $output = $this->composer->run(
-            new StringInput("update --prefer-dist --no-dev -a --with-all-dependencies")
+            new StringInput('update --prefer-dist --no-dev -a --with-all-dependencies')
         );
 
         if ($output->getExitCode() !== 0) {

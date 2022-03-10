@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
 use function array_map;
@@ -151,8 +158,7 @@ final class Macro implements MethodReflection
     public function getParameters(): array
     {
         return array_map(function (ReflectionParameter $reflection): ParameterReflection {
-            return new class($reflection) implements ParameterReflection
-            {
+            return new class($reflection) implements ParameterReflection {
                 /**
                  * @var ReflectionParameter
                  */

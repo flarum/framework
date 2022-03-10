@@ -2,15 +2,22 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Properties;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Str;
 use Flarum\PHPStan\Concerns;
 use Flarum\PHPStan\Methods\BuilderHelper;
 use Flarum\PHPStan\Reflection\ReflectionHelper;
 use Flarum\PHPStan\Types\RelationParserHelper;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Str;
 use PHPStan\Analyser\OutOfClassScope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ParametersAcceptorSelector;
@@ -38,7 +45,8 @@ final class ModelRelationsExtension implements PropertiesClassReflectionExtensio
 
     public function __construct(
         RelationParserHelper $relationParserHelper,
-        BuilderHelper $builderHelper)
+        BuilderHelper $builderHelper
+    )
     {
         $this->relationParserHelper = $relationParserHelper;
         $this->builderHelper = $builderHelper;
@@ -97,7 +105,8 @@ final class ModelRelationsExtension implements PropertiesClassReflectionExtensio
             return new ModelProperty(
                 $classReflection,
                 new GenericObjectType($collectionClass, [$relatedModel]),
-                new NeverType(), false
+                new NeverType(),
+                false
             );
         }
 

@@ -66,7 +66,7 @@ class ComposerJson
 
     protected function getComposerJsonPath(): string
     {
-        return $this->paths->base . '/composer.json';
+        return $this->paths->base.'/composer.json';
     }
 
     /**

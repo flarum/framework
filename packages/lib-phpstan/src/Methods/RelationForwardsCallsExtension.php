@@ -2,13 +2,20 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
+use Flarum\PHPStan\Reflection\EloquentBuilderMethodReflection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Flarum\PHPStan\Reflection\EloquentBuilderMethodReflection;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\MethodsClassReflectionExtension;
@@ -122,16 +129,20 @@ final class RelationForwardsCallsExtension implements MethodsClassReflectionExte
 
         if ((new ObjectType(Builder::class))->isSuperTypeOf($returnType)->yes()) {
             return new EloquentBuilderMethodReflection(
-                $methodName, $classReflection,
-                $reflection, $parametersAcceptor->getParameters(),
+                $methodName,
+                $classReflection,
+                $reflection,
+                $parametersAcceptor->getParameters(),
                 new GenericObjectType($classReflection->getName(), $types),
                 $parametersAcceptor->isVariadic()
             );
         }
 
         return new EloquentBuilderMethodReflection(
-            $methodName, $classReflection,
-            $reflection, $parametersAcceptor->getParameters(),
+            $methodName,
+            $classReflection,
+            $reflection,
+            $parametersAcceptor->getParameters(),
             $returnType,
             $parametersAcceptor->isVariadic()
         );

@@ -1,14 +1,23 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Testing\integration;
 
 trait UsesTmpDir
 {
-    public function tmpDir() {
+    public function tmpDir()
+    {
         return getenv('FLARUM_TEST_TMP_DIR_LOCAL') ?: getenv('FLARUM_TEST_TMP_DIR') ?: __DIR__.'/tmp';
     }
 
-    public function setupTmpDir() {
+    public function setupTmpDir()
+    {
         $DIRS_NEEDED = [
             '/',
             '/public',
@@ -29,14 +38,14 @@ trait UsesTmpDir
 
         foreach ($DIRS_NEEDED as $path) {
             $fullPath = $tmpDir.$path;
-            if (!file_exists($fullPath)) {
+            if (! file_exists($fullPath)) {
                 mkdir($fullPath);
             }
         }
 
         foreach ($FILES_NEEDED as $path => $contents) {
             $fullPath = $tmpDir.$path;
-            if (!file_exists($fullPath)) {
+            if (! file_exists($fullPath)) {
                 file_put_contents($fullPath, $contents);
             }
         }

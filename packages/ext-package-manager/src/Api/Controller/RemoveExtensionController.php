@@ -11,11 +11,11 @@ namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
+use Flarum\PackageManager\Command\RemoveExtension;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Flarum\PackageManager\Command\RemoveExtension;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class RemoveExtensionController implements RequestHandlerInterface

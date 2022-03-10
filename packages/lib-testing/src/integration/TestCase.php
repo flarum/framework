@@ -93,7 +93,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * Each argument should be an instance of an extender that should
      * be applied at application boot.
-     * 
+     *
      * Note that this method will have no effect if called after the
      * application is booted.
      */
@@ -112,7 +112,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * Extensions other than the one currently being tested must be
      * listed in this extension's `composer.json` under `require` or
      * `require-dev`.
-     * 
+     *
      * Note that this method will have no effect if called after the
      * application is booted.
      */
@@ -130,19 +130,19 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * Some Flarum code depends on config.php values. Flarum doesn't
      * offer a way to set them at runtime, so this method lets you
      * add/override them before boot.
-     * 
+     *
      * You can use dot-separated syntax to assign values to subarrays.
-     * 
+     *
      * For example:
-     * 
+     *
      * `$this->config('a.b.c', 'value');` will result in the following:
-     * 
+     *
      * [
      *     'a' => [
      *         'b' => ['c' => 'value']
      *     ]
      * ]
-     * 
+     *
      * Note that this method will have no effect if called after the
      * application is booted.
      */
@@ -162,7 +162,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * effect. For instance, in core the active display name driver
      * is configured based on the `display_name_driver` setting.
      * That setting should be registered using this method.
-     * 
+     *
      * Note that this method will have no effect if called after the
      * application is booted.
      */

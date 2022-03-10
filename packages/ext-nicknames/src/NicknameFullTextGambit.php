@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Nicknames;
 
@@ -13,7 +19,6 @@ namespace Flarum\Nicknames;
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
-
 
 class NicknameFullTextGambit implements GambitInterface
 {
@@ -40,7 +45,7 @@ class NicknameFullTextGambit implements GambitInterface
             ->query()
             ->select('id')
             ->where('username', 'like', "{$searchValue}%")
-            ->orWhere('nickname', 'like',"{$searchValue}%");
+            ->orWhere('nickname', 'like', "{$searchValue}%");
     }
 
     /**

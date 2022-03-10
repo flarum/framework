@@ -93,7 +93,6 @@ class SetupScript
         echo "Database: DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_PREFIX\n";
         echo "Test Config: FLARUM_TEST_TMP_DIR or FLARUM_TEST_TMP_DIR_LOCAL\n";
 
-
         sleep(4);
 
         echo "\nOff we go...\n";
@@ -111,7 +110,7 @@ class SetupScript
                 'base' => $tmp,
                 'public' => "$tmp/public",
                 'storage' => "$tmp/storage",
-                'vendor' => getcwd() . '/vendor',
+                'vendor' => getcwd().'/vendor',
             ])
         );
 

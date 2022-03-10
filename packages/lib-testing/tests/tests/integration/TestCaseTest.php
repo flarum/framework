@@ -14,7 +14,6 @@ use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 class TestCaseTest extends TestCase
@@ -27,7 +26,7 @@ class TestCaseTest extends TestCase
         $this->app();
 
         $this->assertEquals(1, User::query()->count());
-    
+
         $user = User::find(1);
 
         $this->assertEquals('admin', $user->username);
@@ -186,7 +185,7 @@ class TestCaseTest extends TestCase
     public function routes_added_by_current_extension_accessible()
     {
         $this->extension('flarum-testing-tests');
-    
+
         $response = $this->send(
             $this->request('GET', '/added-by-extension')
         );

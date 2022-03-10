@@ -11,12 +11,12 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\PackageManager\Composer\ComposerAdapter;
-use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
 use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\UpdateExtensionValidator;
 use Flarum\PackageManager\Settings\LastUpdateCheck;
+use Flarum\PackageManager\UpdateExtensionValidator;
+use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class UpdateExtensionHandler
@@ -51,7 +51,8 @@ class UpdateExtensionHandler
         ExtensionManager $extensions,
         UpdateExtensionValidator $validator,
         LastUpdateCheck $lastUpdateCheck,
-        Dispatcher $events)
+        Dispatcher $events
+    )
     {
         $this->composer = $composer;
         $this->extensions = $extensions;

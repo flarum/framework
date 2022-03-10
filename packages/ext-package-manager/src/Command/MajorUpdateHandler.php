@@ -11,11 +11,11 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Composer\ComposerJson;
+use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Exception\MajorUpdateFailedException;
 use Flarum\PackageManager\Exception\NoNewMajorVersionException;
-use Illuminate\Contracts\Events\Dispatcher;
-use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Settings\LastUpdateCheck;
+use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class MajorUpdateHandler

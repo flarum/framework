@@ -13,9 +13,9 @@ use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Document;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Exception\ExceptionHandler;
 use Flarum\PackageManager\Exception\ComposerRequireFailedException;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
+use Flarum\PackageManager\Exception\ExceptionHandler;
 use Flarum\PackageManager\Exception\MajorUpdateFailedException;
 use Flarum\PackageManager\Settings\LastUpdateCheck;
 use Flarum\PackageManager\Settings\LastUpdateRun;
@@ -32,8 +32,8 @@ return [
         ->post('/package-manager/global-update', 'package-manager.global-update', Api\Controller\GlobalUpdateController::class),
 
     (new Extend\Frontend('admin'))
-        ->css(__DIR__ . '/less/admin.less')
-        ->js(__DIR__ . '/js/dist/admin.js')
+        ->css(__DIR__.'/less/admin.less')
+        ->js(__DIR__.'/js/dist/admin.js')
         ->content(function (Document $document) {
             $paths = resolve(Paths::class);
 
@@ -43,7 +43,7 @@ return [
                 && is_writable($paths->base.'/composer.lock');
         }),
 
-    new Extend\Locales(__DIR__ . '/locale'),
+    new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Settings())
         ->default(LastUpdateCheck::key(), json_encode(LastUpdateCheck::default()))

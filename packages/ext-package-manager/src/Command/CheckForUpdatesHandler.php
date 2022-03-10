@@ -33,7 +33,7 @@ class CheckForUpdatesHandler
     }
 
     /**
-     * We run two commands here
+     * We run two commands here.
      *
      * `composer outdated -D --format json`
      * This queries latest versions for all direct packages, so it can include major updates,

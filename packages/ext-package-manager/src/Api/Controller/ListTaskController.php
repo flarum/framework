@@ -9,10 +9,10 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
+use Flarum\Api\Controller\AbstractListController;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Api\Serializer\TaskSerializer;
 use Flarum\PackageManager\Task;
-use Flarum\Api\Controller\AbstractListController;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 

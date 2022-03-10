@@ -2,11 +2,18 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
+use Flarum\PHPStan\Reflection\EloquentBuilderMethodReflection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Flarum\PHPStan\Reflection\EloquentBuilderMethodReflection;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\MethodsClassReflectionExtension;
@@ -88,8 +95,7 @@ final class ModelForwardsCallsExtension implements MethodsClassReflectionExtensi
         if (in_array($methodName, ['increment', 'decrement'], true)) {
             $methodReflection = $classReflection->getNativeMethod($methodName);
 
-            return new class($classReflection, $methodName, $methodReflection) implements MethodReflection
-            {
+            return new class($classReflection, $methodName, $methodReflection) implements MethodReflection {
                 /** @var ClassReflection */
                 private $classReflection;
 
@@ -195,7 +201,8 @@ final class ModelForwardsCallsExtension implements MethodsClassReflectionExtensi
             });
 
             return new EloquentBuilderMethodReflection(
-                $methodName, $classReflection,
+                $methodName,
+                $classReflection,
                 $reflection,
                 $parametersAcceptor->getParameters(),
                 $returnType,

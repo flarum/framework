@@ -2,12 +2,19 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Properties;
 
 use ArrayObject;
+use Flarum\PHPStan\Reflection\ReflectionHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Flarum\PHPStan\Reflection\ReflectionHelper;
 use PHPStan\PhpDoc\TypeStringResolver;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\PropertiesClassReflectionExtension;
@@ -119,7 +126,8 @@ final class ModelPropertyExtension implements PropertiesClassReflectionExtension
         }
 
         if (
-            (! array_key_exists($tableName, $this->tables)
+            (
+                ! array_key_exists($tableName, $this->tables)
                 || ! array_key_exists($propertyName, $this->tables[$tableName]->columns)
             )
             && $propertyName === 'id'
