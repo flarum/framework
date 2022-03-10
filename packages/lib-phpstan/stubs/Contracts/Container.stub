@@ -1,0 +1,16 @@
+<?php
+
+namespace Illuminate\Contracts\Container;
+
+/** @extends \ArrayAccess<string, mixed> */
+interface Container extends \ArrayAccess
+{
+
+}
+
+namespace Illuminate\Contracts\Foundation;
+
+interface Application extends \Illuminate\Contracts\Container\Container
+{
+
+}
