@@ -1,5 +1,5 @@
 flarum-markdown:
-  forum:
+  lib:
     composer:
       bold_tooltip: Add bold text
       code_tooltip: Insert code
