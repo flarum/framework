@@ -1,0 +1,29 @@
+flarum-nicknames:
+  admin:
+    permissions:
+      edit_own_nickname_label: Edit own nickname
+    settings:
+      max_label: Maximum nickname length
+      min_label: Minimum nickname length
+      random_username_label: Randomize Usernames
+      random_username_help: This will hide the `username` input on registration, and use a random number instead. It will also make the `nickname` field mandatory. This will only take effect if "Allow setting nicknames on registration" is enabled.
+      regex_label: Regular expression for validation
+      set_on_registration_label: Allow setting nicknames on registration
+      unique_label: Require unique nicknames
+    wrong_driver: You must select "nickname" as the display name driver on the <a><strong>Basics Page</strong></a> for this extension to take effect.
+  api:
+    invalid_nickname_message: This nickname is invalid. Please contact your forum administrator for more information on nickname rules.
+  forum:
+    change_nickname:
+      submit_button: => core.ref.save_changes
+      title:  => flarum-nicknames.ref.change_nickname
+    edit_user:
+      nicknames_heading: => flarum-nicknames.ref.change_nickname
+      nicknames_text: => flarum-nicknames.ref.nickname
+    settings:
+      change_nickname_button: => flarum-nicknames.ref.change_nickname
+    sign_up:
+      nickname_placeholder: => flarum-nicknames.ref.nickname
+  ref:
+    change_nickname: Change Nickname
+    nickname: Nickname
