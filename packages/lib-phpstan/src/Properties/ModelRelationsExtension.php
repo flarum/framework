@@ -46,8 +46,7 @@ final class ModelRelationsExtension implements PropertiesClassReflectionExtensio
     public function __construct(
         RelationParserHelper $relationParserHelper,
         BuilderHelper $builderHelper
-    )
-    {
+    ) {
         $this->relationParserHelper = $relationParserHelper;
         $this->builderHelper = $builderHelper;
     }
