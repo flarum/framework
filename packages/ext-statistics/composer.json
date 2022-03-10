@@ -1,0 +1,81 @@
+{
+    "name": "flarum/statistics",
+    "description": "Add a basic statistics widget on the Dashboard.",
+    "type": "flarum-extension",
+    "keywords": [
+        "administration"
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/statistics",
+        "forum": "https://discuss.flarum.org"
+    },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
+    "require": {
+        "flarum/core": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Statistics\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        },
+        "flarum-extension": {
+            "title": "Statistics",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-chart-bar",
+                "backgroundColor": "#6932d1",
+                "color": "#fff"
+            }
+        },
+        "flarum-cli": {
+            "excludeScaffolding": [
+                "js/src/admin/index.ts"
+            ],
+            "modules": {
+                "admin": true,
+                "forum": false,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": true,
+                "bundlewatch": false,
+                "backendTesting": true,
+                "editorConfig": true,
+                "styleci": true
+            }
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+    },
+    "require-dev": {
+        "flarum/testing": "^1.0.0"
+    }
+}
