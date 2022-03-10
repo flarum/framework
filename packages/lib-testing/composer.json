@@ -1,0 +1,33 @@
+{
+    "name": "flarum/testing",
+    "description": "Automated testing infrastructure for Flarum core and extensions.",
+    "keywords": [
+        "forum",
+        "discussion"
+    ],
+    "homepage": "https://flarum.org/",
+    "license": "MIT",
+    "require": {
+        "ext-json": "*",
+        "mockery/mockery": "^1.4",
+        "phpunit/phpunit": "^9.0"
+    },
+    "require-dev": {
+        "flarum/core": "*@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Testing\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Testing\\Tests\\": "src/tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    }
+}
