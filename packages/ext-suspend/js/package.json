@@ -1,0 +1,20 @@
+{
+    "private": true,
+    "name": "@flarum/suspend",
+    "prettier": "@flarum/prettier-config",
+    "scripts": {
+        "dev": "webpack --mode development --watch",
+        "build": "webpack --mode production",
+        "format": "prettier --write src",
+        "analyze": "cross-env ANALYZER=true yarn build",
+        "format-check": "prettier --check src"
+    },
+    "devDependencies": {
+        "@flarum/prettier-config": "^1.0.0",
+        "flarum-tsconfig": "^1.0.0",
+        "flarum-webpack-config": "^2.0.0",
+        "prettier": "^2.5.1",
+        "webpack": "^5.65.0",
+        "webpack-cli": "^4.9.1"
+    }
+}

@@ -1,0 +1,70 @@
+flarum-suspend:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+
+    # These translations are used in the Permissions page of the admin interface.
+    permissions:
+      suspend_users_label: Suspend users
+
+  # Translations in this namespace are used by the forum user interface.
+  forum:
+    # These translations are used in the suspension notifications
+    notifications:
+      user_suspended_text: "You have been suspended for {timeReadable}"
+      user_suspended_indefinite_text: You have been suspended indefinitely
+      user_unsuspended_text: You have been unsuspended
+
+    # These translations are used for the suspension reason informational modal to the suspended user.
+    suspension_info:
+      dismiss_button: Dismiss
+      indefinite: This is an indefinite suspension
+      limited: "This suspension will be in force until {date}"
+      title: This account is suspended
+
+    # These translations are used in the Suspend User modal dialog (admin function).
+    suspend_user:
+      display_message: Display message for user
+      indefinitely_label: Suspended indefinitely
+      limited_time_days_text: " days"
+      limited_time_label: Suspended for a limited time...
+      not_suspended_label: Not suspended
+      placeholder_optional: Optional
+      reason: Reason for suspension
+      status_heading: Suspension Status
+      submit_button: => core.ref.save_changes
+      title: "Suspend {username}"
+
+    # These translations are displayed as tooltips for user badges.
+    user_badge:
+      suspended_tooltip: Suspended
+
+    # These translations are found on the user profile page (admin function).
+    user_controls:
+      suspend_button: Suspend
+
+  # Translations in this namespace are used by suspension email notifications
+  email:
+    suspended:
+      subject: Your account has been suspended
+      body: |
+        Hey {recipient_display_name},
+
+        You have been suspended for the following reason:
+
+        ---
+        {suspension_message}
+        ---
+
+    unsuspended:
+      subject: Your account has been unsuspended
+      body: |
+        Hey {recipient_display_name},
+
+        You have been unsuspended. You can head back to the forum by clicking on the following link:
+
+        {forum_url}
