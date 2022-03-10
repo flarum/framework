@@ -1,0 +1,15 @@
+:root {
+  --sticky-bg: #d13e32;
+}
+
+.Badge--sticky {
+  --badge-bg: var(--sticky-bg);
+}
+
+.DiscussionStickiedPost {
+  & .EventPost-icon,
+  & .EventPost-info,
+  & .EventPost-info a {
+    color: var(--sticky-bg);
+  }
+}

@@ -1,0 +1,19 @@
+{
+    "private": true,
+    "name": "@flarum/sticky",
+    "prettier": "@flarum/prettier-config",
+    "devDependencies": {
+        "prettier": "^2.5.1",
+        "flarum-webpack-config": "^2.0.0",
+        "webpack": "^5.65.0",
+        "webpack-cli": "^4.9.1",
+        "@flarum/prettier-config": "^1.0.0"
+    },
+    "scripts": {
+        "dev": "webpack --mode development --watch",
+        "build": "webpack --mode production",
+        "format": "prettier --write src",
+        "format-check": "prettier --check src",
+        "analyze": "cross-env ANALYZER=true yarn build"
+    }
+}
