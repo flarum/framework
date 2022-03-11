@@ -1,0 +1,64 @@
+{
+    "name": "flarum/pusher",
+    "description": "See new discussions and posts in real-time using Pusher.",
+    "type": "flarum-extension",
+    "keywords": [
+        "discussion"
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/pusher",
+        "forum": "https://discuss.flarum.org"
+    },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
+    "require": {
+        "flarum/core": "^1.2",
+        "pusher/pusher-php-server": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Pusher\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        },
+        "flarum-extension": {
+            "title": "Pusher",
+            "category": "feature",
+            "icon": {
+                "image": "icon.png",
+                "backgroundSize": "46% 63%",
+                "backgroundPosition": "center",
+                "backgroundRepeat": "no-repeat",
+                "backgroundColor": "#40bad8",
+                "color": "#fff"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": true,
+                "bundlewatch": false,
+                "backendTesting": false,
+                "editorConfig": true,
+                "styleci": true
+            }
+        }
+    }
+}
