@@ -1,0 +1,79 @@
+{
+    "name": "flarum/mentions",
+    "description": "Mention and reply to specific posts and users.",
+    "type": "flarum-extension",
+    "keywords": [
+        "discussion"
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/mentions",
+        "forum": "https://discuss.flarum.org"
+    },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
+    "require": {
+        "flarum/core": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Mentions\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        },
+        "flarum-extension": {
+            "title": "Mentions",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-at",
+                "backgroundColor": "#539EC1",
+                "color": "#fff"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": false,
+                "bundlewatch": false,
+                "backendTesting": true,
+                "editorConfig": true,
+                "styleci": true
+            }
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+    },
+    "require-dev": {
+        "flarum/core": "*@dev",
+        "flarum/testing": "^1.0.0"
+    }
+}
