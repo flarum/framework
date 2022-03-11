@@ -1,12 +1,10 @@
 <?php
 
 /*
- * This file is part of flarum/nickname.
+ * This file is part of Flarum.
  *
- * Copyright (c) 2020 Flarum.
- *
- * For the full copyright and license information, please view the LICENSE.md
- * file that was distributed with this source code.
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
  */
 
 namespace Flarum\Nicknames;
@@ -21,12 +19,12 @@ use Flarum\User\UserValidator;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__ . '/js/dist/forum.js'),
+        ->js(__DIR__.'/js/dist/forum.js'),
 
     (new Extend\Frontend('admin'))
-        ->js(__DIR__ . '/js/dist/admin.js'),
+        ->js(__DIR__.'/js/dist/admin.js'),
 
-    new Extend\Locales(__DIR__ . '/locale'),
+    new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\User())
         ->displayNameDriver('nickname', NicknameDriver::class),

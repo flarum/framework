@@ -2,15 +2,22 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
-use Illuminate\Support\Str;
 use Flarum\PHPStan\Reflection\AnnotationScopeMethodParameterReflection;
 use Flarum\PHPStan\Reflection\AnnotationScopeMethodReflection;
 use Flarum\PHPStan\Reflection\DynamicWhereParameterReflection;
 use Flarum\PHPStan\Reflection\EloquentBuilderMethodReflection;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Str;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\MissingMethodFromReflectionException;
@@ -83,7 +90,10 @@ class BuilderHelper
                     $finder = substr($methodName, 5);
 
                     $segments = preg_split(
-                        '/(And|Or)(?=[A-Z])/', $finder, -1, PREG_SPLIT_DELIM_CAPTURE
+                        '/(And|Or)(?=[A-Z])/',
+                        $finder,
+                        -1,
+                        PREG_SPLIT_DELIM_CAPTURE
                     );
 
                     if ($segments !== false) {

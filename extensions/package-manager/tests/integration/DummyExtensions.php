@@ -9,19 +9,17 @@
 
 namespace Flarum\PackageManager\Tests\integration;
 
-use Flarum\Foundation\Paths;
-
 trait DummyExtensions
 {
     protected function makeDummyExtensionCompatibleWith(string $name, string $coreVersions): void
     {
-        $dirName = $this->tmpDir() . "/packages/" . str_replace('/', '-', $name);
+        $dirName = $this->tmpDir().'/packages/'.str_replace('/', '-', $name);
 
         if (! file_exists($dirName)) {
             mkdir($dirName);
         }
 
-        file_put_contents($dirName."/composer.json", json_encode([
+        file_put_contents($dirName.'/composer.json', json_encode([
             'name' => $name,
             'version' => '1.0.0',
             'require' => [

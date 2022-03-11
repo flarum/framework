@@ -10,17 +10,13 @@
 namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Bus\Dispatcher;
+use Flarum\Http\RequestUtil;
+use Flarum\PackageManager\Command\RequireExtension;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Flarum\PackageManager\Api\Serializer\ExtensionSerializer;
-use Flarum\PackageManager\Command\RequireExtension;
-use Flarum\PackageManager\Extension\ExtensionUtils;
-use Flarum\Api\Controller\AbstractCreateController;
-use Flarum\Http\RequestUtil;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class RequireExtensionController implements RequestHandlerInterface
 {

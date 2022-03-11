@@ -11,10 +11,10 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\PackageManager\Composer\ComposerAdapter;
-use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
 use Flarum\PackageManager\Extension\Event\Removed;
+use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class RemoveExtensionHandler

@@ -2,11 +2,18 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
-use Illuminate\Pipeline\Pipeline;
 use Flarum\PHPStan\Concerns;
 use Flarum\PHPStan\Contracts\Methods\PassableContract;
+use Illuminate\Pipeline\Pipeline;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\Php\PhpMethodReflectionFactory;
 use PHPStan\Reflection\ReflectionProvider;

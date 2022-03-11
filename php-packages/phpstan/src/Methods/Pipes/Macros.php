@@ -2,17 +2,24 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods\Pipes;
 
 use Carbon\Traits\Macro as CarbonMacro;
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
-use Illuminate\Support\Traits\Macroable;
 use Flarum\PHPStan\Concerns;
 use Flarum\PHPStan\Contracts\Methods\PassableContract;
 use Flarum\PHPStan\Contracts\Methods\Pipes\PipeContract;
 use Flarum\PHPStan\Methods\Macro;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
+use Illuminate\Support\Traits\Macroable;
 use PHPStan\Reflection\ClassReflection;
 
 /**
@@ -80,7 +87,9 @@ final class Macros implements PipeContract
                 $reflectionFunction = new \ReflectionFunction($refProperty->getValue()[$passable->getMethodName()]);
 
                 $methodReflection = new Macro(
-                    $classReflection, $passable->getMethodName(), $reflectionFunction
+                    $classReflection,
+                    $passable->getMethodName(),
+                    $reflectionFunction
                 );
 
                 $methodReflection->setIsStatic(true);

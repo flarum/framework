@@ -2,12 +2,19 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
+use Flarum\PHPStan\Reflection\EloquentBuilderMethodReflection;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Flarum\PHPStan\Reflection\EloquentBuilderMethodReflection;
 use PHPStan\Analyser\OutOfClassScope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\MethodReflection;
@@ -131,7 +138,8 @@ final class EloquentBuilderForwardsCallsExtension implements MethodsClassReflect
             $returnType = $parametersAcceptor->getReturnType();
 
             return new EloquentBuilderMethodReflection(
-                $methodName, $classReflection,
+                $methodName,
+                $classReflection,
                 $ref,
                 $parametersAcceptor->getParameters(),
                 $returnType,
@@ -142,7 +150,8 @@ final class EloquentBuilderForwardsCallsExtension implements MethodsClassReflect
         // Returning custom reflection
         // to ensure return type is always `EloquentBuilder<Model>`
         return new EloquentBuilderMethodReflection(
-            $methodName, $classReflection,
+            $methodName,
+            $classReflection,
             $ref,
             $parametersAcceptor->getParameters(),
             new GenericObjectType($classReflection->getName(), [$modelType]),

@@ -2,14 +2,21 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods\Pipes;
 
 use Closure;
-use function get_class;
-use Illuminate\Support\Str;
 use Flarum\PHPStan\Concerns;
 use Flarum\PHPStan\Contracts\Methods\PassableContract;
 use Flarum\PHPStan\Contracts\Methods\Pipes\PipeContract;
+use function get_class;
+use Illuminate\Support\Str;
 use PHPStan\Reflection\ClassReflection;
 
 /**

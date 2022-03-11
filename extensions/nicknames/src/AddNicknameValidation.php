@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Nicknames;
 
@@ -19,7 +25,6 @@ class AddNicknameValidation
      */
     protected $translator;
 
-
     public function __construct(SettingsRepositoryInterface $settings, TranslatorInterface $translator)
     {
         $this->settings = $settings;
@@ -34,12 +39,12 @@ class AddNicknameValidation
         $rules['nickname'] = [
             function ($attribute, $value, $fail) {
                 $regex = $this->settings->get('flarum-nicknames.regex');
-                if ($regex && !preg_match_all("/$regex/", $value)) {
+                if ($regex && ! preg_match_all("/$regex/", $value)) {
                     $this->translator->trans('flarum-nicknames.api.invalid_nickname_message');
                 }
             },
-            'min:' . $this->settings->get('flarum-nicknames.min'),
-            'max:' . $this->settings->get('flarum-nicknames.max'),
+            'min:'.$this->settings->get('flarum-nicknames.min'),
+            'max:'.$this->settings->get('flarum-nicknames.max'),
             'nullable'
         ];
 

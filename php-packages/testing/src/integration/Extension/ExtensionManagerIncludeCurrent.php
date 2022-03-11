@@ -56,10 +56,10 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     {
         $extensions = parent::getExtensions();
 
-        $package = json_decode($this->filesystem->get($this->paths->vendor . '/../composer.json'), true);
+        $package = json_decode($this->filesystem->get($this->paths->vendor.'/../composer.json'), true);
 
         if (Arr::get($package, 'type') === 'flarum-extension') {
-            $current = new Extension($this->paths->vendor . '/../', $package);
+            $current = new Extension($this->paths->vendor.'/../', $package);
             $current->setInstalled(true);
             $current->setVersion(Arr::get($package, 'version'));
             $current->calculateDependencies([], []);
@@ -81,7 +81,9 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public function isEnabled($extension)
     {
-        if (!$this->booted) return false;
+        if (! $this->booted) {
+            return false;
+        }
 
         return parent::isEnabled($extension);
     }
@@ -108,6 +110,6 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     protected function getAssetsFilesystem(): Cloud
     {
-        return new FilesystemAdapter(new FlysystemFilesystem(new Local($this->paths->public . '/assets'), ['url' => resolve('flarum.config')->url() . '/assets']));
+        return new FilesystemAdapter(new FlysystemFilesystem(new Local($this->paths->public.'/assets'), ['url' => resolve('flarum.config')->url().'/assets']));
     }
 }

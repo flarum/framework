@@ -17,15 +17,15 @@ use Flarum\Foundation\Paths;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Event\FlarumUpdated;
+use Flarum\PackageManager\Extension\Event\Updated;
+use Flarum\PackageManager\Listener\ClearCacheAfterUpdate;
 use Flarum\PackageManager\Listener\ReCheckForUpdates;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\Listener\ClearCacheAfterUpdate;
 
 class PackageManagerServiceProvider extends AbstractServiceProvider
 {
@@ -42,7 +42,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
 
             putenv("COMPOSER_HOME={$paths->storage}/.composer");
             putenv("COMPOSER={$paths->base}/composer.json");
-            putenv("COMPOSER_DISABLE_XDEBUG_WARN=1");
+            putenv('COMPOSER_DISABLE_XDEBUG_WARN=1');
             Config::$defaultConfig['vendor-dir'] = $paths->vendor;
 
             // When running simple require, update and remove commands on packages,
