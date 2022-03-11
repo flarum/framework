@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>only symbol</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#D22929" offset="0%"></stop>
+            <stop stop-color="#B71717" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#E7762E" offset="0%"></stop>
+            <stop stop-color="#E7562E" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1-Copy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbol" transform="translate(19.000000, 14.000000)">
+            <polygon id="Rectangle-7" fill="url(#linearGradient-1)" transform="translate(18.992475, 60.055970) scale(1, -1) translate(-18.992475, -60.055970) " points="3.28100097 67.7843544 3.25585284 71.4179104 34.729097 71.4179104 34.729097 48.6940299"></polygon>
+            <path d="M1.50233444,0 C0.67261804,0 -6.34784439e-15,0.673057357 -4.66645372e-15,1.50356766 L8.86811991e-14,47.6119403 C0.0903997122,49.1366194 0.0127042007,50.726258 4.86812431,53.3284828 C4.86812431,53.3284828 0.110480342,48.7194253 7.59698997,48.6940299 L60.7759197,48.6940299 L60.7759197,0 L1.50233444,0 Z" id="Rectangle-6" fill="url(#linearGradient-2)"></path>
+        </g>
+    </g>
+</svg>
