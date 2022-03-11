@@ -1,0 +1,156 @@
+.flarum-tags-Page {
+  padding-bottom: 140px;
+}
+
+.TagsContent-footer {
+  color: @control-color;
+  padding: 20px 0;
+
+  p {
+    margin-top: 10px;
+  }
+}
+
+.TagsContent-list {
+  padding: 20px 0 0;
+
+}
+
+.TagList,
+.TagList ol {
+  list-style: none;
+  padding: 0;
+  color: @muted-color;
+  font-size: 13px;
+
+  >li {
+    display: inline-block;
+    max-height: 40px;
+    cursor: move;
+    width: 100%;
+  }
+
+  .TagIcon,
+  .icon {
+    margin-right: 10px;
+  }
+}
+
+.TagListItem-info {
+  border-radius: @border-radius;
+  padding: 5px;
+
+  &:hover {
+    background: @control-bg;
+  }
+
+  .Button {
+    float: right;
+    visibility: hidden;
+    margin: -8px -16px -8px 16px;
+  }
+}
+
+li:not(.sortable-dragging)>.TagListItem-info:hover>.Button {
+  visibility: visible;
+}
+
+.TagList--primary {
+  font-size: 16px;
+
+  >.sortable-placeholder {
+    height: 38px;
+    margin-bottom: 10px;
+  }
+}
+
+.TagList ol {
+  margin-left: 27px;
+  min-height: 10px;
+  padding: 0;
+
+  &> :last-child {
+    margin-bottom: 10px;
+  }
+}
+
+.sortable-placeholder {
+  border: 2px dashed @control-bg;
+  border-radius: @border-radius;
+  height: 34px;
+}
+
+.SettingsGroups {
+  display: flex;
+  column-count: 3;
+  column-gap: 30px;
+  flex-wrap: wrap;
+
+  @media (@tablet-up) {
+    .TagGroup--secondary {
+      max-width: 250px !important;
+    }
+  }
+
+  .Form {
+    min-width: 300px;
+    max-height: 500px;
+
+    >label {
+      margin-bottom: 10px;
+    }
+
+    .TagSettings-rangeInput {
+      input {
+        width: 80px;
+        display: inline;
+        margin: 0 5px;
+
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+  }
+
+  .TagGroup,
+  .Form {
+    display: inline-grid;
+    padding: 10px 20px;
+    min-height: 20vh;
+    max-width: 400px;
+    grid-template-rows: min-content;
+    border: 1px solid @control-bg;
+    border-radius: @border-radius;
+    flex: 1 1 160px;
+
+    @media (max-width: 1209px) {
+      margin-bottom: 20px;
+    }
+
+    >ol {
+      >li {
+        margin-top: 8px;
+
+        .Button {
+          float: right;
+          visibility: hidden;
+          margin: -8px -16px -8px 16px;
+        }
+      }
+    }
+
+    .TagList-button {
+      background: none;
+      border: 1px dashed @control-bg;
+      height: 40px;
+      margin: auto auto 0 0;
+    }
+
+    >label {
+      float: left;
+      font-weight: bold;
+      color: @muted-color;
+    }
+  }
+}
