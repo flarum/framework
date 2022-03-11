@@ -7,7 +7,7 @@
     "scripts": {
         "dev": "webpack --mode development --watch",
         "build": "webpack --mode production",
-        "analyze": "cross-env ANALYZER=true yarn build"
+        "analyze": "cross-env ANALYZER=true yarn run build"
     },
     "devDependencies": {
         "flarum-webpack-config": "^2.0.0",

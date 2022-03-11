@@ -146,10 +146,12 @@
         "test:integration": "Runs all integration tests.",
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
-    "repositories": [{
+    "repositories": [
+        {
             "type": "path",
             "url": "../../*/*"
-        }],
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }

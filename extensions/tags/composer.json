@@ -81,10 +81,12 @@
         "flarum/core": "*@dev",
         "flarum/testing": "^1.0.0"
     },
-    "repositories": [{
+    "repositories": [
+        {
             "type": "path",
             "url": "../../*/*"
-        }],
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }
