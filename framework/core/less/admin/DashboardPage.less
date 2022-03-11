@@ -1,0 +1,46 @@
+.DashboardPage {
+  background: var(--body-bg);
+  color: var(--control-color);
+  min-height: 100vh;
+  padding-bottom: 30px;
+}
+
+.Widget {
+  background: var(--control-bg);
+  color: var(--text-color);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 20px;
+
+  .Button {
+    .Button--color-auto('button-inverted');
+  }
+}
+
+.StatusWidget {
+  color: var(--muted-color);
+
+  >ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    >li {
+      display: inline-block;
+      margin-right: 30px;
+      vertical-align: middle;
+
+      &[class^="item-version-"] {
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      &.item-tools {
+        float: right;
+        margin-right: 0;
+      }
+    }
+  }
+}

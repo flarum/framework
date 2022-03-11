@@ -1,0 +1,182 @@
+// Vendor Prefixes
+
+// These aim to ensure that Flarum remains compatible with most modern devices.
+// The vendor presets below are to try to remain compatible with iOS 9+ and other
+// major browsers (Chrome/Firefox/new Edge/Safari desktop).
+
+// Animations
+// These remain for backwards compatibility with existing styles.
+/** @deprecated */
+.animation(@animation) {
+  animation: @animation;
+}
+/** @deprecated */
+.animation-name(@name) {
+  animation-name: @name;
+}
+.animation-duration(@duration) {
+  animation-duration: @duration;
+}
+/** @deprecated */
+.animation-timing-function(@timing-function) {
+  animation-timing-function: @timing-function;
+}
+/** @deprecated */
+.animation-delay(@delay) {
+  animation-delay: @delay;
+}
+/** @deprecated */
+.animation-iteration-count(@iteration-count) {
+  animation-iteration-count: @iteration-count;
+}
+/** @deprecated */
+.animation-direction(@direction) {
+  animation-direction: @direction;
+}
+/** @deprecated */
+.animation-fill-mode(@fill-mode) {
+  animation-fill-mode: @fill-mode;
+}
+
+// Backface visibility
+// Prevent browsers from flickering when using CSS 3D transforms.
+// Default value is `visible`, but can be changed to `hidden`
+/** @deprecated */
+.backface-visibility(@visibility) {
+  // Safari
+  -webkit-backface-visibility: @visibility;
+  backface-visibility: @visibility;
+}
+
+// Drop shadows
+// These remain for backwards compatibility with existing styles.
+/** @deprecated */
+.box-shadow(@shadow) {
+  box-shadow: @shadow;
+}
+
+// Box sizing
+// These remain for backwards compatibility with existing styles.
+/** @deprecated */
+.box-sizing(@boxmodel) {
+  box-sizing: @boxmodel;
+}
+
+// CSS3 Content Columns
+/** @deprecated */
+.content-columns(@column-count; @column-gap: @grid-gutter-width) {
+  // Safari
+  -webkit-column-count: @column-count;
+  column-count: @column-count;
+  // Safari
+  -webkit-column-gap: @column-gap;
+  column-gap: @column-gap;
+}
+
+// Optional hyphenation
+/** @deprecated */
+.hyphens(@mode: auto) {
+  word-wrap: break-word;
+  // Safari
+  -webkit-hyphens: @mode;
+  hyphens: @mode;
+}
+
+// Placeholder text
+.placeholder(@color) {
+  // Safari
+  &::-webkit-input-placeholder,
+  &::placeholder {
+    color: @color;
+  }
+}
+
+// Transformations
+// These remain for backwards compatibility with existing styles.
+/** @deprecated */
+.scale(@ratio) {
+  transform: scale(@ratio);
+}
+/** @deprecated */
+.scale(@ratioX; @ratioY) {
+  transform: scale(@ratioX, @ratioY);
+}
+/** @deprecated */
+.scaleX(@ratio) {
+  transform: scaleX(@ratio);
+}
+/** @deprecated */
+.scaleY(@ratio) {
+  transform: scaleY(@ratio);
+}
+/** @deprecated */
+.skew(@x; @y) {
+  transform: skewX(@x) skewY(@y);
+}
+/** @deprecated */
+.translate(@x; @y) {
+  transform: translate(@x, @y);
+}
+/** @deprecated */
+.translate3d(@x; @y; @z) {
+  transform: translate3d(@x, @y, @z);
+}
+/** @deprecated */
+.rotate(@degrees) {
+  transform: rotate(@degrees);
+}
+/** @deprecated */
+.rotateX(@degrees) {
+  transform: rotateX(@degrees);
+}
+/** @deprecated */
+.rotateY(@degrees) {
+  transform: rotateY(@degrees);
+}
+/** @deprecated */
+.perspective(@perspective) {
+  perspective: @perspective;
+}
+/** @deprecated */
+.perspective-origin(@perspective) {
+  perspective-origin: @perspective;
+}
+/** @deprecated */
+.transform-origin(@origin) {
+  transform-origin: @origin;
+}
+
+// Transitions
+// These remain for backwards compatibility with existing styles.
+/** @deprecated */
+.transition(@transition) {
+  transition: @transition;
+}
+/** @deprecated */
+.transition-property(@transition-property) {
+  transition-property: @transition-property;
+}
+/** @deprecated */
+.transition-delay(@transition-delay) {
+  transition-delay: @transition-delay;
+}
+/** @deprecated */
+.transition-duration(@transition-duration) {
+  transition-duration: @transition-duration;
+}
+/** @deprecated */
+.transition-timing-function(@timing-function) {
+  transition-timing-function: @timing-function;
+}
+/** @deprecated */
+.transition-transform(@transition) {
+  transition: transform @transition;
+}
+
+// User select
+// For selecting text on the page
+.user-select(@select) {
+  // Safari + MS Edge
+  -webkit-user-select: @select;
+  user-select: @select;
+}

@@ -1,0 +1,65 @@
+// ------------------------------------
+// Loading Indicators
+
+.LoadingIndicator {
+  --spin-time: 750ms;
+
+  // Use the value of `color` to maintain backwards compatibility
+  border-color: currentColor;
+  border-width: var(--thickness);
+  border-style: solid;
+  border-top-color: transparent;
+  border-radius: 50%;
+
+  width: var(--size);
+  height: var(--size);
+
+  animation: spin var(--spin-time) linear infinite;
+
+  // <div> container around the spinner
+  // Used for positioning
+  &-container {
+    --size: 24px;
+    --thickness: 2px;
+
+    color: var(--muted-color);
+
+    // Center vertically and horizontally
+    // Allows people to set `height` and it'll stay centered within the new height
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // Size
+
+    &--large {
+      --size: 32px;
+      --thickness: 3px;
+    }
+
+    &--small {
+      --size: 18px;
+    }
+
+    // Display types
+
+    &--block {
+      height: 100px;
+    }
+
+    &--inline {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(1turn);
+  }
+}

@@ -1,0 +1,78 @@
+// ------------------------------------
+// Stream
+
+.PostStream {
+  @media @tablet-up {
+    margin-top: 10px;
+  }
+}
+.PostStream-item {
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--control-bg);
+
+    @media @phone {
+      margin: 0 -15px;
+      padding: 0 15px;
+    }
+  }
+}
+
+@keyframes blink {
+  0% {opacity: 0.5}
+  50% {opacity: 1}
+  100% {opacity: 0.5}
+}
+.LoadingPost {
+  animation: blink 1s linear infinite;
+}
+.fakeText {
+  display: inline-block;
+  vertical-align: middle;
+  background: var(--control-bg);
+  height: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+  border-radius: var(--border-radius);
+
+  .Post-header & {
+    height: 16px;
+    width: 150px;
+
+    @media @phone {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.PostStream-timeGap {
+  text-transform: uppercase;
+  font-weight: bold;
+  color: var(--muted-color);
+  padding: 20px 20px 20px @avatar-column-width;
+  font-size: 12px;
+
+  @media @phone {
+    margin: 0 -15px;
+    padding: 20px 15px;
+  }
+}
+
+@keyframes pulsate {
+  0% {transform: scale(1)}
+  50% {transform: scale(1.02)}
+  100% {transform: scale(1)}
+}
+.pulsate {
+  animation: pulsate 1s ease-in-out infinite;
+}
+.flash {
+  animation: pulsate 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {opacity: 0}
+  100% {opacity: 1}
+}
+.fadeIn {
+  animation: fadeIn 0.4s ease-in-out;
+}

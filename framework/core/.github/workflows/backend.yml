@@ -1,0 +1,15 @@
+name: Core PHP
+
+on: [workflow_dispatch, push, pull_request]
+
+# The reusable workflow definitions will be moved to the `flarum/framework` repo soon.
+# This will break your current script.
+# When this happens, run `flarum-cli audit infra --fix` to update your infrastructure.
+
+jobs:
+  run:
+    uses: flarum/.github/.github/workflows/REUSABLE_backend.yml@main
+    with:
+      enable_backend_testing: true
+
+      backend_directory: .

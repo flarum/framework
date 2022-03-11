@@ -1,0 +1,27 @@
+.Avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: content-box;
+  color: #fff;
+  vertical-align: top;
+  background-color: var(--avatar-bg);
+  font-weight: normal;
+  .Avatar--size(48px);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 100%;
+  font-size: calc(~"var(--size) / 2");
+
+  img {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border-radius: 100%;
+    vertical-align: top;
+  }
+}
+
+.Avatar--size(@size) {
+  --size: @size;
+}

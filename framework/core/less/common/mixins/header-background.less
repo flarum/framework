@@ -1,0 +1,17 @@
+.header-background() {
+  background: var(--header-bg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--zindex-header);
+  border-bottom: 1px solid var(--control-bg);
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  @media @phone {
+    height: var(--header-height-phone);
+  }
+  @media @tablet-up {
+    height: var(--header-height);
+  }
+}

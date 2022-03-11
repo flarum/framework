@@ -1,0 +1,119 @@
+:root {
+
+  // ---------------------------------
+  // COLORS
+
+  --primary-color:                 @primary-color;
+  --secondary-color:               @secondary-color;
+
+  --body-bg:                       @body-bg;
+  --body-bg-shaded:                darken(@body-bg, 3%);
+  --body-bg-light:                 lighten(@body-bg, 5%);
+  --body-bg-faded:                 fade(@body-bg, 93%);
+  --text-color:                    @text-color;
+  --link-color:                    @link-color;
+  --heading-color:                 @heading-color;
+
+  --muted-color:                   @muted-color;
+  --muted-color-light:             lighten(@muted-color, 10%);
+  --muted-color-dark:              darken(@muted-color, 50%);
+  --muted-more-color:              @muted-more-color;
+
+  --shadow-color:                  @shadow-color;
+
+  --control-bg:                    @control-bg;
+  --control-bg-light:              lighten(@control-bg, 3%);
+  --control-bg-shaded:             darken(@control-bg, 4%);
+  --control-color:                 @control-color;
+  --control-danger-bg:             @control-danger-bg;
+  --control-danger-color:          @control-danger-color;
+
+  --error-color:                   @error-color;
+
+  // ---------------------------------
+  // COMPONENTS
+
+  --header-bg:                     @header-bg;
+  --header-color:                  @header-color;
+  --header-control-bg:             @header-control-bg;
+  --header-control-color:          @header-control-color;
+
+  --overlay-bg:                    @overlay-bg;
+  --code-bg:                       @code-bg;
+  --code-color:                    @code-color;
+
+  --alert-bg:                      @alert-bg;
+  --alert-color:                   @alert-color;
+  --alert-error-bg:                @alert-error-bg;
+  --alert-error-color:             @alert-error-color;
+  --alert-success-bg:              @alert-success-bg;
+  --alert-success-color:           @alert-success-color;
+
+  --switch-on-color:               #58a400;
+  --switch-off-color:              #d0021b;
+
+  --enabled-color:                 #2ECC40;
+  --disabled-color:                #FF4136;
+
+  --validation-error-color:        @validation-error-color;
+
+  --avatar-bg:                     var(--control-bg);
+  --badge-bg:                      var(--muted-color);
+  --badge-color:                   #fff;
+  --badge-hidden-bg:               #888;
+  --usercard-bg:                   var(--control-bg);
+  --hero-bg:                       @hero-bg;
+  --hero-color:                    @hero-color;
+
+  --tooltip-bg:                    @tooltip-bg;
+  --tooltip-color:                 @tooltip-color;
+
+  --online-user-circle-color:      @online-user-circle-color;
+
+  --discussion-title-color:        mix(@heading-color, @body-bg, 55%);
+  --discussion-list-item-bg-hover: mix(@control-bg, @body-bg, 50%);
+
+  .Button--color-vars(@control-color, @control-bg, 'button');
+  .Button--color-vars(@body-bg, @primary-color, 'button-primary');
+  .Button--color-vars(@control-danger-color, @control-danger-bg, 'control-danger');
+  .Button--color-vars(@muted-more-color, fade(@muted-more-color, 30%), 'muted-more');
+  .Button--color-vars(@control-color, @body-bg, 'button-inverted');
+
+  .light-contents-vars();
+  .light-contents-vars(@header-color, @header-control-bg, @header-control-color, 'header-colored');
+
+  // ---------------------------------
+  // LAYOUT
+
+  --border-radius:                 @border-radius;
+
+  --drawer-width:                  @drawer-width;
+  --pane-width:                    @pane-width;
+  --header-height:                 @header-height;
+  --header-height-phone:           @header-height-phone;
+
+  --zindex-header:                 @zindex-header;
+  --zindex-pane:                   @zindex-pane;
+  --zindex-composer:               @zindex-composer;
+  --zindex-dropdown:               @zindex-dropdown;
+  --zindex-modal-background:       @zindex-modal-background;
+  --zindex-modal:                  @zindex-modal;
+  --zindex-alerts:                 @zindex-alerts;
+  --zindex-tooltip:                @zindex-tooltip;
+
+  // Store the current responsive screen mode in a CSS variable, to make it
+  // available to the JS code.
+  --flarum-screen:                 none;
+
+  --screen-phone-max:   @screen-phone-max;
+  --screen-tablet:      @screen-tablet;
+  --screen-tablet-max:  @screen-tablet-max;
+  --screen-desktop:     @screen-desktop;
+  --screen-desktop-max: @screen-desktop-max;
+  --screen-desktop-hd:  @screen-desktop-hd;
+
+  @media @phone { --flarum-screen: phone; }
+  @media @tablet { --flarum-screen: tablet; }
+  @media @desktop { --flarum-screen: desktop; }
+  @media @desktop-hd { --flarum-screen: desktop-hd; }
+}

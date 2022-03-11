@@ -1,0 +1,212 @@
+.App {
+  --admin-pane-width: 250px;
+
+  padding-bottom: 0;
+}
+
+.AdminContent {
+  padding: 20px 0;
+}
+.App-content .sideNavOffset {
+  margin-top: 0;
+}
+
+.Header-controls {
+  > li {
+    margin-left: 10px;
+  }
+}
+
+@media @phone {
+  .Dropdown-menu {
+    height: 70vh;
+
+    .item-search {
+      margin: 10px;
+
+      .SearchBar {
+        width: 100%
+      }
+    }
+  }
+
+  .ExtensionNavButton {
+    .Button-label {
+      margin-left: 30px;
+    }
+    .ExtensionIcon {
+      margin: 0 0 0 -4px !important;
+    }
+  }
+}
+
+@media @tablet {
+  .AdminNav {
+    .item-search,
+    li[class^="item-category"],
+    li[class^="item-extension"],
+    .AdminLinkButton-description {
+      display: none !important;
+    }
+  }
+}
+
+@media @phone, @tablet {
+  .AdminNav {
+    .Dropdown-menu {
+      > li {
+        .ExtensionIcon {
+          margin: -2px -29px;
+          --size: 25px;
+
+          .icon {
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+@media @desktop-up {
+  .App-nav {
+    position: absolute;
+    top: var(--header-height);
+    height: ~"calc(100vh - var(--header-height))";
+    width: var(--admin-pane-width);
+    box-shadow: 0 6px 6px var(--shadow-color);
+    background: var(--body-bg);
+    z-index: var(--zindex-pane);
+    overflow-y: scroll;
+    padding-bottom: 40px;
+
+    .affix & {
+      position: fixed;
+      bottom: 0;
+    }
+  }
+  .App-content .sideNavOffset {
+    margin-left: var(--admin-pane-width);
+  }
+  .App-nav .AdminNav {
+    .Dropdown-menu {
+      .item-search {
+        margin-top: 10px;
+        margin-bottom: 20px;
+      }
+
+      .item-category-core {
+        > .ExtensionListTitle {
+          margin-top: 10px;
+        }
+      }
+
+      > li {
+        > a {
+          padding: 10px 10px 10px 45px;
+          display: block;
+          text-decoration: none;
+        }
+
+        > a,
+        > a:hover,
+        &.active > a {
+          color: var(--text-color);
+        }
+
+        > a:hover {
+          background: var(--control-bg);
+        }
+
+        &.active > a {
+          background: var(--control-color);
+          font-weight: normal;
+          color: var(--body-bg);
+
+          .Button-label,
+          .Button-icon {
+            font-weight: bold;
+          }
+        }
+
+        .Button-icon {
+          float: left;
+          font-size: 13px !important;
+          margin-left: -25px !important;
+          margin-top: 4px !important;
+        }
+
+        .Button-label {
+          padding-left: 5px;
+          font-size: 14px;
+          font-weight: normal;
+        }
+
+        .Search-input,
+        .SearchBar {
+          max-width: 215px;
+          margin: 0 auto;
+        }
+
+        .ExtensionIcon {
+          --size: 25px;
+          margin-left: -29px;
+        }
+      }
+    }
+  }
+
+  .container {
+    width: 100%;
+    margin: 0;
+
+    .App-content & {
+      padding: 0 30px;
+    }
+    .App-content > & {
+      padding: 0;
+    }
+  }
+
+}
+
+.AdminLinkButton-description {
+  white-space: normal;
+  padding-left: 5px;
+}
+
+.ExtensionListTitle {
+  color: var(--muted-color);
+  text-transform: uppercase;
+  margin: 25px 0 8px 15px;
+}
+
+.ExtensionListItem-Dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  right: 13px;
+  margin: 6px 5px;
+  position: absolute;
+}
+
+.ExtensionNavButton {
+  .Button-label {
+    display: inline-block;
+    max-width: ~"calc(100% - 18px)";
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    margin-left: 5px;
+  }
+}
+
+.ExtensionListItem-Dot.enabled {
+  background-color: var(--enabled-color);
+}
+.ExtensionListItem-Dot.disabled {
+  border: 2px solid var(--disabled-color);
+  box-sizing: border-box;
+}

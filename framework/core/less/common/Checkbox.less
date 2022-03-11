@@ -1,0 +1,122 @@
+.Checkbox {
+  display: block;
+  cursor: pointer;
+  margin: 0;
+  position: relative;
+
+  input[type="checkbox"] {
+    position: absolute;
+    z-index: 1;
+
+    opacity: 0;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    width: 100%;
+    height: 100%;
+
+    cursor: pointer;
+
+    .add-keyboard-focus-ring-nearby("+ .Checkbox-display");
+  }
+}
+.Checkbox--switch {
+  --left-pad: 65px;
+
+  padding-left: var(--left-pad);
+  margin: 5px 0;
+
+  input[type="checkbox"] {
+    top: -4px;
+    width: 50px;
+    height: 28px;
+  }
+
+  .Checkbox-display {
+    float: left;
+    margin-left: calc(~"0px - var(--left-pad)");
+    margin-top: -4px;
+  }
+}
+
+.Checkbox--switch .Checkbox-display {
+  width: 50px;
+  height: 28px;
+  padding: 3px;
+  position: relative;
+  border-radius: 14px;
+  background: var(--control-bg);
+  transition: background-color 0.2s;
+
+  .LoadingIndicator {
+    --size: 22px !important;
+
+    &-container {
+      height: 22px;
+    }
+  }
+
+  .on& {
+    background: var(--switch-on-color);
+
+    .LoadingIndicator-container {
+      // Show loading indicator over the switch button
+      justify-content: flex-end;
+    }
+  }
+
+  .off& {
+    .LoadingIndicator-container {
+      // Show loading indicator over the switch button
+      justify-content: flex-start;
+    }
+  }
+
+  &:before {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    left: 3px;
+    transition: opacity 0.2s, left 0.2s;
+
+    .on& {
+      left: 25px;
+    }
+  }
+  &:before {
+    content: " ";
+    background: var(--body-bg);
+    border-radius: 11px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+  }
+}
+.Checkbox-display {
+  font-size: 14px;
+
+  .on & {
+    color: var(--switch-on-color);
+  }
+  .off & {
+    color:var(--switch-off-color);
+  }
+  .disabled & {
+    color: var(--muted-more-color) !important;
+  }
+}
+.Checkbox--switch.loading {
+  color: var(--muted-more-color) !important;
+
+  &.on .Checkbox-display {
+    background: transparent;
+  }
+  &.off .Checkbox-display {
+    background: transparent;
+  }
+  .LoadingIndicator {
+    color: var(--muted-color-dark);
+  }
+}
