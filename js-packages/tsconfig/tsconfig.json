@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowUmdGlobalAccess": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "module": "es2015",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "target": "es6",
+    "jsx": "preserve",
+    "allowJs": true,
+    "lib": ["dom", "es5", "es2015", "es2016", "es2017", "es2018", "es2019.array"],
+    "allowSyntheticDefaultImports": true
+  }
+}
