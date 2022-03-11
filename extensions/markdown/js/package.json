@@ -1,0 +1,26 @@
+{
+    "private": true,
+    "name": "@flarum/markdown",
+    "prettier": "@flarum/prettier-config",
+    "dependencies": {
+        "flarum-webpack-config": "^2.0.0",
+        "webpack": "^5.65.0",
+        "webpack-cli": "^4.9.1"
+    },
+    "scripts": {
+        "dev": "webpack --mode development --watch",
+        "build": "webpack --mode production",
+        "format": "prettier --write src",
+        "format-check": "prettier --check src",
+        "analyze": "cross-env ANALYZER=true yarn build"
+    },
+    "packageManager": "yarn@3.1.1",
+    "devDependencies": {
+        "@flarum/prettier-config": "^1.0.0",
+        "flarum-tsconfig": "^1.0.2",
+        "prettier": "^2.5.1",
+        "flarum-webpack-config": "^2.0.0",
+        "webpack": "^5.65.0",
+        "webpack-cli": "^4.9.1"
+    }
+}
