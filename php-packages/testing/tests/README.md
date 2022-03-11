@@ -1,0 +1,1 @@
+A minimal extension skeleton to test the flarum/testing package.

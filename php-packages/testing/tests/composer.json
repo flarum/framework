@@ -1,0 +1,35 @@
+{
+  "name": "flarum/testing-tests",
+  "description": "Minimal extension to test the flarum/testing package",
+  "type": "flarum-extension",
+  "require": {
+    "flarum/core": "^0.1.0@dev"
+  },
+  "require-dev": {
+    "flarum/testing": "*@dev"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Flarum\\Testing\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": [
+      "@test:unit",
+      "@test:integration"
+    ],
+    "test:unit": "phpunit -c tests/phpunit.unit.xml",
+    "test:integration": "phpunit -c tests/phpunit.integration.xml",
+    "test:setup": "@php tests/integration/setup.php"
+  },
+  "scripts-descriptions": {
+    "test": "Runs all tests.",
+    "test:unit": "Runs all unit tests.",
+    "test:integration": "Runs all integration tests.",
+    "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+  },
+  "repositories": [{
+      "type": "path",
+      "url": "../"
+    }]
+}
