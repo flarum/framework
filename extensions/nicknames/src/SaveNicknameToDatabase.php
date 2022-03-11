@@ -1,19 +1,27 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Nicknames;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Saving;
-use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Support\Arr;
 
-class SaveNicknameToDatabase {
+class SaveNicknameToDatabase
+{
     /**
      * @var SettingsRepositoryInterface
      */
     protected $settings;
 
-    public function __construct(SettingsRepositoryInterface $settings) {
+    public function __construct(SettingsRepositoryInterface $settings)
+    {
         $this->settings = $settings;
     }
 

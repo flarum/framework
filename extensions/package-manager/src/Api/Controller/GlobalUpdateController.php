@@ -11,11 +11,11 @@ namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
+use Flarum\PackageManager\Command\GlobalUpdate;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Flarum\PackageManager\Command\GlobalUpdate;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class GlobalUpdateController implements RequestHandlerInterface
 {

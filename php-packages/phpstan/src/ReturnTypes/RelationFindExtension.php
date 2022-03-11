@@ -2,14 +2,21 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\ReturnTypes;
 
+use Flarum\PHPStan\Methods\BuilderHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Str;
-use Flarum\PHPStan\Methods\BuilderHelper;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;

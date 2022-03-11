@@ -12,7 +12,6 @@ namespace Flarum\PackageManager\Settings;
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class LastUpdateCheck implements JsonSetting
 {

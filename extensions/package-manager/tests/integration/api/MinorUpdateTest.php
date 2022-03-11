@@ -18,14 +18,16 @@ use Flarum\PackageManager\Tests\integration\TestCase;
 
 class MinorUpdateTest extends TestCase
 {
-    use RefreshComposerSetup, ChangeComposerConfig, DummyExtensions;
+    use RefreshComposerSetup;
+    use ChangeComposerConfig;
+    use DummyExtensions;
 
     /**
      * @test--
      */
     public function can_update_to_next_minor_version()
     {
-        $this->makeDummyExtensionCompatibleWith("flarum/dummy-compatible-extension", "^1.0.0");
+        $this->makeDummyExtensionCompatibleWith('flarum/dummy-compatible-extension', '^1.0.0');
         $this->setComposerConfig([
             'require' => [
                 // The only reason we don't set this to `^1.0.0` and let it update to latest minor,
@@ -56,7 +58,7 @@ class MinorUpdateTest extends TestCase
      */
     public function can_update_with_latest_ext_incompatible_with_latest_core()
     {
-        $this->makeDummyExtensionCompatibleWith("flarum/dummy-extension", "1.0.0");
+        $this->makeDummyExtensionCompatibleWith('flarum/dummy-extension', '1.0.0');
         $this->setComposerConfig([
             'require' => [
                 'flarum/core' => '>=1.0.0 <=1.1.0',
@@ -84,8 +86,8 @@ class MinorUpdateTest extends TestCase
         $lastUpdateRun = $this->app()->getContainer()->make(LastUpdateRun::class);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertPackageVersion("flarum/tags", "*");
-        $this->assertPackageVersion("flarum/dummy-extension", "*");
+        $this->assertPackageVersion('flarum/tags', '*');
+        $this->assertPackageVersion('flarum/dummy-extension', '*');
         $this->assertEquals([
             'flarum/core',
             'flarum/lang-english',

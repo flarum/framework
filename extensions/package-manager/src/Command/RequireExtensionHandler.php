@@ -11,12 +11,12 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\PackageManager\Composer\ComposerAdapter;
-use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\PackageManager\Exception\ComposerRequireFailedException;
 use Flarum\PackageManager\Exception\ExtensionAlreadyInstalledException;
 use Flarum\PackageManager\Extension\Event\Installed;
 use Flarum\PackageManager\Extension\ExtensionUtils;
 use Flarum\PackageManager\RequirePackageValidator;
+use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class RequireExtensionHandler
@@ -70,7 +70,7 @@ class RequireExtensionHandler
 
         // Auto append :* if not requiring a specific version.
         if (strpos($packageName, ':') === false) {
-            $packageName .= ":*";
+            $packageName .= ':*';
         }
 
         $output = $this->composer->run(

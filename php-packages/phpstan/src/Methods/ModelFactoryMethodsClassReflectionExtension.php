@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -56,8 +63,7 @@ class ModelFactoryMethodsClassReflectionExtension implements MethodsClassReflect
         ClassReflection $classReflection,
         string $methodName
     ): MethodReflection {
-        return new class($classReflection, $methodName) implements MethodReflection
-        {
+        return new class($classReflection, $methodName) implements MethodReflection {
             /** @var ClassReflection */
             private $classReflection;
 

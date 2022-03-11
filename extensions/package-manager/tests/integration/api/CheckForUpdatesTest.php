@@ -16,7 +16,8 @@ use Illuminate\Support\Arr;
 
 class CheckForUpdatesTest extends TestCase
 {
-    use RefreshComposerSetup, ChangeComposerConfig;
+    use RefreshComposerSetup;
+    use ChangeComposerConfig;
 
     /**
      * @test

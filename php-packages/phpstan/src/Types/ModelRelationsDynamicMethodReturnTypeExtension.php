@@ -2,12 +2,19 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Types;
 
+use Flarum\PHPStan\Concerns\HasContainer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Flarum\PHPStan\Concerns\HasContainer;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;

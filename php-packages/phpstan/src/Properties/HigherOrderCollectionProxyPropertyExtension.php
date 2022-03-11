@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Properties;
 
 use Flarum\PHPStan\Support\HigherOrderCollectionProxyHelper;
@@ -35,8 +42,7 @@ final class HigherOrderCollectionProxyPropertyExtension implements PropertiesCla
 
         $returnType = HigherOrderCollectionProxyHelper::determineReturnType($methodType->getValue(), $modelType, $propertyType);
 
-        return new class($classReflection, $returnType) implements PropertyReflection
-        {
+        return new class($classReflection, $returnType) implements PropertyReflection {
             /** @var ClassReflection */
             private $classReflection;
 

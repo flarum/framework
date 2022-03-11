@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\Methods;
 
 use Flarum\PHPStan\Support\HigherOrderCollectionProxyHelper;
@@ -39,8 +46,7 @@ final class HigherOrderCollectionProxyExtension implements MethodsClassReflectio
 
         $returnType = HigherOrderCollectionProxyHelper::determineReturnType($methodType->getValue(), $valueType, $modelMethodReturnType);
 
-        return new class($classReflection, $methodName, $modelMethodReflection, $returnType) implements MethodReflection
-        {
+        return new class($classReflection, $methodName, $modelMethodReflection, $returnType) implements MethodReflection {
             /** @var ClassReflection */
             private $classReflection;
 

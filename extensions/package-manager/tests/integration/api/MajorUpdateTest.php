@@ -16,14 +16,16 @@ use Flarum\PackageManager\Tests\integration\TestCase;
 
 class MajorUpdateTest extends TestCase
 {
-    use RefreshComposerSetup, ChangeComposerConfig, DummyExtensions;
+    use RefreshComposerSetup;
+    use ChangeComposerConfig;
+    use DummyExtensions;
 
     /**
      * @test
      */
     public function cannot_update_when_no_update_check_ran()
     {
-        $this->makeDummyExtensionCompatibleWith("flarum/dummy-incompatible-extension", ">=0.1.0-beta.15 <=0.1.0-beta.16");
+        $this->makeDummyExtensionCompatibleWith('flarum/dummy-incompatible-extension', '>=0.1.0-beta.15 <=0.1.0-beta.16');
         $this->setComposerConfig([
             'require' => [
                 'flarum/core' => '^0.1.0-beta.15',
@@ -48,7 +50,7 @@ class MajorUpdateTest extends TestCase
      */
     public function can_update_when_major_update_available()
     {
-        $this->makeDummyExtensionCompatibleWith("flarum/dummy-compatible-extension", "^0.1.0-beta.15 | ^1.0.0");
+        $this->makeDummyExtensionCompatibleWith('flarum/dummy-compatible-extension', '^0.1.0-beta.15 | ^1.0.0');
         $this->setComposerConfig([
             'require' => [
                 'flarum/core' => '^0.1.0-beta.15',
@@ -80,9 +82,9 @@ class MajorUpdateTest extends TestCase
         )[0]['latest-major'];
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertPackageVersion("flarum/core", str_replace('v', '^', $newMinorCoreVersion));
-        $this->assertPackageVersion("flarum/tags", "*");
-        $this->assertPackageVersion("flarum/dummy-compatible-extension", "*");
+        $this->assertPackageVersion('flarum/core', str_replace('v', '^', $newMinorCoreVersion));
+        $this->assertPackageVersion('flarum/tags', '*');
+        $this->assertPackageVersion('flarum/dummy-compatible-extension', '*');
     }
 
     /**
@@ -90,9 +92,9 @@ class MajorUpdateTest extends TestCase
      */
     public function cannot_update_with_incompatible_extensions()
     {
-        $this->makeDummyExtensionCompatibleWith("flarum/dummy-incompatible-extension-a", ">=0.1.0-beta.16 <0.1.0-beta.17");
-        $this->makeDummyExtensionCompatibleWith("flarum/dummy-incompatible-extension-b", ">=0.1.0-beta.16 <=0.1.0-beta.17");
-        $this->makeDummyExtensionCompatibleWith("flarum/dummy-incompatible-extension-c", "0.1.0-beta.16");
+        $this->makeDummyExtensionCompatibleWith('flarum/dummy-incompatible-extension-a', '>=0.1.0-beta.16 <0.1.0-beta.17');
+        $this->makeDummyExtensionCompatibleWith('flarum/dummy-incompatible-extension-b', '>=0.1.0-beta.16 <=0.1.0-beta.17');
+        $this->makeDummyExtensionCompatibleWith('flarum/dummy-incompatible-extension-c', '0.1.0-beta.16');
         $this->setComposerConfig([
             'require' => [
                 'flarum/core' => '^0.1.0-beta.16',

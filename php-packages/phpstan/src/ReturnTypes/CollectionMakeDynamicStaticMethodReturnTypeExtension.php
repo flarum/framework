@@ -2,10 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PHPStan\ReturnTypes;
 
-use Illuminate\Support\Collection;
 use Flarum\PHPStan\Support\CollectionHelper;
+use Illuminate\Support\Collection;
 use PhpParser\Node\Expr\StaticCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;

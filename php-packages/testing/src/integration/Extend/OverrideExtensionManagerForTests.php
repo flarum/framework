@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Testing\integration\Extend;
 
 use Flarum\Extend\ExtenderInterface;
@@ -11,7 +18,7 @@ use Illuminate\Contracts\Container\Container;
 class OverrideExtensionManagerForTests implements ExtenderInterface
 {
     /**
-     * IDs of extensions to boot
+     * IDs of extensions to boot.
      */
     protected $extensions;
 
