@@ -1,0 +1,31 @@
+<?php
+namespace Flarum\User {
+  trait AccountActivationMailerTrait
+  {
+    /**
+     * @param User $user
+     * @param string $email
+     * @return EmailToken
+     */
+    protected function generateToken(\Flarum\User\User $user, $email)
+    {
+    }
+    /**
+     * Get the data that should be made available to email templates.
+     *
+     * @param User $user
+     * @param EmailToken $token
+     * @return array
+     */
+    protected function getEmailData(\Flarum\User\User $user, \Flarum\User\EmailToken $token)
+    {
+    }
+    /**
+     * @param User $user
+     * @param array $data
+     */
+    protected function sendConfirmationEmail(\Flarum\User\User $user, $data)
+    {
+    }
+  }
+}
