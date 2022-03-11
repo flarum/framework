@@ -1,6 +1,7 @@
 {
     "private": true,
     "name": "@flarum/suspend",
+    "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
     "scripts": {
         "dev": "webpack --mode development --watch",
