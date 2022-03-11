@@ -1,6 +1,7 @@
 {
     "private": true,
     "name": "@flarum/approval",
+    "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
     "devDependencies": {
         "prettier": "^2.5.1",

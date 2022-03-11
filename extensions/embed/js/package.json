@@ -1,6 +1,7 @@
 {
     "private": true,
     "name": "@flarum/embed",
+    "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
     "dependencies": {
         "iframe-resizer": "^4.3.2"
