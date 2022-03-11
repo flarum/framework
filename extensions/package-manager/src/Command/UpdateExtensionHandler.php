@@ -52,8 +52,7 @@ class UpdateExtensionHandler
         UpdateExtensionValidator $validator,
         LastUpdateCheck $lastUpdateCheck,
         Dispatcher $events
-    )
-    {
+    ) {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
