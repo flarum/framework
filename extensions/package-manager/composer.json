@@ -96,5 +96,9 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [{
+            "type": "path",
+            "url": "../../*/*"
+        }]
 }

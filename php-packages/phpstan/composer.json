@@ -1,7 +1,7 @@
 {
     "name": "flarum/phpstan",
     "description": "Flarum PHPStan extension",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "license": "MIT",
     "require": {
         "phpstan/phpstan-php-parser": "^1.0",
@@ -19,7 +19,12 @@
             ]
         },
         "branch-alias": {
-            "dev-master": "1.x-dev"
+            "dev-main": "1.x-dev"
         }
-    }
+    },
+    "repositories": [{
+            "type": "path",
+            "url": "../../*/*"
+        }],
+    "prefer-stable": true
 }

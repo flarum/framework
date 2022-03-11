@@ -28,7 +28,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x-dev"
+            "dev-main": "1.x-dev"
         },
         "flarum-extension": {
             "title": "Flags",
@@ -76,5 +76,11 @@
         "flarum/core": "*@dev",
         "flarum/tags": "*@dev",
         "flarum/testing": "^1.0.0"
-    }
+    },
+    "repositories": [{
+            "type": "path",
+            "url": "../../*/*"
+        }],
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

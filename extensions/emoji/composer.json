@@ -23,7 +23,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x-dev"
+            "dev-main": "1.x-dev"
         },
         "flarum-extension": {
             "title": "Emoji",
@@ -50,5 +50,11 @@
                 "styleci": true
             }
         }
-    }
+    },
+    "repositories": [{
+            "type": "path",
+            "url": "../../*/*"
+        }],
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

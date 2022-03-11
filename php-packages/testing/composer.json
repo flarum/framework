@@ -27,7 +27,13 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x-dev"
+            "dev-main": "1.x-dev"
         }
-    }
+    },
+    "repositories": [{
+            "type": "path",
+            "url": "../../*/*"
+        }],
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
