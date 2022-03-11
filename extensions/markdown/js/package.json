@@ -15,7 +15,6 @@
         "format-check": "prettier --check src",
         "analyze": "cross-env ANALYZER=true yarn run build"
     },
-    "packageManager": "yarn@3.1.1",
     "devDependencies": {
         "@flarum/prettier-config": "^1.0.0",
         "flarum-tsconfig": "^1.0.2",

@@ -1,0 +1,10 @@
+{
+    "private": true,
+    "name": "flarum-monorepo",
+    "workspaces": [
+        "./framework/*/js",
+        "./extensions/*/js",
+        "./js-packages/*"
+    ],
+    "scripts": {}
+ }
