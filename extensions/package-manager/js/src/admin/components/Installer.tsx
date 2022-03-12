@@ -46,7 +46,7 @@ export default class Installer<Attrs> extends Component<Attrs> {
     app.modal.show(LoadingModal);
 
     app
-      .request({
+      .request<{ id: string }>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/extensions`,
         body: {

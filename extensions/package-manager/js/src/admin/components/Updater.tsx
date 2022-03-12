@@ -3,6 +3,7 @@ import app from 'flarum/admin/app';
 import Component from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import humanTime from 'flarum/common/helpers/humanTime';
+import extractText from 'flarum/common/utils/extractText';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
 import errorHandler from '../utils/errorHandler';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
@@ -188,7 +189,7 @@ export default class Updater<Attrs> extends Component<Attrs> {
   }
 
   updateCoreMinor() {
-    if (confirm(app.translator.trans('flarum-package-manager.admin.minor_update_confirmation.content'))) {
+    if (confirm(extractText(app.translator.trans('flarum-package-manager.admin.minor_update_confirmation.content')))) {
       app.modal.show(LoadingModal);
       this.isLoading = 'minor-update';
 
