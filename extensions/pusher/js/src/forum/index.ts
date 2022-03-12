@@ -83,7 +83,7 @@ app.initializers.add('flarum-pusher', () => {
     if (app.pushedUpdates) {
       const count = app.pushedUpdates.length;
 
-      if (count && (typeof vdom === 'object') && vdom && 'children' in vdom && vdom.children instanceof Array) {
+      if (count && typeof vdom === 'object' && vdom && 'children' in vdom && vdom.children instanceof Array) {
         vdom.children.unshift(
           Button.component(
             {
