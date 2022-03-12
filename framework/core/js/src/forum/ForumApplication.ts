@@ -23,20 +23,22 @@ import isSafariMobile from './utils/isSafariMobile';
 import type Notification from './components/Notification';
 import type Post from './components/Post';
 import Discussion from '../common/models/Discussion';
+import NotificationModel from '../common/models/Notification';
+import PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
 
 export default class ForumApplication extends Application {
   /**
    * A map of notification types to their components.
    */
-  notificationComponents: Record<string, typeof Notification> = {
+  notificationComponents: Record<string, ComponentClass<{ notification: NotificationModel }, Notification<{ notification: NotificationModel }>>> = {
     discussionRenamed: DiscussionRenamedNotification,
   };
 
   /**
    * A map of post types to their components.
    */
-  postComponents: Record<string, typeof Post> = {
+  postComponents: Record<string, ComponentClass<{ post: PostModel }, Post<{ post: PostModel }>>> = {
     comment: CommentPost,
     discussionRenamed: DiscussionRenamedPost,
   };
