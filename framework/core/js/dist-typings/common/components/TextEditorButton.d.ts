@@ -10,5 +10,6 @@
 export default class TextEditorButton extends Button<import("./Button").IButtonAttrs> {
     static initAttrs(attrs: any): void;
     constructor();
+    view(vnode: any): JSX.Element;
 }
 import Button from "./Button";

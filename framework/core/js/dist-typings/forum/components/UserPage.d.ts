@@ -7,12 +7,19 @@
  */
 export default class UserPage extends Page<import("../../common/components/Page").IPageAttrs> {
     constructor();
+    oninit(vnode: any): void;
     /**
      * The user this page is for.
      *
      * @type {User}
      */
     user: any;
+    /**
+     * Base view template for the user page.
+     *
+     * @return {import('mithril').Children}
+     */
+    view(): import('mithril').Children;
     /**
      * Get the content to display in the user page.
      *

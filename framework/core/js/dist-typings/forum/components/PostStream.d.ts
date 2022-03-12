@@ -11,9 +11,14 @@
  */
 export default class PostStream extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
     discussion: any;
     stream: any;
     scrollListener: ScrollListener | undefined;
+    view(): JSX.Element;
+    onupdate(vnode: any): void;
+    oncreate(vnode: any): void;
+    onremove(vnode: any): void;
     /**
      * Start scrolling, if appropriate, to a newly-targeted post.
      */

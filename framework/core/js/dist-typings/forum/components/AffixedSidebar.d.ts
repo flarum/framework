@@ -11,7 +11,10 @@
  */
 export default class AffixedSidebar extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    view(vnode: any): any;
+    oncreate(vnode: any): void;
     boundOnresize: (() => void) | undefined;
+    onremove(vnode: any): void;
     onresize(): void;
     bottom: number | undefined;
 }

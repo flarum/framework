@@ -17,6 +17,9 @@
 export default class ConfirmDocumentUnload extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
     handler(): any;
+    oncreate(vnode: any): void;
     boundHandler: (() => any) | undefined;
+    onremove(vnode: any): void;
+    view(vnode: any): any;
 }
 import Component from "../Component";

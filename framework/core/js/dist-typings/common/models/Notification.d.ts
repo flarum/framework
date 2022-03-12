@@ -2,7 +2,7 @@ import Model from '../Model';
 import User from './User';
 export default class Notification extends Model {
     contentType(): string;
-    content(): string;
+    content<T = unknown>(): T;
     createdAt(): Date;
     isRead(): boolean;
     user(): false | User;

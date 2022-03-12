@@ -13,6 +13,9 @@
 export default class ComposerPostPreview extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     static initAttrs(attrs: any): void;
     constructor();
+    view(): JSX.Element;
+    oncreate(vnode: any): void;
     updateInterval: NodeJS.Timer | undefined;
+    onremove(vnode: any): void;
 }
 import Component from "../../common/Component";

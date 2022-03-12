@@ -21,5 +21,6 @@ export default class LinkButton extends Button<import("./Button").IButtonAttrs> 
      */
     static isActive(attrs: object): boolean;
     constructor();
+    view(vnode: any): JSX.Element;
 }
 import Button from "./Button";

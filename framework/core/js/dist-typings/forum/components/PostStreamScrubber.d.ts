@@ -9,12 +9,17 @@
  */
 export default class PostStreamScrubber extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
     stream: any;
     handlers: {} | undefined;
     scrollListener: ScrollListener | undefined;
+    view(): JSX.Element;
+    onupdate(vnode: any): void;
+    oncreate(vnode: any): void;
     dragging: boolean | undefined;
     mouseStart: any;
     indexStart: any;
+    onremove(vnode: any): void;
     /**
      * Update the scrollbar's position to reflect the current values of the
      * index/visible properties.

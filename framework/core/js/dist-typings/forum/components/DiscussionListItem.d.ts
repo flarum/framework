@@ -9,6 +9,7 @@
  */
 export default class DiscussionListItem extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
     /**
      * Set up a subtree retainer so that the discussion will not be redrawn
      * unless new data comes in.
@@ -19,7 +20,10 @@ export default class DiscussionListItem extends Component<import("../../common/C
     elementAttrs(): {
         className: string;
     };
+    view(): JSX.Element;
     highlightRegExp: RegExp | undefined;
+    oncreate(vnode: any): void;
+    onbeforeupdate(vnode: any, old: any): boolean;
     /**
      * Determine whether or not the discussion is currently being viewed.
      *

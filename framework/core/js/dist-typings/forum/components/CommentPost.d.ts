@@ -7,7 +7,9 @@
  *
  * - `post`
  */
-export default class CommentPost extends Post {
+export default class CommentPost extends Post<import("./Post").IPostAttrs> {
+    constructor();
+    oninit(vnode: any): void;
     /**
      * If the post has been hidden, then this flag determines whether or not its
      * content has been expanded.
@@ -22,8 +24,11 @@ export default class CommentPost extends Post {
      * @type {Boolean}
      */
     cardVisible: boolean | undefined;
+    content(): any;
     refreshContent(): void;
     contentHtml: any;
+    oncreate(vnode: any): void;
+    onupdate(vnode: any): void;
     isEditing(): boolean;
     /**
      * Toggle the visibility of a hidden post's content.

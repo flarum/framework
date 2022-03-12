@@ -7,6 +7,7 @@
  */
 export default class DiscussionHero extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    view(): JSX.Element;
     /**
      * Build an item list for the contents of the discussion hero.
      *

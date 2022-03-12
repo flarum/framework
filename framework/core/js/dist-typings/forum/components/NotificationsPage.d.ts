@@ -4,5 +4,7 @@
  */
 export default class NotificationsPage extends Page<import("../../common/components/Page").IPageAttrs> {
     constructor();
+    oninit(vnode: any): void;
+    view(): JSX.Element;
 }
 import Page from "../../common/components/Page";

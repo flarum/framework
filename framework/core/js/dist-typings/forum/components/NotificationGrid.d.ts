@@ -8,6 +8,7 @@
  */
 export default class NotificationGrid extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
     /**
      * Information about the available notification methods.
      *
@@ -34,6 +35,8 @@ export default class NotificationGrid extends Component<import("../../common/Com
         icon: string;
         label: import('mithril').Children;
     }[] | undefined;
+    view(): JSX.Element;
+    oncreate(vnode: any): void;
     /**
      * Toggle the state of the given preferences, based on the value of the first
      * one.

@@ -9,4 +9,4 @@ export interface AvatarAttrs extends ComponentAttrs {
  * @param user
  * @param attrs Attributes to apply to the avatar element
  */
-export default function avatar(user: User, attrs?: ComponentAttrs): Mithril.Vnode;
+export default function avatar(user: User | null, attrs?: ComponentAttrs): Mithril.Vnode;

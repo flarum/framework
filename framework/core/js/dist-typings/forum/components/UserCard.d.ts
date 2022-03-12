@@ -12,6 +12,7 @@
  */
 export default class UserCard extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    view(): JSX.Element;
     /**
      * Build an item list of tidbits of info to show on this user's profile.
      *

@@ -13,6 +13,7 @@
  */
 export default class TextEditor extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
     /**
      * The value of the editor.
      *
@@ -23,6 +24,9 @@ export default class TextEditor extends Component<import("../Component").Compone
      * Whether the editor is disabled.
      */
     disabled: any;
+    view(): JSX.Element;
+    oncreate(vnode: any): void;
+    onupdate(vnode: any): void;
     buildEditorParams(): {
         classNames: string[];
         disabled: any;

@@ -1,6 +1,7 @@
 export default class UploadImageButton extends Button<import("../../common/components/Button").IButtonAttrs> {
     constructor();
     loading: boolean;
+    view(vnode: any): JSX.Element;
     /**
      * Prompt the user to upload an image.
      */

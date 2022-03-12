@@ -9,5 +9,6 @@
  */
 export default class FieldSet extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
+    view(vnode: any): JSX.Element;
 }
 import Component from "../Component";

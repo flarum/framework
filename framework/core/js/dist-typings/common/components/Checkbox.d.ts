@@ -12,6 +12,7 @@
  */
 export default class Checkbox extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
+    view(vnode: any): JSX.Element;
     /**
      * Get the template for the checkbox's display (tick/cross icon).
      *

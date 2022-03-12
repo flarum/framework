@@ -8,5 +8,6 @@
  */
 export default class Placeholder extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
+    view(): JSX.Element;
 }
 import Component from "../Component";

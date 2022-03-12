@@ -9,5 +9,6 @@
  * - `defaultLabel`
  */
 export default class SelectDropdown extends Dropdown {
+    getButtonContent(children: any): JSX.Element[];
 }
 import Dropdown from "./Dropdown";

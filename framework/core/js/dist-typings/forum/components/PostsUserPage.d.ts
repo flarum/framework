@@ -27,6 +27,12 @@ export default class PostsUserPage extends UserPage {
      * @type {number}
      */
     loadLimit: number | undefined;
+    content(): JSX.Element;
+    /**
+     * Initialize the component with a user, and trigger the loading of their
+     * activity feed.
+     */
+    show(user: any): void;
     /**
      * Clear and reload the user's activity feed.
      */
