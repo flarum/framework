@@ -1,53 +1,54 @@
 import app from '../../forum/app';
-import Component from '../../common/Component';
+import Component, { ComponentAttrs } from '../../common/Component';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import Dropdown from '../../common/components/Dropdown';
 import PostControls from '../utils/PostControls';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
+import PostModel from '../../common/models/Post';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
+import Mithril from 'mithril';
+
+export interface IPostAttrs extends ComponentAttrs {
+  post: PostModel;
+}
 
 /**
  * The `Post` component displays a single post. The basic post template just
  * includes a controls dropdown; subclasses must implement `content` and `attrs`
  * methods.
- *
- * ### Attrs
- *
- * - `post`
- *
- * @abstract
  */
-export default class Post extends Component {
-  oninit(vnode) {
+export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> extends Component<CustomAttrs> {
+  /**
+   * May be set by subclasses.
+   */
+  loading = false;
+
+  /**
+   * Ensures that the post will not be redrawn
+   * unless new data comes in.
+   */
+  subtree!: SubtreeRetainer;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    /**
-     * May be set by subclasses.
-     */
     this.loading = false;
 
-    /**
-     * Set up a subtree retainer so that the post will not be redrawn
-     * unless new data comes in.
-     *
-     * @type {SubtreeRetainer}
-     */
     this.subtree = new SubtreeRetainer(
       () => this.loading,
       () => this.attrs.post.freshness,
       () => {
         const user = this.attrs.post.user();
         return user && user.freshness;
-      },
-      () => this.controlsOpen
+      }
     );
   }
 
-  view() {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const attrs = this.elementAttrs();
 
-    attrs.className = this.classes(attrs.className).join(' ');
+    attrs.className = this.classes(attrs.className as string | undefined).join(' ');
 
     const controls = PostControls.controls(this.attrs.post, this).toArray();
     const footerItems = this.footerItems().toArray();
@@ -84,13 +85,13 @@ export default class Post extends Component {
     );
   }
 
-  onbeforeupdate(vnode) {
+  onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onbeforeupdate(vnode);
 
     return this.subtree.needsRebuild();
   }
 
-  onupdate(vnode) {
+  onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onupdate(vnode);
 
     const $actions = this.$('.Post-actions');
@@ -101,30 +102,23 @@ export default class Post extends Component {
 
   /**
    * Get attributes for the post element.
-   *
-   * @return {Record<string, unknown>}
    */
-  elementAttrs() {
+  elementAttrs(): Record<string, unknown> {
     return {};
   }
 
   /**
    * Get the post's content.
-   *
-   * @return {import('mithril').Children}
    */
-  content() {
+  content(): Mithril.Children {
     // TODO: [Flarum 2.0] return `null`
     return [];
   }
 
   /**
    * Get the post's classes.
-   *
-   * @param {string} existing
-   * @returns {string[]}
    */
-  classes(existing) {
+  classes(existing?: string): string[] {
     let classes = (existing || '').split(' ').concat(['Post']);
 
     const user = this.attrs.post.user();
@@ -147,19 +141,15 @@ export default class Post extends Component {
 
   /**
    * Build an item list for the post's actions.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
-  actionItems() {
+  actionItems(): ItemList<Mithril.Children> {
     return new ItemList();
   }
 
   /**
    * Build an item list for the post's footer.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
-  footerItems() {
+  footerItems(): ItemList<Mithril.Children> {
     return new ItemList();
   }
 }
