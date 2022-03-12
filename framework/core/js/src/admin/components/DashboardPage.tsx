@@ -3,6 +3,7 @@ import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
+import { Children } from 'mithril';
 
 export default class DashboardPage extends AdminPage {
   headerInfo() {
@@ -18,8 +19,8 @@ export default class DashboardPage extends AdminPage {
     return this.availableWidgets().toArray();
   }
 
-  availableWidgets() {
-    const items = new ItemList();
+  availableWidgets(): ItemList<Children> {
+    const items = new ItemList<Children>();
 
     items.add('status', <StatusWidget />, 30);
 
