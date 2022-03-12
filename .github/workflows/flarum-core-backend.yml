@@ -8,7 +8,7 @@ on: [workflow_dispatch, push, pull_request]
 
 jobs:
   run:
-    uses: flarum/.github/.github/workflows/REUSABLE_backend.yml@composer-root-version
+    uses: flarum/.github/.github/workflows/REUSABLE_backend.yml@main
     with:
       enable_backend_testing: true
 
