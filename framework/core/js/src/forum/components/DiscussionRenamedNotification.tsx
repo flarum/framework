@@ -1,13 +1,14 @@
+import Discussion from '../../common/models/Discussion';
 import app from '../../forum/app';
 import Notification from './Notification';
+
+interface DiscussionRenamedContent {
+  postNumber: number;
+}
 
 /**
  * The `DiscussionRenamedNotification` component displays a notification which
  * indicates that a discussion has had its title changed.
- *
- * ### Attrs
- *
- * - All of the attrs for Notification
  */
 export default class DiscussionRenamedNotification extends Notification {
   icon() {
@@ -16,11 +17,20 @@ export default class DiscussionRenamedNotification extends Notification {
 
   href() {
     const notification = this.attrs.notification;
+    const discussion = notification.subject();
 
-    return app.route.discussion(notification.subject(), notification.content().postNumber);
+    if (!discussion) {
+      return '#';
+    }
+
+    return app.route.discussion(discussion as Discussion, notification.content<DiscussionRenamedContent>().postNumber);
   }
 
   content() {
     return app.translator.trans('core.forum.notifications.discussion_renamed_text', { user: this.attrs.notification.fromUser() });
+  }
+
+  excerpt() {
+    return '';
   }
 }
