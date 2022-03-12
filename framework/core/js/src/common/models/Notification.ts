@@ -5,8 +5,8 @@ export default class Notification extends Model {
   contentType() {
     return Model.attribute<string>('contentType').call(this);
   }
-  content() {
-    return Model.attribute<string>('content').call(this);
+  content<T = unknown>() {
+    return Model.attribute<T>('content').call(this);
   }
   createdAt() {
     return Model.attribute<Date, string>('createdAt', Model.transformDate).call(this);
