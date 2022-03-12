@@ -1,26 +1,28 @@
 import app from '../../forum/app';
-import Component from '../../common/Component';
+import NotificationModel from '../../common/models/Notification';
+import Component, { ComponentAttrs } from '../../common/Component';
 import avatar from '../../common/helpers/avatar';
 import icon from '../../common/helpers/icon';
 import humanTime from '../../common/helpers/humanTime';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import classList from '../../common/utils/classList';
+import Mithril from 'mithril';
+
+export interface INotificationAttrs extends ComponentAttrs {
+  notification: NotificationModel;
+}
 
 /**
  * The `Notification` component abstract displays a single notification.
  * Subclasses should implement the `icon`, `href`, and `content` methods.
- *
- * ### Attrs
- *
- * - `notification`
- *
- * @abstract
  */
-export default class Notification extends Component {
-  view() {
+export default abstract class Notification<CustomAttrs extends INotificationAttrs = INotificationAttrs> extends Component<CustomAttrs> {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const notification = this.attrs.notification;
     const href = this.href();
+
+    const fromUser = notification.fromUser();
 
     return (
       <Link
@@ -29,7 +31,7 @@ export default class Notification extends Component {
         external={href.includes('://')}
         onclick={this.markAsRead.bind(this)}
       >
-        {avatar(notification.fromUser())}
+        {avatar(fromUser || null)}
         {icon(this.icon(), { className: 'Notification-icon' })}
         <span className="Notification-title">
           <span className="Notification-content">{this.content()}</span>
@@ -41,7 +43,7 @@ export default class Notification extends Component {
             className="Notification-action Button Button--link"
             icon="fas fa-check"
             title={app.translator.trans('core.forum.notifications.mark_as_read_tooltip')}
-            onclick={(e) => {
+            onclick={(e: Event) => {
               e.preventDefault();
               e.stopPropagation();
 
@@ -56,35 +58,23 @@ export default class Notification extends Component {
 
   /**
    * Get the name of the icon that should be displayed in the notification.
-   *
-   * @return {string}
-   * @abstract
    */
-  icon() {}
+  abstract icon(): string;
 
   /**
    * Get the URL that the notification should link to.
-   *
-   * @return {string}
-   * @abstract
    */
-  href() {}
+  abstract href(): string
 
   /**
    * Get the content of the notification.
-   *
-   * @return {import('mithril').Children}
-   * @abstract
    */
-  content() {}
+  abstract content(): Mithril.Children
 
   /**
    * Get the excerpt of the notification.
-   *
-   * @return {import('mithril').Children}
-   * @abstract
    */
-  excerpt() {}
+  abstract excerpt(): Mithril.Children
 
   /**
    * Mark the notification as read.
@@ -92,7 +82,7 @@ export default class Notification extends Component {
   markAsRead() {
     if (this.attrs.notification.isRead()) return;
 
-    app.session.user.pushAttributes({ unreadNotificationCount: app.session.user.unreadNotificationCount() - 1 });
+    app.session.user?.pushAttributes({ unreadNotificationCount: (app.session.user.unreadNotificationCount() ?? 1) - 1 });
 
     this.attrs.notification.save({ isRead: true });
   }
