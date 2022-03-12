@@ -13,3 +13,9 @@ declare module 'flarum/forum/ForumApplication' {
     pushedUpdates: Array<any>;
   }
 }
+
+declare module 'flarum/forum/components/DiscussionList' {
+  export default interface DiscussionList {
+    loadingUpdated?: boolean;
+  }
+}

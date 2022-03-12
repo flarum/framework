@@ -79,11 +79,11 @@ app.initializers.add('flarum-pusher', () => {
     });
   });
 
-  extend(DiscussionList.prototype, 'view', function (this: DiscussionList, vdom: VnodeDOM) {
+  extend(DiscussionList.prototype, 'view', function (this: DiscussionList, vdom: Children) {
     if (app.pushedUpdates) {
       const count = app.pushedUpdates.length;
 
-      if (count) {
+      if (count && (typeof vdom === 'object') && vdom && 'children' in vdom && vdom.children instanceof Array) {
         vdom.children.unshift(
           Button.component(
             {
