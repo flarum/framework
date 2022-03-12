@@ -64,17 +64,17 @@ export default abstract class Notification<CustomAttrs extends INotificationAttr
   /**
    * Get the URL that the notification should link to.
    */
-  abstract href(): string
+  abstract href(): string;
 
   /**
    * Get the content of the notification.
    */
-  abstract content(): Mithril.Children
+  abstract content(): Mithril.Children;
 
   /**
    * Get the excerpt of the notification.
    */
-  abstract excerpt(): Mithril.Children
+  abstract excerpt(): Mithril.Children;
 
   /**
    * Mark the notification as read.
