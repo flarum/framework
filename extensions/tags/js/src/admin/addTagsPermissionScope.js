@@ -1,9 +1,9 @@
-import { extend, override } from 'flarum/extend';
-import PermissionGrid from 'flarum/components/PermissionGrid';
-import PermissionDropdown from 'flarum/components/PermissionDropdown';
-import Dropdown from 'flarum/components/Dropdown';
-import Button from 'flarum/components/Button';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
+import { extend, override } from 'flarum/common/extend';
+import PermissionGrid from 'flarum/admin/components/PermissionGrid';
+import PermissionDropdown from 'flarum/admin/components/PermissionDropdown';
+import Dropdown from 'flarum/common/components/Dropdown';
+import Button from 'flarum/common/components/Button';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 import tagLabel from '../common/helpers/tagLabel';
 import tagIcon from '../common/helpers/tagIcon';

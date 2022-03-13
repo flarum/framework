@@ -1,6 +1,7 @@
-import Model from 'flarum/Model';
-import Discussion from 'flarum/models/Discussion';
-import IndexPage from 'flarum/components/IndexPage';
+import app from 'flarum/forum/app';
+import Model from 'flarum/common/Model';
+import Discussion from 'flarum/common/models/Discussion';
+import IndexPage from 'flarum/forum/components/IndexPage';
 
 import Tag from '../common/models/Tag';
 import TagsPage from './components/TagsPage';

@@ -54,7 +54,7 @@
                 "gitConf": true,
                 "githubActions": true,
                 "prettier": false,
-                "typescript": false,
+                "typescript": true,
                 "bundlewatch": false,
                 "backendTesting": true,
                 "editorConfig": true,

@@ -1,4 +1,4 @@
-import classList from 'flarum/utils/classList';
+import classList from 'flarum/common/utils/classList';
 
 export default function tagIcon(tag, attrs = {}, settings = {}) {
   const hasIcon = tag && tag.icon();

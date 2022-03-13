@@ -1,4 +1,4 @@
-import EventPost from 'flarum/components/EventPost';
+import EventPost from 'flarum/forum/components/EventPost';
 import tagsLabel from '../../common/helpers/tagsLabel';
 
 export default class DiscussionTaggedPost extends EventPost {

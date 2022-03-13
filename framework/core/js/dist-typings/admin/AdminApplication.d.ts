@@ -1,3 +1,4 @@
+import { AdminRoutes } from './routes';
 import Application from '../common/Application';
 import ExtensionData from './utils/ExtensionData';
 export declare type Extension = {
@@ -52,6 +53,7 @@ export default class AdminApplication extends Application {
             total: number;
         }>;
     };
+    route: typeof Application.prototype.route & AdminRoutes;
     constructor();
     /**
      * @inheritdoc

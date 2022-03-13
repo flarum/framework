@@ -1,6 +1,6 @@
-import Model from 'flarum/Model';
-import mixin from 'flarum/utils/mixin';
-import computed from 'flarum/utils/computed';
+import Model from 'flarum/common/Model';
+import mixin from 'flarum/common/utils/mixin';
+import computed from 'flarum/common/utils/computed';
 
 export default class Tag extends mixin(Model, {
   name: Model.attribute('name'),

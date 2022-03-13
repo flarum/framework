@@ -1,6 +1,6 @@
-import { extend } from 'flarum/extend';
-import PermissionGrid from 'flarum/components/PermissionGrid';
-import SettingDropdown from 'flarum/components/SettingDropdown';
+import { extend } from 'flarum/common/extend';
+import PermissionGrid from 'flarum/admin/components/PermissionGrid';
+import SettingDropdown from 'flarum/admin/components/SettingDropdown';
 
 export default function() {
   extend(PermissionGrid.prototype, 'startItems', items => {

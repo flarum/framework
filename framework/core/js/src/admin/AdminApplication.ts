@@ -1,6 +1,6 @@
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
-import routes from './routes';
+import routes, { AdminRoutes } from './routes';
 import Application from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
@@ -64,10 +64,14 @@ export default class AdminApplication extends Application {
     modelStatistics: Record<string, { total: number }>;
   };
 
+  route: typeof Application.prototype.route & AdminRoutes;
+
   constructor() {
     super();
 
     routes(this);
+
+    this.route = (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this)
   }
 
   /**

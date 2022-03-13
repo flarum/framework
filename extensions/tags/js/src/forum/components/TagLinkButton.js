@@ -1,6 +1,6 @@
-import Link from 'flarum/components/Link';
-import LinkButton from 'flarum/components/LinkButton';
-import classList from 'flarum/utils/classList';
+import Link from 'flarum/common/components/Link';
+import LinkButton from 'flarum/common/components/LinkButton';
+import classList from 'flarum/common/utils/classList';
 import tagIcon from '../../common/helpers/tagIcon';
 
 export default class TagLinkButton extends LinkButton {

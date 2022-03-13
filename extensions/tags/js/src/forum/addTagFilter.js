@@ -1,8 +1,8 @@
-import { extend, override } from 'flarum/extend';
-import IndexPage from 'flarum/components/IndexPage';
-import DiscussionListState from 'flarum/states/DiscussionListState';
-import GlobalSearchState from 'flarum/states/GlobalSearchState';
-import classList from 'flarum/utils/classList';
+import { extend, override } from 'flarum/common/extend';
+import IndexPage from 'flarum/forum/components/IndexPage';
+import DiscussionListState from 'flarum/forum/states/DiscussionListState';
+import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
+import classList from 'flarum/common/utils/classList';
 
 import TagHero from './components/TagHero';
 
