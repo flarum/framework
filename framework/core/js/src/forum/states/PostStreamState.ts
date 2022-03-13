@@ -1,55 +1,71 @@
 import app from '../../forum/app';
 import { throttle } from 'throttle-debounce';
 import anchorScroll from '../../common/utils/anchorScroll';
+import Discussion from '../../common/models/Discussion';
+import Post from '../../common/models/Post';
 
-class PostStreamState {
-  constructor(discussion, includedPosts = []) {
-    /**
-     * The discussion to display the post stream for.
-     *
-     * @type {Discussion}
-     */
+export default class PostStreamState {
+  /**
+   * @see https://github.com/Microsoft/TypeScript/issues/3841#issuecomment-337560146
+   */
+  ['constructor']: typeof PostStreamState;
+
+  /**
+   * The number of posts to load per page.
+   */
+  static loadCount = 20;
+
+  /**
+   * The discussion to display the post stream for.
+   */
+  discussion: Discussion;
+
+  /**
+   * Whether or not the infinite-scrolling auto-load functionality is
+   * disabled.
+   */
+  paused = false;
+
+  loadPageTimeouts: Record<number, NodeJS.Timeout> = {};
+  pagesLoading = 0;
+
+  index = 0;
+  number = 1;
+
+  /**
+   * The number of posts that are currently visible in the viewport.
+   */
+  visible = 1;
+  visibleStart = 0;
+  visibleEnd = 0;
+
+  animateScroll = false;
+  needsScroll = false;
+  targetPost: { number: number } | { index: number; reply?: boolean } | null = null;
+
+  /**
+   * The description to render on the scrubber.
+   */
+  description = '';
+
+  /**
+   * When the page is scrolled, goToIndex is called, or the page is loaded,
+   * various listeners result in the scrubber being updated with a new
+   * position and values. However, if goToNumber is called, the scrubber
+   * will not be updated. Accordingly, we add logic to the scrubber's
+   * onupdate to update itself, but only when needed, as indicated by this
+   * property.
+   *
+   */
+  forceUpdateScrubber = false;
+
+  loadPromise: Promise<void> | null = null;
+
+  loadNext: () => void;
+  loadPrevious: () => void;
+
+  constructor(discussion: Discussion, includedPosts: Post[] = []) {
     this.discussion = discussion;
-
-    /**
-     * Whether or not the infinite-scrolling auto-load functionality is
-     * disabled.
-     *
-     * @type {Boolean}
-     */
-    this.paused = false;
-
-    this.loadPageTimeouts = {};
-    this.pagesLoading = 0;
-
-    this.index = 0;
-    this.number = 1;
-
-    /**
-     * The number of posts that are currently visible in the viewport.
-     *
-     * @type {Number}
-     */
-    this.visible = 1;
-
-    /**
-     * The description to render on the scrubber.
-     *
-     * @type {String}
-     */
-    this.description = '';
-
-    /**
-     * When the page is scrolled, goToIndex is called, or the page is loaded,
-     * various listeners result in the scrubber being updated with a new
-     * position and values. However, if goToNumber is called, the scrubber
-     * will not be updated. Accordingly, we add logic to the scrubber's
-     * onupdate to update itself, but only when needed, as indicated by this
-     * property.
-     *
-     * @type {Boolean}
-     */
-    this.forceUpdateScrubber = false;
 
     this.loadNext = throttle(300, this._loadNext);
     this.loadPrevious = throttle(300, this._loadPrevious);
@@ -71,35 +87,29 @@ class PostStreamState {
 
   /**
    * Load and scroll up to the first post in the discussion.
-   *
-   * @return {Promise<void>}
    */
-  goToFirst() {
+  goToFirst(): Promise<void> {
     return this.goToIndex(0);
   }
 
   /**
    * Load and scroll down to the last post in the discussion.
-   *
-   * @return {Promise<void>}
    */
-  goToLast() {
+  goToLast(): Promise<void> {
     return this.goToIndex(this.count() - 1, true);
   }
 
   /**
    * Load and scroll to a post with a certain number.
    *
-   * @param {number | string} number The post number to go to. If 'reply', go to the last post and scroll the reply preview into view.
-   * @param {boolean} [noAnimation]
-   * @return {Promise<void>}
+   * @param number The post number to go to. If 'reply', go to the last post and scroll the reply preview into view.
    */
-  goToNumber(number, noAnimation = false) {
+  goToNumber(number: number | 'reply', noAnimation = false): Promise<void> {
     // If we want to go to the reply preview, then we will go to the end of the
     // discussion and then scroll to the very bottom of the page.
     if (number === 'reply') {
       const resultPromise = this.goToLast();
-      this.targetPost.reply = true;
+      this.targetPost = { ...(this.targetPost as { index: number }), reply: true };
       return resultPromise;
     }
 
@@ -122,12 +132,8 @@ class PostStreamState {
 
   /**
    * Load and scroll to a certain index within the discussion.
-   *
-   * @param {number} index
-   * @param {boolean} [noAnimation]
-   * @return {Promise<void>}
    */
-  goToIndex(index, noAnimation = false) {
+  goToIndex(index: number, noAnimation = false): Promise<void> {
     this.paused = true;
 
     this.loadPromise = this.loadNearIndex(index);
@@ -146,11 +152,8 @@ class PostStreamState {
    * Clear the stream and load posts near a certain number. Returns a promise.
    * If the post with the given number is already loaded, the promise will be
    * resolved immediately.
-   *
-   * @param {number} number
-   * @return {Promise<void>}
    */
-  loadNearNumber(number) {
+  loadNearNumber(number: number): Promise<void> {
     if (this.posts().some((post) => post && Number(post.number()) === Number(number))) {
       return Promise.resolve();
     }
@@ -158,8 +161,8 @@ class PostStreamState {
     this.reset();
 
     return app.store
-      .find('posts', {
-        filter: { discussion: this.discussion.id() },
+      .find<Post[]>('posts', {
+        filter: { discussion: this.discussion.id() as string },
         page: { near: number },
       })
       .then(this.show.bind(this));
@@ -169,11 +172,8 @@ class PostStreamState {
    * Clear the stream and load posts near a certain index. A page of posts
    * surrounding the given index will be loaded. Returns a promise. If the given
    * index is already loaded, the promise will be resolved immediately.
-   *
-   * @param {number} index
-   * @return {Promise<void>}
    */
-  loadNearIndex(index) {
+  loadNearIndex(index: number): Promise<void> {
     if (index >= this.visibleStart && index < this.visibleEnd) {
       return Promise.resolve();
     }
@@ -201,7 +201,7 @@ class PostStreamState {
 
       if (this.loadPageTimeouts[twoPagesAway]) {
         clearTimeout(this.loadPageTimeouts[twoPagesAway]);
-        this.loadPageTimeouts[twoPagesAway] = null;
+        delete this.loadPageTimeouts[twoPagesAway];
         this.pagesLoading--;
       }
     }
@@ -224,7 +224,7 @@ class PostStreamState {
 
       if (this.loadPageTimeouts[twoPagesAway]) {
         clearTimeout(this.loadPageTimeouts[twoPagesAway]);
-        this.loadPageTimeouts[twoPagesAway] = null;
+        delete this.loadPageTimeouts[twoPagesAway];
         this.pagesLoading--;
       }
     }
@@ -234,12 +234,8 @@ class PostStreamState {
 
   /**
    * Load a page of posts into the stream and redraw.
-   *
-   * @param {number} start
-   * @param {number} end
-   * @param {boolean} backwards
    */
-  loadPage(start, end, backwards = false) {
+  loadPage(start: number, end: number, backwards = false) {
     this.pagesLoading++;
 
     const redraw = () => {
@@ -256,7 +252,7 @@ class PostStreamState {
           redraw();
           this.pagesLoading--;
         });
-        this.loadPageTimeouts[start] = null;
+        delete this.loadPageTimeouts[start];
       },
       this.pagesLoading - 1 ? 1000 : 0
     );
@@ -265,20 +261,16 @@ class PostStreamState {
   /**
    * Load and inject the specified range of posts into the stream, without
    * clearing it.
-   *
-   * @param {number} start
-   * @param {number} end
-   * @return {Promise<void>}
    */
-  loadRange(start, end) {
-    const loadIds = [];
-    const loaded = [];
+  loadRange(start: number, end: number): Promise<Post[]> {
+    const loadIds: string[] = [];
+    const loaded: Post[] = [];
 
     this.discussion
       .postIds()
       .slice(start, end)
       .forEach((id) => {
-        const post = app.store.getById('posts', id);
+        const post = app.store.getById<Post>('posts', id);
 
         if (post && post.discussion() && typeof post.canEdit() !== 'undefined') {
           loaded.push(post);
@@ -288,7 +280,7 @@ class PostStreamState {
       });
 
     if (loadIds.length) {
-      return app.store.find('posts', loadIds).then((newPosts) => {
+      return app.store.find<Post[]>('posts', loadIds).then((newPosts) => {
         return loaded.concat(newPosts).sort((a, b) => a.number() - b.number());
       });
     }
@@ -298,37 +290,30 @@ class PostStreamState {
 
   /**
    * Set up the stream with the given array of posts.
-   *
-   * @param {import('../../common/models/Post').default[]} posts
    */
-  show(posts) {
-    this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
+  show(posts: Post[]) {
+    this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id() ?? '0') : 0;
     this.visibleEnd = this.sanitizeIndex(this.visibleStart + posts.length);
   }
 
   /**
    * Reset the stream so that a specific range of posts is displayed. If a range
    * is not specified, the first page of posts will be displayed.
-   *
-   * @param {number} [start]
-   * @param {number} [end]
    */
-  reset(start, end) {
+  reset(start?: number, end?: number) {
     this.visibleStart = start || 0;
     this.visibleEnd = this.sanitizeIndex(end || this.constructor.loadCount);
   }
 
   /**
    * Get the visible page of posts.
-   *
-   * @return {Post[]}
    */
-  posts() {
+  posts(): (Post | null)[] {
     return this.discussion
       .postIds()
       .slice(this.visibleStart, this.visibleEnd)
       .map((id) => {
-        const post = app.store.getById('posts', id);
+        const post = app.store.getById<Post>('posts', id);
 
         return post && post.discussion() && typeof post.canEdit() !== 'undefined' ? post : null;
       });
@@ -336,29 +321,23 @@ class PostStreamState {
 
   /**
    * Get the total number of posts in the discussion.
-   *
-   * @return {number}
    */
-  count() {
+  count(): number {
     return this.discussion.postIds().length;
   }
 
   /**
    * Check whether or not the scrubber should be disabled, i.e. if all of the
    * posts are visible in the viewport.
-   *
-   * @return {boolean}
    */
-  disabled() {
+  disabled(): boolean {
     return this.visible >= this.count();
   }
 
   /**
    * Are we currently viewing the end of the discussion?
-   *
-   * @return {boolean}
    */
-  viewingEnd() {
+  viewingEnd(): boolean {
     // In some cases, such as if we've stickied a post, an event post
     // may have been added / removed. This means that `this.visibleEnd`
     // and`this.count()` will be out of sync by 1 post, but we are still
@@ -370,19 +349,8 @@ class PostStreamState {
   /**
    * Make sure that the given index is not outside of the possible range of
    * indexes in the discussion.
-   *
-   * @param {number} index
    */
-  sanitizeIndex(index) {
+  sanitizeIndex(index: number) {
     return Math.max(0, Math.min(this.count(), Math.floor(index)));
   }
 }
-
-/**
- * The number of posts to load per page.
- *
- * @type {number}
- */
-PostStreamState.loadCount = 20;
-
-export default PostStreamState;
