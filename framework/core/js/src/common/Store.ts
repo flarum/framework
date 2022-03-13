@@ -17,11 +17,13 @@ export interface ApiQueryParamsSingle {
 export interface ApiQueryParamsPlural {
   fields?: string[];
   include?: string;
-  filter?: {
-    q: string;
-    [key: string]: string;
-  };
+  filter?:
+    | {
+        q: string;
+      }
+    | Record<string, string>;
   page?: {
+    near?: number;
     offset?: number;
     number?: number;
     limit?: number;
