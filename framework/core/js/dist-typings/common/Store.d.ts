@@ -14,9 +14,9 @@ export interface ApiQueryParamsPlural {
     include?: string;
     filter?: {
         q: string;
-        [key: string]: string;
-    };
+    } | Record<string, string>;
     page?: {
+        near?: number;
         offset?: number;
         number?: number;
         limit?: number;
