@@ -12,11 +12,12 @@ jobs:
     with:
       enable_bundlewatch: false
       enable_prettier: true
-      enable_typescript: false
+      enable_typescript: true
 
       frontend_directory: ./extensions/flags/js
       backend_directory: ./extensions/flags
       js_package_manager: yarn
       main_git_branch: main
+
     secrets:
       bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}

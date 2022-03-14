@@ -18,5 +18,6 @@ jobs:
       backend_directory: ./extensions/statistics
       js_package_manager: yarn
       main_git_branch: main
+
     secrets:
       bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
