@@ -12,7 +12,7 @@ app.initializers.add('flarum-akismet', () => {
     if (items.has('approve')) {
       const flags = post.flags();
 
-      if (flags && flags.some((flag) => flag.type() === 'akismet')) {
+      if (flags && flags.some((flag) => flag?.type() === 'akismet')) {
         const approveItem = items.get('approve');
         if (approveItem && typeof approveItem === 'object' && 'children' in approveItem) {
           approveItem.children = app.translator.trans('flarum-akismet.forum.post.not_spam_button');
