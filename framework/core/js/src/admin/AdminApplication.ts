@@ -71,7 +71,7 @@ export default class AdminApplication extends Application {
 
     routes(this);
 
-    this.route = (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this)
+    this.route = (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this);
   }
 
   /**
