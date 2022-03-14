@@ -10,12 +10,12 @@ import { truncate } from '../utils/string';
  * @param [length] The number of characters to truncate the string to.
  *     The string will be truncated surrounding the first match.
  */
-export default function highlight(string: string, phrase: string | RegExp, length?: number): Mithril.Vnode<any, any> | string {
+export default function highlight(string: string, phrase?: string | RegExp, length?: number): Mithril.Vnode<any, any> | string {
   if (!phrase && !length) return string;
 
   // Convert the word phrase into a global regular expression (if it isn't
   // already) so we can search the string for matched.
-  const regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
+  const regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase ?? '', 'gi');
 
   let highlighted = string;
   let start = 0;
