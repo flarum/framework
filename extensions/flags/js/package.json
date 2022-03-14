@@ -3,12 +3,8 @@
     "name": "@flarum/flags",
     "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
-    "dependencies": {
-        "@flarum/prettier-config": "^1.0.0",
-        "flarum-webpack-config": "^1.0.0",
-        "flarum-tsconfig": "^1.0.2"
-    },
     "devDependencies": {
+        "@types/mithril": "^2.0.8",
         "prettier": "^2.5.1",
         "flarum-webpack-config": "^2.0.0",
         "webpack": "^5.65.0",
@@ -25,8 +21,9 @@
         "format-check": "prettier --check src",
         "analyze": "cross-env ANALYZER=true yarn run build",
         "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
-        "build-typings": "npm run clean-typings && cp -r src/@types dist-typings/@types && tsc",
+        "build-typings": "yarn run clean-typings && [ -e src/@types ] && cp -r src/@types dist-typings/@types && tsc && yarn run post-build-typings",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report"
+        "check-typings-coverage": "typescript-coverage-report",
+        "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'"
     }
 }

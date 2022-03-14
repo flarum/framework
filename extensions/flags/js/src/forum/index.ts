@@ -9,8 +9,8 @@ import addFlagsDropdown from './addFlagsDropdown';
 import addFlagsToPosts from './addFlagsToPosts';
 
 app.initializers.add('flarum-flags', () => {
-  app.store.models.posts.prototype.flags = Model.hasMany('flags');
-  app.store.models.posts.prototype.canFlag = Model.attribute('canFlag');
+  Post.prototype.flags = Model.hasMany<Flag>('flags');
+  Post.prototype.canFlag = Model.attribute<boolean>('canFlag');
 
   app.store.models.flags = Flag;
 
@@ -26,5 +26,6 @@ app.initializers.add('flarum-flags', () => {
 // Expose compat API
 import flagsCompat from './compat';
 import { compat } from '@flarum/core/forum';
+import Post from 'flarum/common/models/Post';
 
 Object.assign(compat, flagsCompat);
