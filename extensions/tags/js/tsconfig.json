@@ -10,7 +10,12 @@
     "declarationDir": "./dist-typings",
     "baseUrl": ".",
     "paths": {
-      "flarum/*": ["../vendor/flarum/core/js/dist-typings/*"]
+      "flarum/*": ["../vendor/flarum/core/js/dist-typings/*"],
+      // TODO: remove after export registry system implemented
+      // Without this, the old-style `@flarum/core` import is resolved to
+      // source code in flarum/core instead of the dist typings.
+      // This causes an inaccurate "duplicate export" error.
+      "@flarum/core/*": ["../vendor/flarum/core/js/dist-typings/*"],
     }
   }
 }
