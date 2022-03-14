@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import Component from '../../common/Component';
+import Component, { ComponentAttrs } from '../../common/Component';
 import Link from '../../common/components/Link';
 import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
@@ -17,26 +17,31 @@ import classList from '../../common/utils/classList';
 import DiscussionPage from './DiscussionPage';
 import escapeRegExp from '../../common/utils/escapeRegExp';
 import Tooltip from '../../common/components/Tooltip';
+import Discussion from '../../common/models/Discussion';
+import Mithril from 'mithril';
+import { DiscussionListParams } from '../states/DiscussionListState';
+
+export interface IDiscussionListItemAttrs extends ComponentAttrs {
+  discussion: Discussion;
+  params: DiscussionListParams;
+}
 
 /**
  * The `DiscussionListItem` component shows a single discussion in the
  * discussion list.
- *
- * ### Attrs
- *
- * - `discussion`
- * - `params`
  */
-export default class DiscussionListItem extends Component {
-  oninit(vnode) {
+export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemAttrs = IDiscussionListItemAttrs> extends Component<CustomAttrs> {
+  /**
+   * Ensures that the discussion will not be redrawn
+   * unless new data comes in.
+   */
+  subtree!: SubtreeRetainer;
+
+  highlightRegExp?: RegExp;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    /**
-     * Set up a subtree retainer so that the discussion will not be redrawn
-     * unless new data comes in.
-     *
-     * @type {SubtreeRetainer}
-     */
     this.subtree = new SubtreeRetainer(
       () => this.attrs.discussion.freshness,
       () => {
@@ -76,7 +81,7 @@ export default class DiscussionListItem extends Component {
       const phrase = escapeRegExp(this.attrs.params.q);
       this.highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
     } else {
-      jumpTo = Math.min(discussion.lastPostNumber(), (discussion.lastReadPostNumber() || 0) + 1);
+      jumpTo = Math.min(discussion.lastPostNumber() ?? 0, (discussion.lastReadPostNumber() || 0) + 1);
     }
 
     return (
@@ -105,7 +110,7 @@ export default class DiscussionListItem extends Component {
             position="right"
           >
             <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
-              {avatar(user, { title: '' })}
+              {avatar(user || null, { title: '' })}
             </Link>
           </Tooltip>
 
@@ -121,29 +126,27 @@ export default class DiscussionListItem extends Component {
     );
   }
 
-  oncreate(vnode) {
+  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.oncreate(vnode);
 
     // If we're on a touch device, set up the discussion row to be slidable.
     // This allows the user to drag the row to either side of the screen to
     // reveal controls.
     if ('ontouchstart' in window) {
-      const slidableInstance = slidable(this.$());
+      const slidableInstance = slidable(this.element);
 
       this.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', () => slidableInstance.reset());
     }
   }
 
-  onbeforeupdate(vnode, old) {
-    super.onbeforeupdate(vnode, old);
+  onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
+    super.onbeforeupdate(vnode);
 
     return this.subtree.needsRebuild();
   }
 
   /**
    * Determine whether or not the discussion is currently being viewed.
-   *
-   * @return {boolean}
    */
   active() {
     return app.current.matches(DiscussionPage, { discussion: this.attrs.discussion });
@@ -153,11 +156,9 @@ export default class DiscussionListItem extends Component {
    * Determine whether or not information about who started the discussion
    * should be displayed instead of information about the most recent reply to
    * the discussion.
-   *
-   * @return {boolean}
    */
   showFirstPost() {
-    return ['newest', 'oldest'].indexOf(this.attrs.params.sort) !== -1;
+    return ['newest', 'oldest'].includes(this.attrs.params.sort ?? '');
   }
 
   /**
@@ -185,17 +186,15 @@ export default class DiscussionListItem extends Component {
   /**
    * Build an item list of info for a discussion listing. By default this is
    * just the first/last post indicator.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
-  infoItems() {
-    const items = new ItemList();
+  infoItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
     if (this.attrs.params.q) {
       const post = this.attrs.discussion.mostRelevantPost() || this.attrs.discussion.firstPost();
 
       if (post && post.contentType() === 'comment') {
-        const excerpt = highlight(post.contentPlain(), this.highlightRegExp, 175);
+        const excerpt = highlight(post.contentPlain() ?? '', this.highlightRegExp, 175);
         items.add('excerpt', excerpt, -100);
       }
     } else {
