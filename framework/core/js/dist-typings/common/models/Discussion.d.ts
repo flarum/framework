@@ -14,7 +14,7 @@ export default class Discussion extends Model {
     lastPost(): false | Post | null;
     lastPostNumber(): number | null | undefined;
     commentCount(): number | undefined;
-    replyCount(): Number;
+    replyCount(): number;
     posts(): false | (Post | undefined)[];
     mostRelevantPost(): false | Post | null;
     lastReadAt(): Date | null | undefined;
