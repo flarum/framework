@@ -19,6 +19,7 @@ export default function fireApplicationError(options: { userTitle: string, conso
   console.groupEnd();
 
   if (app.session?.user?.isAdmin()) {
+    // @TODO in 2.0 use the reusable page alert under the header that'll be introduced.
     app.alerts.show({ type: 'error' }, `${options.userTitle}`);
   }
 }
