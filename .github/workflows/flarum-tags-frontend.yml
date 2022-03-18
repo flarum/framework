@@ -12,7 +12,7 @@ jobs:
     with:
       enable_bundlewatch: false
       enable_prettier: false
-      enable_typescript: false
+      enable_typescript: true
 
       frontend_directory: ./extensions/tags/js
       backend_directory: ./extensions/tags
