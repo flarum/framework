@@ -59,7 +59,7 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 
         $query->where(function (Builder $query) use ($slugs, $negate) {
             foreach ($slugs as $slug) {
-                if ($slug === 'untagged' && !$negate) {
+                if ($slug === 'untagged' && ! $negate) {
                     $query->orWhereNull('discussion_tag.tag_id');
                 } elseif ($slug === 'untagged' && $negate) {
                     $query->orWhereNotNull('discussion_tag.tag_id');
