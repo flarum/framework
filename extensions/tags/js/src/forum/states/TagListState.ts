@@ -1,5 +1,5 @@
 import app from "flarum/forum/app";
-import Tag from "../../common/models/Tag";
+import type Tag from "../../common/models/Tag";
 
 export default class TagListState {
   loadedIncludes = new Set();

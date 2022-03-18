@@ -22,9 +22,9 @@ import isSafariMobile from './utils/isSafariMobile';
 
 import type Notification from './components/Notification';
 import type Post from './components/Post';
-import Discussion from '../common/models/Discussion';
-import NotificationModel from '../common/models/Notification';
-import PostModel from '../common/models/Post';
+import type Discussion from '../common/models/Discussion';
+import type NotificationModel from '../common/models/Notification';
+import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
 
 export default class ForumApplication extends Application {

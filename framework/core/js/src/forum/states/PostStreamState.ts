@@ -1,8 +1,8 @@
 import app from '../../forum/app';
 import { throttle } from 'throttle-debounce';
 import anchorScroll from '../../common/utils/anchorScroll';
-import Discussion from '../../common/models/Discussion';
-import Post from '../../common/models/Post';
+import type Discussion from '../../common/models/Discussion';
+import type Post from '../../common/models/Post';
 
 export default class PostStreamState {
   /**

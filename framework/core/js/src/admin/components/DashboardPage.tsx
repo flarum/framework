@@ -3,7 +3,7 @@ import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
-import { Children } from 'mithril';
+import type { Children } from 'mithril';
 
 export default class DashboardPage extends AdminPage {
   headerInfo() {

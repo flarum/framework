@@ -1,11 +1,11 @@
 import { extend, override } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
+import type Post from 'flarum/common/models/Post';
+import type ItemList from 'flarum/common/utils/ItemList';
 
 import PostControls from 'flarum/forum/utils/PostControls';
 import CommentPost from 'flarum/forum/components/CommentPost';
-import ItemList from 'flarum/common/utils/ItemList';
-import Post from 'flarum/common/models/Post';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 app.initializers.add('flarum-akismet', () => {
   extend(PostControls, 'destructiveControls', function (items: ItemList<Mithril.Children>, post: Post) {

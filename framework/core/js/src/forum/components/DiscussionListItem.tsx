@@ -17,9 +17,9 @@ import classList from '../../common/utils/classList';
 import DiscussionPage from './DiscussionPage';
 import escapeRegExp from '../../common/utils/escapeRegExp';
 import Tooltip from '../../common/components/Tooltip';
-import Discussion from '../../common/models/Discussion';
-import Mithril from 'mithril';
-import { DiscussionListParams } from '../states/DiscussionListState';
+import type Discussion from '../../common/models/Discussion';
+import type Mithril from 'mithril';
+import type { DiscussionListParams } from '../states/DiscussionListState';
 
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
   discussion: Discussion;

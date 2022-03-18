@@ -1,6 +1,6 @@
 import Model from 'flarum/common/Model';
-import Post from 'flarum/common/models/Post';
-import User from 'flarum/common/models/User';
+import type Post from 'flarum/common/models/Post';
+import type User from 'flarum/common/models/User';
 
 export default class Flag extends Model {
   type() {

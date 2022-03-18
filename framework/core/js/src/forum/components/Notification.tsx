@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import NotificationModel from '../../common/models/Notification';
+import type NotificationModel from '../../common/models/Notification';
 import Component, { ComponentAttrs } from '../../common/Component';
 import avatar from '../../common/helpers/avatar';
 import icon from '../../common/helpers/icon';
@@ -7,7 +7,7 @@ import humanTime from '../../common/helpers/humanTime';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import classList from '../../common/utils/classList';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 export interface INotificationAttrs extends ComponentAttrs {
   notification: NotificationModel;

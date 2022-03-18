@@ -1,4 +1,4 @@
-import { AdminRoutes } from './routes';
+import type { AdminRoutes } from './routes';
 import Application from '../common/Application';
 import ExtensionData from './utils/ExtensionData';
 export declare type Extension = {

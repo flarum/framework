@@ -6,8 +6,8 @@ import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import Button from 'flarum/common/components/Button';
 import ItemList from 'flarum/common/utils/ItemList';
-import { Children } from 'mithril';
-import Tag from 'flarum/tags/common/models/Tag';
+import type { Children } from 'mithril';
+import type Tag from 'flarum/tags/common/models/Tag';
 
 export type PusherBinding = {
   channels: {

@@ -1,4 +1,4 @@
-import Discussion from '../../common/models/Discussion';
+import type Discussion from '../../common/models/Discussion';
 import app from '../../forum/app';
 import Notification from './Notification';
 
@@ -31,6 +31,6 @@ export default class DiscussionRenamedNotification extends Notification {
   }
 
   excerpt() {
-    return '';
+    return null;
   }
 }

@@ -1,6 +1,6 @@
 import computed from 'flarum/common/utils/computed';
 import Model from 'flarum/common/Model';
-import Discussion from 'flarum/common/models/Discussion';
+import type Discussion from 'flarum/common/models/Discussion';
 
 export default class Tag extends Model {
   name() {

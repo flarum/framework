@@ -5,9 +5,9 @@ import Dropdown from '../../common/components/Dropdown';
 import PostControls from '../utils/PostControls';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
-import PostModel from '../../common/models/Post';
+import type PostModel from '../../common/models/Post';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 export interface IPostAttrs extends ComponentAttrs {
   post: PostModel;
