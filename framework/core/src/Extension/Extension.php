@@ -219,7 +219,7 @@ class Extension implements Arrayable
      *
      * @internal
      */
-    public function calculateDependencies($extensionSet, $enabledIds)
+    public function calculateDependencies($extensionSet)
     {
         $this->extensionDependencyIds = (new Collection(Arr::get($this->composerJson, 'require', [])))
             ->keys()
@@ -234,9 +234,6 @@ class Extension implements Arrayable
         $this->optionalDependencyIds = (new Collection(Arr::get($this->composerJson, 'extra.flarum-extension.optional-dependencies', [])))
             ->map(function ($key) {
                 return static::nameToId($key);
-            })
-            ->filter(function ($key) use ($enabledIds) {
-                return array_key_exists($key, $enabledIds);
             })
             ->toArray();
     }
