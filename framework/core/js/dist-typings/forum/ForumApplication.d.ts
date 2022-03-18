@@ -1,16 +1,18 @@
 import History from './utils/History';
 import Pane from './utils/Pane';
 import { ForumRoutes } from './routes';
-import Application from '../common/Application';
+import Application, { ApplicationData } from '../common/Application';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import type Notification from './components/Notification';
 import type Post from './components/Post';
-import Discussion from '../common/models/Discussion';
-import NotificationModel from '../common/models/Notification';
-import PostModel from '../common/models/Post';
+import type Discussion from '../common/models/Discussion';
+import type NotificationModel from '../common/models/Notification';
+import type PostModel from '../common/models/Post';
+export interface ForumApplicationData extends ApplicationData {
+}
 export default class ForumApplication extends Application {
     /**
      * A map of notification types to their components.
@@ -56,6 +58,7 @@ export default class ForumApplication extends Application {
      */
     discussions: DiscussionListState;
     route: typeof Application.prototype.route & ForumRoutes;
+    data: ForumApplicationData;
     constructor();
     /**
      * @inheritdoc

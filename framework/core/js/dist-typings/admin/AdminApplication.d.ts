@@ -1,5 +1,5 @@
-import type { AdminRoutes } from './routes';
-import Application from '../common/Application';
+import { AdminRoutes } from './routes';
+import Application, { ApplicationData } from '../common/Application';
 import ExtensionData from './utils/ExtensionData';
 export declare type Extension = {
     id: string;
@@ -26,6 +26,13 @@ export declare type Extension = {
         };
     };
 };
+export interface AdminApplicationData extends ApplicationData {
+    extensions: Record<string, Extension>;
+    settings: Record<string, string>;
+    modelStatistics: Record<string, {
+        total: number;
+    }>;
+}
 export default class AdminApplication extends Application {
     extensionData: ExtensionData;
     extensionCategories: {
@@ -46,13 +53,7 @@ export default class AdminApplication extends Application {
      *
      * @inheritdoc
      */
-    data: Application['data'] & {
-        extensions: Record<string, Extension>;
-        settings: Record<string, string>;
-        modelStatistics: Record<string, {
-            total: number;
-        }>;
-    };
+    data: AdminApplicationData;
     route: typeof Application.prototype.route & AdminRoutes;
     constructor();
     /**

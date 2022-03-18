@@ -12,7 +12,7 @@ import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import routes, { ForumRoutes, makeRouteHelpers } from './routes';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
-import Application from '../common/Application';
+import Application, { ApplicationData } from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
@@ -26,6 +26,8 @@ import type Discussion from '../common/models/Discussion';
 import type NotificationModel from '../common/models/Notification';
 import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
+
+export interface ForumApplicationData extends ApplicationData {}
 
 export default class ForumApplication extends Application {
   /**
@@ -77,6 +79,8 @@ export default class ForumApplication extends Application {
   discussions: DiscussionListState = new DiscussionListState({});
 
   route: typeof Application.prototype.route & ForumRoutes;
+
+  data!: ForumApplicationData;
 
   constructor() {
     super();

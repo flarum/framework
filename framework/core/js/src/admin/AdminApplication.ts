@@ -1,7 +1,7 @@
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import routes, { AdminRoutes } from './routes';
-import Application from '../common/Application';
+import Application, { ApplicationData } from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
 import ExtensionData from './utils/ExtensionData';
@@ -32,6 +32,12 @@ export type Extension = {
   };
 };
 
+export interface AdminApplicationData extends ApplicationData {
+  extensions: Record<string, Extension>;
+  settings: Record<string, string>;
+  modelStatistics: Record<string, { total: number }>;
+}
+
 export default class AdminApplication extends Application {
   extensionData = new ExtensionData();
 
@@ -58,11 +64,7 @@ export default class AdminApplication extends Application {
    * @inheritdoc
    */
 
-  data!: Application['data'] & {
-    extensions: Record<string, Extension>;
-    settings: Record<string, string>;
-    modelStatistics: Record<string, { total: number }>;
-  };
+  data!: AdminApplicationData;
 
   route: typeof Application.prototype.route & AdminRoutes;
 
