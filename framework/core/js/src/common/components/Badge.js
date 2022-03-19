@@ -17,6 +17,9 @@ import classList from '../utils/classList';
  * All other attrs will be assigned as attributes on the badge element.
  */
 export default class Badge extends Component {
+  /**
+   * @returns {import('mithril').Children}
+   */
   view() {
     const { type, icon: iconName, label, color, style = {}, ...attrs } = this.attrs;
 

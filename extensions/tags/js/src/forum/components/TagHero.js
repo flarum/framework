@@ -2,6 +2,9 @@ import Component from 'flarum/common/Component';
 import tagIcon from '../../common/helpers/tagIcon';
 
 export default class TagHero extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const tag = this.attrs.model;
     const color = tag.color();

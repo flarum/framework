@@ -4,6 +4,9 @@ import Button from '../../common/components/Button';
 export default class UploadImageButton extends Button {
   loading = false;
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view(vnode) {
     this.attrs.loading = this.loading;
     this.attrs.className = (this.attrs.className || '') + ' Button';

@@ -21,7 +21,7 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     super.oninit(vnode);
   }
 
-  view(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>) {
+  view(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>): Mithril.Children {
     if (this.isHidden()) return null;
 
     const slideUp = () => {

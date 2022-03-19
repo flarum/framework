@@ -16,6 +16,9 @@ import classList from '../utils/classList';
  * Other attributes are passed directly to the `<select>` element rendered to the DOM.
  */
 export default class Select extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const {
       options,

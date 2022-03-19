@@ -7,7 +7,7 @@ import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
 
 export interface ILoginModalAttrs extends IInternalModalAttrs {
@@ -42,20 +42,20 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     return 'LogInModal Modal--small';
   }
 
-  title() {
+  title(): Mithril.Children {
     return app.translator.trans('core.forum.log_in.title');
   }
 
-  content() {
+  content(): Mithril.Children {
     return [<div className="Modal-body">{this.body()}</div>, <div className="Modal-footer">{this.footer()}</div>];
   }
 
-  body() {
+  body(): Mithril.Children {
     return [<LogInButtons />, <div className="Form Form--centered">{this.fields().toArray()}</div>];
   }
 
   fields() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     const identificationLabel = extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'));
     const passwordLabel = extractText(app.translator.trans('core.forum.log_in.password_placeholder'));
@@ -124,7 +124,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     return items;
   }
 
-  footer() {
+  footer(): Mithril.Children {
     return [
       <p className="LogInModal-forgotPassword">
         <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>

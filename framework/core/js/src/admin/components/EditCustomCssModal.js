@@ -10,6 +10,9 @@ export default class EditCustomCssModal extends SettingsModal {
     return app.translator.trans('core.admin.edit_css.title');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   form() {
     return [
       <p>

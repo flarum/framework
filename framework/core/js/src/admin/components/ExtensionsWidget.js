@@ -16,6 +16,9 @@ export default class ExtensionsWidget extends DashboardWidget {
     return 'ExtensionsWidget';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     const categories = app.extensionCategories;
 
@@ -26,6 +29,9 @@ export default class ExtensionsWidget extends DashboardWidget {
     );
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   extensionCategory(category) {
     return (
       <div className="ExtensionList-Category">
@@ -35,6 +41,9 @@ export default class ExtensionsWidget extends DashboardWidget {
     );
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   extensionWidget(extension) {
     return (
       <li className={'ExtensionListItem ' + (!isExtensionEnabled(extension.id) ? 'disabled' : '')}>

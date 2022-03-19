@@ -36,6 +36,9 @@ export default class Dropdown extends Component {
     this.showing = false;
   }
 
+  /**
+   * @returns {import('mithril').Children}
+   */
   view(vnode) {
     const items = vnode.children ? listItems(vnode.children) : [];
     const renderItems = this.attrs.lazyDraw ? this.showing : true;
@@ -134,6 +137,9 @@ export default class Dropdown extends Component {
     ];
   }
 
+  /**
+   * @returns {import('mithril').Children}
+   */
   getMenu(items) {
     return <ul className={'Dropdown-menu dropdown-menu ' + this.attrs.menuClassName}>{items}</ul>;
   }

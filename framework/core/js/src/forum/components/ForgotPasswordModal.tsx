@@ -36,7 +36,7 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
     return app.translator.trans('core.forum.forgot_password.title');
   }
 
-  content() {
+  content(): Mithril.Children {
     if (this.success) {
       return (
         <div className="Modal-body">

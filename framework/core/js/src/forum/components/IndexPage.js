@@ -45,6 +45,9 @@ export default class IndexPage extends Page {
     this.scrollTopOnCreate = false;
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return (
       <div className="IndexPage">

@@ -4,6 +4,9 @@ import classList from 'flarum/common/utils/classList';
 import tagIcon from '../../common/helpers/tagIcon';
 
 export default class TagLinkButton extends LinkButton {
+  /**
+   * @return {import('mithril').Children}
+   */
   view(vnode) {
     const tag = this.attrs.model;
     const active = this.constructor.isActive(this.attrs);

@@ -14,6 +14,9 @@ export default class AdminNav extends Component {
     this.query = Stream('');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return (
       <SelectDropdown className="AdminNav App-titleControl AdminNav-Main" buttonClassName="Button">

@@ -38,6 +38,9 @@ export default class BasicsPage extends AdminPage {
     };
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return [
       <div className="Form">

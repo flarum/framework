@@ -38,6 +38,9 @@ export default class NotificationGrid extends Component {
     this.types = this.notificationTypes().toArray();
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const preferences = this.attrs.user.preferences();
 

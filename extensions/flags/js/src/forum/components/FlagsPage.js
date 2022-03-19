@@ -18,6 +18,9 @@ export default class FlagsPage extends Page {
     this.bodyClass = 'App--flags';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return (
       <div className="FlagsPage">

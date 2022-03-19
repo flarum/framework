@@ -36,6 +36,9 @@ export default class AvatarEditor extends Component {
     this.isDraggedOver = false;
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const user = this.attrs.user;
 

@@ -24,6 +24,9 @@ export default class FlagPostModal extends Modal {
     return app.translator.trans('flarum-flags.forum.flag_post.title');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     if (this.success) {
       return (

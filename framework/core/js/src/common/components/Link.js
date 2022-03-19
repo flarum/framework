@@ -10,6 +10,9 @@ import extract from '../utils/extract';
  * `true` for the link to be external.
  */
 export default class Link extends Component {
+  /**
+   * @returns {import('mithril').Children}
+   */
   view(vnode) {
     let { options = {}, ...attrs } = vnode.attrs;
 

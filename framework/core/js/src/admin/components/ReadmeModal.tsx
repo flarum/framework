@@ -38,7 +38,7 @@ export default class ReadmeModal<CustomAttrs extends IReadmeModalAttrs = IReadme
     });
   }
 
-  content() {
+  content(): Mithril.Children {
     const text = app.translator.trans('core.admin.extension.readme.no_readme');
 
     return (

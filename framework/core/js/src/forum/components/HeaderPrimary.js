@@ -7,6 +7,9 @@ import listItems from '../../common/helpers/listItems';
  * default skin, these are shown just to the right of the forum title.
  */
 export default class HeaderPrimary extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
   }

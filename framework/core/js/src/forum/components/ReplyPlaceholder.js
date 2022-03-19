@@ -15,6 +15,9 @@ import listItems from '../../common/helpers/listItems';
  * - `discussion`
  */
 export default class ReplyPlaceholder extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     if (app.composer.composingReplyTo(this.attrs.discussion)) {
       return (

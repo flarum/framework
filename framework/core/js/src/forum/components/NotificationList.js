@@ -12,6 +12,9 @@ import ItemList from '../../common/utils/ItemList';
  * notifications, grouped by discussion.
  */
 export default class NotificationList extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const state = this.attrs.state;
 

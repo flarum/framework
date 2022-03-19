@@ -6,6 +6,9 @@ import classList from 'flarum/common/utils/classList';
  * @TODO move to core
  */
 export default class ToggleButton extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view(vnode) {
     const { className, isToggled, ...attrs } = this.attrs;
     const icon = isToggled ? 'far fa-check-circle' : 'far fa-circle';

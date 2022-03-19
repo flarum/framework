@@ -1,3 +1,4 @@
+import Mithril from 'mithril';
 import Component from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 
@@ -5,16 +6,14 @@ import ItemList from '../../common/utils/ItemList';
  * The `LogInButtons` component displays a collection of social login buttons.
  */
 export default class LogInButtons extends Component {
-  view() {
+  view(): Mithril.Children {
     return <div className="LogInButtons">{this.items().toArray()}</div>;
   }
 
   /**
    * Build a list of LogInButton components.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   items() {
-    return new ItemList();
+    return new ItemList<Mithril.Children>();
   }
 }

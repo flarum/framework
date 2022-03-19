@@ -1,3 +1,4 @@
+import type Mithril from 'mithril';
 import Component from '../../common/Component';
 import avatar from '../../common/helpers/avatar';
 
@@ -6,7 +7,7 @@ import avatar from '../../common/helpers/avatar';
  * indicating that the post is loading.
  */
 export default class LoadingPost extends Component {
-  view() {
+  view(): Mithril.Children {
     return (
       <div className="Post CommentPost LoadingPost">
         <header className="Post-header">

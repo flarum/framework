@@ -15,6 +15,9 @@ export default class DiscussionRenamedPost extends EventPost {
     return 'fas fa-pencil-alt';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   description(data) {
     const renamed = app.translator.trans('core.forum.post_stream.discussion_renamed_text', data);
     const oldName = app.translator.trans('core.forum.post_stream.discussion_renamed_old_tooltip', data);
@@ -22,6 +25,9 @@ export default class DiscussionRenamedPost extends EventPost {
     return <span title={extractText(oldName)}>{renamed}</span>;
   }
 
+  /**
+   * @return {Record<string, unknown>}
+   */
   descriptionData() {
     const post = this.attrs.post;
     const oldTitle = post.content()[0];

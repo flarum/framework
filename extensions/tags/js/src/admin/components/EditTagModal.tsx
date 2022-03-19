@@ -7,7 +7,7 @@ import { slug } from 'flarum/common/utils/string';
 import Stream from 'flarum/common/utils/Stream';
 
 import tagLabel from '../../common/helpers/tagLabel';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 import type Tag from '../../common/models/Tag';
 import extractText from 'flarum/common/utils/extractText';
 import { ModelIdentifier } from 'flarum/common/Model';
@@ -50,13 +50,13 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
     return 'EditTagModal Modal--small';
   }
 
-  title() {
+  title(): Mithril.Children {
     return this.name()
-      ? tagLabel(app.store.createRecord('tags', { attributes: this.submitData() }))
+      ? tagLabel(app.store.createRecord<Tag>('tags', { attributes: this.submitData() }))
       : app.translator.trans('flarum-tags.admin.edit_tag.title');
   }
 
-  content() {
+  content(): Mithril.Children {
     return (
       <div className="Modal-body">
         <div className="Form">
@@ -67,7 +67,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
   }
 
   fields() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add('name', <div className="Form-group">
       <label>{app.translator.trans('flarum-tags.admin.edit_tag.name_label')}</label>

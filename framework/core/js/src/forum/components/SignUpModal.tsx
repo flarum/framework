@@ -6,7 +6,7 @@ import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 
 export interface ISignupModalAttrs extends IInternalModalAttrs {
   username?: string;
@@ -49,11 +49,11 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
     return 'Modal--small SignUpModal';
   }
 
-  title() {
+  title(): Mithril.Children {
     return app.translator.trans('core.forum.sign_up.title');
   }
 
-  content() {
+  content(): Mithril.Children {
     return [<div className="Modal-body">{this.body()}</div>, <div className="Modal-footer">{this.footer()}</div>];
   }
 
@@ -61,12 +61,12 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
     return this.attrs.provided?.includes(field) ?? false;
   }
 
-  body() {
+  body(): Mithril.Children {
     return [!this.attrs.token && <LogInButtons />, <div className="Form Form--centered">{this.fields().toArray()}</div>];
   }
 
   fields() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     const usernameLabel = extractText(app.translator.trans('core.forum.sign_up.username_placeholder'));
     const emailLabel = extractText(app.translator.trans('core.forum.sign_up.email_placeholder'));
@@ -136,7 +136,7 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
     return items;
   }
 
-  footer() {
+  footer(): Mithril.Children {
     return [
       <p className="SignUpModal-logIn">{app.translator.trans('core.forum.sign_up.log_in_text', { a: <a onclick={this.logIn.bind(this)} /> })}</p>,
     ];

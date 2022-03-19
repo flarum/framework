@@ -1,3 +1,4 @@
+import type Mithril from 'mithril';
 import type RequestError from '../utils/RequestError';
 import Modal, { IInternalModalAttrs } from './Modal';
 
@@ -15,7 +16,7 @@ export default class RequestErrorModal<CustomAttrs extends IRequestErrorModalAtt
     return this.attrs.error.xhr ? `${this.attrs.error.xhr.status} ${this.attrs.error.xhr.statusText}` : '';
   }
 
-  content() {
+  content(): Mithril.Children {
     const { error, formattedError } = this.attrs;
 
     let responseText;

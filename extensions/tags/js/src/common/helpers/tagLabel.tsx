@@ -1,8 +1,13 @@
+import app from 'flarum/common/app';
+
 import extract from 'flarum/common/utils/extract';
 import Link from 'flarum/common/components/Link';
 import tagIcon from './tagIcon';
+import Tag from '../models/Tag';
+import type { ComponentAttrs } from 'flarum/common/Component';
+import type Mithril from 'mithril';
 
-export default function tagLabel(tag, attrs = {}) {
+export default function tagLabel(tag?: Tag, attrs: ComponentAttrs = {}): Mithril.Children {
   attrs.style = attrs.style || {};
   attrs.className = 'TagLabel ' + (attrs.className || '');
 
@@ -28,11 +33,15 @@ export default function tagLabel(tag, attrs = {}) {
     attrs.className += ' untagged';
   }
 
-  return (
-    m((link ? Link : 'span'), attrs,
-      <span className="TagLabel-text">
+  const children = (
+    <span className="TagLabel-text">
         {tag && tag.icon() && tagIcon(tag, {}, {useColor: false})} {tagText}
       </span>
-    )
   );
+
+  if (link) {
+    return <Link {...attrs}>{children}</Link>
+  }
+
+  return <span {...attrs}>{children}</span>;
 }

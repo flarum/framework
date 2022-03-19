@@ -23,6 +23,9 @@ export default class PostStreamScrubber extends Component {
     this.scrollListener = new ScrollListener(this.updateScrubberValues.bind(this, { fromScroll: true, forceHeightChange: true }));
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const count = this.stream.count();
 

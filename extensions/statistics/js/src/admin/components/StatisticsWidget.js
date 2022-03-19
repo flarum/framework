@@ -46,6 +46,9 @@ export default class StatisticsWidget extends DashboardWidget {
     return 'StatisticsWidget';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     const thisPeriod = this.periods[this.selectedPeriod];
 

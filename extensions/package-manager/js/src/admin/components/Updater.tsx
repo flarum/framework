@@ -64,7 +64,7 @@ export default class Updater<Attrs> extends Component<Attrs> {
     super.oninit(vnode);
   }
 
-  view() {
+  view(): Mithril.Children {
     const extensions = this.getExtensionUpdates();
     let coreUpdate: UpdatedPackage | undefined = this.getCoreUpdate();
     let core: any;

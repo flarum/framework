@@ -16,6 +16,9 @@ import Search from '../components/Search';
  * right side of the header.
  */
 export default class HeaderSecondary extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
   }

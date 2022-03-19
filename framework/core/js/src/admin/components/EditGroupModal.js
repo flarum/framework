@@ -41,6 +41,9 @@ export default class EditGroupModal extends Modal {
     ];
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return (
       <div className="Modal-body">

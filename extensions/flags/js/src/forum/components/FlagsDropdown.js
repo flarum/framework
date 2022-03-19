@@ -11,6 +11,9 @@ export default class FlagsDropdown extends NotificationsDropdown {
     super.initAttrs(attrs);
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   getMenu() {
     return (
       <div className={'Dropdown-menu ' + this.attrs.menuClassName} onclick={this.menuClick.bind(this)}>

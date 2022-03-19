@@ -16,6 +16,9 @@ export default class PermissionsPage extends AdminPage {
     };
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return [
       <div className="PermissionsPage-groups">

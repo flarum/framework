@@ -13,6 +13,9 @@ import fullTime from '../../common/helpers/fullTime';
  * - `post`
  */
 export default class PostMeta extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const post = this.attrs.post;
     const time = post.createdAt();

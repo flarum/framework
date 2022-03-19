@@ -15,6 +15,9 @@ import listItems from '../../common/helpers/listItems';
  * - `post`
  */
 export default class PostUser extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const post = this.attrs.post;
     const user = post.user();

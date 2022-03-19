@@ -17,6 +17,9 @@ export default class AppearancePage extends AdminPage {
     };
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return [
       <div className="Form">

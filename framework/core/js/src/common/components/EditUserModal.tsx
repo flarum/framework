@@ -6,7 +6,7 @@ import Group from '../models/Group';
 import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
 import Stream from '../utils/Stream';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 import type User from '../models/User';
 import type { SaveAttributes, SaveRelationships } from '../Model';
 
@@ -45,11 +45,11 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     return 'EditUserModal Modal--small';
   }
 
-  title() {
+  title(): Mithril.Children {
     return app.translator.trans('core.lib.edit_user.title');
   }
 
-  content() {
+  content(): Mithril.Children {
     const fields = this.fields().toArray();
     return (
       <div className="Modal-body">
@@ -58,8 +58,8 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     );
   }
 
-  fields() {
-    const items = new ItemList();
+  fields(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
     if (this.attrs.user.canEditCredentials()) {
       items.add(

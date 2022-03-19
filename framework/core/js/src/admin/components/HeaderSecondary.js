@@ -9,6 +9,9 @@ import listItems from '../../common/helpers/listItems';
  * The `HeaderSecondary` component displays secondary header controls.
  */
 export default class HeaderSecondary extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
   }

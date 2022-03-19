@@ -18,10 +18,16 @@ export default class SessionDropdown extends Dropdown {
     attrs.menuClassName = 'Dropdown-menu--right';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view(vnode) {
     return super.view({ ...vnode, children: this.items().toArray() });
   }
 
+  /**
+   * @returns {import('mithril').Children}
+   */
   getButtonContent() {
     const user = app.session.user;
 

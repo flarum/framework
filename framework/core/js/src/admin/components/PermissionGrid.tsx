@@ -33,7 +33,7 @@ export interface ScopeItem {
 export interface IPermissionGridAttrs extends ComponentAttrs {}
 
 export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = IPermissionGridAttrs> extends Component<CustomAttrs> {
-  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const scopes = this.scopeItems().toArray();
 
     const permissionCells = (permission: PermissionGridEntry | { children: PermissionGridEntry[] }) => {

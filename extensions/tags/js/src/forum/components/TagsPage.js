@@ -35,6 +35,9 @@ export default class TagsPage extends Page {
     });
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     if (this.loading) {
       return <LoadingIndicator />;

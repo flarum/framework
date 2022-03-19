@@ -14,6 +14,9 @@ export default class SplitDropdown extends Dropdown {
     attrs.menuClassName += ' Dropdown-menu--right';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   getButton(children) {
     // Make a copy of the attrs of the first child component. We will assign
     // these attrs to a new button, so that it has exactly the same behaviour as

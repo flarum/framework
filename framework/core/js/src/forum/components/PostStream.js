@@ -26,6 +26,9 @@ export default class PostStream extends Component {
     this.scrollListener = new ScrollListener(this.onscroll.bind(this));
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     let lastTime;
 

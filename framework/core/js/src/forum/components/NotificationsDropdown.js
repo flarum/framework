@@ -18,6 +18,9 @@ export default class NotificationsDropdown extends Dropdown {
     super.initAttrs(attrs);
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   getButton() {
     const newNotifications = this.getNewCount();
     const vdom = super.getButton();
@@ -30,6 +33,9 @@ export default class NotificationsDropdown extends Dropdown {
     return vdom;
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   getButtonContent() {
     const unread = this.getUnreadCount();
 
@@ -40,6 +46,9 @@ export default class NotificationsDropdown extends Dropdown {
     ];
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   getMenu() {
     return (
       <div className={classList('Dropdown-menu', this.attrs.menuClassName)} onclick={this.menuClick.bind(this)}>

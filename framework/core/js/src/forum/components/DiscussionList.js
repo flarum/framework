@@ -13,6 +13,9 @@ import Placeholder from '../../common/components/Placeholder';
  * - `state` A DiscussionListState object that represents the discussion lists's state.
  */
 export default class DiscussionList extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     /**
      * @type {import('../states/DiscussionListState').default}

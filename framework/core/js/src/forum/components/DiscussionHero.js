@@ -10,6 +10,9 @@ import listItems from '../../common/helpers/listItems';
  * - `discussion`
  */
 export default class DiscussionHero extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return (
       <header className="Hero DiscussionHero">

@@ -41,6 +41,9 @@ export default class SelectDropdown extends Dropdown {
     attrs.className += ' Dropdown--select';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   getButtonContent(children) {
     const activeChild = children.find(isActive);
     let label = (activeChild && activeChild.children) || this.attrs.defaultLabel;

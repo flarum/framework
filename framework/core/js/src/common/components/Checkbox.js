@@ -17,6 +17,9 @@ import withAttr from '../utils/withAttr';
  * - `children` A text label to display next to the checkbox.
  */
 export default class Checkbox extends Component {
+  /**
+   * @returns {import('mithril').Children}
+   */
   view(vnode) {
     // Sometimes, false is stored in the DB as '0'. This is a temporary
     // conversion layer until a more robust settings encoding is introduced

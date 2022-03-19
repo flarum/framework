@@ -17,6 +17,9 @@ const hotEdge = (e) => {
  * - `state` A DiscussionListState object that represents the discussion lists's state.
  */
 export default class DiscussionListPane extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     if (!this.attrs.state.hasItems()) {
       return;

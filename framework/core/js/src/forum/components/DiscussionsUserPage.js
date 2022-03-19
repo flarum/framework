@@ -24,6 +24,9 @@ export default class DiscussionsUserPage extends UserPage {
     this.state.refresh();
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return <div className="DiscussionsUserPage">{DiscussionList.component({ state: this.state })}</div>;
   }

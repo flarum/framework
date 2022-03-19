@@ -12,6 +12,9 @@ import Tooltip from './Tooltip';
  * - `title` - Tooltip for the button
  */
 export default class TextEditorButton extends Button {
+  /**
+   * @return {import('mithril').Children}
+   */
   view(vnode) {
     const originalView = super.view(vnode);
 

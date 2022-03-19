@@ -11,6 +11,9 @@ import listItems from '../helpers/listItems';
  * The children should be an array of items to show in the fieldset.
  */
 export default class FieldSet extends Component {
+  /**
+   * @returns {import('mithril').Children}
+   */
   view(vnode) {
     return (
       <fieldset className={this.attrs.className}>

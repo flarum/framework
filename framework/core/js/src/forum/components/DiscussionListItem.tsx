@@ -62,7 +62,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     };
   }
 
-  view() {
+  view(): Mithril.Children {
     const discussion = this.attrs.discussion;
     const user = discussion.user();
     const isUnread = discussion.isUnread();
@@ -164,10 +164,8 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   /**
    * Determine whether or not the number of replies should be shown instead of
    * the number of unread posts.
-   *
-   * @return {boolean}
    */
-  showRepliesCount() {
+  showRepliesCount(): boolean {
     return this.attrs.params.sort === 'replies';
   }
 
@@ -210,7 +208,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     return items;
   }
 
-  replyCountItem() {
+  replyCountItem(): Mithril.Children {
     const discussion = this.attrs.discussion;
     const showUnread = !this.showRepliesCount() && discussion.isUnread();
 

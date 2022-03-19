@@ -19,10 +19,16 @@ export default class RenameDiscussionModal extends Modal {
     return 'RenameDiscussionModal Modal--small';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   title() {
     return app.translator.trans('core.forum.rename_discussion.title');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return (
       <div className="Modal-body">

@@ -38,6 +38,9 @@ export default class TextEditor extends Component {
     this.disabled = !!this.attrs.disabled;
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return (
       <div className="TextEditor">

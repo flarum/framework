@@ -139,6 +139,9 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
     return '';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     if (this.tagsLoading || !this.tags) {
       return <LoadingIndicator />;

@@ -117,7 +117,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     this.searchState = this.attrs.state;
   }
 
-  view() {
+  view(): Mithril.Children {
     const currentSearch = this.searchState.getInitialSearch();
 
     // Initialize search sources in the view rather than the constructor so

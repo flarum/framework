@@ -16,6 +16,9 @@ export default class PostEdited extends Component {
     super.oninit(vnode);
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const post = this.attrs.post;
     const editedUser = post.editedUser();

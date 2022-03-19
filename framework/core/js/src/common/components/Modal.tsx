@@ -81,7 +81,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   /**
    * @todo split into FormModal and Modal in 2.0
    */
-  view() {
+  view(): Mithril.Children {
     if (this.alertAttrs) {
       this.alertAttrs.dismissible = false;
     }

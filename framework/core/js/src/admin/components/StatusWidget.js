@@ -11,6 +11,9 @@ export default class StatusWidget extends DashboardWidget {
     return 'StatusWidget';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return <ul>{listItems(this.items().toArray())}</ul>;
   }

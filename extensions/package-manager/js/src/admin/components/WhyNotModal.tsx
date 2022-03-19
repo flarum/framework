@@ -26,7 +26,7 @@ export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAtt
     this.requestWhyNot();
   }
 
-  content() {
+  content(): Mithril.Children {
     return <div className="Modal-body">{this.loading ? <LoadingIndicator /> : <pre className="WhyNotModal-contents">{this.whyNot}</pre>}</div>;
   }
 

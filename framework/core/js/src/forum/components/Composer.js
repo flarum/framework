@@ -33,6 +33,9 @@ export default class Composer extends Component {
     this.prevPosition = this.state.position;
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const body = this.state.body;
     const classes = {

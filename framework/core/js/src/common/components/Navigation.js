@@ -19,6 +19,9 @@ import LinkButton from './LinkButton';
  *   there is no more history to pop.
  */
 export default class Navigation extends Component {
+  /**
+   * @returns {import('mithril').Children}
+   */
   view() {
     const { history, pane } = app;
 

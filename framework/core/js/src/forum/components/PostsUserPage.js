@@ -45,6 +45,9 @@ export default class PostsUserPage extends UserPage {
     this.loadUser(m.route.param('username'));
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     if (this.posts.length === 0 && !this.loading) {
       return (

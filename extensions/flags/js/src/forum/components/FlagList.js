@@ -13,6 +13,9 @@ export default class FlagList extends Component {
     this.state = this.attrs.state;
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const flags = this.state.cache || [];
 

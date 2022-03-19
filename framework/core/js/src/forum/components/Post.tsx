@@ -45,7 +45,7 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
     );
   }
 
-  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const attrs = this.elementAttrs();
 
     attrs.className = this.classes(attrs.className as string | undefined).join(' ');

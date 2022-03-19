@@ -15,6 +15,9 @@ export default class ChangePasswordModal extends Modal {
     return app.translator.trans('core.forum.change_password.title');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return (
       <div className="Modal-body">

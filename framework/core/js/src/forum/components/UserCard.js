@@ -24,6 +24,9 @@ import listItems from '../../common/helpers/listItems';
  * - `controlsButtonClassName`
  */
 export default class UserCard extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const user = this.attrs.user;
     const controls = UserControls.controls(user, this).toArray();

@@ -22,7 +22,7 @@ export interface AlertAttrs extends ComponentAttrs {
  * some controls, and may be dismissible.
  */
 export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<T> {
-  view(vnode: Mithril.VnodeDOM<T, this>) {
+  view(vnode: Mithril.VnodeDOM<T, this>): Mithril.Children {
     const attrs = Object.assign({}, this.attrs);
 
     const type = extract(attrs, 'type');

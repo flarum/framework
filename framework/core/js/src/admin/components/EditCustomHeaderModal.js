@@ -10,6 +10,9 @@ export default class EditCustomHeaderModal extends SettingsModal {
     return app.translator.trans('core.admin.edit_header.title');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   form() {
     return [
       <p>{app.translator.trans('core.admin.edit_header.customize_text')}</p>,

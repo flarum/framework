@@ -41,6 +41,9 @@ export default class ChangeEmailModal extends Modal {
     return app.translator.trans('core.forum.change_email.title');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     if (this.success) {
       return (

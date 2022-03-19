@@ -77,7 +77,7 @@ export default class UserListPage extends AdminPage {
   /**
    * Component to render.
    */
-  content() {
+  content(): Mithril.Children {
     if (typeof this.pageData === 'undefined') {
       this.loadPage(0);
 

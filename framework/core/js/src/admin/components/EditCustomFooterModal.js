@@ -10,6 +10,9 @@ export default class EditCustomFooterModal extends SettingsModal {
     return app.translator.trans('core.admin.edit_footer.title');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   form() {
     return [
       <p>{app.translator.trans('core.admin.edit_footer.customize_text')}</p>,

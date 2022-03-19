@@ -20,6 +20,9 @@ export default class ComposerPostPreview extends Component {
     attrs.surround = attrs.surround || ((preview) => preview());
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return <div className={this.attrs.className} />;
   }

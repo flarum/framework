@@ -5,7 +5,7 @@ import classList from '../utils/classList';
 import icon from '../helpers/icon';
 
 export default class ColorPreviewInput extends Component {
-  view(vnode: Mithril.Vnode<ComponentAttrs, this>) {
+  view(vnode: Mithril.Vnode<ComponentAttrs, this>): Mithril.Children {
     const { className, id, ...attrs } = this.attrs;
 
     attrs.type ||= 'text';

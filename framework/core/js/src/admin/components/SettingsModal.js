@@ -16,6 +16,9 @@ export default class SettingsModal extends Modal {
     return '';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     return (
       <div className="Modal-body">
@@ -28,6 +31,9 @@ export default class SettingsModal extends Modal {
     );
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   submitButton() {
     return (
       <Button type="submit" className="Button Button--primary" loading={this.loading} disabled={!this.changed()}>

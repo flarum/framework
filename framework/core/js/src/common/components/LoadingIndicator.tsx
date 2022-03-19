@@ -1,6 +1,7 @@
 import app from '../../common/app';
 import Component, { ComponentAttrs } from '../Component';
 import classList from '../utils/classList';
+import type Mithril from 'mithril';
 
 export interface LoadingIndicatorAttrs extends ComponentAttrs {
   /**
@@ -55,7 +56,7 @@ export interface LoadingIndicatorAttrs extends ComponentAttrs {
  * All other attrs will be assigned as attributes on the DOM element.
  */
 export default class LoadingIndicator extends Component<LoadingIndicatorAttrs> {
-  view() {
+  view(): Mithril.Children {
     const { display = 'block', size = 'medium', containerClassName, className, ...attrs } = this.attrs;
 
     const completeClassName = classList('LoadingIndicator', className);

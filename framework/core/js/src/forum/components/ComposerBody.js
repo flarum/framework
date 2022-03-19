@@ -47,6 +47,9 @@ export default class ComposerBody extends Component {
     this.composer.fields.content(this.attrs.originalContent || '');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return (
       <ConfirmDocumentUnload when={this.hasChanges.bind(this)}>

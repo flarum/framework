@@ -51,6 +51,9 @@ export default class TagsPage extends ExtensionPage {
     });
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     if (this.loading) {
       return <LoadingIndicator />;
@@ -63,7 +66,7 @@ export default class TagsPage extends ExtensionPage {
     const maxSecondaryTags = this.setting('flarum-tags.max_secondary_tags', 0);
 
     const tags = sortTags(app.store.all('tags').filter(tag => !tag.parent()));
-    
+
     return (
       <div className="TagsContent">
         <div className="TagsContent-list">

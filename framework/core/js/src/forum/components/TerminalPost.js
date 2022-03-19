@@ -12,6 +12,9 @@ import icon from '../../common/helpers/icon';
  * - `lastPost`
  */
 export default class TerminalPost extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const discussion = this.attrs.discussion;
     const lastPost = this.attrs.lastPost && discussion.replyCount();

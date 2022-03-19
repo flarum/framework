@@ -22,10 +22,16 @@ export default class SessionDropdown extends Dropdown {
     attrs.accessibleToggleLabel = app.translator.trans('core.forum.header.session_dropdown_accessible_label');
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view(vnode) {
     return super.view({ ...vnode, children: this.items().toArray() });
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   getButtonContent() {
     const user = app.session.user;
 

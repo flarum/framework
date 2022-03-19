@@ -17,6 +17,9 @@ export default class NotificationsPage extends Page {
     this.bodyClass = 'App--notifications';
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     return (
       <div className="NotificationsPage">

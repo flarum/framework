@@ -42,6 +42,9 @@ export default class MailPage extends AdminPage {
       });
   }
 
+  /**
+   * @return {import('mithril').Children}
+   */
   content() {
     if (this.loading) {
       return <LoadingIndicator />;

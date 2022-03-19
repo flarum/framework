@@ -67,7 +67,7 @@ export interface IButtonAttrs extends ComponentAttrs {
  * styles can be applied by providing `className="Button"` to the Button component.
  */
 export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
-  view(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
+  view(vnode: Mithril.VnodeDOM<CustomAttrs, this>): Mithril.Children {
     let { type, title, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
 
     // If no `type` attr provided, set to "button"

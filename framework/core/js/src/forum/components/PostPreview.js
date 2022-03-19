@@ -14,6 +14,9 @@ import highlight from '../../common/helpers/highlight';
  * - `post`
  */
 export default class PostPreview extends Component {
+  /**
+   * @return {import('mithril').Children}
+   */
   view() {
     const post = this.attrs.post;
     const user = post.user();

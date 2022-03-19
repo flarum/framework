@@ -15,7 +15,7 @@ import ReadmeModal from './ReadmeModal';
 import RequestError from '../../common/utils/RequestError';
 import { Extension } from '../AdminApplication';
 import { IPageAttrs } from '../../common/components/Page';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
 
 export interface ExtensionPageAttrs extends IPageAttrs {
@@ -54,7 +54,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     return this.extension.id + '-Page';
   }
 
-  view(vnode: Mithril.VnodeDOM<Attrs, this>) {
+  view(vnode: Mithril.VnodeDOM<Attrs, this>): Mithril.Children {
     if (!this.extension) return null;
 
     return (
@@ -71,7 +71,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     );
   }
 
-  header() {
+  header(): Mithril.Children {
     const isEnabled = this.isEnabled();
 
     return [
@@ -106,8 +106,8 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     ];
   }
 
-  sections(vnode: Mithril.VnodeDOM<Attrs, this>) {
-    const items = new ItemList();
+  sections(vnode: Mithril.VnodeDOM<Attrs, this>): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
     items.add('content', this.content(vnode));
 
@@ -131,7 +131,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     return items;
   }
 
-  content(vnode: Mithril.VnodeDOM<Attrs, this>) {
+  content(vnode: Mithril.VnodeDOM<Attrs, this>): Mithril.Children {
     const settings = app.extensionData.getSettings(this.extension.id);
 
     return (
@@ -150,7 +150,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     );
   }
 
-  topItems() {
+  topItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
     items.add('version', <span className="ExtensionVersion">{this.extension.version}</span>);
