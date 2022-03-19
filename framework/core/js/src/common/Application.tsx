@@ -130,7 +130,7 @@ export interface ApplicationData {
   resources: SavedModelData[];
   session: { userId: number; csrfToken: string };
   [key: string]: unknown;
-};
+}
 
 /**
  * The `App` class provides a container for an application, as well as various
