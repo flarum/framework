@@ -132,7 +132,7 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
       classes.push('Post--by-actor');
     }
 
-    if (user && user?.id() === discussion.attribute('startUserId')) {
+    if (user && user === discussion.user()) {
       classes.push('Post--by-start-user');
     }
 

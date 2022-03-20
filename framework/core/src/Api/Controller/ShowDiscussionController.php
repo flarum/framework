@@ -48,6 +48,7 @@ class ShowDiscussionController extends AbstractShowController
      * {@inheritdoc}
      */
     public $include = [
+        'user',
         'posts',
         'posts.discussion',
         'posts.user',
