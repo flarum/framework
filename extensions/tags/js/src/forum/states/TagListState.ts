@@ -4,7 +4,7 @@ import type Tag from "../../common/models/Tag";
 export default class TagListState {
   loadedIncludes = new Set();
 
-  async load(includes = []): Promise<Tag[]> {
+  async load(includes: string[] = []): Promise<Tag[]> {
     const unloadedIncludes = includes.filter(
       (include) => !this.loadedIncludes.has(include)
     );

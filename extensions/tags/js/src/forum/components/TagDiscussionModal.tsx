@@ -1,4 +1,6 @@
-import Modal from 'flarum/common/components/Modal';
+import app from 'flarum/forum/app';
+import type Mithril from 'mithril';
+import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
@@ -7,31 +9,43 @@ import classList from 'flarum/common/utils/classList';
 import extractText from 'flarum/common/utils/extractText';
 import KeyboardNavigatable from 'flarum/forum/utils/KeyboardNavigatable';
 import Stream from 'flarum/common/utils/Stream';
+import Discussion from 'flarum/common/models/Discussion';
 
 import tagLabel from '../../common/helpers/tagLabel';
 import tagIcon from '../../common/helpers/tagIcon';
 import sortTags from '../../common/utils/sortTags';
 import getSelectableTags from '../utils/getSelectableTags';
 import ToggleButton from './ToggleButton';
+import Tag from '../../common/models/Tag';
 
-export default class TagDiscussionModal extends Modal {
-  oninit(vnode) {
+export interface TagDiscussionModalAttrs extends IInternalModalAttrs {
+  discussion?: Discussion;
+  selectedTags?: Tag[];
+  onsubmit?: (tags: Tag[]) => {};
+}
+
+export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
+  tagsLoading = true;
+
+  selected: Tag[] = [];
+  filter = Stream('');
+  focused = false;
+
+  minPrimary = app.forum.attribute<number>('minPrimaryTags');
+  maxPrimary = app.forum.attribute<number>('maxPrimaryTags');
+  minSecondary = app.forum.attribute<number>('minSecondaryTags');
+  maxSecondary = app.forum.attribute<number>('maxSecondaryTags');
+
+  bypassReqs = false;
+
+  navigator = new KeyboardNavigatable();
+
+  tags?: Tag[];
+
+  selectedTag?: Tag;
+  oninit(vnode: Mithril.Vnode<TagDiscussionModalAttrs, this>) {
     super.oninit(vnode);
 
-    this.tagsLoading = true;
-
-    this.selected = [];
-    this.filter = Stream('');
-    this.focused = false;
-
-    this.minPrimary = app.forum.attribute('minPrimaryTags');
-    this.maxPrimary = app.forum.attribute('maxPrimaryTags');
-    this.minSecondary = app.forum.attribute('minSecondaryTags');
-    this.maxSecondary = app.forum.attribute('maxSecondaryTags');
-
-    this.bypassReqs = false;
-
-    this.navigator = new KeyboardNavigatable();
     this.navigator
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
@@ -41,15 +55,17 @@ export default class TagDiscussionModal extends Modal {
     app.tagList.load(['parent']).then(() => {
       this.tagsLoading = false;
 
-      this.tags = sortTags(getSelectableTags(this.attrs.discussion));
+      const tags = sortTags(getSelectableTags(this.attrs.discussion));
+      this.tags = tags;
 
+      const discussionTags = this.attrs.discussion?.tags()
       if (this.attrs.selectedTags) {
         this.attrs.selectedTags.map(this.addTag.bind(this));
-      } else if (this.attrs.discussion) {
-        this.attrs.discussion.tags().map(this.addTag.bind(this));
+      } else if (discussionTags) {
+        discussionTags.forEach(tag => tag && this.addTag(tag));
       }
 
-      this.index = this.tags[0].id();
+      this.selectedTag = tags[0];
 
       m.redraw();
     });
@@ -65,10 +81,8 @@ export default class TagDiscussionModal extends Modal {
 
   /**
    * Add the given tag to the list of selected tags.
-   *
-   * @param {Tag} tag
    */
-  addTag(tag) {
+  addTag(tag: Tag) {
     if (!tag.canStartDiscussion()) return;
 
     // If this tag has a parent, we'll also need to add the parent tag to the
@@ -85,10 +99,8 @@ export default class TagDiscussionModal extends Modal {
 
   /**
    * Remove the given tag from the list of selected tags.
-   *
-   * @param {Tag} tag
    */
-  removeTag(tag) {
+  removeTag(tag: Tag) {
     const index = this.selected.indexOf(tag);
     if (index !== -1) {
       this.selected.splice(index, 1);
@@ -111,7 +123,7 @@ export default class TagDiscussionModal extends Modal {
       : app.translator.trans('flarum-tags.forum.choose_tags.title');
   }
 
-  getInstruction(primaryCount, secondaryCount) {
+  getInstruction(primaryCount: number, secondaryCount: number) {
     if (this.bypassReqs) {
       return '';
     }
@@ -128,7 +140,7 @@ export default class TagDiscussionModal extends Modal {
   }
 
   content() {
-    if (this.tagsLoading) {
+    if (this.tagsLoading || !this.tags) {
       return <LoadingIndicator />;
     }
 
@@ -141,7 +153,7 @@ export default class TagDiscussionModal extends Modal {
     // makes it impossible to select a child if its parent hasn't been selected.
     tags = tags.filter(tag => {
       const parent = tag.parent();
-      return parent === false || this.selected.includes(parent);
+      return parent !== null && (parent === false || this.selected.includes(parent));
     });
 
     // If the number of selected primary/secondary tags is at the maximum, then
@@ -160,7 +172,7 @@ export default class TagDiscussionModal extends Modal {
       tags = tags.filter(tag => tag.name().substr(0, filter.length).toLowerCase() === filter);
     }
 
-    if (!tags.includes(this.index)) this.index = tags[0];
+    if (!this.selectedTag || !tags.includes(this.selectedTag)) this.selectedTag = tags[0];
 
     const inputWidth = Math.max(extractText(this.getInstruction(primaryCount, secondaryCount)).length, this.filter().length);
 
@@ -201,7 +213,7 @@ export default class TagDiscussionModal extends Modal {
       <div className="Modal-footer">
         <ul className="TagDiscussionModal-list SelectTagList">
           {tags
-            .filter(tag => filter || !tag.parent() || this.selected.includes(tag.parent()))
+            .filter(tag => filter || !tag.parent() || this.selected.includes(tag.parent() as Tag))
             .map(tag => (
               <li data-index={tag.id()}
                 className={classList({
@@ -209,10 +221,10 @@ export default class TagDiscussionModal extends Modal {
                   child: !!tag.parent(),
                   colored: !!tag.color(),
                   selected: this.selected.includes(tag),
-                  active: this.index === tag
+                  active: this.selectedTag === tag
                 })}
                 style={{color: tag.color()}}
-                onmouseover={() => this.index = tag}
+                onmouseover={() => this.selectedTag = tag}
                 onclick={this.toggleTag.bind(this, tag)}
               >
                 {tagIcon(tag)}
@@ -239,7 +251,7 @@ export default class TagDiscussionModal extends Modal {
     ];
   }
 
-  meetsRequirements(primaryCount, secondaryCount) {
+  meetsRequirements(primaryCount: number, secondaryCount: number) {
     if (this.bypassReqs) {
       return true;
     }
@@ -247,7 +259,10 @@ export default class TagDiscussionModal extends Modal {
     return primaryCount >= this.minPrimary && secondaryCount >= this.minSecondary;
   }
 
-  toggleTag(tag) {
+  toggleTag(tag: Tag) {
+    // Won't happen, needed for type safety.
+    if (!this.tags) return;
+
     if (this.selected.includes(tag)) {
       this.removeTag(tag);
     } else {
@@ -256,22 +271,22 @@ export default class TagDiscussionModal extends Modal {
 
     if (this.filter()) {
       this.filter('');
-      this.index = this.tags[0];
+      this.selectedTag = this.tags[0];
     }
 
     this.onready();
   }
 
-  select(e) {
+  select(e: KeyboardEvent) {
     // Ctrl + Enter submits the selection, just Enter completes the current entry
-    if (e.metaKey || e.ctrlKey || this.selected.includes(this.index)) {
+    if (e.metaKey || e.ctrlKey || this.selectedTag && this.selected.includes(this.selectedTag)) {
       if (this.selected.length) {
         // The DOM submit method doesn't emit a `submit event, so we
         // simulate a manual submission so our `onsubmit` logic is run.
         this.$('button[type="submit"]').click();
       }
-    } else {
-      this.getItem(this.index)[0].dispatchEvent(new Event('click'));
+    } else if (this.selectedTag) {
+      this.getItem(this.selectedTag)[0].dispatchEvent(new Event('click'));
     }
   }
 
@@ -280,16 +295,18 @@ export default class TagDiscussionModal extends Modal {
   }
 
   getCurrentNumericIndex() {
+    if (!this.selectedTag) return -1;
+
     return this.selectableItems().index(
-      this.getItem(this.index)
+      this.getItem(this.selectedTag)
     );
   }
 
-  getItem(index) {
-    return this.selectableItems().filter(`[data-index="${index.id()}"]`);
+  getItem(selectedTag: Tag) {
+    return this.selectableItems().filter(`[data-index="${selectedTag.id()}"]`);
   }
 
-  setIndex(index, scrollToItem) {
+  setIndex(index: number, scrollToItem: boolean) {
     const $items = this.selectableItems();
     const $dropdown = $items.parent();
 
@@ -301,16 +318,16 @@ export default class TagDiscussionModal extends Modal {
 
     const $item = $items.eq(index);
 
-    this.index = app.store.getById('tags', $item.attr('data-index'));
+    this.selectedTag = app.store.getById('tags', $item.attr('data-index')!);
 
     m.redraw();
 
     if (scrollToItem) {
-      const dropdownScroll = $dropdown.scrollTop();
-      const dropdownTop = $dropdown.offset().top;
-      const dropdownBottom = dropdownTop + $dropdown.outerHeight();
-      const itemTop = $item.offset().top;
-      const itemBottom = itemTop + $item.outerHeight();
+      const dropdownScroll = $dropdown.scrollTop()!;
+      const dropdownTop = $dropdown.offset()!.top;
+      const dropdownBottom = dropdownTop + $dropdown.outerHeight()!;
+      const itemTop = $item.offset()!.top;
+      const itemBottom = itemTop + $item.outerHeight()!;
 
       let scrollTop;
       if (itemTop < dropdownTop) {
@@ -325,7 +342,7 @@ export default class TagDiscussionModal extends Modal {
     }
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     const discussion = this.attrs.discussion;
