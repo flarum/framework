@@ -1,3 +1,4 @@
+import app from 'flarum/admin/app';
 import { extend, override } from 'flarum/common/extend';
 import PermissionGrid from 'flarum/admin/components/PermissionGrid';
 import PermissionDropdown from 'flarum/admin/components/PermissionDropdown';
@@ -8,6 +9,7 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import tagLabel from '../common/helpers/tagLabel';
 import tagIcon from '../common/helpers/tagIcon';
 import sortTags from '../common/utils/sortTags';
+import Tag from '../common/models/Tag';
 
 export default function() {
   extend(PermissionGrid.prototype, 'oninit', function () {
@@ -15,7 +17,7 @@ export default function() {
   })
 
   extend(PermissionGrid.prototype, 'oncreate', function () {
-    app.store.find('tags').then(() => {
+    app.store.find<Tag[]>('tags', {}).then(() => {
       this.loading = false;
 
       m.redraw();
@@ -51,6 +53,8 @@ export default function() {
         label: tagLabel(tag),
         onremove: () => tag.save({isRestricted: false}),
         render: item => {
+          if ('setting' in item) return '';
+
           if (item.permission === 'viewForum'
             || item.permission === 'startDiscussion'
             || (item.permission && item.permission.indexOf('discussion.') === 0 && item.tagScoped !== false)
@@ -67,7 +71,7 @@ export default function() {
   });
 
   extend(PermissionGrid.prototype, 'scopeControlItems', items => {
-    const tags = sortTags(app.store.all('tags').filter(tag => !tag.isRestricted()));
+    const tags = sortTags(app.store.all<Tag>('tags').filter(tag => !tag.isRestricted()));
 
     if (tags.length) {
       items.add('tag', <Dropdown className='Dropdown--restrictByTag' buttonClassName='Button Button--text' label={app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading')} icon='fas fa-plus' caretIcon={null}>

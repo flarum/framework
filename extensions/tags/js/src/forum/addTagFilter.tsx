@@ -1,3 +1,5 @@
+import app from 'flarum/forum/app';
+import type Mithril from 'mithril';
 import { extend, override } from 'flarum/common/extend';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
@@ -5,8 +7,10 @@ import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 import classList from 'flarum/common/utils/classList';
 
 import TagHero from './components/TagHero';
+import Tag from '../common/models/Tag';
+import { ComponentAttrs } from 'flarum/common/Component';
 
-const findTag = slug => app.store.all('tags').find(tag => tag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0);
+const findTag = (slug: string) => app.store.all<Tag>('tags').find(tag => tag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0);
 
 export default function() {
   IndexPage.prototype.currentTag = function() {
@@ -45,6 +49,8 @@ export default function() {
       this.currentActiveTag = tag;
       return this.currentActiveTag;
     }
+
+    return;
   };
 
   // If currently viewing a tag, insert a tag hero at the top of the view.
@@ -56,7 +62,7 @@ export default function() {
     return original();
   });
 
-  extend(IndexPage.prototype, 'view', function(vdom) {
+  extend(IndexPage.prototype, 'view', function(vdom: Mithril.Vnode<ComponentAttrs, {}>) {
     const tag = this.currentTag();
 
     if (tag) vdom.attrs.className += ' IndexPage--tag'+tag.id();
@@ -78,7 +84,7 @@ export default function() {
     if (tag) {
       const color = tag.color();
       const canStartDiscussion = tag.canStartDiscussion() || !app.session.user;
-      const newDiscussion = items.get('newDiscussion');
+      const newDiscussion = items.get('newDiscussion') as Mithril.Vnode<ComponentAttrs, {}>;
 
       if (color) {
         newDiscussion.attrs.className = classList([newDiscussion.attrs.className, 'Button--tagColored']);
@@ -97,16 +103,22 @@ export default function() {
   });
 
   // Translate that parameter into a gambit appended to the search query.
-  extend(DiscussionListState.prototype, 'requestParams', function(params) {
-    params.include.push('tags', 'tags.parent');
+  extend(DiscussionListState.prototype, 'requestParams', function(this: DiscussionListState, params) {
+    if (typeof params.include === 'string') {
+      params.include = [params.include];
+    } else {
+      params.include?.push('tags', 'tags.parent');
+    }
 
     if (this.params.tags) {
-      params.filter.tag = this.params.tags;
+      const filter = params.filter ?? {};
+      filter.tag = this.params.tags;
       // TODO: replace this with a more robust system.
-      const q = params.filter.q;
+      const q = filter.q;
       if (q) {
-        params.filter.q = `${q} tag:${this.params.tags}`;
+        filter.q = `${q} tag:${this.params.tags}`;
       }
+      params.filter = filter
     }
   });
 }

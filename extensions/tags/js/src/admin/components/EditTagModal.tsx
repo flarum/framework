@@ -1,5 +1,5 @@
 import app from 'flarum/admin/app';
-import Modal from 'flarum/common/components/Modal';
+import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -7,13 +7,32 @@ import { slug } from 'flarum/common/utils/string';
 import Stream from 'flarum/common/utils/Stream';
 
 import tagLabel from '../../common/helpers/tagLabel';
+import type Mithril from 'mithril';
+import type Tag from '../../common/models/Tag';
+import extractText from 'flarum/common/utils/extractText';
+import { ModelIdentifier } from 'flarum/common/Model';
+
+export interface EditTagModalAttrs extends IInternalModalAttrs {
+  primary?: boolean;
+  model?: Tag;
+}
 
 /**
  * The `EditTagModal` component shows a modal dialog which allows the user
  * to create or edit a tag.
  */
-export default class EditTagModal extends Modal {
-  oninit(vnode) {
+export default class EditTagModal extends Modal<EditTagModalAttrs> {
+  tag!: Tag;
+
+  name!: Stream<string>;
+  slug!: Stream<string>;
+  description!: Stream<string>;
+  color!: Stream<string>;
+  icon!: Stream<string>;
+  isHidden!: Stream<boolean>;
+  primary!: Stream<boolean>;
+
+  oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>) {
     super.oninit(vnode);
 
     this.tag = this.attrs.model || app.store.createRecord('tags');
@@ -52,9 +71,10 @@ export default class EditTagModal extends Modal {
 
     items.add('name', <div className="Form-group">
       <label>{app.translator.trans('flarum-tags.admin.edit_tag.name_label')}</label>
-      <input className="FormControl" placeholder={app.translator.trans('flarum-tags.admin.edit_tag.name_placeholder')} value={this.name()} oninput={e => {
-        this.name(e.target.value);
-        this.slug(slug(e.target.value));
+      <input className="FormControl" placeholder={app.translator.trans('flarum-tags.admin.edit_tag.name_placeholder')} value={this.name()} oninput={(e: InputEvent) => {
+        const target = e.target as HTMLInputElement;
+        this.name(target.value);
+        this.slug(slug(target.value));
       }} />
     </div>, 50);
 
@@ -118,7 +138,7 @@ export default class EditTagModal extends Modal {
     };
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
@@ -132,13 +152,14 @@ export default class EditTagModal extends Modal {
   }
 
   delete() {
-    if (confirm(app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation'))) {
-      const children = app.store.all('tags').filter(tag => tag.parent() === this.tag);
+    if (confirm(extractText(app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation')))) {
+      const children = app.store.all<Tag>('tags').filter(tag => tag.parent() === this.tag);
 
       this.tag.delete().then(() => {
         children.forEach(tag => tag.pushData({
           attributes: { isChild: false },
-          relationships: { parent: null }
+          // @deprecated. Temporary hack for type safety, remove before v1.3.
+          relationships: { parent: null as any as [] }
         }));
         m.redraw();
       });
