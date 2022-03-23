@@ -1,37 +1,39 @@
+import Component, { ComponentAttrs } from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';
+import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
+import Discussion from '../../common/models/Discussion';
+import Mithril from 'mithril';
+import { DiscussionListParams } from '../states/DiscussionListState';
+export interface IDiscussionListItemAttrs extends ComponentAttrs {
+    discussion: Discussion;
+    params: DiscussionListParams;
+}
 /**
  * The `DiscussionListItem` component shows a single discussion in the
  * discussion list.
- *
- * ### Attrs
- *
- * - `discussion`
- * - `params`
  */
-export default class DiscussionListItem extends Component<import("../../common/Component").ComponentAttrs, undefined> {
-    constructor();
+export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemAttrs = IDiscussionListItemAttrs> extends Component<CustomAttrs> {
     /**
-     * Set up a subtree retainer so that the discussion will not be redrawn
+     * Ensures that the discussion will not be redrawn
      * unless new data comes in.
-     *
-     * @type {SubtreeRetainer}
      */
-    subtree: SubtreeRetainer | undefined;
+    subtree: SubtreeRetainer;
+    highlightRegExp?: RegExp;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     elementAttrs(): {
         className: string;
     };
-    highlightRegExp: RegExp | undefined;
+    view(): JSX.Element;
+    oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
+    onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): boolean;
     /**
      * Determine whether or not the discussion is currently being viewed.
-     *
-     * @return {boolean}
      */
     active(): boolean;
     /**
      * Determine whether or not information about who started the discussion
      * should be displayed instead of information about the most recent reply to
      * the discussion.
-     *
-     * @return {boolean}
      */
     showFirstPost(): boolean;
     /**
@@ -48,12 +50,7 @@ export default class DiscussionListItem extends Component<import("../../common/C
     /**
      * Build an item list of info for a discussion listing. By default this is
      * just the first/last post indicator.
-     *
-     * @return {ItemList<import('mithril').Children>}
      */
-    infoItems(): ItemList<import('mithril').Children>;
+    infoItems(): ItemList<Mithril.Children>;
     replyCountItem(): JSX.Element;
 }
-import Component from "../../common/Component";
-import SubtreeRetainer from "../../common/utils/SubtreeRetainer";
-import ItemList from "../../common/utils/ItemList";

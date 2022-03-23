@@ -1,7 +1,7 @@
-import { extend } from 'flarum/extend';
-import IndexPage from 'flarum/components/IndexPage';
-import Separator from 'flarum/components/Separator';
-import LinkButton from 'flarum/components/LinkButton';
+import { extend } from 'flarum/common/extend';
+import IndexPage from 'flarum/forum/components/IndexPage';
+import Separator from 'flarum/common/components/Separator';
+import LinkButton from 'flarum/common/components/LinkButton';
 
 import TagLinkButton from './components/TagLinkButton';
 import TagsPage from './components/TagsPage';

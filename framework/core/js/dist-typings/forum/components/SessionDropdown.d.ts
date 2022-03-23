@@ -3,6 +3,7 @@
  * avatar/name, with a dropdown of session controls.
  */
 export default class SessionDropdown extends Dropdown {
+    getButtonContent(): (string | JSX.Element)[];
     /**
      * Build an item list for the contents of the dropdown menu.
      *

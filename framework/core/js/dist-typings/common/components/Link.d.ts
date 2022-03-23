@@ -8,5 +8,6 @@
  */
 export default class Link extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
+    view(vnode: any): JSX.Element;
 }
 import Component from "../Component";

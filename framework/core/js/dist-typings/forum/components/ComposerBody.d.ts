@@ -17,6 +17,7 @@
  */
 export default class ComposerBody extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
     composer: any;
     /**
      * Whether or not the component is loading.
@@ -24,6 +25,7 @@ export default class ComposerBody extends Component<import("../../common/Compone
      * @type {Boolean}
      */
     loading: boolean | undefined;
+    view(): JSX.Element;
     /**
      * Check if there is any unsaved data.
      *

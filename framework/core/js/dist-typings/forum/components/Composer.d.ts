@@ -5,6 +5,13 @@
  */
 export default class Composer extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
+    /**
+     * The composer's "state".
+     *
+     * @type {ComposerState}
+     */
+    state: ComposerState | undefined;
     /**
      * Whether or not the composer currently has focus.
      *
@@ -12,7 +19,11 @@ export default class Composer extends Component<import("../../common/Component")
      */
     active: boolean | undefined;
     prevPosition: any;
+    view(): JSX.Element;
+    onupdate(vnode: any): void;
+    oncreate(vnode: any): void;
     handlers: {} | undefined;
+    onremove(vnode: any): void;
     /**
      * Add the necessary event handlers to the composer's handle so that it can
      * be used to resize the composer.
@@ -102,4 +113,5 @@ export default class Composer extends Component<import("../../common/Component")
     changeHeight(height: number): void;
 }
 import Component from "../../common/Component";
+import ComposerState from "../states/ComposerState";
 import ItemList from "../../common/utils/ItemList";

@@ -6,7 +6,8 @@ import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import Button from 'flarum/common/components/Button';
 import ItemList from 'flarum/common/utils/ItemList';
-import { Children, VnodeDOM } from 'mithril';
+import type { Children } from 'mithril';
+import type Tag from 'flarum/tags/common/models/Tag';
 
 export type PusherBinding = {
   channels: {
@@ -47,14 +48,15 @@ app.initializers.add('flarum-pusher', () => {
     app.pusher.then((binding: PusherBinding) => {
       const pusher = binding.pusher;
 
-      pusher.bind('newPost', (data: { tagIds: number[]; discussionId: number }) => {
+      pusher.bind('newPost', (data: { tagIds: string[]; discussionId: number }) => {
         const params = app.discussions.getParams();
 
         if (!params.q && !params.sort && !params.filter) {
           if (params.tags) {
-            const tag = app.store.getBy('tags', 'slug', params.tags);
+            const tag = app.store.getBy<Tag>('tags', 'slug', params.tags);
+            const tagId = tag?.id();
 
-            if (!data.tagIds.includes(tag.id())) return;
+            if (!tagId || !data.tagIds.includes(tagId)) return;
           }
 
           const id = String(data.discussionId);
@@ -79,11 +81,11 @@ app.initializers.add('flarum-pusher', () => {
     });
   });
 
-  extend(DiscussionList.prototype, 'view', function (this: DiscussionList, vdom: VnodeDOM) {
+  extend(DiscussionList.prototype, 'view', function (this: DiscussionList, vdom: Children) {
     if (app.pushedUpdates) {
       const count = app.pushedUpdates.length;
 
-      if (count) {
+      if (count && typeof vdom === 'object' && vdom && 'children' in vdom && vdom.children instanceof Array) {
         vdom.children.unshift(
           Button.component(
             {

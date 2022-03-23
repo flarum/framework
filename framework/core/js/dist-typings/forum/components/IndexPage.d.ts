@@ -5,8 +5,13 @@
 export default class IndexPage extends Page<import("../../common/components/Page").IPageAttrs> {
     static providesInitialSearch: boolean;
     constructor();
+    oninit(vnode: any): void;
     lastDiscussion: any;
+    view(): JSX.Element;
     setTitle(): void;
+    oncreate(vnode: any): void;
+    onbeforeremove(vnode: any): void;
+    onremove(vnode: any): void;
     /**
      * Get the component to display as the hero.
      *

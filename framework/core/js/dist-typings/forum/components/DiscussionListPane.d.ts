@@ -9,6 +9,9 @@
  */
 export default class DiscussionListPane extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    view(): JSX.Element | undefined;
+    oncreate(vnode: any): void;
+    onremove(vnode: any): void;
     /**
      * Are we on a device that's larger than we consider "mobile"?
      *

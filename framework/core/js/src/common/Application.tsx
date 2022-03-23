@@ -123,6 +123,15 @@ export interface RouteResolver<
   render?(this: this, vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
 }
 
+export interface ApplicationData {
+  apiDocument: ApiPayload | null;
+  locale: string;
+  locales: Record<string, string>;
+  resources: SavedModelData[];
+  session: { userId: number; csrfToken: string };
+  [key: string]: unknown;
+}
+
 /**
  * The `App` class provides a container for an application, as well as various
  * utilities for the rest of the app to use.
@@ -218,14 +227,7 @@ export default class Application {
    */
   drawer!: Drawer;
 
-  data!: {
-    apiDocument: ApiPayload | null;
-    locale: string;
-    locales: Record<string, string>;
-    resources: SavedModelData[];
-    session: { userId: number; csrfToken: string };
-    [key: string]: unknown;
-  };
+  data!: ApplicationData;
 
   private _title: string = '';
   private _titleCount: number = 0;

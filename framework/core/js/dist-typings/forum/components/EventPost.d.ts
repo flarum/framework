@@ -9,7 +9,9 @@
  *
  * @abstract
  */
-export default class EventPost extends Post {
+export default class EventPost extends Post<import("./Post").IPostAttrs> {
+    constructor();
+    content(): any;
     /**
      * Get the name of the event icon.
      *

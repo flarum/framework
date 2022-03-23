@@ -34,7 +34,7 @@ export interface SavedModelData {
 export type ModelData = UnsavedModelData | SavedModelData;
 
 export interface SaveRelationships {
-  [relationship: string]: Model | Model[];
+  [relationship: string]: null | Model | Model[];
 }
 
 export interface SaveAttributes {
@@ -137,6 +137,12 @@ export default abstract class Model {
       for (const r in data.relationships) {
         const relationship = data.relationships[r];
 
+        if (relationship === null) {
+          delete relationships[r];
+          delete data.relationships[r];
+          continue;
+        }
+
         let identifier: ModelRelationships[string];
         if (relationship instanceof Model) {
           identifier = { data: Model.getIdentifier(relationship) };
@@ -196,6 +202,8 @@ export default abstract class Model {
 
       for (const key in attributes.relationships) {
         const model = attributes.relationships[key];
+
+        if (model === null) continue;
 
         data.relationships[key] = {
           data: model instanceof Array ? model.map(Model.getIdentifier) : Model.getIdentifier(model),

@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Component from 'flarum/common/Component';
 import tagIcon from '../../common/helpers/tagIcon';
 
 export default class TagHero extends Component {

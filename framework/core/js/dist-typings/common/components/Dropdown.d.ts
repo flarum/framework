@@ -18,7 +18,10 @@
 export default class Dropdown extends Component<import("../Component").ComponentAttrs, undefined> {
     static initAttrs(attrs: any): void;
     constructor();
+    oninit(vnode: any): void;
     showing: boolean | undefined;
+    view(vnode: any): JSX.Element;
+    oncreate(vnode: any): void;
     /**
      * Get the template for the button.
      *

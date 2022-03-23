@@ -1,5 +1,5 @@
-import extract from 'flarum/utils/extract';
-import Link from 'flarum/components/Link';
+import extract from 'flarum/common/utils/extract';
+import Link from 'flarum/common/components/Link';
 import tagIcon from './tagIcon';
 
 export default function tagLabel(tag, attrs = {}) {

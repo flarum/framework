@@ -1,7 +1,7 @@
 import app from '../../forum/app';
 import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
-import { ApiQueryParamsPlural, ApiResponsePlural } from '../../common/Store';
+import { ApiResponsePlural } from '../../common/Store';
 
 export interface DiscussionListParams extends PaginatedListParams {
   sort?: string;

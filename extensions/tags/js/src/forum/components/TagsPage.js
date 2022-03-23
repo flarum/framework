@@ -1,9 +1,9 @@
-import Page from 'flarum/components/Page';
-import IndexPage from 'flarum/components/IndexPage';
-import Link from 'flarum/components/Link';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import listItems from 'flarum/helpers/listItems';
-import humanTime from 'flarum/helpers/humanTime';
+import Page from 'flarum/common/components/Page';
+import IndexPage from 'flarum/forum/components/IndexPage';
+import Link from 'flarum/common/components/Link';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import listItems from 'flarum/common/helpers/listItems';
+import humanTime from 'flarum/common/helpers/humanTime';
 
 import tagIcon from '../../common/helpers/tagIcon';
 import tagLabel from '../../common/helpers/tagLabel';

@@ -1,4 +1,6 @@
-export default class StatusWidget extends DashboardWidget {
+export default class StatusWidget extends DashboardWidget<import("./DashboardWidget").IDashboardWidgetAttrs> {
+    constructor();
+    content(): JSX.Element;
     items(): ItemList<any>;
     toolsItems(): ItemList<any>;
     handleClearCache(e: any): void;

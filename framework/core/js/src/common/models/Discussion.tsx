@@ -42,7 +42,7 @@ export default class Discussion extends Model {
     return Model.attribute<number | undefined>('commentCount').call(this);
   }
   replyCount() {
-    return computed<Number, this>('commentCount', (commentCount) => Math.max(0, ((commentCount as number) ?? 0) - 1)).call(this);
+    return computed<number, this>('commentCount', (commentCount) => Math.max(0, ((commentCount as number) ?? 0) - 1)).call(this);
   }
   posts() {
     return Model.hasMany<Post>('posts').call(this);

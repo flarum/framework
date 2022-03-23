@@ -1,6 +1,6 @@
-import { extend } from 'flarum/extend';
-import DiscussionListItem from 'flarum/components/DiscussionListItem';
-import DiscussionHero from 'flarum/components/DiscussionHero';
+import { extend } from 'flarum/common/extend';
+import DiscussionListItem from 'flarum/forum/components/DiscussionListItem';
+import DiscussionHero from 'flarum/forum/components/DiscussionHero';
 
 import tagsLabel from '../common/helpers/tagsLabel';
 import sortTags from '../common/utils/sortTags';

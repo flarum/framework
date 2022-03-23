@@ -17,11 +17,13 @@ export interface ApiQueryParamsSingle {
 export interface ApiQueryParamsPlural {
   fields?: string[];
   include?: string;
-  filter?: {
-    q: string;
-    [key: string]: string;
-  };
+  filter?:
+    | {
+        q: string;
+      }
+    | Record<string, string>;
   page?: {
+    near?: number;
     offset?: number;
     number?: number;
     limit?: number;
@@ -145,8 +147,8 @@ export default class Store {
   /**
    * Make a request to the API to find record(s) of a specific type.
    */
-  async find<M extends Model>(type: string, params: ApiQueryParamsSingle): Promise<ApiResponseSingle<M>>;
-  async find<Ms extends Model[]>(type: string, params: ApiQueryParamsPlural): Promise<ApiResponsePlural<Ms[number]>>;
+  async find<M extends Model>(type: string, params?: ApiQueryParamsSingle): Promise<ApiResponseSingle<M>>;
+  async find<Ms extends Model[]>(type: string, params?: ApiQueryParamsPlural): Promise<ApiResponsePlural<Ms[number]>>;
   async find<M extends Model>(
     type: string,
     id: string,
@@ -161,7 +163,7 @@ export default class Store {
   ): Promise<ApiResponsePlural<Ms[number]>>;
   async find<M extends Model | Model[]>(
     type: string,
-    idOrParams: string | string[] | ApiQueryParams,
+    idOrParams: undefined | string | string[] | ApiQueryParams,
     query: ApiQueryParams = {},
     options: ApiQueryRequestOptions<M extends Array<infer _T> ? ApiPayloadPlural : ApiPayloadSingle> = {}
   ): Promise<ApiResponse<FlatArray<M, 1>>> {

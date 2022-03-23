@@ -4,5 +4,8 @@
  */
 export default class AlertManager extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
+    state: any;
+    view(): JSX.Element;
 }
 import Component from "../Component";

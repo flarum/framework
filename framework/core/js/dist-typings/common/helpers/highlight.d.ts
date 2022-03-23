@@ -8,4 +8,4 @@ import type Mithril from 'mithril';
  * @param [length] The number of characters to truncate the string to.
  *     The string will be truncated surrounding the first match.
  */
-export default function highlight(string: string, phrase: string | RegExp, length?: number): Mithril.Vnode<any, any> | string;
+export default function highlight(string: string, phrase?: string | RegExp, length?: number): Mithril.Vnode<any, any> | string;

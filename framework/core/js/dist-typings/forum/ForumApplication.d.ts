@@ -1,23 +1,35 @@
 import History from './utils/History';
 import Pane from './utils/Pane';
-import { makeRouteHelpers } from './routes';
-import Application from '../common/Application';
+import { ForumRoutes } from './routes';
+import Application, { ApplicationData } from '../common/Application';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import type Notification from './components/Notification';
 import type Post from './components/Post';
-import Discussion from '../common/models/Discussion';
+import type Discussion from '../common/models/Discussion';
+import type NotificationModel from '../common/models/Notification';
+import type PostModel from '../common/models/Post';
+export interface ForumApplicationData extends ApplicationData {
+}
 export default class ForumApplication extends Application {
     /**
      * A map of notification types to their components.
      */
-    notificationComponents: Record<string, typeof Notification>;
+    notificationComponents: Record<string, ComponentClass<{
+        notification: NotificationModel;
+    }, Notification<{
+        notification: NotificationModel;
+    }>>>;
     /**
      * A map of post types to their components.
      */
-    postComponents: Record<string, typeof Post>;
+    postComponents: Record<string, ComponentClass<{
+        post: PostModel;
+    }, Post<{
+        post: PostModel;
+    }>>>;
     /**
      * An object which controls the state of the page's side pane.
      */
@@ -45,7 +57,8 @@ export default class ForumApplication extends Application {
      * is used in the index page and the slideout pane.
      */
     discussions: DiscussionListState;
-    route: typeof Application.prototype.route & ReturnType<typeof makeRouteHelpers>;
+    route: typeof Application.prototype.route & ForumRoutes;
+    data: ForumApplicationData;
     constructor();
     /**
      * @inheritdoc

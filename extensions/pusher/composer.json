@@ -22,6 +22,9 @@
         "flarum/core": "^1.2",
         "pusher/pusher-php-server": "^2.2"
     },
+    "require-dev": {
+        "flarum/tags": "^1.0"
+    },
     "autoload": {
         "psr-4": {
             "Flarum\\Pusher\\": "src/"

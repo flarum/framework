@@ -4,6 +4,7 @@ export default Separator;
  */
 declare class Separator extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
+    view(): JSX.Element;
 }
 declare namespace Separator {
     const isListItem: boolean;

@@ -3,6 +3,7 @@
  */
 export default class LogInButtons extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    view(): JSX.Element;
     /**
      * Build a list of LogInButton components.
      *

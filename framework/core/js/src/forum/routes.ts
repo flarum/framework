@@ -7,8 +7,17 @@ import SettingsPage from './components/SettingsPage';
 import NotificationsPage from './components/NotificationsPage';
 import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 import Discussion from '../common/models/Discussion';
-import Post from '../common/models/Post';
-import User from '../common/models/User';
+import type Post from '../common/models/Post';
+import type User from '../common/models/User';
+
+/**
+ * Helper functions to generate URLs to form pages.
+ */
+export interface ForumRoutes {
+  discussion: (discussion: Discussion, near?: number) => string;
+  post: (post: Post) => string;
+  user: (user: User) => string;
+}
 
 /**
  * The `routes` initializer defines the forum app's routes.

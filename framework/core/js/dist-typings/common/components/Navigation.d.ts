@@ -15,6 +15,7 @@
  */
 export default class Navigation extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();
+    view(): JSX.Element;
     /**
      * Get the back button.
      *

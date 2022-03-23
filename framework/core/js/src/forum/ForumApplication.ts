@@ -10,9 +10,9 @@ import Composer from './components/Composer';
 import DiscussionRenamedNotification from './components/DiscussionRenamedNotification';
 import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
-import routes, { makeRouteHelpers } from './routes';
+import routes, { ForumRoutes, makeRouteHelpers } from './routes';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
-import Application from '../common/Application';
+import Application, { ApplicationData } from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
@@ -22,21 +22,25 @@ import isSafariMobile from './utils/isSafariMobile';
 
 import type Notification from './components/Notification';
 import type Post from './components/Post';
-import Discussion from '../common/models/Discussion';
+import type Discussion from '../common/models/Discussion';
+import type NotificationModel from '../common/models/Notification';
+import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
+
+export interface ForumApplicationData extends ApplicationData {}
 
 export default class ForumApplication extends Application {
   /**
    * A map of notification types to their components.
    */
-  notificationComponents: Record<string, typeof Notification> = {
+  notificationComponents: Record<string, ComponentClass<{ notification: NotificationModel }, Notification<{ notification: NotificationModel }>>> = {
     discussionRenamed: DiscussionRenamedNotification,
   };
 
   /**
    * A map of post types to their components.
    */
-  postComponents: Record<string, typeof Post> = {
+  postComponents: Record<string, ComponentClass<{ post: PostModel }, Post<{ post: PostModel }>>> = {
     comment: CommentPost,
     discussionRenamed: DiscussionRenamedPost,
   };
@@ -74,7 +78,9 @@ export default class ForumApplication extends Application {
    */
   discussions: DiscussionListState = new DiscussionListState({});
 
-  route: typeof Application.prototype.route & ReturnType<typeof makeRouteHelpers>;
+  route: typeof Application.prototype.route & ForumRoutes;
+
+  data!: ForumApplicationData;
 
   constructor() {
     super();

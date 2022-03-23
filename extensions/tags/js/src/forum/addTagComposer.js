@@ -1,7 +1,7 @@
-import { extend, override } from 'flarum/extend';
-import IndexPage from 'flarum/components/IndexPage';
-import DiscussionComposer from 'flarum/components/DiscussionComposer';
-import classList from 'flarum/utils/classList';
+import { extend, override } from 'flarum/common/extend';
+import IndexPage from 'flarum/forum/components/IndexPage';
+import DiscussionComposer from 'flarum/forum/components/DiscussionComposer';
+import classList from 'flarum/common/utils/classList';
 
 import TagDiscussionModal from './components/TagDiscussionModal';
 import tagsLabel from '../common/helpers/tagsLabel';

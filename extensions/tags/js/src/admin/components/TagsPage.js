@@ -1,9 +1,9 @@
 import sortable from 'sortablejs';
 
-import ExtensionPage from 'flarum/components/ExtensionPage';
-import Button from 'flarum/components/Button';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import withAttr from 'flarum/utils/withAttr';
+import ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import Button from 'flarum/common/components/Button';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import withAttr from 'flarum/common/utils/withAttr';
 
 import EditTagModal from './EditTagModal';
 import tagIcon from '../../common/helpers/tagIcon';

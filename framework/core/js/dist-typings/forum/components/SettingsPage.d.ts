@@ -3,6 +3,7 @@
  * the context of their user profile.
  */
 export default class SettingsPage extends UserPage {
+    content(): JSX.Element;
     /**
      * Build an item list for the user's settings controls.
      *

@@ -9,6 +9,7 @@
  */
 export default class AvatarEditor extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
+    oninit(vnode: any): void;
     /**
      * Whether or not an avatar upload is in progress.
      *
@@ -21,6 +22,7 @@ export default class AvatarEditor extends Component<import("../../common/Compone
      * @type {Boolean}
      */
     isDraggedOver: boolean | undefined;
+    view(): JSX.Element;
     /**
      * Get the items in the edit avatar dropdown menu.
      *

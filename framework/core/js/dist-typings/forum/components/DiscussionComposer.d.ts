@@ -24,6 +24,7 @@ export default class DiscussionComposer extends ComposerBody {
      * @param {KeyboardEvent} e
      */
     onkeydown(e: KeyboardEvent): void;
+    hasChanges(): any;
     /**
      * Get the data to submit to the server when the discussion is saved.
      *
