@@ -33,7 +33,7 @@ import type Mithril from 'mithril';
 import type Component from './Component';
 import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
-import fireApplicationError from "./helpers/fireApplicationError";
+import fireApplicationError from './helpers/fireApplicationError';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -273,10 +273,13 @@ export default class Application {
           ? initializer.itemName.replace(/(\/flarum-ext-)|(\/flarum-)/g, '-')
           : initializer.itemName;
 
-        caughtInitializationErrors.push(() => fireApplicationError({
-          userTitle: extractText(app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension })),
-          consoleTitle: `${extension} failed to initialize`,
-        }, e));
+        caughtInitializationErrors.push(() =>
+          fireApplicationError(
+            extractText(app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension })),
+            `${extension} failed to initialize`,
+            e
+          )
+        );
       }
     });
 
@@ -290,7 +293,7 @@ export default class Application {
 
     this.initialRoute = window.location.href;
 
-    caughtInitializationErrors.forEach(handler => handler());
+    caughtInitializationErrors.forEach((handler) => handler());
   }
 
   // TODO: This entire system needs a do-over for v2
