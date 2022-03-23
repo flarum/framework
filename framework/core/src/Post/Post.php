@@ -99,7 +99,7 @@ class Post extends AbstractModel
             $post->number = new Expression('('.$db
                     ->table('posts', 'pn')
                     ->whereRaw('pn.discussion_id = '.intval($post->discussion_id))
-                    ->select($db->raw('max('. $db->getTablePrefix() .'pn.number) + 1'))
+                    ->select($db->raw('max('.$db->getTablePrefix().'pn.number) + 1'))
                     ->toSql()
                 .')');
         });
