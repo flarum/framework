@@ -96,9 +96,9 @@ class Post extends AbstractModel
 
             /** @var ConnectionInterface $db */
             $db = static::getConnectionResolver();
-            $post->number = new Expression('('. $db
+            $post->number = new Expression('('.$db
                     ->table('posts', 'pn')
-                    ->whereRaw('pn.discussion_id = ' . intval($post->discussion_id))
+                    ->whereRaw('pn.discussion_id = '.intval($post->discussion_id))
                     ->select($db->raw('max(pn.number) + 1'))
                     ->toSql()
                 .')');
