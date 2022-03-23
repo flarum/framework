@@ -55,9 +55,10 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
     {
         $slugs = explode(',', trim($rawSlugs, '"'));
 
-        $query->leftJoin('discussion_tag', 'discussions.id', '=', 'discussion_tag.discussion_id');
-
-        $query->where(function (Builder $query) use ($slugs, $negate) {
+        $query
+            ->distinct()
+            ->leftJoin('discussion_tag', 'discussions.id', '=', 'discussion_tag.discussion_id')
+            ->where(function (Builder $query) use ($slugs, $negate) {
             foreach ($slugs as $slug) {
                 if ($slug === 'untagged' && ! $negate) {
                     $query->orWhereNull('discussion_tag.tag_id');
