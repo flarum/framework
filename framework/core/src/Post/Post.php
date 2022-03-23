@@ -10,6 +10,7 @@
 namespace Flarum\Post;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Database\InsertsViaSubqueryTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
@@ -41,6 +42,7 @@ class Post extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
+    use InsertsViaSubqueryTrait;
 
     protected $table = 'posts';
 
@@ -102,6 +104,10 @@ class Post extends AbstractModel
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
+
+        static::$subqueryAttributes['number'] = function (Post $post) {
+            return static::query()->where('discussion_id', $post->discussion_id)->selectRaw('max(number)+1');
+        };
     }
 
     /**

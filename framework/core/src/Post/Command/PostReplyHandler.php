@@ -74,7 +74,7 @@ class PostReplyHandler
 
         // If this is the first post in the discussion, it's technically not a
         // "reply", so we won't check for that permission.
-        if ($discussion->post_number_index > 0) {
+        if ($discussion->first_post_id !== null) {
             $actor->assertCan('reply', $discussion);
         }
 
