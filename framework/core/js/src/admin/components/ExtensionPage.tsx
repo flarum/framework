@@ -15,7 +15,7 @@ import ReadmeModal from './ReadmeModal';
 import RequestError from '../../common/utils/RequestError';
 import { Extension } from '../AdminApplication';
 import { IPageAttrs } from '../../common/components/Page';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
 
 export interface ExtensionPageAttrs extends IPageAttrs {
