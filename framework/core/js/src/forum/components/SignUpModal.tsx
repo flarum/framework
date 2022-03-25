@@ -6,7 +6,7 @@ import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 export interface ISignupModalAttrs extends IInternalModalAttrs {
   username?: string;
