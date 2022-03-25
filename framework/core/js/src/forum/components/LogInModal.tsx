@@ -7,7 +7,7 @@ import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
 
 export interface ILoginModalAttrs extends IInternalModalAttrs {
