@@ -1,4 +1,4 @@
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 import Component, { ComponentAttrs } from '../Component';
 import type AlertManagerState from '../states/AlertManagerState';
 
