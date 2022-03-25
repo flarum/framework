@@ -3,7 +3,7 @@ import app from 'flarum/common/app';
 import extract from 'flarum/common/utils/extract';
 import Link from 'flarum/common/components/Link';
 import tagIcon from './tagIcon';
-import Tag from '../models/Tag';
+import type Tag from '../models/Tag';
 import type { ComponentAttrs } from 'flarum/common/Component';
 import type Mithril from 'mithril';
 
