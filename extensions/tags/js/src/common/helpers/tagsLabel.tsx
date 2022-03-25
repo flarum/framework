@@ -1,7 +1,7 @@
 import extract from 'flarum/common/utils/extract';
 import tagLabel from './tagLabel';
 import sortTags from '../utils/sortTags';
-import Tag from '../models/Tag';
+import type Tag from '../models/Tag';
 import type { ComponentAttrs } from 'flarum/common/Component';
 import type Mithril from 'mithril';
 
