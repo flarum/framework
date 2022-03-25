@@ -1,4 +1,4 @@
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 import Component from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 
