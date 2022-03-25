@@ -6,7 +6,7 @@ import Group from '../models/Group';
 import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
 import Stream from '../utils/Stream';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 import type User from '../models/User';
 import type { SaveAttributes, SaveRelationships } from '../Model';
 
