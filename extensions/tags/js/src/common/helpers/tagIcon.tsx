@@ -1,6 +1,6 @@
 import { ComponentAttrs } from 'flarum/common/Component';
 import classList from 'flarum/common/utils/classList';
-import Tag from '../models/Tag';
+import type Tag from '../models/Tag';
 import type Mithril from 'mithril';
 
 export default function tagIcon(tag: Tag, attrs: ComponentAttrs = {}, settings: {useColor?: boolean} = {}): Mithril.Children {
