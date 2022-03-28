@@ -42,13 +42,20 @@ export default class DiscussionList extends Component {
       return <div className="DiscussionList">{Placeholder.component({ text })}</div>;
     }
 
+    const pageSize = state.pageSize;
+
     return (
-      <div role="feed" aria-busy={isLoading} class={classList('DiscussionList', { 'DiscussionList--searchResults': state.isSearchResults() })}>
-        <ul className="DiscussionList-discussions">
-          {state.getPages().map((pg) => {
-            return pg.items.map((discussion) => (
-              <li key={discussion.id()} data-id={discussion.id()}>
-                {DiscussionListItem.component({ discussion, params })}
+      <div class={classList('DiscussionList', { 'DiscussionList--searchResults': state.isSearchResults() })}>
+        <ul role="feed" aria-busy={isLoading} className="DiscussionList-discussions">
+          {state.getPages().map((pg, pageNum) => {
+            return pg.items.map((discussion, itemNum) => (
+              <li key={discussion.id()}
+                  data-id={discussion.id()} 
+                  role="article"
+                  aria-setsize="-1"
+                  aria-posinset={pageNum * pageSize + itemNum}
+              >
+                <DiscussionListItem discussion={discussion} params={params} />
               </li>
             ));
           })}
