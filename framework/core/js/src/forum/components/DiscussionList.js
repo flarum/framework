@@ -4,6 +4,7 @@ import DiscussionListItem from './DiscussionListItem';
 import Button from '../../common/components/Button';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Placeholder from '../../common/components/Placeholder';
+import classList from '../../common/utils/classList';
 
 /**
  * The `DiscussionList` component displays a list of discussions.
@@ -20,9 +21,11 @@ export default class DiscussionList extends Component {
     const state = this.attrs.state;
 
     const params = state.getParams();
+    const isLoading = state.isInitialLoading() || state.isLoadingNext();
+
     let loading;
 
-    if (state.isInitialLoading() || state.isLoadingNext()) {
+    if (isLoading) {
       loading = <LoadingIndicator />;
     } else if (state.hasNext()) {
       loading = Button.component(
@@ -39,13 +42,15 @@ export default class DiscussionList extends Component {
       return <div className="DiscussionList">{Placeholder.component({ text })}</div>;
     }
 
+    const pageSize = state.pageSize;
+
     return (
-      <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
-        <ul className="DiscussionList-discussions">
-          {state.getPages().map((pg) => {
-            return pg.items.map((discussion) => (
-              <li key={discussion.id()} data-id={discussion.id()}>
-                {DiscussionListItem.component({ discussion, params })}
+      <div class={classList('DiscussionList', { 'DiscussionList--searchResults': state.isSearchResults() })}>
+        <ul role="feed" aria-busy={isLoading} className="DiscussionList-discussions">
+          {state.getPages().map((pg, pageNum) => {
+            return pg.items.map((discussion, itemNum) => (
+              <li key={discussion.id()} data-id={discussion.id()} role="article" aria-setsize="-1" aria-posinset={pageNum * pageSize + itemNum}>
+                <DiscussionListItem discussion={discussion} params={params} />
               </li>
             ));
           })}
