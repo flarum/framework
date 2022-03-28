@@ -4,6 +4,7 @@ import DiscussionListItem from './DiscussionListItem';
 import Button from '../../common/components/Button';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Placeholder from '../../common/components/Placeholder';
+import classList from '../../common/utils/classList';
 
 /**
  * The `DiscussionList` component displays a list of discussions.
@@ -20,9 +21,11 @@ export default class DiscussionList extends Component {
     const state = this.attrs.state;
 
     const params = state.getParams();
+    const isLoading = state.isInitialLoading() || state.isLoadingNext();
+
     let loading;
 
-    if (state.isInitialLoading() || state.isLoadingNext()) {
+    if (isLoading) {
       loading = <LoadingIndicator />;
     } else if (state.hasNext()) {
       loading = Button.component(
@@ -40,7 +43,7 @@ export default class DiscussionList extends Component {
     }
 
     return (
-      <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
+      <div role="feed" aria-busy={isLoading} class={classList('DiscussionList', { 'DiscussionList--searchResults': state.isSearchResults() })}>
         <ul className="DiscussionList-discussions">
           {state.getPages().map((pg) => {
             return pg.items.map((discussion) => (
