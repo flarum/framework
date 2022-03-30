@@ -36,7 +36,7 @@ $.fn.tooltip = function (options, caller) {
   // This functionality is deprecated and should not be used.
   if (!['DANGEROUS_tooltip_jquery_fn_deprecation_exempt'].includes(caller)) {
     console.warn(
-      "Calling `$.tooltip` is now deprecated. Please use the `<Tooltip>` component exposed by flarum/core instead. `$.tooltip` may be removed in a future version of Flarum.\n\nIf this component doesn't meet your requirements, please open an issue: https://github.com/flarum/core/issues/new?assignees=davwheat&labels=type/bug,needs-verification&template=bug-report.md&title=Tooltip%20component%20unsuitable%20for%20use%20case"
+      "Calling `$.tooltip` is now deprecated. Please use the `<Tooltip>` component exposed by flarum/core instead. `$.tooltip` may be removed in a future version of Flarum.\n\nIf this component doesn't meet your requirements, please open an issue: https://github.com/flarum/framework/issues/new?assignees=davwheat&labels=type/bug,needs-verification&template=bug-report.md&title=Tooltip%20component%20unsuitable%20for%20use%20case"
     );
   }
 

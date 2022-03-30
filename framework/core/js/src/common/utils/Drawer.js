@@ -79,7 +79,7 @@ export default class Drawer {
      * correctly animates out, while ensuring it is not part of the navigation
      * tree while off-screen.
      *
-     * More info: https://github.com/flarum/core/pull/2666#discussion_r595381014
+     * More info: https://github.com/flarum/framework/pull/2666#discussion_r595381014
      */
 
     this.focusTrap.deactivate();

@@ -39,7 +39,7 @@ export default function renderEmoji() {
       // wrap it in a node. In our `parseHTML` implementation, we wrap it in a `<body>`
       // element. This gets stripped below.
       //
-      // See https://github.com/flarum/core/issues/2958
+      // See https://github.com/flarum/framework/issues/2958
       const emojifiedDom = twemoji.parse(parseHTML(contentHtml), options);
 
       // Steal the HTML string inside the emojified DOM `<body>` tag.

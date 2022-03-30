@@ -30,7 +30,7 @@
 - Broken side nav tag listing (https://github.com/flarum/tags/pulls/137)
 - Discussions hidden from all users including admins (https://github.com/flarum/tags/pulls/140)
 - Unauthorized view of restricted tags (https://github.com/flarum/tags/pulls/145)
-- Make clicking edit tag button easier on mobile (https://github.com/flarum/core/issues/3098)
+- Make clicking edit tag button easier on mobile (https://github.com/flarum/framework/issues/3098)
 
 
 ## [1.0.3](https://github.com/flarum/tags/compare/v1.0.2...v1.0.3)

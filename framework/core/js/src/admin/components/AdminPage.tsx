@@ -31,7 +31,7 @@ export interface AdminHeaderOptions {
  *
  * Note: this will be exported from a different location in the future.
  *
- * @see https://github.com/flarum/core/issues/3039
+ * @see https://github.com/flarum/framework/issues/3039
  */
 export type HTMLInputTypes =
   | 'button'

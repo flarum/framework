@@ -7,7 +7,7 @@
     ],
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/flarum/core/issues",
+        "issues": "https://github.com/flarum/framework/issues",
         "source": "https://github.com/flarum/likes",
         "forum": "https://discuss.flarum.org"
     },

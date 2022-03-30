@@ -14,7 +14,7 @@ export default class EditCustomCssModal extends SettingsModal {
     return [
       <p>
         {app.translator.trans('core.admin.edit_css.customize_text', {
-          a: <a href="https://github.com/flarum/core/tree/master/less" target="_blank" />,
+          a: <a href="https://github.com/flarum/framework/tree/main/framework/core/less" target="_blank" />,
         })}
       </p>,
       <div className="Form-group">

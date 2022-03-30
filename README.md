@@ -1,11 +1,11 @@
 <p align="center"><img src="https://flarum.org/assets/img/logo.png"></p>
 
 <p align="center">
-<a href="https://github.com/flarum/core/actions?query=workflow%3ATests"><img src="https://github.com/flarum/core/workflows/Tests/badge.svg" alt="PHP Tests"></a>
+<a href="https://github.com/flarum/framework/actions?query=workflow%3ATests"><img src="https://github.com/flarum/framework/workflows/Tests/badge.svg" alt="PHP Tests"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/dt/flarum/core" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/github/v/release/flarum/core?sort=semver" alt="Latest Version"></a>
+<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/github/v/release/flarum/framework?sort=semver" alt="Latest Version"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/l/flarum/core" alt="License"></a>
-<a href="https://huntr.dev/bounties/disclose/?target=https://github.com/flarum/core"><img src="https://cdn.huntr.dev/huntr_security_badge_mono.svg" alt="huntr"></a>
+<a href="https://huntr.dev/bounties/disclose/?target=https://github.com/flarum/framework"><img src="https://cdn.huntr.dev/huntr_security_badge_mono.svg" alt="huntr"></a>
 <a href="https://github.styleci.io/repos/28257573"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="StyleCI"></a>
 </p>
 
@@ -31,7 +31,7 @@ Thank you for considering contributing to Flarum! Please read the **[Contributin
 
 ## Security Vulnerabilities
 
-If you discover a security vulnerability within Flarum, please send an e-mail to [security@flarum.org](mailto:security@flarum.org). All security vulnerabilities will be promptly addressed. More details can be found in our [security policy](https://github.com/flarum/core/security/policy).
+If you discover a security vulnerability within Flarum, please send an e-mail to [security@flarum.org](mailto:security@flarum.org). All security vulnerabilities will be promptly addressed. More details can be found in our [security policy](https://github.com/flarum/framework/security/policy).
 
 ## License
 

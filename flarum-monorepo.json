@@ -128,7 +128,7 @@
     ],
     "core": {
       "name": "core",
-      "gitRemote": "git@github.com:flarum/core.git",
+      "gitRemote": "git@github.com:flarum/flarum-core.git",
       "mainBranch": "master"
     }
   }

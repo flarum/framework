@@ -222,7 +222,7 @@ export default class ItemList<T> {
    * @param keepPrimitives Converts item content to objects and sets the
    * `itemName` property on them.
    *
-   * @see https://github.com/flarum/core/issues/3030
+   * @see https://github.com/flarum/framework/issues/3030
    */
   toArray(keepPrimitives?: false): (T & { itemName: string })[];
   /**

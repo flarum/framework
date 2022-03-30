@@ -23,7 +23,7 @@ class JsonApiResponse extends JsonResponse
 
         // The call to jsonSerialize prevents rare issues with json_encode() failing with a
         // syntax error even though Document implements the JsonSerializable interface.
-        // See https://github.com/flarum/core/issues/685
+        // See https://github.com/flarum/framework/issues/685
         parent::__construct($document->jsonSerialize(), $status, $headers, $encodingOptions);
     }
 }
