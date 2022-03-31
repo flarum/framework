@@ -29,8 +29,6 @@ export default class ConfirmDocumentUnload extends Component {
   }
 
   view(vnode) {
-    // To avoid having to render another wrapping <div> here, we assume that
-    // this component is only wrapped around a single element / component.
     return <>{vnode.children}</>;
   }
 }
