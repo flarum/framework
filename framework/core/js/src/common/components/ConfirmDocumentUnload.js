@@ -9,12 +9,6 @@ import Component from '../Component';
  *
  * - `when` - a callback returning true when the browser should prompt for
  *            confirmation before closing the window/tab
- *
- * ### Children
- *
- * NOTE: Only the first child will be rendered. (Use this component to wrap
- * another component / DOM element.)
- *
  */
 export default class ConfirmDocumentUnload extends Component {
   handler() {
@@ -35,8 +29,6 @@ export default class ConfirmDocumentUnload extends Component {
   }
 
   view(vnode) {
-    // To avoid having to render another wrapping <div> here, we assume that
-    // this component is only wrapped around a single element / component.
-    return vnode.children[0];
+    return <>{vnode.children}</>;
   }
 }
