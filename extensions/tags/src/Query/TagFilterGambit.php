@@ -15,6 +15,7 @@ use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
 use Flarum\Tags\TagRepository;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\JoinClause;
 
 class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
@@ -57,10 +58,10 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 
         $query
             ->distinct()
-            ->join('discussion_tag', function (\Illuminate\Database\Query\JoinClause $join) use ($slugs, $negate) {
+            ->leftJoin('discussion_tag', function (JoinClause $join) use ($slugs, $negate) {
                 $join
                     ->on('discussions.id', '=', 'discussion_tag.discussion_id')
-                    ->where(function (\Illuminate\Database\Query\JoinClause $join) use($slugs, $negate) {
+                    ->where(function (JoinClause $join) use($slugs, $negate) {
                         foreach ($slugs as $slug) {
                             if ($slug === 'untagged' && ! $negate) {
                                 $join->orWhereNull('discussion_tag.tag_id');
@@ -75,8 +76,6 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
                             }
                         }
                     });
-            });
-                }
             });
     }
 }
