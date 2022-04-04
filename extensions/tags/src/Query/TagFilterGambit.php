@@ -61,7 +61,7 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
             ->leftJoin('discussion_tag', function (JoinClause $join) use ($slugs, $negate) {
                 $join
                     ->on('discussions.id', '=', 'discussion_tag.discussion_id')
-                    ->where(function (JoinClause $join) use($slugs, $negate) {
+                    ->where(function (JoinClause $join) use ($slugs, $negate) {
                         foreach ($slugs as $slug) {
                             if ($slug === 'untagged' && ! $negate) {
                                 $join->orWhereNull('discussion_tag.tag_id');
