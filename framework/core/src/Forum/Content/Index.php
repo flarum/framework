@@ -70,7 +70,7 @@ class Index
         $page = max(1, intval(Arr::pull($queryParams, 'page')));
         $filters = Arr::pull($queryParams, 'filter', []);
 
-        $sortMap = resolve('flarum.forum.sortmap');
+        $sortMap = resolve('flarum.forum.discussions.sortmap');
 
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
