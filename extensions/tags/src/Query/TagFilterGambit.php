@@ -57,20 +57,25 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 
         $query
             ->distinct()
-            ->leftJoin('discussion_tag', 'discussions.id', '=', 'discussion_tag.discussion_id')
-            ->where(function (Builder $query) use ($slugs, $negate) {
-                foreach ($slugs as $slug) {
-                    if ($slug === 'untagged' && ! $negate) {
-                        $query->orWhereNull('discussion_tag.tag_id');
-                    } elseif ($slug === 'untagged' && $negate) {
-                        $query->orWhereNotNull('discussion_tag.tag_id');
-                    } elseif ($id = $this->tags->getIdForSlug($slug)) {
-                        $query->orWhere(
-                            'discussion_tag.tag_id',
-                            $negate ? '!=' : '=',
-                            $id
-                        );
-                    }
+            ->join('discussion_tag', function (\Illuminate\Database\Query\JoinClause $join) use ($slugs, $negate) {
+                $join
+                    ->on('discussions.id', '=', 'discussion_tag.discussion_id')
+                    ->where(function (\Illuminate\Database\Query\JoinClause $join) use($slugs, $negate) {
+                        foreach ($slugs as $slug) {
+                            if ($slug === 'untagged' && ! $negate) {
+                                $join->orWhereNull('discussion_tag.tag_id');
+                            } elseif ($slug === 'untagged' && $negate) {
+                                $join->orWhereNotNull('discussion_tag.tag_id');
+                            } elseif ($id = $this->tags->getIdForSlug($slug)) {
+                                $join->orWhere(
+                                    'discussion_tag.tag_id',
+                                    $negate ? '!=' : '=',
+                                    $id
+                                );
+                            }
+                        }
+                    });
+            });
                 }
             });
     }
