@@ -221,7 +221,7 @@ class Notification extends AbstractModel
     public static function notify(array $recipients, BlueprintInterface $blueprint)
     {
         $attributes = static::getBlueprintAttributes($blueprint);
-        $now = Carbon::now('utc')->toDateTimeString();
+        $now = Carbon::now()->toDateTimeString();
 
         static::insert(
             array_map(function (User $user) use ($attributes, $now) {
