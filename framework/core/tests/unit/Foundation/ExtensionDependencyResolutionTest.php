@@ -26,7 +26,7 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->missing = new FakeExtension('flarum-missing', ['this-does-not-exist', 'flarum-tags', 'also-not-exists']);
         $this->circular1 = new FakeExtension('circular1', ['circular2']);
         $this->circular2 = new FakeExtension('circular2', ['circular1']);
-        $this->optionalDependencyCategories = new FakeExtension('flarum-categories', ['flarum-tags'], ['flarum-tag-backgrounds']);
+        $this->optionalDependencyCategories = new FakeExtension('flarum-categories', ['flarum-tags'], ['flarum-tag-backgrounds', 'non-existent-optional-dependency']);
     }
 
     /** @test */
