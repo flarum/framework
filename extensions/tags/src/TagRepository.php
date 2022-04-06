@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TagRepository
 {
-    private const TAG_RELATIONS = ['children', 'parent'];
+    private const TAG_RELATIONS = ['children', 'parent', 'parent.children'];
 
     /**
      * Get a new query builder for the tags table.
