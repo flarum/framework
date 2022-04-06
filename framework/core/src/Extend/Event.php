@@ -60,13 +60,13 @@ class Event implements ExtenderInterface
     {
         $events = $container->make(Dispatcher::class);
 
-        foreach ($this->listeners as $listener) {
-            $events->listen($listener[0], $listener[1]);
-        }
-
         $app = $container->make('flarum');
 
         $app->booted(function () use ($events) {
+            foreach ($this->listeners as $listener) {
+                $events->listen($listener[0], $listener[1]);
+            }
+
             foreach ($this->subscribers as $subscriber) {
                 $events->subscribe($subscriber);
             }
