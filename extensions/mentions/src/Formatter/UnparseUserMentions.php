@@ -51,7 +51,7 @@ class UnparseUserMentions
     protected function updateUserMentionTags($context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
-            $user = (isset($context->getRelations()['mentionsUsers']) || $context instanceof Post)
+            $user = (($context && isset($context->getRelations()['mentionsUsers'])) || $context instanceof Post)
                 ? $context->mentionsUsers->find($attributes['id'])
                 : User::find($attributes['id']);
 
