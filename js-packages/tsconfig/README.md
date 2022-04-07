@@ -4,6 +4,16 @@ A standardised `tsconfig.json` for use in Flarum extensions.
 
 ## Usage
 
+### With Flarum CLI
+
+Flarum CLI can add/manage TypeScript configuration for you! Run:
+
+`flarum-cli infra typescript` in your extension's root to configure TypeScript.
+
+You can then re-run the same command, or use `flarum-cli audit infra [--fix]` to keep this config up to date.
+
+## Without Flarum CLI
+
 You'll need to configure a `tsconfig.json` file to ensure your IDE sets up Typescript support correctly.
 
 You need to install this package as a dev dependency to your extension JS:
@@ -22,7 +32,7 @@ A baseline `tsconfig.json` is provided below that you can modify as needed. This
   // This will match all .ts, .tsx, .d.ts, .js, .jsx files in your `src` folder
   // and also tells your Typescript server to read core's global typings for
   // access to `dayjs` and `$` in the global namespace.
-  "include": ["src/**/*", "../vendor/flarum/framework/js/dist-typings/@types/**/*"],
+  "include": ["src/**/*", "../vendor/*/*/js/dist-typings/@types/**/*"],
   "compilerOptions": {
     // This will output typings to `dist-typings`
     "declarationDir": "./dist-typings",
