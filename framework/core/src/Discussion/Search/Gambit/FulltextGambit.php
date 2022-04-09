@@ -25,7 +25,7 @@ class FulltextGambit implements GambitInterface
         // Replace all non-word characters with spaces.
         // We do this to prevent MySQL fulltext search boolean mode from taking
         // effect: https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
-        $bit = preg_replace('/[^\p{L}\p{N}_]+/u', ' ', $bit);
+        $bit = preg_replace('/[^\p{L}\p{N}\p{M}_]+/u', ' ', $bit);
 
         $query = $search->getQuery();
         $grammar = $query->getGrammar();
