@@ -35,6 +35,8 @@ class ListWithFulltextSearchTest extends TestCase
             ['id' => 2, 'title' => 'lightsail in title too', 'created_at' => Carbon::createFromDate(2020, 01, 01)->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
             ['id' => 3, 'title' => 'not in title either', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
             ['id' => 4, 'title' => 'not in title or text', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 5, 'title' => 'తెలుగు', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 6, 'title' => '支持中文吗', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
         ]);
 
         $this->database()->table('posts')->insert([
@@ -124,7 +126,7 @@ class ListWithFulltextSearchTest extends TestCase
             return $row['id'];
         }, $data['data']);
 
-        $this->assertEqualsCanonicalizing(['4'], $ids, 'IDs do not match');
+        $this->assertEqualsCanonicalizing(['4', '5'], $ids, 'IDs do not match');
         $this->assertEqualsCanonicalizing(['6'], Arr::pluck($data['included'], 'id'));
     }
 
@@ -146,7 +148,7 @@ class ListWithFulltextSearchTest extends TestCase
             return $row['id'];
         }, $data['data']);
 
-        $this->assertEqualsCanonicalizing(['2'], $ids, 'IDs do not match');
+        $this->assertEqualsCanonicalizing(['2', '6'], $ids, 'IDs do not match');
         $this->assertEqualsCanonicalizing(['7'], Arr::pluck($data['included'], 'id'));
     }
 
