@@ -63,7 +63,7 @@ class ShowTagController extends AbstractShowController
             ->where('slug', $slug)
             ->firstOrFail();
 
-        if ($setParentOnChildren) {
+        if ($setParentOnChildren && $tag->parent) {
             foreach ($tag->parent->children as $child) {
                 $child->parent = $tag->parent;
             }
