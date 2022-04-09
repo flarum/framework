@@ -1,4 +1,3 @@
-/// <reference path="../../../vendor/flarum/core/js/src/common/translator-icu-rich.d.ts" />
 import Mithril from 'mithril';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 export interface WhyNotModalAttrs extends IInternalModalAttrs {
@@ -8,7 +7,7 @@ export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAtt
     loading: boolean;
     whyNot: string | null;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): any;
     oncreate(vnode: Mithril.VnodeDOM<Attrs, this>): void;
     content(): JSX.Element;
     requestWhyNot(): void;
