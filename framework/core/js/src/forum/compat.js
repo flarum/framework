@@ -84,7 +84,7 @@ export default Object.assign(compat, {
   'utils/UserControls': UserControls,
   'utils/Pane': Pane,
   'utils/BasicEditorDriver': BasicEditorDriver,
-  'utils/isSafariMobile' : isSafariMobile,
+  'utils/isSafariMobile': isSafariMobile,
   'states/ComposerState': ComposerState,
   'states/DiscussionListState': DiscussionListState,
   'states/GlobalSearchState': GlobalSearchState,
