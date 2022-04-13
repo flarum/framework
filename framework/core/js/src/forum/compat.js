@@ -72,6 +72,7 @@ import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 import BasicEditorDriver from '../common/utils/BasicEditorDriver';
 import routes from './routes';
 import ForumApplication from './ForumApplication';
+import isSafariMobile from './utils/isSafariMobile';
 
 export default Object.assign(compat, {
   'utils/PostControls': PostControls,
@@ -83,6 +84,7 @@ export default Object.assign(compat, {
   'utils/UserControls': UserControls,
   'utils/Pane': Pane,
   'utils/BasicEditorDriver': BasicEditorDriver,
+  'utils/isSafariMobile': isSafariMobile,
   'states/ComposerState': ComposerState,
   'states/DiscussionListState': DiscussionListState,
   'states/GlobalSearchState': GlobalSearchState,
