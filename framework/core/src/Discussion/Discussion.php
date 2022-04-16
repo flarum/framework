@@ -18,6 +18,7 @@ use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Locale\LocaleManager;
 use Flarum\Notification\Notification;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
@@ -445,6 +446,6 @@ class Discussion extends AbstractModel
     protected function setTitleAttribute($title)
     {
         $this->attributes['title'] = $title;
-        $this->slug = Str::slug($title);
+        $this->slug = Str::slug($title, '-', resolve(LocaleManager::class)->getLocale());
     }
 }

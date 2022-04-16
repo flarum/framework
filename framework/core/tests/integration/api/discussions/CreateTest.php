@@ -136,6 +136,35 @@ class CreateTest extends TestCase
     /**
      * @test
      */
+    public function can_create_discussion_with_current_lang_slug_transliteration()
+    {
+        $this->app()->getContainer()->make('flarum.locales')->setLocale('zh');
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'title' => '我是一个土豆',
+                            'content' => 'predetermined content for automated testing',
+                        ],
+                    ]
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        /** @var Discussion $discussion */
+        $discussion = Discussion::firstOrFail();
+
+        $this->assertEquals('wo-shi-yi-ge-tu-dou', $discussion->slug);
+    }
+
+    /**
+     * @test
+     */
     public function discussion_creation_limited_by_throttler()
     {
         $this->send(
