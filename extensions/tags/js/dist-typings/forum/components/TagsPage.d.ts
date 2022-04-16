@@ -1,9 +1,7 @@
-export default class TagsPage extends Page<import("flarum/common/components/Page").IPageAttrs> {
-    constructor();
+export default class TagsPage {
     oninit(vnode: any): void;
-    tags: any;
+    tags: any[] | undefined;
     loading: boolean | undefined;
     view(): JSX.Element;
     oncreate(vnode: any): void;
 }
-import Page from "flarum/common/components/Page";

@@ -1,22 +1,29 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
+import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import Stream from 'flarum/common/utils/Stream';
+import type Mithril from 'mithril';
+import type Tag from '../../common/models/Tag';
+export interface EditTagModalAttrs extends IInternalModalAttrs {
+    primary?: boolean;
+    model?: Tag;
+}
 /**
  * The `EditTagModal` component shows a modal dialog which allows the user
  * to create or edit a tag.
  */
-export default class EditTagModal extends Modal<import("flarum/common/components/Modal").IInternalModalAttrs> {
-    constructor();
-    oninit(vnode: any): void;
-    tag: any;
-    name: Stream<any> | undefined;
-    slug: Stream<any> | undefined;
-    description: Stream<any> | undefined;
-    color: Stream<any> | undefined;
-    icon: Stream<any> | undefined;
-    isHidden: Stream<any> | undefined;
-    primary: Stream<any> | undefined;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray | import("mithril").Vnode<any, any>;
+export default class EditTagModal extends Modal<EditTagModalAttrs> {
+    tag: Tag;
+    name: Stream<string>;
+    slug: Stream<string>;
+    description: Stream<string>;
+    color: Stream<string>;
+    icon: Stream<string>;
+    isHidden: Stream<boolean>;
+    primary: Stream<boolean>;
+    oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>): void;
+    className(): string;
+    title(): any;
     content(): JSX.Element;
-    fields(): ItemList<any>;
+    fields(): any;
     submitData(): {
         name: any;
         slug: any;
@@ -26,9 +33,6 @@ export default class EditTagModal extends Modal<import("flarum/common/components
         isHidden: any;
         primary: any;
     };
-    onsubmit(e: any): void;
+    onsubmit(e: SubmitEvent): void;
     delete(): void;
 }
-import Modal from "flarum/common/components/Modal";
-import Stream from "flarum/common/utils/Stream";
-import ItemList from "flarum/common/utils/ItemList";

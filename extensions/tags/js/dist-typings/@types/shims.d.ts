@@ -19,3 +19,20 @@ declare module 'flarum/common/models/Discussion' {
     canTag: () => boolean | undefined;
   }
 }
+
+declare module 'flarum/forum/components/IndexPage' {
+  export default interface IndexPage {
+    currentActiveTag?: Tag;
+    currentTagLoading?: boolean;
+    currentTag: () => Tag | undefined;
+  }
+}
+
+declare module 'flarum/admin/components/PermissionGrid' {
+  export interface PermissionConfig {
+    tagScoped?: boolean;
+  }
+  export default interface PermissionGrid {
+    loading?: boolean;
+  }
+}

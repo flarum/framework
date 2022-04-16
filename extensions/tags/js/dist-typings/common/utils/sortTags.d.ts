@@ -1,1 +1,2 @@
-export default function sortTags(tags: any): any;
+import Tag from "../models/Tag";
+export default function sortTags(tags: Tag[]): Tag[];

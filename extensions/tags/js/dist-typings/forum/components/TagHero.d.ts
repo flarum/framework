@@ -1,5 +1,3 @@
-export default class TagHero extends Component<import("flarum/common/Component").ComponentAttrs, undefined> {
-    constructor();
+export default class TagHero {
     view(): JSX.Element;
 }
-import Component from "flarum/common/Component";
