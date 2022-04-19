@@ -25,7 +25,7 @@ export interface SavedModelData {
 }
 export declare type ModelData = UnsavedModelData | SavedModelData;
 export interface SaveRelationships {
-    [relationship: string]: Model | Model[];
+    [relationship: string]: null | Model | Model[];
 }
 export interface SaveAttributes {
     [key: string]: unknown;

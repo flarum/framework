@@ -13,6 +13,7 @@ export default class User extends Model {
     avatarUrl(): string | null;
     preferences(): Record<string, any> | null | undefined;
     groups(): false | (Group | undefined)[];
+    isAdmin(): boolean | undefined;
     joinTime(): Date | null | undefined;
     lastSeenAt(): Date | null | undefined;
     markedAllAsReadAt(): Date | null | undefined;

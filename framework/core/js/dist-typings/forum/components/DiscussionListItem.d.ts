@@ -1,9 +1,9 @@
 import Component, { ComponentAttrs } from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
-import Discussion from '../../common/models/Discussion';
-import Mithril from 'mithril';
-import { DiscussionListParams } from '../states/DiscussionListState';
+import type Discussion from '../../common/models/Discussion';
+import type Mithril from 'mithril';
+import type { DiscussionListParams } from '../states/DiscussionListState';
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
     discussion: Discussion;
     params: DiscussionListParams;

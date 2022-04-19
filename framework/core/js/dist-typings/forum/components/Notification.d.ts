@@ -1,6 +1,6 @@
-import NotificationModel from '../../common/models/Notification';
+import type NotificationModel from '../../common/models/Notification';
 import Component, { ComponentAttrs } from '../../common/Component';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 export interface INotificationAttrs extends ComponentAttrs {
     notification: NotificationModel;
 }
