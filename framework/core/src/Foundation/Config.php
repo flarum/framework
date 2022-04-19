@@ -53,22 +53,23 @@ class Config implements ArrayAccess
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return Arr::get($this->data, $offset);
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return Arr::has($this->data, $offset);
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new RuntimeException('The Config is immutable');
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new RuntimeException('The Config is immutable');
     }
