@@ -340,7 +340,7 @@ class User extends AbstractModel
      * @param string $password
      * @return bool
      */
-    public function checkPassword($password)
+    public function checkPassword(string $password)
     {
         $valid = false;
 
