@@ -488,7 +488,7 @@ class User extends AbstractModel
             return $value['default'];
         }, static::$preferences);
 
-        $user = Arr::only((array) json_decode($value, true), array_keys(static::$preferences));
+        $user = $value !== null ? Arr::only((array) json_decode($value, true), array_keys(static::$preferences)) : [];
 
         return array_merge($defaults, $user);
     }
