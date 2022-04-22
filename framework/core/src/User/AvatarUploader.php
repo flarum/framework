@@ -56,7 +56,9 @@ class AvatarUploader
         $avatarPath = $user->getRawOriginal('avatar_url');
 
         // If there was no avatar, there's nothing to remove.
-        if (!$avatarPath) return;
+        if (! $avatarPath) {
+            return;
+        }
 
         $user->afterSave(function () use ($avatarPath) {
             if ($this->uploadDir->exists($avatarPath)) {
