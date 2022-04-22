@@ -149,6 +149,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {
+        "is-flarum-monorepo": true,
         "branch-alias": {
             "dev-main": "1.x-dev"
         },

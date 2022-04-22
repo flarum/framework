@@ -75,11 +75,11 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
+        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor . '/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
+            $installed = json_decode($this->filesystem->get($this->paths->vendor . '/composer/installed.json'), true);
 
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
@@ -94,20 +94,26 @@ class ExtensionManager
                     continue;
                 }
 
-                $installedSet[Arr::get($package, 'name')] = true;
+                $this->registerExtension($package, $this->packagePath($package), $installedSet, $extensions);
+            }
 
-                $path = isset($package['install-path'])
-                    ? $this->paths->vendor.'/composer/'.$package['install-path']
-                    : $this->paths->vendor.'/'.Arr::get($package, 'name');
+            foreach ($installed as $package) {
+                if (!Arr::get($package, 'extra.is-flarum-monorepo')) {
+                    continue;
+                }
 
-                // Instantiates an Extension object using the package path and composer.json file.
-                $extension = new Extension($path, $package);
+                $monorepoPath = $this->packagePath($package);
+                $configPath = json_decode($this->filesystem->get("$monorepoPath/flarum-monorepo.json"), true);
 
-                // Per default all extensions are installed if they are registered in composer.
-                $extension->setInstalled(true);
-                $extension->setVersion(Arr::get($package, 'version'));
+                $extensionConfs = Arr::get($configPath, 'packages.extensions');
 
-                $extensions->put($extension->getId(), $extension);
+                foreach ($extensionConfs as $extensionConf) {
+                    $name = $extensionConf['name'];
+                    $extPath = "$monorepoPath/extensions/$name";
+                    $package = json_decode($this->filesystem->get("$extPath/composer.json"), true);
+
+                    $this->registerExtension($package, $extPath, $installedSet, $extensions);
+                }
             }
 
             foreach ($extensions as $extension) {
@@ -135,6 +141,35 @@ class ExtensionManager
         }
 
         return $this->extensions;
+    }
+
+    /**
+     * Computes the filesystem path to a package based
+     * on the package's composer.json config.
+     */
+    private function packagePath($package)
+    {
+        return isset($package['install-path'])
+            ? $this->paths->vendor . '/composer/' . $package['install-path']
+            : $this->paths->vendor . '/' . Arr::get($package, 'name');
+    }
+
+    /**
+     * Registers that an extension exists in the system.
+     * This is used when determining which extensions exist during boot.
+     */
+    private function registerExtension($package, string $path, array $installedSet, Collection $extensions)
+    {
+        $installedSet[Arr::get($package, 'name')] = true;
+
+        // Instantiates an Extension object using the package path and composer.json file.
+        $extension = new Extension($path, $package);
+
+        // Per default all extensions are installed if they are registered in composer.
+        $extension->setInstalled(true);
+        $extension->setVersion(Arr::get($package, 'version'));
+
+        $extensions->put($extension->getId(), $extension);
     }
 
     /**
@@ -166,12 +201,12 @@ class ExtensionManager
         $missingDependencies = [];
         $enabledIds = $this->getEnabled();
         foreach ($extension->getExtensionDependencyIds() as $dependencyId) {
-            if (! in_array($dependencyId, $enabledIds)) {
+            if (!in_array($dependencyId, $enabledIds)) {
                 $missingDependencies[] = $this->getExtension($dependencyId);
             }
         }
 
-        if (! empty($missingDependencies)) {
+        if (!empty($missingDependencies)) {
             throw new Exception\MissingDependenciesException($extension, $missingDependencies);
         }
 
@@ -214,7 +249,7 @@ class ExtensionManager
             }
         }
 
-        if (! empty($dependentExtensions)) {
+        if (!empty($dependentExtensions)) {
             throw new Exception\DependentExtensionsException($extension, $dependentExtensions);
         }
 
@@ -266,7 +301,7 @@ class ExtensionManager
      */
     protected function unpublishAssets(Extension $extension)
     {
-        $this->getAssetsFilesystem()->deleteDirectory('extensions/'.$extension->getId());
+        $this->getAssetsFilesystem()->deleteDirectory('extensions/' . $extension->getId());
     }
 
     /**
@@ -278,7 +313,7 @@ class ExtensionManager
      */
     public function getAsset(Extension $extension, $path)
     {
-        return $this->getAssetsFilesystem()->url($extension->getId()."/$path");
+        return $this->getAssetsFilesystem()->url($extension->getId() . "/$path");
     }
 
     /**
@@ -463,13 +498,13 @@ class ExtensionManager
         }
 
         foreach ($extensionList as $extension) {
-            if (! array_key_exists($extension->getId(), $inDegreeCount)) {
+            if (!array_key_exists($extension->getId(), $inDegreeCount)) {
                 $inDegreeCount[$extension->getId()] = 0;
                 $pendingQueue[] = $extension->getId();
             }
         }
 
-        while (! empty($pendingQueue)) {
+        while (!empty($pendingQueue)) {
             $activeNode = array_shift($pendingQueue);
             $output[] = $activeNode;
 
@@ -477,7 +512,7 @@ class ExtensionManager
                 $inDegreeCount[$dependency] -= 1;
 
                 if ($inDegreeCount[$dependency] === 0) {
-                    if (! array_key_exists($dependency, $extensionGraph)) {
+                    if (!array_key_exists($dependency, $extensionGraph)) {
                         // Missing Dependency
                         $missingDependencies[$activeNode] = array_merge(
                             Arr::get($missingDependencies, $activeNode, []),
@@ -491,7 +526,7 @@ class ExtensionManager
         }
 
         $validOutput = array_filter($output, function ($extension) use ($missingDependencies) {
-            return ! array_key_exists($extension, $missingDependencies);
+            return !array_key_exists($extension, $missingDependencies);
         });
 
         $validExtensions = array_reverse(array_map(function ($extensionId) use ($extensionIdMapping) {
