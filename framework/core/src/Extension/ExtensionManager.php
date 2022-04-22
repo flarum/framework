@@ -75,11 +75,11 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor . '/composer/installed.json')) {
+        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get($this->paths->vendor . '/composer/installed.json'), true);
+            $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
 
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
@@ -98,7 +98,7 @@ class ExtensionManager
             }
 
             foreach ($installed as $package) {
-                if (!Arr::get($package, 'extra.is-flarum-monorepo')) {
+                if (! Arr::get($package, 'extra.is-flarum-monorepo')) {
                     continue;
                 }
 
@@ -150,8 +150,8 @@ class ExtensionManager
     private function packagePath($package)
     {
         return isset($package['install-path'])
-            ? $this->paths->vendor . '/composer/' . $package['install-path']
-            : $this->paths->vendor . '/' . Arr::get($package, 'name');
+            ? $this->paths->vendor.'/composer/'.$package['install-path']
+            : $this->paths->vendor.'/'.Arr::get($package, 'name');
     }
 
     /**
@@ -201,12 +201,12 @@ class ExtensionManager
         $missingDependencies = [];
         $enabledIds = $this->getEnabled();
         foreach ($extension->getExtensionDependencyIds() as $dependencyId) {
-            if (!in_array($dependencyId, $enabledIds)) {
+            if (! in_array($dependencyId, $enabledIds)) {
                 $missingDependencies[] = $this->getExtension($dependencyId);
             }
         }
 
-        if (!empty($missingDependencies)) {
+        if (! empty($missingDependencies)) {
             throw new Exception\MissingDependenciesException($extension, $missingDependencies);
         }
 
@@ -249,7 +249,7 @@ class ExtensionManager
             }
         }
 
-        if (!empty($dependentExtensions)) {
+        if (! empty($dependentExtensions)) {
             throw new Exception\DependentExtensionsException($extension, $dependentExtensions);
         }
 
@@ -301,7 +301,7 @@ class ExtensionManager
      */
     protected function unpublishAssets(Extension $extension)
     {
-        $this->getAssetsFilesystem()->deleteDirectory('extensions/' . $extension->getId());
+        $this->getAssetsFilesystem()->deleteDirectory('extensions/'.$extension->getId());
     }
 
     /**
@@ -313,7 +313,7 @@ class ExtensionManager
      */
     public function getAsset(Extension $extension, $path)
     {
-        return $this->getAssetsFilesystem()->url($extension->getId() . "/$path");
+        return $this->getAssetsFilesystem()->url($extension->getId()."/$path");
     }
 
     /**
@@ -498,13 +498,13 @@ class ExtensionManager
         }
 
         foreach ($extensionList as $extension) {
-            if (!array_key_exists($extension->getId(), $inDegreeCount)) {
+            if (! array_key_exists($extension->getId(), $inDegreeCount)) {
                 $inDegreeCount[$extension->getId()] = 0;
                 $pendingQueue[] = $extension->getId();
             }
         }
 
-        while (!empty($pendingQueue)) {
+        while (! empty($pendingQueue)) {
             $activeNode = array_shift($pendingQueue);
             $output[] = $activeNode;
 
@@ -512,7 +512,7 @@ class ExtensionManager
                 $inDegreeCount[$dependency] -= 1;
 
                 if ($inDegreeCount[$dependency] === 0) {
-                    if (!array_key_exists($dependency, $extensionGraph)) {
+                    if (! array_key_exists($dependency, $extensionGraph)) {
                         // Missing Dependency
                         $missingDependencies[$activeNode] = array_merge(
                             Arr::get($missingDependencies, $activeNode, []),
@@ -526,7 +526,7 @@ class ExtensionManager
         }
 
         $validOutput = array_filter($output, function ($extension) use ($missingDependencies) {
-            return !array_key_exists($extension, $missingDependencies);
+            return ! array_key_exists($extension, $missingDependencies);
         });
 
         $validExtensions = array_reverse(array_map(function ($extensionId) use ($extensionIdMapping) {
