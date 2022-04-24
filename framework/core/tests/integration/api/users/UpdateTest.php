@@ -121,14 +121,15 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
-                        ],
-                        'meta' => [
-                            'password' => 'notTheRightPassword!'
                         ]
+                    ],
+                    'meta' => [
+                        'password' => 'notTheRightPassword!'
                     ]
                 ],
             ])
         );
+
         $this->assertEquals(401, $response->getStatusCode());
     }
 

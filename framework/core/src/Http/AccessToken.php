@@ -112,7 +112,8 @@ class AccessToken extends AbstractModel
             // We truncate user agent so it fits in the database column
             // The length is hard-coded as the column length
             // It seems like MySQL or Laravel already truncates values, but we'll play safe and do it ourselves
-            $this->last_user_agent = substr(Arr::get($request->getServerParams(), 'HTTP_USER_AGENT'), 0, 255);
+            $agent = Arr::get($request->getServerParams(), 'HTTP_USER_AGENT');
+            $this->last_user_agent = substr($agent ?? '', 0, 255);
         } else {
             // If no request is provided, we set the values back to null
             // That way the values always match with the date logged in last_activity
