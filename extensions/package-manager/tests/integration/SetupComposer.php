@@ -38,7 +38,7 @@ class SetupComposer
             unlink($composerLock);
         }
 
-        echo "composer.json created with testing packages directory.";
+        echo 'composer.json created with testing packages directory.';
     }
 
     private function getConfig(): array
