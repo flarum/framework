@@ -23,7 +23,7 @@
     },
     "require": {
         "flarum/core": "^1.0.0",
-        "composer/composer": "^2.0"
+        "composer/composer": "^2.3"
     },
     "require-dev": {
         "flarum/testing": "^1.0.0",
@@ -86,7 +86,7 @@
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
         "test:setup": [
             "@php tests/integration/setup.php",
-            "cd $FLARUM_TEST_TMP_DIR_LOCAL && composer install"
+            "cd ${FLARUM_TEST_TMP_DIR_LOCAL:-${FLARUM_TEST_TMP_DIR:-./tests/integration/tmp}} && composer install"
         ]
     },
     "scripts-descriptions": {
