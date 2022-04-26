@@ -58,7 +58,7 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 
         // we need to alias the table this method is used twice (tag:support tag:solved)
         // aliases can be max 256, md5 is max 32
-        $alias = 'dt_' . md5(intval($negate) . $rawSlugs);
+        $alias = 'dt_'.md5(intval($negate).$rawSlugs);
 
         $query
             ->distinct()
