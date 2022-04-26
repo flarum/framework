@@ -56,20 +56,24 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
     {
         $slugs = explode(',', trim($rawSlugs, '"'));
 
+        // we need to alias the table this method is used twice (tag:support tag:solved)
+        // aliases can be max 256, md5 is max 32
+        $alias = 'dt_' . md5(intval($negate) . $rawSlugs);
+
         $query
             ->distinct()
-            ->leftJoin('discussion_tag', function (JoinClause $join) use ($slugs, $negate) {
+            ->leftJoin("discussion_tag as $alias", function (JoinClause $join) use ($slugs, $negate, $alias) {
                 $join
-                    ->on('discussions.id', '=', 'discussion_tag.discussion_id')
-                    ->where(function (JoinClause $join) use ($slugs, $negate) {
+                    ->on('discussions.id', '=', "$alias.discussion_id")
+                    ->where(function (JoinClause $join) use ($slugs, $negate, $alias) {
                         foreach ($slugs as $slug) {
                             if ($slug === 'untagged' && ! $negate) {
-                                $join->orWhereNull('discussion_tag.tag_id');
+                                $join->orWhereNull("$alias.tag_id");
                             } elseif ($slug === 'untagged' && $negate) {
-                                $join->orWhereNotNull('discussion_tag.tag_id');
+                                $join->orWhereNotNull("$alias.tag_id");
                             } elseif ($id = $this->tags->getIdForSlug($slug)) {
                                 $join->orWhere(
-                                    'discussion_tag.tag_id',
+                                    "$alias.tag_id",
                                     $negate ? '!=' : '=',
                                     $id
                                 );
