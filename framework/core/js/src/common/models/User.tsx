@@ -42,6 +42,10 @@ export default class User extends Model {
     return Model.hasMany<Group>('groups').call(this);
   }
 
+  isAdmin() {
+    return Model.attribute<boolean | undefined>('isAdmin').call(this);
+  }
+
   joinTime() {
     return Model.attribute('joinTime', Model.transformDate).call(this);
   }

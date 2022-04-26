@@ -60,7 +60,7 @@ class UpdateUserController extends AbstractShowController
         // Require the user's current password if they are attempting to change
         // their own email address.
         if (isset($data['attributes']['email']) && $actor->id == $id) {
-            $password = Arr::get($request->getParsedBody(), 'meta.password');
+            $password = (string) Arr::get($request->getParsedBody(), 'meta.password');
 
             if (! $actor->checkPassword($password)) {
                 throw new NotAuthenticatedException;

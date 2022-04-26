@@ -58,7 +58,7 @@ class CheckForUpdatesHandler
         $actor->assertAdmin();
 
         $firstOutput = $this->runComposerCommand(false);
-        $firstOutput = json_decode($firstOutput, true);
+        $firstOutput = json_decode($this->cleanJson($firstOutput), true);
 
         $majorUpdates = false;
 
@@ -71,7 +71,7 @@ class CheckForUpdatesHandler
 
         if ($majorUpdates) {
             $secondOutput = $this->runComposerCommand(true);
-            $secondOutput = json_decode($secondOutput, true);
+            $secondOutput = json_decode($this->cleanJson($secondOutput), true);
         }
 
         if (! isset($secondOutput)) {
@@ -99,6 +99,15 @@ class CheckForUpdatesHandler
         return $this->lastUpdateCheck
             ->with('installed', $firstOutput['installed'])
             ->save();
+    }
+
+    /**
+     * Composer can sometimes return text above the JSON.
+     * This method tries to remove such occurences.
+     */
+    protected function cleanJson(string $composerOutput): string
+    {
+        return preg_replace('/^[^{]+\n({.*)/ms', '$1', $composerOutput);
     }
 
     /**

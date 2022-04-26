@@ -127,6 +127,7 @@ declare var _default: {
     };
     'utils/Pane': typeof Pane;
     'utils/BasicEditorDriver': typeof BasicEditorDriver;
+    'utils/isSafariMobile': typeof isSafariMobile;
     'states/ComposerState': typeof ComposerState;
     'states/DiscussionListState': typeof DiscussionListState;
     'states/GlobalSearchState': typeof GlobalSearchState;
@@ -198,6 +199,7 @@ import slidable from "./utils/slidable";
 import History from "./utils/History";
 import alertEmailConfirmation from "./utils/alertEmailConfirmation";
 import Pane from "./utils/Pane";
+import isSafariMobile from "./utils/isSafariMobile";
 import ComposerState from "./states/ComposerState";
 import DiscussionListState from "./states/DiscussionListState";
 import GlobalSearchState from "./states/GlobalSearchState";

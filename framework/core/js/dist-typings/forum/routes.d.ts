@@ -1,7 +1,7 @@
 import ForumApplication from './ForumApplication';
 import Discussion from '../common/models/Discussion';
-import Post from '../common/models/Post';
-import User from '../common/models/User';
+import type Post from '../common/models/Post';
+import type User from '../common/models/User';
 /**
  * Helper functions to generate URLs to form pages.
  */

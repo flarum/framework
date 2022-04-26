@@ -322,7 +322,7 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
 
     m.redraw();
 
-    if (scrollToItem) {
+    if (scrollToItem && this.selectedTag) {
       const dropdownScroll = $dropdown.scrollTop()!;
       const dropdownTop = $dropdown.offset()!.top;
       const dropdownBottom = dropdownTop + $dropdown.outerHeight()!;

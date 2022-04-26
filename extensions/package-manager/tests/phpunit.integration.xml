@@ -19,10 +19,7 @@
     <testsuites>
         <testsuite name="Flarum Integration Tests">
             <directory suffix="Test.php">./integration</directory>
-             <exclude>./integration/tmp</exclude>
+            <exclude>./integration/tmp</exclude>
         </testsuite>
     </testsuites>
-    <php>
-        <env name="FLARUM_TEST_TMP_DIR_LOCAL" value="tests/integration/tmp" force="true" />
-    </php>
 </phpunit>

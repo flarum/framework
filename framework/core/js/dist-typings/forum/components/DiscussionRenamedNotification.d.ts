@@ -8,5 +8,5 @@ export default class DiscussionRenamedNotification extends Notification {
     icon(): string;
     href(): string;
     content(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
-    excerpt(): string;
+    excerpt(): null;
 }

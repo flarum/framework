@@ -129,6 +129,15 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->container->bind('flarum.frontend.forum', function (Container $container) {
             return $container->make('flarum.frontend.factory')('forum');
         });
+
+        $this->container->singleton('flarum.forum.discussions.sortmap', function () {
+            return [
+                'latest' => '-lastPostedAt',
+                'top' => '-commentCount',
+                'newest' => '-createdAt',
+                'oldest' => 'createdAt'
+            ];
+        });
     }
 
     public function boot(Container $container, Dispatcher $events, Factory $view)

@@ -70,7 +70,7 @@ class Index
         $page = max(1, intval(Arr::pull($queryParams, 'page')));
         $filters = Arr::pull($queryParams, 'filter', []);
 
-        $sortMap = $this->getSortMap();
+        $sortMap = resolve('flarum.forum.discussions.sortmap');
 
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
@@ -94,21 +94,6 @@ class Index
         $document->hasNextPage = isset($apiDocument->links->next);
 
         return $document;
-    }
-
-    /**
-     * Get a map of sort query param values and their API sort params.
-     *
-     * @return array
-     */
-    private function getSortMap()
-    {
-        return [
-            'latest' => '-lastPostedAt',
-            'top' => '-commentCount',
-            'newest' => '-createdAt',
-            'oldest' => 'createdAt'
-        ];
     }
 
     /**

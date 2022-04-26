@@ -1,7 +1,7 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
-import { Children } from 'mithril';
+import type { Children } from 'mithril';
 export default class DashboardPage extends AdminPage {
     headerInfo(): {
         className: string;

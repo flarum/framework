@@ -24,7 +24,7 @@ class UnapproveNewContent
         $post = $event->post;
 
         if (! $post->exists) {
-            $ability = $post->discussion->post_number_index == 0 ? 'startWithoutApproval' : 'replyWithoutApproval';
+            $ability = $post->discussion->first_post_id === null ? 'startWithoutApproval' : 'replyWithoutApproval';
 
             if ($event->actor->can($ability, $post->discussion)) {
                 if ($post->is_approved === null) {

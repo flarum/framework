@@ -1,8 +1,8 @@
 import Component, { ComponentAttrs } from '../../common/Component';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import ItemList from '../../common/utils/ItemList';
-import PostModel from '../../common/models/Post';
-import Mithril from 'mithril';
+import type PostModel from '../../common/models/Post';
+import type Mithril from 'mithril';
 export interface IPostAttrs extends ComponentAttrs {
     post: PostModel;
 }

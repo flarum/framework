@@ -1,4 +1,4 @@
-import { Children, Vnode } from 'mithril';
+import type { Children, Vnode } from 'mithril';
 import Component, { ComponentAttrs } from '../../common/Component';
 export interface IDashboardWidgetAttrs extends ComponentAttrs {
 }
