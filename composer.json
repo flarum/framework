@@ -149,7 +149,27 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {
-        "is-flarum-monorepo": true,
+        "flarum-subextensions": [
+            "extensions/akismet",
+            "extensions/approval",
+            "extensions/bbcode",
+            "extensions/embed",
+            "extensions/emoji",
+            "extensions/flags",
+            "extensions/lang-english",
+            "extensions/likes",
+            "extensions/lock",
+            "extensions/markdown",
+            "extensions/mentions",
+            "extensions/nicknames",
+            "extensions/package-manager",
+            "extensions/pusher",
+            "extensions/statistics",
+            "extensions/sticky",
+            "extensions/subscriptions",
+            "extensions/suspend",
+            "extensions/tags"
+        ],
         "branch-alias": {
             "dev-main": "1.x-dev"
         },
