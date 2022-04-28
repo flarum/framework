@@ -97,7 +97,9 @@ class ExtensionManager
                     continue;
                 }
 
-                $packagePath = $this->paths->vendor.'/'.$name;
+                $packagePath = isset($package['install-path'])
+                    ? $this->paths->vendor.'/composer/'.$package['install-path']
+                    : $this->paths->vendor.'/'.$name;
 
                 if (Arr::get($package, 'type') === 'flarum-extension') {
                     $composerJsonConfs[$packagePath] = $package;
