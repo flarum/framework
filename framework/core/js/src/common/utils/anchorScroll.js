@@ -13,9 +13,16 @@
  */
 export default function anchorScroll(element, callback) {
   const $window = $(window);
-  const relativeScroll = ($(element)?.offset().top ?? return) - $window.scrollTop();
+
+  let offset = $(element)?.offset().top;
+  if (offset === undefined) return;
+
+  const relativeScroll = offset - $window.scrollTop();
 
   callback();
+
+  offset = $(element)?.offset().top;
+  if (offset === undefined) return;
 
   $window.scrollTop(($(element)?.offset().top ?? return) - relativeScroll);
 }
