@@ -53,7 +53,8 @@ class WhyNotHandler
         ]);
 
         $output = $this->composer->run(
-            new StringInput("why-not $command->package $command->version")
+            new StringInput("why-not $command->package $command->version"),
+            $command->task ?? null
         );
 
         if ($output->getExitCode() !== 0) {

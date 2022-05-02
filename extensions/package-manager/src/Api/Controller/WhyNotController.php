@@ -9,14 +9,14 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
-use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\WhyNot;
+use Flarum\PackageManager\Job\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class WhyNotController implements RequestHandlerInterface
 {

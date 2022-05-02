@@ -9,6 +9,7 @@ import IHistory from '../common/IHistory';
 
 export type Extension = {
   id: string;
+  name: string;
   version: string;
   description?: string;
   icon?: {

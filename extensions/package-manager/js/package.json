@@ -1,7 +1,7 @@
 {
-    "private": true,
     "name": "@flarum/package-manager",
     "version": "0.0.0",
+    "private": true,
     "prettier": "@flarum/prettier-config",
     "devDependencies": {
         "prettier": "^2.5.1",
@@ -21,9 +21,8 @@
         "ci": "yarn install --immutable --immutable-cache",
         "analyze": "cross-env ANALYZER=true yarn run build",
         "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
-        "build-typings": "yarn run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && yarn run post-build-typings",
+        "build-typings": "yarn run clean-typings && tsc && [ -e src/@types ] && cp -r src/@types dist-typings/@types",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report",
-        "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'"
+        "check-typings-coverage": "typescript-coverage-report"
     }
 }

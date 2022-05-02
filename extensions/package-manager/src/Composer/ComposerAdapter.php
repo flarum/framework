@@ -12,6 +12,7 @@ namespace Flarum\PackageManager\Composer;
 use Composer\Console\Application;
 use Flarum\Foundation\Paths;
 use Flarum\PackageManager\OutputLogger;
+use Flarum\PackageManager\Task\Task;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -48,7 +49,7 @@ class ComposerAdapter
         $this->output = new BufferedOutput();
     }
 
-    public function run(InputInterface $input): ComposerOutput
+    public function run(InputInterface $input, ?Task $task = null): ComposerOutput
     {
         $this->application->resetComposer();
 
@@ -58,10 +59,15 @@ class ComposerAdapter
         $exitCode = $this->application->run($input, $this->output);
         chdir($currDir);
 
-        $outputContents = $this->output->fetch();
+        $command = $input->__toString();
+        $output = $this->output->fetch();
 
-        $this->logger->log($input->__toString(), $outputContents, $exitCode);
+        if ($task) {
+            $task->update(compact('command', 'output'));
+        } else {
+            $this->logger->log($command, $output, $exitCode);
+        }
 
-        return new ComposerOutput($exitCode, $outputContents);
+        return new ComposerOutput($exitCode, $output);
     }
 }
