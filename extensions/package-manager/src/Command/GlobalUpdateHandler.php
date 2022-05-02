@@ -48,7 +48,7 @@ class GlobalUpdateHandler
         $command->actor->assertAdmin();
 
         $output = $this->composer->run(
-            new StringInput("update --prefer-dist --no-dev -a --with-all-dependencies"),
+            new StringInput('update --prefer-dist --no-dev -a --with-all-dependencies'),
             $command->task ?? null
         );
 

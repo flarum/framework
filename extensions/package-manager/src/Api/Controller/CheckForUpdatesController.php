@@ -10,12 +10,12 @@
 namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Http\RequestUtil;
+use Flarum\PackageManager\Command\CheckForUpdates;
 use Flarum\PackageManager\Job\Dispatcher;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Flarum\PackageManager\Command\CheckForUpdates;
 
 class CheckForUpdatesController implements RequestHandlerInterface
 {
@@ -42,7 +42,6 @@ class CheckForUpdatesController implements RequestHandlerInterface
          * @TODO somewhere, if we're queuing, check that a similar composer command isn't already running,
          * to avoid duplicate jobs.
          */
-
         $response = $this->bus->dispatch(
             new CheckForUpdates($actor)
         );

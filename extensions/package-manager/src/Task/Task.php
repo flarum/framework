@@ -26,7 +26,7 @@ use Flarum\Database\AbstractModel;
 class Task extends AbstractModel
 {
     /**
-     * Statuses (@todo use an enum with php8.1)
+     * Statuses (@todo use an enum with php8.1).
      */
     public const PENDING = 'pending';
     public const RUNNING = 'running';
@@ -34,7 +34,7 @@ class Task extends AbstractModel
     public const SUCCESS = 'success';
 
     /**
-     * Operations (@todo use an enum with php8.1)
+     * Operations (@todo use an enum with php8.1).
      */
     public const EXTENSION_INSTALL = 'extension_install';
     public const EXTENSION_REMOVE = 'extension_remove';

@@ -29,13 +29,11 @@ class ComposerCommandJob extends AbstractJob
     public function handle(Dispatcher $bus)
     {
         try {
-
             $this->command->task->start();
 
             $bus->dispatch($this->command);
 
             $this->command->task->end(true);
-
         } catch (Throwable $exception) {
             $this->abort($exception);
         }

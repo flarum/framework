@@ -1,14 +1,21 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
+use Flarum\PackageManager\Api\Serializer\TaskSerializer;
 use Flarum\PackageManager\Task\TaskRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
-use Flarum\PackageManager\Api\Serializer\TaskSerializer;
 
 class ListTasksController extends AbstractListController
 {
