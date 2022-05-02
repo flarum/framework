@@ -55,8 +55,13 @@ class RemoveExtensionHandler
             throw new ExtensionNotInstalledException($command->extensionId);
         }
 
+        if (isset($command->task)) {
+            $command->task->package = $extension->name;
+        }
+
         $output = $this->composer->run(
-            new StringInput("remove $extension->name")
+            new StringInput("remove $extension->name"),
+            $command->task ?? null
         );
 
         if ($output->getExitCode() !== 0) {

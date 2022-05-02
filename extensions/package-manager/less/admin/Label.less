@@ -1,0 +1,41 @@
+:root {
+  --label-bg: var(--control-bg);
+  --label-color: var(--control-color);
+  --label-success-bg: var(--alert-success-bg);
+  --label-success-color: var(--alert-success-color);
+  --label-error-bg: var(--alert-error-bg);
+  --label-error-color: var(--alert-error-color);
+  --label-warning-bg: var(--alert-bg);
+  --label-warning-color: var(--alert-color);
+  --label-neutral-bg: #2781dd;
+  --label-neutral-color: #f0f6ff;
+}
+
+.Label {
+  background-color: var(--label-bg);
+  color: var(--label-color);
+  font-weight: 600;
+  font-size: 0.65rem;
+  padding: 4px 6px;
+  border-radius: var(--border-radius);
+
+  &--success {
+    --label-bg: var(--label-success-bg);
+    --label-color: var(--label-success-color);
+  }
+
+  &--error {
+    --label-bg: var(--label-error-bg);
+    --label-color: var(--label-error-color);
+  }
+
+  &--warning {
+    --label-bg: var(--label-warning-bg);
+    --label-color: var(--label-warning-color);
+  }
+
+  &--neutral {
+    --label-bg: var(--label-neutral-bg);
+    --label-color: var(--label-neutral-color);
+  }
+}

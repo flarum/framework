@@ -61,7 +61,8 @@ class MinorUpdateHandler
         $this->composerJson->require('flarum/core', $coreRequirement);
 
         $output = $this->composer->run(
-            new StringInput('update --prefer-dist --no-dev -a --with-all-dependencies')
+            new StringInput("update --prefer-dist --no-dev -a --with-all-dependencies"),
+            $command->task ?? null
         );
 
         if ($output->getExitCode() !== 0) {

@@ -9,10 +9,16 @@
 
 namespace Flarum\PackageManager\Command;
 
+use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class WhyNot
+class WhyNot implements BusinessCommandInterface
 {
+    /**
+     * @var Task
+     */
+    public $task = null;
+
     /**
      * @var User
      */
@@ -33,5 +39,10 @@ class WhyNot
         $this->actor = $actor;
         $this->package = $package;
         $this->version = $version;
+    }
+
+    public function getOperationName(): string
+    {
+        return Task::WHY_NOT;
     }
 }

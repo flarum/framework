@@ -8,6 +8,7 @@ import ExtensionData from './utils/ExtensionData';
 
 export type Extension = {
   id: string;
+  name: string;
   version: string;
   description?: string;
   icon?: {

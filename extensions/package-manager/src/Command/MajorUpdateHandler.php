@@ -76,7 +76,7 @@ class MajorUpdateHandler
 
         $this->updateComposerJson($majorVersion);
 
-        $this->runCommand($command->dryRun, $majorVersion);
+        $this->runCommand($command, $majorVersion);
 
         if ($command->dryRun) {
             $this->composerJson->revert();
@@ -105,7 +105,7 @@ class MajorUpdateHandler
     /**
      * @throws MajorUpdateFailedException
      */
-    protected function runCommand(bool $dryRun, string $majorVersion): void
+    protected function runCommand(MajorUpdate $command, string $majorVersion): void
     {
         $input = [
             'command' => 'update',
@@ -116,11 +116,11 @@ class MajorUpdateHandler
             '--with-all-dependencies' => true,
         ];
 
-        if ($dryRun) {
+        if ($command->dryRun) {
             $input['--dry-run'] = true;
         }
 
-        $output = $this->composer->run(new ArrayInput($input));
+        $output = $this->composer->run(new ArrayInput($input), $command->task ?? null);
 
         if ($output->getExitCode() !== 0) {
             throw new MajorUpdateFailedException('*', $output->getContents(), $majorVersion);

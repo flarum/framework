@@ -1,14 +1,15 @@
+import type Mithril from 'mithril';
 import app from 'flarum/admin/app';
-import Mithril from 'mithril';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+
 import errorHandler from '../utils/errorHandler';
 
 export interface WhyNotModalAttrs extends IInternalModalAttrs {
   package: string;
 }
 
-export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAttrs> extends Modal<Attrs> {
+export default class WhyNotModal extends Modal<WhyNotModalAttrs> {
   loading: boolean = true;
   whyNot: string | null = null;
 
@@ -20,7 +21,7 @@ export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAtt
     return app.translator.trans('flarum-package-manager.admin.why_not_modal.title');
   }
 
-  oncreate(vnode: Mithril.VnodeDOM<Attrs, this>) {
+  oncreate(vnode: Mithril.VnodeDOM<WhyNotModalAttrs, this>) {
     super.oncreate(vnode);
 
     this.requestWhyNot();
