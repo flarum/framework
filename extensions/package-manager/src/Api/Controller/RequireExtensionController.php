@@ -9,14 +9,14 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
+use Flarum\Http\RequestUtil;
+use Flarum\PackageManager\Command\RequireExtension;
 use Flarum\PackageManager\Job\Dispatcher;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Flarum\PackageManager\Command\RequireExtension;
-use Flarum\Http\RequestUtil;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class RequireExtensionController implements RequestHandlerInterface
 {

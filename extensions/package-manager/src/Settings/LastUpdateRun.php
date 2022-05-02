@@ -39,7 +39,7 @@ class LastUpdateRun implements JsonSetting
     public function for(string $update): self
     {
         if (! in_array($update, [FlarumUpdated::MAJOR, FlarumUpdated::MINOR, FlarumUpdated::GLOBAL])) {
-            throw new \InvalidArgumentException("Last update runs can only be for one of: minor, major, global");
+            throw new \InvalidArgumentException('Last update runs can only be for one of: minor, major, global');
         }
 
         $this->activeUpdate = $update;
