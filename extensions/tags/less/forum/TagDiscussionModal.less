@@ -44,6 +44,7 @@
   }
 }
 .TagsInput {
+  .add-keyboard-focus-ring(":focus-within");
   padding-top: 0;
   padding-bottom: 0;
   overflow: hidden;
@@ -57,6 +58,7 @@
     border: 0 !important;
     padding: 0;
     max-width: 100%;
+    min-width: 1ch;
     margin-right: -100%;
     background: transparent !important;
   }
@@ -66,6 +68,7 @@
 }
 .TagsInput-selected {
   .TagsInput-tag {
+    display: inline-flex;
     margin-right: 5px;
 
     &:last-child {
