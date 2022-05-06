@@ -99,6 +99,7 @@ class Post extends AbstractModel
             $post->number = new Expression('('.
                 $db->table('posts', 'pn')
                     ->whereRaw($db->getTablePrefix().'pn.discussion_id = '.intval($post->discussion_id))
+                    // IFNULL only works on MySQL/MariaDB
                     ->selectRaw('IFNULL(MAX('.$db->getTablePrefix().'pn.number), 0) + 1')
                     ->toSql()
             .')');
