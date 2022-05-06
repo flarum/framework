@@ -12,9 +12,9 @@ export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Too
    */
   text: string | string[];
   /**
-   * Manually show tooltip. `false` will show based on cursor events.
+   * Use to manually show or hide the tooltip. `undefined` will show based on cursor events.
    *
-   * Default: `false`.
+   * Default: `undefined`.
    */
   tooltipVisible?: boolean;
   /**
