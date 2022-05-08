@@ -96,12 +96,13 @@ class Post extends AbstractModel
 
             /** @var ConnectionInterface $db */
             $db = static::getConnectionResolver();
-            $post->number = new Expression('('.$db
-                    ->table('posts', 'pn')
+            $post->number = new Expression('('.
+                $db->table('posts', 'pn')
                     ->whereRaw($db->getTablePrefix().'pn.discussion_id = '.intval($post->discussion_id))
-                    ->select($db->raw('max('.$db->getTablePrefix().'pn.number) + 1'))
+                    // IFNULL only works on MySQL/MariaDB
+                    ->selectRaw('IFNULL(MAX('.$db->getTablePrefix().'pn.number), 0) + 1')
                     ->toSql()
-                .')');
+            .')');
         });
 
         static::created(function (self $post) {
