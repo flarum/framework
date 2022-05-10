@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.3.0](https://github.com/flarum/framework/compare/v1.1.1...v1.2.0)
+## [1.3.0](https://github.com/flarum/framework/compare/v1.2.0...v1.3.0)
 
 From v1.2.1 on all bundled Flarum extensions and flarum/core are merged into one mono repo.
 
