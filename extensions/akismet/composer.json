@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.2",
+        "flarum/core": "^1.3",
         "flarum/approval": "^1.2",
         "guzzlehttp/guzzle": "^7.4"
     },
