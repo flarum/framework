@@ -6,11 +6,6 @@ import type Post from '../../common/models/Post';
 
 export default class PostStreamState {
   /**
-   * @see https://github.com/Microsoft/TypeScript/issues/3841#issuecomment-337560146
-   */
-  ['constructor']: typeof PostStreamState;
-
-  /**
    * The number of posts to load per page.
    */
   static loadCount = 20;
@@ -178,8 +173,8 @@ export default class PostStreamState {
       return Promise.resolve();
     }
 
-    const start = this.sanitizeIndex(index - this.constructor.loadCount / 2);
-    const end = start + this.constructor.loadCount;
+    const start = this.sanitizeIndex(index - PostStreamState.loadCount / 2);
+    const end = start + PostStreamState.loadCount;
 
     this.reset(start, end);
 
@@ -191,13 +186,13 @@ export default class PostStreamState {
    */
   _loadNext() {
     const start = this.visibleEnd;
-    const end = (this.visibleEnd = this.sanitizeIndex(this.visibleEnd + this.constructor.loadCount));
+    const end = (this.visibleEnd = this.sanitizeIndex(this.visibleEnd + PostStreamState.loadCount));
 
     // Unload the posts which are two pages back from the page we're currently
     // loading.
-    const twoPagesAway = start - this.constructor.loadCount * 2;
+    const twoPagesAway = start - PostStreamState.loadCount * 2;
     if (twoPagesAway > this.visibleStart && twoPagesAway >= 0) {
-      this.visibleStart = twoPagesAway + this.constructor.loadCount + 1;
+      this.visibleStart = twoPagesAway + PostStreamState.loadCount + 1;
 
       if (this.loadPageTimeouts[twoPagesAway]) {
         clearTimeout(this.loadPageTimeouts[twoPagesAway]);
@@ -214,11 +209,11 @@ export default class PostStreamState {
    */
   _loadPrevious() {
     const end = this.visibleStart;
-    const start = (this.visibleStart = this.sanitizeIndex(this.visibleStart - this.constructor.loadCount));
+    const start = (this.visibleStart = this.sanitizeIndex(this.visibleStart - PostStreamState.loadCount));
 
     // Unload the posts which are two pages back from the page we're currently
     // loading.
-    const twoPagesAway = start + this.constructor.loadCount * 2;
+    const twoPagesAway = start + PostStreamState.loadCount * 2;
     if (twoPagesAway < this.visibleEnd && twoPagesAway <= this.count()) {
       this.visibleEnd = twoPagesAway;
 
@@ -302,7 +297,7 @@ export default class PostStreamState {
    */
   reset(start?: number, end?: number) {
     this.visibleStart = start || 0;
-    this.visibleEnd = this.sanitizeIndex(end || this.constructor.loadCount);
+    this.visibleEnd = this.sanitizeIndex(end || PostStreamState.loadCount);
   }
 
   /**
