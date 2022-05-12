@@ -7,6 +7,7 @@ From v1.2.1 on all bundled Flarum extensions and flarum/core are merged into one
 ### Added
 - [A11Y] Added role feed to DiscussionList (https://github.com/flarum/framework/pull/3359)
 - Support multiple confirmation dialogs when closing a tab/window (https://github.com/flarum/framework/pull/3372)
+- Markdown toolbar support for admin frontend (https://github.com/flarum/framework/commit/16d5cc11e3aee5c94aeed877987cdb199a2a0d2c)
 
 ### Changed
 - Post number calculation is now executed inside the database layer, preventing integrity constraints (https://github.com/flarum/framework/pull/3358)
