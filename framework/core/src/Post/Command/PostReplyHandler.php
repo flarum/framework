@@ -15,6 +15,7 @@ use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Saving;
+use Flarum\Post\Post;
 use Flarum\Post\PostValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
@@ -78,10 +79,16 @@ class PostReplyHandler
             $actor->assertCan('reply', $discussion);
         }
 
+        // Get the post type from the query data. When none is provided, we'll
+        // assume it's a comment.
+        $type = Arr::get($command->data, 'attributes.type', 'comment');
+        // Get the post model class that should be used to create it.
+        $postModel = Post::getModels()[$type];
+
         // Create a new Post entity, persist it, and dispatch domain events.
         // Before persistence, though, fire an event to give plugins an
         // opportunity to alter the post entity based on data in the command.
-        $post = CommentPost::reply(
+        $post = $postModel::reply(
             $discussion->id,
             Arr::get($command->data, 'attributes.content'),
             $actor->id,
