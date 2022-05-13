@@ -165,6 +165,38 @@ class CreateTest extends TestCase
     /**
      * @test
      */
+    public function can_create_discussion_with_forum_locale_transliteration()
+    {
+        // Forum default is traditional Chinese.
+        $this->app()->getContainer()->make('flarum.settings')->set('default_locale', 'zh');
+        // Actor locale is English
+        $this->app()->getContainer()->make('flarum.locales')->setLocale('en');
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'title' => '我是一个土豆',
+                            'content' => 'predetermined content for automated testing',
+                        ],
+                    ]
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        /** @var Discussion $discussion */
+        $discussion = Discussion::firstOrFail();
+
+        $this->assertEquals('wo-shi-yi-ge-tu-dou', $discussion->slug);
+    }
+
+    /**
+     * @test
+     */
     public function discussion_creation_limited_by_throttler()
     {
         $this->send(
