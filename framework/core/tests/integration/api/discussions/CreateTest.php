@@ -138,7 +138,8 @@ class CreateTest extends TestCase
      */
     public function can_create_discussion_with_current_lang_slug_transliteration()
     {
-        $this->app()->getContainer()->make('flarum.locales')->setLocale('zh');
+        // Forum default is traditional Chinese.
+        $this->app()->getContainer()->make('flarum.settings')->set('default_locale', 'zh');
 
         $response = $this->send(
             $this->request('POST', '/api/discussions', [
