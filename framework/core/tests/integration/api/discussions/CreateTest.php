@@ -169,7 +169,7 @@ class CreateTest extends TestCase
     public function can_create_discussion_with_forum_locale_transliteration()
     {
         // Forum default is traditional Chinese.
-        $this->app()->getContainer()->make('flarum.settings')->set('default_locale', 'zh');
+        $this->setting('default_locale', 'zh');
         // Actor locale is English
         $this->app()->getContainer()->make('flarum.locales')->setLocale('en');
 
