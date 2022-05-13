@@ -13,6 +13,8 @@ export interface INotificationAttrs extends ComponentAttrs {
   notification: NotificationModel;
 }
 
+// TODO [Flarum 2.0]: Remove `?.` from abstract function calls.
+
 /**
  * The `Notification` component abstract displays a single notification.
  * Subclasses should implement the `icon`, `href`, and `content` methods.
@@ -20,7 +22,7 @@ export interface INotificationAttrs extends ComponentAttrs {
 export default abstract class Notification<CustomAttrs extends INotificationAttrs = INotificationAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const notification = this.attrs.notification;
-    const href = this.href();
+    const href = this.href?.() ?? '';
 
     const fromUser = notification.fromUser();
 
@@ -32,9 +34,9 @@ export default abstract class Notification<CustomAttrs extends INotificationAttr
         onclick={this.markAsRead.bind(this)}
       >
         {avatar(fromUser || null)}
-        {icon(this.icon(), { className: 'Notification-icon' })}
+        {icon(this.icon?.(), { className: 'Notification-icon' })}
         <span className="Notification-title">
-          <span className="Notification-content">{this.content()}</span>
+          <span className="Notification-content">{this.content?.()}</span>
           <span className="Notification-title-spring" />
           {humanTime(notification.createdAt())}
         </span>
@@ -51,7 +53,7 @@ export default abstract class Notification<CustomAttrs extends INotificationAttr
             }}
           />
         )}
-        <div className="Notification-excerpt">{this.excerpt()}</div>
+        <div className="Notification-excerpt">{this.excerpt?.()}</div>
       </Link>
     );
   }
