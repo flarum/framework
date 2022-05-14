@@ -447,7 +447,7 @@ class User extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function getUnreadNotifications()
+    public function getUnreadNotifications()
     {
         static $cached = null;
 
