@@ -1,8 +1,10 @@
 # Changelog
 
-## [1.3.0](https://github.com/flarum/framework/compare/v1.2.0...v1.3.0)
+<!-- One-time commit-based diff due to monorepo rework. Diffing against the 1.2.1 tag doesn't work due to unrelated histories. -->
+## [1.3.0](https://github.com/flarum/framework/compare/33d939cb012716ed6309ea02236737ad4f25a75b...v1.3.0)
 
-From v1.2.1 on all bundled Flarum extensions and flarum/core are merged into one mono repo.
+From v1.2.1 on all bundled Flarum extensions and `flarum/core` are merged into one monorepo. As a result of this, the full code diff linked above
+looks rather complex and messy compared to the full list of changes made for this release.
 
 ### Added
 - [A11Y] Added role feed to DiscussionList (https://github.com/flarum/framework/pull/3359)
@@ -30,6 +32,10 @@ From v1.2.1 on all bundled Flarum extensions and flarum/core are merged into one
 - [A11Y] Tags: focus to input and layout of tag selection modal are off (https://github.com/flarum/framework/pull/3412)
 - Subscriptions: searching inside the following page will search in all discussions (https://github.com/flarum/framework/pull/3376)
 
+## [1.2.1](https://github.com/flarum/framework/compare/v1.2.0...v1.2.1)
+
+### Fixed
+- Don't escape single quotes in discussion title meta tags (60600f4d2b8f0c5dac94c329041427a0a08fad42)
 
 ## [1.2.0](https://github.com/flarum/framework/compare/v1.1.1...v1.2.0)
 
