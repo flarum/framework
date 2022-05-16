@@ -77,7 +77,7 @@ export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOpt
 const BooleanSettingTypes = ['bool', 'checkbox', 'switch', 'boolean'] as const;
 const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
 const TextareaSettingTypes = ['textarea'] as const;
-const ColorPreviewSettingType = 'color-preview';
+const ColorPreviewSettingType = 'color-preview' as const;
 
 /**
  * Valid options for the setting component builder to generate a Switch.
