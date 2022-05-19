@@ -74,4 +74,26 @@ class RegisterTest extends TestCase
 
         $this->assertEquals(403, $response->getStatusCode());
     }
+
+    /**
+     * @test
+     */
+    public function cant_register_with_nickname_if_invalid_regex()
+    {
+        $this->setting('flarum-nicknames.set_on_registration', true);
+        $this->setting('flarum-nicknames.regex', '^[A-z]+$');
+
+        $response = $this->send(
+            $this->request('POST', '/register', [
+                'json' => [
+                    'nickname' => '007',
+                    'username' => 'test',
+                    'password' => 'too-obscure',
+                    'email' => 'test@machine.local',
+                ]
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
+    }
 }
