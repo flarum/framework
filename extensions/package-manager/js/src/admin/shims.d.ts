@@ -1,7 +1,7 @@
 import QueueState from './states/QueueState';
 
 export interface AsyncBackendResponse {
-  processing: boolean
+  processing: boolean;
 }
 
 declare module 'flarum/admin/AdminApplication' {

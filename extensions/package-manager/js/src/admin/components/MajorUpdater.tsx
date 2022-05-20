@@ -11,8 +11,8 @@ import { UpdatedPackage, UpdateState } from './Updater';
 import errorHandler from '../utils/errorHandler';
 import WhyNotModal from './WhyNotModal';
 import ExtensionItem from './ExtensionItem';
-import {AsyncBackendResponse} from "../shims";
-import jumpToQueue from "../utils/jumpToQueue";
+import { AsyncBackendResponse } from '../shims';
+import jumpToQueue from '../utils/jumpToQueue';
 
 interface MajorUpdaterAttrs extends ComponentAttrs {
   coreUpdate: UpdatedPackage;
@@ -87,7 +87,7 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
     app.modal.show(LoadingModal);
 
     app
-      .request<AsyncBackendResponse|null>({
+      .request<AsyncBackendResponse | null>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/major-update`,
         body: {

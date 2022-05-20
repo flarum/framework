@@ -9,5 +9,5 @@ export default function jumpToQueue(): void {
   app.packageManagerQueue.load();
   setTimeout(() => {
     document.getElementById('PackageManager-queueSection')?.scrollIntoView({ block: 'nearest' });
-  }, 200)
+  }, 200);
 }

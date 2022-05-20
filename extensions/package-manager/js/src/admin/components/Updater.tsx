@@ -10,8 +10,8 @@ import MajorUpdater from './MajorUpdater';
 import ExtensionItem from './ExtensionItem';
 import extractText from 'flarum/common/utils/extractText';
 import jumpToQueue from '../utils/jumpToQueue';
-import {AsyncBackendResponse} from "../shims";
-import {Extension} from "flarum/admin/AdminApplication";
+import { AsyncBackendResponse } from '../shims';
+import { Extension } from 'flarum/admin/AdminApplication';
 
 export type UpdatedPackage = {
   name: string;
@@ -179,7 +179,7 @@ export default class Updater extends Component<UpdaterAttrs> {
     this.isLoading = 'check';
 
     app
-      .request<AsyncBackendResponse|LastUpdateCheck>({
+      .request<AsyncBackendResponse | LastUpdateCheck>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/check-for-updates`,
         errorHandler,
@@ -203,7 +203,7 @@ export default class Updater extends Component<UpdaterAttrs> {
       this.isLoading = 'minor-update';
 
       app
-        .request<AsyncBackendResponse|null>({
+        .request<AsyncBackendResponse | null>({
           method: 'POST',
           url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
           errorHandler,
@@ -228,7 +228,7 @@ export default class Updater extends Component<UpdaterAttrs> {
     this.isLoading = 'extension-update';
 
     app
-      .request<AsyncBackendResponse|null>({
+      .request<AsyncBackendResponse | null>({
         method: 'PATCH',
         url: `${app.forum.attribute('apiUrl')}/package-manager/extensions/${extension.id}`,
         errorHandler,
@@ -257,7 +257,7 @@ export default class Updater extends Component<UpdaterAttrs> {
     this.isLoading = 'global-update';
 
     app
-      .request<AsyncBackendResponse|null>({
+      .request<AsyncBackendResponse | null>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/global-update`,
         errorHandler,

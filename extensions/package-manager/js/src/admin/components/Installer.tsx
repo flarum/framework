@@ -7,7 +7,7 @@ import LoadingModal from 'flarum/admin/components/LoadingModal';
 
 import errorHandler from '../utils/errorHandler';
 import jumpToQueue from '../utils/jumpToQueue';
-import {AsyncBackendResponse} from "../shims";
+import { AsyncBackendResponse } from '../shims';
 
 interface InstallerAttrs extends ComponentAttrs {}
 
@@ -51,7 +51,7 @@ export default class Installer extends Component<InstallerAttrs> {
     app.modal.show(LoadingModal);
 
     app
-      .request<AsyncBackendResponse&{ id: number }>({
+      .request<AsyncBackendResponse & { id: number }>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/extensions`,
         body: {
