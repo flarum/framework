@@ -81,14 +81,12 @@ class MajorUpdateHandler
         if ($command->dryRun) {
             $this->composerJson->revert();
 
-            return true;
+            return;
         }
 
         $this->events->dispatch(
             new FlarumUpdated($command->actor, FlarumUpdated::MAJOR)
         );
-
-        return true;
     }
 
     /**

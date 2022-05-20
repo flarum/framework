@@ -72,7 +72,5 @@ class MinorUpdateHandler
         $this->events->dispatch(
             new FlarumUpdated($command->actor, FlarumUpdated::MINOR)
         );
-
-        return true;
     }
 }

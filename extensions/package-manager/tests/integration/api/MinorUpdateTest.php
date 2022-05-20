@@ -23,7 +23,7 @@ class MinorUpdateTest extends TestCase
     use DummyExtensions;
 
     /**
-     * @test--
+     * @test
      */
     public function can_update_to_next_minor_version()
     {
@@ -48,7 +48,7 @@ class MinorUpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode());
         $this->assertPackageVersion('flarum/tags', '*');
         $this->assertPackageVersion('flarum/dummy-compatible-extension', '*');
     }
@@ -85,7 +85,7 @@ class MinorUpdateTest extends TestCase
         /** @var LastUpdateRun $lastUpdateRun */
         $lastUpdateRun = $this->app()->getContainer()->make(LastUpdateRun::class);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode());
         $this->assertPackageVersion('flarum/tags', '*');
         $this->assertPackageVersion('flarum/dummy-extension', '*');
         $this->assertEquals([

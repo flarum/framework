@@ -59,7 +59,5 @@ class GlobalUpdateHandler
         $this->events->dispatch(
             new FlarumUpdated($command->actor, FlarumUpdated::GLOBAL)
         );
-
-        return true;
     }
 }
