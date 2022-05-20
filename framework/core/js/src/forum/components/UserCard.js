@@ -89,11 +89,12 @@ export default class UserCard extends Component {
           {online
             ? [icon('fas fa-circle'), ' ', app.translator.trans('core.forum.user.online_text')]
             : [icon('far fa-clock'), ' ', humanTime(lastSeenAt)]}
-        </span>
+        </span>,
+        100
       );
     }
 
-    items.add('joined', app.translator.trans('core.forum.user.joined_date_text', { ago: humanTime(user.joinTime()) }));
+    items.add('joined', app.translator.trans('core.forum.user.joined_date_text', { ago: humanTime(user.joinTime()) }), 90);
 
     return items;
   }
