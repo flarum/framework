@@ -17,3 +17,6 @@ trim_trailing_whitespace = false
 
 [*.{php,xml,json}]
 indent_size = 4
+
+[tsconfig.json]
+indent_size = 2
