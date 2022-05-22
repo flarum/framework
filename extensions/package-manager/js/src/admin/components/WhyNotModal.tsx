@@ -9,7 +9,7 @@ export interface WhyNotModalAttrs extends IInternalModalAttrs {
   package: string;
 }
 
-export default class WhyNotModal extends Modal<WhyNotModalAttrs> {
+export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotModalAttrs> extends Modal<CustomAttrs> {
   loading: boolean = true;
   whyNot: string | null = null;
 
@@ -21,7 +21,7 @@ export default class WhyNotModal extends Modal<WhyNotModalAttrs> {
     return app.translator.trans('flarum-package-manager.admin.why_not_modal.title');
   }
 
-  oncreate(vnode: Mithril.VnodeDOM<WhyNotModalAttrs, this>) {
+  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.oncreate(vnode);
 
     this.requestWhyNot();
