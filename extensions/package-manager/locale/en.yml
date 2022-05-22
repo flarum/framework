@@ -73,7 +73,7 @@ flarum-package-manager:
     settings:
       queue_jobs: Run operations in the background queue
       queue_jobs_help: >
-        You can read on a <a href='{basic_impl_link}'>basic queue</a> implementation or a <a href='{adv_impl_link}'>more advanced</a> one.
+        You can read about a <a href='{basic_impl_link}'>basic queue</a> implementation or a <a href='{adv_impl_link}'>more advanced</a> one.
 
     updater:
       check_for_updates: Check for updates
