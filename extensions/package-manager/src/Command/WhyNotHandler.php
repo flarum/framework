@@ -61,6 +61,6 @@ class WhyNotHandler
             throw new ComposerRequireFailedException($command->package, $output->getContents());
         }
 
-        return $output->getContents();
+        return ['reason' => $output->getContents()];
     }
 }

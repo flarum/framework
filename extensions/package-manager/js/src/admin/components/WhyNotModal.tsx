@@ -5,6 +5,12 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 import errorHandler from '../utils/errorHandler';
 
+type WhyNotResponse = {
+  data: {
+    reason: string
+  }
+}
+
 export interface WhyNotModalAttrs extends IInternalModalAttrs {
   package: string;
 }
@@ -33,7 +39,7 @@ export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotMo
 
   requestWhyNot(): void {
     app
-      .request({
+      .request<WhyNotResponse>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/why-not`,
         body: {
@@ -43,9 +49,9 @@ export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotMo
         },
         errorHandler,
       })
-      .then((response: any) => {
+      .then((response) => {
         this.loading = false;
-        this.whyNot = response.data.whyNot;
+        this.whyNot = response.data.reason;
         m.redraw();
       });
   }

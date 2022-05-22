@@ -33,6 +33,15 @@ class Dispatcher
      */
     protected $settings;
 
+    /**
+     * Overrides the user setting for execution mode if set.
+     * Runs synchronously regardless of user setting if set true.
+     * Asynchronously if set false.
+     *
+     * @var bool|null
+     */
+    protected $runSyncOverride;
+
     public function __construct(Bus $bus, Queue $queue, SettingsRepositoryInterface $settings)
     {
         $this->bus = $bus;
@@ -40,9 +49,23 @@ class Dispatcher
         $this->settings = $settings;
     }
 
+    public function sync(): self
+    {
+        $this->runSyncOverride = true;
+
+        return $this;
+    }
+
+    public function async(): self
+    {
+        $this->runSyncOverride = false;
+
+        return $this;
+    }
+
     public function dispatch(BusinessCommandInterface $command): DispatcherResponse
     {
-        $queueJobs = $this->settings->get('flarum-package-manager.queue_jobs');
+        $queueJobs = ($this->runSyncOverride === false) || ($this->runSyncOverride !== true && $this->settings->get('flarum-package-manager.queue_jobs'));
 
         if ($queueJobs && (! $this->queue instanceof SyncQueue)) {
             $task = Task::build($command->getOperationName(), $command->package ?? null);

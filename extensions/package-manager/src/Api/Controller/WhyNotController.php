@@ -36,12 +36,10 @@ class WhyNotController implements RequestHandlerInterface
         $package = Arr::get($request->getParsedBody(), 'data.package', '');
         $version = Arr::get($request->getParsedBody(), 'data.version', '*');
 
-        $whyNot = $this->bus->dispatch(
+        $whyNot = $this->bus->sync()->dispatch(
             new WhyNot($actor, $package, $version)
         );
 
-        return new JsonResponse([
-            'data' => compact('whyNot')
-        ]);
+        return new JsonResponse(['data' => ['reason' => $whyNot->data['reason']]]);
     }
 }
