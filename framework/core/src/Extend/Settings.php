@@ -95,6 +95,8 @@ class Settings implements ExtenderInterface
 
                     $defaults->put($key, $value);
                 }
+
+                return $defaults;
             });
         }
 
