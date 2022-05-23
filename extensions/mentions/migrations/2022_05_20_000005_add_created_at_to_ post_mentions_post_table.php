@@ -13,5 +13,6 @@ return Migration::addColumns('post_mentions_post', [
     'created_at' => [
         'timestamp',
         'useCurrent' => true,
+        'nullable' => true,
     ],
 ]);

@@ -12,7 +12,7 @@ use Flarum\Database\Migration;
 return Migration::addColumns('discussion_tag', [
     'created_at' => [
         'timestamp',
-        'null' => true,
         'useCurrent' => true,
+        'nullable' => true,
     ],
 ]);

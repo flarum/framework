@@ -12,13 +12,13 @@ use Flarum\Database\Migration;
 return Migration::addColumns('tags', [
     'created_at' => [
         'timestamp',
-        'null' => true,
         'useCurrent' => true,
+        'nullable' => true,
     ],
     'updated_at' => [
         'timestamp',
-        'null' => true,
         'useCurrent' => true,
         'useCurrentOnUpdate' => true,
+        'nullable' => true,
     ],
 ]);

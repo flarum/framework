@@ -13,5 +13,6 @@ return Migration::addColumns('group_user', [
     'created_at' => [
         'timestamp',
         'useCurrent' => true,
+        'nullable' => true,
     ],
 ]);
