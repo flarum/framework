@@ -173,14 +173,16 @@ class SettingsTest extends TestCase
             (new Extend\Settings())
                 ->serializeToForum('customPrefix.unavailableCustomSetting3', 'custom-prefix.unavailable_custom_setting3')
                 ->default('custom-prefix.unavailable_custom_setting3', 'extenderDefault')
+                ->default('custom-prefix.unavailable_custom_setting100', 'extenderDefault100'),
+            (new Extend\Settings())
+                ->default('custom-prefix.unavailable_custom_setting200', 'extenderDefault200')
         );
 
-        $value = $this->app()
-            ->getContainer()
-            ->make('flarum.settings')
-            ->get('custom-prefix.unavailable_custom_setting3', 'defaultParameterValue');
+        $settings = $this->app()->getContainer()->make('flarum.settings');
 
-        $this->assertEquals('extenderDefault', $value);
+        $this->assertEquals('extenderDefault', $settings->get('custom-prefix.unavailable_custom_setting3'));
+        $this->assertEquals('extenderDefault100', $settings->get('custom-prefix.unavailable_custom_setting100'));
+        $this->assertEquals('extenderDefault200', $settings->get('custom-prefix.unavailable_custom_setting200'));
     }
 
     /**
