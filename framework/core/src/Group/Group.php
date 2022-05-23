@@ -53,6 +53,13 @@ class Group extends AbstractModel
     const MODERATOR_ID = 4;
 
     /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['created_at', 'updated_at'];
+
+    /**
      * Boot the model.
      *
      * @return void
