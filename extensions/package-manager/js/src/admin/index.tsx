@@ -27,6 +27,8 @@ app.initializers.add('flarum-package-manager', (app) => {
           app.translator.trans('flarum-package-manager.admin.settings.queue_jobs_help', {
             basic_impl_link: 'https://discuss.flarum.org/d/28151-database-queue-the-simplest-queue-even-for-shared-hosting',
             adv_impl_link: 'https://discuss.flarum.org/d/21873-redis-sessions-cache-queues',
+            php_version: `<strong>${app.data.phpVersion}</strong>`,
+            folder_perms_link: 'https://docs.flarum.org/install#folder-ownership',
           })
         )
       ),
