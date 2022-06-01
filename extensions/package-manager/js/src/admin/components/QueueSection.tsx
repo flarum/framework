@@ -123,6 +123,17 @@ export default class QueueSection extends Component<{}> {
     );
 
     items.add(
+      'memoryUsed',
+      {
+        label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.peak_memory_used')),
+        content: (task) => (
+          <span>{task.peakMemoryUsed()}</span>
+        ),
+      },
+      60
+    );
+
+    items.add(
       'details',
       {
         label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.details')),
@@ -138,7 +149,7 @@ export default class QueueSection extends Component<{}> {
         ),
         className: 'Table-controls',
       },
-      60
+      55
     );
 
     return items;

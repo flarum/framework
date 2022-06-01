@@ -43,6 +43,7 @@ class TaskSerializer extends AbstractSerializer
             'createdAt' => $model->created_at,
             'startedAt' => $model->started_at,
             'finishedAt' => $model->finished_at,
+            'peakMemoryUsed' => $model->peak_memory_used,
         ];
     }
 }

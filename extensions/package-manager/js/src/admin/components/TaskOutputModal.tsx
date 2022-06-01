@@ -6,7 +6,7 @@ interface TaskOutputModalAttrs extends IInternalModalAttrs {
   task: Task;
 }
 
-export default class TaskOutputModal extends Modal<TaskOutputModalAttrs> {
+export default class TaskOutputModal<CustomAttrs extends TaskOutputModalAttrs = TaskOutputModalAttrs> extends Modal<CustomAttrs> {
   className() {
     return 'Modal--large QuickModal';
   }

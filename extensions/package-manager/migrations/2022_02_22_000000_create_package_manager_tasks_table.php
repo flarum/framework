@@ -19,8 +19,10 @@ return Migration::createTable(
         $table->string('command', 50)->nullable();
         $table->string('package', 100)->nullable();
         $table->mediumText('output');
-        $table->dateTime('created_at');
-        $table->dateTime('started_at')->nullable();
-        $table->dateTime('finished_at')->nullable();
+        $table->timestamp('created_at');
+        $table->timestamp('started_at')->nullable();
+        $table->timestamp('finished_at')->nullable();
+        // Saved in KB
+        $table->unsignedMediumInteger('peak_memory_used')->nullable();
     }
 );

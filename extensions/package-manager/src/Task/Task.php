@@ -22,6 +22,7 @@ use Flarum\Database\AbstractModel;
  * @property Carbon created_at
  * @property Carbon started_at
  * @property Carbon finished_at
+ * @property int peak_memory_used
  */
 class Task extends AbstractModel
 {
@@ -85,6 +86,7 @@ class Task extends AbstractModel
     {
         $this->status = $success ? static::SUCCESS : static::FAILURE;
         $this->finished_at = Carbon::now();
+        $this->peak_memory_used = round(memory_get_peak_usage() / 1024);
 
         return $this->save();
     }

@@ -45,6 +45,7 @@ flarum-package-manager:
         columns:
           details: Details
           elapsed_time: Completed in
+          peak_memory_used: Maximum Memory Used
           operation: Operation
           package: Package
           status: Status
