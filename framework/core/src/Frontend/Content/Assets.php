@@ -46,7 +46,7 @@ class Assets
      * @return $this
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function forFrontend(string $name): static
+    public function forFrontend(string $name): Assets
     {
         $this->assets = $this->container->make('flarum.assets.'.$name);
 
