@@ -78,7 +78,7 @@ export default class ItemList<T> {
     /**
      * Replaces an item's content, if the provided item key exists.
      *
-     * If the provided `key` is not present, nothing will happen.
+     * If the provided `key` is not present, an error will be thrown.
      *
      * @param key The key of the item in the list
      * @param content The item's new content
@@ -97,7 +97,7 @@ export default class ItemList<T> {
     /**
      * Replaces an item's priority, if the provided item key exists.
      *
-     * If the provided `key` is not present, nothing will happen.
+     * If the provided `key` is not present, an error will be thrown.
      *
      * @param key The key of the item in the list
      * @param priority The item's new priority
@@ -115,6 +115,8 @@ export default class ItemList<T> {
     setPriority(key: string, priority: number): this;
     /**
      * Remove an item from the list.
+     *
+     * If the provided `key` is not present, nothing will happen.
      */
     remove(key: string): this;
     /**
