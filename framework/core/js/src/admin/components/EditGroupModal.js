@@ -78,7 +78,7 @@ export default class EditGroupModal extends Modal {
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.icon_label')}</label>
         <div className="helpText">
-          {app.translator.trans('core.admin.edit_group.icon_text', { a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1" /> })}
+          {app.translator.trans('core.admin.edit_group.icon_text', { a: <a href="https://fontawesome.com/v5/search?m=free" tabindex="-1" /> })}
         </div>
         <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon} />
       </div>,
