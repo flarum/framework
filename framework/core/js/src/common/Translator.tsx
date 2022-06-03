@@ -18,8 +18,18 @@ export default class Translator {
    */
   protected formatter = new RichMessageFormatter(null, this.formatterTypeHandlers(), mithrilRichHandler);
 
+  /**
+   * Sets the formatter's locale to the provided value.
+   */
   setLocale(locale: string) {
     this.formatter.locale = locale;
+  }
+
+  /**
+   * Returns the formatter's current locale.
+   */
+  getLocale() {
+    return this.formatter.locale;
   }
 
   addTranslations(translations: Translations) {
