@@ -49,7 +49,7 @@ class SendReplyNotification implements ShouldQueue
         $notify = $discussion->readers()
             ->where('users.id', '!=', $post->user_id)
             ->where('discussion_user.subscription', 'follow')
-            ->where('discussion_user.last_read_post_number', $this->lastPostNumber)
+            ->where('discussion_user.last_read_post_number', $this->lastPostNumber - 1)
             ->get();
 
         $notifications->sync(
