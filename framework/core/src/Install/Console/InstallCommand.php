@@ -73,6 +73,8 @@ class InstallCommand extends AbstractCommand
             $this->info('DONE.');
         } else {
             $this->showProblems($problems);
+
+            return 1;
         }
     }
 
