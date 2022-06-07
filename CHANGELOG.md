@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.1](https://github.com/flarum/framework/compare/v1.3.0...v1.3.1)
+
+### Changed
+- UserCard now has ItemList for easier extending (https://github.com/flarum/framework/pull/3436)
+
+### Fixed
+- Button to go directly to all results page is hidden while API request for search hasn't completed (https://github.com/flarum/framework/pull/3431)
+- Setting extender does not register modifications beyond first fluent call (https://github.com/flarum/framework/pull/3439)
+- Link to font awesome icons list no longer works (https://github.com/flarum/framework/commit/df1bdd2ad84e992414c0e1e7be576558b4b0fe29)
+- Mentions: mentions with deleted authors not showing (https://github.com/flarum/framework/pull/3432)
+- Nicknames: regex validation isn't functional (https://github.com/flarum/framework/pull/3430)
+- Subscriptions: reply notifications not working (https://github.com/flarum/framework/pull/3445)
+- Suspend: not providing suspension reason breaks mail (https://github.com/flarum/framework/pull/3433)
+
 <!-- One-time commit-based diff due to monorepo rework. Diffing against the 1.2.1 tag doesn't work due to unrelated histories. -->
 ## [1.3.0](https://github.com/flarum/framework/compare/33d939cb012716ed6309ea02236737ad4f25a75b...v1.3.0)
 
