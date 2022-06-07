@@ -24,6 +24,13 @@ class Permission extends AbstractModel
     protected $table = 'group_permission';
 
     /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['created_at'];
+
+    /**
      * Define the relationship with the group that this permission is for.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
