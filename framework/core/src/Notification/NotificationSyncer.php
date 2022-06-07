@@ -10,8 +10,11 @@
 namespace Flarum\Notification;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\Driver\GroupableNotificationDriverInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
+use Flarum\Notification\Job\DelayedBlueprintGroupingJob;
 use Flarum\User\User;
+use Illuminate\Contracts\Queue\Queue;
 
 /**
  * The Notification Syncer commits notification blueprints to the database, and
@@ -46,6 +49,13 @@ class NotificationSyncer
      * @var array
      */
     protected static $beforeSendingCallbacks = [];
+
+    private Queue $queue;
+
+    public function __construct(Queue $queue)
+    {
+        $this->queue = $queue;
+    }
 
     /**
      * Sync a notification so that it is visible to the specified users, and not
@@ -107,7 +117,21 @@ class NotificationSyncer
         // didn't have a record in the database). As both operations can be
         // intensive on resources (database and mail server), we queue them.
         foreach (static::getNotificationDrivers() as $driverName => $driver) {
-            $driver->send($blueprint, $newRecipients);
+            if ($driver instanceof GroupableNotificationDriverInterface) {
+                $delay = $driver->blueprintGroupingDelay();
+
+                foreach($newRecipients as $recipient) {
+                    $job = new DelayedBlueprintGroupingJob(
+                        $blueprint,
+                        $recipient,
+                        $driver
+                    );
+
+                    $this->queue->later($delay, $job);
+                }
+            } else {
+                $driver->send($blueprint, $newRecipients);
+            }
         }
     }
 
