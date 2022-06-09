@@ -66,42 +66,48 @@ export default class AdminNav extends Component {
       'dashboard',
       <LinkButton href={app.route('dashboard')} icon="far fa-chart-bar" title={app.translator.trans('core.admin.nav.dashboard_title')}>
         {app.translator.trans('core.admin.nav.dashboard_button')}
-      </LinkButton>
+      </LinkButton>,
+      100
     );
 
     items.add(
       'basics',
       <LinkButton href={app.route('basics')} icon="fas fa-pencil-alt" title={app.translator.trans('core.admin.nav.basics_title')}>
         {app.translator.trans('core.admin.nav.basics_button')}
-      </LinkButton>
+      </LinkButton>,
+      90
     );
 
     items.add(
       'mail',
       <LinkButton href={app.route('mail')} icon="fas fa-envelope" title={app.translator.trans('core.admin.nav.email_title')}>
         {app.translator.trans('core.admin.nav.email_button')}
-      </LinkButton>
+      </LinkButton>,
+      80
     );
 
     items.add(
       'permissions',
       <LinkButton href={app.route('permissions')} icon="fas fa-key" title={app.translator.trans('core.admin.nav.permissions_title')}>
         {app.translator.trans('core.admin.nav.permissions_button')}
-      </LinkButton>
+      </LinkButton>,
+      70
     );
 
     items.add(
       'appearance',
       <LinkButton href={app.route('appearance')} icon="fas fa-paint-brush" title={app.translator.trans('core.admin.nav.appearance_title')}>
         {app.translator.trans('core.admin.nav.appearance_button')}
-      </LinkButton>
+      </LinkButton>,
+      60
     );
 
     items.add(
       'userList',
       <LinkButton href={app.route('users')} icon="fas fa-users" title={app.translator.trans('core.admin.nav.userlist_title')}>
         {app.translator.trans('core.admin.nav.userlist_button')}
-      </LinkButton>
+      </LinkButton>,
+      50
     );
 
     items.add(
@@ -113,7 +119,8 @@ export default class AdminNav extends Component {
           type="search"
           placeholder={app.translator.trans('core.admin.nav.search_placeholder')}
         />
-      </div>
+      </div>,
+      0
     );
 
     return items;
