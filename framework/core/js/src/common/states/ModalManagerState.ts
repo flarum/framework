@@ -1,5 +1,5 @@
 import type Component from '../Component';
-import Modal from '../components/Modal';
+import Modal, { IDismissibleOptions } from '../components/Modal';
 
 /**
  * Ideally, `show` would take a higher-kinded generic, ala:
@@ -8,7 +8,13 @@ import Modal from '../components/Modal';
  * https://github.com/Microsoft/TypeScript/issues/1213
  * Therefore, we have to use this ugly, messy workaround.
  */
-type UnsafeModalClass = ComponentClass<any, Modal> & { isDismissible: boolean; component: typeof Component.component };
+type UnsafeModalClass = ComponentClass<any, Modal> & { get dismissibleOptions(): IDismissibleOptions; component: typeof Component.component };
+
+type ModalItem = null | {
+  componentClass: UnsafeModalClass;
+  attrs?: Record<string, unknown>;
+  key: number;
+};
 
 /**
  * Class used to manage modal state.
@@ -19,11 +25,12 @@ export default class ModalManagerState {
   /**
    * @internal
    */
-  modal: null | {
-    componentClass: UnsafeModalClass;
-    attrs?: Record<string, unknown>;
-    key: number;
-  } = null;
+  modal: ModalItem = null;
+
+  /**
+   * @internal
+   */
+  modalList: Array<ModalItem> = [];
 
   /**
    * Used to force re-initialization of modals if a modal
@@ -31,12 +38,12 @@ export default class ModalManagerState {
    */
   private key = 0;
 
-  private closeTimeout?: NodeJS.Timeout;
-
   /**
    * Shows a modal dialog.
    *
    * If a modal is already open, the existing one will close and the new modal will replace it.
+   *
+   * Stacking modals is supported, the previous modal will stay behind the new modal.
    *
    * @example <caption>Show a modal</caption>
    * app.modal.show(MyCoolModal, { attr: 'value' });
@@ -44,8 +51,11 @@ export default class ModalManagerState {
    * @example <caption>Show a modal from a lifecycle method (`oncreate`, `view`, etc.)</caption>
    * // This "hack" is needed due to quirks with nested redraws in Mithril.
    * setTimeout(() => app.modal.show(MyCoolModal, { attr: 'value' }), 0);
+   *
+   * @example <caption>Stacking modals</caption>
+   * app.modal.show(MyCoolStackedModal, { attr: 'value' }, true);
    */
-  show(componentClass: UnsafeModalClass, attrs: Record<string, unknown> = {}): void {
+  show(componentClass: UnsafeModalClass, attrs: Record<string, unknown> = {}, stackModal: Boolean = false): void {
     if (!(componentClass.prototype instanceof Modal)) {
       // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
       const invalidModalWarning = 'The ModalManager can only show Modals.';
@@ -53,9 +63,18 @@ export default class ModalManagerState {
       throw new Error(invalidModalWarning);
     }
 
-    if (this.closeTimeout) clearTimeout(this.closeTimeout);
-
+    // Set current modal
     this.modal = { componentClass, attrs, key: this.key++ };
+
+    // We want to stack this modal
+    if (stackModal) {
+      // Remember previously opened modal and
+      // add new modal to the modal list
+      this.modalList.push(this.modal);
+    } else {
+      // Override last modals
+      this.modalList = [this.modal];
+    }
 
     m.redraw.sync();
   }
@@ -66,15 +85,28 @@ export default class ModalManagerState {
   close(): void {
     if (!this.modal) return;
 
-    // Don't hide the modal immediately, because if the consumer happens to call
-    // the `show` method straight after to show another modal dialog, it will
-    // cause Bootstrap's modal JS to misbehave. Instead we will wait for a tiny
-    // bit to give the `show` method the opportunity to prevent this from going
-    // ahead.
-    this.closeTimeout = setTimeout(() => {
-      this.modal = null;
+    // If there are two modals, remove the most recent one
+    if (this.modalList.length >= 2) {
+      const currentModalPosition = this.modalList.indexOf(this.modal);
+
+      // Remove last modal from list
+      this.modalList.splice(currentModalPosition, 1);
+
+      // Open last modal from list
+      this.modal = this.modalList[this.modalList.length - 1];
+
       m.redraw();
-    });
+
+      return;
+    }
+
+    // Reset current modal
+    this.modal = null;
+
+    // Empty modal list
+    this.modalList = [];
+
+    m.redraw();
   }
 
   /**

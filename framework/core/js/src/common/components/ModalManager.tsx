@@ -10,46 +10,54 @@ interface IModalManagerAttrs {
 }
 
 /**
- * The `ModalManager` component manages a modal dialog. Only one modal dialog
- * can be shown at once; loading a new component into the ModalManager will
- * overwrite the previous one.
+ * The `ModalManager` component manages one or more modal dialogs. Stacking modals
+ * is supported. Multiple dialogs can be shown at once; loading a new component
+ * into the ModalManager will overwrite the previous one.
  */
 export default class ModalManager extends Component<IModalManagerAttrs> {
+  // Current focus trap
   protected focusTrap: FocusTrap | undefined;
 
-  /**
-   * Whether a modal is currently shown by this modal manager.
-   */
-  protected modalShown: boolean = false;
+  // Keep track of the last set focus trap
+  protected lastSetFocusTrap: number | undefined;
+
+  // Keep track if there's an modal closing
+  protected modalClosing: boolean = false;
 
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
-    const modal = this.attrs.state.modal;
-    const Tag = modal?.componentClass;
+    return this.attrs.state.modalList.map((modal: any) => {
+      const Tag = modal?.componentClass;
 
-    return (
-      <div className="ModalManager modal fade">
-        {!!Tag && (
-          <Tag
-            key={modal?.key}
-            {...modal.attrs}
-            animateShow={this.animateShow.bind(this)}
-            animateHide={this.animateHide.bind(this)}
-            state={this.attrs.state}
-          />
-        )}
-      </div>
-    );
+      // Make stackable modals
+      const zIndex = 9999 + modal.key;
+
+      return (
+        <div className="ModalManager modal" modal-key={modal.key} style={{ zIndex }}>
+          {!!Tag && (
+            <Tag
+              key={modal?.key}
+              {...modal.attrs}
+              animateShow={this.animateShow.bind(this)}
+              animateHide={this.animateHide.bind(this)}
+              state={this.attrs.state}
+            />
+          )}
+
+          <div className="backdrop" key={`backdrop-${modal.key}`} onclick={this.handleBackdropClick.bind(this)} />
+        </div>
+      );
+    });
   }
 
   oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
     super.oncreate(vnode);
 
-    // Ensure the modal state is notified about a closed modal, even when the
-    // DOM-based Bootstrap JavaScript code triggered the closing of the modal,
-    // e.g. via ESC key or a click on the modal backdrop.
-    this.$().on('hidden.bs.modal', this.attrs.state.close.bind(this.attrs.state));
+    // Register keyup
+    document.body.addEventListener('keyup', this.handleEscPress.bind(this));
+  }
 
-    this.focusTrap = createFocusTrap(this.element as HTMLElement, { allowOutsideClick: true });
+  onbeforeremove(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
+    document.body.removeEventListener('keyup', this.handleEscPress);
   }
 
   onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
@@ -57,43 +65,99 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
     requestAnimationFrame(() => {
       try {
-        if (this.modalShown) this.focusTrap!.activate?.();
-        else this.focusTrap!.deactivate?.();
+        // Get current dialog key
+        const dialogKey = this?.attrs?.state?.modal?.key;
+
+        // Deactivate focus trap if there's a new dialog/closed
+        if (this.focusTrap && this.lastSetFocusTrap !== dialogKey) {
+          this.focusTrap!.deactivate?.();
+        }
+
+        // Activate focus trap if there's a new dialog which is not trapped yet
+        if (this.dialogElement && this.lastSetFocusTrap !== dialogKey) {
+          this.focusTrap = createFocusTrap(this.dialogElement as HTMLElement, { allowOutsideClick: true });
+
+          this.focusTrap!.activate?.();
+        }
+
+        // Update key of current opened modal
+        this.lastSetFocusTrap = dialogKey;
       } catch {
         // We can expect errors to occur here due to the nature of mithril rendering
       }
     });
   }
 
+  /**
+   * Get current active dialog
+   */
+  private get dialogElement(): HTMLElement {
+    return document.body.querySelector(`div[modal-key="${this?.attrs?.state?.modal?.key}"] .Modal`) as HTMLElement;
+  }
+
+  /**
+   * Get backdrop element of active dialog
+   */
+  private get backdropElement(): HTMLElement {
+    return document.body.querySelector(`div[modal-key="${this?.attrs?.state?.modal?.key}"] .backdrop`) as HTMLElement;
+  }
+
   animateShow(readyCallback: () => void): void {
     if (!this.attrs.state.modal) return;
 
-    const dismissible = !!this.attrs.state.modal.componentClass.isDismissible;
+    this.dialogElement.addEventListener('transitionend', () => readyCallback(), { once: true });
 
-    this.modalShown = true;
-
-    // If we are opening this modal while another modal is already open,
-    // the shown event will not run, because the modal is already open.
-    // So, we need to manually trigger the readyCallback.
-    if (this.$().hasClass('in')) {
-      readyCallback();
-      return;
-    }
-
-    this.$()
-      .one('shown.bs.modal', readyCallback)
-      // @ts-expect-error: No typings available for Bootstrap modals.
-      .modal({
-        backdrop: dismissible || 'static',
-        keyboard: dismissible,
-      })
-      .modal('show');
+    // Fade in
+    requestAnimationFrame(() => {
+      this.dialogElement.classList.add('in');
+    });
   }
 
-  animateHide(): void {
-    // @ts-expect-error: No typings available for Bootstrap modals.
-    this.$().modal('hide');
+  animateHide(closedCallback: () => void = () => {}): void {
+    if (this.modalClosing) return;
+    this.modalClosing = true;
 
-    this.modalShown = false;
+    this.backdropElement.addEventListener(
+      'transitionend',
+      () => {
+        this.modalClosing = false;
+        m.redraw();
+
+        // Close the dialog
+        this.attrs.state.close();
+
+        closedCallback();
+      },
+      { once: true }
+    );
+
+    this.dialogElement.classList.remove('in');
+    this.dialogElement.classList.add('out');
+  }
+
+  protected handleEscPress(e: KeyboardEvent): any {
+    if (!this.attrs.state.modal) return;
+
+    const dismissibleState = this.attrs.state.modal.componentClass.dismissibleOptions;
+
+    // Close the dialog if the escape key was pressed
+    // Check if closing via escape key is enabled
+    if (e.key === 'Escape' && dismissibleState.viaEscKey) {
+      e.preventDefault();
+
+      this.animateHide();
+    }
+  }
+
+  protected handleBackdropClick(this: this): any {
+    if (!this.attrs.state.modal) return;
+
+    const dismissibleState = this.attrs.state.modal.componentClass.dismissibleOptions;
+
+    // Close the dialog if the backdrop was clicked
+    // Check if closing via backdrop click is enabled
+    if (dismissibleState.viaBackdropClick) {
+      this.animateHide();
+    }
   }
 }
