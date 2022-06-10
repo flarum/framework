@@ -102,7 +102,7 @@ class Formatter
      * Render parsed XML.
      *
      * @param string $xml
-     * @param mixed $context
+     * @param mixed|null $context
      * @param ServerRequestInterface|null $request
      * @return string
      */
@@ -250,9 +250,9 @@ class Formatter
 
     protected function configureDefaultsOnLinks(
         Renderer $renderer,
-        mixed $context,
+        mixed $context = null,
         string $xml,
-        ?ServerRequestInterface $request
+        ServerRequestInterface $request = null
     ): string {
         return Utils::replaceAttributes($xml, 'URL', function ($attributes) {
             $attributes['rel'] = $attributes['rel'] ?? 'ugc nofollow';
