@@ -1,0 +1,273 @@
+version: 2
+updates:
+  # CI
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+    target-branch: main
+
+  # Repo root
+  - package-ecosystem: composer
+    directory: "/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: daily
+    target-branch: main
+
+  # Extensions
+  # These have to be done individually for now until dependabot supports wildcards..
+  # akismet
+  - package-ecosystem: composer
+    directory: "/extensions/akismet/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/akismet/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # approval
+  - package-ecosystem: composer
+    directory: "/extensions/approval/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/approval/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # bbcode
+  - package-ecosystem: composer
+    directory: "/extensions/bbcode/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/bbcode/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # embed
+  - package-ecosystem: composer
+    directory: "/extensions/embed/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/embed/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # emoji
+  - package-ecosystem: composer
+    directory: "/extensions/emoji/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/emoji/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # flags
+  - package-ecosystem: composer
+    directory: "/extensions/flags/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/flags/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # lang-english
+  - package-ecosystem: composer
+    directory: "/extensions/lang-english/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/lang-english/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # likes
+  - package-ecosystem: composer
+    directory: "/extensions/likes/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/likes/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # lock
+  - package-ecosystem: composer
+    directory: "/extensions/lock/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/lock/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # markdown
+  - package-ecosystem: composer
+    directory: "/extensions/markdown/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/markdown/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # mentions
+  - package-ecosystem: composer
+    directory: "/extensions/mentions/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/mentions/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # nicknames
+  - package-ecosystem: composer
+    directory: "/extensions/nicknames/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/nicknames/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # package-manager
+  - package-ecosystem: composer
+    directory: "/extensions/package-manager/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/package-manager/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # pusher
+  - package-ecosystem: composer
+    directory: "/extensions/pusher/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/pusher/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # statistics
+  - package-ecosystem: composer
+    directory: "/extensions/statistics/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/statistics/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # sticky
+  - package-ecosystem: composer
+    directory: "/extensions/sticky/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/sticky/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # subscriptions
+  - package-ecosystem: composer
+    directory: "/extensions/subscriptions/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/subscriptions/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # suspend
+  - package-ecosystem: composer
+    directory: "/extensions/suspend/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/suspend/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+  # tags
+  - package-ecosystem: composer
+    directory: "/extensions/tags/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/extensions/tags/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+
+  # Core
+  - package-ecosystem: composer
+    directory: "/framework/core/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/framework/core/js/"
+    schedule:
+      interval: daily
+    target-branch: main
+
+  # JS Packages
+  - package-ecosystem: npm
+    directory: "/js-packages/prettier-config/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/js-packages/tsconfig/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: npm
+    directory: "/js-packages/webpack-config/"
+    schedule:
+      interval: daily
+    target-branch: main
+
+  # PHP Packages
+  - package-ecosystem: composer
+    directory: "/php-packages/phpstan/"
+    schedule:
+      interval: daily
+    target-branch: main
+  - package-ecosystem: composer
+    directory: "/php-packages/testing/"
+    schedule:
+      interval: daily
+    target-branch: main
