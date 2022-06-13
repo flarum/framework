@@ -21,11 +21,14 @@
 
         {!! $js !!}
 
+        <script id="flarum-json-payload" type="application/json">@json($payload)</script>
+
         <script>
+            const data = JSON.parse(document.getElementById('flarum-json-payload').textContent);
             document.getElementById('flarum-loading').style.display = 'none';
 
             try {
-                flarum.core.app.load(@json($payload));
+                flarum.core.app.load(data);
                 flarum.core.app.bootExtensions(flarum.extensions);
                 flarum.core.app.boot();
             } catch (e) {
