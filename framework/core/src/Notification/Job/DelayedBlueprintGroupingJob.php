@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Notification\Job;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
@@ -23,13 +30,12 @@ class DelayedBlueprintGroupingJob extends AbstractJob
 
     public function handle()
     {
-
     }
 
     public function middleware()
     {
         return [
-            (new WithoutOverlapping('delayed-blueprint-grouping:' . $this->user->id))->dontRelease()
+            (new WithoutOverlapping('delayed-blueprint-grouping:'.$this->user->id))->dontRelease()
         ];
     }
 }

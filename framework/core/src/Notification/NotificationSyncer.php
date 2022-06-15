@@ -120,7 +120,7 @@ class NotificationSyncer
             if ($driver instanceof GroupableNotificationDriverInterface) {
                 $delay = $driver->blueprintGroupingDelay();
 
-                foreach($newRecipients as $recipient) {
+                foreach ($newRecipients as $recipient) {
                     $job = new DelayedBlueprintGroupingJob(
                         $blueprint,
                         $recipient,
