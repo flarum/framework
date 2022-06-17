@@ -18,7 +18,7 @@ class FileVersioner implements VersionerInterface
      * @var Filesystem
      */
     protected $filesystem;
-    const REV_MANIFEST = 'rev-manifest.json';
+    public const REV_MANIFEST = 'rev-manifest.json';
 
     public function __construct(Filesystem $filesystem)
     {

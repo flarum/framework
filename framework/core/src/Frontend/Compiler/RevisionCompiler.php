@@ -18,7 +18,7 @@ use Illuminate\Contracts\Filesystem\Filesystem;
  */
 class RevisionCompiler implements CompilerInterface
 {
-    const EMPTY_REVISION = 'empty';
+    public const EMPTY_REVISION = 'empty';
 
     /**
      * @var Filesystem

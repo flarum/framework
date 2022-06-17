@@ -23,7 +23,7 @@ use League\Flysystem\Filesystem;
 
 class EnableBundledExtensions implements Step
 {
-    const EXTENSION_WHITELIST = [
+    public const EXTENSION_WHITELIST = [
         'flarum-approval',
         'flarum-bbcode',
         'flarum-emoji',

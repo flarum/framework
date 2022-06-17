@@ -35,22 +35,22 @@ class Group extends AbstractModel
     /**
      * The ID of the administrator group.
      */
-    const ADMINISTRATOR_ID = 1;
+    public const ADMINISTRATOR_ID = 1;
 
     /**
      * The ID of the guest group.
      */
-    const GUEST_ID = 2;
+    public const GUEST_ID = 2;
 
     /**
      * The ID of the member group.
      */
-    const MEMBER_ID = 3;
+    public const MEMBER_ID = 3;
 
     /**
      * The ID of the mod group.
      */
-    const MODERATOR_ID = 4;
+    public const MODERATOR_ID = 4;
 
     /**
      * The attributes that should be mutated to dates.

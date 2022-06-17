@@ -19,7 +19,7 @@ use Tobscure\JsonApi\Document;
 
 class MaintenanceModeHandler implements RequestHandlerInterface
 {
-    const MESSAGE = 'Currently down for maintenance. Please come back later.';
+    public const MESSAGE = 'Currently down for maintenance. Please come back later.';
 
     /**
      * Handle the request and return a response.

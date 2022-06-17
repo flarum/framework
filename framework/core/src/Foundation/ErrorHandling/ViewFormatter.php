@@ -60,7 +60,7 @@ class ViewFormatter implements HttpFormatter
         return new HtmlResponse($view->render(), $error->getStatusCode());
     }
 
-    const ERRORS_WITH_VIEWS = ['csrf_token_mismatch', 'not_found'];
+    public const ERRORS_WITH_VIEWS = ['csrf_token_mismatch', 'not_found'];
 
     private function determineView(HandledError $error): string
     {
