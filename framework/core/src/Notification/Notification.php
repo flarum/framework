@@ -194,7 +194,7 @@ class Notification extends AbstractModel
     public function scopeWhereSubjectModel(Builder $query, string $class)
     {
         $notificationTypes = array_filter(self::getSubjectModels(), function ($modelClass) use ($class) {
-            return $modelClass === $class or is_subclass_of($class, $modelClass);
+            return $modelClass === $class || is_subclass_of($class, $modelClass);
         });
 
         return $query->whereIn('type', array_keys($notificationTypes));
