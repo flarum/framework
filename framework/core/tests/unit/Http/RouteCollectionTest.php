@@ -18,10 +18,10 @@ class RouteCollectionTest extends TestCase
     public function can_add_routes()
     {
         $routeCollection = (new RouteCollection)
-            ->addRoute('GET', '/index', 'index', function () {
+            ->addRoute('GET', '/index', 'index', static function () {
                 echo 'index';
             })
-            ->addRoute('DELETE', '/posts', 'forum.posts.delete', function () {
+            ->addRoute('DELETE', '/posts', 'forum.posts.delete', static function () {
                 echo 'delete posts';
             });
 
@@ -32,13 +32,13 @@ class RouteCollectionTest extends TestCase
     /** @test */
     public function can_add_routes_late()
     {
-        $routeCollection = (new RouteCollection)->addRoute('GET', '/index', 'index', function () {
+        $routeCollection = (new RouteCollection)->addRoute('GET', '/index', 'index', static function () {
             echo 'index';
         });
 
         $this->assertEquals('/index', $routeCollection->getPath('index'));
 
-        $routeCollection->addRoute('DELETE', '/posts', 'forum.posts.delete', function () {
+        $routeCollection->addRoute('DELETE', '/posts', 'forum.posts.delete', static function () {
             echo 'delete posts';
         });
 
@@ -51,7 +51,7 @@ class RouteCollectionTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Could not generate URL for route 'user': no value provided for required part 'user'.");
 
-        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}', 'user', function () {
+        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}', 'user', static function () {
             echo 'user';
         });
 
@@ -61,7 +61,7 @@ class RouteCollectionTest extends TestCase
     /** @test */
     public function dont_need_to_provide_optional_parameters()
     {
-        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
+        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', static function () {
             echo 'user';
         });
 
@@ -73,7 +73,7 @@ class RouteCollectionTest extends TestCase
     /** @test */
     public function can_provide_optional_parameters()
     {
-        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
+        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', static function () {
             echo 'user';
         });
 

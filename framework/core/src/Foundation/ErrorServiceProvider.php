@@ -19,7 +19,7 @@ class ErrorServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->container->singleton('flarum.error.statuses', function () {
+        $this->container->singleton('flarum.error.statuses', static function () {
             return [
                 // 400 Bad Request
                 'csrf_token_mismatch' => 400,
@@ -44,14 +44,14 @@ class ErrorServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.error.classes', function () {
+        $this->container->singleton('flarum.error.classes', static function () {
             return [
                 InvalidParameterException::class => 'invalid_parameter',
                 ModelNotFoundException::class => 'not_found',
             ];
         });
 
-        $this->container->singleton('flarum.error.handlers', function () {
+        $this->container->singleton('flarum.error.handlers', static function () {
             return [
                 IlluminateValidationException::class => Handling\ExceptionHandler\IlluminateValidationExceptionHandler::class,
                 ValidationException::class => Handling\ExceptionHandler\ValidationExceptionHandler::class,

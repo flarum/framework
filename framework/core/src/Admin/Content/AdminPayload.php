@@ -76,7 +76,7 @@ class AdminPayload
         $document->payload['extensions'] = $this->extensions->getExtensions()->toArray();
 
         $document->payload['displayNameDrivers'] = array_keys($this->container->make('flarum.user.display_name.supported_drivers'));
-        $document->payload['slugDrivers'] = array_map(function ($resourceDrivers) {
+        $document->payload['slugDrivers'] = array_map(static function ($resourceDrivers) {
             return array_keys($resourceDrivers);
         }, $this->container->make('flarum.http.slugDrivers'));
 

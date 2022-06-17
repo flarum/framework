@@ -31,7 +31,7 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
+        $this->container->extend(UrlGenerator::class, static function (UrlGenerator $url, Container $container) {
             return $url->addCollection('api', $container->make('flarum.api.routes'), 'api');
         });
 
@@ -42,9 +42,9 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
-        $this->container->singleton('flarum.api.throttlers', function () {
+        $this->container->singleton('flarum.api.throttlers', static function () {
             return [
-                'bypassThrottlingAttribute' => function ($request) {
+                'bypassThrottlingAttribute' => static function ($request) {
                     if ($request->getAttribute('bypassThrottling')) {
                         return false;
                     }
@@ -52,11 +52,11 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->bind(Middleware\ThrottleApi::class, function (Container $container) {
+        $this->container->bind(Middleware\ThrottleApi::class, static function (Container $container) {
             return new Middleware\ThrottleApi($container->make('flarum.api.throttlers'));
         });
 
-        $this->container->singleton('flarum.api.middleware', function () {
+        $this->container->singleton('flarum.api.middleware', static function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
                 'flarum.api.error_handler',
@@ -73,7 +73,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->bind('flarum.api.error_handler', function (Container $container) {
+        $this->container->bind('flarum.api.error_handler', static function (Container $container) {
             return new HttpMiddleware\HandleErrors(
                 $container->make(Registry::class),
                 new JsonApiFormatter($container['flarum.config']->inDebugMode()),
@@ -81,7 +81,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->container->bind('flarum.api.route_resolver', function (Container $container) {
+        $this->container->bind('flarum.api.route_resolver', static function (Container $container) {
             return new HttpMiddleware\ResolveRoute($container->make('flarum.api.routes'));
         });
 
@@ -97,13 +97,13 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $pipe;
         });
 
-        $this->container->singleton('flarum.api.notification_serializers', function () {
+        $this->container->singleton('flarum.api.notification_serializers', static function () {
             return [
                 'discussionRenamed' => BasicDiscussionSerializer::class
             ];
         });
 
-        $this->container->singleton('flarum.api_client.exclude_middleware', function () {
+        $this->container->singleton('flarum.api_client.exclude_middleware', static function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
                 HttpMiddleware\ParseJsonBody::class,
@@ -116,12 +116,12 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton(Client::class, function ($container) {
+        $this->container->singleton(Client::class, static function ($container) {
             $pipe = new MiddlewarePipe;
 
             $exclude = $container->make('flarum.api_client.exclude_middleware');
 
-            $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($exclude) {
+            $middlewareStack = array_filter($container->make('flarum.api.middleware'), static function ($middlewareClass) use ($exclude) {
                 return ! in_array($middlewareClass, $exclude);
             });
 

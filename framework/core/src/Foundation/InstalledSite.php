@@ -187,7 +187,7 @@ class InstalledSite implements SiteInterface
 
     protected function registerCache(Container $container)
     {
-        $container->singleton('cache.store', function ($container) {
+        $container->singleton('cache.store', static function ($container) {
             return new CacheRepository($container->make('cache.filestore'));
         });
         $container->alias('cache.store', Repository::class);

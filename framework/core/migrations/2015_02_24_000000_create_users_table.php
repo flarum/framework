@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
     'users',
-    function (Blueprint $table) {
+    static function (Blueprint $table) {
         $table->increments('id');
         $table->string('username', 100)->unique();
         $table->string('email', 150)->unique();

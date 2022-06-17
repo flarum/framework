@@ -190,11 +190,11 @@ class Frontend implements ExtenderInterface
         $container->resolving($abstract, function (Assets $assets) use ($moduleName) {
             if ($this->js) {
                 $assets->js(function (SourceCollector $sources) use ($moduleName) {
-                    $sources->addString(function () {
+                    $sources->addString(static function () {
                         return 'var module={};';
                     });
                     $sources->addFile($this->js);
-                    $sources->addString(function () use ($moduleName) {
+                    $sources->addString(static function () use ($moduleName) {
                         return "flarum.extensions['$moduleName']=module.exports;";
                     });
                 });
@@ -219,7 +219,7 @@ class Frontend implements ExtenderInterface
 
             $events->listen(
                 [Enabled::class, Disabled::class, ClearingCache::class],
-                function () use ($container, $abstract) {
+                static function () use ($container, $abstract) {
                     $recompile = new RecompileFrontendAssets(
                         $container->make($abstract),
                         $container->make(LocaleManager::class)
@@ -230,7 +230,7 @@ class Frontend implements ExtenderInterface
 
             $events->listen(
                 Saved::class,
-                function (Saved $event) use ($container, $abstract) {
+                static function (Saved $event) use ($container, $abstract) {
                     $recompile = new RecompileFrontendAssets(
                         $container->make($abstract),
                         $container->make(LocaleManager::class)

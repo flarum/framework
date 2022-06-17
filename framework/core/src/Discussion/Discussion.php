@@ -96,15 +96,15 @@ class Discussion extends AbstractModel
     {
         parent::boot();
 
-        static::deleting(function (self $discussion) {
+        static::deleting(static function (self $discussion) {
             Notification::whereSubjectModel(Post::class)
-                ->whereIn('subject_id', function ($query) use ($discussion) {
+                ->whereIn('subject_id', static function ($query) use ($discussion) {
                     $query->select('id')->from('posts')->where('discussion_id', $discussion->id);
                 })
                 ->delete();
         });
 
-        static::deleted(function (self $discussion) {
+        static::deleted(static function (self $discussion) {
             $discussion->raise(new Deleted($discussion));
 
             Notification::whereSubject($discussion)->delete();

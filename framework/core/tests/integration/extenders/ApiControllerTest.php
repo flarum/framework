@@ -64,7 +64,7 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(ShowDiscussionController::class))
-                ->prepareDataForSerialization(function ($controller, Discussion $discussion) {
+                ->prepareDataForSerialization(static function ($controller, Discussion $discussion) {
                     $discussion->title = 'dataSerializationPrepCustomTitle';
                 })
         );
@@ -111,7 +111,7 @@ class ApiControllerTest extends TestCase
                 ->hasMany('referenceTest', UserSerializer::class),
             (new Extend\ApiController(ShowForumController::class))
                 ->addInclude('referenceTest')
-                ->prepareDataForSerialization(function ($controller, &$data) {
+                ->prepareDataForSerialization(static function ($controller, &$data) {
                     $data['referenceTest'] = User::limit(2)->get();
                 })
         );
@@ -158,7 +158,7 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(AbstractShowController::class))
-                ->prepareDataForSerialization(function ($controller, Discussion $discussion) {
+                ->prepareDataForSerialization(static function ($controller, Discussion $discussion) {
                     if ($controller instanceof ShowDiscussionController) {
                         $discussion->title = 'dataSerializationPrepCustomTitle2';
                     }
@@ -183,13 +183,13 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(AbstractShowController::class))
-                ->prepareDataForSerialization(function ($controller, Discussion $discussion) {
+                ->prepareDataForSerialization(static function ($controller, Discussion $discussion) {
                     if ($controller instanceof ShowDiscussionController) {
                         $discussion->title = 'dataSerializationPrepCustomTitle3';
                     }
                 }),
             (new Extend\ApiController(ShowDiscussionController::class))
-                ->prepareDataForSerialization(function ($controller, Discussion $discussion) {
+                ->prepareDataForSerialization(static function ($controller, Discussion $discussion) {
                     $discussion->title = 'dataSerializationPrepCustomTitle4';
                 })
         );
@@ -212,7 +212,7 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(AbstractShowController::class))
-                ->prepareDataQuery(function ($controller) {
+                ->prepareDataQuery(static function ($controller) {
                     if ($controller instanceof ShowDiscussionController) {
                         $controller->setSerializer(CustomDiscussionSerializer2::class);
                     }
@@ -237,13 +237,13 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(AbstractShowController::class))
-                ->prepareDataForSerialization(function ($controller) {
+                ->prepareDataForSerialization(static function ($controller) {
                     if ($controller instanceof ShowDiscussionController) {
                         $controller->setSerializer(CustomDiscussionSerializer2::class);
                     }
                 }),
             (new Extend\ApiController(ShowDiscussionController::class))
-                ->prepareDataForSerialization(function ($controller) {
+                ->prepareDataForSerialization(static function ($controller) {
                     $controller->setSerializer(CustomDiscussionSerializer::class);
                 })
         );
@@ -329,7 +329,7 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(ShowUserController::class))
-                ->setSerializer(CustomUserSerializer::class, function () {
+                ->setSerializer(CustomUserSerializer::class, static function () {
                     return false;
                 })
         );
@@ -560,7 +560,7 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(ListDiscussionsController::class))
-                ->addSortField('userId', function () {
+                ->addSortField('userId', static function () {
                     return false;
                 })
         );
@@ -671,7 +671,7 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('firstLevelRelation', Post::class, 'user_id'),
             (new Extend\ApiController(ListUsersController::class))
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];
@@ -699,7 +699,7 @@ class ApiControllerTest extends TestCase
                 ->hasOne('firstLevelRelation', Post::class, 'user_id'),
             (new Extend\ApiController(ListUsersController::class))
                 ->load('firstLevelRelation')
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];
@@ -728,7 +728,7 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(Post::class))
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];
@@ -758,7 +758,7 @@ class ApiControllerTest extends TestCase
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
                 ->load(['firstLevelRelation', 'firstLevelRelation.secondLevelRelation'])
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];
@@ -788,7 +788,7 @@ class ApiControllerTest extends TestCase
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
                 ->load(['firstLevelRelation.secondLevelRelation'])
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];
@@ -815,8 +815,8 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('firstLevelRelation', Post::class, 'user_id'),
             (new Extend\ApiController(ListUsersController::class))
-                ->loadWhere('firstLevelRelation', function ($query, $request) {})
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->loadWhere('firstLevelRelation', static function ($query, $request) {})
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];
@@ -846,8 +846,8 @@ class ApiControllerTest extends TestCase
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
                 ->load('firstLevelRelation')
-                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->loadWhere('firstLevelRelation.secondLevelRelation', static function ($query, $request) {})
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];
@@ -876,8 +876,8 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(Post::class))
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
-                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->loadWhere('firstLevelRelation.secondLevelRelation', static function ($query, $request) {})
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];
@@ -906,9 +906,9 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(Post::class))
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
-                ->loadWhere('firstLevelRelation', function ($query, $request) {})
-                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
-                ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
+                ->loadWhere('firstLevelRelation', static function ($query, $request) {})
+                ->loadWhere('firstLevelRelation.secondLevelRelation', static function ($query, $request) {})
+                ->prepareDataForSerialization(static function ($controller, $data) use (&$users) {
                     $users = $data;
 
                     return [];

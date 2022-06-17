@@ -10,7 +10,7 @@
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema) {
+    'up' => static function (Builder $schema) {
         $groups = $schema->getConnection()->table('groups')
             ->where('icon', '<>', '')
             ->where('icon', 'NOT LIKE', '%fa-%')
@@ -26,7 +26,7 @@ return [
         }
     },
 
-    'down' => function (Builder $schema) {
+    'down' => static function (Builder $schema) {
         //
     }
 ];

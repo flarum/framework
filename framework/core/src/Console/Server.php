@@ -46,7 +46,7 @@ class Server
     {
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) {
+        $dispatcher->addListener(ConsoleEvents::ERROR, static function (ConsoleErrorEvent $event) {
             $container = Container::getInstance();
 
             /** @var Registry $registry */

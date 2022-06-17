@@ -28,19 +28,19 @@ class FilesystemServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('files', function () {
+        $this->container->singleton('files', static function () {
             return new Filesystem;
         });
 
-        $this->container->singleton('flarum.filesystem.disks', function () {
+        $this->container->singleton('flarum.filesystem.disks', static function () {
             return [
-                'flarum-assets' => function (Paths $paths, UrlGenerator $url) {
+                'flarum-assets' => static function (Paths $paths, UrlGenerator $url) {
                     return [
                         'root'   => "$paths->public/assets",
                         'url'    => $url->to('forum')->path('assets')
                     ];
                 },
-                'flarum-avatars' => function (Paths $paths, UrlGenerator $url) {
+                'flarum-avatars' => static function (Paths $paths, UrlGenerator $url) {
                     return [
                         'root'   => "$paths->public/assets/avatars",
                         'url'    => $url->to('forum')->path('assets/avatars')
@@ -49,17 +49,17 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.filesystem.drivers', function () {
+        $this->container->singleton('flarum.filesystem.drivers', static function () {
             return [];
         });
 
-        $this->container->singleton('flarum.filesystem.resolved_drivers', function (Container $container) {
-            return array_map(function ($driverClass) use ($container) {
+        $this->container->singleton('flarum.filesystem.resolved_drivers', static function (Container $container) {
+            return array_map(static function ($driverClass) use ($container) {
                 return $container->make($driverClass);
             }, $container->make('flarum.filesystem.drivers'));
         });
 
-        $this->container->singleton('filesystem', function (Container $container) {
+        $this->container->singleton('filesystem', static function (Container $container) {
             return new FilesystemManager(
                 $container,
                 $container->make('flarum.filesystem.disks'),

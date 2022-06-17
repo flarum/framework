@@ -46,7 +46,7 @@ class ThrottleApiTest extends TestCase
      */
     public function list_discussions_can_be_restricted()
     {
-        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
+        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussions', static function ($request) {
             if ($request->getAttribute('routeName') === 'discussions.index') {
                 return true;
             }
@@ -63,12 +63,12 @@ class ThrottleApiTest extends TestCase
     public function false_overrides_true_for_evaluating_throttlers()
     {
         $this->extend(
-            (new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
+            (new Extend\ThrottleApi)->set('blockListDiscussions', static function ($request) {
                 if ($request->getAttribute('routeName') === 'discussions.index') {
                     return true;
                 }
             }),
-            (new Extend\ThrottleApi)->set('blockListDiscussionsOverride', function ($request) {
+            (new Extend\ThrottleApi)->set('blockListDiscussionsOverride', static function ($request) {
                 if ($request->getAttribute('routeName') === 'discussions.index') {
                     return false;
                 }
@@ -85,7 +85,7 @@ class ThrottleApiTest extends TestCase
      */
     public function throttling_applies_to_api_client()
     {
-        $this->extend((new Extend\ThrottleApi)->set('blockRegistration', function ($request) {
+        $this->extend((new Extend\ThrottleApi)->set('blockRegistration', static function ($request) {
             if ($request->getAttribute('routeName') === 'users.create') {
                 return true;
             }

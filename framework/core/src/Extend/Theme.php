@@ -75,8 +75,8 @@ class Theme implements ExtenderInterface
      */
     public function addCustomLessFunction(string $functionName, callable $callable): self
     {
-        $this->customFunctions[$functionName] = function (...$args) use ($callable, $functionName) {
-            $argVals = array_map(function ($arg) {
+        $this->customFunctions[$functionName] = static function (...$args) use ($callable, $functionName) {
+            $argVals = array_map(static function ($arg) {
                 return $arg->value;
             }, $args);
 

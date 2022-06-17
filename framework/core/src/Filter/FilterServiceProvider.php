@@ -31,7 +31,7 @@ class FilterServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('flarum.filter.filters', function () {
+        $this->container->singleton('flarum.filter.filters', static function () {
             return [
                 DiscussionFilterer::class => [
                     DiscussionQuery\AuthorFilterGambit::class,
@@ -56,7 +56,7 @@ class FilterServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.filter.filter_mutators', function () {
+        $this->container->singleton('flarum.filter.filter_mutators', static function () {
             return [];
         });
     }

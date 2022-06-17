@@ -29,7 +29,7 @@ class Paths
             );
         }
 
-        $this->paths = array_map(function ($path) {
+        $this->paths = array_map(static function ($path) {
             return rtrim($path, '\/');
         }, $paths);
 

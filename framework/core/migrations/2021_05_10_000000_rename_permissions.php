@@ -10,7 +10,7 @@
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema) {
+    'up' => static function (Builder $schema) {
         $db = $schema->getConnection();
 
         $db->table('group_permission')
@@ -22,7 +22,7 @@ return [
             ->update(['permission' => 'searchUsers']);
     },
 
-    'down' => function (Builder $schema) {
+    'down' => static function (Builder $schema) {
         $db = $schema->getConnection();
 
         $db->table('group_permission')

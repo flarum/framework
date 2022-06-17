@@ -79,7 +79,7 @@ class SettingsTest extends TestCase
     {
         $this->extend(
             (new Extend\Settings())
-                ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting', function ($value) {
+                ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting', static function ($value) {
                     return $value.'Modified';
                 })
         );
@@ -147,7 +147,7 @@ class SettingsTest extends TestCase
     {
         $this->extend(
             (new Extend\Settings())
-                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', function ($value) {
+                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', static function ($value) {
                     return $value.'Modified2';
                 }, 'customDefault')
         );

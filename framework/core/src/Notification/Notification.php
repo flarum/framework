@@ -145,7 +145,7 @@ class Notification extends AbstractModel
      */
     public function scopeWhereSubjectVisibleTo(Builder $query, User $actor)
     {
-        return $query->where(function ($query) use ($actor) {
+        return $query->where(static function ($query) use ($actor) {
             $classes = [];
 
             foreach (static::$subjectModels as $type => $class) {
@@ -153,9 +153,9 @@ class Notification extends AbstractModel
             }
 
             foreach ($classes as $class => $types) {
-                $query->orWhere(function ($query) use ($types, $class, $actor) {
+                $query->orWhere(static function ($query) use ($types, $class, $actor) {
                     $query->whereIn('type', $types)
-                        ->whereExists(function ($query) use ($class, $actor) {
+                        ->whereExists(static function ($query) use ($class, $actor) {
                             $query->selectRaw(1)
                                 ->from((new $class)->getTable())
                                 ->whereColumn('id', 'subject_id');
@@ -193,7 +193,7 @@ class Notification extends AbstractModel
      */
     public function scopeWhereSubjectModel(Builder $query, string $class)
     {
-        $notificationTypes = array_filter(self::getSubjectModels(), function ($modelClass) use ($class) {
+        $notificationTypes = array_filter(self::getSubjectModels(), static function ($modelClass) use ($class) {
             return $modelClass === $class or is_subclass_of($class, $modelClass);
         });
 
@@ -224,7 +224,7 @@ class Notification extends AbstractModel
         $now = Carbon::now()->toDateTimeString();
 
         static::insert(
-            array_map(function (User $user) use ($attributes, $now) {
+            array_map(static function (User $user) use ($attributes, $now) {
                 return $attributes + [
                     'user_id' => $user->id,
                     'created_at' => $now

@@ -72,7 +72,7 @@ class ValidateCustomLess
 
         $this->container->extend(
             SettingsRepositoryInterface::class,
-            function ($settings) use ($event) {
+            static function ($settings) use ($event) {
                 return new OverrideSettingsRepository($settings, $event->settings);
             }
         );
@@ -119,7 +119,7 @@ class ValidateCustomLess
 
         $dirtySettings = array_intersect(
             array_keys($event->settings),
-            array_map(function ($setting) {
+            array_map(static function ($setting) {
                 return $setting['key'];
             }, $this->customLessSettings)
         );

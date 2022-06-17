@@ -11,7 +11,7 @@ use Flarum\Group\Group;
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema) {
+    'up' => static function (Builder $schema) {
         $db = $schema->getConnection();
 
         $groups = [
@@ -30,7 +30,7 @@ return [
         }
     },
 
-    'down' => function (Builder $schema) {
+    'down' => static function (Builder $schema) {
         // do nothing so as to preserve user data
     }
 ];

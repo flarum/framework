@@ -63,7 +63,7 @@ class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
         if ($actor->exists) {
             $readIds = $this->discussions->getReadIdsQuery($actor);
 
-            $query->where(function ($query) use ($readIds, $negate, $actor) {
+            $query->where(static function ($query) use ($readIds, $negate, $actor) {
                 if (! $negate) {
                     $query->whereNotIn('id', $readIds)->where('last_posted_at', '>', $actor->marked_all_as_read_at ?: 0);
                 } else {

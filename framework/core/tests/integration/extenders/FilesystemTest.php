@@ -42,7 +42,7 @@ class FilesystemTest extends TestCase
      */
     public function custom_disk_exists_if_added_and_uses_local_adapter_by_default()
     {
-        $this->extend((new Extend\Filesystem)->disk('flarum-uploads', function (Paths $paths, UrlGenerator $url) {
+        $this->extend((new Extend\Filesystem)->disk('flarum-uploads', static function (Paths $paths, UrlGenerator $url) {
             return [
                 'root' => "$paths->public/assets/uploads",
                 'url'  => $url->to('forum')->path('assets/uploads')

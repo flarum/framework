@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
     'discussions',
-    function (Blueprint $table) {
+    static function (Blueprint $table) {
         $table->increments('id');
         $table->string('title', 200);
         $table->integer('comments_count')->unsigned()->default(0);

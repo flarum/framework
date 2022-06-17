@@ -219,7 +219,7 @@ class Migrator
             return [];
         }
 
-        $files = array_map(function ($file) {
+        $files = array_map(static function ($file) {
             return str_replace('.php', '', basename($file));
         }, $files);
 

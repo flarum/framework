@@ -12,8 +12,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema) {
-        $schema->table('notifications', function (Blueprint $table) {
+    'up' => static function (Builder $schema) {
+        $schema->table('notifications', static function (Blueprint $table) {
             $table->dropColumn('subject_type');
 
             $table->renameColumn('time', 'created_at');
@@ -26,13 +26,13 @@ return [
             ->where('is_read', 1)
             ->update(['read_at' => Carbon::now()]);
 
-        $schema->table('notifications', function (Blueprint $table) {
+        $schema->table('notifications', static function (Blueprint $table) {
             $table->dropColumn('is_read');
         });
     },
 
-    'down' => function (Builder $schema) {
-        $schema->table('notifications', function (Blueprint $table) {
+    'down' => static function (Builder $schema) {
+        $schema->table('notifications', static function (Blueprint $table) {
             $table->string('subject_type', 200)->nullable();
 
             $table->renameColumn('created_at', 'time');
@@ -45,7 +45,7 @@ return [
             ->whereNotNull('read_at')
             ->update(['is_read' => 1]);
 
-        $schema->table('notifications', function (Blueprint $table) {
+        $schema->table('notifications', static function (Blueprint $table) {
             $table->dropColumn('read_at');
         });
     }

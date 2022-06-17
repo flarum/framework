@@ -44,18 +44,18 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         // Since certain config options (e.g. withoutOverlapping, onOneServer)
         // need the cache, we must override the cache factory we give to the scheduling
         // mutexes so it returns our single custom cache.
-        $this->container->bind(EventMutex::class, function ($container) {
+        $this->container->bind(EventMutex::class, static function ($container) {
             return new CacheEventMutex($container->make(Factory::class));
         });
-        $this->container->bind(SchedulingMutex::class, function ($container) {
+        $this->container->bind(SchedulingMutex::class, static function ($container) {
             return new CacheSchedulingMutex($container->make(Factory::class));
         });
 
-        $this->container->singleton(LaravelSchedule::class, function (Container $container) {
+        $this->container->singleton(LaravelSchedule::class, static function (Container $container) {
             return $container->make(Schedule::class);
         });
 
-        $this->container->singleton('flarum.console.commands', function () {
+        $this->container->singleton('flarum.console.commands', static function () {
             return [
                 AssetsPublishCommand::class,
                 CacheClearCommand::class,
@@ -69,7 +69,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.console.scheduled', function () {
+        $this->container->singleton('flarum.console.scheduled', static function () {
             return [];
         });
     }

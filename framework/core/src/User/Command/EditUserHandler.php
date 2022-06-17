@@ -128,7 +128,7 @@ class EditUserHandler
                 new GroupsChanged($user, $oldGroups)
             );
 
-            $user->afterSave(function (User $user) use ($newGroupIds) {
+            $user->afterSave(static function (User $user) use ($newGroupIds) {
                 $user->groups()->sync($newGroupIds);
                 $user->unsetRelation('groups');
             });

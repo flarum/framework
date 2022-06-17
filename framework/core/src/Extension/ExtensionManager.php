@@ -149,7 +149,7 @@ class ExtensionManager
                 $this->setEnabledExtensions($enabledExtensions);
             }
 
-            $this->extensions = $extensions->sortBy(function ($extension, $name) {
+            $this->extensions = $extensions->sortBy(static function ($extension, $name) {
                 return $extension->getTitle();
             });
         }
@@ -322,7 +322,7 @@ class ExtensionManager
      */
     public function migrate(Extension $extension, $direction = 'up')
     {
-        $this->container->bind(Builder::class, function ($container) {
+        $this->container->bind(Builder::class, static function ($container) {
             return $container->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
@@ -402,7 +402,7 @@ class ExtensionManager
     {
         $sortedEnabled = static::resolveExtensionOrder($enabledExtensions)['valid'];
 
-        $sortedEnabledIds = array_map(function (Extension $extension) {
+        $sortedEnabledIds = array_map(static function (Extension $extension) {
             return $extension->getId();
         }, $sortedEnabled);
 
@@ -430,7 +430,7 @@ class ExtensionManager
      */
     public static function pluckTitles(array $exts)
     {
-        return array_map(function (Extension $extension) {
+        return array_map(static function (Extension $extension) {
             return $extension->getTitle();
         }, $exts);
     }
@@ -463,7 +463,7 @@ class ExtensionManager
 
         // Sort alphabetically by ID. This guarantees that any set of extensions will always be sorted the same way.
         // This makes boot order deterministic, and independent of enabled order.
-        $extensionList = Arr::sort($extensionList, function ($ext) {
+        $extensionList = Arr::sort($extensionList, static function ($ext) {
             return $ext->getId();
         });
 
@@ -472,7 +472,7 @@ class ExtensionManager
         }
 
         foreach ($extensionList as $extension) {
-            $optionalDependencies = array_filter($extension->getOptionalDependencyIds(), function ($id) use ($extensionIdMapping) {
+            $optionalDependencies = array_filter($extension->getOptionalDependencyIds(), static function ($id) use ($extensionIdMapping) {
                 return array_key_exists($id, $extensionIdMapping);
             });
             $extensionGraph[$extension->getId()] = array_merge($extension->getExtensionDependencyIds(), $optionalDependencies);
@@ -510,11 +510,11 @@ class ExtensionManager
             }
         }
 
-        $validOutput = array_filter($output, function ($extension) use ($missingDependencies) {
+        $validOutput = array_filter($output, static function ($extension) use ($missingDependencies) {
             return ! array_key_exists($extension, $missingDependencies);
         });
 
-        $validExtensions = array_reverse(array_map(function ($extensionId) use ($extensionIdMapping) {
+        $validExtensions = array_reverse(array_map(static function ($extensionId) use ($extensionIdMapping) {
             return $extensionIdMapping[$extensionId];
         }, $validOutput)); // Reversed as required by Kahn's algorithm.
 

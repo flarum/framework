@@ -41,7 +41,7 @@ class ModelPrivateTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelPrivate(Discussion::class))
-                ->checker(function ($discussion) {
+                ->checker(static function ($discussion) {
                     return $discussion->title === 'Private Discussion';
                 })
         );
@@ -89,11 +89,11 @@ class ModelPrivateTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelPrivate(Discussion::class))
-                ->checker(function ($discussion) {
+                ->checker(static function ($discussion) {
                     return false;
                 })
                 ->checker(CustomPrivateChecker::class)
-                ->checker(function ($discussion) {
+                ->checker(static function ($discussion) {
                     return false;
                 })
         );

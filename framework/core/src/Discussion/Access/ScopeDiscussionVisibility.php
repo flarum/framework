@@ -27,9 +27,9 @@ class ScopeDiscussionVisibility
         }
 
         // Hide private discussions by default.
-        $query->where(function ($query) use ($actor) {
+        $query->where(static function ($query) use ($actor) {
             $query->where('discussions.is_private', false)
-            ->orWhere(function ($query) use ($actor) {
+            ->orWhere(static function ($query) use ($actor) {
                 $query->whereVisibleTo($actor, 'viewPrivate');
             });
         });
@@ -37,10 +37,10 @@ class ScopeDiscussionVisibility
         // Hide hidden discussions, unless they are authored by the current
         // user, or the current user has permission to view hidden  discussions.
         if (! $actor->hasPermission('discussion.hide')) {
-            $query->where(function ($query) use ($actor) {
+            $query->where(static function ($query) use ($actor) {
                 $query->whereNull('discussions.hidden_at')
                 ->orWhere('discussions.user_id', $actor->id)
-                    ->orWhere(function ($query) use ($actor) {
+                    ->orWhere(static function ($query) use ($actor) {
                         $query->whereVisibleTo($actor, 'hide');
                     });
             });
@@ -49,10 +49,10 @@ class ScopeDiscussionVisibility
         // Hide discussions with no comments, unless they are authored by the
         // current user, or the user is allowed to edit the discussion's posts.
         if (! $actor->hasPermission('discussion.editPosts')) {
-            $query->where(function ($query) use ($actor) {
+            $query->where(static function ($query) use ($actor) {
                 $query->where('discussions.comment_count', '>', 0)
                     ->orWhere('discussions.user_id', $actor->id)
-                    ->orWhere(function ($query) use ($actor) {
+                    ->orWhere(static function ($query) use ($actor) {
                         $query->whereVisibleTo($actor, 'editPosts');
                     });
             });

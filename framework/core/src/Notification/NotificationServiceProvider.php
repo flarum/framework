@@ -20,14 +20,14 @@ class NotificationServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('flarum.notification.drivers', function () {
+        $this->container->singleton('flarum.notification.drivers', static function () {
             return [
                 'alert' => Driver\AlertNotificationDriver::class,
                 'email' => Driver\EmailNotificationDriver::class,
             ];
         });
 
-        $this->container->singleton('flarum.notification.blueprints', function () {
+        $this->container->singleton('flarum.notification.blueprints', static function () {
             return [
                 DiscussionRenamedBlueprint::class => ['alert']
             ];

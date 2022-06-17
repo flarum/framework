@@ -29,7 +29,7 @@ $rows = [
 ];
 
 return [
-    'up' => function (Builder $schema) use ($rows) {
+    'up' => static function (Builder $schema) use ($rows) {
         $db = $schema->getConnection();
 
         foreach ($rows as $row) {
@@ -43,7 +43,7 @@ return [
         }
     },
 
-    'down' => function (Builder $schema) use ($rows) {
+    'down' => static function (Builder $schema) use ($rows) {
         $db = $schema->getConnection();
 
         foreach ($rows as $row) {

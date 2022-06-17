@@ -80,7 +80,7 @@ class ListWithFulltextSearchTest extends TestCase
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
+        $ids = array_map(static function ($row) {
             return $row['id'];
         }, $data['data']);
 
@@ -101,7 +101,7 @@ class ListWithFulltextSearchTest extends TestCase
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
+        $ids = array_map(static function ($row) {
             return $row['id'];
         }, $data['data']);
 
@@ -122,7 +122,7 @@ class ListWithFulltextSearchTest extends TestCase
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
+        $ids = array_map(static function ($row) {
             return $row['id'];
         }, $data['data']);
 
@@ -144,7 +144,7 @@ class ListWithFulltextSearchTest extends TestCase
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
+        $ids = array_map(static function ($row) {
             return $row['id'];
         }, $data['data']);
 

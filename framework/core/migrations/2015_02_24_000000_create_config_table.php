@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
     'config',
-    function (Blueprint $table) {
+    static function (Blueprint $table) {
         $table->string('key', 100)->primary();
         $table->binary('value')->nullable();
     }

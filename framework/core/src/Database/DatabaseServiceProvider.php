@@ -22,7 +22,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton(Manager::class, function (Container $container) {
+        $this->container->singleton(Manager::class, static function (Container $container) {
             $manager = new Manager($container);
 
             $config = $container['flarum']->config('database');
@@ -34,7 +34,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             return $manager;
         });
 
-        $this->container->singleton(ConnectionResolverInterface::class, function (Container $container) {
+        $this->container->singleton(ConnectionResolverInterface::class, static function (Container $container) {
             $manager = $container->make(Manager::class);
             $manager->setAsGlobal();
             $manager->bootEloquent();
@@ -47,7 +47,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
         $this->container->alias(ConnectionResolverInterface::class, 'db');
 
-        $this->container->singleton(ConnectionInterface::class, function (Container $container) {
+        $this->container->singleton(ConnectionInterface::class, static function (Container $container) {
             $resolver = $container->make(ConnectionResolverInterface::class);
 
             return $resolver->connection();
@@ -56,11 +56,11 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->container->alias(ConnectionInterface::class, 'db.connection');
         $this->container->alias(ConnectionInterface::class, 'flarum.db');
 
-        $this->container->singleton(MigrationRepositoryInterface::class, function (Container $container) {
+        $this->container->singleton(MigrationRepositoryInterface::class, static function (Container $container) {
             return new DatabaseMigrationRepository($container['flarum.db'], 'migrations');
         });
 
-        $this->container->singleton('flarum.database.model_private_checkers', function () {
+        $this->container->singleton('flarum.database.model_private_checkers', static function () {
             return [];
         });
     }
@@ -71,7 +71,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         AbstractModel::setEventDispatcher($container->make('events'));
 
         foreach ($container->make('flarum.database.model_private_checkers') as $modelClass => $checkers) {
-            $modelClass::saving(function ($instance) use ($checkers) {
+            $modelClass::saving(static function ($instance) use ($checkers) {
                 foreach ($checkers as $checker) {
                     if ($checker($instance) === true) {
                         $instance->is_private = true;

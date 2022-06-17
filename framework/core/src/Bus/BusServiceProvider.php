@@ -20,8 +20,8 @@ class BusServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->container->bind(BaseDispatcher::class, function (Container $container) {
-            return new Dispatcher($container, function ($connection = null) use ($container) {
+        $this->container->bind(BaseDispatcher::class, static function (Container $container) {
+            return new Dispatcher($container, static function ($connection = null) use ($container) {
                 return $container[QueueFactoryContract::class]->connection($connection);
             });
         });

@@ -75,7 +75,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attributes(function () {
+                ->attributes(static function () {
                     return [
                         'customAttribute' => true
                     ];
@@ -125,7 +125,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attributes(function () {
+                ->attributes(static function () {
                     return [
                         'customAttribute' => true
                     ];
@@ -152,13 +152,13 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attributes(function () {
+                ->attributes(static function () {
                     return [
                         'customAttribute' => 'initialValue'
                     ];
                 }),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->attributes(function () {
+                ->attributes(static function () {
                     return [
                         'customAttribute' => 'newValue'
                     ];
@@ -186,9 +186,9 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attribute('customSingleAttribute', function () {
+                ->attribute('customSingleAttribute', static function () {
                     return true;
-                })->attribute('customSingleAttribute_0', function () {
+                })->attribute('customSingleAttribute_0', static function () {
                     return 0;
                 })
         );
@@ -238,7 +238,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('customSingleAttribute_2', function () {
+                ->attribute('customSingleAttribute_2', static function () {
                     return true;
                 })
         );
@@ -263,11 +263,11 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('customSingleAttribute_3', function () {
+                ->attribute('customSingleAttribute_3', static function () {
                     return 'initialValue';
                 }),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->attribute('customSingleAttribute_3', function () {
+                ->attribute('customSingleAttribute_3', static function () {
                     return 'newValue';
                 })
         );
@@ -293,14 +293,14 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('someCustomAttribute', function () {
+                ->attribute('someCustomAttribute', static function () {
                     return 'newValue';
-                })->attributes(function () {
+                })->attributes(static function () {
                     return [
                         'someCustomAttribute' => 'initialValue',
                         'someOtherCustomAttribute' => 'initialValue',
                     ];
-                })->attribute('someOtherCustomAttribute', function () {
+                })->attribute('someOtherCustomAttribute', static function () {
                     return 'newValue';
                 })
         );
@@ -405,7 +405,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('customSerializerRelation', function (AbstractSerializer $serializer, $model) {
+                ->relationship('customSerializerRelation', static function (AbstractSerializer $serializer, $model) {
                     return $serializer->hasOne($model, DiscussionSerializer::class, 'customSerializerRelation');
                 }),
             (new Extend\ApiController(ShowUserController::class))
@@ -489,7 +489,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(BasicUserSerializer::class))
                 ->hasOne('postCustomRelation', PostSerializer::class),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('postCustomRelation', function (AbstractSerializer $serializer, $model) {
+                ->relationship('postCustomRelation', static function (AbstractSerializer $serializer, $model) {
                     return $serializer->hasOne($model, DiscussionSerializer::class, 'discussionCustomRelation');
                 }),
             (new Extend\ApiController(ShowUserController::class))

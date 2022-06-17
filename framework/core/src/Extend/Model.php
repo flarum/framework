@@ -80,7 +80,7 @@ class Model implements ExtenderInterface
      */
     public function belongsTo(string $name, string $related, string $foreignKey = null, string $ownerKey = null): self
     {
-        return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $ownerKey, $name) {
+        return $this->relationship($name, static function (AbstractModel $model) use ($related, $foreignKey, $ownerKey, $name) {
             return $model->belongsTo($related, $foreignKey, $ownerKey, $name);
         });
     }
@@ -110,7 +110,7 @@ class Model implements ExtenderInterface
         string $parentKey = null,
         string $relatedKey = null
     ): self {
-        return $this->relationship($name, function (AbstractModel $model) use ($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name) {
+        return $this->relationship($name, static function (AbstractModel $model) use ($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name) {
             return $model->belongsToMany($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name);
         });
     }
@@ -130,7 +130,7 @@ class Model implements ExtenderInterface
      */
     public function hasOne(string $name, string $related, string $foreignKey = null, string $localKey = null): self
     {
-        return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $localKey) {
+        return $this->relationship($name, static function (AbstractModel $model) use ($related, $foreignKey, $localKey) {
             return $model->hasOne($related, $foreignKey, $localKey);
         });
     }
@@ -150,7 +150,7 @@ class Model implements ExtenderInterface
      */
     public function hasMany(string $name, string $related, string $foreignKey = null, string $localKey = null): self
     {
-        return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $localKey) {
+        return $this->relationship($name, static function (AbstractModel $model) use ($related, $foreignKey, $localKey) {
             return $model->hasMany($related, $foreignKey, $localKey);
         });
     }

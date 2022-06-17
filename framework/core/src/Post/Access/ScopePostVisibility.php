@@ -22,7 +22,7 @@ class ScopePostVisibility
     public function __invoke(User $actor, $query)
     {
         // Make sure the post's discussion is visible as well.
-        $query->whereExists(function ($query) use ($actor) {
+        $query->whereExists(static function ($query) use ($actor) {
             $query->selectRaw('1')
                 ->from('discussions')
                 ->whereColumn('discussions.id', 'posts.discussion_id');
@@ -30,9 +30,9 @@ class ScopePostVisibility
         });
 
         // Hide private posts by default.
-        $query->where(function ($query) use ($actor) {
+        $query->where(static function ($query) use ($actor) {
             $query->where('posts.is_private', false)
-                ->orWhere(function ($query) use ($actor) {
+                ->orWhere(static function ($query) use ($actor) {
                     $query->whereVisibleTo($actor, 'viewPrivate');
                 });
         });
@@ -41,17 +41,17 @@ class ScopePostVisibility
         // the current user has permission to view hidden posts in the
         // discussion.
         if (! $actor->hasPermission('discussion.hidePosts')) {
-            $query->where(function ($query) use ($actor) {
+            $query->where(static function ($query) use ($actor) {
                 $query->whereNull('posts.hidden_at')
                 ->orWhere('posts.user_id', $actor->id)
-                    ->orWhereExists(function ($query) use ($actor) {
+                    ->orWhereExists(static function ($query) use ($actor) {
                         $query->selectRaw('1')
                             ->from('discussions')
                             ->whereColumn('discussions.id', 'posts.discussion_id')
-                            ->where(function ($query) use ($actor) {
+                            ->where(static function ($query) use ($actor) {
                                 $query
                                     ->whereRaw('1=0')
-                                    ->orWhere(function ($query) use ($actor) {
+                                    ->orWhere(static function ($query) use ($actor) {
                                         Discussion::query()->setQuery($query)->whereVisibleTo($actor, 'hidePosts');
                                     });
                             });

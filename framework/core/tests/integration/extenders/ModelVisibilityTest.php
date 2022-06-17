@@ -54,7 +54,7 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(CommentPost::class))
-                ->scope(function (User $user, Builder $query) {
+                ->scope(static function (User $user, Builder $query) {
                     $query->whereRaw('1=1');
                 }, 'hidePosts')
         );
@@ -89,7 +89,7 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(CommentPost::class))
-                ->scope(function (User $user, Builder $query) {
+                ->scope(static function (User $user, Builder $query) {
                     $query->whereRaw('1=0');
                 }, 'view')
         );
@@ -110,7 +110,7 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(Post::class))
-                ->scope(function (User $user, Builder $query) {
+                ->scope(static function (User $user, Builder $query) {
                     $query->whereRaw('1=0');
                 }, 'view')
         );
@@ -131,11 +131,11 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(CommentPost::class))
-                ->scope(function (User $user, Builder $query) {
+                ->scope(static function (User $user, Builder $query) {
                     $query->orWhereRaw('1=1');
                 }, 'view'),
             (new Extend\ModelVisibility(Post::class))
-                ->scope(function (User $user, Builder $query) {
+                ->scope(static function (User $user, Builder $query) {
                     $query->whereRaw('1=0');
                 }, 'view')
         );
@@ -156,11 +156,11 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(Discussion::class))
-                ->scope(function (User $user, Builder $query) {
+                ->scope(static function (User $user, Builder $query) {
                     $query->whereRaw('1=1');
                 }, 'viewPrivate'),
             (new Extend\ModelVisibility(Post::class))
-                ->scope(function (User $user, Builder $query) {
+                ->scope(static function (User $user, Builder $query) {
                     $query->whereRaw('1=1');
                 }, 'viewPrivate')
         );
@@ -181,13 +181,13 @@ class ModelVisibilityTest extends TestCase
     {
         $this->extend(
             (new Extend\ModelVisibility(Discussion::class))
-                ->scopeAll(function (User $user, Builder $query, string $ability) {
+                ->scopeAll(static function (User $user, Builder $query, string $ability) {
                     if ($ability == 'viewPrivate') {
                         $query->whereRaw('1=1');
                     }
                 }),
             (new Extend\ModelVisibility(Post::class))
-                ->scopeAll(function (User $user, Builder $query, string $ability) {
+                ->scopeAll(static function (User $user, Builder $query, string $ability) {
                     if ($ability == 'viewPrivate') {
                         $query->whereRaw('1=1');
                     }

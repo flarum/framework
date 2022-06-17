@@ -37,7 +37,7 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
+        $this->container->extend(UrlGenerator::class, static function (UrlGenerator $url, Container $container) {
             return $url->addCollection('admin', $container->make('flarum.admin.routes'), 'admin');
         });
 
@@ -48,7 +48,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $routes;
         });
 
-        $this->container->singleton('flarum.admin.middleware', function () {
+        $this->container->singleton('flarum.admin.middleware', static function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
                 'flarum.admin.error_handler',
@@ -66,7 +66,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->bind('flarum.admin.error_handler', function (Container $container) {
+        $this->container->bind('flarum.admin.error_handler', static function (Container $container) {
             return new HttpMiddleware\HandleErrors(
                 $container->make(Registry::class),
                 $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
@@ -74,11 +74,11 @@ class AdminServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->container->bind('flarum.admin.route_resolver', function (Container $container) {
+        $this->container->bind('flarum.admin.route_resolver', static function (Container $container) {
             return new HttpMiddleware\ResolveRoute($container->make('flarum.admin.routes'));
         });
 
-        $this->container->singleton('flarum.admin.handler', function (Container $container) {
+        $this->container->singleton('flarum.admin.handler', static function (Container $container) {
             $pipe = new MiddlewarePipe;
 
             foreach ($container->make('flarum.admin.middleware') as $middleware) {
@@ -90,15 +90,15 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $pipe;
         });
 
-        $this->container->bind('flarum.assets.admin', function (Container $container) {
+        $this->container->bind('flarum.assets.admin', static function (Container $container) {
             /** @var \Flarum\Frontend\Assets $assets */
             $assets = $container->make('flarum.assets.factory')('admin');
 
-            $assets->js(function (SourceCollector $sources) {
+            $assets->js(static function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../js/dist/admin.js');
             });
 
-            $assets->css(function (SourceCollector $sources) {
+            $assets->css(static function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../less/admin.less');
             });
 
@@ -108,7 +108,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $assets;
         });
 
-        $this->container->bind('flarum.frontend.admin', function (Container $container) {
+        $this->container->bind('flarum.frontend.admin', static function (Container $container) {
             /** @var \Flarum\Frontend\Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('admin');
 

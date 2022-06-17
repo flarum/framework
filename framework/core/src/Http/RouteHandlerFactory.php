@@ -48,7 +48,7 @@ class RouteHandlerFactory
      */
     public function toFrontend(string $frontend, $content = null): Closure
     {
-        return $this->toController(function (Container $container) use ($frontend, $content) {
+        return $this->toController(static function (Container $container) use ($frontend, $content) {
             $frontend = $container->make("flarum.frontend.$frontend");
 
             if ($content) {

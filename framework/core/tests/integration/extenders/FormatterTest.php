@@ -38,7 +38,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_config_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->configure(function ($config) {
+        $this->extend((new Extend\Formatter)->configure(static function ($config) {
             $config->BBCodes->addFromRepository('B');
         }));
 
@@ -72,7 +72,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_parsing_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->parse(function ($parser, $context, $text) {
+        $this->extend((new Extend\Formatter)->parse(static function ($parser, $context, $text) {
             return 'ReplacedText<a>';
         }));
 
@@ -102,7 +102,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_unparsing_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->unparse(function ($context, $xml) {
+        $this->extend((new Extend\Formatter)->unparse(static function ($context, $xml) {
             return '<t>ReplacedText&lt;a&gt;</t>';
         }));
 
@@ -132,7 +132,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_rendering_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->render(function ($renderer, $context, $xml, $request) {
+        $this->extend((new Extend\Formatter)->render(static function ($renderer, $context, $xml, $request) {
             return '<html>ReplacedText</html>';
         }));
 

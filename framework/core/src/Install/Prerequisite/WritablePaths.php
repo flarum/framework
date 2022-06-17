@@ -35,7 +35,7 @@ class WritablePaths implements PrerequisiteInterface
     private function getMissingPaths(): Collection
     {
         return $this->paths
-            ->reject(function ($path) {
+            ->reject(static function ($path) {
                 return file_exists($path);
             })->map(function ($path) {
                 return [
@@ -48,7 +48,7 @@ class WritablePaths implements PrerequisiteInterface
     private function getNonWritablePaths(): Collection
     {
         return $this->paths
-            ->filter(function ($path) {
+            ->filter(static function ($path) {
                 return file_exists($path) && ! is_writable($path);
             })->map(function ($path, $index) {
                 return [

@@ -136,13 +136,13 @@ class User extends AbstractModel
         parent::boot();
 
         // Don't allow the root admin to be deleted.
-        static::deleting(function (self $user) {
+        static::deleting(static function (self $user) {
             if ($user->id == 1) {
                 throw new DomainException('Cannot delete the root admin');
             }
         });
 
-        static::deleted(function (self $user) {
+        static::deleted(static function (self $user) {
             $user->raise(new Deleted($user));
 
             Notification::whereSubject($user)->delete();
@@ -484,7 +484,7 @@ class User extends AbstractModel
      */
     public function getPreferencesAttribute($value)
     {
-        $defaults = array_map(function ($value) {
+        $defaults = array_map(static function ($value) {
             return $value['default'];
         }, static::$preferences);
 

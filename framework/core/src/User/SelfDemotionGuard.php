@@ -42,7 +42,7 @@ class SelfDemotionGuard
             return;
         }
 
-        $adminGroups = array_filter($groups, function ($group) {
+        $adminGroups = array_filter($groups, static function ($group) {
             return $group['id'] == Group::ADMINISTRATOR_ID;
         });
 

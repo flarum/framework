@@ -84,7 +84,7 @@ class FilterTest extends TestCase
      */
     public function filter_mutator_has_effect_if_added()
     {
-        $this->extend((new Extend\Filter(DiscussionFilterer::class))->addFilterMutator(function ($filterState, $criteria) {
+        $this->extend((new Extend\Filter(DiscussionFilterer::class))->addFilterMutator(static function ($filterState, $criteria) {
             $filterState->getQuery()->whereRaw('1=0');
         }));
 

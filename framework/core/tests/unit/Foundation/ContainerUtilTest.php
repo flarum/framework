@@ -30,7 +30,7 @@ class ContainerUtilTest extends TestCase
     /** @test */
     public function it_works_with_closures()
     {
-        $callback = ContainerUtil::wrapCallback(function ($array) {
+        $callback = ContainerUtil::wrapCallback(static function ($array) {
             $array['key'] = 'newValue';
 
             return 'return';
@@ -97,7 +97,7 @@ class ContainerUtilTest extends TestCase
     /** @test */
     public function it_allows_passing_args_by_reference_on_closures()
     {
-        $callback = ContainerUtil::wrapCallback(function (&$array) {
+        $callback = ContainerUtil::wrapCallback(static function (&$array) {
             $array['key'] = 'newValue3';
 
             return 'return3';

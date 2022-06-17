@@ -11,8 +11,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema) {
-        $schema->table('registration_tokens', function (Blueprint $table) {
+    'up' => static function (Builder $schema) {
+        $schema->table('registration_tokens', static function (Blueprint $table) {
             $table->string('provider');
             $table->string('identifier');
             $table->text('user_attributes')->nullable();
@@ -21,8 +21,8 @@ return [
         });
     },
 
-    'down' => function (Builder $schema) {
-        $schema->table('registration_tokens', function (Blueprint $table) {
+    'down' => static function (Builder $schema) {
+        $schema->table('registration_tokens', static function (Blueprint $table) {
             $table->dropColumn('provider', 'identifier', 'user_attributes');
 
             $table->string('payload', 150)->change();

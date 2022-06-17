@@ -29,7 +29,7 @@ class Composite implements PrerequisiteInterface
     {
         return array_reduce(
             $this->prerequisites,
-            function (Collection $errors, PrerequisiteInterface $condition) {
+            static function (Collection $errors, PrerequisiteInterface $condition) {
                 return $errors->concat($condition->problems());
             },
             new Collection

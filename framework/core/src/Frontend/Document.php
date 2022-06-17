@@ -241,7 +241,7 @@ class Document implements Renderable
 
     protected function makePreloads(): array
     {
-        return array_map(function ($preload) {
+        return array_map(static function ($preload) {
             $attributes = '';
 
             foreach ($preload as $key => $value) {
@@ -257,7 +257,7 @@ class Document implements Renderable
      */
     protected function makeHead(): string
     {
-        $head = array_map(function ($url) {
+        $head = array_map(static function ($url) {
             return '<link rel="stylesheet" href="'.e($url).'">';
         }, $this->css);
 
@@ -276,7 +276,7 @@ class Document implements Renderable
 
         $head = array_merge($head, $this->makePreloads());
 
-        $head = array_merge($head, array_map(function ($content, $name) {
+        $head = array_merge($head, array_map(static function ($content, $name) {
             return '<meta name="'.e($name).'" content="'.e($content).'">';
         }, $this->meta, array_keys($this->meta)));
 
@@ -288,7 +288,7 @@ class Document implements Renderable
      */
     protected function makeJs(): string
     {
-        return implode("\n", array_map(function ($url) {
+        return implode("\n", array_map(static function ($url) {
             return '<script src="'.e($url).'"></script>';
         }, $this->js));
     }

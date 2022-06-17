@@ -19,7 +19,7 @@ class ValidatorTest extends TestCase
 {
     private function extendToRequireLongPassword()
     {
-        $this->extend((new Extend\Validator(UserValidator::class))->configure(function ($flarumValidator, $validator) {
+        $this->extend((new Extend\Validator(UserValidator::class))->configure(static function ($flarumValidator, $validator) {
             $validator->setRules([
                 'password' => [
                     'required',

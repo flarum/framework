@@ -35,7 +35,7 @@ class Server
             $this->safelyBootAndGetHandler(),
             new SapiEmitter,
             [ServerRequestFactory::class, 'fromGlobals'],
-            function (Throwable $e) {
+            static function (Throwable $e) {
                 $generator = new ErrorResponseGenerator;
 
                 return $generator($e, new ServerRequest, new Response);

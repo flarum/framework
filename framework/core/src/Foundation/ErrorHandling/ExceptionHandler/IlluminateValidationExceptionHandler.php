@@ -27,7 +27,7 @@ class IlluminateValidationExceptionHandler
     {
         $errors = $e->errors();
 
-        return array_map(function ($field, $messages) {
+        return array_map(static function ($field, $messages) {
             return [
                 'detail' => implode("\n", $messages),
                 'source' => ['pointer' => "/data/attributes/$field"]

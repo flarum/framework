@@ -100,7 +100,7 @@ class ShowDiscussionController extends AbstractShowController
             $this->includePosts($discussion, $request, $postRelationships);
         }
 
-        $this->loadRelations(new Collection([$discussion]), array_filter($include, function ($relationship) {
+        $this->loadRelations(new Collection([$discussion]), array_filter($include, static function ($relationship) {
             return ! Str::startsWith($relationship, 'posts');
         }), $request);
 
@@ -221,7 +221,7 @@ class ShowDiscussionController extends AbstractShowController
 
         $postCallableRelationships = $this->getPostRelationships(array_keys($addedCallableRelations));
 
-        return array_intersect_key($addedCallableRelations, array_flip(array_map(function ($relation) {
+        return array_intersect_key($addedCallableRelations, array_flip(array_map(static function ($relation) {
             return "posts.$relation";
         }, $postCallableRelationships)));
     }

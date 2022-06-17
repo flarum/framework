@@ -53,7 +53,7 @@ class EventTest extends TestCase
      */
     public function custom_listener_works_with_closure()
     {
-        $this->extend((new Extend\Event)->listen(Created::class, function (Created $event) {
+        $this->extend((new Extend\Event)->listen(Created::class, static function (Created $event) {
             $event->group->name_singular = 'modified group';
         }));
 

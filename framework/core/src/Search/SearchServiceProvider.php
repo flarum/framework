@@ -27,14 +27,14 @@ class SearchServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('flarum.simple_search.fulltext_gambits', function () {
+        $this->container->singleton('flarum.simple_search.fulltext_gambits', static function () {
             return [
                 DiscussionSearcher::class => DiscussionFulltextGambit::class,
                 UserSearcher::class => UserFulltextGambit::class
             ];
         });
 
-        $this->container->singleton('flarum.simple_search.gambits', function () {
+        $this->container->singleton('flarum.simple_search.gambits', static function () {
             return [
                 DiscussionSearcher::class => [
                     DiscussionQuery\AuthorFilterGambit::class,
@@ -49,7 +49,7 @@ class SearchServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.simple_search.search_mutators', function () {
+        $this->container->singleton('flarum.simple_search.search_mutators', static function () {
             return [];
         });
     }
@@ -62,7 +62,7 @@ class SearchServiceProvider extends AbstractServiceProvider
             $container
                 ->when($searcher)
                 ->needs(GambitManager::class)
-                ->give(function () use ($container, $searcher, $fullTextGambitClass) {
+                ->give(static function () use ($container, $searcher, $fullTextGambitClass) {
                     $gambitManager = new GambitManager($container->make($fullTextGambitClass));
                     foreach (Arr::get($container->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
                         $gambitManager->add($container->make($gambit));

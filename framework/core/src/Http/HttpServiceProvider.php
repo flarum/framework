@@ -26,15 +26,15 @@ class HttpServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('flarum.http.csrfExemptPaths', function () {
+        $this->container->singleton('flarum.http.csrfExemptPaths', static function () {
             return ['token'];
         });
 
-        $this->container->bind(Middleware\CheckCsrfToken::class, function (Container $container) {
+        $this->container->bind(Middleware\CheckCsrfToken::class, static function (Container $container) {
             return new Middleware\CheckCsrfToken($container->make('flarum.http.csrfExemptPaths'));
         });
 
-        $this->container->singleton('flarum.http.slugDrivers', function () {
+        $this->container->singleton('flarum.http.slugDrivers', static function () {
             return [
                 Discussion::class => [
                     'default' => IdWithTransliteratedSlugDriver::class
@@ -46,7 +46,7 @@ class HttpServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.http.selectedSlugDrivers', function (Container $container) {
+        $this->container->singleton('flarum.http.selectedSlugDrivers', static function (Container $container) {
             $settings = $container->make(SettingsRepositoryInterface::class);
 
             $compiledDrivers = [];
@@ -61,7 +61,7 @@ class HttpServiceProvider extends AbstractServiceProvider
 
             return $compiledDrivers;
         });
-        $this->container->bind(SlugManager::class, function (Container $container) {
+        $this->container->bind(SlugManager::class, static function (Container $container) {
             return new SlugManager($container->make('flarum.http.selectedSlugDrivers'));
         });
     }

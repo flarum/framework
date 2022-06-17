@@ -223,16 +223,16 @@ class Extension implements Arrayable
     {
         $this->extensionDependencyIds = (new Collection(Arr::get($this->composerJson, 'require', [])))
             ->keys()
-            ->filter(function ($key) use ($extensionSet) {
+            ->filter(static function ($key) use ($extensionSet) {
                 return array_key_exists($key, $extensionSet);
             })
-            ->map(function ($key) {
+            ->map(static function ($key) {
                 return static::nameToId($key);
             })
             ->toArray();
 
         $this->optionalDependencyIds = (new Collection(Arr::get($this->composerJson, 'extra.flarum-extension.optional-dependencies', [])))
-            ->map(function ($key) {
+            ->map(static function ($key) {
                 return static::nameToId($key);
             })
             ->toArray();
@@ -285,13 +285,13 @@ class Extension implements Arrayable
             return '';
         }
 
-        $properties = array_filter($properties, function ($item) {
+        $properties = array_filter($properties, static function ($item) {
             return is_string($item);
         });
 
         unset($properties['name']);
 
-        return implode(';', array_map(function (string $property, string $value) {
+        return implode(';', array_map(static function (string $property, string $value) {
             $property = Str::kebab($property);
 
             return "$property: $value";
@@ -389,7 +389,7 @@ class Extension implements Arrayable
     {
         return array_filter(
             $this->getExtenders(),
-            function ($extender) {
+            static function ($extender) {
                 return $extender instanceof LifecycleInterface;
             }
         );

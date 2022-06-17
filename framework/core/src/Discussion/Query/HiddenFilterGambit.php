@@ -45,7 +45,7 @@ class HiddenFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     protected function constrain(Builder $query, bool $negate)
     {
-        $query->where(function ($query) use ($negate) {
+        $query->where(static function ($query) use ($negate) {
             if ($negate) {
                 $query->whereNull('hidden_at')->where('comment_count', '>', 0);
             } else {

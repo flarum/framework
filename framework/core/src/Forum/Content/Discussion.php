@@ -64,8 +64,8 @@ class Discussion
 
         $apiDocument = $this->getApiDocument($request, $id, $params);
 
-        $getResource = function ($link) use ($apiDocument) {
-            return Arr::first($apiDocument->included, function ($value) use ($link) {
+        $getResource = static function ($link) use ($apiDocument) {
+            return Arr::first($apiDocument->included, static function ($value) use ($link) {
                 return $value->type === $link->type && $value->id === $link->id;
             });
         };

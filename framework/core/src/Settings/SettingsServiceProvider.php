@@ -23,14 +23,14 @@ class SettingsServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('flarum.settings.default', function () {
+        $this->container->singleton('flarum.settings.default', static function () {
             return new Collection([
                 'theme_primary_color' => '#4D698E',
                 'theme_secondary_color' => '#4D698E',
             ]);
         });
 
-        $this->container->singleton(SettingsRepositoryInterface::class, function (Container $container) {
+        $this->container->singleton(SettingsRepositoryInterface::class, static function (Container $container) {
             return new DefaultSettingsRepository(
                 new MemoryCacheSettingsRepository(
                     new DatabaseSettingsRepository(
@@ -48,7 +48,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
     {
         $events->listen(
             Saving::class,
-            function (Saving $event) use ($settingsValidator) {
+            static function (Saving $event) use ($settingsValidator) {
                 $settingsValidator->assertValid($event->settings);
             }
         );

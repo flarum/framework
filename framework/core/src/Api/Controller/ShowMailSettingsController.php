@@ -30,7 +30,7 @@ class ShowMailSettingsController extends AbstractShowController
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $drivers = array_map(function ($driver) {
+        $drivers = array_map(static function ($driver) {
             return self::$container->make($driver);
         }, self::$container->make('mail.supported_drivers'));
 

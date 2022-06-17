@@ -21,7 +21,7 @@ class MailServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->container->singleton('mail.supported_drivers', function () {
+        $this->container->singleton('mail.supported_drivers', static function () {
             return [
                 'mail' => SendmailDriver::class,
                 'mailgun' => MailgunDriver::class,
@@ -30,7 +30,7 @@ class MailServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('mail.driver', function (Container $container) {
+        $this->container->singleton('mail.driver', static function (Container $container) {
             $configured = $container->make('flarum.mail.configured_driver');
             $settings = $container->make(SettingsRepositoryInterface::class);
             $validator = $container->make(Factory::class);
@@ -42,7 +42,7 @@ class MailServiceProvider extends AbstractServiceProvider
 
         $this->container->alias('mail.driver', DriverInterface::class);
 
-        $this->container->singleton('flarum.mail.configured_driver', function (Container $container) {
+        $this->container->singleton('flarum.mail.configured_driver', static function (Container $container) {
             $drivers = $container->make('mail.supported_drivers');
             $settings = $container->make(SettingsRepositoryInterface::class);
             $driverName = $settings->get('mail_driver');
@@ -54,7 +54,7 @@ class MailServiceProvider extends AbstractServiceProvider
                 : $container->make(NullDriver::class);
         });
 
-        $this->container->singleton('swift.mailer', function (Container $container) {
+        $this->container->singleton('swift.mailer', static function (Container $container) {
             return new Swift_Mailer(
                 $container->make('mail.driver')->buildTransport(
                     $container->make(SettingsRepositoryInterface::class)
@@ -62,7 +62,7 @@ class MailServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->container->singleton('mailer', function (Container $container) {
+        $this->container->singleton('mailer', static function (Container $container) {
             $mailer = new Mailer(
                 'flarum',
                 $container['view'],

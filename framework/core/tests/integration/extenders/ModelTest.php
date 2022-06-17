@@ -122,7 +122,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->relationship('customRelation', function (User $user) {
+                ->relationship('customRelation', static function (User $user) {
                     return $user->hasMany(Discussion::class, 'user_id');
                 })
         );
@@ -158,7 +158,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->relationship('customRelation', function (User $user) {
+                ->relationship('customRelation', static function (User $user) {
                     return $user->hasMany(Discussion::class, 'user_id');
                 })
         );
@@ -248,7 +248,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->relationship('customRelation', function (User $user) {
+                ->relationship('customRelation', static function (User $user) {
                     return $user->hasMany(Discussion::class, 'user_id');
                 })
         );
@@ -297,7 +297,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(Group::class))
-                ->default('counter', function (Group $group) {
+                ->default('counter', static function (Group $group) {
                     static $counter = 0;
 
                     return ++$counter;

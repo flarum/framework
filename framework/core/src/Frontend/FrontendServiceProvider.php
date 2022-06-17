@@ -47,11 +47,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
             };
         });
 
-        $this->container->singleton('flarum.frontend.factory', function (Container $container) {
-            return function (string $name) use ($container) {
+        $this->container->singleton('flarum.frontend.factory', static function (Container $container) {
+            return static function (string $name) use ($container) {
                 $frontend = $container->make(Frontend::class);
 
-                $frontend->content(function (Document $document) use ($name) {
+                $frontend->content(static function (Document $document) use ($name) {
                     $document->layoutView = 'flarum::frontend.'.$name;
                 });
 
@@ -59,7 +59,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content($container->make(Content\CorePayload::class));
                 $frontend->content($container->make(Content\Meta::class));
 
-                $frontend->content(function (Document $document) use ($container) {
+                $frontend->content(static function (Document $document) use ($container) {
                     $default_preloads = $container->make('flarum.frontend.default_preloads');
 
                     // Add preloads for base CSS and JS assets. Extensions should add their own via the extender.
@@ -93,7 +93,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton(
             'flarum.frontend.default_preloads',
-            function (Container $container) {
+            static function (Container $container) {
                 $filesystem = $container->make('filesystem')->disk('flarum-assets');
 
                 return [
@@ -114,27 +114,27 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton(
             'flarum.frontend.custom_less_functions',
-            function (Container $container) {
+            static function (Container $container) {
                 $extensionsEnabled = json_decode($container->make(SettingsRepositoryInterface::class)->get('extensions_enabled'));
 
                 // Please note that these functions do not go through the same transformation which the Theme extender's
                 // `addCustomLessFunction` method does. You'll need to use the correct Less tree return type, and get
                 // parameter values with `$arg->value`.
                 return [
-                    'is-extension-enabled' => function (\Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
+                    'is-extension-enabled' => static function (\Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
                         return new \Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false');
                     }
                 ];
             }
         );
 
-        $this->container->singleton(TitleDriverInterface::class, function (Container $container) {
+        $this->container->singleton(TitleDriverInterface::class, static function (Container $container) {
             return $container->make(BasicTitleDriver::class);
         });
 
         $this->container->alias(TitleDriverInterface::class, 'flarum.frontend.title_driver');
 
-        $this->container->singleton('flarum.less.config', function (Container $container) {
+        $this->container->singleton('flarum.less.config', static function (Container $container) {
             return [
                 'config-primary-color'   => [
                     'key' => 'theme_primary_color',
@@ -144,13 +144,13 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 ],
                 'config-dark-mode'       => [
                     'key' => 'theme_dark_mode',
-                    'callback' => function ($value) {
+                    'callback' => static function ($value) {
                         return $value ? 'true' : 'false';
                     },
                 ],
                 'config-colored-header'  => [
                     'key' => 'theme_colored_header',
-                    'callback' => function ($value) {
+                    'callback' => static function ($value) {
                         return $value ? 'true' : 'false';
                     },
                 ],
@@ -186,7 +186,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
             $vars = $this->container->make('flarum.less.config');
             $settings = $this->container->make(SettingsRepositoryInterface::class);
 
-            return array_reduce(array_keys($vars), function ($string, $name) use ($vars, $settings) {
+            return array_reduce(array_keys($vars), static function ($string, $name) use ($vars, $settings) {
                 $var = $vars[$name];
                 $value = $settings->get($var['key'], $var['default'] ?? null);
 

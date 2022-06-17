@@ -13,8 +13,8 @@ use Illuminate\Database\Schema\Builder;
 // We need a full custom migration here, because we need to add the fulltext
 // index for the content with a raw SQL statement after creating the table.
 return [
-    'up' => function (Builder $schema) {
-        $schema->create('posts', function (Blueprint $table) {
+    'up' => static function (Builder $schema) {
+        $schema->create('posts', static function (Blueprint $table) {
             $table->increments('id');
             $table->integer('discussion_id')->unsigned();
             $table->integer('number')->unsigned()->nullable();
@@ -37,7 +37,7 @@ return [
         $connection->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
     },
 
-    'down' => function (Builder $schema) {
+    'down' => static function (Builder $schema) {
         $schema->drop('posts');
     }
 ];

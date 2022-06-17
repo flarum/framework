@@ -61,7 +61,7 @@ class FulltextGambit implements GambitInterface
             ->groupBy('discussions.id')
             ->addBinding($subquery->getBindings(), 'join');
 
-        $search->setDefaultSort(function ($query) use ($grammar, $bit) {
+        $search->setDefaultSort(static function ($query) use ($grammar, $bit) {
             $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$bit]);
             $query->orderBy('posts_ft.score', 'desc');
         });

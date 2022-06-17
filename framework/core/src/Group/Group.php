@@ -68,7 +68,7 @@ class Group extends AbstractModel
     {
         parent::boot();
 
-        static::deleted(function (self $group) {
+        static::deleted(static function (self $group) {
             $group->raise(new Deleted($group));
         });
     }

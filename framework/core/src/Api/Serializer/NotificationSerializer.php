@@ -73,7 +73,7 @@ class NotificationSerializer extends AbstractSerializer
      */
     protected function subject($notification)
     {
-        return $this->hasOne($notification, function ($notification) {
+        return $this->hasOne($notification, static function ($notification) {
             return static::$subjectSerializers[$notification->type];
         });
     }

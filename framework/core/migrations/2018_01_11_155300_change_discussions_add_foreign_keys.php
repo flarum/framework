@@ -12,12 +12,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema) {
+    'up' => static function (Builder $schema) {
         // Set non-existent entity IDs to NULL so that we will be able to create
         // foreign keys without any issues.
         $connection = $schema->getConnection();
 
-        $selectId = function ($table, $column) use ($connection) {
+        $selectId = static function ($table, $column) use ($connection) {
             return new Expression(
                 '('.$connection->table($table)->whereColumn('id', $column)->select('id')->toSql().')'
             );
@@ -31,7 +31,7 @@ return [
             'last_post_id' => $selectId('posts', 'last_post_id'),
         ]);
 
-        $schema->table('discussions', function (Blueprint $table) {
+        $schema->table('discussions', static function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('last_posted_user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('hidden_user_id')->references('id')->on('users')->onDelete('set null');
@@ -40,8 +40,8 @@ return [
         });
     },
 
-    'down' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) {
+    'down' => static function (Builder $schema) {
+        $schema->table('discussions', static function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropForeign(['last_posted_user_id']);
             $table->dropForeign(['hidden_user_id']);

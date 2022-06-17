@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
     'users_groups',
-    function (Blueprint $table) {
+    static function (Blueprint $table) {
         $table->integer('user_id')->unsigned();
         $table->integer('group_id')->unsigned();
         $table->primary(['user_id', 'group_id']);

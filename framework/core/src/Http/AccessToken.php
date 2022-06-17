@@ -185,7 +185,7 @@ class AccessToken extends AbstractModel
 
         $query->where(function (Builder $query) use ($date) {
             foreach ($this->getModels() as $model) {
-                $query->orWhere(function (Builder $query) use ($model, $date) {
+                $query->orWhere(static function (Builder $query) use ($model, $date) {
                     $query->where('type', $model::$type);
                     $model::scopeValid($query, $date);
                 });
@@ -206,7 +206,7 @@ class AccessToken extends AbstractModel
 
         $query->where(function (Builder $query) use ($date) {
             foreach ($this->getModels() as $model) {
-                $query->orWhere(function (Builder $query) use ($model, $date) {
+                $query->orWhere(static function (Builder $query) use ($model, $date) {
                     $query->where('type', $model::$type);
                     $model::scopeExpired($query, $date);
                 });

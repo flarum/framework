@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
     'post_user',
-    function (Blueprint $table) {
+    static function (Blueprint $table) {
         $table->integer('post_id')->unsigned();
         $table->integer('user_id')->unsigned();
 

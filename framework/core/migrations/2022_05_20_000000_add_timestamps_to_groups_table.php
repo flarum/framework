@@ -11,8 +11,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema) {
-        $schema->table('groups', function (Blueprint $table) {
+    'up' => static function (Builder $schema) {
+        $schema->table('groups', static function (Blueprint $table) {
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
         });
@@ -24,8 +24,8 @@ return [
         $connection->statement("ALTER TABLE `${prefix}groups` MODIFY updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
     },
 
-    'down' => function (Builder $schema) {
-        $schema->table('groups', function (Blueprint $table) {
+    'down' => static function (Builder $schema) {
+        $schema->table('groups', static function (Blueprint $table) {
             $table->dropColumn('created_at');
             $table->dropColumn('updated_at');
         });

@@ -90,7 +90,7 @@ class CustomServiceProvider extends AbstractServiceProvider
     public function register()
     {
         // First we override the singleton here.
-        $this->app->extend('flarum.forum.middleware', function () {
+        $this->app->extend('flarum.forum.middleware', static function () {
             return 'overriden_by_custom_provider_register';
         });
     }
@@ -101,7 +101,7 @@ class SecondCustomServiceProvider extends AbstractServiceProvider
     public function register()
     {
         // Second we check that the singleton was overriden here.
-        $this->app->extend('flarum.forum.middleware', function ($forumRoutes) {
+        $this->app->extend('flarum.forum.middleware', static function ($forumRoutes) {
             return 'overriden_by_second_custom_provider_register';
         });
     }
@@ -112,7 +112,7 @@ class ThirdCustomProvider extends AbstractServiceProvider
     public function boot()
     {
         // Third we override one last time here, to make sure this is the final result.
-        $this->app->extend('flarum.forum.middleware', function ($forumRoutes) {
+        $this->app->extend('flarum.forum.middleware', static function ($forumRoutes) {
             return 'overriden_by_third_custom_provider_boot';
         });
     }

@@ -102,9 +102,9 @@ class EnableBundledExtensions implements Step
         $installed = $installed['packages'] ?? $installed;
 
         return (new Collection($installed))
-            ->filter(function ($package) {
+            ->filter(static function ($package) {
                 return Arr::get($package, 'type') == 'flarum-extension';
-            })->filter(function ($package) {
+            })->filter(static function ($package) {
                 return ! empty(Arr::get($package, 'name'));
             })->map(function ($package) {
                 $path = isset($package['install-path'])
@@ -117,9 +117,9 @@ class EnableBundledExtensions implements Step
                 return $extension;
             })->filter(function (Extension $extension) {
                 return in_array($extension->getId(), $this->enabledExtensions);
-            })->sortBy(function (Extension $extension) {
+            })->sortBy(static function (Extension $extension) {
                 return $extension->getTitle();
-            })->mapWithKeys(function (Extension $extension) {
+            })->mapWithKeys(static function (Extension $extension) {
                 return [$extension->getId() => $extension];
             });
     }

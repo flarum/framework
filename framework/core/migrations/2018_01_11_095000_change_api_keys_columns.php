@@ -11,14 +11,14 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema) {
-        $schema->table('api_keys', function (Blueprint $table) {
+    'up' => static function (Builder $schema) {
+        $schema->table('api_keys', static function (Blueprint $table) {
             $table->dropPrimary(['id']);
             $table->renameColumn('id', 'key');
             $table->unique('key');
         });
 
-        $schema->table('api_keys', function (Blueprint $table) {
+        $schema->table('api_keys', static function (Blueprint $table) {
             $table->increments('id');
             $table->string('allowed_ips')->nullable();
             $table->string('scopes')->nullable();
@@ -30,13 +30,13 @@ return [
         });
     },
 
-    'down' => function (Builder $schema) {
-        $schema->table('api_keys', function (Blueprint $table) {
+    'down' => static function (Builder $schema) {
+        $schema->table('api_keys', static function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropColumn('id', 'allowed_ips', 'user_id', 'scopes', 'created_at');
         });
 
-        $schema->table('api_keys', function (Blueprint $table) {
+        $schema->table('api_keys', static function (Blueprint $table) {
             $table->dropUnique(['key']);
             $table->renameColumn('key', 'id');
             $table->primary('id');

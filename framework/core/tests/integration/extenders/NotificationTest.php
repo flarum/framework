@@ -133,7 +133,7 @@ class NotificationTest extends TestCase
             (new Extend\Notification)
                 ->type(CustomNotificationType::class, 'customNotificationTypeSerializer')
                 ->driver('customNotificationDriver', CustomNotificationDriver::class)
-                ->beforeSending(function ($blueprint, $users) {
+                ->beforeSending(static function ($blueprint, $users) {
                     if ($blueprint instanceof CustomNotificationType) {
                         unset($users[1]);
                     }

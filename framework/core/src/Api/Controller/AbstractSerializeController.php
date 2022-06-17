@@ -201,7 +201,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         }
 
         if (! empty($addedRelations)) {
-            usort($addedRelations, function ($a, $b) {
+            usort($addedRelations, static function ($a, $b) {
                 return substr_count($a, '.') - substr_count($b, '.');
             });
 
@@ -229,7 +229,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
             if (isset($addedRelationCallables[$relation])) {
                 $load = $addedRelationCallables[$relation];
 
-                $callableRelations[$relation] = function ($query) use ($load, $request, $relations) {
+                $callableRelations[$relation] = static function ($query) use ($load, $request, $relations) {
                     $load($query, $request, $relations);
                 };
             } else {

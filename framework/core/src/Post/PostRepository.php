@@ -108,7 +108,7 @@ class PostRepository
         $query = Discussion::find($discussionId)
             ->posts()
             ->whereVisibleTo($actor)
-            ->where('created_at', '<', function ($query) use ($discussionId, $number) {
+            ->where('created_at', '<', static function ($query) use ($discussionId, $number) {
                 $query->select('created_at')
                       ->from('posts')
                       ->where('discussion_id', $discussionId)

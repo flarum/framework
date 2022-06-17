@@ -38,11 +38,11 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->registerDisplayNameDrivers();
         $this->registerPasswordCheckers();
 
-        $this->container->singleton('flarum.user.group_processors', function () {
+        $this->container->singleton('flarum.user.group_processors', static function () {
             return [];
         });
 
-        $this->container->singleton('flarum.policies', function () {
+        $this->container->singleton('flarum.policies', static function () {
             return [
                 Access\AbstractPolicy::GLOBAL => [],
                 Discussion::class => [DiscussionPolicy::class],
@@ -55,13 +55,13 @@ class UserServiceProvider extends AbstractServiceProvider
 
     protected function registerDisplayNameDrivers()
     {
-        $this->container->singleton('flarum.user.display_name.supported_drivers', function () {
+        $this->container->singleton('flarum.user.display_name.supported_drivers', static function () {
             return [
                 'username' => UsernameDriver::class,
             ];
         });
 
-        $this->container->singleton('flarum.user.display_name.driver', function (Container $container) {
+        $this->container->singleton('flarum.user.display_name.driver', static function (Container $container) {
             $drivers = $container->make('flarum.user.display_name.supported_drivers');
             $settings = $container->make(SettingsRepositoryInterface::class);
             $driverName = $settings->get('display_name_driver', '');
@@ -78,9 +78,9 @@ class UserServiceProvider extends AbstractServiceProvider
 
     protected function registerPasswordCheckers()
     {
-        $this->container->singleton('flarum.user.password_checkers', function (Container $container) {
+        $this->container->singleton('flarum.user.password_checkers', static function (Container $container) {
             return [
-                'standard' => function (User $user, $password) use ($container) {
+                'standard' => static function (User $user, $password) use ($container) {
                     if ($container->make('hash')->check($password, $user->password)) {
                         return true;
                     }

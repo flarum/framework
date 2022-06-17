@@ -62,7 +62,7 @@ class UploadFaviconController extends UploadImageController
             ]);
         }
 
-        $encodedImage = $this->imageManager->make($file->getStream())->resize(64, 64, function ($constraint) {
+        $encodedImage = $this->imageManager->make($file->getStream())->resize(64, 64, static function ($constraint) {
             $constraint->aspectRatio();
             $constraint->upsize();
         })->encode('png');

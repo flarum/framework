@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
     'notifications',
-    function (Blueprint $table) {
+    static function (Blueprint $table) {
         $table->increments('id');
         $table->integer('user_id')->unsigned();
         $table->integer('sender_id')->unsigned()->nullable();

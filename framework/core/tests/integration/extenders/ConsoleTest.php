@@ -64,7 +64,7 @@ class ConsoleTest extends ConsoleTestCase
     {
         $this->extend(
             (new Extend\Console())
-                ->schedule('cache:clear', function (Event $event) {
+                ->schedule('cache:clear', static function (Event $event) {
                     $event->everyMinute();
                 })
         );
