@@ -199,7 +199,7 @@ class Migrator
     protected function runClosureMigration($migration, $direction = 'up')
     {
         if (is_array($migration) && array_key_exists($direction, $migration)) {
-            call_user_func($migration[$direction], $this->connection->getSchemaBuilder());
+            $migration[$direction]($this->connection->getSchemaBuilder());
         } else {
             throw new Exception('Migration file should contain an array with up/down.');
         }

@@ -236,7 +236,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     protected function resolveSerializer($serializer, $model, $data)
     {
         if ($serializer instanceof Closure) {
-            $serializer = call_user_func($serializer, $model, $data);
+            $serializer = $serializer($model, $data);
         }
 
         if (is_string($serializer)) {

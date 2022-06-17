@@ -552,7 +552,7 @@ class User extends AbstractModel
             $preferences = $this->preferences;
 
             if (! is_null($transformer = static::$preferences[$key]['transformer'])) {
-                $preferences[$key] = call_user_func($transformer, $value);
+                $preferences[$key] = $transformer($value);
             } else {
                 $preferences[$key] = $value;
             }

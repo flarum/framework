@@ -326,7 +326,7 @@ class Application
     protected function fireAppCallbacks(array $callbacks)
     {
         foreach ($callbacks as $callback) {
-            call_user_func($callback, $this);
+            $callback($this);
         }
     }
 
