@@ -23,7 +23,7 @@ class ExtensionBootError extends Exception
         $this->extension = $extension;
         $this->extender = $extender;
 
-        $extenderClass = get_class($extender);
+        $extenderClass = $extender::class;
 
         parent::__construct("Experienced an error while booting extension: {$extension->getTitle()}.\n\nError occurred while applying an extender of type: $extenderClass.", null, $previous);
     }

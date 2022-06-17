@@ -86,7 +86,7 @@ class Server
             $message = $error->getMessage();
             $file = $error->getFile();
             $line = $error->getLine();
-            $type = get_class($error);
+            $type = $error::class;
 
             echo <<<ERROR
             Flarum encountered a boot error ($type)<br />

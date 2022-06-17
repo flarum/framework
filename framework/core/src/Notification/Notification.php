@@ -179,7 +179,7 @@ class Notification extends AbstractModel
      */
     public function scopeWhereSubject(Builder $query, $model)
     {
-        return $query->whereSubjectModel(get_class($model))
+        return $query->whereSubjectModel($model::class)
             ->where('subject_id', $model->id);
     }
 

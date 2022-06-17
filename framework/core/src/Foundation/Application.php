@@ -210,7 +210,7 @@ class Application
      */
     public function getProvider($provider)
     {
-        $name = is_string($provider) ? $provider : get_class($provider);
+        $name = is_string($provider) ? $provider : $provider::class;
 
         return Arr::first($this->serviceProviders, function ($key, $value) use ($name) {
             return $value instanceof $name;
@@ -236,7 +236,7 @@ class Application
      */
     protected function markAsRegistered($provider)
     {
-        $this->container['events']->dispatch($class = get_class($provider), [$provider]);
+        $this->container['events']->dispatch($class = $provider::class, [$provider]);
 
         $this->serviceProviders[] = $provider;
 
