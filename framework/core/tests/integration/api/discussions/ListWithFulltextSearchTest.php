@@ -32,7 +32,7 @@ class ListWithFulltextSearchTest extends TestCase
         // We clean it up explcitly at the end.
         $this->database()->table('discussions')->insert([
             ['id' => 1, 'title' => 'lightsail in title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
-            ['id' => 2, 'title' => 'lightsail in title too', 'created_at' => Carbon::createFromDate(2020, 01, 01)->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 2, 'title' => 'lightsail in title too', 'created_at' => Carbon::createFromDate(2020, 0o1, 0o1)->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
             ['id' => 3, 'title' => 'not in title either', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
             ['id' => 4, 'title' => 'not in title or text', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
             ['id' => 5, 'title' => 'తెలుగు', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
