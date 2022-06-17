@@ -349,7 +349,8 @@ class User extends AbstractModel
 
             if ($result === false) {
                 return false;
-            } elseif ($result === true) {
+            }
+            if ($result === true) {
                 $valid = true;
             }
         }

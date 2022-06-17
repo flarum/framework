@@ -49,7 +49,8 @@ class InstalledApp implements AppInterface
     {
         if ($this->config->inMaintenanceMode()) {
             return $this->container->make('flarum.maintenance.handler');
-        } elseif ($this->needsUpdate()) {
+        }
+        if ($this->needsUpdate()) {
             return $this->getUpdaterHandler();
         }
 

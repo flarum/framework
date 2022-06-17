@@ -96,7 +96,8 @@ class Server
 <pre>$error</pre>
 ERROR;
             exit(1);
-        } elseif (app()->has(LoggerInterface::class)) {
+        }
+        if (app()->has(LoggerInterface::class)) {
             // If the application booted far enough for the logger to be available, we will log the error there
             // Considering most boot errors are related to database or extensions, the logger should already be loaded
             // We check for LoggerInterface binding because it's a constructor dependency of LogReporter,
