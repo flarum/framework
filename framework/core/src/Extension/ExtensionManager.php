@@ -494,7 +494,7 @@ class ExtensionManager
             $output[] = $activeNode;
 
             foreach ($extensionGraph[$activeNode] as $dependency) {
-                $inDegreeCount[$dependency] -= 1;
+                --$inDegreeCount[$dependency];
 
                 if ($inDegreeCount[$dependency] === 0) {
                     if (! array_key_exists($dependency, $extensionGraph)) {
