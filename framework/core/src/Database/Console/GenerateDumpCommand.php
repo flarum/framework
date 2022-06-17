@@ -82,6 +82,6 @@ class GenerateDumpCommand extends AbstractCommand
             $newDump[] = $line;
         }
 
-        file_put_contents($dumpPath, implode($newDump));
+        file_put_contents($dumpPath, implode('', $newDump));
     }
 }
