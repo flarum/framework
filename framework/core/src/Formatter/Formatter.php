@@ -142,7 +142,7 @@ class Formatter
      */
     protected function getConfigurator()
     {
-        $configurator = new Configurator;
+        $configurator = new Configurator();
 
         $configurator->rootRules->enableAutoLineBreaks();
 

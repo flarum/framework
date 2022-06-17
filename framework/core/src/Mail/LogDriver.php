@@ -34,7 +34,7 @@ class LogDriver implements DriverInterface
 
     public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag
     {
-        return new MessageBag;
+        return new MessageBag();
     }
 
     public function canSend(): bool

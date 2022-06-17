@@ -49,7 +49,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.forum.routes', function (Container $container) {
-            $routes = new RouteCollection;
+            $routes = new RouteCollection();
             $this->populateRoutes($routes, $container);
 
             return $routes;
@@ -91,7 +91,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.forum.handler', function (Container $container) {
-            $pipe = new MiddlewarePipe;
+            $pipe = new MiddlewarePipe();
 
             foreach ($container->make('flarum.forum.middleware') as $middleware) {
                 $pipe->pipe($container->make($middleware));

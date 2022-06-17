@@ -75,6 +75,6 @@ class CacheClearCommand extends AbstractCommand
         array_map('unlink', glob($storagePath.'/locale/*'));
         array_map('unlink', glob($storagePath.'/views/*'));
 
-        $this->events->dispatch(new ClearingCache);
+        $this->events->dispatch(new ClearingCache());
     }
 }

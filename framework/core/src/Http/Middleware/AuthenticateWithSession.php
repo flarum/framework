@@ -50,6 +50,6 @@ class AuthenticateWithSession implements Middleware
             $session->regenerateToken();
         }
 
-        return new Guest;
+        return new Guest();
     }
 }

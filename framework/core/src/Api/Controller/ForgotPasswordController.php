@@ -51,6 +51,6 @@ class ForgotPasswordController implements RequestHandlerInterface
             new RequestPasswordReset($email)
         );
 
-        return new EmptyResponse;
+        return new EmptyResponse();
     }
 }

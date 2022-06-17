@@ -110,7 +110,7 @@ class InfoCommand extends AbstractCommand
                 ['Flarum Extensions'],
                 ['ID', 'Version', 'Commit']
             ])->setStyle(
-                (new TableStyle)->setCellHeaderFormat('<info>%s</info>')
+                (new TableStyle())->setCellHeaderFormat('<info>%s</info>')
             );
 
         foreach ($this->extensions->getEnabledExtensions() as $extension) {

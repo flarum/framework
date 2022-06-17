@@ -37,7 +37,7 @@ class AdminUser
         return [
             'username' => $this->username,
             'email' => $this->email,
-            'password' => (new BcryptHasher)->make($this->password),
+            'password' => (new BcryptHasher())->make($this->password),
             'joined_at' => Carbon::now(),
             'is_email_confirmed' => 1,
         ];

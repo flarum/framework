@@ -58,7 +58,7 @@ class ContainerUtilTest extends TestCase
     /** @test */
     public function it_works_with_invokable_objects()
     {
-        $callback = ContainerUtil::wrapCallback(new class {
+        $callback = ContainerUtil::wrapCallback(new class() {
             public function __invoke($array)
             {
                 $array['key'] = 'newValue5';
@@ -125,7 +125,7 @@ class ContainerUtilTest extends TestCase
     /** @test */
     public function it_allows_passing_args_by_reference_on_invokable_objects()
     {
-        $callback = ContainerUtil::wrapCallback(new class {
+        $callback = ContainerUtil::wrapCallback(new class() {
             public function __invoke(&$array)
             {
                 $array['key'] = 'newValue6';

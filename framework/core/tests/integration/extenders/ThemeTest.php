@@ -33,7 +33,7 @@ class ThemeTest extends TestCase
     public function theme_extender_override_import_works()
     {
         $this->extend(
-            (new Extend\Theme)
+            (new Extend\Theme())
                 ->overrideLessImport('forum/Hero.less', __DIR__.'/../../fixtures/less/dummy.less')
         );
 
@@ -54,7 +54,7 @@ class ThemeTest extends TestCase
         $this->extend(
             (new Extend\Frontend('forum'))
                 ->css(__DIR__.'/../../fixtures/less/forum.less'),
-            (new Extend\Theme)
+            (new Extend\Theme())
                 ->overrideLessImport('Imported.less', __DIR__.'/../../fixtures/less/dummy.less', 'site-custom')
         );
 
@@ -76,7 +76,7 @@ class ThemeTest extends TestCase
     public function theme_extender_override_file_source_works()
     {
         $this->extend(
-            (new Extend\Theme)
+            (new Extend\Theme())
                 ->overrideFileSource('forum.less', __DIR__.'/../../fixtures/less/override_filesource.less')
         );
 
@@ -95,7 +95,7 @@ class ThemeTest extends TestCase
     public function theme_extender_override_file_source_works_by_failing_when_necessary()
     {
         $this->extend(
-            (new Extend\Theme)
+            (new Extend\Theme())
                 ->overrideFileSource('mixins.less', __DIR__.'/../../fixtures/less/dummy.less')
         );
 
@@ -113,7 +113,7 @@ class ThemeTest extends TestCase
         $this->extend(
             (new Extend\Frontend('forum'))
                 ->css(__DIR__.'/../../fixtures/less/custom_function.less'),
-            (new Extend\Theme)
+            (new Extend\Theme())
                 ->addCustomLessFunction('is-flarum', function ($text) {
                     return strtolower($text) === 'flarum' ? 'true' : 100;
                 })

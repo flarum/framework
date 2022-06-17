@@ -33,12 +33,12 @@ class Server
     {
         $runner = new RequestHandlerRunner(
             $this->safelyBootAndGetHandler(),
-            new SapiEmitter,
+            new SapiEmitter(),
             [ServerRequestFactory::class, 'fromGlobals'],
             function (Throwable $e) {
-                $generator = new ErrorResponseGenerator;
+                $generator = new ErrorResponseGenerator();
 
-                return $generator($e, new ServerRequest, new Response);
+                return $generator($e, new ServerRequest(), new Response());
             }
         );
         $runner->run();

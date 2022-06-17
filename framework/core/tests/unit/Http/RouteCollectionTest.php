@@ -17,7 +17,7 @@ class RouteCollectionTest extends TestCase
     /** @test */
     public function can_add_routes()
     {
-        $routeCollection = (new RouteCollection)
+        $routeCollection = (new RouteCollection())
             ->addRoute('GET', '/index', 'index', function () {
                 echo 'index';
             })
@@ -32,7 +32,7 @@ class RouteCollectionTest extends TestCase
     /** @test */
     public function can_add_routes_late()
     {
-        $routeCollection = (new RouteCollection)->addRoute('GET', '/index', 'index', function () {
+        $routeCollection = (new RouteCollection())->addRoute('GET', '/index', 'index', function () {
             echo 'index';
         });
 
@@ -51,7 +51,7 @@ class RouteCollectionTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Could not generate URL for route 'user': no value provided for required part 'user'.");
 
-        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}', 'user', function () {
+        $routeCollection = (new RouteCollection())->addRoute('GET', '/user/{user}', 'user', function () {
             echo 'user';
         });
 
@@ -61,7 +61,7 @@ class RouteCollectionTest extends TestCase
     /** @test */
     public function dont_need_to_provide_optional_parameters()
     {
-        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
+        $routeCollection = (new RouteCollection())->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
             echo 'user';
         });
 
@@ -73,7 +73,7 @@ class RouteCollectionTest extends TestCase
     /** @test */
     public function can_provide_optional_parameters()
     {
-        $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
+        $routeCollection = (new RouteCollection())->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
             echo 'user';
         });
 

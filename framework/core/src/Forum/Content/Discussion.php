@@ -122,7 +122,7 @@ class Discussion
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {
-            throw new RouteNotFoundException;
+            throw new RouteNotFoundException();
         }
 
         return json_decode($response->getBody());

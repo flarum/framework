@@ -85,7 +85,7 @@ class Group extends AbstractModel
      */
     public static function build($nameSingular, $namePlural, $color = null, $icon = null, bool $isHidden = false): self
     {
-        $group = new static;
+        $group = new static();
 
         $group->name_singular = $nameSingular;
         $group->name_plural = $namePlural;

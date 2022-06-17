@@ -44,7 +44,7 @@ class ResetPasswordController extends AbstractHtmlController
         $token = PasswordToken::findOrFail($token);
 
         if ($token->created_at < new DateTime('-1 day')) {
-            throw new InvalidConfirmationTokenException;
+            throw new InvalidConfirmationTokenException();
         }
 
         return $this->view->make('flarum.forum::reset-password')

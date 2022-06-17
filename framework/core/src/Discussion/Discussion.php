@@ -120,7 +120,7 @@ class Discussion extends AbstractModel
      */
     public static function start($title, User $user)
     {
-        $discussion = new static;
+        $discussion = new static();
 
         $discussion->title = $title;
         $discussion->created_at = Carbon::now();
@@ -418,7 +418,7 @@ class Discussion extends AbstractModel
         $state = $this->state($user)->first();
 
         if (! $state) {
-            $state = new UserState;
+            $state = new UserState();
             $state->discussion_id = $this->id;
             $state->user_id = $user->id;
         }

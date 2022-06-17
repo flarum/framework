@@ -61,7 +61,7 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
      */
     public static function reply($discussionId, $userId, $oldTitle, $newTitle)
     {
-        $post = new static;
+        $post = new static();
 
         $post->content = static::buildContent($oldTitle, $newTitle);
         $post->created_at = Carbon::now();

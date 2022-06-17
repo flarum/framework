@@ -78,7 +78,7 @@ class ValidateCustomLess
         );
 
         $assetsDir = $this->assets->getAssetsDir();
-        $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem(new NullAdapter)));
+        $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem(new NullAdapter())));
 
         try {
             $this->assets->makeCss()->commit();

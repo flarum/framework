@@ -51,7 +51,7 @@ class EmailToken extends AbstractModel
      */
     public static function generate($email, $userId)
     {
-        $token = new static;
+        $token = new static();
 
         $token->token = Str::random(40);
         $token->user_id = $userId;
@@ -85,7 +85,7 @@ class EmailToken extends AbstractModel
         $token = $query->find($id);
 
         if (! $token || $token->created_at->diffInDays() >= 1) {
-            throw new InvalidConfirmationTokenException;
+            throw new InvalidConfirmationTokenException();
         }
 
         return $token;

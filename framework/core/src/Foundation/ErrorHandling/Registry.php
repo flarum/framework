@@ -80,7 +80,7 @@ class Registry
         $errorClass = get_class($error);
 
         if (isset($this->handlerMap[$errorClass])) {
-            $handler = new $this->handlerMap[$errorClass];
+            $handler = new $this->handlerMap[$errorClass]();
 
             return $handler->handle($error);
         }

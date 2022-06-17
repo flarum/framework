@@ -60,7 +60,7 @@ class UninstalledSite implements SiteInterface
 
     protected function bootLaravel(): Container
     {
-        $container = new \Illuminate\Container\Container;
+        $container = new \Illuminate\Container\Container();
         $laravel = new Application($container, $this->paths);
 
         $container->instance('env', 'production');

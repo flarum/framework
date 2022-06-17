@@ -93,7 +93,7 @@ class RevisionCompiler implements CompilerInterface
      */
     protected function getSources(): array
     {
-        $sources = new SourceCollector;
+        $sources = new SourceCollector();
 
         foreach ($this->sourcesCallbacks as $callback) {
             $callback($sources);

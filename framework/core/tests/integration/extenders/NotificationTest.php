@@ -56,7 +56,7 @@ class NotificationTest extends TestCase
      */
     public function notification_type_exists_if_added()
     {
-        $this->extend((new Extend\Notification)->type(
+        $this->extend((new Extend\Notification())->type(
             CustomNotificationType::class,
             'customNotificationTypeSerializer'
         ));
@@ -71,7 +71,7 @@ class NotificationTest extends TestCase
      */
     public function notification_serializer_exists_if_added()
     {
-        $this->extend((new Extend\Notification)->type(
+        $this->extend((new Extend\Notification())->type(
             CustomNotificationType::class,
             'customNotificationTypeSerializer'
         ));
@@ -130,7 +130,7 @@ class NotificationTest extends TestCase
     public function notification_before_sending_callback_works_if_added()
     {
         $this->extend(
-            (new Extend\Notification)
+            (new Extend\Notification())
                 ->type(CustomNotificationType::class, 'customNotificationTypeSerializer')
                 ->driver('customNotificationDriver', CustomNotificationDriver::class)
                 ->beforeSending(function ($blueprint, $users) {

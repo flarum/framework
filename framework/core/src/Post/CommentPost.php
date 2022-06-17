@@ -48,7 +48,7 @@ class CommentPost extends Post
      */
     public static function reply($discussionId, $content, $userId, $ipAddress)
     {
-        $post = new static;
+        $post = new static();
 
         $post->created_at = Carbon::now();
         $post->discussion_id = $discussionId;

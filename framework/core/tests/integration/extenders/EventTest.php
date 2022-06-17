@@ -53,7 +53,7 @@ class EventTest extends TestCase
      */
     public function custom_listener_works_with_closure()
     {
-        $this->extend((new Extend\Event)->listen(Created::class, function (Created $event) {
+        $this->extend((new Extend\Event())->listen(Created::class, function (Created $event) {
             $event->group->name_singular = 'modified group';
         }));
 
@@ -68,7 +68,7 @@ class EventTest extends TestCase
     public function custom_listener_works_with_class_with_handle_method_and_can_inject_stuff()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.
-        $this->extend((new Extend\Event)->listen(Created::class, CustomListener::class));
+        $this->extend((new Extend\Event())->listen(Created::class, CustomListener::class));
 
         $group = $this->buildGroup();
 
@@ -81,7 +81,7 @@ class EventTest extends TestCase
     public function custom_subscriber_works()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.
-        $this->extend((new Extend\Event)->subscribe(CustomSubscriber::class));
+        $this->extend((new Extend\Event())->subscribe(CustomSubscriber::class));
 
         $group = $this->buildGroup();
 
@@ -94,7 +94,7 @@ class EventTest extends TestCase
     public function custom_subscriber_applied_after_app_booted()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.
-        $this->extend((new Extend\Event)->subscribe(CustomSubscriber::class));
+        $this->extend((new Extend\Event())->subscribe(CustomSubscriber::class));
 
         $group = $this->buildGroup();
 

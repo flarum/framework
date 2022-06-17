@@ -22,7 +22,7 @@ class UpdateServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->container->singleton('flarum.update.routes', function (Container $container) {
-            $routes = new RouteCollection;
+            $routes = new RouteCollection();
             $factory = $container->make(RouteHandlerFactory::class);
             $this->populateRoutes($routes, $factory);
 

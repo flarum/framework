@@ -159,7 +159,7 @@ class User extends AbstractModel
      */
     public static function register($username, $email, $password)
     {
-        $user = new static;
+        $user = new static();
 
         $user->username = $username;
         $user->email = $email;
@@ -613,7 +613,7 @@ class User extends AbstractModel
     public function assertPermission($condition)
     {
         if (! $condition) {
-            throw new PermissionDeniedException;
+            throw new PermissionDeniedException();
         }
     }
 
@@ -629,7 +629,7 @@ class User extends AbstractModel
     public function assertRegistered()
     {
         if ($this->isGuest()) {
-            throw new NotAuthenticatedException;
+            throw new NotAuthenticatedException();
         }
     }
 

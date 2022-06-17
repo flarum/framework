@@ -43,6 +43,6 @@ class UpdateExtensionController implements RequestHandlerInterface
             new ToggleExtension($actor, $name, $enabled)
         );
 
-        return new EmptyResponse;
+        return new EmptyResponse();
     }
 }

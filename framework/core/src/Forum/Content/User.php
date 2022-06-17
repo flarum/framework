@@ -64,7 +64,7 @@ class User
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {
-            throw new ModelNotFoundException;
+            throw new ModelNotFoundException();
         }
 
         return json_decode($response->getBody());

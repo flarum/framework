@@ -35,7 +35,7 @@ class ConnectToDatabase implements Step
     public function run()
     {
         $config = $this->dbConfig->toArray();
-        $pdo = (new MySqlConnector)->connect($config);
+        $pdo = (new MySqlConnector())->connect($config);
 
         $version = $pdo->query('SELECT VERSION()')->fetchColumn();
 

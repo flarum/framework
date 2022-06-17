@@ -46,7 +46,7 @@ class MaintenanceModeHandler implements RequestHandlerInterface
     private function apiResponse(): ResponseInterface
     {
         return new JsonResponse(
-            (new Document)->setErrors([
+            (new Document())->setErrors([
                 'status' => '503',
                 'title' => self::MESSAGE
             ]),

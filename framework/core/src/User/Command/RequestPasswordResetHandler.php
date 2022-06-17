@@ -97,7 +97,7 @@ class RequestPasswordResetHandler
         $user = $this->users->findByEmail($email);
 
         if (! $user) {
-            throw new ModelNotFoundException;
+            throw new ModelNotFoundException();
         }
 
         $token = PasswordToken::generate($user->id);

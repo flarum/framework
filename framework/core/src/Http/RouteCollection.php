@@ -45,8 +45,8 @@ class RouteCollection
 
     public function __construct()
     {
-        $this->dataGenerator = new DataGenerator\GroupCountBased;
-        $this->routeParser = new RouteParser\Std;
+        $this->dataGenerator = new DataGenerator\GroupCountBased();
+        $this->routeParser = new RouteParser\Std();
     }
 
     public function get($path, $name, $handler)
