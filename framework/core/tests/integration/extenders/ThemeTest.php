@@ -114,12 +114,8 @@ class ThemeTest extends TestCase
             (new Extend\Frontend('forum'))
                 ->css(__DIR__.'/../../fixtures/less/custom_function.less'),
             (new Extend\Theme)
-                ->addCustomLessFunction('is-flarum', function ($text) {
-                    return strtolower($text) === 'flarum' ? 'true' : 100;
-                })
-                ->addCustomLessFunction('is-gt', function ($a, $b) {
-                    return $a > $b;
-                })
+                ->addCustomLessFunction('is-flarum', fn ($text) => strtolower($text) === 'flarum' ? 'true' : 100)
+                ->addCustomLessFunction('is-gt', fn ($a, $b) => $a > $b)
         );
 
         $response = $this->send($this->request('GET', '/'));

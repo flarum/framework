@@ -38,9 +38,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->registerDisplayNameDrivers();
         $this->registerPasswordCheckers();
 
-        $this->container->singleton('flarum.user.group_processors', function () {
-            return [];
-        });
+        $this->container->singleton('flarum.user.group_processors', fn () => []);
 
         $this->container->singleton('flarum.policies', function () {
             return [

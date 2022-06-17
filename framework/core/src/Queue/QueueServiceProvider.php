@@ -44,11 +44,7 @@ class QueueServiceProvider extends AbstractServiceProvider
     {
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
-        $this->container->singleton(Factory::class, function (Container $container) {
-            return new QueueFactory(function () use ($container) {
-                return $container->make('flarum.queue.connection');
-            });
-        });
+        $this->container->singleton(Factory::class, fn (Container $container) => new QueueFactory(fn () => $container->make('flarum.queue.connection')));
 
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
@@ -59,9 +55,7 @@ class QueueServiceProvider extends AbstractServiceProvider
             return $queue;
         });
 
-        $this->container->singleton(ExceptionHandling::class, function (Container $container) {
-            return new ExceptionHandler($container['log']);
-        });
+        $this->container->singleton(ExceptionHandling::class, fn (Container $container) => new ExceptionHandler($container['log']));
 
         $this->container->singleton(Worker::class, function (Container $container) {
             /** @var Config $config */
@@ -71,9 +65,7 @@ class QueueServiceProvider extends AbstractServiceProvider
                 $container[Factory::class],
                 $container['events'],
                 $container[ExceptionHandling::class],
-                function () use ($config) {
-                    return $config->inMaintenanceMode();
-                }
+                fn () => $config->inMaintenanceMode()
             );
 
             $worker->setCache($container->make('cache.store'));
@@ -83,9 +75,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         // Override the Laravel native Listener, so that we can ignore the environment
         // option and force the binary to flarum.
-        $this->container->singleton(QueueListener::class, function (Container $container) {
-            return new Listener($container->make(Paths::class)->base);
-        });
+        $this->container->singleton(QueueListener::class, fn (Container $container) => new Listener($container->make(Paths::class)->base));
 
         // Bind a simple cache manager that returns the cache store.
         $this->container->singleton('cache', function (Container $container) {
@@ -114,9 +104,7 @@ class QueueServiceProvider extends AbstractServiceProvider
             };
         });
 
-        $this->container->singleton('queue.failer', function () {
-            return new NullFailedJobProvider();
-        });
+        $this->container->singleton('queue.failer', fn () => new NullFailedJobProvider());
 
         $this->container->alias('flarum.queue.connection', Queue::class);
 

@@ -143,25 +143,15 @@ class Installation
             );
         });
 
-        $pipeline->pipe(function () {
-            return new Steps\RunMigrations($this->db, $this->getMigrationPath());
-        });
+        $pipeline->pipe(fn () => new Steps\RunMigrations($this->db, $this->getMigrationPath()));
 
-        $pipeline->pipe(function () {
-            return new Steps\WriteSettings($this->db, $this->customSettings);
-        });
+        $pipeline->pipe(fn () => new Steps\WriteSettings($this->db, $this->customSettings));
 
-        $pipeline->pipe(function () {
-            return new Steps\CreateAdminUser($this->db, $this->adminUser, $this->accessToken);
-        });
+        $pipeline->pipe(fn () => new Steps\CreateAdminUser($this->db, $this->adminUser, $this->accessToken));
 
-        $pipeline->pipe(function () {
-            return new Steps\PublishAssets($this->paths->vendor, $this->getAssetPath());
-        });
+        $pipeline->pipe(fn () => new Steps\PublishAssets($this->paths->vendor, $this->getAssetPath()));
 
-        $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath(), $this->enabledExtensions);
-        });
+        $pipeline->pipe(fn () => new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath(), $this->enabledExtensions));
 
         return $pipeline;
     }

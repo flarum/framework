@@ -31,9 +31,7 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
-            return $url->addCollection('api', $container->make('flarum.api.routes'), 'api');
-        });
+        $this->container->extend(UrlGenerator::class, fn (UrlGenerator $url, Container $container) => $url->addCollection('api', $container->make('flarum.api.routes'), 'api'));
 
         $this->container->singleton('flarum.api.routes', function () {
             $routes = new RouteCollection;
@@ -52,9 +50,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->bind(Middleware\ThrottleApi::class, function (Container $container) {
-            return new Middleware\ThrottleApi($container->make('flarum.api.throttlers'));
-        });
+        $this->container->bind(Middleware\ThrottleApi::class, fn (Container $container) => new Middleware\ThrottleApi($container->make('flarum.api.throttlers')));
 
         $this->container->singleton('flarum.api.middleware', function () {
             return [
@@ -81,9 +77,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->container->bind('flarum.api.route_resolver', function (Container $container) {
-            return new HttpMiddleware\ResolveRoute($container->make('flarum.api.routes'));
-        });
+        $this->container->bind('flarum.api.route_resolver', fn (Container $container) => new HttpMiddleware\ResolveRoute($container->make('flarum.api.routes')));
 
         $this->container->singleton('flarum.api.handler', function (Container $container) {
             $pipe = new MiddlewarePipe;
@@ -121,9 +115,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
             $exclude = $container->make('flarum.api_client.exclude_middleware');
 
-            $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($exclude) {
-                return ! in_array($middlewareClass, $exclude);
-            });
+            $middlewareStack = array_filter($container->make('flarum.api.middleware'), fn ($middlewareClass) => ! in_array($middlewareClass, $exclude));
 
             foreach ($middlewareStack as $middleware) {
                 $pipe->pipe($container->make($middleware));

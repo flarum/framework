@@ -31,8 +31,6 @@ class Csrf implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('flarum.http.csrfExemptPaths', function ($existingExemptPaths) {
-            return array_merge($existingExemptPaths, $this->csrfExemptRoutes);
-        });
+        $container->extend('flarum.http.csrfExemptPaths', fn ($existingExemptPaths) => array_merge($existingExemptPaths, $this->csrfExemptRoutes));
     }
 }

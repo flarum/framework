@@ -122,9 +122,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->relationship('customRelation', function (User $user) {
-                    return $user->hasMany(Discussion::class, 'user_id');
-                })
+                ->relationship('customRelation', fn (User $user) => $user->hasMany(Discussion::class, 'user_id'))
         );
 
         $this->app();
@@ -158,9 +156,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->relationship('customRelation', function (User $user) {
-                    return $user->hasMany(Discussion::class, 'user_id');
-                })
+                ->relationship('customRelation', fn (User $user) => $user->hasMany(Discussion::class, 'user_id'))
         );
 
         $this->prepareDatabase([
@@ -248,9 +244,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(User::class))
-                ->relationship('customRelation', function (User $user) {
-                    return $user->hasMany(Discussion::class, 'user_id');
-                })
+                ->relationship('customRelation', fn (User $user) => $user->hasMany(Discussion::class, 'user_id'))
         );
 
         $this->app();

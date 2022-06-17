@@ -219,9 +219,7 @@ class Migrator
             return [];
         }
 
-        $files = array_map(function ($file) {
-            return str_replace('.php', '', basename($file));
-        }, $files);
+        $files = array_map(fn ($file) => str_replace('.php', '', basename($file)), $files);
 
         // Once we have all of the formatted file names we will sort them and since
         // they all start with a timestamp this should give us the migrations in

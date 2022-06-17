@@ -23,9 +23,7 @@ class PrefixedYamlFileLoader extends YamlFileLoader
         if (! empty($resource['prefix'])) {
             $messages = $catalogue->all($domain);
 
-            $prefixedKeys = array_map(function ($k) use ($resource) {
-                return $resource['prefix'].$k;
-            }, array_keys($messages));
+            $prefixedKeys = array_map(fn ($k) => $resource['prefix'].$k, array_keys($messages));
 
             $catalogue->replace(array_combine($prefixedKeys, $messages));
         }

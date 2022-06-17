@@ -72,9 +72,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_parsing_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->parse(function ($parser, $context, $text) {
-            return 'ReplacedText<a>';
-        }));
+        $this->extend((new Extend\Formatter)->parse(fn ($parser, $context, $text) => 'ReplacedText<a>'));
 
         $this->assertEquals('<t>ReplacedText&lt;a&gt;</t>', $this->getFormatter()->parse('Text<a>'));
     }
@@ -102,9 +100,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_unparsing_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->unparse(function ($context, $xml) {
-            return '<t>ReplacedText&lt;a&gt;</t>';
-        }));
+        $this->extend((new Extend\Formatter)->unparse(fn ($context, $xml) => '<t>ReplacedText&lt;a&gt;</t>'));
 
         $this->assertEquals('ReplacedText<a>', $this->getFormatter()->unparse('<t>Text&lt;a&gt;</t>'));
     }
@@ -132,9 +128,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_rendering_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->render(function ($renderer, $context, $xml, $request) {
-            return '<html>ReplacedText</html>';
-        }));
+        $this->extend((new Extend\Formatter)->render(fn ($renderer, $context, $xml, $request) => '<html>ReplacedText</html>'));
 
         $this->assertEquals('ReplacedText', $this->getFormatter()->render('<html>Text</html>'));
     }

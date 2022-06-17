@@ -102,11 +102,7 @@ class EnableBundledExtensions implements Step
         $installed = $installed['packages'] ?? $installed;
 
         return (new Collection($installed))
-            ->filter(function ($package) {
-                return Arr::get($package, 'type') == 'flarum-extension';
-            })->filter(function ($package) {
-                return ! empty(Arr::get($package, 'name'));
-            })->map(function ($package) {
+            ->filter(fn ($package) => Arr::get($package, 'type') == 'flarum-extension')->filter(fn ($package) => ! empty(Arr::get($package, 'name')))->map(function ($package) {
                 $path = isset($package['install-path'])
                     ? "$this->vendorPath/composer/".$package['install-path']
                     : $this->vendorPath.'/'.Arr::get($package, 'name');
@@ -115,13 +111,7 @@ class EnableBundledExtensions implements Step
                 $extension->setVersion(Arr::get($package, 'version'));
 
                 return $extension;
-            })->filter(function (Extension $extension) {
-                return in_array($extension->getId(), $this->enabledExtensions);
-            })->sortBy(function (Extension $extension) {
-                return $extension->getTitle();
-            })->mapWithKeys(function (Extension $extension) {
-                return [$extension->getId() => $extension];
-            });
+            })->filter(fn (Extension $extension) => in_array($extension->getId(), $this->enabledExtensions))->sortBy(fn (Extension $extension) => $extension->getTitle())->mapWithKeys(fn (Extension $extension) => [$extension->getId() => $extension]);
     }
 
     private function getMigrator()

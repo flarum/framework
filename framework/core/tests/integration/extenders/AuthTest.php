@@ -72,9 +72,7 @@ class AuthTest extends TestCase
     {
         $this->extend(
             (new Extend\Auth)
-                ->addPasswordChecker('custom_false', function (User $user, $password) {
-                    return false;
-                })
+                ->addPasswordChecker('custom_false', fn (User $user, $password) => false)
         );
 
         $this->app();

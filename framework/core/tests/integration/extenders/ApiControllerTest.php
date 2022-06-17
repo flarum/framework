@@ -329,9 +329,7 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(ShowUserController::class))
-                ->setSerializer(CustomUserSerializer::class, function () {
-                    return false;
-                })
+                ->setSerializer(CustomUserSerializer::class, fn () => false)
         );
 
         $response = $this->send(
@@ -560,9 +558,7 @@ class ApiControllerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiController(ListDiscussionsController::class))
-                ->addSortField('userId', function () {
-                    return false;
-                })
+                ->addSortField('userId', fn () => false)
         );
 
         $response = $this->send(

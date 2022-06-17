@@ -73,13 +73,9 @@ class User implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('flarum.user.display_name.supported_drivers', function ($existingDrivers) {
-            return array_merge($existingDrivers, $this->displayNameDrivers);
-        });
+        $container->extend('flarum.user.display_name.supported_drivers', fn ($existingDrivers) => array_merge($existingDrivers, $this->displayNameDrivers));
 
-        $container->extend('flarum.user.group_processors', function ($existingRelations) {
-            return array_merge($existingRelations, $this->groupProcessors);
-        });
+        $container->extend('flarum.user.group_processors', fn ($existingRelations) => array_merge($existingRelations, $this->groupProcessors));
 
         foreach ($this->preferences as $key => $preference) {
             FlarumUser::registerPreference($key, $preference['transformer'], $preference['default']);

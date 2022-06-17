@@ -21,9 +21,7 @@ class InstallServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('flarum.install.routes', function () {
-            return new RouteCollection;
-        });
+        $this->container->singleton('flarum.install.routes', fn () => new RouteCollection);
     }
 
     /**

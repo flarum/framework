@@ -470,9 +470,7 @@ class User extends AbstractModel
      */
     public function getNewNotificationCount()
     {
-        return $this->getUnreadNotifications()->filter(function ($notification) {
-            return $notification->created_at > $this->read_notifications_at ?: 0;
-        })->count();
+        return $this->getUnreadNotifications()->filter(fn ($notification) => $notification->created_at > $this->read_notifications_at ?: 0)->count();
     }
 
     /**
@@ -484,9 +482,7 @@ class User extends AbstractModel
      */
     public function getPreferencesAttribute($value)
     {
-        $defaults = array_map(function ($value) {
-            return $value['default'];
-        }, static::$preferences);
+        $defaults = array_map(fn ($value) => $value['default'], static::$preferences);
 
         $user = $value !== null ? Arr::only((array) json_decode($value, true), array_keys(static::$preferences)) : [];
 

@@ -80,9 +80,7 @@ class ListWithFulltextSearchTest extends TestCase
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
-            return $row['id'];
-        }, $data['data']);
+        $ids = array_map(fn ($row) => $row['id'], $data['data']);
 
         $this->assertEqualsCanonicalizing(['2', '1', '3'], $ids, 'IDs do not match');
     }
@@ -101,9 +99,7 @@ class ListWithFulltextSearchTest extends TestCase
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
-            return $row['id'];
-        }, $data['data']);
+        $ids = array_map(fn ($row) => $row['id'], $data['data']);
 
         $this->assertEqualsCanonicalizing(['2', '1', '3'], $ids, 'IDs do not match');
     }
@@ -122,9 +118,7 @@ class ListWithFulltextSearchTest extends TestCase
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
-            return $row['id'];
-        }, $data['data']);
+        $ids = array_map(fn ($row) => $row['id'], $data['data']);
 
         $this->assertEqualsCanonicalizing(['4', '5'], $ids, 'IDs do not match');
         $this->assertEqualsCanonicalizing(['6'], Arr::pluck($data['included'], 'id'));
@@ -144,9 +138,7 @@ class ListWithFulltextSearchTest extends TestCase
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $ids = array_map(function ($row) {
-            return $row['id'];
-        }, $data['data']);
+        $ids = array_map(fn ($row) => $row['id'], $data['data']);
 
         $this->assertEqualsCanonicalizing(['2', '6'], $ids, 'IDs do not match');
         $this->assertEqualsCanonicalizing(['7'], Arr::pluck($data['included'], 'id'));

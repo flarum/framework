@@ -186,11 +186,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attribute('customSingleAttribute', function () {
-                    return true;
-                })->attribute('customSingleAttribute_0', function () {
-                    return 0;
-                })
+                ->attribute('customSingleAttribute', fn () => true)->attribute('customSingleAttribute_0', fn () => 0)
         );
 
         $this->app();
@@ -238,9 +234,7 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('customSingleAttribute_2', function () {
-                    return true;
-                })
+                ->attribute('customSingleAttribute_2', fn () => true)
         );
 
         $this->app();
@@ -263,13 +257,9 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('customSingleAttribute_3', function () {
-                    return 'initialValue';
-                }),
+                ->attribute('customSingleAttribute_3', fn () => 'initialValue'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->attribute('customSingleAttribute_3', function () {
-                    return 'newValue';
-                })
+                ->attribute('customSingleAttribute_3', fn () => 'newValue')
         );
 
         $this->app();
@@ -293,16 +283,12 @@ class ApiSerializerTest extends TestCase
     {
         $this->extend(
             (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('someCustomAttribute', function () {
-                    return 'newValue';
-                })->attributes(function () {
+                ->attribute('someCustomAttribute', fn () => 'newValue')->attributes(function () {
                     return [
                         'someCustomAttribute' => 'initialValue',
                         'someOtherCustomAttribute' => 'initialValue',
                     ];
-                })->attribute('someOtherCustomAttribute', function () {
-                    return 'newValue';
-                })
+                })->attribute('someOtherCustomAttribute', fn () => 'newValue')
         );
 
         $this->app();
@@ -405,9 +391,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('customSerializerRelation', function (AbstractSerializer $serializer, $model) {
-                    return $serializer->hasOne($model, DiscussionSerializer::class, 'customSerializerRelation');
-                }),
+                ->relationship('customSerializerRelation', fn (AbstractSerializer $serializer, $model) => $serializer->hasOne($model, DiscussionSerializer::class, 'customSerializerRelation')),
             (new Extend\ApiController(ShowUserController::class))
                 ->addInclude('customSerializerRelation')
         );
@@ -489,9 +473,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(BasicUserSerializer::class))
                 ->hasOne('postCustomRelation', PostSerializer::class),
             (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('postCustomRelation', function (AbstractSerializer $serializer, $model) {
-                    return $serializer->hasOne($model, DiscussionSerializer::class, 'discussionCustomRelation');
-                }),
+                ->relationship('postCustomRelation', fn (AbstractSerializer $serializer, $model) => $serializer->hasOne($model, DiscussionSerializer::class, 'discussionCustomRelation')),
             (new Extend\ApiController(ShowUserController::class))
                 ->addInclude('postCustomRelation')
         );

@@ -90,11 +90,7 @@ class UserTest extends TestCase
      */
     public function processor_can_restrict_user_groups()
     {
-        $this->extend((new Extend\User)->permissionGroups(function (User $user, array $groupIds) {
-            return array_filter($groupIds, function ($id) {
-                return $id != 3;
-            });
-        }));
+        $this->extend((new Extend\User)->permissionGroups(fn (User $user, array $groupIds) => array_filter($groupIds, fn ($id) => $id != 3)));
 
         $this->app();
 
@@ -178,8 +174,6 @@ class CustomGroupProcessorClass
 {
     public function __invoke(User $user, array $groupIds)
     {
-        return array_filter($groupIds, function ($id) {
-            return $id != 3;
-        });
+        return array_filter($groupIds, fn ($id) => $id != 3);
     }
 }

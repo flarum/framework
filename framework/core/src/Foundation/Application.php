@@ -212,9 +212,7 @@ class Application
     {
         $name = is_string($provider) ? $provider : get_class($provider);
 
-        return Arr::first($this->serviceProviders, function ($key, $value) use ($name) {
-            return $value instanceof $name;
-        });
+        return Arr::first($this->serviceProviders, fn ($key, $value) => $value instanceof $name);
     }
 
     /**

@@ -26,13 +26,9 @@ class HttpServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('flarum.http.csrfExemptPaths', function () {
-            return ['token'];
-        });
+        $this->container->singleton('flarum.http.csrfExemptPaths', fn () => ['token']);
 
-        $this->container->bind(Middleware\CheckCsrfToken::class, function (Container $container) {
-            return new Middleware\CheckCsrfToken($container->make('flarum.http.csrfExemptPaths'));
-        });
+        $this->container->bind(Middleware\CheckCsrfToken::class, fn (Container $container) => new Middleware\CheckCsrfToken($container->make('flarum.http.csrfExemptPaths')));
 
         $this->container->singleton('flarum.http.slugDrivers', function () {
             return [
@@ -61,9 +57,7 @@ class HttpServiceProvider extends AbstractServiceProvider
 
             return $compiledDrivers;
         });
-        $this->container->bind(SlugManager::class, function (Container $container) {
-            return new SlugManager($container->make('flarum.http.selectedSlugDrivers'));
-        });
+        $this->container->bind(SlugManager::class, fn (Container $container) => new SlugManager($container->make('flarum.http.selectedSlugDrivers')));
     }
 
     /**

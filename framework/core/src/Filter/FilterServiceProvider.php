@@ -56,9 +56,7 @@ class FilterServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.filter.filter_mutators', function () {
-            return [];
-        });
+        $this->container->singleton('flarum.filter.filter_mutators', fn () => []);
     }
 
     public function boot(Container $container)
@@ -86,11 +84,7 @@ class FilterServiceProvider extends AbstractServiceProvider
             $container
                 ->when($filterer)
                 ->needs('$filterMutators')
-                ->give(function () use ($container, $filterer) {
-                    return array_map(function ($filterMutatorClass) {
-                        return ContainerUtil::wrapCallback($filterMutatorClass, $this->container);
-                    }, Arr::get($container->make('flarum.filter.filter_mutators'), $filterer, []));
-                });
+                ->give(fn () => array_map(fn ($filterMutatorClass) => ContainerUtil::wrapCallback($filterMutatorClass, $this->container), Arr::get($container->make('flarum.filter.filter_mutators'), $filterer, [])));
         }
     }
 }

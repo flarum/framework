@@ -76,9 +76,7 @@ class Theme implements ExtenderInterface
     public function addCustomLessFunction(string $functionName, callable $callable): self
     {
         $this->customFunctions[$functionName] = function (...$args) use ($callable, $functionName) {
-            $argVals = array_map(function ($arg) {
-                return $arg->value;
-            }, $args);
+            $argVals = array_map(fn ($arg) => $arg->value, $args);
 
             $return = $callable(...$argVals);
 
@@ -102,9 +100,7 @@ class Theme implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {
-            return array_merge($customFunctions, $this->customFunctions);
-        });
+        $container->extend('flarum.frontend.custom_less_functions', fn (array $customFunctions) => array_merge($customFunctions, $this->customFunctions));
 
         $container->extend('flarum.assets.factory', function (callable $factory) {
             return function (...$args) use ($factory) {

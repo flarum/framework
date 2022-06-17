@@ -28,9 +28,7 @@ class FilesystemServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton('files', function () {
-            return new Filesystem;
-        });
+        $this->container->singleton('files', fn () => new Filesystem);
 
         $this->container->singleton('flarum.filesystem.disks', function () {
             return [
@@ -49,15 +47,9 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.filesystem.drivers', function () {
-            return [];
-        });
+        $this->container->singleton('flarum.filesystem.drivers', fn () => []);
 
-        $this->container->singleton('flarum.filesystem.resolved_drivers', function (Container $container) {
-            return array_map(function ($driverClass) use ($container) {
-                return $container->make($driverClass);
-            }, $container->make('flarum.filesystem.drivers'));
-        });
+        $this->container->singleton('flarum.filesystem.resolved_drivers', fn (Container $container) => array_map(fn ($driverClass) => $container->make($driverClass), $container->make('flarum.filesystem.drivers')));
 
         $this->container->singleton('filesystem', function (Container $container) {
             return new FilesystemManager(

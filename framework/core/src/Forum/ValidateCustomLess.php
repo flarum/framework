@@ -72,9 +72,7 @@ class ValidateCustomLess
 
         $this->container->extend(
             SettingsRepositoryInterface::class,
-            function ($settings) use ($event) {
-                return new OverrideSettingsRepository($settings, $event->settings);
-            }
+            fn ($settings) => new OverrideSettingsRepository($settings, $event->settings)
         );
 
         $assetsDir = $this->assets->getAssetsDir();
@@ -119,9 +117,7 @@ class ValidateCustomLess
 
         $dirtySettings = array_intersect(
             array_keys($event->settings),
-            array_map(function ($setting) {
-                return $setting['key'];
-            }, $this->customLessSettings)
+            array_map(fn ($setting) => $setting['key'], $this->customLessSettings)
         );
 
         return ! empty($dirtySettings);

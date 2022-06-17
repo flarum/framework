@@ -36,9 +36,7 @@ class AddTranslations
 
     public function forFrontend(string $name)
     {
-        $this->filter = function (string $id) use ($name) {
-            return preg_match('/^.+(?:\.|::)(?:'.$name.'|lib)\./', $id);
-        };
+        $this->filter = fn (string $id) => preg_match('/^.+(?:\.|::)(?:'.$name.'|lib)\./', $id);
 
         return $this;
     }

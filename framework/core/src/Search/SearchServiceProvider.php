@@ -49,9 +49,7 @@ class SearchServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton('flarum.simple_search.search_mutators', function () {
-            return [];
-        });
+        $this->container->singleton('flarum.simple_search.search_mutators', fn () => []);
     }
 
     public function boot(Container $container)
@@ -77,9 +75,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 ->give(function () use ($container, $searcher) {
                     $searchMutators = Arr::get($container->make('flarum.simple_search.search_mutators'), $searcher, []);
 
-                    return array_map(function ($mutator) {
-                        return ContainerUtil::wrapCallback($mutator, $this->container);
-                    }, $searchMutators);
+                    return array_map(fn ($mutator) => ContainerUtil::wrapCallback($mutator, $this->container), $searchMutators);
                 });
         }
     }

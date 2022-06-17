@@ -257,9 +257,7 @@ class Document implements Renderable
      */
     protected function makeHead(): string
     {
-        $head = array_map(function ($url) {
-            return '<link rel="stylesheet" href="'.e($url).'">';
-        }, $this->css);
+        $head = array_map(fn ($url) => '<link rel="stylesheet" href="'.e($url).'">', $this->css);
 
         if ($this->page) {
             if ($this->page > 1) {
@@ -276,9 +274,7 @@ class Document implements Renderable
 
         $head = array_merge($head, $this->makePreloads());
 
-        $head = array_merge($head, array_map(function ($content, $name) {
-            return '<meta name="'.e($name).'" content="'.e($content).'">';
-        }, $this->meta, array_keys($this->meta)));
+        $head = array_merge($head, array_map(fn ($content, $name) => '<meta name="'.e($name).'" content="'.e($content).'">', $this->meta, array_keys($this->meta)));
 
         return implode("\n", array_merge($head, $this->head));
     }
@@ -288,9 +284,7 @@ class Document implements Renderable
      */
     protected function makeJs(): string
     {
-        return implode("\n", array_map(function ($url) {
-            return '<script src="'.e($url).'"></script>';
-        }, $this->js));
+        return implode("\n", array_map(fn ($url) => '<script src="'.e($url).'"></script>', $this->js));
     }
 
     /**

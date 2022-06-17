@@ -74,9 +74,7 @@ class NotificationSyncer
                 continue;
             }
 
-            $existing = $toDelete->first(function ($notification) use ($user) {
-                return $notification->user_id === $user->id;
-            });
+            $existing = $toDelete->first(fn ($notification) => $notification->user_id === $user->id);
 
             if ($existing) {
                 $toUndelete[] = $existing->id;

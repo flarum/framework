@@ -157,9 +157,7 @@ class RouteCollection
                 }
             }
 
-            $fixedParts = array_map(function ($part) use ($parameters, $name) {
-                return $this->fixPathPart($part, $parameters, $name);
-            }, $matchingParts);
+            $fixedParts = array_map(fn ($part) => $this->fixPathPart($part, $parameters, $name), $matchingParts);
 
             return '/'.ltrim(implode('', $fixedParts), '/');
         }

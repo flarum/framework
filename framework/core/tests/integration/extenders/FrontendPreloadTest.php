@@ -49,9 +49,7 @@ class FrontendPreloadTest extends TestCase
         $this->extend(
             (new Extend\Frontend('forum'))
                 ->preloads(
-                    array_map(function ($url) {
-                        return ['href' => $url];
-                    }, $urls)
+                    array_map(fn ($url) => ['href' => $url], $urls)
                 )
         );
 
@@ -74,11 +72,7 @@ class FrontendPreloadTest extends TestCase
 
         $this->extend(
             (new Extend\Frontend('forum'))
-                ->preloads(function () use ($urls) {
-                    return array_map(function ($url) {
-                        return ['href' => $url];
-                    }, $urls);
-                })
+                ->preloads(fn () => array_map(fn ($url) => ['href' => $url], $urls))
         );
 
         $response = $this->send(

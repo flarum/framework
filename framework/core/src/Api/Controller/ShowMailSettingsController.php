@@ -30,9 +30,7 @@ class ShowMailSettingsController extends AbstractShowController
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $drivers = array_map(function ($driver) {
-            return self::$container->make($driver);
-        }, self::$container->make('mail.supported_drivers'));
+        $drivers = array_map(fn ($driver) => self::$container->make($driver), self::$container->make('mail.supported_drivers'));
 
         $settings = self::$container->make(SettingsRepositoryInterface::class);
         $configured = self::$container->make('flarum.mail.configured_driver');

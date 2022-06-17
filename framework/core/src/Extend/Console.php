@@ -57,12 +57,8 @@ class Console implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('flarum.console.commands', function ($existingCommands) {
-            return array_merge($existingCommands, $this->addCommands);
-        });
+        $container->extend('flarum.console.commands', fn ($existingCommands) => array_merge($existingCommands, $this->addCommands));
 
-        $container->extend('flarum.console.scheduled', function ($existingScheduled) {
-            return array_merge($existingScheduled, $this->scheduled);
-        });
+        $container->extend('flarum.console.scheduled', fn ($existingScheduled) => array_merge($existingScheduled, $this->scheduled));
     }
 }

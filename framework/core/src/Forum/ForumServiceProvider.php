@@ -44,9 +44,7 @@ class ForumServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
-            return $url->addCollection('forum', $container->make('flarum.forum.routes'));
-        });
+        $this->container->extend(UrlGenerator::class, fn (UrlGenerator $url, Container $container) => $url->addCollection('forum', $container->make('flarum.forum.routes')));
 
         $this->container->singleton('flarum.forum.routes', function (Container $container) {
             $routes = new RouteCollection;
@@ -86,9 +84,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->container->bind('flarum.forum.route_resolver', function (Container $container) {
-            return new HttpMiddleware\ResolveRoute($container->make('flarum.forum.routes'));
-        });
+        $this->container->bind('flarum.forum.route_resolver', fn (Container $container) => new HttpMiddleware\ResolveRoute($container->make('flarum.forum.routes')));
 
         $this->container->singleton('flarum.forum.handler', function (Container $container) {
             $pipe = new MiddlewarePipe;
@@ -108,16 +104,12 @@ class ForumServiceProvider extends AbstractServiceProvider
 
             $assets->js(function (SourceCollector $sources) use ($container) {
                 $sources->addFile(__DIR__.'/../../js/dist/forum.js');
-                $sources->addString(function () use ($container) {
-                    return $container->make(Formatter::class)->getJs();
-                });
+                $sources->addString(fn () => $container->make(Formatter::class)->getJs());
             });
 
             $assets->css(function (SourceCollector $sources) use ($container) {
                 $sources->addFile(__DIR__.'/../../less/forum.less');
-                $sources->addString(function () use ($container) {
-                    return $container->make(SettingsRepositoryInterface::class)->get('custom_less', '');
-                });
+                $sources->addString(fn () => $container->make(SettingsRepositoryInterface::class)->get('custom_less', ''));
             });
 
             $container->make(AddTranslations::class)->forFrontend('forum')->to($assets);
@@ -126,9 +118,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             return $assets;
         });
 
-        $this->container->bind('flarum.frontend.forum', function (Container $container) {
-            return $container->make('flarum.frontend.factory')('forum');
-        });
+        $this->container->bind('flarum.frontend.forum', fn (Container $container) => $container->make('flarum.frontend.factory')('forum'));
 
         $this->container->singleton('flarum.forum.discussions.sortmap', function () {
             return [

@@ -56,13 +56,9 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->container->alias(ConnectionInterface::class, 'db.connection');
         $this->container->alias(ConnectionInterface::class, 'flarum.db');
 
-        $this->container->singleton(MigrationRepositoryInterface::class, function (Container $container) {
-            return new DatabaseMigrationRepository($container['flarum.db'], 'migrations');
-        });
+        $this->container->singleton(MigrationRepositoryInterface::class, fn (Container $container) => new DatabaseMigrationRepository($container['flarum.db'], 'migrations'));
 
-        $this->container->singleton('flarum.database.model_private_checkers', function () {
-            return [];
-        });
+        $this->container->singleton('flarum.database.model_private_checkers', fn () => []);
     }
 
     public function boot(Container $container)

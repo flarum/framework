@@ -75,8 +75,6 @@ class Assets
      */
     private function getUrls(array $compilers)
     {
-        return array_filter(array_map(function (CompilerInterface $compiler) {
-            return $compiler->getUrl();
-        }, $compilers));
+        return array_filter(array_map(fn (CompilerInterface $compiler) => $compiler->getUrl(), $compilers));
     }
 }

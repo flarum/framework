@@ -201,9 +201,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         }
 
         if (! empty($addedRelations)) {
-            usort($addedRelations, function ($a, $b) {
-                return substr_count($a, '.') - substr_count($b, '.');
-            });
+            usort($addedRelations, fn ($a, $b) => substr_count($a, '.') - substr_count($b, '.'));
 
             foreach ($addedRelations as $relation) {
                 if (strpos($relation, '.') !== false) {

@@ -64,11 +64,7 @@ class Discussion
 
         $apiDocument = $this->getApiDocument($request, $id, $params);
 
-        $getResource = function ($link) use ($apiDocument) {
-            return Arr::first($apiDocument->included, function ($value) use ($link) {
-                return $value->type === $link->type && $value->id === $link->id;
-            });
-        };
+        $getResource = fn ($link) => Arr::first($apiDocument->included, fn ($value) => $value->type === $link->type && $value->id === $link->id);
 
         $url = function ($newQueryParams) use ($queryParams, $apiDocument) {
             $newQueryParams = array_merge($queryParams, $newQueryParams);

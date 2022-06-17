@@ -85,8 +85,6 @@ class Filesystem implements ExtenderInterface
             return $existingDisks;
         });
 
-        $container->extend('flarum.filesystem.drivers', function ($existingDrivers) {
-            return array_merge($existingDrivers, $this->drivers);
-        });
+        $container->extend('flarum.filesystem.drivers', fn ($existingDrivers) => array_merge($existingDrivers, $this->drivers));
     }
 }

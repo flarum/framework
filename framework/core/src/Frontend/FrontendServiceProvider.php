@@ -121,16 +121,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 // `addCustomLessFunction` method does. You'll need to use the correct Less tree return type, and get
                 // parameter values with `$arg->value`.
                 return [
-                    'is-extension-enabled' => function (\Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
-                        return new \Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false');
-                    }
+                    'is-extension-enabled' => fn (\Less_Tree_Quoted $extensionId) => new \Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false')
                 ];
             }
         );
 
-        $this->container->singleton(TitleDriverInterface::class, function (Container $container) {
-            return $container->make(BasicTitleDriver::class);
-        });
+        $this->container->singleton(TitleDriverInterface::class, fn (Container $container) => $container->make(BasicTitleDriver::class));
 
         $this->container->alias(TitleDriverInterface::class, 'flarum.frontend.title_driver');
 
@@ -144,15 +140,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 ],
                 'config-dark-mode'       => [
                     'key' => 'theme_dark_mode',
-                    'callback' => function ($value) {
-                        return $value ? 'true' : 'false';
-                    },
+                    'callback' => fn ($value) => $value ? 'true' : 'false',
                 ],
                 'config-colored-header'  => [
                     'key' => 'theme_colored_header',
-                    'callback' => function ($value) {
-                        return $value ? 'true' : 'false';
-                    },
+                    'callback' => fn ($value) => $value ? 'true' : 'false',
                 ],
             ];
         });

@@ -34,9 +34,7 @@ class SettingsValidator extends AbstractValidator
     protected function makeValidator(array $attributes)
     {
         // Apply global rules first.
-        $rules = array_map(function () {
-            return $this->globalRules;
-        }, $attributes);
+        $rules = array_map(fn () => $this->globalRules, $attributes);
 
         // Apply attribute specific rules.
         foreach ($rules as $key => $value) {

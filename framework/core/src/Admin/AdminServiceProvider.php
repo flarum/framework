@@ -37,9 +37,7 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
-            return $url->addCollection('admin', $container->make('flarum.admin.routes'), 'admin');
-        });
+        $this->container->extend(UrlGenerator::class, fn (UrlGenerator $url, Container $container) => $url->addCollection('admin', $container->make('flarum.admin.routes'), 'admin'));
 
         $this->container->singleton('flarum.admin.routes', function () {
             $routes = new RouteCollection;
@@ -74,9 +72,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->container->bind('flarum.admin.route_resolver', function (Container $container) {
-            return new HttpMiddleware\ResolveRoute($container->make('flarum.admin.routes'));
-        });
+        $this->container->bind('flarum.admin.route_resolver', fn (Container $container) => new HttpMiddleware\ResolveRoute($container->make('flarum.admin.routes')));
 
         $this->container->singleton('flarum.admin.handler', function (Container $container) {
             $pipe = new MiddlewarePipe;
