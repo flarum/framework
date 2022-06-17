@@ -79,10 +79,10 @@ class AccessToken extends AbstractModel
     {
         if (static::class === self::class) {
             throw new \Exception('Use of AccessToken::generate() is not allowed: use the `generate` method on one of the subclasses.');
-        } else {
+        }  
             $token = new static;
             $token->type = static::$type;
-        }
+        
 
         $token->token = Str::random(40);
         $token->user_id = $userId;

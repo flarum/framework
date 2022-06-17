@@ -499,9 +499,9 @@ class Extension implements Arrayable
 
         if ($direction == 'up') {
             return $migrator->run($this->getPath().'/migrations', $this);
-        } else {
+        }  
             return $migrator->reset($this->getPath().'/migrations', $this);
-        }
+        
     }
 
     /**
