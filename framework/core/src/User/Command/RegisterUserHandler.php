@@ -135,7 +135,7 @@ class RegisterUserHandler
                 continue;
             }
 
-            $user->$k = $v;
+            $user->{$k} = $v;
 
             if ($k === 'email') {
                 $user->activate();

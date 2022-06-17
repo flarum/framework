@@ -130,8 +130,8 @@ class ListDiscussionsController extends AbstractListController
         if ($relations = array_intersect($include, ['firstPost', 'lastPost', 'mostRelevantPost'])) {
             foreach ($results as $discussion) {
                 foreach ($relations as $relation) {
-                    if ($discussion->$relation) {
-                        $discussion->$relation->discussion = $discussion;
+                    if ($discussion->{$relation}) {
+                        $discussion->{$relation}->discussion = $discussion;
                     }
                 }
             }

@@ -220,7 +220,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     protected function getRelationshipData($model, $relation)
     {
         if (is_object($model)) {
-            return $model->$relation;
+            return $model->{$relation};
         } elseif (is_array($model)) {
             return $model[$relation];
         }

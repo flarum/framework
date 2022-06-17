@@ -40,7 +40,7 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
 
         $method = $query->exists() ? 'update' : 'insert';
 
-        $query->$method(compact('key', 'value'));
+        $query->{$method}(compact('key', 'value'));
     }
 
     public function delete($key)
