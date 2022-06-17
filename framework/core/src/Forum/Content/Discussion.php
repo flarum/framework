@@ -88,7 +88,7 @@ class Discussion
         $posts = [];
 
         foreach ($apiDocument->included as $resource) {
-            if ($resource->type === 'posts' && isset($resource->relationships->discussion) && isset($resource->attributes->contentHtml)) {
+            if ($resource->type === 'posts' && isset($resource->relationships->discussion, $resource->attributes->contentHtml)  ) {
                 $posts[] = $resource;
             }
         }

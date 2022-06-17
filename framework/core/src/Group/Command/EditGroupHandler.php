@@ -60,7 +60,7 @@ class EditGroupHandler
 
         $attributes = Arr::get($data, 'attributes', []);
 
-        if (isset($attributes['nameSingular']) && isset($attributes['namePlural'])) {
+        if (isset($attributes['nameSingular'], $attributes['namePlural'])  ) {
             $group->rename($attributes['nameSingular'], $attributes['namePlural']);
         }
 
