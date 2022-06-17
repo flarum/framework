@@ -14,7 +14,7 @@ use Flarum\Install\DatabaseConfig;
 use Flarum\Install\ReversibleStep;
 use Flarum\Install\Step;
 
-class StoreConfig implements Step, ReversibleStep
+class StoreConfig implements ReversibleStep, Step
 {
     private $debugMode;
 

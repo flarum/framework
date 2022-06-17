@@ -13,7 +13,7 @@ use Flarum\Install\ReversibleStep;
 use Flarum\Install\Step;
 use Illuminate\Filesystem\Filesystem;
 
-class PublishAssets implements Step, ReversibleStep
+class PublishAssets implements ReversibleStep, Step
 {
     /**
      * @var string
