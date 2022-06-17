@@ -414,7 +414,7 @@ class User extends AbstractModel
     {
         foreach (['viewDiscussions', 'viewUserList'] as $deprecated) {
             if (strpos($permission, $deprecated) !== false) {
-                trigger_error('The `viewDiscussions` and `viewUserList` permissions have been renamed to `viewForum` and `searchUsers` respectively. Please use those instead.', E_USER_DEPRECATED);
+                @trigger_error('The `viewDiscussions` and `viewUserList` permissions have been renamed to `viewForum` and `searchUsers` respectively. Please use those instead.', E_USER_DEPRECATED);
             }
         }
     }
