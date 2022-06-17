@@ -117,7 +117,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
 
         /** @var ExtensionManager $extensions */
         static $extensions;
-        $extensions = $extensions ?? $container->make(ExtensionManager::class);
+        $extensions ??= $container->make(ExtensionManager::class);
 
         return $extensions->isEnabled($slug);
     }
