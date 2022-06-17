@@ -194,7 +194,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     protected function buildRelationship($model, $serializer, $relation = null, $many = false)
     {
         if (is_null($relation)) {
-            list(, , $caller) = debug_backtrace(false, 3);
+            [, , $caller] = debug_backtrace(false, 3);
 
             $relation = $caller['function'];
         }

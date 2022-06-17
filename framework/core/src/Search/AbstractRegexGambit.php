@@ -22,7 +22,7 @@ abstract class AbstractRegexGambit implements GambitInterface
     public function apply(SearchState $search, $bit)
     {
         if ($matches = $this->match($bit)) {
-            list($negate) = array_splice($matches, 1, 1);
+            [$negate] = array_splice($matches, 1, 1);
 
             $this->conditions($search, $matches, (bool) $negate);
         }
