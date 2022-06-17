@@ -46,7 +46,7 @@ class QueueFactory implements Factory
      */
     public function connection($name = null)
     {
-        if (is_null($this->queue)) {
+        if (null === $this->queue) {
             $this->queue = ($this->factory)();
         }
 

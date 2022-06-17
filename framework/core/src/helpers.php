@@ -40,7 +40,7 @@ if (! function_exists('app')) {
      */
     function app($make = null, $parameters = [])
     {
-        if (is_null($make)) {
+        if (null === $make) {
             return Container::getInstance();
         }
 

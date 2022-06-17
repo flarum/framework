@@ -451,7 +451,7 @@ class User extends AbstractModel
     {
         static $cached = null;
 
-        if (is_null($cached)) {
+        if (null === $cached) {
             $cached = $this->notifications()
                 ->whereIn('type', $this->getAlertableNotificationTypes())
                 ->whereNull('read_at')
@@ -551,7 +551,7 @@ class User extends AbstractModel
         if (isset(static::$preferences[$key])) {
             $preferences = $this->preferences;
 
-            if (! is_null($transformer = static::$preferences[$key]['transformer'])) {
+            if (null !== ($transformer = static::$preferences[$key]['transformer'])) {
                 $preferences[$key] = call_user_func($transformer, $value);
             } else {
                 $preferences[$key] = $value;
@@ -750,7 +750,7 @@ class User extends AbstractModel
      */
     public function getPermissions()
     {
-        if (is_null($this->permissions)) {
+        if (null === $this->permissions) {
             $this->permissions = $this->permissions()->pluck('permission')->all();
         }
 

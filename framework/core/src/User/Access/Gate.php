@@ -100,7 +100,7 @@ class Gate
     protected function getPolicies(string $model)
     {
         $compiledPolicies = Arr::get($this->policies, $model);
-        if (is_null($compiledPolicies)) {
+        if (null === $compiledPolicies) {
             $policyClasses = Arr::get($this->policyClasses, $model, []);
             $compiledPolicies = array_map(function ($policyClass) {
                 return $this->container->make($policyClass);

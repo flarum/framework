@@ -79,7 +79,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     {
         $query = $this->table()->where('migration', $file);
 
-        if (is_null($extension)) {
+        if (null === $extension) {
             $query->whereNull('extension');
         } else {
             $query->where('extension', $extension);

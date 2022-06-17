@@ -122,7 +122,7 @@ abstract class AbstractModel extends Eloquent
      */
     public function getAttribute($key)
     {
-        if (! is_null($value = parent::getAttribute($key))) {
+        if (null !== ($value = parent::getAttribute($key))) {
             return $value;
         }
 
@@ -150,7 +150,7 @@ abstract class AbstractModel extends Eloquent
     {
         foreach (array_merge([static::class], class_parents($this)) as $class) {
             $relation = Arr::get(static::$customRelations, $class.".$name", null);
-            if (! is_null($relation)) {
+            if (null !== $relation) {
                 return $relation($this);
             }
         }

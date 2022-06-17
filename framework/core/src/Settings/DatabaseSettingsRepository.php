@@ -27,7 +27,7 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
 
     public function get($key, $default = null)
     {
-        if (is_null($value = $this->database->table('settings')->where('key', $key)->value('value'))) {
+        if (null === ($value = $this->database->table('settings')->where('key', $key)->value('value'))) {
             return $default;
         }
 

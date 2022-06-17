@@ -256,7 +256,7 @@ class Extension implements Arrayable
         $icon = $this->composerJsonAttribute('extra.flarum-extension.icon');
         $file = Arr::get($icon, 'image');
 
-        if (is_null($icon) || is_null($file)) {
+        if (null === $icon || null === $file) {
             return $icon;
         }
 

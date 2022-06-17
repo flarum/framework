@@ -51,7 +51,7 @@ abstract class AbstractPolicy
         if (method_exists($this, $ability)) {
             $result = $this->sanitizeResult(call_user_func_array([$this, $ability], [$actor, $instance]));
 
-            if (! is_null($result)) {
+            if (null !== $result) {
                 return $result;
             }
         }

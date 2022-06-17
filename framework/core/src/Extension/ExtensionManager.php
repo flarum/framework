@@ -75,7 +75,7 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
+        if (null === $this->extensions && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
@@ -138,7 +138,7 @@ class ExtensionManager
             $enabledExtensions = [];
             foreach ($this->getEnabled() as $enabledKey) {
                 $extension = $extensions->get($enabledKey);
-                if (is_null($extension)) {
+                if (null === $extension) {
                     $needsReset = true;
                 } else {
                     $enabledExtensions[] = $extension;

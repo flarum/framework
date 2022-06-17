@@ -40,7 +40,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        if (is_null($extension)) {
+        if (null === $extension) {
             throw new InvalidArgumentException(
                 'I need an extension instance to register a language pack'
             );

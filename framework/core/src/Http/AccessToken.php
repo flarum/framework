@@ -179,7 +179,7 @@ class AccessToken extends AbstractModel
      */
     public function scopeWhereValid(Builder $query, Carbon $date = null)
     {
-        if (is_null($date)) {
+        if (null === $date) {
             $date = Carbon::now();
         }
 
@@ -200,7 +200,7 @@ class AccessToken extends AbstractModel
      */
     public function scopeWhereExpired(Builder $query, Carbon $date = null)
     {
-        if (is_null($date)) {
+        if (null === $date) {
             $date = Carbon::now();
         }
 

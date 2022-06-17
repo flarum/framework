@@ -34,7 +34,7 @@ class StringSource implements SourceInterface
      */
     public function getContent(): string
     {
-        if (is_null($this->content)) {
+        if (null === $this->content) {
             $this->content = call_user_func($this->callback);
         }
 
