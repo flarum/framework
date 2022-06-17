@@ -72,8 +72,8 @@ class Discussion
 
         $url = function ($newQueryParams) use ($queryParams, $apiDocument) {
             $newQueryParams = array_merge($queryParams, $newQueryParams);
-            unset($newQueryParams['id']);
-            unset($newQueryParams['near']);
+            unset($newQueryParams['id'], $newQueryParams['near']);
+            
 
             if (Arr::get($newQueryParams, 'page') == 1) {
                 unset($newQueryParams['page']);
