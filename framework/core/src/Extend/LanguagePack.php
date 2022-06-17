@@ -38,7 +38,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
         $this->path = $path;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         if (is_null($extension)) {
             throw new InvalidArgumentException(

@@ -59,12 +59,12 @@ class RouteHandlerFactory
         });
     }
 
-    public function toForum(string $content = null): Closure
+    public function toForum(?string $content = null): Closure
     {
         return $this->toFrontend('forum', $content);
     }
 
-    public function toAdmin(string $content = null): Closure
+    public function toAdmin(?string $content = null): Closure
     {
         return $this->toFrontend('admin', $content);
     }

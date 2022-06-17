@@ -75,7 +75,7 @@ class Filesystem implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->extend('flarum.filesystem.disks', function ($existingDisks) use ($container) {
             foreach ($this->disks as $name => $disk) {

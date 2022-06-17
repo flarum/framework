@@ -28,7 +28,7 @@ class Created
      * @param Group $group
      * @param User $actor
      */
-    public function __construct(Group $group, User $actor = null)
+    public function __construct(Group $group, ?User $actor = null)
     {
         $this->group = $group;
         $this->actor = $actor;

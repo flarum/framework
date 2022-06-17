@@ -28,7 +28,7 @@ class AddTranslations
      */
     protected $filter;
 
-    public function __construct(LocaleManager $locales, callable $filter = null)
+    public function __construct(LocaleManager $locales, ?callable $filter = null)
     {
         $this->locales = $locales;
         $this->filter = $filter;

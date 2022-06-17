@@ -28,7 +28,7 @@ class Deleted
      * @param \Flarum\Discussion\Discussion $discussion
      * @param User $actor
      */
-    public function __construct(Discussion $discussion, User $actor = null)
+    public function __construct(Discussion $discussion, ?User $actor = null)
     {
         $this->discussion = $discussion;
         $this->actor = $actor;

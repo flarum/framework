@@ -35,7 +35,7 @@ class GroupsChanged
      * @param \Flarum\Group\Group[] $oldGroups
      * @param User $actor
      */
-    public function __construct(User $user, array $oldGroups, User $actor = null)
+    public function __construct(User $user, array $oldGroups, ?User $actor = null)
     {
         $this->user = $user;
         $this->oldGroups = $oldGroups;

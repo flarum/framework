@@ -16,7 +16,7 @@ use Flarum\Testing\unit\TestCase;
 
 class CookieFactoryTest extends TestCase
 {
-    protected function factory(array $config = null): CookieFactory
+    protected function factory(?array $config = null): CookieFactory
     {
         $config = new Config(array_merge([
             'url' => 'http://flarum.test'

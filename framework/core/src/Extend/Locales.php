@@ -27,7 +27,7 @@ class Locales implements ExtenderInterface, LifecycleInterface
         $this->directory = $directory;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->resolving(
             LocaleManager::class,

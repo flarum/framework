@@ -63,7 +63,7 @@ class View implements ExtenderInterface, LifecycleInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->resolving(Factory::class, function (Factory $view) {
             foreach ($this->namespaces as $namespace => $hints) {

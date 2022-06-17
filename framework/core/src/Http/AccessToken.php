@@ -99,7 +99,7 @@ class AccessToken extends AbstractModel
      * @param ServerRequestInterface|null $request
      * @return bool
      */
-    public function touch(ServerRequestInterface $request = null)
+    public function touch(?ServerRequestInterface $request = null)
     {
         $now = Carbon::now();
 
@@ -177,7 +177,7 @@ class AccessToken extends AbstractModel
      * @param Builder $query
      * @param Carbon|null $date
      */
-    public function scopeWhereValid(Builder $query, Carbon $date = null)
+    public function scopeWhereValid(Builder $query, ?Carbon $date = null)
     {
         if (is_null($date)) {
             $date = Carbon::now();
@@ -198,7 +198,7 @@ class AccessToken extends AbstractModel
      * @param Builder $query
      * @param Carbon|null $date
      */
-    public function scopeWhereExpired(Builder $query, Carbon $date = null)
+    public function scopeWhereExpired(Builder $query, ?Carbon $date = null)
     {
         if (is_null($date)) {
             $date = Carbon::now();

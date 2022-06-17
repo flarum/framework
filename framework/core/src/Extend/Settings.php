@@ -84,7 +84,7 @@ class Settings implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         if (! empty($this->defaults)) {
             $container->extend('flarum.settings.default', function (Collection $defaults) {

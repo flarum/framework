@@ -25,7 +25,7 @@ trait DispatchEventsTrait
      * @param object $entity
      * @param User $actor
      */
-    public function dispatchEventsFor($entity, User $actor = null)
+    public function dispatchEventsFor($entity, ?User $actor = null)
     {
         foreach ($entity->releaseEvents() as $event) {
             $event->actor = $actor;

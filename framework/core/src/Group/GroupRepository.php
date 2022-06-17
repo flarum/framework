@@ -34,7 +34,7 @@ class GroupRepository
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail($id, ?User $actor = null)
     {
         $query = Group::where('id', $id);
 
@@ -48,7 +48,7 @@ class GroupRepository
      * @param User $actor
      * @return Builder
      */
-    protected function scopeVisibleTo(Builder $query, User $actor = null)
+    protected function scopeVisibleTo(Builder $query, ?User $actor = null)
     {
         if ($actor !== null) {
             $query->whereVisibleTo($actor);

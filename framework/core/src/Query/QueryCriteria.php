@@ -56,7 +56,7 @@ class QueryCriteria
      *     key, and the order is the value. The order may be 'asc', 'desc', or
      *     an array of IDs to order by.
      */
-    public function __construct(User $actor, $query, array $sort = null, bool $sortIsDefault = false)
+    public function __construct(User $actor, $query, ?array $sort = null, bool $sortIsDefault = false)
     {
         $this->actor = $actor;
         $this->query = $query;

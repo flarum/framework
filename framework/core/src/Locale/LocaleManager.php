@@ -30,7 +30,7 @@ class LocaleManager
      */
     protected $cacheDir;
 
-    public function __construct(Translator $translator, string $cacheDir = null)
+    public function __construct(Translator $translator, ?string $cacheDir = null)
     {
         $this->translator = $translator;
         $this->cacheDir = $cacheDir;
@@ -61,7 +61,7 @@ class LocaleManager
         return isset($this->locales[$locale]);
     }
 
-    public function addTranslations(string $locale, $file, string $module = null)
+    public function addTranslations(string $locale, $file, ?string $module = null)
     {
         $prefix = $module ? $module.'::' : '';
 

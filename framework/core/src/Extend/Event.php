@@ -56,7 +56,7 @@ class Event implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $events = $container->make(Dispatcher::class);
 

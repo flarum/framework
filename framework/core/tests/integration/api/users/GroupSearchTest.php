@@ -230,7 +230,7 @@ class GroupSearchTest extends TestCase
         $this->assertEquals(6, $responseBodyContents->included[4]->id);
     }
 
-    private function createRequest(array $group, int $userId = null)
+    private function createRequest(array $group, ?int $userId = null)
     {
         $auth = $userId ? ['authenticatedAs' => $userId] : [];
 

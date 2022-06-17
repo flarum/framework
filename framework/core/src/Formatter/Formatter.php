@@ -102,7 +102,7 @@ class Formatter
      * @param ServerRequestInterface|null $request
      * @return string
      */
-    public function render($xml, $context = null, ServerRequestInterface $request = null)
+    public function render($xml, $context = null, ?ServerRequestInterface $request = null)
     {
         $renderer = $this->getRenderer();
 

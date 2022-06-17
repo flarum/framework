@@ -91,7 +91,7 @@ class CommentPost extends Post
      * @param User $actor
      * @return $this
      */
-    public function hide(User $actor = null)
+    public function hide(?User $actor = null)
     {
         if (! $this->hidden_at) {
             $this->hidden_at = Carbon::now();
@@ -167,7 +167,7 @@ class CommentPost extends Post
      * @param ServerRequestInterface $request
      * @return string
      */
-    public function formatContent(ServerRequestInterface $request = null)
+    public function formatContent(?ServerRequestInterface $request = null)
     {
         return static::$formatter->render($this->attributes['content'], $this, $request);
     }

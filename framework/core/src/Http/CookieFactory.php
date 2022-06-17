@@ -77,7 +77,7 @@ class CookieFactory
      * @param  int     $maxAge
      * @return \Dflydev\FigCookies\SetCookie
      */
-    public function make(string $name, string $value = null, int $maxAge = null): SetCookie
+    public function make(string $name, ?string $value = null, ?int $maxAge = null): SetCookie
     {
         $cookie = SetCookie::create($this->getName($name), $value);
 

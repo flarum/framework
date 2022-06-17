@@ -104,7 +104,7 @@ class Middleware implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->extend("flarum.{$this->frontend}.middleware", function ($existingMiddleware) {
             foreach ($this->addMiddlewares as $addMiddleware) {

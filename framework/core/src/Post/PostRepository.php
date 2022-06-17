@@ -29,7 +29,7 @@ class PostRepository
      * @param User|null $user
      * @return Builder
      */
-    protected function queryVisibleTo(User $user = null)
+    protected function queryVisibleTo(?User $user = null)
     {
         $query = $this->query();
 
@@ -50,7 +50,7 @@ class PostRepository
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail($id, ?User $actor = null)
     {
         return $this->queryVisibleTo($actor)->findOrFail($id);
     }
@@ -66,7 +66,7 @@ class PostRepository
      * @param int $start
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function findWhere(array $where = [], User $actor = null, $sort = [], $count = null, $start = 0)
+    public function findWhere(array $where = [], ?User $actor = null, $sort = [], $count = null, $start = 0)
     {
         $query = $this->queryVisibleTo($actor)
             ->where($where)
@@ -103,7 +103,7 @@ class PostRepository
      * @param \Flarum\User\User|null $actor
      * @return int
      */
-    public function getIndexForNumber($discussionId, $number, User $actor = null)
+    public function getIndexForNumber($discussionId, $number, ?User $actor = null)
     {
         $query = Discussion::find($discussionId)
             ->posts()
@@ -128,7 +128,7 @@ class PostRepository
      * @param User|null $actor
      * @return Builder
      */
-    protected function queryIds(array $ids, User $actor = null)
+    protected function queryIds(array $ids, ?User $actor = null)
     {
         return $this->queryVisibleTo($actor)->whereIn('posts.id', $ids);
     }

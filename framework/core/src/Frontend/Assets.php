@@ -67,7 +67,7 @@ class Assets
      */
     protected $customFunctions = [];
 
-    public function __construct(string $name, Filesystem $assetsDir, string $cacheDir = null, array $lessImportDirs = null, array $customFunctions = [])
+    public function __construct(string $name, Filesystem $assetsDir, ?string $cacheDir = null, ?array $lessImportDirs = null, array $customFunctions = [])
     {
         $this->name = $name;
         $this->assetsDir = $assetsDir;
@@ -109,7 +109,7 @@ class Assets
         $this->sources[$type][] = $callback;
     }
 
-    private function populate(CompilerInterface $compiler, string $type, string $locale = null)
+    private function populate(CompilerInterface $compiler, string $type, ?string $locale = null)
     {
         $compiler->addSources(function (SourceCollector $sources) use ($type, $locale) {
             foreach ($this->sources[$type] as $callback) {

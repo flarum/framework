@@ -59,7 +59,7 @@ class Filter implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->extend('flarum.filter.filters', function ($originalFilters) {
             foreach ($this->filters as $filter) {

@@ -79,7 +79,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * {@inheritdoc}
      */
-    public function getAttributes($model, array $fields = null)
+    public function getAttributes($model, ?array $fields = null)
     {
         if (! is_object($model) && ! is_array($model)) {
             return [];
@@ -113,7 +113,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @param DateTime|null $date
      * @return string|null
      */
-    public function formatDate(DateTime $date = null)
+    public function formatDate(?DateTime $date = null)
     {
         if ($date) {
             return $date->format(DateTime::RFC3339);

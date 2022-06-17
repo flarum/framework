@@ -157,7 +157,7 @@ class Discussion extends AbstractModel
      * @param User $actor
      * @return $this
      */
-    public function hide(User $actor = null)
+    public function hide(?User $actor = null)
     {
         if (! $this->hidden_at) {
             $this->hidden_at = Carbon::now();
@@ -399,7 +399,7 @@ class Discussion extends AbstractModel
      * @param User|null $user
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function state(User $user = null)
+    public function state(?User $user = null)
     {
         $user = $user ?: static::$stateUser;
 

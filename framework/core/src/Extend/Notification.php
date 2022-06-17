@@ -73,7 +73,7 @@ class Notification implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->extend('flarum.notification.blueprints', function ($existingBlueprints) {
             $existingBlueprints = array_merge($existingBlueprints, $this->blueprints);

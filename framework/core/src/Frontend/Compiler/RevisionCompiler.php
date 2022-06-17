@@ -44,7 +44,7 @@ class RevisionCompiler implements CompilerInterface
      * @param string $filename
      * @param VersionerInterface|null $versioner @deprecated nullable will be removed at v2.0
      */
-    public function __construct(Filesystem $assetsDir, string $filename, VersionerInterface $versioner = null)
+    public function __construct(Filesystem $assetsDir, string $filename, ?VersionerInterface $versioner = null)
     {
         $this->assetsDir = $assetsDir;
         $this->filename = $filename;

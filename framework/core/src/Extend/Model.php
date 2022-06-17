@@ -78,7 +78,7 @@ class Model implements ExtenderInterface
      * @param string $ownerKey: The primary key attribute of the parent model.
      * @return self
      */
-    public function belongsTo(string $name, string $related, string $foreignKey = null, string $ownerKey = null): self
+    public function belongsTo(string $name, string $related, ?string $foreignKey = null, ?string $ownerKey = null): self
     {
         return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $ownerKey, $name) {
             return $model->belongsTo($related, $foreignKey, $ownerKey, $name);
@@ -104,11 +104,11 @@ class Model implements ExtenderInterface
     public function belongsToMany(
         string $name,
         string $related,
-        string $table = null,
-        string $foreignPivotKey = null,
-        string $relatedPivotKey = null,
-        string $parentKey = null,
-        string $relatedKey = null
+        ?string $table = null,
+        ?string $foreignPivotKey = null,
+        ?string $relatedPivotKey = null,
+        ?string $parentKey = null,
+        ?string $relatedKey = null
     ): self {
         return $this->relationship($name, function (AbstractModel $model) use ($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name) {
             return $model->belongsToMany($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $name);
@@ -128,7 +128,7 @@ class Model implements ExtenderInterface
      * @param string $localKey: The primary key attribute of the parent model.
      * @return self
      */
-    public function hasOne(string $name, string $related, string $foreignKey = null, string $localKey = null): self
+    public function hasOne(string $name, string $related, ?string $foreignKey = null, ?string $localKey = null): self
     {
         return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $localKey) {
             return $model->hasOne($related, $foreignKey, $localKey);
@@ -148,7 +148,7 @@ class Model implements ExtenderInterface
      * @param string $localKey: The primary key attribute of the parent model.
      * @return self
      */
-    public function hasMany(string $name, string $related, string $foreignKey = null, string $localKey = null): self
+    public function hasMany(string $name, string $related, ?string $foreignKey = null, ?string $localKey = null): self
     {
         return $this->relationship($name, function (AbstractModel $model) use ($related, $foreignKey, $localKey) {
             return $model->hasMany($related, $foreignKey, $localKey);
@@ -179,7 +179,7 @@ class Model implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         foreach ($this->customRelations as $name => $callback) {
             Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", ContainerUtil::wrapCallback($callback, $container));

@@ -315,7 +315,7 @@ class User extends AbstractModel
      * @param string|null $value
      * @return string
      */
-    public function getAvatarUrlAttribute(string $value = null)
+    public function getAvatarUrlAttribute(?string $value = null)
     {
         if ($value && strpos($value, '://') === false) {
             return resolve(Factory::class)->disk('flarum-avatars')->url($value);
@@ -816,7 +816,7 @@ class User extends AbstractModel
      *
      * @internal
      */
-    public static function registerPreference($key, callable $transformer = null, $default = null)
+    public static function registerPreference($key, ?callable $transformer = null, $default = null)
     {
         static::$preferences[$key] = compact('transformer', 'default');
     }

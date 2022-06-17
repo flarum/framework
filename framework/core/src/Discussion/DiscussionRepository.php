@@ -32,7 +32,7 @@ class DiscussionRepository
      * @param User $user
      * @return \Flarum\Discussion\Discussion
      */
-    public function findOrFail($id, User $user = null)
+    public function findOrFail($id, ?User $user = null)
     {
         $query = Discussion::where('id', $id);
 
@@ -74,7 +74,7 @@ class DiscussionRepository
      * @param User $user
      * @return Builder
      */
-    protected function scopeVisibleTo(Builder $query, User $user = null)
+    protected function scopeVisibleTo(Builder $query, ?User $user = null)
     {
         if ($user !== null) {
             $query->whereVisibleTo($user);

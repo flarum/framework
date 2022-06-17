@@ -27,7 +27,7 @@ class Posted
     /**
      * @param \Flarum\Post\Post $post
      */
-    public function __construct(Post $post, User $actor = null)
+    public function __construct(Post $post, ?User $actor = null)
     {
         $this->post = $post;
         $this->actor = $actor;

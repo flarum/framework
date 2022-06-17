@@ -23,7 +23,7 @@ class SourceCollector
      * @param string $file
      * @return $this
      */
-    public function addFile(string $file, string $extensionId = null)
+    public function addFile(string $file, ?string $extensionId = null)
     {
         $this->sources[] = new FileSource($file, $extensionId);
 

@@ -76,7 +76,7 @@ class SimpleFlarumSearch implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         if (! is_null($this->fullTextGambit)) {
             $container->extend('flarum.simple_search.fulltext_gambits', function ($oldFulltextGambits) {

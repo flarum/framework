@@ -33,7 +33,7 @@ class Renamed
      * @param string $oldUsername
      * @param User $actor
      */
-    public function __construct(User $user, string $oldUsername, User $actor = null)
+    public function __construct(User $user, string $oldUsername, ?User $actor = null)
     {
         $this->user = $user;
         $this->oldUsername = $oldUsername;

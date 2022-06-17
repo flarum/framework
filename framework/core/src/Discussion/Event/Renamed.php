@@ -34,7 +34,7 @@ class Renamed
      * @param User $actor
      * @param string $oldTitle
      */
-    public function __construct(Discussion $discussion, $oldTitle, User $actor = null)
+    public function __construct(Discussion $discussion, $oldTitle, ?User $actor = null)
     {
         $this->discussion = $discussion;
         $this->oldTitle = $oldTitle;

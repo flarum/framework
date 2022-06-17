@@ -32,7 +32,7 @@ class CreateAdminUser implements Step
      */
     private $accessToken;
 
-    public function __construct(ConnectionInterface $database, AdminUser $admin, string $accessToken = null)
+    public function __construct(ConnectionInterface $database, AdminUser $admin, ?string $accessToken = null)
     {
         $this->database = $database;
         $this->admin = $admin;

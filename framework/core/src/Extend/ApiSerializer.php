@@ -133,7 +133,7 @@ class ApiSerializer implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         if (! empty($this->attribute)) {
             $this->attributes[] = function ($serializer, $model, $attributes) use ($container) {

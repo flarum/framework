@@ -27,7 +27,7 @@ class Revised
     /**
      * @param \Flarum\Post\CommentPost $post
      */
-    public function __construct(CommentPost $post, User $actor = null)
+    public function __construct(CommentPost $post, ?User $actor = null)
     {
         $this->post = $post;
         $this->actor = $actor;

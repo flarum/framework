@@ -33,7 +33,7 @@ class UserRepository
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail($id, ?User $actor = null)
     {
         $query = User::where('id', $id);
 
@@ -50,7 +50,7 @@ class UserRepository
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFailByUsername($username, User $actor = null)
+    public function findOrFailByUsername($username, ?User $actor = null)
     {
         $query = User::where('username', $username);
 
@@ -88,7 +88,7 @@ class UserRepository
      * @param User|null $actor
      * @return int|null
      */
-    public function getIdForUsername($username, User $actor = null)
+    public function getIdForUsername($username, ?User $actor = null)
     {
         $query = User::where('username', $username);
 
@@ -103,7 +103,7 @@ class UserRepository
      * @param User|null $actor
      * @return array
      */
-    public function getIdsForUsername($string, User $actor = null)
+    public function getIdsForUsername($string, ?User $actor = null)
     {
         $string = $this->escapeLikeString($string);
 
@@ -121,7 +121,7 @@ class UserRepository
      * @param User $actor
      * @return Builder
      */
-    protected function scopeVisibleTo(Builder $query, User $actor = null)
+    protected function scopeVisibleTo(Builder $query, ?User $actor = null)
     {
         if ($actor !== null) {
             $query->whereVisibleTo($actor);

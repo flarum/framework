@@ -26,7 +26,7 @@ class MissingDependenciesException extends Exception
      * @param $extension: The extension we are attempting to enable.
      * @param $missing_dependencies: Extensions that this extension depends on, and are not enabled.
      */
-    public function __construct(Extension $extension, array $missing_dependencies = null)
+    public function __construct(Extension $extension, ?array $missing_dependencies = null)
     {
         $this->extension = $extension;
         $this->missing_dependencies = $missing_dependencies;

@@ -79,7 +79,7 @@ class Migrator
      * @param  Extension $extension
      * @return void
      */
-    public function run($path, Extension $extension = null)
+    public function run($path, ?Extension $extension = null)
     {
         $files = $this->getMigrationFiles($path);
 
@@ -98,7 +98,7 @@ class Migrator
      * @param  Extension $extension
      * @return void
      */
-    public function runMigrationList($path, $migrations, Extension $extension = null)
+    public function runMigrationList($path, $migrations, ?Extension $extension = null)
     {
         // First we will just make sure that there are any migrations to run. If there
         // aren't, we will just make a note of it to the developer so they're aware
@@ -126,7 +126,7 @@ class Migrator
      * @param  Extension $extension
      * @return void
      */
-    protected function runUp($path, $file, Extension $extension = null)
+    protected function runUp($path, $file, ?Extension $extension = null)
     {
         $migration = $this->resolve($path, $file);
 
@@ -147,7 +147,7 @@ class Migrator
      * @param  Extension $extension
      * @return int
      */
-    public function reset($path, Extension $extension = null)
+    public function reset($path, ?Extension $extension = null)
     {
         $migrations = array_reverse($this->repository->getRan(
             $extension ? $extension->getId() : null
@@ -175,7 +175,7 @@ class Migrator
      * @param  Extension $extension
      * @return void
      */
-    protected function runDown($path, $file, Extension $extension = null)
+    protected function runDown($path, $file, ?Extension $extension = null)
     {
         $migration = $this->resolve($path, $file);
 

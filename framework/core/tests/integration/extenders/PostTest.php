@@ -49,7 +49,7 @@ class PostTestCustomPost extends AbstractEventPost implements MergeableInterface
     /**
      * {@inheritdoc}
      */
-    public function saveAfter(Post $previous = null)
+    public function saveAfter(?Post $previous = null)
     {
         $this->save();
 

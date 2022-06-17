@@ -111,7 +111,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->extend('flarum.formatter', function ($formatter, $container) {
             foreach ($this->configurationCallbacks as $callback) {

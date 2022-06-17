@@ -33,7 +33,7 @@ class ServiceProvider implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $app = $container->make('flarum');
 

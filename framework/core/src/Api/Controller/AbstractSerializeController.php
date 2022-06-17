@@ -191,7 +191,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Eager loads the required relationships.
      */
-    protected function loadRelations(Collection $models, array $relations, ServerRequestInterface $request = null): void
+    protected function loadRelations(Collection $models, array $relations, ?ServerRequestInterface $request = null): void
     {
         $addedRelations = $this->getRelationsToLoad($models);
         $addedRelationCallables = $this->getRelationCallablesToLoad($models);
