@@ -21,7 +21,7 @@ abstract class AbstractHtmlController implements RequestHandlerInterface
      * @param Request $request
      * @return HtmlResponse
      */
-    public function handle(Request $request): ResponseInterface
+    final public function handle(Request $request): ResponseInterface
     {
         $view = $this->render($request);
 

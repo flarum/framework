@@ -45,7 +45,7 @@ abstract class AbstractFilterer
      * @return QueryResults
      * @throws InvalidArgumentException
      */
-    public function filter(QueryCriteria $criteria, int $limit = null, int $offset = 0): QueryResults
+    final public function filter(QueryCriteria $criteria, int $limit = null, int $offset = 0): QueryResults
     {
         $actor = $criteria->actor;
 

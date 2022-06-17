@@ -45,7 +45,7 @@ abstract class AbstractQueryState
      *
      * @return Builder
      */
-    public function getQuery()
+    final public function getQuery()
     {
         return $this->query;
     }
@@ -55,7 +55,7 @@ abstract class AbstractQueryState
      *
      * @return User
      */
-    public function getActor()
+    final public function getActor()
     {
         return $this->actor;
     }
@@ -65,7 +65,7 @@ abstract class AbstractQueryState
      *
      * @return array
      */
-    public function getDefaultSort()
+    final public function getDefaultSort()
     {
         return $this->defaultSort;
     }
@@ -80,7 +80,7 @@ abstract class AbstractQueryState
      *     Alternatively, a callable may be used.
      * @return mixed
      */
-    public function setDefaultSort($defaultSort)
+    final public function setDefaultSort($defaultSort)
     {
         $this->defaultSort = $defaultSort;
     }

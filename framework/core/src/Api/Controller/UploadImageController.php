@@ -60,7 +60,7 @@ abstract class UploadImageController extends ShowForumController
     /**
      * {@inheritdoc}
      */
-    public function data(ServerRequestInterface $request, Document $document)
+    final public function data(ServerRequestInterface $request, Document $document)
     {
         RequestUtil::getActor($request)->assertAdmin();
 

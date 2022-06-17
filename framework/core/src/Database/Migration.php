@@ -24,7 +24,7 @@ abstract class Migration
     /**
      * Create a table.
      */
-    public static function createTable($name, callable $definition)
+    final public static function createTable($name, callable $definition)
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
@@ -41,7 +41,7 @@ abstract class Migration
     /**
      * Rename a table.
      */
-    public static function renameTable($from, $to)
+    final public static function renameTable($from, $to)
     {
         return [
             'up' => function (Builder $schema) use ($from, $to) {
@@ -56,7 +56,7 @@ abstract class Migration
     /**
      * Add columns to a table.
      */
-    public static function addColumns($tableName, array $columnDefinitions)
+    final public static function addColumns($tableName, array $columnDefinitions)
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnDefinitions) {
@@ -78,7 +78,7 @@ abstract class Migration
     /**
      * Drop columns from a table.
      */
-    public static function dropColumns($tableName, array $columnDefinitions)
+    final public static function dropColumns($tableName, array $columnDefinitions)
     {
         $inverse = static::addColumns($tableName, $columnDefinitions);
 
@@ -91,7 +91,7 @@ abstract class Migration
     /**
      * Rename a column.
      */
-    public static function renameColumn($tableName, $from, $to)
+    final public static function renameColumn($tableName, $from, $to)
     {
         return static::renameColumns($tableName, [$from => $to]);
     }
@@ -99,7 +99,7 @@ abstract class Migration
     /**
      * Rename multiple columns.
      */
-    public static function renameColumns($tableName, array $columnNames)
+    final public static function renameColumns($tableName, array $columnNames)
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnNames) {
@@ -125,7 +125,7 @@ abstract class Migration
      * @deprecated Use the Settings extender's `default` method instead to register settings.
      * @see Settings::default()
      */
-    public static function addSettings(array $defaults)
+    final public static function addSettings(array $defaults)
     {
         return [
             'up' => function (Builder $schema) use ($defaults) {
@@ -152,7 +152,7 @@ abstract class Migration
     /**
      * Add default permissions.
      */
-    public static function addPermissions(array $permissions)
+    final public static function addPermissions(array $permissions)
     {
         $rows = [];
 

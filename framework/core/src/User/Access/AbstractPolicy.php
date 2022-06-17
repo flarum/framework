@@ -45,7 +45,7 @@ abstract class AbstractPolicy
      * @param $instance
      * @return string|void
      */
-    public function checkAbility(User $actor, string $ability, $instance)
+    final public function checkAbility(User $actor, string $ability, $instance)
     { // If a specific method for this ability is defined,
         // call that and return any non-null results
         if (method_exists($this, $ability)) {
@@ -75,7 +75,7 @@ abstract class AbstractPolicy
      * @param mixed $result
      * @return string|void
      */
-    public function sanitizeResult($result)
+    final public function sanitizeResult($result)
     {
         if ($result === true) {
             return $this->allow();

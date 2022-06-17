@@ -54,7 +54,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * @return Request
      */
-    public function getRequest()
+    final public function getRequest()
     {
         return $this->request;
     }
@@ -62,7 +62,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * @param Request $request
      */
-    public function setRequest(Request $request)
+    final public function setRequest(Request $request)
     {
         $this->request = $request;
         $this->actor = RequestUtil::getActor($request);
@@ -71,7 +71,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * @return User
      */
-    public function getActor()
+    final public function getActor()
     {
         return $this->actor;
     }
@@ -79,7 +79,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * {@inheritdoc}
      */
-    public function getAttributes($model, array $fields = null)
+    final public function getAttributes($model, array $fields = null)
     {
         if (! is_object($model) && ! is_array($model)) {
             return [];
@@ -113,7 +113,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @param DateTime|null $date
      * @return string|null
      */
-    public function formatDate(DateTime $date = null)
+    final public function formatDate(DateTime $date = null)
     {
         if ($date) {
             return $date->format(DateTime::RFC3339);
@@ -123,7 +123,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * {@inheritdoc}
      */
-    public function getRelationship($model, $name)
+    final public function getRelationship($model, $name)
     {
         if ($relationship = $this->getCustomRelationship($model, $name)) {
             return $relationship;
@@ -166,7 +166,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @param string|Closure|null $relation
      * @return Relationship
      */
-    public function hasOne($model, $serializer, $relation = null)
+    final public function hasOne($model, $serializer, $relation = null)
     {
         return $this->buildRelationship($model, $serializer, $relation);
     }
@@ -179,7 +179,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @param string|null $relation
      * @return Relationship
      */
-    public function hasMany($model, $serializer, $relation = null)
+    final public function hasMany($model, $serializer, $relation = null)
     {
         return $this->buildRelationship($model, $serializer, $relation, true);
     }
@@ -267,7 +267,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * @return Container
      */
-    public static function getContainer()
+    final public static function getContainer()
     {
         return static::$container;
     }
@@ -277,7 +277,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      *
      * @internal
      */
-    public static function setContainer(Container $container)
+    final public static function setContainer(Container $container)
     {
         static::$container = $container;
     }
@@ -288,7 +288,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      *
      * @internal
      */
-    public static function addAttributeMutator(string $serializerClass, callable $callback): void
+    final public static function addAttributeMutator(string $serializerClass, callable $callback): void
     {
         if (! isset(static::$attributeMutators[$serializerClass])) {
             static::$attributeMutators[$serializerClass] = [];
@@ -304,7 +304,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      *
      * @internal
      */
-    public static function setRelationship(string $serializerClass, string $relation, callable $callback): void
+    final public static function setRelationship(string $serializerClass, string $relation, callable $callback): void
     {
         static::$customRelations[$serializerClass][$relation] = $callback;
     }

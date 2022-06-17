@@ -19,7 +19,7 @@ abstract class AbstractDeleteController implements RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    final public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $this->delete($request);
 

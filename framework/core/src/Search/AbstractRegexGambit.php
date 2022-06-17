@@ -19,7 +19,7 @@ abstract class AbstractRegexGambit implements GambitInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(SearchState $search, $bit)
+    final public function apply(SearchState $search, $bit)
     {
         if ($matches = $this->match($bit)) {
             list($negate) = array_splice($matches, 1, 1);

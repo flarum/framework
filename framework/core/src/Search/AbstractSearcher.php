@@ -45,7 +45,7 @@ abstract class AbstractSearcher
      * @return QueryResults
      * @throws InvalidArgumentException
      */
-    public function search(QueryCriteria $criteria, $limit = null, $offset = 0): QueryResults
+    final public function search(QueryCriteria $criteria, $limit = null, $offset = 0): QueryResults
     {
         $actor = $criteria->actor;
 

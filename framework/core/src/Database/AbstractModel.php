@@ -62,7 +62,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * {@inheritdoc}
      */
-    public static function boot()
+    final public static function boot()
     {
         parent::boot();
 
@@ -102,7 +102,7 @@ abstract class AbstractModel extends Eloquent
      *
      * @return array
      */
-    public function getDates()
+    final public function getDates()
     {
         $dates = $this->dates;
 
@@ -120,7 +120,7 @@ abstract class AbstractModel extends Eloquent
      * @param string $key
      * @return mixed
      */
-    public function getAttribute($key)
+    final public function getAttribute($key)
     {
         if (! is_null($value = parent::getAttribute($key))) {
             return $value;
@@ -162,7 +162,7 @@ abstract class AbstractModel extends Eloquent
      * @param callable $callback
      * @return void
      */
-    public function afterSave($callback)
+    final public function afterSave($callback)
     {
         $this->afterSaveCallbacks[] = $callback;
     }
@@ -173,7 +173,7 @@ abstract class AbstractModel extends Eloquent
      * @param callable $callback
      * @return void
      */
-    public function afterDelete($callback)
+    final public function afterDelete($callback)
     {
         $this->afterDeleteCallbacks[] = $callback;
     }
@@ -181,7 +181,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * @return callable[]
      */
-    public function releaseAfterSaveCallbacks()
+    final public function releaseAfterSaveCallbacks()
     {
         $callbacks = $this->afterSaveCallbacks;
 
@@ -193,7 +193,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * @return callable[]
      */
-    public function releaseAfterDeleteCallbacks()
+    final public function releaseAfterDeleteCallbacks()
     {
         $callbacks = $this->afterDeleteCallbacks;
 
