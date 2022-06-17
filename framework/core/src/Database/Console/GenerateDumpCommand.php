@@ -75,7 +75,7 @@ class GenerateDumpCommand extends AbstractCommand
         $dump = file($dumpPath);
         foreach ($dump as $line) {
             foreach ($coreDataMigrations as $excludeMigrationId) {
-                if (strpos($line, $excludeMigrationId) !== false) {
+                if (str_contains($line, $excludeMigrationId)  ) {
                     continue 2;
                 }
             }

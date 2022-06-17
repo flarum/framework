@@ -317,7 +317,7 @@ class User extends AbstractModel
      */
     public function getAvatarUrlAttribute(string $value = null)
     {
-        if ($value && strpos($value, '://') === false) {
+        if ($value && !str_contains($value, '://')  ) {
             return resolve(Factory::class)->disk('flarum-avatars')->url($value);
         }
 
@@ -413,7 +413,7 @@ class User extends AbstractModel
     private function checkForDeprecatedPermissions($permission)
     {
         foreach (['viewDiscussions', 'viewUserList'] as $deprecated) {
-            if (strpos($permission, $deprecated) !== false) {
+            if (str_contains($permission, $deprecated)  ) {
                 trigger_error('The `viewDiscussions` and `viewUserList` permissions have been renamed to `viewForum` and `searchUsers` respectively. Please use those instead.', E_USER_DEPRECATED);
             }
         }

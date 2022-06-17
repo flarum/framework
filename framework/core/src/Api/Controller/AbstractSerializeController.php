@@ -206,7 +206,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
             });
 
             foreach ($addedRelations as $relation) {
-                if (strpos($relation, '.') !== false) {
+                if (str_contains($relation, '.')  ) {
                     $parentRelation = Str::beforeLast($relation, '.');
 
                     if (! in_array($parentRelation, $relations, true)) {
