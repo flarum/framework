@@ -13,6 +13,7 @@ jobs:
       frontend_directory: ./extensions/lock/js
       backend_directory: ./extensions/lock
       js_package_manager: yarn
+      cache_dependency_path: ./yarn.lock
       main_git_branch: main
 
     secrets:
