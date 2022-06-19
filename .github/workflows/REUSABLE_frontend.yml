@@ -48,7 +48,6 @@ on:
       cache_dependency_path:
         description: "The path to the cache dependency file."
         type: string
-        default: ${{ format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
         required: false
 
     secrets:
@@ -59,6 +58,7 @@ on:
 env:
   COMPOSER_ROOT_VERSION: dev-main
   ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || 'npm ci' }}
+  cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
 
 jobs:
   bundlewatch:
@@ -75,7 +75,7 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+          cache-dependency-path: ${{ env.cache_dependency_path }}
 
       - name: Build production assets
         uses: flarum/action-build@2
@@ -107,7 +107,7 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+          cache-dependency-path: ${{ env.cache_dependency_path }}
 
       - name: Install JS dependencies
         run: ${{ env.ci_script }}
@@ -131,7 +131,7 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+          cache-dependency-path: ${{ env.cache_dependency_path }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -167,7 +167,7 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+          cache-dependency-path: ${{ env.cache_dependency_path }}
 
       - name: Install JS dependencies
         run: ${{ env.ci_script }}
@@ -192,7 +192,7 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+          cache-dependency-path: ${{ env.cache_dependency_path }}
 
       # Our action will install npm/yarn, cd into `${{ inputs.frontend_directory }}`, build dist JS and typings,
       # then commit and upload any changes iff we are on the main branch and have just pushed.
