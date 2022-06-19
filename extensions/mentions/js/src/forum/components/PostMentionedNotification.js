@@ -23,8 +23,6 @@ export default class PostMentionedNotification extends Notification {
   }
 
   excerpt() {
-    const contentPlain = this.attrs.notification.subject().contentPlain();
-
-    return contentPlain && truncate(contentPlain, 200);
+    return truncate(this.attrs.notification.subject().contentPlain() || '', 200);
   }
 }
