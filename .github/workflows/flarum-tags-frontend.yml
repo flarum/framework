@@ -13,6 +13,7 @@ jobs:
       frontend_directory: ./extensions/tags/js
       backend_directory: ./extensions/tags
       js_package_manager: yarn
+      cache_dependency_path: ./yarn.lock
       main_git_branch: main
     secrets:
       bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
