@@ -32,13 +32,13 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
     /**
      * The root DOM element for the component.
      */
-    protected element: Element;
+    element: Element;
     /**
      * The attributes passed into the component.
      *
      * @see https://mithril.js.org/components.html#passing-data-to-components
      */
-    protected attrs: Attrs;
+    attrs: Attrs;
     /**
      * Class component state that is persisted between redraws.
      *
@@ -50,7 +50,7 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
      *
      * This is `undefined` by default.
      */
-    protected state: State;
+    state: State;
     /**
      * @inheritdoc
      */
@@ -92,7 +92,7 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
      * @returns the jQuery object for the DOM node
      * @final
      */
-    protected $(selector?: string): JQuery;
+    $(selector?: string): JQuery;
     /**
      * Convenience method to attach a component without JSX.
      * Has the same effect as calling `m(THIS_CLASS, attrs, children)`.
@@ -110,5 +110,5 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
      *
      * This can be used to assign default values for missing, optional attrs.
      */
-    protected static initAttrs<T>(attrs: T): void;
+    static initAttrs<T>(attrs: T): void;
 }

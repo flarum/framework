@@ -12,7 +12,14 @@ export default class Translator {
      * The underlying ICU MessageFormatter util.
      */
     protected formatter: RichMessageFormatter;
+    /**
+     * Sets the formatter's locale to the provided value.
+     */
     setLocale(locale: string): void;
+    /**
+     * Returns the formatter's current locale.
+     */
+    getLocale(): string | null;
     addTranslations(translations: Translations): void;
     /**
      * An extensible entrypoint for extenders to register type handlers for translations.

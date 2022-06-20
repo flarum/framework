@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import Component, { ComponentAttrs } from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 import KeyboardNavigatable from '../utils/KeyboardNavigatable';
@@ -56,8 +55,8 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
      *
      * @deprecated Replace with`this.searchState` instead.
      */
-    protected get state(): SearchState;
-    protected set state(state: SearchState);
+    get state(): SearchState;
+    set state(state: SearchState);
     /**
      * Whether or not the search input has focus.
      */
@@ -78,7 +77,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
      */
     protected index: number;
     protected navigator: KeyboardNavigatable;
-    protected searchTimeout?: NodeJS.Timeout;
+    protected searchTimeout?: number;
     private updateMaxHeightHandler?;
     oninit(vnode: Mithril.Vnode<T, this>): void;
     view(): JSX.Element;
