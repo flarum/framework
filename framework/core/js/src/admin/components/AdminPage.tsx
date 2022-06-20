@@ -57,7 +57,7 @@ export type HTMLInputTypes =
   | 'url'
   | 'week';
 
-interface CommonSettingsItemOptions extends Mithril.Attributes {
+export interface CommonSettingsItemOptions extends Mithril.Attributes {
   setting: string;
   label: Mithril.Children;
   help?: Mithril.Children;
