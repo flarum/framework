@@ -7,7 +7,7 @@ jobs:
     uses: ./.github/workflows/REUSABLE_frontend.yml
     with:
       enable_bundlewatch: false
-      enable_prettier: false
+      enable_prettier: true
       enable_typescript: true
 
       frontend_directory: ./extensions/tags/js

@@ -9,9 +9,9 @@ export default function tagsLabel(tags, attrs = {}) {
   attrs.className = 'TagsLabel ' + (attrs.className || '');
 
   if (tags) {
-    sortTags(tags).forEach(tag => {
+    sortTags(tags).forEach((tag) => {
       if (tag || tags.length === 1) {
-        children.push(tagLabel(tag, {link}));
+        children.push(tagLabel(tag, { link }));
       }
     });
   } else {

@@ -9,5 +9,5 @@ export default {
   'tags/models/Tag': Tag,
   'tags/helpers/tagsLabel': tagsLabel,
   'tags/helpers/tagIcon': tagIcon,
-  'tags/helpers/tagLabel': tagLabel
+  'tags/helpers/tagLabel': tagLabel,
 };

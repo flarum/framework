@@ -8,21 +8,12 @@ export default class TagLinkButton extends LinkButton {
     const tag = this.attrs.model;
     const active = this.constructor.isActive(this.attrs);
     const description = tag && tag.description();
-    const className = classList([
-      'TagLinkButton',
-      'hasIcon',
-      this.attrs.className,
-      tag.isChild() && 'child',
-    ]);
+    const className = classList(['TagLinkButton', 'hasIcon', this.attrs.className, tag.isChild() && 'child']);
 
     return (
-      <Link className={className} href={this.attrs.route}
-        style={tag ? { '--color': tag.color() } : ''}
-        title={description || ''}>
+      <Link className={className} href={this.attrs.route} style={tag ? { '--color': tag.color() } : ''} title={description || ''}>
         {tagIcon(tag, { className: 'Button-icon' })}
-        <span className="Button-label">
-          {tag ? tag.name() : app.translator.trans('flarum-tags.forum.index.untagged_link')}
-        </span>
+        <span className="Button-label">{tag ? tag.name() : app.translator.trans('flarum-tags.forum.index.untagged_link')}</span>
       </Link>
     );
   }
