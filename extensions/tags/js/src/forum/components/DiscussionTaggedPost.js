@@ -9,9 +9,7 @@ export default class DiscussionTaggedPost extends EventPost {
     const newTags = attrs.post.content()[1];
 
     function diffTags(tags1, tags2) {
-      return tags1
-        .filter(tag => tags2.indexOf(tag) === -1)
-        .map(id => app.store.getById('tags', id));
+      return tags1.filter((tag) => tags2.indexOf(tag) === -1).map((id) => app.store.getById('tags', id));
     }
 
     attrs.tagsAdded = diffTags(newTags, oldTags);
@@ -39,15 +37,15 @@ export default class DiscussionTaggedPost extends EventPost {
 
     if (this.attrs.tagsAdded.length) {
       data.tagsAdded = app.translator.trans('flarum-tags.forum.post_stream.tags_text', {
-        tags: tagsLabel(this.attrs.tagsAdded, {link: true}),
-        count: this.attrs.tagsAdded.length
+        tags: tagsLabel(this.attrs.tagsAdded, { link: true }),
+        count: this.attrs.tagsAdded.length,
       });
     }
 
     if (this.attrs.tagsRemoved.length) {
       data.tagsRemoved = app.translator.trans('flarum-tags.forum.post_stream.tags_text', {
-        tags: tagsLabel(this.attrs.tagsRemoved, {link: true}),
-        count: this.attrs.tagsRemoved.length
+        tags: tagsLabel(this.attrs.tagsRemoved, { link: true }),
+        count: this.attrs.tagsRemoved.length,
       });
     }
 

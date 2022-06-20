@@ -5,9 +5,9 @@ import DiscussionHero from 'flarum/forum/components/DiscussionHero';
 import tagsLabel from '../common/helpers/tagsLabel';
 import sortTags from '../common/utils/sortTags';
 
-export default function() {
+export default function () {
   // Add tag labels to each discussion in the discussion list.
-  extend(DiscussionListItem.prototype, 'infoItems', function(items) {
+  extend(DiscussionListItem.prototype, 'infoItems', function (items) {
     const tags = this.attrs.discussion.tags();
 
     if (tags && tags.length) {
@@ -16,7 +16,7 @@ export default function() {
   });
 
   // Restyle a discussion's hero to use its first tag's color.
-  extend(DiscussionHero.prototype, 'view', function(view) {
+  extend(DiscussionHero.prototype, 'view', function (view) {
     const tags = sortTags(this.attrs.discussion.tags());
 
     if (tags && tags.length) {
@@ -30,11 +30,11 @@ export default function() {
 
   // Add a list of a discussion's tags to the discussion hero, displayed
   // before the title. Put the title on its own line.
-  extend(DiscussionHero.prototype, 'items', function(items) {
+  extend(DiscussionHero.prototype, 'items', function (items) {
     const tags = this.attrs.discussion.tags();
 
     if (tags && tags.length) {
-      items.add('tags', tagsLabel(tags, {link: true}), 5);
+      items.add('tags', tagsLabel(tags, { link: true }), 5);
     }
   });
 }

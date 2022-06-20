@@ -15,15 +15,14 @@ export default function () {
     if (tag) {
       const parent = tag.parent();
       const tags = parent ? [parent, tag] : [tag];
-      promise.then(composer => composer.fields.tags = tags);
+      promise.then((composer) => (composer.fields.tags = tags));
     } else {
       app.composer.fields.tags = [];
     }
   });
 
-
   extend(DiscussionComposer.prototype, 'oninit', function () {
-    app.tagList.load(['parent']).then(() => m.redraw())
+    app.tagList.load(['parent']).then(() => m.redraw());
   });
 
   // Add tag-selection abilities to the discussion composer.
@@ -34,10 +33,10 @@ export default function () {
 
     app.modal.show(TagDiscussionModal, {
       selectedTags: (this.composer.fields.tags || []).slice(0),
-      onsubmit: tags => {
+      onsubmit: (tags) => {
         this.composer.fields.tags = tags;
         this.$('textarea').focus();
-      }
+      },
     });
   };
 
@@ -47,32 +46,38 @@ export default function () {
     const tags = this.composer.fields.tags || [];
     const selectableTags = getSelectableTags();
 
-    items.add('tags', (
+    items.add(
+      'tags',
       <a className={classList(['DiscussionComposer-changeTags', !selectableTags.length && 'disabled'])} onclick={this.chooseTags.bind(this)}>
-        {tags.length
-          ? tagsLabel(tags)
-          : <span className="TagLabel untagged">{app.translator.trans('flarum-tags.forum.composer_discussion.choose_tags_link')}</span>}
-      </a>
-    ), 10);
+        {tags.length ? (
+          tagsLabel(tags)
+        ) : (
+          <span className="TagLabel untagged">{app.translator.trans('flarum-tags.forum.composer_discussion.choose_tags_link')}</span>
+        )}
+      </a>,
+      10
+    );
   });
 
   override(DiscussionComposer.prototype, 'onsubmit', function (original) {
     const chosenTags = this.composer.fields.tags || [];
-    const chosenPrimaryTags = chosenTags.filter(tag => tag.position() !== null && !tag.isChild());
-    const chosenSecondaryTags = chosenTags.filter(tag => tag.position() === null);
+    const chosenPrimaryTags = chosenTags.filter((tag) => tag.position() !== null && !tag.isChild());
+    const chosenSecondaryTags = chosenTags.filter((tag) => tag.position() === null);
     const selectableTags = getSelectableTags();
 
-    if ((!chosenTags.length
-          || (chosenPrimaryTags.length < app.forum.attribute('minPrimaryTags'))
-          || (chosenSecondaryTags.length < app.forum.attribute('minSecondaryTags'))
-        ) && selectableTags.length) {
+    if (
+      (!chosenTags.length ||
+        chosenPrimaryTags.length < app.forum.attribute('minPrimaryTags') ||
+        chosenSecondaryTags.length < app.forum.attribute('minSecondaryTags')) &&
+      selectableTags.length
+    ) {
       app.modal.show(TagDiscussionModal, {
-          selectedTags: chosenTags,
-          onsubmit: tags => {
-            this.composer.fields.tags = tags;
-            original();
-          }
-        });
+        selectedTags: chosenTags,
+        onsubmit: (tags) => {
+          this.composer.fields.tags = tags;
+          original();
+        },
+      });
     } else {
       original();
     }

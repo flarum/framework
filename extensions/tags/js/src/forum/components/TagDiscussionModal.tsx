@@ -58,11 +58,11 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
       const tags = sortTags(getSelectableTags(this.attrs.discussion));
       this.tags = tags;
 
-      const discussionTags = this.attrs.discussion?.tags()
+      const discussionTags = this.attrs.discussion?.tags();
       if (this.attrs.selectedTags) {
         this.attrs.selectedTags.map(this.addTag.bind(this));
       } else if (discussionTags) {
-        discussionTags.forEach(tag => tag && this.addTag(tag));
+        discussionTags.forEach((tag) => tag && this.addTag(tag));
       }
 
       this.selectedTag = tags[0];
@@ -72,11 +72,11 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
   }
 
   primaryCount() {
-    return this.selected.filter(tag => tag.isPrimary()).length;
+    return this.selected.filter((tag) => tag.isPrimary()).length;
   }
 
   secondaryCount() {
-    return this.selected.filter(tag => !tag.isPrimary()).length;
+    return this.selected.filter((tag) => !tag.isPrimary()).length;
   }
 
   /**
@@ -107,9 +107,7 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
 
       // Look through the list of selected tags for any tags which have the tag
       // we just removed as their parent. We'll need to remove them too.
-      this.selected
-        .filter(selected => selected.parent() === tag)
-        .forEach(this.removeTag.bind(this));
+      this.selected.filter((selected) => selected.parent() === tag).forEach(this.removeTag.bind(this));
     }
   }
 
@@ -119,7 +117,7 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
 
   title() {
     return this.attrs.discussion
-      ? app.translator.trans('flarum-tags.forum.choose_tags.edit_title', {title: <em>{this.attrs.discussion.title()}</em>})
+      ? app.translator.trans('flarum-tags.forum.choose_tags.edit_title', { title: <em>{this.attrs.discussion.title()}</em> })
       : app.translator.trans('flarum-tags.forum.choose_tags.title');
   }
 
@@ -130,10 +128,10 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
 
     if (primaryCount < this.minPrimary) {
       const remaining = this.minPrimary - primaryCount;
-      return app.translator.trans('flarum-tags.forum.choose_tags.choose_primary_placeholder', {count: remaining});
+      return app.translator.trans('flarum-tags.forum.choose_tags.choose_primary_placeholder', { count: remaining });
     } else if (secondaryCount < this.minSecondary) {
       const remaining = this.minSecondary - secondaryCount;
-      return app.translator.trans('flarum-tags.forum.choose_tags.choose_secondary_placeholder', {count: remaining});
+      return app.translator.trans('flarum-tags.forum.choose_tags.choose_secondary_placeholder', { count: remaining });
     }
 
     return '';
@@ -151,7 +149,7 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
 
     // Filter out all child tags whose parents have not been selected. This
     // makes it impossible to select a child if its parent hasn't been selected.
-    tags = tags.filter(tag => {
+    tags = tags.filter((tag) => {
       const parent = tag.parent();
       return parent !== null && (parent === false || this.selected.includes(parent));
     });
@@ -159,17 +157,17 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
     // If the number of selected primary/secondary tags is at the maximum, then
     // we'll filter out all other tags of that type.
     if (primaryCount >= this.maxPrimary && !this.bypassReqs) {
-      tags = tags.filter(tag => !tag.isPrimary() || this.selected.includes(tag));
+      tags = tags.filter((tag) => !tag.isPrimary() || this.selected.includes(tag));
     }
 
     if (secondaryCount >= this.maxSecondary && !this.bypassReqs) {
-      tags = tags.filter(tag => tag.isPrimary() || this.selected.includes(tag));
+      tags = tags.filter((tag) => tag.isPrimary() || this.selected.includes(tag));
     }
 
     // If the user has entered text in the filter input, then filter by tags
     // whose name matches what they've entered.
     if (filter) {
-      tags = tags.filter(tag => tag.name().substr(0, filter.length).toLowerCase() === filter);
+      tags = tags.filter((tag) => tag.name().substr(0, filter.length).toLowerCase() === filter);
     }
 
     if (!this.selectedTag || !tags.includes(this.selectedTag)) this.selectedTag = tags[0];
@@ -180,30 +178,38 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
       <div className="Modal-body">
         <div className="TagDiscussionModal-form">
           <div className="TagDiscussionModal-form-input">
-            <div className={'TagsInput FormControl ' + (this.focused ? 'focus' : '')}
-              onclick={() => this.$('.TagsInput input').focus()}
-            >
+            <div className={'TagsInput FormControl ' + (this.focused ? 'focus' : '')} onclick={() => this.$('.TagsInput input').focus()}>
               <span className="TagsInput-selected">
-                {this.selected.map(tag =>
-                  <span className="TagsInput-tag" onclick={() => {
-                    this.removeTag(tag);
-                    this.onready();
-                  }}>
+                {this.selected.map((tag) => (
+                  <span
+                    className="TagsInput-tag"
+                    onclick={() => {
+                      this.removeTag(tag);
+                      this.onready();
+                    }}
+                  >
                     {tagLabel(tag)}
                   </span>
-                )}
+                ))}
               </span>
-              <input className="FormControl"
+              <input
+                className="FormControl"
                 placeholder={extractText(this.getInstruction(primaryCount, secondaryCount))}
                 bidi={this.filter}
                 style={{ width: inputWidth + 'ch' }}
                 onkeydown={this.navigator.navigate.bind(this.navigator)}
-                onfocus={() => this.focused = true}
-                onblur={() => this.focused = false}/>
+                onfocus={() => (this.focused = true)}
+                onblur={() => (this.focused = false)}
+              />
             </div>
           </div>
           <div className="TagDiscussionModal-form-submit App-primaryControl">
-            <Button type="submit" className="Button Button--primary" disabled={!this.meetsRequirements(primaryCount, secondaryCount)} icon="fas fa-check">
+            <Button
+              type="submit"
+              className="Button Button--primary"
+              disabled={!this.meetsRequirements(primaryCount, secondaryCount)}
+              icon="fas fa-check"
+            >
               {app.translator.trans('flarum-tags.forum.choose_tags.submit_button')}
             </Button>
           </div>
@@ -213,41 +219,35 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
       <div className="Modal-footer">
         <ul className="TagDiscussionModal-list SelectTagList">
           {tags
-            .filter(tag => filter || !tag.parent() || this.selected.includes(tag.parent() as Tag))
-            .map(tag => (
-              <li data-index={tag.id()}
+            .filter((tag) => filter || !tag.parent() || this.selected.includes(tag.parent() as Tag))
+            .map((tag) => (
+              <li
+                data-index={tag.id()}
                 className={classList({
                   pinned: tag.position() !== null,
                   child: !!tag.parent(),
                   colored: !!tag.color(),
                   selected: this.selected.includes(tag),
-                  active: this.selectedTag === tag
+                  active: this.selectedTag === tag,
                 })}
-                style={{color: tag.color()}}
-                onmouseover={() => this.selectedTag = tag}
+                style={{ color: tag.color() }}
+                onmouseover={() => (this.selectedTag = tag)}
                 onclick={this.toggleTag.bind(this, tag)}
               >
                 {tagIcon(tag)}
-                <span className="SelectTagListItem-name">
-                  {highlight(tag.name(), filter)}
-                </span>
-                {tag.description()
-                  ? (
-                    <span className="SelectTagListItem-description">
-                      {tag.description()}
-                    </span>
-                  ) : ''}
+                <span className="SelectTagListItem-name">{highlight(tag.name(), filter)}</span>
+                {tag.description() ? <span className="SelectTagListItem-description">{tag.description()}</span> : ''}
               </li>
             ))}
         </ul>
         {!!app.forum.attribute('canBypassTagCounts') && (
           <div className="TagDiscussionModal-controls">
-            <ToggleButton className="Button" onclick={() => this.bypassReqs = !this.bypassReqs} isToggled={this.bypassReqs}>
+            <ToggleButton className="Button" onclick={() => (this.bypassReqs = !this.bypassReqs)} isToggled={this.bypassReqs}>
               {app.translator.trans('flarum-tags.forum.choose_tags.bypass_requirements')}
             </ToggleButton>
           </div>
         )}
-      </div>
+      </div>,
     ];
   }
 
@@ -279,7 +279,7 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
 
   select(e: KeyboardEvent) {
     // Ctrl + Enter submits the selection, just Enter completes the current entry
-    if (e.metaKey || e.ctrlKey || this.selectedTag && this.selected.includes(this.selectedTag)) {
+    if (e.metaKey || e.ctrlKey || (this.selectedTag && this.selected.includes(this.selectedTag))) {
       if (this.selected.length) {
         // The DOM submit method doesn't emit a `submit event, so we
         // simulate a manual submission so our `onsubmit` logic is run.
@@ -297,9 +297,7 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
   getCurrentNumericIndex() {
     if (!this.selectedTag) return -1;
 
-    return this.selectableItems().index(
-      this.getItem(this.selectedTag)
-    );
+    return this.selectableItems().index(this.getItem(this.selectedTag));
   }
 
   getItem(selectedTag: Tag) {
@@ -337,7 +335,7 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.stop(true).animate({scrollTop}, 100);
+        $dropdown.stop(true).animate({ scrollTop }, 100);
       }
     }
   }
@@ -349,13 +347,12 @@ export default class TagDiscussionModal extends Modal<TagDiscussionModalAttrs> {
     const tags = this.selected;
 
     if (discussion) {
-      discussion.save({relationships: {tags}})
-        .then(() => {
-          if (app.current.matches(DiscussionPage)) {
-            app.current.get('stream').update();
-          }
-          m.redraw();
-        });
+      discussion.save({ relationships: { tags } }).then(() => {
+        if (app.current.matches(DiscussionPage)) {
+          app.current.get('stream').update();
+        }
+        m.redraw();
+      });
     }
 
     if (this.attrs.onsubmit) this.attrs.onsubmit(tags);

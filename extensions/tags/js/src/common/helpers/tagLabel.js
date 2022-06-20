@@ -18,7 +18,7 @@ export default function tagLabel(tag, attrs = {}) {
 
     if (link) {
       attrs.title = tag.description() || '';
-      attrs.href = app.route('tag', {tags: tag.slug()});
+      attrs.href = app.route('tag', { tags: tag.slug() });
     }
 
     if (tag.isChild()) {
@@ -28,11 +28,11 @@ export default function tagLabel(tag, attrs = {}) {
     attrs.className += ' untagged';
   }
 
-  return (
-    m((link ? Link : 'span'), attrs,
-      <span className="TagLabel-text">
-        {tag && tag.icon() && tagIcon(tag, {}, {useColor: false})} {tagText}
-      </span>
-    )
+  return m(
+    link ? Link : 'span',
+    attrs,
+    <span className="TagLabel-text">
+      {tag && tag.icon() && tagIcon(tag, {}, { useColor: false })} {tagText}
+    </span>
   );
 }

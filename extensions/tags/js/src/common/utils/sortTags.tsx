@@ -1,4 +1,4 @@
-import Tag from "../models/Tag";
+import Tag from '../models/Tag';
 
 export default function sortTags(tags: Tag[]) {
   return tags.slice(0).sort((a, b) => {
@@ -7,8 +7,7 @@ export default function sortTags(tags: Tag[]) {
 
     // If they're both secondary tags, sort them by their discussions count,
     // descending.
-    if (aPos === null && bPos === null)
-      return b.discussionCount() - a.discussionCount();
+    if (aPos === null && bPos === null) return b.discussionCount() - a.discussionCount();
 
     // If just one is a secondary tag, then the primary tag should
     // come first.
@@ -23,20 +22,14 @@ export default function sortTags(tags: Tag[]) {
     // If they both have the same parent, then their positions are local,
     // so we can compare them directly.
     if (aParent === bParent) return aPos - bPos;
-
     // If they are both child tags, then we will compare the positions of their
     // parents.
-    else if (aParent && bParent)
-      return aParent.position()! - bParent.position()!;
-
+    else if (aParent && bParent) return aParent.position()! - bParent.position()!;
     // If we are comparing a child tag with its parent, then we let the parent
     // come first. If we are comparing an unrelated parent/child, then we
     // compare both of the parents.
-    else if (aParent)
-      return aParent === b ? 1 : aParent.position()! - bPos;
-
-    else if (bParent)
-      return bParent === a ? -1 : aPos - bParent.position()!;
+    else if (aParent) return aParent === b ? 1 : aParent.position()! - bPos;
+    else if (bParent) return bParent === a ? -1 : aPos - bParent.position()!;
 
     return 0;
   });

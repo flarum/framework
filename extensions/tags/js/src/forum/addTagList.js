@@ -7,14 +7,17 @@ import TagLinkButton from './components/TagLinkButton';
 import TagsPage from './components/TagsPage';
 import sortTags from '../common/utils/sortTags';
 
-export default function() {
+export default function () {
   // Add a link to the tags page, as well as a list of all the tags,
   // to the index page's sidebar.
   extend(IndexPage.prototype, 'navItems', function (items) {
-    items.add('tags', <LinkButton icon="fas fa-th-large" href={app.route('tags')}>
-      {app.translator.trans('flarum-tags.forum.index.tags_link')}
-    </LinkButton>
-      , -10);
+    items.add(
+      'tags',
+      <LinkButton icon="fas fa-th-large" href={app.route('tags')}>
+        {app.translator.trans('flarum-tags.forum.index.tags_link')}
+      </LinkButton>,
+      -10
+    );
 
     if (app.current.matches(TagsPage)) return;
 
@@ -24,7 +27,7 @@ export default function() {
     const tags = app.store.all('tags');
     const currentTag = this.currentTag();
 
-    const addTag = tag => {
+    const addTag = (tag) => {
       let active = currentTag === tag;
 
       if (!active && currentTag) {
@@ -36,23 +39,21 @@ export default function() {
       // use its children to populate the dropdown. The problem here is that `view`
       // on TagLinkButton is only called AFTER SelectDropdown, so no children are available
       // for SelectDropdown to use at the time.
-      items.add('tag' + tag.id(), TagLinkButton.component({model: tag, params, active}, tag?.name()), -14);
+      items.add('tag' + tag.id(), TagLinkButton.component({ model: tag, params, active }, tag?.name()), -14);
     };
 
     sortTags(tags)
-      .filter(tag => tag.position() !== null && (!tag.isChild() || (currentTag && (tag.parent() === currentTag || tag.parent() === currentTag.parent()))))
+      .filter(
+        (tag) => tag.position() !== null && (!tag.isChild() || (currentTag && (tag.parent() === currentTag || tag.parent() === currentTag.parent())))
+      )
       .forEach(addTag);
 
-    const more = tags
-      .filter(tag => tag.position() === null)
-      .sort((a, b) => b.discussionCount() - a.discussionCount());
+    const more = tags.filter((tag) => tag.position() === null).sort((a, b) => b.discussionCount() - a.discussionCount());
 
     more.splice(0, 3).forEach(addTag);
 
     if (more.length) {
-      items.add('moreTags', <LinkButton href={app.route('tags')}>
-        {app.translator.trans('flarum-tags.forum.index.more_link')}
-      </LinkButton>, -16)
+      items.add('moreTags', <LinkButton href={app.route('tags')}>{app.translator.trans('flarum-tags.forum.index.more_link')}</LinkButton>, -16);
     }
   });
 }
