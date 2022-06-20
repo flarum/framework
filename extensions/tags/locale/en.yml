@@ -38,6 +38,15 @@ flarum-tags:
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
 
+    # These translations are used in the tag selector dropdown component.
+    tag_selector:
+      choose_tags_label: Choose tags...
+      error_label: Failed to load tags!
+      failed_parse: "Failed to parse tags selection settings value! (key: {settingKey})"
+      loading_label: Loading tags...
+      open_dropdown_a11y_label: Open tag selection dropdown
+      tags_selected_label: "{count} selected"
+
     # These translations are used in the Tag Settings modal dialog.
     tag_settings:
       range_separator_text: " to "

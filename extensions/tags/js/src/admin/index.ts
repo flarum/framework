@@ -4,6 +4,7 @@ import addTagsPermissionScope from './addTagsPermissionScope';
 import addTagPermission from './addTagPermission';
 import addTagsHomePageOption from './addTagsHomePageOption';
 import addTagChangePermission from './addTagChangePermission';
+import addCustomSettingComponent from './addCustomSettingComponent';
 import TagsPage from './components/TagsPage';
 
 app.initializers.add('flarum-tags', (app) => {
@@ -15,6 +16,7 @@ app.initializers.add('flarum-tags', (app) => {
   addTagPermission();
   addTagsHomePageOption();
   addTagChangePermission();
+  addCustomSettingComponent();
 });
 
 // Expose compat API
