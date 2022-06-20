@@ -9,7 +9,6 @@ import withAttr from 'flarum/common/utils/withAttr';
 import EditTagModal from './EditTagModal';
 import tagIcon from '../../common/helpers/tagIcon';
 import sortTags from '../../common/utils/sortTags';
-import TagSelector from './TagSelector';
 
 function tagItem(tag) {
   return (
