@@ -113,6 +113,11 @@ export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemO
   type: typeof ColorPreviewSettingType;
 }
 
+export interface CustomSettingComponentOptions extends CommonSettingsItemOptions {
+  type: string;
+  [key: string]: unknown;
+}
+
 /**
  * All valid options for the setting component builder.
  */
@@ -122,8 +127,7 @@ export type SettingsComponentOptions =
   | SelectSettingComponentOptions
   | TextareaSettingComponentOptions
   | ColorPreviewSettingComponentOptions
-  // For custom settings component options
-  | string;
+  | CustomSettingComponentOptions;
 
 /**
  * Valid attrs that can be returned by the `headerInfo` function
