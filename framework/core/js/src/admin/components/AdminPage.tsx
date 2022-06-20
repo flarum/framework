@@ -11,6 +11,7 @@ import saveSettings from '../utils/saveSettings';
 import AdminHeader from './AdminHeader';
 import generateElementId from '../utils/generateElementId';
 import ColorPreviewInput from '../../common/components/ColorPreviewInput';
+import ItemList from '../../common/utils/ItemList';
 
 export interface AdminHeaderOptions {
   title: Mithril.Children;
@@ -120,7 +121,9 @@ export type SettingsComponentOptions =
   | SwitchSettingComponentOptions
   | SelectSettingComponentOptions
   | TextareaSettingComponentOptions
-  | ColorPreviewSettingComponentOptions;
+  | ColorPreviewSettingComponentOptions
+  // For custom settings component options
+  | string;
 
 /**
  * Valid attrs that can be returned by the `headerInfo` function
@@ -186,6 +189,41 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
   }
 
   /**
+   * A list of extension-defined custom setting components to be available through
+   * {@link AdminPage.buildSettingComponent}.
+   *
+   * The ItemList key represents the value for `type` to be provided when calling
+   * {@link AdminPage.buildSettingComponent}. Other attributes passed are provided
+   * as arguments to the function added to the ItemList.
+   *
+   * ItemList priority has no effect here.
+   *
+   * @example
+   * ```tsx
+   * extend(AdminPage.prototype, 'customSettingComponents', function (items) {
+   *   // You can access the AdminPage instance with `this` to access its `settings` property.
+   *
+   *   // Prefixing the key with your extension ID is recommended to avoid collisions.
+   *   items.add('my-ext.setting-component', (attrs) => {
+   *     return (
+   *       <div className={attrs.className}>
+   *         <label>{attrs.label}</label>
+   *         {attrs.help && <p class="helpText">{attrs.help}</p>}
+   *
+   *         My setting component!
+   *       </div>
+   *     );
+   *   })
+   * })
+   * ```
+   */
+  customSettingComponents(): ItemList<(attributes: CommonSettingsItemOptions) => Mithril.Children> {
+    const items = new ItemList<(attributes: CommonSettingsItemOptions) => Mithril.Children>();
+
+    return items;
+  }
+
+  /**
    * `buildSettingComponent` takes a settings object and turns it into a component.
    * Depending on the type of input, you can set the type to 'bool', 'select', or
    * any standard <input> type. Any values inside the 'extra' object will be added
@@ -228,6 +266,8 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       return entry.call(this);
     }
 
+    const customSettingComponents = this.customSettingComponents();
+
     const { setting, help, type, label, ...componentAttrs } = entry;
 
     const value = this.setting(setting)();
@@ -262,8 +302,10 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
           {...otherAttrs}
         />
       );
+    } else if (customSettingComponents.has(type)) {
+      return customSettingComponents.get(type)({ setting, help, label, ...componentAttrs });
     } else {
-      componentAttrs.className = classList(['FormControl', componentAttrs.className]);
+      componentAttrs.className = classList('FormControl', componentAttrs.className);
 
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={this.setting(setting)} {...componentAttrs} />;
