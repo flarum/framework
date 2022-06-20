@@ -1,6 +1,7 @@
 import type Mithril from 'mithril';
 import Page, { IPageAttrs } from '../../common/components/Page';
 import Stream from '../../common/utils/Stream';
+import ItemList from '../../common/utils/ItemList';
 export interface AdminHeaderOptions {
     title: Mithril.Children;
     description: Mithril.Children;
@@ -22,7 +23,7 @@ export interface AdminHeaderOptions {
  * @see https://github.com/flarum/core/issues/3039
  */
 export declare type HTMLInputTypes = 'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week';
-interface CommonSettingsItemOptions extends Mithril.Attributes {
+export interface CommonSettingsItemOptions extends Mithril.Attributes {
     setting: string;
     label: Mithril.Children;
     help?: Mithril.Children;
@@ -72,10 +73,14 @@ export interface TextareaSettingComponentOptions extends CommonSettingsItemOptio
 export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemOptions {
     type: typeof ColorPreviewSettingType;
 }
+export interface CustomSettingComponentOptions extends CommonSettingsItemOptions {
+    type: string;
+    [key: string]: unknown;
+}
 /**
  * All valid options for the setting component builder.
  */
-export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions | TextareaSettingComponentOptions | ColorPreviewSettingComponentOptions;
+export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions | TextareaSettingComponentOptions | ColorPreviewSettingComponentOptions | CustomSettingComponentOptions;
 /**
  * Valid attrs that can be returned by the `headerInfo` function
  */
@@ -102,6 +107,36 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
      * Returns the options passed to the AdminHeader component.
      */
     headerInfo(): AdminHeaderAttrs;
+    /**
+     * A list of extension-defined custom setting components to be available through
+     * {@link AdminPage.buildSettingComponent}.
+     *
+     * The ItemList key represents the value for `type` to be provided when calling
+     * {@link AdminPage.buildSettingComponent}. Other attributes passed are provided
+     * as arguments to the function added to the ItemList.
+     *
+     * ItemList priority has no effect here.
+     *
+     * @example
+     * ```tsx
+     * extend(AdminPage.prototype, 'customSettingComponents', function (items) {
+     *   // You can access the AdminPage instance with `this` to access its `settings` property.
+     *
+     *   // Prefixing the key with your extension ID is recommended to avoid collisions.
+     *   items.add('my-ext.setting-component', (attrs) => {
+     *     return (
+     *       <div className={attrs.className}>
+     *         <label>{attrs.label}</label>
+     *         {attrs.help && <p class="helpText">{attrs.help}</p>}
+     *
+     *         My setting component!
+     *       </div>
+     *     );
+     *   })
+     * })
+     * ```
+     */
+    customSettingComponents(): ItemList<(attributes: CommonSettingsItemOptions) => Mithril.Children>;
     /**
      * `buildSettingComponent` takes a settings object and turns it into a component.
      * Depending on the type of input, you can set the type to 'bool', 'select', or
