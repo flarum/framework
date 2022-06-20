@@ -71,11 +71,11 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    */
   // TODO: [Flarum 2.0] Remove this.
   // @ts-expect-error This is a get accessor, while superclass defines this as a property. This is needed to prevent breaking changes, however.
-  protected get state() {
+  get state() {
     fireDeprecationWarning('`state` property of the Search component is deprecated', '3212');
     return this.searchState;
   }
-  protected set state(state: SearchState) {
+  set state(state: SearchState) {
     // Workaround to prevent triggering deprecation warnings due to Mithril
     // setting state to undefined when creating components
     state !== undefined && fireDeprecationWarning('`state` property of the Search component is deprecated', '3212');
@@ -107,7 +107,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
   protected navigator!: KeyboardNavigatable;
 
-  protected searchTimeout?: NodeJS.Timeout;
+  protected searchTimeout?: number;
 
   private updateMaxHeightHandler?: () => void;
 
@@ -240,7 +240,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
         if (!query) return;
 
         if (search.searchTimeout) clearTimeout(search.searchTimeout);
-        search.searchTimeout = setTimeout(() => {
+        search.searchTimeout = window.setTimeout(() => {
           if (state.isCached(query)) return;
 
           if (query.length >= (search.constructor as typeof Search).MIN_SEARCH_LEN) {
