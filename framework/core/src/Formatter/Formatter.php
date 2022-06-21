@@ -9,10 +9,14 @@
 
 namespace Flarum\Formatter;
 
+use DOMDocument;
+use DOMElement;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
+use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Unparser;
+use s9e\TextFormatter\Utils;
 
 class Formatter
 {
@@ -98,7 +102,7 @@ class Formatter
      * Render parsed XML.
      *
      * @param string $xml
-     * @param mixed $context
+     * @param mixed|null $context
      * @param ServerRequestInterface|null $request
      * @return string
      */
@@ -109,6 +113,8 @@ class Formatter
         foreach ($this->renderingCallbacks as $callback) {
             $xml = $callback($renderer, $context, $xml, $request);
         }
+
+        $xml = $this->configureDefaultsOnLinks($renderer, $xml, $context, $request);
 
         return $renderer->render($xml);
     }
@@ -174,11 +180,13 @@ class Formatter
      */
     protected function configureExternalLinks(Configurator $configurator)
     {
+        /** @var DOMDocument $dom */
         $dom = $configurator->tags['URL']->template->asDOM();
 
+        /** @var DOMElement $a */
         foreach ($dom->getElementsByTagName('a') as $a) {
-            $rel = $a->getAttribute('rel');
-            $a->setAttribute('rel', "$rel nofollow ugc");
+            $a->prependXslCopyOf('@target');
+            $a->prependXslCopyOf('@rel');
         }
 
         $dom->saveChanges();
@@ -217,7 +225,7 @@ class Formatter
     /**
      * Get the renderer.
      *
-     * @return \s9e\TextFormatter\Renderer
+     * @return Renderer
      */
     protected function getRenderer()
     {
@@ -238,5 +246,18 @@ class Formatter
     public function getJs()
     {
         return $this->getComponent('js');
+    }
+
+    protected function configureDefaultsOnLinks(
+        Renderer $renderer,
+        string $xml,
+        $context = null,
+        ServerRequestInterface $request = null
+    ): string {
+        return Utils::replaceAttributes($xml, 'URL', function ($attributes) {
+            $attributes['rel'] = $attributes['rel'] ?? 'ugc nofollow';
+
+            return $attributes;
+        });
     }
 }
