@@ -114,7 +114,7 @@ class Formatter
             $xml = $callback($renderer, $context, $xml, $request);
         }
 
-        $xml = $this->configureDefaultsOnLinks($renderer, $context, $xml, $request);
+        $xml = $this->configureDefaultsOnLinks($renderer, $xml, $context, $request);
 
         return $renderer->render($xml);
     }
@@ -250,8 +250,8 @@ class Formatter
 
     protected function configureDefaultsOnLinks(
         Renderer $renderer,
-        mixed $context = null,
         string $xml,
+        $context = null,
         ServerRequestInterface $request = null
     ): string {
         return Utils::replaceAttributes($xml, 'URL', function ($attributes) {
