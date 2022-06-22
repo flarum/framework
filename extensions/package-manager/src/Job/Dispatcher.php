@@ -73,7 +73,7 @@ class Dispatcher
             $command->task = $task;
 
             $this->queue->push(
-                new ComposerCommandJob($command)
+                new ComposerCommandJob($command, [PHP_MAJOR_VERSION, PHP_MINOR_VERSION])
             );
         } else {
             $data = $this->bus->dispatch($command);

@@ -21,14 +21,27 @@ class ComposerCommandJob extends AbstractJob
      */
     protected $command;
 
-    public function __construct(BusinessCommandInterface $command)
+    /**
+     * @var int[]
+     */
+    protected $phpVersion;
+
+    public function __construct(BusinessCommandInterface $command, array $phpVersion)
     {
         $this->command = $command;
+        $this->phpVersion = $phpVersion;
     }
 
     public function handle(Dispatcher $bus)
     {
         try {
+            if ([PHP_MAJOR_VERSION, PHP_MINOR_VERSION] !== [$this->phpVersion[0], $this->phpVersion[1]]) {
+                $webPhpVersion = implode('.', $this->phpVersion);
+                $sshPhpVersion = implode('.', [PHP_MAJOR_VERSION, PHP_MINOR_VERSION]);
+
+                throw new \Exception("PHP version mismatch. SSH PHP version must match web server PHP version. Found SSH (PHP $sshPhpVersion) and Web Server (PHP $webPhpVersion).");
+            }
+
             $this->command->task->start();
 
             $bus->dispatch($this->command);
