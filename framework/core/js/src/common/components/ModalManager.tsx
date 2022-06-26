@@ -28,11 +28,14 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     return this.attrs.state.modalList.map((modal: any) => {
       const Tag = modal?.componentClass;
 
-      // Make stackable modals
-      const zIndex = 9999 + modal.key;
-
       return (
-        <div className="ModalManager modal" modal-key={modal.key} style={{ zIndex }}>
+        <div
+          className="ModalManager modal"
+          data-modal-key={modal.key}
+          role="dialog"
+          style={{ '--modal-number': modal.key }}
+          aria-hidden={this.attrs.state.modal !== modal && 'true'}
+        >
           {!!Tag && (
             <Tag
               key={modal?.key}
@@ -74,8 +77,8 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
         }
 
         // Activate focus trap if there's a new dialog which is not trapped yet
-        if (this.dialogElement && this.lastSetFocusTrap !== dialogKey) {
-          this.focusTrap = createFocusTrap(this.dialogElement as HTMLElement, { allowOutsideClick: true });
+        if (this.activeDialogElement && this.lastSetFocusTrap !== dialogKey) {
+          this.focusTrap = createFocusTrap(this.activeDialogElement as HTMLElement, { allowOutsideClick: true });
 
           this.focusTrap!.activate?.();
         }
@@ -91,25 +94,25 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   /**
    * Get current active dialog
    */
-  private get dialogElement(): HTMLElement {
-    return document.body.querySelector(`div[modal-key="${this?.attrs?.state?.modal?.key}"] .Modal`) as HTMLElement;
+  private get activeDialogElement(): HTMLElement {
+    return document.body.querySelector(`div[data-modal-key="${this?.attrs?.state?.modal?.key}"] .Modal`) as HTMLElement;
   }
 
   /**
    * Get backdrop element of active dialog
    */
-  private get backdropElement(): HTMLElement {
-    return document.body.querySelector(`div[modal-key="${this?.attrs?.state?.modal?.key}"] .backdrop`) as HTMLElement;
+  private get activeBackdropElement(): HTMLElement {
+    return document.body.querySelector(`div[data-modal-key="${this?.attrs?.state?.modal?.key}"] .backdrop`) as HTMLElement;
   }
 
   animateShow(readyCallback: () => void): void {
     if (!this.attrs.state.modal) return;
 
-    this.dialogElement.addEventListener('transitionend', () => readyCallback(), { once: true });
+    this.activeDialogElement.addEventListener('transitionend', () => readyCallback(), { once: true });
 
     // Fade in
     requestAnimationFrame(() => {
-      this.dialogElement.classList.add('in');
+      this.activeDialogElement.classList.add('in');
     });
   }
 
@@ -117,7 +120,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     if (this.modalClosing) return;
     this.modalClosing = true;
 
-    this.backdropElement.addEventListener(
+    this.activeBackdropElement.addEventListener(
       'transitionend',
       () => {
         this.modalClosing = false;
@@ -131,8 +134,8 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
       { once: true }
     );
 
-    this.dialogElement.classList.remove('in');
-    this.dialogElement.classList.add('out');
+    this.activeDialogElement.classList.remove('in');
+    this.activeDialogElement.classList.add('out');
   }
 
   protected handleEscPress(e: KeyboardEvent): any {

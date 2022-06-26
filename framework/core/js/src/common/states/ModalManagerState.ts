@@ -55,7 +55,7 @@ export default class ModalManagerState {
    * @example <caption>Stacking modals</caption>
    * app.modal.show(MyCoolStackedModal, { attr: 'value' }, true);
    */
-  show(componentClass: UnsafeModalClass, attrs: Record<string, unknown> = {}, stackModal: Boolean = false): void {
+  show(componentClass: UnsafeModalClass, attrs: Record<string, unknown> = {}, stackModal: boolean = false): void {
     if (!(componentClass.prototype instanceof Modal)) {
       // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
       const invalidModalWarning = 'The ModalManager can only show Modals.';

@@ -12,7 +12,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: var(--zindex-modal);
+  z-index: ~"calc(9999 + var(--modal-number))";
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
   overflow-y: auto;
@@ -146,7 +146,7 @@
     max-width: 100%;
     margin: 0;
     -webkit-transform: none !important;
-            transform: none !important;
+    transform: none !important;
     top: 100vh;
 
     &.fade {
