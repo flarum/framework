@@ -4,6 +4,15 @@ flarum-subscriptions:
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
+  # Translations in this namespace are used by the admin user interface.
+  admin:
+
+    # These translations are displayed on the extension's settings page.
+    settings:
+      dont_notify_unless_caught_up:
+        label: "Don't notify users about new posts unless they're already caught up-to-date."
+        help: "When this setting is ON, users will only be notified about the next post in discussions they are subscribed to, and no further notifications will be sent until they have read all unread posts in the discussion. When OFF, all replies will generate notifications."
+
   # Translations in this namespace are used by the forum user interface.
   forum:
 

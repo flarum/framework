@@ -11,6 +11,7 @@ namespace Flarum\Subscriptions\Job;
 
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Post;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,14 +44,22 @@ class SendReplyNotification implements ShouldQueue
 
     public function handle(NotificationSyncer $notifications)
     {
+        /**
+         * @var SettingsRepositoryInterface
+         */
+        $settings = resolve(SettingsRepositoryInterface::class);
         $post = $this->post;
         $discussion = $post->discussion;
 
-        $notify = $discussion->readers()
+        $query = $discussion->readers()
             ->where('users.id', '!=', $post->user_id)
-            ->where('discussion_user.subscription', 'follow')
-            ->where('discussion_user.last_read_post_number', $this->lastPostNumber - 1)
-            ->get();
+            ->where('discussion_user.subscription', 'follow');
+
+        if ($settings->get('flarum-subscriptions.dont_notify_unless_caught_up', true)) {
+            $query = $query->where('discussion_user.last_read_post_number', $this->lastPostNumber - 1);
+        }
+
+        $notify = $query->get();
 
         $notifications->sync(
             new NewPostBlueprint($post),
