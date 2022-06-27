@@ -29,7 +29,6 @@ return [
         ->css(__DIR__.'/less/forum.less')
         ->route('/following', 'following'),
 
-
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
