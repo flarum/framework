@@ -27,8 +27,8 @@ return [
         ->js(__DIR__.'/js/dist/admin.js'),
 
     (new Extend\Model(Post::class))
-        ->relationship('recentLikes', Model\RecentLikesRelationship::class)
-        ->belongsToMany('likes', User::class, 'post_likes', 'post_id', 'user_id'),
+        ->belongsToMany('likes', User::class, 'post_likes', 'post_id', 'user_id')
+        ->relationship('recentLikes', Model\RecentLikesRelationship::class),
 
     new Extend\Locales(__DIR__.'/locale'),
 
@@ -38,7 +38,11 @@ return [
     (new Extend\ApiSerializer(PostSerializer::class))
         ->relationship('recentLikes', Api\RecentLikesRelationship::class)
         ->attributes(function (PostSerializer $serializer, $model, $attributes) {
-            if ($model->likes_count) $attributes['likesCount'] = $model->likes_count;
+            $actor = $serializer->getActor();
+            $model->loadCount('likes');
+            $attributes['likesCount'] = $model->likes_count;
+            $attributes['likedByActor'] = $actor && $model->likes()->where('id', $actor->id)->exists();
+
             return $attributes;
         })
         ->hasMany('likes', BasicUserSerializer::class)
@@ -48,20 +52,25 @@ return [
 
     (new Extend\ApiController(Controller\ShowDiscussionController::class))
         ->addOptionalInclude('posts.likes')
-        ->addInclude('posts.recentLikes'),
+        ->addInclude('posts.recentLikes')
+        ->load('posts.recentLikes'),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addOptionalInclude('likes')
-        ->addInclude('recentLikes'),
+        ->addInclude('recentLikes')
+        ->load('posts.recentLikes'),
     (new Extend\ApiController(Controller\ShowPostController::class))
         ->addOptionalInclude('likes')
-        ->addInclude('recentLikes'),
+        ->addInclude('recentLikes')
+        ->load('posts.recentLikes'),
     (new Extend\ApiController(Controller\CreatePostController::class))
         ->addOptionalInclude('likes')
-        ->addInclude('recentLikes'),
+        ->addInclude('recentLikes')
+        ->load('posts.recentLikes'),
     (new Extend\ApiController(Controller\UpdatePostController::class))
         ->addOptionalInclude('likes')
-        ->addInclude('recentLikes'),
+        ->addInclude('recentLikes')
+        ->load('posts.recentLikes'),
 
     (new Extend\Event())
         ->listen(Event\PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)

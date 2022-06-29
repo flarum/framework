@@ -16,6 +16,7 @@ app.initializers.add('flarum-likes', () => {
 
   Post.prototype.likesCount = Model.attribute('likesCount');
   Post.prototype.recentLikes = Model.hasMany('recentLikes');
+  Post.prototype.likedByActor = Model.attribute('likedByActor');
 
   addLikeAction();
   addLikesList();

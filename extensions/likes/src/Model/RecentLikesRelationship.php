@@ -15,9 +15,6 @@ class RecentLikesRelationship
             'post_id',
             'user_id'
         )
-            ->withCount([
-                'likes'
-            ])
             ->limit(3)
             ->orderBy('post_likes.created_at');
     }
