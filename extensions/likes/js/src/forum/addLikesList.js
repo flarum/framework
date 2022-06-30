@@ -23,7 +23,7 @@ export default function () {
       // Construct a list of names of users who have liked this post. Make sure the
       // current user is first in the list, and cap a maximum of 4 items.
       const names = likes
-        .filter((a) => (a !== app.session.user))
+        .filter((a) => a !== app.session.user)
         .slice(0, limit)
         .map((user) => {
           return (
@@ -34,12 +34,7 @@ export default function () {
         });
 
       if (post.likedByActor()) {
-        names
-          .unshift(
-          <Link href={app.route.user(app.session.user)}>
-            {app.translator.trans('flarum-likes.forum.post.you_text')}
-          </Link>
-        );
+        names.unshift(<Link href={app.route.user(app.session.user)}>{app.translator.trans('flarum-likes.forum.post.you_text')}</Link>);
       }
 
       // If there are more users that we've run out of room to display, add a "x
