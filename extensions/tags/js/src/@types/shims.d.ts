@@ -3,7 +3,7 @@ import type TagListState from '../forum/states/TagListState';
 
 declare module 'flarum/forum/routes' {
   export interface ForumRoutes {
-    tag: (tag: Tag) => string;
+    tag?: (tag: Tag) => string;
   }
 }
 
