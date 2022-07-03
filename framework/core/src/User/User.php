@@ -650,7 +650,7 @@ class User extends AbstractModel
      */
     public function assertAdmin()
     {
-        $this->assertCan($this, 'administrate');
+        $this->assertCan('administrate');
     }
 
     /**
