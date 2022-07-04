@@ -83,15 +83,16 @@ class ListTest extends TestCase
     }
 
     /**
+     * @dataProvider listTagsIncludes
      * @test
      */
-    public function user_sees_where_allowed_with_included_tags()
+    public function user_sees_where_allowed_with_included_tags(string $include, array $expectedIncludes)
     {
         $response = $this->send(
             $this->request('GET', '/api/tags', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                'include' => 'children'
+                'include' => $include
             ])
         );
 
@@ -106,7 +107,7 @@ class ListTest extends TestCase
         // 6, 7, 8 aren't included because child access shouldnt work unless parent
         // access is also given.
         $this->assertEquals(['1', '2', '3', '4', '9', '10', '11'], Arr::pluck($data, 'id'));
-        $this->assertEquals(['3', '4'], Arr::pluck($included, 'id'));
+        $this->assertEquals($expectedIncludes, Arr::pluck($included, 'id'));
     }
 
     /**
@@ -124,5 +125,13 @@ class ListTest extends TestCase
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEquals(['1', '2', '3', '4', '9', '10'], $ids);
+    }
+
+    public function listTagsIncludes(): array
+    {
+        return [
+            ['children', ['3', '4']],
+            ['parent', ['2']],
+        ];
     }
 }

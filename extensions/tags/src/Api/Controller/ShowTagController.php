@@ -49,11 +49,26 @@ class ShowTagController extends AbstractShowController
         $slug = Arr::get($request->getQueryParams(), 'slug');
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
+        $setParentOnChildren = false;
 
-        return $this->tags
+        if (in_array('parent.children.parent', $include, true)) {
+            $setParentOnChildren = true;
+            $include[] = 'parent.children';
+            $include = array_unique(array_diff($include, ['parent.children.parent']));
+        }
+
+        $tag = $this->tags
             ->with($include, $actor)
             ->whereVisibleTo($actor)
             ->where('slug', $slug)
             ->firstOrFail();
+
+        if ($setParentOnChildren && $tag->parent) {
+            foreach ($tag->parent->children as $child) {
+                $child->parent = $tag->parent;
+            }
+        }
+
+        return $tag;
     }
 }
