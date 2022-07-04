@@ -53,7 +53,7 @@ class Assets
         return $this;
     }
 
-    public function __invoke(Document $document, Request $request): void
+    public function __invoke(Document $document, Request $request)
     {
         $locale = $request->getAttribute('locale');
 
