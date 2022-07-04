@@ -190,6 +190,7 @@
       }
 
       .normal &:first-child {
+        height: var(--header-height-phone);
         margin: calc(~"0px - var(--header-height-phone)") 50px 0;
         text-align: center;
         position: relative;
@@ -198,6 +199,9 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         h3 {
           color: var(--header-control-color);
