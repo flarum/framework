@@ -68,14 +68,17 @@
     color: var(--heading-color) !important;
     padding: 8px 16px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 
     display: flex;
     align-items: center;
 
     // Prevent outline overflowing parent
     .add-keyboard-focus-ring-offset(-1px);
+
+    &, span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   &-badges {
