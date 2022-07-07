@@ -14,7 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
 
-class ListTest extends TestCase
+class ListPostsTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -84,5 +84,27 @@ class ListTest extends TestCase
         // Order-independent comparison
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['4'], $ids, 'IDs do not match');
+    }
+
+    /**
+     * @test
+     */
+    public function mentioned_filter_works_with_sort()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts')
+                ->withQueryParams([
+                    'filter' => ['mentioned' => 1],
+                    'sort' => '-createdAt'
+                ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        // Order-independent comparison
+        $ids = Arr::pluck($data, 'id');
+        $this->assertEqualsCanonicalizing(['2', '3'], $ids, 'IDs do not match');
     }
 }
