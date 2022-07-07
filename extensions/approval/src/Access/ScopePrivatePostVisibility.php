@@ -9,6 +9,7 @@
 
 namespace Flarum\Approval\Access;
 
+use Closure;
 use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,14 +40,23 @@ class ScopePrivatePostVisibility
         });
     }
 
-    private function discussionWhereCanApprovePosts(User $actor)
+    /**
+     * Looks if the actor has permission to approve posts,
+     * within the discussion which the post is a part of.
+     *
+     * For example, the tags extension,
+     * turns the `approvePosts` ability into per tag basis.
+     */
+    private function discussionWhereCanApprovePosts(User $actor): Closure
     {
         return function ($query) use ($actor) {
             $query->selectRaw('1')
                 ->from('discussions')
                 ->whereColumn('discussions.id', 'posts.discussion_id')
                 ->where(function ($query) use ($actor) {
-                    Discussion::query()->setQuery($query)->whereVisibleTo($actor, 'approvePosts');
+                    $query->whereRaw('1 != 1')->orWhere(function ($query) use ($actor) {
+                        Discussion::query()->setQuery($query)->whereVisibleTo($actor, 'approvePosts');
+                    });
                 });
         };
     }
