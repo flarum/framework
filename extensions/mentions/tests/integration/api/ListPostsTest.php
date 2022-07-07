@@ -105,6 +105,6 @@ class ListPostsTest extends TestCase
 
         // Order-independent comparison
         $ids = Arr::pluck($data, 'id');
-        $this->assertEqualsCanonicalizing(['2', '3'], $ids, 'IDs do not match');
+        $this->assertEqualsCanonicalizing(['3', '2'], $ids, 'IDs do not match');
     }
 }

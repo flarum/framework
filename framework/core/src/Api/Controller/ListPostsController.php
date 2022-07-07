@@ -116,6 +116,20 @@ class ListPostsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
+    protected function extractSort(ServerRequestInterface $request)
+    {
+        $sort = [];
+
+        foreach ((parent::extractSort($request) ?: []) as $field => $direction) {
+            $sort["posts.$field"] = $direction;
+        }
+
+        return $sort;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function extractOffset(ServerRequestInterface $request)
     {
         $actor = RequestUtil::getActor($request);
