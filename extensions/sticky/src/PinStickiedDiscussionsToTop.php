@@ -60,7 +60,6 @@ class PinStickiedDiscussionsToTop
             $query->orderByRaw('is_sticky and not exists ('.$read->toSql().') and last_posted_at > ? desc')
                 ->addBinding(array_merge($read->getBindings(), [$filterState->getActor()->read_time ?: 0]), 'union');
 
-            $query->unionOrders = array_merge($query->unionOrders, $query->orders);
             $query->unionLimit = $query->limit;
             $query->unionOffset = $query->offset;
 
