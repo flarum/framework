@@ -33,12 +33,14 @@ trait ApplyQueryParametersTrait
             $sort($query->getQuery());
         } else {
             foreach ((array) $sort as $field => $order) {
+                $field = $query->getQuery()->from.'.'.Str::snake($field);
+
                 if (is_array($order)) {
                     foreach ($order as $value) {
-                        $query->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
+                        $query->getQuery()->orderByRaw($field.' != ?', [$value]);
                     }
                 } else {
-                    $query->getQuery()->orderBy(Str::snake($field), $order);
+                    $query->getQuery()->orderBy($field, $order);
                 }
             }
         }
