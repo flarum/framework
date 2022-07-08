@@ -114,7 +114,7 @@ class ListPostsController extends AbstractListController
     }
 
     /**
-     * {@inheritdoc}
+     * @link https://github.com/flarum/framework/pull/3506
      */
     protected function extractSort(ServerRequestInterface $request)
     {
