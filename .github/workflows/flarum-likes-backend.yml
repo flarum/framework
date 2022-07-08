@@ -6,6 +6,6 @@ jobs:
   run:
     uses: ./.github/workflows/REUSABLE_backend.yml
     with:
-      enable_backend_testing: false
+      enable_backend_testing: true
 
       backend_directory: ./extensions/likes
