@@ -114,6 +114,20 @@ class ListPostsController extends AbstractListController
     }
 
     /**
+     * @link https://github.com/flarum/framework/pull/3506
+     */
+    protected function extractSort(ServerRequestInterface $request)
+    {
+        $sort = [];
+
+        foreach ((parent::extractSort($request) ?: []) as $field => $direction) {
+            $sort["posts.$field"] = $direction;
+        }
+
+        return $sort;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function extractOffset(ServerRequestInterface $request)
