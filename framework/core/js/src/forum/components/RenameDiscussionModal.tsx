@@ -56,7 +56,7 @@ export default class RenameDiscussionModal<CustomAttrs extends IRenameDiscussion
     );
   }
 
-  onsubmit(e: SubmitEvent): Promise<void>|void {
+  onsubmit(e: SubmitEvent): Promise<void> | void {
     e.preventDefault();
 
     this.loading = true;
@@ -81,8 +81,7 @@ export default class RenameDiscussionModal<CustomAttrs extends IRenameDiscussion
           this.loading = false;
           m.redraw();
         });
-    }
-    else {
+    } else {
       this.hide();
     }
   }
