@@ -1,35 +1,34 @@
 import app from '../../forum/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
+import Mithril from 'mithril';
+import RequestError from '../../common/utils/RequestError';
 
 /**
  * The `ChangeEmailModal` component shows a modal dialog which allows the user
  * to change their email address.
  */
-export default class ChangeEmailModal extends Modal {
-  oninit(vnode) {
+export default class ChangeEmailModal<CustomAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<CustomAttrs> {
+  /**
+   * The value of the email input.
+   */
+  email!: Stream<string>;
+
+  /**
+   * The value of the password input.
+   */
+  password!: Stream<string>;
+
+  /**
+   * Whether or not the email has been changed successfully.
+   */
+  success: boolean = false;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    /**
-     * Whether or not the email has been changed successfully.
-     *
-     * @type {Boolean}
-     */
-    this.success = false;
-
-    /**
-     * The value of the email input.
-     *
-     * @type {function}
-     */
-    this.email = Stream(app.session.user.email());
-
-    /**
-     * The value of the password input.
-     *
-     * @type {function}
-     */
+    this.email = Stream(app.session.user!.email() || '');
     this.password = Stream('');
   }
 
@@ -67,7 +66,7 @@ export default class ChangeEmailModal extends Modal {
               type="email"
               name="email"
               className="FormControl"
-              placeholder={app.session.user.email()}
+              placeholder={app.session.user!.email()}
               bidi={this.email}
               disabled={this.loading}
             />
@@ -98,12 +97,12 @@ export default class ChangeEmailModal extends Modal {
     );
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     // If the user hasn't actually entered a different email address, we don't
     // need to do anything. Woot!
-    if (this.email() === app.session.user.email()) {
+    if (this.email() === app.session.user!.email()) {
       this.hide();
       return;
     }
@@ -111,8 +110,8 @@ export default class ChangeEmailModal extends Modal {
     this.loading = true;
     this.alertAttrs = null;
 
-    app.session.user
-      .save(
+    app.session
+      .user!.save(
         { email: this.email() },
         {
           errorHandler: this.onerror.bind(this),
@@ -126,8 +125,8 @@ export default class ChangeEmailModal extends Modal {
       .then(this.loaded.bind(this));
   }
 
-  onerror(error) {
-    if (error.status === 401) {
+  onerror(error: RequestError) {
+    if (error.status === 401 && error.alert) {
       error.alert.content = app.translator.trans('core.forum.change_email.incorrect_password_message');
     }
 

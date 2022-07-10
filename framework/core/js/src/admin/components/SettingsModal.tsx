@@ -1,18 +1,18 @@
 import app from '../../admin/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
+import Mithril from 'mithril';
+import { MutableSettings, SettingValue } from './AdminPage';
 
-export default class SettingsModal extends Modal {
-  oninit(vnode) {
-    super.oninit(vnode);
+export interface ISettingsModalAttrs extends IInternalModalAttrs {}
 
-    this.settings = {};
-    this.loading = false;
-  }
+export default abstract class SettingsModal<CustomAttrs extends ISettingsModalAttrs = ISettingsModalAttrs> extends Modal<CustomAttrs> {
+  settings: MutableSettings = {};
+  loading: boolean = false;
 
-  form() {
+  form(): Mithril.Children {
     return '';
   }
 
@@ -28,7 +28,7 @@ export default class SettingsModal extends Modal {
     );
   }
 
-  submitButton() {
+  submitButton(): Mithril.Children {
     return (
       <Button type="submit" className="Button Button--primary" loading={this.loading} disabled={!this.changed()}>
         {app.translator.trans('core.admin.settings.submit_button')}
@@ -36,14 +36,14 @@ export default class SettingsModal extends Modal {
     );
   }
 
-  setting(key, fallback = '') {
+  setting(key: string, fallback: string = ''): Stream<SettingValue> {
     this.settings[key] = this.settings[key] || Stream(app.data.settings[key] || fallback);
 
     return this.settings[key];
   }
 
   dirty() {
-    const dirty = {};
+    const dirty: Record<string, SettingValue> = {};
 
     Object.keys(this.settings).forEach((key) => {
       const value = this.settings[key]();
@@ -60,7 +60,7 @@ export default class SettingsModal extends Modal {
     return Object.keys(this.dirty()).length;
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;

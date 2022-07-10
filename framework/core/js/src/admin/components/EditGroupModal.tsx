@@ -1,18 +1,31 @@
 import app from '../../admin/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 import Stream from '../../common/utils/Stream';
+import Mithril from 'mithril';
+import extractText from '../../common/utils/extractText';
+
+export interface IEditGroupModalAttrs extends IInternalModalAttrs {
+  group?: Group;
+}
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
  * to create or edit a group.
  */
-export default class EditGroupModal extends Modal {
-  oninit(vnode) {
+export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends Modal<CustomAttrs> {
+  group!: Group;
+  nameSingular!: Stream<string>;
+  namePlural!: Stream<string>;
+  icon!: Stream<string>;
+  color!: Stream<string>;
+  isHidden!: Stream<boolean>;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.group = this.attrs.group || app.store.createRecord('groups');
@@ -134,7 +147,7 @@ export default class EditGroupModal extends Modal {
     };
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
@@ -149,7 +162,7 @@ export default class EditGroupModal extends Modal {
   }
 
   deleteGroup() {
-    if (confirm(app.translator.trans('core.admin.edit_group.delete_confirmation'))) {
+    if (confirm(extractText(app.translator.trans('core.admin.edit_group.delete_confirmation')))) {
       this.group.delete().then(() => m.redraw());
       this.hide();
     }
