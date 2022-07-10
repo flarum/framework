@@ -55,7 +55,7 @@ class SendReplyNotification implements ShouldQueue
             ->where('users.id', '!=', $post->user_id)
             ->where('discussion_user.subscription', 'follow');
 
-        if ($settings->get('flarum-subscriptions.dont_notify_unless_caught_up')) {
+        if ($settings->get('flarum-subscriptions.notify_first_new_unread_post_only')) {
             $query = $query->where('discussion_user.last_read_post_number', $this->lastPostNumber - 1);
         }
 

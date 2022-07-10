@@ -66,5 +66,5 @@ return [
         ->addGambit(SubscriptionFilterGambit::class),
 
     (new Extend\Settings())
-        ->default('flarum-subscriptions.dont_notify_unless_caught_up', true),
+        ->default('flarum-subscriptions.notify_first_new_unread_post_only', true),
 ];
