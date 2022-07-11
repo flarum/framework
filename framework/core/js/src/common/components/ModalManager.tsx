@@ -71,7 +71,15 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
     requestAnimationFrame(() => {
       try {
-        if (!this.attrs.state.isModalOpen()) return;
+        // Main content should gain or lose `aria-hidden` when modals are shown/removed
+        // See: http://web-accessibility.carnegiemuseums.org/code/dialogs/
+
+        if (!this.attrs.state.isModalOpen()) {
+          document.getElementById('app')?.setAttribute('aria-hidden', 'false');
+          return;
+        }
+
+        document.getElementById('app')?.setAttribute('aria-hidden', 'true');
 
         // Get current dialog key
         const dialogKey = this.attrs.state.modal!.key;
