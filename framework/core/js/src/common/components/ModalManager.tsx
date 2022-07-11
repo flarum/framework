@@ -30,7 +30,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
       return (
         <div
-          className="ModalManager modal"
+          class="ModalManager modal"
           data-modal-key={modal.key}
           role="dialog"
           style={{ '--modal-number': i }}
@@ -46,7 +46,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
             />
           )}
 
-          <div className="backdrop" key={`backdrop-${modal.key}`} onclick={this.handleBackdropClick.bind(this)} />
+          <div class="backdrop" key={`backdrop-${modal.key}`} onclick={this.handleBackdropClick.bind(this)} />
         </div>
       );
     });
