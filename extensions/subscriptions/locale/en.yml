@@ -1,21 +1,28 @@
 flarum-subscriptions:
-
   ##
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
   # Translations in this namespace are used by the admin user interface.
   admin:
-
     # These translations are displayed on the extension's settings page.
     settings:
-      notify_first_new_unread_post_only:
-        label: "Don't notify users about new posts unless they're already caught up-to-date."
-        help: "When this setting is ON, users will only be notified about the next post in discussions they are subscribed to, and no further notifications will be sent until they have read all unread posts in the discussion. When OFF, all replies will generate notifications."
+      subscription_notification_criteria:
+        label: Default notification criteria
+        help: Determines under which conditions users will receive new post notifications.
+
+        options:
+          all_new: For all new posts, regardless of read status
+          first_new: For the first new post in a discussion, until it is read
+
+      enforce_subscription_notification_criteria:
+        label: Enforce notification criteria for all users
+        help: |
+          By default, users can change their own personal notification settings to differ from those above.
+          Enforcing the choice above will remove this option, and force the same choice for all users.
 
   # Translations in this namespace are used by the forum user interface.
   forum:
-
     # These translations are displayed as tooltips for discussion badges.
     badge:
       following_tooltip: => flarum-subscriptions.ref.following
@@ -39,6 +46,18 @@ flarum-subscriptions:
     notifications:
       new_post_text: "{username} posted"
 
+    # These translations are used on the user preferences page
+    user_preferences:
+      heading: Discussion subscriptions
+
+      subscription_notification_criteria:
+        label: Followed discussion notification options
+        help: Determines when you'll be sent notifications for discussions you're following
+
+        options:
+          all_new: For any new posts
+          first_new: Only for the first new post, until I've read the discussion
+
     # These translations are used in the Settings page.
     settings:
       follow_after_reply_label: Automatically follow discussions that I reply to
@@ -58,7 +77,6 @@ flarum-subscriptions:
 
   # Translations in this namespace are used in emails sent by the forum.
   email:
-
     # These translations are used in emails sent when a post is made in a subscribed discussion
     new_post:
       subject: "[New Post] {title}"
