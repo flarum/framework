@@ -10,7 +10,7 @@ import Modal, { IDismissibleOptions } from '../components/Modal';
  */
 type UnsafeModalClass = ComponentClass<any, Modal> & { get dismissibleOptions(): IDismissibleOptions; component: typeof Component.component };
 
-type ModalItem = null | {
+type ModalItem = {
   componentClass: UnsafeModalClass;
   attrs?: Record<string, unknown>;
   key: number;
@@ -25,12 +25,12 @@ export default class ModalManagerState {
   /**
    * @internal
    */
-  modal: ModalItem = null;
+  modal: ModalItem | null = null;
 
   /**
    * @internal
    */
-  modalList: Array<ModalItem> = [];
+  modalList: ModalItem[] = [];
 
   /**
    * Used to force re-initialization of modals if a modal

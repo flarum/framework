@@ -25,7 +25,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   protected modalClosing: boolean = false;
 
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
-    return this.attrs.state.modalList.map((modal: any) => {
+    return this.attrs.state.modalList.map((modal, i) => {
       const Tag = modal?.componentClass;
 
       return (
@@ -33,7 +33,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           className="ModalManager modal"
           data-modal-key={modal.key}
           role="dialog"
-          style={{ '--modal-number': modal.key }}
+          style={{ '--modal-number': i }}
           aria-hidden={this.attrs.state.modal !== modal && 'true'}
         >
           {!!Tag && (
