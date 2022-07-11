@@ -71,8 +71,10 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
     requestAnimationFrame(() => {
       try {
+        if (!this.attrs.state.isModalOpen()) return;
+
         // Get current dialog key
-        const dialogKey = this?.attrs?.state?.modal?.key;
+        const dialogKey = this.attrs.state.modal!.key;
 
         // Deactivate focus trap if there's a new dialog/closed
         if (this.focusTrap && this.lastSetFocusTrap !== dialogKey) {
