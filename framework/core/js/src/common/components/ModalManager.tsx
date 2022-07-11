@@ -30,6 +30,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
       return (
         <div
+          key={modal.key}
           class="ModalManager modal"
           data-modal-key={modal.key}
           role="dialog"
@@ -38,7 +39,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
         >
           {!!Tag && (
             <Tag
-              key={modal?.key}
+              key={modal.key}
               {...modal.attrs}
               animateShow={this.animateShow.bind(this)}
               animateHide={this.animateHide.bind(this)}
