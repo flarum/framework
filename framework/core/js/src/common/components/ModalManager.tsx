@@ -35,6 +35,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           data-modal-key={modal.key}
           data-modal-number={i}
           role="dialog"
+          aria-modal="true"
           style={{ '--modal-number': i }}
           data-visibility-state={modal.animationState}
           aria-hidden={this.attrs.state.modal !== modal && 'true'}
