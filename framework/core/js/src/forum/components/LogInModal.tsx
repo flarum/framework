@@ -146,7 +146,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     const email = this.identification();
     const attrs = email.includes('@') ? { email } : undefined;
 
-    app.modal.show(ForgotPasswordModal, attrs);
+    app.modal.show(ForgotPasswordModal, attrs, true);
   }
 
   /**
