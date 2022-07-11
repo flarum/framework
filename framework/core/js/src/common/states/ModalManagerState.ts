@@ -81,31 +81,23 @@ export default class ModalManagerState {
   }
 
   /**
-   * Closes the currently open dialog, if one is open.
+   * Closes the topmost currently open dialog, if one is open.
    */
   close(): void {
     if (!this.modal) return;
 
     // If there are two modals, remove the most recent one
-    if (this.modalList.length >= 2) {
-      const currentModalPosition = this.modalList.indexOf(this.modal);
-
+    if (this.modalList.length > 1) {
       // Remove last modal from list
-      this.modalList.splice(currentModalPosition, 1);
+      this.modalList.pop();
 
       // Open last modal from list
       this.modal = this.modalList[this.modalList.length - 1];
-
-      m.redraw();
-
-      return;
+    } else {
+      // Reset state
+      this.modal = null;
+      this.modalList = [];
     }
-
-    // Reset current modal
-    this.modal = null;
-
-    // Empty modal list
-    this.modalList = [];
 
     m.redraw();
   }
