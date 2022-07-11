@@ -14,6 +14,7 @@ type ModalItem = {
   componentClass: UnsafeModalClass;
   attrs?: Record<string, unknown>;
   key: number;
+  animationState: 'entering' | 'entered' | 'entered-underneath' | 'exiting';
 };
 
 /**
@@ -64,12 +65,12 @@ export default class ModalManagerState {
     }
 
     // Set current modal
-    this.modal = { componentClass, attrs, key: this.key++ };
+    this.modal = { componentClass, attrs, key: this.key++, animationState: 'entering' };
 
     // We want to stack this modal
     if (stackModal) {
-      // Remember previously opened modal and
-      // add new modal to the modal list
+      // Remember previously opened modal and add new modal to the modal list
+      this.modalList.forEach((m) => (m.animationState = 'entered-underneath'));
       this.modalList.push(this.modal);
     } else {
       // Override last modals

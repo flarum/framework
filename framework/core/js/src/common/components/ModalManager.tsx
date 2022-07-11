@@ -33,8 +33,10 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           key={modal.key}
           class="ModalManager modal"
           data-modal-key={modal.key}
+          data-modal-number={i}
           role="dialog"
           style={{ '--modal-number': i }}
+          data-visibility-state={modal.animationState}
           aria-hidden={this.attrs.state.modal !== modal && 'true'}
         >
           {!!Tag && (
@@ -106,12 +108,20 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     return document.body.querySelector(`div[data-modal-key="${this?.attrs?.state?.modal?.key}"] .backdrop`) as HTMLElement;
   }
 
-  animateShow(readyCallback: () => void): void {
+  animateShow(readyCallback: () => void = () => {}): void {
     if (!this.attrs.state.modal) return;
 
-    this.activeDialogElement.addEventListener('transitionend', () => readyCallback(), { once: true });
+    this.activeDialogElement.addEventListener(
+      'transitionend',
+      () => {
+        this.attrs.state.modal!.animationState = 'entered';
+        m.redraw();
 
-    // Fade in
+        readyCallback();
+      },
+      { once: true }
+    );
+
     requestAnimationFrame(() => {
       this.activeDialogElement.classList.add('in');
     });
@@ -121,19 +131,22 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     if (this.modalClosing) return;
     this.modalClosing = true;
 
-    this.activeBackdropElement.addEventListener(
-      'transitionend',
-      () => {
-        this.modalClosing = false;
-        m.redraw();
+    const afterModalClosedCallback = () => {
+      this.modalClosing = false;
 
-        // Close the dialog
-        this.attrs.state.close();
+      // Close the dialog
+      this.attrs.state.close();
 
-        closedCallback();
-      },
-      { once: true }
-    );
+      closedCallback();
+    };
+
+    this.activeDialogElement.addEventListener('transitionend', afterModalClosedCallback, { once: true });
+
+    this.attrs.state.modal!.animationState = 'exiting';
+
+    // Update animation state of next modal on the stack
+    const thisModalIndex = parseInt(this.activeDialogElement.parentElement?.getAttribute('data-modal-number')!);
+    thisModalIndex >= 1 && (this.attrs.state.modalList[thisModalIndex - 1].animationState = 'entered');
 
     this.activeDialogElement.classList.remove('in');
     this.activeDialogElement.classList.add('out');
