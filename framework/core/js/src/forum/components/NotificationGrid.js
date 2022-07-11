@@ -70,7 +70,14 @@ export default class NotificationGrid extends Component {
                       loading={this.loading[key]}
                       disabled={!(key in preferences)}
                       onchange={this.toggle.bind(this, [key])}
-                    />
+                    >
+                      <span class="sr-only">
+                        {app.translator.trans('core.forum.settings.notification_checkbox_a11y_label_template', {
+                          description: type.label,
+                          method: method.label,
+                        })}
+                      </span>
+                    </Checkbox>
                   </td>
                 );
               })}
