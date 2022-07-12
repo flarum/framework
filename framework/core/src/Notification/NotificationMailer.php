@@ -52,7 +52,7 @@ class NotificationMailer
     {
         // Ensure that notifications are delivered to the user in their default language, if they've selected one.
         // If the selected locale is no longer available, the forum default will be used instead.
-		$this->translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
+        $this->translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
 
         $this->mailer->send(
             $blueprint->getEmailView(),
