@@ -29,8 +29,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/core",
+        "issues": "https://github.com/flarum/framework/issues",
+        "source": "https://github.com/flarum/flarum-core",
         "docs": "https://docs.flarum.org",
         "forum": "https://discuss.flarum.org",
         "chat": "https://flarum.org/chat"
