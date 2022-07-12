@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.4.0](https://github.com/flarum/framework/compare/v1.3.1...v1.4.0)
+
+### Added
+- `created_at` and `updated_at` columns added to several tables (https://github.com/flarum/framework/pull/3435)
+- Priorities added to AdminNav links (https://github.com/flarum/framework/pull/3453)
+- `app.translator` allows retrieving and setting locale (https://github.com/flarum/framework/pull/3451)
+- Extensions can now declare custom settings components for use with `buildSettingComponent` (https://github.com/flarum/framework/pull/3494)
+- Implement extensibility on `rel` and `target` attributes on links (https://github.com/flarum/framework/pull/3455)
+- New backend tests were added to some of the bundled extensions (https://github.com/flarum/framework/issues/3508)
+
+### Changed
+- Split boot script for Flarum in HTML footer into two parts for CSP hashing (https://github.com/flarum/framework/pull/3461)
+- Split asset compilation by giving assembling compilers its own method (https://github.com/flarum/framework/pull/3446)
+- Increase visibility of Component typescript class for better extensibility (https://github.com/flarum/framework/pull/3437)
+
+### Fixed
+- Mentioning an event post breaks the notification dropdown (https://github.com/flarum/framework/pull/3493)
+- Suspension modal shows after suspension is over (https://github.com/flarum/framework/pull/3449)
+- CLI based installations don't exit with an error code on failure (https://github.com/flarum/framework/pull/3452)
+- Tabbing through dropdown controls doesn't make them visible (https://github.com/flarum/framework/pull/3450)
+- Requiring zero tags on new discussions forces the user to  select tags (https://github.com/flarum/framework/pull/3448)
+- Long topic titles in the notification list don't overflow (https://github.com/flarum/framework/pull/3500)
+- Subtags of tags the user has access to are visible even if these are not accessible (https://github.com/flarum/framework/pull/3419)
+- `assertAdmin` tests access based on wrong gate ability (https://github.com/flarum/framework/pull/3501)
+- Increasing the composer header size causes elements to slip underneath (https://github.com/flarum/framework/pull/3502)
+- The profile mentions tab errors when sorting by `created_at` (https://github.com/flarum/framework/pull/3506)
+
 ## [1.3.1](https://github.com/flarum/framework/compare/v1.3.0...v1.3.1)
 
 ### Changed
