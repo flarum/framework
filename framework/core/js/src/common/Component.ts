@@ -156,5 +156,5 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
    *
    * This can be used to assign default values for missing, optional attrs.
    */
-  static initAttrs<T>(attrs: T): void {}
+  static initAttrs(attrs: unknown): void {}
 }
