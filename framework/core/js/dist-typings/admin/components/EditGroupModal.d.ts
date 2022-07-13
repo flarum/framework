@@ -1,29 +1,35 @@
+/// <reference path="../../@types/translator-icu-rich.d.ts" />
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import Group from '../../common/models/Group';
+import ItemList from '../../common/utils/ItemList';
+import Stream from '../../common/utils/Stream';
+import Mithril from 'mithril';
+export interface IEditGroupModalAttrs extends IInternalModalAttrs {
+    group?: Group;
+}
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
  * to create or edit a group.
  */
-export default class EditGroupModal extends Modal<import("../../common/components/Modal").IInternalModalAttrs> {
-    constructor();
-    oninit(vnode: any): void;
-    group: any;
-    nameSingular: Stream<any> | undefined;
-    namePlural: Stream<any> | undefined;
-    icon: Stream<any> | undefined;
-    color: Stream<any> | undefined;
-    isHidden: Stream<any> | undefined;
-    title(): any[];
+export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends Modal<CustomAttrs> {
+    group: Group;
+    nameSingular: Stream<string>;
+    namePlural: Stream<string>;
+    icon: Stream<string>;
+    color: Stream<string>;
+    isHidden: Stream<boolean>;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    className(): string;
+    title(): (Mithril.Vnode<{}, {}> | import("@askvortsov/rich-icu-message-formatter").NestedStringArray)[];
     content(): JSX.Element;
-    fields(): ItemList<any>;
+    fields(): ItemList<unknown>;
     submitData(): {
-        nameSingular: any;
-        namePlural: any;
-        color: any;
-        icon: any;
-        isHidden: any;
+        nameSingular: string;
+        namePlural: string;
+        color: string;
+        icon: string;
+        isHidden: boolean;
     };
-    onsubmit(e: any): void;
+    onsubmit(e: SubmitEvent): void;
     deleteGroup(): void;
 }
-import Modal from "../../common/components/Modal";
-import Stream from "../../common/utils/Stream";
-import ItemList from "../../common/utils/ItemList";

@@ -1,32 +1,29 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import Stream from '../../common/utils/Stream';
+import Mithril from 'mithril';
+import RequestError from '../../common/utils/RequestError';
 /**
  * The `ChangeEmailModal` component shows a modal dialog which allows the user
  * to change their email address.
  */
-export default class ChangeEmailModal extends Modal<import("../../common/components/Modal").IInternalModalAttrs> {
-    constructor();
-    oninit(vnode: any): void;
-    /**
-     * Whether or not the email has been changed successfully.
-     *
-     * @type {Boolean}
-     */
-    success: boolean | undefined;
+export default class ChangeEmailModal<CustomAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<CustomAttrs> {
     /**
      * The value of the email input.
-     *
-     * @type {function}
      */
-    email: Function | undefined;
+    email: Stream<string>;
     /**
      * The value of the password input.
-     *
-     * @type {function}
      */
-    password: Function | undefined;
+    password: Stream<string>;
+    /**
+     * Whether or not the email has been changed successfully.
+     */
+    success: boolean;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    className(): string;
     title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     content(): JSX.Element;
-    onsubmit(e: any): void;
-    onerror(error: any): void;
+    onsubmit(e: SubmitEvent): void;
+    onerror(error: RequestError): void;
 }
-import Modal from "../../common/components/Modal";

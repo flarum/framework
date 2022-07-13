@@ -85,8 +85,10 @@ export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions
  * Valid attrs that can be returned by the `headerInfo` function
  */
 export declare type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
+export declare type SettingValue = string;
+export declare type MutableSettings = Record<string, Stream<SettingValue>>;
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
-    settings: Record<string, Stream<string>>;
+    settings: MutableSettings;
     loading: boolean;
     view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children;
     /**
