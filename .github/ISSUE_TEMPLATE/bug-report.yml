@@ -36,7 +36,7 @@ body:
     id: screenshots
     attributes:
       label: Screenshots
-      decscription: If applicable, add screenshots to help explain your problem.
+      description: If applicable, add screenshots to help explain your problem.
     validations:
       required: false
   - type: textarea
@@ -50,7 +50,7 @@ body:
         - Hosting environment: [e.g. shared, vps]
         - PHP version: x.y.z
         - Browser: [e.g. chrome 67, safari 11]
-    validation:
+    validations:
       required: true
   - type: textarea
     id: php_flarum_info
@@ -60,19 +60,19 @@ body:
         ```
         Output of "php flarum info", run this in terminal in your Flarum directory.
         ```
-    validation:
+    validations:
       required: false
   - type: textarea
     id: possible_solution
     attributes:
       label: Possible Solution
       description: Only if you have suggestions or a fix for the bug.
-    validation:
+    validations:
       required: false
   - type: textarea
     id: additional_context
     attributes:
       label: Additional Context
       description: Add any other context about the problem here.
-    validation:
+    validations:
       required: false
