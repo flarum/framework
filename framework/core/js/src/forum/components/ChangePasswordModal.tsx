@@ -1,12 +1,12 @@
 import app from '../../forum/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 
 /**
  * The `ChangePasswordModal` component shows a modal dialog which allows the
  * user to send themself a password reset email.
  */
-export default class ChangePasswordModal extends Modal {
+export default class ChangePasswordModal<CustomAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<CustomAttrs> {
   className() {
     return 'ChangePasswordModal Modal--small';
   }
@@ -35,7 +35,7 @@ export default class ChangePasswordModal extends Modal {
     );
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
@@ -44,7 +44,7 @@ export default class ChangePasswordModal extends Modal {
       .request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/forgot',
-        body: { email: app.session.user.email() },
+        body: { email: app.session.user!.email() },
       })
       .then(this.hide.bind(this), this.loaded.bind(this));
   }

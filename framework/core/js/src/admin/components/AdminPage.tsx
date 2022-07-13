@@ -134,8 +134,11 @@ export type SettingsComponentOptions =
  */
 export type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
 
+export type SettingValue = string;
+export type MutableSettings = Record<string, Stream<SettingValue>>;
+
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
-  settings: Record<string, Stream<string>> = {};
+  settings: MutableSettings = {};
   loading: boolean = false;
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {

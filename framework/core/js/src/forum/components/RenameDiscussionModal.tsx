@@ -1,13 +1,24 @@
 import app from '../../forum/app';
-import Modal from '../../common/components/Modal';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
+import Mithril from 'mithril';
+import Discussion from '../../common/models/Discussion';
+
+export interface IRenameDiscussionModalAttrs extends IInternalModalAttrs {
+  discussion: Discussion;
+  currentTitle: string;
+}
 
 /**
  * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion
  */
-export default class RenameDiscussionModal extends Modal {
-  oninit(vnode) {
+export default class RenameDiscussionModal<CustomAttrs extends IRenameDiscussionModalAttrs = IRenameDiscussionModalAttrs> extends Modal<CustomAttrs> {
+  discussion!: Discussion;
+  currentTitle!: string;
+  newTitle!: Stream<string>;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.discussion = this.attrs.discussion;
@@ -45,7 +56,7 @@ export default class RenameDiscussionModal extends Modal {
     );
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent): Promise<void> | void {
     e.preventDefault();
 
     this.loading = true;
