@@ -70,7 +70,9 @@ export default class StatisticsWidget extends DashboardWidget {
     this.periods = {
       today: { start: today, end: today + 86400, step: 3600 },
       last_7_days: { start: today - 86400 * 7, end: today, step: 86400 },
+      previous_7_days: { start: today - 86400 * 14, end: today - 86400 * 7, step: 86400 },
       last_28_days: { start: today - 86400 * 28, end: today, step: 86400 },
+      previous_28_days: { start: today - 86400 * 28 * 2, end: today - 86400 * 28, step: 86400 },
       last_12_months: { start: today - 86400 * 364, end: today, step: 86400 * 7 },
     };
 
