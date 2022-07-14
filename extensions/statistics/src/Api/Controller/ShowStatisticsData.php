@@ -14,10 +14,10 @@ use DateTimeZone;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
+use Flarum\Post\RegisteredTypesScope;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -61,7 +61,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         $entities = [
             'users' => [User::query(), 'joined_at'],
             'discussions' => [Discussion::query(), 'created_at'],
-            'posts' => [Post::where('type', 'comment'), 'created_at']
+            'posts' => [Post::where('type', 'comment')->withoutGlobalScope(RegisteredTypesScope::class), 'created_at']
         ];
 
         return array_map(function ($entity) {
