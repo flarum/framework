@@ -107,6 +107,8 @@ export default class CommentPost extends Post {
         editing: this.isEditing(),
       });
 
+    if (this.isEditing()) attrs['aria-busy'] = 'true';
+
     return attrs;
   }
 

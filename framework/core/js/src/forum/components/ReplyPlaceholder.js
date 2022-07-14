@@ -18,7 +18,7 @@ export default class ReplyPlaceholder extends Component {
   view() {
     if (app.composer.composingReplyTo(this.attrs.discussion)) {
       return (
-        <article className="Post CommentPost editing">
+        <article className="Post CommentPost editing" aria-busy="true">
           <header className="Post-header">
             <div className="PostUser">
               <h3>
