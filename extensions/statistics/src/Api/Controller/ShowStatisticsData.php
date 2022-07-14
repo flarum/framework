@@ -18,6 +18,7 @@ use Flarum\Post\RegisteredTypesScope;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,6 +26,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {
+    protected $entities = [];
+
     /**
      * @var SettingsRepositoryInterface
      */
@@ -33,6 +36,12 @@ class ShowStatisticsData implements RequestHandlerInterface
     public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
+
+        $this->entities = [
+            'users' => [User::query(), 'joined_at'],
+            'discussions' => [Discussion::query(), 'created_at'],
+            'posts' => [Post::where('type', 'comment')->withoutGlobalScope(RegisteredTypesScope::class), 'created_at']
+        ];
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -43,33 +52,35 @@ class ShowStatisticsData implements RequestHandlerInterface
         // control panel.
         $actor->assertAdmin();
 
-        // $reportingPeriod = Arr::get($request->getQueryParams(), 'period');
+        $reportingPeriod = Arr::get($request->getQueryParams(), 'period');
 
-        return new JsonResponse($this->getResponse());
+        return new JsonResponse($this->getResponse($reportingPeriod));
     }
 
-    private function getResponse(): array
+    private function getResponse(?string $period): array
     {
+        if ($period === 'lifetime') {
+            return $this->getLifetimeStatistics();
+        }
+
         return array_merge(
-            $this->getStatistics(),
+            $this->getTimedStatistics(),
             ['timezoneOffset' => $this->getUserTimezone()->getOffset(new DateTime)]
         );
     }
 
-    private function getStatistics()
+    private function getLifetimeStatistics()
     {
-        $entities = [
-            'users' => [User::query(), 'joined_at'],
-            'discussions' => [Discussion::query(), 'created_at'],
-            'posts' => [Post::where('type', 'comment')->withoutGlobalScope(RegisteredTypesScope::class), 'created_at']
-        ];
-
         return array_map(function ($entity) {
-            return [
-                'total' => $entity[0]->count(),
-                'timed' => $this->getTimedCounts($entity[0], $entity[1])
-            ];
-        }, $entities);
+            return $entity[0]->count();
+        }, $this->entities);
+    }
+
+    private function getTimedStatistics()
+    {
+        return array_map(function ($entity) {
+            return $this->getTimedCounts($entity[0], $entity[1]);
+        }, $this->entities);
     }
 
     private function getTimedCounts(Builder $query, $column)
@@ -83,7 +94,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
+                    @date := DATE_ADD(' . $column . ', INTERVAL ? SECOND), -- convert to user timezone
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
                 [$offset, new DateTime('-25 hours')]

@@ -3,23 +3,50 @@ import DashboardWidget from 'flarum/admin/components/DashboardWidget';
 import SelectDropdown from 'flarum/common/components/SelectDropdown';
 import Button from 'flarum/common/components/Button';
 import icon from 'flarum/common/helpers/icon';
-import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
+// import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+
+const abbreviateNumber = (x) => x;
 
 import { Chart } from 'frappe-charts';
 
 export default class StatisticsWidget extends DashboardWidget {
-  statisticsData;
-  loading = true;
+  entities = ['users', 'discussions', 'posts'];
+  selectedEntity = 'users';
+
+  timedData;
+  lifetimeData;
+
+  loadingLifetime = true;
+  loadingTimed = true;
 
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    this.loadData();
+    this.loadLifetimeData();
+    this.loadTimedData();
   }
 
-  async loadData() {
-    this.loading = true;
+  async loadLifetimeData() {
+    this.loadingLifetime = true;
+    m.redraw();
+
+    const data = await app.request({
+      method: 'GET',
+      url: app.forum.attribute('apiUrl') + '/statistics',
+      params: {
+        period: 'lifetime',
+      },
+    });
+
+    this.lifetimeData = data;
+    this.loadingLifetime = false;
+
+    m.redraw();
+  }
+
+  async loadTimedData() {
+    this.loadingTimed = true;
     m.redraw();
 
     const data = await app.request({
@@ -27,26 +54,19 @@ export default class StatisticsWidget extends DashboardWidget {
       url: app.forum.attribute('apiUrl') + '/statistics',
     });
 
-    this.statisticsData = data;
-    this.loading = false;
+    this.timedData = data;
+    this.loadingTimed = false;
 
-    this.processData();
-
-    m.redraw();
-  }
-
-  processData() {
     // Create a Date object which represents the start of the day in the
     // configured timezone. To do this we convert a UTC time into that timezone,
     // reset to the first hour of the day, and then convert back into UTC time.
     // We'll be working with seconds rather than milliseconds throughout too.
     let today = new Date();
-    today.setTime(today.getTime() + this.statisticsData.timezoneOffset * 1000);
+    today.setTime(today.getTime() + this.timedData.timezoneOffset * 1000);
     today.setUTCHours(0, 0, 0, 0);
-    today.setTime(today.getTime() - this.statisticsData.timezoneOffset * 1000);
+    today.setTime(today.getTime() - this.timedData.timezoneOffset * 1000);
     today = today / 1000;
 
-    this.entities = ['users', 'discussions', 'posts'];
     this.periods = {
       today: { start: today, end: today + 86400, step: 3600 },
       last_7_days: { start: today - 86400 * 7, end: today, step: 86400 },
@@ -54,7 +74,6 @@ export default class StatisticsWidget extends DashboardWidget {
       last_12_months: { start: today - 86400 * 364, end: today, step: 86400 * 7 },
     };
 
-    this.selectedEntity = 'users';
     this.selectedPeriod = 'last_7_days';
 
     m.redraw();
@@ -65,36 +84,41 @@ export default class StatisticsWidget extends DashboardWidget {
   }
 
   content() {
-    if (this.loading) {
-      return <LoadingIndicator size="large" />;
-    }
-
-    const thisPeriod = this.periods[this.selectedPeriod];
+    const thisPeriod = this.loadingTimed ? null : this.periods[this.selectedPeriod];
 
     return (
       <div className="StatisticsWidget-table">
         <div className="StatisticsWidget-labels">
           <div className="StatisticsWidget-label">{app.translator.trans('flarum-statistics.admin.statistics.total_label')}</div>
           <div className="StatisticsWidget-label">
-            <SelectDropdown buttonClassName="Button Button--text" caretIcon="fas fa-caret-down">
-              {Object.keys(this.periods).map((period) => (
-                <Button
-                  active={period === this.selectedPeriod}
-                  onclick={this.changePeriod.bind(this, period)}
-                  icon={period === this.selectedPeriod ? 'fas fa-check' : true}
-                >
-                  {app.translator.trans(`flarum-statistics.admin.statistics.${period}_label`)}
-                </Button>
-              ))}
-            </SelectDropdown>
+            {this.loadingTimed ? (
+              <LoadingIndicator size="small" display="inline" />
+            ) : (
+              <SelectDropdown disabled={this.loadingTimed} buttonClassName="Button Button--text" caretIcon="fas fa-caret-down">
+                {Object.keys(this.periods).map((period) => (
+                  <Button
+                    key={period}
+                    active={period === this.selectedPeriod}
+                    onclick={this.changePeriod.bind(this, period)}
+                    icon={period === this.selectedPeriod ? 'fas fa-check' : true}
+                  >
+                    {app.translator.trans(`flarum-statistics.admin.statistics.${period}_label`)}
+                  </Button>
+                ))}
+              </SelectDropdown>
+            )}
           </div>
         </div>
 
         {this.entities.map((entity) => {
-          const totalCount = this.getTotalCount(entity);
-          const thisPeriodCount = this.getPeriodCount(entity, thisPeriod);
-          const lastPeriodCount = this.getPeriodCount(entity, this.getLastPeriod(thisPeriod));
-          const periodChange = lastPeriodCount > 0 && ((thisPeriodCount - lastPeriodCount) / lastPeriodCount) * 100;
+          const totalCount = this.loadingLifetime ? app.translator.trans('flarum-statistics.admin.statistics.loading') : this.getTotalCount(entity);
+          const thisPeriodCount = this.loadingTimed
+            ? app.translator.trans('flarum-statistics.admin.statistics.loading')
+            : this.getPeriodCount(entity, thisPeriod);
+          const lastPeriodCount = this.loadingTimed
+            ? app.translator.trans('flarum-statistics.admin.statistics.loading')
+            : this.getPeriodCount(entity, this.getLastPeriod(thisPeriod));
+          const periodChange = this.loadingTimed ? false : lastPeriodCount > 0 && ((thisPeriodCount - lastPeriodCount) / lastPeriodCount) * 100;
 
           return (
             <a
@@ -103,36 +127,41 @@ export default class StatisticsWidget extends DashboardWidget {
             >
               <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>
               <div className="StatisticsWidget-total" title={totalCount}>
-                {abbreviateNumber(totalCount)}
+                {this.loadingLifetime ? <LoadingIndicator display="inline" /> : abbreviateNumber(totalCount)}
               </div>
               <div className="StatisticsWidget-period" title={thisPeriodCount}>
-                {abbreviateNumber(thisPeriodCount)}{' '}
-                {periodChange ? (
-                  <span className={'StatisticsWidget-change StatisticsWidget-change--' + (periodChange > 0 ? 'up' : 'down')}>
-                    {icon('fas fa-arrow-' + (periodChange > 0 ? 'up' : 'down'))}
-                    {Math.abs(periodChange.toFixed(1))}%
-                  </span>
-                ) : (
-                  ''
+                {this.loadingTimed ? <LoadingIndicator display="inline" /> : abbreviateNumber(thisPeriodCount)}
+                {!!periodChange && (
+                  <>
+                    {' '}
+                    <span className={'StatisticsWidget-change StatisticsWidget-change--' + (periodChange > 0 ? 'up' : 'down')}>
+                      {icon('fas fa-arrow-' + (periodChange > 0 ? 'up' : 'down'))}
+                      {Math.abs(periodChange.toFixed(1))}%
+                    </span>
+                  </>
                 )}
               </div>
             </a>
           );
         })}
 
-        <div className="StatisticsWidget-chart" oncreate={this.drawChart.bind(this)} onupdate={this.drawChart.bind(this)} />
+        {this.loadingTimed ? (
+          <div className="StatisticsWidget-chart">
+            <LoadingIndicator size="large" />
+          </div>
+        ) : (
+          <div className="StatisticsWidget-chart" oncreate={this.drawChart.bind(this)} onupdate={this.drawChart.bind(this)} />
+        )}
       </div>
     );
   }
 
   drawChart(vnode) {
-    console.log(vnode);
-
     if (this.chart && this.entity === this.selectedEntity && this.period === this.selectedPeriod) {
       return;
     }
 
-    const offset = this.statisticsData.timezoneOffset;
+    const offset = this.timedData.timezoneOffset;
     const period = this.periods[this.selectedPeriod];
     const periodLength = period.end - period.start;
     const labels = [];
@@ -197,11 +226,11 @@ export default class StatisticsWidget extends DashboardWidget {
   }
 
   getTotalCount(entity) {
-    return this.statisticsData[entity].total;
+    return this.lifetimeData[entity];
   }
 
   getPeriodCount(entity, period) {
-    const timed = this.statisticsData[entity].timed;
+    const timed = this.timedData[entity];
     let count = 0;
 
     for (const time in timed) {
