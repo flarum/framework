@@ -23,9 +23,20 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Illuminate\Contracts\Cache\Store;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {
+    /**
+     * The amount of time to cache lifetime statistics data for in seconds.
+     */
+    static $lifetimeStatsCacheTtl = 300;
+
+    /**
+     * The amount of time to cache timed statistics data for in seconds.
+     */
+    static $timedStatsCacheTtl = 900;
+
     protected $entities = [];
 
     /**
@@ -33,9 +44,15 @@ class ShowStatisticsData implements RequestHandlerInterface
      */
     protected $settings;
 
-    public function __construct(SettingsRepositoryInterface $settings)
+    /**
+     * @var Store
+     */
+    protected $cache;
+
+    public function __construct(SettingsRepositoryInterface $settings, Store $cache)
     {
         $this->settings = $settings;
+        $this->cache = $cache;
 
         $this->entities = [
             'users' => [User::query(), 'joined_at'],
@@ -71,16 +88,30 @@ class ShowStatisticsData implements RequestHandlerInterface
 
     private function getLifetimeStatistics()
     {
-        return array_map(function ($entity) {
+        $cachedVal = $this->cache->get('flarum-subscriptions.lifetime_stats');
+        if ($cachedVal) return $cachedVal;
+
+        $val = array_map(function ($entity) {
             return $entity[0]->count();
         }, $this->entities);
+
+        $this->cache->put('flarum-subscriptions.lifetime_stats', $val, static::$lifetimeStatsCacheTtl);
+
+        return $val;
     }
 
     private function getTimedStatistics()
     {
-        return array_map(function ($entity) {
+        $cachedVal = $this->cache->get('flarum-subscriptions.timed_stats');
+        if ($cachedVal) return $cachedVal;
+
+        $val = array_map(function ($entity) {
             return $this->getTimedCounts($entity[0], $entity[1]);
         }, $this->entities);
+
+        $this->cache->put('flarum-subscriptions.timed_stats', $val, static::$timedStatsCacheTtl);
+
+        return $val;
     }
 
     private function getTimedCounts(Builder $query, $column)
@@ -94,7 +125,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
+                    @date := DATE_ADD(' . $column . ', INTERVAL ? SECOND), -- convert to user timezone
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
                 [$offset, new DateTime('-25 hours')]
