@@ -106,6 +106,10 @@ class Theme implements ExtenderInterface
      *
      * This can be useful for styling based on a backend setting, for example.
      *
+     * Remember that Less is not recompiled when settings values change, so you
+     * may need to hook into a Saved event to recompile stylesheets when the
+     * value of one of your extension's settings changes in the database.
+     *
      * Please note the value returned from the callable will be inserted directly
      * into the Less source. If it is unsafe in some way (e.g., contains a
      * semi-colon), this will result in potential security issues with your
