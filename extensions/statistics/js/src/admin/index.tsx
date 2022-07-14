@@ -11,5 +11,5 @@ app.initializers.add('flarum-statistics', () => {
     widgets.add('statistics', <MiniStatisticsWidget />, 20);
   });
 
-  app.extensionData.for('flarum-subscriptions').registerPage(StatisticsPage);
+  app.extensionData.for('flarum-statistics').registerPage(StatisticsPage);
 });

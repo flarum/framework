@@ -68,7 +68,7 @@ export default class MiniStatisticsWidget extends DashboardWidget {
         </div>
 
         <div className="StatisticsWidget-viewFull">
-          <Link href={app.route('extension', { id: 'flarum-subscriptions' })}>
+          <Link href={app.route('extension', { id: 'flarum-statistics' })}>
             {app.translator.trans('flarum-statistics.admin.statistics.view_full')}
           </Link>
         </div>
