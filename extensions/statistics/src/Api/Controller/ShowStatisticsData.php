@@ -17,25 +17,25 @@ use Flarum\Post\Post;
 use Flarum\Post\RegisteredTypesScope;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Illuminate\Contracts\Cache\Store;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {
     /**
      * The amount of time to cache lifetime statistics data for in seconds.
      */
-    static $lifetimeStatsCacheTtl = 300;
+    public static $lifetimeStatsCacheTtl = 300;
 
     /**
      * The amount of time to cache timed statistics data for in seconds.
      */
-    static $timedStatsCacheTtl = 900;
+    public static $timedStatsCacheTtl = 900;
 
     protected $entities = [];
 
@@ -89,7 +89,9 @@ class ShowStatisticsData implements RequestHandlerInterface
     private function getLifetimeStatistics()
     {
         $cachedVal = $this->cache->get('flarum-subscriptions.lifetime_stats');
-        if ($cachedVal) return $cachedVal;
+        if ($cachedVal) {
+            return $cachedVal;
+        }
 
         $val = array_map(function ($entity) {
             return $entity[0]->count();
@@ -103,7 +105,9 @@ class ShowStatisticsData implements RequestHandlerInterface
     private function getTimedStatistics()
     {
         $cachedVal = $this->cache->get('flarum-subscriptions.timed_stats');
-        if ($cachedVal) return $cachedVal;
+        if ($cachedVal) {
+            return $cachedVal;
+        }
 
         $val = array_map(function ($entity) {
             return $this->getTimedCounts($entity[0], $entity[1]);
@@ -125,7 +129,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := DATE_ADD(' . $column . ', INTERVAL ? SECOND), -- convert to user timezone
+                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
                 [$offset, new DateTime('-25 hours')]
