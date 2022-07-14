@@ -104,11 +104,8 @@ class Theme implements ExtenderInterface
     /**
      * Defines a new Less variable to be accessible in all Less files.
      *
-     * This can be useful for styling based on a backend setting, for example.
-     *
-     * Remember that Less is not recompiled when settings values change, so you
-     * may need to hook into a Saved event to recompile stylesheets when the
-     * value of one of your extension's settings changes in the database.
+     * If you want to expose a setting from your database to Less, you should use
+     * the `registerLessConfigVar` extender from `Extend\Settings` instead.
      *
      * Please note the value returned from the callable will be inserted directly
      * into the Less source. If it is unsafe in some way (e.g., contains a
@@ -120,9 +117,10 @@ class Theme implements ExtenderInterface
      *
      * ```php
      * (new Extend\Theme())
-     *   ->addCustomLessVariable('my-extension__show-thing', function () {
-     *     $settings = resolve(SettingsRepositoryInterface::class);
-     *     return boolval($settings->get('my-extension.show_thing', false));
+     *   ->addCustomLessVariable('my-extension__asset_path', function () {
+     *     $url = resolve(UrlGenerator::class);
+     *     $assetUrl = $url->to('forum')->base().'/assets/extensions/my-extension/my-asset.jpg';
+     *     return "\"$assetUrl\"";
      *   })
      * ```
      *
