@@ -1,4 +1,4 @@
-import Checkbox, {ICheckboxAttrs} from './Checkbox';
+import Checkbox, { ICheckboxAttrs } from './Checkbox';
 
 /**
  * The `Switch` component is a `Checkbox`, but with a switch display instead of

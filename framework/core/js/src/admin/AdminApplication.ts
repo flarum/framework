@@ -5,6 +5,7 @@ import Application, { ApplicationData } from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
 import ExtensionData from './utils/ExtensionData';
+import IHistory from '../common/IHistory';
 
 export type Extension = {
   id: string;
@@ -47,13 +48,16 @@ export default class AdminApplication extends Application {
     language: 10,
   };
 
-  history = {
+  history: IHistory = {
     canGoBack: () => true,
-    getPrevious: () => {},
+    getCurrent: () => null,
+    getPrevious: () => null,
+    push: () => {},
     backUrl: () => this.forum.attribute<string>('baseUrl'),
     back: function () {
       window.location.assign(this.backUrl());
     },
+    home: () => {},
   };
 
   /**

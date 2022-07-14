@@ -1,5 +1,5 @@
-import Badge, {IBadgeAttrs} from './Badge';
-import Group from "../models/Group";
+import Badge, { IBadgeAttrs } from './Badge';
+import Group from '../models/Group';
 
 export interface IGroupAttrs extends IBadgeAttrs {
   group?: Group;

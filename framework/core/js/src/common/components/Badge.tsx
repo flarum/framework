@@ -1,5 +1,5 @@
 import Tooltip from './Tooltip';
-import Component, {ComponentAttrs} from '../Component';
+import Component, { ComponentAttrs } from '../Component';
 import icon from '../helpers/icon';
 import classList from '../utils/classList';
 

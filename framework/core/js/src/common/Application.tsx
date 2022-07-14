@@ -34,6 +34,7 @@ import type Component from './Component';
 import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
+import IHistory from './IHistory';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -227,6 +228,9 @@ export default class Application {
    * An object that manages the state of the navigation drawer.
    */
   drawer!: Drawer;
+
+  history: IHistory | null = null;
+  pane: any = null;
 
   data!: ApplicationData;
 
