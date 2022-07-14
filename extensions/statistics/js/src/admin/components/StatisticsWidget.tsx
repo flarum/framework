@@ -262,8 +262,6 @@ export default class StatisticsWidget extends DashboardWidget {
       const time = parseInt(t);
 
       if (time >= period.start && time < period.end) {
-        console.log(timed[time]);
-
         count += timed[time];
       }
     }
