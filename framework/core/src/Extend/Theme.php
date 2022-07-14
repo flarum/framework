@@ -19,6 +19,7 @@ class Theme implements ExtenderInterface
     private $lessImportOverrides = [];
     private $fileSourceOverrides = [];
     private $customFunctions = [];
+    private $lessVariables = [];
 
     /**
      * This can be used to override LESS files that are imported within the code.
@@ -94,8 +95,41 @@ class Theme implements ExtenderInterface
                 return new \Less_Tree_Dimension($return);
             }
 
-            throw new RuntimeException('Custom Less function `'.$functionName.'` must only return a string, number or boolean.');
+            throw new RuntimeException('Custom Less function `' . $functionName . '` must only return a string, number or boolean.');
         };
+
+        return $this;
+    }
+
+    /**
+     * Defines a new Less variable to be accessible in all Less files.
+     * 
+     * This can be useful for styling based on a backend setting, for example.
+     * 
+     * Please note the value returned from the callable will be inserted directly
+     * into the Less source. If it is unsafe in some way (e.g., contains a
+     * semi-colon), this will result in potential security issues with your
+     * stylesheet.
+     * 
+     * Likewise, if you need your variable to be a string, you should surround it
+     * with quotes yourself.
+     * 
+     * ```php
+     * (new Extend\Theme())
+     *   ->addCustomLessVariable('my-extension__show-thing', function () {
+     *     $settings = resolve(SettingsRepositoryInterface::class);
+     *     return boolval($settings->get('my-extension.show_thing', false));
+     *   })
+     * ```
+     *
+     * @param string $variableName Name of the variable identifier.
+     * @param callable $value The PHP function to run, which returns the value for the variable.
+     *
+     * @return self
+     */
+    public function addCustomLessVariable(string $variableName, callable $value): self
+    {
+        $this->lessVariables[$variableName] = $value;
 
         return $this;
     }
@@ -104,6 +138,10 @@ class Theme implements ExtenderInterface
     {
         $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {
             return array_merge($customFunctions, $this->customFunctions);
+        });
+
+        $container->extend('flarum.less.custom_variables', function (array $lessVariables) {
+            return array_merge($this->lessVariables, $lessVariables);
         });
 
         $container->extend('flarum.assets.factory', function (callable $factory) {

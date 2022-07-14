@@ -34,7 +34,7 @@ class ThemeTest extends TestCase
     {
         $this->extend(
             (new Extend\Theme)
-                ->overrideLessImport('forum/Hero.less', __DIR__.'/../../fixtures/less/dummy.less')
+                ->overrideLessImport('forum/Hero.less', __DIR__ . '/../../fixtures/less/dummy.less')
         );
 
         $response = $this->send($this->request('GET', '/'));
@@ -53,9 +53,9 @@ class ThemeTest extends TestCase
     {
         $this->extend(
             (new Extend\Frontend('forum'))
-                ->css(__DIR__.'/../../fixtures/less/forum.less'),
+                ->css(__DIR__ . '/../../fixtures/less/forum.less'),
             (new Extend\Theme)
-                ->overrideLessImport('Imported.less', __DIR__.'/../../fixtures/less/dummy.less', 'site-custom')
+                ->overrideLessImport('Imported.less', __DIR__ . '/../../fixtures/less/dummy.less', 'site-custom')
         );
 
         $response = $this->send($this->request('GET', '/'));
@@ -77,7 +77,7 @@ class ThemeTest extends TestCase
     {
         $this->extend(
             (new Extend\Theme)
-                ->overrideFileSource('forum.less', __DIR__.'/../../fixtures/less/override_filesource.less')
+                ->overrideFileSource('forum.less', __DIR__ . '/../../fixtures/less/override_filesource.less')
         );
 
         $response = $this->send($this->request('GET', '/'));
@@ -96,7 +96,7 @@ class ThemeTest extends TestCase
     {
         $this->extend(
             (new Extend\Theme)
-                ->overrideFileSource('mixins.less', __DIR__.'/../../fixtures/less/dummy.less')
+                ->overrideFileSource('mixins.less', __DIR__ . '/../../fixtures/less/dummy.less')
         );
 
         $response = $this->send($this->request('GET', '/'));
@@ -112,7 +112,7 @@ class ThemeTest extends TestCase
     {
         $this->extend(
             (new Extend\Frontend('forum'))
-                ->css(__DIR__.'/../../fixtures/less/custom_function.less'),
+                ->css(__DIR__ . '/../../fixtures/less/custom_function.less'),
             (new Extend\Theme)
                 ->addCustomLessFunction('is-flarum', function ($text) {
                     return strtolower($text) === 'flarum' ? 'true' : 100;
@@ -131,5 +131,29 @@ class ThemeTest extends TestCase
 
         $this->assertStringContainsString('.dummy_func_test{color:green}', $contents);
         $this->assertStringContainsString('.dummy_func_test2{--x:1000;--y:false}', $contents);
+    }
+
+    /**
+     * @test
+     */
+    public function theme_extender_can_add_custom_variable()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))
+                ->css(__DIR__ . '/../../fixtures/less/custom_variable.less'),
+            (new Extend\Theme)
+                ->addCustomLessVariable('doesnt-exist', function () {
+                    return "it does";
+                })
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
+        $contents = file_get_contents($cssFilePath);
+
+        $this->assertStringContainsString('.dummy_var_test{--x:it does}', $contents);
     }
 }
