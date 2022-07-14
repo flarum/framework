@@ -15,7 +15,7 @@ use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Listener;
 use Flarum\Likes\Notification\PostLikedBlueprint;
-use Flarum\Likes\Query\LikedFilter;
+use Flarum\Likes\Query\LikedByFilter;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\Filter\PostFilterer;
@@ -63,5 +63,5 @@ return [
         ->listen(Saving::class, [Listener\SaveLikesToDatabase::class, 'whenPostIsSaving']),
 
     (new Extend\Filter(PostFilterer::class))
-        ->addFilter(LikedFilter::class),
+        ->addFilter(LikedByFilter::class),
 ];

@@ -15,7 +15,7 @@ export default class LikesUserPage extends PostsUserPage {
     return app.store.find('posts', {
       filter: {
         type: 'comment',
-        liked: this.user.id(),
+        likedBy: this.user.id(),
       },
       page: { offset, limit: this.loadLimit },
       sort: '-createdAt',

@@ -12,11 +12,11 @@ namespace Flarum\Likes\Query;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
 
-class LikedFilter implements FilterInterface
+class LikedByFilter implements FilterInterface
 {
     public function getFilterKey(): string
     {
-        return 'liked';
+        return 'likedBy';
     }
 
     public function filter(FilterState $filterState, string $filterValue, bool $negate)
