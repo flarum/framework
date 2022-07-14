@@ -13,6 +13,7 @@ flarum-statistics:
       last_12_months_label: Last 12 months
       last_28_days_label: Last 28 days
       last_7_days_label: Last 7 days
+      mini_heading: Forum statistics
       previous_28_days_label: Previous 28 days
       previous_7_days_label: Previous 7 days
       loading: => core.ref.loading
@@ -20,3 +21,4 @@ flarum-statistics:
       today_label: Today
       total_label: Total
       users_heading: => core.ref.users
+      view_full: View more statistics
