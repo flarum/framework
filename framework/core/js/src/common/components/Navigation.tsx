@@ -2,6 +2,7 @@ import app from '../../common/app';
 import Component from '../Component';
 import Button from './Button';
 import LinkButton from './LinkButton';
+import type Mithril from 'mithril';
 
 /**
  * The `Navigation` component displays a set of navigation buttons. Typically
@@ -28,41 +29,35 @@ export default class Navigation extends Component {
         onmouseenter={pane && pane.show.bind(pane)}
         onmouseleave={pane && pane.onmouseleave.bind(pane)}
       >
-        {history.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton()}
+        {history?.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton()}
       </div>
     );
   }
 
   /**
    * Get the back button.
-   *
-   * @return {import('mithril').Children}
-   * @protected
    */
-  getBackButton() {
+  protected getBackButton(): Mithril.Children {
     const { history } = app;
-    const previous = history.getPrevious() || {};
+    const previous = history?.getPrevious();
 
     return LinkButton.component({
       className: 'Button Navigation-back Button--icon',
-      href: history.backUrl(),
+      href: history?.backUrl(),
       icon: 'fas fa-chevron-left',
-      'aria-label': previous.title,
-      onclick: (e) => {
+      'aria-label': previous?.title,
+      onclick: (e: MouseEvent) => {
         if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
         e.preventDefault();
-        history.back();
+        history?.back();
       },
     });
   }
 
   /**
    * Get the pane pinned toggle button.
-   *
-   * @return {import('mithril').Children}
-   * @protected
    */
-  getPaneButton() {
+  protected getPaneButton(): Mithril.Children {
     const { pane } = app;
 
     if (!pane || !pane.active) return '';
@@ -76,11 +71,8 @@ export default class Navigation extends Component {
 
   /**
    * Get the drawer toggle button.
-   *
-   * @return {import('mithril').Children}
-   * @protected
    */
-  getDrawerButton() {
+  protected getDrawerButton(): Mithril.Children {
     if (!this.attrs.drawer) return '';
 
     const { drawer } = app;
@@ -88,7 +80,7 @@ export default class Navigation extends Component {
 
     return Button.component({
       className: 'Button Button--icon Navigation-drawer' + (user && user.newNotificationCount() ? ' new' : ''),
-      onclick: (e) => {
+      onclick: (e: MouseEvent) => {
         e.stopPropagation();
         drawer.show();
       },

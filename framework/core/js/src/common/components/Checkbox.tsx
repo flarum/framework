@@ -1,8 +1,16 @@
-import Component from '../Component';
+import Component, { ComponentAttrs } from '../Component';
 import LoadingIndicator from './LoadingIndicator';
 import icon from '../helpers/icon';
 import classList from '../utils/classList';
 import withAttr from '../utils/withAttr';
+import type Mithril from 'mithril';
+
+export interface ICheckboxAttrs extends ComponentAttrs {
+  state?: boolean;
+  loading?: boolean;
+  disabled?: boolean;
+  onchange: (checked: boolean, component: Checkbox<this>) => void;
+}
 
 /**
  * The `Checkbox` component defines a checkbox input.
@@ -16,12 +24,8 @@ import withAttr from '../utils/withAttr';
  * - `onchange` A callback to run when the checkbox is checked/unchecked.
  * - `children` A text label to display next to the checkbox.
  */
-export default class Checkbox extends Component {
-  view(vnode) {
-    // Sometimes, false is stored in the DB as '0'. This is a temporary
-    // conversion layer until a more robust settings encoding is introduced
-    if (this.attrs.state === '0') this.attrs.state = false;
-
+export default class Checkbox<CustomAttrs extends ICheckboxAttrs = ICheckboxAttrs> extends Component<CustomAttrs> {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const className = classList([
       'Checkbox',
       this.attrs.state ? 'on' : 'off',
@@ -43,21 +47,15 @@ export default class Checkbox extends Component {
 
   /**
    * Get the template for the checkbox's display (tick/cross icon).
-   *
-   * @return {import('mithril').Children}
-   * @protected
    */
-  getDisplay() {
+  protected getDisplay(): Mithril.Children {
     return this.attrs.loading ? <LoadingIndicator display="unset" size="small" /> : icon(this.attrs.state ? 'fas fa-check' : 'fas fa-times');
   }
 
   /**
    * Run a callback when the state of the checkbox is changed.
-   *
-   * @param {boolean} checked
-   * @protected
    */
-  onchange(checked) {
+  protected onchange(checked: boolean): void {
     if (this.attrs.onchange) this.attrs.onchange(checked, this);
   }
 }

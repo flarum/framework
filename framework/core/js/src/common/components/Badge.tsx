@@ -1,7 +1,14 @@
 import Tooltip from './Tooltip';
-import Component from '../Component';
+import Component, { ComponentAttrs } from '../Component';
 import icon from '../helpers/icon';
 import classList from '../utils/classList';
+
+export interface IBadgeAttrs extends ComponentAttrs {
+  icon: string;
+  type?: string;
+  label?: string;
+  color?: string;
+}
 
 /**
  * The `Badge` component represents a user/discussion badge, indicating some
@@ -16,7 +23,7 @@ import classList from '../utils/classList';
  *
  * All other attrs will be assigned as attributes on the badge element.
  */
-export default class Badge extends Component {
+export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extends Component<CustomAttrs> {
   view() {
     const { type, icon: iconName, label, color, style = {}, ...attrs } = this.attrs;
 

@@ -1,11 +1,11 @@
-import Checkbox from './Checkbox';
+import Checkbox, { ICheckboxAttrs } from './Checkbox';
 
 /**
  * The `Switch` component is a `Checkbox`, but with a switch display instead of
  * a tick/cross one.
  */
 export default class Switch extends Checkbox {
-  static initAttrs(attrs) {
+  static initAttrs(attrs: ICheckboxAttrs) {
     super.initAttrs(attrs);
 
     attrs.className = (attrs.className || '') + ' Checkbox--switch';
