@@ -132,4 +132,28 @@ class ThemeTest extends TestCase
         $this->assertStringContainsString('.dummy_func_test{color:green}', $contents);
         $this->assertStringContainsString('.dummy_func_test2{--x:1000;--y:false}', $contents);
     }
+
+    /**
+     * @test
+     */
+    public function theme_extender_can_add_custom_variable()
+    {
+        $this->extend(
+            (new Extend\Frontend('forum'))
+                ->css(__DIR__.'/../../fixtures/less/custom_variable.less'),
+            (new Extend\Theme)
+                ->addCustomLessVariable('doesnt-exist', function () {
+                    return 'it does';
+                })
+        );
+
+        $response = $this->send($this->request('GET', '/'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
+        $contents = file_get_contents($cssFilePath);
+
+        $this->assertStringContainsString('.dummy_var_test{--x:it does}', $contents);
+    }
 }

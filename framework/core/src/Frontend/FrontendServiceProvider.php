@@ -156,6 +156,13 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 ],
             ];
         });
+
+        $this->container->singleton(
+            'flarum.less.custom_variables',
+            function (Container $container) {
+                return [];
+            }
+        );
     }
 
     /**
@@ -184,9 +191,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
     {
         $sources->addString(function () {
             $vars = $this->container->make('flarum.less.config');
+            $extDefinedVars = $this->container->make('flarum.less.custom_variables');
+
             $settings = $this->container->make(SettingsRepositoryInterface::class);
 
-            return array_reduce(array_keys($vars), function ($string, $name) use ($vars, $settings) {
+            $customLess = array_reduce(array_keys($vars), function ($string, $name) use ($vars, $settings) {
                 $var = $vars[$name];
                 $value = $settings->get($var['key'], $var['default'] ?? null);
 
@@ -196,6 +205,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
                 return $string."@$name: {$value};";
             }, '');
+
+            foreach ($extDefinedVars as $name => $value) {
+                $customLess .= "@$name: {$value()};";
+            }
+
+            return $customLess;
         });
     }
 }

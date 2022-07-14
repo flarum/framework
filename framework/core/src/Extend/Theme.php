@@ -19,6 +19,7 @@ class Theme implements ExtenderInterface
     private $lessImportOverrides = [];
     private $fileSourceOverrides = [];
     private $customFunctions = [];
+    private $lessVariables = [];
 
     /**
      * This can be used to override LESS files that are imported within the code.
@@ -100,10 +101,49 @@ class Theme implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Defines a new Less variable to be accessible in all Less files.
+     *
+     * If you want to expose a setting from your database to Less, you should use
+     * the `registerLessConfigVar` extender from `Extend\Settings` instead.
+     *
+     * Please note the value returned from the callable will be inserted directly
+     * into the Less source. If it is unsafe in some way (e.g., contains a
+     * semi-colon), this will result in potential security issues with your
+     * stylesheet.
+     *
+     * Likewise, if you need your variable to be a string, you should surround it
+     * with quotes yourself.
+     *
+     * ```php
+     * (new Extend\Theme())
+     *   ->addCustomLessVariable('my-extension__asset_path', function () {
+     *     $url = resolve(UrlGenerator::class);
+     *     $assetUrl = $url->to('forum')->base().'/assets/extensions/my-extension/my-asset.jpg';
+     *     return "\"$assetUrl\"";
+     *   })
+     * ```
+     *
+     * @param string $variableName Name of the variable identifier.
+     * @param callable $value The PHP function to run, which returns the value for the variable.
+     *
+     * @return self
+     */
+    public function addCustomLessVariable(string $variableName, callable $value): self
+    {
+        $this->lessVariables[$variableName] = $value;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {
             return array_merge($customFunctions, $this->customFunctions);
+        });
+
+        $container->extend('flarum.less.custom_variables', function (array $lessVariables) {
+            return array_merge($this->lessVariables, $lessVariables);
         });
 
         $container->extend('flarum.assets.factory', function (callable $factory) {
