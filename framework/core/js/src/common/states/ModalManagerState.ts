@@ -42,24 +42,6 @@ export default class ModalManagerState {
   /**
    * Shows a modal dialog.
    *
-   * @deprecated **From Flarum 2.0, stacking will be enabled by default, and values
-   * for `attrs` and `stackModal` will be required.**
-   *
-   * Opening a new modal will close any others currently being shown for backwards
-   * compatibility reasons, until Flarum 2.0.
-   *
-   * @example <caption>Show a modal</caption>
-   * app.modal.show(MyCoolModal, { attr: 'value' });
-   *
-   * @example <caption>Show a modal from a lifecycle method (`oncreate`, `view`, etc.)</caption>
-   * // This "hack" is needed due to quirks with nested redraws in Mithril.
-   * setTimeout(() => app.modal.show(MyCoolModal, { attr: 'value' }), 0);
-   */
-  show(componentClass: UnsafeModalClass, attrs?: Record<string, unknown>): void;
-
-  /**
-   * Shows a modal dialog.
-   *
    * If `stackModal` is `true`, the modal will be shown on top of the current modal.
    *
    * If a value for `stackModal` is not provided, opening a new modal will close
@@ -75,8 +57,6 @@ export default class ModalManagerState {
    * @example <caption>Stacking modals</caption>
    * app.modal.show(MyCoolStackedModal, { attr: 'value' }, true);
    */
-  show(componentClass: UnsafeModalClass, attrs: Record<string, unknown> | undefined, stackModal: boolean): void;
-
   show(componentClass: UnsafeModalClass, attrs: Record<string, unknown> = {}, stackModal: boolean = false): void {
     if (!(componentClass.prototype instanceof Modal)) {
       // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
