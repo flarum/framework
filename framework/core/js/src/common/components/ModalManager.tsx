@@ -2,6 +2,8 @@ import Component from '../Component';
 
 import { createFocusTrap, FocusTrap } from '../utils/focusTrap';
 
+import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
+
 import type ModalManagerState from '../states/ModalManagerState';
 import type Mithril from 'mithril';
 
@@ -77,6 +79,9 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
         if (!this.attrs.state.isModalOpen()) {
           document.getElementById('app')?.setAttribute('aria-hidden', 'false');
+          this.focusTrap!.deactivate?.();
+          clearAllBodyScrollLocks();
+
           return;
         }
 
@@ -88,13 +93,16 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
         // Deactivate focus trap if there's a new dialog/closed
         if (this.focusTrap && this.lastSetFocusTrap !== dialogKey) {
           this.focusTrap!.deactivate?.();
+
+          clearAllBodyScrollLocks();
         }
 
         // Activate focus trap if there's a new dialog which is not trapped yet
         if (this.activeDialogElement && this.lastSetFocusTrap !== dialogKey) {
           this.focusTrap = createFocusTrap(this.activeDialogElement as HTMLElement, { allowOutsideClick: true });
-
           this.focusTrap!.activate?.();
+
+          disableBodyScroll(this.activeDialogElement, { reserveScrollBarGap: true });
         }
 
         // Update key of current opened modal
