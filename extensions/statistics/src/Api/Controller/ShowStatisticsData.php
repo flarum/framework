@@ -7,35 +7,50 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Statistics;
+namespace Flarum\Statistics\Api\Controller;
 
 use DateTime;
 use DateTimeZone;
 use Flarum\Discussion\Discussion;
-use Flarum\Frontend\Document;
+use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\JsonResponse;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class AddStatisticsData
+class ShowStatisticsData implements RequestHandlerInterface
 {
     /**
      * @var SettingsRepositoryInterface
      */
     protected $settings;
 
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
     public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
     }
 
-    public function __invoke(Document $view)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $view->payload['statistics'] = array_merge(
+        $actor = RequestUtil::getActor($request);
+
+        // Must be an admin to get statistics data -- this is only visible on the admin
+        // control panel.
+        $actor->assertAdmin();
+
+        // $reportingPeriod = Arr::get($request->getQueryParams(), 'period');
+
+        return new JsonResponse($this->getResponse());
+    }
+
+    private function getResponse(): array
+    {
+        return array_merge(
             $this->getStatistics(),
             ['timezoneOffset' => $this->getUserTimezone()->getOffset(new DateTime)]
         );
@@ -68,7 +83,7 @@ class AddStatisticsData
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
+                    @date := DATE_ADD(' . $column . ', INTERVAL ? SECOND), -- convert to user timezone
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 48 hours, group by hour
                 ) as time_group',
                 [$offset, new DateTime('-48 hours')]

@@ -1,33 +1,49 @@
-/*
- * This file is part of Flarum.
- *
- * (c) Toby Zerner <toby.zerner@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 import app from 'flarum/admin/app';
 import DashboardWidget from 'flarum/admin/components/DashboardWidget';
 import SelectDropdown from 'flarum/common/components/SelectDropdown';
 import Button from 'flarum/common/components/Button';
 import icon from 'flarum/common/helpers/icon';
 import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
-import { Chart } from 'frappe-charts/dist/frappe-charts.esm.js';
+import { Chart } from 'frappe-charts';
 
 export default class StatisticsWidget extends DashboardWidget {
-  oninit(vnode) {
-    super.oninit(vnode);
+  statisticsData;
+  loading = true;
 
+  oncreate(vnode) {
+    super.oncreate(vnode);
+
+    this.loadData();
+  }
+
+  async loadData() {
+    this.loading = true;
+    m.redraw();
+
+    const data = await app.request({
+      method: 'GET',
+      url: app.forum.attribute('apiUrl') + '/statistics',
+    });
+
+    this.statisticsData = data;
+    this.loading = false;
+
+    this.processData();
+
+    m.redraw();
+  }
+
+  processData() {
     // Create a Date object which represents the start of the day in the
     // configured timezone. To do this we convert a UTC time into that timezone,
     // reset to the first hour of the day, and then convert back into UTC time.
     // We'll be working with seconds rather than milliseconds throughout too.
     let today = new Date();
-    today.setTime(today.getTime() + app.data.statistics.timezoneOffset * 1000);
+    today.setTime(today.getTime() + this.statisticsData.timezoneOffset * 1000);
     today.setUTCHours(0, 0, 0, 0);
-    today.setTime(today.getTime() - app.data.statistics.timezoneOffset * 1000);
+    today.setTime(today.getTime() - this.statisticsData.timezoneOffset * 1000);
     today = today / 1000;
 
     this.entities = ['users', 'discussions', 'posts'];
@@ -40,6 +56,8 @@ export default class StatisticsWidget extends DashboardWidget {
 
     this.selectedEntity = 'users';
     this.selectedPeriod = 'last_7_days';
+
+    m.redraw();
   }
 
   className() {
@@ -47,6 +65,10 @@ export default class StatisticsWidget extends DashboardWidget {
   }
 
   content() {
+    if (this.loading) {
+      return <LoadingIndicator size="large" />;
+    }
+
     const thisPeriod = this.periods[this.selectedPeriod];
 
     return (
@@ -104,11 +126,13 @@ export default class StatisticsWidget extends DashboardWidget {
   }
 
   drawChart(vnode) {
+    console.log(vnode);
+
     if (this.chart && this.entity === this.selectedEntity && this.period === this.selectedPeriod) {
       return;
     }
 
-    const offset = app.data.statistics.timezoneOffset;
+    const offset = this.statisticsData.timezoneOffset;
     const period = this.periods[this.selectedPeriod];
     const periodLength = period.end - period.start;
     const labels = [];
@@ -173,11 +197,11 @@ export default class StatisticsWidget extends DashboardWidget {
   }
 
   getTotalCount(entity) {
-    return app.data.statistics[entity].total;
+    return this.statisticsData[entity].total;
   }
 
   getPeriodCount(entity, period) {
-    const timed = app.data.statistics[entity].timed;
+    const timed = this.statisticsData[entity].timed;
     let count = 0;
 
     for (const time in timed) {
