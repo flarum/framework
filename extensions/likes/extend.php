@@ -15,7 +15,6 @@ use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
-use Flarum\Likes\Listener;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Likes\Query\LikedByFilter;
 use Flarum\Post\Event\Deleted;

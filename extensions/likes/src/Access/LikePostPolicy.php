@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Likes\Access;
 
 use Flarum\Post\Post;
@@ -13,7 +20,7 @@ class LikePostPolicy extends AbstractPolicy
      * @var SettingsRepositoryInterface
      */
     protected $settings;
-    
+
     public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
