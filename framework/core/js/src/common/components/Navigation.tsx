@@ -2,7 +2,7 @@ import app from '../../common/app';
 import Component from '../Component';
 import Button from './Button';
 import LinkButton from './LinkButton';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 /**
  * The `Navigation` component displays a set of navigation buttons. Typically

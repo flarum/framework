@@ -3,7 +3,7 @@ import LoadingIndicator from './LoadingIndicator';
 import icon from '../helpers/icon';
 import classList from '../utils/classList';
 import withAttr from '../utils/withAttr';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 export interface ICheckboxAttrs extends ComponentAttrs {
   state?: boolean;
