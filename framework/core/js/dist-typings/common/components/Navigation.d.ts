@@ -1,3 +1,5 @@
+import Component from '../Component';
+import type Mithril from 'mithril';
 /**
  * The `Navigation` component displays a set of navigation buttons. Typically
  * this is just a back button which pops the app's History. If the user is on
@@ -13,29 +15,18 @@
  * - `drawer` Whether or not to show a button to toggle the app's drawer if
  *   there is no more history to pop.
  */
-export default class Navigation extends Component<import("../Component").ComponentAttrs, undefined> {
-    constructor();
+export default class Navigation extends Component {
     view(): JSX.Element;
     /**
      * Get the back button.
-     *
-     * @return {import('mithril').Children}
-     * @protected
      */
-    protected getBackButton(): import('mithril').Children;
+    protected getBackButton(): Mithril.Children;
     /**
      * Get the pane pinned toggle button.
-     *
-     * @return {import('mithril').Children}
-     * @protected
      */
-    protected getPaneButton(): import('mithril').Children;
+    protected getPaneButton(): Mithril.Children;
     /**
      * Get the drawer toggle button.
-     *
-     * @return {import('mithril').Children}
-     * @protected
      */
-    protected getDrawerButton(): import('mithril').Children;
+    protected getDrawerButton(): Mithril.Children;
 }
-import Component from "../Component";
