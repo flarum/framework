@@ -84,12 +84,12 @@ class ShowStatisticsData implements RequestHandlerInterface
             ->selectRaw(
                 'DATE_FORMAT(
                     @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
-                    IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 48 hours, group by hour
+                    IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
-                [$offset, new DateTime('-48 hours')]
+                [$offset, new DateTime('-25 hours')]
             )
             ->selectRaw('COUNT(id) as count')
-            ->where($column, '>', new DateTime('-24 months'))
+            ->where($column, '>', new DateTime('-365 days'))
             ->groupBy('time_group')
             ->pluck('count', 'time_group');
 
