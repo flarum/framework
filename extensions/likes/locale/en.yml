@@ -35,3 +35,7 @@ flarum-likes:
     # These translations are used in the Settings page.
     settings:
       notify_post_liked_label: Someone likes one of my posts
+
+    # These translations are used in the User profile page.
+    user:
+      likes_link: Likes
