@@ -95,7 +95,7 @@ class Theme implements ExtenderInterface
                 return new \Less_Tree_Dimension($return);
             }
 
-            throw new RuntimeException('Custom Less function `' . $functionName . '` must only return a string, number or boolean.');
+            throw new RuntimeException('Custom Less function `'.$functionName.'` must only return a string, number or boolean.');
         };
 
         return $this;
@@ -103,17 +103,17 @@ class Theme implements ExtenderInterface
 
     /**
      * Defines a new Less variable to be accessible in all Less files.
-     * 
+     *
      * This can be useful for styling based on a backend setting, for example.
-     * 
+     *
      * Please note the value returned from the callable will be inserted directly
      * into the Less source. If it is unsafe in some way (e.g., contains a
      * semi-colon), this will result in potential security issues with your
      * stylesheet.
-     * 
+     *
      * Likewise, if you need your variable to be a string, you should surround it
      * with quotes yourself.
-     * 
+     *
      * ```php
      * (new Extend\Theme())
      *   ->addCustomLessVariable('my-extension__show-thing', function () {
