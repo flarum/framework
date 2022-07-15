@@ -6,6 +6,8 @@ import Alert, { AlertAttrs } from '../components/Alert';
  */
 export type AlertIdentifier = number;
 
+export type AlertArray = { [id: AlertIdentifier]: AlertState };
+
 export interface AlertState {
   componentClass: typeof Alert;
   attrs: AlertAttrs;
@@ -13,8 +15,8 @@ export interface AlertState {
 }
 
 export default class AlertManagerState {
-  protected activeAlerts: { [id: number]: AlertState } = {};
-  protected alertId = 0;
+  protected activeAlerts: AlertArray = {};
+  protected alertId: AlertIdentifier = 0;
 
   getActiveAlerts() {
     return this.activeAlerts;

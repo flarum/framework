@@ -1,20 +1,29 @@
-import Component from '../Component';
+import Component, {ComponentAttrs} from '../Component';
+import AlertManagerState from "../states/AlertManagerState";
+import Mithril from "mithril";
+
+export interface IAlertManagerAttrs extends ComponentAttrs {
+  state: AlertManagerState;
+}
 
 /**
  * The `AlertManager` component provides an area in which `Alert` components can
  * be shown and dismissed.
  */
-export default class AlertManager extends Component {
-  oninit(vnode) {
+export default class AlertManager<CustomAttrs extends IAlertManagerAttrs = IAlertManagerAttrs> extends Component<CustomAttrs, AlertManagerState> {
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.state = this.attrs.state;
   }
 
   view() {
+    const activeAlerts = this.state.getActiveAlerts();
+
     return (
       <div class="AlertManager">
-        {Object.entries(this.state.getActiveAlerts()).map(([key, alert]) => {
+        {Object.keys(activeAlerts).map(Number).map((key) => {
+          const alert = activeAlerts[key];
           const urgent = alert.attrs.type === 'error';
 
           return (
