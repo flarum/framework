@@ -21,7 +21,7 @@ export interface IIndexPageAttrs extends IPageAttrs {}
  * The `IndexPage` component displays the index page, including the welcome
  * hero, the sidebar, and the discussion list.
  */
-export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageAttrs> extends Page<CustomAttrs> {
+export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageAttrs, CustomState = {}> extends Page<CustomAttrs, CustomState> {
   static providesInitialSearch = true;
   lastDiscussion?: Discussion;
 
